@@ -1,7 +1,7 @@
 {
   "javaDependencies": [{
-    "groupId": "dev.doglog",
-    "artifactId": "doglog-java",
+    "groupId": "com.github.jonahsnider",
+    "artifactId": "doglog",
     "version": "2024.1.0"
   }],
   "fileName": "DogLog.json",

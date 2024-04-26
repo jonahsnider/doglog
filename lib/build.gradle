@@ -11,6 +11,7 @@ plugins {
 	id 'java-library'
 	id "com.diffplug.spotless" version "6.25.0"
 	id 'edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin' version '2020.2'
+	id 'maven-publish'
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -32,6 +33,16 @@ dependencies {
 	implementation 'edu.wpi.first.wpilibj:wpilibj-java:2024.+'
 	implementation 'edu.wpi.first.wpiutil:wpiutil-java:2024.+'
 	implementation 'edu.wpi.first.hal:hal-java:2024.+'
+}
+
+publishing {
+	publications {
+		maven(MavenPublication) {
+			from components.java
+			groupId = "com.github.jonahsnider"
+			artifactId = "doglog"
+		}
+	}
 }
 
 apply plugin: 'groovy'
