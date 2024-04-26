@@ -1,0 +1,16 @@
+{
+  "javaDependencies": [{
+    "groupId": "dev.doglog",
+    "artifactId": "doglog-java",
+    "version": "2024.1.0"
+  }],
+  "fileName": "DogLog.json",
+  "frcYear": "2024",
+  "jsonUrl": "https://raw.githubusercontent.com/jonahsnider/doglog/main/vendordep.json",
+  "name": "DogLog",
+  "jniDependencies": [],
+  "mavenUrls": ["https://jitpack.io"],
+  "cppDependencies": [],
+  "version": "2024.1.0",
+  "uuid": "65592ce1-2251-4a31-8e4b-2df20dacebe4"
+}
