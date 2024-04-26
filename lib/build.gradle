@@ -45,6 +45,11 @@ publishing {
 	}
 }
 
+java {
+	withSourcesJar()
+	withJavadocJar()
+}
+
 apply plugin: 'groovy'
 spotless {
 	enforceCheck false
