@@ -4,7 +4,6 @@
 
 package dev.doglog;
 
-// TODO: Add support for "extras" (ex. PDH currents)
 /** Options for configuring DogLog. */
 public record DogLogOptions(
     /**
@@ -18,7 +17,9 @@ public record DogLogOptions(
      * Whether driver station data (robot enable state and joystick inputs) should be saved to the
      * log file.
      */
-    boolean captureDs) {
+    boolean captureDs,
+    /** Whether to log extra data, like PDH currents, CAN usage, etc. */
+    boolean logExtras) {
   /**
    * Create a new options object using the default options. The default options are safe, but
    * probably not very helpful for debugging in a non-competition environment.
@@ -28,7 +29,7 @@ public record DogLogOptions(
    */
   public DogLogOptions() {
     // Default options
-    this(false, false, true);
+    this(false, false, true, true);
   }
 
   /**
@@ -39,7 +40,7 @@ public record DogLogOptions(
    *     value.
    */
   public DogLogOptions withNtPublish(boolean ntPublish) {
-    return new DogLogOptions(ntPublish, captureNt(), captureDs());
+    return new DogLogOptions(ntPublish, captureNt(), captureDs(), logExtras());
   }
 
   /**
@@ -50,7 +51,7 @@ public record DogLogOptions(
    *     value.
    */
   public DogLogOptions withCaptureNt(boolean captureNt) {
-    return new DogLogOptions(ntPublish(), captureNt, captureDs());
+    return new DogLogOptions(ntPublish(), captureNt, captureDs(), logExtras());
   }
 
   /**
@@ -61,6 +62,17 @@ public record DogLogOptions(
    *     value.
    */
   public DogLogOptions withCaptureDs(boolean captureDs) {
-    return new DogLogOptions(ntPublish(), captureNt(), captureDs);
+    return new DogLogOptions(ntPublish(), captureNt(), captureDs, logExtras());
+  }
+
+  /**
+   * Create a new options object with the {@link DogLogOptions#logExtras} set to the provided value.
+   *
+   * @param logExtras Whether to log extra data, like PDH currents, CAN usage, etc.
+   * @return A new options object with the {@link DogLogOptions#logExtras} set to the provided
+   *     value.
+   */
+  public DogLogOptions withLogExtras(boolean logExtras) {
+    return new DogLogOptions(ntPublish(), captureNt(), captureDs(), logExtras);
   }
 }

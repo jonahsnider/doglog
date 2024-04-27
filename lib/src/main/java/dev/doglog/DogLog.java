@@ -4,15 +4,19 @@
 
 package dev.doglog;
 
+import dev.doglog.extras.ExtrasLogger;
 import dev.doglog.loggers.DataLogLogger;
 import dev.doglog.loggers.DogLogLogger;
 import dev.doglog.loggers.NetworkTablesLogger;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 
 /** A logger based on WPILib's {@link DataLogManager} */
 public class DogLog {
+  private static final double LOOP_PERIOD_SECONDS = 0.02;
+
   /** The NetworkTables table to log to, if NetworkTables publishing is enabled. */
   protected static final String LOG_TABLE = "/Robot";
 
@@ -23,6 +27,12 @@ public class DogLog {
 
   /** Whether the logger is enabled. */
   protected static boolean enabled = true;
+
+  protected static final Timer extrasTimer = new Timer();
+
+  static {
+    extrasTimer.start();
+  }
 
   /** Update the options used by the logger. */
   public static void setOptions(DogLogOptions newOptions) {
@@ -52,6 +62,7 @@ public class DogLog {
     if (enabled) {
       logger.log(key, value);
     }
+    logExtrasIfPeriodElapsed();
   }
 
   /** Log a boolean. */
@@ -59,6 +70,7 @@ public class DogLog {
     if (enabled) {
       logger.log(key, value);
     }
+    logExtrasIfPeriodElapsed();
   }
 
   /** Log a double array. */
@@ -66,6 +78,7 @@ public class DogLog {
     if (enabled) {
       logger.log(key, value);
     }
+    logExtrasIfPeriodElapsed();
   }
 
   /** Log a double. */
@@ -73,6 +86,7 @@ public class DogLog {
     if (enabled) {
       logger.log(key, value);
     }
+    logExtrasIfPeriodElapsed();
   }
 
   /** Log a float array. */
@@ -80,6 +94,7 @@ public class DogLog {
     if (enabled) {
       logger.log(key, value);
     }
+    logExtrasIfPeriodElapsed();
   }
 
   /** Log a float. */
@@ -87,6 +102,7 @@ public class DogLog {
     if (enabled) {
       logger.log(key, value);
     }
+    logExtrasIfPeriodElapsed();
   }
 
   /** Log an int array. */
@@ -94,6 +110,7 @@ public class DogLog {
     if (enabled) {
       logger.log(key, value);
     }
+    logExtrasIfPeriodElapsed();
   }
 
   /** Log a long array. */
@@ -101,6 +118,7 @@ public class DogLog {
     if (enabled) {
       logger.log(key, value);
     }
+    logExtrasIfPeriodElapsed();
   }
 
   /** Log an int. */
@@ -108,6 +126,7 @@ public class DogLog {
     if (enabled) {
       logger.log(key, value);
     }
+    logExtrasIfPeriodElapsed();
   }
 
   // TODO: Protobuf logs
@@ -119,6 +138,7 @@ public class DogLog {
     if (enabled) {
       logger.log(key, value);
     }
+    logExtrasIfPeriodElapsed();
   }
 
   /** Log an enum array. Enums will be converted to strings with {@link Enum#name()}. */
@@ -126,6 +146,7 @@ public class DogLog {
     if (enabled) {
       logger.log(key, value);
     }
+    logExtrasIfPeriodElapsed();
   }
 
   /** Log a string. */
@@ -133,6 +154,7 @@ public class DogLog {
     if (enabled) {
       logger.log(key, value);
     }
+    logExtrasIfPeriodElapsed();
   }
 
   /** Log an enum. The enum will be converted to a string with {@link Enum#name()}. */
@@ -140,6 +162,7 @@ public class DogLog {
     if (enabled) {
       logger.log(key, value);
     }
+    logExtrasIfPeriodElapsed();
   }
 
   /** Log a struct array. */
@@ -147,6 +170,7 @@ public class DogLog {
     if (enabled) {
       logger.log(key, value);
     }
+    logExtrasIfPeriodElapsed();
   }
 
   /** Log a struct. */
@@ -154,6 +178,7 @@ public class DogLog {
     if (enabled) {
       logger.log(key, value);
     }
+    logExtrasIfPeriodElapsed();
   }
 
   protected static DogLogLogger createLogger() {
@@ -168,6 +193,13 @@ public class DogLog {
     return new DogLogLogger(
         new DataLogLogger(log, LOG_TABLE),
         options.ntPublish() ? new NetworkTablesLogger(LOG_TABLE) : null);
+  }
+
+  protected static void logExtrasIfPeriodElapsed() {
+    if (enabled && options.logExtras() && extrasTimer.hasElapsed(LOOP_PERIOD_SECONDS)) {
+      ExtrasLogger.log(logger);
+      extrasTimer.reset();
+    }
   }
 
   protected DogLog() {}
