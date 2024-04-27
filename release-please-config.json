@@ -1,0 +1,25 @@
+{
+  "packages": {
+    ".": {
+      "changelog-path": "CHANGELOG.md",
+      "release-type": "simple",
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": false,
+      "extra-files": [
+        {
+          "jsonpath": "$.version",
+          "type": "json",
+          "path": "./vendordep.json"
+        },
+        {
+          "jsonpath": "$.javaDependencies[0].version",
+          "type": "json",
+          "path": "./vendordep.json"
+        }
+      ]
+    }
+  },
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
+}
