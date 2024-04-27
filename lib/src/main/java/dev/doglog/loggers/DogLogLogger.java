@@ -130,7 +130,7 @@ public class DogLogLogger implements ExtendedLogConsumer {
     if (value == null) {
       return;
     }
-    var maybeStruct = StructRegistry.findStructType(value.getClass());
+    var maybeStruct = StructRegistry.findStructType(value.getClass().getComponentType());
 
     if (maybeStruct.isPresent()) {
       @SuppressWarnings("unchecked")
