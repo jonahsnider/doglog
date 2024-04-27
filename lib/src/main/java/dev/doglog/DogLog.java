@@ -145,18 +145,18 @@ public class DogLog {
   }
 
   protected static DogLogLogger createLogger() {
+    DataLogManager.logNetworkTables(options.captureNt());
+
     var log = DataLogManager.getLog();
+
+    if (options.captureDs()) {
+      DriverStation.startDataLog(log);
+    }
 
     var newLogger =
         new DogLogLogger(
             new DataLogLogger(log, LOG_TABLE),
             options.ntPublish() ? new NetworkTablesLogger(LOG_TABLE) : null);
-
-    DataLogManager.logNetworkTables(options.captureNt());
-
-    if (options.captureDs()) {
-      DriverStation.startDataLog(log);
-    }
 
     return newLogger;
   }
