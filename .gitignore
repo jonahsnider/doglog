@@ -299,3 +299,7 @@ gradle-app.setting
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+
+# Generated types from Astro
+/web/.astro/
