@@ -8,6 +8,8 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    timeout-minutes: 5
+
     steps:
       - name: Checkout Git repository
         uses: actions/checkout@v4
@@ -25,6 +27,8 @@ jobs:
     name: Check formatting
 
     runs-on: ubuntu-latest
+
+    timeout-minutes: 5
 
     steps:
       - name: Checkout Git repository
@@ -47,6 +51,8 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     needs: [assemble]
+
+    timeout-minutes: 5
 
     steps:
       - name: Checkout Git repository
