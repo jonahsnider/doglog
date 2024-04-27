@@ -23,8 +23,8 @@ public record DogLogOptions(
    * Create a new options object using the default options. The default options are safe, but
    * probably not very helpful for debugging in a non-competition environment.
    *
-   * @see https://doglog.dev/getting-started/usage/#configuring For instructions on how to customize
-   *     these options.
+   * <p>See https://doglog.dev/getting-started/usage/#configuring For instructions on how to
+   * customize these options.
    */
   public DogLogOptions() {
     // Default options
