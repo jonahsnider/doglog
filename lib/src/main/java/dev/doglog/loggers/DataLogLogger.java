@@ -54,7 +54,7 @@ public class DataLogLogger implements LogConsumer {
   public void log(String key, boolean[] value) {
     var hash = Arrays.hashCode(value);
 
-    if (valueHashes.get(key) != hash) {
+    if (valueHashes.getOrDefault(key, 0) != hash) {
       booleanArrayLogs
           .computeIfAbsent(key, k -> new BooleanArrayLogEntry(log, prefixKey(k)))
           .append(value);
@@ -66,7 +66,7 @@ public class DataLogLogger implements LogConsumer {
   public void log(String key, boolean value) {
     var hash = Boolean.hashCode(value);
 
-    if (valueHashes.get(key) != hash) {
+    if (valueHashes.getOrDefault(key, 0) != hash) {
       booleanLogs.computeIfAbsent(key, k -> new BooleanLogEntry(log, prefixKey(k))).append(value);
 
       valueHashes.put(key, hash);
@@ -75,7 +75,7 @@ public class DataLogLogger implements LogConsumer {
 
   public void log(String key, double[] value) {
     var hash = Arrays.hashCode(value);
-    if (valueHashes.get(key) != hash) {
+    if (valueHashes.getOrDefault(key, 0) != hash) {
       doubleArrayLogs
           .computeIfAbsent(key, k -> new DoubleArrayLogEntry(log, prefixKey(k)))
           .append(value);
@@ -87,7 +87,7 @@ public class DataLogLogger implements LogConsumer {
   public void log(String key, double value) {
     var hash = Double.hashCode(value);
 
-    if (valueHashes.get(key) != hash) {
+    if (valueHashes.getOrDefault(key, 0) != hash) {
       doubleLogs.computeIfAbsent(key, k -> new DoubleLogEntry(log, prefixKey(k))).append(value);
 
       valueHashes.put(key, hash);
@@ -97,7 +97,7 @@ public class DataLogLogger implements LogConsumer {
   public void log(String key, float[] value) {
     var hash = Arrays.hashCode(value);
 
-    if (valueHashes.get(key) != hash) {
+    if (valueHashes.getOrDefault(key, 0) != hash) {
       floatArrayLogs
           .computeIfAbsent(key, k -> new FloatArrayLogEntry(log, prefixKey(k)))
           .append(value);
@@ -109,7 +109,7 @@ public class DataLogLogger implements LogConsumer {
   public void log(String key, float value) {
     var hash = Float.hashCode(value);
 
-    if (valueHashes.get(key) != hash) {
+    if (valueHashes.getOrDefault(key, 0) != hash) {
       floatLogs.computeIfAbsent(key, k -> new FloatLogEntry(log, prefixKey(k))).append(value);
 
       valueHashes.put(key, hash);
@@ -123,7 +123,7 @@ public class DataLogLogger implements LogConsumer {
   public void log(String key, long[] value) {
     var hash = Arrays.hashCode(value);
 
-    if (valueHashes.get(key) != hash) {
+    if (valueHashes.getOrDefault(key, 0) != hash) {
       integerArrayLogs
           .computeIfAbsent(key, k -> new IntegerArrayLogEntry(log, prefixKey(k)))
           .append(value);
@@ -135,7 +135,7 @@ public class DataLogLogger implements LogConsumer {
   public void log(String key, int value) {
     var hash = Integer.hashCode(value);
 
-    if (valueHashes.get(key) != hash) {
+    if (valueHashes.getOrDefault(key, 0) != hash) {
       integerLogs.computeIfAbsent(key, k -> new IntegerLogEntry(log, prefixKey(k))).append(value);
 
       valueHashes.put(key, hash);
@@ -153,7 +153,7 @@ public class DataLogLogger implements LogConsumer {
 
     var hash = Arrays.hashCode(value);
 
-    if (valueHashes.get(key) != hash) {
+    if (valueHashes.getOrDefault(key, 0) != hash) {
       stringArrayLogs
           .computeIfAbsent(key, k -> new StringArrayLogEntry(log, prefixKey(k)))
           .append(value);
@@ -169,7 +169,7 @@ public class DataLogLogger implements LogConsumer {
 
     var hash = value.hashCode();
 
-    if (valueHashes.get(key) != hash) {
+    if (valueHashes.getOrDefault(key, 0) != hash) {
       stringLogs.computeIfAbsent(key, k -> new StringLogEntry(log, prefixKey(k))).append(value);
 
       valueHashes.put(key, hash);
@@ -183,7 +183,7 @@ public class DataLogLogger implements LogConsumer {
 
     var hash = Arrays.hashCode(value);
 
-    if (valueHashes.get(key) != hash) {
+    if (valueHashes.getOrDefault(key, 0) != hash) {
       @SuppressWarnings("unchecked")
       var entry =
           (StructArrayLogEntry<T>)
@@ -203,7 +203,7 @@ public class DataLogLogger implements LogConsumer {
 
     var hash = value.hashCode();
 
-    if (valueHashes.get(key) != hash) {
+    if (valueHashes.getOrDefault(key, 0) != hash) {
       @SuppressWarnings("unchecked")
       var entry =
           (StructLogEntry<T>)
