@@ -11,12 +11,12 @@
         {
           "jsonpath": "$.version",
           "type": "json",
-          "path": "./vendordep.json"
+          "path": "vendordep.json"
         },
         {
           "jsonpath": "$.javaDependencies[0].version",
           "type": "json",
-          "path": "./vendordep.json"
+          "path": "vendordep.json"
         }
       ]
     }
