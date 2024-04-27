@@ -33,44 +33,40 @@ public record DogLogOptions(
   }
 
   /**
-   * Create a new options object with the {@link DogLogOptions#ntPublish} set to the provided value.
+   * Create a new options object with {@link DogLogOptions#ntPublish} set to the provided value.
    *
    * @param ntPublish Whether logged values should be published to NetworkTables.
-   * @return A new options object with the {@link DogLogOptions#ntPublish} set to the provided
-   *     value.
+   * @return A new options object with {@link DogLogOptions#ntPublish} set to the provided value.
    */
   public DogLogOptions withNtPublish(boolean ntPublish) {
     return new DogLogOptions(ntPublish, captureNt(), captureDs(), logExtras());
   }
 
   /**
-   * Create a new options object with the {@link DogLogOptions#captureNt} set to the provided value.
+   * Create a new options object with {@link DogLogOptions#captureNt} set to the provided value.
    *
    * @param captureNt Whether all NetworkTables fields should be saved to the log file.
-   * @return A new options object with the {@link DogLogOptions#captureNt} set to the provided
-   *     value.
+   * @return A new options object with {@link DogLogOptions#captureNt} set to the provided value.
    */
   public DogLogOptions withCaptureNt(boolean captureNt) {
     return new DogLogOptions(ntPublish(), captureNt, captureDs(), logExtras());
   }
 
   /**
-   * Create a new options object with the {@link DogLogOptions#captureDs} set to the provided value.
+   * Create a new options object with {@link DogLogOptions#captureDs} set to the provided value.
    *
    * @param captureDs Whether driver station data (robot enable state and joystick inputs) should be
-   * @return A new options object with the {@link DogLogOptions#captureDs} set to the provided
-   *     value.
+   * @return A new options object with {@link DogLogOptions#captureDs} set to the provided value.
    */
   public DogLogOptions withCaptureDs(boolean captureDs) {
     return new DogLogOptions(ntPublish(), captureNt(), captureDs, logExtras());
   }
 
   /**
-   * Create a new options object with the {@link DogLogOptions#logExtras} set to the provided value.
+   * Create a new options object with {@link DogLogOptions#logExtras} set to the provided value.
    *
    * @param logExtras Whether to log extra data, like PDH currents, CAN usage, etc.
-   * @return A new options object with the {@link DogLogOptions#logExtras} set to the provided
-   *     value.
+   * @return A new options object with {@link DogLogOptions#logExtras} set to the provided value.
    */
   public DogLogOptions withLogExtras(boolean logExtras) {
     return new DogLogOptions(ntPublish(), captureNt(), captureDs(), logExtras);
