@@ -7,7 +7,6 @@ package dev.doglog;
 import dev.doglog.loggers.DataLogLogger;
 import dev.doglog.loggers.DogLogLogger;
 import dev.doglog.loggers.NetworkTablesLogger;
-import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -143,24 +142,10 @@ public class DogLog {
     }
   }
 
-  /** Log a struct array with a given struct definition. */
-  public static <T> void log(String key, Struct<T> struct, T[] value) {
-    if (enabled) {
-      logger.log(key, struct, value);
-    }
-  }
-
   /** Log a struct array. */
   public static <T extends StructSerializable> void log(String key, T[] value) {
     if (enabled) {
       logger.log(key, value);
-    }
-  }
-
-  /** Log a struct with a given struct definition. */
-  public static <T> void log(String key, Struct<T> struct, T value) {
-    if (enabled) {
-      logger.log(key, struct, value);
     }
   }
 
