@@ -1,0 +1,42 @@
+---
+title: Home
+description: Simple, unopinionated logging for FRC.
+template: splash
+hero:
+  title: DogLog
+  tagline: Simple, unopinionated logging for FRC
+  image:
+    file: ../../assets/logo.svg
+  actions:
+    - text: Get started
+      link: /getting-started/installation/
+      icon: right-arrow
+      variant: primary
+    - text: Javadoc
+      link: https://javadoc.doglog.dev
+      icon: external
+---
+
+## Example usage
+
+```java
+// Import
+import dev.doglog.DogLog;
+import dev.doglog.DogLogOptions;
+import edu.wpi.first.wpilibj.DriverStation;
+
+// Configure
+DogLog.setOptions(new DogLogOptions().withNtPublish(!DriverStation.isFMSAttached()));
+
+// Log
+DogLog.log("Arm/Position", motor.getPosition().getValue());
+```
+
+## Quick start
+
+Jump straight in and try DogLog for yourself.
+Add to your project now with the vendordep URL:
+
+```text
+https://doglog.dev/vendordep.json
+```

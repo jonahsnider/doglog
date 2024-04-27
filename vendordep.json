@@ -8,7 +8,7 @@
   ],
   "fileName": "DogLog.json",
   "frcYear": "2024",
-  "jsonUrl": "https://raw.githubusercontent.com/jonahsnider/doglog/main/vendordep.json",
+  "jsonUrl": "https://doglog.dev/vendordep.json",
   "name": "DogLog",
   "jniDependencies": [],
   "mavenUrls": [

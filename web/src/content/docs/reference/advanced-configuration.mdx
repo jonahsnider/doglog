@@ -1,0 +1,41 @@
+---
+title: Advanced configuration
+description: Additional information on configuring the logger.
+---
+
+## Logger options
+
+### NetworkTables publishing
+
+The `ntPublish` option controls whether logs should be published to NetworkTables.
+
+This introduces some overhead, and can consume a lot of network bandwidth, so this option should not be used with competition flashed radios.
+
+### Capture NetworkTables
+
+The `captureNt` option controls whether all NetworkTables values should be included in logs.
+
+This greatly increases the size of logs, and can introduce more overhead when logging.
+
+### Capture driver station
+
+The `captureDs` option controls whether joystick data and driver station values (ex. "enabled" or "autonomous") should be included in logs.
+
+Due to a a limitation in WPILib's `DataLogManager`, these values can't be published over NetworkTables.
+
+## Disabling the logger
+
+By default, the logger is enabled.
+When disabled, all log calls will be ignored and nothing will be logged, which can be useful when debugging things like performance issues.
+
+If you want to disable it, you can do so with `DogLog.setEnabled()`:
+
+```java
+DogLog.setEnabled(false);
+```
+
+And you can re-enable it with:
+
+```java
+DogLog.setEnabled(true);
+```

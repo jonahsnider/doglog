@@ -1,0 +1,36 @@
+---
+title: Installation
+description: Add DogLog to an existing Java project.
+---
+
+import { Steps } from "@astrojs/starlight/components";
+
+DogLog is best installed as a vendor dependency (vendordep).
+You can read more about vendordeps on [the WPILib docs](https://docs.wpilib.org/en/stable/docs/software/vscode-overview/3rd-party-libraries.html#installing-libraries).
+
+## Vendordep URL
+
+```text
+https://doglog.dev/vendordep.json
+```
+
+## Detailed instructions
+
+<Steps>
+
+1. Open the WPILib command palette
+   ![Screenshot of button to open the WPILib command palette](../../../assets/guides/install/command-palette.png)
+2. Select "Manage Vendor Libraries"
+   ![Screenshot of the "Manage Vendor Libraries" option in the WPILib command palette](../../../assets/guides/install/manage-vendor-libraries.png)
+3. Select "Install new libraries (online)"
+   ![Screenshot of the "Install new libraries (online)" option in the WPILib command palette](../../../assets/guides/install/install-new-libraries.png)
+4. Paste the vendordep URL from the codeblock above
+   ![Screenshot of the vendordep URL being pasted into the WPILib vendordeps dialog](../../../assets/guides/install/vendordep-url.png)
+5. Press <kbd>Enter</kbd> to finish adding the vendordep
+6. Once the vendordep has been added, you can run a build to complete the install.
+
+</Steps>
+
+:::note
+You may need to restart your editor before DogLog is available in editor suggestions.
+:::

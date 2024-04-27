@@ -1,0 +1,87 @@
+---
+title: Usage
+description: Get started with logging using DogLog.
+---
+
+import { Steps } from "@astrojs/starlight/components";
+
+Once installed, getting started with DogLog is super easy:
+
+## Logging
+
+First, import the library from the `dev.doglog` namespace:
+
+```java
+import dev.doglog.DogLog;
+```
+
+And then you can use `Doglog.log()` to log values like so:
+
+```java
+DogLog.log("Arm/Position", motor.getPosition().getValue());
+```
+
+You can include these log statements in your periodic methods, or anywhere else you want to log data.
+
+## Configuring
+
+DogLog comes with a safe, reasonable default configuration out of the box, but most users will want to customize it to their needs.
+
+Here's an example of how to set DogLog to use custom options:
+
+<Steps>
+
+1. Import the library at the top of `Robot.java`/`RobotContainer.java`:
+
+   ```java
+    import dev.doglog.DogLog;
+    import dev.doglog.DogLogOptions;
+    import edu.wpi.first.wpilibj.DriverStation;
+   ```
+
+2. In your `Robot`/`RobotContainer` constructor, add the following lines:
+
+   ```java
+    DogLog.setOptions(new DogLogOptions().withNtPublish(!DriverStation.isFMSAttached()));
+   ```
+
+   This configures DogLog to use the default options as a base, and extends them to publish logged fields to NetworkTables when your robot isn't connected to the FMS.
+
+   :::caution
+   You don't have to use `DriverStation.isFMSAttached()` to determine whether to publish to NetworkTables, but you definitely should not be publishing to NetworkTables when using a flashed competition radio.
+   :::
+
+</Steps>
+
+## Full example
+
+```java {9-11,20}
+package frc.robot;
+
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.ExampleCommand;
+import frc.robot.subsystems.ExampleSubsystem;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import dev.doglog.DogLog;
+import dev.doglog.DogLogOptions;
+import edu.wpi.first.wpilibj.DriverStation;
+
+public class RobotContainer {
+  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+
+  private final CommandXboxController m_driverController =
+      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+
+  public RobotContainer() {
+    DogLog.setOptions(new DogLogOptions().withNtPublish(!DriverStation.isFMSAttached()));
+
+    configureBindings();
+  }
+
+  private void configureBindings() {
+    // ...
+  }
+}
+```
