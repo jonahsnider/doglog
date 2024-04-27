@@ -82,8 +82,6 @@ spotless {
 	json {
 		target '**/*.json'
 		simple().indentWithSpaces(2)
-
-		targetExclude('.pathplanner/**')
 	}
 
 	format 'misc', {
