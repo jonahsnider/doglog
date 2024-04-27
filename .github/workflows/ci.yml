@@ -39,3 +39,30 @@ jobs:
         uses: gradle/wrapper-validation-action@v3
       - name: Check formatting
         run: ./gradlew spotlessCheck
+  javadoc:
+    name: Publish Javadoc
+
+    runs-on: ubuntu-latest
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    needs: [assemble]
+
+    steps:
+      - name: Checkout Git repository
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: 17
+          cache: "gradle"
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v3
+      - name: Build
+        run: ./gradlew build
+      - name: Publish Javadoc to Netlify
+        run: npx netlify-cli deploy --prod --dir lib/build/docs/javadoc
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
