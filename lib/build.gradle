@@ -14,8 +14,13 @@ plugins {
 	id 'maven-publish'
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+archivesBaseName = 'doglog'
+
+tasks.withType(Javadoc) {
+	options {
+		docTitle = "DogLog Javadoc"
+	}
+}
 
 repositories {
 	// Use Maven Central for resolving dependencies.
