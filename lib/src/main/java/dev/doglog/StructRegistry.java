@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/** Used internally for working with WPILib {@link Struct}s. */
 public class StructRegistry {
   private static final Map<String, Struct<?>> structTypeCache = new HashMap<>();
 

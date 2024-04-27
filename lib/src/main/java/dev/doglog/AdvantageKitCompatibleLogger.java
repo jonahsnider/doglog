@@ -10,6 +10,8 @@ import edu.wpi.first.util.struct.StructSerializable;
 /**
  * A wrapper around {@link DogLog} that makes it easy to use as a drop-in replacement for
  * AdvantageKit.
+ *
+ * @see https://doglog.dev/guides/advantagekit-migration/
  */
 public class AdvantageKitCompatibleLogger {
   public static void recordOutput(String key, boolean[] value) {
