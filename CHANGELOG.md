@@ -1,5 +1,13 @@
 # Changelog
 
+## [2024.2.1](https://github.com/jonahsnider/doglog/compare/v2024.2.0...v2024.2.1) (2024-04-27)
+
+
+### Bug Fixes
+
+* fix struct arrays not appearing in log files ([cb4ac04](https://github.com/jonahsnider/doglog/commit/cb4ac045b3a4677473c4dfdc04e5a0bdc84305e7))
+* remove unhelpful DogLog.log() overloads for structs ([fe4c14d](https://github.com/jonahsnider/doglog/commit/fe4c14d6e858c97309a454f390b32f764f16bfb5))
+
 ## [2024.2.0](https://github.com/jonahsnider/doglog/compare/v2024.1.0...v2024.2.0) (2024-04-27)
 
 
