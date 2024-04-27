@@ -1,13 +1,16 @@
 {
-  "type": "doglog.dev",
+  "name": "doglog.dev",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
+    "astro": "astro",
+    "build": "yarn cp-vendordep && yarn cp-changelog && rm -rf dist && astro check && astro build",
+    "cp-changelog": "node ./scripts/cp-changelog.mjs",
+    "cp-vendordep": "cp ../vendordep.json ./public/vendordep.json",
     "dev": "astro dev",
-    "start": "astro dev",
-    "build": "cp ../vendordep.json ./public/vendordep.json && rm -rf dist && astro check && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "start": "astro dev"
   },
   "dependencies": {
     "@astrojs/check": "^0.5.10",
