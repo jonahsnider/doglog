@@ -1,11 +1,13 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
+import starlightLinksValidator from "starlight-links-validator";
 
 // https://astro.build/config
 export default defineConfig({
   site: "https://doglog.dev",
   integrations: [
     starlight({
+      plugins: [starlightLinksValidator()],
       title: "DogLog Docs",
       favicon: "/favicon.ico",
       social: {
