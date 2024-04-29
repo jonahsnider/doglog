@@ -4,10 +4,10 @@
 
 package dev.doglog;
 
-import dev.doglog.extras.ExtrasLogger;
-import dev.doglog.loggers.DataLogLogger;
-import dev.doglog.loggers.DogLogLogger;
-import dev.doglog.loggers.NetworkTablesLogger;
+import dev.doglog.internal.extras.ExtrasLogger;
+import dev.doglog.internal.loggers.DataLogLogger;
+import dev.doglog.internal.loggers.DogLogLogger;
+import dev.doglog.internal.loggers.NetworkTablesLogger;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;

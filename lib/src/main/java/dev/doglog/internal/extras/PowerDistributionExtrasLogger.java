@@ -2,9 +2,9 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package dev.doglog.extras;
+package dev.doglog.internal.extras;
 
-import dev.doglog.loggers.DogLogLogger;
+import dev.doglog.internal.loggers.DogLogLogger;
 import edu.wpi.first.wpilibj.PowerDistribution;
 
 class PowerDistributionExtrasLogger {
