@@ -96,7 +96,7 @@ public class DogLogLogger {
     }
   }
 
-  public void log(long timestamp, String key, int value) {
+  public void log(long timestamp, String key, long value) {
     dataLogLogger.log(timestamp, key, value);
     if (ntLogger != null) {
       ntLogger.log(key, value);

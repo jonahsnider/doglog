@@ -105,7 +105,7 @@ public class LogQueuer {
     }
   }
 
-  public void queueLog(String key, int value) {
+  public void queueLog(String key, long value) {
     if (!queue.offer(new IntegerQueuedLogEntry(key, HALUtil.getFPGATime(), value))) {
       printQueueFullMessage(key);
     }

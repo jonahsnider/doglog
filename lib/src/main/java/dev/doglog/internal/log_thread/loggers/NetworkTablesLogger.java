@@ -100,7 +100,7 @@ public class NetworkTablesLogger {
   }
 
   @SuppressWarnings("resource")
-  public void log(String key, int value) {
+  public void log(String key, long value) {
     integerPublishers
         .computeIfAbsent(key, k -> logTable.getIntegerTopic(k).publish(PUB_SUB_OPTIONS))
         .set(value);

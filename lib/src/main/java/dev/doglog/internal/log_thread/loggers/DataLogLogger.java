@@ -138,8 +138,8 @@ public class DataLogLogger {
     }
   }
 
-  public void log(long timestamp, String key, int value) {
-    var hash = Integer.hashCode(value);
+  public void log(long timestamp, String key, long value) {
+    var hash = Long.hashCode(value);
 
     if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
       integerLogs

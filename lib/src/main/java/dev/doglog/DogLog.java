@@ -120,8 +120,8 @@ public class DogLog {
     logExtrasIfPeriodElapsed();
   }
 
-  /** Log an int. */
-  public static void log(String key, int value) {
+  /** Log a long. */
+  public static void log(String key, long value) {
     if (enabled) {
       logger.queueLog(key, value);
     }

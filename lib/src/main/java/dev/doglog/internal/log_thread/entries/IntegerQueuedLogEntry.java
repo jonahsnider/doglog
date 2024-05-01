@@ -5,9 +5,9 @@
 package dev.doglog.internal.log_thread.entries;
 
 public class IntegerQueuedLogEntry extends BaseQueuedLogEntry {
-  public final int value;
+  public final long value;
 
-  public IntegerQueuedLogEntry(String key, long timestamp, int value) {
+  public IntegerQueuedLogEntry(String key, long timestamp, long value) {
     super(key, timestamp);
     this.value = value;
   }
