@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package dev.doglog.internal.loggers;
+package dev.doglog.internal.log_thread.loggers;
 
 import edu.wpi.first.networktables.BooleanArrayPublisher;
 import edu.wpi.first.networktables.BooleanPublisher;
@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** Logs to NetworkTables. */
-public class NetworkTablesLogger implements LogConsumer {
+public class NetworkTablesLogger {
   private static final PubSubOption PUB_SUB_OPTIONS = PubSubOption.sendAll(true);
 
   private final NetworkTable logTable;
@@ -92,10 +92,6 @@ public class NetworkTablesLogger implements LogConsumer {
         .set(value);
   }
 
-  public void log(String key, int[] value) {
-    log(key, value);
-  }
-
   @SuppressWarnings("resource")
   public void log(String key, long[] value) {
     integerArrayPublishers
@@ -116,9 +112,6 @@ public class NetworkTablesLogger implements LogConsumer {
 
   @SuppressWarnings("resource")
   public void log(String key, String[] value) {
-    if (value == null) {
-      return;
-    }
 
     stringArrayPublishers
         .computeIfAbsent(key, k -> logTable.getStringArrayTopic(k).publish(PUB_SUB_OPTIONS))
@@ -127,9 +120,6 @@ public class NetworkTablesLogger implements LogConsumer {
 
   @SuppressWarnings("resource")
   public void log(String key, String value) {
-    if (value == null) {
-      return;
-    }
 
     stringPublishers
         .computeIfAbsent(key, k -> logTable.getStringTopic(k).publish(PUB_SUB_OPTIONS))
@@ -138,10 +128,6 @@ public class NetworkTablesLogger implements LogConsumer {
 
   @SuppressWarnings("resource")
   public <T> void log(String key, Struct<T> struct, T[] value) {
-    if (struct == null || value == null) {
-      return;
-    }
-
     @SuppressWarnings("unchecked")
     var publisher =
         (StructArrayPublisher<T>)
@@ -152,10 +138,6 @@ public class NetworkTablesLogger implements LogConsumer {
 
   @SuppressWarnings("resource")
   public <T> void log(String key, Struct<T> struct, T value) {
-    if (struct == null || value == null) {
-      return;
-    }
-
     @SuppressWarnings("unchecked")
     var publisher =
         (StructPublisher<T>)
