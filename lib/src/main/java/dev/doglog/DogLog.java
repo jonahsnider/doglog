@@ -60,72 +60,72 @@ public class DogLog {
   public static void log(String key, boolean[] value) {
     if (enabled) {
       logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log a boolean. */
   public static void log(String key, boolean value) {
     if (enabled) {
       logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log a double array. */
   public static void log(String key, double[] value) {
     if (enabled) {
       logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log a double. */
   public static void log(String key, double value) {
     if (enabled) {
       logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log a float array. */
   public static void log(String key, float[] value) {
     if (enabled) {
       logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log a float. */
   public static void log(String key, float value) {
     if (enabled) {
       logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log an int array. */
   public static void log(String key, int[] value) {
     if (enabled) {
       logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log a long array. */
   public static void log(String key, long[] value) {
     if (enabled) {
       logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log a long. */
   public static void log(String key, long value) {
     if (enabled) {
       logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   // TODO: Protobuf logs
@@ -136,52 +136,52 @@ public class DogLog {
   public static void log(String key, String[] value) {
     if (enabled) {
       logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log an enum array. Enums will be converted to strings with {@link Enum#name()}. */
   public static void log(String key, Enum<?>[] value) {
     if (enabled) {
       logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log a string. */
   public static void log(String key, String value) {
     if (enabled) {
       logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log an enum. The enum will be converted to a string with {@link Enum#name()}. */
   public static void log(String key, Enum<?> value) {
     if (enabled) {
       logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log a struct array. */
   public static <T extends StructSerializable> void log(String key, T[] value) {
     if (enabled) {
       logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log a struct. */
   public static <T extends StructSerializable> void log(String key, T value) {
     if (enabled) {
       logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   protected static void logExtrasIfPeriodElapsed() {
-    if (enabled && options.logExtras() && extrasTimer.hasElapsed(LOOP_PERIOD_SECONDS)) {
+    if (options.logExtras() && extrasTimer.hasElapsed(LOOP_PERIOD_SECONDS)) {
       ExtrasLogger.log(logger);
       extrasTimer.reset();
     }
