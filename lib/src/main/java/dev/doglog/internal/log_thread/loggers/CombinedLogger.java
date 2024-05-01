@@ -11,7 +11,7 @@ import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DataLogManager;
 
-public class DogLogLogger {
+public class CombinedLogger {
   /** The NetworkTables table to log to, if NetworkTables publishing is enabled. */
   private static final String LOG_TABLE = "/Robot";
 
@@ -19,7 +19,7 @@ public class DogLogLogger {
   // Default to null
   private NetworkTablesLogger ntLogger;
 
-  public DogLogLogger(DogLogOptions initialOptions) {
+  public CombinedLogger(DogLogOptions initialOptions) {
     // Print default options on start
     printOptions(initialOptions);
   }
