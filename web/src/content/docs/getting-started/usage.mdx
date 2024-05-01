@@ -36,26 +36,21 @@ Here's an example of how to set DogLog to use custom options:
    ```java
     import dev.doglog.DogLog;
     import dev.doglog.DogLogOptions;
-    import edu.wpi.first.wpilibj.DriverStation;
    ```
 
 2. In your `Robot`/`RobotContainer` constructor, add the following lines:
 
    ```java
-    DogLog.setOptions(new DogLogOptions().withNtPublish(!DriverStation.isFMSAttached()));
+    DogLog.setOptions(new DogLogOptions().withNtPublish(true));
    ```
 
-   This configures DogLog to use the default options as a base, and extends them to publish logged fields to NetworkTables when your robot isn't connected to the FMS.
-
-   :::caution
-   You don't have to use `DriverStation.isFMSAttached()` to determine whether to publish to NetworkTables, but you definitely should not be publishing to NetworkTables when using a flashed competition radio.
-   :::
+   This configures DogLog to use the default options as a base, and extends them to publish logged fields to NetworkTables.
 
 </Steps>
 
 ## Full example
 
-```java {9-11,20} title="RobotContainer.java"
+```java {9-10,19} title="RobotContainer.java"
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
@@ -66,7 +61,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
-import edu.wpi.first.wpilibj.DriverStation;
 
 public class RobotContainer {
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -75,7 +69,7 @@ public class RobotContainer {
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
   public RobotContainer() {
-    DogLog.setOptions(new DogLogOptions().withNtPublish(!DriverStation.isFMSAttached()));
+    DogLog.setOptions(new DogLogOptions().withNtPublish(true));
 
     configureBindings();
   }

@@ -23,10 +23,9 @@ hero:
 // Import
 import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
-import edu.wpi.first.wpilibj.DriverStation;
 
 // Configure
-DogLog.setOptions(new DogLogOptions().withNtPublish(!DriverStation.isFMSAttached()));
+DogLog.setOptions(new DogLogOptions().withNtPublish(true));
 
 // Log
 DogLog.log("Arm/Position", motor.getPosition().getValue());
