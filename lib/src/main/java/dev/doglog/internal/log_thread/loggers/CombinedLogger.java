@@ -201,7 +201,7 @@ public class CombinedLogger {
 
   public void setOptions(DogLogOptions options) {
     // Avoid recreating the logger if the options haven't changed
-    if (options.captureNt() && ntLogger == null) {
+    if (options.ntPublish() && ntLogger == null) {
       ntLogger = new NetworkTablesLogger(LOG_TABLE);
     } else {
       ntLogger = null;
