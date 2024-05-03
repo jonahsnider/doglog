@@ -1,5 +1,12 @@
 # Changelog
 
+## [2024.4.0](https://github.com/jonahsnider/doglog/compare/v2024.3.0...v2024.4.0) (2024-05-03)
+
+
+### Features
+
+* use separate thread for DataLog and NT operations ([#14](https://github.com/jonahsnider/doglog/issues/14)) ([edd45db](https://github.com/jonahsnider/doglog/commit/edd45db2605bf09f6f5b30a94e098d3a7fc8f5dc))
+
 ## [2024.3.0](https://github.com/jonahsnider/doglog/compare/v2024.2.1...v2024.3.0) (2024-04-27)
 
 
