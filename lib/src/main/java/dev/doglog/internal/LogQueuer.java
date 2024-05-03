@@ -105,7 +105,10 @@ public class LogQueuer {
   }
 
   public void queueLog(long timestamp, String key, int[] value) {
-    queueLog(timestamp, key, value);
+    if (!queue.offer(new IntegerArrayQueuedLogEntry(key, timestamp, value))) {
+      printQueueFullMessage(key);
+    }
+    extras.heartbeat();
   }
 
   public void queueLog(long timestamp, String key, long[] value) {

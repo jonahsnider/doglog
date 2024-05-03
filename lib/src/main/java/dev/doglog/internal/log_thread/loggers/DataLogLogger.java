@@ -122,10 +122,6 @@ public class DataLogLogger {
     }
   }
 
-  public void log(long timestamp, String key, int[] value) {
-    log(timestamp, key, value);
-  }
-
   public void log(long timestamp, String key, long[] value) {
     var hash = Arrays.hashCode(value);
 
