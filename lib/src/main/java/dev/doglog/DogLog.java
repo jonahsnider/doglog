@@ -4,16 +4,13 @@
 
 package dev.doglog;
 
-import dev.doglog.internal.extras.ExtrasLogger;
-import dev.doglog.internal.log_thread.LogQueuer;
+import dev.doglog.internal.LogQueuer;
+import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.Timer;
 
 /** A logger based on WPILib's {@link DataLogManager} */
 public class DogLog {
-  private static final double LOOP_PERIOD_SECONDS = 0.02;
-
   /** The options to use for the logger. */
   protected static DogLogOptions options = new DogLogOptions();
 
@@ -21,12 +18,6 @@ public class DogLog {
 
   /** Whether the logger is enabled. */
   protected static boolean enabled = true;
-
-  protected static final Timer extrasTimer = new Timer();
-
-  static {
-    extrasTimer.start();
-  }
 
   /** Get the options used by the logger. */
   public static DogLogOptions getOptions() {
@@ -59,72 +50,72 @@ public class DogLog {
   /** Log a boolean array. */
   public static void log(String key, boolean[] value) {
     if (enabled) {
-      logger.queueLog(key, value);
-      logExtrasIfPeriodElapsed();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log a boolean. */
   public static void log(String key, boolean value) {
     if (enabled) {
-      logger.queueLog(key, value);
-      logExtrasIfPeriodElapsed();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log a double array. */
   public static void log(String key, double[] value) {
     if (enabled) {
-      logger.queueLog(key, value);
-      logExtrasIfPeriodElapsed();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log a double. */
   public static void log(String key, double value) {
     if (enabled) {
-      logger.queueLog(key, value);
-      logExtrasIfPeriodElapsed();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log a float array. */
   public static void log(String key, float[] value) {
     if (enabled) {
-      logger.queueLog(key, value);
-      logExtrasIfPeriodElapsed();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log a float. */
   public static void log(String key, float value) {
     if (enabled) {
-      logger.queueLog(key, value);
-      logExtrasIfPeriodElapsed();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log an int array. */
   public static void log(String key, int[] value) {
     if (enabled) {
-      logger.queueLog(key, value);
-      logExtrasIfPeriodElapsed();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log a long array. */
   public static void log(String key, long[] value) {
     if (enabled) {
-      logger.queueLog(key, value);
-      logExtrasIfPeriodElapsed();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log a long. */
   public static void log(String key, long value) {
     if (enabled) {
-      logger.queueLog(key, value);
-      logExtrasIfPeriodElapsed();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
@@ -135,55 +126,55 @@ public class DogLog {
   /** Log a string array. */
   public static void log(String key, String[] value) {
     if (enabled) {
-      logger.queueLog(key, value);
-      logExtrasIfPeriodElapsed();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log an enum array. Enums will be converted to strings with {@link Enum#name()}. */
   public static void log(String key, Enum<?>[] value) {
-    if (enabled) {
-      logger.queueLog(key, value);
-      logExtrasIfPeriodElapsed();
+    if (value == null) {
+      return;
     }
+    // Convert enum array to string array
+    var stringArray = new String[value.length];
+
+    for (int i = 0; i < value.length; i++) {
+      stringArray[i] = value[i].name();
+    }
+
+    log(key, stringArray);
   }
 
   /** Log a string. */
   public static void log(String key, String value) {
     if (enabled) {
-      logger.queueLog(key, value);
-      logExtrasIfPeriodElapsed();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log an enum. The enum will be converted to a string with {@link Enum#name()}. */
   public static void log(String key, Enum<?> value) {
-    if (enabled) {
-      logger.queueLog(key, value);
-      logExtrasIfPeriodElapsed();
+    if (value == null) {
+      return;
     }
+    log(key, value.name());
   }
 
   /** Log a struct array. */
   public static <T extends StructSerializable> void log(String key, T[] value) {
     if (enabled) {
-      logger.queueLog(key, value);
-      logExtrasIfPeriodElapsed();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log a struct. */
   public static <T extends StructSerializable> void log(String key, T value) {
     if (enabled) {
-      logger.queueLog(key, value);
-      logExtrasIfPeriodElapsed();
-    }
-  }
-
-  protected static void logExtrasIfPeriodElapsed() {
-    if (options.logExtras() && extrasTimer.hasElapsed(LOOP_PERIOD_SECONDS)) {
-      ExtrasLogger.log(logger);
-      extrasTimer.reset();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 

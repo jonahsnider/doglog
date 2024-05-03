@@ -2,9 +2,10 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package dev.doglog.internal.log_thread;
+package dev.doglog.internal;
 
 import dev.doglog.DogLogOptions;
+import dev.doglog.internal.log_thread.LogThread;
 import dev.doglog.internal.log_thread.entries.BaseQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.BooleanArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.BooleanQueuedLogEntry;
@@ -18,7 +19,6 @@ import dev.doglog.internal.log_thread.entries.StringArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StructArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StructQueuedLogEntry;
-import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DriverStation;
 import java.util.concurrent.BlockingQueue;
@@ -48,6 +48,7 @@ public class LogQueuer {
     }
   }
 
+  private final ExtrasLogger extras;
   private BlockingQueue<BaseQueuedLogEntry> queue;
   private LogThread logThread;
 
@@ -57,111 +58,105 @@ public class LogQueuer {
     logThread = new LogThread(queue, initialOptions);
 
     logThread.start();
+
+    extras = new ExtrasLogger(this, initialOptions);
   }
 
-  public void queueLog(String key, boolean[] value) {
-    if (!queue.offer(new BooleanArrayQueuedLogEntry(key, HALUtil.getFPGATime(), value))) {
+  public void queueLog(long timestamp, String key, boolean[] value) {
+    if (!queue.offer(new BooleanArrayQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
+    extras.heartbeat();
   }
 
-  public void queueLog(String key, boolean value) {
-    if (!queue.offer(new BooleanQueuedLogEntry(key, HALUtil.getFPGATime(), value))) {
+  public void queueLog(long timestamp, String key, boolean value) {
+    if (!queue.offer(new BooleanQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
+    extras.heartbeat();
   }
 
-  public void queueLog(String key, double[] value) {
-    if (!queue.offer(new DoubleArrayQueuedLogEntry(key, HALUtil.getFPGATime(), value))) {
+  public void queueLog(long timestamp, String key, double[] value) {
+    if (!queue.offer(new DoubleArrayQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
+    extras.heartbeat();
   }
 
-  public void queueLog(String key, double value) {
-    if (!queue.offer(new DoubleQueuedLogEntry(key, HALUtil.getFPGATime(), value))) {
+  public void queueLog(long timestamp, String key, double value) {
+    if (!queue.offer(new DoubleQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
+    extras.heartbeat();
   }
 
-  public void queueLog(String key, float[] value) {
-    if (!queue.offer(new FloatArrayQueuedLogEntry(key, HALUtil.getFPGATime(), value))) {
+  public void queueLog(long timestamp, String key, float[] value) {
+    if (!queue.offer(new FloatArrayQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
+    extras.heartbeat();
   }
 
-  public void queueLog(String key, float value) {
-    if (!queue.offer(new FloatQueuedLogEntry(key, HALUtil.getFPGATime(), value))) {
+  public void queueLog(long timestamp, String key, float value) {
+    if (!queue.offer(new FloatQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
+    extras.heartbeat();
   }
 
-  public void queueLog(String key, int[] value) {
-    queueLog(key, value);
+  public void queueLog(long timestamp, String key, int[] value) {
+    queueLog(timestamp, key, value);
   }
 
-  public void queueLog(String key, long[] value) {
-    if (!queue.offer(new IntegerArrayQueuedLogEntry(key, HALUtil.getFPGATime(), value))) {
+  public void queueLog(long timestamp, String key, long[] value) {
+    if (!queue.offer(new IntegerArrayQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
+    extras.heartbeat();
   }
 
-  public void queueLog(String key, long value) {
-    if (!queue.offer(new IntegerQueuedLogEntry(key, HALUtil.getFPGATime(), value))) {
+  public void queueLog(long timestamp, String key, long value) {
+    if (!queue.offer(new IntegerQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
+    extras.heartbeat();
   }
 
   // TODO: Protobuf logs
 
   // TODO: Raw logs
 
-  public void queueLog(String key, String[] value) {
-    if (!queue.offer(new StringArrayQueuedLogEntry(key, HALUtil.getFPGATime(), value))) {
+  public void queueLog(long timestamp, String key, String[] value) {
+    if (!queue.offer(new StringArrayQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
+    extras.heartbeat();
   }
 
-  public void queueLog(String key, Enum<?>[] value) {
-    if (value == null) {
-      return;
-    }
-    // Convert enum array to string array
-    var stringArray = new String[value.length];
-
-    for (int i = 0; i < value.length; i++) {
-      stringArray[i] = value[i].name();
-    }
-
-    queueLog(key, stringArray);
-  }
-
-  public void queueLog(String key, String value) {
-    if (!queue.offer(new StringQueuedLogEntry(key, HALUtil.getFPGATime(), value))) {
+  public void queueLog(long timestamp, String key, String value) {
+    if (!queue.offer(new StringQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
+    extras.heartbeat();
   }
 
-  public void queueLog(String key, Enum<?> value) {
-    if (value == null) {
-      return;
-    }
-    queueLog(key, value.name());
-  }
-
-  public <T extends StructSerializable> void queueLog(String key, T[] value) {
-    if (!queue.offer(new StructArrayQueuedLogEntry<>(key, HALUtil.getFPGATime(), value))) {
+  public <T extends StructSerializable> void queueLog(long timestamp, String key, T[] value) {
+    if (!queue.offer(new StructArrayQueuedLogEntry<>(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
+    extras.heartbeat();
   }
 
-  public <T extends StructSerializable> void queueLog(String key, T value) {
-    if (!queue.offer(new StructQueuedLogEntry<>(key, HALUtil.getFPGATime(), value))) {
+  public <T extends StructSerializable> void queueLog(long timestamp, String key, T value) {
+    if (!queue.offer(new StructQueuedLogEntry<>(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
+    extras.heartbeat();
   }
 
   public void setOptions(DogLogOptions newOptions) {
     logThread.setOptions(newOptions);
+    extras.setOptions(newOptions);
 
     if (newOptions == null) {
       newOptions = new DogLogOptions();
