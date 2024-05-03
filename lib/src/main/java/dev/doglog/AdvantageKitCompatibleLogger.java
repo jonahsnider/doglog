@@ -42,10 +42,6 @@ public class AdvantageKitCompatibleLogger {
     DogLog.log(key, value);
   }
 
-  public static void recordOutput(String key, int value) {
-    DogLog.log(key, value);
-  }
-
   public static void recordOutput(String key, long[] value) {
     DogLog.log(key, value);
   }

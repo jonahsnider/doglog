@@ -5,25 +5,19 @@
 package dev.doglog;
 
 import dev.doglog.internal.extras.ExtrasLogger;
-import dev.doglog.internal.loggers.DataLogLogger;
-import dev.doglog.internal.loggers.DogLogLogger;
-import dev.doglog.internal.loggers.NetworkTablesLogger;
+import dev.doglog.internal.log_thread.LogQueuer;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 
 /** A logger based on WPILib's {@link DataLogManager} */
 public class DogLog {
   private static final double LOOP_PERIOD_SECONDS = 0.02;
 
-  /** The NetworkTables table to log to, if NetworkTables publishing is enabled. */
-  protected static final String LOG_TABLE = "/Robot";
-
   /** The options to use for the logger. */
   protected static DogLogOptions options = new DogLogOptions();
 
-  protected static DogLogLogger logger = createLogger();
+  protected static final LogQueuer logger = new LogQueuer(options);
 
   /** Whether the logger is enabled. */
   protected static boolean enabled = true;
@@ -32,6 +26,11 @@ public class DogLog {
 
   static {
     extrasTimer.start();
+  }
+
+  /** Get the options used by the logger. */
+  public static DogLogOptions getOptions() {
+    return options;
   }
 
   /** Update the options used by the logger. */
@@ -45,7 +44,7 @@ public class DogLog {
 
     if (!oldOptions.equals(newOptions)) {
       System.out.println("[DogLog] Options changed: " + newOptions.toString());
-      logger = createLogger();
+      logger.setOptions(newOptions);
     }
   }
 
@@ -60,73 +59,73 @@ public class DogLog {
   /** Log a boolean array. */
   public static void log(String key, boolean[] value) {
     if (enabled) {
-      logger.log(key, value);
+      logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log a boolean. */
   public static void log(String key, boolean value) {
     if (enabled) {
-      logger.log(key, value);
+      logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log a double array. */
   public static void log(String key, double[] value) {
     if (enabled) {
-      logger.log(key, value);
+      logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log a double. */
   public static void log(String key, double value) {
     if (enabled) {
-      logger.log(key, value);
+      logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log a float array. */
   public static void log(String key, float[] value) {
     if (enabled) {
-      logger.log(key, value);
+      logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log a float. */
   public static void log(String key, float value) {
     if (enabled) {
-      logger.log(key, value);
+      logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log an int array. */
   public static void log(String key, int[] value) {
     if (enabled) {
-      logger.log(key, value);
+      logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log a long array. */
   public static void log(String key, long[] value) {
     if (enabled) {
-      logger.log(key, value);
+      logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
-  /** Log an int. */
-  public static void log(String key, int value) {
+  /** Log a long. */
+  public static void log(String key, long value) {
     if (enabled) {
-      logger.log(key, value);
+      logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   // TODO: Protobuf logs
@@ -136,67 +135,53 @@ public class DogLog {
   /** Log a string array. */
   public static void log(String key, String[] value) {
     if (enabled) {
-      logger.log(key, value);
+      logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log an enum array. Enums will be converted to strings with {@link Enum#name()}. */
   public static void log(String key, Enum<?>[] value) {
     if (enabled) {
-      logger.log(key, value);
+      logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log a string. */
   public static void log(String key, String value) {
     if (enabled) {
-      logger.log(key, value);
+      logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log an enum. The enum will be converted to a string with {@link Enum#name()}. */
   public static void log(String key, Enum<?> value) {
     if (enabled) {
-      logger.log(key, value);
+      logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log a struct array. */
   public static <T extends StructSerializable> void log(String key, T[] value) {
     if (enabled) {
-      logger.log(key, value);
+      logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
   }
 
   /** Log a struct. */
   public static <T extends StructSerializable> void log(String key, T value) {
     if (enabled) {
-      logger.log(key, value);
+      logger.queueLog(key, value);
+      logExtrasIfPeriodElapsed();
     }
-    logExtrasIfPeriodElapsed();
-  }
-
-  protected static DogLogLogger createLogger() {
-    DataLogManager.logNetworkTables(options.captureNt());
-
-    var log = DataLogManager.getLog();
-
-    if (options.captureDs()) {
-      DriverStation.startDataLog(log);
-    }
-
-    return new DogLogLogger(
-        new DataLogLogger(log, LOG_TABLE),
-        options.ntPublish() ? new NetworkTablesLogger(LOG_TABLE) : null);
   }
 
   protected static void logExtrasIfPeriodElapsed() {
-    if (enabled && options.logExtras() && extrasTimer.hasElapsed(LOOP_PERIOD_SECONDS)) {
+    if (options.logExtras() && extrasTimer.hasElapsed(LOOP_PERIOD_SECONDS)) {
       ExtrasLogger.log(logger);
       extrasTimer.reset();
     }
