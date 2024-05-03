@@ -1,5 +1,12 @@
 # Changelog
 
+## [2024.4.1](https://github.com/jonahsnider/doglog/compare/v2024.4.0...v2024.4.1) (2024-05-03)
+
+
+### Bug Fixes
+
+* fix logging `int[]`s ([3f869c9](https://github.com/jonahsnider/doglog/commit/3f869c952cfa3560b193d03fbe8d86a64222f341))
+
 ## [2024.4.0](https://github.com/jonahsnider/doglog/compare/v2024.3.0...v2024.4.0) (2024-05-03)
 
 
