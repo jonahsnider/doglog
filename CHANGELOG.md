@@ -1,5 +1,12 @@
 # Changelog
 
+## [2024.5.0](https://github.com/jonahsnider/doglog/compare/v2024.4.1...v2024.5.0) (2024-05-23)
+
+
+### Features
+
+* add faults logging ([#18](https://github.com/jonahsnider/doglog/issues/18)) ([36da269](https://github.com/jonahsnider/doglog/commit/36da26928eae647810467617c28ff0026a32840f))
+
 ## [2024.4.1](https://github.com/jonahsnider/doglog/compare/v2024.4.0...v2024.4.1) (2024-05-03)
 
 
