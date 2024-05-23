@@ -46,6 +46,8 @@ public class LogQueuer {
       DriverStation.reportError(
           "[DogLog] DOG001: Log queue is full, dropping log entry for " + key, false);
     }
+
+    FaultLogger.logFault(this, "[DogLog] DOG001");
   }
 
   private final ExtrasLogger extras;
@@ -180,6 +182,7 @@ public class LogQueuer {
         DriverStation.reportWarning(
             "[DogLog] DOG002: New queue capacity is smaller than the old queue capacity, this has the potential to drop queued log entries",
             false);
+        FaultLogger.logFault(this, "[DogLog] DOG002");
       }
 
       queue.drainTo(newQueue, newQueue.remainingCapacity());
@@ -191,6 +194,7 @@ public class LogQueuer {
                 + droppedLogs
                 + " log entries",
             true);
+        FaultLogger.logFault(this, "[DogLog] DOG003");
       }
 
       logThread = new LogThread(newQueue, newOptions);
