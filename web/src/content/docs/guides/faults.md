@@ -43,6 +43,5 @@ This could be used for something like changing the color of the robot LEDs to in
 
 Just like how having post-match checklists for physical maintenance improve reliability, checking the logs after matches helps catch software issues that otherwise may go unnoticed.
 
-Faults logging means it's easy to add a step to your post-match process where someone pulls the robot logs checks if theres anything under `Robot/Faults`.
-
+Faults logging means it's easy to add a step to your post-match process where someone pulls the robot logs, and then checks if theres anything under `Robot/Faults`.
 If a fault was recorded, you can use other logged fields to help diagnose the issue further.
