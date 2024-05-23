@@ -4,6 +4,7 @@
 
 package dev.doglog;
 
+import dev.doglog.internal.FaultLogger;
 import dev.doglog.internal.LogQueuer;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.StructSerializable;
@@ -176,6 +177,39 @@ public class DogLog {
       var now = HALUtil.getFPGATime();
       logger.queueLog(now, key, value);
     }
+  }
+
+  /**
+   * Log a fault.
+   *
+   * <p>See https://doglog.dev/guides/faults for more information.
+   *
+   * @param faultName The name of the fault to log.
+   */
+  public static void logFault(String faultName) {
+    if (enabled) {
+      FaultLogger.logFault(logger, faultName);
+    }
+  }
+
+  /**
+   * Log a fault. The enum will be converted to a string with {@link Enum#name()}.
+   *
+   * <p>See https://doglog.dev/guides/faults for more information.
+   *
+   * @param faultName The name of the fault to log.
+   */
+  public static void logFault(Enum<?> faultName) {
+    logFault(faultName.name());
+  }
+
+  /**
+   * Check if faults have been logged using {@link DogLog#logFault(String)}.
+   *
+   * @return Whether any faults have been logged.
+   */
+  public static boolean faultsLogged() {
+    return FaultLogger.faultsLogged();
   }
 
   protected DogLog() {}
