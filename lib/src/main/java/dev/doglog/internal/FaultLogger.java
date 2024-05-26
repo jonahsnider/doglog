@@ -8,6 +8,7 @@ import edu.wpi.first.hal.HALUtil;
 import java.util.HashMap;
 import java.util.Map;
 
+/** Provides the interface for logging faults. */
 public class FaultLogger {
   private static final Map<String, Integer> faultCounts = new HashMap<>();
 
