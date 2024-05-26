@@ -13,11 +13,19 @@ The `ntPublish` option controls whether logs should be published to NetworkTable
 
 This introduces some overhead, and can consume a lot of network bandwidth, so this option should not be used with competition flashed radios.
 
+```java
+DogLog.setOptions(new DogLogOptions().withNtPublish(true));
+```
+
 ### Capture NetworkTables
 
 The `captureNt` option controls whether all NetworkTables values should be included in logs.
 
 This greatly increases the size of logs, and can introduce more overhead when logging.
+
+```java
+DogLog.setOptions(new DogLogOptions().withCaptureNt(true));
+```
 
 ### Capture driver station
 
@@ -25,9 +33,17 @@ The `captureDs` option controls whether joystick data and driver station values 
 
 Due to a a limitation in WPILib's `DataLogManager`, these values can't be published over NetworkTables.
 
+```java
+DogLog.setOptions(new DogLogOptions().withCaptureDs(false));
+```
+
 ### Log extras
 
 The `logExtras` option controls whether "extra" data like PDH currents, CAN bus usage, battery voltage, and other system stats should be included in logs.
+
+```java
+DogLog.setOptions(new DogLogOptions().withLogExtras(false));
+```
 
 ### Log entry queue capacity
 
@@ -39,6 +55,10 @@ Decreasing this value can reduce memory usage, but may result in logs being drop
 Increasing this value can reduce the likelihood of logs being dropped, but will increase memory usage.
 
 You can see the number of queued logs under the `Robot/DogLog/QueuedLogs` log key, to get a sense of how to tune this value.
+
+```java
+DogLog.setOptions(new DogLogOptions().withLogEntryQueueCapacity(1000));
+```
 
 ## Disabling the logger
 

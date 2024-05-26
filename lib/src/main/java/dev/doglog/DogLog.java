@@ -25,7 +25,15 @@ public class DogLog {
     return options;
   }
 
-  /** Update the options used by the logger. */
+  /**
+   * Update the options used by the logger.
+   *
+   * <p>Example:
+   *
+   * <pre>DogLog.setOptions(new DogLogOptions().withNtPublish(true));</pre>
+   *
+   * <p>See https://doglog.dev/reference/advanced-configuration/ for more information.
+   */
   public static void setOptions(DogLogOptions newOptions) {
     if (newOptions == null) {
       newOptions = new DogLogOptions();
