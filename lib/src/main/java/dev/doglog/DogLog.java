@@ -9,6 +9,7 @@ import dev.doglog.internal.LogQueuer;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.PowerDistribution;
 
 /** A logger based on WPILib's {@link DataLogManager} */
 public class DogLog {
@@ -38,6 +39,35 @@ public class DogLog {
       System.out.println("[DogLog] Options changed: " + newOptions.toString());
       logger.setOptions(newOptions);
     }
+  }
+
+  /**
+   * Update the {@link PowerDistribution} used by the logger for logging PDH/PDP data when {@link
+   * DogLogOptions#withLogExtras(boolean) extras logging} is enabled.
+   *
+   * <p>Use this if you want to use a {@link PowerDistribution} object elsewhere in your project, as
+   * well as in DogLog.
+   *
+   * <p>See https://doglog.dev/reference/advanced-configuration/#log-extras for more information.
+   *
+   * @param powerDistribution The {@link PowerDistribution} to use for logging PDH/PDP data.
+   */
+  public static void setPowerDistribution(PowerDistribution powerDistribution) {
+    logger.setPowerDistribution(powerDistribution);
+  }
+
+  /**
+   * Enables PDH/PDP logging when {@link DogLogOptions#withLogExtras(boolean) extras logging} is
+   * enabled. Enabling this will prevent you from using a {@link PowerDistribution} object elsewhere
+   * in your project.
+   *
+   * <p>See {@link DogLog#setPowerDistribution(PowerDistribution)} if you want to use a {@link
+   * PowerDistribution} instance outside of DogLog.
+   *
+   * <p>See https://doglog.dev/reference/advanced-configuration/#log-extras for more information.
+   */
+  public static void setPowerDistribution() {
+    logger.setPowerDistribution(new PowerDistribution());
   }
 
   /**
