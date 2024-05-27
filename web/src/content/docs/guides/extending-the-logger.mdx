@@ -1,0 +1,83 @@
+---
+title: Extending the logger
+description: Customize DogLog's behavior by extending it.
+---
+
+import { FileTree, Steps, LinkCard } from "@astrojs/starlight/components";
+
+DogLog was designed to be highly configurable, and in addition to the large set of options you can adjust, DogLog also allows you to extend the logger to add your own custom behavior.
+
+This guide will walk you through the steps to create a custom logger class that allows you to add your own custom behavior.
+As an example, we will add in a new `log()` method to help log motor values.
+
+## Steps
+
+<Steps>
+1. Add DogLog to your project if you haven't already:
+
+    <LinkCard
+      title="Install guide"
+      href="/getting-started/installation"
+    />
+
+2. Create a new file for your extended logger class:
+
+   <FileTree>
+
+   - src
+     - main
+       - deploy/
+       - java/
+         - frc/
+           - robot/
+             - **CustomLogger.java** Create this file
+             - Main.java
+             - Robot.java
+             - RobotContainer.java
+
+    </FileTree>
+
+3. In the newly created file, paste the following code:
+
+   ```java title="src/main/java/frc/robot/CustomLogger.java"
+   package frc.robot;
+
+   import com.ctre.phoenix6.hardware.TalonFX;
+
+   import dev.doglog.DogLog;
+
+   public class CustomLogger extends DogLog {
+     public static void log(String key, TalonFX motor) {
+       log(key + "/StatorCurrent", motor.getStatorCurrent().getValue());
+       log(key + "/Position", motor.getPosition().getValue());
+       log(key + "/Velocity", motor.getVelocity().getValue());
+     }
+   }
+   ```
+
+   :::note
+   This assumes you have the Phoenix 6 library installed.
+   :::
+
+4. Replace places where you use `DogLog` with `CustomLogger`.
+
+   ```diff lang="java"
+   package frc.robot;
+
+   import com.ctre.phoenix6.hardware.TalonFX;
+   -
+   - import dev.doglog.DogLog;
+
+   public class ExampleClass {
+     private final TalonFX motor = new TalonFX(1);
+
+     public void logData() {
+   -   DogLog.log("ExampleMotor/StatorCurrent", motor.getStatorCurrent().getValue());
+   -   DogLog.log("ExampleMotor/Position", motor.getPosition().getValue());
+   -   DogLog.log("ExampleMotor/Velocity", motor.getVelocity().getValue());
+   +   CustomLogger.log("ExampleMotor", motor);
+     }
+   }
+   ```
+
+</Steps>
