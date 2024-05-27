@@ -17,10 +17,11 @@ You can also represent faults with an enum type, and log them that way:
 
 ```java
 public enum RobotFault {
-    CAMERA_OFFLINE,
-    AUTO_SHOT_TIMEOUT_TRIGGERED,
-    BROWNOUT;
+	CAMERA_OFFLINE,
+	AUTO_SHOT_TIMEOUT_TRIGGERED,
+	BROWNOUT,
 }
+
 ```
 
 ```java

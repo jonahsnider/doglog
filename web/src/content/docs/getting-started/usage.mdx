@@ -3,7 +3,7 @@ title: Usage
 description: Get started with logging using DogLog.
 ---
 
-import { Steps } from "@astrojs/starlight/components";
+import { Steps } from '@astrojs/starlight/components';
 
 Once installed, getting started with DogLog is super easy:
 
@@ -13,6 +13,7 @@ First, import the library from the `dev.doglog` namespace:
 
 ```java
 import dev.doglog.DogLog;
+
 ```
 
 And then you can use `Doglog.log()` to log values like so:
@@ -34,8 +35,9 @@ Here's an example of how to set DogLog to use custom options:
 1. Import the library at the top of `Robot.java`/`RobotContainer.java`:
 
    ```java
-    import dev.doglog.DogLog;
-    import dev.doglog.DogLogOptions;
+   import dev.doglog.DogLog;
+   import dev.doglog.DogLogOptions;
+
    ```
 
 2. In your `Robot`/`RobotContainer` constructor, add the following lines:
@@ -50,32 +52,35 @@ Here's an example of how to set DogLog to use custom options:
 
 ## Full example
 
-```java {9-10,19} title="RobotContainer.java"
+```java {3-4,21} title="RobotContainer.java"
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
+import dev.doglog.DogLog;
+import dev.doglog.DogLogOptions;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import dev.doglog.DogLog;
-import dev.doglog.DogLogOptions;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.ExampleCommand;
+import frc.robot.subsystems.ExampleSubsystem;
 
 public class RobotContainer {
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+	private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
-  public RobotContainer() {
-    DogLog.setOptions(new DogLogOptions().withNtPublish(true));
+	private final CommandXboxController m_driverController = new CommandXboxController(
+		OperatorConstants.kDriverControllerPort
+	);
 
-    configureBindings();
-  }
+	public RobotContainer() {
+		DogLog.setOptions(new DogLogOptions().withNtPublish(true));
 
-  private void configureBindings() {
-    // ...
-  }
+		configureBindings();
+	}
+
+	private void configureBindings() {
+		// ...
+	}
 }
+
 ```
