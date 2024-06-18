@@ -1,10 +1,10 @@
 ---
 title: Home
-description: Simple, unopinionated logging for FRC.
+description: Logging for FRC, without the boilerplate
 template: splash
 hero:
   title: DogLog
-  tagline: Simple, unopinionated logging for FRC
+  tagline: Logging for FRC, without the boilerplate
   image:
     file: ../../assets/logo.svg
   actions:
@@ -20,17 +20,17 @@ hero:
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
 <CardGrid stagger>
-	<Card title="Simple" icon="puzzle">
+	<Card title="Get started in seconds" icon="puzzle">
 		Add the vendordep and start logging, no configuration or setup boilerplate needed
 	</Card>
-	<Card title="Performant" icon="rocket">
-		DogLog was architected for performance, built on top of the highly optimized WPILib `DataLogManager` API
+	<Card title="Performance" icon="rocket">
+		DogLog was designed for fast logging, powered by WPILib's highly optimized `DataLogManager` API
 	</Card>
-	<Card title="Configurable" icon="setting">
-		Practically all of DogLog's functionality can be tweaked & customized to suit your needs
+	<Card title="Flexible" icon="setting">
+		Customize practically all logger behavior with a simple, yet powerful, configuration API
 	</Card>
-	<Card title="Safe" icon="approve-check-circle">
-		DogLog was created to address the lack of a highly reliable and fault-tolerant logging solution for FRC
+	<Card title="High reliability" icon="approve-check-circle">
+		DogLog was created to address the lack of a safe and fault-tolerant logging solution for FRC
 	</Card>
 </CardGrid>
 
