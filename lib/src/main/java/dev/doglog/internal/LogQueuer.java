@@ -21,6 +21,7 @@ import dev.doglog.internal.log_thread.entries.StructArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StructQueuedLogEntry;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -202,5 +203,9 @@ public class LogQueuer {
 
       queue = newQueue;
     }
+  }
+
+  public void setPowerDistribution(PowerDistribution powerDistribution) {
+    extras.setPowerDistribution(powerDistribution);
   }
 }

@@ -21,8 +21,8 @@ public class ExtrasLogger {
 
   private final LogQueuer logger;
 
-  private final PowerDistribution pdh = new PowerDistribution();
-  private final double[] currents = new double[pdh.getNumChannels()];
+  private PowerDistribution pdh;
+  private double[] currents = new double[0];
 
   private DogLogOptions options;
 
@@ -30,10 +30,18 @@ public class ExtrasLogger {
     timer.start();
     this.logger = logger;
     this.options = initialOptions;
+
+    pdh = new PowerDistribution();
+    currents = new double[pdh.getNumChannels()];
   }
 
   public void setOptions(DogLogOptions options) {
     this.options = options;
+  }
+
+  public void setPowerDistribution(PowerDistribution pdh) {
+    this.pdh = pdh;
+    currents = new double[pdh.getNumChannels()];
   }
 
   public void heartbeat() {
@@ -48,7 +56,9 @@ public class ExtrasLogger {
 
     logSystem(now);
     logCan(now);
-    logPdh(now);
+    if (pdh != null) {
+      logPdh(now);
+    }
   }
 
   private void logSystem(long now) {
