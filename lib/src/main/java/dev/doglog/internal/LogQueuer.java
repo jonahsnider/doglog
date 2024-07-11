@@ -34,6 +34,14 @@ public class LogQueuer {
   private int queueFullMessageCount = 0;
 
   void printQueueFullMessage(String key) {
+    if (queueFullMessageCount == 0) {
+      // We only log a fault the first time, since adding a fault log will only cause the log queue
+      // to overflow more
+      // Without this, the robot code could crash from a call stack size exceeded error, since this
+      // function is calling itself over and over
+      FaultLogger.logFault(this, "[DogLog] DOG001");
+    }
+
     queueFullMessageCount++;
 
     if (queueFullMessageCount == MAX_QUEUE_FULL_MESSAGES) {
@@ -46,8 +54,6 @@ public class LogQueuer {
       DriverStation.reportError(
           "[DogLog] DOG001: Log queue is full, dropping log entry for " + key, false);
     }
-
-    FaultLogger.logFault(this, "[DogLog] DOG001");
   }
 
   private final ExtrasLogger extras;
