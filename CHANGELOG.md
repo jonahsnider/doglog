@@ -1,5 +1,12 @@
 # Changelog
 
+## [2024.5.1](https://github.com/jonahsnider/doglog/compare/v2024.5.0...v2024.5.1) (2024-07-11)
+
+
+### Bug Fixes
+
+* fix a potential crash due to a feedback loop in the `LogQueuer#printQueueFullMessage()` method ([cfef1e9](https://github.com/jonahsnider/doglog/commit/cfef1e93fa547f88baba6115ebb3dba33b7d6dcc))
+
 ## [2024.5.0](https://github.com/jonahsnider/doglog/compare/v2024.4.1...v2024.5.0) (2024-05-23)
 
 
