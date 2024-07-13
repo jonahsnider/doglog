@@ -82,13 +82,14 @@ jobs:
     steps:
       - name: Checkout Git repository
         uses: actions/checkout@v4
-      - name: cd to docs directory
-        run: cd web
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
           cache: "yarn"
+          cache-dependency-path: web/yarn.lock
+      - name: cd to docs directory
+        run: cd web
       - name: Install dependencies
         run: yarn install --immutable
       - name: Build docs
