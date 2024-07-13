@@ -1,5 +1,12 @@
 # Changelog
 
+## [2024.5.2](https://github.com/jonahsnider/doglog/compare/v2024.5.1...2024.5.2) (2024-07-13)
+
+
+### Bug Fixes
+
+* fix version field in vendordep.json ([8c59d1f](https://github.com/jonahsnider/doglog/commit/8c59d1ff686d31aa4789d6eb444858fb6c6faf53))
+
 ## [2024.5.1](https://github.com/jonahsnider/doglog/compare/v2024.5.0...v2024.5.1) (2024-07-11)
 
 
