@@ -22,3 +22,22 @@ jobs:
           # (PAT) and configured it as a GitHub action secret named
           # `MY_RELEASE_PLEASE_TOKEN` (this secret name is not important).
           token: ${{ secrets.GITHUB_TOKEN }}
+      # Update the version in vendordep.json to have a v prefix
+      - name: Checkout Git repository
+        # these if statements ensure that a publication only occurs when
+        # a new release is created:
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/checkout@v4
+      - name: Update vendordep.json
+        run: node scripts/update-vendordep.mjs
+        if: ${{ steps.release.outputs.release_created }}
+      - name: Commit and push changes
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add github "https://$GITHUB_ACTOR@github.com/$GITHUB_REPOSITORY.git"
+          git fetch github
+          git add vendordep.json
+          git commit -m "chore: add v prefix to vendordep version tag" || exit 0
+          git push -u github main
