@@ -18,7 +18,7 @@
           "type": "json"
         }
       ],
-      "include-v-in-tag": true,
+      "include-v-in-tag": false,
       "prerelease": false,
       "release-type": "simple"
     }
