@@ -2,102 +2,111 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package dev.doglog.internal.log_thread.loggers;
+package dev.doglog.internal.reporters;
 
 import dev.doglog.DogLogOptions;
-import dev.doglog.internal.log_thread.StructRegistry;
-import edu.wpi.first.hal.HALUtil;
+import dev.doglog.internal.StructRegistry;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DataLogManager;
+import java.util.Arrays;
 
-public class CombinedLogger {
+public class CombinedReporter implements BaseReporter {
   /** The NetworkTables table to log to, if NetworkTables publishing is enabled. */
   private static final String LOG_TABLE = "/Robot";
 
-  private final DataLogLogger dataLogLogger = new DataLogLogger(DataLogManager.getLog(), LOG_TABLE);
+  private final InternalReporter dataLogLogger =
+      new DataLogReporter(DataLogManager.getLog(), LOG_TABLE);
   // Default to null
-  private NetworkTablesLogger ntLogger;
+  private InternalReporter ntLogger;
 
-  public CombinedLogger(DogLogOptions initialOptions) {
+  public CombinedReporter(DogLogOptions initialOptions) {
     // Print default options on start
     printOptions(initialOptions);
   }
 
-  public void log(long timestamp, String key, boolean[] value) {
+  public void log(String key, boolean[] value) {
     if (value == null) {
       return;
     }
 
-    dataLogLogger.log(timestamp, key, value);
+    dataLogLogger.log(key, value);
 
     if (ntLogger != null) {
       ntLogger.log(key, value);
     }
   }
 
-  public void log(long timestamp, String key, boolean value) {
-    dataLogLogger.log(timestamp, key, value);
+  public void log(String key, boolean value) {
+    dataLogLogger.log(key, value);
 
     if (ntLogger != null) {
       ntLogger.log(key, value);
     }
   }
 
-  public void log(long timestamp, String key, double[] value) {
+  public void log(String key, double[] value) {
     if (value == null) {
       return;
     }
 
-    dataLogLogger.log(timestamp, key, value);
+    dataLogLogger.log(key, value);
 
     if (ntLogger != null) {
       ntLogger.log(key, value);
     }
   }
 
-  public void log(long timestamp, String key, double value) {
-    dataLogLogger.log(timestamp, key, value);
+  public void log(String key, double value) {
+    dataLogLogger.log(key, value);
 
     if (ntLogger != null) {
       ntLogger.log(key, value);
     }
   }
 
-  public void log(long timestamp, String key, float[] value) {
+  public void log(String key, float[] value) {
     if (value == null) {
       return;
     }
 
-    dataLogLogger.log(timestamp, key, value);
+    dataLogLogger.log(key, value);
 
     if (ntLogger != null) {
       ntLogger.log(key, value);
     }
   }
 
-  public void log(long timestamp, String key, float value) {
-    dataLogLogger.log(timestamp, key, value);
+  public void log(String key, float value) {
+    dataLogLogger.log(key, value);
 
     if (ntLogger != null) {
       ntLogger.log(key, value);
     }
   }
 
-  public void log(long timestamp, String key, long[] value) {
+  public void log(String key, int[] value) {
     if (value == null) {
       return;
     }
 
-    dataLogLogger.log(timestamp, key, value);
+    log(key, Arrays.stream(value).asLongStream().toArray());
+  }
+
+  public void log(String key, long[] value) {
+    if (value == null) {
+      return;
+    }
+
+    dataLogLogger.log(key, value);
 
     if (ntLogger != null) {
       ntLogger.log(key, value);
     }
   }
 
-  public void log(long timestamp, String key, long value) {
-    dataLogLogger.log(timestamp, key, value);
+  public void log(String key, long value) {
+    dataLogLogger.log(key, value);
     if (ntLogger != null) {
       ntLogger.log(key, value);
     }
@@ -107,18 +116,18 @@ public class CombinedLogger {
 
   // TODO: Raw logs
 
-  public void log(long timestamp, String key, String[] value) {
+  public void log(String key, String[] value) {
     if (value == null) {
       return;
     }
 
-    dataLogLogger.log(timestamp, key, value);
+    dataLogLogger.log(key, value);
     if (ntLogger != null) {
       ntLogger.log(key, value);
     }
   }
 
-  public void log(long timestamp, String key, Enum<?>[] value) {
+  public void log(String key, Enum<?>[] value) {
     if (value == null) {
       return;
     }
@@ -130,41 +139,41 @@ public class CombinedLogger {
       stringArray[i] = value[i].name();
     }
 
-    log(timestamp, key, stringArray);
+    log(key, stringArray);
   }
 
-  public void log(long timestamp, String key, String value) {
+  public void log(String key, String value) {
     if (value == null) {
       return;
     }
 
-    dataLogLogger.log(timestamp, key, value);
+    dataLogLogger.log(key, value);
 
     if (ntLogger != null) {
       ntLogger.log(key, value);
     }
   }
 
-  public void log(long timestamp, String key, Enum<?> value) {
+  public void log(String key, Enum<?> value) {
     if (value == null) {
       return;
     }
 
-    log(timestamp, key, value.name());
+    log(key, value.name());
   }
 
-  private <T> void log(long timestamp, String key, Struct<T> struct, T[] value) {
+  private <T> void log(String key, Struct<T> struct, T[] value) {
     if (value == null) {
       return;
     }
 
-    dataLogLogger.log(timestamp, key, struct, value);
+    dataLogLogger.log(key, struct, value);
     if (ntLogger != null) {
       ntLogger.log(key, struct, value);
     }
   }
 
-  public <T extends StructSerializable> void log(long timestamp, String key, T[] value) {
+  public <T extends StructSerializable> void log(String key, T[] value) {
     if (value == null) {
       return;
     }
@@ -174,18 +183,18 @@ public class CombinedLogger {
     if (maybeStruct.isPresent()) {
       @SuppressWarnings("unchecked")
       var struct = (Struct<T>) maybeStruct.get();
-      log(timestamp, key, struct, value);
+      log(key, struct, value);
     }
   }
 
-  private <T> void log(long timestamp, String key, Struct<T> struct, T value) {
-    dataLogLogger.log(timestamp, key, struct, value);
+  private <T> void log(String key, Struct<T> struct, T value) {
+    dataLogLogger.log(key, struct, value);
     if (ntLogger != null) {
       ntLogger.log(key, struct, value);
     }
   }
 
-  public <T extends StructSerializable> void log(long timestamp, String key, T value) {
+  public <T extends StructSerializable> void log(String key, T value) {
     if (value == null) {
       return;
     }
@@ -195,14 +204,14 @@ public class CombinedLogger {
     if (maybeStruct.isPresent()) {
       @SuppressWarnings("unchecked")
       var struct = (Struct<T>) maybeStruct.get();
-      log(timestamp, key, struct, value);
+      log(key, struct, value);
     }
   }
 
   public void setOptions(DogLogOptions options) {
     // Avoid recreating the logger if the options haven't changed
     if (options.ntPublish() && ntLogger == null) {
-      ntLogger = new NetworkTablesLogger(LOG_TABLE);
+      ntLogger = new NetworkTablesReporter(LOG_TABLE);
     } else {
       ntLogger = null;
     }
@@ -211,7 +220,6 @@ public class CombinedLogger {
   }
 
   private void printOptions(DogLogOptions options) {
-    var now = HALUtil.getFPGATime();
-    log(now, "DogLog/Options", options.toString());
+    log("DogLog/Options", options.toString());
   }
 }
