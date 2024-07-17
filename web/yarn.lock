@@ -16,10 +16,10 @@ __metadata:
   linkType: hard
 
 "@astrojs/check@npm:^0.8.0":
-  version: 0.8.1
-  resolution: "@astrojs/check@npm:0.8.1"
+  version: 0.8.2
+  resolution: "@astrojs/check@npm:0.8.2"
   dependencies:
-    "@astrojs/language-server": "npm:^2.11.1"
+    "@astrojs/language-server": "npm:^2.12.1"
     chokidar: "npm:^3.5.3"
     fast-glob: "npm:^3.3.1"
     kleur: "npm:^4.1.5"
@@ -28,14 +28,7 @@ __metadata:
     typescript: ^5.0.0
   bin:
     astro-check: dist/bin.js
-  checksum: 10c0/4129834b56cbff35ee533764e03b22a02b93db856a5de5c275fa9c04eae0e123a59c4eda70b88b14aea6dcd892cc82890359e3b230ca6de065014f93dbeab123
-  languageName: node
-  linkType: hard
-
-"@astrojs/compiler@npm:^2.7.0":
-  version: 2.7.1
-  resolution: "@astrojs/compiler@npm:2.7.1"
-  checksum: 10c0/e0fc7bde31dafe318ea47859d2277a5ea7fb1b924c72febfdb64e5572ea47a8e028ef110e75b24e6e2a53423a926230420955039c9688baac1c5ab42b25e14dc
+  checksum: 10c0/81c0e094124ec3fad73ad87af733d037b802dbdf8a602aea21ed3bc8bdd7652a1c3cde9d9f09fabfd8170d6584abf0d54fc7f71f94f632ead8a2ae744e97238f
   languageName: node
   linkType: hard
 
@@ -60,11 +53,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/language-server@npm:^2.11.1":
-  version: 2.11.1
-  resolution: "@astrojs/language-server@npm:2.11.1"
+"@astrojs/language-server@npm:^2.12.1":
+  version: 2.12.1
+  resolution: "@astrojs/language-server@npm:2.12.1"
   dependencies:
-    "@astrojs/compiler": "npm:^2.7.0"
+    "@astrojs/compiler": "npm:^2.9.1"
     "@jridgewell/sourcemap-codec": "npm:^1.4.15"
     "@volar/kit": "npm:~2.4.0-alpha.15"
     "@volar/language-core": "npm:~2.4.0-alpha.15"
@@ -91,7 +84,7 @@ __metadata:
       optional: true
   bin:
     astro-ls: bin/nodeServer.js
-  checksum: 10c0/32c0f4120ab3686f6a121787dec2013289c399a28cb4104c419f3add19b35b95767e97baa27f5f50b77b5a36b7f88a505020e085877e5ed9d0b4e61caf1f534e
+  checksum: 10c0/dbcbcf120c8a5542672b9673d31f16c4f5a0b9470ed4bbae39d2aa721b9ed85d7b5b7dbd745e6b791ecd6d8182551873b090d70f98e455efe1b21beef046809b
   languageName: node
   linkType: hard
 
