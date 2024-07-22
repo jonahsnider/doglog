@@ -57,7 +57,7 @@ public class DataLogReporter implements InternalReporter {
     if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
       booleanArrayLogs
           .computeIfAbsent(key, k -> new BooleanArrayLogEntry(log, prefixKey(k)))
-          .append(value);
+          .update(value);
 
       valueHashes.put(key, hash);
     }
@@ -67,7 +67,7 @@ public class DataLogReporter implements InternalReporter {
     var hash = Boolean.hashCode(value);
 
     if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
-      booleanLogs.computeIfAbsent(key, k -> new BooleanLogEntry(log, prefixKey(k))).append(value);
+      booleanLogs.computeIfAbsent(key, k -> new BooleanLogEntry(log, prefixKey(k))).update(value);
 
       valueHashes.put(key, hash);
     }
@@ -78,7 +78,7 @@ public class DataLogReporter implements InternalReporter {
     if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
       doubleArrayLogs
           .computeIfAbsent(key, k -> new DoubleArrayLogEntry(log, prefixKey(k)))
-          .append(value);
+          .update(value);
 
       valueHashes.put(key, hash);
     }
@@ -88,7 +88,7 @@ public class DataLogReporter implements InternalReporter {
     var hash = Double.hashCode(value);
 
     if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
-      doubleLogs.computeIfAbsent(key, k -> new DoubleLogEntry(log, prefixKey(k))).append(value);
+      doubleLogs.computeIfAbsent(key, k -> new DoubleLogEntry(log, prefixKey(k))).update(value);
 
       valueHashes.put(key, hash);
     }
@@ -100,7 +100,7 @@ public class DataLogReporter implements InternalReporter {
     if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
       floatArrayLogs
           .computeIfAbsent(key, k -> new FloatArrayLogEntry(log, prefixKey(k)))
-          .append(value);
+          .update(value);
 
       valueHashes.put(key, hash);
     }
@@ -110,7 +110,7 @@ public class DataLogReporter implements InternalReporter {
     var hash = Float.hashCode(value);
 
     if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
-      floatLogs.computeIfAbsent(key, k -> new FloatLogEntry(log, prefixKey(k))).append(value);
+      floatLogs.computeIfAbsent(key, k -> new FloatLogEntry(log, prefixKey(k))).update(value);
 
       valueHashes.put(key, hash);
     }
@@ -122,7 +122,7 @@ public class DataLogReporter implements InternalReporter {
     if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
       integerArrayLogs
           .computeIfAbsent(key, k -> new IntegerArrayLogEntry(log, prefixKey(k)))
-          .append(value);
+          .update(value);
 
       valueHashes.put(key, hash);
     }
@@ -132,7 +132,7 @@ public class DataLogReporter implements InternalReporter {
     var hash = Long.hashCode(value);
 
     if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
-      integerLogs.computeIfAbsent(key, k -> new IntegerLogEntry(log, prefixKey(k))).append(value);
+      integerLogs.computeIfAbsent(key, k -> new IntegerLogEntry(log, prefixKey(k))).update(value);
 
       valueHashes.put(key, hash);
     }
@@ -148,7 +148,7 @@ public class DataLogReporter implements InternalReporter {
     if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
       stringArrayLogs
           .computeIfAbsent(key, k -> new StringArrayLogEntry(log, prefixKey(k)))
-          .append(value);
+          .update(value);
 
       valueHashes.put(key, hash);
     }
@@ -158,7 +158,7 @@ public class DataLogReporter implements InternalReporter {
     var hash = value.hashCode();
 
     if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
-      stringLogs.computeIfAbsent(key, k -> new StringLogEntry(log, prefixKey(k))).append(value);
+      stringLogs.computeIfAbsent(key, k -> new StringLogEntry(log, prefixKey(k))).update(value);
 
       valueHashes.put(key, hash);
     }
@@ -174,7 +174,7 @@ public class DataLogReporter implements InternalReporter {
               structArrayLogs.computeIfAbsent(
                   key, k -> StructArrayLogEntry.create(log, prefixKey(k), struct));
 
-      entry.append(value);
+      entry.update(value);
 
       valueHashes.put(key, hash);
     }
@@ -190,7 +190,7 @@ public class DataLogReporter implements InternalReporter {
               structLogs.computeIfAbsent(
                   key, k -> StructLogEntry.create(log, prefixKey(k), struct));
 
-      entry.append(value);
+      entry.update(value);
 
       valueHashes.put(key, hash);
     }
