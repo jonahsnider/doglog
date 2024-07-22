@@ -5,9 +5,7 @@ description: Additional information on configuring the logger with the DogLogOpt
 
 By default, DogLog uses default settings that will be safe for a competition environment, but most users will want to tweak the settings to suit their team's needs.
 
-## Logger options
-
-### NetworkTables publishing
+## NetworkTables publishing
 
 The `ntPublish` option controls whether logs should be published to NetworkTables.
 
@@ -17,7 +15,7 @@ This introduces some overhead, and can consume a lot of network bandwidth, so th
 DogLog.setOptions(new DogLogOptions().withNtPublish(true));
 ```
 
-### Capture NetworkTables
+## Capture NetworkTables
 
 The `captureNt` option controls whether all NetworkTables values should be included in logs.
 
@@ -27,7 +25,7 @@ This greatly increases the size of logs, and can introduce more overhead when lo
 DogLog.setOptions(new DogLogOptions().withCaptureNt(true));
 ```
 
-### Capture driver station
+## Capture driver station
 
 The `captureDs` option controls whether joystick data and driver station values (ex. "enabled" or "autonomous") should be included in logs.
 
@@ -37,7 +35,7 @@ Due to a a limitation in WPILib's `DataLogManager`, these values can't be publis
 DogLog.setOptions(new DogLogOptions().withCaptureDs(false));
 ```
 
-### Log extras
+## Log extras
 
 The `logExtras` option controls whether "extra" data like PDH currents, CAN bus usage, battery voltage, and other system stats should be included in logs.
 
@@ -45,7 +43,7 @@ The `logExtras` option controls whether "extra" data like PDH currents, CAN bus 
 DogLog.setOptions(new DogLogOptions().withLogExtras(false));
 ```
 
-### Log entry queue capacity
+## Log entry queue capacity
 
 The `logEntryQueueCapacity` option controls the maximum number of log entries that can be queued for processing by the log thread.
 If the number of queued log entries exceeds this value, logs will be dropped (lost).
