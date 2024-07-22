@@ -35,7 +35,7 @@ public record DogLogOptions(
    */
   public DogLogOptions() {
     // Default options
-    this(false, false, true, true, 500);
+    this(false, false, true, true, 1000);
   }
 
   /**
