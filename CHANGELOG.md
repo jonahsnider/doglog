@@ -1,5 +1,13 @@
 # Changelog
 
+## [2024.5.3](https://github.com/jonahsnider/doglog/compare/2024.5.2...2024.5.3) (2024-07-22)
+
+
+### Bug Fixes
+
+* improve error handling when instantiating `PowerDistribution` ([3256e6f](https://github.com/jonahsnider/doglog/commit/3256e6f854cb3ee3eea720faf04e702e7f4372f3))
+* increase default log entry queue capacity from 500 to 1000 ([9b1549a](https://github.com/jonahsnider/doglog/commit/9b1549aaf70f7e1d53c886a006193e228445986d))
+
 ## [2024.5.2](https://github.com/jonahsnider/doglog/compare/v2024.5.1...2024.5.2) (2024-07-13)
 
 
