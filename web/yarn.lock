@@ -186,8 +186,8 @@ __metadata:
   linkType: hard
 
 "@astrojs/starlight@npm:^0.25.0":
-  version: 0.25.1
-  resolution: "@astrojs/starlight@npm:0.25.1"
+  version: 0.25.2
+  resolution: "@astrojs/starlight@npm:0.25.2"
   dependencies:
     "@astrojs/mdx": "npm:^3.1.0"
     "@astrojs/sitemap": "npm:^3.1.5"
@@ -202,6 +202,7 @@ __metadata:
     hastscript: "npm:^9.0.0"
     mdast-util-directive: "npm:^3.0.0"
     mdast-util-to-markdown: "npm:^2.1.0"
+    mdast-util-to-string: "npm:^4.0.0"
     pagefind: "npm:^1.0.3"
     rehype: "npm:^13.0.1"
     rehype-format: "npm:^5.0.0"
@@ -211,7 +212,7 @@ __metadata:
     vfile: "npm:^6.0.1"
   peerDependencies:
     astro: ^4.8.6
-  checksum: 10c0/12a82ee791e95719f0697e3a9cb0b8c41dfd43ba4dac7270c8735660018a3acd3c0ef03051d94a66df1b981382255a21028763548d103ce3a9a965e9c5c96d9e
+  checksum: 10c0/608c59704db98d6f5ea0d1c2f5e1f7250380de730fff50abfcf1205c5dd7ee99711a2840bc2504a52e9d065298583dc56fbc2f14bea2d9e51e0eed4c9c4b7387
   languageName: node
   linkType: hard
 
