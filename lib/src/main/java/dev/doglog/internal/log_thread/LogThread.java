@@ -27,8 +27,6 @@ import java.util.concurrent.BlockingQueue;
 
 /** A thread that processes queued log entries and writes them to the log file. */
 public class LogThread extends Thread {
-  private static final double DIAGNOSTICS_PERIOD_SECONDS = 0.02;
-
   private final BlockingQueue<BaseQueuedLogEntry> queue;
   private final CombinedLogger logger;
   private final Timer diagnosticsTimer = new Timer();
@@ -95,7 +93,7 @@ public class LogThread extends Thread {
           logger.log(entry.timestamp, entry.key, ((StructQueuedLogEntry<?>) entry).value);
         }
 
-        if (diagnosticsTimer.hasElapsed(DIAGNOSTICS_PERIOD_SECONDS)) {
+        if (diagnosticsTimer.hasElapsed(DogLogOptions.LOOP_PERIOD_SECONDS)) {
           diagnosticsTimer.reset();
           var now = HALUtil.getFPGATime();
           logger.log(now, "DogLog/QueuedLogs", queue.size());

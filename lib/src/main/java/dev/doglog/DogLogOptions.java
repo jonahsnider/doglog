@@ -26,6 +26,8 @@ public record DogLogOptions(
     boolean logExtras,
     /** The maximum size of the log entry queue to use. */
     int logEntryQueueCapacity) {
+  public static final double LOOP_PERIOD_SECONDS = 0.02;
+
   /**
    * Create a new options object using the default options. The default options are safe for a
    * competition environment, but not really suited for a development environment.
