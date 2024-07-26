@@ -16,10 +16,10 @@ __metadata:
   linkType: hard
 
 "@astrojs/check@npm:^0.8.0":
-  version: 0.8.2
-  resolution: "@astrojs/check@npm:0.8.2"
+  version: 0.8.3
+  resolution: "@astrojs/check@npm:0.8.3"
   dependencies:
-    "@astrojs/language-server": "npm:^2.12.1"
+    "@astrojs/language-server": "npm:^2.12.7"
     chokidar: "npm:^3.5.3"
     fast-glob: "npm:^3.3.1"
     kleur: "npm:^4.1.5"
@@ -28,7 +28,7 @@ __metadata:
     typescript: ^5.0.0
   bin:
     astro-check: dist/bin.js
-  checksum: 10c0/81c0e094124ec3fad73ad87af733d037b802dbdf8a602aea21ed3bc8bdd7652a1c3cde9d9f09fabfd8170d6584abf0d54fc7f71f94f632ead8a2ae744e97238f
+  checksum: 10c0/4bc9b084e39770ec89264cdc871dbdda48a010c18469f4373cb4fae6a990bd596b10eb89f3d9ee4dc6762a259383d68d40252043e40af92676f85d697f9a4ee1
   languageName: node
   linkType: hard
 
@@ -53,9 +53,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/language-server@npm:^2.12.1":
-  version: 2.12.1
-  resolution: "@astrojs/language-server@npm:2.12.1"
+"@astrojs/language-server@npm:^2.12.7":
+  version: 2.12.8
+  resolution: "@astrojs/language-server@npm:2.12.8"
   dependencies:
     "@astrojs/compiler": "npm:^2.9.1"
     "@jridgewell/sourcemap-codec": "npm:^1.4.15"
@@ -84,7 +84,7 @@ __metadata:
       optional: true
   bin:
     astro-ls: bin/nodeServer.js
-  checksum: 10c0/dbcbcf120c8a5542672b9673d31f16c4f5a0b9470ed4bbae39d2aa721b9ed85d7b5b7dbd745e6b791ecd6d8182551873b090d70f98e455efe1b21beef046809b
+  checksum: 10c0/26b96aed9c4e80b918eedb863ccdbb6c444efe8a0d60235f3425e51d93fa65ada82947e98aeb66aa41464dac76749adecd262c6d3dbdc01da69bc036bf87ad6a
   languageName: node
   linkType: hard
 
