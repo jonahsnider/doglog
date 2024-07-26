@@ -4,7 +4,7 @@
 
 package dev.doglog.internal;
 
-import dev.doglog.internal.reporters.CombinedReporter;
+import edu.wpi.first.hal.HALUtil;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,7 +12,7 @@ import java.util.Map;
 public class FaultLogger {
   private static final Map<String, Integer> faultCounts = new HashMap<>();
 
-  public static void logFault(CombinedReporter logger, String faultName) {
+  public static void logFault(LogQueuer logger, String faultName) {
     faultCounts.merge(faultName, 1, Integer::sum);
 
     log(logger);
@@ -22,12 +22,14 @@ public class FaultLogger {
     return !faultCounts.isEmpty();
   }
 
-  private static void log(CombinedReporter logger) {
+  private static void log(LogQueuer logger) {
+    var now = HALUtil.getFPGATime();
+
     for (var entry : faultCounts.entrySet()) {
-      logger.log("Faults/Counts/" + entry.getKey(), entry.getValue());
+      logger.queueLog(now, "Faults/Counts/" + entry.getKey(), entry.getValue());
     }
 
-    logger.log("Faults/Seen", faultCounts.keySet().toArray(String[]::new));
+    logger.queueLog(now, "Faults/Seen", faultCounts.keySet().toArray(String[]::new));
   }
 
   private FaultLogger() {}

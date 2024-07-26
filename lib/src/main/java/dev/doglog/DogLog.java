@@ -4,9 +4,9 @@
 
 package dev.doglog;
 
-import dev.doglog.internal.ExtrasLogger;
 import dev.doglog.internal.FaultLogger;
-import dev.doglog.internal.reporters.CombinedReporter;
+import dev.doglog.internal.LogQueuer;
+import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DataLogManager;
 
@@ -15,9 +15,7 @@ public class DogLog {
   /** The options to use for the logger. */
   protected static DogLogOptions options = new DogLogOptions();
 
-  protected static final CombinedReporter reporter = new CombinedReporter(options);
-
-  protected static final ExtrasLogger extrasLogger = new ExtrasLogger(reporter, options);
+  protected static final LogQueuer logger = new LogQueuer(options);
 
   /** Whether the logger is enabled. */
   protected static boolean enabled = true;
@@ -46,7 +44,7 @@ public class DogLog {
 
     if (!oldOptions.equals(newOptions)) {
       System.out.println("[DogLog] Options changed: " + newOptions.toString());
-      reporter.setOptions(newOptions);
+      logger.setOptions(newOptions);
     }
   }
 
@@ -61,71 +59,72 @@ public class DogLog {
   /** Log a boolean array. */
   public static void log(String key, boolean[] value) {
     if (enabled) {
-      reporter.log(key, value);
-      extrasLogger.heartbeat();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log a boolean. */
   public static void log(String key, boolean value) {
     if (enabled) {
-      reporter.log(key, value);
-      extrasLogger.heartbeat();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log a double array. */
   public static void log(String key, double[] value) {
     if (enabled) {
-      reporter.log(key, value);
-      extrasLogger.heartbeat();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log a double. */
   public static void log(String key, double value) {
     if (enabled) {
-      reporter.log(key, value);
-      extrasLogger.heartbeat();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log a float array. */
   public static void log(String key, float[] value) {
     if (enabled) {
-      reporter.log(key, value);
-      extrasLogger.heartbeat();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log a float. */
   public static void log(String key, float value) {
     if (enabled) {
-      reporter.log(key, value);
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log an int array. */
   public static void log(String key, int[] value) {
     if (enabled) {
-      reporter.log(key, value);
-      extrasLogger.heartbeat();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log a long array. */
   public static void log(String key, long[] value) {
     if (enabled) {
-      reporter.log(key, value);
-      extrasLogger.heartbeat();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log a long. */
   public static void log(String key, long value) {
     if (enabled) {
-      reporter.log(key, value);
-      extrasLogger.heartbeat();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
@@ -136,8 +135,8 @@ public class DogLog {
   /** Log a string array. */
   public static void log(String key, String[] value) {
     if (enabled) {
-      reporter.log(key, value);
-      extrasLogger.heartbeat();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
@@ -159,8 +158,8 @@ public class DogLog {
   /** Log a string. */
   public static void log(String key, String value) {
     if (enabled) {
-      reporter.log(key, value);
-      extrasLogger.heartbeat();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
@@ -175,16 +174,16 @@ public class DogLog {
   /** Log a struct array. */
   public static <T extends StructSerializable> void log(String key, T[] value) {
     if (enabled) {
-      reporter.log(key, value);
-      extrasLogger.heartbeat();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
   /** Log a struct. */
   public static <T extends StructSerializable> void log(String key, T value) {
     if (enabled) {
-      reporter.log(key, value);
-      extrasLogger.heartbeat();
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value);
     }
   }
 
@@ -197,8 +196,7 @@ public class DogLog {
    */
   public static void logFault(String faultName) {
     if (enabled) {
-      FaultLogger.logFault(reporter, faultName);
-      extrasLogger.heartbeat();
+      FaultLogger.logFault(logger, faultName);
     }
   }
 

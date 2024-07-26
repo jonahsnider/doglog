@@ -23,7 +23,9 @@ public record DogLogOptions(
      */
     boolean captureDs,
     /** Whether to log extra data, like PDH currents, CAN usage, etc. */
-    boolean logExtras) {
+    boolean logExtras,
+    /** The maximum size of the log entry queue to use. */
+    int logEntryQueueCapacity) {
   /**
    * Create a new options object using the default options. The default options are safe for a
    * competition environment, but not really suited for a development environment.
@@ -33,7 +35,7 @@ public record DogLogOptions(
    */
   public DogLogOptions() {
     // Default options
-    this(false, false, true, true);
+    this(false, false, true, true, 1000);
   }
 
   /**
@@ -49,7 +51,8 @@ public record DogLogOptions(
    * @return A new options object with {@link DogLogOptions#ntPublish} set to the provided value.
    */
   public DogLogOptions withNtPublish(boolean ntPublish) {
-    return new DogLogOptions(ntPublish, captureNt(), captureDs(), logExtras());
+    return new DogLogOptions(
+        ntPublish, captureNt(), captureDs(), logExtras(), logEntryQueueCapacity());
   }
 
   /**
@@ -64,7 +67,8 @@ public record DogLogOptions(
    * @return A new options object with {@link DogLogOptions#captureNt} set to the provided value.
    */
   public DogLogOptions withCaptureNt(boolean captureNt) {
-    return new DogLogOptions(ntPublish(), captureNt, captureDs(), logExtras());
+    return new DogLogOptions(
+        ntPublish(), captureNt, captureDs(), logExtras(), logEntryQueueCapacity());
   }
 
   /**
@@ -79,7 +83,8 @@ public record DogLogOptions(
    * @return A new options object with {@link DogLogOptions#captureDs} set to the provided value.
    */
   public DogLogOptions withCaptureDs(boolean captureDs) {
-    return new DogLogOptions(ntPublish(), captureNt(), captureDs, logExtras());
+    return new DogLogOptions(
+        ntPublish(), captureNt(), captureDs, logExtras(), logEntryQueueCapacity());
   }
 
   /**
@@ -94,6 +99,24 @@ public record DogLogOptions(
    * @return A new options object with {@link DogLogOptions#logExtras} set to the provided value.
    */
   public DogLogOptions withLogExtras(boolean logExtras) {
-    return new DogLogOptions(ntPublish(), captureNt(), captureDs(), logExtras);
+    return new DogLogOptions(
+        ntPublish(), captureNt(), captureDs(), logExtras, logEntryQueueCapacity());
+  }
+
+  /**
+   * Create a new options object, inheriting the configuration from this one, with {@link
+   * DogLogOptions#logEntryQueueCapacity} set to the provided value.
+   *
+   * <p>Example:
+   *
+   * <pre>DogLog.setOptions(new DogLogOptions().withLogEntryQueueCapacity(1000));</pre>
+   *
+   * @param logEntryQueueCapacity The size of the log message queue to use.
+   * @return A new options object with {@link DogLogOptions#logEntryQueueCapacity} set to the
+   *     provided value.
+   */
+  public DogLogOptions withLogEntryQueueCapacity(int logEntryQueueCapacity) {
+    return new DogLogOptions(
+        ntPublish(), captureNt(), captureDs(), logExtras(), logEntryQueueCapacity);
   }
 }

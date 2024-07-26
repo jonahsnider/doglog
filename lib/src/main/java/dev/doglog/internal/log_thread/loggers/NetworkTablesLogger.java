@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package dev.doglog.internal.reporters;
+package dev.doglog.internal.log_thread.loggers;
 
 import edu.wpi.first.networktables.BooleanArrayPublisher;
 import edu.wpi.first.networktables.BooleanPublisher;
@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** Logs to NetworkTables. */
-public class NetworkTablesReporter implements InternalReporter {
+public class NetworkTablesLogger {
   private static final PubSubOption PUB_SUB_OPTIONS = PubSubOption.sendAll(true);
 
   private final NetworkTable logTable;
@@ -46,7 +46,7 @@ public class NetworkTablesReporter implements InternalReporter {
   private final Map<String, StructArrayPublisher<?>> structArrayPublishers = new HashMap<>();
   private final Map<String, StructPublisher<?>> structPublishers = new HashMap<>();
 
-  public NetworkTablesReporter(String logTable) {
+  public NetworkTablesLogger(String logTable) {
     this.logTable = NetworkTableInstance.getDefault().getTable(logTable);
   }
 
@@ -112,6 +112,7 @@ public class NetworkTablesReporter implements InternalReporter {
 
   @SuppressWarnings("resource")
   public void log(String key, String[] value) {
+
     stringArrayPublishers
         .computeIfAbsent(key, k -> logTable.getStringArrayTopic(k).publish(PUB_SUB_OPTIONS))
         .set(value);
@@ -119,6 +120,7 @@ public class NetworkTablesReporter implements InternalReporter {
 
   @SuppressWarnings("resource")
   public void log(String key, String value) {
+
     stringPublishers
         .computeIfAbsent(key, k -> logTable.getStringTopic(k).publish(PUB_SUB_OPTIONS))
         .set(value);
