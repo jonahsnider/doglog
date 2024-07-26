@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package dev.doglog.internal.log_thread.loggers;
+package dev.doglog.internal.log_thread.reporters;
 
 import dev.doglog.DogLogOptions;
 import dev.doglog.internal.log_thread.StructRegistry;
@@ -11,15 +11,16 @@ import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DataLogManager;
 
-public class CombinedLogger {
+public class CombinedReporter {
   /** The NetworkTables table to log to, if NetworkTables publishing is enabled. */
   private static final String LOG_TABLE = "/Robot";
 
-  private final DataLogLogger dataLogLogger = new DataLogLogger(DataLogManager.getLog(), LOG_TABLE);
+  private final DataLogReporter dataLogReporter =
+      new DataLogReporter(DataLogManager.getLog(), LOG_TABLE);
   // Default to null
-  private NetworkTablesLogger ntLogger;
+  private NetworkTablesReporter ntReporter;
 
-  public CombinedLogger(DogLogOptions initialOptions) {
+  public CombinedReporter(DogLogOptions initialOptions) {
     // Print default options on start
     printOptions(initialOptions);
   }
@@ -29,18 +30,18 @@ public class CombinedLogger {
       return;
     }
 
-    dataLogLogger.log(timestamp, key, value);
+    dataLogReporter.log(timestamp, key, value);
 
-    if (ntLogger != null) {
-      ntLogger.log(key, value);
+    if (ntReporter != null) {
+      ntReporter.log(key, value);
     }
   }
 
   public void log(long timestamp, String key, boolean value) {
-    dataLogLogger.log(timestamp, key, value);
+    dataLogReporter.log(timestamp, key, value);
 
-    if (ntLogger != null) {
-      ntLogger.log(key, value);
+    if (ntReporter != null) {
+      ntReporter.log(key, value);
     }
   }
 
@@ -49,18 +50,18 @@ public class CombinedLogger {
       return;
     }
 
-    dataLogLogger.log(timestamp, key, value);
+    dataLogReporter.log(timestamp, key, value);
 
-    if (ntLogger != null) {
-      ntLogger.log(key, value);
+    if (ntReporter != null) {
+      ntReporter.log(key, value);
     }
   }
 
   public void log(long timestamp, String key, double value) {
-    dataLogLogger.log(timestamp, key, value);
+    dataLogReporter.log(timestamp, key, value);
 
-    if (ntLogger != null) {
-      ntLogger.log(key, value);
+    if (ntReporter != null) {
+      ntReporter.log(key, value);
     }
   }
 
@@ -69,18 +70,18 @@ public class CombinedLogger {
       return;
     }
 
-    dataLogLogger.log(timestamp, key, value);
+    dataLogReporter.log(timestamp, key, value);
 
-    if (ntLogger != null) {
-      ntLogger.log(key, value);
+    if (ntReporter != null) {
+      ntReporter.log(key, value);
     }
   }
 
   public void log(long timestamp, String key, float value) {
-    dataLogLogger.log(timestamp, key, value);
+    dataLogReporter.log(timestamp, key, value);
 
-    if (ntLogger != null) {
-      ntLogger.log(key, value);
+    if (ntReporter != null) {
+      ntReporter.log(key, value);
     }
   }
 
@@ -89,17 +90,17 @@ public class CombinedLogger {
       return;
     }
 
-    dataLogLogger.log(timestamp, key, value);
+    dataLogReporter.log(timestamp, key, value);
 
-    if (ntLogger != null) {
-      ntLogger.log(key, value);
+    if (ntReporter != null) {
+      ntReporter.log(key, value);
     }
   }
 
   public void log(long timestamp, String key, long value) {
-    dataLogLogger.log(timestamp, key, value);
-    if (ntLogger != null) {
-      ntLogger.log(key, value);
+    dataLogReporter.log(timestamp, key, value);
+    if (ntReporter != null) {
+      ntReporter.log(key, value);
     }
   }
 
@@ -112,9 +113,9 @@ public class CombinedLogger {
       return;
     }
 
-    dataLogLogger.log(timestamp, key, value);
-    if (ntLogger != null) {
-      ntLogger.log(key, value);
+    dataLogReporter.log(timestamp, key, value);
+    if (ntReporter != null) {
+      ntReporter.log(key, value);
     }
   }
 
@@ -138,10 +139,10 @@ public class CombinedLogger {
       return;
     }
 
-    dataLogLogger.log(timestamp, key, value);
+    dataLogReporter.log(timestamp, key, value);
 
-    if (ntLogger != null) {
-      ntLogger.log(key, value);
+    if (ntReporter != null) {
+      ntReporter.log(key, value);
     }
   }
 
@@ -158,9 +159,9 @@ public class CombinedLogger {
       return;
     }
 
-    dataLogLogger.log(timestamp, key, struct, value);
-    if (ntLogger != null) {
-      ntLogger.log(key, struct, value);
+    dataLogReporter.log(timestamp, key, struct, value);
+    if (ntReporter != null) {
+      ntReporter.log(key, struct, value);
     }
   }
 
@@ -179,9 +180,9 @@ public class CombinedLogger {
   }
 
   private <T> void log(long timestamp, String key, Struct<T> struct, T value) {
-    dataLogLogger.log(timestamp, key, struct, value);
-    if (ntLogger != null) {
-      ntLogger.log(key, struct, value);
+    dataLogReporter.log(timestamp, key, struct, value);
+    if (ntReporter != null) {
+      ntReporter.log(key, struct, value);
     }
   }
 
@@ -201,10 +202,10 @@ public class CombinedLogger {
 
   public void setOptions(DogLogOptions options) {
     // Avoid recreating the logger if the options haven't changed
-    if (options.ntPublish() && ntLogger == null) {
-      ntLogger = new NetworkTablesLogger(LOG_TABLE);
+    if (options.ntPublish() && ntReporter == null) {
+      ntReporter = new NetworkTablesReporter(LOG_TABLE);
     } else {
-      ntLogger = null;
+      ntReporter = null;
     }
 
     printOptions(options);
