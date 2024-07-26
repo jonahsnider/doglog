@@ -4,7 +4,6 @@
 
 package dev.doglog.internal.log_thread.loggers;
 
-import dev.doglog.internal.reporters.InternalReporter;
 import edu.wpi.first.util.datalog.BooleanArrayLogEntry;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
