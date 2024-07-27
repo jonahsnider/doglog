@@ -18,7 +18,7 @@ import dev.doglog.internal.log_thread.entries.StringArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StructArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StructQueuedLogEntry;
-import dev.doglog.internal.log_thread.loggers.CombinedLogger;
+import dev.doglog.internal.log_thread.reporters.CombinedReporter;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -27,10 +27,8 @@ import java.util.concurrent.BlockingQueue;
 
 /** A thread that processes queued log entries and writes them to the log file. */
 public class LogThread extends Thread {
-  private static final double DIAGNOSTICS_PERIOD_SECONDS = 0.02;
-
   private final BlockingQueue<BaseQueuedLogEntry> queue;
-  private final CombinedLogger logger;
+  private final CombinedReporter logger;
   private final Timer diagnosticsTimer = new Timer();
 
   public LogThread(BlockingQueue<BaseQueuedLogEntry> queue, DogLogOptions initialOptions) {
@@ -44,7 +42,7 @@ public class LogThread extends Thread {
     // tick before setOptions() disables NT capture.
     DataLogManager.logNetworkTables(initialOptions.captureNt());
 
-    this.logger = new CombinedLogger(initialOptions);
+    this.logger = new CombinedReporter(initialOptions);
 
     diagnosticsTimer.start();
   }
@@ -95,7 +93,7 @@ public class LogThread extends Thread {
           logger.log(entry.timestamp, entry.key, ((StructQueuedLogEntry<?>) entry).value);
         }
 
-        if (diagnosticsTimer.hasElapsed(DIAGNOSTICS_PERIOD_SECONDS)) {
+        if (diagnosticsTimer.hasElapsed(DogLogOptions.LOOP_PERIOD_SECONDS)) {
           diagnosticsTimer.reset();
           var now = HALUtil.getFPGATime();
           logger.log(now, "DogLog/QueuedLogs", queue.size());

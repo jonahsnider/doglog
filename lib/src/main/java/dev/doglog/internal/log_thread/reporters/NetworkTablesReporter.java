@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package dev.doglog.internal.log_thread.loggers;
+package dev.doglog.internal.log_thread.reporters;
 
 import edu.wpi.first.networktables.BooleanArrayPublisher;
 import edu.wpi.first.networktables.BooleanPublisher;
@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** Logs to NetworkTables. */
-public class NetworkTablesLogger {
+public class NetworkTablesReporter {
   private static final PubSubOption PUB_SUB_OPTIONS = PubSubOption.sendAll(true);
 
   private final NetworkTable logTable;
@@ -46,7 +46,7 @@ public class NetworkTablesLogger {
   private final Map<String, StructArrayPublisher<?>> structArrayPublishers = new HashMap<>();
   private final Map<String, StructPublisher<?>> structPublishers = new HashMap<>();
 
-  public NetworkTablesLogger(String logTable) {
+  public NetworkTablesReporter(String logTable) {
     this.logTable = NetworkTableInstance.getDefault().getTable(logTable);
   }
 

@@ -16,8 +16,6 @@ import edu.wpi.first.wpilibj.Timer;
 
 /** Logs "extra" information. */
 public class ExtrasLogger {
-  private static final double LOOP_PERIOD_SECONDS = 0.02;
-
   private final Timer timer = new Timer();
 
   private final LogQueuer logger;
@@ -51,7 +49,7 @@ public class ExtrasLogger {
   }
 
   public void heartbeat() {
-    if (options.logExtras() && timer.hasElapsed(LOOP_PERIOD_SECONDS)) {
+    if (options.logExtras() && timer.hasElapsed(DogLogOptions.LOOP_PERIOD_SECONDS)) {
       timer.reset();
       log();
     }
