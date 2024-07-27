@@ -1,5 +1,12 @@
 # Changelog
 
+## [2024.5.4](https://github.com/jonahsnider/doglog/compare/2024.5.3...2024.5.4) (2024-07-27)
+
+
+### Performance Improvements
+
+* improve performance when processing queued log entries ([9c95541](https://github.com/jonahsnider/doglog/commit/9c9554180c39b127828e5b449a141bdb7a0ac445))
+
 ## [2024.5.3](https://github.com/jonahsnider/doglog/compare/2024.5.2...2024.5.3) (2024-07-22)
 
 
