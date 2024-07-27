@@ -8,7 +8,7 @@ public class IntegerArrayQueuedLogEntry extends BaseQueuedLogEntry {
   public final long[] value;
 
   public IntegerArrayQueuedLogEntry(String key, long timestamp, long[] value) {
-    super(key, timestamp);
+    super(EntryType.INTEGER_ARRAY, key, timestamp);
     this.value = value;
   }
 

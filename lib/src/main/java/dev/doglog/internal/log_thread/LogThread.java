@@ -67,30 +67,43 @@ public class LogThread extends Thread {
       while (true) {
         var entry = queue.take();
 
-        if (entry instanceof BooleanArrayQueuedLogEntry) {
-          logger.log(entry.timestamp, entry.key, ((BooleanArrayQueuedLogEntry) entry).value);
-        } else if (entry instanceof BooleanQueuedLogEntry) {
-          logger.log(entry.timestamp, entry.key, ((BooleanQueuedLogEntry) entry).value);
-        } else if (entry instanceof DoubleArrayQueuedLogEntry) {
-          logger.log(entry.timestamp, entry.key, ((DoubleArrayQueuedLogEntry) entry).value);
-        } else if (entry instanceof DoubleQueuedLogEntry) {
-          logger.log(entry.timestamp, entry.key, ((DoubleQueuedLogEntry) entry).value);
-        } else if (entry instanceof FloatArrayQueuedLogEntry) {
-          logger.log(entry.timestamp, entry.key, ((FloatArrayQueuedLogEntry) entry).value);
-        } else if (entry instanceof FloatQueuedLogEntry) {
-          logger.log(entry.timestamp, entry.key, ((FloatQueuedLogEntry) entry).value);
-        } else if (entry instanceof IntegerArrayQueuedLogEntry) {
-          logger.log(entry.timestamp, entry.key, ((IntegerArrayQueuedLogEntry) entry).value);
-        } else if (entry instanceof IntegerQueuedLogEntry) {
-          logger.log(entry.timestamp, entry.key, ((IntegerQueuedLogEntry) entry).value);
-        } else if (entry instanceof StringArrayQueuedLogEntry) {
-          logger.log(entry.timestamp, entry.key, ((StringArrayQueuedLogEntry) entry).value);
-        } else if (entry instanceof StringQueuedLogEntry) {
-          logger.log(entry.timestamp, entry.key, ((StringQueuedLogEntry) entry).value);
-        } else if (entry instanceof StructArrayQueuedLogEntry) {
-          logger.log(entry.timestamp, entry.key, ((StructArrayQueuedLogEntry<?>) entry).value);
-        } else if (entry instanceof StructQueuedLogEntry) {
-          logger.log(entry.timestamp, entry.key, ((StructQueuedLogEntry<?>) entry).value);
+        switch (entry.type) {
+          case BOOLEAN_ARRAY:
+            logger.log(entry.timestamp, entry.key, ((BooleanArrayQueuedLogEntry) entry).value);
+            break;
+          case BOOLEAN:
+            logger.log(entry.timestamp, entry.key, ((BooleanQueuedLogEntry) entry).value);
+            break;
+          case DOUBLE_ARRAY:
+            logger.log(entry.timestamp, entry.key, ((DoubleArrayQueuedLogEntry) entry).value);
+            break;
+          case DOUBLE:
+            logger.log(entry.timestamp, entry.key, ((DoubleQueuedLogEntry) entry).value);
+            break;
+          case FLOAT_ARRAY:
+            logger.log(entry.timestamp, entry.key, ((FloatArrayQueuedLogEntry) entry).value);
+            break;
+          case FLOAT:
+            logger.log(entry.timestamp, entry.key, ((FloatQueuedLogEntry) entry).value);
+            break;
+          case INTEGER_ARRAY:
+            logger.log(entry.timestamp, entry.key, ((IntegerArrayQueuedLogEntry) entry).value);
+            break;
+          case INTEGER:
+            logger.log(entry.timestamp, entry.key, ((IntegerQueuedLogEntry) entry).value);
+            break;
+          case STRING_ARRAY:
+            logger.log(entry.timestamp, entry.key, ((StringArrayQueuedLogEntry) entry).value);
+            break;
+          case STRING:
+            logger.log(entry.timestamp, entry.key, ((StringQueuedLogEntry) entry).value);
+            break;
+          case STRUCT_ARRAY:
+            logger.log(entry.timestamp, entry.key, ((StructArrayQueuedLogEntry<?>) entry).value);
+            break;
+          case STRUCT:
+            logger.log(entry.timestamp, entry.key, ((StructQueuedLogEntry<?>) entry).value);
+            break;
         }
 
         if (diagnosticsTimer.hasElapsed(DogLogOptions.LOOP_PERIOD_SECONDS)) {

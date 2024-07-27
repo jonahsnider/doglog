@@ -10,7 +10,7 @@ public class StructQueuedLogEntry<T extends StructSerializable> extends BaseQueu
   public final T value;
 
   public StructQueuedLogEntry(String key, long timestamp, T value) {
-    super(key, timestamp);
+    super(EntryType.STRUCT, key, timestamp);
     this.value = value;
   }
 }

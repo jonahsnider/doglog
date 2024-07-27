@@ -4,11 +4,18 @@
 
 package dev.doglog.internal.log_thread.entries;
 
-public class DoubleQueuedLogEntry extends BaseQueuedLogEntry {
-  public final double value;
-
-  public DoubleQueuedLogEntry(String key, long timestamp, double value) {
-    super(EntryType.DOUBLE, key, timestamp);
-    this.value = value;
-  }
+/** The type of a queued log entry. */
+public enum EntryType {
+  BOOLEAN_ARRAY,
+  BOOLEAN,
+  DOUBLE_ARRAY,
+  DOUBLE,
+  FLOAT_ARRAY,
+  FLOAT,
+  INTEGER_ARRAY,
+  INTEGER,
+  STRING_ARRAY,
+  STRING,
+  STRUCT_ARRAY,
+  STRUCT,
 }

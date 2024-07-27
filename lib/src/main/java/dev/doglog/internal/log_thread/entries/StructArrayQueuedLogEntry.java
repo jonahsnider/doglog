@@ -10,7 +10,7 @@ public class StructArrayQueuedLogEntry<T extends StructSerializable> extends Bas
   public final T[] value;
 
   public StructArrayQueuedLogEntry(String key, long timestamp, T[] value) {
-    super(key, timestamp);
+    super(EntryType.STRUCT_ARRAY, key, timestamp);
     this.value = value;
   }
 }
