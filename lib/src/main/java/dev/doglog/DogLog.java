@@ -9,6 +9,7 @@ import dev.doglog.internal.LogQueuer;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.PowerDistribution;
 
 /** A logger based on WPILib's {@link DataLogManager} */
 public class DogLog {
@@ -46,6 +47,10 @@ public class DogLog {
       System.out.println("[DogLog] Options changed: " + newOptions.toString());
       logger.setOptions(newOptions);
     }
+  }
+
+  public static void setPdh(PowerDistribution pdh) {
+    logger.setPdh(pdh);
   }
 
   /**
