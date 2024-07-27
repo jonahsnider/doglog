@@ -20,7 +20,6 @@ import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.util.datalog.StructArrayLogEntry;
 import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.util.struct.Struct;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,7 +39,6 @@ public class DataLogReporter {
   private final Map<String, StringLogEntry> stringLogs = new HashMap<>();
   private final Map<String, StructArrayLogEntry<?>> structArrayLogs = new HashMap<>();
   private final Map<String, StructLogEntry<?>> structLogs = new HashMap<>();
-  private final Map<String, Integer> valueHashes = new HashMap<>();
 
   private final String logTable;
 
@@ -52,98 +50,51 @@ public class DataLogReporter {
   }
 
   public void log(long timestamp, String key, boolean[] value) {
-    var hash = Arrays.hashCode(value);
-
-    if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
-      booleanArrayLogs
-          .computeIfAbsent(key, k -> new BooleanArrayLogEntry(log, prefixKey(k)))
-          .update(value, timestamp);
-
-      valueHashes.put(key, hash);
-    }
+    booleanArrayLogs
+        .computeIfAbsent(key, k -> new BooleanArrayLogEntry(log, prefixKey(k)))
+        .update(value, timestamp);
   }
 
   public void log(long timestamp, String key, boolean value) {
-    var hash = Boolean.hashCode(value);
-
-    if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
-      booleanLogs
-          .computeIfAbsent(key, k -> new BooleanLogEntry(log, prefixKey(k)))
-          .update(value, timestamp);
-
-      valueHashes.put(key, hash);
-    }
+    booleanLogs
+        .computeIfAbsent(key, k -> new BooleanLogEntry(log, prefixKey(k)))
+        .update(value, timestamp);
   }
 
   public void log(long timestamp, String key, double[] value) {
-    var hash = Arrays.hashCode(value);
-    if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
-      doubleArrayLogs
-          .computeIfAbsent(key, k -> new DoubleArrayLogEntry(log, prefixKey(k)))
-          .update(value, timestamp);
-
-      valueHashes.put(key, hash);
-    }
+    doubleArrayLogs
+        .computeIfAbsent(key, k -> new DoubleArrayLogEntry(log, prefixKey(k)))
+        .update(value, timestamp);
   }
 
   public void log(long timestamp, String key, double value) {
-    var hash = Double.hashCode(value);
-
-    if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
-      doubleLogs
-          .computeIfAbsent(key, k -> new DoubleLogEntry(log, prefixKey(k)))
-          .update(value, timestamp);
-
-      valueHashes.put(key, hash);
-    }
+    doubleLogs
+        .computeIfAbsent(key, k -> new DoubleLogEntry(log, prefixKey(k)))
+        .update(value, timestamp);
   }
 
   public void log(long timestamp, String key, float[] value) {
-    var hash = Arrays.hashCode(value);
-
-    if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
-      floatArrayLogs
-          .computeIfAbsent(key, k -> new FloatArrayLogEntry(log, prefixKey(k)))
-          .update(value, timestamp);
-
-      valueHashes.put(key, hash);
-    }
+    floatArrayLogs
+        .computeIfAbsent(key, k -> new FloatArrayLogEntry(log, prefixKey(k)))
+        .update(value, timestamp);
   }
 
   public void log(long timestamp, String key, float value) {
-    var hash = Float.hashCode(value);
-
-    if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
-      floatLogs
-          .computeIfAbsent(key, k -> new FloatLogEntry(log, prefixKey(k)))
-          .update(value, timestamp);
-
-      valueHashes.put(key, hash);
-    }
+    floatLogs
+        .computeIfAbsent(key, k -> new FloatLogEntry(log, prefixKey(k)))
+        .update(value, timestamp);
   }
 
   public void log(long timestamp, String key, long[] value) {
-    var hash = Arrays.hashCode(value);
-
-    if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
-      integerArrayLogs
-          .computeIfAbsent(key, k -> new IntegerArrayLogEntry(log, prefixKey(k)))
-          .update(value, timestamp);
-
-      valueHashes.put(key, hash);
-    }
+    integerArrayLogs
+        .computeIfAbsent(key, k -> new IntegerArrayLogEntry(log, prefixKey(k)))
+        .update(value, timestamp);
   }
 
   public void log(long timestamp, String key, long value) {
-    var hash = Long.hashCode(value);
-
-    if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
-      integerLogs
-          .computeIfAbsent(key, k -> new IntegerLogEntry(log, prefixKey(k)))
-          .update(value, timestamp);
-
-      valueHashes.put(key, hash);
-    }
+    integerLogs
+        .computeIfAbsent(key, k -> new IntegerLogEntry(log, prefixKey(k)))
+        .update(value, timestamp);
   }
 
   // TODO: Protobuf logs
@@ -151,59 +102,35 @@ public class DataLogReporter {
   // TODO: Raw logs
 
   public void log(long timestamp, String key, String[] value) {
-    var hash = Arrays.hashCode(value);
-
-    if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
-      stringArrayLogs
-          .computeIfAbsent(key, k -> new StringArrayLogEntry(log, prefixKey(k)))
-          .update(value, timestamp);
-
-      valueHashes.put(key, hash);
-    }
+    stringArrayLogs
+        .computeIfAbsent(key, k -> new StringArrayLogEntry(log, prefixKey(k)))
+        .update(value, timestamp);
   }
 
   public void log(long timestamp, String key, String value) {
-    var hash = value.hashCode();
-
-    if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
-      stringLogs
-          .computeIfAbsent(key, k -> new StringLogEntry(log, prefixKey(k)))
-          .update(value, timestamp);
-
-      valueHashes.put(key, hash);
-    }
+    stringLogs
+        .computeIfAbsent(key, k -> new StringLogEntry(log, prefixKey(k)))
+        .update(value, timestamp);
   }
 
   public <T> void log(long timestamp, String key, Struct<T> struct, T[] value) {
-    var hash = Arrays.hashCode(value);
 
-    if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
-      @SuppressWarnings("unchecked")
-      var entry =
-          (StructArrayLogEntry<T>)
-              structArrayLogs.computeIfAbsent(
-                  key, k -> StructArrayLogEntry.create(log, prefixKey(k), struct));
+    @SuppressWarnings("unchecked")
+    var entry =
+        (StructArrayLogEntry<T>)
+            structArrayLogs.computeIfAbsent(
+                key, k -> StructArrayLogEntry.create(log, prefixKey(k), struct));
 
-      entry.update(value, timestamp);
-
-      valueHashes.put(key, hash);
-    }
+    entry.update(value, timestamp);
   }
 
   public <T> void log(long timestamp, String key, Struct<T> struct, T value) {
-    var hash = value.hashCode();
+    @SuppressWarnings("unchecked")
+    var entry =
+        (StructLogEntry<T>)
+            structLogs.computeIfAbsent(key, k -> StructLogEntry.create(log, prefixKey(k), struct));
 
-    if (valueHashes.getOrDefault(key, Integer.MIN_VALUE) != hash) {
-      @SuppressWarnings("unchecked")
-      var entry =
-          (StructLogEntry<T>)
-              structLogs.computeIfAbsent(
-                  key, k -> StructLogEntry.create(log, prefixKey(k), struct));
-
-      entry.update(value, timestamp);
-
-      valueHashes.put(key, hash);
-    }
+    entry.update(value, timestamp);
   }
 
   private String prefixKey(String key) {
