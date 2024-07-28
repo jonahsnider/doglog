@@ -33,7 +33,7 @@ public class DogLog {
    *
    * <pre>DogLog.setOptions(new DogLogOptions().withNtPublish(true));</pre>
    *
-   * <p>See https://doglog.dev/reference/advanced-configuration/ for more information.
+   * <p>See https://doglog.dev/reference/logger-options/ for more information.
    */
   public static void setOptions(DogLogOptions newOptions) {
     if (newOptions == null) {
