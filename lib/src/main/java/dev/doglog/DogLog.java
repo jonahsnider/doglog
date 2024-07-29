@@ -49,6 +49,17 @@ public class DogLog {
     }
   }
 
+  /**
+   * Set the {@link PowerDistribution} instance to use for logging PDH/PDP data when logging extras
+   * is enabled. If this is set to `null`, no PDH data will be logged. Otherwise, information like
+   * battery voltage, device currents, etc. will be logged.
+   *
+   * <p>Example:
+   *
+   * <pre>DogLog.setPdh(new PowerDistribution());</pre>
+   *
+   * @param pdh The {@link PowerDistribution} instance to use for logging PDH/PDP data.
+   */
   public static void setPdh(PowerDistribution pdh) {
     logger.setPdh(pdh);
   }

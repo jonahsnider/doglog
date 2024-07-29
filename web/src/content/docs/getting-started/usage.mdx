@@ -50,13 +50,26 @@ Here's an example of how to set DogLog to use custom options:
 
 </Steps>
 
+### Logging PDH/PDP data
+
+If you have [logging extras](../reference/logger-options.mdx/#log-extras) enabled, DogLog can automatically log data from the PDP/PDH like battery voltage, device currents, etc.
+
+To enable this, somewhere in your robot code provide a `PowerDistribution` instance to `DogLog.setPdh()`:
+
+```java
+DogLog.setPdh(new PowerDistribution());
+```
+
+Calling `DogLog.setPdh(null)` will disable PDH logging.
+
 ## Full example
 
-```java {3-4,21} title="RobotContainer.java"
+```java {3-5,22-23} title="RobotContainer.java"
 package frc.robot;
 
 import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -74,6 +87,7 @@ public class RobotContainer {
 
 	public RobotContainer() {
 		DogLog.setOptions(new DogLogOptions().withNtPublish(true));
+		DogLog.setPdh(new PowerDistribution());
 
 		configureBindings();
 	}
