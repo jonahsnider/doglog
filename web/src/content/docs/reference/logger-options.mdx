@@ -43,6 +43,18 @@ The `logExtras` option controls whether "extra" data like PDH currents, CAN bus 
 DogLog.setOptions(new DogLogOptions().withLogExtras(false));
 ```
 
+### Logging PDH/PDP data
+
+When `logExtras` is enabled, DogLog can automatically log data from the PDP/PDH like battery voltage, device currents, etc.
+
+To enable this, somewhere in your robot code provide a `PowerDistribution` instance to `DogLog.setPdh()`:
+
+```java
+DogLog.setPdh(new PowerDistribution());
+```
+
+Calling `DogLog.setPdh(null)` will disable PDH logging.
+
 ## Log entry queue capacity
 
 The `logEntryQueueCapacity` option controls the maximum number of log entries that can be queued for processing by the log thread.

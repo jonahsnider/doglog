@@ -10,7 +10,6 @@ import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.hal.PowerJNI;
 import edu.wpi.first.hal.can.CANJNI;
 import edu.wpi.first.hal.can.CANStatus;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -29,23 +28,19 @@ public class ExtrasLogger {
     timer.start();
     this.logger = logger;
     this.options = initialOptions;
-
-    try {
-      // Throws if a PowerDistribution has already been initialized in user code
-      pdh = new PowerDistribution();
-      currents = new double[pdh.getNumChannels()];
-    } catch (Exception e) {
-      DriverStation.reportWarning(
-          "[DogLog] DOG004: Failed to initialize PowerDistribution, PDH stats will not be logged",
-          false);
-      FaultLogger.logFault(logger, "[DogLog] DOG004");
-      pdh = null;
-      currents = null;
-    }
   }
 
   public void setOptions(DogLogOptions options) {
     this.options = options;
+  }
+
+  public void setPdh(PowerDistribution pdh) {
+    this.pdh = pdh;
+    if (pdh == null) {
+      currents = null;
+    } else {
+      currents = new double[pdh.getNumChannels()];
+    }
   }
 
   public void heartbeat() {
@@ -110,7 +105,7 @@ public class ExtrasLogger {
   }
 
   private void logPdh(long now) {
-    if (pdh == null) {
+    if (pdh == null || currents == null) {
       return;
     }
 

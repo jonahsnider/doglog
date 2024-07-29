@@ -7,7 +7,7 @@ package dev.doglog;
 /**
  * Options for configuring DogLog.
  *
- * <p>See https://doglog.dev/reference/advanced-configuration/ for more information.
+ * <p>See https://doglog.dev/reference/logger-options/ for more information.
  */
 public record DogLogOptions(
     /**

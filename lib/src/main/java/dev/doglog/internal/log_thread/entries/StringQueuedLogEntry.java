@@ -8,7 +8,7 @@ public class StringQueuedLogEntry extends BaseQueuedLogEntry {
   public final String value;
 
   public StringQueuedLogEntry(String key, long timestamp, String value) {
-    super(key, timestamp);
+    super(EntryType.STRING, key, timestamp);
     this.value = value;
   }
 }

@@ -8,7 +8,7 @@ public class BooleanQueuedLogEntry extends BaseQueuedLogEntry {
   public final boolean value;
 
   public BooleanQueuedLogEntry(String key, long timestamp, boolean value) {
-    super(key, timestamp);
+    super(EntryType.BOOLEAN, key, timestamp);
     this.value = value;
   }
 }

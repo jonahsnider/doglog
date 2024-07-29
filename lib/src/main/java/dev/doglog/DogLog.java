@@ -9,6 +9,7 @@ import dev.doglog.internal.LogQueuer;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.PowerDistribution;
 
 /** A logger based on WPILib's {@link DataLogManager} */
 public class DogLog {
@@ -32,7 +33,7 @@ public class DogLog {
    *
    * <pre>DogLog.setOptions(new DogLogOptions().withNtPublish(true));</pre>
    *
-   * <p>See https://doglog.dev/reference/advanced-configuration/ for more information.
+   * <p>See https://doglog.dev/reference/logger-options/ for more information.
    */
   public static void setOptions(DogLogOptions newOptions) {
     if (newOptions == null) {
@@ -46,6 +47,21 @@ public class DogLog {
       System.out.println("[DogLog] Options changed: " + newOptions.toString());
       logger.setOptions(newOptions);
     }
+  }
+
+  /**
+   * Set the {@link PowerDistribution} instance to use for logging PDH/PDP data when logging extras
+   * is enabled. If this is set to `null`, no PDH data will be logged. Otherwise, information like
+   * battery voltage, device currents, etc. will be logged.
+   *
+   * <p>Example:
+   *
+   * <pre>DogLog.setPdh(new PowerDistribution());</pre>
+   *
+   * @param pdh The {@link PowerDistribution} instance to use for logging PDH/PDP data.
+   */
+  public static void setPdh(PowerDistribution pdh) {
+    logger.setPdh(pdh);
   }
 
   /**

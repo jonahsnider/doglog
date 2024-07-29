@@ -21,6 +21,7 @@ import dev.doglog.internal.log_thread.entries.StructArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StructQueuedLogEntry;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -68,6 +69,10 @@ public class LogQueuer {
     logThread.start();
 
     extras = new ExtrasLogger(this, initialOptions);
+  }
+
+  public void setPdh(PowerDistribution pdh) {
+    extras.setPdh(pdh);
   }
 
   public void queueLog(long timestamp, String key, boolean[] value) {
