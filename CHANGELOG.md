@@ -1,5 +1,17 @@
 # Changelog
 
+## [2024.5.6](https://github.com/jonahsnider/doglog/compare/2024.5.5...2024.5.6) (2024-07-29)
+
+
+### Bug Fixes
+
+* fix how PDH currents are extracted ([1c7a002](https://github.com/jonahsnider/doglog/commit/1c7a00294049e2578b9bbb2bd3d79b136c6c0a1c))
+
+
+### Performance Improvements
+
+* replace many pdh.getCurrent() calls with one pdh.getAllCurrents() call when logging PDH currents ([7262425](https://github.com/jonahsnider/doglog/commit/72624252647af3d4f4a887191bb855d0a1c139e5))
+
 ## [2024.5.5](https://github.com/jonahsnider/doglog/compare/2024.5.4...2024.5.5) (2024-07-27)
 
 
