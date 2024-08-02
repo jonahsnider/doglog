@@ -5,9 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"astro": "astro",
-		"build": "yarn cp-vendordep && yarn cp-changelog && rm -rf dist && astro check && astro build",
-		"cp-changelog": "node ./scripts/cp-changelog.mjs",
-		"cp-vendordep": "cp ../vendordep.json ./public/vendordep.json",
+		"build": "rm -rf dist && astro check && astro build",
 		"dev": "astro dev",
 		"format": "prettier --check .",
 		"format:write": "prettier --check . --write",

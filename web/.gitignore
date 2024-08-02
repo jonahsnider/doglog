@@ -143,8 +143,7 @@ dist
 
 # End of https://www.toptal.com/developers/gitignore/api/node
 
-# Files copied during docs site build
-public/vendordep.json
+# Dynamically generated files
 src/content/docs/reference/changelog.md
 
 # Yarn
