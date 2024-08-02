@@ -7,6 +7,12 @@ import path from 'path';
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://doglog.dev',
+	vite: {
+		resolve: {
+      // The vendordep.json file is symlinked, Vite can't resolve it unless this is set
+			preserveSymlinks: true,
+		},
+	},
 	integrations: [
 		{
 			name: 'copy-changelog',
