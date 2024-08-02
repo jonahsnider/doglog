@@ -1,8 +1,8 @@
 [build]
-# We don't use a base directory of web/ since it won't capture changes to vendordep.json or CHANGELOG.md, which are outside of the web/ directory
-command = "cd web && yarn build"
-functions = "web/netlify/functions"
-publish = "web/dist"
+base = "web/"
+command = "yarn build"
+functions = "netlify/functions"
+publish = "dist"
 [build.environment]
 NODE_VERSION = 'lts/*'
 YARN_CACHE_FOLDER = '/opt/buildhome/.yarn_cache'
