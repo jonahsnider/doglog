@@ -38,6 +38,7 @@ dependencies {
 	implementation 'edu.wpi.first.wpilibj:wpilibj-java:2024.+'
 	implementation 'edu.wpi.first.wpiutil:wpiutil-java:2024.+'
 	implementation 'edu.wpi.first.hal:hal-java:2024.+'
+	implementation 'edu.wpi.first.wpilibNewCommands:wpilibNewCommands-java:2024.+'
 }
 
 publishing {
