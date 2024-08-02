@@ -7,18 +7,12 @@ import path from 'path';
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://doglog.dev',
-	vite: {
-		resolve: {
-      // The vendordep.json file is symlinked, Vite can't resolve it unless this is set
-			preserveSymlinks: true,
-		},
-	},
 	integrations: [
 		{
-			name: 'copy-changelog',
+			name: 'copy-files',
 			hooks: {
 				'astro:config:setup': async () => {
-					await writeChangelogToContent();
+					await Promise.all([writeChangelogToContent(), copyVendordep()]);
 				},
 			},
 		},
@@ -73,4 +67,11 @@ async function writeChangelogToContent() {
 		].join('\n') + rawChangelog.replace('# Changelog', '');
 
 	await fs.writeFile(OUTPUT_PATH, newChangelog);
+}
+
+async function copyVendordep() {
+	const VENDORDEP_INPUT_PATH = path.join(import.meta.dirname, '..', 'vendordep.json');
+	const OUTPUT_PATH = path.join(import.meta.dirname, 'public', 'vendordep.json');
+
+	await fs.copyFile(VENDORDEP_INPUT_PATH, OUTPUT_PATH);
 }
