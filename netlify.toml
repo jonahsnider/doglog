@@ -4,6 +4,8 @@ base = "web/"
 command = "yarn build"
 functions = "netlify/functions"
 publish = "dist"
+# Handle rebuild logic for files outside the web/ directory
+ignore = "yarn cp-vendordep && yarn cp-changelog && git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF"
 [build.environment]
 NODE_VERSION = 'lts/*'
 YARN_CACHE_FOLDER = '/opt/buildhome/.yarn_cache'
