@@ -1,5 +1,12 @@
 # Changelog
 
+## [2024.5.7](https://github.com/jonahsnider/doglog/compare/2024.5.6...2024.5.7) (2024-08-02)
+
+
+### Bug Fixes
+
+* fix applying `captureDs` option with default value ([d3662a5](https://github.com/jonahsnider/doglog/commit/d3662a5badb7ca88db44010d4d155d4a59a92a36)), closes [#33](https://github.com/jonahsnider/doglog/issues/33)
+
 ## [2024.5.6](https://github.com/jonahsnider/doglog/compare/2024.5.5...2024.5.6) (2024-07-29)
 
 
