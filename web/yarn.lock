@@ -1902,8 +1902,8 @@ __metadata:
   linkType: hard
 
 "astro@npm:^4.3.5":
-  version: 4.13.0
-  resolution: "astro@npm:4.13.0"
+  version: 4.13.1
+  resolution: "astro@npm:4.13.1"
   dependencies:
     "@astrojs/compiler": "npm:^2.10.0"
     "@astrojs/internal-helpers": "npm:0.4.1"
@@ -1921,7 +1921,6 @@ __metadata:
     aria-query: "npm:^5.3.0"
     axobject-query: "npm:^4.1.0"
     boxen: "npm:7.1.1"
-    chokidar: "npm:^3.6.0"
     ci-info: "npm:^4.0.0"
     clsx: "npm:^2.1.1"
     common-ancestor-path: "npm:^1.0.1"
@@ -1973,7 +1972,7 @@ __metadata:
       optional: true
   bin:
     astro: astro.js
-  checksum: 10c0/d79f2563063bbd36884d341a1e380ef399a79af89d86a457db5d1e9737f6157f77c4be5deab65457456cdff2eadb5c691b6f02df6d738093144d1111ea65c9ba
+  checksum: 10c0/7f7df725a5459e5106ee62a89bd260ad4d23f5fd9d77930a8ca4b8d9e2686eae02f8a431b5e93ff3180bee4cf519be7b25f22b1664c0123551c02d6dc91c32a1
   languageName: node
   linkType: hard
 
@@ -2197,7 +2196,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chokidar@npm:^3.5.3, chokidar@npm:^3.6.0":
+"chokidar@npm:^3.5.3":
   version: 3.6.0
   resolution: "chokidar@npm:3.6.0"
   dependencies:
