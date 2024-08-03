@@ -3,6 +3,14 @@ name: CI
 on: [push, pull_request]
 
 jobs:
+  validation:
+    name: Validate Gradle wrappers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Git repository
+        uses: actions/checkout@v4
+      - name: Validate Gradle wrappers
+        uses: gradle/actions/wrapper-validation@v3
   assemble:
     name: Assemble
 
@@ -39,10 +47,56 @@ jobs:
           distribution: "temurin"
           java-version: 17
           cache: "gradle"
-      - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v3
       - name: Check formatting
         run: ./gradlew spotlessCheck
+  assemble-test-project:
+    name: Assemble test project
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 5
+
+    needs: [assemble]
+
+    steps:
+      - name: Checkout Git repository
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: 17
+          cache: "gradle"
+          cache-dependency-path: |
+            lib/*.gradle*
+            test-project/*.gradle*
+      - name: Assemble DogLog
+        run: ./gradlew assemble
+      - name: Assemble test project
+        run: ./gradlew assemble
+        working-directory: test-project
+  style-test-project:
+    name: Check test project formatting
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout Git repository
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: 17
+          cache: "gradle"
+          cache-dependency-path: |
+            lib/*.gradle*
+            test-project/*.gradle*
+      - name: Check formatting
+        run: ./gradlew spotlessCheck
+        working-directory: test-project
   javadoc:
     name: Publish Javadoc
 
@@ -63,8 +117,6 @@ jobs:
           distribution: "temurin"
           java-version: 17
           cache: "gradle"
-      - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v3
       - name: Build
         run: ./gradlew build
       - name: Publish Javadoc to Netlify
