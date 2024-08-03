@@ -1,5 +1,18 @@
 # Changelog
 
+## [2024.5.8](https://github.com/jonahsnider/doglog/compare/2024.5.7...2024.5.8) (2024-08-03)
+
+
+### Bug Fixes
+
+* fix `ntPublish` option being ignored when changing `logEntryQueueCapacity` option ([b53ae87](https://github.com/jonahsnider/doglog/commit/b53ae87cf33c9e7d6adba469d7e04ba0d06c158b))
+* remove unused wpilibNewCommands dependency ([d5c0d2a](https://github.com/jonahsnider/doglog/commit/d5c0d2aa08a6332e3e2da4a4c6f893581216bcdd))
+
+
+### Performance Improvements
+
+* improve performance and memory overhead of struct logging ([39ed23e](https://github.com/jonahsnider/doglog/commit/39ed23e7b733ee15482b445e6ffcb80f2ef56f75)), closes [#37](https://github.com/jonahsnider/doglog/issues/37)
+
 ## [2024.5.7](https://github.com/jonahsnider/doglog/compare/2024.5.6...2024.5.7) (2024-08-02)
 
 
