@@ -56,6 +56,8 @@ jobs:
 
     timeout-minutes: 5
 
+    needs: [assemble]
+
     steps:
       - name: Checkout Git repository
         uses: actions/checkout@v4
@@ -65,7 +67,9 @@ jobs:
           distribution: "temurin"
           java-version: 17
           cache: "gradle"
-      - name: Assemble project
+      - name: Assemble DogLog
+        run: ./gradlew assemble
+      - name: Assemble test project
         run: ./gradlew assemble
         working-directory: test-project
   style-test-project:
