@@ -68,8 +68,8 @@ jobs:
           java-version: 17
           cache: "gradle"
           cache-dependency-path: |
-            ./build.gradle
-            ./test-project/build.gradle
+            lib/*.gradle.*
+            test-project/*.gradle.*
       - name: Assemble DogLog
         run: ./gradlew assemble
       - name: Assemble test project
@@ -92,8 +92,8 @@ jobs:
           java-version: 17
           cache: "gradle"
           cache-dependency-path: |
-            ./build.gradle
-            ./test-project/build.gradle
+            lib/*.gradle.*
+            test-project/*.gradle.*
       - name: Check formatting
         run: ./gradlew spotlessCheck
         working-directory: test-project
