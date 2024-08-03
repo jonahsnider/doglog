@@ -4,7 +4,6 @@
 
 package dev.doglog.internal.log_thread;
 
-import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.struct.Struct;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,21 +15,8 @@ public class StructRegistry {
 
   private static final Map<Class<?>, Optional<Struct<?>>> resolvedStructs = new HashMap<>();
 
-  private static DataLog log;
-
   public static Optional<Struct<?>> getStruct(Class<?> entryClass) {
-    Optional<Struct<?>> maybeStruct =
-        resolvedStructs.computeIfAbsent(entryClass, key -> getStructRaw(entryClass));
-
-    if (maybeStruct.isPresent() && log != null) {
-      log.addSchema(maybeStruct.get());
-    }
-
-    return maybeStruct;
-  }
-
-  public static void setLog(DataLog log) {
-    StructRegistry.log = log;
+    return resolvedStructs.computeIfAbsent(entryClass, key -> getStructRaw(entryClass));
   }
 
   private static Optional<Struct<?>> getStructRaw(Class<?> classObj) {
