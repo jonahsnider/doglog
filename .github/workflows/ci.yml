@@ -67,6 +67,13 @@ jobs:
           distribution: "temurin"
           java-version: 17
           cache: "gradle"
+      - name: Setup test project Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: 17
+          cache: "gradle"
+          cache-dependency-path: ./test-project/build.gradle
       - name: Assemble DogLog
         run: ./gradlew assemble
       - name: Assemble test project
@@ -88,6 +95,7 @@ jobs:
           distribution: "temurin"
           java-version: 17
           cache: "gradle"
+          cache-dependency-path: ./test-project/build.gradle
       - name: Check formatting
         run: ./gradlew spotlessCheck
         working-directory: test-project
