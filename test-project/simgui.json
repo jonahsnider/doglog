@@ -1,10 +1,4 @@
 {
-  "NTProvider": {
-    "types": {
-      "/FMSInfo": "FMSInfo"
-    }
-  },
-  "NetworkTables Info": {
-    "visible": true
-  }
+  "NetworkTables Info": {"visible": true},
+  "NTProvider": {"types": {"/FMSInfo": "FMSInfo"}}
 }

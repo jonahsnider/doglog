@@ -4,11 +4,11 @@
 
 package frc.robot;
 
+import dev.doglog.DogLog;
+import dev.doglog.DogLogOptions;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import dev.doglog.DogLog;
-import dev.doglog.DogLogOptions;
 
 public class RobotContainer {
   public RobotContainer() {
