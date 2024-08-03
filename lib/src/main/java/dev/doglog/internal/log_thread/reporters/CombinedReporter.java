@@ -175,7 +175,7 @@ public class CombinedReporter {
       return;
     }
 
-    var maybeStruct = StructRegistry.findStructType(value.getClass().getComponentType());
+    var maybeStruct = StructRegistry.getStruct(value.getClass().getComponentType());
 
     if (maybeStruct.isPresent()) {
       @SuppressWarnings("unchecked")
@@ -196,7 +196,7 @@ public class CombinedReporter {
       return;
     }
 
-    var maybeStruct = StructRegistry.findStructType(value.getClass());
+    var maybeStruct = StructRegistry.getStruct(value.getClass());
 
     if (maybeStruct.isPresent()) {
       @SuppressWarnings("unchecked")
