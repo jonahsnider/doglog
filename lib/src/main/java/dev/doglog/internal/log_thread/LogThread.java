@@ -71,6 +71,8 @@ public class LogThread extends Thread {
       while (true) {
         var entry = queue.take();
 
+        // TODO: Once the minimum Java version is 21, use pattern matching for switch expressions
+        // https://docs.oracle.com/en/java/javase/17/language/pattern-matching-switch-expressions-and-statements.html
         switch (entry.type) {
           case BOOLEAN_ARRAY:
             logger.log(entry.timestamp, entry.key, ((BooleanArrayQueuedLogEntry) entry).value);
