@@ -1,5 +1,12 @@
 # Changelog
 
+## [2024.5.9](https://github.com/jonahsnider/doglog/compare/2024.5.8...2024.5.9) (2024-08-08)
+
+
+### Performance Improvements
+
+* improve struct logging performance by removing redundant `DataLog#addSchema()` code ([91d60b0](https://github.com/jonahsnider/doglog/commit/91d60b04c96c56dc17a5ac30e70b5142e774c8ad))
+
 ## [2024.5.8](https://github.com/jonahsnider/doglog/compare/2024.5.7...2024.5.8) (2024-08-03)
 
 
