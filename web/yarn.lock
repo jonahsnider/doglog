@@ -32,14 +32,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/compiler@npm:^2.10.0":
-  version: 2.10.1
-  resolution: "@astrojs/compiler@npm:2.10.1"
-  checksum: 10c0/0825c8e540fedb0fafd203eeedd7352e33439a4e578a3dec6520d49b291db48bd30e7f0e13fbbdc17f315c5b34ce7faf46f5bbca9c2be2fde4f3e47ede1784e6
-  languageName: node
-  linkType: hard
-
-"@astrojs/compiler@npm:^2.10.2":
+"@astrojs/compiler@npm:^2.10.1, @astrojs/compiler@npm:^2.10.2":
   version: 2.10.2
   resolution: "@astrojs/compiler@npm:2.10.2"
   checksum: 10c0/fb2ea61bd6d091b93b9e35b208b10f07cd3ae3415f02ed68deac2f3ac57f85d107f9073790954c552c30f74cca36ede2ae44babdd4881a1c322b659d51699d76
@@ -1407,12 +1400,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shikijs/core@npm:1.12.0":
-  version: 1.12.0
-  resolution: "@shikijs/core@npm:1.12.0"
+"@shikijs/core@npm:1.12.1":
+  version: 1.12.1
+  resolution: "@shikijs/core@npm:1.12.1"
   dependencies:
     "@types/hast": "npm:^3.0.4"
-  checksum: 10c0/5db2b0f3c9e2429f7da77bfe9ae6ea4206293797c7f7e51e0b1a9ee89bcfd6940b68896a3564ad462640c4931387c82baa43434439d4ed1915e49657588d2d85
+  checksum: 10c0/196df410a63a7cee3539f7ea46ee2241f7d6876af622041330b9c2725e9efa2993a2f0e24938d1dd1c214222fa03e18e61b4c849d323b06505387d93acadb918
   languageName: node
   linkType: hard
 
@@ -1874,10 +1867,10 @@ __metadata:
   linkType: hard
 
 "astro@npm:^4.3.5":
-  version: 4.13.1
-  resolution: "astro@npm:4.13.1"
+  version: 4.13.2
+  resolution: "astro@npm:4.13.2"
   dependencies:
-    "@astrojs/compiler": "npm:^2.10.0"
+    "@astrojs/compiler": "npm:^2.10.1"
     "@astrojs/internal-helpers": "npm:0.4.1"
     "@astrojs/markdown-remark": "npm:5.2.0"
     "@astrojs/telemetry": "npm:3.1.0"
@@ -1927,7 +1920,7 @@ __metadata:
     rehype: "npm:^13.0.1"
     semver: "npm:^7.6.3"
     sharp: "npm:^0.33.3"
-    shiki: "npm:^1.12.0"
+    shiki: "npm:^1.12.1"
     string-width: "npm:^7.2.0"
     strip-ansi: "npm:^7.1.0"
     tsconfck: "npm:^3.1.1"
@@ -1944,7 +1937,7 @@ __metadata:
       optional: true
   bin:
     astro: astro.js
-  checksum: 10c0/7f7df725a5459e5106ee62a89bd260ad4d23f5fd9d77930a8ca4b8d9e2686eae02f8a431b5e93ff3180bee4cf519be7b25f22b1664c0123551c02d6dc91c32a1
+  checksum: 10c0/6d91abff7e260669b0277d49f72a206cbd95e74c613d64e3a63c752b1ccd5170f54587e1c5176e1b1af8f2ff0ff5f8cb577bad9e3293af70f727360abe5e210e
   languageName: node
   linkType: hard
 
@@ -5740,13 +5733,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"shiki@npm:^1.12.0":
-  version: 1.12.0
-  resolution: "shiki@npm:1.12.0"
+"shiki@npm:^1.12.1":
+  version: 1.12.1
+  resolution: "shiki@npm:1.12.1"
   dependencies:
-    "@shikijs/core": "npm:1.12.0"
+    "@shikijs/core": "npm:1.12.1"
     "@types/hast": "npm:^3.0.4"
-  checksum: 10c0/266331be32e5dc2258cf701cc0260204e401dfdd5c2ee76ddabcbb35179cfa833eab52c2a3dc91a853489aa22ed1136797f00d0d605fd5744b1c826fb0981d1b
+  checksum: 10c0/1afe9a0002a215fec6960e48284b207d4714de192f4a2223f748a640c0de17a45f2c76ebc4c4020c308bd441c6f7b913eecbd97d346ddd681db0a643c46190fc
   languageName: node
   linkType: hard
 
