@@ -34,10 +34,10 @@ if (project.hasProperty('releaseMode')) {
 }
 
 dependencies {
-	implementation 'edu.wpi.first.ntcore:ntcore-java:2024.+'
-	implementation 'edu.wpi.first.wpilibj:wpilibj-java:2024.+'
-	implementation 'edu.wpi.first.wpiutil:wpiutil-java:2024.+'
-	implementation 'edu.wpi.first.hal:hal-java:2024.+'
+	implementation 'edu.wpi.first.ntcore:ntcore-java:2025.+'
+	implementation 'edu.wpi.first.wpilibj:wpilibj-java:2025.+'
+	implementation 'edu.wpi.first.wpiutil:wpiutil-java:2025.+'
+	implementation 'edu.wpi.first.hal:hal-java:2025.+'
 }
 
 publishing {
