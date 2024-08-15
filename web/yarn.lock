@@ -1890,8 +1890,8 @@ __metadata:
   linkType: hard
 
 "astro@npm:^4.3.5":
-  version: 4.14.0
-  resolution: "astro@npm:4.14.0"
+  version: 4.14.2
+  resolution: "astro@npm:4.14.2"
   dependencies:
     "@astrojs/compiler": "npm:^2.10.2"
     "@astrojs/internal-helpers": "npm:0.4.1"
@@ -1957,6 +1957,7 @@ __metadata:
     vitefu: "npm:^0.2.5"
     which-pm: "npm:^3.0.0"
     xxhash-wasm: "npm:^1.0.2"
+    yargs-parser: "npm:^21.1.1"
     zod: "npm:^3.23.8"
     zod-to-json-schema: "npm:^3.23.2"
     zod-to-ts: "npm:^1.2.0"
@@ -1965,7 +1966,7 @@ __metadata:
       optional: true
   bin:
     astro: astro.js
-  checksum: 10c0/45d90d6e2fce0b74f23d0d477d8059afe05a4f78365afcc82d8d70123e75c4f630c9d0213d4a363c874a1242a217883e5fecbbc8477573a3c767e670dad76d59
+  checksum: 10c0/b9031e572703814c2d8fce8c118fd97142b94cd786c6d00c88ea8d409a8c1f4e6fa2d5da793ebb3e1cfc8baa0bfd343127a2c2f7cefc3878cf3e51e883d09fa9
   languageName: node
   linkType: hard
 
