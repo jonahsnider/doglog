@@ -159,9 +159,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/starlight@npm:^0.25.0":
-  version: 0.25.5
-  resolution: "@astrojs/starlight@npm:0.25.5"
+"@astrojs/starlight@npm:^0.26.0":
+  version: 0.26.0
+  resolution: "@astrojs/starlight@npm:0.26.0"
   dependencies:
     "@astrojs/mdx": "npm:^3.1.3"
     "@astrojs/sitemap": "npm:^3.1.6"
@@ -186,7 +186,7 @@ __metadata:
     vfile: "npm:^6.0.2"
   peerDependencies:
     astro: ^4.8.6
-  checksum: 10c0/b7bdb2f8c3f20432a7f82442f02f1324b4f2b8256c426e45a96848818d8ff3678e93e632fd96726e711543b9c391dbb84798a70f529fdd3755b6cffc4f38db77
+  checksum: 10c0/b08e1e96dd0e8f7a2eb7d04b8e8ddb0317c4db787df6e5d241f688cd4b2af8a2893abe3f82abff2551cb596e8790b67f07e93ce87371fed6e4f8b7c2cd2c083f
   languageName: node
   linkType: hard
 
@@ -2517,7 +2517,7 @@ __metadata:
   resolution: "doglog.dev@workspace:."
   dependencies:
     "@astrojs/check": "npm:^0.9.0"
-    "@astrojs/starlight": "npm:^0.25.0"
+    "@astrojs/starlight": "npm:^0.26.0"
     astro: "npm:^4.3.5"
     prettier: "npm:3.3.3"
     prettier-plugin-astro: "npm:0.14.1"
