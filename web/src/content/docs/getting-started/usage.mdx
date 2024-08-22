@@ -64,7 +64,7 @@ Calling `DogLog.setPdh(null)` will disable PDH logging.
 
 ## Full example
 
-```java {3-5,22-23} title="RobotContainer.java"
+```java {3-5,22-23,25} title="RobotContainer.java"
 package frc.robot;
 
 import dev.doglog.DogLog;
@@ -88,6 +88,8 @@ public class RobotContainer {
 	public RobotContainer() {
 		DogLog.setOptions(new DogLogOptions().withNtPublish(true));
 		DogLog.setPdh(new PowerDistribution());
+
+    DogLog.log("ExampleLog", "Hello world!");
 
 		configureBindings();
 	}

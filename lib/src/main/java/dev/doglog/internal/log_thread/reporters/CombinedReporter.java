@@ -21,6 +21,11 @@ public class CombinedReporter {
   private NetworkTablesReporter ntReporter;
 
   public CombinedReporter(DogLogOptions initialOptions) {
+    // Setup NT publisher if initial options have it enabled
+    if (initialOptions.ntPublish()) {
+      ntReporter = new NetworkTablesReporter(LOG_TABLE);
+    }
+
     // Print default options on start
     printOptions(initialOptions);
   }
@@ -170,7 +175,7 @@ public class CombinedReporter {
       return;
     }
 
-    var maybeStruct = StructRegistry.findStructType(value.getClass().getComponentType());
+    var maybeStruct = StructRegistry.getStruct(value.getClass().getComponentType());
 
     if (maybeStruct.isPresent()) {
       @SuppressWarnings("unchecked")
@@ -191,7 +196,7 @@ public class CombinedReporter {
       return;
     }
 
-    var maybeStruct = StructRegistry.findStructType(value.getClass());
+    var maybeStruct = StructRegistry.getStruct(value.getClass());
 
     if (maybeStruct.isPresent()) {
       @SuppressWarnings("unchecked")

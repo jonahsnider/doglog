@@ -37,10 +37,14 @@ public class LogThread extends Thread {
 
     this.queue = queue;
 
-    // Apply NT publish setting immediately, setOptions() will enable it if needed. If capturing NT
-    // is disabled, doing this prevents a single log entry of all the NT keys from being logged one
-    // tick before setOptions() disables NT capture.
+    // Apply initial options that this class is responsible for
     DataLogManager.logNetworkTables(initialOptions.captureNt());
+
+    var log = DataLogManager.getLog();
+
+    if (initialOptions.captureDs()) {
+      DriverStation.startDataLog(log);
+    }
 
     this.logger = new CombinedReporter(initialOptions);
 
@@ -67,6 +71,8 @@ public class LogThread extends Thread {
       while (true) {
         var entry = queue.take();
 
+        // TODO: Once the minimum Java version is 21, use pattern matching for switch expressions
+        // https://docs.oracle.com/en/java/javase/17/language/pattern-matching-switch-expressions-and-statements.html
         switch (entry.type) {
           case BOOLEAN_ARRAY:
             logger.log(entry.timestamp, entry.key, ((BooleanArrayQueuedLogEntry) entry).value);

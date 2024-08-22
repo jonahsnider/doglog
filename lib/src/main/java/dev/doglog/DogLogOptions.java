@@ -19,7 +19,8 @@ public record DogLogOptions(
     boolean captureNt,
     /**
      * Whether driver station data (robot enable state and joystick inputs) should be saved to the
-     * log file.
+     * log file. Because of a limitation in WPILib, this option can't be disabled once it has been
+     * enabled.
      */
     boolean captureDs,
     /** Whether to log extra data, like PDH currents, CAN usage, etc. */
@@ -37,7 +38,7 @@ public record DogLogOptions(
    */
   public DogLogOptions() {
     // Default options
-    this(false, false, true, true, 1000);
+    this(false, false, false, true, 1000);
   }
 
   /**
@@ -79,7 +80,7 @@ public record DogLogOptions(
    *
    * <p>Example:
    *
-   * <pre>DogLog.setOptions(new DogLogOptions().withCaptureDs(false));</pre>
+   * <pre>DogLog.setOptions(new DogLogOptions().withCaptureDs(true));</pre>
    *
    * @param captureDs Whether driver station data (robot enable state and joystick inputs) should be
    * @return A new options object with {@link DogLogOptions#captureDs} set to the provided value.

@@ -1,11 +1,12 @@
 plugins {
-    id "java"
-    id "edu.wpi.first.GradleRIO" version "2024.3.2"
+	id "java"
+	id "edu.wpi.first.GradleRIO" version "2024.3.2"
+	id "com.diffplug.spotless" version "6.25.0"
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
 }
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
@@ -13,30 +14,30 @@ def ROBOT_MAIN_CLASS = "frc.robot.Main"
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
 deploy {
-    targets {
-        roborio(getTargetTypeClass('RoboRIO')) {
-            // Team number is loaded either from the .wpilib/wpilib_preferences.json
-            // or from command line. If not found an exception will be thrown.
-            // You can use getTeamOrDefault(team) instead of getTeamNumber if you
-            // want to store a team number in this file.
-            team = project.frc.getTeamNumber()
-            debug = project.frc.getDebugOrDefault(false)
+	targets {
+		roborio(getTargetTypeClass('RoboRIO')) {
+			// Team number is loaded either from the .wpilib/wpilib_preferences.json
+			// or from command line. If not found an exception will be thrown.
+			// You can use getTeamOrDefault(team) instead of getTeamNumber if you
+			// want to store a team number in this file.
+			team = project.frc.getTeamNumber()
+			debug = project.frc.getDebugOrDefault(false)
 
-            artifacts {
-                // First part is artifact name, 2nd is artifact type
-                // getTargetTypeClass is a shortcut to get the class type using a string
+			artifacts {
+				// First part is artifact name, 2nd is artifact type
+				// getTargetTypeClass is a shortcut to get the class type using a string
 
-                frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
-                }
+				frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
+				}
 
-                // Static files artifact
-                frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
-                    files = project.fileTree('src/main/deploy')
-                    directory = '/home/lvuser/deploy'
-                }
-            }
-        }
-    }
+				// Static files artifact
+				frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
+					files = project.fileTree('src/main/deploy')
+					directory = '/home/lvuser/deploy'
+				}
+			}
+		}
+	}
 }
 
 def deployArtifact = deploy.targets.roborio.artifacts.frcJava
@@ -50,32 +51,32 @@ def includeDesktopSupport = true
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
 dependencies {
-    implementation wpi.java.deps.wpilib()
-    implementation wpi.java.vendor.java()
+	implementation wpi.java.deps.wpilib()
+	implementation wpi.java.vendor.java()
 
-    roborioDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.roborio)
-    roborioDebug wpi.java.vendor.jniDebug(wpi.platforms.roborio)
+	roborioDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.roborio)
+	roborioDebug wpi.java.vendor.jniDebug(wpi.platforms.roborio)
 
-    roborioRelease wpi.java.deps.wpilibJniRelease(wpi.platforms.roborio)
-    roborioRelease wpi.java.vendor.jniRelease(wpi.platforms.roborio)
+	roborioRelease wpi.java.deps.wpilibJniRelease(wpi.platforms.roborio)
+	roborioRelease wpi.java.vendor.jniRelease(wpi.platforms.roborio)
 
-    nativeDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.desktop)
-    nativeDebug wpi.java.vendor.jniDebug(wpi.platforms.desktop)
-    simulationDebug wpi.sim.enableDebug()
+	nativeDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.desktop)
+	nativeDebug wpi.java.vendor.jniDebug(wpi.platforms.desktop)
+	simulationDebug wpi.sim.enableDebug()
 
-    nativeRelease wpi.java.deps.wpilibJniRelease(wpi.platforms.desktop)
-    nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
-    simulationRelease wpi.sim.enableRelease()
+	nativeRelease wpi.java.deps.wpilibJniRelease(wpi.platforms.desktop)
+	nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
+	simulationRelease wpi.sim.enableRelease()
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    implementation files('../lib/build/libs/doglog.jar')
+	implementation files('../lib/build/libs/doglog.jar')
 }
 
 test {
-    useJUnitPlatform()
-    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+	useJUnitPlatform()
+	systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
 }
 
 // Simulation configuration (e.g. environment variables).
@@ -86,10 +87,14 @@ wpi.sim.addDriverstation()
 // in order to make them all available at runtime. Also adding the manifest so WPILib
 // knows where to look for our Robot Class.
 jar {
-    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-    from sourceSets.main.allSource
-    manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+	from {
+		configurations.runtimeClasspath.collect {
+			it.isDirectory() ? it : zipTree(it)
+		}
+	}
+	from sourceSets.main.allSource
+	manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 // Configure jar and deploy tasks
@@ -99,5 +104,48 @@ wpi.java.configureTestTasks(test)
 
 // Configure string concat to always inline compile
 tasks.withType(JavaCompile) {
-    options.compilerArgs.add '-XDstringConcat=inline'
+	options.compilerArgs.add '-XDstringConcat=inline'
+}
+
+
+apply plugin: 'groovy'
+spotless {
+	enforceCheck false
+
+	encoding 'UTF-8'
+	lineEndings 'UNIX'
+
+	java {
+		licenseHeader '// Copyright (c) FIRST and other WPILib contributors.\n' +
+				'// Open Source Software; you can modify and/or share it under the terms of\n' +
+				'// the WPILib BSD license file in the root directory of this project.\n\n'
+		toggleOffOn()
+		importOrder()
+		removeUnusedImports()
+		googleJavaFormat()
+		trimTrailingWhitespace()
+		endWithNewline()
+	}
+
+	groovy {
+		importOrder()
+		excludeJava()
+		greclipse()
+	}
+
+	groovyGradle {
+		greclipse()
+	}
+
+	json {
+		target '**/*.json'
+		simple().indentWithSpaces(2)
+	}
+
+	format 'misc', {
+		target '.gitignore'
+
+		trimTrailingWhitespace()
+		endWithNewline()
+	}
 }

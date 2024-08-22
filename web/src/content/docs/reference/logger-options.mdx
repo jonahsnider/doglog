@@ -29,10 +29,10 @@ DogLog.setOptions(new DogLogOptions().withCaptureNt(true));
 
 The `captureDs` option controls whether joystick data and driver station values (ex. "enabled" or "autonomous") should be included in logs.
 
-Due to a a limitation in WPILib's `DataLogManager`, these values can't be published over NetworkTables.
+Due to a a limitation in WPILib's `DataLogManager`, these values can't be published over NetworkTables. Also, once enabled, this option can't be disabled.
 
 ```java
-DogLog.setOptions(new DogLogOptions().withCaptureDs(false));
+DogLog.setOptions(new DogLogOptions().withCaptureDs(true));
 ```
 
 ## Log extras
