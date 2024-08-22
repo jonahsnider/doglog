@@ -67,6 +67,8 @@ public class DogLog {
   /**
    * Set whether the logger is enabled. If the logger is not enabled, calls to `log()` functions
    * will not do anything.
+   *
+   * <p>By default, the logger is enabled.
    */
   public static void setEnabled(boolean newEnabled) {
     enabled = newEnabled;
