@@ -213,7 +213,7 @@ public class DogLog {
    * @param faultName The name of the fault to log.
    */
   public static void logFault(String faultName) {
-    if (enabled) {
+    if (enabled && faultName != null) {
       FaultLogger.logFault(logger, faultName);
     }
   }
