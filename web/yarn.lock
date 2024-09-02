@@ -616,6 +616,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/types@npm:^7.25.6":
+  version: 7.25.6
+  resolution: "@babel/types@npm:7.25.6"
+  dependencies:
+    "@babel/helper-string-parser": "npm:^7.24.8"
+    "@babel/helper-validator-identifier": "npm:^7.24.7"
+    to-fast-properties: "npm:^2.0.0"
+  checksum: 10c0/89d45fbee24e27a05dca2d08300a26b905bd384a480448823f6723c72d3a30327c517476389b7280ce8cb9a2c48ef8f47da7f9f6d326faf6f53fd6b68237bdc4
+  languageName: node
+  linkType: hard
+
 "@chevrotain/cst-dts-gen@npm:11.0.3":
   version: 11.0.3
   resolution: "@chevrotain/cst-dts-gen@npm:11.0.3"
@@ -1456,12 +1467,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shikijs/core@npm:1.14.1":
-  version: 1.14.1
-  resolution: "@shikijs/core@npm:1.14.1"
+"@shikijs/core@npm:1.16.1":
+  version: 1.16.1
+  resolution: "@shikijs/core@npm:1.16.1"
   dependencies:
+    "@shikijs/vscode-textmate": "npm:^9.2.0"
     "@types/hast": "npm:^3.0.4"
-  checksum: 10c0/a9779634956010788f346f779a8e445d17101cae64e6769a7a4d6d479ccd5d47e6c897fd7a57445cea6b64f1b79f1126ff4f57dbc6ce28c1533f6b74450d752f
+  checksum: 10c0/efa03f3777d7a493e66b99707d696c9d9e889b6e962dd8141f88265d2cd4f634a0ab605430f5b7e2e7185ec876a9d31e44fff91ff64686ea1310893c282fa9c0
   languageName: node
   linkType: hard
 
@@ -1469,6 +1481,13 @@ __metadata:
   version: 1.3.0
   resolution: "@shikijs/core@npm:1.3.0"
   checksum: 10c0/0b11f11961a563ef91122f2a17b66af7502b0f8665f53c435aaadf39006722466379fb1acc5ed64d7d381921f6900a13647b27d0bf3fb0d619471a8bbfa34a9b
+  languageName: node
+  linkType: hard
+
+"@shikijs/vscode-textmate@npm:^9.2.0":
+  version: 9.2.0
+  resolution: "@shikijs/vscode-textmate@npm:9.2.0"
+  checksum: 10c0/9f89e02bd930953bb15ad50b079ac15e1704cdc4f7d1d188f6d1eea87cf74e5dced59cd724ba9466116158eec75b71117fcd9915757a7615856d0ed366957704
   languageName: node
   linkType: hard
 
@@ -1924,8 +1943,8 @@ __metadata:
   linkType: hard
 
 "astro@npm:^4.3.5":
-  version: 4.15.1
-  resolution: "astro@npm:4.15.1"
+  version: 4.15.2
+  resolution: "astro@npm:4.15.2"
   dependencies:
     "@astrojs/compiler": "npm:^2.10.3"
     "@astrojs/internal-helpers": "npm:0.4.1"
@@ -1933,7 +1952,7 @@ __metadata:
     "@astrojs/telemetry": "npm:3.1.0"
     "@babel/core": "npm:^7.25.2"
     "@babel/plugin-transform-react-jsx": "npm:^7.25.2"
-    "@babel/types": "npm:^7.25.4"
+    "@babel/types": "npm:^7.25.6"
     "@oslojs/encoding": "npm:^0.4.1"
     "@rollup/pluginutils": "npm:^5.1.0"
     "@types/babel__core": "npm:^7.20.5"
@@ -1979,11 +1998,11 @@ __metadata:
     rehype: "npm:^13.0.1"
     semver: "npm:^7.6.3"
     sharp: "npm:^0.33.3"
-    shiki: "npm:^1.14.1"
+    shiki: "npm:^1.16.1"
     string-width: "npm:^7.2.0"
     strip-ansi: "npm:^7.1.0"
     tinyexec: "npm:^0.3.0"
-    tsconfck: "npm:^3.1.1"
+    tsconfck: "npm:^3.1.3"
     unist-util-visit: "npm:^5.0.0"
     vfile: "npm:^6.0.3"
     vite: "npm:^5.4.2"
@@ -1999,7 +2018,7 @@ __metadata:
       optional: true
   bin:
     astro: astro.js
-  checksum: 10c0/be5a1b94d4a4d13343839fd7e301c486339aab8e5478abc1d531e9046728de88b5eaa49e1bd6595a04e4ba60cf6b1a83d28a5877475253b66785ae90f245e137
+  checksum: 10c0/ee2720feadc0e1ef27f7f84666009216ef7b7ab9848d862436e508a943a503ad471676b78822244adeb3c5bfdfec75218d53fe2d0e063ffadeaffa582707836e
   languageName: node
   linkType: hard
 
@@ -5822,13 +5841,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"shiki@npm:^1.14.1":
-  version: 1.14.1
-  resolution: "shiki@npm:1.14.1"
+"shiki@npm:^1.16.1":
+  version: 1.16.1
+  resolution: "shiki@npm:1.16.1"
   dependencies:
-    "@shikijs/core": "npm:1.14.1"
+    "@shikijs/core": "npm:1.16.1"
+    "@shikijs/vscode-textmate": "npm:^9.2.0"
     "@types/hast": "npm:^3.0.4"
-  checksum: 10c0/756f45917f281e158eef114b985b9a4cae9f0470f955e2f96f4473a3aed327dc1d653b9bd6280eb28398bd0da6d533caa4fce61b716c1263c5d85df53964ade2
+  checksum: 10c0/dd1769a8ae87ce4f728fd67805ec73c3512e37719f43d6ffed9413cf3e802a9bab379f84658d2196eb83fc6d7b75a7706a91288fd30b0ace3e842cc68799fe9c
   languageName: node
   linkType: hard
 
@@ -6178,9 +6198,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsconfck@npm:^3.1.1":
-  version: 3.1.1
-  resolution: "tsconfck@npm:3.1.1"
+"tsconfck@npm:^3.1.3":
+  version: 3.1.3
+  resolution: "tsconfck@npm:3.1.3"
   peerDependencies:
     typescript: ^5.0.0
   peerDependenciesMeta:
@@ -6188,7 +6208,7 @@ __metadata:
       optional: true
   bin:
     tsconfck: bin/tsconfck.js
-  checksum: 10c0/e133eb308ba37e8db8dbac1905bddaaf4a62f0e01aa88143e19867e274a877b86b35cf69c9a0172ca3e7d1a4bb32400381ac7f7a1429e34250a8d7ae55aee3e7
+  checksum: 10c0/64f7a8ed0a6d36b0902dfc0075e791d2242f7634644f124343ec0dec4f3f70092f929c5a9f59496d51883aa81bb1e595deb92a219593575d2e75b849064713d1
   languageName: node
   linkType: hard
 
