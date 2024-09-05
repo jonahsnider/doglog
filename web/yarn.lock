@@ -162,8 +162,8 @@ __metadata:
   linkType: hard
 
 "@astrojs/starlight@npm:^0.26.0":
-  version: 0.26.2
-  resolution: "@astrojs/starlight@npm:0.26.2"
+  version: 0.26.3
+  resolution: "@astrojs/starlight@npm:0.26.3"
   dependencies:
     "@astrojs/mdx": "npm:^3.1.3"
     "@astrojs/sitemap": "npm:^3.1.6"
@@ -188,7 +188,7 @@ __metadata:
     vfile: "npm:^6.0.2"
   peerDependencies:
     astro: ^4.8.6
-  checksum: 10c0/a7fd0a665deaa1575d58d4d033ad3ee04af1837ec8724bd60459790bf39a62273773600e4f73bc2b60dd3604eeb3e380f8f6b7878e8c6eb09f9285f6c12f318b
+  checksum: 10c0/4b09ca6f6f8926feac8bf1ad9e8fba9f2b66d4c2899079d5ef1f3581c3a0a105f251530eb245bf66b53f42936dc18c00da7d2c8bf28185c68d15c1f59662f2df
   languageName: node
   linkType: hard
 
