@@ -1977,8 +1977,8 @@ __metadata:
   linkType: hard
 
 "astro@npm:^4.3.5":
-  version: 4.15.5
-  resolution: "astro@npm:4.15.5"
+  version: 4.15.6
+  resolution: "astro@npm:4.15.6"
   dependencies:
     "@astrojs/compiler": "npm:^2.10.3"
     "@astrojs/internal-helpers": "npm:0.4.1"
@@ -2026,6 +2026,7 @@ __metadata:
     ora: "npm:^8.1.0"
     p-limit: "npm:^6.1.0"
     p-queue: "npm:^8.0.1"
+    path-to-regexp: "npm:6.2.2"
     preferred-pm: "npm:^4.0.0"
     prompts: "npm:^2.4.2"
     rehype: "npm:^13.0.1"
@@ -2051,7 +2052,7 @@ __metadata:
       optional: true
   bin:
     astro: astro.js
-  checksum: 10c0/501f249a0753a0cfa00742845b9d50c9141a9bbb3b8e39fc902ed51c709922403bbaf2ac629d5ee7ddd0b35db7907052c086704c5891e4c7e2c6d15ed174ef00
+  checksum: 10c0/a4cd6bd3cd815634fa01c9ad40ee33a16f4d14a6fe9ac706f5d6e73228665c8974d2be7b23905acf37e92e9e29c9d806e3cc960086b423411577464b5fbd777d
   languageName: node
   linkType: hard
 
@@ -5144,6 +5145,13 @@ __metadata:
     lru-cache: "npm:^10.2.0"
     minipass: "npm:^5.0.0 || ^6.0.2 || ^7.0.0"
   checksum: 10c0/d723777fbf9627f201e64656680f66ebd940957eebacf780e6cce1c2919c29c116678b2d7dbf8821b3a2caa758d125f4444005ccec886a25c8f324504e48e601
+  languageName: node
+  linkType: hard
+
+"path-to-regexp@npm:6.2.2":
+  version: 6.2.2
+  resolution: "path-to-regexp@npm:6.2.2"
+  checksum: 10c0/4b60852d3501fd05ca9dd08c70033d73844e5eca14e41f499f069afa8364f780f15c5098002f93bd42af8b3514de62ac6e82a53b5662de881d2b08c9ef21ea6b
   languageName: node
   linkType: hard
 
