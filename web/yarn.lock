@@ -1683,6 +1683,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/picomatch@npm:2.3.3":
+  version: 2.3.3
+  resolution: "@types/picomatch@npm:2.3.3"
+  checksum: 10c0/5ad7f891eb3e16e8eb1f51615f0b755bc44ac5dff5a1e2513229f307f72e226c917c6b9a829a97134cedbec727036f885890a55b1975b6e3f381b6545b962c4d
+  languageName: node
+  linkType: hard
+
 "@types/sax@npm:^1.2.1":
   version: 1.2.7
   resolution: "@types/sax@npm:1.2.7"
@@ -2620,7 +2627,7 @@ __metadata:
     prettier-plugin-java: "npm:2.6.4"
     prettier-plugin-packagejson: "npm:2.5.2"
     sharp: "npm:^0.33.0"
-    starlight-links-validator: "npm:0.12.0"
+    starlight-links-validator: "npm:0.12.1"
     typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
@@ -6098,10 +6105,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"starlight-links-validator@npm:0.12.0":
-  version: 0.12.0
-  resolution: "starlight-links-validator@npm:0.12.0"
+"starlight-links-validator@npm:0.12.1":
+  version: 0.12.1
+  resolution: "starlight-links-validator@npm:0.12.1"
   dependencies:
+    "@types/picomatch": "npm:2.3.3"
     github-slugger: "npm:2.0.0"
     hast-util-from-html: "npm:2.0.1"
     hast-util-has-property: "npm:3.0.0"
@@ -6113,7 +6121,7 @@ __metadata:
   peerDependencies:
     "@astrojs/starlight": ">=0.15.0"
     astro: ">=4.0.0"
-  checksum: 10c0/76167494d9dac89db158bdf87c0e5656e20ade5dce691a9512ddff2dfbda3a975a5e94a3ce46b75021761d31b1df5ff4ab1eaa520c6573f30874086c5563c786
+  checksum: 10c0/7aa73dd1697314c776adf3fb5dfe9b8a31035cb977f7517a56ec4aaf9a6d7c0903e739547d7fcd9f1fd333c7eca5d46736013d711ebb8b72d95d2a5dd23624ff
   languageName: node
   linkType: hard
 
