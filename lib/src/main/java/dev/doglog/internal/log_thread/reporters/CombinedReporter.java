@@ -15,8 +15,7 @@ public class CombinedReporter {
   /** The NetworkTables table to log to, if NetworkTables publishing is enabled. */
   private static final String LOG_TABLE = "/Robot";
 
-  private final DataLogReporter dataLogReporter =
-      new DataLogReporter(DataLogManager.getLog(), LOG_TABLE);
+  private final DataLogReporter dataLogReporter;
   // Default to null
   private NetworkTablesReporter ntReporter;
 
@@ -26,8 +25,15 @@ public class CombinedReporter {
       ntReporter = new NetworkTablesReporter(LOG_TABLE);
     }
 
+    // Update whether console output is captured
+    DataLogManager.logConsoleOutput(initialOptions.captureConsole());
+
     // Print default options on start
     printOptions(initialOptions);
+
+    // Finally, create the data log reporter. Calling DataLogManager.getLog() will start the logger,
+    // so we only do this once all settings have been provided
+    dataLogReporter = new DataLogReporter(DataLogManager.getLog(), LOG_TABLE);
   }
 
   public void log(long timestamp, String key, boolean[] value) {
@@ -212,6 +218,9 @@ public class CombinedReporter {
     } else {
       ntReporter = null;
     }
+
+    // Update whether console output is captured
+    DataLogManager.logConsoleOutput(options.captureConsole());
 
     printOptions(options);
   }
