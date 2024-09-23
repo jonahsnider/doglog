@@ -45,6 +45,16 @@ The `logExtras` option controls whether "extra" data like PDH currents, CAN bus 
 DogLog.setOptions(new DogLogOptions().withLogExtras(false));
 ```
 
+### Capturing console output
+
+The `captureConsole` option controls whether console output (from `/home/lvuser/FRC_UserProgram.log`) should be included in logs.
+
+Due to a a limitation in WPILib's `DataLogManager`, these values can't be published over NetworkTables.
+
+```java
+DogLog.setOptions(new DogLogOptions().withCaptureConsole(false));
+```
+
 ### Log entry queue capacity
 
 The `logEntryQueueCapacity` option controls the maximum number of log entries that can be queued for processing by the log thread.
