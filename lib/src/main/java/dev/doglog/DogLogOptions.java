@@ -25,6 +25,8 @@ public record DogLogOptions(
     boolean captureDs,
     /** Whether to log extra data, like PDH currents, CAN usage, etc. */
     boolean logExtras,
+    /** Whether console output should be saved to the log file. */
+    boolean captureConsole,
     /** The maximum size of the log entry queue to use. */
     int logEntryQueueCapacity) {
   public static final double LOOP_PERIOD_SECONDS = 0.02;
@@ -38,7 +40,7 @@ public record DogLogOptions(
    */
   public DogLogOptions() {
     // Default options
-    this(false, false, false, true, 1000);
+    this(false, false, false, true, true, 1000);
   }
 
   /**
@@ -55,7 +57,12 @@ public record DogLogOptions(
    */
   public DogLogOptions withNtPublish(boolean ntPublish) {
     return new DogLogOptions(
-        ntPublish, captureNt(), captureDs(), logExtras(), logEntryQueueCapacity());
+        ntPublish,
+        captureNt(),
+        captureDs(),
+        logExtras(),
+        captureConsole(),
+        logEntryQueueCapacity());
   }
 
   /**
@@ -71,7 +78,12 @@ public record DogLogOptions(
    */
   public DogLogOptions withCaptureNt(boolean captureNt) {
     return new DogLogOptions(
-        ntPublish(), captureNt, captureDs(), logExtras(), logEntryQueueCapacity());
+        ntPublish(),
+        captureNt,
+        captureDs(),
+        logExtras(),
+        captureConsole(),
+        logEntryQueueCapacity());
   }
 
   /**
@@ -87,7 +99,12 @@ public record DogLogOptions(
    */
   public DogLogOptions withCaptureDs(boolean captureDs) {
     return new DogLogOptions(
-        ntPublish(), captureNt(), captureDs, logExtras(), logEntryQueueCapacity());
+        ntPublish(),
+        captureNt(),
+        captureDs,
+        logExtras(),
+        captureConsole(),
+        logEntryQueueCapacity());
   }
 
   /**
@@ -103,7 +120,12 @@ public record DogLogOptions(
    */
   public DogLogOptions withLogExtras(boolean logExtras) {
     return new DogLogOptions(
-        ntPublish(), captureNt(), captureDs(), logExtras, logEntryQueueCapacity());
+        ntPublish(),
+        captureNt(),
+        captureDs(),
+        logExtras,
+        captureConsole(),
+        logEntryQueueCapacity());
   }
 
   /**
@@ -120,6 +142,33 @@ public record DogLogOptions(
    */
   public DogLogOptions withLogEntryQueueCapacity(int logEntryQueueCapacity) {
     return new DogLogOptions(
-        ntPublish(), captureNt(), captureDs(), logExtras(), logEntryQueueCapacity);
+        ntPublish(),
+        captureNt(),
+        captureDs(),
+        logExtras(),
+        captureConsole(),
+        logEntryQueueCapacity);
+  }
+
+  /**
+   * Create a new options object, inheriting the configuration from this one, with {@link
+   * DogLogOptions#captureConsole} set to the provided value.
+   *
+   * <p>Example:
+   *
+   * <pre>DogLog.setOptions(new DogLogOptions().withCaptureConsole(false));</pre>
+   *
+   * @param captureConsole Whether console output should be saved to the log file.
+   * @return A new options object with {@link DogLogOptions#captureConsole} set to the provided
+   *     value.
+   */
+  public DogLogOptions withCaptureConsole(boolean captureConsole) {
+    return new DogLogOptions(
+        ntPublish(),
+        captureNt(),
+        captureDs(),
+        logExtras(),
+        captureConsole,
+        logEntryQueueCapacity());
   }
 }

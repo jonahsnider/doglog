@@ -20,7 +20,6 @@ public class ExtrasLogger {
   private final LogQueuer logger;
 
   private PowerDistribution pdh;
-  private double[] currents;
 
   private DogLogOptions options;
 
@@ -36,11 +35,6 @@ public class ExtrasLogger {
 
   public void setPdh(PowerDistribution pdh) {
     this.pdh = pdh;
-    if (pdh == null) {
-      currents = null;
-    } else {
-      currents = new double[pdh.getNumChannels()];
-    }
   }
 
   public void heartbeat() {
@@ -105,17 +99,13 @@ public class ExtrasLogger {
   }
 
   private void logPdh(long now) {
-    if (pdh == null || currents == null) {
+    if (pdh == null) {
       return;
-    }
-
-    for (int i = 0; i < currents.length; i++) {
-      currents[i] = pdh.getCurrent(i);
     }
 
     logger.queueLog(now, "SystemStats/PowerDistribution/Temperature", pdh.getTemperature());
     logger.queueLog(now, "SystemStats/PowerDistribution/Voltage", pdh.getVoltage());
-    logger.queueLog(now, "SystemStats/PowerDistribution/ChannelCurrent", currents);
+    logger.queueLog(now, "SystemStats/PowerDistribution/ChannelCurrent", pdh.getAllCurrents());
     logger.queueLog(now, "SystemStats/PowerDistribution/TotalCurrent", pdh.getTotalCurrent());
     logger.queueLog(now, "SystemStats/PowerDistribution/TotalPower", pdh.getTotalPower());
     logger.queueLog(now, "SystemStats/PowerDistribution/TotalEnergy", pdh.getTotalEnergy());
