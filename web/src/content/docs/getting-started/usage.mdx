@@ -5,7 +5,8 @@ description: Get started with logging using DogLog.
 
 import { Steps } from '@astrojs/starlight/components';
 
-Once installed, getting started with DogLog is super easy:
+Once installed, getting started with DogLog is easy.
+This page will walk you through the first steps to integrating DogLog with your robot project.
 
 ## Logging
 
@@ -48,6 +49,8 @@ Here's an example of how to set DogLog to use custom options:
 
    This configures DogLog to use the default options as a base, and extends them to publish logged fields to NetworkTables.
 
+   Publishing logs to NetworkTables is a great way to debug your robot while you're testing, without needing to download a log file to your computer.
+
 </Steps>
 
 ### Logging PDH/PDP data
@@ -89,7 +92,7 @@ public class RobotContainer {
 		DogLog.setOptions(new DogLogOptions().withNtPublish(true));
 		DogLog.setPdh(new PowerDistribution());
 
-    DogLog.log("ExampleLog", "Hello world!");
+		DogLog.log("ExampleLog", "Hello world!");
 
 		configureBindings();
 	}
