@@ -241,7 +241,7 @@ public class DogLog {
 
   /**
    * Log the current FPGA timestamp. Useful for recording each time a block of code is executed,
-   * since timestamps are unique & monotonically increasing.
+   * since timestamps are unique and monotonically increasing.
    *
    * @param key The key to log the timestamp to.
    */
