@@ -10,6 +10,7 @@ import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.Timer;
 
 /** A logger based on WPILib's {@link DataLogManager} */
 public class DogLog {
@@ -236,6 +237,16 @@ public class DogLog {
    */
   public static boolean faultsLogged() {
     return FaultLogger.faultsLogged();
+  }
+
+  /**
+   * Log the current FPGA timestamp. Useful for recording each time a block of code is executed,
+   * since timestamps are unique & monotonically increasing.
+   *
+   * @param key The key to log the timestamp to.
+   */
+  public static void timestamp(String key) {
+    log(key, Timer.getFPGATimestamp());
   }
 
   protected DogLog() {}
