@@ -1,5 +1,22 @@
 # Changelog
 
+## [2024.6.0](https://github.com/jonahsnider/doglog/compare/2024.5.8...2024.6.0) (2024-10-07)
+
+
+### Features
+
+* add DogLog.timestamp() convenience method ([710b091](https://github.com/jonahsnider/doglog/commit/710b0911542d4f7ddf72714786bd25f50ff2fad9))
+
+
+### Bug Fixes
+
+* update faults logging to ignore faults with null as a name ([0343b89](https://github.com/jonahsnider/doglog/commit/0343b89fe0c1be5a7900e6946a848df6bcf52853))
+
+
+### Performance Improvements
+
+* improve struct logging performance by removing redundant `DataLog#addSchema()` code ([91d60b0](https://github.com/jonahsnider/doglog/commit/91d60b04c96c56dc17a5ac30e70b5142e774c8ad))
+
 ## [2024.5.8](https://github.com/jonahsnider/doglog/compare/2024.5.7...2024.5.8) (2024-08-03)
 
 
