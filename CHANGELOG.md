@@ -16,11 +16,6 @@
 * use native change detection ([33b0337](https://github.com/jonahsnider/doglog/commit/33b0337bb78ae47916f1059f4a8ced1a897393c7))
 
 
-### Bug Fixes
-
-* fully remove value hash calculation ([33b0337](https://github.com/jonahsnider/doglog/commit/33b0337bb78ae47916f1059f4a8ced1a897393c7))
-
-
 ### Performance Improvements
 
 * replace many pdh.getCurrent() calls with one pdh.getAllCurrents() call when logging PDH currents ([dc296a9](https://github.com/jonahsnider/doglog/commit/dc296a93fa547e6b700acc121092d6fa134cd5c0))
