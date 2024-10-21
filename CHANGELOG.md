@@ -1,5 +1,30 @@
 # Changelog
 
+## [2025.0.0](https://github.com/jonahsnider/doglog/compare/2024.6.0...2025.0.0) (2024-10-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove AdvantageKitCompatibleLogger
+* upgrade WPILib to 2025
+
+### Features
+
+* remove AdvantageKitCompatibleLogger ([023505a](https://github.com/jonahsnider/doglog/commit/023505acac7415195c1e2d94c85146dcc74cd69a))
+* support capturing console output to log file ([d0bdcea](https://github.com/jonahsnider/doglog/commit/d0bdcea4a8304435a84466a4a5a7681c95405887))
+* upgrade WPILib to 2025 ([f1923ff](https://github.com/jonahsnider/doglog/commit/f1923ff0bc2025e8d7f981a865bad9131c964106))
+* use native change detection ([33b0337](https://github.com/jonahsnider/doglog/commit/33b0337bb78ae47916f1059f4a8ced1a897393c7))
+
+
+### Bug Fixes
+
+* fully remove value hash calculation ([33b0337](https://github.com/jonahsnider/doglog/commit/33b0337bb78ae47916f1059f4a8ced1a897393c7))
+
+
+### Performance Improvements
+
+* replace many pdh.getCurrent() calls with one pdh.getAllCurrents() call when logging PDH currents ([dc296a9](https://github.com/jonahsnider/doglog/commit/dc296a93fa547e6b700acc121092d6fa134cd5c0))
+
 ## [2024.6.0](https://github.com/jonahsnider/doglog/compare/2024.5.8...2024.6.0) (2024-10-07)
 
 
