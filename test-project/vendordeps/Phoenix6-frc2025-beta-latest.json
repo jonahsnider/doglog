@@ -2,13 +2,26 @@
   "javaDependencies": [{
     "groupId": "com.ctre.phoenix6",
     "artifactId": "wpiapi-java",
-    "version": "24.2.0"
+    "version": "25.0.0-beta-1"
   }],
-  "fileName": "Phoenix6.json",
-  "frcYear": 2024,
-  "jsonUrl": "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/latest/Phoenix6-frc2024-latest.json",
+  "fileName": "Phoenix6-frc2025-beta-latest.json",
+  "frcYear": "2025",
+  "jsonUrl": "https://maven.ctr-electronics.com/release/com/ctre/phoenix6/latest/Phoenix6-frc2025-beta-latest.json",
   "name": "CTRE-Phoenix (v6)",
   "jniDependencies": [
+    {
+      "simMode": "hwsim",
+      "validPlatforms": [
+        "windowsx86-64",
+        "linuxx86-64",
+        "linuxathena"
+      ],
+      "groupId": "com.ctre.phoenix6",
+      "artifactId": "api-cpp",
+      "skipInvalidPlatforms": true,
+      "isJar": false,
+      "version": "25.0.0-beta-1"
+    },
     {
       "simMode": "hwsim",
       "validPlatforms": [
@@ -20,7 +33,20 @@
       "artifactId": "tools",
       "skipInvalidPlatforms": true,
       "isJar": false,
-      "version": "24.2.0"
+      "version": "25.0.0-beta-1"
+    },
+    {
+      "simMode": "swsim",
+      "validPlatforms": [
+        "windowsx86-64",
+        "linuxx86-64",
+        "osxuniversal"
+      ],
+      "groupId": "com.ctre.phoenix6.sim",
+      "artifactId": "api-cpp-sim",
+      "skipInvalidPlatforms": true,
+      "isJar": false,
+      "version": "25.0.0-beta-1"
     },
     {
       "simMode": "swsim",
@@ -33,7 +59,7 @@
       "artifactId": "tools-sim",
       "skipInvalidPlatforms": true,
       "isJar": false,
-      "version": "24.2.0"
+      "version": "25.0.0-beta-1"
     },
     {
       "simMode": "swsim",
@@ -46,20 +72,7 @@
       "artifactId": "simTalonSRX",
       "skipInvalidPlatforms": true,
       "isJar": false,
-      "version": "24.2.0"
-    },
-    {
-      "simMode": "swsim",
-      "validPlatforms": [
-        "windowsx86-64",
-        "linuxx86-64",
-        "osxuniversal"
-      ],
-      "groupId": "com.ctre.phoenix6.sim",
-      "artifactId": "simTalonFX",
-      "skipInvalidPlatforms": true,
-      "isJar": false,
-      "version": "24.2.0"
+      "version": "25.0.0-beta-1"
     },
     {
       "simMode": "swsim",
@@ -72,7 +85,7 @@
       "artifactId": "simVictorSPX",
       "skipInvalidPlatforms": true,
       "isJar": false,
-      "version": "24.2.0"
+      "version": "25.0.0-beta-1"
     },
     {
       "simMode": "swsim",
@@ -85,7 +98,7 @@
       "artifactId": "simPigeonIMU",
       "skipInvalidPlatforms": true,
       "isJar": false,
-      "version": "24.2.0"
+      "version": "25.0.0-beta-1"
     },
     {
       "simMode": "swsim",
@@ -98,7 +111,7 @@
       "artifactId": "simCANCoder",
       "skipInvalidPlatforms": true,
       "isJar": false,
-      "version": "24.2.0"
+      "version": "25.0.0-beta-1"
     },
     {
       "simMode": "swsim",
@@ -111,7 +124,7 @@
       "artifactId": "simProTalonFX",
       "skipInvalidPlatforms": true,
       "isJar": false,
-      "version": "24.2.0"
+      "version": "25.0.0-beta-1"
     },
     {
       "simMode": "swsim",
@@ -124,7 +137,7 @@
       "artifactId": "simProCANcoder",
       "skipInvalidPlatforms": true,
       "isJar": false,
-      "version": "24.2.0"
+      "version": "25.0.0-beta-1"
     },
     {
       "simMode": "swsim",
@@ -137,14 +150,21 @@
       "artifactId": "simProPigeon2",
       "skipInvalidPlatforms": true,
       "isJar": false,
-      "version": "24.2.0"
+      "version": "25.0.0-beta-1"
     }
   ],
-  "conflictsWith": [{
-    "errorMessage": "The combined Phoenix-6-And-5 vendordep is no longer supported. Please remove the vendordep and instead add both the latest Phoenix 6 vendordep and Phoenix 5 vendordep.",
-    "offlineFileName": "Phoenix6And5.json",
-    "uuid": "3fcf3402-e646-4fa6-971e-18afe8173b1a"
-  }],
+  "conflictsWith": [
+    {
+      "errorMessage": "The combined Phoenix-6-And-5 vendordep is no longer supported. Please remove the vendordep and instead add both the latest Phoenix 6 vendordep and Phoenix 5 vendordep.",
+      "offlineFileName": "Phoenix6And5.json",
+      "uuid": "3fcf3402-e646-4fa6-971e-18afe8173b1a"
+    },
+    {
+      "errorMessage": "Users can not have both the replay and regular Phoenix 6 vendordeps in their robot program.",
+      "offlineFileName": "Phoenix6-replay-frc2025-beta-latest.json",
+      "uuid": "e7900d8d-826f-4dca-a1ff-182f658e98af"
+    }
+  ],
   "mavenUrls": ["https://maven.ctr-electronics.com/release/"],
   "cppDependencies": [
     {
@@ -153,7 +173,7 @@
       "libName": "CTRE_Phoenix6_WPI",
       "artifactId": "wpiapi-cpp",
       "skipInvalidPlatforms": true,
-      "version": "24.2.0",
+      "version": "25.0.0-beta-1",
       "headerClassifier": "headers",
       "binaryPlatforms": [
         "windowsx86-64",
@@ -168,7 +188,7 @@
       "libName": "CTRE_PhoenixTools",
       "artifactId": "tools",
       "skipInvalidPlatforms": true,
-      "version": "24.2.0",
+      "version": "25.0.0-beta-1",
       "headerClassifier": "headers",
       "binaryPlatforms": [
         "windowsx86-64",
@@ -183,7 +203,7 @@
       "libName": "CTRE_Phoenix6_WPISim",
       "artifactId": "wpiapi-cpp-sim",
       "skipInvalidPlatforms": true,
-      "version": "24.2.0",
+      "version": "25.0.0-beta-1",
       "headerClassifier": "headers",
       "binaryPlatforms": [
         "windowsx86-64",
@@ -198,7 +218,7 @@
       "libName": "CTRE_PhoenixTools_Sim",
       "artifactId": "tools-sim",
       "skipInvalidPlatforms": true,
-      "version": "24.2.0",
+      "version": "25.0.0-beta-1",
       "headerClassifier": "headers",
       "binaryPlatforms": [
         "windowsx86-64",
@@ -213,22 +233,7 @@
       "libName": "CTRE_SimTalonSRX",
       "artifactId": "simTalonSRX",
       "skipInvalidPlatforms": true,
-      "version": "24.2.0",
-      "headerClassifier": "headers",
-      "binaryPlatforms": [
-        "windowsx86-64",
-        "linuxx86-64",
-        "osxuniversal"
-      ],
-      "sharedLibrary": true
-    },
-    {
-      "simMode": "swsim",
-      "groupId": "com.ctre.phoenix6.sim",
-      "libName": "CTRE_SimTalonFX",
-      "artifactId": "simTalonFX",
-      "skipInvalidPlatforms": true,
-      "version": "24.2.0",
+      "version": "25.0.0-beta-1",
       "headerClassifier": "headers",
       "binaryPlatforms": [
         "windowsx86-64",
@@ -243,7 +248,7 @@
       "libName": "CTRE_SimVictorSPX",
       "artifactId": "simVictorSPX",
       "skipInvalidPlatforms": true,
-      "version": "24.2.0",
+      "version": "25.0.0-beta-1",
       "headerClassifier": "headers",
       "binaryPlatforms": [
         "windowsx86-64",
@@ -258,7 +263,7 @@
       "libName": "CTRE_SimPigeonIMU",
       "artifactId": "simPigeonIMU",
       "skipInvalidPlatforms": true,
-      "version": "24.2.0",
+      "version": "25.0.0-beta-1",
       "headerClassifier": "headers",
       "binaryPlatforms": [
         "windowsx86-64",
@@ -273,7 +278,7 @@
       "libName": "CTRE_SimCANCoder",
       "artifactId": "simCANCoder",
       "skipInvalidPlatforms": true,
-      "version": "24.2.0",
+      "version": "25.0.0-beta-1",
       "headerClassifier": "headers",
       "binaryPlatforms": [
         "windowsx86-64",
@@ -288,7 +293,7 @@
       "libName": "CTRE_SimProTalonFX",
       "artifactId": "simProTalonFX",
       "skipInvalidPlatforms": true,
-      "version": "24.2.0",
+      "version": "25.0.0-beta-1",
       "headerClassifier": "headers",
       "binaryPlatforms": [
         "windowsx86-64",
@@ -303,7 +308,7 @@
       "libName": "CTRE_SimProCANcoder",
       "artifactId": "simProCANcoder",
       "skipInvalidPlatforms": true,
-      "version": "24.2.0",
+      "version": "25.0.0-beta-1",
       "headerClassifier": "headers",
       "binaryPlatforms": [
         "windowsx86-64",
@@ -318,7 +323,7 @@
       "libName": "CTRE_SimProPigeon2",
       "artifactId": "simProPigeon2",
       "skipInvalidPlatforms": true,
-      "version": "24.2.0",
+      "version": "25.0.0-beta-1",
       "headerClassifier": "headers",
       "binaryPlatforms": [
         "windowsx86-64",
@@ -328,6 +333,6 @@
       "sharedLibrary": true
     }
   ],
-  "version": "24.2.0",
+  "version": "25.0.0-beta-1",
   "uuid": "e995de00-2c64-4df5-8831-c1441420ff19"
 }

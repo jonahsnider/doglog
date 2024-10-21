@@ -1,6 +1,6 @@
 plugins {
 	id "java"
-	id "edu.wpi.first.GradleRIO" version "2024.3.2"
+	id "edu.wpi.first.GradleRIO" version "2025.1.1-beta-1"
 	id "com.diffplug.spotless" version "6.25.0"
 }
 
@@ -51,6 +51,7 @@ def includeDesktopSupport = true
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
 dependencies {
+	annotationProcessor wpi.java.deps.wpilibAnnotations()
 	implementation wpi.java.deps.wpilib()
 	implementation wpi.java.vendor.java()
 
@@ -68,7 +69,7 @@ dependencies {
 	nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
 	simulationRelease wpi.sim.enableRelease()
 
-	testImplementation 'org.junit.jupiter:junit-jupiter:5.11.2'
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	implementation files('../lib/build/libs/doglog.jar')
@@ -106,7 +107,6 @@ wpi.java.configureTestTasks(test)
 tasks.withType(JavaCompile) {
 	options.compilerArgs.add '-XDstringConcat=inline'
 }
-
 
 apply plugin: 'groovy'
 spotless {
