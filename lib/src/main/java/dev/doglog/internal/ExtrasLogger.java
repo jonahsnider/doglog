@@ -19,6 +19,8 @@ public class ExtrasLogger {
 
   private final LogQueuer logger;
 
+  private final CANStatus status = new CANStatus();
+
   private PowerDistribution pdh;
 
   private DogLogOptions options;
@@ -87,7 +89,6 @@ public class ExtrasLogger {
   }
 
   private void logCan(long now) {
-    CANStatus status = new CANStatus();
     CANJNI.getCANStatus(status);
     logger.queueLog(now, "SystemStats/CANBus/Utilization", status.percentBusUtilization);
     logger.queueLog(now, "SystemStats/CANBus/OffCount", status.busOffCount);
