@@ -4,6 +4,7 @@
 
 package dev.doglog.internal.log_thread.reporters;
 
+import dev.doglog.DogLogOptions;
 import edu.wpi.first.util.datalog.BooleanArrayLogEntry;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
@@ -20,6 +21,8 @@ import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.util.datalog.StructArrayLogEntry;
 import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.util.struct.Struct;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,13 +43,14 @@ public class DataLogReporter {
   private final Map<String, StructArrayLogEntry<?>> structArrayLogs = new HashMap<>();
   private final Map<String, StructLogEntry<?>> structLogs = new HashMap<>();
 
+  private final DataLog log = DataLogManager.getLog();
+
   private final String logTable;
 
-  private final DataLog log;
-
-  public DataLogReporter(DataLog log, String logTable) {
-    this.log = log;
+  public DataLogReporter(String logTable, DogLogOptions initialOptions) {
     this.logTable = logTable;
+
+    setOptions(initialOptions);
   }
 
   public void log(long timestamp, String key, boolean[] value) {
@@ -131,6 +135,16 @@ public class DataLogReporter {
             structLogs.computeIfAbsent(key, k -> StructLogEntry.create(log, prefixKey(k), struct));
 
     entry.update(value, timestamp);
+  }
+
+  public void setOptions(DogLogOptions options) {
+    DataLogManager.logConsoleOutput(options.captureConsole());
+
+    DataLogManager.logNetworkTables(options.captureNt());
+
+    if (options.captureDs()) {
+      DriverStation.startDataLog(log);
+    }
   }
 
   private String prefixKey(String key) {

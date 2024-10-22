@@ -20,8 +20,6 @@ import dev.doglog.internal.log_thread.entries.StructArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StructQueuedLogEntry;
 import dev.doglog.internal.log_thread.reporters.CombinedReporter;
 import edu.wpi.first.hal.HALUtil;
-import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import java.util.concurrent.BlockingQueue;
 
@@ -37,29 +35,12 @@ public class LogThread extends Thread {
 
     this.queue = queue;
 
-    // Apply initial options that this class is responsible for
-    DataLogManager.logNetworkTables(initialOptions.captureNt());
-
-    var log = DataLogManager.getLog();
-
-    if (initialOptions.captureDs()) {
-      DriverStation.startDataLog(log);
-    }
-
     this.logger = new CombinedReporter(initialOptions);
 
     diagnosticsTimer.start();
   }
 
   public void setOptions(DogLogOptions options) {
-    DataLogManager.logNetworkTables(options.captureNt());
-
-    var log = DataLogManager.getLog();
-
-    if (options.captureDs()) {
-      DriverStation.startDataLog(log);
-    }
-
     logger.setOptions(options);
   }
 

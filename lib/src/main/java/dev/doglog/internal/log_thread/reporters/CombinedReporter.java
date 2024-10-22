@@ -9,7 +9,6 @@ import dev.doglog.internal.log_thread.StructRegistry;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
-import edu.wpi.first.wpilibj.DataLogManager;
 
 public class CombinedReporter {
   /** The NetworkTables table to log to, if NetworkTables publishing is enabled. */
@@ -20,20 +19,9 @@ public class CombinedReporter {
   private NetworkTablesReporter ntReporter;
 
   public CombinedReporter(DogLogOptions initialOptions) {
-    // Setup NT publisher if initial options have it enabled
-    if (initialOptions.ntPublish()) {
-      ntReporter = new NetworkTablesReporter(LOG_TABLE);
-    }
+    dataLogReporter = new DataLogReporter(LOG_TABLE, initialOptions);
 
-    // Update whether console output is captured
-    DataLogManager.logConsoleOutput(initialOptions.captureConsole());
-
-    // Finally, create the data log reporter. Calling DataLogManager.getLog() will start the logger,
-    // so we only do this once all settings have been provided
-    dataLogReporter = new DataLogReporter(DataLogManager.getLog(), LOG_TABLE);
-
-    // Print default options on start, once data log reporter has been initialized
-    printOptions(initialOptions);
+    setOptions(initialOptions);
   }
 
   public void log(long timestamp, String key, boolean[] value) {
@@ -219,8 +207,7 @@ public class CombinedReporter {
       ntReporter = null;
     }
 
-    // Update whether console output is captured
-    DataLogManager.logConsoleOutput(options.captureConsole());
+    dataLogReporter.setOptions(options);
 
     printOptions(options);
   }
