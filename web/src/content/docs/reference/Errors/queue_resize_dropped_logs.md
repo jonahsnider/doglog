@@ -1,6 +1,6 @@
 ---
-title: DOG003 - Dropped logs from queue capacity reduction
-Description: Description and solution for the DogLog DOG003 error.
+title: QUEUE_RESIZE_DROPPED_LOGS
+description: Description and solution for the DogLog QUEUE_RESIZE_DROPPED_LOGS error.
 ---
 
 ## Description

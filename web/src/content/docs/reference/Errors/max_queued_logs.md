@@ -1,6 +1,6 @@
 ---
-title: DOG001 - Max queued logs exceeded
-Description: Description and solution for the DogLog DOG001 error.
+title: MAX_QUEUED_LOGS
+description: Description and solution for the DogLog MAX_QUEUED_LOGS error.
 ---
 
 ## Description
@@ -13,7 +13,7 @@ If too many logs are added to the queue before they can be processed, the queue 
 
 To avoid this error, you can try the following:
 
-<!-- TODO: Add link to Javadoc -->
-
 - Reduce the number of logs being added to the queue, especially in short bursts
 - Increase the queue capacity in the configured DogLog options
+  - [Read more about how to configure this option here](/reference/configuring#log-entry-queue-capacity)
+  - [Relevant JavaDoc page for this option](<https://javadoc.doglog.dev/dev/doglog/doglogoptions#withLogEntryQueueCapacity(int)>)

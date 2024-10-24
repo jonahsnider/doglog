@@ -40,20 +40,20 @@ public class LogQueuer {
       // to overflow more
       // Without this, the robot code could crash from a call stack size exceeded error, since this
       // function is calling itself over and over
-      FaultLogger.logFault(this, "[DogLog] DOG001");
+      FaultLogger.logFault(this, "[DogLog] MAX_QUEUED_LOGS");
     }
 
     queueFullMessageCount++;
 
     if (queueFullMessageCount == MAX_QUEUE_FULL_MESSAGES) {
       DriverStation.reportError(
-          "[DogLog] DOG001: Log queue is full, dropping log entry for "
+          "[DogLog] MAX_QUEUED_LOGS: Log queue is full, dropping log entry for "
               + key
               + " (additional messages will not be printed)",
           true);
     } else if (queueFullMessageCount < MAX_QUEUE_FULL_MESSAGES) {
       DriverStation.reportError(
-          "[DogLog] DOG001: Log queue is full, dropping log entry for " + key, false);
+          "[DogLog] MAX_QUEUED_LOGS: Log queue is full, dropping log entry for " + key, false);
     }
   }
 
@@ -191,9 +191,9 @@ public class LogQueuer {
 
       if (oldQueueMaxCapacity > newQueueMaxCapacity) {
         DriverStation.reportWarning(
-            "[DogLog] DOG002: New queue capacity is smaller than the old queue capacity, this has the potential to drop queued log entries",
+            "[DogLog] RISKY_QUEUE_RESIZE: New queue capacity is smaller than the old queue capacity, this has the potential to drop queued log entries",
             false);
-        FaultLogger.logFault(this, "[DogLog] DOG002");
+        FaultLogger.logFault(this, "[DogLog] RISKY_QUEUE_RESIZE");
       }
 
       queue.drainTo(newQueue, newQueue.remainingCapacity());
@@ -201,11 +201,11 @@ public class LogQueuer {
       var droppedLogs = queue.size();
       if (droppedLogs > 0) {
         DriverStation.reportError(
-            "[DogLog] DOG003: New queue capacity is too small, dropping "
+            "[DogLog] QUEUE_RESIZE_DROPPED_LOGS: New queue capacity is too small, dropping "
                 + droppedLogs
                 + " log entries",
             true);
-        FaultLogger.logFault(this, "[DogLog] DOG003");
+        FaultLogger.logFault(this, "[DogLog] QUEUE_RESIZE_DROPPED_LOGS");
       }
 
       logThread = new LogThread(newQueue, newOptions);
