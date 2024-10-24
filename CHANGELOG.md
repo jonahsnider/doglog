@@ -1,5 +1,23 @@
 # Changelog
 
+## [2025.1.0](https://github.com/jonahsnider/doglog/compare/2025.0.0...2025.1.0) (2024-10-24)
+
+
+### Features
+
+* add UNSAFE_LOG_DESTINATION warning when no log USB present on roboRIO 1 ([f2dc0ce](https://github.com/jonahsnider/doglog/commit/f2dc0ced739a67564dbb4e006b748ad097b17a3b)), closes [#51](https://github.com/jonahsnider/doglog/issues/51)
+
+
+### Bug Fixes
+
+* improve names of logger errors and warnings ([de43c6e](https://github.com/jonahsnider/doglog/commit/de43c6e7878a1c05a761bc04d2c167daa78eafd5))
+* improve performance of logging faults ([8cd7d07](https://github.com/jonahsnider/doglog/commit/8cd7d074b24c1cbaa82076ef52626296ded71d41))
+
+
+### Performance Improvements
+
+* reduce GC pressure caused by logging CAN status ([488cf84](https://github.com/jonahsnider/doglog/commit/488cf84f5550929ec4f269743b44bd2d666aa6a8))
+
 ## [2025.0.0](https://github.com/jonahsnider/doglog/compare/2024.6.0...2025.0.0) (2024-10-21)
 
 
