@@ -14,8 +14,9 @@ public class FaultLogger {
   private static final Map<String, Integer> faultCounts = new HashMap<>();
   private static String[] faultNames = new String[] {};
 
-  // TODO: Why can't we just log direct to DogLog class here? Either refactor or add comment
-  // explaining why.
+  // This function doesn't need to have the LogQueuer parameter, it could just call DogLog directly.
+  // But doing that would mean getting the current time twice, which can be avoided by getting the
+  // time once here and reusing that value.
   public static void logFault(LogQueuer logger, String faultName) {
     var previousCount = faultCounts.get(faultName);
     var newCount = previousCount == null ? 1 : previousCount + 1;

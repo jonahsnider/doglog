@@ -47,6 +47,8 @@ public class ExtrasLogger {
   }
 
   private void log() {
+    // Instead of logging directly to DogLog, we write logs to LogQueuer directly. This lets us get
+    // the timestamp a single time and reuse that value for all log entries.
     var now = HALUtil.getFPGATime();
 
     logSystem(now);
