@@ -23,11 +23,16 @@ import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RuntimeType;
 import java.util.HashMap;
 import java.util.Map;
 
 /** Logs to a WPILib {@link DataLog}. */
 public class DataLogReporter {
+  /** The directory path when logging to the flash storage on a roboRIO 1. */
+  private static final String RIO1_DISK_LOG_DIR = "/home/lvuser/logs";
+
   private final Map<String, BooleanArrayLogEntry> booleanArrayLogs = new HashMap<>();
   private final Map<String, BooleanLogEntry> booleanLogs = new HashMap<>();
   private final Map<String, DoubleArrayLogEntry> doubleArrayLogs = new HashMap<>();
@@ -145,6 +150,19 @@ public class DataLogReporter {
     if (options.captureDs()) {
       DriverStation.startDataLog(log);
     }
+  }
+
+  /**
+   * This could be a static method, but it's not because this class controls initializing {@link
+   * DataLogManager}, which has to be done before this method can be called.
+   *
+   * @return Whether the log destination directory is valid. On a roboRIO 2 this is always true, on
+   *     a roboRIO 1 this is true when a USB drive is attached.
+   */
+  public boolean isLogDestinationValid() {
+    // See DataLogManager#makeLogDir() for source on this logic
+    return !(RobotBase.getRuntimeType() == RuntimeType.kRoboRIO
+        && DataLogManager.getLogDir().equals(RIO1_DISK_LOG_DIR));
   }
 
   private String prefixKey(String key) {
