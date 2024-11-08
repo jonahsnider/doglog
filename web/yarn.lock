@@ -177,16 +177,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/starlight@npm:^0.28.0":
-  version: 0.28.6
-  resolution: "@astrojs/starlight@npm:0.28.6"
+"@astrojs/starlight@npm:^0.29.0":
+  version: 0.29.0
+  resolution: "@astrojs/starlight@npm:0.29.0"
   dependencies:
     "@astrojs/mdx": "npm:^3.1.3"
     "@astrojs/sitemap": "npm:^3.1.6"
     "@pagefind/default-ui": "npm:^1.0.3"
     "@types/hast": "npm:^3.0.4"
     "@types/mdast": "npm:^4.0.4"
-    astro-expressive-code: "npm:^0.35.6"
+    astro-expressive-code: "npm:^0.38.3"
     bcp-47: "npm:^2.1.0"
     hast-util-from-html: "npm:^2.0.1"
     hast-util-select: "npm:^6.0.2"
@@ -206,7 +206,7 @@ __metadata:
     vfile: "npm:^6.0.2"
   peerDependencies:
     astro: ^4.14.0
-  checksum: 10c0/e4f786e752705019680bc763a0086093a0758942768fbed5d58fe59db278792be754f7dfbe4bd2191539a0ab17e049d4a5558cef14ea143534eeae4211c1fb8f
+  checksum: 10c0/1fb625bda95bb28e0621e6a34cc6da18c8402c3c3887277a457121553fd4496e48501782a2becd141cdaab0374594119b2a675d864749598e4a520ff1420b13a
   languageName: node
   linkType: hard
 
@@ -766,9 +766,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@expressive-code/core@npm:^0.35.6":
-  version: 0.35.6
-  resolution: "@expressive-code/core@npm:0.35.6"
+"@expressive-code/core@npm:^0.38.3":
+  version: 0.38.3
+  resolution: "@expressive-code/core@npm:0.38.3"
   dependencies:
     "@ctrl/tinycolor": "npm:^4.0.4"
     hast-util-select: "npm:^6.0.2"
@@ -779,35 +779,35 @@ __metadata:
     postcss-nested: "npm:^6.0.1"
     unist-util-visit: "npm:^5.0.0"
     unist-util-visit-parents: "npm:^6.0.1"
-  checksum: 10c0/3f4dce689a20b92105e96f97b641e305cc104539818dde3b1a87d9aaa65384e376fc8c5f1597697226150fd7ffd2864dd562ee39d351d195ce1058b6a674600d
+  checksum: 10c0/790ee242cc3fc43bb79bc8744129c4e6fab300a45e0e2ceb700045644d397b57145987d58397885e55edd6c8994d6e498724ef7c82f7b0680d8ca06b74ebe506
   languageName: node
   linkType: hard
 
-"@expressive-code/plugin-frames@npm:^0.35.6":
-  version: 0.35.6
-  resolution: "@expressive-code/plugin-frames@npm:0.35.6"
+"@expressive-code/plugin-frames@npm:^0.38.3":
+  version: 0.38.3
+  resolution: "@expressive-code/plugin-frames@npm:0.38.3"
   dependencies:
-    "@expressive-code/core": "npm:^0.35.6"
-  checksum: 10c0/0e5c037c383ff2372060693b08118c3fe8057a5aa5b8d853fcb635e31276a2eb4ea12496964d1f9aa6f355213d76a82ba32a484cd643646a19ad91be777ba364
+    "@expressive-code/core": "npm:^0.38.3"
+  checksum: 10c0/c1f658f02a177188d638517c542e2624f92415f881cd3cf99859916724a182828a6a198cfc87565a6ff746bcaef98b4ac390e91014e1b67add06a759986090ee
   languageName: node
   linkType: hard
 
-"@expressive-code/plugin-shiki@npm:^0.35.6":
-  version: 0.35.6
-  resolution: "@expressive-code/plugin-shiki@npm:0.35.6"
+"@expressive-code/plugin-shiki@npm:^0.38.3":
+  version: 0.38.3
+  resolution: "@expressive-code/plugin-shiki@npm:0.38.3"
   dependencies:
-    "@expressive-code/core": "npm:^0.35.6"
-    shiki: "npm:^1.1.7"
-  checksum: 10c0/b535b2a765f6ba1d2647d6b41965b8064828d8668267e415d55490a5c02496be28ab505be64f286ceedda4bb9070fd8dc18b7f636ff04cc6a92819d64faad30b
+    "@expressive-code/core": "npm:^0.38.3"
+    shiki: "npm:^1.22.2"
+  checksum: 10c0/0873dcec0220e4f4aef2f332b49ead5ca2e09970d26a763118e41a53cbdbae87d9f41d5de58997c061ebdf0dda527d7dddddbaf56e565fcd089677326cdfd93e
   languageName: node
   linkType: hard
 
-"@expressive-code/plugin-text-markers@npm:^0.35.6":
-  version: 0.35.6
-  resolution: "@expressive-code/plugin-text-markers@npm:0.35.6"
+"@expressive-code/plugin-text-markers@npm:^0.38.3":
+  version: 0.38.3
+  resolution: "@expressive-code/plugin-text-markers@npm:0.38.3"
   dependencies:
-    "@expressive-code/core": "npm:^0.35.6"
-  checksum: 10c0/a50b79e98da5f18f8f5f458c3dbe2d05fcbcbe1bafde0ac6b29bc0de08f12158d4b4c5677807a2c0549ac195c247740680341361aaf4de055a22192daa09d795
+    "@expressive-code/core": "npm:^0.38.3"
+  checksum: 10c0/a1ee31dc4d0bbac8b61764238704fd722f1c73736f49c95b998eb7cc17bacd6232ed4f5b6e0f61052c176c427f44b718f1002cdfed01a25c87a9bd02f64a1d94
   languageName: node
   linkType: hard
 
@@ -1827,14 +1827,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"astro-expressive-code@npm:^0.35.6":
-  version: 0.35.6
-  resolution: "astro-expressive-code@npm:0.35.6"
+"astro-expressive-code@npm:^0.38.3":
+  version: 0.38.3
+  resolution: "astro-expressive-code@npm:0.38.3"
   dependencies:
-    rehype-expressive-code: "npm:^0.35.6"
+    rehype-expressive-code: "npm:^0.38.3"
   peerDependencies:
-    astro: ^4.0.0-beta || ^3.3.0
-  checksum: 10c0/2bdf8bbbd87db23f0e34e087ebc66ee9be6ce0e18da21b7e28079f4c124783d8ad03f25968c28d97683c72eb43a936fe0683bf0c649c67a5144bfccc0abbda9c
+    astro: ^4.0.0-beta || ^5.0.0-beta || ^3.3.0
+  checksum: 10c0/fd12922008c45c3acfaaac1381915b46f4fde2c1dc1f53612638b6c127f2e14109a98a4374d8c8d56e47a8a39e36b6b5ac1aafb56050c57c765a3b9f23bde235
   languageName: node
   linkType: hard
 
@@ -2396,7 +2396,7 @@ __metadata:
   resolution: "doglog.dev@workspace:."
   dependencies:
     "@astrojs/check": "npm:^0.9.0"
-    "@astrojs/starlight": "npm:^0.28.0"
+    "@astrojs/starlight": "npm:^0.29.0"
     astro: "npm:^4.3.5"
     prettier: "npm:3.3.3"
     prettier-plugin-astro: "npm:0.14.1"
@@ -2680,15 +2680,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expressive-code@npm:^0.35.6":
-  version: 0.35.6
-  resolution: "expressive-code@npm:0.35.6"
+"expressive-code@npm:^0.38.3":
+  version: 0.38.3
+  resolution: "expressive-code@npm:0.38.3"
   dependencies:
-    "@expressive-code/core": "npm:^0.35.6"
-    "@expressive-code/plugin-frames": "npm:^0.35.6"
-    "@expressive-code/plugin-shiki": "npm:^0.35.6"
-    "@expressive-code/plugin-text-markers": "npm:^0.35.6"
-  checksum: 10c0/d1670c3038bb205ad8264f92aad7b8f1349c639e9f5a61377328827e211fb7ea605de67f42f92b3ed584721dc20603fd0418a3e22750f3dd14c69fc7f5ca88a4
+    "@expressive-code/core": "npm:^0.38.3"
+    "@expressive-code/plugin-frames": "npm:^0.38.3"
+    "@expressive-code/plugin-shiki": "npm:^0.38.3"
+    "@expressive-code/plugin-text-markers": "npm:^0.38.3"
+  checksum: 10c0/c95f0e62d88beb639257bbc0adaa22befc5f8f8c772f21744a7fd83fc508251da61b4744e4ec9f6d5b298402ef45f389058b865c00699ce48bb1d0c160f58907
   languageName: node
   linkType: hard
 
@@ -5148,12 +5148,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rehype-expressive-code@npm:^0.35.6":
-  version: 0.35.6
-  resolution: "rehype-expressive-code@npm:0.35.6"
+"rehype-expressive-code@npm:^0.38.3":
+  version: 0.38.3
+  resolution: "rehype-expressive-code@npm:0.38.3"
   dependencies:
-    expressive-code: "npm:^0.35.6"
-  checksum: 10c0/98230c8d64e0f36b5d30fe338af14d958e299cd4d9f00008c7d77c6490831a92e0cc4a3389783863ca056ce02a889c40152b2729c6eb3455211c86649c8d0f84
+    expressive-code: "npm:^0.38.3"
+  checksum: 10c0/1d23356c4d4c69807089d98e1c318dcd6e51e981b03662e300765101c4c8535fc66c4fa6cc86695d82764ff1b4cf87e8fd654f5c147bafdc3107d9d217b508b7
   languageName: node
   linkType: hard
 
@@ -5608,7 +5608,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"shiki@npm:^1.1.7, shiki@npm:^1.10.3, shiki@npm:^1.22.0":
+"shiki@npm:^1.10.3, shiki@npm:^1.22.0":
   version: 1.22.0
   resolution: "shiki@npm:1.22.0"
   dependencies:
