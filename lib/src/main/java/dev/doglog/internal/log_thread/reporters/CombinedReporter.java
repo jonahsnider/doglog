@@ -205,7 +205,8 @@ public class CombinedReporter {
     // Avoid recreating the logger if the options haven't changed
     if (options.ntPublish() && ntReporter == null) {
       ntReporter = new NetworkTablesReporter(LOG_TABLE);
-    } else {
+    } else if (ntReporter != null) {
+      ntReporter.close();
       ntReporter = null;
     }
 

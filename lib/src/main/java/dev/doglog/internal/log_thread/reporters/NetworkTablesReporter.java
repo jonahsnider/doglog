@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** Logs to NetworkTables. */
-public class NetworkTablesReporter {
+public class NetworkTablesReporter implements AutoCloseable {
   private static final PubSubOption PUB_SUB_OPTIONS = PubSubOption.sendAll(true);
 
   private final NetworkTable logTable;
@@ -50,56 +50,48 @@ public class NetworkTablesReporter {
     this.logTable = NetworkTableInstance.getDefault().getTable(logTable);
   }
 
-  @SuppressWarnings("resource")
   public void log(String key, boolean[] value) {
     booleanArrayPublishers
         .computeIfAbsent(key, k -> logTable.getBooleanArrayTopic(k).publish(PUB_SUB_OPTIONS))
         .set(value);
   }
 
-  @SuppressWarnings("resource")
   public void log(String key, boolean value) {
     booleanPublishers
         .computeIfAbsent(key, k -> logTable.getBooleanTopic(k).publish(PUB_SUB_OPTIONS))
         .set(value);
   }
 
-  @SuppressWarnings("resource")
   public void log(String key, double[] value) {
     doubleArrayPublishers
         .computeIfAbsent(key, k -> logTable.getDoubleArrayTopic(k).publish(PUB_SUB_OPTIONS))
         .set(value);
   }
 
-  @SuppressWarnings("resource")
   public void log(String key, double value) {
     doublePublishers
         .computeIfAbsent(key, k -> logTable.getDoubleTopic(k).publish(PUB_SUB_OPTIONS))
         .set(value);
   }
 
-  @SuppressWarnings("resource")
   public void log(String key, float[] value) {
     floatArrayPublishers
         .computeIfAbsent(key, k -> logTable.getFloatArrayTopic(k).publish(PUB_SUB_OPTIONS))
         .set(value);
   }
 
-  @SuppressWarnings("resource")
   public void log(String key, float value) {
     floatPublishers
         .computeIfAbsent(key, k -> logTable.getFloatTopic(k).publish(PUB_SUB_OPTIONS))
         .set(value);
   }
 
-  @SuppressWarnings("resource")
   public void log(String key, long[] value) {
     integerArrayPublishers
         .computeIfAbsent(key, k -> logTable.getIntegerArrayTopic(k).publish(PUB_SUB_OPTIONS))
         .set(value);
   }
 
-  @SuppressWarnings("resource")
   public void log(String key, long value) {
     integerPublishers
         .computeIfAbsent(key, k -> logTable.getIntegerTopic(k).publish(PUB_SUB_OPTIONS))
@@ -110,7 +102,6 @@ public class NetworkTablesReporter {
 
   // TODO: Raw logs
 
-  @SuppressWarnings("resource")
   public void log(String key, String[] value) {
 
     stringArrayPublishers
@@ -118,7 +109,6 @@ public class NetworkTablesReporter {
         .set(value);
   }
 
-  @SuppressWarnings("resource")
   public void log(String key, String value) {
 
     stringPublishers
@@ -126,7 +116,6 @@ public class NetworkTablesReporter {
         .set(value);
   }
 
-  @SuppressWarnings("resource")
   public <T> void log(String key, Struct<T> struct, T[] value) {
     @SuppressWarnings("unchecked")
     var publisher =
@@ -136,7 +125,6 @@ public class NetworkTablesReporter {
     publisher.set(value);
   }
 
-  @SuppressWarnings("resource")
   public <T> void log(String key, Struct<T> struct, T value) {
     @SuppressWarnings("unchecked")
     var publisher =
@@ -144,5 +132,52 @@ public class NetworkTablesReporter {
             structPublishers.computeIfAbsent(
                 key, k -> logTable.getStructTopic(k, struct).publish(PUB_SUB_OPTIONS));
     publisher.set(value);
+  }
+
+  @Override
+  public void close() {
+    // Close all publishers stored in the maps
+    for (var publisher : booleanArrayPublishers.values()) {
+      publisher.close();
+    }
+    for (var publisher : booleanPublishers.values()) {
+      publisher.close();
+    }
+    for (var publisher : doubleArrayPublishers.values()) {
+      publisher.close();
+    }
+    for (var publisher : doublePublishers.values()) {
+      publisher.close();
+    }
+    for (var publisher : floatArrayPublishers.values()) {
+      publisher.close();
+    }
+    for (var publisher : floatPublishers.values()) {
+      publisher.close();
+    }
+    for (var publisher : integerArrayPublishers.values()) {
+      publisher.close();
+    }
+    for (var publisher : integerPublishers.values()) {
+      publisher.close();
+    }
+    for (var publisher : protobufPublishers.values()) {
+      publisher.close();
+    }
+    for (var publisher : rawPublishers.values()) {
+      publisher.close();
+    }
+    for (var publisher : stringArrayPublishers.values()) {
+      publisher.close();
+    }
+    for (var publisher : stringPublishers.values()) {
+      publisher.close();
+    }
+    for (var publisher : structArrayPublishers.values()) {
+      publisher.close();
+    }
+    for (var publisher : structPublishers.values()) {
+      publisher.close();
+    }
   }
 }
