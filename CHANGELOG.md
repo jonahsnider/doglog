@@ -1,5 +1,13 @@
 # Changelog
 
+## [2025.1.1](https://github.com/jonahsnider/doglog/compare/2025.1.0...2025.1.1) (2024-11-22)
+
+
+### Bug Fixes
+
+* fix memory leak from enabling and then disabling ntPublish mode ([2289c01](https://github.com/jonahsnider/doglog/commit/2289c013212c2116dec3878923caa67da3e3f544))
+* fix potential stack size exceeded error when first logs overflows ([c82e36b](https://github.com/jonahsnider/doglog/commit/c82e36bd744316ab791852f7d8b43bafd45fab88)), closes [#58](https://github.com/jonahsnider/doglog/issues/58)
+
 ## [2025.1.0](https://github.com/jonahsnider/doglog/compare/2025.0.0...2025.1.0) (2024-10-24)
 
 
