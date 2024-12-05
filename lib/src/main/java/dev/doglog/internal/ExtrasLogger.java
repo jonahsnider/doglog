@@ -10,40 +10,39 @@ import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.hal.PowerJNI;
 import edu.wpi.first.hal.can.CANJNI;
 import edu.wpi.first.hal.can.CANStatus;
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.Timer;
 
 /** Logs "extra" information. */
 public class ExtrasLogger {
-  private final Timer timer = new Timer();
-
   private final LogQueuer logger;
 
   private final CANStatus status = new CANStatus();
 
   private PowerDistribution pdh;
 
-  private DogLogOptions options;
+  private Notifier notifier;
 
   public ExtrasLogger(LogQueuer logger, DogLogOptions initialOptions) {
-    timer.start();
     this.logger = logger;
-    this.options = initialOptions;
+
+    if (initialOptions.logExtras()) {
+      notifier = createNotifier();
+    }
   }
 
   public void setOptions(DogLogOptions options) {
-    this.options = options;
+    if (notifier == null && options.logExtras()) {
+      notifier = createNotifier();
+    } else if (notifier != null && !options.logExtras()) {
+      notifier.stop();
+      notifier.close();
+      notifier = null;
+    }
   }
 
   public void setPdh(PowerDistribution pdh) {
     this.pdh = pdh;
-  }
-
-  public void heartbeat() {
-    if (options.logExtras() && timer.hasElapsed(DogLogOptions.LOOP_PERIOD_SECONDS)) {
-      timer.reset();
-      log();
-    }
   }
 
   private void log() {
@@ -113,5 +112,14 @@ public class ExtrasLogger {
     logger.queueLog(now, "SystemStats/PowerDistribution/TotalPower", pdh.getTotalPower());
     logger.queueLog(now, "SystemStats/PowerDistribution/TotalEnergy", pdh.getTotalEnergy());
     logger.queueLog(now, "SystemStats/PowerDistribution/ChannelCount", pdh.getNumChannels());
+  }
+
+  private Notifier createNotifier() {
+    @SuppressWarnings("resource")
+    var newNotifier = new Notifier(this::log);
+    newNotifier.startPeriodic(DogLogOptions.LOOP_PERIOD_SECONDS);
+    newNotifier.setName("DogLog extras logger");
+
+    return notifier;
   }
 }

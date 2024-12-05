@@ -80,63 +80,54 @@ public class LogQueuer {
     if (!queue.offer(new BooleanArrayQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
-    extras.heartbeat();
   }
 
   public void queueLog(long timestamp, String key, boolean value) {
     if (!queue.offer(new BooleanQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
-    extras.heartbeat();
   }
 
   public void queueLog(long timestamp, String key, double[] value) {
     if (!queue.offer(new DoubleArrayQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
-    extras.heartbeat();
   }
 
   public void queueLog(long timestamp, String key, double value) {
     if (!queue.offer(new DoubleQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
-    extras.heartbeat();
   }
 
   public void queueLog(long timestamp, String key, float[] value) {
     if (!queue.offer(new FloatArrayQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
-    extras.heartbeat();
   }
 
   public void queueLog(long timestamp, String key, float value) {
     if (!queue.offer(new FloatQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
-    extras.heartbeat();
   }
 
   public void queueLog(long timestamp, String key, int[] value) {
     if (!queue.offer(new IntegerArrayQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
-    extras.heartbeat();
   }
 
   public void queueLog(long timestamp, String key, long[] value) {
     if (!queue.offer(new IntegerArrayQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
-    extras.heartbeat();
   }
 
   public void queueLog(long timestamp, String key, long value) {
     if (!queue.offer(new IntegerQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
-    extras.heartbeat();
   }
 
   // TODO: Protobuf logs
@@ -147,28 +138,24 @@ public class LogQueuer {
     if (!queue.offer(new StringArrayQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
-    extras.heartbeat();
   }
 
   public void queueLog(long timestamp, String key, String value) {
     if (!queue.offer(new StringQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
-    extras.heartbeat();
   }
 
   public <T extends StructSerializable> void queueLog(long timestamp, String key, T[] value) {
     if (!queue.offer(new StructArrayQueuedLogEntry<>(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
-    extras.heartbeat();
   }
 
   public <T extends StructSerializable> void queueLog(long timestamp, String key, T value) {
     if (!queue.offer(new StructQueuedLogEntry<>(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
-    extras.heartbeat();
   }
 
   public void setOptions(DogLogOptions newOptions) {
