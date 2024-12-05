@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** Logs to NetworkTables. */
-public class NetworkTablesReporter implements AutoCloseable {
+public class NetworkTablesReporter implements AutoCloseable, Reporter {
   private static final PubSubOption PUB_SUB_OPTIONS = PubSubOption.sendAll(true);
 
   private final NetworkTable logTable;
@@ -50,88 +50,98 @@ public class NetworkTablesReporter implements AutoCloseable {
     this.logTable = NetworkTableInstance.getDefault().getTable(logTable);
   }
 
-  public void log(String key, boolean[] value) {
+  @Override
+  public void log(long timestamp, String key, boolean[] value) {
     booleanArrayPublishers
         .computeIfAbsent(key, k -> logTable.getBooleanArrayTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value);
+        .set(value, timestamp);
   }
 
-  public void log(String key, boolean value) {
+  @Override
+  public void log(long timestamp, String key, boolean value) {
     booleanPublishers
         .computeIfAbsent(key, k -> logTable.getBooleanTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value);
+        .set(value, timestamp);
   }
 
-  public void log(String key, double[] value) {
+  @Override
+  public void log(long timestamp, String key, double[] value) {
     doubleArrayPublishers
         .computeIfAbsent(key, k -> logTable.getDoubleArrayTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value);
+        .set(value, timestamp);
   }
 
-  public void log(String key, double value) {
+  @Override
+  public void log(long timestamp, String key, double value) {
     doublePublishers
         .computeIfAbsent(key, k -> logTable.getDoubleTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value);
+        .set(value, timestamp);
   }
 
-  public void log(String key, float[] value) {
+  @Override
+  public void log(long timestamp, String key, float[] value) {
     floatArrayPublishers
         .computeIfAbsent(key, k -> logTable.getFloatArrayTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value);
+        .set(value, timestamp);
   }
 
-  public void log(String key, float value) {
+  @Override
+  public void log(long timestamp, String key, float value) {
     floatPublishers
         .computeIfAbsent(key, k -> logTable.getFloatTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value);
+        .set(value, timestamp);
   }
 
-  public void log(String key, long[] value) {
+  @Override
+  public void log(long timestamp, String key, long[] value) {
     integerArrayPublishers
         .computeIfAbsent(key, k -> logTable.getIntegerArrayTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value);
+        .set(value, timestamp);
   }
 
-  public void log(String key, long value) {
+  @Override
+  public void log(long timestamp, String key, long value) {
     integerPublishers
         .computeIfAbsent(key, k -> logTable.getIntegerTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value);
+        .set(value, timestamp);
   }
 
   // TODO: Protobuf logs
 
   // TODO: Raw logs
 
-  public void log(String key, String[] value) {
-
+  @Override
+  public void log(long timestamp, String key, String[] value) {
     stringArrayPublishers
         .computeIfAbsent(key, k -> logTable.getStringArrayTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value);
+        .set(value, timestamp);
   }
 
-  public void log(String key, String value) {
-
+  @Override
+  public void log(long timestamp, String key, String value) {
     stringPublishers
         .computeIfAbsent(key, k -> logTable.getStringTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value);
+        .set(value, timestamp);
   }
 
-  public <T> void log(String key, Struct<T> struct, T[] value) {
+  @Override
+  public <T> void log(long timestamp, String key, Struct<T> struct, T[] value) {
     @SuppressWarnings("unchecked")
     var publisher =
         (StructArrayPublisher<T>)
             structArrayPublishers.computeIfAbsent(
                 key, k -> logTable.getStructArrayTopic(k, struct).publish(PUB_SUB_OPTIONS));
-    publisher.set(value);
+    publisher.set(value, timestamp);
   }
 
-  public <T> void log(String key, Struct<T> struct, T value) {
+  @Override
+  public <T> void log(long timestamp, String key, Struct<T> struct, T value) {
     @SuppressWarnings("unchecked")
     var publisher =
         (StructPublisher<T>)
             structPublishers.computeIfAbsent(
                 key, k -> logTable.getStructTopic(k, struct).publish(PUB_SUB_OPTIONS));
-    publisher.set(value);
+    publisher.set(value, timestamp);
   }
 
   @Override

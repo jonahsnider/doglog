@@ -34,7 +34,7 @@ public class CombinedReporter {
     dataLogReporter.log(timestamp, key, value);
 
     if (ntReporter != null) {
-      ntReporter.log(key, value);
+      ntReporter.log(timestamp, key, value);
     }
   }
 
@@ -42,7 +42,7 @@ public class CombinedReporter {
     dataLogReporter.log(timestamp, key, value);
 
     if (ntReporter != null) {
-      ntReporter.log(key, value);
+      ntReporter.log(timestamp, key, value);
     }
   }
 
@@ -54,7 +54,7 @@ public class CombinedReporter {
     dataLogReporter.log(timestamp, key, value);
 
     if (ntReporter != null) {
-      ntReporter.log(key, value);
+      ntReporter.log(timestamp, key, value);
     }
   }
 
@@ -62,7 +62,7 @@ public class CombinedReporter {
     dataLogReporter.log(timestamp, key, value);
 
     if (ntReporter != null) {
-      ntReporter.log(key, value);
+      ntReporter.log(timestamp, key, value);
     }
   }
 
@@ -74,7 +74,7 @@ public class CombinedReporter {
     dataLogReporter.log(timestamp, key, value);
 
     if (ntReporter != null) {
-      ntReporter.log(key, value);
+      ntReporter.log(timestamp, key, value);
     }
   }
 
@@ -82,7 +82,7 @@ public class CombinedReporter {
     dataLogReporter.log(timestamp, key, value);
 
     if (ntReporter != null) {
-      ntReporter.log(key, value);
+      ntReporter.log(timestamp, key, value);
     }
   }
 
@@ -94,14 +94,15 @@ public class CombinedReporter {
     dataLogReporter.log(timestamp, key, value);
 
     if (ntReporter != null) {
-      ntReporter.log(key, value);
+      ntReporter.log(timestamp, key, value);
     }
   }
 
   public void log(long timestamp, String key, long value) {
     dataLogReporter.log(timestamp, key, value);
+
     if (ntReporter != null) {
-      ntReporter.log(key, value);
+      ntReporter.log(timestamp, key, value);
     }
   }
 
@@ -115,8 +116,9 @@ public class CombinedReporter {
     }
 
     dataLogReporter.log(timestamp, key, value);
+
     if (ntReporter != null) {
-      ntReporter.log(key, value);
+      ntReporter.log(timestamp, key, value);
     }
   }
 
@@ -143,7 +145,7 @@ public class CombinedReporter {
     dataLogReporter.log(timestamp, key, value);
 
     if (ntReporter != null) {
-      ntReporter.log(key, value);
+      ntReporter.log(timestamp, key, value);
     }
   }
 
@@ -162,7 +164,7 @@ public class CombinedReporter {
 
     dataLogReporter.log(timestamp, key, struct, value);
     if (ntReporter != null) {
-      ntReporter.log(key, struct, value);
+      ntReporter.log(timestamp, key, struct, value);
     }
   }
 
@@ -183,7 +185,7 @@ public class CombinedReporter {
   private <T> void log(long timestamp, String key, Struct<T> struct, T value) {
     dataLogReporter.log(timestamp, key, struct, value);
     if (ntReporter != null) {
-      ntReporter.log(key, struct, value);
+      ntReporter.log(timestamp, key, struct, value);
     }
   }
 
