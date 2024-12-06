@@ -1,5 +1,23 @@
 # Changelog
 
+## [2025.2.0](https://github.com/jonahsnider/doglog/compare/2025.1.1...2025.2.0) (2024-12-06)
+
+
+### Features
+
+* allow logging strings with custom types ([2171e06](https://github.com/jonahsnider/doglog/commit/2171e061c4508d2145b4ac44d77a122ac123fe30))
+* log radio connection status when extras logging is enabled ([5a9497e](https://github.com/jonahsnider/doglog/commit/5a9497e2f1898652bab731e243dc81b7414379c7))
+
+
+### Bug Fixes
+
+* use consistent timestamps between NT and DataLog ([50fa6d2](https://github.com/jonahsnider/doglog/commit/50fa6d252dac5ddf2893685d96c943212ef8df78))
+
+
+### Performance Improvements
+
+* improve performance of periodic extras logging ([ba2b235](https://github.com/jonahsnider/doglog/commit/ba2b2354c04866210e52a644bd59ca057215bd3e))
+
 ## [2025.1.1](https://github.com/jonahsnider/doglog/compare/2025.1.0...2025.1.1) (2024-11-22)
 
 
