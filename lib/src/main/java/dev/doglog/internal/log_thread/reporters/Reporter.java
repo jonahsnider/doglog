@@ -31,6 +31,8 @@ public interface Reporter {
 
   public void log(long timestamp, String key, String value);
 
+  public void log(long timestamp, String key, String value, String customTypeString);
+
   public <T> void log(long timestamp, String key, Struct<T> struct, T[] value);
 
   public <T> void log(long timestamp, String key, Struct<T> struct, T value);

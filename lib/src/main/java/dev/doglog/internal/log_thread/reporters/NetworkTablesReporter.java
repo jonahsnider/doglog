@@ -10,6 +10,7 @@ import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.FloatArrayPublisher;
 import edu.wpi.first.networktables.FloatPublisher;
+import edu.wpi.first.networktables.GenericPublisher;
 import edu.wpi.first.networktables.IntegerArrayPublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -43,6 +44,7 @@ public class NetworkTablesReporter implements AutoCloseable, Reporter {
   private final Map<String, RawPublisher> rawPublishers = new HashMap<>();
   private final Map<String, StringArrayPublisher> stringArrayPublishers = new HashMap<>();
   private final Map<String, StringPublisher> stringPublishers = new HashMap<>();
+  private final Map<String, GenericPublisher> customStringPublishers = new HashMap<>();
   private final Map<String, StructArrayPublisher<?>> structArrayPublishers = new HashMap<>();
   private final Map<String, StructPublisher<?>> structPublishers = new HashMap<>();
 
@@ -122,6 +124,14 @@ public class NetworkTablesReporter implements AutoCloseable, Reporter {
     stringPublishers
         .computeIfAbsent(key, k -> logTable.getStringTopic(k).publish(PUB_SUB_OPTIONS))
         .set(value, timestamp);
+  }
+
+  @Override
+  public void log(long timestamp, String key, String value, String customTypeString) {
+    customStringPublishers
+        .computeIfAbsent(
+            key, k -> logTable.getTopic(k).genericPublish(customTypeString, PUB_SUB_OPTIONS))
+        .setString(value, timestamp);
   }
 
   @Override

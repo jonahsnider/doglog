@@ -37,6 +37,7 @@ public class Robot extends TimedRobot {
           new SwerveModuleState()
         });
     DogLog.log("Debug/Position", motor.getPosition().getValueAsDouble());
+    DogLog.log("Debug/Json", "{\"test\": \"json\"}", "json");
   }
 
   @Override

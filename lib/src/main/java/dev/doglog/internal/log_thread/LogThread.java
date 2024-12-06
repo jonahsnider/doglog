@@ -15,6 +15,7 @@ import dev.doglog.internal.log_thread.entries.FloatQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.IntegerArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.IntegerQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringArrayQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.StringCustomTypeQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StructArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StructQueuedLogEntry;
@@ -85,6 +86,13 @@ public class LogThread extends Thread {
             break;
           case STRING:
             logger.log(entry.timestamp, entry.key, ((StringQueuedLogEntry) entry).value);
+            break;
+          case STRING_CUSTOM_TYPE:
+            logger.log(
+                entry.timestamp,
+                entry.key,
+                ((StringCustomTypeQueuedLogEntry) entry).value,
+                ((StringCustomTypeQueuedLogEntry) entry).customTypeString);
             break;
           case STRUCT_ARRAY:
             logger.log(entry.timestamp, entry.key, ((StructArrayQueuedLogEntry<?>) entry).value);

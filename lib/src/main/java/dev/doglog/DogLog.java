@@ -182,6 +182,14 @@ public class DogLog {
     }
   }
 
+  /** Log a string with a custom type string. */
+  public static void log(String key, String value, String customTypeString) {
+    if (enabled) {
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value, customTypeString);
+    }
+  }
+
   /** Log an enum. The enum will be converted to a string with {@link Enum#name()}. */
   public static void log(String key, Enum<?> value) {
     if (value == null) {

@@ -16,6 +16,7 @@ import dev.doglog.internal.log_thread.entries.FloatQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.IntegerArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.IntegerQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringArrayQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.StringCustomTypeQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StructArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StructQueuedLogEntry;
@@ -142,6 +143,12 @@ public class LogQueuer {
 
   public void queueLog(long timestamp, String key, String value) {
     if (!queue.offer(new StringQueuedLogEntry(key, timestamp, value))) {
+      printQueueFullMessage(key);
+    }
+  }
+
+  public void queueLog(long timestamp, String key, String value, String customTypeString) {
+    if (!queue.offer(new StringCustomTypeQueuedLogEntry(key, timestamp, value, customTypeString))) {
       printQueueFullMessage(key);
     }
   }

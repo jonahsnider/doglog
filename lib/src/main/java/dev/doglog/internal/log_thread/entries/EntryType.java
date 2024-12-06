@@ -16,6 +16,7 @@ public enum EntryType {
   INTEGER,
   STRING_ARRAY,
   STRING,
+  STRING_CUSTOM_TYPE,
   STRUCT_ARRAY,
   STRUCT,
 }

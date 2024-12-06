@@ -133,6 +133,13 @@ public class DataLogReporter implements Reporter {
   }
 
   @Override
+  public void log(long timestamp, String key, String value, String customTypeString) {
+    stringLogs
+        .computeIfAbsent(key, k -> new StringLogEntry(log, prefixKey(k), "", customTypeString))
+        .update(value, timestamp);
+  }
+
+  @Override
   public <T> void log(long timestamp, String key, Struct<T> struct, T[] value) {
     @SuppressWarnings("unchecked")
     var entry =

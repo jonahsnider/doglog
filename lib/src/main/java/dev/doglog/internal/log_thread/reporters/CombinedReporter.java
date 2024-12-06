@@ -134,6 +134,23 @@ public class CombinedReporter {
     }
   }
 
+  public void log(long timestamp, String key, String value, String customTypeString) {
+    if (customTypeString == null) {
+      log(timestamp, key, value);
+      return;
+    }
+
+    if (value == null) {
+      return;
+    }
+
+    dataLogReporter.log(timestamp, key, value, customTypeString);
+
+    if (ntReporter != null) {
+      ntReporter.log(timestamp, key, value, customTypeString);
+    }
+  }
+
   private <T> void log(long timestamp, String key, Struct<T> struct, T[] value) {
     if (value == null) {
       return;
