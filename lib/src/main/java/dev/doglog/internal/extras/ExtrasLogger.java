@@ -2,9 +2,10 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package dev.doglog.internal;
+package dev.doglog.internal.extras;
 
 import dev.doglog.DogLogOptions;
+import dev.doglog.internal.LogQueuer;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.hal.PowerJNI;
@@ -15,6 +16,8 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 
 /** Logs "extra" information. */
 public class ExtrasLogger {
+  private static final double RADIO_LOG_PERIOD_SECONDS = 5.81;
+
   private final LogQueuer logger;
 
   private final CANStatus status = new CANStatus();
@@ -23,11 +26,17 @@ public class ExtrasLogger {
 
   private Notifier notifier;
 
+  private Notifier radioNotifier;
+  private RadioLogUtil radioLogUtil;
+
   public ExtrasLogger(LogQueuer logger, DogLogOptions initialOptions) {
     this.logger = logger;
 
     if (initialOptions.logExtras()) {
       notifier = createNotifier();
+
+      radioNotifier = createRadioNotifier();
+      radioLogUtil = new RadioLogUtil();
     }
   }
 
@@ -38,6 +47,18 @@ public class ExtrasLogger {
       notifier.stop();
       notifier.close();
       notifier = null;
+    }
+
+    if (radioNotifier == null && options.logExtras()) {
+      radioNotifier = createRadioNotifier();
+
+      radioLogUtil = new RadioLogUtil();
+    } else if (radioNotifier != null && !options.logExtras()) {
+      radioNotifier.stop();
+      radioNotifier.close();
+      radioNotifier = null;
+
+      radioLogUtil = null;
     }
   }
 
@@ -114,6 +135,14 @@ public class ExtrasLogger {
     logger.queueLog(now, "SystemStats/PowerDistribution/ChannelCount", pdh.getNumChannels());
   }
 
+  private void logRadio() {
+    var now = HALUtil.getFPGATime();
+    radioLogUtil.refresh();
+
+    logger.queueLog(now, "RadioStatus/Connected", radioLogUtil.radioLogResult.isConnected);
+    logger.queueLog(now, "RadioStatus/StatusJson", radioLogUtil.radioLogResult.statusJson, "json");
+  }
+
   private Notifier createNotifier() {
     @SuppressWarnings("resource")
     var newNotifier = new Notifier(this::log);
@@ -121,5 +150,14 @@ public class ExtrasLogger {
     newNotifier.setName("DogLog extras logger");
 
     return notifier;
+  }
+
+  private Notifier createRadioNotifier() {
+    @SuppressWarnings("resource")
+    var newNotifier = new Notifier(this::logRadio);
+    newNotifier.startPeriodic(RADIO_LOG_PERIOD_SECONDS);
+    newNotifier.setName("DogLog radio logger");
+
+    return radioNotifier;
   }
 }

@@ -5,6 +5,7 @@
 package dev.doglog.internal;
 
 import dev.doglog.DogLogOptions;
+import dev.doglog.internal.extras.ExtrasLogger;
 import dev.doglog.internal.log_thread.LogThread;
 import dev.doglog.internal.log_thread.entries.BaseQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.BooleanArrayQueuedLogEntry;

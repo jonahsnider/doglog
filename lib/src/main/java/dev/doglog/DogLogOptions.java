@@ -115,7 +115,8 @@ public record DogLogOptions(
    *
    * <pre>DogLog.setOptions(new DogLogOptions().withLogExtras(false));</pre>
    *
-   * @param logExtras Whether to log extra data, like PDH currents, CAN usage, etc.
+   * @param logExtras Whether to log extra data, like PDH currents, CAN usage, radio connection
+   *     status, etc.
    * @return A new options object with {@link DogLogOptions#logExtras} set to the provided value.
    */
   public DogLogOptions withLogExtras(boolean logExtras) {
