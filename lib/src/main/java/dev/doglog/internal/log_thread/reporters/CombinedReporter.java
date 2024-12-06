@@ -122,21 +122,6 @@ public class CombinedReporter {
     }
   }
 
-  public void log(long timestamp, String key, Enum<?>[] value) {
-    if (value == null) {
-      return;
-    }
-
-    // Convert enum array to string array
-    var stringArray = new String[value.length];
-
-    for (int i = 0; i < value.length; i++) {
-      stringArray[i] = value[i].name();
-    }
-
-    log(timestamp, key, stringArray);
-  }
-
   public void log(long timestamp, String key, String value) {
     if (value == null) {
       return;
@@ -147,14 +132,6 @@ public class CombinedReporter {
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
     }
-  }
-
-  public void log(long timestamp, String key, Enum<?> value) {
-    if (value == null) {
-      return;
-    }
-
-    log(timestamp, key, value.name());
   }
 
   private <T> void log(long timestamp, String key, Struct<T> struct, T[] value) {
