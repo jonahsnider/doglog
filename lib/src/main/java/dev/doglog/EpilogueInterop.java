@@ -86,6 +86,13 @@ public class EpilogueInterop {
 		var clazz = root.getClass();
 		var loggedAnno = clazz.getAnnotation(Logged.class);
 		if (loggedAnno == null) return;
+		if (clazz.isArray() && !clazz.getComponentType().isPrimitive()) {
+			var rootAsArr = (Object[]) root;
+			for (int i = 0; i < rootAsArr.length; i++) {
+				recurse(rootAsArr[i], currentPath + "/" + i);
+			}
+			return;
+		}
 		
 		logPathStore.put(root, currentPath);
 		var fieldsStream = Arrays.stream(clazz.getDeclaredFields());
