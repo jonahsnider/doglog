@@ -38,6 +38,7 @@ dependencies {
 	implementation 'edu.wpi.first.wpilibj:wpilibj-java:2025.+'
 	implementation 'edu.wpi.first.wpiutil:wpiutil-java:2025.+'
 	implementation 'edu.wpi.first.hal:hal-java:2025.+'
+	implementation 'edu.wpi.first.epilogue:epilogue-runtime-java:2025.+'
 }
 
 publishing {

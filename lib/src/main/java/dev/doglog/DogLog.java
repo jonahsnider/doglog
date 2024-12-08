@@ -45,8 +45,12 @@ public class DogLog {
     options = newOptions;
 
     if (!oldOptions.equals(newOptions)) {
-      System.out.println("[DogLog] Options changed: " + newOptions.toString());
+      System.out.println("[DogLog] Options changed: " + newOptions);
       logger.setOptions(newOptions);
+    }
+    
+    if (EpilogueInterop.isEnabled()) {
+      EpilogueInterop.syncEpilogueConfig(options);
     }
   }
 
