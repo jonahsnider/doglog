@@ -68,6 +68,7 @@ public class EpilogueInterop {
 	 * @param epilogueConfig Your current epilogue config; fetched by ```Epilogue.getConfig()```.
 	 */
 	public static void enable(TimedRobot robot, EpilogueConfiguration epilogueConfig) {
+		if (isEnabled) return;
 		isEnabled = true;
 		recurse(robot, "");
 		syncedConfig = epilogueConfig;
