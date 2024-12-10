@@ -12,6 +12,8 @@ import dev.doglog.internal.log_thread.entries.BooleanArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.BooleanQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.DoubleArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.DoubleQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.ExplicitStructArrayQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.ExplicitStructQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.FloatArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.FloatQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.IntegerArrayQueuedLogEntry;
@@ -21,6 +23,7 @@ import dev.doglog.internal.log_thread.entries.StringCustomTypeQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StructArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StructQueuedLogEntry;
+import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -150,6 +153,18 @@ public class LogQueuer {
 
   public void queueLog(long timestamp, String key, String value, String customTypeString) {
     if (!queue.offer(new StringCustomTypeQueuedLogEntry(key, timestamp, value, customTypeString))) {
+      printQueueFullMessage(key);
+    }
+  }
+  
+  public <T> void queueLog(long timestamp, String key, T value, Struct<T> struct) {
+    if (!queue.offer(new ExplicitStructQueuedLogEntry<>(key, timestamp, value, struct))) {
+      printQueueFullMessage(key);
+    }
+  }
+  
+  public <T> void queueLog(long timestamp, String key, T[] value, Struct<T> struct) {
+    if (!queue.offer(new ExplicitStructArrayQueuedLogEntry<>(key, timestamp, value, struct))) {
       printQueueFullMessage(key);
     }
   }
