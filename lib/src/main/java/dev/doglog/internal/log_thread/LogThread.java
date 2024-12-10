@@ -10,6 +10,8 @@ import dev.doglog.internal.log_thread.entries.BooleanArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.BooleanQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.DoubleArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.DoubleQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.ExplicitStructArrayQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.ExplicitStructQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.FloatArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.FloatQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.IntegerArrayQueuedLogEntry;
@@ -21,6 +23,7 @@ import dev.doglog.internal.log_thread.entries.StructArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StructQueuedLogEntry;
 import dev.doglog.internal.log_thread.reporters.CombinedReporter;
 import edu.wpi.first.hal.HALUtil;
+import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.Timer;
 import java.util.concurrent.BlockingQueue;
 
@@ -69,6 +72,12 @@ public class LogThread extends Thread {
           case DOUBLE:
             logger.log(entry.timestamp, entry.key, ((DoubleQueuedLogEntry) entry).value);
             break;
+          case EXPLICIT_STRUCT:
+            var castedEntry = (ExplicitStructQueuedLogEntry) entry;
+            logger.log(entry.timestamp, entry.key, castedEntry.struct, castedEntry.value);
+          case EXPLICIT_STRUCT_ARRAY:
+            var castedArrEntry = (ExplicitStructArrayQueuedLogEntry) entry;
+            logger.log(entry.timestamp, entry.key, castedArrEntry.value, castedArrEntry.struct);
           case FLOAT_ARRAY:
             logger.log(entry.timestamp, entry.key, ((FloatArrayQueuedLogEntry) entry).value);
             break;

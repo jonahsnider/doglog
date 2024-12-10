@@ -7,6 +7,7 @@ package dev.doglog;
 import dev.doglog.internal.FaultLogger;
 import dev.doglog.internal.LogQueuer;
 import edu.wpi.first.hal.HALUtil;
+import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -211,6 +212,22 @@ public class DogLog {
     if (enabled) {
       var now = HALUtil.getFPGATime();
       logger.queueLog(now, key, value);
+    }
+  }
+  
+  /** Log a struct array. */
+  public static <T> void log(String key, T[] value, Struct<T> struct) {
+    if (enabled) {
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value, struct);
+    }
+  }
+  
+  /** Log a struct. */
+  public static <T> void log(String key, T value, Struct<T> struct) {
+    if (enabled) {
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, key, value, struct);
     }
   }
 

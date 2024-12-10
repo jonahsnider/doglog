@@ -151,7 +151,7 @@ public class CombinedReporter {
     }
   }
 
-  private <T> void log(long timestamp, String key, Struct<T> struct, T[] value) {
+  public <T> void log(long timestamp, String key, T[] value, Struct<T> struct) {
     if (value == null) {
       return;
     }
@@ -172,11 +172,11 @@ public class CombinedReporter {
     if (maybeStruct.isPresent()) {
       @SuppressWarnings("unchecked")
       var struct = (Struct<T>) maybeStruct.get();
-      log(timestamp, key, struct, value);
+      log(timestamp, key, value, struct);
     }
   }
 
-  private <T> void log(long timestamp, String key, Struct<T> struct, T value) {
+  public <T> void log(long timestamp, String key, Struct<T> struct, T value) {
     dataLogReporter.log(timestamp, key, struct, value);
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, struct, value);
