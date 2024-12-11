@@ -170,10 +170,6 @@ public class LogQueuer {
     logThread.setOptions(newOptions);
     extras.setOptions(newOptions);
 
-    if (newOptions == null) {
-      newOptions = new DogLogOptions();
-    }
-
     var oldQueueMaxCapacity = queue.remainingCapacity() + queue.size();
     var newQueueMaxCapacity = newOptions.logEntryQueueCapacity();
     if (oldQueueMaxCapacity != newQueueMaxCapacity) {
