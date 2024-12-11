@@ -1,5 +1,12 @@
 # Changelog
 
+## [2025.2.1](https://github.com/jonahsnider/doglog/compare/2025.2.0...2025.2.1) (2024-12-11)
+
+
+### Bug Fixes
+
+* fix multiple `Notifier`s being created for extras & radio logging ([a5e0496](https://github.com/jonahsnider/doglog/commit/a5e0496bc9aa4ec5289836b314d60741e98f4212))
+
 ## [2025.2.0](https://github.com/jonahsnider/doglog/compare/2025.1.1...2025.2.0) (2024-12-06)
 
 
