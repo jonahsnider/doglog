@@ -41,24 +41,30 @@ public class ExtrasLogger {
   }
 
   public void setOptions(DogLogOptions options) {
-    if (notifier == null && options.logExtras()) {
-      notifier = createNotifier();
-    } else if (notifier != null && !options.logExtras()) {
-      notifier.stop();
-      notifier.close();
-      notifier = null;
-    }
+    if (options.logExtras()) {
+      if (notifier == null) {
+        notifier = createNotifier();
+      }
 
-    if (radioNotifier == null && options.logExtras()) {
-      radioNotifier = createRadioNotifier();
+      if (radioNotifier == null) {
+        radioNotifier = createRadioNotifier();
 
-      radioLogUtil = new RadioLogUtil();
-    } else if (radioNotifier != null && !options.logExtras()) {
-      radioNotifier.stop();
-      radioNotifier.close();
-      radioNotifier = null;
+        radioLogUtil = new RadioLogUtil();
+      }
+    } else {
+      if (notifier != null) {
+        notifier.stop();
+        notifier.close();
+        notifier = null;
+      }
 
-      radioLogUtil = null;
+      if (radioNotifier != null) {
+        radioNotifier.stop();
+        radioNotifier.close();
+        radioNotifier = null;
+
+        radioLogUtil = null;
+      }
     }
   }
 
@@ -144,20 +150,18 @@ public class ExtrasLogger {
   }
 
   private Notifier createNotifier() {
-    @SuppressWarnings("resource")
     var newNotifier = new Notifier(this::log);
     newNotifier.startPeriodic(DogLogOptions.LOOP_PERIOD_SECONDS);
     newNotifier.setName("DogLog extras logger");
 
-    return notifier;
+    return newNotifier;
   }
 
   private Notifier createRadioNotifier() {
-    @SuppressWarnings("resource")
     var newNotifier = new Notifier(this::logRadio);
     newNotifier.startPeriodic(RADIO_LOG_PERIOD_SECONDS);
     newNotifier.setName("DogLog radio logger");
 
-    return radioNotifier;
+    return newNotifier;
   }
 }
