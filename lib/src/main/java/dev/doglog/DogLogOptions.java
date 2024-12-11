@@ -4,6 +4,9 @@
 
 package dev.doglog;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import java.util.function.BooleanSupplier;
+
 /**
  * Options for configuring DogLog.
  *
@@ -11,10 +14,12 @@ package dev.doglog;
  */
 public record DogLogOptions(
     /**
-     * Whether logged values should be published to NetworkTables. You should not have this enabled
-     * if you're using a competition flashed radio, otherwise you may consume too much bandwidth.
+     * A function that returns whether logged values should be published to NetworkTables. Best
+     * practice is to disable NetworkTables publishing during matches to reduce network bandwidth
+     * consumption. The default behavior is to publish to NetworkTables unless the robot connects to
+     * the FMS on a competition field.
      */
-    boolean ntPublish,
+    BooleanSupplier ntPublish,
     /** Whether all NetworkTables fields should be saved to the log file. */
     boolean captureNt,
     /**
@@ -29,18 +34,21 @@ public record DogLogOptions(
     boolean captureConsole,
     /** The maximum size of the log entry queue to use. */
     int logEntryQueueCapacity) {
+  private static final BooleanSupplier DEFAULT_NT_PUBLISH = () -> !DriverStation.isFMSAttached();
+
   public static final double LOOP_PERIOD_SECONDS = 0.02;
 
   /**
    * Create a new options object using the default options. The default options are safe for a
-   * competition environment, but not really suited for a development environment.
+   * competition environment, but you may want to tweak them to improve your development experience
+   * at home.
    *
    * <p>See https://doglog.dev/getting-started/usage/#configuring For instructions on how to
    * customize these options.
    */
   public DogLogOptions() {
     // Default options
-    this(false, false, false, true, true, 1000);
+    this(DEFAULT_NT_PUBLISH, false, false, true, true, 1000);
   }
 
   /**
@@ -56,6 +64,29 @@ public record DogLogOptions(
    * @return A new options object with {@link DogLogOptions#ntPublish} set to the provided value.
    */
   public DogLogOptions withNtPublish(boolean ntPublish) {
+    return new DogLogOptions(
+        () -> ntPublish,
+        captureNt(),
+        captureDs(),
+        logExtras(),
+        captureConsole(),
+        logEntryQueueCapacity());
+  }
+
+  /**
+   * Create a new options object, inheriting the configuration from this one, with {@link
+   * DogLogOptions#ntPublish} set to the provided value.
+   *
+   * <p>Example:
+   *
+   * <pre>DogLog.setOptions(new DogLogOptions().withNtPublish(() -> true));
+   * </pre>
+   *
+   * @param ntPublish A function that returns whether logged values should be published to
+   *     NetworkTables.
+   * @return A new options object with {@link DogLogOptions#ntPublish} set to the provided value.
+   */
+  public DogLogOptions withNtPublish(BooleanSupplier ntPublish) {
     return new DogLogOptions(
         ntPublish,
         captureNt(),
