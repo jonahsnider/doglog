@@ -5,6 +5,7 @@
 package dev.doglog.internal.log_thread.reporters;
 
 import dev.doglog.DogLogOptions;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.BooleanArrayLogEntry;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
@@ -27,6 +28,8 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RuntimeType;
 import java.util.HashMap;
 import java.util.Map;
+
+import static dev.doglog.DogLogOptions.*;
 
 /** Logs to a WPILib {@link DataLog}. */
 public class DataLogReporter implements Reporter {
@@ -163,7 +166,19 @@ public class DataLogReporter implements Reporter {
   public void setOptions(DogLogOptions options) {
     DataLogManager.logConsoleOutput(options.captureConsole());
 
-    DataLogManager.logNetworkTables(options.captureNt());
+    DataLogManager.logNetworkTables(
+        options.captureNt() instanceof NTCaptureMode.Explicit casted &&
+            casted.enabled()
+    );
+    
+    if (options.captureNt() instanceof NTCaptureMode.Constrained casted) {
+      for (String path: casted.paths()) {
+        NetworkTableInstance.getDefault().startEntryDataLog(
+            DataLogManager.getLog(),
+            path, path
+        );
+      }
+    }
 
     if (options.captureDs()) {
       DriverStation.startDataLog(log);
