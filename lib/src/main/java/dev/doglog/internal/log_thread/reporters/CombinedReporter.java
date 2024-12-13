@@ -34,17 +34,8 @@ public class CombinedReporter {
   private void updateDataLogState(DogLogOptions options) {
     if (options.captureNt() instanceof NTCaptureMode.Explicit casted) {
       allNtIsCaptured = casted.enabled();
-    } else if (options.captureNt() instanceof NTCaptureMode.Constrained) {
-      allNtIsCaptured = false;
     } else {
-      try {
-        // sorry... more spooky reflection(there's literally no other way to do this)
-        var ntCaptureActiveField = DataLogManager.class.getDeclaredField("m_ntLoggerEnabled");
-        ntCaptureActiveField.setAccessible(true);
-        allNtIsCaptured = (Boolean) ntCaptureActiveField.get(null);
-      } catch (Exception e) {
-        allNtIsCaptured = false;
-      }
+      allNtIsCaptured = false;
     }
   }
 

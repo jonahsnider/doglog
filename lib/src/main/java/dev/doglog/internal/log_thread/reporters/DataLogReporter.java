@@ -166,12 +166,10 @@ public class DataLogReporter implements Reporter {
   public void setOptions(DogLogOptions options) {
     DataLogManager.logConsoleOutput(options.captureConsole());
 
-    DataLogManager.logNetworkTables(
-        options.captureNt() instanceof NTCaptureMode.Explicit casted &&
-            casted.enabled()
-    );
-    
-    if (options.captureNt() instanceof NTCaptureMode.Constrained casted) {
+    if (options.captureNt() instanceof NTCaptureMode.Explicit casted) {
+      DataLogManager.logNetworkTables(casted.enabled());
+    } else if (options.captureNt() instanceof NTCaptureMode.Constrained casted) {
+      DataLogManager.logNetworkTables(false);
       for (String path: casted.paths()) {
         NetworkTableInstance.getDefault().startEntryDataLog(
             DataLogManager.getLog(),
