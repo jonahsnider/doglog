@@ -33,7 +33,7 @@ public class CombinedReporter {
   
   private void updateDataLogState(DogLogOptions options) {
     if (options.captureNt() instanceof NTCaptureMode.Explicit casted) {
-      allNtIsCaptured = casted.enabled();
+      allNtIsCaptured = casted.enabled() && options.ntPublish();
     } else {
       allNtIsCaptured = false;
     }
