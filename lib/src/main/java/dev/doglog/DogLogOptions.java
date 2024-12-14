@@ -16,7 +16,7 @@ public record DogLogOptions(
      */
     boolean ntPublish,
     /** Whether all NetworkTables fields should be saved to the log file. */
-    boolean captureNt,
+    NTCaptureMode captureNt,
     /**
      * Whether driver station data (robot enable state and joystick inputs) should be saved to the
      * log file. Because of a limitation in WPILib, this option can't be disabled once it has been
@@ -30,6 +30,12 @@ public record DogLogOptions(
     /** The maximum size of the log entry queue to use. */
     int logEntryQueueCapacity) {
   public static final double LOOP_PERIOD_SECONDS = 0.02;
+  
+  public sealed interface NTCaptureMode {
+    record Explicit(boolean enabled) implements NTCaptureMode {}
+    record Default() implements NTCaptureMode {}
+    record Constrained(String... paths) implements NTCaptureMode {}
+  }
 
   /**
    * Create a new options object using the default options. The default options are safe for a
@@ -40,7 +46,7 @@ public record DogLogOptions(
    */
   public DogLogOptions() {
     // Default options
-    this(false, false, false, true, true, 1000);
+    this(false, new NTCaptureMode.Default(), false, true, true, 1000);
   }
 
   /**
@@ -79,7 +85,17 @@ public record DogLogOptions(
   public DogLogOptions withCaptureNt(boolean captureNt) {
     return new DogLogOptions(
         ntPublish(),
-        captureNt,
+        new NTCaptureMode.Explicit(captureNt),
+        captureDs(),
+        logExtras(),
+        captureConsole(),
+        logEntryQueueCapacity());
+  }
+  
+  public DogLogOptions withCaptureNTFrom(String... paths) {
+    return new DogLogOptions(
+        ntPublish(),
+        new NTCaptureMode.Constrained(paths),
         captureDs(),
         logExtras(),
         captureConsole(),

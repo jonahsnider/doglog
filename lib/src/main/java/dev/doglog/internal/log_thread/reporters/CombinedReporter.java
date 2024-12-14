@@ -11,6 +11,9 @@ import dev.doglog.internal.log_thread.StructRegistry;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
+import edu.wpi.first.wpilibj.DataLogManager;
+
+import static dev.doglog.DogLogOptions.*;
 
 public class CombinedReporter {
   /** The NetworkTables table to log to, if NetworkTables publishing is enabled. */
@@ -19,11 +22,21 @@ public class CombinedReporter {
   private final DataLogReporter dataLogReporter;
   // Default to null
   private NetworkTablesReporter ntReporter;
+  private boolean allNtIsCaptured;
 
   public CombinedReporter(DogLogOptions initialOptions) {
     dataLogReporter = new DataLogReporter(LOG_TABLE, initialOptions);
 
     setOptions(initialOptions);
+    updateDataLogState(initialOptions);
+  }
+  
+  private void updateDataLogState(DogLogOptions options) {
+    if (options.captureNt() instanceof NTCaptureMode.Explicit casted) {
+      allNtIsCaptured = casted.enabled() && options.ntPublish();
+    } else {
+      allNtIsCaptured = false;
+    }
   }
 
   public void log(long timestamp, String key, boolean[] value) {
@@ -31,7 +44,9 @@ public class CombinedReporter {
       return;
     }
 
-    dataLogReporter.log(timestamp, key, value);
+    if (!allNtIsCaptured) {
+      dataLogReporter.log(timestamp, key, value);
+    }
 
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
@@ -39,7 +54,9 @@ public class CombinedReporter {
   }
 
   public void log(long timestamp, String key, boolean value) {
-    dataLogReporter.log(timestamp, key, value);
+    if (!allNtIsCaptured) {
+      dataLogReporter.log(timestamp, key, value);
+    }
 
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
@@ -51,7 +68,9 @@ public class CombinedReporter {
       return;
     }
 
-    dataLogReporter.log(timestamp, key, value);
+    if (!allNtIsCaptured) {
+      dataLogReporter.log(timestamp, key, value);
+    }
 
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
@@ -59,7 +78,9 @@ public class CombinedReporter {
   }
 
   public void log(long timestamp, String key, double value) {
-    dataLogReporter.log(timestamp, key, value);
+    if (!allNtIsCaptured) {
+      dataLogReporter.log(timestamp, key, value);
+    }
 
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
@@ -71,7 +92,9 @@ public class CombinedReporter {
       return;
     }
 
-    dataLogReporter.log(timestamp, key, value);
+    if (!allNtIsCaptured) {
+      dataLogReporter.log(timestamp, key, value);
+    }
 
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
@@ -79,7 +102,9 @@ public class CombinedReporter {
   }
 
   public void log(long timestamp, String key, float value) {
-    dataLogReporter.log(timestamp, key, value);
+    if (!allNtIsCaptured) {
+      dataLogReporter.log(timestamp, key, value);
+    }
 
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
@@ -91,7 +116,9 @@ public class CombinedReporter {
       return;
     }
 
-    dataLogReporter.log(timestamp, key, value);
+    if (!allNtIsCaptured) {
+      dataLogReporter.log(timestamp, key, value);
+    }
 
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
@@ -99,7 +126,9 @@ public class CombinedReporter {
   }
 
   public void log(long timestamp, String key, long value) {
-    dataLogReporter.log(timestamp, key, value);
+    if (!allNtIsCaptured) {
+      dataLogReporter.log(timestamp, key, value);
+    }
 
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
@@ -115,7 +144,9 @@ public class CombinedReporter {
       return;
     }
 
-    dataLogReporter.log(timestamp, key, value);
+    if (!allNtIsCaptured) {
+      dataLogReporter.log(timestamp, key, value);
+    }
 
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
@@ -127,7 +158,9 @@ public class CombinedReporter {
       return;
     }
 
-    dataLogReporter.log(timestamp, key, value);
+    if (!allNtIsCaptured) {
+      dataLogReporter.log(timestamp, key, value);
+    }
 
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
@@ -143,8 +176,10 @@ public class CombinedReporter {
     if (value == null) {
       return;
     }
-
-    dataLogReporter.log(timestamp, key, value, customTypeString);
+    
+    if (!allNtIsCaptured) {
+      dataLogReporter.log(timestamp, key, value, customTypeString);
+    }
 
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value, customTypeString);
@@ -156,7 +191,9 @@ public class CombinedReporter {
       return;
     }
 
-    dataLogReporter.log(timestamp, key, struct, value);
+    if (!allNtIsCaptured) {
+      dataLogReporter.log(timestamp, key, struct, value);
+    }
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, struct, value);
     }
@@ -177,7 +214,9 @@ public class CombinedReporter {
   }
 
   private <T> void log(long timestamp, String key, Struct<T> struct, T value) {
-    dataLogReporter.log(timestamp, key, struct, value);
+    if (!allNtIsCaptured) {
+      dataLogReporter.log(timestamp, key, struct, value);
+    }
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, struct, value);
     }
@@ -198,6 +237,7 @@ public class CombinedReporter {
   }
 
   public void setOptions(DogLogOptions options) {
+    updateDataLogState(options);
     // Avoid recreating the logger if the options haven't changed
     if (options.ntPublish() && ntReporter == null) {
       ntReporter = new NetworkTablesReporter(LOG_TABLE);
