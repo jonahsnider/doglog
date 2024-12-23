@@ -239,8 +239,10 @@ public class CombinedReporter {
 
   private void checkNtPublish() {
     // Avoid recreating the logger if the options haven't changed
-    if (options.ntPublish().getAsBoolean() && ntReporter == null) {
-      ntReporter = new NetworkTablesReporter(LOG_TABLE);
+    if (options.ntPublish().getAsBoolean()) {
+      if (ntReporter == null) {
+        ntReporter = new NetworkTablesReporter(LOG_TABLE);
+      }
     } else if (ntReporter != null) {
       ntReporter.close();
       ntReporter = null;
