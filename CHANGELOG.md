@@ -1,5 +1,12 @@
 # Changelog
 
+## [2025.3.0](https://github.com/jonahsnider/doglog/compare/2025.2.1...2025.3.0) (2024-12-23)
+
+
+### Features
+
+* use a supplier for ntPublish option ([#65](https://github.com/jonahsnider/doglog/issues/65)) ([19b0902](https://github.com/jonahsnider/doglog/commit/19b09020362233109019657094cd9597fb8804f7))
+
 ## [2025.2.1](https://github.com/jonahsnider/doglog/compare/2025.2.0...2025.2.1) (2024-12-11)
 
 
