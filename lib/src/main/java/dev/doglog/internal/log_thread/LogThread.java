@@ -57,49 +57,35 @@ public class LogThread extends Thread {
         // TODO: Once the minimum Java version is 21, use pattern matching for switch expressions
         // https://docs.oracle.com/en/java/javase/17/language/pattern-matching-switch-expressions-and-statements.html
         switch (entry.type) {
-          case BOOLEAN_ARRAY:
-            logger.log(entry.timestamp, entry.key, ((BooleanArrayQueuedLogEntry) entry).value);
-            break;
-          case BOOLEAN:
-            logger.log(entry.timestamp, entry.key, ((BooleanQueuedLogEntry) entry).value);
-            break;
-          case DOUBLE_ARRAY:
-            logger.log(entry.timestamp, entry.key, ((DoubleArrayQueuedLogEntry) entry).value);
-            break;
-          case DOUBLE:
-            logger.log(entry.timestamp, entry.key, ((DoubleQueuedLogEntry) entry).value);
-            break;
-          case FLOAT_ARRAY:
-            logger.log(entry.timestamp, entry.key, ((FloatArrayQueuedLogEntry) entry).value);
-            break;
-          case FLOAT:
-            logger.log(entry.timestamp, entry.key, ((FloatQueuedLogEntry) entry).value);
-            break;
-          case INTEGER_ARRAY:
-            logger.log(entry.timestamp, entry.key, ((IntegerArrayQueuedLogEntry) entry).value);
-            break;
-          case INTEGER:
-            logger.log(entry.timestamp, entry.key, ((IntegerQueuedLogEntry) entry).value);
-            break;
-          case STRING_ARRAY:
-            logger.log(entry.timestamp, entry.key, ((StringArrayQueuedLogEntry) entry).value);
-            break;
-          case STRING:
-            logger.log(entry.timestamp, entry.key, ((StringQueuedLogEntry) entry).value);
-            break;
-          case STRING_CUSTOM_TYPE:
-            logger.log(
-                entry.timestamp,
-                entry.key,
-                ((StringCustomTypeQueuedLogEntry) entry).value,
-                ((StringCustomTypeQueuedLogEntry) entry).customTypeString);
-            break;
-          case STRUCT_ARRAY:
-            logger.log(entry.timestamp, entry.key, ((StructArrayQueuedLogEntry<?>) entry).value);
-            break;
-          case STRUCT:
-            logger.log(entry.timestamp, entry.key, ((StructQueuedLogEntry<?>) entry).value);
-            break;
+          case BOOLEAN_ARRAY ->
+              logger.log(entry.timestamp, entry.key, ((BooleanArrayQueuedLogEntry) entry).value);
+          case BOOLEAN ->
+              logger.log(entry.timestamp, entry.key, ((BooleanQueuedLogEntry) entry).value);
+          case DOUBLE_ARRAY ->
+              logger.log(entry.timestamp, entry.key, ((DoubleArrayQueuedLogEntry) entry).value);
+          case DOUBLE ->
+              logger.log(entry.timestamp, entry.key, ((DoubleQueuedLogEntry) entry).value);
+          case FLOAT_ARRAY ->
+              logger.log(entry.timestamp, entry.key, ((FloatArrayQueuedLogEntry) entry).value);
+          case FLOAT -> logger.log(entry.timestamp, entry.key, ((FloatQueuedLogEntry) entry).value);
+          case INTEGER_ARRAY ->
+              logger.log(entry.timestamp, entry.key, ((IntegerArrayQueuedLogEntry) entry).value);
+          case INTEGER ->
+              logger.log(entry.timestamp, entry.key, ((IntegerQueuedLogEntry) entry).value);
+          case STRING_ARRAY ->
+              logger.log(entry.timestamp, entry.key, ((StringArrayQueuedLogEntry) entry).value);
+          case STRING ->
+              logger.log(entry.timestamp, entry.key, ((StringQueuedLogEntry) entry).value);
+          case STRING_CUSTOM_TYPE ->
+              logger.log(
+                  entry.timestamp,
+                  entry.key,
+                  ((StringCustomTypeQueuedLogEntry) entry).value,
+                  ((StringCustomTypeQueuedLogEntry) entry).customTypeString);
+          case STRUCT_ARRAY ->
+              logger.log(entry.timestamp, entry.key, ((StructArrayQueuedLogEntry<?>) entry).value);
+          case STRUCT ->
+              logger.log(entry.timestamp, entry.key, ((StructQueuedLogEntry<?>) entry).value);
         }
 
         if (diagnosticsTimer.hasElapsed(DogLogOptions.LOOP_PERIOD_SECONDS)) {

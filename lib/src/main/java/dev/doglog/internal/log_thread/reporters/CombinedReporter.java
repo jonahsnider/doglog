@@ -20,6 +20,8 @@ public class CombinedReporter {
   // Default to null
   private NetworkTablesReporter ntReporter;
 
+  private DogLogOptions options = new DogLogOptions();
+
   public CombinedReporter(DogLogOptions initialOptions) {
     dataLogReporter = new DataLogReporter(LOG_TABLE, initialOptions);
 
@@ -33,6 +35,7 @@ public class CombinedReporter {
 
     dataLogReporter.log(timestamp, key, value);
 
+    checkNtPublish();
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
     }
@@ -41,6 +44,7 @@ public class CombinedReporter {
   public void log(long timestamp, String key, boolean value) {
     dataLogReporter.log(timestamp, key, value);
 
+    checkNtPublish();
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
     }
@@ -53,6 +57,7 @@ public class CombinedReporter {
 
     dataLogReporter.log(timestamp, key, value);
 
+    checkNtPublish();
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
     }
@@ -61,6 +66,7 @@ public class CombinedReporter {
   public void log(long timestamp, String key, double value) {
     dataLogReporter.log(timestamp, key, value);
 
+    checkNtPublish();
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
     }
@@ -73,6 +79,7 @@ public class CombinedReporter {
 
     dataLogReporter.log(timestamp, key, value);
 
+    checkNtPublish();
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
     }
@@ -81,6 +88,7 @@ public class CombinedReporter {
   public void log(long timestamp, String key, float value) {
     dataLogReporter.log(timestamp, key, value);
 
+    checkNtPublish();
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
     }
@@ -93,6 +101,7 @@ public class CombinedReporter {
 
     dataLogReporter.log(timestamp, key, value);
 
+    checkNtPublish();
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
     }
@@ -101,6 +110,7 @@ public class CombinedReporter {
   public void log(long timestamp, String key, long value) {
     dataLogReporter.log(timestamp, key, value);
 
+    checkNtPublish();
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
     }
@@ -117,6 +127,7 @@ public class CombinedReporter {
 
     dataLogReporter.log(timestamp, key, value);
 
+    checkNtPublish();
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
     }
@@ -129,6 +140,7 @@ public class CombinedReporter {
 
     dataLogReporter.log(timestamp, key, value);
 
+    checkNtPublish();
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
     }
@@ -146,6 +158,7 @@ public class CombinedReporter {
 
     dataLogReporter.log(timestamp, key, value, customTypeString);
 
+    checkNtPublish();
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value, customTypeString);
     }
@@ -157,6 +170,8 @@ public class CombinedReporter {
     }
 
     dataLogReporter.log(timestamp, key, struct, value);
+
+    checkNtPublish();
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, struct, value);
     }
@@ -178,6 +193,8 @@ public class CombinedReporter {
 
   private <T> void log(long timestamp, String key, Struct<T> struct, T value) {
     dataLogReporter.log(timestamp, key, struct, value);
+
+    checkNtPublish();
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, struct, value);
     }
@@ -198,17 +215,11 @@ public class CombinedReporter {
   }
 
   public void setOptions(DogLogOptions options) {
-    // Avoid recreating the logger if the options haven't changed
-    if (options.ntPublish() && ntReporter == null) {
-      ntReporter = new NetworkTablesReporter(LOG_TABLE);
-    } else if (ntReporter != null) {
-      ntReporter.close();
-      ntReporter = null;
-    }
+    this.options = options;
 
     dataLogReporter.setOptions(options);
 
-    printOptions(options);
+    printOptions();
   }
 
   /**
@@ -221,8 +232,20 @@ public class CombinedReporter {
     }
   }
 
-  private void printOptions(DogLogOptions options) {
+  private void printOptions() {
     var now = HALUtil.getFPGATime();
     log(now, "DogLog/Options", options.toString());
+  }
+
+  private void checkNtPublish() {
+    // Avoid recreating the logger if the options haven't changed
+    if (options.ntPublish().getAsBoolean()) {
+      if (ntReporter == null) {
+        ntReporter = new NetworkTablesReporter(LOG_TABLE);
+      }
+    } else if (ntReporter != null) {
+      ntReporter.close();
+      ntReporter = null;
+    }
   }
 }

@@ -3,6 +3,8 @@ title: Configuring DogLog
 description: Additional information on configuring the logger with the DogLogOptions class.
 ---
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
 By default, DogLog uses a settings configuration that will be safe for a competition environment, but most teams will want to tweak the settings to suit their needs.
 
 ## Logger options
@@ -13,9 +15,25 @@ The `ntPublish` option controls whether logs should be published to NetworkTable
 
 This introduces some overhead, and can consume a lot of network bandwidth, so this option should not be used with competition flashed radios.
 
+By default, DogLog will publish to NetworkTables unless the robot connects to the FMS on a competition field.
+
+<Tabs>
+<TabItem label="Static value">
+
 ```java
 DogLog.setOptions(new DogLogOptions().withNtPublish(true));
 ```
+
+</TabItem>
+
+<TabItem label="Dynamic value">
+
+```java
+DogLog.setOptions(new DogLogOptions().withNtPublish(() -> true));
+```
+
+</TabItem>
+</Tabs>
 
 ### Capture NetworkTables
 

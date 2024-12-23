@@ -44,7 +44,7 @@ import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
 
 // Configure (optional)
-DogLog.setOptions(new DogLogOptions().withNtPublish(true));
+DogLog.setOptions(new DogLogOptions().withCaptureDs(true));
 
 // Log
 DogLog.log("Arm/Position", motor.getPosition().getValue());
