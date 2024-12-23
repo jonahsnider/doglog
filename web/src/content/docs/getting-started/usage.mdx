@@ -44,12 +44,10 @@ Here's an example of how to set DogLog to use custom options:
 2. In your `Robot`/`RobotContainer` constructor, add the following lines:
 
    ```java
-    DogLog.setOptions(new DogLogOptions().withNtPublish(true));
+    DogLog.setOptions(new DogLogOptions().withCaptureDs(true));
    ```
 
-   This configures DogLog to use the default options as a base, and extends them to publish logged fields to NetworkTables.
-
-   Publishing logs to NetworkTables is a great way to debug your robot while you're testing, without needing to download a log file to your computer.
+   This configures DogLog to use the default options as a base, and extends them to capture driver station data to the logs.
 
 </Steps>
 
@@ -89,7 +87,7 @@ public class RobotContainer {
 	);
 
 	public RobotContainer() {
-		DogLog.setOptions(new DogLogOptions().withNtPublish(true));
+		DogLog.setOptions(new DogLogOptions().withCaptureDs(true));
 		DogLog.setPdh(new PowerDistribution());
 
 		DogLog.log("ExampleLog", "Hello world!");
