@@ -15,7 +15,6 @@ import edu.wpi.first.networktables.IntegerArrayPublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.ProtobufPublisher;
 import edu.wpi.first.networktables.PubSubOption;
 import edu.wpi.first.networktables.RawPublisher;
 import edu.wpi.first.networktables.StringArrayPublisher;
@@ -40,7 +39,6 @@ public class NetworkTablesReporter implements AutoCloseable, Reporter {
   private final Map<String, FloatPublisher> floatPublishers = new HashMap<>();
   private final Map<String, IntegerArrayPublisher> integerArrayPublishers = new HashMap<>();
   private final Map<String, IntegerPublisher> integerPublishers = new HashMap<>();
-  private final Map<String, ProtobufPublisher<?>> protobufPublishers = new HashMap<>();
   private final Map<String, RawPublisher> rawPublishers = new HashMap<>();
   private final Map<String, StringArrayPublisher> stringArrayPublishers = new HashMap<>();
   private final Map<String, StringPublisher> stringPublishers = new HashMap<>();
@@ -107,8 +105,6 @@ public class NetworkTablesReporter implements AutoCloseable, Reporter {
         .computeIfAbsent(key, k -> logTable.getIntegerTopic(k).publish(PUB_SUB_OPTIONS))
         .set(value, timestamp);
   }
-
-  // TODO: Protobuf logs
 
   // TODO: Raw logs
 
@@ -179,9 +175,6 @@ public class NetworkTablesReporter implements AutoCloseable, Reporter {
       publisher.close();
     }
     for (var publisher : integerPublishers.values()) {
-      publisher.close();
-    }
-    for (var publisher : protobufPublishers.values()) {
       publisher.close();
     }
     for (var publisher : rawPublishers.values()) {

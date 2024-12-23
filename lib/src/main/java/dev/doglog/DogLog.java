@@ -147,8 +147,6 @@ public class DogLog {
     }
   }
 
-  // TODO: Protobuf logs
-
   // TODO: Raw logs
 
   /** Log a string array. */

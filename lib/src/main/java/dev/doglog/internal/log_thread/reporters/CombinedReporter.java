@@ -116,8 +116,6 @@ public class CombinedReporter {
     }
   }
 
-  // TODO: Protobuf logs
-
   // TODO: Raw logs
 
   public void log(long timestamp, String key, String[] value) {

@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 
 public class RobotContainer {
   public RobotContainer() {
-    DogLog.setOptions(new DogLogOptions().withCaptureDs(true));
+    DogLog.setOptions(new DogLogOptions().withCaptureDs(true).withCaptureNt(true));
     DogLog.setPdh(new PowerDistribution());
 
     configureBindings();

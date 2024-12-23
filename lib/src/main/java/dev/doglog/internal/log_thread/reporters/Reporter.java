@@ -23,8 +23,6 @@ public interface Reporter {
 
   public void log(long timestamp, String key, long value);
 
-  // TODO: Protobuf logs
-
   // TODO: Raw logs
 
   public void log(long timestamp, String key, String[] value);

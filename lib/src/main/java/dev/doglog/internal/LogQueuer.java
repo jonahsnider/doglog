@@ -132,8 +132,6 @@ public class LogQueuer {
     }
   }
 
-  // TODO: Protobuf logs
-
   // TODO: Raw logs
 
   public void queueLog(long timestamp, String key, String[] value) {
