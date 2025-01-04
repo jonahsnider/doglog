@@ -6,6 +6,8 @@ package dev.doglog;
 
 import dev.doglog.internal.FaultLogger;
 import dev.doglog.internal.LogQueuer;
+import edu.wpi.first.hal.FRCNetComm;
+import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -14,6 +16,12 @@ import edu.wpi.first.wpilibj.Timer;
 
 /** A logger based on WPILib's {@link DataLogManager} */
 public class DogLog {
+  static {
+    HAL.report(
+        FRCNetComm.tResourceType.kResourceType_LoggingFramework,
+        FRCNetComm.tInstances.kLoggingFramework_DogLog);
+  }
+
   /** The options to use for the logger. */
   protected static DogLogOptions options = new DogLogOptions();
 
