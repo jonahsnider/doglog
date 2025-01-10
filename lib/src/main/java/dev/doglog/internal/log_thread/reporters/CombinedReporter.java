@@ -11,6 +11,7 @@ import dev.doglog.internal.log_thread.StructRegistry;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 
 public class CombinedReporter {
   /** The NetworkTables table to log to, if NetworkTables publishing is enabled. */
@@ -226,7 +227,7 @@ public class CombinedReporter {
    */
   public void afterLogThreadStart() {
     if (!dataLogReporter.isLogDestinationValid()) {
-      DogLog.logFault("[DogLog] UNSAFE_LOG_DESTINATION");
+      DogLog.logFault("[DogLog] UNSAFE_LOG_DESTINATION", AlertType.kWarning);
     }
   }
 

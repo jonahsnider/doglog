@@ -22,6 +22,7 @@ import dev.doglog.internal.log_thread.entries.StringQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StructArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StructQueuedLogEntry;
 import edu.wpi.first.util.struct.StructSerializable;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import java.util.concurrent.BlockingQueue;
@@ -45,7 +46,7 @@ public class LogQueuer {
       // We also need to increment the counter before we call logFault, since the logFault function
       // will potentially call this one
 
-      FaultLogger.logFault(this, "[DogLog] MAX_QUEUED_LOGS");
+      FaultLogger.addFault(this, "[DogLog] MAX_QUEUED_LOGS", AlertType.kError);
     }
 
     if (queueFullMessageCount == MAX_QUEUE_FULL_MESSAGES) {
@@ -183,7 +184,7 @@ public class LogQueuer {
         DriverStation.reportWarning(
             "[DogLog] RISKY_QUEUE_RESIZE: New queue capacity is smaller than the old queue capacity, this has the potential to drop queued log entries",
             false);
-        FaultLogger.logFault(this, "[DogLog] RISKY_QUEUE_RESIZE");
+        FaultLogger.addFault(this, "[DogLog] RISKY_QUEUE_RESIZE", AlertType.kWarning);
       }
 
       queue.drainTo(newQueue, newQueue.remainingCapacity());
@@ -195,7 +196,7 @@ public class LogQueuer {
                 + droppedLogs
                 + " log entries",
             true);
-        FaultLogger.logFault(this, "[DogLog] QUEUE_RESIZE_DROPPED_LOGS");
+        FaultLogger.addFault(this, "[DogLog] QUEUE_RESIZE_DROPPED_LOGS", AlertType.kError);
       }
 
       logThread = new LogThread(newQueue, newOptions);

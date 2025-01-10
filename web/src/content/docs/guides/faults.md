@@ -13,6 +13,40 @@ You can record a fault by calling `DogLog.logFault()`:
 DogLog.logFault("Camera offline");
 ```
 
+### Alerts
+
+By default, faults are also reported as [WPILib persistent alerts](https://docs.wpilib.org/en/stable/docs/software/telemetry/persistent-alerts.html), with the "error" urgency.
+
+You can customize what urgency to report the alerts as by providing an `AlertType` value to `DogLog.logFault()`:
+
+```java
+DogLog.logFault("Arm not homed", AlertType.kWarning);
+```
+
+Or if you'd like to disable reporting the fault using alerts, you can pass `null` as the alert urgency:
+
+```java
+DogLog.logFault("Command timeout", null);
+```
+
+### Marking a fault as resolved
+
+For some faults, it might make sense to have it be active or inactive (ex. a camera is offline temporarily).
+
+`DogLog.logFault()` counts each time a fault is reported, and tracks the number of times a fault has occurred.
+
+To decrease the count of a fault, call `DogLog.removeFault()`:
+
+```java
+DogLog.removeFault("Camera offline");
+```
+
+This will decrease the count of the fault by 1.
+
+Once a fault's count hits 0, if it has an alert associated with it, the alert will be marked inactive.
+
+### Using enums for faults
+
 You can also represent faults with an enum type, and log them that way:
 
 ```java
@@ -36,6 +70,7 @@ The count of how many times a fault has occurred is logged under `Robot/Faults/C
 Graphing this can help show when a fault is occurring.
 
 An array of all the faults that have been seen is logged under `Robot/Faults/Seen`.
+Faults that are currently active are logged under `Robot/Faults/Active`.
 
 You can programmatically check if faults have occurred by calling `DogLog.faultsLogged()`.
 This could be used for something like changing the color of the robot LEDs to indicate that a fault has occurred.

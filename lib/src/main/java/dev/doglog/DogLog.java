@@ -10,6 +10,8 @@ import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.StructSerializable;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
@@ -221,27 +223,70 @@ public class DogLog {
   }
 
   /**
-   * Log a fault.
+   * Log a fault and create an {@link Alert} for it at the specified level.
    *
    * <p>See https://doglog.dev/guides/faults for more information.
    *
    * @param faultName The name of the fault to log.
+   * @param alertType The type of alert to create for the fault, or <code>null</code> if it should
+   *     not create an alert
+   * @see DogLog#removeFault(String)
    */
-  public static void logFault(String faultName) {
+  public static void logFault(String faultName, AlertType alertType) {
     if (enabled && faultName != null) {
-      FaultLogger.logFault(logger, faultName);
+      FaultLogger.addFault(logger, faultName, alertType);
     }
   }
 
   /**
-   * Log a fault. The enum will be converted to a string with {@link Enum#name()}.
+   * Log a fault and create an error type {@link Alert} for it.
    *
    * <p>See https://doglog.dev/guides/faults for more information.
    *
    * @param faultName The name of the fault to log.
+   * @see DogLog#removeFault(String)
+   */
+  public static void logFault(String faultName) {
+    logFault(faultName, AlertType.kError);
+  }
+
+  /**
+   * Log a fault and create an error type {@link Alert} for it. The enum will be converted to a
+   * string with {@link Enum#name()}.
+   *
+   * <p>See https://doglog.dev/guides/faults for more information.
+   *
+   * @param faultName The name of the fault to log.
+   * @see DogLog#removeFault(Enum)
    */
   public static void logFault(Enum<?> faultName) {
-    logFault(faultName.name());
+    if (faultName != null) {
+      logFault(faultName.name());
+    }
+  }
+
+  /**
+   * Lower the count of a fault by 1, unless it is already at 0. If there is an alert associated
+   * with the fault, it will be set to inactive once the fault's count is 0.
+   *
+   * @param faultName The name of the fault to decrement the count of.
+   */
+  public static void removeFault(String faultName) {
+    if (enabled && faultName != null) {
+      FaultLogger.removeFault(logger, faultName);
+    }
+  }
+
+  /**
+   * Lower the count of a fault by 1, unless it is already at 0. If there is an alert associated
+   * with the fault, it will be set to inactive once the fault's count is 0.
+   *
+   * @param faultName The name of the fault to decrement the count of.
+   */
+  public static void removeFault(Enum<?> faultName) {
+    if (faultName != null) {
+      removeFault(faultName.name());
+    }
   }
 
   /**
@@ -251,6 +296,16 @@ public class DogLog {
    */
   public static boolean faultsLogged() {
     return FaultLogger.faultsLogged();
+  }
+
+  /**
+   * Check if any faults logged using logged using {@link DogLog#logFault(String)} are currently
+   * active.
+   *
+   * @return Whether any faults are currently active.
+   */
+  public static boolean faultsActive() {
+    return FaultLogger.faultsActive();
   }
 
   /**

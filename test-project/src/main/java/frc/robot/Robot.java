@@ -41,7 +41,9 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    DogLog.removeFault("ExampleFault");
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -69,6 +71,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    DogLog.logFault("ExampleFault");
   }
 
   @Override
