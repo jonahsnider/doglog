@@ -5,6 +5,7 @@
 package dev.doglog.internal.log_thread.reporters;
 
 import dev.doglog.DogLogOptions;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.BooleanArrayLogEntry;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
@@ -47,6 +48,8 @@ public class DataLogReporter implements Reporter {
   private final Map<String, StructLogEntry<?>> structLogs = new HashMap<>();
 
   private final DataLog log = DataLogManager.getLog();
+
+  private int alertNtLogHandle = -1;
 
   private final String logTable;
 
@@ -163,6 +166,17 @@ public class DataLogReporter implements Reporter {
 
     if (options.captureDs()) {
       DriverStation.startDataLog(log);
+    }
+
+    if (options.logExtras()) {
+      if (alertNtLogHandle == -1) {
+        alertNtLogHandle =
+            NetworkTableInstance.getDefault()
+                .startEntryDataLog(log, "/SmartDashboard/Alerts/", "Robot/Alerts/");
+      }
+    } else if (alertNtLogHandle != -1) {
+      NetworkTableInstance.stopEntryDataLog(alertNtLogHandle);
+      alertNtLogHandle = -1;
     }
   }
 
