@@ -84,6 +84,7 @@ public class FaultLogger {
       if (alert != null) {
         alert.set(false);
       }
+
       activeFaults.remove(faultName);
       logger.queueLog(now, "Faults/Active", activeFaults.toArray(String[]::new));
     }
@@ -95,12 +96,16 @@ public class FaultLogger {
     var previousValue = faultCounts.replace(faultName, 0);
 
     if (previousValue != null) {
-      faultAlerts.remove(faultName);
-      activeFaults.remove(faultName);
-
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, "Faults/Active", activeFaults.toArray(String[]::new));
       logger.queueLog(now, "Faults/Counts/" + faultName, 0);
+
+      var alert = faultAlerts.get(faultName);
+      if (alert != null) {
+        alert.set(false);
+      }
+
+      activeFaults.remove(faultName);
+      logger.queueLog(now, "Faults/Active", activeFaults.toArray(String[]::new));
     }
   }
 
