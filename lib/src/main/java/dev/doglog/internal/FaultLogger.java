@@ -97,7 +97,10 @@ public class FaultLogger {
     if (previousValue != null) {
       faultAlerts.remove(faultName);
       activeFaults.remove(faultName);
-      logger.queueLog(HALUtil.getFPGATime(), "Faults/Active", activeFaults.toArray(String[]::new));
+
+      var now = HALUtil.getFPGATime();
+      logger.queueLog(now, "Faults/Active", activeFaults.toArray(String[]::new));
+      logger.queueLog(now, "Faults/Counts/" + faultName, 0);
     }
   }
 
