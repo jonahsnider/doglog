@@ -65,7 +65,7 @@ public class FaultLogger {
    * @param logger LogQueuer to use.
    * @param faultName The name of the fault to remove.
    */
-  public static void removeFault(LogQueuer logger, String faultName) {
+  public static void decreaseFault(LogQueuer logger, String faultName) {
     var previousCount = faultCounts.get(faultName);
     if (previousCount == null || previousCount == 0) {
       // This fault has never occurred
@@ -86,6 +86,18 @@ public class FaultLogger {
       }
       activeFaults.remove(faultName);
       logger.queueLog(now, "Faults/Active", activeFaults.toArray(String[]::new));
+    }
+  }
+
+  public static void clearFault(LogQueuer logger, String faultName) {
+    // The faultCounts map is used to track the seen faults, so we need to make sure that clearing a
+    // fault which has never occurred doesn't mark it as seen with a count of 0
+    var previousValue = faultCounts.replace(faultName, 0);
+
+    if (previousValue != null) {
+      faultAlerts.remove(faultName);
+      activeFaults.remove(faultName);
+      logger.queueLog(HALUtil.getFPGATime(), "Faults/Active", activeFaults.toArray(String[]::new));
     }
   }
 

@@ -230,7 +230,7 @@ public class DogLog {
    * @param faultName The name of the fault to log.
    * @param alertType The type of alert to create for the fault, or <code>null</code> if it should
    *     not create an alert
-   * @see DogLog#removeFault(String)
+   * @see DogLog#decreaseFault(String)
    */
   public static void logFault(String faultName, AlertType alertType) {
     if (enabled && faultName != null) {
@@ -244,7 +244,7 @@ public class DogLog {
    * <p>See https://doglog.dev/guides/faults for more information.
    *
    * @param faultName The name of the fault to log.
-   * @see DogLog#removeFault(String)
+   * @see DogLog#decreaseFault(String)
    */
   public static void logFault(String faultName) {
     logFault(faultName, AlertType.kError);
@@ -257,7 +257,7 @@ public class DogLog {
    * <p>See https://doglog.dev/guides/faults for more information.
    *
    * @param faultName The name of the fault to log.
-   * @see DogLog#removeFault(Enum)
+   * @see DogLog#decreaseFault(Enum)
    */
   public static void logFault(Enum<?> faultName) {
     if (faultName != null) {
@@ -270,10 +270,11 @@ public class DogLog {
    * with the fault, it will be set to inactive once the fault's count is 0.
    *
    * @param faultName The name of the fault to decrement the count of.
+   * @see DogLog#clearFault(String)
    */
-  public static void removeFault(String faultName) {
+  public static void decreaseFault(String faultName) {
     if (enabled && faultName != null) {
-      FaultLogger.removeFault(logger, faultName);
+      FaultLogger.decreaseFault(logger, faultName);
     }
   }
 
@@ -282,10 +283,35 @@ public class DogLog {
    * with the fault, it will be set to inactive once the fault's count is 0.
    *
    * @param faultName The name of the fault to decrement the count of.
+   * @see DogLog#clearFault(String)
    */
-  public static void removeFault(Enum<?> faultName) {
+  public static void decreaseFault(Enum<?> faultName) {
     if (faultName != null) {
-      removeFault(faultName.name());
+      decreaseFault(faultName.name());
+    }
+  }
+
+  /**
+   * Reset the count of a fault to 0, and set the alert associated with the fault to inactive if
+   * possible.
+   *
+   * @param faultName The name of the fault to reset.
+   */
+  public static void clearFault(String faultName) {
+    if (enabled && faultName != null) {
+      FaultLogger.clearFault(logger, faultName);
+    }
+  }
+
+  /**
+   * Reset the count of a fault to 0, and set the alert associated with the fault to inactive if
+   * possible.
+   *
+   * @param faultName The name of the fault to reset.
+   */
+  public static void clearFault(Enum<?> faultName) {
+    if (faultName != null) {
+      clearFault(faultName.name());
     }
   }
 

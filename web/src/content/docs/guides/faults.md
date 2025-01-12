@@ -35,15 +35,19 @@ For some faults, it might make sense to have it be active or inactive (ex. a cam
 
 `DogLog.logFault()` counts each time a fault is reported, and tracks the number of times a fault has occurred.
 
-To decrease the count of a fault, call `DogLog.removeFault()`:
+To decrease the count of a fault by 1, call `DogLog.decreaseFault()`:
 
 ```java
-DogLog.removeFault("Camera offline");
+DogLog.decreaseFault("Camera offline");
 ```
 
-This will decrease the count of the fault by 1.
+If you want to fully reset the count for a fault to 0, you can use `DogLog.clearFault()`:
 
-Once a fault's count hits 0, if it has an alert associated with it, the alert will be marked inactive.
+```java
+DogLog.clearFault("Camera offline");
+```
+
+Once a fault's count is 0, the alert associated with it (if present) will be marked inactive.
 
 ### Using enums for faults
 
