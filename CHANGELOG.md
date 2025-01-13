@@ -1,5 +1,16 @@
 # Changelog
 
+## [2025.3.0](https://github.com/jonahsnider/doglog/compare/2025.2.1...2025.3.0) (2025-01-12)
+
+
+### Features
+
+* add method for fully clearing a fault ([25232d7](https://github.com/jonahsnider/doglog/commit/25232d77ccb7e36583999f18596e741e714ff8a3))
+* log Alerts from NT to DataLog when extras logging is enabled ([9e5bcbf](https://github.com/jonahsnider/doglog/commit/9e5bcbf91500c2f326f791423350fc1d3fa39ce0))
+* report DogLog usage via HAL ([80c7bb3](https://github.com/jonahsnider/doglog/commit/80c7bb3eb736750bc82fc618c0fdac1394525e2a)), closes [#71](https://github.com/jonahsnider/doglog/issues/71)
+* support reporting faults as WPILib alerts ([ea15a6f](https://github.com/jonahsnider/doglog/commit/ea15a6f9f49b7c8abba91ec9ef2eab10bee658aa))
+* use a supplier for ntPublish option ([#65](https://github.com/jonahsnider/doglog/issues/65)) ([19b0902](https://github.com/jonahsnider/doglog/commit/19b09020362233109019657094cd9597fb8804f7))
+
 ## [2025.2.1](https://github.com/jonahsnider/doglog/compare/2025.2.0...2025.2.1) (2024-12-11)
 
 
