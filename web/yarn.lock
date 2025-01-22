@@ -2329,7 +2329,7 @@ __metadata:
     astro: "npm:^5.0.0"
     prettier: "npm:3.4.2"
     prettier-plugin-astro: "npm:0.14.1"
-    prettier-plugin-java: "npm:2.6.6"
+    prettier-plugin-java: "npm:2.6.7"
     prettier-plugin-packagejson: "npm:2.5.8"
     sharp: "npm:^0.33.0"
     starlight-links-validator: "npm:0.14.1"
@@ -4966,15 +4966,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-java@npm:2.6.6":
-  version: 2.6.6
-  resolution: "prettier-plugin-java@npm:2.6.6"
+"prettier-plugin-java@npm:2.6.7":
+  version: 2.6.7
+  resolution: "prettier-plugin-java@npm:2.6.7"
   dependencies:
     java-parser: "npm:2.3.3"
     lodash: "npm:4.17.21"
   peerDependencies:
     prettier: ^3.0.0
-  checksum: 10c0/bb424ceb62ba1da4b661dfad4e6b2684c7f38fe9390d5009323ec85002be4c87cbfe3a58d3296538301c2827d8a399c05a7a7624387402506dd0cb83f7b12493
+  checksum: 10c0/d102ab6f7c0dbfb4630458fdc0547bf22ef1900c3be99b537ddec9f505693a5fbab0f083e576dc124032edd75c2d0a1ab219aae95839905e5f295fa0d1ec93ff
   languageName: node
   linkType: hard
 
