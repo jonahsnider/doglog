@@ -28,10 +28,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/internal-helpers@npm:0.5.0":
-  version: 0.5.0
-  resolution: "@astrojs/internal-helpers@npm:0.5.0"
-  checksum: 10c0/cfa383035e4a9d06729615dcdb6d9f4b354a442c9d52a5ca8fe7460d96d5d1c5266934dbba96d357445edf953619c4a267e17a2a9359b5bb305aa4bdb44911b1
+"@astrojs/internal-helpers@npm:0.5.1":
+  version: 0.5.1
+  resolution: "@astrojs/internal-helpers@npm:0.5.1"
+  checksum: 10c0/c9a9da876d479bfa8d5631a55700acd11aea3b03bbf18880e7e702aee1d85cfe0afda9a48eaafdf4bf2a347d47838a8852f2e00e7affa6d1cc8d7105bb8ac2d6
   languageName: node
   linkType: hard
 
@@ -1750,11 +1750,11 @@ __metadata:
   linkType: hard
 
 "astro@npm:^5.0.0":
-  version: 5.2.3
-  resolution: "astro@npm:5.2.3"
+  version: 5.2.4
+  resolution: "astro@npm:5.2.4"
   dependencies:
     "@astrojs/compiler": "npm:^2.10.3"
-    "@astrojs/internal-helpers": "npm:0.5.0"
+    "@astrojs/internal-helpers": "npm:0.5.1"
     "@astrojs/markdown-remark": "npm:6.1.0"
     "@astrojs/telemetry": "npm:3.2.0"
     "@oslojs/encoding": "npm:^1.1.0"
@@ -1818,7 +1818,7 @@ __metadata:
       optional: true
   bin:
     astro: astro.js
-  checksum: 10c0/90ee2e69aaf8a7451fe19700b473eeb750aed4e94fbaa88ab8fd971d98bec19cae6172a48de08ebed74b43a14e1355116f058cad705a33d7e41d4efbb5ad664d
+  checksum: 10c0/53e7b13eb7a983ea07665aac2b7631dde9ebe2ec79fde2cb2bb21598a510e042714eebbe7ef352876769c0855d23b0aab0f09246a8095079371a19cd93262451
   languageName: node
   linkType: hard
 
