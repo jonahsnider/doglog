@@ -169,9 +169,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/starlight@npm:^0.31.0":
-  version: 0.31.1
-  resolution: "@astrojs/starlight@npm:0.31.1"
+"@astrojs/starlight@npm:^0.32.0":
+  version: 0.32.0
+  resolution: "@astrojs/starlight@npm:0.32.0"
   dependencies:
     "@astrojs/mdx": "npm:^4.0.5"
     "@astrojs/sitemap": "npm:^3.2.1"
@@ -187,6 +187,7 @@ __metadata:
     hastscript: "npm:^9.0.0"
     i18next: "npm:^23.11.5"
     js-yaml: "npm:^4.1.0"
+    klona: "npm:^2.0.6"
     mdast-util-directive: "npm:^3.0.0"
     mdast-util-to-markdown: "npm:^2.1.0"
     mdast-util-to-string: "npm:^4.0.0"
@@ -199,7 +200,7 @@ __metadata:
     vfile: "npm:^6.0.2"
   peerDependencies:
     astro: ^5.1.5
-  checksum: 10c0/fb17e16619274ab9484cc181eb42955884f8ec8080c9324e8603a4a24c16e20a75bdd1392670cc1aa12844e6aba843a9290c2e39eb358143b1ea1e003fc89021
+  checksum: 10c0/da3e27c5ef9cc6c983b13a16e1ce12bad241f5e291d6b4043ea4f61ebdb83b86784522b5929fff472ae241b294bd81beddbf20be6285fba25d1a2c2ffcae2795
   languageName: node
   linkType: hard
 
@@ -2326,7 +2327,7 @@ __metadata:
   resolution: "doglog.dev@workspace:."
   dependencies:
     "@astrojs/check": "npm:^0.9.0"
-    "@astrojs/starlight": "npm:^0.31.0"
+    "@astrojs/starlight": "npm:^0.32.0"
     astro: "npm:^5.0.0"
     prettier: "npm:3.5.1"
     prettier-plugin-astro: "npm:0.14.1"
@@ -3575,6 +3576,13 @@ __metadata:
   version: 4.1.5
   resolution: "kleur@npm:4.1.5"
   checksum: 10c0/e9de6cb49657b6fa70ba2d1448fd3d691a5c4370d8f7bbf1c2f64c24d461270f2117e1b0afe8cb3114f13bbd8e51de158c2a224953960331904e636a5e4c0f2a
+  languageName: node
+  linkType: hard
+
+"klona@npm:^2.0.6":
+  version: 2.0.6
+  resolution: "klona@npm:2.0.6"
+  checksum: 10c0/94eed2c6c2ce99f409df9186a96340558897b3e62a85afdc1ee39103954d2ebe1c1c4e9fe2b0952771771fa96d70055ede8b27962a7021406374fdb695fd4d01
   languageName: node
   linkType: hard
 
