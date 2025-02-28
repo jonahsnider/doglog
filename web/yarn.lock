@@ -2270,7 +2270,7 @@ __metadata:
     prettier: "npm:3.5.2"
     prettier-plugin-astro: "npm:0.14.1"
     prettier-plugin-java: "npm:2.6.7"
-    prettier-plugin-packagejson: "npm:2.5.8"
+    prettier-plugin-packagejson: "npm:2.5.9"
     sharp: "npm:^0.33.0"
     starlight-links-validator: "npm:0.14.3"
     typescript: "npm:^5.4.5"
@@ -4942,18 +4942,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-packagejson@npm:2.5.8":
-  version: 2.5.8
-  resolution: "prettier-plugin-packagejson@npm:2.5.8"
+"prettier-plugin-packagejson@npm:2.5.9":
+  version: 2.5.9
+  resolution: "prettier-plugin-packagejson@npm:2.5.9"
   dependencies:
-    sort-package-json: "npm:2.14.0"
+    sort-package-json: "npm:2.15.0"
     synckit: "npm:0.9.2"
   peerDependencies:
     prettier: ">= 1.16.0"
   peerDependenciesMeta:
     prettier:
       optional: true
-  checksum: 10c0/2cf22957f045be08e902bb8fe1e1905bb26b985ba94eeee439d962aa64a1d6ef0ef74eb447eeefd050005811616b13c416fdc14ea8f89b4817203d7f07f9939f
+  checksum: 10c0/452abf004cd89e7ded3992f65580ad4533cd30a72385a1163d7d7b2305ce25d7ff9d56ac9c270fa7f62fbebc3e0db48c5285ff49478592a692e8ef5af99fc335
   languageName: node
   linkType: hard
 
@@ -5739,9 +5739,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sort-package-json@npm:2.14.0":
-  version: 2.14.0
-  resolution: "sort-package-json@npm:2.14.0"
+"sort-package-json@npm:2.15.0":
+  version: 2.15.0
+  resolution: "sort-package-json@npm:2.15.0"
   dependencies:
     detect-indent: "npm:^7.0.1"
     detect-newline: "npm:^4.0.0"
@@ -5753,7 +5753,7 @@ __metadata:
     tinyglobby: "npm:^0.2.9"
   bin:
     sort-package-json: cli.js
-  checksum: 10c0/bcc114a3b5e11d4539ba46dd4eeda6d6909202cb1a9526c230850f1edfdfcf8712e9479b71f98d8f6cb8554740294acdfcaae84461dcecd90592867e1ba90924
+  checksum: 10c0/6d501750cfeb31bf39133508d2c0808d31a100a1a48280d9a32a989bd172fcf35ec785ad566d73046c604ee535cbb1e2641d3ede5ebdeb2c13efcb59d41d6178
   languageName: node
   linkType: hard
 

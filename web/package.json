@@ -24,7 +24,7 @@
 		"prettier": "3.5.2",
 		"prettier-plugin-astro": "0.14.1",
 		"prettier-plugin-java": "2.6.7",
-		"prettier-plugin-packagejson": "2.5.8"
+		"prettier-plugin-packagejson": "2.5.9"
 	},
 	"packageManager": "yarn@4.6.0"
 }
