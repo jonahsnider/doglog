@@ -1,5 +1,12 @@
 # Changelog
 
+## [2025.3.1](https://github.com/jonahsnider/doglog/compare/2025.3.0...2025.3.1) (2025-03-02)
+
+
+### Bug Fixes
+
+* fix potential NullPointerException in radio logger thread ([195d2f7](https://github.com/jonahsnider/doglog/commit/195d2f7b853e9248b956ecb3d4f65e4f35eb418f))
+
 ## [2025.3.0](https://github.com/jonahsnider/doglog/compare/2025.2.1...2025.3.0) (2025-01-12)
 
 
