@@ -24,47 +24,30 @@ public class ExtrasLogger {
 
   private PowerDistribution pdh;
 
-  private Notifier notifier;
+  private final Notifier notifier = new Notifier(this::log);
 
-  private Notifier radioNotifier;
-  private RadioLogUtil radioLogUtil;
+  private final Notifier radioNotifier = new Notifier(this::logRadio);
+  private final RadioLogUtil radioLogUtil = new RadioLogUtil();
 
   public ExtrasLogger(LogQueuer logger, DogLogOptions initialOptions) {
     this.logger = logger;
 
-    if (initialOptions.logExtras()) {
-      notifier = createNotifier();
+    notifier.setName("DogLog extras logger");
+    radioNotifier.setName("DogLog radio logger");
 
-      radioNotifier = createRadioNotifier();
-      radioLogUtil = new RadioLogUtil();
+    if (initialOptions.logExtras()) {
+      radioNotifier.startPeriodic(RADIO_LOG_PERIOD_SECONDS);
+      notifier.startPeriodic(DogLogOptions.LOOP_PERIOD_SECONDS);
     }
   }
 
   public void setOptions(DogLogOptions options) {
     if (options.logExtras()) {
-      if (notifier == null) {
-        notifier = createNotifier();
-      }
-
-      if (radioNotifier == null) {
-        radioNotifier = createRadioNotifier();
-
-        radioLogUtil = new RadioLogUtil();
-      }
+      notifier.stop();
+      radioNotifier.stop();
     } else {
-      if (notifier != null) {
-        notifier.stop();
-        notifier.close();
-        notifier = null;
-      }
-
-      if (radioNotifier != null) {
-        radioNotifier.stop();
-        radioNotifier.close();
-        radioNotifier = null;
-
-        radioLogUtil = null;
-      }
+      notifier.startPeriodic(DogLogOptions.LOOP_PERIOD_SECONDS);
+      radioNotifier.startPeriodic(RADIO_LOG_PERIOD_SECONDS);
     }
   }
 
@@ -147,21 +130,5 @@ public class ExtrasLogger {
 
     logger.queueLog(now, "RadioStatus/Connected", radioLogUtil.radioLogResult.isConnected);
     logger.queueLog(now, "RadioStatus/StatusJson", radioLogUtil.radioLogResult.statusJson, "json");
-  }
-
-  private Notifier createNotifier() {
-    var newNotifier = new Notifier(this::log);
-    newNotifier.startPeriodic(DogLogOptions.LOOP_PERIOD_SECONDS);
-    newNotifier.setName("DogLog extras logger");
-
-    return newNotifier;
-  }
-
-  private Notifier createRadioNotifier() {
-    var newNotifier = new Notifier(this::logRadio);
-    newNotifier.startPeriodic(RADIO_LOG_PERIOD_SECONDS);
-    newNotifier.setName("DogLog radio logger");
-
-    return newNotifier;
   }
 }
