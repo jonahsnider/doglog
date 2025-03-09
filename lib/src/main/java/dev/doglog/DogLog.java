@@ -85,6 +85,15 @@ public class DogLog {
     enabled = newEnabled;
   }
 
+  /**
+   * Returns whether the logger is enabled.
+   *
+   * @see DogLog#setEnabled(boolean)
+   */
+  public static boolean isEnabled() {
+    return enabled;
+  }
+
   /** Log a boolean array. */
   public static void log(String key, boolean[] value) {
     if (enabled) {
