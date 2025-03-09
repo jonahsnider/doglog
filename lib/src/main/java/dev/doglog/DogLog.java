@@ -84,6 +84,13 @@ public class DogLog {
   public static void setEnabled(boolean newEnabled) {
     enabled = newEnabled;
   }
+  
+  /**
+   * Return a boolean indicating if the logger is enabled.
+   */
+  public static boolean isEnabled() {
+    return enabled;
+  }
 
   /** Log a boolean array. */
   public static void log(String key, boolean[] value) {
