@@ -1,5 +1,12 @@
 # Changelog
 
+## [2025.4.0](https://github.com/jonahsnider/doglog/compare/2025.3.1...2025.4.0) (2025-03-09)
+
+
+### Features
+
+* add DogLog.isEnabled() ([417eedb](https://github.com/jonahsnider/doglog/commit/417eedba201effc63df1ff0e660110780b4f945e)), closes [#75](https://github.com/jonahsnider/doglog/issues/75)
+
 ## [2025.3.1](https://github.com/jonahsnider/doglog/compare/2025.3.0...2025.3.1) (2025-03-02)
 
 
