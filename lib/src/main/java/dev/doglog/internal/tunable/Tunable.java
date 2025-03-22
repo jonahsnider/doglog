@@ -133,11 +133,7 @@ public class Tunable implements AutoCloseable {
     var changes = poller.readQueue();
 
     for (var change : changes) {
-      // TODO: Remove these debug logs once the type == kAssigned issue is resolved
-      System.out.println("Change: " + change.valueData.getTopic().getType());
-      System.out.println("Is valid: " + change.valueData.getTopic().isValid());
-
-      switch (change.valueData.getTopic().getType()) {
+      switch (change.valueData.value.getType()) {
         case kDouble ->
             doubleChangeCallbacks.get(change.listener).accept(change.valueData.value.getDouble());
         case kFloat ->
