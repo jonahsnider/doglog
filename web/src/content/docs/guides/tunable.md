@@ -1,9 +1,9 @@
 ---
 title: Tunable values
-description: DogLog's tunable values feature makes it easy to tweak robot behavior, without needing to redeploy code.
+description: DogLog's tunable values feature makes it easy to tweak robot behavior without needing to redeploy code.
 ---
 
-DogLog's tunable values feature leverages NetworkTables to stream strings, numbers, and booleans to your robot code, making it easy to tweak robot behavior, without needing to redeploy code.
+DogLog's tunable values feature leverages NetworkTables to stream strings, numbers, and booleans to your robot code, making it easy to tweak robot behavior without needing to redeploy code.
 
 ## Creating a tunable value
 
