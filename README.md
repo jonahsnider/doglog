@@ -10,6 +10,10 @@ See [**the documentation site**](https://doglog.dev) for more information.
 
 **Please see the [installation guide](https://doglog.dev/getting-started/installation/) for more information.**
 
+### Installing via WPILib VS Code extension
+
+DogLog is available to install through the WPILib VS Code extension.
+
 ### Vendordep URL
 
 ```text

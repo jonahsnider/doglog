@@ -3,18 +3,29 @@ title: Installation
 description: Add DogLog to an existing Java project.
 ---
 
-import { Steps } from '@astrojs/starlight/components';
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
 DogLog can be added to projects by installing it as a vendor dependency (vendordep).
 You can read more about vendordeps on [the WPILib docs](https://docs.wpilib.org/en/stable/docs/software/vscode-overview/3rd-party-libraries.html#installing-libraries).
 
-## Vendordep URL
+DogLog can be added using the WPILib VS Code extension, or by manually entering the vendordep URL.
 
-```text
-https://doglog.dev/vendordep.json
-```
+<Tabs>
+	<TabItem label="WPILib VS Code extension">
 
-## Detailed instructions
+<Steps>
+
+1. Select thet "WPILib Vendor Dependencies" extension from the VS Code sidebar
+2. Find "DogLog" under the "Available Dependencies" section
+   ![Screenshot of DogLog listed in the the "Available Dependencies" section in the WPILib Vendor Dependencies extension](../../../assets/getting-started/installation/vendor-dependency-sidebar.png)
+3. Click "Install"
+4. Once the vendordep has been added, you can run a build to complete the install.
+
+</Steps>
+
+</TabItem>
+
+    <TabItem label="Vendordep URL">
 
 <Steps>
 
@@ -24,7 +35,7 @@ https://doglog.dev/vendordep.json
    ![Screenshot of the "Manage Vendor Libraries" option in the WPILib command palette](../../../assets/getting-started/installation/manage-vendor-libraries.png)
 3. Select "Install new libraries (online)"
    ![Screenshot of the "Install new libraries (online)" option in the WPILib command palette](../../../assets/getting-started/installation/install-new-libraries.png)
-4. Paste the vendordep URL from the codeblock above
+4. Paste the `https://doglog.dev/vendordep.json` URL into the dialog
    ![Screenshot of the vendordep URL being pasted into the WPILib vendordeps dialog](../../../assets/getting-started/installation/vendordep-url.png)
 5. Press <kbd>Enter</kbd> to finish adding the vendordep
 6. Once the vendordep has been added, you can run a build to complete the install.
@@ -34,3 +45,7 @@ https://doglog.dev/vendordep.json
 :::note
 You may need to restart your editor before DogLog is available in editor suggestions.
 :::
+
+  </TabItem>
+
+</Tabs>
