@@ -10,9 +10,18 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import java.util.function.DoubleSupplier;
 
 public class Robot extends TimedRobot {
   private final TalonFX motor = new TalonFX(5);
+  private final DoubleSupplier tunableSupplier =
+      DogLog.tunable(
+          "my tunable number",
+          0.0,
+          (value) -> {
+            DogLog.timestamp("Tunable/OnChange/Timestamp");
+            DogLog.log("Tunable/OnChange/Value", value);
+          });
 
   private Command m_autonomousCommand;
 
@@ -38,6 +47,8 @@ public class Robot extends TimedRobot {
         });
     DogLog.log("Debug/Position", motor.getPosition().getValueAsDouble());
     DogLog.log("Debug/Json", "{\"test\": \"json\"}", "json");
+
+    DogLog.log("Tunable/SupplierValue", tunableSupplier.getAsDouble());
   }
 
   @Override
