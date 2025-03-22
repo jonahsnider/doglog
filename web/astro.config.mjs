@@ -1,8 +1,9 @@
-import { defineConfig } from 'astro/config';
+import markdoc from '@astrojs/markdoc';
 import starlight from '@astrojs/starlight';
-import starlightLinksValidator from 'starlight-links-validator';
+import { defineConfig } from 'astro/config';
 import fs from 'fs/promises';
 import path from 'path';
+import starlightLinksValidator from 'starlight-links-validator';
 
 // https://astro.build/config
 export default defineConfig({
@@ -47,6 +48,7 @@ export default defineConfig({
 			],
 			customCss: ['/src/styles/custom.css'],
 		}),
+		markdoc(),
 	],
 });
 

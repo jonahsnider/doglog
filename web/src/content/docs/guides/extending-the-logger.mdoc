@@ -3,8 +3,6 @@ title: Extending the logger
 description: Customize DogLog's behavior by extending it.
 ---
 
-import { FileTree, Steps, LinkCard } from '@astrojs/starlight/components';
-
 In addition to the configurable logger options, DogLog also allows you to extend the logger class to add your own custom behavior.
 This is a great way to simplify common logging flows your team has, and reduce duplicated code in your robot projects.
 
@@ -13,18 +11,14 @@ As an example, we will add in a new `log()` method to help log motor values.
 
 ## Steps
 
-<Steps>
+{% steps %}
 1. Add DogLog to your project if you haven't already:
 
-    <LinkCard
-      title="Install guide"
-      href="/getting-started/installation"
-    />
+   {% linkcard title="Install guide" href="/getting-started/installation" /%}
 
-2. Create a new file for your extended logger class:
+1. Create a new file for your extended logger class:
 
-   <FileTree>
-
+   {% filetree %}
    - src
      - main
        - deploy/
@@ -35,12 +29,11 @@ As an example, we will add in a new `log()` method to help log motor values.
              - Main.java
              - Robot.java
              - RobotContainer.java
+   {% /filetree %}
 
-    </FileTree>
+1. In the newly created file, paste the following code:
 
-3. In the newly created file, paste the following code:
-
-   ```java title="src/main/java/frc/robot/CustomLogger.java"
+   ```java {% title="src/main/java/frc/robot/CustomLogger.java" %}
    package frc.robot;
 
    import com.ctre.phoenix6.hardware.TalonFX;
@@ -61,9 +54,9 @@ As an example, we will add in a new `log()` method to help log motor values.
    This assumes you have the Phoenix 6 library installed.
    :::
 
-4. Replace places where you use `DogLog` with `CustomLogger`.
+1. Replace places where you use `DogLog` with `CustomLogger`.
 
-   ```diff lang="java"
+   ```diff {% meta="lang='java'" %}
    package frc.robot;
 
    import com.ctre.phoenix6.hardware.TalonFX;
@@ -82,5 +75,4 @@ As an example, we will add in a new `log()` method to help log motor values.
    }
 
    ```
-
-</Steps>
+{% /steps %}

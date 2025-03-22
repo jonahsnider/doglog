@@ -1,0 +1,12 @@
+[
+  {
+    "id": "doglog",
+    "path": "web/src/content",
+    "schema": {
+      "path": "web/markdoc.config.mjs",
+      "type": "esm",
+      "property": "default",
+      "watch": true
+    }
+  }
+]

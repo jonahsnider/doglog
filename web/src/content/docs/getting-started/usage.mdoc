@@ -3,8 +3,6 @@ title: Usage
 description: Get started with logging using DogLog.
 ---
 
-import { Steps } from '@astrojs/starlight/components';
-
 Once installed, getting started with DogLog is easy.
 This page will walk you through the first steps to integrating DogLog with your robot project.
 
@@ -31,8 +29,7 @@ DogLog comes with a safe, reasonable default configuration out of the box, but m
 
 Here's an example of how to set DogLog to use custom options:
 
-<Steps>
-
+{% steps %}
 1. Import the library at the top of `Robot.java`/`RobotContainer.java`:
 
    ```java
@@ -41,15 +38,14 @@ Here's an example of how to set DogLog to use custom options:
 
    ```
 
-2. In your `Robot`/`RobotContainer` constructor, add the following lines:
+1. In your `Robot`/`RobotContainer` constructor, add the following lines:
 
    ```java
     DogLog.setOptions(new DogLogOptions().withCaptureDs(true));
    ```
 
    This configures DogLog to use the default options as a base, and extends them to capture driver station data to the logs.
-
-</Steps>
+{% /steps %}
 
 ### Logging PDH/PDP data
 
@@ -65,7 +61,7 @@ Calling `DogLog.setPdh(null)` will disable PDH logging.
 
 ## Full example
 
-```java {3-5,22-23,25} title="RobotContainer.java"
+```java {% meta="{3-5,22-23,25}" title="RobotContainer.java" %}
 package frc.robot;
 
 import dev.doglog.DogLog;

@@ -3,8 +3,6 @@ title: UNSAFE_LOG_DESTINATION
 description: Description and solution for the DogLog UNSAFE_LOG_DESTINATION warning.
 ---
 
-import { LinkCard } from '@astrojs/starlight/components';
-
 ## Description
 
 DogLog uses WPILib's `DataLogManager` to manage writing logs to `.wpilog` files.
@@ -26,4 +24,4 @@ Plugging in a properly formatted USB drive into the roboRIO will prevent this wa
 
 To learn more about how to format a USB drive, you can use this guide:
 
-<LinkCard title="USB drive formatting guide" href="/guides/formatting-a-usb-drive" />
+{% linkcard title="USB drive formatting guide" href="/guides/formatting-a-usb-drive" /%}

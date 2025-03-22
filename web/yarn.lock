@@ -78,6 +78,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@astrojs/markdoc@npm:^0.13.1":
+  version: 0.13.1
+  resolution: "@astrojs/markdoc@npm:0.13.1"
+  dependencies:
+    "@astrojs/internal-helpers": "npm:0.6.1"
+    "@astrojs/markdown-remark": "npm:6.3.1"
+    "@astrojs/prism": "npm:3.2.0"
+    "@markdoc/markdoc": "npm:^0.5.1"
+    esbuild: "npm:^0.25.0"
+    github-slugger: "npm:^2.0.0"
+    htmlparser2: "npm:^10.0.0"
+  peerDependencies:
+    astro: ^5.0.0
+  checksum: 10c0/0cd2f29d0a87c8b32dde601140bb560ad28664271cc11f6933e62ffa5bb7d8358317053e5fe086fcca36cf27e6f3d60eb510da6d54c8f4f5dc89df4ae5743f1d
+  languageName: node
+  linkType: hard
+
 "@astrojs/markdown-remark@npm:6.0.1":
   version: 6.0.1
   resolution: "@astrojs/markdown-remark@npm:6.0.1"
@@ -174,6 +191,16 @@ __metadata:
     stream-replace-string: "npm:^2.0.0"
     zod: "npm:^3.23.8"
   checksum: 10c0/03a883dcf5ea18963e2b9031c07ea131d8c79efbc76abb42a06e71db1ad252696846c187187f2804b16d1d51b740419433a1eacb4abe0e93d74056320aee12ae
+  languageName: node
+  linkType: hard
+
+"@astrojs/starlight-markdoc@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "@astrojs/starlight-markdoc@npm:0.3.0"
+  peerDependencies:
+    "@astrojs/markdoc": ^0.12.1
+    "@astrojs/starlight": ">=0.30.0"
+  checksum: 10c0/b80bdff80c35ed80525383eea952efa9804ccf53d7a2c2ab1dae42f91a49205f1e72703767dfa73384f60dbab4b5350a27d03043b4fa6d177bcd5be7cadc1ddd
   languageName: node
   linkType: hard
 
@@ -813,6 +840,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@markdoc/markdoc@npm:^0.5.1":
+  version: 0.5.1
+  resolution: "@markdoc/markdoc@npm:0.5.1"
+  dependencies:
+    "@types/linkify-it": "npm:^3.0.1"
+    "@types/markdown-it": "npm:12.2.3"
+  peerDependencies:
+    "@types/react": "*"
+    react: "*"
+  dependenciesMeta:
+    "@types/linkify-it":
+      optional: true
+    "@types/markdown-it":
+      optional: true
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    react:
+      optional: true
+  checksum: 10c0/cbbfa2454f730316007517cf948023612b876a77bfd62ddb396df95bcf16aafec1d93bc9fc5d9cec3267b3eb4693777783b164baa0d6174dc3f4cf062544cd0a
+  languageName: node
+  linkType: hard
+
 "@mdx-js/mdx@npm:^3.1.0":
   version: 3.1.0
   resolution: "@mdx-js/mdx@npm:3.1.0"
@@ -1346,12 +1396,43 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/linkify-it@npm:*":
+  version: 5.0.0
+  resolution: "@types/linkify-it@npm:5.0.0"
+  checksum: 10c0/7bbbf45b9dde17bf3f184fee585aef0e7342f6954f0377a24e4ff42ab5a85d5b806aaa5c8d16e2faf2a6b87b2d94467a196b7d2b85c9c7de2f0eaac5487aaab8
+  languageName: node
+  linkType: hard
+
+"@types/linkify-it@npm:^3.0.1":
+  version: 3.0.5
+  resolution: "@types/linkify-it@npm:3.0.5"
+  checksum: 10c0/696e09975991c649ba37c5585714929fdebf5c64a8bfb99910613ef838337dbbba6c608fccdfa03d6347432586ef12e139bc0e947ae6fec569096fef5cc1c550
+  languageName: node
+  linkType: hard
+
+"@types/markdown-it@npm:12.2.3":
+  version: 12.2.3
+  resolution: "@types/markdown-it@npm:12.2.3"
+  dependencies:
+    "@types/linkify-it": "npm:*"
+    "@types/mdurl": "npm:*"
+  checksum: 10c0/f72e08f69d76be2e30cd367fd6e5302c6878aa44e5b1a952fe7e41280044502bcb9bac8459ad94f6bb5e4f9c4cb52803950609ad66786f0fddc3a8bd533f777d
+  languageName: node
+  linkType: hard
+
 "@types/mdast@npm:^4.0.0, @types/mdast@npm:^4.0.4":
   version: 4.0.4
   resolution: "@types/mdast@npm:4.0.4"
   dependencies:
     "@types/unist": "npm:*"
   checksum: 10c0/84f403dbe582ee508fd9c7643ac781ad8597fcbfc9ccb8d4715a2c92e4545e5772cbd0dbdf18eda65789386d81b009967fdef01b24faf6640f817287f54d9c82
+  languageName: node
+  linkType: hard
+
+"@types/mdurl@npm:*":
+  version: 2.0.0
+  resolution: "@types/mdurl@npm:2.0.0"
+  checksum: 10c0/cde7bb571630ed1ceb3b92a28f7b59890bb38b8f34cd35326e2df43eebfc74985e6aa6fd4184e307393bad8a9e0783a519a3f9d13c8e03788c0f98e5ec869c5e
   languageName: node
   linkType: hard
 
@@ -2251,7 +2332,9 @@ __metadata:
   resolution: "doglog.dev@workspace:."
   dependencies:
     "@astrojs/check": "npm:^0.9.0"
+    "@astrojs/markdoc": "npm:^0.13.1"
     "@astrojs/starlight": "npm:^0.32.0"
+    "@astrojs/starlight-markdoc": "npm:^0.3.0"
     astro: "npm:^5.0.0"
     prettier: "npm:3.5.3"
     prettier-plugin-astro: "npm:0.14.1"
@@ -2262,6 +2345,44 @@ __metadata:
     typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
+
+"dom-serializer@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "dom-serializer@npm:2.0.0"
+  dependencies:
+    domelementtype: "npm:^2.3.0"
+    domhandler: "npm:^5.0.2"
+    entities: "npm:^4.2.0"
+  checksum: 10c0/d5ae2b7110ca3746b3643d3ef60ef823f5f078667baf530cec096433f1627ec4b6fa8c072f09d079d7cda915fd2c7bc1b7b935681e9b09e591e1e15f4040b8e2
+  languageName: node
+  linkType: hard
+
+"domelementtype@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "domelementtype@npm:2.3.0"
+  checksum: 10c0/686f5a9ef0fff078c1412c05db73a0dce096190036f33e400a07e2a4518e9f56b1e324f5c576a0a747ef0e75b5d985c040b0d51945ce780c0dd3c625a18cd8c9
+  languageName: node
+  linkType: hard
+
+"domhandler@npm:^5.0.2, domhandler@npm:^5.0.3":
+  version: 5.0.3
+  resolution: "domhandler@npm:5.0.3"
+  dependencies:
+    domelementtype: "npm:^2.3.0"
+  checksum: 10c0/bba1e5932b3e196ad6862286d76adc89a0dbf0c773e5ced1eb01f9af930c50093a084eff14b8de5ea60b895c56a04d5de8bbc4930c5543d029091916770b2d2a
+  languageName: node
+  linkType: hard
+
+"domutils@npm:^3.2.1":
+  version: 3.2.2
+  resolution: "domutils@npm:3.2.2"
+  dependencies:
+    dom-serializer: "npm:^2.0.0"
+    domelementtype: "npm:^2.3.0"
+    domhandler: "npm:^5.0.3"
+  checksum: 10c0/47938f473b987ea71cd59e59626eb8666d3aa8feba5266e45527f3b636c7883cca7e582d901531961f742c519d7514636b7973353b648762b2e3bedbf235fada
+  languageName: node
+  linkType: hard
 
 "dset@npm:^3.1.4":
   version: 3.1.4
@@ -2324,10 +2445,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"entities@npm:^4.4.0":
+"entities@npm:^4.2.0, entities@npm:^4.4.0":
   version: 4.5.0
   resolution: "entities@npm:4.5.0"
   checksum: 10c0/5b039739f7621f5d1ad996715e53d964035f75ad3b9a4d38c6b3804bb226e282ffeae2443624d8fdd9c47d8e926ae9ac009c54671243f0c3294c26af7cc85250
+  languageName: node
+  linkType: hard
+
+"entities@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "entities@npm:6.0.0"
+  checksum: 10c0/b82a7bd5de282860f3c36a91e815e41e874fd036c83956a568b82729678492eb088359d6f7e0a4f5c00776427263fcba04959b8340fefa430c39b9bce770427e
   languageName: node
   linkType: hard
 
@@ -3153,6 +3281,18 @@ __metadata:
   version: 3.0.1
   resolution: "html-whitespace-sensitive-tag-names@npm:3.0.1"
   checksum: 10c0/da06cad111f6a432edd85c6cd09f6b5abbb385872fba79f23f939bdd4626920ac2e62507f604ef94eb8449902033bda292774624e3283b4dea4ed1620a2be3b2
+  languageName: node
+  linkType: hard
+
+"htmlparser2@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "htmlparser2@npm:10.0.0"
+  dependencies:
+    domelementtype: "npm:^2.3.0"
+    domhandler: "npm:^5.0.3"
+    domutils: "npm:^3.2.1"
+    entities: "npm:^6.0.0"
+  checksum: 10c0/47cfa37e529c86a7ba9a1e0e6f951ad26ef8ca5af898ab6e8916fa02c0264c1453b4a65f28b7b8a7f9d0d29b5a70abead8203bf8b3f07bc69407e85e7d9a68e4
   languageName: node
   linkType: hard
 

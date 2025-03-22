@@ -18,23 +18,24 @@ hero:
       variant: minimal
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+{% cardgrid stagger=true %}
+{% card title="Get started in seconds" icon="puzzle" %}
+Add the vendordep and start logging, no configuration or setup boilerplate needed
+{% /card %}
 
-<CardGrid stagger>
-	<Card title="Get started in seconds" icon="puzzle">
-		Add the vendordep and start logging, no configuration or setup boilerplate needed
-	</Card>
-	<Card title="Performance where it counts" icon="rocket">
-		DogLog was designed for fast logging, powered by WPILib's highly optimized `DataLogManager` API
-	</Card>
-	<Card title="Configurable to the core" icon="setting">
-		Customize practically all logger behavior with a simple, yet powerful, configuration API
-	</Card>
-	<Card title="Log with confidence" icon="approve-check-circle">
-		DogLog was created to address the lack of a safe and fault-tolerant logging solution for FRC, without sacrificing
-		developer experience
-	</Card>
-</CardGrid>
+{% card title="Performance where it counts" icon="rocket" %}
+DogLog was designed for fast logging, powered by WPILib's highly optimized `DataLogManager` API
+{% /card %}
+
+{% card title="Configurable to the core" icon="setting" %}
+Customize practically all logger behavior with a simple, yet powerful, configuration API
+{% /card %}
+
+{% card title="Log with confidence" icon="approve-check-circle" %}
+DogLog was created to address the lack of a safe and fault-tolerant logging solution for FRC, without sacrificing
+developer experience
+{% /card %}
+{% /cardgrid %}
 
 ## Example usage
 
