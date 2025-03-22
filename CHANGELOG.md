@@ -1,5 +1,18 @@
 # Changelog
 
+## [2025.5.0](https://github.com/jonahsnider/doglog/compare/2025.4.0...2025.5.0) (2025-03-22)
+
+
+### Features
+
+* add DogLog.tunable() API ([#79](https://github.com/jonahsnider/doglog/issues/79)) ([ab93412](https://github.com/jonahsnider/doglog/commit/ab934121b87c1e9c16fc5631fcfbc599aa64fa07))
+
+
+### Bug Fixes
+
+* fix bug where extras logging would be disabled after DogLog.setOptions() ([52f7423](https://github.com/jonahsnider/doglog/commit/52f742375983030a87ea8bc1794e05fe015f7598))
+* make DogLog Tunable instance protected ([f53a729](https://github.com/jonahsnider/doglog/commit/f53a729d13190639c6bd05c567dce986446f3e8f))
+
 ## [2025.4.0](https://github.com/jonahsnider/doglog/compare/2025.3.1...2025.4.0) (2025-03-09)
 
 
