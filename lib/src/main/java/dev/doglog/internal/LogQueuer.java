@@ -34,7 +34,6 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class LogQueuer {
   private static final int MAX_QUEUE_FULL_MESSAGES = 50;
-  private static final int DEFAULT_MAX_QUEUE_SIZE = new DogLogOptions().logEntryQueueCapacity();
   private int queueFullMessageCount = 0;
 
   void printQueueFullMessage(String key) {
@@ -66,7 +65,7 @@ public class LogQueuer {
   private LogThread logThread;
 
   public LogQueuer(DogLogOptions initialOptions) {
-    queue = new LinkedBlockingQueue<>(DEFAULT_MAX_QUEUE_SIZE);
+    queue = new LinkedBlockingQueue<>(initialOptions.logEntryQueueCapacity());
 
     logThread = new LogThread(queue, initialOptions);
 
