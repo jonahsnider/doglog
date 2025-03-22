@@ -43,7 +43,7 @@ public class DogLog {
   /** Whether the logger is enabled. */
   protected static boolean enabled = true;
 
-  public static final Tunable tunable = new Tunable();
+  protected static final Tunable tunable = new Tunable();
 
   /** Get the options used by the logger. */
   public static DogLogOptions getOptions() {
