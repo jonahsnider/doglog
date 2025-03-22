@@ -12,9 +12,11 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.DoubleEntry;
+import edu.wpi.first.networktables.FloatEntry;
 import edu.wpi.first.networktables.IntegerEntry;
 import edu.wpi.first.networktables.StringEntry;
 import edu.wpi.first.util.function.BooleanConsumer;
+import edu.wpi.first.util.function.FloatConsumer;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -384,6 +386,29 @@ public class DogLog {
    * @return The {@link DoubleEntry} used to interact with the tunable value.
    */
   public static DoubleEntry tunable(String key, double defaultValue, DoubleConsumer onChange) {
+    return tunable.create(key, defaultValue, onChange);
+  }
+
+  /**
+   * Create a tunable float.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @return The {@link DoubleEntry} used to interact with the tunable value.
+   */
+  public static FloatEntry tunable(String key, float defaultValue) {
+    return tunable(key, defaultValue, (FloatConsumer) null);
+  }
+
+  /**
+   * Create a tunable float.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param onChange A function to call when the tunable value changes.
+   * @return The {@link DoubleEntry} used to interact with the tunable value.
+   */
+  public static FloatEntry tunable(String key, float defaultValue, FloatConsumer onChange) {
     return tunable.create(key, defaultValue, onChange);
   }
 
