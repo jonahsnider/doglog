@@ -18,7 +18,8 @@ export default defineConfig({
 			},
 		},
 		starlight({
-			plugins: [starlightLinksValidator()],
+      // TODO: Enable this once mdoc files are parsed properly https://github.com/HiDeoo/starlight-links-validator/issues/96
+			// plugins: [starlightLinksValidator()],
 			title: 'DogLog Docs',
 			favicon: '/favicon.ico',
 			social: {
