@@ -10,10 +10,10 @@ import dev.doglog.internal.tunable.Tunable;
 import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
-import edu.wpi.first.networktables.BooleanSubscriber;
-import edu.wpi.first.networktables.DoubleSubscriber;
-import edu.wpi.first.networktables.IntegerSubscriber;
-import edu.wpi.first.networktables.StringSubscriber;
+import edu.wpi.first.networktables.BooleanEntry;
+import edu.wpi.first.networktables.DoubleEntry;
+import edu.wpi.first.networktables.IntegerEntry;
+import edu.wpi.first.networktables.StringEntry;
 import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.Alert;
@@ -364,37 +364,95 @@ public class DogLog {
     log(key, Timer.getFPGATimestamp());
   }
 
-  public static DoubleSubscriber tunable(String key, double defaultValue) {
+  /**
+   * Create a tunable double.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @return The {@link DoubleEntry} used to interact with the tunable value.
+   */
+  public static DoubleEntry tunable(String key, double defaultValue) {
     return tunable(key, defaultValue, null);
   }
 
-  public static DoubleSubscriber tunable(String key, double defaultValue, DoubleConsumer onChange) {
+  /**
+   * Create a tunable double.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param onChange A function to call when the tunable value changes.
+   * @return The {@link DoubleEntry} used to interact with the tunable value.
+   */
+  public static DoubleEntry tunable(String key, double defaultValue, DoubleConsumer onChange) {
     return tunable.create(key, defaultValue, onChange);
   }
 
-  public static BooleanSubscriber tunable(String key, boolean defaultValue) {
+  /**
+   * Create a tunable boolean.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @return The {@link BooleanEntry} used to interact with the tunable value.
+   */
+  public static BooleanEntry tunable(String key, boolean defaultValue) {
     return tunable(key, defaultValue, null);
   }
 
-  public static BooleanSubscriber tunable(
-      String key, boolean defaultValue, BooleanConsumer onChange) {
+  /**
+   * Create a tunable boolean.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param onChange A function to call when the tunable value changes.
+   * @return The {@link BooleanEntry} used to interact with the tunable value.
+   */
+  public static BooleanEntry tunable(String key, boolean defaultValue, BooleanConsumer onChange) {
     return tunable.create(key, defaultValue, onChange);
   }
 
-  public static StringSubscriber tunable(String key, String defaultValue) {
+  /**
+   * Create a tunable string.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @return The {@link StringEntry} used to interact with the tunable value.
+   */
+  public static StringEntry tunable(String key, String defaultValue) {
     return tunable(key, defaultValue, null);
   }
 
-  public static StringSubscriber tunable(
-      String key, String defaultValue, Consumer<String> onChange) {
+  /**
+   * Create a tunable string.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param onChange A function to call when the tunable value changes.
+   * @return The {@link StringEntry} used to interact with the tunable value.
+   */
+  public static StringEntry tunable(String key, String defaultValue, Consumer<String> onChange) {
     return tunable.create(key, defaultValue, onChange);
   }
 
-  public static IntegerSubscriber tunable(String key, long defaultValue) {
+  /**
+   * Create a tunable integer.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @return The {@link IntegerEntry} used to interact with the tunable value.
+   */
+  public static IntegerEntry tunable(String key, long defaultValue) {
     return tunable(key, defaultValue, (LongConsumer) null);
   }
 
-  public static IntegerSubscriber tunable(String key, long defaultValue, LongConsumer onChange) {
+  /**
+   * Create a tunable integer.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param onChange A function to call when the tunable value changes.
+   * @return The {@link IntegerEntry} used to interact with the tunable value.
+   */
+  public static IntegerEntry tunable(String key, long defaultValue, LongConsumer onChange) {
     return tunable.create(key, defaultValue, onChange);
   }
 
