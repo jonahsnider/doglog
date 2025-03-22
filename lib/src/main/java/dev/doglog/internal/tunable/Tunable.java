@@ -57,12 +57,12 @@ public class Tunable implements AutoCloseable {
     startNotifier();
     var entry = TUNABLE_TABLE.getDoubleTopic(key).getEntry(defaultValue);
 
+    entry.set(defaultValue);
+
     var listenerHandle = poller.addListener(entry, LISTENER_EVENT_KINDS);
     if (onChange != null) {
       doubleChangeCallbacks.put(listenerHandle, onChange);
     }
-
-    entry.set(defaultValue);
 
     return entry;
   }
@@ -71,12 +71,12 @@ public class Tunable implements AutoCloseable {
     startNotifier();
     var entry = TUNABLE_TABLE.getFloatTopic(key).getEntry(defaultValue);
 
+    entry.set(defaultValue);
+
     var listenerHandle = poller.addListener(entry, LISTENER_EVENT_KINDS);
     if (onChange != null) {
       floatChangeCallbacks.put(listenerHandle, onChange);
     }
-
-    entry.set(defaultValue);
 
     return entry;
   }
@@ -85,12 +85,12 @@ public class Tunable implements AutoCloseable {
     startNotifier();
     var entry = TUNABLE_TABLE.getBooleanTopic(key).getEntry(defaultValue);
 
+    entry.set(defaultValue);
+
     var listenerHandle = poller.addListener(entry, LISTENER_EVENT_KINDS);
     if (onChange != null) {
       booleanChangeCallbacks.put(listenerHandle, onChange);
     }
-
-    entry.set(defaultValue);
 
     return entry;
   }
@@ -99,12 +99,12 @@ public class Tunable implements AutoCloseable {
     startNotifier();
     var entry = TUNABLE_TABLE.getStringTopic(key).getEntry(defaultValue);
 
+    entry.set(defaultValue);
+
     var listenerHandle = poller.addListener(entry, LISTENER_EVENT_KINDS);
     if (onChange != null) {
       stringChangeCallbacks.put(listenerHandle, onChange);
     }
-
-    entry.set(defaultValue);
 
     return entry;
   }
@@ -113,12 +113,12 @@ public class Tunable implements AutoCloseable {
     startNotifier();
     var entry = TUNABLE_TABLE.getIntegerTopic(key).getEntry(defaultValue);
 
+    entry.set(defaultValue);
+
     var listenerHandle = poller.addListener(entry, LISTENER_EVENT_KINDS);
     if (onChange != null) {
       longChangeCallbacks.put(listenerHandle, onChange);
     }
-
-    entry.set(defaultValue);
 
     return entry;
   }
