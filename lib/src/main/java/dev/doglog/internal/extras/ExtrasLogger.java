@@ -43,11 +43,11 @@ public class ExtrasLogger {
 
   public void setOptions(DogLogOptions options) {
     if (options.logExtras()) {
-      notifier.stop();
-      radioNotifier.stop();
-    } else {
       notifier.startPeriodic(DogLogOptions.LOOP_PERIOD_SECONDS);
       radioNotifier.startPeriodic(RADIO_LOG_PERIOD_SECONDS);
+    } else {
+      notifier.stop();
+      radioNotifier.stop();
     }
   }
 
