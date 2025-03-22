@@ -8,6 +8,20 @@ This guide walks through the steps of updating the DogLog vendordep to the lates
 
 ## Steps
 
+{% tabs %}
+{% tabitem label="WPILib sidebar" %}
+{% steps %}
+1. Click the the "WPILib Vendor Dependencies" extension in the VS Code sidebar
+
+1. Find the "DogLog" item in the list of installed dependencies
+
+   ![Screenshot of the DogLog item in the WPILib Vendor Dependencies extension](../../../assets/guides/updating/sidebar.png)
+
+1. Click the "To Latest" button to update DogLog
+{% /steps %}
+{% /tabitem %}
+
+{% tabitem label="Manual" %}
 {% steps %}
 1. Open the WPILib command palette
 
@@ -25,12 +39,14 @@ This guide walks through the steps of updating the DogLog vendordep to the lates
 
    ![Screenshot of the "DogLog" option in the WPILib command palette](../../../assets/guides/updating/check-to-update-libraries.png)
 
-1. Click "OK" or hit <kbd>Enter</kbd> to update the selected vendordeps
+1. Click "OK" or hit `Enter` to update the selected vendordeps
 
 1. After updating, you can click "Yes" to run a build and ensure that the update was successful
 
    ![Screenshot of the dialog to run a build after updating vendordeps](../../../assets/guides/updating/run-build-after-update.png)
 {% /steps %}
+{% /tabitem %}
+{% /tabs %}
 
 ## Changelog
 
