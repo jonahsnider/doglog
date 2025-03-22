@@ -6,15 +6,24 @@ package dev.doglog;
 
 import dev.doglog.internal.FaultLogger;
 import dev.doglog.internal.LogQueuer;
+import dev.doglog.internal.tunable.Tunable;
 import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
+import edu.wpi.first.networktables.BooleanSubscriber;
+import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.networktables.IntegerSubscriber;
+import edu.wpi.first.networktables.StringSubscriber;
+import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
+import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
+import java.util.function.LongConsumer;
 
 /** A logger based on WPILib's {@link DataLogManager} */
 public class DogLog {
@@ -31,6 +40,8 @@ public class DogLog {
 
   /** Whether the logger is enabled. */
   protected static boolean enabled = true;
+
+  public static final Tunable tunable = new Tunable();
 
   /** Get the options used by the logger. */
   public static DogLogOptions getOptions() {
@@ -351,6 +362,40 @@ public class DogLog {
    */
   public static void timestamp(String key) {
     log(key, Timer.getFPGATimestamp());
+  }
+
+  public static DoubleSubscriber tunable(String key, double defaultValue) {
+    return tunable(key, defaultValue, null);
+  }
+
+  public static DoubleSubscriber tunable(String key, double defaultValue, DoubleConsumer onChange) {
+    return tunable.create(key, defaultValue, onChange);
+  }
+
+  public static BooleanSubscriber tunable(String key, boolean defaultValue) {
+    return tunable(key, defaultValue, null);
+  }
+
+  public static BooleanSubscriber tunable(
+      String key, boolean defaultValue, BooleanConsumer onChange) {
+    return tunable.create(key, defaultValue, onChange);
+  }
+
+  public static StringSubscriber tunable(String key, String defaultValue) {
+    return tunable(key, defaultValue, null);
+  }
+
+  public static StringSubscriber tunable(
+      String key, String defaultValue, Consumer<String> onChange) {
+    return tunable.create(key, defaultValue, onChange);
+  }
+
+  public static IntegerSubscriber tunable(String key, long defaultValue) {
+    return tunable(key, defaultValue, (LongConsumer) null);
+  }
+
+  public static IntegerSubscriber tunable(String key, long defaultValue, LongConsumer onChange) {
+    return tunable.create(key, defaultValue, onChange);
   }
 
   protected DogLog() {}

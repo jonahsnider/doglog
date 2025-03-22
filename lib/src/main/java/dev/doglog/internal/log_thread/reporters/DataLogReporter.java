@@ -57,6 +57,11 @@ public class DataLogReporter implements Reporter {
     this.logTable = logTable;
 
     setOptions(initialOptions);
+
+    // Capture tunable changes to the DataLog directly
+    // This is a special case since we don't want to re-log to NT
+    NetworkTableInstance.getDefault()
+        .startEntryDataLog(DataLogManager.getLog(), "/Tunable/", "Robot/Tunable/");
   }
 
   @Override
