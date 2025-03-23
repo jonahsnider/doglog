@@ -55,3 +55,51 @@ Here are some examples of how to change a tunable value using various popular FR
 - [AdvantageScope](https://docs.advantagescope.org/getting-started/connect-live/#tuning-mode)
 - [Elastic](https://frc-elastic.gitbook.io/docs/customizing-your-dashboard/adding-and-customizing-widgets)
 - [Glass](https://docs.wpilib.org/en/stable/docs/software/dashboards/glass/networktables-connection.html#viewing-networktables-entries)
+
+## Full example
+
+Here's a full example of how you can use tunable values to configure PID for a TalonFX without needing to redeploy code:
+
+```java {% title="src/main/java/frc/robot/TunablePid.java" %}
+package frc.robot;
+
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import dev.doglog.DogLog;
+
+public class TunablePid {
+
+	public static void create(String key, TalonFX motor, TalonFXConfiguration defaultConfig) {
+		DogLog.tunable(key + "/kP", defaultConfig.Slot0.kP, newP ->
+			motor.getConfigurator().apply(defaultConfig.Slot0.withKP(newP))
+		);
+		DogLog.tunable(key + "/kI", defaultConfig.Slot0.kI, newI ->
+			motor.getConfigurator().apply(defaultConfig.Slot0.withKI(newI))
+		);
+		DogLog.tunable(key + "/kD", defaultConfig.Slot0.kD, newD ->
+			motor.getConfigurator().apply(defaultConfig.Slot0.withKD(newD))
+		);
+		DogLog.tunable(key + "/kS", defaultConfig.Slot0.kS, newS ->
+			motor.getConfigurator().apply(defaultConfig.Slot0.withKS(newS))
+		);
+		DogLog.tunable(key + "/kV", defaultConfig.Slot0.kV, newV ->
+			motor.getConfigurator().apply(defaultConfig.Slot0.withKV(newV))
+		);
+		DogLog.tunable(key + "/kA", defaultConfig.Slot0.kA, newA ->
+			motor.getConfigurator().apply(defaultConfig.Slot0.withKA(newA))
+		);
+		DogLog.tunable(key + "/kG", defaultConfig.Slot0.kG, newG ->
+			motor.getConfigurator().apply(defaultConfig.Slot0.withKG(newG))
+		);
+	}
+
+	private TunablePid() {}
+}
+
+```
+
+You can use this `TunablePid` class like so:
+
+```java
+TunablePid.create("Elevator", elevatorMotor, new TalonFXConfiguration());
+```
