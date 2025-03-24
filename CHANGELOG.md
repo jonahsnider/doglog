@@ -1,5 +1,12 @@
 # Changelog
 
+## [2025.7.1](https://github.com/jonahsnider/doglog/compare/2025.7.0...2025.7.1) (2025-03-24)
+
+
+### Bug Fixes
+
+* fix options in Tunable being null until setOptions() is called ([bdb570f](https://github.com/jonahsnider/doglog/commit/bdb570f55f184f77a159ba2f7516db93a1f826a5))
+
 ## [2025.7.0](https://github.com/jonahsnider/doglog/compare/2025.6.0...2025.7.0) (2025-03-24)
 
 
