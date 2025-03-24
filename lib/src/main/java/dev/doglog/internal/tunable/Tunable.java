@@ -64,6 +64,7 @@ public class Tunable implements AutoCloseable {
 
   public Tunable(DogLogOptions initialOptions) {
     notifier.setName("DogLog tunable poller");
+    options = initialOptions;
     lastNtTunables = initialOptions.ntTunables().getAsBoolean();
   }
 
