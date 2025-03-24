@@ -1,5 +1,12 @@
 # Changelog
 
+## [2025.7.0](https://github.com/jonahsnider/doglog/compare/2025.6.0...2025.7.0) (2025-03-24)
+
+
+### Features
+
+* expose Subscriber interface in DogLog.tunable() ([2af286e](https://github.com/jonahsnider/doglog/commit/2af286e1b1fadae779ddf15b1f426806676a5b95))
+
 ## [2025.6.0](https://github.com/jonahsnider/doglog/compare/2025.5.0...2025.6.0) (2025-03-24)
 
 
