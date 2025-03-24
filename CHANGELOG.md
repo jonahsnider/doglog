@@ -1,5 +1,12 @@
 # Changelog
 
+## [2025.6.0](https://github.com/jonahsnider/doglog/compare/2025.5.0...2025.6.0) (2025-03-24)
+
+
+### Features
+
+* support disabling tunable values over NT ([#80](https://github.com/jonahsnider/doglog/issues/80)) ([4b7ccdd](https://github.com/jonahsnider/doglog/commit/4b7ccdd1a6dddeca9f26ea1dc0d1b498de0b76eb))
+
 ## [2025.5.0](https://github.com/jonahsnider/doglog/compare/2025.4.0...2025.5.0) (2025-03-22)
 
 
