@@ -10,22 +10,22 @@ import dev.doglog.internal.tunable.Tunable;
 import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
-import edu.wpi.first.networktables.BooleanEntry;
-import edu.wpi.first.networktables.DoubleEntry;
-import edu.wpi.first.networktables.FloatEntry;
-import edu.wpi.first.networktables.IntegerEntry;
-import edu.wpi.first.networktables.StringEntry;
 import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.util.function.FloatConsumer;
+import edu.wpi.first.util.function.FloatSupplier;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
+import java.util.function.DoubleSupplier;
 import java.util.function.LongConsumer;
+import java.util.function.LongSupplier;
+import java.util.function.Supplier;
 
 /** A logger based on WPILib's {@link DataLogManager} */
 public class DogLog {
@@ -43,7 +43,7 @@ public class DogLog {
   /** Whether the logger is enabled. */
   protected static boolean enabled = true;
 
-  protected static final Tunable tunable = new Tunable();
+  protected static final Tunable tunable = new Tunable(options);
 
   /** Get the options used by the logger. */
   public static DogLogOptions getOptions() {
@@ -70,6 +70,7 @@ public class DogLog {
     if (!oldOptions.equals(newOptions)) {
       System.out.println("[DogLog] Options changed: " + newOptions.toString());
       logger.setOptions(newOptions);
+      tunable.setOptions(newOptions);
     }
   }
 
@@ -371,9 +372,9 @@ public class DogLog {
    *
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
-   * @return The {@link DoubleEntry} used to interact with the tunable value.
+   * @return A {@link DoubleSupplier} used to retrieve the tunable value.
    */
-  public static DoubleEntry tunable(String key, double defaultValue) {
+  public static DoubleSupplier tunable(String key, double defaultValue) {
     return tunable(key, defaultValue, null);
   }
 
@@ -383,9 +384,9 @@ public class DogLog {
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
    * @param onChange A function to call when the tunable value changes.
-   * @return The {@link DoubleEntry} used to interact with the tunable value.
+   * @return A {@link DoubleSupplier} used to retrieve the tunable value.
    */
-  public static DoubleEntry tunable(String key, double defaultValue, DoubleConsumer onChange) {
+  public static DoubleSupplier tunable(String key, double defaultValue, DoubleConsumer onChange) {
     return tunable.create(key, defaultValue, onChange);
   }
 
@@ -394,9 +395,9 @@ public class DogLog {
    *
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
-   * @return The {@link DoubleEntry} used to interact with the tunable value.
+   * @return A {@link FloatSupplier} used to retrieve the tunable value.
    */
-  public static FloatEntry tunable(String key, float defaultValue) {
+  public static FloatSupplier tunable(String key, float defaultValue) {
     return tunable(key, defaultValue, (FloatConsumer) null);
   }
 
@@ -406,9 +407,9 @@ public class DogLog {
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
    * @param onChange A function to call when the tunable value changes.
-   * @return The {@link DoubleEntry} used to interact with the tunable value.
+   * @return A {@link FloatSupplier} used to retrieve the tunable value.
    */
-  public static FloatEntry tunable(String key, float defaultValue, FloatConsumer onChange) {
+  public static FloatSupplier tunable(String key, float defaultValue, FloatConsumer onChange) {
     return tunable.create(key, defaultValue, onChange);
   }
 
@@ -417,9 +418,9 @@ public class DogLog {
    *
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
-   * @return The {@link BooleanEntry} used to interact with the tunable value.
+   * @return A {@link BooleanSupplier} used to retrieve the tunable value.
    */
-  public static BooleanEntry tunable(String key, boolean defaultValue) {
+  public static BooleanSupplier tunable(String key, boolean defaultValue) {
     return tunable(key, defaultValue, null);
   }
 
@@ -429,9 +430,10 @@ public class DogLog {
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
    * @param onChange A function to call when the tunable value changes.
-   * @return The {@link BooleanEntry} used to interact with the tunable value.
+   * @return A {@link BooleanSupplier} used to retrieve the tunable value.
    */
-  public static BooleanEntry tunable(String key, boolean defaultValue, BooleanConsumer onChange) {
+  public static BooleanSupplier tunable(
+      String key, boolean defaultValue, BooleanConsumer onChange) {
     return tunable.create(key, defaultValue, onChange);
   }
 
@@ -440,9 +442,9 @@ public class DogLog {
    *
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
-   * @return The {@link StringEntry} used to interact with the tunable value.
+   * @return A {@link Supplier} used to retrieve the tunable value.
    */
-  public static StringEntry tunable(String key, String defaultValue) {
+  public static Supplier<String> tunable(String key, String defaultValue) {
     return tunable(key, defaultValue, null);
   }
 
@@ -452,9 +454,10 @@ public class DogLog {
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
    * @param onChange A function to call when the tunable value changes.
-   * @return The {@link StringEntry} used to interact with the tunable value.
+   * @return A {@link Supplier} used to retrieve the tunable value.
    */
-  public static StringEntry tunable(String key, String defaultValue, Consumer<String> onChange) {
+  public static Supplier<String> tunable(
+      String key, String defaultValue, Consumer<String> onChange) {
     return tunable.create(key, defaultValue, onChange);
   }
 
@@ -463,9 +466,9 @@ public class DogLog {
    *
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
-   * @return The {@link IntegerEntry} used to interact with the tunable value.
+   * @return A {@link LongSupplier} used to retrieve the tunable value.
    */
-  public static IntegerEntry tunable(String key, long defaultValue) {
+  public static LongSupplier tunable(String key, long defaultValue) {
     return tunable(key, defaultValue, (LongConsumer) null);
   }
 
@@ -475,9 +478,9 @@ public class DogLog {
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
    * @param onChange A function to call when the tunable value changes.
-   * @return The {@link IntegerEntry} used to interact with the tunable value.
+   * @return A {@link LongSupplier} used to retrieve the tunable value.
    */
-  public static IntegerEntry tunable(String key, long defaultValue, LongConsumer onChange) {
+  public static LongSupplier tunable(String key, long defaultValue, LongConsumer onChange) {
     return tunable.create(key, defaultValue, onChange);
   }
 

@@ -33,8 +33,15 @@ public record DogLogOptions(
     /** Whether console output should be saved to the log file. */
     boolean captureConsole,
     /** The maximum size of the log entry queue to use. */
-    int logEntryQueueCapacity) {
-  private static final BooleanSupplier DEFAULT_NT_PUBLISH = () -> !DriverStation.isFMSAttached();
+    int logEntryQueueCapacity,
+    /**
+     * A function that returns whether tunable values from NetworkTables should be used. Best
+     * practice is to have this disabled when you are at competitions, to make robot behavior more
+     * deterministic. The default behavior is to only use tunable values from NetworkTables when not
+     * connected to the FMS on a competition field.
+     */
+    BooleanSupplier ntTunables) {
+  private static final BooleanSupplier IS_NOT_ON_FMS = () -> !DriverStation.isFMSAttached();
 
   public static final double LOOP_PERIOD_SECONDS = 0.02;
 
@@ -48,7 +55,7 @@ public record DogLogOptions(
    */
   public DogLogOptions() {
     // Default options
-    this(DEFAULT_NT_PUBLISH, false, false, true, true, 1000);
+    this(IS_NOT_ON_FMS, false, false, true, true, 1000, IS_NOT_ON_FMS);
   }
 
   /**
@@ -70,7 +77,8 @@ public record DogLogOptions(
         captureDs(),
         logExtras(),
         captureConsole(),
-        logEntryQueueCapacity());
+        logEntryQueueCapacity(),
+        ntTunables());
   }
 
   /**
@@ -93,7 +101,8 @@ public record DogLogOptions(
         captureDs(),
         logExtras(),
         captureConsole(),
-        logEntryQueueCapacity());
+        logEntryQueueCapacity(),
+        ntTunables());
   }
 
   /**
@@ -114,7 +123,8 @@ public record DogLogOptions(
         captureDs(),
         logExtras(),
         captureConsole(),
-        logEntryQueueCapacity());
+        logEntryQueueCapacity(),
+        ntTunables());
   }
 
   /**
@@ -135,7 +145,8 @@ public record DogLogOptions(
         captureDs,
         logExtras(),
         captureConsole(),
-        logEntryQueueCapacity());
+        logEntryQueueCapacity(),
+        ntTunables());
   }
 
   /**
@@ -157,7 +168,8 @@ public record DogLogOptions(
         captureDs(),
         logExtras,
         captureConsole(),
-        logEntryQueueCapacity());
+        logEntryQueueCapacity(),
+        ntTunables());
   }
 
   /**
@@ -179,7 +191,8 @@ public record DogLogOptions(
         captureDs(),
         logExtras(),
         captureConsole(),
-        logEntryQueueCapacity);
+        logEntryQueueCapacity,
+        ntTunables());
   }
 
   /**
@@ -201,6 +214,54 @@ public record DogLogOptions(
         captureDs(),
         logExtras(),
         captureConsole,
-        logEntryQueueCapacity());
+        logEntryQueueCapacity(),
+        ntTunables());
+  }
+
+  /**
+   * Create a new options object, inheriting the configuration from this one, with {@link
+   * DogLogOptions#ntTunables} set to the provided value.
+   *
+   * <p>Example:
+   *
+   * <pre>DogLog.setOptions(new DogLogOptions().withUseTunableValues(true));
+   * </pre>
+   *
+   * @param ntTunables Whether tunable values should be read from NetworkTables.
+   * @return A new options object with {@link DogLogOptions#ntTunables} set to the provided value.
+   */
+  public DogLogOptions withNtTunables(boolean ntTunables) {
+    return new DogLogOptions(
+        ntPublish(),
+        captureNt(),
+        captureDs(),
+        logExtras(),
+        captureConsole(),
+        logEntryQueueCapacity(),
+        () -> ntTunables);
+  }
+
+  /**
+   * Create a new options object, inheriting the configuration from this one, with {@link
+   * DogLogOptions#ntTunables} set to the provided value.
+   *
+   * <p>Example:
+   *
+   * <pre>DogLog.setOptions(new DogLogOptions().withUseTunableValues(() -> true));
+   * </pre>
+   *
+   * @param ntTunables A function that returns whether tunable values should be read from
+   *     NetworkTables.
+   * @return A new options object with {@link DogLogOptions#ntTunables} set to the provided value.
+   */
+  public DogLogOptions withNtTunables(BooleanSupplier ntTunables) {
+    return new DogLogOptions(
+        ntPublish(),
+        captureNt(),
+        captureDs(),
+        logExtras(),
+        captureConsole(),
+        logEntryQueueCapacity(),
+        ntTunables);
   }
 }

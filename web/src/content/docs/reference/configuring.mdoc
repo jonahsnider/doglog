@@ -82,6 +82,28 @@ You can see the number of queued logs under the `Robot/DogLog/QueuedLogs` log ke
 DogLog.setOptions(new DogLogOptions().withLogEntryQueueCapacity(1000));
 ```
 
+### NetworkTables tunable values
+
+The `ntTunables` option controls whether NetworkTables will be used for [tunable values](/guides/tunable-values).
+
+Using tunable values over NetworkTables at competitions is risky, most likely you are better off using hardcoded values in your code.
+
+By default, DogLog will ignore tunable values published on NetworkTables if the robot is connected to the FMS on a competition field.
+
+{% tabs %}
+{% tabitem label="Static value" %}
+```java
+DogLog.setOptions(new DogLogOptions().withNtTunables(true));
+```
+{% /tabitem %}
+
+{% tabitem label="Dynamic value" %}
+```java
+DogLog.setOptions(new DogLogOptions().withNtTunables(() -> true));
+```
+{% /tabitem %}
+{% /tabs %}
+
 ## Logging PDH/PDP data
 
 When `logExtras` is enabled, DogLog can automatically log data from the PDP/PDH like battery voltage, device currents, etc.
