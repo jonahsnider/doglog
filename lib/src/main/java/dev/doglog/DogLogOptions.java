@@ -71,14 +71,7 @@ public record DogLogOptions(
    * @return A new options object with {@link DogLogOptions#ntPublish} set to the provided value.
    */
   public DogLogOptions withNtPublish(boolean ntPublish) {
-    return new DogLogOptions(
-        () -> ntPublish,
-        captureNt(),
-        captureDs(),
-        logExtras(),
-        captureConsole(),
-        logEntryQueueCapacity(),
-        ntTunables());
+    return withNtPublish(() -> ntPublish);
   }
 
   /**
@@ -97,12 +90,12 @@ public record DogLogOptions(
   public DogLogOptions withNtPublish(BooleanSupplier ntPublish) {
     return new DogLogOptions(
         ntPublish,
-        captureNt(),
-        captureDs(),
-        logExtras(),
-        captureConsole(),
-        logEntryQueueCapacity(),
-        ntTunables());
+        captureNt,
+        captureDs,
+        logExtras,
+        captureConsole,
+        logEntryQueueCapacity,
+        ntTunables);
   }
 
   /**
@@ -118,13 +111,13 @@ public record DogLogOptions(
    */
   public DogLogOptions withCaptureNt(boolean captureNt) {
     return new DogLogOptions(
-        ntPublish(),
+        ntPublish,
         captureNt,
-        captureDs(),
-        logExtras(),
-        captureConsole(),
-        logEntryQueueCapacity(),
-        ntTunables());
+        captureDs,
+        logExtras,
+        captureConsole,
+        logEntryQueueCapacity,
+        ntTunables);
   }
 
   /**
@@ -140,13 +133,13 @@ public record DogLogOptions(
    */
   public DogLogOptions withCaptureDs(boolean captureDs) {
     return new DogLogOptions(
-        ntPublish(),
-        captureNt(),
+        ntPublish,
+        captureNt,
         captureDs,
-        logExtras(),
-        captureConsole(),
-        logEntryQueueCapacity(),
-        ntTunables());
+        logExtras,
+        captureConsole,
+        logEntryQueueCapacity,
+        ntTunables);
   }
 
   /**
@@ -163,13 +156,13 @@ public record DogLogOptions(
    */
   public DogLogOptions withLogExtras(boolean logExtras) {
     return new DogLogOptions(
-        ntPublish(),
-        captureNt(),
-        captureDs(),
+        ntPublish,
+        captureNt,
+        captureDs,
         logExtras,
-        captureConsole(),
-        logEntryQueueCapacity(),
-        ntTunables());
+        captureConsole,
+        logEntryQueueCapacity,
+        ntTunables);
   }
 
   /**
@@ -186,13 +179,13 @@ public record DogLogOptions(
    */
   public DogLogOptions withLogEntryQueueCapacity(int logEntryQueueCapacity) {
     return new DogLogOptions(
-        ntPublish(),
-        captureNt(),
-        captureDs(),
-        logExtras(),
-        captureConsole(),
+        ntPublish,
+        captureNt,
+        captureDs,
+        logExtras,
+        captureConsole,
         logEntryQueueCapacity,
-        ntTunables());
+        ntTunables);
   }
 
   /**
@@ -209,13 +202,13 @@ public record DogLogOptions(
    */
   public DogLogOptions withCaptureConsole(boolean captureConsole) {
     return new DogLogOptions(
-        ntPublish(),
-        captureNt(),
-        captureDs(),
-        logExtras(),
+        ntPublish,
+        captureNt,
+        captureDs,
+        logExtras,
         captureConsole,
-        logEntryQueueCapacity(),
-        ntTunables());
+        logEntryQueueCapacity,
+        ntTunables);
   }
 
   /**
@@ -231,14 +224,7 @@ public record DogLogOptions(
    * @return A new options object with {@link DogLogOptions#ntTunables} set to the provided value.
    */
   public DogLogOptions withNtTunables(boolean ntTunables) {
-    return new DogLogOptions(
-        ntPublish(),
-        captureNt(),
-        captureDs(),
-        logExtras(),
-        captureConsole(),
-        logEntryQueueCapacity(),
-        () -> ntTunables);
+    return withNtTunables(() -> ntTunables);
   }
 
   /**
@@ -256,12 +242,12 @@ public record DogLogOptions(
    */
   public DogLogOptions withNtTunables(BooleanSupplier ntTunables) {
     return new DogLogOptions(
-        ntPublish(),
-        captureNt(),
-        captureDs(),
-        logExtras(),
-        captureConsole(),
-        logEntryQueueCapacity(),
+        ntPublish,
+        captureNt,
+        captureDs,
+        logExtras,
+        captureConsole,
+        logEntryQueueCapacity,
         ntTunables);
   }
 }
