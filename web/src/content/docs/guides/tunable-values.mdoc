@@ -29,6 +29,15 @@ tunableValue.get();
 
 Additionally, each NetworkTables entry type implements the relevant `Supplier` interface (ex. `Supplier<String>`, `DoubleSupplier`, etc.), allowing you to seamlessly integrate tunable values into existing code.
 
+### At competitions
+
+Tunable values are great for speeding up development at home, but at competitions it's best to avoid relying on NetworkTables for core robot functionality.
+By default, DogLog will ignore tunable values from NetworkTables when connected to the FMS on a competition field.
+
+You can customize this behavior with the [`ntTunables` option in `DogLogOptions`](/reference/configuring#networktables-tunable-values).
+
+When `ntTunables` is disabled, reading the value of a tunable will return the default value.
+
 ### On change callbacks
 
 In addition to periodically polling the latest value of a tunable, you can also register a consumer function to be called whenever the value changes.
