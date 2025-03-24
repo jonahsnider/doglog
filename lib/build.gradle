@@ -38,6 +38,8 @@ dependencies {
 	implementation 'edu.wpi.first.wpilibj:wpilibj-java:2025.+'
 	implementation 'edu.wpi.first.wpiutil:wpiutil-java:2025.+'
 	implementation 'edu.wpi.first.hal:hal-java:2025.+'
+	// https://central.sonatype.com/artifact/com.lmax/disruptor
+	implementation 'com.lmax:disruptor:4.0.0'
 }
 
 publishing {

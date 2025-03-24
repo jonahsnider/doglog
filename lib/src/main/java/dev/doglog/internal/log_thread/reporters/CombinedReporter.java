@@ -6,7 +6,6 @@ package dev.doglog.internal.log_thread.reporters;
 
 import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
-import dev.doglog.internal.log_thread.LogThread;
 import dev.doglog.internal.log_thread.StructRegistry;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.Struct;
@@ -223,7 +222,7 @@ public class CombinedReporter {
 
   /**
    * Runs code that may produce logs, and thus must be run once all DogLog init logic has been run.
-   * Using the {@link LogThread} start for this is a convenient way to run code at that point.
+   * Using the log thread start for this is a convenient way to run code at that point.
    */
   public void afterLogThreadStart() {
     if (!dataLogReporter.isLogDestinationValid()) {

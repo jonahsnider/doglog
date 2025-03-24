@@ -41,9 +41,9 @@ public record DogLogOptions(
      * connected to the FMS on a competition field.
      */
     BooleanSupplier ntTunables) {
-  private static final BooleanSupplier IS_NOT_ON_FMS = () -> !DriverStation.isFMSAttached();
-
   public static final double LOOP_PERIOD_SECONDS = 0.02;
+
+  private static final BooleanSupplier IS_NOT_ON_FMS = () -> !DriverStation.isFMSAttached();
 
   /**
    * Create a new options object using the default options. The default options are safe for a
@@ -55,7 +55,7 @@ public record DogLogOptions(
    */
   public DogLogOptions() {
     // Default options
-    this(IS_NOT_ON_FMS, false, false, true, true, 1000, IS_NOT_ON_FMS);
+    this(IS_NOT_ON_FMS, false, false, true, true, 1024, IS_NOT_ON_FMS);
   }
 
   /**
@@ -171,7 +171,7 @@ public record DogLogOptions(
    *
    * <p>Example:
    *
-   * <pre>DogLog.setOptions(new DogLogOptions().withLogEntryQueueCapacity(1000));</pre>
+   * <pre>DogLog.setOptions(new DogLogOptions().withLogEntryQueueCapacity(1024));</pre>
    *
    * @param logEntryQueueCapacity The size of the log message queue to use.
    * @return A new options object with {@link DogLogOptions#logEntryQueueCapacity} set to the

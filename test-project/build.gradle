@@ -72,6 +72,9 @@ dependencies {
 	testImplementation 'org.junit.jupiter:junit-jupiter:5.12.1'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+	// https://central.sonatype.com/artifact/com.lmax/disruptor
+	implementation 'com.lmax:disruptor:4.0.0'
+
 	implementation files('../lib/build/libs/doglog.jar')
 }
 
