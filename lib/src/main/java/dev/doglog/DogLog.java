@@ -10,22 +10,22 @@ import dev.doglog.internal.tunable.Tunable;
 import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
+import edu.wpi.first.networktables.BooleanSubscriber;
+import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.networktables.FloatSubscriber;
+import edu.wpi.first.networktables.IntegerSubscriber;
+import edu.wpi.first.networktables.StringSubscriber;
 import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.util.function.FloatConsumer;
-import edu.wpi.first.util.function.FloatSupplier;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
-import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
-import java.util.function.DoubleSupplier;
 import java.util.function.LongConsumer;
-import java.util.function.LongSupplier;
-import java.util.function.Supplier;
 
 /** A logger based on WPILib's {@link DataLogManager} */
 public class DogLog {
@@ -372,9 +372,9 @@ public class DogLog {
    *
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
-   * @return A {@link DoubleSupplier} used to retrieve the tunable value.
+   * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
    */
-  public static DoubleSupplier tunable(String key, double defaultValue) {
+  public static DoubleSubscriber tunable(String key, double defaultValue) {
     return tunable(key, defaultValue, null);
   }
 
@@ -384,9 +384,9 @@ public class DogLog {
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
    * @param onChange A function to call when the tunable value changes.
-   * @return A {@link DoubleSupplier} used to retrieve the tunable value.
+   * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
    */
-  public static DoubleSupplier tunable(String key, double defaultValue, DoubleConsumer onChange) {
+  public static DoubleSubscriber tunable(String key, double defaultValue, DoubleConsumer onChange) {
     return tunable.create(key, defaultValue, onChange);
   }
 
@@ -395,9 +395,9 @@ public class DogLog {
    *
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
-   * @return A {@link FloatSupplier} used to retrieve the tunable value.
+   * @return A {@link FloatSubscriber} used to retrieve the tunable value.
    */
-  public static FloatSupplier tunable(String key, float defaultValue) {
+  public static FloatSubscriber tunable(String key, float defaultValue) {
     return tunable(key, defaultValue, (FloatConsumer) null);
   }
 
@@ -407,9 +407,9 @@ public class DogLog {
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
    * @param onChange A function to call when the tunable value changes.
-   * @return A {@link FloatSupplier} used to retrieve the tunable value.
+   * @return A {@link FloatSubscriber} used to retrieve the tunable value.
    */
-  public static FloatSupplier tunable(String key, float defaultValue, FloatConsumer onChange) {
+  public static FloatSubscriber tunable(String key, float defaultValue, FloatConsumer onChange) {
     return tunable.create(key, defaultValue, onChange);
   }
 
@@ -418,9 +418,9 @@ public class DogLog {
    *
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
-   * @return A {@link BooleanSupplier} used to retrieve the tunable value.
+   * @return A {@link BooleanSubscriber} used to retrieve the tunable value.
    */
-  public static BooleanSupplier tunable(String key, boolean defaultValue) {
+  public static BooleanSubscriber tunable(String key, boolean defaultValue) {
     return tunable(key, defaultValue, null);
   }
 
@@ -430,9 +430,9 @@ public class DogLog {
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
    * @param onChange A function to call when the tunable value changes.
-   * @return A {@link BooleanSupplier} used to retrieve the tunable value.
+   * @return A {@link BooleanSubscriber} used to retrieve the tunable value.
    */
-  public static BooleanSupplier tunable(
+  public static BooleanSubscriber tunable(
       String key, boolean defaultValue, BooleanConsumer onChange) {
     return tunable.create(key, defaultValue, onChange);
   }
@@ -442,9 +442,9 @@ public class DogLog {
    *
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
-   * @return A {@link Supplier} used to retrieve the tunable value.
+   * @return A {@link StringSubscriber} used to retrieve the tunable value.
    */
-  public static Supplier<String> tunable(String key, String defaultValue) {
+  public static StringSubscriber tunable(String key, String defaultValue) {
     return tunable(key, defaultValue, null);
   }
 
@@ -454,9 +454,9 @@ public class DogLog {
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
    * @param onChange A function to call when the tunable value changes.
-   * @return A {@link Supplier} used to retrieve the tunable value.
+   * @return A {@link StringSubscriber} used to retrieve the tunable value.
    */
-  public static Supplier<String> tunable(
+  public static StringSubscriber tunable(
       String key, String defaultValue, Consumer<String> onChange) {
     return tunable.create(key, defaultValue, onChange);
   }
@@ -466,9 +466,9 @@ public class DogLog {
    *
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
-   * @return A {@link LongSupplier} used to retrieve the tunable value.
+   * @return An {@link IntegerSubscriber} used to retrieve the tunable value.
    */
-  public static LongSupplier tunable(String key, long defaultValue) {
+  public static IntegerSubscriber tunable(String key, long defaultValue) {
     return tunable(key, defaultValue, (LongConsumer) null);
   }
 
@@ -478,9 +478,9 @@ public class DogLog {
    * @param key The key for the tunable value.
    * @param defaultValue The default value for the tunable value.
    * @param onChange A function to call when the tunable value changes.
-   * @return A {@link LongSupplier} used to retrieve the tunable value.
+   * @return An {@link IntegerSubscriber} used to retrieve the tunable value.
    */
-  public static LongSupplier tunable(String key, long defaultValue, LongConsumer onChange) {
+  public static IntegerSubscriber tunable(String key, long defaultValue, LongConsumer onChange) {
     return tunable.create(key, defaultValue, onChange);
   }
 

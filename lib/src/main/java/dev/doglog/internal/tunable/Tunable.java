@@ -5,24 +5,34 @@
 package dev.doglog.internal.tunable;
 
 import dev.doglog.DogLogOptions;
+import dev.doglog.internal.tunable.entry.ToggleableBooleanSubscriber;
+import dev.doglog.internal.tunable.entry.ToggleableDoubleSubscriber;
+import dev.doglog.internal.tunable.entry.ToggleableFloatSubscriber;
+import dev.doglog.internal.tunable.entry.ToggleableIntegerSubscriber;
+import dev.doglog.internal.tunable.entry.ToggleableStringSubscriber;
+import dev.doglog.internal.tunable.on_change.BooleanOnChange;
+import dev.doglog.internal.tunable.on_change.DoubleOnChange;
+import dev.doglog.internal.tunable.on_change.FloatOnChange;
+import dev.doglog.internal.tunable.on_change.LongOnChange;
+import dev.doglog.internal.tunable.on_change.OnChange;
+import edu.wpi.first.networktables.BooleanSubscriber;
+import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.networktables.FloatSubscriber;
+import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEvent.Kind;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableListenerPoller;
+import edu.wpi.first.networktables.StringSubscriber;
 import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.util.function.FloatConsumer;
-import edu.wpi.first.util.function.FloatSupplier;
 import edu.wpi.first.wpilibj.Notifier;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
-import java.util.function.DoubleSupplier;
 import java.util.function.LongConsumer;
-import java.util.function.LongSupplier;
-import java.util.function.Supplier;
 
 public class Tunable implements AutoCloseable {
   private static final NetworkTable TUNABLE_TABLE =
@@ -61,7 +71,7 @@ public class Tunable implements AutoCloseable {
     options = newOptions;
   }
 
-  public DoubleSupplier create(String key, double defaultValue, DoubleConsumer onChange) {
+  public DoubleSubscriber create(String key, double defaultValue, DoubleConsumer onChange) {
     startNotifier();
     var entry = TUNABLE_TABLE.getDoubleTopic(key).getEntry(defaultValue);
 
@@ -72,10 +82,11 @@ public class Tunable implements AutoCloseable {
       doubleChangeCallbacks.put(listenerHandle, new DoubleOnChange(onChange, defaultValue));
     }
 
-    return wrapDoubleSuppler(entry, defaultValue);
+    return new ToggleableDoubleSubscriber(
+        entry, defaultValue, () -> options.ntTunables().getAsBoolean());
   }
 
-  public FloatSupplier create(String key, float defaultValue, FloatConsumer onChange) {
+  public FloatSubscriber create(String key, float defaultValue, FloatConsumer onChange) {
     startNotifier();
     var entry = TUNABLE_TABLE.getFloatTopic(key).getEntry(defaultValue);
 
@@ -86,10 +97,11 @@ public class Tunable implements AutoCloseable {
       floatChangeCallbacks.put(listenerHandle, new FloatOnChange(onChange, defaultValue));
     }
 
-    return wrapFloatSupplier(entry, defaultValue);
+    return new ToggleableFloatSubscriber(
+        entry, defaultValue, () -> options.ntTunables().getAsBoolean());
   }
 
-  public BooleanSupplier create(String key, boolean defaultValue, BooleanConsumer onChange) {
+  public BooleanSubscriber create(String key, boolean defaultValue, BooleanConsumer onChange) {
     startNotifier();
     var entry = TUNABLE_TABLE.getBooleanTopic(key).getEntry(defaultValue);
 
@@ -100,10 +112,11 @@ public class Tunable implements AutoCloseable {
       booleanChangeCallbacks.put(listenerHandle, new BooleanOnChange(onChange, defaultValue));
     }
 
-    return wrapBooleanSupplier(entry, defaultValue);
+    return new ToggleableBooleanSubscriber(
+        entry, defaultValue, () -> options.ntTunables().getAsBoolean());
   }
 
-  public Supplier<String> create(String key, String defaultValue, Consumer<String> onChange) {
+  public StringSubscriber create(String key, String defaultValue, Consumer<String> onChange) {
     startNotifier();
     var entry = TUNABLE_TABLE.getStringTopic(key).getEntry(defaultValue);
 
@@ -114,10 +127,11 @@ public class Tunable implements AutoCloseable {
       stringChangeCallbacks.put(listenerHandle, new OnChange<>(onChange, defaultValue));
     }
 
-    return wrapSupplier(entry, defaultValue);
+    return new ToggleableStringSubscriber(
+        entry, defaultValue, () -> options.ntTunables().getAsBoolean());
   }
 
-  public LongSupplier create(String key, long defaultValue, LongConsumer onChange) {
+  public IntegerSubscriber create(String key, long defaultValue, LongConsumer onChange) {
     startNotifier();
     var entry = TUNABLE_TABLE.getIntegerTopic(key).getEntry(defaultValue);
 
@@ -128,7 +142,8 @@ public class Tunable implements AutoCloseable {
       longChangeCallbacks.put(listenerHandle, new LongOnChange(onChange, defaultValue));
     }
 
-    return wrapLongSupplier(entry, defaultValue);
+    return new ToggleableIntegerSubscriber(
+        entry, defaultValue, () -> options.ntTunables().getAsBoolean());
   }
 
   @Override
@@ -199,25 +214,5 @@ public class Tunable implements AutoCloseable {
 
     notifierStarted = true;
     notifier.startPeriodic(DogLogOptions.LOOP_PERIOD_SECONDS);
-  }
-
-  private DoubleSupplier wrapDoubleSuppler(DoubleSupplier supplier, double defaultValue) {
-    return () -> options.ntTunables().getAsBoolean() ? supplier.getAsDouble() : defaultValue;
-  }
-
-  private FloatSupplier wrapFloatSupplier(FloatSupplier supplier, float defaultValue) {
-    return () -> options.ntTunables().getAsBoolean() ? supplier.getAsFloat() : defaultValue;
-  }
-
-  private BooleanSupplier wrapBooleanSupplier(BooleanSupplier supplier, boolean defaultValue) {
-    return () -> options.ntTunables().getAsBoolean() ? supplier.getAsBoolean() : defaultValue;
-  }
-
-  private <T> Supplier<T> wrapSupplier(Supplier<T> supplier, T defaultValue) {
-    return () -> options.ntTunables().getAsBoolean() ? supplier.get() : defaultValue;
-  }
-
-  private LongSupplier wrapLongSupplier(LongSupplier supplier, long defaultValue) {
-    return () -> options.ntTunables().getAsBoolean() ? supplier.getAsLong() : defaultValue;
   }
 }

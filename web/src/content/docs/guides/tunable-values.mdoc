@@ -15,7 +15,7 @@ private final DoubleEntry voltage = DogLog.tunable("Intake/Voltage", 4.5);
 
 ```
 
-Creating a tunable value will return a `Supplier` used for accessing the tunable value.
+Creating a tunable value will return a NetworkTables `Subscriber` used for accessing the tunable value.
 
 Once a tunable value is created, DogLog will continuously log its value to the `Robot/Tunable/` table in the robot DataLog.
 
@@ -24,9 +24,7 @@ Once a tunable value is created, DogLog will continuously log its value to the `
 Once you've created a tunable value, you can read the value from the NetworkTables entry like so:
 
 ```java
-tunableDouble.getAsDouble();
-tunableString.get();
-tunableBoolean.getAsBoolean();
+tunable.get();
 ```
 
 ### At competitions
@@ -43,7 +41,7 @@ When `ntTunables` is disabled, reading the value of a tunable will return the de
 In addition to periodically polling the latest value of a tunable, you can also register a consumer function to be called whenever the value changes.
 
 ```java
-private final DoubleSupplier voltage = DogLog.tunable("Intake/Voltage", 4, newVoltage -> {
+private final DoubleSubscriber voltage = DogLog.tunable("Intake/Voltage", 4, newVoltage -> {
 	motor.setVoltage(newVoltage);
 });
 
