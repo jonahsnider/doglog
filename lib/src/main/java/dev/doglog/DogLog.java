@@ -391,7 +391,7 @@ public class DogLog {
    * @param command The command to wrap.
    * @see DogLog#time(String, Command)
    */
-  public Command time(String key, Command command) {
+  public static Command time(String key, Command command) {
     return Commands.sequence(
             Commands.runOnce(() -> time(key)), command, Commands.runOnce(() -> timeEnd(key)))
         .withName("Timed" + command.getName());
