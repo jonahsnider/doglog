@@ -17,3 +17,18 @@ DogLog.timestamp("MyClass/MyFunction");
 
 Because timestamps are unique & monotonically increasing, you can graph the value of the logged timestamp.
 Each step in the graph represents one time the function was called, making it easier to answer questions like "when is this function being called?".
+
+## Tracking execution time
+
+A common use case for logging is to track how long a subsystem, command, or function takes to execute.
+DogLog makes this easy with the `DogLog.time()` and `DogLog.timeEnd()` functions.
+
+```java
+// Start the timer
+DogLog.time("MyClass/MyFunction");
+
+myClass.myFunction();
+
+// Stop the timer and log the recorded duration
+DogLog.timeEnd("MyClass/MyFunction");
+```

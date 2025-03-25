@@ -4,6 +4,7 @@
 
 package dev.doglog;
 
+import dev.doglog.internal.EpochLogger;
 import dev.doglog.internal.FaultLogger;
 import dev.doglog.internal.LogQueuer;
 import dev.doglog.internal.tunable.Tunable;
@@ -44,6 +45,8 @@ public class DogLog {
   protected static boolean enabled = true;
 
   protected static final Tunable tunable = new Tunable(options);
+
+  protected static final EpochLogger epochLogger = new EpochLogger(logger);
 
   /** Get the options used by the logger. */
   public static DogLogOptions getOptions() {
@@ -365,6 +368,28 @@ public class DogLog {
    */
   public static void timestamp(String key) {
     log(key, Timer.getFPGATimestamp());
+  }
+
+  /**
+   * Start a timer to track how long an operation takes to execute. When you call {@link
+   * #timeEnd(String)} the duration of the operation in seconds will be logged to the specified key.
+   *
+   * @param key The key to start the timer for.
+   * @see DogLog#timeEnd(String)
+   */
+  public static void time(String key) {
+    epochLogger.time(key, HALUtil.getFPGATime());
+  }
+
+  /**
+   * Stop a timer started with {@link #time(String)} and log the duration in seconds to the
+   * specified key.
+   *
+   * @param key The key to stop the timer for.
+   * @see DogLog#time(String)
+   */
+  public static void timeEnd(String key) {
+    epochLogger.timeEnd(key, HALUtil.getFPGATime());
   }
 
   /**

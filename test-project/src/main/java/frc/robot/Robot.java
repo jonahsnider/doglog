@@ -34,7 +34,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
+    DogLog.time("CommandSchedulerExecutionSec");
     CommandScheduler.getInstance().run();
+    DogLog.timeEnd("CommandSchedulerExecutionSec");
 
     DogLog.log("Debug/SwerveState", new SwerveModuleState());
     DogLog.log(
