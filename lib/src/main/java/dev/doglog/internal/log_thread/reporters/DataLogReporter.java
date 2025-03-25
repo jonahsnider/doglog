@@ -29,6 +29,8 @@ import java.util.Map;
 
 /** Logs to a WPILib {@link DataLog}. */
 public class DataLogReporter implements Reporter {
+  private static final String ENTRY_METADATA = "{\"source\":\"DogLog\"}";
+
   /** The directory path when logging to the flash storage on a roboRIO 1. */
   private static final String RIO1_DISK_LOG_DIR = "/home/lvuser/logs";
 
@@ -65,56 +67,62 @@ public class DataLogReporter implements Reporter {
   @Override
   public void log(long timestamp, String key, boolean[] value) {
     booleanArrayLogs
-        .computeIfAbsent(key, k -> new BooleanArrayLogEntry(log, prefixKey(k), timestamp))
+        .computeIfAbsent(
+            key, k -> new BooleanArrayLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
         .update(value, timestamp);
   }
 
   @Override
   public void log(long timestamp, String key, boolean value) {
     booleanLogs
-        .computeIfAbsent(key, k -> new BooleanLogEntry(log, prefixKey(k), timestamp))
+        .computeIfAbsent(
+            key, k -> new BooleanLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
         .update(value, timestamp);
   }
 
   @Override
   public void log(long timestamp, String key, double[] value) {
     doubleArrayLogs
-        .computeIfAbsent(key, k -> new DoubleArrayLogEntry(log, prefixKey(k), timestamp))
+        .computeIfAbsent(
+            key, k -> new DoubleArrayLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
         .update(value, timestamp);
   }
 
   @Override
   public void log(long timestamp, String key, double value) {
     doubleLogs
-        .computeIfAbsent(key, k -> new DoubleLogEntry(log, prefixKey(k), timestamp))
+        .computeIfAbsent(key, k -> new DoubleLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
         .update(value, timestamp);
   }
 
   @Override
   public void log(long timestamp, String key, float[] value) {
     floatArrayLogs
-        .computeIfAbsent(key, k -> new FloatArrayLogEntry(log, prefixKey(k), timestamp))
+        .computeIfAbsent(
+            key, k -> new FloatArrayLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
         .update(value, timestamp);
   }
 
   @Override
   public void log(long timestamp, String key, float value) {
     floatLogs
-        .computeIfAbsent(key, k -> new FloatLogEntry(log, prefixKey(k), timestamp))
+        .computeIfAbsent(key, k -> new FloatLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
         .update(value, timestamp);
   }
 
   @Override
   public void log(long timestamp, String key, long[] value) {
     integerArrayLogs
-        .computeIfAbsent(key, k -> new IntegerArrayLogEntry(log, prefixKey(k), timestamp))
+        .computeIfAbsent(
+            key, k -> new IntegerArrayLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
         .update(value, timestamp);
   }
 
   @Override
   public void log(long timestamp, String key, long value) {
     integerLogs
-        .computeIfAbsent(key, k -> new IntegerLogEntry(log, prefixKey(k), timestamp))
+        .computeIfAbsent(
+            key, k -> new IntegerLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
         .update(value, timestamp);
   }
 
@@ -123,14 +131,15 @@ public class DataLogReporter implements Reporter {
   @Override
   public void log(long timestamp, String key, String[] value) {
     stringArrayLogs
-        .computeIfAbsent(key, k -> new StringArrayLogEntry(log, prefixKey(k), timestamp))
+        .computeIfAbsent(
+            key, k -> new StringArrayLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
         .update(value, timestamp);
   }
 
   @Override
   public void log(long timestamp, String key, String value) {
     stringLogs
-        .computeIfAbsent(key, k -> new StringLogEntry(log, prefixKey(k), timestamp))
+        .computeIfAbsent(key, k -> new StringLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
         .update(value, timestamp);
   }
 
@@ -138,7 +147,8 @@ public class DataLogReporter implements Reporter {
   public void log(long timestamp, String key, String value, String customTypeString) {
     stringLogs
         .computeIfAbsent(
-            key, k -> new StringLogEntry(log, prefixKey(k), "", customTypeString, timestamp))
+            key,
+            k -> new StringLogEntry(log, prefixKey(k), ENTRY_METADATA, customTypeString, timestamp))
         .update(value, timestamp);
   }
 
@@ -148,7 +158,10 @@ public class DataLogReporter implements Reporter {
     var entry =
         (StructArrayLogEntry<T>)
             structArrayLogs.computeIfAbsent(
-                key, k -> StructArrayLogEntry.create(log, prefixKey(k), struct, timestamp));
+                key,
+                k ->
+                    StructArrayLogEntry.create(
+                        log, prefixKey(k), struct, ENTRY_METADATA, timestamp));
 
     entry.update(value, timestamp);
   }
@@ -159,7 +172,8 @@ public class DataLogReporter implements Reporter {
     var entry =
         (StructLogEntry<T>)
             structLogs.computeIfAbsent(
-                key, k -> StructLogEntry.create(log, prefixKey(k), struct, timestamp));
+                key,
+                k -> StructLogEntry.create(log, prefixKey(k), struct, ENTRY_METADATA, timestamp));
 
     entry.update(value, timestamp);
   }
