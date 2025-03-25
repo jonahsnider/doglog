@@ -71,7 +71,7 @@ public class ToggleableBooleanSubscriber implements BooleanSubscriber {
 
   @Override
   public long getLastChange() {
-    return getLastChange();
+    return subscriber.getLastChange();
   }
 
   @Override

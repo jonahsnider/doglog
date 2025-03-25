@@ -71,7 +71,7 @@ public class ToggleableStringSubscriber implements StringSubscriber {
 
   @Override
   public long getLastChange() {
-    return getLastChange();
+    return subscriber.getLastChange();
   }
 
   @Override

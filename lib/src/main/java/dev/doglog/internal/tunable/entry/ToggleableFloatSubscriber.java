@@ -71,7 +71,7 @@ public class ToggleableFloatSubscriber implements FloatSubscriber {
 
   @Override
   public long getLastChange() {
-    return getLastChange();
+    return subscriber.getLastChange();
   }
 
   @Override

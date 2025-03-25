@@ -71,7 +71,7 @@ public class ToggleableIntegerSubscriber implements IntegerSubscriber {
 
   @Override
   public long getLastChange() {
-    return getLastChange();
+    return subscriber.getLastChange();
   }
 
   @Override

@@ -71,7 +71,7 @@ public class ToggleableDoubleSubscriber implements DoubleSubscriber {
 
   @Override
   public long getLastChange() {
-    return getLastChange();
+    return subscriber.getLastChange();
   }
 
   @Override
