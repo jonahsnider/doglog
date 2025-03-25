@@ -1,5 +1,12 @@
 # Changelog
 
+## [2025.8.1](https://github.com/jonahsnider/doglog/compare/2025.8.0...2025.8.1) (2025-03-25)
+
+
+### Bug Fixes
+
+* make DogLog.time() for commands static ([6c5064b](https://github.com/jonahsnider/doglog/commit/6c5064b0378bfcee5d0babbc83b576af83044518))
+
 ## [2025.8.0](https://github.com/jonahsnider/doglog/compare/2025.7.1...2025.8.0) (2025-03-25)
 
 
