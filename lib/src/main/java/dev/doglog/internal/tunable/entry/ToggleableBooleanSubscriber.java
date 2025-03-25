@@ -50,13 +50,13 @@ public class ToggleableBooleanSubscriber implements BooleanSubscriber {
   }
 
   @Override
-  public TimestampedBoolean[] readQueue() {
-    return subscriber.readQueue();
+  public TimestampedBoolean getAtomic(boolean defaultValue) {
+    return subscriber.getAtomic(defaultValue);
   }
 
   @Override
-  public TimestampedBoolean getAtomic(boolean defaultValue) {
-    return subscriber.getAtomic(defaultValue);
+  public TimestampedBoolean[] readQueue() {
+    return subscriber.readQueue();
   }
 
   @Override

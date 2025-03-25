@@ -50,13 +50,13 @@ public class ToggleableIntegerSubscriber implements IntegerSubscriber {
   }
 
   @Override
-  public TimestampedInteger[] readQueue() {
-    return subscriber.readQueue();
+  public TimestampedInteger getAtomic(long defaultValue) {
+    return subscriber.getAtomic(defaultValue);
   }
 
   @Override
-  public TimestampedInteger getAtomic(long defaultValue) {
-    return subscriber.getAtomic(defaultValue);
+  public TimestampedInteger[] readQueue() {
+    return subscriber.readQueue();
   }
 
   @Override

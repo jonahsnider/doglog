@@ -50,13 +50,13 @@ public class ToggleableDoubleSubscriber implements DoubleSubscriber {
   }
 
   @Override
-  public TimestampedDouble[] readQueue() {
-    return subscriber.readQueue();
+  public TimestampedDouble getAtomic(double defaultValue) {
+    return subscriber.getAtomic(defaultValue);
   }
 
   @Override
-  public TimestampedDouble getAtomic(double defaultValue) {
-    return subscriber.getAtomic(defaultValue);
+  public TimestampedDouble[] readQueue() {
+    return subscriber.readQueue();
   }
 
   @Override

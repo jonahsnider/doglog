@@ -50,13 +50,13 @@ public class ToggleableStringSubscriber implements StringSubscriber {
   }
 
   @Override
-  public TimestampedString[] readQueue() {
-    return subscriber.readQueue();
+  public TimestampedString getAtomic(String defaultValue) {
+    return subscriber.getAtomic(defaultValue);
   }
 
   @Override
-  public TimestampedString getAtomic(String defaultValue) {
-    return subscriber.getAtomic(defaultValue);
+  public TimestampedString[] readQueue() {
+    return subscriber.readQueue();
   }
 
   @Override

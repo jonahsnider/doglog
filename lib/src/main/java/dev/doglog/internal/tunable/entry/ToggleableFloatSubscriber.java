@@ -50,13 +50,13 @@ public class ToggleableFloatSubscriber implements FloatSubscriber {
   }
 
   @Override
-  public TimestampedFloat[] readQueue() {
-    return subscriber.readQueue();
+  public TimestampedFloat getAtomic(float defaultValue) {
+    return subscriber.getAtomic(defaultValue);
   }
 
   @Override
-  public TimestampedFloat getAtomic(float defaultValue) {
-    return subscriber.getAtomic(defaultValue);
+  public TimestampedFloat[] readQueue() {
+    return subscriber.readQueue();
   }
 
   @Override
