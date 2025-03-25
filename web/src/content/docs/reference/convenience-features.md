@@ -32,3 +32,11 @@ myClass.myFunction();
 // Stop the timer and log the recorded duration
 DogLog.timeEnd("MyClass/MyFunction");
 ```
+
+### Tracking command execution
+
+DogLog includes a helper function that wraps a command with calls to `DogLog.time()` and `DogLog.timeEnd()` to track how long a command takes to execute.
+
+```java
+var timedCommand = DogLog.time("MyClass/MyCommand", myClass.myCommand());
+```

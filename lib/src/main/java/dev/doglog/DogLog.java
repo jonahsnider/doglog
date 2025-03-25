@@ -24,6 +24,8 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.LongConsumer;
@@ -390,6 +392,20 @@ public class DogLog {
    */
   public static void timeEnd(String key) {
     epochLogger.timeEnd(key, HALUtil.getFPGATime());
+  }
+
+  /**
+   * Wraps a {@link Command} with a timer that records how long the command runs. The command name
+   * will be copied with a prefix of "Timed".
+   *
+   * @param key The key to log the duration of the command to.
+   * @param command The command to wrap.
+   * @see DogLog#time(String, Command)
+   */
+  public Command time(String key, Command command) {
+    return Commands.sequence(
+            Commands.runOnce(() -> time(key)), command, Commands.runOnce(() -> timeEnd(key)))
+        .withName("Timed" + command.getName());
   }
 
   /**
