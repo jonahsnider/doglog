@@ -27,6 +27,9 @@ import java.util.Map;
 
 /** Logs to NetworkTables. */
 public class NetworkTablesReporter implements AutoCloseable, Reporter {
+  private static final String PROPERTY_SOURCE_NAME = "source";
+  private static final String PROPERTY_SOURCE_VALUE = "\"DogLog\"";
+
   private static final PubSubOption PUB_SUB_OPTIONS = PubSubOption.sendAll(true);
 
   private final NetworkTable logTable;
@@ -52,102 +55,201 @@ public class NetworkTablesReporter implements AutoCloseable, Reporter {
 
   @Override
   public void log(long timestamp, String key, boolean[] value) {
-    booleanArrayPublishers
-        .computeIfAbsent(key, k -> logTable.getBooleanArrayTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value, timestamp);
+    var publisher = booleanArrayPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getBooleanArrayTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      booleanArrayPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
   }
 
   @Override
   public void log(long timestamp, String key, boolean value) {
-    booleanPublishers
-        .computeIfAbsent(key, k -> logTable.getBooleanTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value, timestamp);
+    var publisher = booleanPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getBooleanTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      booleanPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
   }
 
   @Override
   public void log(long timestamp, String key, double[] value) {
-    doubleArrayPublishers
-        .computeIfAbsent(key, k -> logTable.getDoubleArrayTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value, timestamp);
+    var publisher = doubleArrayPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getDoubleArrayTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      doubleArrayPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
   }
 
   @Override
   public void log(long timestamp, String key, double value) {
-    doublePublishers
-        .computeIfAbsent(key, k -> logTable.getDoubleTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value, timestamp);
+    var publisher = doublePublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getDoubleTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      doublePublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
   }
 
   @Override
   public void log(long timestamp, String key, float[] value) {
-    floatArrayPublishers
-        .computeIfAbsent(key, k -> logTable.getFloatArrayTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value, timestamp);
+    var publisher = floatArrayPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getFloatArrayTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      floatArrayPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
   }
 
   @Override
   public void log(long timestamp, String key, float value) {
-    floatPublishers
-        .computeIfAbsent(key, k -> logTable.getFloatTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value, timestamp);
+    var publisher = floatPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getFloatTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      floatPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
   }
 
   @Override
   public void log(long timestamp, String key, long[] value) {
-    integerArrayPublishers
-        .computeIfAbsent(key, k -> logTable.getIntegerArrayTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value, timestamp);
+    var publisher = integerArrayPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getIntegerArrayTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      integerArrayPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
   }
 
   @Override
   public void log(long timestamp, String key, long value) {
-    integerPublishers
-        .computeIfAbsent(key, k -> logTable.getIntegerTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value, timestamp);
+    var publisher = integerPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getIntegerTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      integerPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
   }
 
   // TODO: Raw logs
 
   @Override
   public void log(long timestamp, String key, String[] value) {
-    stringArrayPublishers
-        .computeIfAbsent(key, k -> logTable.getStringArrayTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value, timestamp);
+    var publisher = stringArrayPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getStringArrayTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      stringArrayPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
   }
 
   @Override
   public void log(long timestamp, String key, String value) {
-    stringPublishers
-        .computeIfAbsent(key, k -> logTable.getStringTopic(k).publish(PUB_SUB_OPTIONS))
-        .set(value, timestamp);
+    var publisher = stringPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getStringTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      stringPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
   }
 
   @Override
   public void log(long timestamp, String key, String value, String customTypeString) {
-    customStringPublishers
-        .computeIfAbsent(
-            key, k -> logTable.getTopic(k).genericPublish(customTypeString, PUB_SUB_OPTIONS))
-        .setString(value, timestamp);
+    var publisher = customStringPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getTopic(key);
+      var newPublisher = topic.genericPublish(customTypeString, PUB_SUB_OPTIONS);
+      newPublisher.setString(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      customStringPublishers.put(key, newPublisher);
+    } else {
+      publisher.setString(value, timestamp);
+    }
   }
 
   @Override
   public <T> void log(long timestamp, String key, Struct<T> struct, T[] value) {
     @SuppressWarnings("unchecked")
-    var publisher =
-        (StructArrayPublisher<T>)
-            structArrayPublishers.computeIfAbsent(
-                key, k -> logTable.getStructArrayTopic(k, struct).publish(PUB_SUB_OPTIONS));
-    publisher.set(value, timestamp);
+    var publisher = (StructArrayPublisher<T>) structArrayPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getStructArrayTopic(key, struct);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      structArrayPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
   }
 
   @Override
   public <T> void log(long timestamp, String key, Struct<T> struct, T value) {
     @SuppressWarnings("unchecked")
-    var publisher =
-        (StructPublisher<T>)
-            structPublishers.computeIfAbsent(
-                key, k -> logTable.getStructTopic(k, struct).publish(PUB_SUB_OPTIONS));
-    publisher.set(value, timestamp);
+    var publisher = (StructPublisher<T>) structPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getStructTopic(key, struct);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      structPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
   }
 
   @Override
