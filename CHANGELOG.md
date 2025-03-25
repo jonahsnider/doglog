@@ -1,5 +1,22 @@
 # Changelog
 
+## [2025.8.0](https://github.com/jonahsnider/doglog/compare/2025.7.1...2025.8.0) (2025-03-25)
+
+
+### Features
+
+* add DogLog.time() and DogLog.timeEnd() ([dec65f3](https://github.com/jonahsnider/doglog/commit/dec65f313382fcfcd67095bef13d6433b08dcbbf))
+* add DogLog.time() overload for timing commands ([10deabc](https://github.com/jonahsnider/doglog/commit/10deabc75ca950994172218ab0e1cfb66327854a))
+* mark DogLog as source in DataLog entry metadata ([0dff3d2](https://github.com/jonahsnider/doglog/commit/0dff3d2bf8e60445bc6d087f055fa98dbbe3a9c4))
+* mark DogLog as source in NetworkTables topic properties ([224fc37](https://github.com/jonahsnider/doglog/commit/224fc375148563fa9746f45290bf882c46590944))
+
+
+### Bug Fixes
+
+* fix incorrect implementation of getLastChange() in toggleable subscriber classes ([a2eb98d](https://github.com/jonahsnider/doglog/commit/a2eb98d783335b236a0bb8e8d7380c6cd8f6b6e1))
+* fix onChange logic for tunables when repeatedly toggling ntTunables ([714ebbe](https://github.com/jonahsnider/doglog/commit/714ebbec6a58f5ff0228bf327b8d764a0d15d0d4))
+* synchronize DataLog entry timestamp with value update timestamp ([a9a82c7](https://github.com/jonahsnider/doglog/commit/a9a82c72dd130f87b8c1e00abf4d35d95f1cebb1))
+
 ## [2025.7.1](https://github.com/jonahsnider/doglog/compare/2025.7.0...2025.7.1) (2025-03-24)
 
 
