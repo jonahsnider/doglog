@@ -36,14 +36,17 @@ jobs:
       - name: Enable Corepack
         # Required due to a limitation in setup-node https://github.com/actions/setup-node/issues/480#issuecomment-1820622085
         run: corepack enable
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
           cache: "yarn"
           cache-dependency-path: ./web/yarn.lock
+
       - name: Install docs dependencies
         run: yarn install --immutable
+        working-directory: web
 
       - name: Format library with Spotless
         run: ./gradlew spotlessApply
