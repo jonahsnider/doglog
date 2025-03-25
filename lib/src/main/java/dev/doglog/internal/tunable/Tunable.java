@@ -157,55 +157,52 @@ public class Tunable implements AutoCloseable {
     var changes = poller.readQueue();
 
     var currentNtTunables = options.ntTunables().getAsBoolean();
-    if (!currentNtTunables) {
-      // NT tunables are disabled
 
-      if (lastNtTunables) {
-        // This is the first time we have disabled NT tunables, emit a change event with the default
-        // values
+    if (currentNtTunables) {
+      // NT tunables are enabled
 
-        doubleChangeCallbacks.values().forEach(DoubleOnChange::acceptDefault);
-        floatChangeCallbacks.values().forEach(FloatOnChange::acceptDefault);
-        booleanChangeCallbacks.values().forEach(BooleanOnChange::acceptDefault);
-        stringChangeCallbacks.values().forEach(OnChange::acceptDefault);
-        longChangeCallbacks.values().forEach(LongOnChange::acceptDefault);
+      for (var change : changes) {
+        switch (change.valueData.value.getType()) {
+          case kDouble ->
+              doubleChangeCallbacks
+                  .get(change.listener)
+                  .onChange()
+                  .accept(change.valueData.value.getDouble());
+          case kFloat ->
+              floatChangeCallbacks
+                  .get(change.listener)
+                  .onChange()
+                  .accept(change.valueData.value.getFloat());
+          case kBoolean ->
+              booleanChangeCallbacks
+                  .get(change.listener)
+                  .onChange()
+                  .accept(change.valueData.value.getBoolean());
+          case kString ->
+              stringChangeCallbacks
+                  .get(change.listener)
+                  .onChange()
+                  .accept(change.valueData.value.getString());
+          case kInteger ->
+              longChangeCallbacks
+                  .get(change.listener)
+                  .onChange()
+                  .accept(change.valueData.value.getInteger());
+          default -> {}
+        }
       }
+    } else if (lastNtTunables) {
+      // This is the first time we have disabled NT tunables, emit a change event with the default
+      // values
 
-      lastNtTunables = currentNtTunables;
-
-      return;
+      doubleChangeCallbacks.values().forEach(DoubleOnChange::acceptDefault);
+      floatChangeCallbacks.values().forEach(FloatOnChange::acceptDefault);
+      booleanChangeCallbacks.values().forEach(BooleanOnChange::acceptDefault);
+      stringChangeCallbacks.values().forEach(OnChange::acceptDefault);
+      longChangeCallbacks.values().forEach(LongOnChange::acceptDefault);
     }
 
-    for (var change : changes) {
-      switch (change.valueData.value.getType()) {
-        case kDouble ->
-            doubleChangeCallbacks
-                .get(change.listener)
-                .onChange()
-                .accept(change.valueData.value.getDouble());
-        case kFloat ->
-            floatChangeCallbacks
-                .get(change.listener)
-                .onChange()
-                .accept(change.valueData.value.getFloat());
-        case kBoolean ->
-            booleanChangeCallbacks
-                .get(change.listener)
-                .onChange()
-                .accept(change.valueData.value.getBoolean());
-        case kString ->
-            stringChangeCallbacks
-                .get(change.listener)
-                .onChange()
-                .accept(change.valueData.value.getString());
-        case kInteger ->
-            longChangeCallbacks
-                .get(change.listener)
-                .onChange()
-                .accept(change.valueData.value.getInteger());
-        default -> {}
-      }
-    }
+    lastNtTunables = currentNtTunables;
   }
 
   private void startNotifier() {
