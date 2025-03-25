@@ -33,6 +33,18 @@ jobs:
             lib/*.gradle*
             test-project/*.gradle*
 
+      - name: Fix Error Prone issues
+        run: ./gradlew assemble
+        env:
+          ERRORPRONE_AUTOFIX: 1
+
+      - name: Format library with Spotless
+        run: ./gradlew spotlessApply
+
+      - name: Format test project with Spotless
+        run: ./gradlew spotlessApply
+        working-directory: test-project
+
       - name: Enable Corepack
         # Required due to a limitation in setup-node https://github.com/actions/setup-node/issues/480#issuecomment-1820622085
         run: corepack enable
@@ -48,21 +60,9 @@ jobs:
         run: yarn install --immutable
         working-directory: web
 
-      - name: Format library with Spotless
-        run: ./gradlew spotlessApply
-
-      - name: Format test project with Spotless
-        run: ./gradlew spotlessApply
-        working-directory: test-project
-
       - name: Format docs with Prettier
         run: yarn run format:write
         working-directory: web
-
-      - name: Fix Error Prone issues
-        run: ./gradlew assemble
-        env:
-          ERRORPRONE_AUTOFIX: 1
 
       - name: Run autofix.ci
         uses: autofix-ci/action@551dded8c6cc8a1054039c8bc0b8b48c51dfc6ef
