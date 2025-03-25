@@ -379,8 +379,7 @@ public class DogLog {
    * @param key The key to start the timer for.
    * @see DogLog#timeEnd(String)
    */
-  
-public static void time(String key) {
+  public static void time(String key) {
     epochLogger.time(key, HALUtil.getFPGATime());
   }
 
@@ -397,7 +396,6 @@ public static void time(String key) {
             Commands.runOnce(() -> time(key)), command, Commands.runOnce(() -> timeEnd(key)))
         .withName("Timed" + command.getName());
   }
-
 
   /**
    * Stop a timer started with {@link #time(String)} and log the duration in seconds to the
