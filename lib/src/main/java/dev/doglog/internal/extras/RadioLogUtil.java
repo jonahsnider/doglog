@@ -36,7 +36,9 @@ class RadioLogUtil {
 
       radioLogResult.isConnected = true;
       radioLogResult.statusJson = response.body();
-    } catch (Exception e) {
+    } catch (
+        @SuppressWarnings("InterruptedExceptionSwallowed")
+        Exception e) {
       radioLogResult.isConnected = false;
       radioLogResult.statusJson = "";
     }

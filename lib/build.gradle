@@ -12,6 +12,7 @@ plugins {
 	id "com.diffplug.spotless" version "7.0.2"
 	id 'edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin' version '2025.0'
 	id 'maven-publish'
+	id "net.ltgt.errorprone" version "4.1.0"
 }
 
 archivesBaseName = 'doglog'
@@ -19,6 +20,16 @@ archivesBaseName = 'doglog'
 tasks.withType(Javadoc) {
 	options {
 		docTitle = "DogLog Javadoc"
+	}
+}
+
+// Error Prone configs
+tasks.withType(JavaCompile).configureEach {
+	options.errorprone.disable("InlineMeSuggester", "ImmutableEnumChecker", "Var", "BooleanParameter", "Java7ApiChecker", "Java8ApiChecker", "AndroidJdkLibsChecker", "ImmutableMemberCollection", "ReturnMissingNullable", "FieldMissingNullable", "ParameterMissingNullable", "EqualsMissingNullable")
+
+	// Set the ERRORPRONE_AUTOFIX environment variable to fix files in place
+	if (System.getenv().containsKey("ERRORPRONE_AUTOFIX")) {
+		options.errorprone.errorproneArgs.add "-XepPatchLocation:IN_PLACE"
 	}
 }
 
@@ -38,6 +49,8 @@ dependencies {
 	implementation 'edu.wpi.first.wpilibj:wpilibj-java:2025.+'
 	implementation 'edu.wpi.first.wpiutil:wpiutil-java:2025.+'
 	implementation 'edu.wpi.first.hal:hal-java:2025.+'
+
+	errorprone "com.google.errorprone:error_prone_core:2.37.0"
 }
 
 publishing {
