@@ -15,7 +15,6 @@ import edu.wpi.first.util.datalog.FloatArrayLogEntry;
 import edu.wpi.first.util.datalog.FloatLogEntry;
 import edu.wpi.first.util.datalog.IntegerArrayLogEntry;
 import edu.wpi.first.util.datalog.IntegerLogEntry;
-import edu.wpi.first.util.datalog.RawLogEntry;
 import edu.wpi.first.util.datalog.StringArrayLogEntry;
 import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.util.datalog.StructArrayLogEntry;
@@ -41,7 +40,6 @@ public class DataLogReporter implements Reporter {
   private final Map<String, FloatLogEntry> floatLogs = new HashMap<>();
   private final Map<String, IntegerArrayLogEntry> integerArrayLogs = new HashMap<>();
   private final Map<String, IntegerLogEntry> integerLogs = new HashMap<>();
-  private final Map<String, RawLogEntry> rawLogs = new HashMap<>();
   private final Map<String, StringArrayLogEntry> stringArrayLogs = new HashMap<>();
   private final Map<String, StringLogEntry> stringLogs = new HashMap<>();
   private final Map<String, StructArrayLogEntry<?>> structArrayLogs = new HashMap<>();
