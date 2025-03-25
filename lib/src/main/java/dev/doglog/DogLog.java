@@ -379,19 +379,9 @@ public class DogLog {
    * @param key The key to start the timer for.
    * @see DogLog#timeEnd(String)
    */
-  public static void time(String key) {
+  
+public static void time(String key) {
     epochLogger.time(key, HALUtil.getFPGATime());
-  }
-
-  /**
-   * Stop a timer started with {@link #time(String)} and log the duration in seconds to the
-   * specified key.
-   *
-   * @param key The key to stop the timer for.
-   * @see DogLog#time(String)
-   */
-  public static void timeEnd(String key) {
-    epochLogger.timeEnd(key, HALUtil.getFPGATime());
   }
 
   /**
@@ -406,6 +396,18 @@ public class DogLog {
     return Commands.sequence(
             Commands.runOnce(() -> time(key)), command, Commands.runOnce(() -> timeEnd(key)))
         .withName("Timed" + command.getName());
+  }
+
+
+  /**
+   * Stop a timer started with {@link #time(String)} and log the duration in seconds to the
+   * specified key.
+   *
+   * @param key The key to stop the timer for.
+   * @see DogLog#time(String)
+   */
+  public static void timeEnd(String key) {
+    epochLogger.timeEnd(key, HALUtil.getFPGATime());
   }
 
   /**
