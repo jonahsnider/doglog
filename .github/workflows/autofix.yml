@@ -1,0 +1,65 @@
+name: autofix.ci # needed to securely identify the workflow
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  validation:
+    name: Validate Gradle wrappers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Git repository
+        uses: actions/checkout@v4
+      - name: Validate Gradle wrappers
+        uses: gradle/actions/wrapper-validation@v4
+  autofix:
+    name: Autofix
+    runs-on: ubuntu-latest
+    needs:
+      - validation
+    steps:
+      - name: Checkout Git repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: 17
+          cache: "gradle"
+          cache-dependency-path: |
+            lib/*.gradle*
+            test-project/*.gradle*
+
+      - name: Enable Corepack
+        # Required due to a limitation in setup-node https://github.com/actions/setup-node/issues/480#issuecomment-1820622085
+        run: corepack enable
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: "yarn"
+          cache-dependency-path: ./web/yarn.lock
+      - name: Install docs dependencies
+        run: yarn install --immutable
+
+      - name: Format library with Spotless
+        run: ./gradlew spotlessApply
+
+      - name: Format test project with Spotless
+        run: ./gradlew spotlessApply
+        working-directory: test-project
+
+      - name: Format docs with Prettier
+        run: yarn run format:write
+        working-directory: web
+
+      - name: Fix Error Prone issues
+        run: ./gradlew assemble
+        env:
+            ERRORPRONE_AUTOFIX: 1
+
+      - name: Run autofix.ci
+        uses: autofix-ci/action@551dded8c6cc8a1054039c8bc0b8b48c51dfc6ef
