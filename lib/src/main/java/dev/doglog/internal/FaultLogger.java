@@ -47,6 +47,8 @@ public class FaultLogger {
   }
 
   /**
+   * Log a fault.
+   *
    * @param logger LogQueuer to use.
    * @param faultName The name of the fault to log.
    * @param alertType The type of alert to create for the fault, or <code>null</code> if it should
