@@ -5,7 +5,7 @@
 package dev.doglog.internal.extras;
 
 import dev.doglog.DogLogOptions;
-import dev.doglog.internal.log_thread.reporters.CombinedReporter;
+import dev.doglog.internal.reporters.CombinedReporter;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.hal.PowerJNI;

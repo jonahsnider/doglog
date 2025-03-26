@@ -7,7 +7,7 @@ package dev.doglog;
 import dev.doglog.internal.EpochLogger;
 import dev.doglog.internal.FaultLogger;
 import dev.doglog.internal.extras.ExtrasLogger;
-import dev.doglog.internal.log_thread.reporters.CombinedReporter;
+import dev.doglog.internal.reporters.CombinedReporter;
 import dev.doglog.internal.tunable.Tunable;
 import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
