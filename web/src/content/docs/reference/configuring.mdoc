@@ -67,21 +67,6 @@ Due to a a limitation in WPILib's `DataLogManager`, these values can't be publis
 DogLog.setOptions(new DogLogOptions().withCaptureConsole(false));
 ```
 
-### Log entry queue capacity
-
-The `logEntryQueueCapacity` option controls the maximum number of log entries that can be queued for processing by the log thread.
-If the number of queued log entries exceeds this value, logs will be dropped (lost).
-
-Decreasing this value can reduce memory usage, but may result in logs being dropped ([`MAX_QUEUED_LOGS`](/reference/errors/max_queued_logs)) if the logger can't keep up with the rate of log entries.
-
-Increasing this value can reduce the likelihood of logs being dropped, but will increase memory usage.
-
-You can see the number of queued logs under the `Robot/DogLog/QueuedLogs` log key, to get a sense of how to tune this value.
-
-```java
-DogLog.setOptions(new DogLogOptions().withLogEntryQueueCapacity(1000));
-```
-
 ### NetworkTables tunable values
 
 The `ntTunables` option controls whether NetworkTables will be used for [tunable values](/guides/tunable-values).
