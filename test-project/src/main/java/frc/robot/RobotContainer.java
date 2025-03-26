@@ -21,6 +21,6 @@ public class RobotContainer {
   private void configureBindings() {}
 
   public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
+    return DogLog.time("Debug/AutoCommand", Commands.waitSeconds(0.75).withName("MyAutoCommand"));
   }
 }

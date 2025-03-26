@@ -7,6 +7,7 @@ package dev.doglog;
 import dev.doglog.internal.EpochLogger;
 import dev.doglog.internal.FaultLogger;
 import dev.doglog.internal.LogQueuer;
+import dev.doglog.internal.TimedCommand;
 import dev.doglog.internal.tunable.Tunable;
 import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
@@ -25,7 +26,6 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.LongConsumer;
@@ -392,9 +392,7 @@ public class DogLog {
    * @see DogLog#time(String, Command)
    */
   public static Command time(String key, Command command) {
-    return Commands.sequence(
-            Commands.runOnce(() -> time(key)), command, Commands.runOnce(() -> timeEnd(key)))
-        .withName("Timed" + command.getName());
+    return new TimedCommand(command, key);
   }
 
   /**
