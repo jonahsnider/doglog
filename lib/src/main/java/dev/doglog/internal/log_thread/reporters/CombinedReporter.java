@@ -6,7 +6,6 @@ package dev.doglog.internal.log_thread.reporters;
 
 import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
-import dev.doglog.internal.log_thread.LogThread;
 import dev.doglog.internal.log_thread.StructRegistry;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.Struct;
@@ -27,6 +26,10 @@ public class CombinedReporter {
     dataLogReporter = new DataLogReporter(LOG_TABLE, initialOptions);
 
     setOptions(initialOptions);
+
+    if (!dataLogReporter.isLogDestinationValid()) {
+      DogLog.logFault("[DogLog] UNSAFE_LOG_DESTINATION", AlertType.kWarning);
+    }
   }
 
   public void log(long timestamp, String key, boolean[] value) {
@@ -219,16 +222,6 @@ public class CombinedReporter {
     dataLogReporter.setOptions(options);
 
     printOptions();
-  }
-
-  /**
-   * Runs code that may produce logs, and thus must be run once all DogLog init logic has been run.
-   * Using the {@link LogThread} start for this is a convenient way to run code at that point.
-   */
-  public void afterLogThreadStart() {
-    if (!dataLogReporter.isLogDestinationValid()) {
-      DogLog.logFault("[DogLog] UNSAFE_LOG_DESTINATION", AlertType.kWarning);
-    }
   }
 
   private void printOptions() {

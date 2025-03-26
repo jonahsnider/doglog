@@ -4,6 +4,7 @@
 
 package dev.doglog.internal;
 
+import dev.doglog.internal.log_thread.reporters.CombinedReporter;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -24,10 +25,11 @@ public class FaultLogger {
   /** Faults that are currently active. */
   private static final Set<String> activeFaults = new HashSet<>();
 
-  // This function doesn't need to have the LogQueuer parameter, it could just call DogLog directly.
+  // This function doesn't need to have the CombinedReporter parameter, it could just call DogLog
+  // directly.
   // But doing that would mean getting the current time twice, which can be avoided by getting the
   // time once here and reusing that value.
-  public static void addFault(LogQueuer logger, String faultName) {
+  public static void addFault(CombinedReporter logger, String faultName) {
     var previousCount = faultCounts.get(faultName);
     var newCount = previousCount == null ? 1 : previousCount + 1;
     faultCounts.put(faultName, newCount);
@@ -36,14 +38,14 @@ public class FaultLogger {
 
     if (previousCount == null) {
       // A new fault has been seen
-      logger.queueLog(now, "Faults/Seen", faultCounts.keySet().toArray(String[]::new));
+      logger.log(now, "Faults/Seen", faultCounts.keySet().toArray(String[]::new));
     }
     if (previousCount == null || previousCount == 0) {
       // Fault has just become active
       activeFaults.add(faultName);
-      logger.queueLog(now, "Faults/Active", activeFaults.toArray(String[]::new));
+      logger.log(now, "Faults/Active", activeFaults.toArray(String[]::new));
     }
-    logger.queueLog(now, "Faults/Counts/" + faultName, newCount);
+    logger.log(now, "Faults/Counts/" + faultName, newCount);
   }
 
   /**
@@ -54,7 +56,7 @@ public class FaultLogger {
    * @param alertType The type of alert to create for the fault, or <code>null</code> if it should
    *     not create an alert
    */
-  public static void addFault(LogQueuer logger, String faultName, AlertType alertType) {
+  public static void addFault(CombinedReporter logger, String faultName, AlertType alertType) {
     addFault(logger, faultName);
     if (alertType != null) {
       faultAlerts.computeIfAbsent(faultName, k -> new Alert(faultName, alertType)).set(true);
@@ -64,10 +66,10 @@ public class FaultLogger {
   /**
    * Remove the alert associated with a fault.
    *
-   * @param logger LogQueuer to use.
+   * @param logger CombinedReporter to use.
    * @param faultName The name of the fault to remove.
    */
-  public static void decreaseFault(LogQueuer logger, String faultName) {
+  public static void decreaseFault(CombinedReporter logger, String faultName) {
     var previousCount = faultCounts.get(faultName);
     if (previousCount == null || previousCount == 0) {
       // This fault has never occurred
@@ -77,7 +79,7 @@ public class FaultLogger {
     faultCounts.put(faultName, newCount);
 
     var now = HALUtil.getFPGATime();
-    logger.queueLog(now, "Faults/Counts/" + faultName, newCount);
+    logger.log(now, "Faults/Counts/" + faultName, newCount);
 
     if (newCount == 0) {
       // Mark alert as inactive if it exists
@@ -88,18 +90,18 @@ public class FaultLogger {
       }
 
       activeFaults.remove(faultName);
-      logger.queueLog(now, "Faults/Active", activeFaults.toArray(String[]::new));
+      logger.log(now, "Faults/Active", activeFaults.toArray(String[]::new));
     }
   }
 
-  public static void clearFault(LogQueuer logger, String faultName) {
+  public static void clearFault(CombinedReporter logger, String faultName) {
     // The faultCounts map is used to track the seen faults, so we need to make sure that clearing a
     // fault which has never occurred doesn't mark it as seen with a count of 0
     var previousValue = faultCounts.replace(faultName, 0);
 
     if (previousValue != null) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, "Faults/Counts/" + faultName, 0);
+      logger.log(now, "Faults/Counts/" + faultName, 0);
 
       var alert = faultAlerts.get(faultName);
       if (alert != null) {
@@ -107,7 +109,7 @@ public class FaultLogger {
       }
 
       activeFaults.remove(faultName);
-      logger.queueLog(now, "Faults/Active", activeFaults.toArray(String[]::new));
+      logger.log(now, "Faults/Active", activeFaults.toArray(String[]::new));
     }
   }
 

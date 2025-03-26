@@ -5,7 +5,7 @@
 package dev.doglog.internal.extras;
 
 import dev.doglog.DogLogOptions;
-import dev.doglog.internal.LogQueuer;
+import dev.doglog.internal.log_thread.reporters.CombinedReporter;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.hal.PowerJNI;
@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 public class ExtrasLogger {
   private static final double RADIO_LOG_PERIOD_SECONDS = 5.81;
 
-  private final LogQueuer logger;
+  private final CombinedReporter logger;
 
   private final CANStatus status = new CANStatus();
 
@@ -29,7 +29,7 @@ public class ExtrasLogger {
   private final Notifier radioNotifier = new Notifier(this::logRadio);
   private final RadioLogUtil radioLogUtil = new RadioLogUtil();
 
-  public ExtrasLogger(LogQueuer logger, DogLogOptions initialOptions) {
+  public ExtrasLogger(CombinedReporter logger, DogLogOptions initialOptions) {
     this.logger = logger;
 
     notifier.setName("DogLog extras logger");
@@ -56,8 +56,8 @@ public class ExtrasLogger {
   }
 
   private void log() {
-    // Instead of logging directly to DogLog, we write logs to LogQueuer directly. This lets us get
-    // the timestamp a single time and reuse that value for all log entries.
+    // Instead of logging directly to DogLog, we write logs to CombinedReporter directly. This lets
+    // us get the timestamp a single time and reuse that value for all log entries.
     var now = HALUtil.getFPGATime();
 
     logSystem(now);
@@ -66,48 +66,48 @@ public class ExtrasLogger {
   }
 
   private void logSystem(long now) {
-    logger.queueLog(now, "SystemStats/FPGAVersion", HALUtil.getFPGAVersion());
-    logger.queueLog(now, "SystemStats/FPGARevision", HALUtil.getFPGARevision());
-    logger.queueLog(now, "SystemStats/SerialNumber", HALUtil.getSerialNumber());
-    logger.queueLog(now, "SystemStats/Comments", HALUtil.getComments());
-    logger.queueLog(now, "SystemStats/TeamNumber", HALUtil.getTeamNumber());
-    logger.queueLog(now, "SystemStats/FPGAButton", HALUtil.getFPGAButton());
-    logger.queueLog(now, "SystemStats/SystemActive", HAL.getSystemActive());
-    logger.queueLog(now, "SystemStats/BrownedOut", HAL.getBrownedOut());
-    logger.queueLog(now, "SystemStats/RSLState", HAL.getRSLState());
-    logger.queueLog(now, "SystemStats/SystemTimeValid", HAL.getSystemTimeValid());
+    logger.log(now, "SystemStats/FPGAVersion", HALUtil.getFPGAVersion());
+    logger.log(now, "SystemStats/FPGARevision", HALUtil.getFPGARevision());
+    logger.log(now, "SystemStats/SerialNumber", HALUtil.getSerialNumber());
+    logger.log(now, "SystemStats/Comments", HALUtil.getComments());
+    logger.log(now, "SystemStats/TeamNumber", HALUtil.getTeamNumber());
+    logger.log(now, "SystemStats/FPGAButton", HALUtil.getFPGAButton());
+    logger.log(now, "SystemStats/SystemActive", HAL.getSystemActive());
+    logger.log(now, "SystemStats/BrownedOut", HAL.getBrownedOut());
+    logger.log(now, "SystemStats/RSLState", HAL.getRSLState());
+    logger.log(now, "SystemStats/SystemTimeValid", HAL.getSystemTimeValid());
 
-    logger.queueLog(now, "SystemStats/BatteryVoltage", PowerJNI.getVinVoltage());
-    logger.queueLog(now, "SystemStats/BatteryCurrent", PowerJNI.getVinCurrent());
+    logger.log(now, "SystemStats/BatteryVoltage", PowerJNI.getVinVoltage());
+    logger.log(now, "SystemStats/BatteryCurrent", PowerJNI.getVinCurrent());
 
-    logger.queueLog(now, "SystemStats/3v3Rail/Voltage", PowerJNI.getUserVoltage3V3());
-    logger.queueLog(now, "SystemStats/3v3Rail/Current", PowerJNI.getUserCurrent3V3());
-    logger.queueLog(now, "SystemStats/3v3Rail/Active", PowerJNI.getUserActive3V3());
-    logger.queueLog(now, "SystemStats/3v3Rail/CurrentFaults", PowerJNI.getUserCurrentFaults3V3());
+    logger.log(now, "SystemStats/3v3Rail/Voltage", PowerJNI.getUserVoltage3V3());
+    logger.log(now, "SystemStats/3v3Rail/Current", PowerJNI.getUserCurrent3V3());
+    logger.log(now, "SystemStats/3v3Rail/Active", PowerJNI.getUserActive3V3());
+    logger.log(now, "SystemStats/3v3Rail/CurrentFaults", PowerJNI.getUserCurrentFaults3V3());
 
-    logger.queueLog(now, "SystemStats/5vRail/Voltage", PowerJNI.getUserVoltage5V());
-    logger.queueLog(now, "SystemStats/5vRail/Current", PowerJNI.getUserCurrent5V());
-    logger.queueLog(now, "SystemStats/5vRail/Active", PowerJNI.getUserActive5V());
-    logger.queueLog(now, "SystemStats/5vRail/CurrentFaults", PowerJNI.getUserCurrentFaults5V());
+    logger.log(now, "SystemStats/5vRail/Voltage", PowerJNI.getUserVoltage5V());
+    logger.log(now, "SystemStats/5vRail/Current", PowerJNI.getUserCurrent5V());
+    logger.log(now, "SystemStats/5vRail/Active", PowerJNI.getUserActive5V());
+    logger.log(now, "SystemStats/5vRail/CurrentFaults", PowerJNI.getUserCurrentFaults5V());
 
-    logger.queueLog(now, "SystemStats/6vRail/Voltage", PowerJNI.getUserVoltage6V());
-    logger.queueLog(now, "SystemStats/6vRail/Current", PowerJNI.getUserCurrent6V());
-    logger.queueLog(now, "SystemStats/6vRail/Active", PowerJNI.getUserActive6V());
-    logger.queueLog(now, "SystemStats/6vRail/CurrentFaults", PowerJNI.getUserCurrentFaults6V());
+    logger.log(now, "SystemStats/6vRail/Voltage", PowerJNI.getUserVoltage6V());
+    logger.log(now, "SystemStats/6vRail/Current", PowerJNI.getUserCurrent6V());
+    logger.log(now, "SystemStats/6vRail/Active", PowerJNI.getUserActive6V());
+    logger.log(now, "SystemStats/6vRail/CurrentFaults", PowerJNI.getUserCurrentFaults6V());
 
-    logger.queueLog(now, "SystemStats/BrownoutVoltage", PowerJNI.getBrownoutVoltage());
-    logger.queueLog(now, "SystemStats/CPUTempCelcius", PowerJNI.getCPUTemp());
+    logger.log(now, "SystemStats/BrownoutVoltage", PowerJNI.getBrownoutVoltage());
+    logger.log(now, "SystemStats/CPUTempCelcius", PowerJNI.getCPUTemp());
   }
 
   private void logCan(long now) {
     CANJNI.getCANStatus(status);
-    logger.queueLog(now, "SystemStats/CANBus/Utilization", status.percentBusUtilization);
-    logger.queueLog(now, "SystemStats/CANBus/OffCount", status.busOffCount);
-    logger.queueLog(now, "SystemStats/CANBus/TxFullCount", status.txFullCount);
-    logger.queueLog(now, "SystemStats/CANBus/ReceiveErrorCount", status.receiveErrorCount);
-    logger.queueLog(now, "SystemStats/CANBus/TransmitErrorCount", status.transmitErrorCount);
+    logger.log(now, "SystemStats/CANBus/Utilization", status.percentBusUtilization);
+    logger.log(now, "SystemStats/CANBus/OffCount", status.busOffCount);
+    logger.log(now, "SystemStats/CANBus/TxFullCount", status.txFullCount);
+    logger.log(now, "SystemStats/CANBus/ReceiveErrorCount", status.receiveErrorCount);
+    logger.log(now, "SystemStats/CANBus/TransmitErrorCount", status.transmitErrorCount);
 
-    logger.queueLog(now, "SystemStats/EpochTimeMicros", HALUtil.getFPGATime());
+    logger.log(now, "SystemStats/EpochTimeMicros", HALUtil.getFPGATime());
   }
 
   private void logPdh(long now) {
@@ -115,20 +115,20 @@ public class ExtrasLogger {
       return;
     }
 
-    logger.queueLog(now, "SystemStats/PowerDistribution/Temperature", pdh.getTemperature());
-    logger.queueLog(now, "SystemStats/PowerDistribution/Voltage", pdh.getVoltage());
-    logger.queueLog(now, "SystemStats/PowerDistribution/ChannelCurrent", pdh.getAllCurrents());
-    logger.queueLog(now, "SystemStats/PowerDistribution/TotalCurrent", pdh.getTotalCurrent());
-    logger.queueLog(now, "SystemStats/PowerDistribution/TotalPower", pdh.getTotalPower());
-    logger.queueLog(now, "SystemStats/PowerDistribution/TotalEnergy", pdh.getTotalEnergy());
-    logger.queueLog(now, "SystemStats/PowerDistribution/ChannelCount", pdh.getNumChannels());
+    logger.log(now, "SystemStats/PowerDistribution/Temperature", pdh.getTemperature());
+    logger.log(now, "SystemStats/PowerDistribution/Voltage", pdh.getVoltage());
+    logger.log(now, "SystemStats/PowerDistribution/ChannelCurrent", pdh.getAllCurrents());
+    logger.log(now, "SystemStats/PowerDistribution/TotalCurrent", pdh.getTotalCurrent());
+    logger.log(now, "SystemStats/PowerDistribution/TotalPower", pdh.getTotalPower());
+    logger.log(now, "SystemStats/PowerDistribution/TotalEnergy", pdh.getTotalEnergy());
+    logger.log(now, "SystemStats/PowerDistribution/ChannelCount", pdh.getNumChannels());
   }
 
   private void logRadio() {
     var now = HALUtil.getFPGATime();
     radioLogUtil.refresh();
 
-    logger.queueLog(now, "RadioStatus/Connected", radioLogUtil.radioLogResult.isConnected);
-    logger.queueLog(now, "RadioStatus/StatusJson", radioLogUtil.radioLogResult.statusJson, "json");
+    logger.log(now, "RadioStatus/Connected", radioLogUtil.radioLogResult.isConnected);
+    logger.log(now, "RadioStatus/StatusJson", radioLogUtil.radioLogResult.statusJson, "json");
   }
 }
