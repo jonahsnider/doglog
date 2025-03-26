@@ -149,6 +149,7 @@ public record DogLogOptions(
    * @deprecated No longer used.
    * @return The same options object.
    */
+  @Deprecated
   public DogLogOptions withLogEntryQueueCapacity(int _logEntryQueueCapacity) {
     return this;
   }
