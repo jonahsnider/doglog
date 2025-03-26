@@ -4,7 +4,7 @@
 
 package dev.doglog.internal;
 
-import dev.doglog.internal.log_thread.reporters.CombinedReporter;
+import dev.doglog.internal.reporters.CombinedReporter;
 import java.util.HashMap;
 import java.util.Map;
 

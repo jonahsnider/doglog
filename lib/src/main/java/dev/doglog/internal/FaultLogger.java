@@ -4,7 +4,7 @@
 
 package dev.doglog.internal;
 
-import dev.doglog.internal.log_thread.reporters.CombinedReporter;
+import dev.doglog.internal.reporters.CombinedReporter;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;

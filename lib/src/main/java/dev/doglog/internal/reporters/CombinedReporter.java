@@ -2,11 +2,11 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package dev.doglog.internal.log_thread.reporters;
+package dev.doglog.internal.reporters;
 
 import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
-import dev.doglog.internal.log_thread.StructRegistry;
+import dev.doglog.internal.StructRegistry;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
