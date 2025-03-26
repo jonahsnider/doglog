@@ -1,5 +1,12 @@
 # Changelog
 
+## [2025.9.0](https://github.com/jonahsnider/doglog/compare/2025.8.1...2025.9.0) (2025-03-26)
+
+
+### Features
+
+* improve functionality of DogLog.time() for commands ([ad58793](https://github.com/jonahsnider/doglog/commit/ad587939aee3201020768cfb85eb868a93888252))
+
 ## [2025.8.1](https://github.com/jonahsnider/doglog/compare/2025.8.0...2025.8.1) (2025-03-25)
 
 
