@@ -47,8 +47,7 @@ public class DataLogReporter implements Reporter {
   private final Map<String, StructArrayLogEntry<?>> structArrayLogs = new HashMap<>();
   private final Map<String, StructLogEntry<?>> structLogs = new HashMap<>();
 
-  private final DataLog log = DataLogManager.getLog();
-
+  private final DataLog log;
   private int alertNtLogHandle = -1;
 
   private final String logTable;
@@ -57,6 +56,8 @@ public class DataLogReporter implements Reporter {
     this.logTable = logTable;
 
     setOptions(initialOptions);
+    // Do this after setting options to control when NT capture starts
+    log = DataLogManager.getLog();
 
     // Capture tunable changes to the DataLog directly
     // This is a special case since we don't want to re-log to NT
@@ -179,19 +180,20 @@ public class DataLogReporter implements Reporter {
   }
 
   public void setOptions(DogLogOptions options) {
-    DataLogManager.logConsoleOutput(options.captureConsole());
-
     DataLogManager.logNetworkTables(options.captureNt());
 
+    DataLogManager.logConsoleOutput(options.captureConsole());
+
     if (options.captureDs()) {
-      DriverStation.startDataLog(log);
+      DriverStation.startDataLog(DataLogManager.getLog());
     }
 
     if (options.logExtras()) {
       if (alertNtLogHandle == -1) {
         alertNtLogHandle =
             NetworkTableInstance.getDefault()
-                .startEntryDataLog(log, "/SmartDashboard/Alerts/", "Robot/Alerts/");
+                .startEntryDataLog(
+                    DataLogManager.getLog(), "/SmartDashboard/Alerts/", "Robot/Alerts/");
       }
     } else if (alertNtLogHandle != -1) {
       NetworkTableInstance.stopEntryDataLog(alertNtLogHandle);
