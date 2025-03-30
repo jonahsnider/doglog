@@ -1,5 +1,12 @@
 # Changelog
 
+## [2025.9.1](https://github.com/jonahsnider/doglog/compare/2025.9.0...2025.9.1) (2025-03-30)
+
+
+### Bug Fixes
+
+* prevent NT capture from being enabled before DogLog init finishes ([c3cf42e](https://github.com/jonahsnider/doglog/commit/c3cf42e1f620d4f1465ff8dee23f5f7258bdf23b))
+
 ## [2025.9.0](https://github.com/jonahsnider/doglog/compare/2025.8.1...2025.9.0) (2025-03-26)
 
 
