@@ -1775,8 +1775,8 @@ __metadata:
   linkType: hard
 
 "astro@npm:^5.0.0":
-  version: 5.5.6
-  resolution: "astro@npm:5.5.6"
+  version: 5.6.1
+  resolution: "astro@npm:5.6.1"
   dependencies:
     "@astrojs/compiler": "npm:^2.11.0"
     "@astrojs/internal-helpers": "npm:0.6.1"
@@ -1824,7 +1824,7 @@ __metadata:
     tinyexec: "npm:^0.3.2"
     tinyglobby: "npm:^0.2.12"
     tsconfck: "npm:^3.1.5"
-    ultrahtml: "npm:^1.5.3"
+    ultrahtml: "npm:^1.6.0"
     unist-util-visit: "npm:^5.0.0"
     unstorage: "npm:^1.15.0"
     vfile: "npm:^6.0.3"
@@ -1841,7 +1841,7 @@ __metadata:
       optional: true
   bin:
     astro: astro.js
-  checksum: 10c0/365058a049a62d6c6098662eeef4167ce67a3b1527e426d62f895c36243744113d7db7912881e0bc8ab6fcafa2ab82632e5f4c1b4c2308f1c12a39fafebd8c48
+  checksum: 10c0/e8adf227d2db6b7422f1b2b6bdc19e17801d0de5c5ec042d6f51c6aa19bd5507e901b07cbf9baf8c39e518ad81a049a5557a7b1932cceebd63af2bcdff9ee91b
   languageName: node
   linkType: hard
 
@@ -6103,10 +6103,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ultrahtml@npm:^1.5.3":
-  version: 1.5.3
-  resolution: "ultrahtml@npm:1.5.3"
-  checksum: 10c0/3df72461e44b6686006e61d96d3bcc6ef1a02d355a6643fb23f5947a75161601dbb5b98258bc0500b10faeebe932b699c371e13bd9e86a99f22f2ce39e1abe82
+"ultrahtml@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "ultrahtml@npm:1.6.0"
+  checksum: 10c0/1140be819fdde198d83ad61b0186cb1fdb9d3a5d77ff416a752ae735089851a182d2100a1654f6b70dbb4f67881fcac1afba9323e261c8a95846a63f668b4c2a
   languageName: node
   linkType: hard
 
