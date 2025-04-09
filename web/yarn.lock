@@ -2532,7 +2532,7 @@ __metadata:
     prettier-plugin-java: "npm:2.6.7"
     prettier-plugin-packagejson: "npm:2.5.10"
     sharp: "npm:^0.34.0"
-    starlight-links-validator: "npm:0.15.0"
+    starlight-links-validator: "npm:0.15.1"
     typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
@@ -6099,9 +6099,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"starlight-links-validator@npm:0.15.0":
-  version: 0.15.0
-  resolution: "starlight-links-validator@npm:0.15.0"
+"starlight-links-validator@npm:0.15.1":
+  version: 0.15.1
+  resolution: "starlight-links-validator@npm:0.15.1"
   dependencies:
     "@types/picomatch": "npm:^3.0.1"
     github-slugger: "npm:^2.0.0"
@@ -6115,7 +6115,7 @@ __metadata:
     unist-util-visit: "npm:^5.0.0"
   peerDependencies:
     "@astrojs/starlight": ">=0.32.0"
-  checksum: 10c0/84d1078701e0e0a5558976ec89577c31db817b805493d9c78e3d415c593d5b22d2ec77f105ed43f0a0ac4991990b94f4efebafb76f9b0c96c8e43d3adf9eb929
+  checksum: 10c0/d1d8c39a9a0820fafe75503b8da9b1624e27eb48d710ce9af75d15c98133194c0b00530ee184b861fedcb040a305d4ca2133d1082dcc53c449b23455fb0a4828
   languageName: node
   linkType: hard
 
