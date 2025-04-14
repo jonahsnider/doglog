@@ -195,12 +195,12 @@ __metadata:
   linkType: hard
 
 "@astrojs/starlight-markdoc@npm:^0.3.0":
-  version: 0.3.0
-  resolution: "@astrojs/starlight-markdoc@npm:0.3.0"
+  version: 0.3.1
+  resolution: "@astrojs/starlight-markdoc@npm:0.3.1"
   peerDependencies:
-    "@astrojs/markdoc": ^0.12.1
+    "@astrojs/markdoc": ">=0.12.1"
     "@astrojs/starlight": ">=0.30.0"
-  checksum: 10c0/b80bdff80c35ed80525383eea952efa9804ccf53d7a2c2ab1dae42f91a49205f1e72703767dfa73384f60dbab4b5350a27d03043b4fa6d177bcd5be7cadc1ddd
+  checksum: 10c0/a826de86d191235e7dccc83cd570b244a3e9c98886539b41e40067e4bde432eb2a9a7cd78d34613e010f3bde76a9b167da90b693abfae2b3657e2930bd4087d7
   languageName: node
   linkType: hard
 
