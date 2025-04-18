@@ -69,29 +69,17 @@ java {
 	withJavadocJar()
 }
 
-apply plugin: 'groovy'
 spotless {
-	enforceCheck false
+	enforceCheck = false
 
-	encoding 'UTF-8'
-	lineEndings 'UNIX'
+	encoding = 'UTF-8'
+	lineEndings = 'UNIX'
 
 	java {
-		licenseHeader '// Copyright (c) FIRST and other WPILib contributors.\n' +
-				'// Open Source Software; you can modify and/or share it under the terms of\n' +
-				'// the WPILib BSD license file in the root directory of this project.\n\n'
-		toggleOffOn()
-		importOrder()
-		removeUnusedImports()
-		googleJavaFormat()
-		trimTrailingWhitespace()
-		endWithNewline()
-	}
+		googleJavaFormat('1.26.0')
+		licenseHeader ''
 
-	groovy {
-		importOrder()
-		excludeJava()
-		greclipse()
+		targetExclude('src/main/java/frc/robot/generated/BuildConstants.java')
 	}
 
 	groovyGradle {
@@ -101,12 +89,7 @@ spotless {
 	json {
 		target '**/*.json'
 		simple().indentWithSpaces(2)
-	}
 
-	format 'misc', {
-		target '.gitignore'
-
-		trimTrailingWhitespace()
-		endWithNewline()
+		targetExclude('.pathplanner/**')
 	}
 }
