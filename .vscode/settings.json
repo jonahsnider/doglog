@@ -1,18 +1,15 @@
 {
   "[java]": {
-    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+    "editor.defaultFormatter": "josevseb.google-java-format-for-vs-code"
   },
   "[gradle]": {
-    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+    "editor.defaultFormatter": "josevseb.google-java-format-for-vs-code"
   },
   "[gradle-build]": {
-    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+    "editor.defaultFormatter": "josevseb.google-java-format-for-vs-code"
   },
   "[groovy]": {
-    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
-  },
-  "[json]": {
-    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+    "editor.defaultFormatter": "josevseb.google-java-format-for-vs-code"
   },
   "java.compile.nullAnalysis.mode": "automatic"
 }
