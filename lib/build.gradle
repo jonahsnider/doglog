@@ -25,7 +25,7 @@ tasks.withType(Javadoc) {
 
 // Error Prone configs
 tasks.withType(JavaCompile).configureEach {
-	options.errorprone.disable("InlineMeSuggester", "ImmutableEnumChecker", "Var", "BooleanParameter", "Java7ApiChecker", "Java8ApiChecker", "AndroidJdkLibsChecker", "ImmutableMemberCollection", "ReturnMissingNullable", "FieldMissingNullable", "ParameterMissingNullable", "EqualsMissingNullable")
+	options.errorprone.disable("InlineMeSuggester", "ImmutableEnumChecker", "Var", "BooleanParameter", "Java8ApiChecker", "AndroidJdkLibsChecker", "ImmutableMemberCollection", "ReturnMissingNullable", "FieldMissingNullable", "ParameterMissingNullable", "EqualsMissingNullable")
 
 	// Set the ERRORPRONE_AUTOFIX environment variable to fix files in place
 	if (System.getenv().containsKey("ERRORPRONE_AUTOFIX")) {
