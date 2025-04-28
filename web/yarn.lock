@@ -167,13 +167,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/starlight-markdoc@npm:^0.3.0":
-  version: 0.3.1
-  resolution: "@astrojs/starlight-markdoc@npm:0.3.1"
+"@astrojs/starlight-markdoc@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "@astrojs/starlight-markdoc@npm:0.4.0"
   peerDependencies:
     "@astrojs/markdoc": ">=0.12.1"
-    "@astrojs/starlight": ">=0.30.0"
-  checksum: 10c0/a826de86d191235e7dccc83cd570b244a3e9c98886539b41e40067e4bde432eb2a9a7cd78d34613e010f3bde76a9b167da90b693abfae2b3657e2930bd4087d7
+    "@astrojs/starlight": ">=0.34.0"
+  checksum: 10c0/f97185bfac194ec00ef513e5aed2ae7801e26bfdf315d7b9a355aabe922092e485f18c59d1a9812a6288b1126e65cfb3478c23e862936a1371668a4310d82104
   languageName: node
   linkType: hard
 
@@ -2430,7 +2430,7 @@ __metadata:
     "@astrojs/check": "npm:^0.9.0"
     "@astrojs/markdoc": "npm:^0.13.1"
     "@astrojs/starlight": "npm:^0.34.0"
-    "@astrojs/starlight-markdoc": "npm:^0.3.0"
+    "@astrojs/starlight-markdoc": "npm:^0.4.0"
     astro: "npm:^5.0.0"
     prettier: "npm:3.5.3"
     prettier-plugin-astro: "npm:0.14.1"
