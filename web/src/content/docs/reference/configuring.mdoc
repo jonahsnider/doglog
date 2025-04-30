@@ -35,6 +35,9 @@ The `captureNt` option controls whether all NetworkTables values should be inclu
 
 This greatly increases the size of logs, and can introduce more overhead when logging.
 
+By default, DogLog disables NetworkTables capture.
+DogLog uses [`DataLogManager.logNetworkTables()`](https://github.wpilib.org/allwpilib/docs/release/java/src-html/edu/wpi/first/wpilibj/DataLogManager.html#line-204) to configure NT capture, which will overwrite the default configured behavior of `true`.
+
 ```java
 DogLog.setOptions(new DogLogOptions().withCaptureNt(true));
 ```
@@ -45,6 +48,8 @@ The `captureDs` option controls whether joystick data and driver station values 
 
 Due to a a limitation in WPILib's `DataLogManager`, these values can't be published over NetworkTables. Also, once enabled, this option can't be disabled.
 
+By default driver station capture is disabled.
+
 ```java
 DogLog.setOptions(new DogLogOptions().withCaptureDs(true));
 ```
@@ -52,6 +57,8 @@ DogLog.setOptions(new DogLogOptions().withCaptureDs(true));
 ### Log extras
 
 The `logExtras` option controls whether "extra" data like PDH currents, CAN bus usage, battery voltage, radio connection status, and other system stats should be included in logs.
+
+By default extras logging is enabled.
 
 ```java
 DogLog.setOptions(new DogLogOptions().withLogExtras(false));
@@ -62,6 +69,8 @@ DogLog.setOptions(new DogLogOptions().withLogExtras(false));
 The `captureConsole` option controls whether console output (from `/home/lvuser/FRC_UserProgram.log`) should be included in logs.
 
 Due to a a limitation in WPILib's `DataLogManager`, these values can't be published over NetworkTables.
+
+By default console capture is enabled.
 
 ```java
 DogLog.setOptions(new DogLogOptions().withCaptureConsole(false));
@@ -77,6 +86,8 @@ Decreasing this value can reduce memory usage, but may result in logs being drop
 Increasing this value can reduce the likelihood of logs being dropped, but will increase memory usage.
 
 You can see the number of queued logs under the `Robot/DogLog/QueuedLogs` log key, to get a sense of how to tune this value.
+
+By default the queue is configured to support up to 1000 entries pending processing.
 
 ```java
 DogLog.setOptions(new DogLogOptions().withLogEntryQueueCapacity(1000));
@@ -115,6 +126,7 @@ DogLog.setPdh(new PowerDistribution());
 ```
 
 Calling `DogLog.setPdh(null)` will disable PDH logging.
+By default, no PDH logging is performed.
 
 ## Disabling the logger
 
