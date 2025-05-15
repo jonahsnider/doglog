@@ -1177,7 +1177,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pkgr/core@npm:^0.2.3":
+"@pkgr/core@npm:^0.2.4":
   version: 0.2.4
   resolution: "@pkgr/core@npm:0.2.4"
   checksum: 10c0/2528a443bbbef5d4686614e1d73f834f19ccbc975f62b2a64974a6b97bcdf677b9c5e8948e04808ac4f0d853e2f422adfaae2a06e9e9f4f5cf8af76f1adf8dc1
@@ -2530,7 +2530,7 @@ __metadata:
     prettier: "npm:3.5.3"
     prettier-plugin-astro: "npm:0.14.1"
     prettier-plugin-java: "npm:2.6.7"
-    prettier-plugin-packagejson: "npm:2.5.12"
+    prettier-plugin-packagejson: "npm:2.5.13"
     sharp: "npm:^0.34.0"
     starlight-links-validator: "npm:0.16.0"
     typescript: "npm:^5.4.5"
@@ -5170,18 +5170,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-packagejson@npm:2.5.12":
-  version: 2.5.12
-  resolution: "prettier-plugin-packagejson@npm:2.5.12"
+"prettier-plugin-packagejson@npm:2.5.13":
+  version: 2.5.13
+  resolution: "prettier-plugin-packagejson@npm:2.5.13"
   dependencies:
     sort-package-json: "npm:3.2.1"
-    synckit: "npm:0.11.4"
+    synckit: "npm:0.11.5"
   peerDependencies:
     prettier: ">= 1.16.0"
   peerDependenciesMeta:
     prettier:
       optional: true
-  checksum: 10c0/00b99ca5f8c1a8d06955117eef19fca0b78f1e30a17f372f5f492ff70fd3e752c43c4e4e3ba0103624e6d712675bfee2e33797a4470faae178342623776bcaa0
+  checksum: 10c0/f8a5788eb4f8dcddac2943ad14f02a62b4095f4a8d76ae021e77964429c08ccd72bc187599245e5f0c9da616ff1b1066e3c96f2c17fce7b3020af799f2f5e620
   languageName: node
   linkType: hard
 
@@ -6183,13 +6183,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"synckit@npm:0.11.4":
-  version: 0.11.4
-  resolution: "synckit@npm:0.11.4"
+"synckit@npm:0.11.5":
+  version: 0.11.5
+  resolution: "synckit@npm:0.11.5"
   dependencies:
-    "@pkgr/core": "npm:^0.2.3"
+    "@pkgr/core": "npm:^0.2.4"
     tslib: "npm:^2.8.1"
-  checksum: 10c0/dd2965a37c93c0b652bf07b1fd8d1639a803b65cf34c0cb1b827b8403044fc3b09ec87f681d922a324825127ee95b2e0394e7caccb502f407892d63e903c5276
+  checksum: 10c0/49cbd90c3f0ebe7ea6af2fe359e93ef737983b9aaaa605d63c3bf6ba7b31fd2d201e0d8c09f099a11d5ed2d5a7bf3a2ee865708f7f6795646317aac1266517aa
   languageName: node
   linkType: hard
 
