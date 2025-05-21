@@ -1921,8 +1921,8 @@ __metadata:
   linkType: hard
 
 "astro@npm:^5.0.0":
-  version: 5.7.13
-  resolution: "astro@npm:5.7.13"
+  version: 5.7.14
+  resolution: "astro@npm:5.7.14"
   dependencies:
     "@astrojs/compiler": "npm:^2.11.0"
     "@astrojs/internal-helpers": "npm:0.6.1"
@@ -1954,6 +1954,7 @@ __metadata:
     github-slugger: "npm:^2.0.0"
     html-escaper: "npm:3.0.3"
     http-cache-semantics: "npm:^4.1.1"
+    import-meta-resolve: "npm:^4.1.0"
     js-yaml: "npm:^4.1.0"
     kleur: "npm:^4.1.5"
     magic-string: "npm:^0.30.17"
@@ -1990,7 +1991,7 @@ __metadata:
       optional: true
   bin:
     astro: astro.js
-  checksum: 10c0/4a057967d5d30a6fb85710912386a0d3cdf0ffececaa966685a38f0d5f10de66ba4db796eb4dc585f290ed322ded09f50b6e237ac7110022ec562a98193a4265
+  checksum: 10c0/802613ce98b1460e13e95bd15377a10f5c5f7610592c819afb18ba0e6b1f92051bb2c9a4fdfa6ad0de2f1d02221bf23e7e4572ea36f19b811cffb56687d89bc6
   languageName: node
   linkType: hard
 
