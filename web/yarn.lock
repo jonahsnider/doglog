@@ -78,20 +78,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/markdoc@npm:^0.14.0":
-  version: 0.14.2
-  resolution: "@astrojs/markdoc@npm:0.14.2"
+"@astrojs/markdoc@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "@astrojs/markdoc@npm:0.15.0"
   dependencies:
     "@astrojs/internal-helpers": "npm:0.6.1"
-    "@astrojs/markdown-remark": "npm:6.3.1"
-    "@astrojs/prism": "npm:3.2.0"
+    "@astrojs/markdown-remark": "npm:6.3.2"
+    "@astrojs/prism": "npm:3.3.0"
     "@markdoc/markdoc": "npm:^0.5.1"
     esbuild: "npm:^0.25.0"
     github-slugger: "npm:^2.0.0"
     htmlparser2: "npm:^10.0.0"
   peerDependencies:
     astro: ^5.0.0
-  checksum: 10c0/dfd955a80cd36d8e37cb38b0bbbd84643fa0fedfca1562c0f0ad6ef611c2963086ed45f754abd207fcf0aa6058876ebdfe2ec3ea7b0ff121676e9b4ee79c4919
+  checksum: 10c0/4b13bc4bb62521df07c1df42947dce4672aa251f02c88ccb9afab11e3c65664de3ea89930d939565caec01cde3c6d7c754936444d42baa8df905e645fa265487
   languageName: node
   linkType: hard
 
@@ -124,6 +124,35 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@astrojs/markdown-remark@npm:6.3.2":
+  version: 6.3.2
+  resolution: "@astrojs/markdown-remark@npm:6.3.2"
+  dependencies:
+    "@astrojs/internal-helpers": "npm:0.6.1"
+    "@astrojs/prism": "npm:3.3.0"
+    github-slugger: "npm:^2.0.0"
+    hast-util-from-html: "npm:^2.0.3"
+    hast-util-to-text: "npm:^4.0.2"
+    import-meta-resolve: "npm:^4.1.0"
+    js-yaml: "npm:^4.1.0"
+    mdast-util-definitions: "npm:^6.0.0"
+    rehype-raw: "npm:^7.0.0"
+    rehype-stringify: "npm:^10.0.1"
+    remark-gfm: "npm:^4.0.1"
+    remark-parse: "npm:^11.0.0"
+    remark-rehype: "npm:^11.1.2"
+    remark-smartypants: "npm:^3.0.2"
+    shiki: "npm:^3.2.1"
+    smol-toml: "npm:^1.3.1"
+    unified: "npm:^11.0.5"
+    unist-util-remove-position: "npm:^5.0.0"
+    unist-util-visit: "npm:^5.0.0"
+    unist-util-visit-parents: "npm:^6.0.1"
+    vfile: "npm:^6.0.3"
+  checksum: 10c0/e4e9926286def70548505d49333c0b80624e36dad035d0b943ef4d56211530784a8317f92277c702b6a47b68dea0f9afd154aacf2c6b8361177a51ac3c8b20bc
+  languageName: node
+  linkType: hard
+
 "@astrojs/mdx@npm:^4.2.3":
   version: 4.2.5
   resolution: "@astrojs/mdx@npm:4.2.5"
@@ -153,6 +182,15 @@ __metadata:
   dependencies:
     prismjs: "npm:^1.29.0"
   checksum: 10c0/da1bea22fa82e411fb751e8c1cf8fcf6c466eb28e2caea80b0c8d1f550bb0bc4ab6ab7220efd50ecb95513fe87be2c56873e1afffd1753829a5979dbe6f961ac
+  languageName: node
+  linkType: hard
+
+"@astrojs/prism@npm:3.3.0":
+  version: 3.3.0
+  resolution: "@astrojs/prism@npm:3.3.0"
+  dependencies:
+    prismjs: "npm:^1.30.0"
+  checksum: 10c0/8a87f2589f4a3e9ea982e3dd0a3e4ebf565b2e5cf16aa70d979cbddab241a7a24d7be45176fa8c5f69f000cd9ab311ab4677d7a15e2ba0cbd610c80db8b9d7dd
   languageName: node
   linkType: hard
 
@@ -214,9 +252,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/telemetry@npm:3.2.1":
-  version: 3.2.1
-  resolution: "@astrojs/telemetry@npm:3.2.1"
+"@astrojs/telemetry@npm:3.3.0":
+  version: 3.3.0
+  resolution: "@astrojs/telemetry@npm:3.3.0"
   dependencies:
     ci-info: "npm:^4.2.0"
     debug: "npm:^4.4.0"
@@ -225,7 +263,7 @@ __metadata:
     is-docker: "npm:^3.0.0"
     is-wsl: "npm:^3.1.0"
     which-pm-runs: "npm:^1.1.0"
-  checksum: 10c0/7af06ba35fdd6f4c6b27e4bb3f1071b43a8918d046ddebf201fcbce7e6b1b8902be34abf2b00f7a647a0f03d5738f7d9f67b4d852a2032634cbe64abb68518d3
+  checksum: 10c0/7c575aad221d7335b6b1378ceac0e60a25c9540cdde8f5584b0ffe565d06b3ecfc2217738d1ce55ac13eb66e1a6251453bddf117d7f793e51b3fc7be5d001ea4
   languageName: node
   linkType: hard
 
@@ -1921,13 +1959,13 @@ __metadata:
   linkType: hard
 
 "astro@npm:^5.0.0":
-  version: 5.7.14
-  resolution: "astro@npm:5.7.14"
+  version: 5.8.0
+  resolution: "astro@npm:5.8.0"
   dependencies:
     "@astrojs/compiler": "npm:^2.11.0"
     "@astrojs/internal-helpers": "npm:0.6.1"
-    "@astrojs/markdown-remark": "npm:6.3.1"
-    "@astrojs/telemetry": "npm:3.2.1"
+    "@astrojs/markdown-remark": "npm:6.3.2"
+    "@astrojs/telemetry": "npm:3.3.0"
     "@capsizecss/unpack": "npm:^2.4.0"
     "@oslojs/encoding": "npm:^1.1.0"
     "@rollup/pluginutils": "npm:^5.1.4"
@@ -1991,7 +2029,7 @@ __metadata:
       optional: true
   bin:
     astro: astro.js
-  checksum: 10c0/802613ce98b1460e13e95bd15377a10f5c5f7610592c819afb18ba0e6b1f92051bb2c9a4fdfa6ad0de2f1d02221bf23e7e4572ea36f19b811cffb56687d89bc6
+  checksum: 10c0/124d40e023d3126ecb307ccdc17f7a195ddac8d22a8ef826f5915ef2c41f38e63976a10738705afc1b60119dcd32f26a9e3a3799b297df611dfe75e2124273f5
   languageName: node
   linkType: hard
 
@@ -2538,7 +2576,7 @@ __metadata:
   resolution: "doglog.dev@workspace:."
   dependencies:
     "@astrojs/check": "npm:^0.9.0"
-    "@astrojs/markdoc": "npm:^0.14.0"
+    "@astrojs/markdoc": "npm:^0.15.0"
     "@astrojs/starlight": "npm:^0.34.0"
     "@astrojs/starlight-markdoc": "npm:^0.4.0"
     astro: "npm:^5.0.0"
@@ -5234,6 +5272,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prismjs@npm:^1.30.0":
+  version: 1.30.0
+  resolution: "prismjs@npm:1.30.0"
+  checksum: 10c0/f56205bfd58ef71ccfcbcb691fd0eb84adc96c6ff21b0b69fc6fdcf02be42d6ef972ba4aed60466310de3d67733f6a746f89f2fb79c00bf217406d465b3e8f23
+  languageName: node
+  linkType: hard
+
 "proc-log@npm:^4.1.0, proc-log@npm:^4.2.0":
   version: 4.2.0
   resolution: "proc-log@npm:4.2.0"
@@ -5509,6 +5554,19 @@ __metadata:
     unified: "npm:^11.0.0"
     vfile: "npm:^6.0.0"
   checksum: 10c0/68f986e8ee758d415e93babda2a0d89477c15b7c200edc23b8b1d914dd6e963c5fc151a11cbbbcfa7dd237367ff3ef86e302be90f31f37a17b0748668bd8c65b
+  languageName: node
+  linkType: hard
+
+"remark-rehype@npm:^11.1.2":
+  version: 11.1.2
+  resolution: "remark-rehype@npm:11.1.2"
+  dependencies:
+    "@types/hast": "npm:^3.0.0"
+    "@types/mdast": "npm:^4.0.0"
+    mdast-util-to-hast: "npm:^13.0.0"
+    unified: "npm:^11.0.0"
+    vfile: "npm:^6.0.0"
+  checksum: 10c0/f9eccacfb596d9605581dc05bfad28635d6ded5dd0a18e88af5fd4df0d3fcf9612e1501d4513bc2164d833cfe9636dab20400080b09e53f155c6e1442a1231fb
   languageName: node
   linkType: hard
 
