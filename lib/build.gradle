@@ -51,7 +51,7 @@ dependencies {
 	implementation 'edu.wpi.first.hal:hal-java:2025.+'
 	implementation 'edu.wpi.first.wpilibNewCommands:wpilibNewCommands-java:2025.+'
 
-	errorprone "com.google.errorprone:error_prone_core:2.38.0"
+	errorprone "com.google.errorprone:error_prone_core:2.39.0"
 }
 
 publishing {
