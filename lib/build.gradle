@@ -33,6 +33,8 @@ tasks.withType(JavaCompile).configureEach {
 	}
 }
 
+ext.wpilibVersion = "2025.+"
+
 repositories {
 	// Use Maven Central for resolving dependencies.
 	mavenCentral()
@@ -45,11 +47,11 @@ if (project.hasProperty('releaseMode')) {
 }
 
 dependencies {
-	implementation 'edu.wpi.first.ntcore:ntcore-java:2025.+'
-	implementation 'edu.wpi.first.wpilibj:wpilibj-java:2025.+'
-	implementation 'edu.wpi.first.wpiutil:wpiutil-java:2025.+'
-	implementation 'edu.wpi.first.hal:hal-java:2025.+'
-	implementation 'edu.wpi.first.wpilibNewCommands:wpilibNewCommands-java:2025.+'
+	implementation "edu.wpi.first.ntcore:ntcore-java:$wpilibVersion"
+	implementation "edu.wpi.first.wpilibj:wpilibj-java:$wpilibVersion"
+	implementation "edu.wpi.first.wpiutil:wpiutil-java:$wpilibVersion"
+	implementation "edu.wpi.first.hal:hal-java:$wpilibVersion"
+	implementation "edu.wpi.first.wpilibNewCommands:wpilibNewCommands-java:$wpilibVersion"
 
 	errorprone "com.google.errorprone:error_prone_core:2.39.0"
 }
@@ -67,6 +69,17 @@ publishing {
 java {
 	withSourcesJar()
 	withJavadocJar()
+
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+var javaVersion = "17"
+
+
+javadoc {
+	options {
+		links "https://docs.oracle.com/en/java/javase/$javaVersion/docs/api/", 'https://github.wpilib.org/allwpilib/docs/release/java/'
+	}
 }
 
 spotless {
