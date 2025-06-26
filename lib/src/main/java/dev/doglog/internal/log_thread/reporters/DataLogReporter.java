@@ -28,7 +28,7 @@ public class DataLogReporter implements Reporter {
   private static final String ENTRY_METADATA = "{\"source\":\"DogLog\"}";
 
   /** The directory path when logging to the flash storage on a roboRIO 1. */
-  private static final String RIO1_DISK_LOG_DIR = "/home/lvuser/logs";
+  private static final String RIO1_DISK_LOG_DIR = "/home/systemcore/logs";
 
   private final Map<String, BooleanArrayLogEntry> booleanArrayLogs = new HashMap<>();
   private final Map<String, BooleanLogEntry> booleanLogs = new HashMap<>();
