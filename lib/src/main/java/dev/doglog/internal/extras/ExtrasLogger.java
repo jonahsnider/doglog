@@ -67,41 +67,57 @@ public class ExtrasLogger {
     logger.queueLog(now, "SystemStats/SerialNumber", HALUtil.getSerialNumber());
     logger.queueLog(now, "SystemStats/Comments", HALUtil.getComments());
     logger.queueLog(now, "SystemStats/TeamNumber", HALUtil.getTeamNumber());
-    logger.queueLog(now, "SystemStats/FPGAButton", HALUtil.getFPGAButton());
     logger.queueLog(now, "SystemStats/SystemActive", HAL.getSystemActive());
     logger.queueLog(now, "SystemStats/BrownedOut", HAL.getBrownedOut());
     logger.queueLog(now, "SystemStats/RSLState", HAL.getRSLState());
     logger.queueLog(now, "SystemStats/SystemTimeValid", HAL.getSystemTimeValid());
 
     logger.queueLog(now, "SystemStats/BatteryVoltage", PowerJNI.getVinVoltage());
-    logger.queueLog(now, "SystemStats/BatteryCurrent", PowerJNI.getVinCurrent());
 
     logger.queueLog(now, "SystemStats/3v3Rail/Voltage", PowerJNI.getUserVoltage3V3());
     logger.queueLog(now, "SystemStats/3v3Rail/Current", PowerJNI.getUserCurrent3V3());
     logger.queueLog(now, "SystemStats/3v3Rail/Active", PowerJNI.getUserActive3V3());
     logger.queueLog(now, "SystemStats/3v3Rail/CurrentFaults", PowerJNI.getUserCurrentFaults3V3());
 
-    logger.queueLog(now, "SystemStats/5vRail/Voltage", PowerJNI.getUserVoltage5V());
-    logger.queueLog(now, "SystemStats/5vRail/Current", PowerJNI.getUserCurrent5V());
-    logger.queueLog(now, "SystemStats/5vRail/Active", PowerJNI.getUserActive5V());
-    logger.queueLog(now, "SystemStats/5vRail/CurrentFaults", PowerJNI.getUserCurrentFaults5V());
-
-    logger.queueLog(now, "SystemStats/6vRail/Voltage", PowerJNI.getUserVoltage6V());
-    logger.queueLog(now, "SystemStats/6vRail/Current", PowerJNI.getUserCurrent6V());
-    logger.queueLog(now, "SystemStats/6vRail/Active", PowerJNI.getUserActive6V());
-    logger.queueLog(now, "SystemStats/6vRail/CurrentFaults", PowerJNI.getUserCurrentFaults6V());
-
     logger.queueLog(now, "SystemStats/BrownoutVoltage", PowerJNI.getBrownoutVoltage());
     logger.queueLog(now, "SystemStats/CPUTempCelcius", PowerJNI.getCPUTemp());
   }
 
   private void logCan(long now) {
-    CANJNI.getCANStatus(status);
-    logger.queueLog(now, "SystemStats/CANBus/Utilization", status.percentBusUtilization);
-    logger.queueLog(now, "SystemStats/CANBus/OffCount", status.busOffCount);
-    logger.queueLog(now, "SystemStats/CANBus/TxFullCount", status.txFullCount);
-    logger.queueLog(now, "SystemStats/CANBus/ReceiveErrorCount", status.receiveErrorCount);
-    logger.queueLog(now, "SystemStats/CANBus/TransmitErrorCount", status.transmitErrorCount);
+    CANJNI.getCANStatus(0, status);
+    logger.queueLog(now, "SystemStats/CANBus/can_s0/Utilization", status.percentBusUtilization);
+    logger.queueLog(now, "SystemStats/CANBus/can_s0/OffCount", status.busOffCount);
+    logger.queueLog(now, "SystemStats/CANBus/can_s0/TxFullCount", status.txFullCount);
+    logger.queueLog(now, "SystemStats/CANBus/can_s0/ReceiveErrorCount", status.receiveErrorCount);
+    logger.queueLog(now, "SystemStats/CANBus/can_s0/TransmitErrorCount", status.transmitErrorCount);
+
+    CANJNI.getCANStatus(1, status);
+    logger.queueLog(now, "SystemStats/CANBus/can_s1/Utilization", status.percentBusUtilization);
+    logger.queueLog(now, "SystemStats/CANBus/can_s1/OffCount", status.busOffCount);
+    logger.queueLog(now, "SystemStats/CANBus/can_s1/TxFullCount", status.txFullCount);
+    logger.queueLog(now, "SystemStats/CANBus/can_s1/ReceiveErrorCount", status.receiveErrorCount);
+    logger.queueLog(now, "SystemStats/CANBus/can_s1/TransmitErrorCount", status.transmitErrorCount);
+
+    CANJNI.getCANStatus(2, status);
+    logger.queueLog(now, "SystemStats/CANBus/can_s2/Utilization", status.percentBusUtilization);
+    logger.queueLog(now, "SystemStats/CANBus/can_s2/OffCount", status.busOffCount);
+    logger.queueLog(now, "SystemStats/CANBus/can_s2/TxFullCount", status.txFullCount);
+    logger.queueLog(now, "SystemStats/CANBus/can_s2/ReceiveErrorCount", status.receiveErrorCount);
+    logger.queueLog(now, "SystemStats/CANBus/can_s2/TransmitErrorCount", status.transmitErrorCount);
+
+    CANJNI.getCANStatus(3, status);
+    logger.queueLog(now, "SystemStats/CANBus/can_s3/Utilization", status.percentBusUtilization);
+    logger.queueLog(now, "SystemStats/CANBus/can_s3/OffCount", status.busOffCount);
+    logger.queueLog(now, "SystemStats/CANBus/can_s3/TxFullCount", status.txFullCount);
+    logger.queueLog(now, "SystemStats/CANBus/can_s3/ReceiveErrorCount", status.receiveErrorCount);
+    logger.queueLog(now, "SystemStats/CANBus/can_s3/TransmitErrorCount", status.transmitErrorCount);
+
+    CANJNI.getCANStatus(4, status);
+    logger.queueLog(now, "SystemStats/CANBus/can_s4/Utilization", status.percentBusUtilization);
+    logger.queueLog(now, "SystemStats/CANBus/can_s4/OffCount", status.busOffCount);
+    logger.queueLog(now, "SystemStats/CANBus/can_s4/TxFullCount", status.txFullCount);
+    logger.queueLog(now, "SystemStats/CANBus/can_s4/ReceiveErrorCount", status.receiveErrorCount);
+    logger.queueLog(now, "SystemStats/CANBus/can_s4/TransmitErrorCount", status.transmitErrorCount);
 
     logger.queueLog(now, "SystemStats/EpochTimeMicros", HALUtil.getFPGATime());
   }
