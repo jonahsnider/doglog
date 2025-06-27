@@ -81,45 +81,21 @@ public class ExtrasLogger {
 
     logger.queueLog(now, "SystemStats/BrownoutVoltage", PowerJNI.getBrownoutVoltage());
     logger.queueLog(now, "SystemStats/CPUTempCelcius", PowerJNI.getCPUTemp());
+
+    logger.queueLog(now, "SystemStats/EpochTimeMicros", now);
   }
 
   private void logCan(long now) {
-    CANJNI.getCANStatus(0, status);
-    logger.queueLog(now, "SystemStats/CANBus/can_s0/Utilization", status.percentBusUtilization);
-    logger.queueLog(now, "SystemStats/CANBus/can_s0/OffCount", status.busOffCount);
-    logger.queueLog(now, "SystemStats/CANBus/can_s0/TxFullCount", status.txFullCount);
-    logger.queueLog(now, "SystemStats/CANBus/can_s0/ReceiveErrorCount", status.receiveErrorCount);
-    logger.queueLog(now, "SystemStats/CANBus/can_s0/TransmitErrorCount", status.transmitErrorCount);
+    for (int i = 0; i < 5; i++) {
+      CANJNI.getCANStatus(i, status);
+      var logPrefix = "SystemStats/CANBus/can_s" + i;
 
-    CANJNI.getCANStatus(1, status);
-    logger.queueLog(now, "SystemStats/CANBus/can_s1/Utilization", status.percentBusUtilization);
-    logger.queueLog(now, "SystemStats/CANBus/can_s1/OffCount", status.busOffCount);
-    logger.queueLog(now, "SystemStats/CANBus/can_s1/TxFullCount", status.txFullCount);
-    logger.queueLog(now, "SystemStats/CANBus/can_s1/ReceiveErrorCount", status.receiveErrorCount);
-    logger.queueLog(now, "SystemStats/CANBus/can_s1/TransmitErrorCount", status.transmitErrorCount);
-
-    CANJNI.getCANStatus(2, status);
-    logger.queueLog(now, "SystemStats/CANBus/can_s2/Utilization", status.percentBusUtilization);
-    logger.queueLog(now, "SystemStats/CANBus/can_s2/OffCount", status.busOffCount);
-    logger.queueLog(now, "SystemStats/CANBus/can_s2/TxFullCount", status.txFullCount);
-    logger.queueLog(now, "SystemStats/CANBus/can_s2/ReceiveErrorCount", status.receiveErrorCount);
-    logger.queueLog(now, "SystemStats/CANBus/can_s2/TransmitErrorCount", status.transmitErrorCount);
-
-    CANJNI.getCANStatus(3, status);
-    logger.queueLog(now, "SystemStats/CANBus/can_s3/Utilization", status.percentBusUtilization);
-    logger.queueLog(now, "SystemStats/CANBus/can_s3/OffCount", status.busOffCount);
-    logger.queueLog(now, "SystemStats/CANBus/can_s3/TxFullCount", status.txFullCount);
-    logger.queueLog(now, "SystemStats/CANBus/can_s3/ReceiveErrorCount", status.receiveErrorCount);
-    logger.queueLog(now, "SystemStats/CANBus/can_s3/TransmitErrorCount", status.transmitErrorCount);
-
-    CANJNI.getCANStatus(4, status);
-    logger.queueLog(now, "SystemStats/CANBus/can_s4/Utilization", status.percentBusUtilization);
-    logger.queueLog(now, "SystemStats/CANBus/can_s4/OffCount", status.busOffCount);
-    logger.queueLog(now, "SystemStats/CANBus/can_s4/TxFullCount", status.txFullCount);
-    logger.queueLog(now, "SystemStats/CANBus/can_s4/ReceiveErrorCount", status.receiveErrorCount);
-    logger.queueLog(now, "SystemStats/CANBus/can_s4/TransmitErrorCount", status.transmitErrorCount);
-
-    logger.queueLog(now, "SystemStats/EpochTimeMicros", HALUtil.getFPGATime());
+      logger.queueLog(now, logPrefix + "/Utilization", status.percentBusUtilization);
+      logger.queueLog(now, logPrefix + "/OffCount", status.busOffCount);
+      logger.queueLog(now, logPrefix + "/TxFullCount", status.txFullCount);
+      logger.queueLog(now, logPrefix + "/ReceiveErrorCount", status.receiveErrorCount);
+      logger.queueLog(now, logPrefix + "/TransmitErrorCount", status.transmitErrorCount);
+    }
   }
 
   private void logPdh(long now) {
