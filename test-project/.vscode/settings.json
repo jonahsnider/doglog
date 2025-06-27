@@ -1,32 +1,32 @@
 {
-  "[gradle]": {"editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"},
-  "[groovy]": {"editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"},
-  "java.configuration.updateBuildConfiguration": "automatic",
-  "java.test.defaultConfig": "WPIlibUnitTests",
-  "java.test.config": [{
-    "workingDirectory": "${workspaceFolder}/build/jni/release",
-    "name": "WPIlibUnitTests",
-    "env": {
-      "DYLD_LIBRARY_PATH": "${workspaceFolder}/build/jni/release",
-      "LD_LIBRARY_PATH": "${workspaceFolder}/build/jni/release"
-    },
-    "vmargs": ["-Djava.library.path=${workspaceFolder}/build/jni/release"]
-  }],
-  "[gradle-build]": {"editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"},
-  "java.server.launchMode": "Standard",
-  "files.exclude": {
-    "**/CVS": true,
-    "**/*~": true,
-    "**/.svn": true,
-    "**/.project": true,
-    "**/.classpath": true,
-    "bin/": true,
-    "**/.settings": true,
-    "**/.factorypath": true,
-    "**/.DS_Store": true,
-    "**/.git": true,
-    "**/.hg": true
+  "[java]": {
+    "editor.defaultFormatter": "josevseb.google-java-format-for-vs-code"
   },
-  "[java]": {"editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"},
-  "[json]": {"editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"}
+  "files.exclude": {
+    "**/*~": true,
+    "**/.DS_Store": true,
+    "**/.classpath": true,
+    "**/.factorypath": true,
+    "**/.git": true,
+    "**/.hg": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "**/.svn": true,
+    "**/CVS": true,
+    "bin/": true
+  },
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.server.launchMode": "Standard",
+  "java.test.config": [
+    {
+      "env": {
+        "DYLD_LIBRARY_PATH": "${workspaceFolder}/build/jni/release",
+        "LD_LIBRARY_PATH": "${workspaceFolder}/build/jni/release"
+      },
+      "name": "WPIlibUnitTests",
+      "vmargs": ["-Djava.library.path=${workspaceFolder}/build/jni/release"],
+      "workingDirectory": "${workspaceFolder}/build/jni/release"
+    }
+  ],
+  "java.test.defaultConfig": "WPIlibUnitTests"
 }
