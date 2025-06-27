@@ -1,32 +1,28 @@
 {
-  "[java]": {
-    "editor.defaultFormatter": "josevseb.google-java-format-for-vs-code"
-  },
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.test.defaultConfig": "WPIlibUnitTests",
+  "java.test.config": [{
+    "workingDirectory": "${workspaceFolder}/build/jni/release",
+    "name": "WPIlibUnitTests",
+    "env": {
+      "DYLD_LIBRARY_PATH": "${workspaceFolder}/build/jni/release",
+      "LD_LIBRARY_PATH": "${workspaceFolder}/build/jni/release"
+    },
+    "vmargs": ["-Djava.library.path=${workspaceFolder}/build/jni/release"]
+  }],
+  "java.server.launchMode": "Standard",
   "files.exclude": {
     "**/*~": true,
-    "**/.DS_Store": true,
-    "**/.classpath": true,
-    "**/.factorypath": true,
-    "**/.git": true,
-    "**/.hg": true,
-    "**/.project": true,
-    "**/.settings": true,
-    "**/.svn": true,
     "**/CVS": true,
-    "bin/": true
+    "**/.project": true,
+    "**/.svn": true,
+    "**/.classpath": true,
+    "**/.settings": true,
+    "bin/": true,
+    "**/.factorypath": true,
+    "**/.DS_Store": true,
+    "**/.git": true,
+    "**/.hg": true
   },
-  "java.configuration.updateBuildConfiguration": "automatic",
-  "java.server.launchMode": "Standard",
-  "java.test.config": [
-    {
-      "env": {
-        "DYLD_LIBRARY_PATH": "${workspaceFolder}/build/jni/release",
-        "LD_LIBRARY_PATH": "${workspaceFolder}/build/jni/release"
-      },
-      "name": "WPIlibUnitTests",
-      "vmargs": ["-Djava.library.path=${workspaceFolder}/build/jni/release"],
-      "workingDirectory": "${workspaceFolder}/build/jni/release"
-    }
-  ],
-  "java.test.defaultConfig": "WPIlibUnitTests"
+  "[java]": {"editor.defaultFormatter": "josevseb.google-java-format-for-vs-code"}
 }
