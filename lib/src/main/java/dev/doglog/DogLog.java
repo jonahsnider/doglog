@@ -27,7 +27,7 @@ import java.util.function.LongConsumer;
 
 /** A logger based on WPILib's {@link DataLogManager} */
 public class DogLog {
-  public static final String USAGE_REPORT = "DogLog";
+  private static final String USAGE_REPORT = "DogLog";
 
   static {
     HAL.reportUsage(USAGE_REPORT, "");
