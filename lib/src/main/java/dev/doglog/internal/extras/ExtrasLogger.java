@@ -67,14 +67,12 @@ public class ExtrasLogger {
     logger.log(now, "SystemStats/SerialNumber", HALUtil.getSerialNumber());
     logger.log(now, "SystemStats/Comments", HALUtil.getComments());
     logger.log(now, "SystemStats/TeamNumber", HALUtil.getTeamNumber());
-    logger.log(now, "SystemStats/FPGAButton", HALUtil.getFPGAButton());
     logger.log(now, "SystemStats/SystemActive", HAL.getSystemActive());
     logger.log(now, "SystemStats/BrownedOut", HAL.getBrownedOut());
     logger.log(now, "SystemStats/RSLState", HAL.getRSLState());
     logger.log(now, "SystemStats/SystemTimeValid", HAL.getSystemTimeValid());
 
     logger.log(now, "SystemStats/BatteryVoltage", PowerJNI.getVinVoltage());
-    logger.log(now, "SystemStats/BatteryCurrent", PowerJNI.getVinCurrent());
 
     logger.log(now, "SystemStats/3v3Rail/Voltage", PowerJNI.getUserVoltage3V3());
     logger.log(now, "SystemStats/3v3Rail/Current", PowerJNI.getUserCurrent3V3());
