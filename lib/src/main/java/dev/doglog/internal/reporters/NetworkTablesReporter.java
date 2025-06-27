@@ -1,4 +1,4 @@
-package dev.doglog.internal.log_thread.reporters;
+package dev.doglog.internal.reporters;
 
 import edu.wpi.first.networktables.BooleanArrayPublisher;
 import edu.wpi.first.networktables.BooleanPublisher;
