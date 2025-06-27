@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: 17
+          java-version: 21
           cache: "gradle"
           cache-dependency-path: |
             lib/*.gradle*
@@ -65,6 +65,6 @@ jobs:
         working-directory: web
 
       - name: Run autofix.ci
-        uses: autofix-ci/action@551dded8c6cc8a1054039c8bc0b8b48c51dfc6ef
+        uses: autofix-ci/action@635ffb0c9798bd160680f18fd73371e355b85f27
         with:
           commit-message: "style: run autofix.ci"

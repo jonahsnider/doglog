@@ -1,12 +1,10 @@
 package dev.doglog.internal.reporters;
 
-import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
 import dev.doglog.internal.StructRegistry;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
-import edu.wpi.first.wpilibj.Alert.AlertType;
 
 public class CombinedReporter {
   /** The NetworkTables table to log to, if NetworkTables publishing is enabled. */

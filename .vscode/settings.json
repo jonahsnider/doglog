@@ -2,14 +2,5 @@
   "[java]": {
     "editor.defaultFormatter": "josevseb.google-java-format-for-vs-code"
   },
-  "[gradle]": {
-    "editor.defaultFormatter": "josevseb.google-java-format-for-vs-code"
-  },
-  "[gradle-build]": {
-    "editor.defaultFormatter": "josevseb.google-java-format-for-vs-code"
-  },
-  "[groovy]": {
-    "editor.defaultFormatter": "josevseb.google-java-format-for-vs-code"
-  },
   "java.compile.nullAnalysis.mode": "automatic"
 }

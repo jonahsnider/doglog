@@ -9,10 +9,10 @@
 plugins {
 	// Apply the java-library plugin for API and implementation separation.
 	id 'java-library'
-	id "com.diffplug.spotless" version "7.0.3"
+	id "com.diffplug.spotless" version "7.0.4"
 	id 'edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin' version '2025.0'
 	id 'maven-publish'
-	id "net.ltgt.errorprone" version "4.2.0"
+	id "net.ltgt.errorprone" version "4.3.0"
 }
 
 archivesBaseName = 'doglog'
@@ -25,13 +25,15 @@ tasks.withType(Javadoc) {
 
 // Error Prone configs
 tasks.withType(JavaCompile).configureEach {
-	options.errorprone.disable("InlineMeSuggester", "ImmutableEnumChecker", "Var", "BooleanParameter", "Java7ApiChecker", "Java8ApiChecker", "AndroidJdkLibsChecker", "ImmutableMemberCollection", "ReturnMissingNullable", "FieldMissingNullable", "ParameterMissingNullable", "EqualsMissingNullable")
+	options.errorprone.disable("InlineMeSuggester", "ImmutableEnumChecker", "Var", "BooleanParameter", "Java8ApiChecker", "AndroidJdkLibsChecker", "ImmutableMemberCollection", "ReturnMissingNullable", "FieldMissingNullable", "ParameterMissingNullable", "EqualsMissingNullable")
 
 	// Set the ERRORPRONE_AUTOFIX environment variable to fix files in place
 	if (System.getenv().containsKey("ERRORPRONE_AUTOFIX")) {
 		options.errorprone.errorproneArgs.add "-XepPatchLocation:IN_PLACE"
 	}
 }
+
+ext.wpilibVersion = "2027.+"
 
 repositories {
 	// Use Maven Central for resolving dependencies.
@@ -43,15 +45,17 @@ if (project.hasProperty('releaseMode')) {
 } else {
 	wpilibRepositories.addAllDevelopmentRepositories(project)
 }
+wpilibRepositories.use2027Repos()
 
 dependencies {
-	implementation 'edu.wpi.first.ntcore:ntcore-java:2025.+'
-	implementation 'edu.wpi.first.wpilibj:wpilibj-java:2025.+'
-	implementation 'edu.wpi.first.wpiutil:wpiutil-java:2025.+'
-	implementation 'edu.wpi.first.hal:hal-java:2025.+'
-	implementation 'edu.wpi.first.wpilibNewCommands:wpilibNewCommands-java:2025.+'
+	implementation "edu.wpi.first.ntcore:ntcore-java:$wpilibVersion"
+	implementation "edu.wpi.first.wpilibj:wpilibj-java:$wpilibVersion"
+	implementation "edu.wpi.first.wpiutil:wpiutil-java:$wpilibVersion"
+	implementation "edu.wpi.first.hal:hal-java:$wpilibVersion"
+	implementation "edu.wpi.first.datalog:datalog-java:$wpilibVersion"
+	implementation "edu.wpi.first.wpilibNewCommands:wpilibNewCommands-java:$wpilibVersion"
 
-	errorprone "com.google.errorprone:error_prone_core:2.37.0"
+	errorprone "com.google.errorprone:error_prone_core:2.39.0"
 }
 
 publishing {
@@ -67,6 +71,17 @@ publishing {
 java {
 	withSourcesJar()
 	withJavadocJar()
+
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}
+var javaVersion = "21"
+
+
+javadoc {
+	options {
+		links "https://docs.oracle.com/en/java/javase/$javaVersion/docs/api/", 'https://github.wpilib.org/allwpilib/docs/release/java/'
+	}
 }
 
 spotless {

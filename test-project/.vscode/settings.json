@@ -1,6 +1,4 @@
 {
-  "[gradle]": {"editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"},
-  "[groovy]": {"editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"},
   "java.configuration.updateBuildConfiguration": "automatic",
   "java.test.defaultConfig": "WPIlibUnitTests",
   "java.test.config": [{
@@ -12,21 +10,19 @@
     },
     "vmargs": ["-Djava.library.path=${workspaceFolder}/build/jni/release"]
   }],
-  "[gradle-build]": {"editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"},
   "java.server.launchMode": "Standard",
   "files.exclude": {
-    "**/CVS": true,
     "**/*~": true,
-    "**/.svn": true,
+    "**/CVS": true,
     "**/.project": true,
+    "**/.svn": true,
     "**/.classpath": true,
-    "bin/": true,
     "**/.settings": true,
+    "bin/": true,
     "**/.factorypath": true,
     "**/.DS_Store": true,
     "**/.git": true,
     "**/.hg": true
   },
-  "[java]": {"editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"},
-  "[json]": {"editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"}
+  "[java]": {"editor.defaultFormatter": "josevseb.google-java-format-for-vs-code"}
 }

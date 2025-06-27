@@ -22,9 +22,13 @@ export default defineConfig({
 			// plugins: [starlightLinksValidator()],
 			title: 'DogLog Docs',
 			favicon: '/favicon.ico',
-			social: {
-				github: 'https://github.com/jonahsnider/doglog',
-			},
+			social: [
+				{
+					href: 'https://github.com/jonahsnider/doglog',
+					icon: 'github',
+					label: 'GitHub',
+				},
+			],
 			logo: {
 				alt: 'DogLog logo',
 				src: './src/assets/logo.svg',

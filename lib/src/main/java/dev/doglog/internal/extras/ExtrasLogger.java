@@ -81,29 +81,23 @@ public class ExtrasLogger {
     logger.log(now, "SystemStats/3v3Rail/Active", PowerJNI.getUserActive3V3());
     logger.log(now, "SystemStats/3v3Rail/CurrentFaults", PowerJNI.getUserCurrentFaults3V3());
 
-    logger.log(now, "SystemStats/5vRail/Voltage", PowerJNI.getUserVoltage5V());
-    logger.log(now, "SystemStats/5vRail/Current", PowerJNI.getUserCurrent5V());
-    logger.log(now, "SystemStats/5vRail/Active", PowerJNI.getUserActive5V());
-    logger.log(now, "SystemStats/5vRail/CurrentFaults", PowerJNI.getUserCurrentFaults5V());
-
-    logger.log(now, "SystemStats/6vRail/Voltage", PowerJNI.getUserVoltage6V());
-    logger.log(now, "SystemStats/6vRail/Current", PowerJNI.getUserCurrent6V());
-    logger.log(now, "SystemStats/6vRail/Active", PowerJNI.getUserActive6V());
-    logger.log(now, "SystemStats/6vRail/CurrentFaults", PowerJNI.getUserCurrentFaults6V());
-
     logger.log(now, "SystemStats/BrownoutVoltage", PowerJNI.getBrownoutVoltage());
     logger.log(now, "SystemStats/CPUTempCelcius", PowerJNI.getCPUTemp());
   }
 
   private void logCan(long now) {
-    CANJNI.getCANStatus(status);
-    logger.log(now, "SystemStats/CANBus/Utilization", status.percentBusUtilization);
-    logger.log(now, "SystemStats/CANBus/OffCount", status.busOffCount);
-    logger.log(now, "SystemStats/CANBus/TxFullCount", status.txFullCount);
-    logger.log(now, "SystemStats/CANBus/ReceiveErrorCount", status.receiveErrorCount);
-    logger.log(now, "SystemStats/CANBus/TransmitErrorCount", status.transmitErrorCount);
+    for (int i = 0; i < 5; i++) {
+      CANJNI.getCANStatus(i, status);
+      var logPrefix = "SystemStats/CANBus/can_s" + i;
 
-    logger.log(now, "SystemStats/EpochTimeMicros", HALUtil.getFPGATime());
+      logger.log(now, logPrefix + "/Utilization", status.percentBusUtilization);
+      logger.log(now, logPrefix + "/OffCount", status.busOffCount);
+      logger.log(now, logPrefix + "/TxFullCount", status.txFullCount);
+      logger.log(now, logPrefix + "/ReceiveErrorCount", status.receiveErrorCount);
+      logger.log(now, logPrefix + "/TransmitErrorCount", status.transmitErrorCount);
+    }
+
+    logger.log(now, "SystemStats/EpochTimeMicros", now);
   }
 
   private void logPdh(long now) {
