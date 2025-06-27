@@ -5,7 +5,6 @@ import dev.doglog.internal.FaultLogger;
 import dev.doglog.internal.LogQueuer;
 import dev.doglog.internal.TimedCommand;
 import dev.doglog.internal.tunable.Tunable;
-import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.networktables.BooleanSubscriber;
@@ -28,10 +27,10 @@ import java.util.function.LongConsumer;
 
 /** A logger based on WPILib's {@link DataLogManager} */
 public class DogLog {
+  private static final String USAGE_REPORT = "DogLog";
+
   static {
-    HAL.report(
-        FRCNetComm.tResourceType.kResourceType_LoggingFramework,
-        FRCNetComm.tInstances.kLoggingFramework_DogLog);
+    HAL.reportUsage(USAGE_REPORT, "");
   }
 
   /** The options to use for the logger. */
