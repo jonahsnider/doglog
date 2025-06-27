@@ -1,4 +1,4 @@
-package dev.doglog.internal.log_thread;
+package dev.doglog.internal;
 
 import edu.wpi.first.util.struct.Struct;
 import java.util.HashMap;

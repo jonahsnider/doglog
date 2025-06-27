@@ -28,8 +28,6 @@ public record DogLogOptions(
     boolean logExtras,
     /** Whether console output should be saved to the log file. */
     boolean captureConsole,
-    /** The maximum size of the log entry queue to use. */
-    int logEntryQueueCapacity,
     /**
      * A function that returns whether tunable values from NetworkTables should be used. Best
      * practice is to have this disabled when you are at competitions, to make robot behavior more
@@ -53,7 +51,7 @@ public record DogLogOptions(
    */
   public DogLogOptions() {
     // Default options
-    this(DogLogOptions::isNotOnFms, false, false, true, true, 1000, DogLogOptions::isNotOnFms);
+    this(DogLogOptions::isNotOnFms, false, false, true, true, DogLogOptions::isNotOnFms);
   }
 
   /**
@@ -87,13 +85,7 @@ public record DogLogOptions(
    */
   public DogLogOptions withNtPublish(BooleanSupplier ntPublish) {
     return new DogLogOptions(
-        ntPublish,
-        captureNt,
-        captureDs,
-        logExtras,
-        captureConsole,
-        logEntryQueueCapacity,
-        ntTunables);
+        ntPublish, captureNt, captureDs, logExtras, captureConsole, ntTunables);
   }
 
   /**
@@ -109,13 +101,7 @@ public record DogLogOptions(
    */
   public DogLogOptions withCaptureNt(boolean captureNt) {
     return new DogLogOptions(
-        ntPublish,
-        captureNt,
-        captureDs,
-        logExtras,
-        captureConsole,
-        logEntryQueueCapacity,
-        ntTunables);
+        ntPublish, captureNt, captureDs, logExtras, captureConsole, ntTunables);
   }
 
   /**
@@ -131,13 +117,7 @@ public record DogLogOptions(
    */
   public DogLogOptions withCaptureDs(boolean captureDs) {
     return new DogLogOptions(
-        ntPublish,
-        captureNt,
-        captureDs,
-        logExtras,
-        captureConsole,
-        logEntryQueueCapacity,
-        ntTunables);
+        ntPublish, captureNt, captureDs, logExtras, captureConsole, ntTunables);
   }
 
   /**
@@ -154,36 +134,7 @@ public record DogLogOptions(
    */
   public DogLogOptions withLogExtras(boolean logExtras) {
     return new DogLogOptions(
-        ntPublish,
-        captureNt,
-        captureDs,
-        logExtras,
-        captureConsole,
-        logEntryQueueCapacity,
-        ntTunables);
-  }
-
-  /**
-   * Create a new options object, inheriting the configuration from this one, with {@link
-   * DogLogOptions#logEntryQueueCapacity} set to the provided value.
-   *
-   * <p>Example:
-   *
-   * <pre>DogLog.setOptions(new DogLogOptions().withLogEntryQueueCapacity(1000));</pre>
-   *
-   * @param logEntryQueueCapacity The size of the log message queue to use.
-   * @return A new options object with {@link DogLogOptions#logEntryQueueCapacity} set to the
-   *     provided value.
-   */
-  public DogLogOptions withLogEntryQueueCapacity(int logEntryQueueCapacity) {
-    return new DogLogOptions(
-        ntPublish,
-        captureNt,
-        captureDs,
-        logExtras,
-        captureConsole,
-        logEntryQueueCapacity,
-        ntTunables);
+        ntPublish, captureNt, captureDs, logExtras, captureConsole, ntTunables);
   }
 
   /**
@@ -200,13 +151,7 @@ public record DogLogOptions(
    */
   public DogLogOptions withCaptureConsole(boolean captureConsole) {
     return new DogLogOptions(
-        ntPublish,
-        captureNt,
-        captureDs,
-        logExtras,
-        captureConsole,
-        logEntryQueueCapacity,
-        ntTunables);
+        ntPublish, captureNt, captureDs, logExtras, captureConsole, ntTunables);
   }
 
   /**
@@ -240,12 +185,6 @@ public record DogLogOptions(
    */
   public DogLogOptions withNtTunables(BooleanSupplier ntTunables) {
     return new DogLogOptions(
-        ntPublish,
-        captureNt,
-        captureDs,
-        logExtras,
-        captureConsole,
-        logEntryQueueCapacity,
-        ntTunables);
+        ntPublish, captureNt, captureDs, logExtras, captureConsole, ntTunables);
   }
 }

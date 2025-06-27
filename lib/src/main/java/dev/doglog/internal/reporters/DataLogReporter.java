@@ -1,4 +1,4 @@
-package dev.doglog.internal.log_thread.reporters;
+package dev.doglog.internal.reporters;
 
 import dev.doglog.DogLogOptions;
 import edu.wpi.first.datalog.BooleanArrayLogEntry;

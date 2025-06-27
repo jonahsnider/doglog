@@ -2,8 +2,9 @@ package dev.doglog;
 
 import dev.doglog.internal.EpochLogger;
 import dev.doglog.internal.FaultLogger;
-import dev.doglog.internal.LogQueuer;
 import dev.doglog.internal.TimedCommand;
+import dev.doglog.internal.extras.ExtrasLogger;
+import dev.doglog.internal.reporters.CombinedReporter;
 import dev.doglog.internal.tunable.Tunable;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
@@ -36,7 +37,8 @@ public class DogLog {
   /** The options to use for the logger. */
   protected static DogLogOptions options = new DogLogOptions();
 
-  protected static final LogQueuer logger = new LogQueuer(options);
+  protected static final CombinedReporter logger = new CombinedReporter(options);
+  protected static final ExtrasLogger extras = new ExtrasLogger(logger, options);
 
   /** Whether the logger is enabled. */
   protected static boolean enabled = true;
@@ -86,7 +88,7 @@ public class DogLog {
    * @param pdh The {@link PowerDistribution} instance to use for logging PDH/PDP data.
    */
   public static void setPdh(PowerDistribution pdh) {
-    logger.setPdh(pdh);
+    extras.setPdh(pdh);
   }
 
   /**
@@ -112,7 +114,7 @@ public class DogLog {
   public static void log(String key, boolean[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -120,7 +122,7 @@ public class DogLog {
   public static void log(String key, boolean value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -128,7 +130,7 @@ public class DogLog {
   public static void log(String key, double[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -136,7 +138,7 @@ public class DogLog {
   public static void log(String key, double value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -144,7 +146,7 @@ public class DogLog {
   public static void log(String key, float[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -152,7 +154,7 @@ public class DogLog {
   public static void log(String key, float value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -160,7 +162,12 @@ public class DogLog {
   public static void log(String key, int[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+
+      var longArray = new long[value.length];
+      for (int i = 0; i < value.length; i++) {
+        longArray[i] = value[i];
+      }
+      logger.log(now, key, longArray);
     }
   }
 
@@ -168,7 +175,7 @@ public class DogLog {
   public static void log(String key, long[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -176,7 +183,7 @@ public class DogLog {
   public static void log(String key, long value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -186,7 +193,7 @@ public class DogLog {
   public static void log(String key, String[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -209,7 +216,7 @@ public class DogLog {
   public static void log(String key, String value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -217,7 +224,7 @@ public class DogLog {
   public static void log(String key, String value, String customTypeString) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value, customTypeString);
+      logger.log(now, key, value, customTypeString);
     }
   }
 
@@ -233,7 +240,7 @@ public class DogLog {
   public static <T extends StructSerializable> void log(String key, T[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -241,7 +248,7 @@ public class DogLog {
   public static <T extends StructSerializable> void log(String key, T value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
