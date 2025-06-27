@@ -1,7 +1,7 @@
-package dev.doglog.internal.log_thread.reporters;
+package dev.doglog.internal.reporters;
 
 import dev.doglog.DogLogOptions;
-import dev.doglog.internal.log_thread.StructRegistry;
+import dev.doglog.internal.StructRegistry;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
