@@ -20,10 +20,6 @@ public class CombinedReporter {
     dataLogReporter = new DataLogReporter(LOG_TABLE, initialOptions);
 
     setOptions(initialOptions);
-
-    if (!dataLogReporter.isLogDestinationValid()) {
-      DogLog.logFault("[DogLog] UNSAFE_LOG_DESTINATION", AlertType.kWarning);
-    }
   }
 
   public void log(long timestamp, String key, boolean[] value) {

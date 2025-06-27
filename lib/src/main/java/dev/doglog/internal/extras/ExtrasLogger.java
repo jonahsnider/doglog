@@ -83,6 +83,8 @@ public class ExtrasLogger {
 
     logger.log(now, "SystemStats/BrownoutVoltage", PowerJNI.getBrownoutVoltage());
     logger.log(now, "SystemStats/CPUTempCelcius", PowerJNI.getCPUTemp());
+
+    logger.log(now, "SystemStats/EpochTimeMicros", now);
   }
 
   private void logCan(long now) {
@@ -96,8 +98,6 @@ public class ExtrasLogger {
       logger.log(now, logPrefix + "/ReceiveErrorCount", status.receiveErrorCount);
       logger.log(now, logPrefix + "/TransmitErrorCount", status.transmitErrorCount);
     }
-
-    logger.log(now, "SystemStats/EpochTimeMicros", now);
   }
 
   private void logPdh(long now) {

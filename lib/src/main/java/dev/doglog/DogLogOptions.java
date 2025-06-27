@@ -28,8 +28,6 @@ public record DogLogOptions(
     boolean logExtras,
     /** Whether console output should be saved to the log file. */
     boolean captureConsole,
-    /** Deprecated: no longer used. */
-    int logEntryQueueCapacity,
     /**
      * A function that returns whether tunable values from NetworkTables should be used. Best
      * practice is to have this disabled when you are at competitions, to make robot behavior more
@@ -53,7 +51,7 @@ public record DogLogOptions(
    */
   public DogLogOptions() {
     // Default options
-    this(DogLogOptions::isNotOnFms, false, false, true, true, 1000, DogLogOptions::isNotOnFms);
+    this(DogLogOptions::isNotOnFms, false, false, true, true, DogLogOptions::isNotOnFms);
   }
 
   /**
@@ -87,7 +85,7 @@ public record DogLogOptions(
    */
   public DogLogOptions withNtPublish(BooleanSupplier ntPublish) {
     return new DogLogOptions(
-        ntPublish, captureNt, captureDs, logExtras, captureConsole, 0, ntTunables);
+        ntPublish, captureNt, captureDs, logExtras, captureConsole, ntTunables);
   }
 
   /**
@@ -103,7 +101,7 @@ public record DogLogOptions(
    */
   public DogLogOptions withCaptureNt(boolean captureNt) {
     return new DogLogOptions(
-        ntPublish, captureNt, captureDs, logExtras, captureConsole, 0, ntTunables);
+        ntPublish, captureNt, captureDs, logExtras, captureConsole, ntTunables);
   }
 
   /**
@@ -119,7 +117,7 @@ public record DogLogOptions(
    */
   public DogLogOptions withCaptureDs(boolean captureDs) {
     return new DogLogOptions(
-        ntPublish, captureNt, captureDs, logExtras, captureConsole, 0, ntTunables);
+        ntPublish, captureNt, captureDs, logExtras, captureConsole, ntTunables);
   }
 
   /**
@@ -136,18 +134,7 @@ public record DogLogOptions(
    */
   public DogLogOptions withLogExtras(boolean logExtras) {
     return new DogLogOptions(
-        ntPublish, captureNt, captureDs, logExtras, captureConsole, 0, ntTunables);
-  }
-
-  /**
-   * No longer used.
-   *
-   * @deprecated No longer used.
-   * @return The same options object.
-   */
-  @Deprecated
-  public DogLogOptions withLogEntryQueueCapacity(int _logEntryQueueCapacity) {
-    return this;
+        ntPublish, captureNt, captureDs, logExtras, captureConsole, ntTunables);
   }
 
   /**
@@ -164,7 +151,7 @@ public record DogLogOptions(
    */
   public DogLogOptions withCaptureConsole(boolean captureConsole) {
     return new DogLogOptions(
-        ntPublish, captureNt, captureDs, logExtras, captureConsole, 0, ntTunables);
+        ntPublish, captureNt, captureDs, logExtras, captureConsole, ntTunables);
   }
 
   /**
@@ -198,6 +185,6 @@ public record DogLogOptions(
    */
   public DogLogOptions withNtTunables(BooleanSupplier ntTunables) {
     return new DogLogOptions(
-        ntPublish, captureNt, captureDs, logExtras, captureConsole, 0, ntTunables);
+        ntPublish, captureNt, captureDs, logExtras, captureConsole, ntTunables);
   }
 }
