@@ -13,7 +13,6 @@ plugins {
 	id 'edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin' version '2025.0'
 	id 'maven-publish'
 	id "net.ltgt.errorprone" version "4.3.0"
-	id "edu.wpi.first.GradleRIO2027" version "2027.0.0-alpha-1"
 }
 
 archivesBaseName = 'doglog'
@@ -41,12 +40,12 @@ repositories {
 	mavenCentral()
 }
 
-wpilibRepositories.use2027Repos()
 if (project.hasProperty('releaseMode')) {
 	wpilibRepositories.addAllReleaseRepositories(project)
 } else {
 	wpilibRepositories.addAllDevelopmentRepositories(project)
 }
+wpilibRepositories.use2027Repos()
 
 dependencies {
 	implementation "edu.wpi.first.ntcore:ntcore-java:$wpilibVersion"
