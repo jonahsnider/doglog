@@ -44,7 +44,6 @@ public class LogThread extends Thread {
   @Override
   public void run() {
     System.out.println("[DogLog] LogThread started");
-    logger.afterLogThreadStart();
 
     try {
       while (true) {
