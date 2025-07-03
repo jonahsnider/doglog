@@ -33,7 +33,7 @@ tasks.withType(JavaCompile).configureEach {
 	}
 }
 
-ext.wpilibVersion = "2025.+"
+ext.wpilibVersion = "2027.+"
 
 repositories {
 	// Use Maven Central for resolving dependencies.
@@ -45,12 +45,14 @@ if (project.hasProperty('releaseMode')) {
 } else {
 	wpilibRepositories.addAllDevelopmentRepositories(project)
 }
+wpilibRepositories.use2027Repos()
 
 dependencies {
 	implementation "edu.wpi.first.ntcore:ntcore-java:$wpilibVersion"
 	implementation "edu.wpi.first.wpilibj:wpilibj-java:$wpilibVersion"
 	implementation "edu.wpi.first.wpiutil:wpiutil-java:$wpilibVersion"
 	implementation "edu.wpi.first.hal:hal-java:$wpilibVersion"
+	implementation "edu.wpi.first.datalog:datalog-java:$wpilibVersion"
 	implementation "edu.wpi.first.wpilibNewCommands:wpilibNewCommands-java:$wpilibVersion"
 
 	errorprone "com.google.errorprone:error_prone_core:2.39.0"
@@ -70,10 +72,10 @@ java {
 	withSourcesJar()
 	withJavadocJar()
 
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 }
-var javaVersion = "17"
+var javaVersion = "21"
 
 
 javadoc {

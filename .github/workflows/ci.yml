@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: 17
+          java-version: 21
           cache: "gradle"
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v4
@@ -49,7 +49,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: 17
+          java-version: 21
           cache: "gradle"
       - name: Check formatting
         run: ./gradlew spotlessCheck
@@ -69,7 +69,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: 17
+          java-version: 21
           cache: "gradle"
           cache-dependency-path: |
             lib/*.gradle*
@@ -95,7 +95,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: 17
+          java-version: 21
           cache: "gradle"
           cache-dependency-path: |
             lib/*.gradle*
@@ -121,7 +121,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: 17
+          java-version: 21
           cache: "gradle"
       - name: Build
         run: ./gradlew build
