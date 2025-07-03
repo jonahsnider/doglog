@@ -4,11 +4,11 @@
 
 DogLog is a logging library for FRC teams, created for use on [Team 581](https://github.com/team581).
 
-See [**the documentation site**](https://doglog.dev) for more information.
+See [**the 2027 documentation site**](https://2027.doglog.dev) for more information.
 
 ## Installation
 
-**Please see the [installation guide](https://doglog.dev/getting-started/installation/) for more information.**
+**Please see the [installation guide](https://2027.doglog.dev/getting-started/installation/) for more information.**
 
 ### Installing via WPILib VS Code extension
 
@@ -17,12 +17,12 @@ DogLog is available to install through the WPILib VS Code extension.
 ### Vendordep URL
 
 ```text
-https://doglog.dev/vendordep.json
+https://2027.doglog.dev/vendordep.json
 ```
 
 ## Usage
 
-**Please see the [usage guide](https://doglog.dev/getting-started/usage/) for more information.**
+**Please see the [usage guide](https://2027.doglog.dev/getting-started/usage/) for more information.**
 
 First, import the library from the dev.doglog namespace:
 

@@ -7,7 +7,7 @@ import starlightLinksValidator from 'starlight-links-validator';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://doglog.dev',
+	site: 'https://2027.doglog.dev',
 	integrations: [
 		{
 			name: 'copy-files',

@@ -6,7 +6,7 @@ import java.util.function.BooleanSupplier;
 /**
  * Options for configuring DogLog.
  *
- * <p>See https://doglog.dev/reference/logger-options/ for more information.
+ * <p>See https://2027.doglog.dev/reference/logger-options/ for more information.
  */
 public record DogLogOptions(
     /**
@@ -46,7 +46,7 @@ public record DogLogOptions(
    * competition environment, but you may want to tweak them to improve your development experience
    * at home.
    *
-   * <p>See https://doglog.dev/getting-started/usage/#configuring For instructions on how to
+   * <p>See https://2027.doglog.dev/getting-started/usage/#configuring For instructions on how to
    * customize these options.
    */
   public DogLogOptions() {

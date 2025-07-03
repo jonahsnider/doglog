@@ -59,7 +59,7 @@ public class DogLog {
    *
    * <pre>DogLog.setOptions(new DogLogOptions().withNtPublish(true));</pre>
    *
-   * <p>See https://doglog.dev/reference/logger-options/ for more information.
+   * <p>See https://2027.doglog.dev/reference/logger-options/ for more information.
    */
   public static void setOptions(DogLogOptions newOptions) {
     if (newOptions == null) {
@@ -255,7 +255,7 @@ public class DogLog {
   /**
    * Log a fault and create an {@link Alert} for it at the specified level.
    *
-   * <p>See https://doglog.dev/guides/faults for more information.
+   * <p>See https://2027.doglog.dev/guides/faults for more information.
    *
    * @param faultName The name of the fault to log.
    * @param alertType The type of alert to create for the fault, or <code>null</code> if it should
@@ -271,7 +271,7 @@ public class DogLog {
   /**
    * Log a fault and create an error type {@link Alert} for it.
    *
-   * <p>See https://doglog.dev/guides/faults for more information.
+   * <p>See https://2027.doglog.dev/guides/faults for more information.
    *
    * @param faultName The name of the fault to log.
    * @see DogLog#decreaseFault(String)
@@ -284,7 +284,7 @@ public class DogLog {
    * Log a fault and create an error type {@link Alert} for it. The enum will be converted to a
    * string with {@link Enum#name()}.
    *
-   * <p>See https://doglog.dev/guides/faults for more information.
+   * <p>See https://2027.doglog.dev/guides/faults for more information.
    *
    * @param faultName The name of the fault to log.
    * @see DogLog#decreaseFault(Enum)

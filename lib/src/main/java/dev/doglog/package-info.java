@@ -1,6 +1,6 @@
 /**
  * DogLog is a simple, unopinionated logging library for FRC.
  *
- * <p>See https://doglog.dev for more information.
+ * <p>See https://2027.doglog.dev for more information.
  */
 package dev.doglog;
