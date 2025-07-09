@@ -53,7 +53,7 @@ dependencies {
 	implementation "edu.wpi.first.hal:hal-java:$wpilibVersion"
 	implementation "edu.wpi.first.wpilibNewCommands:wpilibNewCommands-java:$wpilibVersion"
 
-	errorprone "com.google.errorprone:error_prone_core:2.39.0"
+	errorprone "com.google.errorprone:error_prone_core:2.40.0"
 }
 
 publishing {
