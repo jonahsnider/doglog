@@ -2,18 +2,19 @@
 
 ## Executive Summary
 
-After thoroughly examining the Changesets documentation and source code, I've found that **Changesets does support multiple release streams**, but it requires a specific workflow combining several features. The key is using **prerelease mode with different tags** combined with **branch-based workflows**.
+After thoroughly examining the Changesets documentation and source code, I've found that **Changesets absolutely supports multiple release streams for version management**. Since you're not publishing to npm and only need to update `vendordep.json` from `package.json`, the setup is much simpler than npm publishing scenarios.
 
-## How Changesets Can Support Multiple Release Streams
+## How Changesets Can Support Multiple Release Streams (Version Management Only)
 
-### Core Approach: Branch + Prerelease Tag Strategy
+### Core Approach: Branch-Based Version Management
 
-Changesets supports multiple release streams through a combination of:
+Changesets supports multiple release streams through:
 
 1. **Different Git branches** for each release stream (main, 2026, 2027)
-2. **Prerelease tags** to differentiate versions (`beta`, `alpha`)
-3. **NPM dist tags** to publish to separate channels
-4. **Coordinated CI/CD workflows** per branch
+2. **Independent version numbering** per branch
+3. **Automatic changelog generation** per stream
+4. **Simple scripts** to sync vendordep.json from package.json
+5. **Git tagging** for releases
 
 ### Recommended Setup for Your Use Case
 
@@ -22,8 +23,8 @@ Here's how to set up the three release streams you mentioned:
 #### Branch Structure
 ```
 main      → v2025.x.x (stable releases)
-2026      → v2026.x.x-beta.x (beta releases) 
-2027      → v2027.x.x-alpha.x (alpha releases)
+2026      → v2026.x.x (2026 version stream) 
+2027      → v2027.x.x (2027 version stream)
 ```
 
 #### Per-Branch Configuration
@@ -36,14 +37,17 @@ main      → v2025.x.x (stable releases)
   "commit": false,
   "fixed": [],
   "linked": [],
-  "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": []
+  "ignore": [],
+  "privatePackages": {
+    "version": true,
+    "tag": true
+  }
 }
 ```
 
-**2. 2026 Branch (Beta)**
+**2. 2026 Branch**
 ```json
 // .changeset/config.json  
 {
@@ -51,14 +55,17 @@ main      → v2025.x.x (stable releases)
   "commit": false,
   "fixed": [],
   "linked": [],
-  "access": "public", 
   "baseBranch": "2026",
   "updateInternalDependencies": "patch",
-  "ignore": []
+  "ignore": [],
+  "privatePackages": {
+    "version": true,
+    "tag": true
+  }
 }
 ```
 
-**3. 2027 Branch (Alpha)**
+**3. 2027 Branch**
 ```json
 // .changeset/config.json
 {
@@ -66,111 +73,115 @@ main      → v2025.x.x (stable releases)
   "commit": false,
   "fixed": [],
   "linked": [],
-  "access": "public",
   "baseBranch": "2027", 
   "updateInternalDependencies": "patch",
-  "ignore": []
+  "ignore": [],
+  "privatePackages": {
+    "version": true,
+    "tag": true
+  }
 }
 ```
 
 ## Detailed Workflow for Each Branch
 
-### Main Branch (Stable) Workflow
+### Simple Workflow (All Branches)
 ```bash
-# Normal changesets workflow
+# Make changes to your code
 changeset add
+# This updates package.json version and CHANGELOG.md
 changeset version
-changeset publish
-```
-This publishes to `latest` dist tag on npm.
-
-### 2026 Branch (Beta) Workflow
-```bash
-# Enter prerelease mode with beta tag
-changeset pre enter beta
-
-# Add changesets as normal
-changeset add
-changeset version  # Creates versions like 2026.1.0-beta.0
-changeset publish  # Publishes to 'beta' dist tag
-
-# Continue development
-changeset add
-changeset version  # Creates 2026.1.0-beta.1  
-changeset publish
-
-# When ready to graduate to stable
-changeset pre exit
-changeset version  # Creates 2026.1.0
-changeset publish  # Publishes to 'latest' dist tag
+# Custom script to sync vendordep.json from package.json
+npm run update-vendordep
+# Commit the changes
+git add . && git commit -m "Release X.Y.Z"
 ```
 
-### 2027 Branch (Alpha) Workflow  
-```bash
-# Enter prerelease mode with alpha tag
-changeset pre enter alpha
+## Setting Initial Versions
 
-# Add changesets as normal
-changeset add
-changeset version  # Creates versions like 2027.1.0-alpha.0
-changeset publish  # Publishes to 'alpha' dist tag
+Set the starting version in each branch's `package.json`:
 
-# Continue development
-changeset add
-changeset version  # Creates 2027.1.0-alpha.1
-changeset publish
+**Main branch package.json:**
+```json
+{
+  "name": "my-library",
+  "version": "2025.0.0"
+}
+```
+
+**2026 branch package.json:**
+```json
+{
+  "name": "my-library", 
+  "version": "2026.0.0"
+}
+```
+
+**2027 branch package.json:**
+```json
+{
+  "name": "my-library",
+  "version": "2027.0.0"
+}
 ```
 
 ## Key Changesets Features That Enable This
 
-### 1. Prerelease Mode (`changeset pre`)
-- **Purpose**: Creates versions with prerelease tags (e.g., `-beta.0`, `-alpha.1`)
-- **NPM Dist Tags**: Automatically publishes to the specified dist tag instead of `latest`
-- **State Management**: Creates a `pre.json` file to track prerelease state
-
-### 2. baseBranch Configuration
+### 1. baseBranch Configuration
 - **Purpose**: Tells Changesets which branch to use for comparisons
 - **Usage**: Set different `baseBranch` values per branch to ensure proper changeset detection
 
-### 3. Dist Tag Publishing
-- **Stable**: Published to `latest` dist tag  
-- **Beta**: Published to `beta` dist tag
-- **Alpha**: Published to `alpha` dist tag
+### 2. privatePackages Configuration
+- **Purpose**: Tells Changesets this package won't be published to npm
+- **Result**: Still handles versioning and git tagging, but skips npm publish logic
 
-### 4. Version Calculation
+### 3. Version Calculation
 - Changesets handles version bumping based on changeset types (patch/minor/major)
-- Prerelease mode appends the prerelease tag and iteration number
+- Each branch maintains independent version numbers
 
-## Understanding PreState (`.changeset/pre.json`)
+### 4. Automatic Changelog Generation
+- Generates CHANGELOG.md per branch based on changesets
+- Tracks changes independently per release stream
 
-When you enter prerelease mode, Changesets creates a `pre.json` file that tracks:
+## Vendordep.json Sync Implementation
 
-```typescript
-type PreState = {
-  mode: "pre" | "exit";           // Current prerelease mode
-  tag: string;                    // The prerelease tag (beta, alpha, etc.)
-  initialVersions: {              // Versions when prerelease mode started
-    [pkgName: string]: string;
-  };
-  changesets: string[];           // Changeset IDs consumed in prerelease
-};
+### Update Script
+
+Create a script to sync `vendordep.json` from `package.json`:
+
+**scripts/update-vendordep.js:**
+```javascript
+const fs = require('fs');
+const path = require('path');
+
+// Read package.json
+const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+const version = packageJson.version;
+
+// Read vendordep.json
+const vendordepPath = 'vendordep.json';
+const vendordep = JSON.parse(fs.readFileSync(vendordepPath, 'utf8'));
+
+// Update version in vendordep
+vendordep.version = version;
+
+// Write back to vendordep.json
+fs.writeFileSync(vendordepPath, JSON.stringify(vendordep, null, 2) + '\n');
+
+console.log(`Updated vendordep.json version to ${version}`);
 ```
 
-**Example `pre.json` for beta branch:**
+### Package.json Scripts
 ```json
 {
-  "mode": "pre",
-  "tag": "beta",
-  "initialVersions": {
-    "my-package": "2026.0.0"
-  },
-  "changesets": ["changeset-id-1", "changeset-id-2"]
+  "scripts": {
+    "update-vendordep": "node scripts/update-vendordep.js",
+    "version": "npm run update-vendordep && git add vendordep.json"
+  }
 }
 ```
 
-This file ensures consistent prerelease versioning and helps coordinate the eventual exit from prerelease mode.
-
-## Practical Example: Setting Up a Package
+## Practical Example: Setting Up Multiple Release Streams
 
 Let's walk through a complete example:
 
@@ -191,92 +202,86 @@ git checkout main
 
 On **main branch**:
 ```json
+// package.json
+{
+  "name": "my-library",
+  "version": "2025.0.0"
+}
+
 // .changeset/config.json
 {
   "changelog": "@changesets/cli/changelog",
   "commit": false,
-  "access": "public",
-  "baseBranch": "main"
+  "baseBranch": "main",
+  "privatePackages": {
+    "version": true,
+    "tag": true
+  }
 }
 ```
 
 On **2026 branch**:
 ```bash
 git checkout 2026
-# Update .changeset/config.json
-```
-```json
-{
-  "changelog": "@changesets/cli/changelog", 
-  "commit": false,
-  "access": "public",
-  "baseBranch": "2026"
-}
-```
-```bash
-# Enter prerelease mode
-npx changeset pre enter beta
-git add . && git commit -m "Enter beta prerelease mode"
+# Update package.json version to "2026.0.0"
+# Update .changeset/config.json baseBranch to "2026"
 ```
 
 On **2027 branch**:
 ```bash
 git checkout 2027
-# Update .changeset/config.json with baseBranch: "2027"
-npx changeset pre enter alpha
-git add . && git commit -m "Enter alpha prerelease mode"
+# Update package.json version to "2027.0.0" 
+# Update .changeset/config.json baseBranch to "2027"
 ```
 
 ### Step 3: Making Changes
 
-**On main branch (stable):**
+**On main branch (2025 stable):**
 ```bash
 git checkout main
 # Make changes to your code
 npx changeset add
 # Select packages and bump types as normal
 npx changeset version
-npx changeset publish
-# Result: my-package@1.0.1 published to latest
+# Updates: package.json 2025.0.0 → 2025.1.0, CHANGELOG.md, vendordep.json
+npm run update-vendordep
+git add . && git commit -m "Release 2025.1.0"
 ```
 
-**On 2026 branch (beta):**
+**On 2026 branch:**
 ```bash
 git checkout 2026
 # Make changes to your code
 npx changeset add
 npx changeset version
-npx changeset publish
-# Result: my-package@2026.1.0-beta.0 published to beta dist tag
+# Updates: package.json 2026.0.0 → 2026.1.0, CHANGELOG.md, vendordep.json
+npm run update-vendordep  
+git add . && git commit -m "Release 2026.1.0"
 ```
 
-**On 2027 branch (alpha):**
+**On 2027 branch:**
 ```bash
 git checkout 2027
 # Make changes to your code  
 npx changeset add
 npx changeset version
-npx changeset publish
-# Result: my-package@2027.1.0-alpha.0 published to alpha dist tag
+# Updates: package.json 2027.0.0 → 2027.0.1, CHANGELOG.md, vendordep.json
+npm run update-vendordep
+git add . && git commit -m "Release 2027.0.1"
 ```
 
-### Step 4: User Installation
+### Step 4: Results
 
-Users can now install from different streams:
+You now have three independent release streams:
+- **2025.x.x** versions on main branch
+- **2026.x.x** versions on 2026 branch  
+- **2027.x.x** versions on 2027 branch
 
-```bash
-# Install stable (latest)
-npm install my-package
-
-# Install beta  
-npm install my-package@beta
-
-# Install alpha
-npm install my-package@alpha
-
-# Install specific version
-npm install my-package@2026.1.0-beta.0
-```
+Each with their own:
+- ✅ `package.json` versions
+- ✅ `vendordep.json` versions (synced)
+- ✅ `CHANGELOG.md` files
+- ✅ Git tags for releases
 
 ## CI/CD Integration Strategy
 
@@ -286,7 +291,7 @@ You'll need separate workflows for each branch:
 
 **Main Branch (.github/workflows/release-stable.yml)**
 ```yaml
-name: Release Stable
+name: Release 2025 Stable
 on:
   push:
     branches: [main]
@@ -302,18 +307,17 @@ jobs:
       
       - run: npm ci
       
-      - name: Create Release Pull Request or Publish
+      - name: Create Release Pull Request
         uses: changesets/action@v1
         with:
-          publish: npm run changeset publish
+          version: npm run version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 ```
 
-**2026 Branch (.github/workflows/release-beta.yml)**
+**2026 Branch (.github/workflows/release-2026.yml)**
 ```yaml
-name: Release Beta  
+name: Release 2026  
 on:
   push:
     branches: [2026]
@@ -329,21 +333,17 @@ jobs:
       
       - run: npm ci
       
-      - name: Enter prerelease mode
-        run: npx changeset pre enter beta
-        
-      - name: Create Release Pull Request or Publish
+      - name: Create Release Pull Request
         uses: changesets/action@v1
         with:
-          publish: npm run changeset publish
+          version: npm run version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 ```
 
-**2027 Branch (.github/workflows/release-alpha.yml)**
+**2027 Branch (.github/workflows/release-2027.yml)**
 ```yaml  
-name: Release Alpha
+name: Release 2027
 on:
   push:
     branches: [2027]
@@ -359,27 +359,23 @@ jobs:
       
       - run: npm ci
       
-      - name: Enter prerelease mode
-        run: npx changeset pre enter alpha
-        
-      - name: Create Release Pull Request or Publish  
+      - name: Create Release Pull Request
         uses: changesets/action@v1
         with:
-          publish: npm run changeset publish
+          version: npm run version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 ```
 
 ## Alternative Approaches Considered
 
-### 1. Fixed/Linked Packages
+### 1. Prerelease Mode
+- **What it does**: Creates versions with prerelease tags (e.g., `-beta.0`, `-alpha.1`)
+- **Why not suitable**: You want clean version numbers, not prerelease versions
+
+### 2. Fixed/Linked Packages
 - **What it does**: Forces packages to version together
 - **Why not suitable**: Designed for monorepo package coordination, not release streams
-
-### 2. Snapshot Releases
-- **What it does**: Creates temporary test versions
-- **Why not suitable**: Intended for testing, not production release streams
 
 ### 3. Multiple Repository Approach
 - **What it does**: Separate repos for each release stream
@@ -387,30 +383,25 @@ jobs:
 
 ## Important Considerations & Warnings
 
-### 1. Prerelease Mode Limitations
-From the docs: *"If you decide to do prereleases from the main branch of your repository, without having a branch for your last stable release without the prerelease changes, you will block other changes until you are ready to exit prerelease mode."*
-
-**Solution**: Use separate branches for each release stream as recommended.
-
-### 2. Version Coordination
-- Each branch maintains its own version numbers
+### 1. Version Coordination
+- Each branch maintains its own version numbers independently
 - You'll need to manually coordinate major version bumps across branches if desired
-- Consider using a versioning scheme that includes the year (e.g., `2025.1.0`, `2026.1.0-beta.0`)
+- The year-based versioning scheme (2025.x.x, 2026.x.x, 2027.x.x) naturally separates streams
 
-### 3. Changeset File Management
+### 2. Changeset File Management
 - Changeset files are consumed (deleted) when `changeset version` runs
 - You may need to cherry-pick or manually port changesets between branches
 - Consider using conventional commits or other tools for cross-branch change tracking
 
-### 4. NPM Package Management
-- Each dist tag (`latest`, `beta`, `alpha`) will have different versions
-- Users can install specific versions: `npm install package@beta` or `npm install package@alpha`
-- Make sure your documentation clearly explains the different channels
+### 3. Git Tag Management
+- Each branch will create its own git tags (2025.1.0, 2026.1.0, 2027.0.1)
+- Tags are unique across branches, so no conflicts
+- Make sure your release automation accounts for branch-specific tags
 
-### 5. PreState File Coordination
-- The `.changeset/pre.json` file tracks prerelease state per branch
-- Don't merge this file between branches - each branch should maintain its own
-- The file is crucial for consistent versioning and proper prerelease exit
+### 4. Vendordep.json Sync
+- The update script must run after `changeset version` to sync versions
+- Include vendordep.json in version control commits
+- Test the sync script to ensure proper JSON formatting
 
 ## Getting Started Implementation Steps
 
@@ -421,51 +412,54 @@ From the docs: *"If you decide to do prereleases from the main branch of your re
    ```
 
 2. **Configure each branch** 
+   - Update `package.json` version to appropriate starting version
    - Update `.changeset/config.json` with appropriate `baseBranch`
-   - Set up branch-specific CI/CD workflows
+   - Add `privatePackages` config to indicate no npm publishing
 
-3. **Initialize prerelease mode on non-main branches**
+3. **Create vendordep sync script**
    ```bash
-   # On 2026 branch
-   git checkout 2026
-   changeset pre enter beta
-   
-   # On 2027 branch  
-   git checkout 2027
-   changeset pre enter alpha
+   mkdir scripts
+   # Create scripts/update-vendordep.js
+   # Add npm scripts to package.json
    ```
 
-4. **Test the workflow**
-   - Create changesets on each branch
-   - Verify version generation and publishing
-   - Test npm installation from different dist tags
+4. **Set up CI/CD workflows**
+   - Create branch-specific GitHub Actions workflows
+   - Test the automation with sample changesets
 
-5. **Document for your team**
+5. **Test the workflow**
+   - Create changesets on each branch
+   - Verify version generation and vendordep.json updates
+   - Check git tag creation
+
+6. **Document for your team**
    - Which branch to use for different types of changes
-   - How to install from different release streams
+   - How the version numbers work across streams
    - Release coordination processes
 
 ## Additional Resources
 
 - [Changesets Repository](https://github.com/changesets/changesets)
-- [Prerelease Documentation](https://github.com/changesets/changesets/blob/main/docs/prereleases.md)
 - [Config Options Documentation](https://github.com/changesets/changesets/blob/main/docs/config-file-options.md)
 - [Changesets GitHub Action](https://github.com/changesets/action)
+- [Private Packages Documentation](https://github.com/changesets/changesets/blob/main/docs/versioning-apps.md)
 
 ## Conclusion
 
-Changesets **can absolutely support multiple release streams** using the branch + prerelease tag strategy. The key insight is that Changesets was designed for this workflow, but it requires careful orchestration of:
+Changesets **perfectly supports multiple release streams for version management** without any npm publishing complexity. This approach gives you:
 
-- Branch-based development
-- Prerelease mode for non-stable branches  
-- Proper CI/CD configuration
-- Clear team processes
+1. **Clean version numbers** (2025.1.0, 2026.2.0, 2027.0.1)
+2. **Independent release streams** with proper changelogs
+3. **Automatic vendordep.json updates** via simple scripts
+4. **Git tagging** for releases
+5. **Simple workflows** without prerelease complexity
+6. **Branch-based isolation** for different development streams
 
-This approach gives you the flexibility of independent release streams while maintaining the automation and consistency benefits of Changesets. The prerelease system is particularly powerful because it:
+The key insight is that Changesets works excellently for version management even without npm publishing. The `privatePackages` configuration tells Changesets to handle versioning and tagging while skipping the publish logic entirely.
 
-1. **Maintains separate version lineages** for each release stream
-2. **Uses NPM dist tags** to avoid conflicts
-3. **Provides clean graduation paths** from prerelease to stable
-4. **Integrates seamlessly** with existing CI/CD workflows
+With this setup, you can have:
+- Stable v2025 releases on `main` 
+- Independent v2026 releases on the `2026` branch
+- Cutting-edge v2027 releases on the `2027` branch
 
-With this setup, you can have stable v2025 releases on `main`, experimental v2026 beta releases on the `2026` branch, and cutting-edge v2027 alpha releases on the `2027` branch - all managed through the same Changesets workflow.
+All managed through the same Changesets workflow, with automatic `vendordep.json` synchronization and proper changelog generation per stream.
