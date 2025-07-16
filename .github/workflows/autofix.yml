@@ -54,17 +54,15 @@ jobs:
         with:
           node-version: "lts/*"
           cache: "yarn"
-          cache-dependency-path: ./web/yarn.lock
 
       - name: Install docs dependencies
         run: yarn install --immutable
-        working-directory: web
 
       - name: Format docs with Prettier
         run: yarn run format:write
         working-directory: web
 
       - name: Run autofix.ci
-        uses: autofix-ci/action@635ffb0c9798bd160680f18fd73371e355b85f27
+        uses: autofix-ci/action@v1
         with:
           commit-message: "style: run autofix.ci"

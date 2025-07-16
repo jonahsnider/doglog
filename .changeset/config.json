@@ -1,0 +1,10 @@
+{
+  "$schema": "../node_modules/@changesets/config/schema.json",
+  "commit": false,
+  "fixed": [],
+  "linked": [],
+  "access": "restricted",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": []
+}
