@@ -2,7 +2,7 @@
 
 import { writeFile } from "fs/promises";
 import path from "path";
-import packageJson from "../package.json" with { type: "json" };
+import packageJson from "../lib/package.json" with { type: "json" };
 import vendordep from "../vendordep.json" with { type: "json" };
 
 vendordep.version = packageJson.version;

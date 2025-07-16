@@ -622,6 +622,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@doglog/lib@workspace:lib":
+  version: 0.0.0-use.local
+  resolution: "@doglog/lib@workspace:lib"
+  languageName: unknown
+  linkType: soft
+
 "@doglog/root@workspace:.":
   version: 0.0.0-use.local
   resolution: "@doglog/root@workspace:."
