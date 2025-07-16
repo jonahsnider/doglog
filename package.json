@@ -1,0 +1,16 @@
+{
+  "name": "@doglog/root",
+  "version": "2025.9.1",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "web"
+  ],
+  "scripts": {
+    "version": "changeset version && node --experimental-transform-types scripts/update-vendordep.ts"
+  },
+  "dependencies": {
+    "@changesets/cli": "^2.29.5"
+  },
+  "packageManager": "yarn@4.9.2"
+}
