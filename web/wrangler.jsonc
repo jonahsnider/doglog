@@ -1,7 +1,12 @@
 {
-	"name": "doglog",
-	"compatibility_date": "2025-07-17",
 	"assets": {
 		"directory": "./dist",
 	},
+	"compatibility_date": "2025-07-17",
+	"name": "doglog",
+	"route": {
+		"custom_domain": true,
+		"pattern": "doglog.dev",
+	},
+	"workers_dev": false,
 }

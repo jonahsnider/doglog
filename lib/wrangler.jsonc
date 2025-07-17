@@ -1,7 +1,12 @@
 {
-  "name": "doglog-javadoc",
-  "compatibility_date": "2025-07-17",
   "assets": {
     "directory": "./build/docs/javadoc",
   },
+  "compatibility_date": "2025-07-17",
+  "name": "doglog-javadoc",
+  "route": {
+    "custom_domain": true,
+    "pattern": "javadoc.doglog.dev",
+  },
+  "workers_dev": false,
 }
