@@ -137,6 +137,8 @@ jobs:
         run: yarn install --immutable
       - name: Publish Javadoc to Cloudflare Workers
         run: yarn workspace @doglog/lib wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
   docs:
     name: Build docs
 
