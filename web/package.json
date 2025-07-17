@@ -7,6 +7,7 @@
 		"astro": "astro",
 		"build": "rm -rf dist && astro check && astro build",
 		"dev": "astro dev",
+		"deploy": "wrangler deploy",
 		"format": "prettier --check .",
 		"format:write": "prettier --check . --write",
 		"preview": "astro preview",
@@ -26,7 +27,8 @@
 		"prettier": "3.6.2",
 		"prettier-plugin-astro": "0.14.1",
 		"prettier-plugin-java": "2.6.8",
-		"prettier-plugin-packagejson": "2.5.18"
+		"prettier-plugin-packagejson": "2.5.18",
+		"wrangler": "^3.91.0"
 	},
 	"packageManager": "yarn@4.9.2",
 	"engines": {
