@@ -1,6 +1,6 @@
 {
-  "name": "doglog-docs",
-  "compatibility_date": "2025-01-27",
+  "name": "doglog",
+  "compatibility_date": "2025-07-17",
   "assets": {
     "directory": "./dist"
   }
