@@ -105,6 +105,6 @@ spotless {
 		target '**/*.json'
 		simple().indentWithSpaces(2)
 
-		targetExclude('.pathplanner/**')
+		targetExclude('package.json')
 	}
 }

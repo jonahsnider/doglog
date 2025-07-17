@@ -125,11 +125,20 @@ jobs:
           cache: "gradle"
       - name: Build
         run: ./gradlew build
-      - name: Publish Javadoc to Netlify
-        run: npx netlify-cli deploy --prod --dir lib/build/docs/javadoc
+      - name: Enable Corepack
+        # Required due to a limitation in setup-node https://github.com/actions/setup-node/issues/480#issuecomment-1820622085
+        run: corepack enable
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: "yarn"
+      - name: Install dependencies
+        run: yarn install --immutable
+      - name: Publish Javadoc to Cloudflare Workers
+        run: yarn workspace @doglog/lib wrangler deploy
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
   docs:
     name: Build docs
 
