@@ -125,11 +125,8 @@ jobs:
           cache: "gradle"
       - name: Build
         run: ./gradlew build
-      - name: Publish Javadoc to Netlify
-        run: npx netlify-cli deploy --prod --dir lib/build/docs/javadoc
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+      - name: Publish Javadoc to Cloudflare Workers
+        run: yarn workspace @doglog/lib wrangler deploy
   docs:
     name: Build docs
 

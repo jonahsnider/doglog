@@ -1,0 +1,7 @@
+{
+  "name": "doglog-javadoc",
+  "compatibility_date": "2025-07-17",
+  "assets": {
+    "directory": "./build/docs/javadoc",
+  },
+}
