@@ -9,7 +9,7 @@
 plugins {
 	// Apply the java-library plugin for API and implementation separation.
 	id 'java-library'
-	id "com.diffplug.spotless" version "7.0.4"
+	id "com.diffplug.spotless" version "7.1.0"
 	id 'edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin' version '2025.0'
 	id 'maven-publish'
 	id "net.ltgt.errorprone" version "4.3.0"
@@ -55,7 +55,7 @@ dependencies {
 	implementation "edu.wpi.first.datalog:datalog-java:$wpilibVersion"
 	implementation "edu.wpi.first.wpilibNewCommands:wpilibNewCommands-java:$wpilibVersion"
 
-	errorprone "com.google.errorprone:error_prone_core:2.39.0"
+	errorprone "com.google.errorprone:error_prone_core:2.40.0"
 }
 
 publishing {

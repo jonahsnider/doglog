@@ -1,5 +1,5 @@
 {
-	"name": "doglog.dev",
+	"name": "@doglog/web",
 	"version": "1.0.0",
 	"private": true,
 	"type": "module",
@@ -15,8 +15,8 @@
 	"dependencies": {
 		"@astrojs/check": "^0.9.0",
 		"@astrojs/markdoc": "^0.15.0",
-		"@astrojs/starlight": "^0.34.0",
-		"@astrojs/starlight-markdoc": "^0.4.0",
+		"@astrojs/starlight": "^0.35.0",
+		"@astrojs/starlight-markdoc": "^0.5.0",
 		"astro": "^5.0.0",
 		"sharp": "^0.34.0",
 		"starlight-links-validator": "0.17.0",
@@ -26,7 +26,7 @@
 		"prettier": "3.6.2",
 		"prettier-plugin-astro": "0.14.1",
 		"prettier-plugin-java": "2.6.8",
-		"prettier-plugin-packagejson": "2.5.17",
+		"prettier-plugin-packagejson": "2.5.18",
 		"wrangler": "^4.23.0"
 	},
 	"packageManager": "yarn@4.9.2",

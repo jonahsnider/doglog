@@ -1,7 +1,7 @@
 plugins {
 	id "java"
 	id "edu.wpi.first.GradleRIO2027" version "2027.0.0-alpha-1"
-	id "com.diffplug.spotless" version "7.0.4"
+	id "com.diffplug.spotless" version "7.1.0"
 }
 
 java {
@@ -69,7 +69,7 @@ dependencies {
 	nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
 	simulationRelease wpi.sim.enableRelease()
 
-	testImplementation 'org.junit.jupiter:junit-jupiter:5.13.2'
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.13.3'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	implementation files('../lib/build/libs/doglog.jar')
