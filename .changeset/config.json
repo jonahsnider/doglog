@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@changesets/config/schema.json",
   "access": "restricted",
-  "baseBranch": "main",
+  "baseBranch": "2027",
   "commit": false,
   "fixed": [],
   "ignore": [],
