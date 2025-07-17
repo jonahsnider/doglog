@@ -6,8 +6,8 @@
 	"scripts": {
 		"astro": "astro",
 		"build": "rm -rf dist && astro check && astro build",
-		"dev": "astro dev",
 		"deploy": "wrangler deploy",
+		"dev": "astro dev",
 		"format": "prettier --check .",
 		"format:write": "prettier --check . --write",
 		"preview": "astro preview",
