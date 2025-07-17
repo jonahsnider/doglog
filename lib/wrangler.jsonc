@@ -3,10 +3,10 @@
     "directory": "./build/docs/javadoc",
   },
   "compatibility_date": "2025-07-17",
-  "name": "doglog-javadoc",
+  "name": "doglog-2027-javadoc",
   "route": {
     "custom_domain": true,
-    "pattern": "javadoc.doglog.dev",
+    "pattern": "javadoc.2027.doglog.dev",
   },
   "workers_dev": false,
 }
