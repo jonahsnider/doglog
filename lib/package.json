@@ -1,8 +1,8 @@
 {
   "private": true,
-  "name": "@doglog/lib",
-  "version": "2025.9.1",
   "devDependencies": {
     "wrangler": "^4.25.0"
-  }
+  },
+  "name": "@doglog/lib",
+  "version": "2025.9.1"
 }
