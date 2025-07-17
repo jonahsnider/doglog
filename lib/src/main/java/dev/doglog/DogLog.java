@@ -2,10 +2,10 @@ package dev.doglog;
 
 import dev.doglog.internal.EpochLogger;
 import dev.doglog.internal.FaultLogger;
-import dev.doglog.internal.LogQueuer;
 import dev.doglog.internal.TimedCommand;
+import dev.doglog.internal.extras.ExtrasLogger;
+import dev.doglog.internal.reporters.CombinedReporter;
 import dev.doglog.internal.tunable.Tunable;
-import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.networktables.BooleanSubscriber;
@@ -28,16 +28,17 @@ import java.util.function.LongConsumer;
 
 /** A logger based on WPILib's {@link DataLogManager} */
 public class DogLog {
+  private static final String USAGE_REPORT = "DogLog";
+
   static {
-    HAL.report(
-        FRCNetComm.tResourceType.kResourceType_LoggingFramework,
-        FRCNetComm.tInstances.kLoggingFramework_DogLog);
+    HAL.reportUsage(USAGE_REPORT, "");
   }
 
   /** The options to use for the logger. */
   protected static DogLogOptions options = new DogLogOptions();
 
-  protected static final LogQueuer logger = new LogQueuer(options);
+  protected static final CombinedReporter logger = new CombinedReporter(options);
+  protected static final ExtrasLogger extras = new ExtrasLogger(logger, options);
 
   /** Whether the logger is enabled. */
   protected static boolean enabled = true;
@@ -58,7 +59,7 @@ public class DogLog {
    *
    * <pre>DogLog.setOptions(new DogLogOptions().withNtPublish(true));</pre>
    *
-   * <p>See https://doglog.dev/reference/logger-options/ for more information.
+   * <p>See https://2027.doglog.dev/reference/logger-options/ for more information.
    */
   public static void setOptions(DogLogOptions newOptions) {
     if (newOptions == null) {
@@ -87,7 +88,7 @@ public class DogLog {
    * @param pdh The {@link PowerDistribution} instance to use for logging PDH/PDP data.
    */
   public static void setPdh(PowerDistribution pdh) {
-    logger.setPdh(pdh);
+    extras.setPdh(pdh);
   }
 
   /**
@@ -113,7 +114,7 @@ public class DogLog {
   public static void log(String key, boolean[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -121,7 +122,7 @@ public class DogLog {
   public static void log(String key, boolean value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -129,7 +130,7 @@ public class DogLog {
   public static void log(String key, double[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -137,7 +138,7 @@ public class DogLog {
   public static void log(String key, double value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -145,7 +146,7 @@ public class DogLog {
   public static void log(String key, float[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -153,7 +154,7 @@ public class DogLog {
   public static void log(String key, float value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -161,7 +162,12 @@ public class DogLog {
   public static void log(String key, int[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+
+      var longArray = new long[value.length];
+      for (int i = 0; i < value.length; i++) {
+        longArray[i] = value[i];
+      }
+      logger.log(now, key, longArray);
     }
   }
 
@@ -169,7 +175,7 @@ public class DogLog {
   public static void log(String key, long[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -177,7 +183,7 @@ public class DogLog {
   public static void log(String key, long value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -187,7 +193,7 @@ public class DogLog {
   public static void log(String key, String[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -210,7 +216,7 @@ public class DogLog {
   public static void log(String key, String value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -218,7 +224,7 @@ public class DogLog {
   public static void log(String key, String value, String customTypeString) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value, customTypeString);
+      logger.log(now, key, value, customTypeString);
     }
   }
 
@@ -234,7 +240,7 @@ public class DogLog {
   public static <T extends StructSerializable> void log(String key, T[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -242,14 +248,14 @@ public class DogLog {
   public static <T extends StructSerializable> void log(String key, T value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
   /**
    * Log a fault and create an {@link Alert} for it at the specified level.
    *
-   * <p>See https://doglog.dev/guides/faults for more information.
+   * <p>See https://2027.doglog.dev/guides/faults for more information.
    *
    * @param faultName The name of the fault to log.
    * @param alertType The type of alert to create for the fault, or <code>null</code> if it should
@@ -265,7 +271,7 @@ public class DogLog {
   /**
    * Log a fault and create an error type {@link Alert} for it.
    *
-   * <p>See https://doglog.dev/guides/faults for more information.
+   * <p>See https://2027.doglog.dev/guides/faults for more information.
    *
    * @param faultName The name of the fault to log.
    * @see DogLog#decreaseFault(String)
@@ -278,7 +284,7 @@ public class DogLog {
    * Log a fault and create an error type {@link Alert} for it. The enum will be converted to a
    * string with {@link Enum#name()}.
    *
-   * <p>See https://doglog.dev/guides/faults for more information.
+   * <p>See https://2027.doglog.dev/guides/faults for more information.
    *
    * @param faultName The name of the fault to log.
    * @see DogLog#decreaseFault(Enum)

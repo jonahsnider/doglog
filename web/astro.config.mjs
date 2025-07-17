@@ -7,7 +7,7 @@ import starlightLinksValidator from 'starlight-links-validator';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://doglog.dev',
+	site: 'https://2027.doglog.dev',
 	integrations: [
 		{
 			name: 'copy-files',
@@ -32,6 +32,9 @@ export default defineConfig({
 			logo: {
 				alt: 'DogLog logo',
 				src: './src/assets/logo.svg',
+			},
+			components: {
+				Banner: './src/components/Banner.astro',
 			},
 			sidebar: [
 				{

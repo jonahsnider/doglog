@@ -3,10 +3,10 @@
 		"directory": "./dist",
 	},
 	"compatibility_date": "2025-07-17",
-	"name": "doglog",
+	"name": "doglog-2027",
 	"route": {
 		"custom_domain": true,
-		"pattern": "doglog.dev",
+		"pattern": "2027.doglog.dev",
 	},
 	"workers_dev": false,
 }
