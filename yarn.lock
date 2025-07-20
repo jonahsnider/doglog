@@ -716,7 +716,7 @@ __metadata:
     prettier: "npm:3.6.2"
     prettier-plugin-astro: "npm:0.14.1"
     prettier-plugin-java: "npm:2.6.8"
-    prettier-plugin-packagejson: "npm:2.5.18"
+    prettier-plugin-packagejson: "npm:2.5.19"
     sharp: "npm:^0.34.0"
     starlight-links-validator: "npm:0.17.0"
     typescript: "npm:^5.4.5"
@@ -1802,10 +1802,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pkgr/core@npm:^0.2.4":
-  version: 0.2.4
-  resolution: "@pkgr/core@npm:0.2.4"
-  checksum: 10c0/2528a443bbbef5d4686614e1d73f834f19ccbc975f62b2a64974a6b97bcdf677b9c5e8948e04808ac4f0d853e2f422adfaae2a06e9e9f4f5cf8af76f1adf8dc1
+"@pkgr/core@npm:^0.2.9":
+  version: 0.2.9
+  resolution: "@pkgr/core@npm:0.2.9"
+  checksum: 10c0/ac8e4e8138b1a7a4ac6282873aef7389c352f1f8b577b4850778f5182e4a39a5241facbe48361fec817f56d02b51691b383010843fb08b34a8e8ea3614688fd5
   languageName: node
   linkType: hard
 
@@ -6358,18 +6358,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-packagejson@npm:2.5.18":
-  version: 2.5.18
-  resolution: "prettier-plugin-packagejson@npm:2.5.18"
+"prettier-plugin-packagejson@npm:2.5.19":
+  version: 2.5.19
+  resolution: "prettier-plugin-packagejson@npm:2.5.19"
   dependencies:
     sort-package-json: "npm:3.4.0"
-    synckit: "npm:0.11.8"
+    synckit: "npm:0.11.11"
   peerDependencies:
     prettier: ">= 1.16.0"
   peerDependenciesMeta:
     prettier:
       optional: true
-  checksum: 10c0/f689b93f9703e92f221104f5b74067658b47c16cd8a505eae693c334cc8ea7133dbee7b72d9cf1df9f6d840749bf07ad6251e5472050c4ee37208012796028b4
+  checksum: 10c0/288b8658fae8c620d3a7175f64026af8f450f053b8357b86b7d4c697287eae7e706c825d6819959bae1b539103a586f72d8b829574970392d0082f6ec5520d3f
   languageName: node
   linkType: hard
 
@@ -7493,12 +7493,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"synckit@npm:0.11.8":
-  version: 0.11.8
-  resolution: "synckit@npm:0.11.8"
+"synckit@npm:0.11.11":
+  version: 0.11.11
+  resolution: "synckit@npm:0.11.11"
   dependencies:
-    "@pkgr/core": "npm:^0.2.4"
-  checksum: 10c0/a1de5131ee527512afcaafceb2399b2f3e63678e56b831e1cb2dc7019c972a8b654703a3b94ef4166868f87eb984ea252b467c9d9e486b018ec2e6a55c24dfd8
+    "@pkgr/core": "npm:^0.2.9"
+  checksum: 10c0/f0761495953d12d94a86edf6326b3a565496c72f9b94c02549b6961fb4d999f4ca316ce6b3eb8ed2e4bfc5056a8de65cda0bd03a233333a35221cd2fdc0e196b
   languageName: node
   linkType: hard
 
