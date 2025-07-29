@@ -79,8 +79,8 @@ __metadata:
   linkType: hard
 
 "@astrojs/markdoc@npm:^0.15.0":
-  version: 0.15.1
-  resolution: "@astrojs/markdoc@npm:0.15.1"
+  version: 0.15.2
+  resolution: "@astrojs/markdoc@npm:0.15.2"
   dependencies:
     "@astrojs/internal-helpers": "npm:0.6.1"
     "@astrojs/markdown-remark": "npm:6.3.3"
@@ -91,7 +91,7 @@ __metadata:
     htmlparser2: "npm:^10.0.0"
   peerDependencies:
     astro: ^5.0.0
-  checksum: 10c0/bfe9ccc58ddbe0ff82cf95e23762f948eda1def4d7898f29a2ba913e93c3057694afb15e7d887dd14a61568277ea5cb1f7623a409c05d1e44cf240f00ac4729e
+  checksum: 10c0/3a15703159b7dd543cc51ef59f47a3b651658253e32c44aa1339a63331dfb9640987ebdf42228b87611107d060cf78cf1516ad4dc53ca69ea8609fa69921700e
   languageName: node
   linkType: hard
 
@@ -2626,8 +2626,8 @@ __metadata:
   linkType: hard
 
 "astro@npm:^5.0.0":
-  version: 5.12.4
-  resolution: "astro@npm:5.12.4"
+  version: 5.12.5
+  resolution: "astro@npm:5.12.5"
   dependencies:
     "@astrojs/compiler": "npm:^2.12.2"
     "@astrojs/internal-helpers": "npm:0.6.1"
@@ -2697,7 +2697,7 @@ __metadata:
       optional: true
   bin:
     astro: astro.js
-  checksum: 10c0/ff4656e6fd9b6e7ab3ae35cb59129a368b74162de57d21e8cfcbca04de40a82483754cd851791aabc74d972301e6eb410add455a8ea8de15a1b5b016a5e6f9e4
+  checksum: 10c0/2031772b7c339ab03481bb64f42b298afd6ddb7d57dd7435d054f216769c73515714fb0085c5a7d7faff337abb508a909512d67ef93bcccd830b360fe2745f18
   languageName: node
   linkType: hard
 
