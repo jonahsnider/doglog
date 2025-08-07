@@ -8416,8 +8416,8 @@ __metadata:
   linkType: hard
 
 "wrangler@npm:^4.0.0, wrangler@npm:^4.25.0":
-  version: 4.28.0
-  resolution: "wrangler@npm:4.28.0"
+  version: 4.28.1
+  resolution: "wrangler@npm:4.28.1"
   dependencies:
     "@cloudflare/kv-asset-handler": "npm:0.4.0"
     "@cloudflare/unenv-preset": "npm:2.6.0"
@@ -8439,7 +8439,7 @@ __metadata:
   bin:
     wrangler: bin/wrangler.js
     wrangler2: bin/wrangler.js
-  checksum: 10c0/10dc5866aade44a9f4ab5ebd47ab16274fea1173c39c2251e8960784bb7bf5b90ab719e95aea24a1473ee81a7e38ed86e0a60ba52a364f93bc11ad17866ff86b
+  checksum: 10c0/c7b1e2d83ad972510666708350dc5d1c6ede8a6acf00c751228079338fd85c4c01508e78f01b5bf7dd0b0ed876a46facf01759d1c37a94274172fe1e14845bf6
   languageName: node
   linkType: hard
 
