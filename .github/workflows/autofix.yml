@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Git repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Validate Gradle wrappers
         uses: gradle/actions/wrapper-validation@v4
   autofix:
@@ -21,7 +21,7 @@ jobs:
       - validation
     steps:
       - name: Checkout Git repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Java
         uses: actions/setup-java@v4
