@@ -42,10 +42,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/internal-helpers@npm:0.7.1":
-  version: 0.7.1
-  resolution: "@astrojs/internal-helpers@npm:0.7.1"
-  checksum: 10c0/f14fa470d16b04d968f3d63826b158ed981befdb899d296f62e1d3d2b5d3ab164bfa60ceea97c072beb39ff5c7df5e054234d1a3af9a0f42df10780d50655f95
+"@astrojs/internal-helpers@npm:0.7.2":
+  version: 0.7.2
+  resolution: "@astrojs/internal-helpers@npm:0.7.2"
+  checksum: 10c0/c80f7d28f7b241b64f6542df68767b62e33d5637c4b23e8b7edcc9c6e3d5d3169b572e7da4d8eb5536939c34f8be0225923c8be6c52290551d74ca7c1dcbc4cc
   languageName: node
   linkType: hard
 
@@ -86,11 +86,11 @@ __metadata:
   linkType: hard
 
 "@astrojs/markdoc@npm:^0.15.0":
-  version: 0.15.4
-  resolution: "@astrojs/markdoc@npm:0.15.4"
+  version: 0.15.5
+  resolution: "@astrojs/markdoc@npm:0.15.5"
   dependencies:
-    "@astrojs/internal-helpers": "npm:0.7.1"
-    "@astrojs/markdown-remark": "npm:6.3.5"
+    "@astrojs/internal-helpers": "npm:0.7.2"
+    "@astrojs/markdown-remark": "npm:6.3.6"
     "@astrojs/prism": "npm:3.3.0"
     "@markdoc/markdoc": "npm:^0.5.1"
     esbuild: "npm:^0.25.0"
@@ -98,7 +98,7 @@ __metadata:
     htmlparser2: "npm:^10.0.0"
   peerDependencies:
     astro: ^5.0.0
-  checksum: 10c0/4901281e64fa48236b4b1094da39e416b645cabea43e5d9e0011f06df350701dfc7f4e996dfcd79a32e3f498e35efe5cb6db41d5e2ee466c09a04ff0c390cc7a
+  checksum: 10c0/03315cd43042e95e4392fb803524d7d259004dc13ef1e8a1ba7ebc7a89907e46167d0a334d503e19102cb9075eee38143f40f2914eda43a4d5317394b17f4fb3
   languageName: node
   linkType: hard
 
@@ -131,11 +131,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/markdown-remark@npm:6.3.5":
-  version: 6.3.5
-  resolution: "@astrojs/markdown-remark@npm:6.3.5"
+"@astrojs/markdown-remark@npm:6.3.6":
+  version: 6.3.6
+  resolution: "@astrojs/markdown-remark@npm:6.3.6"
   dependencies:
-    "@astrojs/internal-helpers": "npm:0.7.1"
+    "@astrojs/internal-helpers": "npm:0.7.2"
     "@astrojs/prism": "npm:3.3.0"
     github-slugger: "npm:^2.0.0"
     hast-util-from-html: "npm:^2.0.3"
@@ -156,7 +156,7 @@ __metadata:
     unist-util-visit: "npm:^5.0.0"
     unist-util-visit-parents: "npm:^6.0.1"
     vfile: "npm:^6.0.3"
-  checksum: 10c0/ab559b3d13068ad0aeacf04cdfe8c76544dd3d5a857252406c20c541bb9288e5351f146cf4884b471101b52492947b8559525f8b9502b607714cd191b83325cf
+  checksum: 10c0/9a55458aa15f778e1522abd574b048b084652269963d47e9ace8fa2e1b63d026efc1468d48f2936dae3cee387b56be3eba3abf388f162adb9e9b08ce1d9b1ddd
   languageName: node
   linkType: hard
 
@@ -2633,12 +2633,12 @@ __metadata:
   linkType: hard
 
 "astro@npm:^5.0.0":
-  version: 5.13.0
-  resolution: "astro@npm:5.13.0"
+  version: 5.13.2
+  resolution: "astro@npm:5.13.2"
   dependencies:
     "@astrojs/compiler": "npm:^2.12.2"
-    "@astrojs/internal-helpers": "npm:0.7.1"
-    "@astrojs/markdown-remark": "npm:6.3.5"
+    "@astrojs/internal-helpers": "npm:0.7.2"
+    "@astrojs/markdown-remark": "npm:6.3.6"
     "@astrojs/telemetry": "npm:3.3.0"
     "@capsizecss/unpack": "npm:^2.4.0"
     "@oslojs/encoding": "npm:^1.1.0"
@@ -2704,7 +2704,7 @@ __metadata:
       optional: true
   bin:
     astro: astro.js
-  checksum: 10c0/431736e9e6209d34325aca15ab79a33dbb20092fb075b23f9c259893f0996f954409ac0349921002338798830a84ade659534f77c7484f198e299a1a700a1a1b
+  checksum: 10c0/b5b8df9e55bd4e6d564c69e4cac51fd101968480c5fb24447c6a16c3183c780f17f87271b3ff721963d08d0133b22b0c61b8dded8d5117b24f2a1adae89780c0
   languageName: node
   linkType: hard
 
