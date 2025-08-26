@@ -30,7 +30,7 @@
 		"prettier-plugin-packagejson": "2.5.19",
 		"wrangler": "^4.0.0"
 	},
-	"packageManager": "yarn@4.9.3",
+	"packageManager": "yarn@4.9.4",
 	"engines": {
 		"node": "22.x"
 	}
