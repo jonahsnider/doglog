@@ -5,8 +5,9 @@ plugins {
 }
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
 }
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
@@ -105,6 +106,7 @@ wpi.java.configureTestTasks(test)
 
 // Configure string concat to always inline compile
 tasks.withType(JavaCompile) {
+	options.release = 17
 	options.compilerArgs.add '-XDstringConcat=inline'
 }
 
