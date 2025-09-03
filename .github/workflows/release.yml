@@ -28,5 +28,9 @@ jobs:
         uses: changesets/action@v1
         with:
           version: yarn run version
+          title: "build: version packages"
+          commit: "build: version packages"
+          createGithubReleases: true
+          commitMode: github-api
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
