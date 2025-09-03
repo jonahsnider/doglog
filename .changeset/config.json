@@ -2,6 +2,7 @@
   "$schema": "../node_modules/@changesets/config/schema.json",
   "access": "restricted",
   "baseBranch": "main",
+  "changelog": ["@changesets/changelog-github", { "repo": "jonahsnider/doglog" }],
   "commit": false,
   "fixed": [],
   "ignore": [],
