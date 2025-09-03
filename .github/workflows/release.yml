@@ -31,6 +31,5 @@ jobs:
           title: "build: version packages"
           commit: "build: version packages"
           createGithubReleases: true
-          commitMode: github-api
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
