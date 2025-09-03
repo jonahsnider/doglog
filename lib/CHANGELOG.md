@@ -1,5 +1,11 @@
 # Changelog
 
+## 2025.9.3
+
+### Patch Changes
+
+- [`43d9fcd`](https://github.com/jonahsnider/doglog/commit/43d9fcd93b8be474d7ad143c9b9a22dc7db513c1) Thanks [@jonahsnider](https://github.com/jonahsnider)! - bump version
+
 ## 2025.9.2
 
 ### Patch Changes
