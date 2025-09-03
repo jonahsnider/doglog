@@ -31,5 +31,6 @@ jobs:
           title: "build: version packages"
           commit: "build: version packages"
           createGithubReleases: true
+          publish: "echo 'mock publish'"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
