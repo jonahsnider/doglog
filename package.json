@@ -7,11 +7,5 @@
     "lib",
     "web"
   ],
-  "scripts": {
-    "version": "changeset version && node --experimental-transform-types scripts/update-vendordep.ts"
-  },
-  "dependencies": {
-    "@changesets/cli": "^2.29.5"
-  },
-  "packageManager": "yarn@4.9.2"
+  "packageManager": "yarn@4.9.4"
 }

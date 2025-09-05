@@ -159,31 +159,36 @@ public class Tunable implements AutoCloseable {
 
       for (var change : changes) {
         switch (change.valueData.value.getType()) {
-          case kDouble ->
-              doubleChangeCallbacks
-                  .get(change.listener)
-                  .onChange()
-                  .accept(change.valueData.value.getDouble());
-          case kFloat ->
-              floatChangeCallbacks
-                  .get(change.listener)
-                  .onChange()
-                  .accept(change.valueData.value.getFloat());
-          case kBoolean ->
-              booleanChangeCallbacks
-                  .get(change.listener)
-                  .onChange()
-                  .accept(change.valueData.value.getBoolean());
-          case kString ->
-              stringChangeCallbacks
-                  .get(change.listener)
-                  .onChange()
-                  .accept(change.valueData.value.getString());
-          case kInteger ->
-              longChangeCallbacks
-                  .get(change.listener)
-                  .onChange()
-                  .accept(change.valueData.value.getInteger());
+          case kDouble -> {
+            var callback = doubleChangeCallbacks.get(change.listener);
+            if (callback != null) {
+              callback.onChange().accept(change.valueData.value.getDouble());
+            }
+          }
+          case kFloat -> {
+            var callback = floatChangeCallbacks.get(change.listener);
+            if (callback != null) {
+              callback.onChange().accept(change.valueData.value.getFloat());
+            }
+          }
+          case kBoolean -> {
+            var callback = booleanChangeCallbacks.get(change.listener);
+            if (callback != null) {
+              callback.onChange().accept(change.valueData.value.getBoolean());
+            }
+          }
+          case kString -> {
+            var callback = stringChangeCallbacks.get(change.listener);
+            if (callback != null) {
+              callback.onChange().accept(change.valueData.value.getString());
+            }
+          }
+          case kInteger -> {
+            var callback = longChangeCallbacks.get(change.listener);
+            if (callback != null) {
+              callback.onChange().accept(change.valueData.value.getInteger());
+            }
+          }
           default -> {}
         }
       }

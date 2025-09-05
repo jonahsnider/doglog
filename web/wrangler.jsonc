@@ -1,6 +1,8 @@
 {
 	"assets": {
 		"directory": "./dist",
+		"html_handling": "drop-trailing-slash",
+		"not_found_handling": "404-page",
 	},
 	"compatibility_date": "2025-07-17",
 	"name": "doglog-2027",
@@ -9,4 +11,5 @@
 		"pattern": "2027.doglog.dev",
 	},
 	"workers_dev": false,
+	"$schema": "../node_modules/wrangler/config-schema.json",
 }
