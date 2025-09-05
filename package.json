@@ -1,0 +1,11 @@
+{
+  "name": "@doglog/root",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "lib",
+    "web"
+  ],
+  "packageManager": "yarn@4.9.4"
+}

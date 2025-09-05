@@ -157,10 +157,8 @@ jobs:
         with:
           node-version: "lts/*"
           cache: "yarn"
-          cache-dependency-path: ./web/yarn.lock
       - name: Install dependencies
         run: yarn install --immutable
-        working-directory: ./web
       - name: Build docs
         run: yarn build
         working-directory: ./web
