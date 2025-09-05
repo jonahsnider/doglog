@@ -59,7 +59,7 @@ export default defineConfig({
 });
 
 async function writeChangelogToContent() {
-	const CHANGELOG_INPUT_PATH = path.join(import.meta.dirname, '..', 'lib', 'CHANGELOG.md');
+	const CHANGELOG_INPUT_PATH = path.join(import.meta.dirname, '..', 'CHANGELOG.md');
 	const OUTPUT_PATH = path.join(import.meta.dirname, 'src', 'content', 'docs', 'reference', 'changelog.md');
 
 	const rawChangelog = await fs.readFile(CHANGELOG_INPUT_PATH, 'utf-8');
