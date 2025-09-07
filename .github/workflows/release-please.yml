@@ -1,7 +1,6 @@
 on:
   push:
     branches:
-      - main
       - "2027"
 
 permissions:
@@ -23,3 +22,4 @@ jobs:
           # (PAT) and configured it as a GitHub action secret named
           # `MY_RELEASE_PLEASE_TOKEN` (this secret name is not important).
           token: ${{ secrets.GITHUB_TOKEN }}
+          target-branch: "2027"
