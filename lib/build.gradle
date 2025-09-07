@@ -15,7 +15,7 @@ plugins {
 	id "net.ltgt.errorprone" version "4.3.0"
 }
 
-archivesBaseName = 'doglog'
+base.archivesName = 'doglog'
 
 tasks.withType(Javadoc) {
 	options {
