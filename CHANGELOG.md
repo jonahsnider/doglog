@@ -1,5 +1,21 @@
 # Changelog
 
+## [2027.0.0](https://github.com/jonahsnider/doglog/compare/2025.9.2...2027.0.0) (2025-09-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* update to WPILib 2027
+
+### Features
+
+* update to WPILib 2027 ([84fe947](https://github.com/jonahsnider/doglog/commit/84fe9478e8084a14f92e9c16ba9c0eadaa4a3170))
+
+
+### Bug Fixes
+
+* use Java 17 instead of 21 ([00be4a2](https://github.com/jonahsnider/doglog/commit/00be4a22148e302c362efa42424fcb785bb2e0fc))
+
 ## [2025.9.2](https://github.com/jonahsnider/doglog/compare/2025.9.1...2025.9.2) (2025-09-05)
 
 ### Bug Fixes
