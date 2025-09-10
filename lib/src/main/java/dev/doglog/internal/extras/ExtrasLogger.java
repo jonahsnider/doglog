@@ -62,11 +62,6 @@ public class ExtrasLogger {
   }
 
   private void logSystem(long now) {
-    logger.log(now, "SystemStats/FPGAVersion", HALUtil.getFPGAVersion());
-    logger.log(now, "SystemStats/FPGARevision", HALUtil.getFPGARevision());
-    logger.log(now, "SystemStats/SerialNumber", HALUtil.getSerialNumber());
-    logger.log(now, "SystemStats/Comments", HALUtil.getComments());
-    logger.log(now, "SystemStats/TeamNumber", HALUtil.getTeamNumber());
     logger.log(now, "SystemStats/SystemActive", HAL.getSystemActive());
     logger.log(now, "SystemStats/BrownedOut", HAL.getBrownedOut());
     logger.log(now, "SystemStats/RSLState", HAL.getRSLState());
