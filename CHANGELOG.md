@@ -1,5 +1,12 @@
 # Changelog
 
+## [2027.0.1](https://github.com/jonahsnider/doglog/compare/2027.0.0...2027.0.1) (2025-09-10)
+
+
+### Bug Fixes
+
+* remove broken FPGA logs ([c35abb1](https://github.com/jonahsnider/doglog/commit/c35abb1d2ff12bbfa67ce3b594c924e2413cb934))
+
 ## [2027.0.0](https://github.com/jonahsnider/doglog/compare/2025.9.2...2027.0.0) (2025-09-07)
 
 
