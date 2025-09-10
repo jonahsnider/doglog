@@ -2411,8 +2411,8 @@ __metadata:
   linkType: hard
 
 "astro@npm:^5.0.0":
-  version: 5.13.6
-  resolution: "astro@npm:5.13.6"
+  version: 5.13.7
+  resolution: "astro@npm:5.13.7"
   dependencies:
     "@astrojs/compiler": "npm:^2.12.2"
     "@astrojs/internal-helpers": "npm:0.7.2"
@@ -2458,9 +2458,8 @@ __metadata:
     prompts: "npm:^2.4.2"
     rehype: "npm:^13.0.2"
     semver: "npm:^7.7.2"
-    sharp: "npm:^0.33.3"
+    sharp: "npm:^0.34.0"
     shiki: "npm:^3.12.0"
-    simple-swizzle: "npm:0.2.2"
     smol-toml: "npm:^1.4.2"
     tinyexec: "npm:^0.3.2"
     tinyglobby: "npm:^0.2.14"
@@ -2483,7 +2482,7 @@ __metadata:
       optional: true
   bin:
     astro: astro.js
-  checksum: 10c0/226b05d4019de9e2d63e8012575ce6690683ac70bdb06bc31f35dc5698eda2f956949b62a6d3311c002492e63804aa25aae9ff639a965c07a7323f54cac05c50
+  checksum: 10c0/132cee6eda36c7250512cb7e7a17fb1c8581679453641d5613a96e7ebd5e653df6437267ad094c338f8492d2efc4ec04d535304c90d5e0f37823e299a1375295
   languageName: node
   linkType: hard
 
@@ -6513,7 +6512,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sharp@npm:^0.33.3, sharp@npm:^0.33.5":
+"sharp@npm:^0.33.5":
   version: 0.33.5
   resolution: "sharp@npm:0.33.5"
   dependencies:
@@ -6731,7 +6730,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"simple-swizzle@npm:0.2.2, simple-swizzle@npm:^0.2.2":
+"simple-swizzle@npm:^0.2.2":
   version: 0.2.2
   resolution: "simple-swizzle@npm:0.2.2"
   dependencies:
