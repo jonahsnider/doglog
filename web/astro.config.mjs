@@ -80,27 +80,25 @@ export default defineConfig({
 					{
 						src: '/favicon.ico',
 						sizes: '48x48',
-						type: 'image/x-icon'
+						type: 'image/x-icon',
 					},
 					{
 						src: '/favicon.ico',
 						sizes: '192x192',
 						type: 'image/x-icon',
-						purpose: 'any maskable'
+						purpose: 'any maskable',
 					},
 					{
 						src: '/favicon.ico',
 						sizes: '512x512',
 						type: 'image/x-icon',
-						purpose: 'any maskable'
-					}
-				]
+						purpose: 'any maskable',
+					},
+				],
 			},
 			workbox: {
 				globDirectory: 'dist',
-				globPatterns: [
-					'**/*.{js,css,html,svg,png,ico,txt,json,md,mdoc}'
-				],
+				globPatterns: ['**/*.{js,css,html,svg,png,ico,txt,json,md,mdoc}'],
 				// Don't fallback on document based (e.g. `/some-page`) requests
 				// This is useful for Astro static sites since all pages are pre-rendered
 				navigateFallback: null,
@@ -119,9 +117,9 @@ export default defineConfig({
 							cacheName: 'google-fonts-stylesheets',
 							expiration: {
 								maxEntries: 10,
-								maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
-							}
-						}
+								maxAgeSeconds: 60 * 60 * 24 * 365, // 365 days
+							},
+						},
 					},
 					// Cache Google Fonts webfonts
 					{
@@ -131,9 +129,9 @@ export default defineConfig({
 							cacheName: 'google-fonts-webfonts',
 							expiration: {
 								maxEntries: 30,
-								maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
-							}
-						}
+								maxAgeSeconds: 60 * 60 * 24 * 365, // 365 days
+							},
+						},
 					},
 					// Cache images
 					{
@@ -143,9 +141,9 @@ export default defineConfig({
 							cacheName: 'images-cache',
 							expiration: {
 								maxEntries: 60,
-								maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-							}
-						}
+								maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+							},
+						},
 					},
 					// Cache CSS and JS files
 					{
@@ -155,9 +153,9 @@ export default defineConfig({
 							cacheName: 'static-resources',
 							expiration: {
 								maxEntries: 60,
-								maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
-							}
-						}
+								maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
+							},
+						},
 					},
 					// Cache HTML pages (documentation pages)
 					{
@@ -167,9 +165,9 @@ export default defineConfig({
 							cacheName: 'pages-cache',
 							expiration: {
 								maxEntries: 100,
-								maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
-							}
-						}
+								maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
+							},
+						},
 					},
 					// Cache API responses (if any)
 					{
@@ -180,12 +178,12 @@ export default defineConfig({
 							networkTimeoutSeconds: 3,
 							expiration: {
 								maxEntries: 50,
-								maxAgeSeconds: 60 * 60 * 24 // 1 day
-							}
-						}
-					}
-				]
-			}
+								maxAgeSeconds: 60 * 60 * 24, // 1 day
+							},
+						},
+					},
+				],
+			},
 		}),
 	],
 });

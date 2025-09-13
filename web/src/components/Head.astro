@@ -20,82 +20,82 @@
 
 <!-- PWA status indicator -->
 <style>
-  .pwa-status {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #4CAF50;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    z-index: 1001;
-    opacity: 0;
-    transform: translateY(-20px);
-    transition: all 0.3s ease;
-    pointer-events: none;
-  }
+	.pwa-status {
+		position: fixed;
+		top: 20px;
+		right: 20px;
+		background: #4caf50;
+		color: white;
+		padding: 8px 12px;
+		border-radius: 20px;
+		font-size: 12px;
+		font-weight: 500;
+		z-index: 1001;
+		opacity: 0;
+		transform: translateY(-20px);
+		transition: all 0.3s ease;
+		pointer-events: none;
+	}
 
-  .pwa-status.show {
-    opacity: 1;
-    transform: translateY(0);
-  }
+	.pwa-status.show {
+		opacity: 1;
+		transform: translateY(0);
+	}
 
-  .pwa-status.offline {
-    background: #FF9800;
-  }
+	.pwa-status.offline {
+		background: #ff9800;
+	}
 
-  .pwa-status.online {
-    background: #4CAF50;
-  }
+	.pwa-status.online {
+		background: #4caf50;
+	}
 </style>
 
 <script>
-  // PWA status indicator
-  function createPWAStatusIndicator() {
-    const indicator = document.createElement('div');
-    indicator.className = 'pwa-status';
-    indicator.id = 'pwa-status';
-    document.body.appendChild(indicator);
-    return indicator;
-  }
+	// PWA status indicator
+	function createPWAStatusIndicator() {
+		const indicator = document.createElement('div');
+		indicator.className = 'pwa-status';
+		indicator.id = 'pwa-status';
+		document.body.appendChild(indicator);
+		return indicator;
+	}
 
-  // Show PWA status
-  function showPWAStatus(message: string, type: 'online' | 'offline' | 'update') {
-    let indicator = document.getElementById('pwa-status') as HTMLElement;
-    if (!indicator) {
-      indicator = createPWAStatusIndicator();
-    }
-    
-    indicator.textContent = message;
-    indicator.className = `pwa-status show ${type}`;
-    
-    setTimeout(() => {
-      indicator.classList.remove('show');
-    }, 3000);
-  }
+	// Show PWA status
+	function showPWAStatus(message: string, type: 'online' | 'offline' | 'update') {
+		let indicator = document.getElementById('pwa-status') as HTMLElement;
+		if (!indicator) {
+			indicator = createPWAStatusIndicator();
+		}
 
-  // Online/Offline status
-  window.addEventListener('online', () => {
-    showPWAStatus('🌐 Back online', 'online');
-  });
+		indicator.textContent = message;
+		indicator.className = `pwa-status show ${type}`;
 
-  window.addEventListener('offline', () => {
-    showPWAStatus('📱 Offline mode active', 'offline');
-  });
+		setTimeout(() => {
+			indicator.classList.remove('show');
+		}, 3000);
+	}
 
-  // Service worker registration and updates
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      showPWAStatus('📄 Content updated', 'update');
-    });
-  }
+	// Online/Offline status
+	window.addEventListener('online', () => {
+		showPWAStatus('🌐 Back online', 'online');
+	});
 
-  // Check initial online status
-  if (!navigator.onLine) {
-    setTimeout(() => {
-      showPWAStatus('📱 Offline mode active', 'offline');
-    }, 1000);
-  }
+	window.addEventListener('offline', () => {
+		showPWAStatus('📱 Offline mode active', 'offline');
+	});
+
+	// Service worker registration and updates
+	if ('serviceWorker' in navigator) {
+		navigator.serviceWorker.addEventListener('controllerchange', () => {
+			showPWAStatus('📄 Content updated', 'update');
+		});
+	}
+
+	// Check initial online status
+	if (!navigator.onLine) {
+		setTimeout(() => {
+			showPWAStatus('📱 Offline mode active', 'offline');
+		}, 1000);
+	}
 </script>
