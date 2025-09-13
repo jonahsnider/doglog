@@ -1,0 +1,224 @@
+---
+// PWA Install Prompt Component
+---
+
+<div id="pwa-install-prompt" class="pwa-install-prompt hidden">
+  <div class="pwa-install-content">
+    <div class="pwa-install-icon">
+      📱
+    </div>
+    <div class="pwa-install-text">
+      <h3>Install DogLog Docs</h3>
+      <p>Get quick access to the documentation even when offline!</p>
+    </div>
+    <div class="pwa-install-actions">
+      <button id="pwa-install-button" class="pwa-install-btn primary">
+        Install App
+      </button>
+      <button id="pwa-dismiss-button" class="pwa-install-btn secondary">
+        Not Now
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .pwa-install-prompt {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 1px solid #e1e5e9;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    padding: 16px;
+    max-width: 400px;
+    width: calc(100vw - 40px);
+    z-index: 1000;
+    transition: all 0.3s ease;
+  }
+
+  .pwa-install-prompt.hidden {
+    opacity: 0;
+    transform: translateX(-50%) translateY(100px);
+    pointer-events: none;
+  }
+
+  .pwa-install-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .pwa-install-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .pwa-install-text {
+    flex: 1;
+  }
+
+  .pwa-install-text h3 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+
+  .pwa-install-text p {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  .pwa-install-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .pwa-install-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .pwa-install-btn.primary {
+    background: #E86D38;
+    color: white;
+  }
+
+  .pwa-install-btn.primary:hover {
+    background: #d55a2a;
+  }
+
+  .pwa-install-btn.secondary {
+    background: #f8f9fa;
+    color: #666;
+    border: 1px solid #e1e5e9;
+  }
+
+  .pwa-install-btn.secondary:hover {
+    background: #e9ecef;
+  }
+
+  @media (min-width: 768px) {
+    .pwa-install-actions {
+      flex-direction: row;
+    }
+  }
+
+  /* Dark mode support */
+  [data-theme="dark"] .pwa-install-prompt {
+    background: #1a1a1a;
+    border-color: #333;
+    color: white;
+  }
+
+  [data-theme="dark"] .pwa-install-text h3 {
+    color: white;
+  }
+
+  [data-theme="dark"] .pwa-install-text p {
+    color: #ccc;
+  }
+
+  [data-theme="dark"] .pwa-install-btn.secondary {
+    background: #333;
+    color: #ccc;
+    border-color: #444;
+  }
+
+  [data-theme="dark"] .pwa-install-btn.secondary:hover {
+    background: #444;
+  }
+</style>
+
+<script>
+  // PWA Install Prompt Logic
+  let deferredPrompt: any = null;
+  let isInstallPromptShown = false;
+
+  // Listen for the beforeinstallprompt event
+  window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Stash the event so it can be triggered later
+    deferredPrompt = e;
+    
+    // Show our custom install prompt after a delay
+    setTimeout(() => {
+      showInstallPrompt();
+    }, 5000); // Show after 5 seconds
+  });
+
+  // Show install prompt
+  function showInstallPrompt() {
+    if (isInstallPromptShown || !deferredPrompt) return;
+    
+    // Check if already installed
+    if (window.matchMedia('(display-mode: standalone)').matches) return;
+    
+    // Check if user has dismissed before
+    if (localStorage.getItem('pwa-install-dismissed') === 'true') return;
+    
+    const prompt = document.getElementById('pwa-install-prompt');
+    if (prompt) {
+      prompt.classList.remove('hidden');
+      isInstallPromptShown = true;
+    }
+  }
+
+  // Handle install button click
+  document.getElementById('pwa-install-button')?.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    
+    // Show the install prompt
+    deferredPrompt.prompt();
+    
+    // Wait for the user to respond to the prompt
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    // We've used the prompt, and can't use it again, throw it away
+    deferredPrompt = null;
+    
+    // Hide the prompt
+    hideInstallPrompt();
+    
+    // Track the outcome
+    console.log(`PWA install prompt outcome: ${outcome}`);
+  });
+
+  // Handle dismiss button click
+  document.getElementById('pwa-dismiss-button')?.addEventListener('click', () => {
+    hideInstallPrompt();
+    localStorage.setItem('pwa-install-dismissed', 'true');
+  });
+
+  // Hide install prompt
+  function hideInstallPrompt() {
+    const prompt = document.getElementById('pwa-install-prompt');
+    if (prompt) {
+      prompt.classList.add('hidden');
+    }
+  }
+
+  // Listen for app installed event
+  window.addEventListener('appinstalled', () => {
+    console.log('PWA was installed');
+    hideInstallPrompt();
+  });
+
+  // Check if already installed and hide prompt
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    hideInstallPrompt();
+  }
+</script>

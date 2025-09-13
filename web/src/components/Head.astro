@@ -1,0 +1,101 @@
+---
+// Custom head component for PWA functionality
+---
+
+<!-- PWA meta tags -->
+<meta name="theme-color" content="#E86D38" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="DogLog Docs" />
+<meta name="mobile-web-app-capable" content="yes" />
+
+<!-- Apple touch icons -->
+<link rel="apple-touch-icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="152x152" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon.ico" />
+
+<!-- Microsoft tiles -->
+<meta name="msapplication-TileColor" content="#E86D38" />
+<meta name="msapplication-TileImage" content="/favicon.ico" />
+
+<!-- PWA status indicator -->
+<style>
+  .pwa-status {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #4CAF50;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    z-index: 1001;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+  }
+
+  .pwa-status.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .pwa-status.offline {
+    background: #FF9800;
+  }
+
+  .pwa-status.online {
+    background: #4CAF50;
+  }
+</style>
+
+<script>
+  // PWA status indicator
+  function createPWAStatusIndicator() {
+    const indicator = document.createElement('div');
+    indicator.className = 'pwa-status';
+    indicator.id = 'pwa-status';
+    document.body.appendChild(indicator);
+    return indicator;
+  }
+
+  // Show PWA status
+  function showPWAStatus(message: string, type: 'online' | 'offline' | 'update') {
+    let indicator = document.getElementById('pwa-status') as HTMLElement;
+    if (!indicator) {
+      indicator = createPWAStatusIndicator();
+    }
+    
+    indicator.textContent = message;
+    indicator.className = `pwa-status show ${type}`;
+    
+    setTimeout(() => {
+      indicator.classList.remove('show');
+    }, 3000);
+  }
+
+  // Online/Offline status
+  window.addEventListener('online', () => {
+    showPWAStatus('🌐 Back online', 'online');
+  });
+
+  window.addEventListener('offline', () => {
+    showPWAStatus('📱 Offline mode active', 'offline');
+  });
+
+  // Service worker registration and updates
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      showPWAStatus('📄 Content updated', 'update');
+    });
+  }
+
+  // Check initial online status
+  if (!navigator.onLine) {
+    setTimeout(() => {
+      showPWAStatus('📱 Offline mode active', 'offline');
+    }, 1000);
+  }
+</script>

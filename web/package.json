@@ -18,10 +18,13 @@
 		"@astrojs/markdoc": "^0.15.0",
 		"@astrojs/starlight": "^0.35.0",
 		"@astrojs/starlight-markdoc": "^0.5.0",
+		"@vite-pwa/astro": "^1.1.0",
 		"astro": "^5.0.0",
 		"sharp": "^0.34.0",
 		"starlight-links-validator": "0.17.2",
-		"typescript": "^5.4.5"
+		"typescript": "^5.4.5",
+		"vite-pwa": "^1.0.2",
+		"workbox-window": "^7.3.0"
 	},
 	"devDependencies": {
 		"prettier": "3.6.2",
