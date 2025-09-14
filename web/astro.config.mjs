@@ -4,6 +4,7 @@ import { defineConfig } from 'astro/config';
 import fs from 'fs/promises';
 import path from 'path';
 import starlightLinksValidator from 'starlight-links-validator';
+import AstroPWA from '@vite-pwa/astro';
 
 // https://astro.build/config
 export default defineConfig({
@@ -32,7 +33,7 @@ export default defineConfig({
 			],
 			logo: {
 				alt: 'DogLog logo',
-				src: './src/assets/logo.svg',
+				src: './public/logo.svg',
 			},
 			sidebar: [
 				{
@@ -53,8 +54,30 @@ export default defineConfig({
 				},
 			],
 			customCss: ['/src/styles/custom.css'],
+			components: {
+				Head: './src/components/PwaHead.astro',
+			},
 		}),
 		markdoc(),
+		AstroPWA({
+			registerType: 'autoUpdate',
+			workbox: { navigateFallback: '/404.html' },
+			manifest: {
+				name: 'DogLog Docs',
+				short_name: 'DogLog',
+				background_color: '#ffffff',
+				description: 'Simpler logging for FRC, DogLog is the easiest way to add logging to your robot code',
+				theme_color: '#460b05',
+				lang: 'en',
+				display: 'minimal-ui',
+				id: 'doglog.dev',
+				start_url: '/',
+				orientation: 'any',
+			},
+			pwaAssets: {
+				image: './public/logo.svg',
+			},
+		}),
 	],
 });
 
