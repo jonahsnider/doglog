@@ -1,10 +1,9 @@
 import markdoc from '@astrojs/markdoc';
 import starlight from '@astrojs/starlight';
+import AstroPWA from '@vite-pwa/astro';
 import { defineConfig } from 'astro/config';
 import fs from 'fs/promises';
 import path from 'path';
-import starlightLinksValidator from 'starlight-links-validator';
-import AstroPWA from '@vite-pwa/astro';
 
 // https://astro.build/config
 export default defineConfig({
@@ -20,8 +19,6 @@ export default defineConfig({
 			},
 		},
 		starlight({
-			// TODO: Enable this once mdoc files are parsed properly https://github.com/HiDeoo/starlight-links-validator/issues/96
-			// plugins: [starlightLinksValidator()],
 			title: 'DogLog Docs',
 			favicon: '/favicon.ico',
 			social: [
