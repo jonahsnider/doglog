@@ -32,9 +32,6 @@ export default defineConfig({
 				alt: 'DogLog logo',
 				src: './public/logo.svg',
 			},
-			components: {
-				Banner: './src/components/Banner.astro',
-			},
 			sidebar: [
 				{
 					label: 'Getting started',
@@ -55,6 +52,7 @@ export default defineConfig({
 			],
 			customCss: ['/src/styles/custom.css'],
 			components: {
+				Banner: './src/components/Banner.astro',
 				Head: './src/components/PwaHead.astro',
 			},
 		}),
