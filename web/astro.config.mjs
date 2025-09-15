@@ -60,8 +60,10 @@ export default defineConfig({
 		}),
 		markdoc(),
 		AstroPWA({
+			base: '/',
+			scope: '/',
 			registerType: 'autoUpdate',
-			workbox: { navigateFallback: '/404.html' },
+			workbox: { cleanupOutdatedCaches: true, cacheId: 'doglog-docs' },
 			manifest: {
 				name: 'DogLog Docs',
 				short_name: 'DogLog',
@@ -76,6 +78,9 @@ export default defineConfig({
 			},
 			pwaAssets: {
 				image: './public/logo.svg',
+			},
+			experimental: {
+				directoryAndTrailingSlashHandler: true,
 			},
 		}),
 	],
