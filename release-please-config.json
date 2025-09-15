@@ -1,5 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "initial-version": "2027.0.0",
   "packages": {
     ".": {
       "bump-minor-pre-major": false,
@@ -16,11 +17,17 @@
           "jsonpath": "$.javaDependencies[0].version",
           "path": "vendordep.json",
           "type": "json"
+        },
+        {
+          "jsonpath": "$.version",
+          "path": "lib/package.json",
+          "type": "json"
         }
       ],
       "include-v-in-tag": false,
-      "prerelease": false,
+      "prerelease": true,
       "release-type": "simple"
     }
-  }
+  },
+  "prerelease": true
 }

@@ -7,7 +7,7 @@ import path from 'path';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://doglog.dev',
+	site: 'https://2027.doglog.dev',
 	trailingSlash: 'never',
 	integrations: [
 		{
@@ -52,6 +52,7 @@ export default defineConfig({
 			],
 			customCss: ['/src/styles/custom.css'],
 			components: {
+				Banner: './src/components/Banner.astro',
 				Head: './src/components/PwaHead.astro',
 			},
 		}),
@@ -60,7 +61,7 @@ export default defineConfig({
 			base: '/',
 			scope: '/',
 			registerType: 'autoUpdate',
-			workbox: { cleanupOutdatedCaches: true, cacheId: 'doglog-docs' },
+			workbox: { cleanupOutdatedCaches: true, cacheId: 'doglog-docs-2027' },
 			manifest: {
 				name: 'DogLog Docs',
 				short_name: 'DogLog',
@@ -69,7 +70,7 @@ export default defineConfig({
 				theme_color: '#460b05',
 				lang: 'en',
 				display: 'minimal-ui',
-				id: 'doglog.dev',
+				id: '2027.doglog.dev',
 				start_url: '/',
 				orientation: 'any',
 			},
