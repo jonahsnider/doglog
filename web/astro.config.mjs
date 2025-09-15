@@ -63,7 +63,7 @@ export default defineConfig({
 			base: '/',
 			scope: '/',
 			registerType: 'autoUpdate',
-			workbox: { cleanupOutdatedCaches: true, cacheId: 'doglog-docs' },
+			workbox: { cleanupOutdatedCaches: true, cacheId: 'doglog-docs-2027' },
 			manifest: {
 				name: 'DogLog Docs',
 				short_name: 'DogLog',
@@ -72,7 +72,7 @@ export default defineConfig({
 				theme_color: '#460b05',
 				lang: 'en',
 				display: 'minimal-ui',
-				id: 'doglog.dev',
+				id: '2027.doglog.dev',
 				start_url: '/',
 				orientation: 'any',
 			},
