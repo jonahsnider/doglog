@@ -3745,8 +3745,8 @@ __metadata:
   linkType: hard
 
 "astro@npm:^5.0.0":
-  version: 5.13.7
-  resolution: "astro@npm:5.13.7"
+  version: 5.13.8
+  resolution: "astro@npm:5.13.8"
   dependencies:
     "@astrojs/compiler": "npm:^2.12.2"
     "@astrojs/internal-helpers": "npm:0.7.2"
@@ -3766,7 +3766,7 @@ __metadata:
     cssesc: "npm:^3.0.0"
     debug: "npm:^4.4.1"
     deterministic-object-hash: "npm:^2.0.2"
-    devalue: "npm:^5.1.1"
+    devalue: "npm:^5.3.2"
     diff: "npm:^5.2.0"
     dlv: "npm:^1.1.3"
     dset: "npm:^3.1.4"
@@ -3816,7 +3816,7 @@ __metadata:
       optional: true
   bin:
     astro: astro.js
-  checksum: 10c0/132cee6eda36c7250512cb7e7a17fb1c8581679453641d5613a96e7ebd5e653df6437267ad094c338f8492d2efc4ec04d535304c90d5e0f37823e299a1375295
+  checksum: 10c0/ebc1406b8a77ae296a53053f3cb04e56dd28bef7ddfd6409bc1ce4c3cd73a13f4b489c8e830a000baa62cd6a892806b30a9ba8724cfc0d6ee878d040b2e3355a
   languageName: node
   linkType: hard
 
@@ -4651,10 +4651,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"devalue@npm:^5.1.1":
-  version: 5.1.1
-  resolution: "devalue@npm:5.1.1"
-  checksum: 10c0/f6717a856fd54216959abd341cb189e47a9b37d72d8419e055ae77567ff4ed0fb683b1ffb6a71067f645adae5991bffabe6468a3e2385937bff49273e71c1f51
+"devalue@npm:^5.3.2":
+  version: 5.3.2
+  resolution: "devalue@npm:5.3.2"
+  checksum: 10c0/2dab403779233224285afe4b30eaded038df10cb89b8f2c1e41dd855a8e6b634aa24175b87f64df665204bb9a6a6e7758d172682719b9c5cf3cef336ff9fa507
   languageName: node
   linkType: hard
 
