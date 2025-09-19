@@ -3752,8 +3752,8 @@ __metadata:
   linkType: hard
 
 "astro@npm:^5.0.0":
-  version: 5.13.8
-  resolution: "astro@npm:5.13.8"
+  version: 5.13.9
+  resolution: "astro@npm:5.13.9"
   dependencies:
     "@astrojs/compiler": "npm:^2.12.2"
     "@astrojs/internal-helpers": "npm:0.7.2"
@@ -3823,7 +3823,7 @@ __metadata:
       optional: true
   bin:
     astro: astro.js
-  checksum: 10c0/ebc1406b8a77ae296a53053f3cb04e56dd28bef7ddfd6409bc1ce4c3cd73a13f4b489c8e830a000baa62cd6a892806b30a9ba8724cfc0d6ee878d040b2e3355a
+  checksum: 10c0/15485919d8386502563e3894170ce0e160df87e1342dd24c760455daec23cca1ddb2875463e6810eab7ffebfa4aebccd33859194f3d948c48d07a80a9833923e
   languageName: node
   linkType: hard
 
