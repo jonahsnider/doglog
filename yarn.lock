@@ -55,10 +55,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/internal-helpers@npm:0.7.3":
-  version: 0.7.3
-  resolution: "@astrojs/internal-helpers@npm:0.7.3"
-  checksum: 10c0/371a810c4c04bcdba97e070e146c68d390c71b4a7890aa3d56c14e338263e48b3fdce0be47cd6617eab755d8ca45ebff1338e1dfb2bcccb26538d23a762f0ad5
+"@astrojs/internal-helpers@npm:0.7.4":
+  version: 0.7.4
+  resolution: "@astrojs/internal-helpers@npm:0.7.4"
+  checksum: 10c0/f43014d228a4609e60a7b9fbed1a4a617275fa7367209aef79fb4499e29427d4834629173e27c734b6aee9b36ce8e56854744cb85380b6ba839ec4c08d53c96c
   languageName: node
   linkType: hard
 
@@ -99,11 +99,11 @@ __metadata:
   linkType: hard
 
 "@astrojs/markdoc@npm:^0.15.0":
-  version: 0.15.7
-  resolution: "@astrojs/markdoc@npm:0.15.7"
+  version: 0.15.8
+  resolution: "@astrojs/markdoc@npm:0.15.8"
   dependencies:
-    "@astrojs/internal-helpers": "npm:0.7.3"
-    "@astrojs/markdown-remark": "npm:6.3.7"
+    "@astrojs/internal-helpers": "npm:0.7.4"
+    "@astrojs/markdown-remark": "npm:6.3.8"
     "@astrojs/prism": "npm:3.3.0"
     "@markdoc/markdoc": "npm:^0.5.4"
     esbuild: "npm:^0.25.0"
@@ -111,7 +111,7 @@ __metadata:
     htmlparser2: "npm:^10.0.0"
   peerDependencies:
     astro: ^5.0.0
-  checksum: 10c0/e8d08d05e21482bc4f95a082fd1d5d9ba635972a22e9522465d2ce3f93413c1924e275a7c678e51897c5142b855ad9a842c06bf4f04d0f20284a4b802c5c10e2
+  checksum: 10c0/97b1613d41585333e9b9131256478eaef577e4abe2b6a72d2d12d36456535e8e958bc2bede1c0b53fa642e7600ccbceb20a623420c65c3ab2c88215aac560673
   languageName: node
   linkType: hard
 
@@ -144,11 +144,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/markdown-remark@npm:6.3.7":
-  version: 6.3.7
-  resolution: "@astrojs/markdown-remark@npm:6.3.7"
+"@astrojs/markdown-remark@npm:6.3.8":
+  version: 6.3.8
+  resolution: "@astrojs/markdown-remark@npm:6.3.8"
   dependencies:
-    "@astrojs/internal-helpers": "npm:0.7.3"
+    "@astrojs/internal-helpers": "npm:0.7.4"
     "@astrojs/prism": "npm:3.3.0"
     github-slugger: "npm:^2.0.0"
     hast-util-from-html: "npm:^2.0.3"
@@ -162,14 +162,14 @@ __metadata:
     remark-parse: "npm:^11.0.0"
     remark-rehype: "npm:^11.1.2"
     remark-smartypants: "npm:^3.0.2"
-    shiki: "npm:^3.12.2"
+    shiki: "npm:^3.13.0"
     smol-toml: "npm:^1.4.2"
     unified: "npm:^11.0.5"
     unist-util-remove-position: "npm:^5.0.0"
     unist-util-visit: "npm:^5.0.0"
     unist-util-visit-parents: "npm:^6.0.1"
     vfile: "npm:^6.0.3"
-  checksum: 10c0/91860b5fb572b1f3cdda8ed59818e73d8cf985aaddd4df3901d4bca6b74525817e1218e0088b1b66919f4de5c447c06a4b57f72029e772b1edf0209785853f3b
+  checksum: 10c0/f7faadf7bb59f1ecc720b949820316edc0371594f8066bf004e18f3ec6519ca2eb7fcc6fefe167b8bd2d4f30c110141eb72decd1eb5885704675b947ad6aa312
   languageName: node
   linkType: hard
 
@@ -1453,14 +1453,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capsizecss/unpack@npm:^2.4.0":
-  version: 2.4.0
-  resolution: "@capsizecss/unpack@npm:2.4.0"
+"@capsizecss/unpack@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@capsizecss/unpack@npm:3.0.0"
   dependencies:
-    blob-to-buffer: "npm:^1.2.8"
-    cross-fetch: "npm:^3.0.4"
     fontkit: "npm:^2.0.2"
-  checksum: 10c0/4f1598627872a0b69190b326136f896ff666323b86865c4973a5feb11f99fc057ebaca2d057048f87b93db2500662416ce37a170c034f56a4720f1363f91f828
+  checksum: 10c0/48bb11859833baa5032d71c330378cd5a523d37d752e0350f759d3ed45d6485c8bc363001d7bae596525f8e27ae52403387c6dc243f7dbd069a0a2094206e3cf
   languageName: node
   linkType: hard
 
@@ -3813,14 +3811,14 @@ __metadata:
   linkType: hard
 
 "astro@npm:^5.0.0":
-  version: 5.14.1
-  resolution: "astro@npm:5.14.1"
+  version: 5.14.3
+  resolution: "astro@npm:5.14.3"
   dependencies:
     "@astrojs/compiler": "npm:^2.12.2"
-    "@astrojs/internal-helpers": "npm:0.7.3"
-    "@astrojs/markdown-remark": "npm:6.3.7"
+    "@astrojs/internal-helpers": "npm:0.7.4"
+    "@astrojs/markdown-remark": "npm:6.3.8"
     "@astrojs/telemetry": "npm:3.3.0"
-    "@capsizecss/unpack": "npm:^2.4.0"
+    "@capsizecss/unpack": "npm:^3.0.0"
     "@oslojs/encoding": "npm:^1.1.0"
     "@rollup/pluginutils": "npm:^5.2.0"
     acorn: "npm:^8.15.0"
@@ -3863,11 +3861,11 @@ __metadata:
     sharp: "npm:^0.34.0"
     shiki: "npm:^3.12.0"
     smol-toml: "npm:^1.4.2"
-    tinyexec: "npm:^0.3.2"
+    tinyexec: "npm:^1.0.1"
     tinyglobby: "npm:^0.2.14"
     tsconfck: "npm:^3.1.6"
     ultrahtml: "npm:^1.6.0"
-    unifont: "npm:~0.5.2"
+    unifont: "npm:~0.6.0"
     unist-util-visit: "npm:^5.0.0"
     unstorage: "npm:^1.17.0"
     vfile: "npm:^6.0.3"
@@ -3884,7 +3882,7 @@ __metadata:
       optional: true
   bin:
     astro: astro.js
-  checksum: 10c0/832eb0f6df808d1fc3bee6254264a6dc35648012a708238c4d3114b107801455139674aab06a00db78883be3a2fd957d3b482bcfc2dd0a3f2c6f804a050f3127
+  checksum: 10c0/44087dda9c773edb0396d997f0de46ceef21d095276f62ad453a3f644368feb750b6f0e9995ad42035c62cc832a5a6334b064bd8eb4124071986d03afab4eb0b
   languageName: node
   linkType: hard
 
@@ -4020,13 +4018,6 @@ __metadata:
   version: 2.1.5
   resolution: "blake3-wasm@npm:2.1.5"
   checksum: 10c0/5dc729d8e3a9d1d7ab016b36cdda264a327ada0239716df48435163e11d2bf6df25d6e421655a1f52649098ae49555268a654729b7d02768f77c571ab37ef814
-  languageName: node
-  linkType: hard
-
-"blob-to-buffer@npm:^1.2.8":
-  version: 1.2.9
-  resolution: "blob-to-buffer@npm:1.2.9"
-  checksum: 10c0/ff8d3327f030fcd98b28c7557158721bc36b2102452bb4d8808d7bf497a6feee34623a40f80ec8a097851c866369fc76ef948cee4e78373f34738b70ab3f8cf6
   languageName: node
   linkType: hard
 
@@ -4449,15 +4440,6 @@ __metadata:
   dependencies:
     browserslist: "npm:^4.25.3"
   checksum: 10c0/b22996d3ca7e4f6758725f9ebbb61d422466d7ec0359158563264069ec066e7d2539fc7daebaa8aaf7b0bde73114ce42519611a0f0edb471139349e0cd11e183
-  languageName: node
-  linkType: hard
-
-"cross-fetch@npm:^3.0.4":
-  version: 3.2.0
-  resolution: "cross-fetch@npm:3.2.0"
-  dependencies:
-    node-fetch: "npm:^2.7.0"
-  checksum: 10c0/d8596adf0269130098a676f6739a0922f3cc7b71cc89729925411ebe851a87026171c82ea89154c4811c9867c01c44793205a52e618ce2684650218c7fbeeb9f
   languageName: node
   linkType: hard
 
@@ -7970,20 +7952,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:^2.7.0":
-  version: 2.7.0
-  resolution: "node-fetch@npm:2.7.0"
-  dependencies:
-    whatwg-url: "npm:^5.0.0"
-  peerDependencies:
-    encoding: ^0.1.0
-  peerDependenciesMeta:
-    encoding:
-      optional: true
-  checksum: 10c0/b55786b6028208e6fbe594ccccc213cab67a72899c9234eb59dba51062a299ea853210fcf526998eaa2867b0963ad72338824450905679ff0fa304b8c5093ae8
-  languageName: node
-  linkType: hard
-
 "node-gyp@npm:latest":
   version: 10.2.0
   resolution: "node-gyp@npm:10.2.0"
@@ -9516,7 +9484,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"shiki@npm:^3.12.2":
+"shiki@npm:^3.13.0":
   version: 3.13.0
   resolution: "shiki@npm:3.13.0"
   dependencies:
@@ -10042,10 +10010,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tinyexec@npm:^0.3.2":
-  version: 0.3.2
-  resolution: "tinyexec@npm:0.3.2"
-  checksum: 10c0/3efbf791a911be0bf0821eab37a3445c2ba07acc1522b1fa84ae1e55f10425076f1290f680286345ed919549ad67527d07281f1c19d584df3b74326909eb1f90
+"tinyexec@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "tinyexec@npm:1.0.1"
+  checksum: 10c0/e1ec3c8194a0427ce001ba69fd933d0c957e2b8994808189ed8020d3e0c01299aea8ecf0083cc514ecbf90754695895f2b5c0eac07eb2d0c406f7d4fbb8feade
   languageName: node
   linkType: hard
 
@@ -10108,13 +10076,6 @@ __metadata:
   dependencies:
     punycode: "npm:^2.1.0"
   checksum: 10c0/41525c2ccce86e3ef30af6fa5e1464e6d8bb4286a58ea8db09228f598889581ef62347153f6636cd41553dc41685bdfad0a9d032ef58df9fbb0792b3447d0f04
-  languageName: node
-  linkType: hard
-
-"tr46@npm:~0.0.3":
-  version: 0.0.3
-  resolution: "tr46@npm:0.0.3"
-  checksum: 10c0/047cb209a6b60c742f05c9d3ace8fa510bff609995c129a37ace03476a9b12db4dbf975e74600830ef0796e18882b2381fb5fb1f6b4f96b832c374de3ab91a11
   languageName: node
   linkType: hard
 
@@ -10408,14 +10369,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"unifont@npm:~0.5.2":
-  version: 0.5.2
-  resolution: "unifont@npm:0.5.2"
+"unifont@npm:~0.6.0":
+  version: 0.6.0
+  resolution: "unifont@npm:0.6.0"
   dependencies:
     css-tree: "npm:^3.0.0"
     ofetch: "npm:^1.4.1"
     ohash: "npm:^2.0.0"
-  checksum: 10c0/2b6a7fc5b9d62cb8074f268cacdd7af844bf931ce887f627ffc068fcc8df0e2ef2735582e0d7760d200dd3ce10f6797c05ed6f1c8e2c6bfd4d56a6a67ab1cb6f
+  checksum: 10c0/cf5062a9b48f299e50daf72c40e086146203ef7f9a854480207725369e00165ab4c82b8b7ed01a9f7d32261d1176fee76329cef9e638dc92316559c81cc839b0
   languageName: node
   linkType: hard
 
@@ -11026,27 +10987,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webidl-conversions@npm:^3.0.0":
-  version: 3.0.1
-  resolution: "webidl-conversions@npm:3.0.1"
-  checksum: 10c0/5612d5f3e54760a797052eb4927f0ddc01383550f542ccd33d5238cfd65aeed392a45ad38364970d0a0f4fea32e1f4d231b3d8dac4a3bdd385e5cf802ae097db
-  languageName: node
-  linkType: hard
-
 "webidl-conversions@npm:^4.0.2":
   version: 4.0.2
   resolution: "webidl-conversions@npm:4.0.2"
   checksum: 10c0/def5c5ac3479286dffcb604547628b2e6b46c5c5b8a8cfaa8c71dc3bafc85859bde5fbe89467ff861f571ab38987cf6ab3d6e7c80b39b999e50e803c12f3164f
-  languageName: node
-  linkType: hard
-
-"whatwg-url@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "whatwg-url@npm:5.0.0"
-  dependencies:
-    tr46: "npm:~0.0.3"
-    webidl-conversions: "npm:^3.0.0"
-  checksum: 10c0/1588bed84d10b72d5eec1d0faa0722ba1962f1821e7539c535558fb5398d223b0c50d8acab950b8c488b4ba69043fd833cc2697056b167d8ad46fac3995a55d5
   languageName: node
   linkType: hard
 
