@@ -222,7 +222,8 @@ public class ThreadedLogWriter implements LogWriterHighLevel {
 
   @Override
   public void close() {
-    System.out.println("[DogLog] Closing LogThread, discarding " + queue.size() + " queued log entries");
+    System.out.println(
+        "[DogLog] Closing LogThread, discarding " + queue.size() + " queued log entries");
     logThread.interrupt();
     extras.close();
     queue.clear();
