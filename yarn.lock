@@ -3476,8 +3476,8 @@ __metadata:
   linkType: hard
 
 "@vite-pwa/assets-generator@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@vite-pwa/assets-generator@npm:1.0.1"
+  version: 1.0.2
+  resolution: "@vite-pwa/assets-generator@npm:1.0.2"
   dependencies:
     cac: "npm:^6.7.14"
     colorette: "npm:^2.0.20"
@@ -3487,7 +3487,7 @@ __metadata:
     unconfig: "npm:^7.3.1"
   bin:
     pwa-assets-generator: bin/pwa-assets-generator.mjs
-  checksum: 10c0/9938332645fde79e7a166ab4ba6af68204346c3e94e69b4c33a000ae31f7ae4632d60cd53eff90ba7183393c428fbc99f1536e7909cd74c3aafa673dc6b186d2
+  checksum: 10c0/bbe117fffc30c762521be9400b6b6f6dccec731e5524af7a42a7b75b9efb0e2c9eb4d834b813e829c66e2a422e040462d9bc8df63ef0df9bd2825bce87634ea7
   languageName: node
   linkType: hard
 
