@@ -3,6 +3,7 @@ package dev.doglog.internal.writers;
 import dev.doglog.DogLogOptions;
 import dev.doglog.internal.extras.ExtrasLogger;
 import dev.doglog.internal.log_thread.writers.CombinedWriter;
+import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.PowerDistribution;
 
 /** Writes logs directly from the main thread. */
@@ -99,13 +100,13 @@ public class LogWriter implements LogWriterHighLevel {
   }
 
   @Override
-  public <T extends edu.wpi.first.util.struct.StructSerializable> void log(
+  public <T extends StructSerializable> void log(
       long timestamp, String key, T[] value) {
     writer.log(timestamp, key, value);
   }
 
   @Override
-  public <T extends edu.wpi.first.util.struct.StructSerializable> void log(
+  public <T extends StructSerializable> void log(
       long timestamp, String key, T value) {
     writer.log(timestamp, key, value);
   }
