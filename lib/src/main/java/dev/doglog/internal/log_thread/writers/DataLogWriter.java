@@ -27,9 +27,15 @@ import java.util.Map;
 /** Logs to a WPILib {@link DataLog}. */
 public class DataLogWriter implements LogWriterLowLevel {
   private static final String ENTRY_METADATA = "{\"source\":\"DogLog\"}";
+  private static final String ENTRY_METADATA_UNITS_PREFIX = "{\"source\":\"DogLog\",\"unit\":\"";
+  private static final String ENTRY_METADATA_UNITS_SUFFIX = "\"}";
 
   /** The directory path when logging to the flash storage on a roboRIO 1. */
   private static final String RIO1_DISK_LOG_DIR = "/home/lvuser/logs";
+
+  private static String entryMetadataForUnit(String unit) {
+    return ENTRY_METADATA_UNITS_PREFIX + unit + ENTRY_METADATA_UNITS_SUFFIX;
+  }
 
   private final Map<String, BooleanArrayLogEntry> booleanArrayLogs = new HashMap<>();
   private final Map<String, BooleanLogEntry> booleanLogs = new HashMap<>();
@@ -43,6 +49,9 @@ public class DataLogWriter implements LogWriterLowLevel {
   private final Map<String, StringLogEntry> stringLogs = new HashMap<>();
   private final Map<String, StructArrayLogEntry<?>> structArrayLogs = new HashMap<>();
   private final Map<String, StructLogEntry<?>> structLogs = new HashMap<>();
+
+  /** Maps keys of double entries to their units. */
+  private final Map<String, String> doubleUnits = new HashMap<>();
 
   private final DataLog log;
   private int alertNtLogHandle = -1;
@@ -91,6 +100,17 @@ public class DataLogWriter implements LogWriterLowLevel {
     doubleLogs
         .computeIfAbsent(key, k -> new DoubleLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
         .update(value, timestamp);
+  }
+
+  @Override
+  public void log(long timestamp, String key, double value, String unit) {
+    DoubleLogEntry entry =
+        doubleLogs.computeIfAbsent(
+            key, k -> new DoubleLogEntry(log, prefixKey(k), entryMetadataForUnit(unit), timestamp));
+
+    entry.update(value, timestamp);
+
+    updateEntryUnit(key, unit, entry);
   }
 
   @Override
@@ -209,6 +229,18 @@ public class DataLogWriter implements LogWriterLowLevel {
     // See DataLogManager#makeLogDir() for source on this logic
     return !(RobotBase.getRuntimeType() == RuntimeType.kRoboRIO
         && DataLogManager.getLogDir().equals(RIO1_DISK_LOG_DIR));
+  }
+
+  /** Updates the metadata of a double entry with a unit associated. */
+  private void updateEntryUnit(String key, String unit, DoubleLogEntry entry) {
+    // If we've never seen this key before, the current unit will be null
+    var currentUnit = doubleUnits.get(key);
+    if (unit.equals(currentUnit)) {
+      return;
+    }
+
+    entry.setMetadata(entryMetadataForUnit(unit));
+    doubleUnits.put(key, unit);
   }
 
   private String prefixKey(String key) {
