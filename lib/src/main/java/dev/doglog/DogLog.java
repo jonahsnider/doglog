@@ -4,8 +4,9 @@ import dev.doglog.internal.EpochLogger;
 import dev.doglog.internal.FaultLogger;
 import dev.doglog.internal.TimedCommand;
 import dev.doglog.internal.tunable.Tunable;
-import dev.doglog.internal.writers.ThreadedLogWriter;
+import dev.doglog.internal.writers.LogWriter;
 import dev.doglog.internal.writers.LogWriterHighLevel;
+import dev.doglog.internal.writers.ThreadedLogWriter;
 import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
@@ -38,7 +39,7 @@ public class DogLog {
   /** The options to use for the logger. */
   protected static DogLogOptions options = new DogLogOptions();
 
-  protected static final LogWriterHighLevel logger = new ThreadedLogWriter(options);
+  protected static LogWriterHighLevel logger = new ThreadedLogWriter(options);
 
   /** Whether the logger is enabled. */
   protected static boolean enabled = true;
@@ -72,6 +73,20 @@ public class DogLog {
     if (!oldOptions.equals(newOptions)) {
       System.out.println("[DogLog] Options changed: " + newOptions.toString());
       logger.setOptions(newOptions);
+      if (oldOptions.useLogThread() != newOptions.useLogThread()) {
+        try {
+          logger.close();
+        } catch (Exception e) {
+          System.err.println("[DogLog] Error closing old LogWriter instance:");
+          e.printStackTrace();
+        }
+
+        logger =
+            newOptions.useLogThread()
+                ? new ThreadedLogWriter(newOptions)
+                : new LogWriter(newOptions);
+        epochLogger.setLogger(logger);
+      }
       tunable.setOptions(newOptions);
     }
   }

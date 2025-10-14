@@ -185,7 +185,8 @@ public class ThreadedLogWriter implements LogWriterHighLevel {
     var newQueueMaxCapacity = newOptions.logEntryQueueCapacity();
     if (oldQueueMaxCapacity != newQueueMaxCapacity) {
       System.out.println(
-          "[DogLog] Log message queue size was changed, recreating queue and starting a new log thread");
+          "[DogLog] Log message queue size was changed, recreating queue and starting a new log"
+              + " thread");
       // Queue size has changed, recreate queue & thread
       LinkedBlockingQueue<BaseQueuedLogEntry> newQueue =
           new LinkedBlockingQueue<>(newOptions.logEntryQueueCapacity());
@@ -194,7 +195,8 @@ public class ThreadedLogWriter implements LogWriterHighLevel {
 
       if (oldQueueMaxCapacity > newQueueMaxCapacity) {
         DriverStation.reportWarning(
-            "[DogLog] RISKY_QUEUE_RESIZE: New queue capacity is smaller than the old queue capacity, this has the potential to drop queued log entries",
+            "[DogLog] RISKY_QUEUE_RESIZE: New queue capacity is smaller than the old queue"
+                + " capacity, this has the potential to drop queued log entries",
             false);
         FaultLogger.addFault(this, "[DogLog] RISKY_QUEUE_RESIZE", AlertType.kWarning);
       }
@@ -216,5 +218,15 @@ public class ThreadedLogWriter implements LogWriterHighLevel {
 
       queue = newQueue;
     }
+  }
+
+  @Override
+  public void close() {
+    System.out.println("[DogLog] Closing LogThread, discarding " + queue.size() + " queued log entries");
+    logThread.interrupt();
+    extras.close();
+    queue.clear();
+    // Ensures that this queue isn't erroneously used after close
+    queue = null;
   }
 }

@@ -51,6 +51,8 @@ public class Robot extends TimedRobot {
     DogLog.log("Debug/Json", "{\"test\": \"json\"}", "json");
 
     DogLog.log("Tunable/SupplierValue", tunableSupplier.getAsDouble());
+
+    DogLog.log("Random/Random", Math.random());
   }
 
   @Override
@@ -73,6 +75,8 @@ public class Robot extends TimedRobot {
     }
 
     DogLog.clearFault("ExampleFault");
+
+    DogLog.setOptions(DogLog.getOptions().withUseLogThread(false));
   }
 
   @Override
@@ -87,6 +91,8 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
     DogLog.logFault("ExampleFault");
+
+    DogLog.setOptions(DogLog.getOptions().withUseLogThread(true));
   }
 
   @Override

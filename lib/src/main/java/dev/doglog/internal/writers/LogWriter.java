@@ -3,6 +3,7 @@ package dev.doglog.internal.writers;
 import dev.doglog.DogLogOptions;
 import dev.doglog.internal.extras.ExtrasLogger;
 import dev.doglog.internal.log_thread.writers.CombinedWriter;
+import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.PowerDistribution;
 
@@ -16,6 +17,10 @@ public class LogWriter implements LogWriterHighLevel {
     writer.afterLogThreadStart();
 
     extras = new ExtrasLogger(this, initialOptions);
+
+    var now = HALUtil.getFPGATime();
+    log(now, "DogLog/QueuedLogs", -1);
+    log(now, "DogLog/QueueRemainingCapacity", -1);
   }
 
   @Override
@@ -100,14 +105,17 @@ public class LogWriter implements LogWriterHighLevel {
   }
 
   @Override
-  public <T extends StructSerializable> void log(
-      long timestamp, String key, T[] value) {
+  public <T extends StructSerializable> void log(long timestamp, String key, T[] value) {
     writer.log(timestamp, key, value);
   }
 
   @Override
-  public <T extends StructSerializable> void log(
-      long timestamp, String key, T value) {
+  public <T extends StructSerializable> void log(long timestamp, String key, T value) {
     writer.log(timestamp, key, value);
+  }
+
+  @Override
+  public void close() {
+    extras.close();
   }
 }

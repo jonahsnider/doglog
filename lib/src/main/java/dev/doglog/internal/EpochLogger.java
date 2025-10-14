@@ -6,9 +6,13 @@ import java.util.Map;
 
 public class EpochLogger {
   private final Map<String, Long> epochMap = new HashMap<>();
-  private final LogWriterHighLevel logger;
+  private LogWriterHighLevel logger;
 
   public EpochLogger(LogWriterHighLevel logger) {
+    this.logger = logger;
+  }
+
+  public void setLogger(LogWriterHighLevel logger) {
     this.logger = logger;
   }
 

@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.PowerDistribution;
 
 /** Logs "extra" information. */
-public class ExtrasLogger {
+public class ExtrasLogger implements AutoCloseable {
   private static final double RADIO_LOG_PERIOD_SECONDS = 5.81;
 
   private final LogWriterHighLevel logger;
@@ -126,5 +126,11 @@ public class ExtrasLogger {
 
     logger.log(now, "RadioStatus/Connected", radioLogUtil.radioLogResult.isConnected);
     logger.log(now, "RadioStatus/StatusJson", radioLogUtil.radioLogResult.statusJson, "json");
+  }
+
+  @Override
+  public void close() {
+    notifier.close();
+    radioNotifier.close();
   }
 }
