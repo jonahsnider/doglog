@@ -13,6 +13,8 @@ import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.FloatSubscriber;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.StringSubscriber;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Unit;
 import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.util.function.FloatConsumer;
 import edu.wpi.first.util.struct.StructSerializable;
@@ -151,6 +153,28 @@ public class DogLog {
       var now = HALUtil.getFPGATime();
       logger.log(now, key, value);
     }
+  }
+
+  /** Log a double with unit metadata. */
+  public static void log(String key, double value, String unit) {
+    if (enabled) {
+      var now = HALUtil.getFPGATime();
+      logger.log(now, key, value, unit);
+    }
+  }
+
+  /** Log a double with unit metadata. */
+  public static void log(String key, double value, Unit unit) {
+    log(key, value, unit.name());
+  }
+
+  /** Log a measure, preserving the user-specified unit. */
+  public static void log(String key, Measure<?> value) {
+    if (value == null) {
+      return;
+    }
+
+    log(key, value.magnitude(), value.unit().name());
   }
 
   /** Log a float array. */
