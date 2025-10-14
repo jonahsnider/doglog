@@ -55,6 +55,11 @@ public class LogWriter implements LogWriterHighLevel {
   }
 
   @Override
+  public void log(long timestamp, String key, double value, String unit) {
+    writer.log(timestamp, key, value, unit);
+  }
+
+  @Override
   public void log(long timestamp, String key, float[] value) {
     writer.log(timestamp, key, value);
   }

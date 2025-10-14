@@ -6,6 +6,7 @@ public enum EntryType {
   BOOLEAN,
   DOUBLE_ARRAY,
   DOUBLE,
+  DOUBLE_WITH_UNIT,
   FLOAT_ARRAY,
   FLOAT,
   INTEGER_ARRAY,

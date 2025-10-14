@@ -69,6 +69,15 @@ public class CombinedWriter {
     }
   }
 
+  public void log(long timestamp, String key, double value, String unit) {
+    dataLogReporter.log(timestamp, key, value, unit);
+
+    checkNtPublish();
+    if (ntReporter != null) {
+      ntReporter.log(timestamp, key, value, unit);
+    }
+  }
+
   public void log(long timestamp, String key, float[] value) {
     if (value == null) {
       return;

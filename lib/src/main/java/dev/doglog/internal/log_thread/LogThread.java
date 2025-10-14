@@ -6,6 +6,7 @@ import dev.doglog.internal.log_thread.entries.BooleanArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.BooleanQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.DoubleArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.DoubleQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.DoubleWithUnitQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.FloatArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.FloatQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.IntegerArrayQueuedLogEntry;
@@ -61,6 +62,13 @@ public class LogThread extends Thread {
               logger.log(entry.timestamp, entry.key, ((DoubleArrayQueuedLogEntry) entry).value);
           case DOUBLE ->
               logger.log(entry.timestamp, entry.key, ((DoubleQueuedLogEntry) entry).value);
+          case DOUBLE_WITH_UNIT -> {
+            logger.log(
+                entry.timestamp,
+                entry.key,
+                ((DoubleWithUnitQueuedLogEntry) entry).value,
+                ((DoubleWithUnitQueuedLogEntry) entry).unit);
+          }
           case FLOAT_ARRAY ->
               logger.log(entry.timestamp, entry.key, ((FloatArrayQueuedLogEntry) entry).value);
           case FLOAT -> logger.log(entry.timestamp, entry.key, ((FloatQueuedLogEntry) entry).value);
