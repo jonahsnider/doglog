@@ -72,14 +72,17 @@ public class DogLog {
       System.out.println("[DogLog] Options changed: " + newOptions.toString());
       logger.setOptions(newOptions);
       if (oldOptions.useLogThread() != newOptions.useLogThread()) {
+        // Create the new logger before we close the old one, to avoid race condition
+        var oldLogger = logger;
+        logger = LogWriterHighLevel.create(newOptions);
+
         try {
-          logger.close();
+          oldLogger.close();
         } catch (Exception e) {
           System.err.println("[DogLog] Error closing old LogWriter instance:");
           e.printStackTrace();
         }
 
-        logger = LogWriterHighLevel.create(newOptions);
       }
       tunable.setOptions(newOptions);
     }
