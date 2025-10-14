@@ -15,7 +15,7 @@ import dev.doglog.internal.log_thread.entries.StringCustomTypeQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StructArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StructQueuedLogEntry;
-import dev.doglog.internal.log_thread.reporters.CombinedReporter;
+import dev.doglog.internal.log_thread.writers.CombinedWriter;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.wpilibj.Timer;
 import java.util.concurrent.BlockingQueue;
@@ -23,7 +23,7 @@ import java.util.concurrent.BlockingQueue;
 /** A thread that processes queued log entries and writes them to the log file. */
 public class LogThread extends Thread {
   private final BlockingQueue<BaseQueuedLogEntry> queue;
-  private final CombinedReporter logger;
+  private final CombinedWriter logger;
   private final Timer diagnosticsTimer = new Timer();
 
   public LogThread(BlockingQueue<BaseQueuedLogEntry> queue, DogLogOptions initialOptions) {
@@ -32,7 +32,7 @@ public class LogThread extends Thread {
 
     this.queue = queue;
 
-    this.logger = new CombinedReporter(initialOptions);
+    this.logger = new CombinedWriter(initialOptions);
 
     diagnosticsTimer.start();
   }

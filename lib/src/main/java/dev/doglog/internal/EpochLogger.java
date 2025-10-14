@@ -1,13 +1,14 @@
 package dev.doglog.internal;
 
+import dev.doglog.internal.writers.LogWriterHighLevel;
 import java.util.HashMap;
 import java.util.Map;
 
 public class EpochLogger {
   private final Map<String, Long> epochMap = new HashMap<>();
-  private final LogQueuer logger;
+  private final LogWriterHighLevel logger;
 
-  public EpochLogger(LogQueuer logger) {
+  public EpochLogger(LogWriterHighLevel logger) {
     this.logger = logger;
   }
 
@@ -20,7 +21,7 @@ public class EpochLogger {
     if (previous != null) {
       // Get the difference between previous and current timestamps in microseconds
       // Divide by 1e6 to convert to seconds
-      logger.queueLog(timestamp, key, (timestamp - previous) / 1e6);
+      logger.log(timestamp, key, (timestamp - previous) / 1e6);
       epochMap.remove(key);
     }
   }

@@ -1,8 +1,6 @@
-package dev.doglog.internal.log_thread.reporters;
+package dev.doglog.internal.writers;
 
-import edu.wpi.first.util.struct.Struct;
-
-public interface Reporter {
+public interface LogWriterBase {
   public void log(long timestamp, String key, boolean[] value);
 
   public void log(long timestamp, String key, boolean value);
@@ -26,8 +24,4 @@ public interface Reporter {
   public void log(long timestamp, String key, String value);
 
   public void log(long timestamp, String key, String value, String customTypeString);
-
-  public <T> void log(long timestamp, String key, Struct<T> struct, T[] value);
-
-  public <T> void log(long timestamp, String key, Struct<T> struct, T value);
 }

@@ -1,4 +1,4 @@
-package dev.doglog.internal.log_thread.reporters;
+package dev.doglog.internal.log_thread.writers;
 
 import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
@@ -9,18 +9,18 @@ import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 
-public class CombinedReporter {
+public class CombinedWriter {
   /** The NetworkTables table to log to, if NetworkTables publishing is enabled. */
   private static final String LOG_TABLE = "/Robot";
 
-  private final DataLogReporter dataLogReporter;
+  private final DataLogWriter dataLogReporter;
   // Default to null
-  private NetworkTablesReporter ntReporter;
+  private NetworkTablesWriter ntReporter;
 
   private DogLogOptions options = new DogLogOptions();
 
-  public CombinedReporter(DogLogOptions initialOptions) {
-    dataLogReporter = new DataLogReporter(LOG_TABLE, initialOptions);
+  public CombinedWriter(DogLogOptions initialOptions) {
+    dataLogReporter = new DataLogWriter(LOG_TABLE, initialOptions);
 
     setOptions(initialOptions);
   }
@@ -236,7 +236,7 @@ public class CombinedReporter {
     // Avoid recreating the logger if the options haven't changed
     if (options.ntPublish().getAsBoolean()) {
       if (ntReporter == null) {
-        ntReporter = new NetworkTablesReporter(LOG_TABLE);
+        ntReporter = new NetworkTablesWriter(LOG_TABLE);
       }
     } else if (ntReporter != null) {
       ntReporter.close();

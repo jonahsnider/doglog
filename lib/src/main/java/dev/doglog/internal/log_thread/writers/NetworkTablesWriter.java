@@ -1,5 +1,6 @@
-package dev.doglog.internal.log_thread.reporters;
+package dev.doglog.internal.log_thread.writers;
 
+import dev.doglog.internal.writers.LogWriterLowLevel;
 import edu.wpi.first.networktables.BooleanArrayPublisher;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
@@ -22,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** Logs to NetworkTables. */
-public class NetworkTablesReporter implements AutoCloseable, Reporter {
+public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
   private static final String PROPERTY_SOURCE_NAME = "source";
   private static final String PROPERTY_SOURCE_VALUE = "\"DogLog\"";
 
@@ -45,7 +46,7 @@ public class NetworkTablesReporter implements AutoCloseable, Reporter {
   private final Map<String, StructArrayPublisher<?>> structArrayPublishers = new HashMap<>();
   private final Map<String, StructPublisher<?>> structPublishers = new HashMap<>();
 
-  public NetworkTablesReporter(String logTable) {
+  public NetworkTablesWriter(String logTable) {
     this.logTable = NetworkTableInstance.getDefault().getTable(logTable);
   }
 

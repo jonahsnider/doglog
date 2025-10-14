@@ -1,6 +1,7 @@
-package dev.doglog.internal.log_thread.reporters;
+package dev.doglog.internal.log_thread.writers;
 
 import dev.doglog.DogLogOptions;
+import dev.doglog.internal.writers.LogWriterLowLevel;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.BooleanArrayLogEntry;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
@@ -24,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** Logs to a WPILib {@link DataLog}. */
-public class DataLogReporter implements Reporter {
+public class DataLogWriter implements LogWriterLowLevel {
   private static final String ENTRY_METADATA = "{\"source\":\"DogLog\"}";
 
   /** The directory path when logging to the flash storage on a roboRIO 1. */
@@ -48,7 +49,7 @@ public class DataLogReporter implements Reporter {
 
   private final String logTable;
 
-  public DataLogReporter(String logTable, DogLogOptions initialOptions) {
+  public DataLogWriter(String logTable, DogLogOptions initialOptions) {
     this.logTable = logTable;
 
     setOptions(initialOptions);

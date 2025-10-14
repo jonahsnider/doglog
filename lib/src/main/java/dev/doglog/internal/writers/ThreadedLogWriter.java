@@ -1,6 +1,7 @@
-package dev.doglog.internal;
+package dev.doglog.internal.writers;
 
 import dev.doglog.DogLogOptions;
+import dev.doglog.internal.FaultLogger;
 import dev.doglog.internal.extras.ExtrasLogger;
 import dev.doglog.internal.log_thread.LogThread;
 import dev.doglog.internal.log_thread.entries.BaseQueuedLogEntry;
@@ -28,7 +29,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Provides an interface for queueing logs to be recorded by the log thread. Also responsible for
  * managing the log thread.
  */
-public class LogQueuer {
+public class ThreadedLogWriter implements LogWriterHighLevel {
   private static final int MAX_QUEUE_FULL_MESSAGES = 50;
   private int queueFullMessageCount = 0;
 
@@ -60,7 +61,7 @@ public class LogQueuer {
   private BlockingQueue<BaseQueuedLogEntry> queue;
   private LogThread logThread;
 
-  public LogQueuer(DogLogOptions initialOptions) {
+  public ThreadedLogWriter(DogLogOptions initialOptions) {
     queue = new LinkedBlockingQueue<>(initialOptions.logEntryQueueCapacity());
 
     logThread = new LogThread(queue, initialOptions);
@@ -70,59 +71,69 @@ public class LogQueuer {
     extras = new ExtrasLogger(this, initialOptions);
   }
 
+  @Override
   public void setPdh(PowerDistribution pdh) {
     extras.setPdh(pdh);
   }
 
-  public void queueLog(long timestamp, String key, boolean[] value) {
+  @Override
+  public void log(long timestamp, String key, boolean[] value) {
     if (!queue.offer(new BooleanArrayQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
-  public void queueLog(long timestamp, String key, boolean value) {
+  @Override
+  public void log(long timestamp, String key, boolean value) {
     if (!queue.offer(new BooleanQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
-  public void queueLog(long timestamp, String key, double[] value) {
+  @Override
+  public void log(long timestamp, String key, double[] value) {
     if (!queue.offer(new DoubleArrayQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
-  public void queueLog(long timestamp, String key, double value) {
+  @Override
+  public void log(long timestamp, String key, double value) {
     if (!queue.offer(new DoubleQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
-  public void queueLog(long timestamp, String key, float[] value) {
+  @Override
+  public void log(long timestamp, String key, float[] value) {
     if (!queue.offer(new FloatArrayQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
-  public void queueLog(long timestamp, String key, float value) {
+  @Override
+  public void log(long timestamp, String key, float value) {
     if (!queue.offer(new FloatQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
-  public void queueLog(long timestamp, String key, int[] value) {
+  @Override
+  public void log(long timestamp, String key, int[] value) {
     if (!queue.offer(new IntegerArrayQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
-  public void queueLog(long timestamp, String key, long[] value) {
+  @Override
+  public void log(long timestamp, String key, long[] value) {
     if (!queue.offer(new IntegerArrayQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
-  public void queueLog(long timestamp, String key, long value) {
+  @Override
+  public void log(long timestamp, String key, long value) {
     if (!queue.offer(new IntegerQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
@@ -130,36 +141,42 @@ public class LogQueuer {
 
   // TODO: Raw logs
 
-  public void queueLog(long timestamp, String key, String[] value) {
+  @Override
+  public void log(long timestamp, String key, String[] value) {
     if (!queue.offer(new StringArrayQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
-  public void queueLog(long timestamp, String key, String value) {
+  @Override
+  public void log(long timestamp, String key, String value) {
     if (!queue.offer(new StringQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
-  public void queueLog(long timestamp, String key, String value, String customTypeString) {
+  @Override
+  public void log(long timestamp, String key, String value, String customTypeString) {
     if (!queue.offer(new StringCustomTypeQueuedLogEntry(key, timestamp, value, customTypeString))) {
       printQueueFullMessage(key);
     }
   }
 
-  public <T extends StructSerializable> void queueLog(long timestamp, String key, T[] value) {
+  @Override
+  public <T extends StructSerializable> void log(long timestamp, String key, T[] value) {
     if (!queue.offer(new StructArrayQueuedLogEntry<>(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
-  public <T extends StructSerializable> void queueLog(long timestamp, String key, T value) {
+  @Override
+  public <T extends StructSerializable> void log(long timestamp, String key, T value) {
     if (!queue.offer(new StructQueuedLogEntry<>(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
+  @Override
   public void setOptions(DogLogOptions newOptions) {
     logThread.setOptions(newOptions);
     extras.setOptions(newOptions);
