@@ -46,7 +46,7 @@ public class DogLog {
 
   protected static final Tunable tunable = new Tunable(options);
 
-  protected static final EpochLogger epochLogger = new EpochLogger(logger);
+  protected static final EpochLogger epochLogger = new EpochLogger();
 
   /** Get the options used by the logger. */
   public static DogLogOptions getOptions() {
@@ -85,7 +85,6 @@ public class DogLog {
             newOptions.useLogThread()
                 ? new ThreadedLogWriter(newOptions)
                 : new LogWriter(newOptions);
-        epochLogger.setLogger(logger);
       }
       tunable.setOptions(newOptions);
     }
@@ -415,7 +414,7 @@ public class DogLog {
    * @see DogLog#time(String)
    */
   public static void timeEnd(String key) {
-    epochLogger.timeEnd(key, HALUtil.getFPGATime());
+    epochLogger.timeEnd(key, HALUtil.getFPGATime(), logger);
   }
 
   /**
