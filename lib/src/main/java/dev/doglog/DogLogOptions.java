@@ -36,7 +36,14 @@ public record DogLogOptions(
      * deterministic. The default behavior is to only use tunable values from NetworkTables when not
      * connected to the FMS on a competition field.
      */
-    BooleanSupplier ntTunables) {
+    BooleanSupplier ntTunables,
+    /**
+     * Whether to use a separate thread to handle log entries. This setting defaults to true.
+     * Turning off the log thread may reduce the memory usage of logging, but could cause increased
+     * CPU load.
+     */
+    boolean useLogThread) {
+
   private static boolean isNotOnFms() {
     return !DriverStation.isFMSAttached();
   }
@@ -53,7 +60,8 @@ public record DogLogOptions(
    */
   public DogLogOptions() {
     // Default options
-    this(DogLogOptions::isNotOnFms, false, false, true, true, 1000, DogLogOptions::isNotOnFms);
+    this(
+        DogLogOptions::isNotOnFms, false, false, true, true, 1000, DogLogOptions::isNotOnFms, true);
   }
 
   /**
@@ -93,7 +101,8 @@ public record DogLogOptions(
         logExtras,
         captureConsole,
         logEntryQueueCapacity,
-        ntTunables);
+        ntTunables,
+        useLogThread);
   }
 
   /**
@@ -115,7 +124,8 @@ public record DogLogOptions(
         logExtras,
         captureConsole,
         logEntryQueueCapacity,
-        ntTunables);
+        ntTunables,
+        useLogThread);
   }
 
   /**
@@ -137,7 +147,8 @@ public record DogLogOptions(
         logExtras,
         captureConsole,
         logEntryQueueCapacity,
-        ntTunables);
+        ntTunables,
+        useLogThread);
   }
 
   /**
@@ -160,7 +171,8 @@ public record DogLogOptions(
         logExtras,
         captureConsole,
         logEntryQueueCapacity,
-        ntTunables);
+        ntTunables,
+        useLogThread);
   }
 
   /**
@@ -183,7 +195,8 @@ public record DogLogOptions(
         logExtras,
         captureConsole,
         logEntryQueueCapacity,
-        ntTunables);
+        ntTunables,
+        useLogThread);
   }
 
   /**
@@ -206,7 +219,8 @@ public record DogLogOptions(
         logExtras,
         captureConsole,
         logEntryQueueCapacity,
-        ntTunables);
+        ntTunables,
+        useLogThread);
   }
 
   /**
@@ -246,6 +260,26 @@ public record DogLogOptions(
         logExtras,
         captureConsole,
         logEntryQueueCapacity,
-        ntTunables);
+        ntTunables,
+        useLogThread);
+  }
+
+  /**
+   * Create a new options object, inheriting the configuration from this one, with {@link
+   * DogLogOptions#useLogThread} set to the provided value.
+   *
+   * @param useLogThread Whether to use a separate thread to handle log entries.
+   * @return A new options object with {@link DogLogOptions#useLogThread} set to the provided value.
+   */
+  public DogLogOptions withUseLogThread(boolean useLogThread) {
+    return new DogLogOptions(
+        ntPublish,
+        captureNt,
+        captureDs,
+        logExtras,
+        captureConsole,
+        logEntryQueueCapacity,
+        ntTunables,
+        useLogThread);
   }
 }

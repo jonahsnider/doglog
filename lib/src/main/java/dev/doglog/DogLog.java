@@ -2,9 +2,9 @@ package dev.doglog;
 
 import dev.doglog.internal.EpochLogger;
 import dev.doglog.internal.FaultLogger;
-import dev.doglog.internal.LogQueuer;
 import dev.doglog.internal.TimedCommand;
 import dev.doglog.internal.tunable.Tunable;
+import dev.doglog.internal.writers.LogWriterHighLevel;
 import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
@@ -37,14 +37,14 @@ public class DogLog {
   /** The options to use for the logger. */
   protected static DogLogOptions options = new DogLogOptions();
 
-  protected static final LogQueuer logger = new LogQueuer(options);
+  protected static LogWriterHighLevel logger = LogWriterHighLevel.create(options);
 
   /** Whether the logger is enabled. */
   protected static boolean enabled = true;
 
   protected static final Tunable tunable = new Tunable(options);
 
-  protected static final EpochLogger epochLogger = new EpochLogger(logger);
+  protected static final EpochLogger epochLogger = new EpochLogger();
 
   /** Get the options used by the logger. */
   public static DogLogOptions getOptions() {
@@ -71,6 +71,18 @@ public class DogLog {
     if (!oldOptions.equals(newOptions)) {
       System.out.println("[DogLog] Options changed: " + newOptions.toString());
       logger.setOptions(newOptions);
+      if (oldOptions.useLogThread() != newOptions.useLogThread()) {
+        // Create the new logger before we close the old one, to avoid race condition
+        var oldLogger = logger;
+        logger = LogWriterHighLevel.create(newOptions);
+
+        try {
+          oldLogger.close();
+        } catch (Exception e) {
+          System.err.println("[DogLog] Error closing old LogWriter instance:");
+          e.printStackTrace();
+        }
+      }
       tunable.setOptions(newOptions);
     }
   }
@@ -113,7 +125,7 @@ public class DogLog {
   public static void log(String key, boolean[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -121,7 +133,7 @@ public class DogLog {
   public static void log(String key, boolean value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -129,7 +141,7 @@ public class DogLog {
   public static void log(String key, double[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -137,7 +149,7 @@ public class DogLog {
   public static void log(String key, double value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -145,7 +157,7 @@ public class DogLog {
   public static void log(String key, float[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -153,7 +165,7 @@ public class DogLog {
   public static void log(String key, float value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -161,7 +173,7 @@ public class DogLog {
   public static void log(String key, int[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -169,7 +181,7 @@ public class DogLog {
   public static void log(String key, long[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -177,7 +189,7 @@ public class DogLog {
   public static void log(String key, long value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -187,7 +199,7 @@ public class DogLog {
   public static void log(String key, String[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -210,7 +222,7 @@ public class DogLog {
   public static void log(String key, String value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -218,7 +230,7 @@ public class DogLog {
   public static void log(String key, String value, String customTypeString) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value, customTypeString);
+      logger.log(now, key, value, customTypeString);
     }
   }
 
@@ -234,7 +246,7 @@ public class DogLog {
   public static <T extends StructSerializable> void log(String key, T[] value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -242,7 +254,7 @@ public class DogLog {
   public static <T extends StructSerializable> void log(String key, T value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
-      logger.queueLog(now, key, value);
+      logger.log(now, key, value);
     }
   }
 
@@ -399,7 +411,7 @@ public class DogLog {
    * @see DogLog#time(String)
    */
   public static void timeEnd(String key) {
-    epochLogger.timeEnd(key, HALUtil.getFPGATime());
+    epochLogger.timeEnd(key, HALUtil.getFPGATime(), logger);
   }
 
   /**
