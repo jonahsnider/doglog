@@ -46,6 +46,9 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
   private final Map<String, StructArrayPublisher<?>> structArrayPublishers = new HashMap<>();
   private final Map<String, StructPublisher<?>> structPublishers = new HashMap<>();
 
+  /** Maps keys of double entries to their units. */
+  private final Map<String, String> doubleUnits = new HashMap<>();
+
   public NetworkTablesWriter(String logTable) {
     this.logTable = NetworkTableInstance.getDefault().getTable(logTable);
   }
@@ -108,6 +111,12 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
     } else {
       publisher.set(value, timestamp);
     }
+  }
+
+  @Override
+  public void log(long timestamp, String key, double value, String unit) {
+    log(timestamp, key, value);
+    updateUnitProperty(key, unit);
   }
 
   @Override
@@ -247,6 +256,20 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
     } else {
       publisher.set(value, timestamp);
     }
+  }
+
+  /** Updates the unit property of a double topic. */
+  private void updateUnitProperty(String key, String unit) {
+    // If we've never seen this key before, the current unit will be null
+    var currentUnit = doubleUnits.get(key);
+    if (unit.equals(currentUnit)) {
+      return;
+    }
+
+    var topic = logTable.getDoubleTopic(key);
+
+    topic.setProperty("unit", "\"" + unit + "\"");
+    doubleUnits.put(key, unit);
   }
 
   @Override
