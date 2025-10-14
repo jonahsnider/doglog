@@ -86,12 +86,27 @@ Decreasing this value can reduce memory usage, but may result in logs being drop
 Increasing this value can reduce the likelihood of logs being dropped, but will increase memory usage.
 
 You can see the number of queued logs under the `Robot/DogLog/QueuedLogs` log key, to get a sense of how to tune this value.
+When the log thread is disabled, queue metrics like `QueuedLogs` and `QueueRemainingCapacity` are set to `-1`, because entries are processed immediately.
 
 By default the queue is configured to support up to 1000 entries pending processing.
 
 ```java
 DogLog.setOptions(new DogLogOptions().withLogEntryQueueCapacity(1000));
 ```
+
+### Log processing thread
+
+The `useLogThread` option controls whether log entries are processed on a dedicated background thread or directly from the main robot thread.
+
+Leaving the log thread enabled (the default) can reduce CPU usage while your robot code is running, but will use extra memory to queue logs.
+Disabling the thread removes that queue entirely, so every call to `DogLog.log()` is written immediately.
+
+```java
+DogLog.setOptions(new DogLogOptions().withUseLogThread(false));
+```
+
+Turning off the log thread can be useful if you want to minimize memory usage or avoid queue-related warnings.
+If you're having issues with memory consumption or are seeing loop overruns, changing whether the log thread is on or off may help.
 
 ### NetworkTables tunable values
 
