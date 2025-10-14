@@ -9,6 +9,10 @@ import edu.wpi.first.wpilibj.PowerDistribution;
  * enqueueing for processing on a background thread or writing immediately).
  */
 public interface LogWriterHighLevel extends LogWriterBase, AutoCloseable {
+  public static LogWriterHighLevel create(DogLogOptions options) {
+    return options.useLogThread() ? new ThreadedLogWriter(options) : new LogWriter(options);
+  }
+
   public void setPdh(PowerDistribution pdh);
 
   public void setOptions(DogLogOptions newOptions);
