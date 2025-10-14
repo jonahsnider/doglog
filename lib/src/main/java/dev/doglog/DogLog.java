@@ -82,7 +82,6 @@ public class DogLog {
           System.err.println("[DogLog] Error closing old LogWriter instance:");
           e.printStackTrace();
         }
-
       }
       tunable.setOptions(newOptions);
     }
