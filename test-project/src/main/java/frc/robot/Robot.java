@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Centimeters;
+import static edu.wpi.first.units.Units.Meters;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import dev.doglog.DogLog;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -53,6 +56,12 @@ public class Robot extends TimedRobot {
     DogLog.log("Tunable/SupplierValue", tunableSupplier.getAsDouble());
 
     DogLog.log("Random/Random", Math.random());
+
+    DogLog.log("Units/Height1", 123, "inches");
+    DogLog.log("Units/Height2", 123, Meters);
+    DogLog.log("Units/Height3", Centimeters.of(123));
+    DogLog.log("Units/Height4", 123, "Meter");
+    DogLog.log("Units/Height5", 123, "meter");
   }
 
   @Override
