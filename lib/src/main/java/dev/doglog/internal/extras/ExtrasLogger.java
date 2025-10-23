@@ -33,7 +33,7 @@ public class ExtrasLogger implements AutoCloseable {
 
   private final CANStatus status = new CANStatus();
 
-  @Nullable private PowerDistribution pdh;
+  private @Nullable PowerDistribution pdh;
 
   private final Notifier notifier = new Notifier(this::log);
 
