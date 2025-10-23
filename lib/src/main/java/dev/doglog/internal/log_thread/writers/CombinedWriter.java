@@ -8,6 +8,7 @@ import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import org.jspecify.annotations.Nullable;
 
 public class CombinedWriter {
   /** The NetworkTables table to log to, if NetworkTables publishing is enabled. */
@@ -15,7 +16,7 @@ public class CombinedWriter {
 
   private final DataLogWriter dataLogReporter;
   // Default to null
-  private NetworkTablesWriter ntReporter;
+  private @Nullable NetworkTablesWriter ntReporter;
 
   private DogLogOptions options = new DogLogOptions();
 
@@ -26,10 +27,6 @@ public class CombinedWriter {
   }
 
   public void log(long timestamp, String key, boolean[] value) {
-    if (value == null) {
-      return;
-    }
-
     dataLogReporter.log(timestamp, key, value);
 
     checkNtPublish();
@@ -48,10 +45,6 @@ public class CombinedWriter {
   }
 
   public void log(long timestamp, String key, double[] value) {
-    if (value == null) {
-      return;
-    }
-
     dataLogReporter.log(timestamp, key, value);
 
     checkNtPublish();
@@ -79,10 +72,6 @@ public class CombinedWriter {
   }
 
   public void log(long timestamp, String key, float[] value) {
-    if (value == null) {
-      return;
-    }
-
     dataLogReporter.log(timestamp, key, value);
 
     checkNtPublish();
@@ -110,10 +99,6 @@ public class CombinedWriter {
   }
 
   public void log(long timestamp, String key, long[] value) {
-    if (value == null) {
-      return;
-    }
-
     dataLogReporter.log(timestamp, key, value);
 
     checkNtPublish();
@@ -132,10 +117,6 @@ public class CombinedWriter {
   }
 
   public void log(long timestamp, String key, double[] value, String unit) {
-    if (value == null) {
-      return;
-    }
-
     dataLogReporter.log(timestamp, key, value, unit);
 
     checkNtPublish();
@@ -145,10 +126,6 @@ public class CombinedWriter {
   }
 
   public void log(long timestamp, String key, float[] value, String unit) {
-    if (value == null) {
-      return;
-    }
-
     dataLogReporter.log(timestamp, key, value, unit);
 
     checkNtPublish();
@@ -158,10 +135,6 @@ public class CombinedWriter {
   }
 
   public void log(long timestamp, String key, long[] value, String unit) {
-    if (value == null) {
-      return;
-    }
-
     dataLogReporter.log(timestamp, key, value, unit);
 
     checkNtPublish();
@@ -182,10 +155,6 @@ public class CombinedWriter {
   // TODO: Raw logs
 
   public void log(long timestamp, String key, String[] value) {
-    if (value == null) {
-      return;
-    }
-
     dataLogReporter.log(timestamp, key, value);
 
     checkNtPublish();
@@ -195,10 +164,6 @@ public class CombinedWriter {
   }
 
   public void log(long timestamp, String key, String value) {
-    if (value == null) {
-      return;
-    }
-
     dataLogReporter.log(timestamp, key, value);
 
     checkNtPublish();
@@ -213,10 +178,6 @@ public class CombinedWriter {
       return;
     }
 
-    if (value == null) {
-      return;
-    }
-
     dataLogReporter.log(timestamp, key, value, customTypeString);
 
     checkNtPublish();
@@ -226,10 +187,6 @@ public class CombinedWriter {
   }
 
   private <T> void log(long timestamp, String key, Struct<T> struct, T[] value) {
-    if (value == null) {
-      return;
-    }
-
     dataLogReporter.log(timestamp, key, struct, value);
 
     checkNtPublish();
@@ -239,10 +196,6 @@ public class CombinedWriter {
   }
 
   public <T extends StructSerializable> void log(long timestamp, String key, T[] value) {
-    if (value == null) {
-      return;
-    }
-
     var maybeStruct = StructRegistry.getStruct(value.getClass().getComponentType());
 
     if (maybeStruct.isPresent()) {
@@ -262,10 +215,6 @@ public class CombinedWriter {
   }
 
   public <T extends StructSerializable> void log(long timestamp, String key, T value) {
-    if (value == null) {
-      return;
-    }
-
     var maybeStruct = StructRegistry.getStruct(value.getClass());
 
     if (maybeStruct.isPresent()) {

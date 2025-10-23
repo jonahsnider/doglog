@@ -3,6 +3,7 @@ package dev.doglog.internal.writers;
 import dev.doglog.DogLogOptions;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Consumes log entries provided by DogLog. Implementations decide how to process the log data (e.g.
@@ -13,7 +14,7 @@ public interface LogWriterHighLevel extends LogWriterBase, AutoCloseable {
     return options.useLogThread() ? new ThreadedLogWriter(options) : new LogWriter(options);
   }
 
-  public void setPdh(PowerDistribution pdh);
+  public void setPdh(@Nullable PowerDistribution pdh);
 
   public void setOptions(DogLogOptions newOptions);
 

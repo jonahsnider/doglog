@@ -25,7 +25,7 @@ class RadioLogUtil {
           .timeout(REQUEST_TIMEOUT_DURATION)
           .build();
 
-  /** Get the latest radio status and update the {@link this#radioLogResult} object. */
+  /** Get the latest radio status and update the {@link #radioLogResult} object. */
   public void refresh() {
     try {
       var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());

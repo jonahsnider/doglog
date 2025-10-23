@@ -16,6 +16,7 @@ import edu.wpi.first.hal.can.CANJNI;
 import edu.wpi.first.hal.can.CANStatus;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import org.jspecify.annotations.Nullable;
 
 /** Logs "extra" information. */
 public class ExtrasLogger implements AutoCloseable {
@@ -32,7 +33,7 @@ public class ExtrasLogger implements AutoCloseable {
 
   private final CANStatus status = new CANStatus();
 
-  private PowerDistribution pdh;
+  private @Nullable PowerDistribution pdh;
 
   private final Notifier notifier = new Notifier(this::log);
 
@@ -61,7 +62,7 @@ public class ExtrasLogger implements AutoCloseable {
     }
   }
 
-  public void setPdh(PowerDistribution pdh) {
+  public void setPdh(@Nullable PowerDistribution pdh) {
     this.pdh = pdh;
   }
 

@@ -6,6 +6,7 @@ import dev.doglog.internal.log_thread.writers.CombinedWriter;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import org.jspecify.annotations.Nullable;
 
 /** Writes logs directly from the main thread. */
 public class LogWriter implements LogWriterHighLevel {
@@ -24,7 +25,7 @@ public class LogWriter implements LogWriterHighLevel {
   }
 
   @Override
-  public void setPdh(PowerDistribution pdh) {
+  public void setPdh(@Nullable PowerDistribution pdh) {
     extras.setPdh(pdh);
   }
 
@@ -86,10 +87,6 @@ public class LogWriter implements LogWriterHighLevel {
 
   @Override
   public void log(long timestamp, String key, int[] value) {
-    if (value == null) {
-      return;
-    }
-
     long[] buffer = new long[value.length];
 
     for (int i = 0; i < value.length; i++) {

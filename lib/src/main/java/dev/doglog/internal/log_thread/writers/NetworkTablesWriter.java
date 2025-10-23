@@ -139,6 +139,7 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public void log(long timestamp, String key, double value, String unit) {
     log(timestamp, key, value);
     updateUnitForTopic(doubleUnits, key, unit, doublePublishers.get(key).getTopic());
@@ -160,6 +161,7 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public void log(long timestamp, String key, float[] value, String unit) {
     log(timestamp, key, value);
     updateUnitForTopic(floatArrayUnits, key, unit, floatArrayPublishers.get(key).getTopic());
@@ -181,6 +183,7 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public void log(long timestamp, String key, float value, String unit) {
     log(timestamp, key, value);
     updateUnitForTopic(floatUnits, key, unit, floatPublishers.get(key).getTopic());
@@ -202,6 +205,7 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public void log(long timestamp, String key, long[] value, String unit) {
     log(timestamp, key, value);
     updateUnitForTopic(integerArrayUnits, key, unit, integerArrayPublishers.get(key).getTopic());
@@ -223,6 +227,7 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public void log(long timestamp, String key, long value, String unit) {
     log(timestamp, key, value);
     updateUnitForTopic(integerUnits, key, unit, integerPublishers.get(key).getTopic());

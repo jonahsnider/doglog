@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.LongConsumer;
+import org.jspecify.annotations.Nullable;
 
 /** A logger based on WPILib's {@link DataLogManager} */
 public class DogLog {
@@ -62,7 +63,7 @@ public class DogLog {
    *
    * <p>See https://doglog.dev/reference/logger-options/ for more information.
    */
-  public static void setOptions(DogLogOptions newOptions) {
+  public static void setOptions(@Nullable DogLogOptions newOptions) {
     if (newOptions == null) {
       newOptions = new DogLogOptions();
     }
@@ -100,7 +101,7 @@ public class DogLog {
    *
    * @param pdh The {@link PowerDistribution} instance to use for logging PDH/PDP data.
    */
-  public static void setPdh(PowerDistribution pdh) {
+  public static void setPdh(@Nullable PowerDistribution pdh) {
     logger.setPdh(pdh);
   }
 
@@ -124,44 +125,57 @@ public class DogLog {
   }
 
   /** Log a boolean array. */
-  public static void log(String key, boolean[] value) {
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value);
+  public static void log(String key, boolean @Nullable [] value) {
+    if (!enabled || value == null) {
+      return;
     }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value);
   }
 
   /** Log a boolean. */
   public static void log(String key, boolean value) {
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value);
+    if (!enabled) {
+      return;
     }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value);
   }
 
   /** Log a double array. */
-  public static void log(String key, double[] value) {
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value);
+  public static void log(String key, double @Nullable [] value) {
+    if (!enabled || value == null) {
+      return;
     }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value);
   }
 
   /** Log a double array with unit metadata. */
-  public static void log(String key, double[] value, String unit) {
+  public static void log(String key, double @Nullable [] value, @Nullable String unit) {
+    if (!enabled) {
+      return;
+    }
     if (unit == null) {
       log(key, value);
       return;
     }
-
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value, unit);
+    if (value == null) {
+      return;
     }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value, unit);
   }
 
   /** Log a double array with unit metadata. */
-  public static void log(String key, double[] value, Unit unit) {
+  public static void log(String key, double @Nullable [] value, @Nullable Unit unit) {
+    if (!enabled) {
+      return;
+    }
     if (unit == null) {
       log(key, value);
       return;
@@ -172,28 +186,44 @@ public class DogLog {
 
   /** Log a double. */
   public static void log(String key, double value) {
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value);
+    if (!enabled) {
+      return;
     }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value);
   }
 
   /** Log a double with unit metadata. */
-  public static void log(String key, double value, String unit) {
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value, unit);
+  public static void log(String key, double value, @Nullable String unit) {
+    if (!enabled) {
+      return;
     }
+    if (unit == null) {
+      log(key, value);
+      return;
+    }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value, unit);
   }
 
   /** Log a double with unit metadata. */
-  public static void log(String key, double value, Unit unit) {
+  public static void log(String key, double value, @Nullable Unit unit) {
+    if (!enabled) {
+      return;
+    }
+    if (unit == null) {
+      log(key, value);
+      return;
+    }
+
     log(key, value, unit.name());
   }
 
   /** Log a measure, preserving the user-specified unit. */
-  public static void log(String key, Measure<?> value) {
-    if (value == null) {
+  public static void log(String key, @Nullable Measure<?> value) {
+    if (!enabled || value == null) {
       return;
     }
 
@@ -201,112 +231,135 @@ public class DogLog {
   }
 
   /** Log a float array. */
-  public static void log(String key, float[] value) {
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value);
+  public static void log(String key, float @Nullable [] value) {
+    if (!enabled || value == null) {
+      return;
     }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value);
   }
 
   /** Log a float array with unit metadata. */
-  public static void log(String key, float[] value, String unit) {
+  public static void log(String key, float @Nullable [] value, @Nullable String unit) {
+    if (!enabled) {
+      return;
+    }
     if (unit == null) {
       log(key, value);
       return;
     }
-
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value, unit);
+    if (value == null) {
+      return;
     }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value, unit);
   }
 
   /** Log a float. */
   public static void log(String key, float value) {
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value);
+    if (!enabled) {
+      return;
     }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value);
   }
 
   /** Log a float with unit metadata. */
-  public static void log(String key, float value, String unit) {
+  public static void log(String key, float value, @Nullable String unit) {
+    if (!enabled) {
+      return;
+    }
     if (unit == null) {
       log(key, value);
       return;
     }
 
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value, unit);
-    }
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value, unit);
   }
 
   /** Log an int array. */
-  public static void log(String key, int[] value) {
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value);
+  public static void log(String key, int @Nullable [] value) {
+    if (!enabled || value == null) {
+      return;
     }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value);
   }
 
   /** Log a long array. */
-  public static void log(String key, long[] value) {
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value);
+  public static void log(String key, long @Nullable [] value) {
+    if (!enabled || value == null) {
+      return;
     }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value);
   }
 
   /** Log a long array with unit metadata. */
-  public static void log(String key, long[] value, String unit) {
+  public static void log(String key, long @Nullable [] value, @Nullable String unit) {
+    if (!enabled) {
+      return;
+    }
     if (unit == null) {
       log(key, value);
       return;
     }
-
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value, unit);
+    if (value == null) {
+      return;
     }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value, unit);
   }
 
   /** Log a long. */
   public static void log(String key, long value) {
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value);
+    if (!enabled) {
+      return;
     }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value);
   }
 
   /** Log a long with unit metadata. */
-  public static void log(String key, long value, String unit) {
+  public static void log(String key, long value, @Nullable String unit) {
+    if (!enabled) {
+      return;
+    }
     if (unit == null) {
       log(key, value);
       return;
     }
 
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value, unit);
-    }
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value, unit);
   }
 
   // TODO: Raw logs
 
   /** Log a string array. */
-  public static void log(String key, String[] value) {
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value);
+  public static void log(String key, @Nullable String[] value) {
+    if (!enabled || value == null) {
+      return;
     }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value);
   }
 
   /** Log an enum array. Enums will be converted to strings with {@link Enum#name()}. */
-  public static void log(String key, Enum<?>[] value) {
-    if (value == null) {
+  public static void log(String key, @Nullable Enum<?>[] value) {
+    if (!enabled || value == null) {
       return;
     }
+
     // Convert enum array to string array
     var stringArray = new String[value.length];
 
@@ -318,43 +371,57 @@ public class DogLog {
   }
 
   /** Log a string. */
-  public static void log(String key, String value) {
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value);
+  public static void log(String key, @Nullable String value) {
+    if (!enabled || value == null) {
+      return;
     }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value);
   }
 
   /** Log a string with a custom type string. */
-  public static void log(String key, String value, String customTypeString) {
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value, customTypeString);
+  public static void log(String key, @Nullable String value, @Nullable String customTypeString) {
+    if (!enabled || value == null) {
+      return;
     }
+
+    if (customTypeString == null) {
+      log(key, value);
+      return;
+    }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value, customTypeString);
   }
 
   /** Log an enum. The enum will be converted to a string with {@link Enum#name()}. */
-  public static void log(String key, Enum<?> value) {
-    if (value == null) {
+  public static void log(String key, @Nullable Enum<?> value) {
+    if (!enabled || value == null) {
       return;
     }
+
     log(key, value.name());
   }
 
   /** Log a struct array. */
-  public static <T extends StructSerializable> void log(String key, T[] value) {
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value);
+  public static <T extends StructSerializable> void log(String key, @Nullable T[] value) {
+    if (!enabled || value == null) {
+      return;
     }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value);
   }
 
   /** Log a struct. */
-  public static <T extends StructSerializable> void log(String key, T value) {
-    if (enabled) {
-      var now = HALUtil.getFPGATime();
-      logger.log(now, key, value);
+  public static <T extends StructSerializable> void log(String key, @Nullable T value) {
+    if (!enabled || value == null) {
+      return;
     }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value);
   }
 
   /**
@@ -367,7 +434,7 @@ public class DogLog {
    *     not create an alert
    * @see DogLog#decreaseFault(String)
    */
-  public static void logFault(String faultName, AlertType alertType) {
+  public static void logFault(@Nullable String faultName, @Nullable AlertType alertType) {
     if (enabled && faultName != null) {
       FaultLogger.addFault(logger, faultName, alertType);
     }
@@ -381,7 +448,7 @@ public class DogLog {
    * @param faultName The name of the fault to log.
    * @see DogLog#decreaseFault(String)
    */
-  public static void logFault(String faultName) {
+  public static void logFault(@Nullable String faultName) {
     logFault(faultName, AlertType.kError);
   }
 
@@ -394,7 +461,7 @@ public class DogLog {
    * @param faultName The name of the fault to log.
    * @see DogLog#decreaseFault(Enum)
    */
-  public static void logFault(Enum<?> faultName) {
+  public static void logFault(@Nullable Enum<?> faultName) {
     if (faultName != null) {
       logFault(faultName.name());
     }
@@ -407,7 +474,7 @@ public class DogLog {
    * @param faultName The name of the fault to decrement the count of.
    * @see DogLog#clearFault(String)
    */
-  public static void decreaseFault(String faultName) {
+  public static void decreaseFault(@Nullable String faultName) {
     if (enabled && faultName != null) {
       FaultLogger.decreaseFault(logger, faultName);
     }
@@ -420,7 +487,7 @@ public class DogLog {
    * @param faultName The name of the fault to decrement the count of.
    * @see DogLog#clearFault(String)
    */
-  public static void decreaseFault(Enum<?> faultName) {
+  public static void decreaseFault(@Nullable Enum<?> faultName) {
     if (faultName != null) {
       decreaseFault(faultName.name());
     }
@@ -432,7 +499,7 @@ public class DogLog {
    *
    * @param faultName The name of the fault to reset.
    */
-  public static void clearFault(String faultName) {
+  public static void clearFault(@Nullable String faultName) {
     if (enabled && faultName != null) {
       FaultLogger.clearFault(logger, faultName);
     }
@@ -444,7 +511,7 @@ public class DogLog {
    *
    * @param faultName The name of the fault to reset.
    */
-  public static void clearFault(Enum<?> faultName) {
+  public static void clearFault(@Nullable Enum<?> faultName) {
     if (faultName != null) {
       clearFault(faultName.name());
     }
@@ -532,7 +599,8 @@ public class DogLog {
    * @param onChange A function to call when the tunable value changes.
    * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
    */
-  public static DoubleSubscriber tunable(String key, double defaultValue, DoubleConsumer onChange) {
+  public static DoubleSubscriber tunable(
+      String key, double defaultValue, @Nullable DoubleConsumer onChange) {
     return tunable.create(key, defaultValue, null, onChange);
   }
 
@@ -544,7 +612,7 @@ public class DogLog {
    * @param unit The unit for the tunable value.
    * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
    */
-  public static DoubleSubscriber tunable(String key, double defaultValue, String unit) {
+  public static DoubleSubscriber tunable(String key, double defaultValue, @Nullable String unit) {
     return tunable(key, defaultValue, unit, (DoubleConsumer) null);
   }
 
@@ -558,7 +626,7 @@ public class DogLog {
    * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
    */
   public static DoubleSubscriber tunable(
-      String key, double defaultValue, String unit, DoubleConsumer onChange) {
+      String key, double defaultValue, @Nullable String unit, @Nullable DoubleConsumer onChange) {
     return tunable.create(key, defaultValue, unit, onChange);
   }
 
@@ -570,7 +638,7 @@ public class DogLog {
    * @param unit The unit for the tunable value.
    * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
    */
-  public static DoubleSubscriber tunable(String key, double defaultValue, Unit unit) {
+  public static DoubleSubscriber tunable(String key, double defaultValue, @Nullable Unit unit) {
     return tunable(key, defaultValue, unit, (DoubleConsumer) null);
   }
 
@@ -584,7 +652,7 @@ public class DogLog {
    * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
    */
   public static DoubleSubscriber tunable(
-      String key, double defaultValue, Unit unit, DoubleConsumer onChange) {
+      String key, double defaultValue, @Nullable Unit unit, @Nullable DoubleConsumer onChange) {
     if (unit == null) {
       return tunable(key, defaultValue, onChange);
     }
@@ -611,7 +679,7 @@ public class DogLog {
    * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
    */
   public static DoubleSubscriber tunable(
-      String key, Measure<?> defaultValue, DoubleConsumer onChange) {
+      String key, Measure<?> defaultValue, @Nullable DoubleConsumer onChange) {
     if (defaultValue == null) {
       return tunable(key, 0.0, onChange);
     }
@@ -637,7 +705,8 @@ public class DogLog {
    * @param onChange A function to call when the tunable value changes.
    * @return A {@link FloatSubscriber} used to retrieve the tunable value.
    */
-  public static FloatSubscriber tunable(String key, float defaultValue, FloatConsumer onChange) {
+  public static FloatSubscriber tunable(
+      String key, float defaultValue, @Nullable FloatConsumer onChange) {
     return tunable.create(key, defaultValue, null, onChange);
   }
 
@@ -663,7 +732,7 @@ public class DogLog {
    * @return A {@link FloatSubscriber} used to retrieve the tunable value.
    */
   public static FloatSubscriber tunable(
-      String key, float defaultValue, String unit, FloatConsumer onChange) {
+      String key, float defaultValue, String unit, @Nullable FloatConsumer onChange) {
     return tunable.create(key, defaultValue, unit, onChange);
   }
 
@@ -689,7 +758,7 @@ public class DogLog {
    * @return A {@link FloatSubscriber} used to retrieve the tunable value.
    */
   public static FloatSubscriber tunable(
-      String key, float defaultValue, Unit unit, FloatConsumer onChange) {
+      String key, float defaultValue, @Nullable Unit unit, @Nullable FloatConsumer onChange) {
     if (unit == null) {
       return tunable(key, defaultValue, onChange);
     }
@@ -716,7 +785,7 @@ public class DogLog {
    * @return A {@link BooleanSubscriber} used to retrieve the tunable value.
    */
   public static BooleanSubscriber tunable(
-      String key, boolean defaultValue, BooleanConsumer onChange) {
+      String key, boolean defaultValue, @Nullable BooleanConsumer onChange) {
     return tunable.create(key, defaultValue, onChange);
   }
 
@@ -740,7 +809,7 @@ public class DogLog {
    * @return A {@link StringSubscriber} used to retrieve the tunable value.
    */
   public static StringSubscriber tunable(
-      String key, String defaultValue, Consumer<String> onChange) {
+      String key, String defaultValue, @Nullable Consumer<String> onChange) {
     return tunable.create(key, defaultValue, onChange);
   }
 
@@ -763,7 +832,8 @@ public class DogLog {
    * @param onChange A function to call when the tunable value changes.
    * @return An {@link IntegerSubscriber} used to retrieve the tunable value.
    */
-  public static IntegerSubscriber tunable(String key, long defaultValue, LongConsumer onChange) {
+  public static IntegerSubscriber tunable(
+      String key, long defaultValue, @Nullable LongConsumer onChange) {
     return tunable.create(key, defaultValue, null, onChange);
   }
 
@@ -775,7 +845,7 @@ public class DogLog {
    * @param unit The unit for the tunable value.
    * @return An {@link IntegerSubscriber} used to retrieve the tunable value.
    */
-  public static IntegerSubscriber tunable(String key, long defaultValue, String unit) {
+  public static IntegerSubscriber tunable(String key, long defaultValue, @Nullable String unit) {
     return tunable(key, defaultValue, unit, (LongConsumer) null);
   }
 
@@ -789,7 +859,7 @@ public class DogLog {
    * @return An {@link IntegerSubscriber} used to retrieve the tunable value.
    */
   public static IntegerSubscriber tunable(
-      String key, long defaultValue, String unit, LongConsumer onChange) {
+      String key, long defaultValue, @Nullable String unit, @Nullable LongConsumer onChange) {
     return tunable.create(key, defaultValue, unit, onChange);
   }
 
@@ -801,7 +871,7 @@ public class DogLog {
    * @param unit The unit for the tunable value.
    * @return An {@link IntegerSubscriber} used to retrieve the tunable value.
    */
-  public static IntegerSubscriber tunable(String key, long defaultValue, Unit unit) {
+  public static IntegerSubscriber tunable(String key, long defaultValue, @Nullable Unit unit) {
     return tunable(key, defaultValue, unit, (LongConsumer) null);
   }
 
@@ -815,7 +885,7 @@ public class DogLog {
    * @return An {@link IntegerSubscriber} used to retrieve the tunable value.
    */
   public static IntegerSubscriber tunable(
-      String key, long defaultValue, Unit unit, LongConsumer onChange) {
+      String key, long defaultValue, @Nullable Unit unit, @Nullable LongConsumer onChange) {
     if (unit == null) {
       return tunable(key, defaultValue, onChange);
     }
