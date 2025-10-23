@@ -521,7 +521,7 @@ public class DogLog {
    * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
    */
   public static DoubleSubscriber tunable(String key, double defaultValue) {
-    return tunable(key, defaultValue, null);
+    return tunable(key, defaultValue, (DoubleConsumer) null);
   }
 
   /**
@@ -533,7 +533,89 @@ public class DogLog {
    * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
    */
   public static DoubleSubscriber tunable(String key, double defaultValue, DoubleConsumer onChange) {
-    return tunable.create(key, defaultValue, onChange);
+    return tunable.create(key, defaultValue, null, onChange);
+  }
+
+  /**
+   * Create a tunable double with unit metadata.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param unit The unit for the tunable value.
+   * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
+   */
+  public static DoubleSubscriber tunable(String key, double defaultValue, String unit) {
+    return tunable(key, defaultValue, unit, (DoubleConsumer) null);
+  }
+
+  /**
+   * Create a tunable double with unit metadata.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param unit The unit for the tunable value.
+   * @param onChange A function to call when the tunable value changes.
+   * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
+   */
+  public static DoubleSubscriber tunable(
+      String key, double defaultValue, String unit, DoubleConsumer onChange) {
+    return tunable.create(key, defaultValue, unit, onChange);
+  }
+
+  /**
+   * Create a tunable double with unit metadata.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param unit The unit for the tunable value.
+   * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
+   */
+  public static DoubleSubscriber tunable(String key, double defaultValue, Unit unit) {
+    return tunable(key, defaultValue, unit, (DoubleConsumer) null);
+  }
+
+  /**
+   * Create a tunable double with unit metadata.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param unit The unit for the tunable value.
+   * @param onChange A function to call when the tunable value changes.
+   * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
+   */
+  public static DoubleSubscriber tunable(
+      String key, double defaultValue, Unit unit, DoubleConsumer onChange) {
+    if (unit == null) {
+      return tunable(key, defaultValue, onChange);
+    }
+    return tunable(key, defaultValue, unit.name(), onChange);
+  }
+
+  /**
+   * Create a tunable from a measure, preserving the user-specified unit.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default measure value for the tunable value.
+   * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
+   */
+  public static DoubleSubscriber tunable(String key, Measure<?> defaultValue) {
+    return tunable(key, defaultValue, null);
+  }
+
+  /**
+   * Create a tunable from a measure, preserving the user-specified unit.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default measure value for the tunable value.
+   * @param onChange A function to call when the tunable value changes.
+   * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
+   */
+  public static DoubleSubscriber tunable(
+      String key, Measure<?> defaultValue, DoubleConsumer onChange) {
+    if (defaultValue == null) {
+      return tunable(key, 0.0, onChange);
+    }
+    return tunable(key, defaultValue.magnitude(), defaultValue.unit().name(), onChange);
   }
 
   /**
@@ -556,7 +638,62 @@ public class DogLog {
    * @return A {@link FloatSubscriber} used to retrieve the tunable value.
    */
   public static FloatSubscriber tunable(String key, float defaultValue, FloatConsumer onChange) {
-    return tunable.create(key, defaultValue, onChange);
+    return tunable.create(key, defaultValue, null, onChange);
+  }
+
+  /**
+   * Create a tunable float with unit metadata.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param unit The unit for the tunable value.
+   * @return A {@link FloatSubscriber} used to retrieve the tunable value.
+   */
+  public static FloatSubscriber tunable(String key, float defaultValue, String unit) {
+    return tunable(key, defaultValue, unit, (FloatConsumer) null);
+  }
+
+  /**
+   * Create a tunable float with unit metadata.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param unit The unit for the tunable value.
+   * @param onChange A function to call when the tunable value changes.
+   * @return A {@link FloatSubscriber} used to retrieve the tunable value.
+   */
+  public static FloatSubscriber tunable(
+      String key, float defaultValue, String unit, FloatConsumer onChange) {
+    return tunable.create(key, defaultValue, unit, onChange);
+  }
+
+  /**
+   * Create a tunable float with unit metadata.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param unit The unit for the tunable value.
+   * @return A {@link FloatSubscriber} used to retrieve the tunable value.
+   */
+  public static FloatSubscriber tunable(String key, float defaultValue, Unit unit) {
+    return tunable(key, defaultValue, unit, (FloatConsumer) null);
+  }
+
+  /**
+   * Create a tunable float with unit metadata.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param unit The unit for the tunable value.
+   * @param onChange A function to call when the tunable value changes.
+   * @return A {@link FloatSubscriber} used to retrieve the tunable value.
+   */
+  public static FloatSubscriber tunable(
+      String key, float defaultValue, Unit unit, FloatConsumer onChange) {
+    if (unit == null) {
+      return tunable(key, defaultValue, onChange);
+    }
+    return tunable(key, defaultValue, unit.name(), onChange);
   }
 
   /**
@@ -627,7 +764,62 @@ public class DogLog {
    * @return An {@link IntegerSubscriber} used to retrieve the tunable value.
    */
   public static IntegerSubscriber tunable(String key, long defaultValue, LongConsumer onChange) {
-    return tunable.create(key, defaultValue, onChange);
+    return tunable.create(key, defaultValue, null, onChange);
+  }
+
+  /**
+   * Create a tunable integer with unit metadata.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param unit The unit for the tunable value.
+   * @return An {@link IntegerSubscriber} used to retrieve the tunable value.
+   */
+  public static IntegerSubscriber tunable(String key, long defaultValue, String unit) {
+    return tunable(key, defaultValue, unit, (LongConsumer) null);
+  }
+
+  /**
+   * Create a tunable integer with unit metadata.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param unit The unit for the tunable value.
+   * @param onChange A function to call when the tunable value changes.
+   * @return An {@link IntegerSubscriber} used to retrieve the tunable value.
+   */
+  public static IntegerSubscriber tunable(
+      String key, long defaultValue, String unit, LongConsumer onChange) {
+    return tunable.create(key, defaultValue, unit, onChange);
+  }
+
+  /**
+   * Create a tunable integer with unit metadata.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param unit The unit for the tunable value.
+   * @return An {@link IntegerSubscriber} used to retrieve the tunable value.
+   */
+  public static IntegerSubscriber tunable(String key, long defaultValue, Unit unit) {
+    return tunable(key, defaultValue, unit, (LongConsumer) null);
+  }
+
+  /**
+   * Create a tunable integer with unit metadata.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param unit The unit for the tunable value.
+   * @param onChange A function to call when the tunable value changes.
+   * @return An {@link IntegerSubscriber} used to retrieve the tunable value.
+   */
+  public static IntegerSubscriber tunable(
+      String key, long defaultValue, Unit unit, LongConsumer onChange) {
+    if (unit == null) {
+      return tunable(key, defaultValue, onChange);
+    }
+    return tunable(key, defaultValue, unit.name(), onChange);
   }
 
   protected DogLog() {}
