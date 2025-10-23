@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Centimeters;
+import static edu.wpi.first.units.Units.Meters;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import dev.doglog.DogLog;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -53,6 +56,13 @@ public class Robot extends TimedRobot {
     DogLog.log("Tunable/SupplierValue", tunableSupplier.getAsDouble());
 
     DogLog.log("Random/Random", Math.random());
+
+    DogLog.log("Units/Height1", 123, "inches");
+    DogLog.log("Units/Height2", 123, Meters);
+    DogLog.log("Units/Height3", Centimeters.of(123));
+    DogLog.log("Units/Height4", 123, "Meter");
+    DogLog.log("Units/Height5", 123, "meter");
+    DogLog.log("Units/Height7", motor.getPosition().getValue());
   }
 
   @Override
@@ -80,7 +90,9 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    DogLog.log("Units/Height6", 123, "ft");
+  }
 
   @Override
   public void autonomousExit() {}
@@ -96,7 +108,9 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    DogLog.log("Units/Height6", 123, "meter");
+  }
 
   @Override
   public void teleopExit() {}

@@ -68,11 +68,17 @@ public class Tunable implements AutoCloseable {
     options = newOptions;
   }
 
-  public DoubleSubscriber create(String key, double defaultValue, DoubleConsumer onChange) {
+  public DoubleSubscriber create(
+      String key, double defaultValue, String unit, DoubleConsumer onChange) {
     startNotifier();
-    var entry = TUNABLE_TABLE.getDoubleTopic(key).getEntry(defaultValue);
+    var topic = TUNABLE_TABLE.getDoubleTopic(key);
+    var entry = topic.getEntry(defaultValue);
 
     entry.set(defaultValue);
+
+    if (unit != null) {
+      topic.setProperty("unit", "\"" + unit + "\"");
+    }
 
     var listenerHandle = poller.addListener(entry, LISTENER_EVENT_KINDS);
     if (onChange != null) {
@@ -83,11 +89,17 @@ public class Tunable implements AutoCloseable {
         entry, defaultValue, () -> options.ntTunables().getAsBoolean());
   }
 
-  public FloatSubscriber create(String key, float defaultValue, FloatConsumer onChange) {
+  public FloatSubscriber create(
+      String key, float defaultValue, String unit, FloatConsumer onChange) {
     startNotifier();
-    var entry = TUNABLE_TABLE.getFloatTopic(key).getEntry(defaultValue);
+    var topic = TUNABLE_TABLE.getFloatTopic(key);
+    var entry = topic.getEntry(defaultValue);
 
     entry.set(defaultValue);
+
+    if (unit != null) {
+      topic.setProperty("unit", "\"" + unit + "\"");
+    }
 
     var listenerHandle = poller.addListener(entry, LISTENER_EVENT_KINDS);
     if (onChange != null) {
@@ -128,11 +140,17 @@ public class Tunable implements AutoCloseable {
         entry, defaultValue, () -> options.ntTunables().getAsBoolean());
   }
 
-  public IntegerSubscriber create(String key, long defaultValue, LongConsumer onChange) {
+  public IntegerSubscriber create(
+      String key, long defaultValue, String unit, LongConsumer onChange) {
     startNotifier();
-    var entry = TUNABLE_TABLE.getIntegerTopic(key).getEntry(defaultValue);
+    var topic = TUNABLE_TABLE.getIntegerTopic(key);
+    var entry = topic.getEntry(defaultValue);
 
     entry.set(defaultValue);
+
+    if (unit != null) {
+      topic.setProperty("unit", "\"" + unit + "\"");
+    }
 
     var listenerHandle = poller.addListener(entry, LISTENER_EVENT_KINDS);
     if (onChange != null) {

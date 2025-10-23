@@ -69,6 +69,15 @@ public class CombinedWriter {
     }
   }
 
+  public void log(long timestamp, String key, double value, String unit) {
+    dataLogReporter.log(timestamp, key, value, unit);
+
+    checkNtPublish();
+    if (ntReporter != null) {
+      ntReporter.log(timestamp, key, value, unit);
+    }
+  }
+
   public void log(long timestamp, String key, float[] value) {
     if (value == null) {
       return;
@@ -91,6 +100,15 @@ public class CombinedWriter {
     }
   }
 
+  public void log(long timestamp, String key, float value, String unit) {
+    dataLogReporter.log(timestamp, key, value, unit);
+
+    checkNtPublish();
+    if (ntReporter != null) {
+      ntReporter.log(timestamp, key, value, unit);
+    }
+  }
+
   public void log(long timestamp, String key, long[] value) {
     if (value == null) {
       return;
@@ -110,6 +128,54 @@ public class CombinedWriter {
     checkNtPublish();
     if (ntReporter != null) {
       ntReporter.log(timestamp, key, value);
+    }
+  }
+
+  public void log(long timestamp, String key, double[] value, String unit) {
+    if (value == null) {
+      return;
+    }
+
+    dataLogReporter.log(timestamp, key, value, unit);
+
+    checkNtPublish();
+    if (ntReporter != null) {
+      ntReporter.log(timestamp, key, value, unit);
+    }
+  }
+
+  public void log(long timestamp, String key, float[] value, String unit) {
+    if (value == null) {
+      return;
+    }
+
+    dataLogReporter.log(timestamp, key, value, unit);
+
+    checkNtPublish();
+    if (ntReporter != null) {
+      ntReporter.log(timestamp, key, value, unit);
+    }
+  }
+
+  public void log(long timestamp, String key, long[] value, String unit) {
+    if (value == null) {
+      return;
+    }
+
+    dataLogReporter.log(timestamp, key, value, unit);
+
+    checkNtPublish();
+    if (ntReporter != null) {
+      ntReporter.log(timestamp, key, value, unit);
+    }
+  }
+
+  public void log(long timestamp, String key, long value, String unit) {
+    dataLogReporter.log(timestamp, key, value, unit);
+
+    checkNtPublish();
+    if (ntReporter != null) {
+      ntReporter.log(timestamp, key, value, unit);
     }
   }
 

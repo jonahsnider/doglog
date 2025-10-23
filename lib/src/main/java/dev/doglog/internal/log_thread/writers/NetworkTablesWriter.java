@@ -18,6 +18,7 @@ import edu.wpi.first.networktables.StringArrayPublisher;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.networktables.Topic;
 import edu.wpi.first.util.struct.Struct;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +29,19 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
   private static final String PROPERTY_SOURCE_VALUE = "\"DogLog\"";
 
   private static final PubSubOption PUB_SUB_OPTIONS = PubSubOption.sendAll(true);
+
+  /** Updates the unit property of a numeric topic. */
+  private static void updateUnitForTopic(
+      Map<String, String> unitCache, String key, String unit, Topic topic) {
+    // If we've never seen this key before, the current unit will be null
+    var currentUnit = unitCache.get(key);
+    if (unit.equals(currentUnit)) {
+      return;
+    }
+
+    topic.setProperty("unit", "\"" + unit + "\"");
+    unitCache.put(key, unit);
+  }
 
   private final NetworkTable logTable;
 
@@ -45,6 +59,14 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
   private final Map<String, GenericPublisher> customStringPublishers = new HashMap<>();
   private final Map<String, StructArrayPublisher<?>> structArrayPublishers = new HashMap<>();
   private final Map<String, StructPublisher<?>> structPublishers = new HashMap<>();
+
+  // Maps keys of numeric topics to the provided unit
+  private final Map<String, String> doubleUnits = new HashMap<>();
+  private final Map<String, String> doubleArrayUnits = new HashMap<>();
+  private final Map<String, String> floatUnits = new HashMap<>();
+  private final Map<String, String> floatArrayUnits = new HashMap<>();
+  private final Map<String, String> integerUnits = new HashMap<>();
+  private final Map<String, String> integerArrayUnits = new HashMap<>();
 
   public NetworkTablesWriter(String logTable) {
     this.logTable = NetworkTableInstance.getDefault().getTable(logTable);
@@ -96,6 +118,12 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
   }
 
   @Override
+  public void log(long timestamp, String key, double[] value, String unit) {
+    log(timestamp, key, value);
+    updateUnitForTopic(doubleArrayUnits, key, unit, logTable.getDoubleArrayTopic(key));
+  }
+
+  @Override
   public void log(long timestamp, String key, double value) {
     var publisher = doublePublishers.get(key);
 
@@ -108,6 +136,12 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
     } else {
       publisher.set(value, timestamp);
     }
+  }
+
+  @Override
+  public void log(long timestamp, String key, double value, String unit) {
+    log(timestamp, key, value);
+    updateUnitForTopic(doubleUnits, key, unit, doublePublishers.get(key).getTopic());
   }
 
   @Override
@@ -126,6 +160,12 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
   }
 
   @Override
+  public void log(long timestamp, String key, float[] value, String unit) {
+    log(timestamp, key, value);
+    updateUnitForTopic(floatArrayUnits, key, unit, floatArrayPublishers.get(key).getTopic());
+  }
+
+  @Override
   public void log(long timestamp, String key, float value) {
     var publisher = floatPublishers.get(key);
 
@@ -138,6 +178,12 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
     } else {
       publisher.set(value, timestamp);
     }
+  }
+
+  @Override
+  public void log(long timestamp, String key, float value, String unit) {
+    log(timestamp, key, value);
+    updateUnitForTopic(floatUnits, key, unit, floatPublishers.get(key).getTopic());
   }
 
   @Override
@@ -156,6 +202,12 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
   }
 
   @Override
+  public void log(long timestamp, String key, long[] value, String unit) {
+    log(timestamp, key, value);
+    updateUnitForTopic(integerArrayUnits, key, unit, integerArrayPublishers.get(key).getTopic());
+  }
+
+  @Override
   public void log(long timestamp, String key, long value) {
     var publisher = integerPublishers.get(key);
 
@@ -168,6 +220,12 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
     } else {
       publisher.set(value, timestamp);
     }
+  }
+
+  @Override
+  public void log(long timestamp, String key, long value, String unit) {
+    log(timestamp, key, value);
+    updateUnitForTopic(integerUnits, key, unit, integerPublishers.get(key).getTopic());
   }
 
   // TODO: Raw logs

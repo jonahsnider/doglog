@@ -6,6 +6,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.BooleanArrayLogEntry;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DataLogEntry;
 import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.datalog.FloatArrayLogEntry;
@@ -27,9 +28,31 @@ import java.util.Map;
 /** Logs to a WPILib {@link DataLog}. */
 public class DataLogWriter implements LogWriterLowLevel {
   private static final String ENTRY_METADATA = "{\"source\":\"DogLog\"}";
+  private static final String ENTRY_METADATA_UNITS_PREFIX = "{\"source\":\"DogLog\",\"unit\":\"";
+  private static final String ENTRY_METADATA_UNITS_SUFFIX = "\"}";
 
   /** The directory path when logging to the flash storage on a roboRIO 1. */
   private static final String RIO1_DISK_LOG_DIR = "/home/lvuser/logs";
+
+  private static String entryMetadataForUnit(String unit) {
+    return ENTRY_METADATA_UNITS_PREFIX + unit + ENTRY_METADATA_UNITS_SUFFIX;
+  }
+
+  /**
+   * Updates the metadata of an entry with a unit associated. This is to minimize calls to
+   * DataLogManager to update entry metadata.
+   */
+  private static void updateUnitForEntry(
+      Map<String, String> unitCache, String key, String unit, DataLogEntry entry) {
+    // If we've never seen this key before, the current unit will be null
+    var currentUnit = unitCache.get(key);
+    if (unit.equals(currentUnit)) {
+      return;
+    }
+
+    entry.setMetadata(entryMetadataForUnit(unit));
+    unitCache.put(key, unit);
+  }
 
   private final Map<String, BooleanArrayLogEntry> booleanArrayLogs = new HashMap<>();
   private final Map<String, BooleanLogEntry> booleanLogs = new HashMap<>();
@@ -43,6 +66,15 @@ public class DataLogWriter implements LogWriterLowLevel {
   private final Map<String, StringLogEntry> stringLogs = new HashMap<>();
   private final Map<String, StructArrayLogEntry<?>> structArrayLogs = new HashMap<>();
   private final Map<String, StructLogEntry<?>> structLogs = new HashMap<>();
+
+  /** Maps keys of double entries to their units. */
+  private final Map<String, String> doubleUnits = new HashMap<>();
+
+  private final Map<String, String> doubleArrayUnits = new HashMap<>();
+  private final Map<String, String> floatUnits = new HashMap<>();
+  private final Map<String, String> floatArrayUnits = new HashMap<>();
+  private final Map<String, String> integerUnits = new HashMap<>();
+  private final Map<String, String> integerArrayUnits = new HashMap<>();
 
   private final DataLog log;
   private int alertNtLogHandle = -1;
@@ -87,10 +119,33 @@ public class DataLogWriter implements LogWriterLowLevel {
   }
 
   @Override
+  public void log(long timestamp, String key, double[] value, String unit) {
+    DoubleArrayLogEntry entry =
+        doubleArrayLogs.computeIfAbsent(
+            key,
+            k -> new DoubleArrayLogEntry(log, prefixKey(k), entryMetadataForUnit(unit), timestamp));
+
+    entry.update(value, timestamp);
+
+    updateUnitForEntry(doubleArrayUnits, key, unit, entry);
+  }
+
+  @Override
   public void log(long timestamp, String key, double value) {
     doubleLogs
         .computeIfAbsent(key, k -> new DoubleLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
         .update(value, timestamp);
+  }
+
+  @Override
+  public void log(long timestamp, String key, double value, String unit) {
+    DoubleLogEntry entry =
+        doubleLogs.computeIfAbsent(
+            key, k -> new DoubleLogEntry(log, prefixKey(k), entryMetadataForUnit(unit), timestamp));
+
+    entry.update(value, timestamp);
+
+    updateUnitForEntry(doubleUnits, key, unit, entry);
   }
 
   @Override
@@ -102,10 +157,33 @@ public class DataLogWriter implements LogWriterLowLevel {
   }
 
   @Override
+  public void log(long timestamp, String key, float[] value, String unit) {
+    var entry =
+        floatArrayLogs.computeIfAbsent(
+            key,
+            k -> new FloatArrayLogEntry(log, prefixKey(k), entryMetadataForUnit(unit), timestamp));
+
+    entry.update(value, timestamp);
+
+    updateUnitForEntry(floatArrayUnits, key, unit, entry);
+  }
+
+  @Override
   public void log(long timestamp, String key, float value) {
     floatLogs
         .computeIfAbsent(key, k -> new FloatLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
         .update(value, timestamp);
+  }
+
+  @Override
+  public void log(long timestamp, String key, float value, String unit) {
+    var entry =
+        floatLogs.computeIfAbsent(
+            key, k -> new FloatLogEntry(log, prefixKey(k), entryMetadataForUnit(unit), timestamp));
+
+    entry.update(value, timestamp);
+
+    updateUnitForEntry(floatUnits, key, unit, entry);
   }
 
   @Override
@@ -117,11 +195,36 @@ public class DataLogWriter implements LogWriterLowLevel {
   }
 
   @Override
+  public void log(long timestamp, String key, long[] value, String unit) {
+    var entry =
+        integerArrayLogs.computeIfAbsent(
+            key,
+            k ->
+                new IntegerArrayLogEntry(log, prefixKey(k), entryMetadataForUnit(unit), timestamp));
+
+    entry.update(value, timestamp);
+
+    updateUnitForEntry(integerArrayUnits, key, unit, entry);
+  }
+
+  @Override
   public void log(long timestamp, String key, long value) {
     integerLogs
         .computeIfAbsent(
             key, k -> new IntegerLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
         .update(value, timestamp);
+  }
+
+  @Override
+  public void log(long timestamp, String key, long value, String unit) {
+    var entry =
+        integerLogs.computeIfAbsent(
+            key,
+            k -> new IntegerLogEntry(log, prefixKey(k), entryMetadataForUnit(unit), timestamp));
+
+    entry.update(value, timestamp);
+
+    updateUnitForEntry(integerUnits, key, unit, entry);
   }
 
   // TODO: Raw logs
