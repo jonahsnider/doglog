@@ -62,6 +62,7 @@ public class Robot extends TimedRobot {
     DogLog.log("Units/Height3", Centimeters.of(123));
     DogLog.log("Units/Height4", 123, "Meter");
     DogLog.log("Units/Height5", 123, "meter");
+    DogLog.log("Units/Height7", motor.getPosition().getValue());
   }
 
   @Override
