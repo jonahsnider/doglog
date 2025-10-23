@@ -19,6 +19,25 @@ Creating a tunable value will return a NetworkTables `Subscriber` used for acces
 
 Once a tunable value is created, DogLog will continuously log its value to the `Robot/Tunable/` table in the robot DataLog.
 
+### Adding units
+
+You can provide a unit when creating tunable numbers, which allows apps like AdvantageScope to better display the logged value.
+Pass a third argument containing a unit string, a [`Unit`](https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/Unit.html), or a [`Measure`](https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/Measure.html):
+
+```java
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.RPM;
+
+private final DoubleSubscriber intakeVoltage =
+	DogLog.tunable("Intake/Voltage", 4.5, "V");
+private final DoubleSubscriber elevatorHeightOverride = DogLog.tunable("Elevator/HeightOverride", 0.0, Inches);
+private final DoubleSubscriber shooterVelocity =
+	DogLog.tunable("Shooter/Velocity", RPM.of(2000));
+
+```
+
+DogLog writes the unit to both the `Tunable` NetworkTables topic and the DataLog metadata, so tools that understand WPILib unit metadata display it automatically.
+
 ## Reading a tunable value
 
 Once you've created a tunable value, you can read the value from the NetworkTables entry like so:

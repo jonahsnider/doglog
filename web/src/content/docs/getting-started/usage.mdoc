@@ -23,6 +23,22 @@ DogLog.log("Arm/Position", motor.getPosition().getValue());
 
 You can include these log statements in your periodic methods, or anywhere else you want to log data.
 
+### Logging with units
+
+When logging numbers, you can provide a unit to store alongside the value you're recording.
+Apps like AdvantageScope will use the provided unit to better display the logged value.
+
+```java
+import edu.wpi.first.units.Units;
+import static edu.wpi.first.units.Units.Meters;
+
+DogLog.log("Intake/StatorCurrent", intake.getStatorCurrent().getValueAsDouble(), "amps");
+DogLog.log("Elevator/Height", elevatorHeightMeters, Meters);
+DogLog.log("Shooter/Velocity", shooter.getVelocity().getValue());
+```
+
+Units can be provided as a string, a [`Unit`](https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/Unit.html), or a [`Measure`](https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/Measure.html).
+
 ## Configuring
 
 DogLog comes with a safe, reasonable default configuration out of the box, but most users will want to customize it to their needs.
