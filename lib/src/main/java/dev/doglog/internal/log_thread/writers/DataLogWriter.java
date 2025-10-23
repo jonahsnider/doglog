@@ -302,7 +302,7 @@ public class DataLogWriter implements LogWriterLowLevel {
    * Updates the metadata of an entry with a unit associated. This is to minimize calls to
    * DataLogManager to update entry metadata.
    */
-  private void updateEntryUnit(
+  private static void updateEntryUnit(
       Map<String, String> unitCache, String key, String unit, DataLogEntry entry) {
     // If we've never seen this key before, the current unit will be null
     var currentUnit = unitCache.get(key);
