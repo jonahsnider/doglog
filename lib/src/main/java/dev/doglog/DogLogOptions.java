@@ -43,7 +43,6 @@ public record DogLogOptions(
      * CPU load.
      */
     boolean useLogThread) {
-
   private static boolean isNotOnFms() {
     return !DriverStation.isFMSAttached();
   }
