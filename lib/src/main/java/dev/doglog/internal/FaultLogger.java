@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the interface for logging faults. Faults are a DogLog concept that were created prior to
@@ -51,7 +52,8 @@ public class FaultLogger {
    * @param alertType The type of alert to create for the fault, or <code>null</code> if it should
    *     not create an alert
    */
-  public static void addFault(LogWriterHighLevel logger, String faultName, AlertType alertType) {
+  public static void addFault(
+      LogWriterHighLevel logger, String faultName, @Nullable AlertType alertType) {
     addFault(logger, faultName);
     if (alertType != null) {
       faultAlerts.computeIfAbsent(faultName, k -> new Alert(faultName, alertType)).set(true);

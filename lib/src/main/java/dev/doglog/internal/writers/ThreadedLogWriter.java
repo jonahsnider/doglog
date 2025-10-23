@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides an interface for queueing logs to be recorded by the log thread. Also responsible for
@@ -78,7 +79,7 @@ public class ThreadedLogWriter implements LogWriterHighLevel {
   }
 
   @Override
-  public void setPdh(PowerDistribution pdh) {
+  public void setPdh(@Nullable PowerDistribution pdh) {
     extras.setPdh(pdh);
   }
 
@@ -273,7 +274,5 @@ public class ThreadedLogWriter implements LogWriterHighLevel {
     logThread.interrupt();
     extras.close();
     queue.clear();
-    // Ensures that this queue isn't erroneously used after close
-    queue = null;
   }
 }

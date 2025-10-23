@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.LongConsumer;
+import org.jspecify.annotations.Nullable;
 
 public class Tunable implements AutoCloseable {
   private static final NetworkTable TUNABLE_TABLE =
@@ -69,7 +70,7 @@ public class Tunable implements AutoCloseable {
   }
 
   public DoubleSubscriber create(
-      String key, double defaultValue, String unit, DoubleConsumer onChange) {
+      String key, double defaultValue, @Nullable String unit, @Nullable DoubleConsumer onChange) {
     startNotifier();
     var topic = TUNABLE_TABLE.getDoubleTopic(key);
     var entry = topic.getEntry(defaultValue);
@@ -90,7 +91,7 @@ public class Tunable implements AutoCloseable {
   }
 
   public FloatSubscriber create(
-      String key, float defaultValue, String unit, FloatConsumer onChange) {
+      String key, float defaultValue, @Nullable String unit, @Nullable FloatConsumer onChange) {
     startNotifier();
     var topic = TUNABLE_TABLE.getFloatTopic(key);
     var entry = topic.getEntry(defaultValue);
@@ -110,7 +111,8 @@ public class Tunable implements AutoCloseable {
         entry, defaultValue, () -> options.ntTunables().getAsBoolean());
   }
 
-  public BooleanSubscriber create(String key, boolean defaultValue, BooleanConsumer onChange) {
+  public BooleanSubscriber create(
+      String key, boolean defaultValue, @Nullable BooleanConsumer onChange) {
     startNotifier();
     var entry = TUNABLE_TABLE.getBooleanTopic(key).getEntry(defaultValue);
 
@@ -125,7 +127,8 @@ public class Tunable implements AutoCloseable {
         entry, defaultValue, () -> options.ntTunables().getAsBoolean());
   }
 
-  public StringSubscriber create(String key, String defaultValue, Consumer<String> onChange) {
+  public StringSubscriber create(
+      String key, String defaultValue, @Nullable Consumer<String> onChange) {
     startNotifier();
     var entry = TUNABLE_TABLE.getStringTopic(key).getEntry(defaultValue);
 
@@ -141,7 +144,7 @@ public class Tunable implements AutoCloseable {
   }
 
   public IntegerSubscriber create(
-      String key, long defaultValue, String unit, LongConsumer onChange) {
+      String key, long defaultValue, @Nullable String unit, @Nullable LongConsumer onChange) {
     startNotifier();
     var topic = TUNABLE_TABLE.getIntegerTopic(key);
     var entry = topic.getEntry(defaultValue);
