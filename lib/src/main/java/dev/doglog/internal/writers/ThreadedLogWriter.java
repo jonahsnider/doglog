@@ -107,11 +107,6 @@ public class ThreadedLogWriter implements LogWriterHighLevel {
 
   @Override
   public void log(long timestamp, String key, double value, String unit) {
-    if (unit == null) {
-      log(timestamp, key, value);
-      return;
-    }
-
     if (!queue.offer(new DoubleWithUnitQueuedLogEntry(key, timestamp, value, unit))) {
       printQueueFullMessage(key);
     }
