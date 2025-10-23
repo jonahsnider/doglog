@@ -50,6 +50,11 @@ public class LogWriter implements LogWriterHighLevel {
   }
 
   @Override
+  public void log(long timestamp, String key, double[] value, String unit) {
+    writer.log(timestamp, key, value, unit);
+  }
+
+  @Override
   public void log(long timestamp, String key, double value) {
     writer.log(timestamp, key, value);
   }
@@ -65,8 +70,18 @@ public class LogWriter implements LogWriterHighLevel {
   }
 
   @Override
+  public void log(long timestamp, String key, float[] value, String unit) {
+    writer.log(timestamp, key, value, unit);
+  }
+
+  @Override
   public void log(long timestamp, String key, float value) {
     writer.log(timestamp, key, value);
+  }
+
+  @Override
+  public void log(long timestamp, String key, float value, String unit) {
+    writer.log(timestamp, key, value, unit);
   }
 
   @Override
@@ -90,8 +105,18 @@ public class LogWriter implements LogWriterHighLevel {
   }
 
   @Override
+  public void log(long timestamp, String key, long[] value, String unit) {
+    writer.log(timestamp, key, value, unit);
+  }
+
+  @Override
   public void log(long timestamp, String key, long value) {
     writer.log(timestamp, key, value);
+  }
+
+  @Override
+  public void log(long timestamp, String key, long value, String unit) {
+    writer.log(timestamp, key, value, unit);
   }
 
   @Override

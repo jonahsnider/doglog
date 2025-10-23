@@ -5,12 +5,17 @@ import dev.doglog.internal.log_thread.entries.BaseQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.BooleanArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.BooleanQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.DoubleArrayQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.DoubleArrayWithUnitQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.DoubleQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.DoubleWithUnitQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.FloatArrayQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.FloatArrayWithUnitQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.FloatQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.FloatWithUnitQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.IntegerArrayQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.IntegerArrayWithUnitQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.IntegerQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.IntegerWithUnitQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringCustomTypeQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringQueuedLogEntry;
@@ -62,6 +67,13 @@ public class LogThread extends Thread {
               logger.log(entry.timestamp, entry.key, ((DoubleArrayQueuedLogEntry) entry).value);
           case DOUBLE ->
               logger.log(entry.timestamp, entry.key, ((DoubleQueuedLogEntry) entry).value);
+          case DOUBLE_ARRAY_WITH_UNIT -> {
+            logger.log(
+                entry.timestamp,
+                entry.key,
+                ((DoubleArrayWithUnitQueuedLogEntry) entry).value,
+                ((DoubleArrayWithUnitQueuedLogEntry) entry).unit);
+          }
           case DOUBLE_WITH_UNIT -> {
             logger.log(
                 entry.timestamp,
@@ -71,11 +83,39 @@ public class LogThread extends Thread {
           }
           case FLOAT_ARRAY ->
               logger.log(entry.timestamp, entry.key, ((FloatArrayQueuedLogEntry) entry).value);
+          case FLOAT_ARRAY_WITH_UNIT -> {
+            logger.log(
+                entry.timestamp,
+                entry.key,
+                ((FloatArrayWithUnitQueuedLogEntry) entry).value,
+                ((FloatArrayWithUnitQueuedLogEntry) entry).unit);
+          }
           case FLOAT -> logger.log(entry.timestamp, entry.key, ((FloatQueuedLogEntry) entry).value);
+          case FLOAT_WITH_UNIT -> {
+            logger.log(
+                entry.timestamp,
+                entry.key,
+                ((FloatWithUnitQueuedLogEntry) entry).value,
+                ((FloatWithUnitQueuedLogEntry) entry).unit);
+          }
           case INTEGER_ARRAY ->
               logger.log(entry.timestamp, entry.key, ((IntegerArrayQueuedLogEntry) entry).value);
+          case INTEGER_ARRAY_WITH_UNIT -> {
+            logger.log(
+                entry.timestamp,
+                entry.key,
+                ((IntegerArrayWithUnitQueuedLogEntry) entry).value,
+                ((IntegerArrayWithUnitQueuedLogEntry) entry).unit);
+          }
           case INTEGER ->
               logger.log(entry.timestamp, entry.key, ((IntegerQueuedLogEntry) entry).value);
+          case INTEGER_WITH_UNIT -> {
+            logger.log(
+                entry.timestamp,
+                entry.key,
+                ((IntegerWithUnitQueuedLogEntry) entry).value,
+                ((IntegerWithUnitQueuedLogEntry) entry).unit);
+          }
           case STRING_ARRAY ->
               logger.log(entry.timestamp, entry.key, ((StringArrayQueuedLogEntry) entry).value);
           case STRING ->

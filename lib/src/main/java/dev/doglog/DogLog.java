@@ -147,6 +147,29 @@ public class DogLog {
     }
   }
 
+  /** Log a double array with unit metadata. */
+  public static void log(String key, double[] value, String unit) {
+    if (unit == null) {
+      log(key, value);
+      return;
+    }
+
+    if (enabled) {
+      var now = HALUtil.getFPGATime();
+      logger.log(now, key, value, unit);
+    }
+  }
+
+  /** Log a double array with unit metadata. */
+  public static void log(String key, double[] value, Unit unit) {
+    if (unit == null) {
+      log(key, value);
+      return;
+    }
+
+    log(key, value, unit.name());
+  }
+
   /** Log a double. */
   public static void log(String key, double value) {
     if (enabled) {
@@ -185,11 +208,37 @@ public class DogLog {
     }
   }
 
+  /** Log a float array with unit metadata. */
+  public static void log(String key, float[] value, String unit) {
+    if (unit == null) {
+      log(key, value);
+      return;
+    }
+
+    if (enabled) {
+      var now = HALUtil.getFPGATime();
+      logger.log(now, key, value, unit);
+    }
+  }
+
   /** Log a float. */
   public static void log(String key, float value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
       logger.log(now, key, value);
+    }
+  }
+
+  /** Log a float with unit metadata. */
+  public static void log(String key, float value, String unit) {
+    if (unit == null) {
+      log(key, value);
+      return;
+    }
+
+    if (enabled) {
+      var now = HALUtil.getFPGATime();
+      logger.log(now, key, value, unit);
     }
   }
 
@@ -209,11 +258,37 @@ public class DogLog {
     }
   }
 
+  /** Log a long array with unit metadata. */
+  public static void log(String key, long[] value, String unit) {
+    if (unit == null) {
+      log(key, value);
+      return;
+    }
+
+    if (enabled) {
+      var now = HALUtil.getFPGATime();
+      logger.log(now, key, value, unit);
+    }
+  }
+
   /** Log a long. */
   public static void log(String key, long value) {
     if (enabled) {
       var now = HALUtil.getFPGATime();
       logger.log(now, key, value);
+    }
+  }
+
+  /** Log a long with unit metadata. */
+  public static void log(String key, long value, String unit) {
+    if (unit == null) {
+      log(key, value);
+      return;
+    }
+
+    if (enabled) {
+      var now = HALUtil.getFPGATime();
+      logger.log(now, key, value, unit);
     }
   }
 

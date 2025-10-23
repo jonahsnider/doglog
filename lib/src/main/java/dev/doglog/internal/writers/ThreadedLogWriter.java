@@ -8,12 +8,17 @@ import dev.doglog.internal.log_thread.entries.BaseQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.BooleanArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.BooleanQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.DoubleArrayQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.DoubleArrayWithUnitQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.DoubleQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.DoubleWithUnitQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.FloatArrayQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.FloatArrayWithUnitQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.FloatQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.FloatWithUnitQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.IntegerArrayQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.IntegerArrayWithUnitQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.IntegerQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.IntegerWithUnitQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringCustomTypeQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringQueuedLogEntry;
@@ -99,6 +104,13 @@ public class ThreadedLogWriter implements LogWriterHighLevel {
   }
 
   @Override
+  public void log(long timestamp, String key, double[] value, String unit) {
+    if (!queue.offer(new DoubleArrayWithUnitQueuedLogEntry(key, timestamp, value, unit))) {
+      printQueueFullMessage(key);
+    }
+  }
+
+  @Override
   public void log(long timestamp, String key, double value) {
     if (!queue.offer(new DoubleQueuedLogEntry(key, timestamp, value))) {
       printQueueFullMessage(key);
@@ -120,8 +132,22 @@ public class ThreadedLogWriter implements LogWriterHighLevel {
   }
 
   @Override
+  public void log(long timestamp, String key, float[] value, String unit) {
+    if (!queue.offer(new FloatArrayWithUnitQueuedLogEntry(key, timestamp, value, unit))) {
+      printQueueFullMessage(key);
+    }
+  }
+
+  @Override
   public void log(long timestamp, String key, float value) {
     if (!queue.offer(new FloatQueuedLogEntry(key, timestamp, value))) {
+      printQueueFullMessage(key);
+    }
+  }
+
+  @Override
+  public void log(long timestamp, String key, float value, String unit) {
+    if (!queue.offer(new FloatWithUnitQueuedLogEntry(key, timestamp, value, unit))) {
       printQueueFullMessage(key);
     }
   }
@@ -141,8 +167,22 @@ public class ThreadedLogWriter implements LogWriterHighLevel {
   }
 
   @Override
+  public void log(long timestamp, String key, long[] value, String unit) {
+    if (!queue.offer(new IntegerArrayWithUnitQueuedLogEntry(key, timestamp, value, unit))) {
+      printQueueFullMessage(key);
+    }
+  }
+
+  @Override
   public void log(long timestamp, String key, long value) {
     if (!queue.offer(new IntegerQueuedLogEntry(key, timestamp, value))) {
+      printQueueFullMessage(key);
+    }
+  }
+
+  @Override
+  public void log(long timestamp, String key, long value, String unit) {
+    if (!queue.offer(new IntegerWithUnitQueuedLogEntry(key, timestamp, value, unit))) {
       printQueueFullMessage(key);
     }
   }
