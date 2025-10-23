@@ -38,6 +38,22 @@ public class DataLogWriter implements LogWriterLowLevel {
     return ENTRY_METADATA_UNITS_PREFIX + unit + ENTRY_METADATA_UNITS_SUFFIX;
   }
 
+  /**
+   * Updates the metadata of an entry with a unit associated. This is to minimize calls to
+   * DataLogManager to update entry metadata.
+   */
+  private static void updateUnitForEntry(
+      Map<String, String> unitCache, String key, String unit, DataLogEntry entry) {
+    // If we've never seen this key before, the current unit will be null
+    var currentUnit = unitCache.get(key);
+    if (unit.equals(currentUnit)) {
+      return;
+    }
+
+    entry.setMetadata(entryMetadataForUnit(unit));
+    unitCache.put(key, unit);
+  }
+
   private final Map<String, BooleanArrayLogEntry> booleanArrayLogs = new HashMap<>();
   private final Map<String, BooleanLogEntry> booleanLogs = new HashMap<>();
   private final Map<String, DoubleArrayLogEntry> doubleArrayLogs = new HashMap<>();
@@ -111,7 +127,7 @@ public class DataLogWriter implements LogWriterLowLevel {
 
     entry.update(value, timestamp);
 
-    updateEntryUnit(doubleArrayUnits, key, unit, entry);
+    updateUnitForEntry(doubleArrayUnits, key, unit, entry);
   }
 
   @Override
@@ -129,7 +145,7 @@ public class DataLogWriter implements LogWriterLowLevel {
 
     entry.update(value, timestamp);
 
-    updateEntryUnit(doubleUnits, key, unit, entry);
+    updateUnitForEntry(doubleUnits, key, unit, entry);
   }
 
   @Override
@@ -149,7 +165,7 @@ public class DataLogWriter implements LogWriterLowLevel {
 
     entry.update(value, timestamp);
 
-    updateEntryUnit(floatArrayUnits, key, unit, entry);
+    updateUnitForEntry(floatArrayUnits, key, unit, entry);
   }
 
   @Override
@@ -167,7 +183,7 @@ public class DataLogWriter implements LogWriterLowLevel {
 
     entry.update(value, timestamp);
 
-    updateEntryUnit(floatUnits, key, unit, entry);
+    updateUnitForEntry(floatUnits, key, unit, entry);
   }
 
   @Override
@@ -188,7 +204,7 @@ public class DataLogWriter implements LogWriterLowLevel {
 
     entry.update(value, timestamp);
 
-    updateEntryUnit(integerArrayUnits, key, unit, entry);
+    updateUnitForEntry(integerArrayUnits, key, unit, entry);
   }
 
   @Override
@@ -208,7 +224,7 @@ public class DataLogWriter implements LogWriterLowLevel {
 
     entry.update(value, timestamp);
 
-    updateEntryUnit(integerUnits, key, unit, entry);
+    updateUnitForEntry(integerUnits, key, unit, entry);
   }
 
   // TODO: Raw logs
@@ -296,22 +312,6 @@ public class DataLogWriter implements LogWriterLowLevel {
     // See DataLogManager#makeLogDir() for source on this logic
     return !(RobotBase.getRuntimeType() == RuntimeType.kRoboRIO
         && DataLogManager.getLogDir().equals(RIO1_DISK_LOG_DIR));
-  }
-
-  /**
-   * Updates the metadata of an entry with a unit associated. This is to minimize calls to
-   * DataLogManager to update entry metadata.
-   */
-  private static void updateEntryUnit(
-      Map<String, String> unitCache, String key, String unit, DataLogEntry entry) {
-    // If we've never seen this key before, the current unit will be null
-    var currentUnit = unitCache.get(key);
-    if (unit.equals(currentUnit)) {
-      return;
-    }
-
-    entry.setMetadata(entryMetadataForUnit(unit));
-    unitCache.put(key, unit);
   }
 
   private String prefixKey(String key) {
