@@ -89,7 +89,9 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    DogLog.log("Units/Height6", 123, "ft");
+  }
 
   @Override
   public void autonomousExit() {}
@@ -105,7 +107,9 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    DogLog.log("Units/Height6", 123, "meter");
+  }
 
   @Override
   public void teleopExit() {}
