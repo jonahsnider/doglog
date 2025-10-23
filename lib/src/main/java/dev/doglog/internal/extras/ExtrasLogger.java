@@ -126,12 +126,23 @@ public class ExtrasLogger implements AutoCloseable {
       return;
     }
 
-    logger.log(now, "SystemStats/PowerDistribution/Temperature", pdh.getTemperature(), CELSIUS_UNIT_STRING);
+    logger.log(
+        now,
+        "SystemStats/PowerDistribution/Temperature",
+        pdh.getTemperature(),
+        CELSIUS_UNIT_STRING);
     logger.log(now, "SystemStats/PowerDistribution/Voltage", pdh.getVoltage(), VOLTS_UNIT_STRING);
-    logger.log(now, "SystemStats/PowerDistribution/ChannelCurrent", pdh.getAllCurrents(), AMPS_UNIT_STRING);
-    logger.log(now, "SystemStats/PowerDistribution/TotalCurrent", pdh.getTotalCurrent(), AMPS_UNIT_STRING);
-    logger.log(now, "SystemStats/PowerDistribution/TotalPower", pdh.getTotalPower(), WATTS_UNIT_STRING);
-    logger.log(now, "SystemStats/PowerDistribution/TotalEnergy", pdh.getTotalEnergy(), JOULES_UNIT_STRING);
+    logger.log(
+        now,
+        "SystemStats/PowerDistribution/ChannelCurrent",
+        pdh.getAllCurrents(),
+        AMPS_UNIT_STRING);
+    logger.log(
+        now, "SystemStats/PowerDistribution/TotalCurrent", pdh.getTotalCurrent(), AMPS_UNIT_STRING);
+    logger.log(
+        now, "SystemStats/PowerDistribution/TotalPower", pdh.getTotalPower(), WATTS_UNIT_STRING);
+    logger.log(
+        now, "SystemStats/PowerDistribution/TotalEnergy", pdh.getTotalEnergy(), JOULES_UNIT_STRING);
     logger.log(now, "SystemStats/PowerDistribution/ChannelCount", pdh.getNumChannels());
   }
 
