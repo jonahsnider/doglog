@@ -60,7 +60,11 @@ export default defineConfig({
 			base: '/',
 			scope: '/',
 			registerType: 'autoUpdate',
-			workbox: { cleanupOutdatedCaches: true, cacheId: 'doglog-docs' },
+			workbox: {
+				cleanupOutdatedCaches: true,
+				cacheId: 'doglog-docs',
+				globPatterns: ['**/*'],
+			},
 			manifest: {
 				name: 'DogLog Docs',
 				short_name: 'DogLog',
