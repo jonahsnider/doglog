@@ -1,5 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "initial-version": "2027.0.0",
   "packages": {
     ".": {
       "bump-minor-pre-major": false,
@@ -24,8 +25,9 @@
         }
       ],
       "include-v-in-tag": false,
-      "prerelease": false,
+      "prerelease": true,
       "release-type": "simple"
     }
-  }
+  },
+  "prerelease": true
 }
