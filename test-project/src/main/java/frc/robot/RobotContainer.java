@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 public class RobotContainer {
   public RobotContainer() {
     DogLog.setOptions(new DogLogOptions().withCaptureDs(true));
-    DogLog.setPdh(new PowerDistribution());
+    DogLog.setPdh(new PowerDistribution(0));
 
     configureBindings();
   }
@@ -21,6 +21,6 @@ public class RobotContainer {
   private void configureBindings() {}
 
   public Command getAutonomousCommand() {
-    return DogLog.time("Debug/AutoCommand", Commands.waitSeconds(0.75).withName("MyAutoCommand"));
+    return DogLog.time("Debug/AutoCommand", Commands.wait(0.75).withName("MyAutoCommand"));
   }
 }
