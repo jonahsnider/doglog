@@ -5,13 +5,10 @@ import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import org.jspecify.annotations.Nullable;
 
-/**
- * Consumes log entries provided by DogLog. Implementations decide how to process the log data (e.g.
- * enqueueing for processing on a background thread or writing immediately).
- */
+/** Consumes log entries provided by DogLog. Implementations decide how to process the log data. */
 public interface LogWriterHighLevel extends LogWriterBase, AutoCloseable {
   public static LogWriterHighLevel create(DogLogOptions options) {
-    return options.useLogThread() ? new ThreadedLogWriter(options) : new LogWriter(options);
+    return new LogWriter(options);
   }
 
   public void setPdh(@Nullable PowerDistribution pdh);

@@ -1,7 +1,6 @@
-package dev.doglog.internal.log_thread.writers;
+package dev.doglog.internal.writers;
 
 import dev.doglog.DogLogOptions;
-import dev.doglog.internal.writers.LogWriterLowLevel;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.datalog.BooleanArrayLogEntry;
 import edu.wpi.first.util.datalog.BooleanLogEntry;
@@ -20,8 +19,6 @@ import edu.wpi.first.util.datalog.StructLogEntry;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.RuntimeType;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,9 +27,6 @@ public class DataLogWriter implements LogWriterLowLevel {
   private static final String ENTRY_METADATA = "{\"source\":\"DogLog\"}";
   private static final String ENTRY_METADATA_UNITS_PREFIX = "{\"source\":\"DogLog\",\"unit\":\"";
   private static final String ENTRY_METADATA_UNITS_SUFFIX = "\"}";
-
-  /** The directory path when logging to the flash storage on a roboRIO 1. */
-  private static final String RIO1_DISK_LOG_DIR = "/home/lvuser/logs";
 
   private static String entryMetadataForUnit(String unit) {
     return ENTRY_METADATA_UNITS_PREFIX + unit + ENTRY_METADATA_UNITS_SUFFIX;
@@ -299,19 +293,6 @@ public class DataLogWriter implements LogWriterLowLevel {
       NetworkTableInstance.stopEntryDataLog(alertNtLogHandle);
       alertNtLogHandle = -1;
     }
-  }
-
-  /**
-   * This could be a static method, but it's not because this class controls initializing {@link
-   * DataLogManager}, which has to be done before this method can be called.
-   *
-   * @return Whether the log destination directory is valid. On a roboRIO 2 this is always true, on
-   *     a roboRIO 1 this is true when a USB drive is attached.
-   */
-  public boolean isLogDestinationValid() {
-    // See DataLogManager#makeLogDir() for source on this logic
-    return !(RobotBase.getRuntimeType() == RuntimeType.kRoboRIO
-        && DataLogManager.getLogDir().equals(RIO1_DISK_LOG_DIR));
   }
 
   private String prefixKey(String key) {
