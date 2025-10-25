@@ -36,6 +36,8 @@ tasks.withType(JavaCompile).configureEach {
 		nullaway {
 			error()
 		}
+
+		options.release = 17
 	}
 
 	// Set the ERRORPRONE_AUTOFIX environment variable to fix files in place
@@ -85,8 +87,9 @@ java {
 	withSourcesJar()
 	withJavadocJar()
 
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(25)
+	}
 }
 var javaVersion = "17"
 
