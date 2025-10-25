@@ -1,5 +1,13 @@
 # Changelog
 
+## [2025.10.0](https://github.com/jonahsnider/doglog/compare/2025.9.2...2025.10.0) (2025-10-25)
+
+
+### Features
+
+* support including units in logged numbers ([#128](https://github.com/jonahsnider/doglog/issues/128)) ([14b4851](https://github.com/jonahsnider/doglog/commit/14b485134d37a521199f112eac0ad87b3aae4e09))
+* support toggling log processing thread on or off ([#125](https://github.com/jonahsnider/doglog/issues/125)) ([9a96247](https://github.com/jonahsnider/doglog/commit/9a962472e3e8c5c5bbd07472c06bdebdad513be5))
+
 ## [2025.9.2](https://github.com/jonahsnider/doglog/compare/2025.9.1...2025.9.2) (2025-09-05)
 
 ### Bug Fixes
