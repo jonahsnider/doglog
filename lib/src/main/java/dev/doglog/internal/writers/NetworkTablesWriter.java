@@ -1,6 +1,5 @@
-package dev.doglog.internal.log_thread.writers;
+package dev.doglog.internal.writers;
 
-import dev.doglog.internal.writers.LogWriterLowLevel;
 import edu.wpi.first.networktables.BooleanArrayPublisher;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoubleArrayPublisher;

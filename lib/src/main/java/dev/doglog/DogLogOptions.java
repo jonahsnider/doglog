@@ -28,21 +28,13 @@ public record DogLogOptions(
     boolean logExtras,
     /** Whether console output should be saved to the log file. */
     boolean captureConsole,
-    /** The maximum size of the log entry queue to use. */
-    int logEntryQueueCapacity,
     /**
      * A function that returns whether tunable values from NetworkTables should be used. Best
      * practice is to have this disabled when you are at competitions, to make robot behavior more
      * deterministic. The default behavior is to only use tunable values from NetworkTables when not
      * connected to the FMS on a competition field.
      */
-    BooleanSupplier ntTunables,
-    /**
-     * Whether to use a separate thread to handle log entries. This setting defaults to true.
-     * Turning off the log thread may reduce the memory usage of logging, but could cause increased
-     * CPU load.
-     */
-    boolean useLogThread) {
+    BooleanSupplier ntTunables) {
   private static boolean isNotOnFms() {
     return !DriverStation.isFMSAttached();
   }
@@ -59,8 +51,7 @@ public record DogLogOptions(
    */
   public DogLogOptions() {
     // Default options
-    this(
-        DogLogOptions::isNotOnFms, false, false, true, true, 1000, DogLogOptions::isNotOnFms, true);
+    this(DogLogOptions::isNotOnFms, false, false, true, true, DogLogOptions::isNotOnFms);
   }
 
   /**
@@ -94,14 +85,7 @@ public record DogLogOptions(
    */
   public DogLogOptions withNtPublish(BooleanSupplier ntPublish) {
     return new DogLogOptions(
-        ntPublish,
-        captureNt,
-        captureDs,
-        logExtras,
-        captureConsole,
-        logEntryQueueCapacity,
-        ntTunables,
-        useLogThread);
+        ntPublish, captureNt, captureDs, logExtras, captureConsole, ntTunables);
   }
 
   /**
@@ -117,14 +101,7 @@ public record DogLogOptions(
    */
   public DogLogOptions withCaptureNt(boolean captureNt) {
     return new DogLogOptions(
-        ntPublish,
-        captureNt,
-        captureDs,
-        logExtras,
-        captureConsole,
-        logEntryQueueCapacity,
-        ntTunables,
-        useLogThread);
+        ntPublish, captureNt, captureDs, logExtras, captureConsole, ntTunables);
   }
 
   /**
@@ -140,14 +117,7 @@ public record DogLogOptions(
    */
   public DogLogOptions withCaptureDs(boolean captureDs) {
     return new DogLogOptions(
-        ntPublish,
-        captureNt,
-        captureDs,
-        logExtras,
-        captureConsole,
-        logEntryQueueCapacity,
-        ntTunables,
-        useLogThread);
+        ntPublish, captureNt, captureDs, logExtras, captureConsole, ntTunables);
   }
 
   /**
@@ -164,38 +134,7 @@ public record DogLogOptions(
    */
   public DogLogOptions withLogExtras(boolean logExtras) {
     return new DogLogOptions(
-        ntPublish,
-        captureNt,
-        captureDs,
-        logExtras,
-        captureConsole,
-        logEntryQueueCapacity,
-        ntTunables,
-        useLogThread);
-  }
-
-  /**
-   * Create a new options object, inheriting the configuration from this one, with {@link
-   * DogLogOptions#logEntryQueueCapacity} set to the provided value.
-   *
-   * <p>Example:
-   *
-   * <pre>DogLog.setOptions(new DogLogOptions().withLogEntryQueueCapacity(1000));</pre>
-   *
-   * @param logEntryQueueCapacity The size of the log message queue to use.
-   * @return A new options object with {@link DogLogOptions#logEntryQueueCapacity} set to the
-   *     provided value.
-   */
-  public DogLogOptions withLogEntryQueueCapacity(int logEntryQueueCapacity) {
-    return new DogLogOptions(
-        ntPublish,
-        captureNt,
-        captureDs,
-        logExtras,
-        captureConsole,
-        logEntryQueueCapacity,
-        ntTunables,
-        useLogThread);
+        ntPublish, captureNt, captureDs, logExtras, captureConsole, ntTunables);
   }
 
   /**
@@ -212,14 +151,7 @@ public record DogLogOptions(
    */
   public DogLogOptions withCaptureConsole(boolean captureConsole) {
     return new DogLogOptions(
-        ntPublish,
-        captureNt,
-        captureDs,
-        logExtras,
-        captureConsole,
-        logEntryQueueCapacity,
-        ntTunables,
-        useLogThread);
+        ntPublish, captureNt, captureDs, logExtras, captureConsole, ntTunables);
   }
 
   /**
@@ -253,32 +185,6 @@ public record DogLogOptions(
    */
   public DogLogOptions withNtTunables(BooleanSupplier ntTunables) {
     return new DogLogOptions(
-        ntPublish,
-        captureNt,
-        captureDs,
-        logExtras,
-        captureConsole,
-        logEntryQueueCapacity,
-        ntTunables,
-        useLogThread);
-  }
-
-  /**
-   * Create a new options object, inheriting the configuration from this one, with {@link
-   * DogLogOptions#useLogThread} set to the provided value.
-   *
-   * @param useLogThread Whether to use a separate thread to handle log entries.
-   * @return A new options object with {@link DogLogOptions#useLogThread} set to the provided value.
-   */
-  public DogLogOptions withUseLogThread(boolean useLogThread) {
-    return new DogLogOptions(
-        ntPublish,
-        captureNt,
-        captureDs,
-        logExtras,
-        captureConsole,
-        logEntryQueueCapacity,
-        ntTunables,
-        useLogThread);
+        ntPublish, captureNt, captureDs, logExtras, captureConsole, ntTunables);
   }
 }
