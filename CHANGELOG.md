@@ -1,5 +1,12 @@
 # Changelog
 
+## [2025.10.1](https://github.com/jonahsnider/doglog/compare/2025.10.0...2025.10.1) (2025-10-25)
+
+
+### Bug Fixes
+
+* build with JDK 21 ([c667579](https://github.com/jonahsnider/doglog/commit/c6675790631d1274098f9f9a9978ab3f73acf203))
+
 ## [2025.10.0](https://github.com/jonahsnider/doglog/compare/2025.9.2...2025.10.0) (2025-10-25)
 
 
