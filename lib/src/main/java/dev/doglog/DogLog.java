@@ -6,7 +6,6 @@ import dev.doglog.internal.FaultLogger;
 import dev.doglog.internal.TimedCommand;
 import dev.doglog.internal.tunable.Tunable;
 import dev.doglog.internal.writers.LogWriterHighLevel;
-import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.networktables.BooleanSubscriber;
@@ -34,9 +33,7 @@ import org.jspecify.annotations.Nullable;
 /** A logger based on WPILib's {@link DataLogManager} */
 public class DogLog {
   static {
-    HAL.report(
-        FRCNetComm.tResourceType.kResourceType_LoggingFramework,
-        FRCNetComm.tInstances.kLoggingFramework_DogLog);
+    HAL.reportUsage("LoggingFramework", "DogLog");
   }
 
   /** The options to use for the logger. */
