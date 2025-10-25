@@ -16,6 +16,11 @@
           "jsonpath": "$.javaDependencies[0].version",
           "path": "vendordep.json",
           "type": "json"
+        },
+        {
+          "jsonpath": "$.version",
+          "path": "lib/package.json",
+          "type": "json"
         }
       ],
       "include-v-in-tag": false,
