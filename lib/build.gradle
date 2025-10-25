@@ -31,7 +31,7 @@ nullaway {
 // Error Prone configs
 tasks.withType(JavaCompile).configureEach {
 	options.errorprone {
-		disable("InlineMeSuggester", "ImmutableEnumChecker", "Var", "BooleanParameter", "Java8ApiChecker", "AndroidJdkLibsChecker", "ImmutableMemberCollection")
+		disable("InlineMeSuggester", "ImmutableEnumChecker", "Var", "BooleanParameter", "Java8ApiChecker", "ImmutableMemberCollection")
 
 		nullaway {
 			error()
@@ -65,7 +65,7 @@ dependencies {
 	implementation "edu.wpi.first.hal:hal-java:$wpilibVersion"
 	implementation "edu.wpi.first.wpilibNewCommands:wpilibNewCommands-java:$wpilibVersion"
 
-	errorprone "com.google.errorprone:error_prone_core:2.42.0"
+	errorprone "com.google.errorprone:error_prone_core:2.43.0"
 	errorprone "com.uber.nullaway:nullaway:0.12.10"
 
 	api "org.jspecify:jspecify:1.0.0"
