@@ -1,13 +1,10 @@
-package dev.doglog.internal.log_thread.writers;
+package dev.doglog.internal.writers;
 
-import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
-import dev.doglog.internal.log_thread.LogThread;
-import dev.doglog.internal.log_thread.StructRegistry;
+import dev.doglog.internal.StructRegistry;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
-import edu.wpi.first.wpilibj.Alert.AlertType;
 import java.util.Arrays;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
@@ -262,16 +259,6 @@ public class CombinedWriter {
     dataLogReporter.setOptions(options);
 
     printOptions();
-  }
-
-  /**
-   * Runs code that may produce logs, and thus must be run once all DogLog init logic has been run.
-   * Using the {@link LogThread} start for this is a convenient way to run code at that point.
-   */
-  public void afterLogThreadStart() {
-    if (!dataLogReporter.isLogDestinationValid()) {
-      DogLog.logFault("[DogLog] UNSAFE_LOG_DESTINATION", AlertType.kWarning);
-    }
   }
 
   private void printOptions() {
