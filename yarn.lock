@@ -1608,7 +1608,7 @@ __metadata:
     prettier-plugin-packagejson: "npm:2.5.19"
     sharp: "npm:^0.34.0"
     typescript: "npm:^5.4.5"
-    wrangler: "npm:^4.0.0"
+    wrangler: "npm:^4.45.0"
   languageName: unknown
   linkType: soft
 
@@ -11320,7 +11320,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wrangler@npm:^4.0.0, wrangler@npm:^4.25.0":
+"wrangler@npm:^4.25.0, wrangler@npm:^4.45.0":
   version: 4.45.0
   resolution: "wrangler@npm:4.45.0"
   dependencies:
