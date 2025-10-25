@@ -31,7 +31,7 @@ nullaway {
 // Error Prone configs
 tasks.withType(JavaCompile).configureEach {
 	options.errorprone {
-		disable("InlineMeSuggester", "ImmutableEnumChecker", "Var", "BooleanParameter", "Java8ApiChecker", "AndroidJdkLibsChecker", "ImmutableMemberCollection")
+		disable("InlineMeSuggester", "ImmutableEnumChecker", "Var", "BooleanParameter", "Java8ApiChecker", "ImmutableMemberCollection")
 
 		nullaway {
 			error()
