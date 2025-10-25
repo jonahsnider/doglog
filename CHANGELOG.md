@@ -1,5 +1,17 @@
 # Changelog
 
+## [2026.0.0](https://github.com/jonahsnider/doglog/compare/2025.10.1...2026.0.0) (2025-10-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* upgrade to WPILib 2027
+
+### Features
+
+* remove log thread ([3786122](https://github.com/jonahsnider/doglog/commit/378612279fff3d9a608c571136ef014cc23a66c0))
+* upgrade to WPILib 2027 ([01e47e5](https://github.com/jonahsnider/doglog/commit/01e47e57ac5b532809f3d312286270cefc71e4e4))
+
 ## [2027.0.1](https://github.com/jonahsnider/doglog/compare/2027.0.0...2027.0.1) (2025-09-10)
 
 
