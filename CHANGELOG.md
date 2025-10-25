@@ -1,34 +1,34 @@
 # Changelog
 
+## [2027.0.1](https://github.com/jonahsnider/doglog/compare/2027.0.0...2027.0.1) (2025-09-10)
+
+
+### Bug Fixes
+
+* remove broken FPGA logs ([c35abb1](https://github.com/jonahsnider/doglog/commit/c35abb1d2ff12bbfa67ce3b594c924e2413cb934))
+
+## [2027.0.0](https://github.com/jonahsnider/doglog/compare/2025.9.2...2027.0.0) (2025-09-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* update to WPILib 2027
+
+### Features
+
+* update to WPILib 2027 ([84fe947](https://github.com/jonahsnider/doglog/commit/84fe9478e8084a14f92e9c16ba9c0eadaa4a3170))
+
+
+### Bug Fixes
+
+* use Java 17 instead of 21 ([00be4a2](https://github.com/jonahsnider/doglog/commit/00be4a22148e302c362efa42424fcb785bb2e0fc))
+
 ## [2026.1.0](https://github.com/jonahsnider/doglog/compare/2026.0.1...2026.1.0) (2025-12-23)
 
 
 ### Features
 
 * add logging of enums and records using StructGenerator ([#146](https://github.com/jonahsnider/doglog/issues/146)) ([98653a5](https://github.com/jonahsnider/doglog/commit/98653a5bb3e6e8a769ef3337856e2014d0b75ae4))
-
-
-### Bug Fixes
-
-* provide timestamp when updating datalog unit metadata ([de590f4](https://github.com/jonahsnider/doglog/commit/de590f48c4444e41b3e3607f4e37263003dc727b))
-
-## [2026.0.1](https://github.com/jonahsnider/doglog/compare/2026.0.0...2026.0.1) (2025-11-19)
-
-
-### Bug Fixes
-
-* change frcYear to 2026beta ([a38ff20](https://github.com/jonahsnider/doglog/commit/a38ff20c4909880dab9f2e4c7afc06547684568c))
-
-## [2026.0.0](https://github.com/jonahsnider/doglog/compare/2025.10.1...2026.0.0) (2025-11-19)
-
-
-### ⚠ BREAKING CHANGES
-
-* update to WPILib 2026 ([#139](https://github.com/jonahsnider/doglog/issues/139))
-
-### Features
-
-* update to WPILib 2026 ([#139](https://github.com/jonahsnider/doglog/issues/139)) ([853b085](https://github.com/jonahsnider/doglog/commit/853b085fb8629742444bcd95fd8f43aab51cf7ca))
 
 ## [2025.10.1](https://github.com/jonahsnider/doglog/compare/2025.10.0...2025.10.1) (2025-10-25)
 
