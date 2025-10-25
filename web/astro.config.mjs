@@ -52,6 +52,7 @@ export default defineConfig({
 			],
 			customCss: ['/src/styles/custom.css'],
 			components: {
+				Banner: './src/components/Banner.astro',
 				Head: './src/components/PwaHead.astro',
 			},
 		}),
@@ -62,7 +63,7 @@ export default defineConfig({
 			registerType: 'autoUpdate',
 			workbox: {
 				cleanupOutdatedCaches: true,
-				cacheId: 'doglog-docs',
+				cacheId: 'doglog-docs-2027',
 				globPatterns: ['**/*'],
 			},
 			manifest: {
@@ -73,7 +74,7 @@ export default defineConfig({
 				theme_color: '#460b05',
 				lang: 'en',
 				display: 'minimal-ui',
-				id: 'doglog.dev',
+				id: '2027.doglog.dev',
 				start_url: '/',
 				orientation: 'any',
 			},
