@@ -2,8 +2,6 @@ package dev.doglog.internal.writers;
 
 import dev.doglog.DogLogOptions;
 import dev.doglog.internal.extras.ExtrasLogger;
-import dev.doglog.internal.log_thread.writers.CombinedWriter;
-import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import org.jspecify.annotations.Nullable;
@@ -15,13 +13,8 @@ public class LogWriter implements LogWriterHighLevel {
 
   public LogWriter(DogLogOptions initialOptions) {
     writer = new CombinedWriter(initialOptions);
-    writer.afterLogThreadStart();
 
     extras = new ExtrasLogger(this, initialOptions);
-
-    var now = HALUtil.getFPGATime();
-    log(now, "DogLog/QueuedLogs", -1);
-    log(now, "DogLog/QueueRemainingCapacity", -1);
   }
 
   @Override
