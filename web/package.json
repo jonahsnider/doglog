@@ -33,6 +33,6 @@
 	},
 	"packageManager": "yarn@4.10.3",
 	"engines": {
-		"node": "22.x"
+		"node": "24.x"
 	}
 }
