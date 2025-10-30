@@ -36,9 +36,9 @@ tasks.withType(JavaCompile).configureEach {
 		nullaway {
 			error()
 		}
-
-		options.release = 17
 	}
+
+	options.release = 17
 
 	// Set the ERRORPRONE_AUTOFIX environment variable to fix files in place
 	if (System.getenv().containsKey("ERRORPRONE_AUTOFIX")) {
