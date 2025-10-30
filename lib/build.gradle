@@ -31,6 +31,7 @@ nullaway {
 // Error Prone configs
 tasks.withType(JavaCompile).configureEach {
 	options.errorprone {
+		disableWarningsInGeneratedCode = true
 		disable("InlineMeSuggester", "ImmutableEnumChecker", "Var", "BooleanParameter", "Java8ApiChecker", "ImmutableMemberCollection")
 
 		nullaway {
@@ -69,6 +70,10 @@ dependencies {
 
 	errorprone "com.google.errorprone:error_prone_core:2.43.0"
 	errorprone "com.uber.nullaway:nullaway:0.12.10"
+	errorprone "tech.picnic.error-prone-support:error-prone-contrib:0.26.0"
+	errorprone "tech.picnic.error-prone-support:refaster-runner:0.26.0"
+
+	testImplementation "org.assertj:assertj-core:3.27.3"
 
 	api "org.jspecify:jspecify:1.0.0"
 }

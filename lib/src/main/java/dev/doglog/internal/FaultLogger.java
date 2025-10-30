@@ -16,30 +16,30 @@ import org.jspecify.annotations.Nullable;
  * interface to logging errors that writes to both NT and DataLog.
  */
 public class FaultLogger {
-  private static final Map<String, Integer> faultCounts = new HashMap<>();
-  private static final Map<String, Alert> faultAlerts = new HashMap<>();
+  private static final Map<String, Integer> FAULT_COUNTS = new HashMap<>();
+  private static final Map<String, Alert> FAULT_ALERTS = new HashMap<>();
 
   /** Faults that are currently active. */
-  private static final Set<String> activeFaults = new HashSet<>();
+  private static final Set<String> ACTIVE_FAULTS = new HashSet<>();
 
   // This function doesn't need to have the LogConsumer parameter, it could just call DogLog
   // directly. But doing that would mean getting the current time twice, which can be avoided by
   // getting the time once here and reusing that value.
   public static void addFault(LogWriterHighLevel logger, String faultName) {
-    var previousCount = faultCounts.get(faultName);
+    var previousCount = FAULT_COUNTS.get(faultName);
     var newCount = previousCount == null ? 1 : previousCount + 1;
-    faultCounts.put(faultName, newCount);
+    FAULT_COUNTS.put(faultName, newCount);
 
     var now = HALUtil.getFPGATime();
 
     if (previousCount == null) {
       // A new fault has been seen
-      logger.log(now, "Faults/Seen", faultCounts.keySet().toArray(String[]::new));
+      logger.log(now, "Faults/Seen", FAULT_COUNTS.keySet().toArray(String[]::new));
     }
     if (previousCount == null || previousCount == 0) {
       // Fault has just become active
-      activeFaults.add(faultName);
-      logger.log(now, "Faults/Active", activeFaults.toArray(String[]::new));
+      ACTIVE_FAULTS.add(faultName);
+      logger.log(now, "Faults/Active", ACTIVE_FAULTS.toArray(String[]::new));
     }
     logger.log(now, "Faults/Counts/" + faultName, newCount);
   }
@@ -56,7 +56,7 @@ public class FaultLogger {
       LogWriterHighLevel logger, String faultName, @Nullable AlertType alertType) {
     addFault(logger, faultName);
     if (alertType != null) {
-      faultAlerts.computeIfAbsent(faultName, k -> new Alert(faultName, alertType)).set(true);
+      FAULT_ALERTS.computeIfAbsent(faultName, k -> new Alert(faultName, alertType)).set(true);
     }
   }
 
@@ -67,55 +67,55 @@ public class FaultLogger {
    * @param faultName The name of the fault to remove.
    */
   public static void decreaseFault(LogWriterHighLevel logger, String faultName) {
-    var previousCount = faultCounts.get(faultName);
+    var previousCount = FAULT_COUNTS.get(faultName);
     if (previousCount == null || previousCount == 0) {
       // This fault has never occurred
       return;
     }
     var newCount = previousCount - 1;
-    faultCounts.put(faultName, newCount);
+    FAULT_COUNTS.put(faultName, newCount);
 
     var now = HALUtil.getFPGATime();
     logger.log(now, "Faults/Counts/" + faultName, newCount);
 
     if (newCount == 0) {
       // Mark alert as inactive if it exists
-      var alert = faultAlerts.get(faultName);
+      var alert = FAULT_ALERTS.get(faultName);
 
       if (alert != null) {
         alert.set(false);
       }
 
-      activeFaults.remove(faultName);
-      logger.log(now, "Faults/Active", activeFaults.toArray(String[]::new));
+      ACTIVE_FAULTS.remove(faultName);
+      logger.log(now, "Faults/Active", ACTIVE_FAULTS.toArray(String[]::new));
     }
   }
 
   public static void clearFault(LogWriterHighLevel logger, String faultName) {
     // The faultCounts map is used to track the seen faults, so we need to make sure that clearing a
     // fault which has never occurred doesn't mark it as seen with a count of 0
-    var previousValue = faultCounts.replace(faultName, 0);
+    var previousValue = FAULT_COUNTS.replace(faultName, 0);
 
     if (previousValue != null) {
       var now = HALUtil.getFPGATime();
       logger.log(now, "Faults/Counts/" + faultName, 0);
 
-      var alert = faultAlerts.get(faultName);
+      var alert = FAULT_ALERTS.get(faultName);
       if (alert != null) {
         alert.set(false);
       }
 
-      activeFaults.remove(faultName);
-      logger.log(now, "Faults/Active", activeFaults.toArray(String[]::new));
+      ACTIVE_FAULTS.remove(faultName);
+      logger.log(now, "Faults/Active", ACTIVE_FAULTS.toArray(String[]::new));
     }
   }
 
   public static boolean faultsLogged() {
-    return !faultCounts.isEmpty();
+    return !FAULT_COUNTS.isEmpty();
   }
 
   public static boolean faultsActive() {
-    return !activeFaults.isEmpty();
+    return !ACTIVE_FAULTS.isEmpty();
   }
 
   private FaultLogger() {}

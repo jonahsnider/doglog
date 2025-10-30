@@ -200,7 +200,7 @@ public class CombinedWriter {
 
     if (maybeStruct.isPresent()) {
       @SuppressWarnings("unchecked")
-      var struct = (Struct<T>) maybeStruct.get();
+      var struct = (Struct<T>) maybeStruct.orElseThrow();
       log(timestamp, key, struct, value);
     }
   }
@@ -219,7 +219,7 @@ public class CombinedWriter {
 
     if (maybeStruct.isPresent()) {
       @SuppressWarnings("unchecked")
-      var struct = (Struct<T>) maybeStruct.get();
+      var struct = (Struct<T>) maybeStruct.orElseThrow();
       log(timestamp, key, struct, value);
     }
   }

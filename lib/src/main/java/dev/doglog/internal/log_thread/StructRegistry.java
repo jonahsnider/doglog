@@ -9,10 +9,10 @@ import java.util.Optional;
 public class StructRegistry {
   private static final String STRUCT_FIELD_NAME = "struct";
 
-  private static final Map<Class<?>, Optional<Struct<?>>> resolvedStructs = new HashMap<>();
+  private static final Map<Class<?>, Optional<Struct<?>>> RESOLVED_STRUCTS = new HashMap<>();
 
   public static Optional<Struct<?>> getStruct(Class<?> entryClass) {
-    return resolvedStructs.computeIfAbsent(entryClass, key -> getStructRaw(entryClass));
+    return RESOLVED_STRUCTS.computeIfAbsent(entryClass, key -> getStructRaw(entryClass));
   }
 
   private static Optional<Struct<?>> getStructRaw(Class<?> classObj) {
