@@ -20,6 +20,8 @@ public class CombinedWriter {
 
   private DogLogOptions options = new DogLogOptions();
 
+  private final StructRegistry structRegistry = new StructRegistry();
+
   public CombinedWriter(DogLogOptions initialOptions) {
     dataLogReporter = new DataLogWriter(LOG_TABLE, initialOptions);
 
@@ -196,7 +198,7 @@ public class CombinedWriter {
   }
 
   public <T extends StructSerializable> void log(long timestamp, String key, T[] value) {
-    var maybeStruct = StructRegistry.getStruct(value.getClass().getComponentType());
+    var maybeStruct = structRegistry.getStruct(value.getClass().getComponentType());
 
     if (maybeStruct.isPresent()) {
       @SuppressWarnings("unchecked")
@@ -215,7 +217,7 @@ public class CombinedWriter {
   }
 
   public <T extends StructSerializable> void log(long timestamp, String key, T value) {
-    var maybeStruct = StructRegistry.getStruct(value.getClass());
+    var maybeStruct = structRegistry.getStruct(value.getClass());
 
     if (maybeStruct.isPresent()) {
       @SuppressWarnings("unchecked")
