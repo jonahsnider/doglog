@@ -107,7 +107,7 @@ spotless {
 	lineEndings = 'UNIX'
 
 	java {
-		googleJavaFormat('1.26.0')
+		googleJavaFormat()
 		licenseHeader ''
 
 		targetExclude('src/main/java/frc/robot/generated/BuildConstants.java')
