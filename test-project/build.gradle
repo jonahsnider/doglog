@@ -1,6 +1,6 @@
 plugins {
 	id "java"
-	id "edu.wpi.first.GradleRIO" version "2025.3.2"
+	id "edu.wpi.first.GradleRIO" version "2026.1.1-beta-1"
 	id "com.diffplug.spotless" version "8.1.0"
 }
 
@@ -34,6 +34,8 @@ deploy {
 				frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
 					files = project.fileTree('src/main/deploy')
 					directory = '/home/lvuser/deploy'
+					deleteOldFiles = false // Change to true to delete files on roboRIO that no
+					// longer exist in deploy directory of this project
 				}
 			}
 		}
@@ -42,7 +44,8 @@ deploy {
 
 def deployArtifact = deploy.targets.roborio.artifacts.frcJava
 
-// Set to true to use debug for JNI.
+// Set to true to use debug for all targets including JNI, which will drastically impact
+// performance.
 wpi.java.debugJni = false
 
 // Set this to true to enable desktop support.
