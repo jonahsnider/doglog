@@ -39,5 +39,4 @@ DogLog includes a helper function that wraps a command with calls to `DogLog.tim
 
 ```java
 var timedCommand = DogLog.time("MyClass/MyCommand", myClass.myCommand());
-
 ```

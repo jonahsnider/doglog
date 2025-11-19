@@ -59,7 +59,6 @@ public enum RobotFault {
 	AUTO_SHOT_TIMEOUT_TRIGGERED,
 	BROWNOUT,
 }
-
 ```
 
 ```java
