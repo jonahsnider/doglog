@@ -47,7 +47,7 @@ tasks.withType(JavaCompile).configureEach {
 	}
 }
 
-ext.wpilibVersion = "2025.+"
+ext.wpilibVersion = "2026.+"
 
 repositories {
 	// Use Maven Central for resolving dependencies.
