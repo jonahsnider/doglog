@@ -1,5 +1,16 @@
 # Changelog
 
+## [2026.0.0](https://github.com/jonahsnider/doglog/compare/2025.10.1...2026.0.0) (2025-11-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* update to WPILib 2026 ([#139](https://github.com/jonahsnider/doglog/issues/139))
+
+### Features
+
+* update to WPILib 2026 ([#139](https://github.com/jonahsnider/doglog/issues/139)) ([853b085](https://github.com/jonahsnider/doglog/commit/853b085fb8629742444bcd95fd8f43aab51cf7ca))
+
 ## [2025.10.1](https://github.com/jonahsnider/doglog/compare/2025.10.0...2025.10.1) (2025-10-25)
 
 
