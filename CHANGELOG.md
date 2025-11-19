@@ -1,5 +1,12 @@
 # Changelog
 
+## [2026.0.1](https://github.com/jonahsnider/doglog/compare/2026.0.0...2026.0.1) (2025-11-19)
+
+
+### Bug Fixes
+
+* change frcYear to 2026beta ([a38ff20](https://github.com/jonahsnider/doglog/commit/a38ff20c4909880dab9f2e4c7afc06547684568c))
+
 ## [2026.0.0](https://github.com/jonahsnider/doglog/compare/2025.10.1...2026.0.0) (2025-11-19)
 
 
