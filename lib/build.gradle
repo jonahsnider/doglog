@@ -9,7 +9,7 @@
 plugins {
 	// Apply the java-library plugin for API and implementation separation.
 	id 'java-library'
-	id "com.diffplug.spotless" version "8.0.0"
+	id "com.diffplug.spotless" version "8.1.0"
 	id 'edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin' version '2025.0'
 	id 'maven-publish'
 	id "net.ltgt.errorprone" version "4.3.0"
