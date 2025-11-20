@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Git repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Validate Gradle wrappers
         uses: gradle/actions/wrapper-validation@v5
   assemble:
@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Checkout Git repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
@@ -44,7 +44,7 @@ jobs:
 
     steps:
       - name: Checkout Git repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
@@ -64,7 +64,7 @@ jobs:
 
     steps:
       - name: Checkout Git repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
@@ -90,7 +90,7 @@ jobs:
 
     steps:
       - name: Checkout Git repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
@@ -116,7 +116,7 @@ jobs:
 
     steps:
       - name: Checkout Git repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
@@ -148,7 +148,7 @@ jobs:
 
     steps:
       - name: Checkout Git repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Enable Corepack
         # Required due to a limitation in setup-node https://github.com/actions/setup-node/issues/480#issuecomment-1820622085
         run: corepack enable
