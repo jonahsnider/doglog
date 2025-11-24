@@ -43,14 +43,14 @@ public class DataLogWriter implements LogWriterLowLevel {
    * DataLogManager to update entry metadata.
    */
   private static void updateUnitForEntry(
-      Map<String, String> unitCache, String key, String unit, DataLogEntry entry) {
+      long timestamp, Map<String, String> unitCache, String key, String unit, DataLogEntry entry) {
     // If we've never seen this key before, the current unit will be null
     var currentUnit = unitCache.get(key);
     if (unit.equals(currentUnit)) {
       return;
     }
 
-    entry.setMetadata(entryMetadataForUnit(unit));
+    entry.setMetadata(entryMetadataForUnit(unit), timestamp);
     unitCache.put(key, unit);
   }
 
@@ -127,7 +127,7 @@ public class DataLogWriter implements LogWriterLowLevel {
 
     entry.update(value, timestamp);
 
-    updateUnitForEntry(doubleArrayUnits, key, unit, entry);
+    updateUnitForEntry(timestamp, doubleArrayUnits, key, unit, entry);
   }
 
   @Override
@@ -145,7 +145,7 @@ public class DataLogWriter implements LogWriterLowLevel {
 
     entry.update(value, timestamp);
 
-    updateUnitForEntry(doubleUnits, key, unit, entry);
+    updateUnitForEntry(timestamp, doubleUnits, key, unit, entry);
   }
 
   @Override
@@ -165,7 +165,7 @@ public class DataLogWriter implements LogWriterLowLevel {
 
     entry.update(value, timestamp);
 
-    updateUnitForEntry(floatArrayUnits, key, unit, entry);
+    updateUnitForEntry(timestamp, floatArrayUnits, key, unit, entry);
   }
 
   @Override
@@ -183,7 +183,7 @@ public class DataLogWriter implements LogWriterLowLevel {
 
     entry.update(value, timestamp);
 
-    updateUnitForEntry(floatUnits, key, unit, entry);
+    updateUnitForEntry(timestamp, floatUnits, key, unit, entry);
   }
 
   @Override
@@ -204,7 +204,7 @@ public class DataLogWriter implements LogWriterLowLevel {
 
     entry.update(value, timestamp);
 
-    updateUnitForEntry(integerArrayUnits, key, unit, entry);
+    updateUnitForEntry(timestamp, integerArrayUnits, key, unit, entry);
   }
 
   @Override
@@ -224,7 +224,7 @@ public class DataLogWriter implements LogWriterLowLevel {
 
     entry.update(value, timestamp);
 
-    updateUnitForEntry(integerUnits, key, unit, entry);
+    updateUnitForEntry(timestamp, integerUnits, key, unit, entry);
   }
 
   // TODO: Raw logs
