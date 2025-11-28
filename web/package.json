@@ -25,7 +25,7 @@
 	"devDependencies": {
 		"@vite-pwa/assets-generator": "^1.0.1",
 		"@vite-pwa/astro": "^1.1.0",
-		"prettier": "3.7.1",
+		"prettier": "3.7.2",
 		"prettier-plugin-astro": "0.14.1",
 		"prettier-plugin-java": "2.7.7",
 		"prettier-plugin-packagejson": "2.5.20",
