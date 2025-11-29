@@ -71,7 +71,7 @@ dependencies {
 	errorprone "com.google.errorprone:error_prone_core:2.44.0"
 	errorprone "com.uber.nullaway:nullaway:0.12.12"
 	errorprone "tech.picnic.error-prone-support:error-prone-contrib:0.26.0"
-	errorprone "tech.picnic.error-prone-support:refaster-runner:0.26.0"
+	errorprone "tech.picnic.error-prone-support:refaster-runner:0.27.0"
 
 	testImplementation "org.assertj:assertj-core:3.27.6"
 
