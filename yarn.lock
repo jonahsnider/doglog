@@ -235,9 +235,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/starlight@npm:^0.36.0":
-  version: 0.36.3
-  resolution: "@astrojs/starlight@npm:0.36.3"
+"@astrojs/starlight@npm:^0.37.0":
+  version: 0.37.0
+  resolution: "@astrojs/starlight@npm:0.37.0"
   dependencies:
     "@astrojs/markdown-remark": "npm:^6.3.1"
     "@astrojs/mdx": "npm:^4.2.3"
@@ -255,6 +255,7 @@ __metadata:
     i18next: "npm:^23.11.5"
     js-yaml: "npm:^4.1.0"
     klona: "npm:^2.0.6"
+    magic-string: "npm:^0.30.17"
     mdast-util-directive: "npm:^3.0.0"
     mdast-util-to-markdown: "npm:^2.1.0"
     mdast-util-to-string: "npm:^4.0.0"
@@ -268,7 +269,7 @@ __metadata:
     vfile: "npm:^6.0.2"
   peerDependencies:
     astro: ^5.5.0
-  checksum: 10c0/d282bc3a2d2241033cb343b4c4d4354a4659c79de95de091fe3ae629bc76ece98231a1e30748d1582ff59f045427a5d649ac838771e53290c19f3ac192ae26a1
+  checksum: 10c0/765654ee61bddc4cb20d407b6e52ef7a9f9c78fd8f492bd4df3cae5c833206847d670174162f15bbd99c5a842f30f0d703cb6c807e55574586e772bc8b540bd6
   languageName: node
   linkType: hard
 
@@ -1589,7 +1590,7 @@ __metadata:
   dependencies:
     "@astrojs/check": "npm:^0.9.0"
     "@astrojs/markdoc": "npm:^0.15.0"
-    "@astrojs/starlight": "npm:^0.36.0"
+    "@astrojs/starlight": "npm:^0.37.0"
     "@astrojs/starlight-markdoc": "npm:^0.5.0"
     "@vite-pwa/assets-generator": "npm:^1.0.1"
     "@vite-pwa/astro": "npm:^1.1.0"
@@ -7025,7 +7026,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"magic-string@npm:^0.30.21":
+"magic-string@npm:^0.30.17, magic-string@npm:^0.30.21":
   version: 0.30.21
   resolution: "magic-string@npm:0.30.21"
   dependencies:
