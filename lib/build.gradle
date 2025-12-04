@@ -69,7 +69,7 @@ dependencies {
 	implementation "edu.wpi.first.wpilibNewCommands:wpilibNewCommands-java:$wpilibVersion"
 
 	errorprone "com.google.errorprone:error_prone_core:2.45.0"
-	errorprone "com.uber.nullaway:nullaway:0.12.13"
+	errorprone "com.uber.nullaway:nullaway:0.12.14"
 	errorprone "tech.picnic.error-prone-support:error-prone-contrib:0.27.0"
 	errorprone "tech.picnic.error-prone-support:refaster-runner:0.27.0"
 
