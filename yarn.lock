@@ -236,8 +236,8 @@ __metadata:
   linkType: hard
 
 "@astrojs/starlight@npm:^0.37.0":
-  version: 0.37.0
-  resolution: "@astrojs/starlight@npm:0.37.0"
+  version: 0.37.1
+  resolution: "@astrojs/starlight@npm:0.37.1"
   dependencies:
     "@astrojs/markdown-remark": "npm:^6.3.1"
     "@astrojs/mdx": "npm:^4.2.3"
@@ -269,7 +269,7 @@ __metadata:
     vfile: "npm:^6.0.2"
   peerDependencies:
     astro: ^5.5.0
-  checksum: 10c0/765654ee61bddc4cb20d407b6e52ef7a9f9c78fd8f492bd4df3cae5c833206847d670174162f15bbd99c5a842f30f0d703cb6c807e55574586e772bc8b540bd6
+  checksum: 10c0/092eff4fe28581124eeb075a352a42ca36809efd670f265ca66e41d83dd1ff5894e805ab9a868db6da212b70d41c74d495860b71fcfd2fbcc4494e9d12a430e3
   languageName: node
   linkType: hard
 
