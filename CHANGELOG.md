@@ -1,5 +1,12 @@
 # Changelog
 
+## [2026.0.2](https://github.com/jonahsnider/doglog/compare/2026.0.1...2026.0.2) (2025-12-11)
+
+
+### Bug Fixes
+
+* provide timestamp when updating datalog unit metadata ([de590f4](https://github.com/jonahsnider/doglog/commit/de590f48c4444e41b3e3607f4e37263003dc727b))
+
 ## [2026.0.1](https://github.com/jonahsnider/doglog/compare/2026.0.0...2026.0.1) (2025-11-19)
 
 
