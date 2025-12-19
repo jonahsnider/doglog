@@ -4,7 +4,9 @@ import edu.wpi.first.networktables.StringSubscriber;
 import edu.wpi.first.networktables.StringTopic;
 import edu.wpi.first.networktables.TimestampedString;
 import java.util.function.BooleanSupplier;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class ToggleableStringSubscriber implements StringSubscriber {
   private final StringSubscriber subscriber;
   private final BooleanSupplier useNt;

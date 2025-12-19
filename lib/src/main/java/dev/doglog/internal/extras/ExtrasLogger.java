@@ -16,9 +16,11 @@ import edu.wpi.first.hal.can.CANJNI;
 import edu.wpi.first.hal.can.CANStatus;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 /** Logs "extra" information. */
+@NullMarked
 public class ExtrasLogger implements AutoCloseable {
   private static final String VOLTS_UNIT_STRING = Volts.name();
   private static final String AMPS_UNIT_STRING = Amps.name();

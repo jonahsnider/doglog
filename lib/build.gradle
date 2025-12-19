@@ -25,7 +25,7 @@ tasks.withType(Javadoc) {
 }
 
 nullaway {
-	annotatedPackages.add("dev.doglog")
+	onlyNullMarked = true
 }
 
 // Error Prone configs

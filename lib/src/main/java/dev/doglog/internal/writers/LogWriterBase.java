@@ -1,6 +1,9 @@
 package dev.doglog.internal.writers;
 
+import org.jspecify.annotations.NullMarked;
+
 /** All parameters must not be null. */
+@NullMarked
 public interface LogWriterBase {
   public void log(long timestamp, String key, boolean[] value);
 

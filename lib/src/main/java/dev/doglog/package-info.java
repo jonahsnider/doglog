@@ -3,5 +3,7 @@
  *
  * <p>See https://doglog.dev for more information.
  */
-@org.jspecify.annotations.NullMarked
+@NullMarked
 package dev.doglog;
+
+import org.jspecify.annotations.NullMarked;

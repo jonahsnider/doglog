@@ -22,8 +22,10 @@ import edu.wpi.first.networktables.Topic;
 import edu.wpi.first.util.struct.Struct;
 import java.util.HashMap;
 import java.util.Map;
+import org.jspecify.annotations.NullMarked;
 
 /** Logs to NetworkTables. */
+@NullMarked
 public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
   private static final String PROPERTY_SOURCE_NAME = "source";
   private static final String PROPERTY_SOURCE_VALUE = "\"DogLog\"";

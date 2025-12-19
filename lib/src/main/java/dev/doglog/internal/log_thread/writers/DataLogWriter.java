@@ -24,8 +24,10 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RuntimeType;
 import java.util.HashMap;
 import java.util.Map;
+import org.jspecify.annotations.NullMarked;
 
 /** Logs to a WPILib {@link DataLog}. */
+@NullMarked
 public class DataLogWriter implements LogWriterLowLevel {
   private static final String ENTRY_METADATA = "{\"source\":\"DogLog\"}";
   private static final String ENTRY_METADATA_UNITS_PREFIX = "{\"source\":\"DogLog\",\"unit\":\"";

@@ -4,7 +4,9 @@ import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.IntegerTopic;
 import edu.wpi.first.networktables.TimestampedInteger;
 import java.util.function.BooleanSupplier;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class ToggleableIntegerSubscriber implements IntegerSubscriber {
   private final IntegerSubscriber subscriber;
   private final BooleanSupplier useNt;

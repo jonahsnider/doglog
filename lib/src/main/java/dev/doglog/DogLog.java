@@ -679,7 +679,7 @@ public class DogLog {
    * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
    */
   public static DoubleSubscriber tunable(
-      String key, Measure<?> defaultValue, @Nullable DoubleConsumer onChange) {
+      String key, @Nullable Measure<?> defaultValue, @Nullable DoubleConsumer onChange) {
     if (defaultValue == null) {
       return tunable(key, 0.0, onChange);
     }

@@ -29,8 +29,10 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.LongConsumer;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public class Tunable implements AutoCloseable {
   private static final NetworkTable TUNABLE_TABLE =
       NetworkTableInstance.getDefault().getTable("/Tunable");

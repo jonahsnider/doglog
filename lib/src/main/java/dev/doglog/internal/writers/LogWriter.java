@@ -6,9 +6,11 @@ import dev.doglog.internal.log_thread.writers.CombinedWriter;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 /** Writes logs directly from the main thread. */
+@NullMarked
 public class LogWriter implements LogWriterHighLevel {
   private final CombinedWriter writer;
   private final ExtrasLogger extras;

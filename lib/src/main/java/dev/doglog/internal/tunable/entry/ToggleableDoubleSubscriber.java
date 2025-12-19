@@ -4,7 +4,9 @@ import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.DoubleTopic;
 import edu.wpi.first.networktables.TimestampedDouble;
 import java.util.function.BooleanSupplier;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class ToggleableDoubleSubscriber implements DoubleSubscriber {
   private final DoubleSubscriber subscriber;
   private final BooleanSupplier useNt;

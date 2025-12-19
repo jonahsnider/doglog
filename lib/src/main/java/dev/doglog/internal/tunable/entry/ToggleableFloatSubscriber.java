@@ -4,7 +4,9 @@ import edu.wpi.first.networktables.FloatSubscriber;
 import edu.wpi.first.networktables.FloatTopic;
 import edu.wpi.first.networktables.TimestampedFloat;
 import java.util.function.BooleanSupplier;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class ToggleableFloatSubscriber implements FloatSubscriber {
   private final FloatSubscriber subscriber;
   private final BooleanSupplier useNt;

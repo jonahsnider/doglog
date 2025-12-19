@@ -30,12 +30,14 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 /**
  * Provides an interface for queueing logs to be recorded by the log thread. Also responsible for
  * managing the log thread.
  */
+@NullMarked
 public class ThreadedLogWriter implements LogWriterHighLevel {
   private static final int MAX_QUEUE_FULL_MESSAGES = 50;
   private int queueFullMessageCount = 0;
