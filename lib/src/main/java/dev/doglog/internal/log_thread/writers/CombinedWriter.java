@@ -8,6 +8,7 @@ import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -195,11 +196,13 @@ public class CombinedWriter {
   }
 
   public <T extends StructSerializable> void log(long timestamp, String key, T[] value) {
-    var maybeStruct = structRegistry.getStruct(value.getClass().getComponentType());
+    @SuppressWarnings("unchecked")
+    var maybeStruct =
+        structRegistry.getStruct((@NonNull Class<T>) value.getClass().getComponentType());
 
     if (maybeStruct.isPresent()) {
       @SuppressWarnings("unchecked")
-      var struct = (Struct<T>) maybeStruct.orElseThrow();
+      var struct = (@NonNull Struct<T>) maybeStruct.orElseThrow();
       log(timestamp, key, struct, value);
     }
   }
@@ -214,11 +217,12 @@ public class CombinedWriter {
   }
 
   public <T extends StructSerializable> void log(long timestamp, String key, T value) {
-    var maybeStruct = structRegistry.getStruct(value.getClass());
+    var maybeStruct =
+        structRegistry.getStruct((@NonNull Class<? extends StructSerializable>) value.getClass());
 
     if (maybeStruct.isPresent()) {
       @SuppressWarnings("unchecked")
-      var struct = (Struct<T>) maybeStruct.orElseThrow();
+      var struct = (@NonNull Struct<T>) maybeStruct.orElseThrow();
       log(timestamp, key, struct, value);
     }
   }

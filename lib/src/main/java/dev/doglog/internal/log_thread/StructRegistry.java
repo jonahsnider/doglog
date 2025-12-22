@@ -1,6 +1,7 @@
 package dev.doglog.internal.log_thread;
 
 import edu.wpi.first.util.struct.Struct;
+import edu.wpi.first.util.struct.StructSerializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -9,10 +10,12 @@ import java.util.Optional;
 public class StructRegistry {
   private static final String STRUCT_FIELD_NAME = "struct";
 
-  private static Optional<Struct<?>> getStructRaw(Class<?> classObj) {
+  private static <T extends StructSerializable> Optional<Struct<?>> getStructRaw(
+      Class<T> classObj) {
     try {
       var field = classObj.getDeclaredField(STRUCT_FIELD_NAME);
-      var resolvedStruct = (Struct<?>) field.get(null);
+      @SuppressWarnings("unchecked")
+      var resolvedStruct = (Struct<T>) field.get(null);
 
       return Optional.of(resolvedStruct);
     } catch (Exception e) {
