@@ -177,11 +177,6 @@ public class CombinedWriter {
   }
 
   public void log(long timestamp, String key, String value, String customTypeString) {
-    if (customTypeString == null) {
-      log(timestamp, key, value);
-      return;
-    }
-
     dataLogReporter.log(timestamp, key, value, customTypeString);
 
     checkNtPublish();
