@@ -1,5 +1,6 @@
 package dev.doglog.internal.log_thread.entries;
 
+import dev.doglog.internal.log_thread.writers.CombinedWriter;
 import edu.wpi.first.util.struct.StructSerializable;
 
 public class StructArrayQueuedLogEntry<T extends StructSerializable> extends BaseQueuedLogEntry {
@@ -8,5 +9,10 @@ public class StructArrayQueuedLogEntry<T extends StructSerializable> extends Bas
   public StructArrayQueuedLogEntry(String key, long timestamp, T[] value) {
     super(EntryType.STRUCT_ARRAY, key, timestamp);
     this.value = value;
+  }
+
+  @Override
+  public void log(CombinedWriter writer) {
+    writer.log(timestamp, key, value);
   }
 }

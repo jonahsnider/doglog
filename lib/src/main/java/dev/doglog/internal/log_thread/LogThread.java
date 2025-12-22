@@ -59,77 +59,25 @@ public class LogThread extends Thread {
         // TODO: Once the minimum Java version is 21, use pattern matching for switch expressions
         // https://docs.oracle.com/en/java/javase/17/language/pattern-matching-switch-expressions-and-statements.html
         switch (entry.type) {
-          case BOOLEAN_ARRAY ->
-              logger.log(entry.timestamp, entry.key, ((BooleanArrayQueuedLogEntry) entry).value);
-          case BOOLEAN ->
-              logger.log(entry.timestamp, entry.key, ((BooleanQueuedLogEntry) entry).value);
-          case DOUBLE_ARRAY ->
-              logger.log(entry.timestamp, entry.key, ((DoubleArrayQueuedLogEntry) entry).value);
-          case DOUBLE ->
-              logger.log(entry.timestamp, entry.key, ((DoubleQueuedLogEntry) entry).value);
-          case DOUBLE_ARRAY_WITH_UNIT -> {
-            logger.log(
-                entry.timestamp,
-                entry.key,
-                ((DoubleArrayWithUnitQueuedLogEntry) entry).value,
-                ((DoubleArrayWithUnitQueuedLogEntry) entry).unit);
-          }
-          case DOUBLE_WITH_UNIT -> {
-            logger.log(
-                entry.timestamp,
-                entry.key,
-                ((DoubleWithUnitQueuedLogEntry) entry).value,
-                ((DoubleWithUnitQueuedLogEntry) entry).unit);
-          }
-          case FLOAT_ARRAY ->
-              logger.log(entry.timestamp, entry.key, ((FloatArrayQueuedLogEntry) entry).value);
-          case FLOAT_ARRAY_WITH_UNIT -> {
-            logger.log(
-                entry.timestamp,
-                entry.key,
-                ((FloatArrayWithUnitQueuedLogEntry) entry).value,
-                ((FloatArrayWithUnitQueuedLogEntry) entry).unit);
-          }
-          case FLOAT -> logger.log(entry.timestamp, entry.key, ((FloatQueuedLogEntry) entry).value);
-          case FLOAT_WITH_UNIT -> {
-            logger.log(
-                entry.timestamp,
-                entry.key,
-                ((FloatWithUnitQueuedLogEntry) entry).value,
-                ((FloatWithUnitQueuedLogEntry) entry).unit);
-          }
-          case INTEGER_ARRAY ->
-              logger.log(entry.timestamp, entry.key, ((IntegerArrayQueuedLogEntry) entry).value);
-          case INTEGER_ARRAY_WITH_UNIT -> {
-            logger.log(
-                entry.timestamp,
-                entry.key,
-                ((IntegerArrayWithUnitQueuedLogEntry) entry).value,
-                ((IntegerArrayWithUnitQueuedLogEntry) entry).unit);
-          }
-          case INTEGER ->
-              logger.log(entry.timestamp, entry.key, ((IntegerQueuedLogEntry) entry).value);
-          case INTEGER_WITH_UNIT -> {
-            logger.log(
-                entry.timestamp,
-                entry.key,
-                ((IntegerWithUnitQueuedLogEntry) entry).value,
-                ((IntegerWithUnitQueuedLogEntry) entry).unit);
-          }
-          case STRING_ARRAY ->
-              logger.log(entry.timestamp, entry.key, ((StringArrayQueuedLogEntry) entry).value);
-          case STRING ->
-              logger.log(entry.timestamp, entry.key, ((StringQueuedLogEntry) entry).value);
-          case STRING_CUSTOM_TYPE ->
-              logger.log(
-                  entry.timestamp,
-                  entry.key,
-                  ((StringCustomTypeQueuedLogEntry) entry).value,
-                  ((StringCustomTypeQueuedLogEntry) entry).customTypeString);
-          case STRUCT_ARRAY ->
-              logger.log(entry.timestamp, entry.key, ((StructArrayQueuedLogEntry<?>) entry).value);
-          case STRUCT ->
-              logger.log(entry.timestamp, entry.key, ((StructQueuedLogEntry<?>) entry).value);
+          case BOOLEAN -> ((BooleanQueuedLogEntry) entry).log(logger);
+          case BOOLEAN_ARRAY -> ((BooleanArrayQueuedLogEntry) entry).log(logger);
+          case DOUBLE -> ((DoubleQueuedLogEntry) entry).log(logger);
+          case DOUBLE_ARRAY -> ((DoubleArrayQueuedLogEntry) entry).log(logger);
+          case DOUBLE_WITH_UNIT -> ((DoubleWithUnitQueuedLogEntry) entry).log(logger);
+          case DOUBLE_ARRAY_WITH_UNIT -> ((DoubleArrayWithUnitQueuedLogEntry) entry).log(logger);
+          case FLOAT -> ((FloatQueuedLogEntry) entry).log(logger);
+          case FLOAT_ARRAY -> ((FloatArrayQueuedLogEntry) entry).log(logger);
+          case FLOAT_WITH_UNIT -> ((FloatWithUnitQueuedLogEntry) entry).log(logger);
+          case FLOAT_ARRAY_WITH_UNIT -> ((FloatArrayWithUnitQueuedLogEntry) entry).log(logger);
+          case INTEGER -> ((IntegerQueuedLogEntry) entry).log(logger);
+          case INTEGER_ARRAY -> ((IntegerArrayQueuedLogEntry) entry).log(logger);
+          case INTEGER_WITH_UNIT -> ((IntegerWithUnitQueuedLogEntry) entry).log(logger);
+          case INTEGER_ARRAY_WITH_UNIT -> ((IntegerArrayWithUnitQueuedLogEntry) entry).log(logger);
+          case STRING -> ((StringQueuedLogEntry) entry).log(logger);
+          case STRING_ARRAY -> ((StringArrayQueuedLogEntry) entry).log(logger);
+          case STRING_CUSTOM_TYPE -> ((StringCustomTypeQueuedLogEntry) entry).log(logger);
+          case STRUCT -> ((StructQueuedLogEntry<?>) entry).log(logger);
+          case STRUCT_ARRAY -> ((StructArrayQueuedLogEntry<?>) entry).log(logger);
         }
 
         if (diagnosticsTimer.hasElapsed(DogLogOptions.LOOP_PERIOD_SECONDS)) {

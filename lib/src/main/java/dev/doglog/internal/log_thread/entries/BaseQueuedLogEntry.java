@@ -1,5 +1,7 @@
 package dev.doglog.internal.log_thread.entries;
 
+import dev.doglog.internal.log_thread.writers.CombinedWriter;
+
 public abstract class BaseQueuedLogEntry {
   public final EntryType type;
   public final String key;
@@ -10,4 +12,6 @@ public abstract class BaseQueuedLogEntry {
     this.key = key;
     this.timestamp = timestamp;
   }
+
+  public abstract void log(CombinedWriter writer);
 }

@@ -1,5 +1,7 @@
 package dev.doglog.internal.log_thread.entries;
 
+import dev.doglog.internal.log_thread.writers.CombinedWriter;
+
 public class IntegerArrayQueuedLogEntry extends BaseQueuedLogEntry {
   public final long[] value;
 
@@ -14,5 +16,10 @@ public class IntegerArrayQueuedLogEntry extends BaseQueuedLogEntry {
     for (int i = 0; i < value.length; i++) {
       this.value[i] = value[i];
     }
+  }
+
+  @Override
+  public void log(CombinedWriter writer) {
+    writer.log(timestamp, key, value);
   }
 }
