@@ -11,6 +11,8 @@ import dev.doglog.internal.log_thread.entries.DoubleArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.DoubleArrayWithUnitQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.DoubleQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.DoubleWithUnitQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.EnumArrayQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.EnumQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.FloatArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.FloatArrayWithUnitQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.FloatQueuedLogEntry;
@@ -19,6 +21,8 @@ import dev.doglog.internal.log_thread.entries.IntegerArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.IntegerArrayWithUnitQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.IntegerQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.IntegerWithUnitQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.RecordArrayQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.RecordQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringCustomTypeQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringQueuedLogEntry;
@@ -223,6 +227,34 @@ public class ThreadedLogWriter implements LogWriterHighLevel {
   @Override
   public <T extends StructSerializable> void log(long timestamp, String key, T value) {
     if (!queue.offer(new StructQueuedLogEntry<>(key, timestamp, value))) {
+      printQueueFullMessage(key);
+    }
+  }
+
+  @Override
+  public <E extends Enum<E>> void log(long timestamp, String key, E value) {
+    if (!queue.offer(new EnumQueuedLogEntry<>(key, timestamp, value))) {
+      printQueueFullMessage(key);
+    }
+  }
+
+  @Override
+  public <E extends Enum<E>> void log(long timestamp, String key, E[] value) {
+    if (!queue.offer(new EnumArrayQueuedLogEntry<>(key, timestamp, value))) {
+      printQueueFullMessage(key);
+    }
+  }
+
+  @Override
+  public <R extends Record> void log(long timestamp, String key, R value) {
+    if (!queue.offer(new RecordQueuedLogEntry<>(key, timestamp, value))) {
+      printQueueFullMessage(key);
+    }
+  }
+
+  @Override
+  public <R extends Record> void log(long timestamp, String key, R[] value) {
+    if (!queue.offer(new RecordArrayQueuedLogEntry<>(key, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }

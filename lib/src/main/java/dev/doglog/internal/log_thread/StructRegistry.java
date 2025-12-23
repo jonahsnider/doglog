@@ -1,6 +1,7 @@
 package dev.doglog.internal.log_thread;
 
 import edu.wpi.first.util.struct.Struct;
+import edu.wpi.first.util.struct.StructGenerator;
 import edu.wpi.first.util.struct.StructSerializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,9 +24,30 @@ public class StructRegistry {
     }
   }
 
-  private final Map<Class<?>, Optional<Struct<?>>> resolvedStructs = new HashMap<>();
+  @SuppressWarnings("unchecked")
+  private static <E extends Enum<E>> Struct<?> getEnumStructRaw(Class<?> enumClass) {
+    return (Struct<?>) StructGenerator.genEnum((Class<E>) enumClass);
+  }
 
-  public Optional<Struct<?>> getStruct(Class<?> entryClass) {
+  @SuppressWarnings("unchecked")
+  private static <R extends Record> Struct<?> getRecordStructRaw(Class<?> recordClass) {
+    return (Struct<?>) StructGenerator.genRecord((Class<R>) recordClass);
+  }
+
+  private final Map<Class<? extends StructSerializable>, Optional<Struct<?>>> resolvedStructs =
+      new HashMap<>();
+  private final Map<Class<? extends Enum<?>>, Struct<?>> resolvedEnums = new HashMap<>();
+  private final Map<Class<? extends Record>, Struct<?>> resolvedRecords = new HashMap<>();
+
+  public Optional<Struct<?>> getStruct(Class<? extends StructSerializable> entryClass) {
     return resolvedStructs.computeIfAbsent(entryClass, key -> getStructRaw(entryClass));
+  }
+
+  public Struct<?> getEnumStruct(Class<? extends Enum<?>> enumClass) {
+    return resolvedEnums.computeIfAbsent(enumClass, key -> getEnumStructRaw(enumClass));
+  }
+
+  public Struct<?> getRecordStruct(Class<? extends Record> recordClass) {
+    return resolvedRecords.computeIfAbsent(recordClass, key -> getRecordStructRaw(recordClass));
   }
 }

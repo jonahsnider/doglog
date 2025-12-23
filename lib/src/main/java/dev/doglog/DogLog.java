@@ -354,20 +354,14 @@ public class DogLog {
     logger.log(now, key, value);
   }
 
-  /** Log an enum array. Enums will be converted to strings with {@link Enum#name()}. */
-  public static void log(String key, @Nullable Enum<?>[] value) {
+  /** Log an enum array. */
+  public static <E extends Enum<E>> void log(String key, @Nullable E[] value) {
     if (!enabled || value == null) {
       return;
     }
 
-    // Convert enum array to string array
-    var stringArray = new String[value.length];
-
-    for (int i = 0; i < value.length; i++) {
-      stringArray[i] = value[i].name();
-    }
-
-    log(key, stringArray);
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value);
   }
 
   /** Log a string. */
@@ -395,13 +389,14 @@ public class DogLog {
     logger.log(now, key, value, customTypeString);
   }
 
-  /** Log an enum. The enum will be converted to a string with {@link Enum#name()}. */
-  public static void log(String key, @Nullable Enum<?> value) {
+  /** Log an enum. */
+  public static <E extends Enum<E>> void log(String key, @Nullable E value) {
     if (!enabled || value == null) {
       return;
     }
 
-    log(key, value.name());
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value);
   }
 
   /** Log a struct array. */
@@ -416,6 +411,26 @@ public class DogLog {
 
   /** Log a struct. */
   public static <T extends StructSerializable> void log(String key, @Nullable T value) {
+    if (!enabled || value == null) {
+      return;
+    }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value);
+  }
+
+  /** Log a record. */
+  public static void log(String key, @Nullable Record value) {
+    if (!enabled || value == null) {
+      return;
+    }
+
+    var now = HALUtil.getFPGATime();
+    logger.log(now, key, value);
+  }
+
+  /** Log a record array. */
+  public static void log(String key, @Nullable Record[] value) {
     if (!enabled || value == null) {
       return;
     }

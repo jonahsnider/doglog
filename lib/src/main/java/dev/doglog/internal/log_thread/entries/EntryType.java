@@ -26,4 +26,10 @@ public enum EntryType {
 
   STRUCT_ARRAY,
   STRUCT,
+
+  ENUM_ARRAY,
+  ENUM,
+
+  RECORD_ARRAY,
+  RECORD,
 }

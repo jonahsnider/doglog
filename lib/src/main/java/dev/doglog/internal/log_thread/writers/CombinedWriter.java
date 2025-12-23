@@ -227,6 +227,39 @@ public class CombinedWriter {
     }
   }
 
+  @SuppressWarnings("unchecked")
+  public <E extends Enum<E>> void log(long timestamp, String key, E value) {
+    var struct = (Struct<E>) structRegistry.getEnumStruct((@NonNull Class<E>) value.getClass());
+
+    log(timestamp, key, struct, value);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <E extends Enum<E>> void log(long timestamp, String key, E[] value) {
+    var struct =
+        (@NonNull Struct<E>)
+            structRegistry.getEnumStruct((@NonNull Class<E>) value.getClass().getComponentType());
+
+    log(timestamp, key, struct, value);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <R extends Record> void log(long timestamp, String key, R value) {
+    var struct = (@NonNull Struct<R>) structRegistry.getRecordStruct(value.getClass());
+
+    log(timestamp, key, struct, value);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <R extends Record> void log(long timestamp, String key, R[] value) {
+    var struct =
+        (@NonNull Struct<R>)
+            structRegistry.getRecordStruct(
+                (Class<? extends Record>) value.getClass().getComponentType());
+
+    log(timestamp, key, struct, value);
+  }
+
   public void setOptions(DogLogOptions options) {
     this.options = options;
 
