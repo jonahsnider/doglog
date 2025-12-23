@@ -20,7 +20,7 @@ Here's a quick breakdown of the differences between each library:
 | Unit metadata                 | [Yes](/getting-started/usage#logging-with-units)                         | [Yes](https://docs.advantagekit.org/data-flow/supported-types/#units)                                                    | No                                           |
 | Supported language            | Java                                                                     | Java                                                                                                                     | Java                                         |
 
-One thing to note is that while it may technically be possible to use DogLog in combination with other logging libraries, this is definitely not recommended.
+While it may technically be possible to use DogLog in combination with other logging libraries, this is definitely not recommended.
 You will almost certainly encounter bugs or other compatibility issues as a result.
 
 ## Who uses DogLog?
@@ -38,7 +38,8 @@ And of course,
 
 ## What should I log?
 
-It can be tempting to simply throw every possible piece of data at DogLog, but often times this causes more problems than it solves. While DogLog is highly optimized for performant logging, there is a point where the roboRIO simply can't keep up.
+It can be tempting to simply throw every possible piece of data at DogLog, but often times this causes more problems than it solves.
+While DogLog is highly optimized for performant logging, at a certain point the roboRIO simply can't keep up with the volume of data being logged.
 
 Take a look at all the fields you are logging, and think about whether or not they're actually useful for your team. Here's a few examples:
 
@@ -51,3 +52,21 @@ Take a look at all the fields you are logging, and think about whether or not th
 Feel free to [open a GitHub issue](https://github.com/jonahsnider/doglog/issues/new) if you've found a bug or there's a feature request you'd like to see.
 
 If you have questions about DogLog, how to use it, or anything else, you can [start a GitHub discussion](https://github.com/jonahsnider/doglog/discussions/new?category=q-a) or create a reply on the [DogLog Chief Delphi thread](https://www.chiefdelphi.com/t/announcing-doglog-simpler-logging-for-frc/469056?u=jonahsnider).
+
+## Why use imperative logging?
+
+Imperative logging describes the pattern of calling a function to log a value.
+Compared to alternative methods like IO layers or annotations, imperative logging is the simplest approach.
+
+You have full explicit control over what is logged and when, compared to annotation based logging.
+Annotation based logging typically involves using Java's reflection to discover all the fields in a class, and then schedule logic that records all the fields to a log file.
+
+Imperative logging avoids the complexity associated with reflection, you just call `DogLog.log()` and the value gets logged.
+Rather than the sort of "magic" that reflection uses, DogLog prioritizes clarity and simplicity.
+
+## How does DogLog work internally?
+
+DogLog itself is a fairly minimal library, all the actual logging is handled by WPILib using `DataLogManager` and NetworkTables 4.
+This ensures that DogLog takes advantage of the stability and performance of WPILib's logging system.
+
+Rather than trying to reinvent core logging primitives, DogLog focuses on providing a clean, powerful API on top of the WPILib logging featureset, without introducing extra complexity.
