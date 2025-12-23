@@ -1,5 +1,17 @@
 # Changelog
 
+## [2026.1.0](https://github.com/jonahsnider/doglog/compare/2026.0.1...2026.1.0) (2025-12-23)
+
+
+### Features
+
+* add logging of enums and records using StructGenerator ([#146](https://github.com/jonahsnider/doglog/issues/146)) ([98653a5](https://github.com/jonahsnider/doglog/commit/98653a5bb3e6e8a769ef3337856e2014d0b75ae4))
+
+
+### Bug Fixes
+
+* provide timestamp when updating datalog unit metadata ([de590f4](https://github.com/jonahsnider/doglog/commit/de590f48c4444e41b3e3607f4e37263003dc727b))
+
 ## [2026.0.1](https://github.com/jonahsnider/doglog/compare/2026.0.0...2026.0.1) (2025-11-19)
 
 
