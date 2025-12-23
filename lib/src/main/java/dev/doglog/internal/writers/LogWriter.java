@@ -144,6 +144,26 @@ public class LogWriter implements LogWriterHighLevel {
   }
 
   @Override
+  public <E extends Enum<E>> void log(long timestamp, String key, E[] value) {
+    writer.log(timestamp, key, value);
+  }
+
+  @Override
+  public <E extends Enum<E>> void log(long timestamp, String key, E value) {
+    writer.log(timestamp, key, value);
+  }
+
+  @Override
+  public <T extends Record> void log(long timestamp, String key, T[] value) {
+    writer.log(timestamp, key, value);
+  }
+
+  @Override
+  public <T extends Record> void log(long timestamp, String key, T value) {
+    writer.log(timestamp, key, value);
+  }
+
+  @Override
   public void close() {
     extras.close();
   }

@@ -8,6 +8,8 @@ import dev.doglog.internal.log_thread.entries.DoubleArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.DoubleArrayWithUnitQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.DoubleQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.DoubleWithUnitQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.EnumArrayQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.EnumQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.FloatArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.FloatArrayWithUnitQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.FloatQueuedLogEntry;
@@ -16,6 +18,8 @@ import dev.doglog.internal.log_thread.entries.IntegerArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.IntegerArrayWithUnitQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.IntegerQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.IntegerWithUnitQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.RecordArrayQueuedLogEntry;
+import dev.doglog.internal.log_thread.entries.RecordQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringArrayQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringCustomTypeQueuedLogEntry;
 import dev.doglog.internal.log_thread.entries.StringQueuedLogEntry;
@@ -78,6 +82,10 @@ public class LogThread extends Thread {
           case STRING_CUSTOM_TYPE -> ((StringCustomTypeQueuedLogEntry) entry).log(logger);
           case STRUCT -> ((StructQueuedLogEntry<?>) entry).log(logger);
           case STRUCT_ARRAY -> ((StructArrayQueuedLogEntry<?>) entry).log(logger);
+          case ENUM -> ((EnumQueuedLogEntry<?>) entry).log(logger);
+          case ENUM_ARRAY -> ((EnumArrayQueuedLogEntry<?>) entry).log(logger);
+          case RECORD -> ((RecordQueuedLogEntry<?>) entry).log(logger);
+          case RECORD_ARRAY -> ((RecordArrayQueuedLogEntry<?>) entry).log(logger);
         }
 
         if (diagnosticsTimer.hasElapsed(DogLogOptions.LOOP_PERIOD_SECONDS)) {
