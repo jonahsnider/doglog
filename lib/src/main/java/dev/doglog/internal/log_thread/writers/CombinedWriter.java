@@ -229,7 +229,8 @@ public class CombinedWriter {
 
   @SuppressWarnings("unchecked")
   public <E extends Enum<E>> void log(long timestamp, String key, E value) {
-    var struct = (Struct<E>) structRegistry.getEnumStruct((@NonNull Class<E>) value.getClass());
+    var struct =
+        (Struct<E>) structRegistry.getEnumStruct((@NonNull Class<E>) value.getDeclaringClass());
 
     log(timestamp, key, struct, value);
   }
