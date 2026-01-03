@@ -7,7 +7,7 @@
     }
   ],
   "fileName": "DogLog.json",
-  "frcYear": "2026beta",
+  "frcYear": "2026",
   "jsonUrl": "https://doglog.dev/vendordep.json",
   "name": "DogLog",
   "jniDependencies": [],

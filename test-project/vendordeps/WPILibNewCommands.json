@@ -5,7 +5,7 @@
     "version": "wpilib"
   }],
   "fileName": "WPILibNewCommands.json",
-  "frcYear": "2026beta",
+  "frcYear": "2026",
   "jsonUrl": "",
   "name": "WPILib-New-Commands",
   "jniDependencies": [],
