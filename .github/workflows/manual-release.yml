@@ -12,8 +12,10 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Git repository
+      - name: Checkout Git repository at release tag
         uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.version }}
       - name: Create copy of vendordep.json
         run: cp vendordep.json DogLog-${{ inputs.version }}.json
       - name: Create Vendor JSON Repo PR
