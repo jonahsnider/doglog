@@ -23,6 +23,7 @@ jobs:
           # `MY_RELEASE_PLEASE_TOKEN` (this secret name is not important).
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Generate JWT
+        if: steps.release.outputs.release_created
         id: generate-jwt
         run: |
           client_id=Iv23lisTgnrE7CsVzAPO
@@ -61,6 +62,7 @@ jobs:
           JWT="${header_payload}"."${signature}"
           echo "jwt=$JWT" >> "$GITHUB_OUTPUT"
       - name: Generate installation access token
+        if: steps.release.outputs.release_created
         id: generate-installation-access-token
         # Installation ID taken from https://github.com/settings/installations/102644661
         # This returns a JSON response with the shape
@@ -80,12 +82,15 @@ jobs:
             --header "Authorization: Bearer ${{ steps.generate-jwt.outputs.jwt }}" \
             --header "X-GitHub-Api-Version: 2022-11-28")
           echo "token=$(echo "$response" | jq -r '.token')" >> "$GITHUB_OUTPUT"
+      - name: Create copy of vendordep.json
+        if: steps.release.outputs.release_created
+        run: cp vendordep.json DogLog-${{ steps.release.outputs.version }}.json
       - name: Create Vendor JSON Repo PR
         uses: wpilibsuite/vendor-json-repo/.github/actions/add_vendordep@main
         if: steps.release.outputs.release_created
         with:
           repo: jonahsnider/vendor-json-repo
           token: ${{ steps.generate-installation-access-token.outputs.token }}
-          vendordep_file: ${{ github.workspace }}/vendordep.json
+          vendordep_file: ${{ github.workspace }}/DogLog-${{ steps.release.outputs.version }}.json
           pr_title: "Add DogLog v${{ steps.release.outputs.version }}"
           pr_branch: "doglog-v${{ steps.release.outputs.version }}"
