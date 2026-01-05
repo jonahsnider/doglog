@@ -6,6 +6,8 @@ on:
         required: true
         type: string
 
+name: Manual release
+
 jobs:
   release:
     runs-on: ubuntu-latest
