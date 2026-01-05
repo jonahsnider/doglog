@@ -39,6 +39,6 @@ jobs:
         with:
           repo: jonahsnider/vendor-json-repo
           token: ${{ steps.generate-installation-access-token.outputs.token }}
-          vendordep_file: ./vendordep.json
+          vendordep_file: ${{ github.workspace }}/vendordep.json
           pr_title: "Add DogLog v${{ inputs.version }}"
           pr_branch: "doglog-v${{ inputs.version }}"
