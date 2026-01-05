@@ -14,21 +14,13 @@ jobs:
     steps:
       - name: Checkout Git repository
         uses: actions/checkout@v6
-      - name: Generate a token
-        id: generate-token
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: "2595150"
-          private-key: ${{ secrets.DOGLOG_VENDORDEP_PEM }}
-          owner: jonahsnider
-          repositories: vendor-json-repo
       - name: Create copy of vendordep.json
         run: cp vendordep.json DogLog-${{ inputs.version }}.json
       - name: Create Vendor JSON Repo PR
         uses: wpilibsuite/vendor-json-repo/.github/actions/add_vendordep@main
         with:
           repo: jonahsnider/vendor-json-repo
-          token: ${{ steps.generate-token.outputs.token }}
+          token: ${{ secrets.DOGLOG_VENDORDEP_ACCESS_TOKEN }}
           vendordep_file: ${{ github.workspace }}/DogLog-${{ inputs.version }}.json
           pr_title: "Add DogLog v${{ inputs.version }}"
           pr_branch: "doglog-v${{ inputs.version }}"
