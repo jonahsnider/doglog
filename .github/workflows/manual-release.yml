@@ -19,7 +19,7 @@ jobs:
         run: |
           client_id=Iv23lisTgnrE7CsVzAPO
 
-          pem=${{ secrets.DOGLOG_VENDORDEP_PEM }}
+          pem="${{ secrets.DOGLOG_VENDORDEP_PEM }}"
 
           now=$(date +%s)
           iat=$((${now} - 60)) # Issues 60 seconds in the past
