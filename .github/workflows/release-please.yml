@@ -44,7 +44,7 @@ jobs:
             --header "X-GitHub-Api-Version: 2022-11-28")
           echo "token=$(echo "$response" | jq -r '.token')" >> "$GITHUB_OUTPUT"
       - name: Create Vendor JSON Repo PR
-        uses: wpilibsuite/vendor-json-repo/.github/actions/add_vendordep@latest
+        uses: wpilibsuite/vendor-json-repo/.github/actions/add_vendordep@main
         if: steps.release.outputs.release_created
         with:
           repo: jonahsnider/vendor-json-repo
