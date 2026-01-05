@@ -20,6 +20,8 @@ jobs:
         with:
           app-id: "2595150"
           private-key: ${{ secrets.DOGLOG_VENDORDEP_PEM }}
+          owner: jonahsnider
+          repositories: vendor-json-repo
       - name: Create copy of vendordep.json
         run: cp vendordep.json DogLog-${{ inputs.version }}.json
       - name: Create Vendor JSON Repo PR
