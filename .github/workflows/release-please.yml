@@ -22,66 +22,13 @@ jobs:
           # (PAT) and configured it as a GitHub action secret named
           # `MY_RELEASE_PLEASE_TOKEN` (this secret name is not important).
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Generate JWT
+      - name: Generate a token
         if: steps.release.outputs.release_created
-        id: generate-jwt
-        run: |
-          client_id=Iv23lisTgnrE7CsVzAPO
-
-          pem="${{ secrets.DOGLOG_VENDORDEP_PEM }}"
-
-          now=$(date +%s)
-          iat=$((${now} - 60)) # Issues 60 seconds in the past
-          exp=$((${now} + 600)) # Expires 10 minutes in the future
-
-          b64enc() { openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n'; }
-
-          header_json='{
-              "typ":"JWT",
-              "alg":"RS256"
-          }'
-          # Header encode
-          header=$( echo -n "${header_json}" | b64enc )
-
-          payload_json="{
-              \"iat\":${iat},
-              \"exp\":${exp},
-              \"iss\":\"${client_id}\"
-          }"
-          # Payload encode
-          payload=$( echo -n "${payload_json}" | b64enc )
-
-          # Signature
-          header_payload="${header}"."${payload}"
-          signature=$(
-              openssl dgst -sha256 -sign <(echo -n "${pem}") \
-              <(echo -n "${header_payload}") | b64enc
-          )
-
-          # Create JWT
-          JWT="${header_payload}"."${signature}"
-          echo "jwt=$JWT" >> "$GITHUB_OUTPUT"
-      - name: Generate installation access token
-        if: steps.release.outputs.release_created
-        id: generate-installation-access-token
-        # Installation ID taken from https://github.com/settings/installations/102644661
-        # This returns a JSON response with the shape
-        # {
-        #   "token": "ghs_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        #   "expires_at": "2026-01-05T03:44:21Z",
-        #   "permissions": {
-        #     "metadata": "read",
-        #     "pull_requests": "write"
-        #   },
-        #   "repository_selection": "selected"
-        # }
-        run: |
-          response=$(curl --request POST \
-            --url "https://api.github.com/app/installations/102644661/access_tokens" \
-            --header "Accept: application/vnd.github+json" \
-            --header "Authorization: Bearer ${{ steps.generate-jwt.outputs.jwt }}" \
-            --header "X-GitHub-Api-Version: 2022-11-28")
-          echo "token=$(echo "$response" | jq -r '.token')" >> "$GITHUB_OUTPUT"
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: "2595150"
+          private-key: ${{ secrets.DOGLOG_VENDORDEP_PEM }}
       - name: Create copy of vendordep.json
         if: steps.release.outputs.release_created
         run: cp vendordep.json DogLog-${{ steps.release.outputs.version }}.json
@@ -90,7 +37,7 @@ jobs:
         if: steps.release.outputs.release_created
         with:
           repo: jonahsnider/vendor-json-repo
-          token: ${{ steps.generate-installation-access-token.outputs.token }}
+          token: ${{ steps.generate-token.outputs.token }}
           vendordep_file: ${{ github.workspace }}/DogLog-${{ steps.release.outputs.version }}.json
           pr_title: "Add DogLog v${{ steps.release.outputs.version }}"
           pr_branch: "doglog-v${{ steps.release.outputs.version }}"
