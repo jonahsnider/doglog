@@ -22,3 +22,33 @@ jobs:
           # (PAT) and configured it as a GitHub action secret named
           # `MY_RELEASE_PLEASE_TOKEN` (this secret name is not important).
           token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate installation access token
+        if: steps.release.outputs.release_created
+        id: generate-installation-access-token
+        # Installation ID taken from https://github.com/settings/installations/102644661
+        # This returns a JSON response with the shape
+        # {
+        #   "token": "ghs_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        #   "expires_at": "2026-01-05T03:44:21Z",
+        #   "permissions": {
+        #     "metadata": "read",
+        #     "pull_requests": "write"
+        #   },
+        #   "repository_selection": "selected"
+        # }
+        run: |
+          response=$(curl --request POST \
+            --url "https://api.github.com/app/installations/102644661/access_tokens" \
+            --header "Accept: application/vnd.github+json" \
+            --header "Authorization: Bearer ${{ secrets.DOGLOG_VENDORDEP_JWT }}" \
+            --header "X-GitHub-Api-Version: 2022-11-28")
+          echo "token=$(echo "$response" | jq -r '.token')" >> "$GITHUB_OUTPUT"
+      - name: Create Vendor JSON Repo PR
+        uses: wpilibsuite/vendor-json-repo/.github/actions/add_vendordep@latest
+        if: steps.release.outputs.release_created
+        with:
+          repo: jonahsnider/vendor-json-repo
+          token: ${{ steps.generate-installation-access-token.outputs.token }}
+          vendordep_file: ./vendordep.json
+          pr_title: "Add DogLog v${{ steps.release.outputs.version }}"
+          pr_branch: "doglog-v${{ steps.release.outputs.version }}"
