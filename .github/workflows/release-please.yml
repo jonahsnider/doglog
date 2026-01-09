@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - main
+      - "2027"
 
 permissions:
   contents: write
@@ -22,18 +22,19 @@ jobs:
           # (PAT) and configured it as a GitHub action secret named
           # `MY_RELEASE_PLEASE_TOKEN` (this secret name is not important).
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Checkout Git repository
-        if: steps.release.outputs.release_created
-        uses: actions/checkout@v6
-      - name: Create copy of vendordep.json
-        if: steps.release.outputs.release_created
-        run: cp vendordep.json DogLog-${{ steps.release.outputs.version }}.json
-      - name: Create Vendor JSON Repo PR
-        if: steps.release.outputs.release_created
-        uses: wpilibsuite/vendor-json-repo/.github/actions/add_vendordep@main
-        with:
-          repo: jonahsnider/vendor-json-repo
-          token: ${{ secrets.DOGLOG_VENDORDEP_ACCESS_TOKEN }}
-          vendordep_file: ${{ github.workspace }}/DogLog-${{ steps.release.outputs.version }}.json
-          pr_title: "Add DogLog v${{ steps.release.outputs.version }}"
-          pr_branch: "doglog-v${{ steps.release.outputs.version }}"
+          target-branch: "2027"
+      # - name: Checkout Git repository
+      #   if: steps.release.outputs.release_created
+      #   uses: actions/checkout@v6
+      # - name: Create copy of vendordep.json
+      #   if: steps.release.outputs.release_created
+      #   run: cp vendordep.json DogLog-${{ steps.release.outputs.version }}.json
+      # - name: Create Vendor JSON Repo PR
+      #   if: steps.release.outputs.release_created
+      #   uses: wpilibsuite/vendor-json-repo/.github/actions/add_vendordep@main
+      #   with:
+      #     repo: jonahsnider/vendor-json-repo
+      #     token: ${{ secrets.DOGLOG_VENDORDEP_ACCESS_TOKEN }}
+      #     vendordep_file: ${{ github.workspace }}/DogLog-${{ steps.release.outputs.version }}.json
+      #     pr_title: "Add DogLog v${{ steps.release.outputs.version }}"
+      #     pr_branch: "doglog-v${{ steps.release.outputs.version }}"
