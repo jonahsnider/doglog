@@ -1,5 +1,62 @@
 # Changelog
 
+## [2028.0.0](https://github.com/jonahsnider/doglog/compare/2027.0.1...2028.0.0) (2026-01-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* update to WPILib 2026 ([#139](https://github.com/jonahsnider/doglog/issues/139))
+
+### Features
+
+* add DogLog.isEnabled() ([417eedb](https://github.com/jonahsnider/doglog/commit/417eedba201effc63df1ff0e660110780b4f945e)), closes [#75](https://github.com/jonahsnider/doglog/issues/75)
+* add DogLog.time() and DogLog.timeEnd() ([dec65f3](https://github.com/jonahsnider/doglog/commit/dec65f313382fcfcd67095bef13d6433b08dcbbf))
+* add DogLog.time() overload for timing commands ([10deabc](https://github.com/jonahsnider/doglog/commit/10deabc75ca950994172218ab0e1cfb66327854a))
+* add DogLog.tunable() API ([#79](https://github.com/jonahsnider/doglog/issues/79)) ([ab93412](https://github.com/jonahsnider/doglog/commit/ab934121b87c1e9c16fc5631fcfbc599aa64fa07))
+* add logging of enums and records using StructGenerator ([#146](https://github.com/jonahsnider/doglog/issues/146)) ([98653a5](https://github.com/jonahsnider/doglog/commit/98653a5bb3e6e8a769ef3337856e2014d0b75ae4))
+* add method for fully clearing a fault ([25232d7](https://github.com/jonahsnider/doglog/commit/25232d77ccb7e36583999f18596e741e714ff8a3))
+* allow logging strings with custom types ([2171e06](https://github.com/jonahsnider/doglog/commit/2171e061c4508d2145b4ac44d77a122ac123fe30))
+* expose Subscriber interface in DogLog.tunable() ([2af286e](https://github.com/jonahsnider/doglog/commit/2af286e1b1fadae779ddf15b1f426806676a5b95))
+* improve functionality of DogLog.time() for commands ([ad58793](https://github.com/jonahsnider/doglog/commit/ad587939aee3201020768cfb85eb868a93888252))
+* log Alerts from NT to DataLog when extras logging is enabled ([9e5bcbf](https://github.com/jonahsnider/doglog/commit/9e5bcbf91500c2f326f791423350fc1d3fa39ce0))
+* log radio connection status when extras logging is enabled ([5a9497e](https://github.com/jonahsnider/doglog/commit/5a9497e2f1898652bab731e243dc81b7414379c7))
+* mark DogLog as source in DataLog entry metadata ([0dff3d2](https://github.com/jonahsnider/doglog/commit/0dff3d2bf8e60445bc6d087f055fa98dbbe3a9c4))
+* mark DogLog as source in NetworkTables topic properties ([224fc37](https://github.com/jonahsnider/doglog/commit/224fc375148563fa9746f45290bf882c46590944))
+* remove log thread ([f3c62f8](https://github.com/jonahsnider/doglog/commit/f3c62f82e7f38d3e8cf5aa0e7da5c69957e8c4a5))
+* report DogLog usage via HAL ([80c7bb3](https://github.com/jonahsnider/doglog/commit/80c7bb3eb736750bc82fc618c0fdac1394525e2a)), closes [#71](https://github.com/jonahsnider/doglog/issues/71)
+* support disabling tunable values over NT ([#80](https://github.com/jonahsnider/doglog/issues/80)) ([4b7ccdd](https://github.com/jonahsnider/doglog/commit/4b7ccdd1a6dddeca9f26ea1dc0d1b498de0b76eb))
+* support including units in logged numbers ([#128](https://github.com/jonahsnider/doglog/issues/128)) ([14b4851](https://github.com/jonahsnider/doglog/commit/14b485134d37a521199f112eac0ad87b3aae4e09))
+* support reporting faults as WPILib alerts ([ea15a6f](https://github.com/jonahsnider/doglog/commit/ea15a6f9f49b7c8abba91ec9ef2eab10bee658aa))
+* support toggling log processing thread on or off ([#125](https://github.com/jonahsnider/doglog/issues/125)) ([9a96247](https://github.com/jonahsnider/doglog/commit/9a962472e3e8c5c5bbd07472c06bdebdad513be5))
+* update to WPILib 2026 ([#139](https://github.com/jonahsnider/doglog/issues/139)) ([853b085](https://github.com/jonahsnider/doglog/commit/853b085fb8629742444bcd95fd8f43aab51cf7ca))
+* upgrade to WPILib 2027 ([4f1ced4](https://github.com/jonahsnider/doglog/commit/4f1ced4262049b8b0222e0bcd24da7d0cbfea8c0))
+* use a supplier for ntPublish option ([#65](https://github.com/jonahsnider/doglog/issues/65)) ([19b0902](https://github.com/jonahsnider/doglog/commit/19b09020362233109019657094cd9597fb8804f7))
+
+
+### Bug Fixes
+
+* build with JDK 21 ([c667579](https://github.com/jonahsnider/doglog/commit/c6675790631d1274098f9f9a9978ab3f73acf203))
+* change frcYear to 2026beta ([a38ff20](https://github.com/jonahsnider/doglog/commit/a38ff20c4909880dab9f2e4c7afc06547684568c))
+* fix bug where extras logging would be disabled after DogLog.setOptions() ([52f7423](https://github.com/jonahsnider/doglog/commit/52f742375983030a87ea8bc1794e05fe015f7598))
+* fix incorrect implementation of getLastChange() in toggleable subscriber classes ([a2eb98d](https://github.com/jonahsnider/doglog/commit/a2eb98d783335b236a0bb8e8d7380c6cd8f6b6e1))
+* fix multiple `Notifier`s being created for extras & radio logging ([a5e0496](https://github.com/jonahsnider/doglog/commit/a5e0496bc9aa4ec5289836b314d60741e98f4212))
+* fix NullPointerException when dispatching tunable onChange events ([d022a75](https://github.com/jonahsnider/doglog/commit/d022a75a4e7f5e04bcdb189f207f33ecef0ebc6b))
+* fix onChange logic for tunables when repeatedly toggling ntTunables ([714ebbe](https://github.com/jonahsnider/doglog/commit/714ebbec6a58f5ff0228bf327b8d764a0d15d0d4))
+* fix options in Tunable being null until setOptions() is called ([bdb570f](https://github.com/jonahsnider/doglog/commit/bdb570f55f184f77a159ba2f7516db93a1f826a5))
+* fix potential NullPointerException in radio logger thread ([195d2f7](https://github.com/jonahsnider/doglog/commit/195d2f7b853e9248b956ecb3d4f65e4f35eb418f))
+* fix vendordep merge conflicts ([745bea4](https://github.com/jonahsnider/doglog/commit/745bea4c393e04b1c864da29a018fe73ecb68913))
+* make DogLog Tunable instance protected ([f53a729](https://github.com/jonahsnider/doglog/commit/f53a729d13190639c6bd05c567dce986446f3e8f))
+* make DogLog.time() for commands static ([6c5064b](https://github.com/jonahsnider/doglog/commit/6c5064b0378bfcee5d0babbc83b576af83044518))
+* prevent NT capture from being enabled before DogLog init finishes ([c3cf42e](https://github.com/jonahsnider/doglog/commit/c3cf42e1f620d4f1465ff8dee23f5f7258bdf23b))
+* provide timestamp when updating datalog unit metadata ([de590f4](https://github.com/jonahsnider/doglog/commit/de590f48c4444e41b3e3607f4e37263003dc727b))
+* synchronize DataLog entry timestamp with value update timestamp ([a9a82c7](https://github.com/jonahsnider/doglog/commit/a9a82c72dd130f87b8c1e00abf4d35d95f1cebb1))
+* use consistent timestamps between NT and DataLog ([50fa6d2](https://github.com/jonahsnider/doglog/commit/50fa6d252dac5ddf2893685d96c943212ef8df78))
+
+
+### Performance Improvements
+
+* improve performance of periodic extras logging ([ba2b235](https://github.com/jonahsnider/doglog/commit/ba2b2354c04866210e52a644bd59ca057215bd3e))
+
 ## [2027.0.1](https://github.com/jonahsnider/doglog/compare/2027.0.0...2027.0.1) (2025-09-10)
 
 
