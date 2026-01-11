@@ -2,6 +2,7 @@ package dev.doglog.internal.log_thread.writers;
 
 import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
+import dev.doglog.internal.NtPublishRegistry;
 import dev.doglog.internal.log_thread.LogThread;
 import dev.doglog.internal.log_thread.StructRegistry;
 import edu.wpi.first.hal.HALUtil;
@@ -35,7 +36,7 @@ public class CombinedWriter {
     dataLogReporter.log(timestamp, key, value);
 
     checkNtPublish();
-    if (ntReporter != null) {
+    if (ntReporter != null && shouldPublishToNt(key)) {
       ntReporter.log(timestamp, key, value);
     }
   }
@@ -44,7 +45,7 @@ public class CombinedWriter {
     dataLogReporter.log(timestamp, key, value);
 
     checkNtPublish();
-    if (ntReporter != null) {
+    if (ntReporter != null && shouldPublishToNt(key)) {
       ntReporter.log(timestamp, key, value);
     }
   }
@@ -53,7 +54,7 @@ public class CombinedWriter {
     dataLogReporter.log(timestamp, key, value);
 
     checkNtPublish();
-    if (ntReporter != null) {
+    if (ntReporter != null && shouldPublishToNt(key)) {
       ntReporter.log(timestamp, key, value);
     }
   }
@@ -62,7 +63,7 @@ public class CombinedWriter {
     dataLogReporter.log(timestamp, key, value);
 
     checkNtPublish();
-    if (ntReporter != null) {
+    if (ntReporter != null && shouldPublishToNt(key)) {
       ntReporter.log(timestamp, key, value);
     }
   }
@@ -71,7 +72,7 @@ public class CombinedWriter {
     dataLogReporter.log(timestamp, key, value, unit);
 
     checkNtPublish();
-    if (ntReporter != null) {
+    if (ntReporter != null && shouldPublishToNt(key)) {
       ntReporter.log(timestamp, key, value, unit);
     }
   }
@@ -80,7 +81,7 @@ public class CombinedWriter {
     dataLogReporter.log(timestamp, key, value);
 
     checkNtPublish();
-    if (ntReporter != null) {
+    if (ntReporter != null && shouldPublishToNt(key)) {
       ntReporter.log(timestamp, key, value);
     }
   }
@@ -89,7 +90,7 @@ public class CombinedWriter {
     dataLogReporter.log(timestamp, key, value);
 
     checkNtPublish();
-    if (ntReporter != null) {
+    if (ntReporter != null && shouldPublishToNt(key)) {
       ntReporter.log(timestamp, key, value);
     }
   }
@@ -98,7 +99,7 @@ public class CombinedWriter {
     dataLogReporter.log(timestamp, key, value, unit);
 
     checkNtPublish();
-    if (ntReporter != null) {
+    if (ntReporter != null && shouldPublishToNt(key)) {
       ntReporter.log(timestamp, key, value, unit);
     }
   }
@@ -107,7 +108,7 @@ public class CombinedWriter {
     dataLogReporter.log(timestamp, key, value);
 
     checkNtPublish();
-    if (ntReporter != null) {
+    if (ntReporter != null && shouldPublishToNt(key)) {
       ntReporter.log(timestamp, key, value);
     }
   }
@@ -116,7 +117,7 @@ public class CombinedWriter {
     dataLogReporter.log(timestamp, key, value);
 
     checkNtPublish();
-    if (ntReporter != null) {
+    if (ntReporter != null && shouldPublishToNt(key)) {
       ntReporter.log(timestamp, key, value);
     }
   }
@@ -125,7 +126,7 @@ public class CombinedWriter {
     dataLogReporter.log(timestamp, key, value, unit);
 
     checkNtPublish();
-    if (ntReporter != null) {
+    if (ntReporter != null && shouldPublishToNt(key)) {
       ntReporter.log(timestamp, key, value, unit);
     }
   }
@@ -134,7 +135,7 @@ public class CombinedWriter {
     dataLogReporter.log(timestamp, key, value, unit);
 
     checkNtPublish();
-    if (ntReporter != null) {
+    if (ntReporter != null && shouldPublishToNt(key)) {
       ntReporter.log(timestamp, key, value, unit);
     }
   }
@@ -143,7 +144,7 @@ public class CombinedWriter {
     dataLogReporter.log(timestamp, key, value, unit);
 
     checkNtPublish();
-    if (ntReporter != null) {
+    if (ntReporter != null && shouldPublishToNt(key)) {
       ntReporter.log(timestamp, key, value, unit);
     }
   }
@@ -152,7 +153,7 @@ public class CombinedWriter {
     dataLogReporter.log(timestamp, key, value, unit);
 
     checkNtPublish();
-    if (ntReporter != null) {
+    if (ntReporter != null && shouldPublishToNt(key)) {
       ntReporter.log(timestamp, key, value, unit);
     }
   }
@@ -163,7 +164,7 @@ public class CombinedWriter {
     dataLogReporter.log(timestamp, key, value);
 
     checkNtPublish();
-    if (ntReporter != null) {
+    if (ntReporter != null && shouldPublishToNt(key)) {
       ntReporter.log(timestamp, key, value);
     }
   }
@@ -172,7 +173,7 @@ public class CombinedWriter {
     dataLogReporter.log(timestamp, key, value);
 
     checkNtPublish();
-    if (ntReporter != null) {
+    if (ntReporter != null && shouldPublishToNt(key)) {
       ntReporter.log(timestamp, key, value);
     }
   }
@@ -181,7 +182,7 @@ public class CombinedWriter {
     dataLogReporter.log(timestamp, key, value, customTypeString);
 
     checkNtPublish();
-    if (ntReporter != null) {
+    if (ntReporter != null && shouldPublishToNt(key)) {
       ntReporter.log(timestamp, key, value, customTypeString);
     }
   }
@@ -190,7 +191,7 @@ public class CombinedWriter {
     dataLogReporter.log(timestamp, key, struct, value);
 
     checkNtPublish();
-    if (ntReporter != null) {
+    if (ntReporter != null && shouldPublishToNt(key)) {
       ntReporter.log(timestamp, key, struct, value);
     }
   }
@@ -211,7 +212,7 @@ public class CombinedWriter {
     dataLogReporter.log(timestamp, key, struct, value);
 
     checkNtPublish();
-    if (ntReporter != null) {
+    if (ntReporter != null && shouldPublishToNt(key)) {
       ntReporter.log(timestamp, key, struct, value);
     }
   }
@@ -294,5 +295,12 @@ public class CombinedWriter {
       ntReporter.close();
       ntReporter = null;
     }
+  }
+
+  private boolean shouldPublishToNt(String key) {
+    return switch (options.ntPublishMode()) {
+      case ALL -> true;
+      case MARKED_ONLY -> NtPublishRegistry.isMarked(key);
+    };
   }
 }

@@ -29,6 +29,14 @@ DogLog.setOptions(new DogLogOptions().withNtPublish(() -> true));
 {% /tabitem %}
 {% /tabs %}
 
+The `ntPublishMode` option controls which DogLog entries are sent to NetworkTables. When set to `MARKED_ONLY`, only entries explicitly marked at the log call site will publish to NetworkTables.
+
+```java
+DogLog.setOptions(new DogLogOptions().withNtPublishMode(DogLogOptions.NtPublishMode.MARKED_ONLY));
+DogLog.log("Drive/Speed", speed, DogLog.NtPublishMark.PUBLISH);
+DogLog.log("Debug/FPS", fps);
+```
+
 ### Capture NetworkTables
 
 The `captureNt` option controls whether all NetworkTables values should be included in logs.

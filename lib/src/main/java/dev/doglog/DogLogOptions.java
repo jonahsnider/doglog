@@ -16,6 +16,8 @@ public record DogLogOptions(
      * the FMS on a competition field.
      */
     BooleanSupplier ntPublish,
+    /** Controls which logged values are published to NetworkTables. */
+    NtPublishMode ntPublishMode,
     /** Whether all NetworkTables fields should be saved to the log file. */
     boolean captureNt,
     /**
@@ -43,6 +45,14 @@ public record DogLogOptions(
      * CPU load.
      */
     boolean useLogThread) {
+  /** Modes for publishing DogLog entries to NetworkTables. */
+  public enum NtPublishMode {
+    /** Publish all logged entries to NetworkTables. */
+    ALL,
+    /** Publish only entries explicitly marked for NetworkTables. */
+    MARKED_ONLY
+  }
+
   private static boolean isNotOnFms() {
     return !DriverStation.isFMSAttached();
   }
@@ -60,7 +70,15 @@ public record DogLogOptions(
   public DogLogOptions() {
     // Default options
     this(
-        DogLogOptions::isNotOnFms, false, false, true, true, 1000, DogLogOptions::isNotOnFms, true);
+        DogLogOptions::isNotOnFms,
+        NtPublishMode.ALL,
+        false,
+        false,
+        true,
+        true,
+        1000,
+        DogLogOptions::isNotOnFms,
+        true);
   }
 
   /**
@@ -95,6 +113,34 @@ public record DogLogOptions(
   public DogLogOptions withNtPublish(BooleanSupplier ntPublish) {
     return new DogLogOptions(
         ntPublish,
+        ntPublishMode,
+        captureNt,
+        captureDs,
+        logExtras,
+        captureConsole,
+        logEntryQueueCapacity,
+        ntTunables,
+        useLogThread);
+  }
+
+  /**
+   * Create a new options object, inheriting the configuration from this one, with {@link
+   * DogLogOptions#ntPublishMode} set to the provided value.
+   *
+   * <p>Example:
+   *
+   * <pre>
+   * DogLog.setOptions(new DogLogOptions().withNtPublishMode(DogLogOptions.NtPublishMode.MARKED_ONLY));
+   * </pre>
+   *
+   * @param ntPublishMode The NetworkTables publishing mode to use.
+   * @return A new options object with {@link DogLogOptions#ntPublishMode} set to the provided
+   *     value.
+   */
+  public DogLogOptions withNtPublishMode(NtPublishMode ntPublishMode) {
+    return new DogLogOptions(
+        ntPublish,
+        ntPublishMode,
         captureNt,
         captureDs,
         logExtras,
@@ -118,6 +164,7 @@ public record DogLogOptions(
   public DogLogOptions withCaptureNt(boolean captureNt) {
     return new DogLogOptions(
         ntPublish,
+        ntPublishMode,
         captureNt,
         captureDs,
         logExtras,
@@ -141,6 +188,7 @@ public record DogLogOptions(
   public DogLogOptions withCaptureDs(boolean captureDs) {
     return new DogLogOptions(
         ntPublish,
+        ntPublishMode,
         captureNt,
         captureDs,
         logExtras,
@@ -165,6 +213,7 @@ public record DogLogOptions(
   public DogLogOptions withLogExtras(boolean logExtras) {
     return new DogLogOptions(
         ntPublish,
+        ntPublishMode,
         captureNt,
         captureDs,
         logExtras,
@@ -189,6 +238,7 @@ public record DogLogOptions(
   public DogLogOptions withLogEntryQueueCapacity(int logEntryQueueCapacity) {
     return new DogLogOptions(
         ntPublish,
+        ntPublishMode,
         captureNt,
         captureDs,
         logExtras,
@@ -213,6 +263,7 @@ public record DogLogOptions(
   public DogLogOptions withCaptureConsole(boolean captureConsole) {
     return new DogLogOptions(
         ntPublish,
+        ntPublishMode,
         captureNt,
         captureDs,
         logExtras,
@@ -254,6 +305,7 @@ public record DogLogOptions(
   public DogLogOptions withNtTunables(BooleanSupplier ntTunables) {
     return new DogLogOptions(
         ntPublish,
+        ntPublishMode,
         captureNt,
         captureDs,
         logExtras,
@@ -273,6 +325,7 @@ public record DogLogOptions(
   public DogLogOptions withUseLogThread(boolean useLogThread) {
     return new DogLogOptions(
         ntPublish,
+        ntPublishMode,
         captureNt,
         captureDs,
         logExtras,
