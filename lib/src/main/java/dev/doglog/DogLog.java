@@ -47,8 +47,8 @@ public class DogLog {
   protected static boolean enabled = true;
 
   /**
-   * Use <code>DogLog.forceNt.log()</code> to log values to both DataLog and NetworkTables, regardless of
-   * the <code>ntPublish</code> option.
+   * Use <code>DogLog.forceNt.log()</code> to log values to both DataLog and NetworkTables,
+   * regardless of the <code>ntPublish</code> option.
    */
   public static final DogLogForceNt forceNt = new DogLogForceNt(enabled, logger);
 
