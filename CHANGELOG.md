@@ -1,5 +1,12 @@
 # Changelog
 
+## [2026.3.0](https://github.com/jonahsnider/doglog/compare/2026.2.0...2026.3.0) (2026-01-13)
+
+
+### Features
+
+* support forced NetworkTables publishing for some logs ([#150](https://github.com/jonahsnider/doglog/issues/150)) ([ef44414](https://github.com/jonahsnider/doglog/commit/ef444146d17ec49fb3d7d3d8117d9898b61d3192))
+
 ## [2026.2.0](https://github.com/jonahsnider/doglog/compare/2026.1.0...2026.2.0) (2026-01-09)
 
 
