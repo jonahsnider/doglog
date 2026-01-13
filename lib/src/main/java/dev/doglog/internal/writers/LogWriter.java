@@ -22,8 +22,8 @@ public class LogWriter implements LogWriterHighLevel {
     extras = new ExtrasLogger(this, initialOptions);
 
     var now = HALUtil.getFPGATime();
-    log(now, "DogLog/QueuedLogs", -1);
-    log(now, "DogLog/QueueRemainingCapacity", -1);
+    log(now, "DogLog/QueuedLogs", false, -1);
+    log(now, "DogLog/QueueRemainingCapacity", false, -1);
   }
 
   @Override
@@ -38,129 +38,132 @@ public class LogWriter implements LogWriterHighLevel {
   }
 
   @Override
-  public void log(long timestamp, String key, boolean[] value) {
-    writer.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, boolean[] value) {
+    writer.log(timestamp, key, forceNt, value);
   }
 
   @Override
-  public void log(long timestamp, String key, boolean value) {
-    writer.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, boolean value) {
+    writer.log(timestamp, key, forceNt, value);
   }
 
   @Override
-  public void log(long timestamp, String key, double[] value) {
-    writer.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, double[] value) {
+    writer.log(timestamp, key, forceNt, value);
   }
 
   @Override
-  public void log(long timestamp, String key, double[] value, String unit) {
-    writer.log(timestamp, key, value, unit);
+  public void log(long timestamp, String key, boolean forceNt, double[] value, String unit) {
+    writer.log(timestamp, key, forceNt, value, unit);
   }
 
   @Override
-  public void log(long timestamp, String key, double value) {
-    writer.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, double value) {
+    writer.log(timestamp, key, forceNt, value);
   }
 
   @Override
-  public void log(long timestamp, String key, double value, String unit) {
-    writer.log(timestamp, key, value, unit);
+  public void log(long timestamp, String key, boolean forceNt, double value, String unit) {
+    writer.log(timestamp, key, forceNt, value, unit);
   }
 
   @Override
-  public void log(long timestamp, String key, float[] value) {
-    writer.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, float[] value) {
+    writer.log(timestamp, key, forceNt, value);
   }
 
   @Override
-  public void log(long timestamp, String key, float[] value, String unit) {
-    writer.log(timestamp, key, value, unit);
+  public void log(long timestamp, String key, boolean forceNt, float[] value, String unit) {
+    writer.log(timestamp, key, forceNt, value, unit);
   }
 
   @Override
-  public void log(long timestamp, String key, float value) {
-    writer.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, float value) {
+    writer.log(timestamp, key, forceNt, value);
   }
 
   @Override
-  public void log(long timestamp, String key, float value, String unit) {
-    writer.log(timestamp, key, value, unit);
+  public void log(long timestamp, String key, boolean forceNt, float value, String unit) {
+    writer.log(timestamp, key, forceNt, value, unit);
   }
 
   @Override
-  public void log(long timestamp, String key, int[] value) {
+  public void log(long timestamp, String key, boolean forceNt, int[] value) {
     long[] buffer = new long[value.length];
 
     for (int i = 0; i < value.length; i++) {
       buffer[i] = value[i];
     }
 
-    writer.log(timestamp, key, buffer);
+    writer.log(timestamp, key, forceNt, buffer);
   }
 
   @Override
-  public void log(long timestamp, String key, long[] value) {
-    writer.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, long[] value) {
+    writer.log(timestamp, key, forceNt, value);
   }
 
   @Override
-  public void log(long timestamp, String key, long[] value, String unit) {
-    writer.log(timestamp, key, value, unit);
+  public void log(long timestamp, String key, boolean forceNt, long[] value, String unit) {
+    writer.log(timestamp, key, forceNt, value, unit);
   }
 
   @Override
-  public void log(long timestamp, String key, long value) {
-    writer.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, long value) {
+    writer.log(timestamp, key, forceNt, value);
   }
 
   @Override
-  public void log(long timestamp, String key, long value, String unit) {
-    writer.log(timestamp, key, value, unit);
+  public void log(long timestamp, String key, boolean forceNt, long value, String unit) {
+    writer.log(timestamp, key, forceNt, value, unit);
   }
 
   @Override
-  public void log(long timestamp, String key, String[] value) {
-    writer.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, String[] value) {
+    writer.log(timestamp, key, forceNt, value);
   }
 
   @Override
-  public void log(long timestamp, String key, String value) {
-    writer.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, String value) {
+    writer.log(timestamp, key, forceNt, value);
   }
 
   @Override
-  public void log(long timestamp, String key, String value, String customTypeString) {
-    writer.log(timestamp, key, value, customTypeString);
+  public void log(
+      long timestamp, String key, boolean forceNt, String value, String customTypeString) {
+    writer.log(timestamp, key, forceNt, value, customTypeString);
   }
 
   @Override
-  public <T extends StructSerializable> void log(long timestamp, String key, T[] value) {
-    writer.log(timestamp, key, value);
+  public <T extends StructSerializable> void log(
+      long timestamp, String key, boolean forceNt, T[] value) {
+    writer.log(timestamp, key, forceNt, value);
   }
 
   @Override
-  public <T extends StructSerializable> void log(long timestamp, String key, T value) {
-    writer.log(timestamp, key, value);
+  public <T extends StructSerializable> void log(
+      long timestamp, String key, boolean forceNt, T value) {
+    writer.log(timestamp, key, forceNt, value);
   }
 
   @Override
-  public <E extends Enum<E>> void log(long timestamp, String key, E[] value) {
-    writer.log(timestamp, key, value);
+  public <E extends Enum<E>> void log(long timestamp, String key, boolean forceNt, E[] value) {
+    writer.log(timestamp, key, forceNt, value);
   }
 
   @Override
-  public <E extends Enum<E>> void log(long timestamp, String key, E value) {
-    writer.log(timestamp, key, value);
+  public <E extends Enum<E>> void log(long timestamp, String key, boolean forceNt, E value) {
+    writer.log(timestamp, key, forceNt, value);
   }
 
   @Override
-  public <T extends Record> void log(long timestamp, String key, T[] value) {
-    writer.log(timestamp, key, value);
+  public <T extends Record> void log(long timestamp, String key, boolean forceNt, T[] value) {
+    writer.log(timestamp, key, forceNt, value);
   }
 
   @Override
-  public <T extends Record> void log(long timestamp, String key, T value) {
-    writer.log(timestamp, key, value);
+  public <T extends Record> void log(long timestamp, String key, boolean forceNt, T value) {
+    writer.log(timestamp, key, forceNt, value);
   }
 
   @Override

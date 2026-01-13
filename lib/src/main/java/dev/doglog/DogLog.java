@@ -1,8 +1,8 @@
 package dev.doglog;
 
+import dev.doglog.internal.DogLogForceNt;
 import dev.doglog.internal.EpochLogger;
 import dev.doglog.internal.FaultLogger;
-import dev.doglog.internal.NtPublishRegistry;
 import dev.doglog.internal.TimedCommand;
 import dev.doglog.internal.tunable.Tunable;
 import dev.doglog.internal.writers.LogWriterHighLevel;
@@ -32,14 +32,6 @@ import org.jspecify.annotations.Nullable;
 
 /** A logger based on WPILib's {@link DataLogManager} */
 public class DogLog {
-  /** Marks a DogLog entry for NetworkTables publishing. */
-  public enum NtPublishMark {
-    /** Publish this entry to NetworkTables when marks are required. */
-    PUBLISH,
-    /** Do not publish this entry to NetworkTables when marks are required. */
-    DO_NOT_PUBLISH
-  }
-
   static {
     HAL.report(
         FRCNetComm.tResourceType.kResourceType_LoggingFramework,
@@ -53,6 +45,8 @@ public class DogLog {
 
   /** Whether the logger is enabled. */
   protected static boolean enabled = true;
+
+  public static final DogLogForceNt nt = new DogLogForceNt(enabled, logger);
 
   protected static final Tunable tunable = new Tunable(options);
 
@@ -97,6 +91,8 @@ public class DogLog {
       }
       tunable.setOptions(newOptions);
     }
+
+    nt.setLogger(logger);
   }
 
   /**
@@ -122,6 +118,7 @@ public class DogLog {
    */
   public static void setEnabled(boolean newEnabled) {
     enabled = newEnabled;
+    nt.setEnabled(newEnabled);
   }
 
   /**
@@ -133,10 +130,6 @@ public class DogLog {
     return enabled;
   }
 
-  private static void markNtPublish(String key, NtPublishMark ntPublishMark) {
-    NtPublishRegistry.mark(key, ntPublishMark);
-  }
-
   /** Log a boolean array. */
   public static void log(String key, boolean @Nullable [] value) {
     if (!enabled || value == null) {
@@ -144,13 +137,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
-  }
-
-  /** Log a boolean array with a NetworkTables publish mark. */
-  public static void log(String key, boolean @Nullable [] value, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a boolean. */
@@ -160,13 +147,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
-  }
-
-  /** Log a boolean with a NetworkTables publish mark. */
-  public static void log(String key, boolean value, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a double array. */
@@ -176,13 +157,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
-  }
-
-  /** Log a double array with a NetworkTables publish mark. */
-  public static void log(String key, double @Nullable [] value, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a double array with unit metadata. */
@@ -199,14 +174,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value, unit);
-  }
-
-  /** Log a double array with unit metadata and a NetworkTables publish mark. */
-  public static void log(
-      String key, double @Nullable [] value, @Nullable String unit, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value, unit);
+    logger.log(now, key, false, value, unit);
   }
 
   /** Log a double array with unit metadata. */
@@ -222,13 +190,6 @@ public class DogLog {
     log(key, value, unit.name());
   }
 
-  /** Log a double array with unit metadata and a NetworkTables publish mark. */
-  public static void log(
-      String key, double @Nullable [] value, @Nullable Unit unit, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value, unit);
-  }
-
   /** Log a double. */
   public static void log(String key, double value) {
     if (!enabled) {
@@ -236,13 +197,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
-  }
-
-  /** Log a double with a NetworkTables publish mark. */
-  public static void log(String key, double value, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a double with unit metadata. */
@@ -256,14 +211,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value, unit);
-  }
-
-  /** Log a double with unit metadata and a NetworkTables publish mark. */
-  public static void log(
-      String key, double value, @Nullable String unit, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value, unit);
+    logger.log(now, key, false, value, unit);
   }
 
   /** Log a double with unit metadata. */
@@ -279,13 +227,6 @@ public class DogLog {
     log(key, value, unit.name());
   }
 
-  /** Log a double with unit metadata and a NetworkTables publish mark. */
-  public static void log(
-      String key, double value, @Nullable Unit unit, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value, unit);
-  }
-
   /** Log a measure, preserving the user-specified unit. */
   public static void log(String key, @Nullable Measure<?> value) {
     if (!enabled || value == null) {
@@ -295,12 +236,6 @@ public class DogLog {
     log(key, value.magnitude(), value.unit().name());
   }
 
-  /** Log a measure with a NetworkTables publish mark. */
-  public static void log(String key, @Nullable Measure<?> value, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value);
-  }
-
   /** Log a float array. */
   public static void log(String key, float @Nullable [] value) {
     if (!enabled || value == null) {
@@ -308,13 +243,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
-  }
-
-  /** Log a float array with a NetworkTables publish mark. */
-  public static void log(String key, float @Nullable [] value, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a float array with unit metadata. */
@@ -331,14 +260,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value, unit);
-  }
-
-  /** Log a float array with unit metadata and a NetworkTables publish mark. */
-  public static void log(
-      String key, float @Nullable [] value, @Nullable String unit, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value, unit);
+    logger.log(now, key, false, value, unit);
   }
 
   /** Log a float. */
@@ -348,13 +270,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
-  }
-
-  /** Log a float with a NetworkTables publish mark. */
-  public static void log(String key, float value, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a float with unit metadata. */
@@ -368,14 +284,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value, unit);
-  }
-
-  /** Log a float with unit metadata and a NetworkTables publish mark. */
-  public static void log(
-      String key, float value, @Nullable String unit, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value, unit);
+    logger.log(now, key, false, value, unit);
   }
 
   /** Log an int array. */
@@ -385,13 +294,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
-  }
-
-  /** Log an int array with a NetworkTables publish mark. */
-  public static void log(String key, int @Nullable [] value, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a long array. */
@@ -401,13 +304,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
-  }
-
-  /** Log a long array with a NetworkTables publish mark. */
-  public static void log(String key, long @Nullable [] value, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a long array with unit metadata. */
@@ -424,14 +321,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value, unit);
-  }
-
-  /** Log a long array with unit metadata and a NetworkTables publish mark. */
-  public static void log(
-      String key, long @Nullable [] value, @Nullable String unit, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value, unit);
+    logger.log(now, key, false, value, unit);
   }
 
   /** Log a long. */
@@ -441,13 +331,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
-  }
-
-  /** Log a long with a NetworkTables publish mark. */
-  public static void log(String key, long value, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a long with unit metadata. */
@@ -461,14 +345,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value, unit);
-  }
-
-  /** Log a long with unit metadata and a NetworkTables publish mark. */
-  public static void log(
-      String key, long value, @Nullable String unit, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value, unit);
+    logger.log(now, key, false, value, unit);
   }
 
   // TODO: Raw logs
@@ -480,13 +357,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
-  }
-
-  /** Log a string array with a NetworkTables publish mark. */
-  public static void log(String key, @Nullable String[] value, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log an enum array. */
@@ -496,14 +367,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
-  }
-
-  /** Log an enum array with a NetworkTables publish mark. */
-  public static <E extends Enum<E>> void log(
-      String key, @Nullable E[] value, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a string. */
@@ -513,13 +377,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
-  }
-
-  /** Log a string with a NetworkTables publish mark. */
-  public static void log(String key, @Nullable String value, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a string with a custom type string. */
@@ -534,17 +392,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value, customTypeString);
-  }
-
-  /** Log a string with a custom type string and a NetworkTables publish mark. */
-  public static void log(
-      String key,
-      @Nullable String value,
-      @Nullable String customTypeString,
-      NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value, customTypeString);
+    logger.log(now, key, false, value, customTypeString);
   }
 
   /** Log an enum. */
@@ -554,14 +402,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
-  }
-
-  /** Log an enum with a NetworkTables publish mark. */
-  public static <E extends Enum<E>> void log(
-      String key, @Nullable E value, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a struct array. */
@@ -571,14 +412,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
-  }
-
-  /** Log a struct array with a NetworkTables publish mark. */
-  public static <T extends StructSerializable> void log(
-      String key, @Nullable T[] value, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a struct. */
@@ -588,14 +422,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
-  }
-
-  /** Log a struct with a NetworkTables publish mark. */
-  public static <T extends StructSerializable> void log(
-      String key, @Nullable T value, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a record. */
@@ -605,13 +432,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
-  }
-
-  /** Log a record with a NetworkTables publish mark. */
-  public static void log(String key, @Nullable Record value, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a record array. */
@@ -621,13 +442,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
-  }
-
-  /** Log a record array with a NetworkTables publish mark. */
-  public static void log(String key, @Nullable Record[] value, NtPublishMark ntPublishMark) {
-    markNtPublish(key, ntPublishMark);
-    log(key, value);
+    logger.log(now, key, false, value);
   }
 
   /**

@@ -90,106 +90,107 @@ public class ThreadedLogWriter implements LogWriterHighLevel {
   }
 
   @Override
-  public void log(long timestamp, String key, boolean[] value) {
-    if (!queue.offer(new BooleanArrayQueuedLogEntry(key, timestamp, value))) {
+  public void log(long timestamp, String key, boolean forceNt, boolean[] value) {
+    if (!queue.offer(new BooleanArrayQueuedLogEntry(key, forceNt, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public void log(long timestamp, String key, boolean value) {
-    if (!queue.offer(new BooleanQueuedLogEntry(key, timestamp, value))) {
+  public void log(long timestamp, String key, boolean forceNt, boolean value) {
+    if (!queue.offer(new BooleanQueuedLogEntry(key, forceNt, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public void log(long timestamp, String key, double[] value) {
-    if (!queue.offer(new DoubleArrayQueuedLogEntry(key, timestamp, value))) {
+  public void log(long timestamp, String key, boolean forceNt, double[] value) {
+    if (!queue.offer(new DoubleArrayQueuedLogEntry(key, forceNt, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public void log(long timestamp, String key, double[] value, String unit) {
-    if (!queue.offer(new DoubleArrayWithUnitQueuedLogEntry(key, timestamp, value, unit))) {
+  public void log(long timestamp, String key, boolean forceNt, double[] value, String unit) {
+    if (!queue.offer(new DoubleArrayWithUnitQueuedLogEntry(key, forceNt, timestamp, value, unit))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public void log(long timestamp, String key, double value) {
-    if (!queue.offer(new DoubleQueuedLogEntry(key, timestamp, value))) {
+  public void log(long timestamp, String key, boolean forceNt, double value) {
+    if (!queue.offer(new DoubleQueuedLogEntry(key, forceNt, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public void log(long timestamp, String key, double value, String unit) {
-    if (!queue.offer(new DoubleWithUnitQueuedLogEntry(key, timestamp, value, unit))) {
+  public void log(long timestamp, String key, boolean forceNt, double value, String unit) {
+    if (!queue.offer(new DoubleWithUnitQueuedLogEntry(key, forceNt, timestamp, value, unit))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public void log(long timestamp, String key, float[] value) {
-    if (!queue.offer(new FloatArrayQueuedLogEntry(key, timestamp, value))) {
+  public void log(long timestamp, String key, boolean forceNt, float[] value) {
+    if (!queue.offer(new FloatArrayQueuedLogEntry(key, forceNt, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public void log(long timestamp, String key, float[] value, String unit) {
-    if (!queue.offer(new FloatArrayWithUnitQueuedLogEntry(key, timestamp, value, unit))) {
+  public void log(long timestamp, String key, boolean forceNt, float[] value, String unit) {
+    if (!queue.offer(new FloatArrayWithUnitQueuedLogEntry(key, forceNt, timestamp, value, unit))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public void log(long timestamp, String key, float value) {
-    if (!queue.offer(new FloatQueuedLogEntry(key, timestamp, value))) {
+  public void log(long timestamp, String key, boolean forceNt, float value) {
+    if (!queue.offer(new FloatQueuedLogEntry(key, forceNt, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public void log(long timestamp, String key, float value, String unit) {
-    if (!queue.offer(new FloatWithUnitQueuedLogEntry(key, timestamp, value, unit))) {
+  public void log(long timestamp, String key, boolean forceNt, float value, String unit) {
+    if (!queue.offer(new FloatWithUnitQueuedLogEntry(key, forceNt, timestamp, value, unit))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public void log(long timestamp, String key, int[] value) {
-    if (!queue.offer(new IntegerArrayQueuedLogEntry(key, timestamp, value))) {
+  public void log(long timestamp, String key, boolean forceNt, int[] value) {
+    if (!queue.offer(new IntegerArrayQueuedLogEntry(key, forceNt, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public void log(long timestamp, String key, long[] value) {
-    if (!queue.offer(new IntegerArrayQueuedLogEntry(key, timestamp, value))) {
+  public void log(long timestamp, String key, boolean forceNt, long[] value) {
+    if (!queue.offer(new IntegerArrayQueuedLogEntry(key, forceNt, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public void log(long timestamp, String key, long[] value, String unit) {
-    if (!queue.offer(new IntegerArrayWithUnitQueuedLogEntry(key, timestamp, value, unit))) {
+  public void log(long timestamp, String key, boolean forceNt, long[] value, String unit) {
+    if (!queue.offer(
+        new IntegerArrayWithUnitQueuedLogEntry(key, forceNt, timestamp, value, unit))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public void log(long timestamp, String key, long value) {
-    if (!queue.offer(new IntegerQueuedLogEntry(key, timestamp, value))) {
+  public void log(long timestamp, String key, boolean forceNt, long value) {
+    if (!queue.offer(new IntegerQueuedLogEntry(key, forceNt, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public void log(long timestamp, String key, long value, String unit) {
-    if (!queue.offer(new IntegerWithUnitQueuedLogEntry(key, timestamp, value, unit))) {
+  public void log(long timestamp, String key, boolean forceNt, long value, String unit) {
+    if (!queue.offer(new IntegerWithUnitQueuedLogEntry(key, forceNt, timestamp, value, unit))) {
       printQueueFullMessage(key);
     }
   }
@@ -197,64 +198,68 @@ public class ThreadedLogWriter implements LogWriterHighLevel {
   // TODO: Raw logs
 
   @Override
-  public void log(long timestamp, String key, String[] value) {
-    if (!queue.offer(new StringArrayQueuedLogEntry(key, timestamp, value))) {
+  public void log(long timestamp, String key, boolean forceNt, String[] value) {
+    if (!queue.offer(new StringArrayQueuedLogEntry(key, forceNt, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public void log(long timestamp, String key, String value) {
-    if (!queue.offer(new StringQueuedLogEntry(key, timestamp, value))) {
+  public void log(long timestamp, String key, boolean forceNt, String value) {
+    if (!queue.offer(new StringQueuedLogEntry(key, forceNt, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public void log(long timestamp, String key, String value, String customTypeString) {
-    if (!queue.offer(new StringCustomTypeQueuedLogEntry(key, timestamp, value, customTypeString))) {
+  public void log(
+      long timestamp, String key, boolean forceNt, String value, String customTypeString) {
+    if (!queue.offer(
+        new StringCustomTypeQueuedLogEntry(key, forceNt, timestamp, value, customTypeString))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public <T extends StructSerializable> void log(long timestamp, String key, T[] value) {
-    if (!queue.offer(new StructArrayQueuedLogEntry<>(key, timestamp, value))) {
+  public <T extends StructSerializable> void log(
+      long timestamp, String key, boolean forceNt, T[] value) {
+    if (!queue.offer(new StructArrayQueuedLogEntry<>(key, forceNt, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public <T extends StructSerializable> void log(long timestamp, String key, T value) {
-    if (!queue.offer(new StructQueuedLogEntry<>(key, timestamp, value))) {
+  public <T extends StructSerializable> void log(
+      long timestamp, String key, boolean forceNt, T value) {
+    if (!queue.offer(new StructQueuedLogEntry<>(key, forceNt, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public <E extends Enum<E>> void log(long timestamp, String key, E value) {
-    if (!queue.offer(new EnumQueuedLogEntry<>(key, timestamp, value))) {
+  public <E extends Enum<E>> void log(long timestamp, String key, boolean forceNt, E value) {
+    if (!queue.offer(new EnumQueuedLogEntry<>(key, forceNt, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public <E extends Enum<E>> void log(long timestamp, String key, E[] value) {
-    if (!queue.offer(new EnumArrayQueuedLogEntry<>(key, timestamp, value))) {
+  public <E extends Enum<E>> void log(long timestamp, String key, boolean forceNt, E[] value) {
+    if (!queue.offer(new EnumArrayQueuedLogEntry<>(key, forceNt, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public <R extends Record> void log(long timestamp, String key, R value) {
-    if (!queue.offer(new RecordQueuedLogEntry<>(key, timestamp, value))) {
+  public <R extends Record> void log(long timestamp, String key, boolean forceNt, R value) {
+    if (!queue.offer(new RecordQueuedLogEntry<>(key, forceNt, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }
 
   @Override
-  public <R extends Record> void log(long timestamp, String key, R[] value) {
-    if (!queue.offer(new RecordArrayQueuedLogEntry<>(key, timestamp, value))) {
+  public <R extends Record> void log(long timestamp, String key, boolean forceNt, R[] value) {
+    if (!queue.offer(new RecordArrayQueuedLogEntry<>(key, forceNt, timestamp, value))) {
       printQueueFullMessage(key);
     }
   }

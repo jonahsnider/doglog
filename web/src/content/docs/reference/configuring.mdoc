@@ -29,12 +29,17 @@ DogLog.setOptions(new DogLogOptions().withNtPublish(() -> true));
 {% /tabitem %}
 {% /tabs %}
 
-The `ntPublishMode` option controls which DogLog entries are sent to NetworkTables. When set to `MARKED_ONLY`, only entries explicitly marked at the log call site will publish to NetworkTables.
+#### Forcing NetworkTables publishing
+
+Your robot may have some values that you want to publish to NetworkTables, regardless of whether `ntPublish` is enabled.
+This is especially useful for situations where you're using DogLog to log values to a driver station dashboard.
+
+DogLog makes it easy to selectively force NetworkTables publishing for some log entries.
+By changing calls to `DogLog.log()` to `DogLog.nt.log()`, you can ensure that values will always be logged to DataLog and published to NetworkTables:
 
 ```java
-DogLog.setOptions(new DogLogOptions().withNtPublishMode(DogLogOptions.NtPublishMode.MARKED_ONLY));
-DogLog.log("Drive/Speed", speed, DogLog.NtPublishMark.PUBLISH);
-DogLog.log("Debug/FPS", fps);
+// Always publishes to NetworkTables
+DogLog.nt.log("MyValue", 1);
 ```
 
 ### Capture NetworkTables

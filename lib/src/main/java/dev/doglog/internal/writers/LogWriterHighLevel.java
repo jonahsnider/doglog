@@ -20,17 +20,19 @@ public interface LogWriterHighLevel extends LogWriterBase, AutoCloseable {
 
   public void setOptions(DogLogOptions newOptions);
 
-  public void log(long timestamp, String key, int[] value);
+  public void log(long timestamp, String key, boolean forceNt, int[] value);
 
-  public <T extends StructSerializable> void log(long timestamp, String key, T[] value);
+  public <T extends StructSerializable> void log(
+      long timestamp, String key, boolean forceNt, T[] value);
 
-  public <T extends StructSerializable> void log(long timestamp, String key, T value);
+  public <T extends StructSerializable> void log(
+      long timestamp, String key, boolean forceNt, T value);
 
-  public <E extends Enum<E>> void log(long timestamp, String key, E[] value);
+  public <E extends Enum<E>> void log(long timestamp, String key, boolean forceNt, E[] value);
 
-  public <E extends Enum<E>> void log(long timestamp, String key, E value);
+  public <E extends Enum<E>> void log(long timestamp, String key, boolean forceNt, E value);
 
-  public <T extends Record> void log(long timestamp, String key, T[] value);
+  public <T extends Record> void log(long timestamp, String key, boolean forceNt, T[] value);
 
-  public <T extends Record> void log(long timestamp, String key, T value);
+  public <T extends Record> void log(long timestamp, String key, boolean forceNt, T value);
 }

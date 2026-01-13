@@ -34,14 +34,14 @@ public class FaultLogger {
 
     if (previousCount == null) {
       // A new fault has been seen
-      logger.log(now, "Faults/Seen", FAULT_COUNTS.keySet().toArray(String[]::new));
+      logger.log(now, "Faults/Seen", false, FAULT_COUNTS.keySet().toArray(String[]::new));
     }
     if (previousCount == null || previousCount == 0) {
       // Fault has just become active
       ACTIVE_FAULTS.add(faultName);
-      logger.log(now, "Faults/Active", ACTIVE_FAULTS.toArray(String[]::new));
+      logger.log(now, "Faults/Active", false, ACTIVE_FAULTS.toArray(String[]::new));
     }
-    logger.log(now, "Faults/Counts/" + faultName, newCount);
+    logger.log(now, "Faults/Counts/" + faultName, false, newCount);
   }
 
   /**
@@ -76,7 +76,7 @@ public class FaultLogger {
     FAULT_COUNTS.put(faultName, newCount);
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, "Faults/Counts/" + faultName, newCount);
+    logger.log(now, "Faults/Counts/" + faultName, false, newCount);
 
     if (newCount == 0) {
       // Mark alert as inactive if it exists
@@ -87,7 +87,7 @@ public class FaultLogger {
       }
 
       ACTIVE_FAULTS.remove(faultName);
-      logger.log(now, "Faults/Active", ACTIVE_FAULTS.toArray(String[]::new));
+      logger.log(now, "Faults/Active", false, ACTIVE_FAULTS.toArray(String[]::new));
     }
   }
 
@@ -98,7 +98,7 @@ public class FaultLogger {
 
     if (previousValue != null) {
       var now = HALUtil.getFPGATime();
-      logger.log(now, "Faults/Counts/" + faultName, 0);
+      logger.log(now, "Faults/Counts/" + faultName, false, 0);
 
       var alert = FAULT_ALERTS.get(faultName);
       if (alert != null) {
@@ -106,7 +106,7 @@ public class FaultLogger {
       }
 
       ACTIVE_FAULTS.remove(faultName);
-      logger.log(now, "Faults/Active", ACTIVE_FAULTS.toArray(String[]::new));
+      logger.log(now, "Faults/Active", false, ACTIVE_FAULTS.toArray(String[]::new));
     }
   }
 

@@ -91,8 +91,8 @@ public class LogThread extends Thread {
         if (diagnosticsTimer.hasElapsed(DogLogOptions.LOOP_PERIOD_SECONDS)) {
           diagnosticsTimer.reset();
           var now = HALUtil.getFPGATime();
-          logger.log(now, "DogLog/QueuedLogs", queue.size());
-          logger.log(now, "DogLog/QueueRemainingCapacity", queue.remainingCapacity());
+          logger.log(now, "DogLog/QueuedLogs", false, queue.size());
+          logger.log(now, "DogLog/QueueRemainingCapacity", false, queue.remainingCapacity());
         }
       }
     } catch (InterruptedException e) {
