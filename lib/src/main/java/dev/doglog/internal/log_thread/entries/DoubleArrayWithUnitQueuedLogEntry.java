@@ -7,14 +7,14 @@ public class DoubleArrayWithUnitQueuedLogEntry extends BaseQueuedLogEntry {
   public final String unit;
 
   public DoubleArrayWithUnitQueuedLogEntry(
-      String key, long timestamp, double[] value, String unit) {
-    super(EntryType.DOUBLE_ARRAY_WITH_UNIT, key, timestamp);
+      String key, boolean forceNt, long timestamp, double[] value, String unit) {
+    super(EntryType.DOUBLE_ARRAY_WITH_UNIT, key, forceNt, timestamp);
     this.value = value;
     this.unit = unit;
   }
 
   @Override
   public void log(CombinedWriter writer) {
-    writer.log(timestamp, key, value, unit);
+    writer.log(timestamp, key, forceNt, value, unit);
   }
 }

@@ -16,7 +16,7 @@ public class EpochLogger {
     if (previous != null) {
       // Get the difference between previous and current timestamps in microseconds
       // Divide by 1e6 to convert to seconds
-      logger.log(timestamp, key, (timestamp - previous) / 1e6);
+      logger.log(timestamp, key, false, (timestamp - previous) / 1e6);
       epochMap.remove(key);
     }
   }

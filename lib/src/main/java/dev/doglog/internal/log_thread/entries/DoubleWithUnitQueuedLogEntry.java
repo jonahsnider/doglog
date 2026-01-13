@@ -6,14 +6,15 @@ public class DoubleWithUnitQueuedLogEntry extends BaseQueuedLogEntry {
   public final double value;
   public final String unit;
 
-  public DoubleWithUnitQueuedLogEntry(String key, long timestamp, double value, String unit) {
-    super(EntryType.DOUBLE_WITH_UNIT, key, timestamp);
+  public DoubleWithUnitQueuedLogEntry(
+      String key, boolean forceNt, long timestamp, double value, String unit) {
+    super(EntryType.DOUBLE_WITH_UNIT, key, forceNt, timestamp);
     this.value = value;
     this.unit = unit;
   }
 
   @Override
   public void log(CombinedWriter writer) {
-    writer.log(timestamp, key, value, unit);
+    writer.log(timestamp, key, forceNt, value, unit);
   }
 }

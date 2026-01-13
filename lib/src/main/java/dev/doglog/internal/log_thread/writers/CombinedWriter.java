@@ -10,7 +10,6 @@ import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public class CombinedWriter {
@@ -18,8 +17,7 @@ public class CombinedWriter {
   private static final String LOG_TABLE = "/Robot";
 
   private final DataLogWriter dataLogReporter;
-  // Default to null
-  private @Nullable NetworkTablesWriter ntReporter;
+  private final NetworkTablesWriter ntReporter = new NetworkTablesWriter(LOG_TABLE);
 
   private DogLogOptions options = new DogLogOptions();
 
@@ -31,171 +29,155 @@ public class CombinedWriter {
     setOptions(initialOptions);
   }
 
-  public void log(long timestamp, String key, boolean[] value) {
-    dataLogReporter.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, boolean[] value) {
+    dataLogReporter.log(timestamp, key, false, value);
 
-    checkNtPublish();
-    if (ntReporter != null) {
-      ntReporter.log(timestamp, key, value);
+    if (forceNt || options.ntPublish().getAsBoolean()) {
+      ntReporter.log(timestamp, key, false, value);
     }
   }
 
-  public void log(long timestamp, String key, boolean value) {
-    dataLogReporter.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, boolean value) {
+    dataLogReporter.log(timestamp, key, false, value);
 
-    checkNtPublish();
-    if (ntReporter != null) {
-      ntReporter.log(timestamp, key, value);
+    if (forceNt || options.ntPublish().getAsBoolean()) {
+      ntReporter.log(timestamp, key, false, value);
     }
   }
 
-  public void log(long timestamp, String key, double[] value) {
-    dataLogReporter.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, double[] value) {
+    dataLogReporter.log(timestamp, key, false, value);
 
-    checkNtPublish();
-    if (ntReporter != null) {
-      ntReporter.log(timestamp, key, value);
+    if (forceNt || options.ntPublish().getAsBoolean()) {
+      ntReporter.log(timestamp, key, false, value);
     }
   }
 
-  public void log(long timestamp, String key, double value) {
-    dataLogReporter.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, double value) {
+    dataLogReporter.log(timestamp, key, false, value);
 
-    checkNtPublish();
-    if (ntReporter != null) {
-      ntReporter.log(timestamp, key, value);
+    if (forceNt || options.ntPublish().getAsBoolean()) {
+      ntReporter.log(timestamp, key, false, value);
     }
   }
 
-  public void log(long timestamp, String key, double value, String unit) {
-    dataLogReporter.log(timestamp, key, value, unit);
+  public void log(long timestamp, String key, boolean forceNt, double value, String unit) {
+    dataLogReporter.log(timestamp, key, false, value, unit);
 
-    checkNtPublish();
-    if (ntReporter != null) {
-      ntReporter.log(timestamp, key, value, unit);
+    if (forceNt || options.ntPublish().getAsBoolean()) {
+      ntReporter.log(timestamp, key, false, value, unit);
     }
   }
 
-  public void log(long timestamp, String key, float[] value) {
-    dataLogReporter.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, float[] value) {
+    dataLogReporter.log(timestamp, key, false, value);
 
-    checkNtPublish();
-    if (ntReporter != null) {
-      ntReporter.log(timestamp, key, value);
+    if (forceNt || options.ntPublish().getAsBoolean()) {
+      ntReporter.log(timestamp, key, false, value);
     }
   }
 
-  public void log(long timestamp, String key, float value) {
-    dataLogReporter.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, float value) {
+    dataLogReporter.log(timestamp, key, false, value);
 
-    checkNtPublish();
-    if (ntReporter != null) {
-      ntReporter.log(timestamp, key, value);
+    if (forceNt || options.ntPublish().getAsBoolean()) {
+      ntReporter.log(timestamp, key, false, value);
     }
   }
 
-  public void log(long timestamp, String key, float value, String unit) {
-    dataLogReporter.log(timestamp, key, value, unit);
+  public void log(long timestamp, String key, boolean forceNt, float value, String unit) {
+    dataLogReporter.log(timestamp, key, false, value, unit);
 
-    checkNtPublish();
-    if (ntReporter != null) {
-      ntReporter.log(timestamp, key, value, unit);
+    if (forceNt || options.ntPublish().getAsBoolean()) {
+      ntReporter.log(timestamp, key, false, value, unit);
     }
   }
 
-  public void log(long timestamp, String key, long[] value) {
-    dataLogReporter.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, long[] value) {
+    dataLogReporter.log(timestamp, key, false, value);
 
-    checkNtPublish();
-    if (ntReporter != null) {
-      ntReporter.log(timestamp, key, value);
+    if (forceNt || options.ntPublish().getAsBoolean()) {
+      ntReporter.log(timestamp, key, false, value);
     }
   }
 
-  public void log(long timestamp, String key, long value) {
-    dataLogReporter.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, long value) {
+    dataLogReporter.log(timestamp, key, false, value);
 
-    checkNtPublish();
-    if (ntReporter != null) {
-      ntReporter.log(timestamp, key, value);
+    if (forceNt || options.ntPublish().getAsBoolean()) {
+      ntReporter.log(timestamp, key, false, value);
     }
   }
 
-  public void log(long timestamp, String key, double[] value, String unit) {
-    dataLogReporter.log(timestamp, key, value, unit);
+  public void log(long timestamp, String key, boolean forceNt, double[] value, String unit) {
+    dataLogReporter.log(timestamp, key, false, value, unit);
 
-    checkNtPublish();
-    if (ntReporter != null) {
-      ntReporter.log(timestamp, key, value, unit);
+    if (forceNt || options.ntPublish().getAsBoolean()) {
+      ntReporter.log(timestamp, key, false, value, unit);
     }
   }
 
-  public void log(long timestamp, String key, float[] value, String unit) {
-    dataLogReporter.log(timestamp, key, value, unit);
+  public void log(long timestamp, String key, boolean forceNt, float[] value, String unit) {
+    dataLogReporter.log(timestamp, key, false, value, unit);
 
-    checkNtPublish();
-    if (ntReporter != null) {
-      ntReporter.log(timestamp, key, value, unit);
+    if (forceNt || options.ntPublish().getAsBoolean()) {
+      ntReporter.log(timestamp, key, false, value, unit);
     }
   }
 
-  public void log(long timestamp, String key, long[] value, String unit) {
-    dataLogReporter.log(timestamp, key, value, unit);
+  public void log(long timestamp, String key, boolean forceNt, long[] value, String unit) {
+    dataLogReporter.log(timestamp, key, false, value, unit);
 
-    checkNtPublish();
-    if (ntReporter != null) {
-      ntReporter.log(timestamp, key, value, unit);
+    if (forceNt || options.ntPublish().getAsBoolean()) {
+      ntReporter.log(timestamp, key, false, value, unit);
     }
   }
 
-  public void log(long timestamp, String key, long value, String unit) {
-    dataLogReporter.log(timestamp, key, value, unit);
+  public void log(long timestamp, String key, boolean forceNt, long value, String unit) {
+    dataLogReporter.log(timestamp, key, false, value, unit);
 
-    checkNtPublish();
-    if (ntReporter != null) {
-      ntReporter.log(timestamp, key, value, unit);
+    if (forceNt || options.ntPublish().getAsBoolean()) {
+      ntReporter.log(timestamp, key, false, value, unit);
     }
   }
 
   // TODO: Raw logs
 
-  public void log(long timestamp, String key, String[] value) {
-    dataLogReporter.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, String[] value) {
+    dataLogReporter.log(timestamp, key, false, value);
 
-    checkNtPublish();
-    if (ntReporter != null) {
-      ntReporter.log(timestamp, key, value);
+    if (forceNt || options.ntPublish().getAsBoolean()) {
+      ntReporter.log(timestamp, key, false, value);
     }
   }
 
-  public void log(long timestamp, String key, String value) {
-    dataLogReporter.log(timestamp, key, value);
+  public void log(long timestamp, String key, boolean forceNt, String value) {
+    dataLogReporter.log(timestamp, key, false, value);
 
-    checkNtPublish();
-    if (ntReporter != null) {
-      ntReporter.log(timestamp, key, value);
+    if (forceNt || options.ntPublish().getAsBoolean()) {
+      ntReporter.log(timestamp, key, false, value);
     }
   }
 
-  public void log(long timestamp, String key, String value, String customTypeString) {
-    dataLogReporter.log(timestamp, key, value, customTypeString);
+  public void log(
+      long timestamp, String key, boolean forceNt, String value, String customTypeString) {
+    dataLogReporter.log(timestamp, key, false, value, customTypeString);
 
-    checkNtPublish();
-    if (ntReporter != null) {
-      ntReporter.log(timestamp, key, value, customTypeString);
+    if (forceNt || options.ntPublish().getAsBoolean()) {
+      ntReporter.log(timestamp, key, false, value, customTypeString);
     }
   }
 
-  private <T> void log(long timestamp, String key, Struct<T> struct, T[] value) {
-    dataLogReporter.log(timestamp, key, struct, value);
+  private <T> void log(long timestamp, String key, boolean forceNt, Struct<T> struct, T[] value) {
+    dataLogReporter.log(timestamp, key, false, struct, value);
 
-    checkNtPublish();
-    if (ntReporter != null) {
-      ntReporter.log(timestamp, key, struct, value);
+    if (forceNt || options.ntPublish().getAsBoolean()) {
+      ntReporter.log(timestamp, key, false, struct, value);
     }
   }
 
-  public <T extends StructSerializable> void log(long timestamp, String key, T[] value) {
+  public <T extends StructSerializable> void log(
+      long timestamp, String key, boolean forceNt, T[] value) {
     @SuppressWarnings("unchecked")
     var maybeStruct =
         structRegistry.getStruct((@NonNull Class<T>) value.getClass().getComponentType());
@@ -203,62 +185,62 @@ public class CombinedWriter {
     if (maybeStruct.isPresent()) {
       @SuppressWarnings("unchecked")
       var struct = (@NonNull Struct<T>) maybeStruct.orElseThrow();
-      log(timestamp, key, struct, value);
+      log(timestamp, key, forceNt, struct, value);
     }
   }
 
-  private <T> void log(long timestamp, String key, Struct<T> struct, T value) {
-    dataLogReporter.log(timestamp, key, struct, value);
+  private <T> void log(long timestamp, String key, boolean forceNt, Struct<T> struct, T value) {
+    dataLogReporter.log(timestamp, key, false, struct, value);
 
-    checkNtPublish();
-    if (ntReporter != null) {
-      ntReporter.log(timestamp, key, struct, value);
+    if (forceNt || options.ntPublish().getAsBoolean()) {
+      ntReporter.log(timestamp, key, false, struct, value);
     }
   }
 
-  public <T extends StructSerializable> void log(long timestamp, String key, T value) {
+  public <T extends StructSerializable> void log(
+      long timestamp, String key, boolean forceNt, T value) {
     var maybeStruct =
         structRegistry.getStruct((@NonNull Class<? extends StructSerializable>) value.getClass());
 
     if (maybeStruct.isPresent()) {
       @SuppressWarnings("unchecked")
       var struct = (@NonNull Struct<T>) maybeStruct.orElseThrow();
-      log(timestamp, key, struct, value);
+      log(timestamp, key, forceNt, struct, value);
     }
   }
 
   @SuppressWarnings("unchecked")
-  public <E extends Enum<E>> void log(long timestamp, String key, E value) {
+  public <E extends Enum<E>> void log(long timestamp, String key, boolean forceNt, E value) {
     var struct =
         (Struct<E>) structRegistry.getEnumStruct((@NonNull Class<E>) value.getDeclaringClass());
 
-    log(timestamp, key, struct, value);
+    log(timestamp, key, forceNt, struct, value);
   }
 
   @SuppressWarnings("unchecked")
-  public <E extends Enum<E>> void log(long timestamp, String key, E[] value) {
+  public <E extends Enum<E>> void log(long timestamp, String key, boolean forceNt, E[] value) {
     var struct =
         (@NonNull Struct<E>)
             structRegistry.getEnumStruct((@NonNull Class<E>) value.getClass().getComponentType());
 
-    log(timestamp, key, struct, value);
+    log(timestamp, key, forceNt, struct, value);
   }
 
   @SuppressWarnings("unchecked")
-  public <R extends Record> void log(long timestamp, String key, R value) {
+  public <R extends Record> void log(long timestamp, String key, boolean forceNt, R value) {
     var struct = (@NonNull Struct<R>) structRegistry.getRecordStruct(value.getClass());
 
-    log(timestamp, key, struct, value);
+    log(timestamp, key, forceNt, struct, value);
   }
 
   @SuppressWarnings("unchecked")
-  public <R extends Record> void log(long timestamp, String key, R[] value) {
+  public <R extends Record> void log(long timestamp, String key, boolean forceNt, R[] value) {
     var struct =
         (@NonNull Struct<R>)
             structRegistry.getRecordStruct(
                 (Class<? extends Record>) value.getClass().getComponentType());
 
-    log(timestamp, key, struct, value);
+    log(timestamp, key, forceNt, struct, value);
   }
 
   public void setOptions(DogLogOptions options) {
@@ -281,18 +263,6 @@ public class CombinedWriter {
 
   private void printOptions() {
     var now = HALUtil.getFPGATime();
-    log(now, "DogLog/Options", options.toString());
-  }
-
-  private void checkNtPublish() {
-    // Avoid recreating the logger if the options haven't changed
-    if (options.ntPublish().getAsBoolean()) {
-      if (ntReporter == null) {
-        ntReporter = new NetworkTablesWriter(LOG_TABLE);
-      }
-    } else if (ntReporter != null) {
-      ntReporter.close();
-      ntReporter = null;
-    }
+    log(now, "DogLog/Options", false, options.toString());
   }
 }

@@ -97,7 +97,7 @@ public class DataLogWriter implements LogWriterLowLevel {
   }
 
   @Override
-  public void log(long timestamp, String key, boolean[] value) {
+  public void log(long timestamp, String key, boolean forceNt, boolean[] value) {
     booleanArrayLogs
         .computeIfAbsent(
             key, k -> new BooleanArrayLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
@@ -105,7 +105,7 @@ public class DataLogWriter implements LogWriterLowLevel {
   }
 
   @Override
-  public void log(long timestamp, String key, boolean value) {
+  public void log(long timestamp, String key, boolean forceNt, boolean value) {
     booleanLogs
         .computeIfAbsent(
             key, k -> new BooleanLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
@@ -113,7 +113,7 @@ public class DataLogWriter implements LogWriterLowLevel {
   }
 
   @Override
-  public void log(long timestamp, String key, double[] value) {
+  public void log(long timestamp, String key, boolean forceNt, double[] value) {
     doubleArrayLogs
         .computeIfAbsent(
             key, k -> new DoubleArrayLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
@@ -121,7 +121,7 @@ public class DataLogWriter implements LogWriterLowLevel {
   }
 
   @Override
-  public void log(long timestamp, String key, double[] value, String unit) {
+  public void log(long timestamp, String key, boolean forceNt, double[] value, String unit) {
     DoubleArrayLogEntry entry =
         doubleArrayLogs.computeIfAbsent(
             key,
@@ -133,14 +133,14 @@ public class DataLogWriter implements LogWriterLowLevel {
   }
 
   @Override
-  public void log(long timestamp, String key, double value) {
+  public void log(long timestamp, String key, boolean forceNt, double value) {
     doubleLogs
         .computeIfAbsent(key, k -> new DoubleLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
         .update(value, timestamp);
   }
 
   @Override
-  public void log(long timestamp, String key, double value, String unit) {
+  public void log(long timestamp, String key, boolean forceNt, double value, String unit) {
     DoubleLogEntry entry =
         doubleLogs.computeIfAbsent(
             key, k -> new DoubleLogEntry(log, prefixKey(k), entryMetadataForUnit(unit), timestamp));
@@ -151,7 +151,7 @@ public class DataLogWriter implements LogWriterLowLevel {
   }
 
   @Override
-  public void log(long timestamp, String key, float[] value) {
+  public void log(long timestamp, String key, boolean forceNt, float[] value) {
     floatArrayLogs
         .computeIfAbsent(
             key, k -> new FloatArrayLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
@@ -159,7 +159,7 @@ public class DataLogWriter implements LogWriterLowLevel {
   }
 
   @Override
-  public void log(long timestamp, String key, float[] value, String unit) {
+  public void log(long timestamp, String key, boolean forceNt, float[] value, String unit) {
     var entry =
         floatArrayLogs.computeIfAbsent(
             key,
@@ -171,14 +171,14 @@ public class DataLogWriter implements LogWriterLowLevel {
   }
 
   @Override
-  public void log(long timestamp, String key, float value) {
+  public void log(long timestamp, String key, boolean forceNt, float value) {
     floatLogs
         .computeIfAbsent(key, k -> new FloatLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
         .update(value, timestamp);
   }
 
   @Override
-  public void log(long timestamp, String key, float value, String unit) {
+  public void log(long timestamp, String key, boolean forceNt, float value, String unit) {
     var entry =
         floatLogs.computeIfAbsent(
             key, k -> new FloatLogEntry(log, prefixKey(k), entryMetadataForUnit(unit), timestamp));
@@ -189,7 +189,7 @@ public class DataLogWriter implements LogWriterLowLevel {
   }
 
   @Override
-  public void log(long timestamp, String key, long[] value) {
+  public void log(long timestamp, String key, boolean forceNt, long[] value) {
     integerArrayLogs
         .computeIfAbsent(
             key, k -> new IntegerArrayLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
@@ -197,7 +197,7 @@ public class DataLogWriter implements LogWriterLowLevel {
   }
 
   @Override
-  public void log(long timestamp, String key, long[] value, String unit) {
+  public void log(long timestamp, String key, boolean forceNt, long[] value, String unit) {
     var entry =
         integerArrayLogs.computeIfAbsent(
             key,
@@ -210,7 +210,7 @@ public class DataLogWriter implements LogWriterLowLevel {
   }
 
   @Override
-  public void log(long timestamp, String key, long value) {
+  public void log(long timestamp, String key, boolean forceNt, long value) {
     integerLogs
         .computeIfAbsent(
             key, k -> new IntegerLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
@@ -218,7 +218,7 @@ public class DataLogWriter implements LogWriterLowLevel {
   }
 
   @Override
-  public void log(long timestamp, String key, long value, String unit) {
+  public void log(long timestamp, String key, boolean forceNt, long value, String unit) {
     var entry =
         integerLogs.computeIfAbsent(
             key,
@@ -232,7 +232,7 @@ public class DataLogWriter implements LogWriterLowLevel {
   // TODO: Raw logs
 
   @Override
-  public void log(long timestamp, String key, String[] value) {
+  public void log(long timestamp, String key, boolean forceNt, String[] value) {
     stringArrayLogs
         .computeIfAbsent(
             key, k -> new StringArrayLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
@@ -240,14 +240,15 @@ public class DataLogWriter implements LogWriterLowLevel {
   }
 
   @Override
-  public void log(long timestamp, String key, String value) {
+  public void log(long timestamp, String key, boolean forceNt, String value) {
     stringLogs
         .computeIfAbsent(key, k -> new StringLogEntry(log, prefixKey(k), ENTRY_METADATA, timestamp))
         .update(value, timestamp);
   }
 
   @Override
-  public void log(long timestamp, String key, String value, String customTypeString) {
+  public void log(
+      long timestamp, String key, boolean forceNt, String value, String customTypeString) {
     stringLogs
         .computeIfAbsent(
             key,
@@ -256,7 +257,7 @@ public class DataLogWriter implements LogWriterLowLevel {
   }
 
   @Override
-  public <T> void log(long timestamp, String key, Struct<T> struct, T[] value) {
+  public <T> void log(long timestamp, String key, boolean forceNt, Struct<T> struct, T[] value) {
     @SuppressWarnings("unchecked")
     var entry =
         (StructArrayLogEntry<T>)
@@ -270,7 +271,7 @@ public class DataLogWriter implements LogWriterLowLevel {
   }
 
   @Override
-  public <T> void log(long timestamp, String key, Struct<T> struct, T value) {
+  public <T> void log(long timestamp, String key, boolean forceNt, Struct<T> struct, T value) {
     @SuppressWarnings("unchecked")
     var entry =
         (StructLogEntry<T>)

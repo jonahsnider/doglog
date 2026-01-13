@@ -6,14 +6,15 @@ public class FloatArrayWithUnitQueuedLogEntry extends BaseQueuedLogEntry {
   public final float[] value;
   public final String unit;
 
-  public FloatArrayWithUnitQueuedLogEntry(String key, long timestamp, float[] value, String unit) {
-    super(EntryType.FLOAT_ARRAY_WITH_UNIT, key, timestamp);
+  public FloatArrayWithUnitQueuedLogEntry(
+      String key, boolean forceNt, long timestamp, float[] value, String unit) {
+    super(EntryType.FLOAT_ARRAY_WITH_UNIT, key, forceNt, timestamp);
     this.value = value;
     this.unit = unit;
   }
 
   @Override
   public void log(CombinedWriter writer) {
-    writer.log(timestamp, key, value, unit);
+    writer.log(timestamp, key, forceNt, value, unit);
   }
 }

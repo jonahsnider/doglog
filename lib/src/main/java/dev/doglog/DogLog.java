@@ -1,5 +1,6 @@
 package dev.doglog;
 
+import dev.doglog.internal.DogLogForceNt;
 import dev.doglog.internal.EpochLogger;
 import dev.doglog.internal.FaultLogger;
 import dev.doglog.internal.TimedCommand;
@@ -45,6 +46,12 @@ public class DogLog {
   /** Whether the logger is enabled. */
   protected static boolean enabled = true;
 
+  /**
+   * Use <code>DogLog.nt.log()</code> to log values to both DataLog and NetworkTables, regardless of
+   * the <code>ntPublish</code> option.
+   */
+  public static final DogLogForceNt nt = new DogLogForceNt(enabled, logger);
+
   protected static final Tunable tunable = new Tunable(options);
 
   protected static final EpochLogger epochLogger = new EpochLogger();
@@ -88,6 +95,8 @@ public class DogLog {
       }
       tunable.setOptions(newOptions);
     }
+
+    nt.setLogger(logger);
   }
 
   /**
@@ -113,6 +122,7 @@ public class DogLog {
    */
   public static void setEnabled(boolean newEnabled) {
     enabled = newEnabled;
+    nt.setEnabled(newEnabled);
   }
 
   /**
@@ -131,7 +141,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a boolean. */
@@ -141,7 +151,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a double array. */
@@ -151,7 +161,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a double array with unit metadata. */
@@ -168,7 +178,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value, unit);
+    logger.log(now, key, false, value, unit);
   }
 
   /** Log a double array with unit metadata. */
@@ -191,7 +201,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a double with unit metadata. */
@@ -205,7 +215,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value, unit);
+    logger.log(now, key, false, value, unit);
   }
 
   /** Log a double with unit metadata. */
@@ -237,7 +247,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a float array with unit metadata. */
@@ -254,7 +264,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value, unit);
+    logger.log(now, key, false, value, unit);
   }
 
   /** Log a float. */
@@ -264,7 +274,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a float with unit metadata. */
@@ -278,7 +288,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value, unit);
+    logger.log(now, key, false, value, unit);
   }
 
   /** Log an int array. */
@@ -288,7 +298,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a long array. */
@@ -298,7 +308,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a long array with unit metadata. */
@@ -315,7 +325,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value, unit);
+    logger.log(now, key, false, value, unit);
   }
 
   /** Log a long. */
@@ -325,7 +335,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a long with unit metadata. */
@@ -339,7 +349,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value, unit);
+    logger.log(now, key, false, value, unit);
   }
 
   // TODO: Raw logs
@@ -351,7 +361,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log an enum array. */
@@ -361,7 +371,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a string. */
@@ -371,7 +381,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a string with a custom type string. */
@@ -386,7 +396,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value, customTypeString);
+    logger.log(now, key, false, value, customTypeString);
   }
 
   /** Log an enum. */
@@ -396,7 +406,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a struct array. */
@@ -406,7 +416,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a struct. */
@@ -416,7 +426,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a record. */
@@ -426,7 +436,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
+    logger.log(now, key, false, value);
   }
 
   /** Log a record array. */
@@ -436,7 +446,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getFPGATime();
-    logger.log(now, key, value);
+    logger.log(now, key, false, value);
   }
 
   /**

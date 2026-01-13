@@ -29,6 +29,19 @@ DogLog.setOptions(new DogLogOptions().withNtPublish(() -> true));
 {% /tabitem %}
 {% /tabs %}
 
+#### Forcing NetworkTables publishing
+
+Your robot may have some values that you want to publish to NetworkTables, regardless of whether `ntPublish` is enabled.
+This is especially useful for situations where you're using DogLog to log values to a driver station dashboard.
+
+DogLog makes it easy to selectively force NetworkTables publishing for some log entries.
+By changing calls to `DogLog.log()` to `DogLog.nt.log()`, you can ensure that values will always be logged to DataLog and published to NetworkTables:
+
+```java
+// Always publishes to NetworkTables
+DogLog.nt.log("MyValue", 1);
+```
+
 ### Capture NetworkTables
 
 The `captureNt` option controls whether all NetworkTables values should be included in logs.
