@@ -46,6 +46,10 @@ public class DogLog {
   /** Whether the logger is enabled. */
   protected static boolean enabled = true;
 
+  /**
+   * Use <code>DogLog.nt.log()</code> to log values to both DataLog and NetworkTables, regardless of
+   * the <code>ntPublish</code> option.
+   */
   public static final DogLogForceNt nt = new DogLogForceNt(enabled, logger);
 
   protected static final Tunable tunable = new Tunable(options);
