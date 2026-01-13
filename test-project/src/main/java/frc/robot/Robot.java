@@ -37,7 +37,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    DogLog.nt.log("ForceNt/Test", Math.random());
+    DogLog.forceNt.log("ForceNt/Test", Math.random());
 
     DogLog.time("CommandSchedulerExecutionSec");
     CommandScheduler.getInstance().run();

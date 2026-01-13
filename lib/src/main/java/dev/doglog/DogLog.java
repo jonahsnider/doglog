@@ -47,10 +47,10 @@ public class DogLog {
   protected static boolean enabled = true;
 
   /**
-   * Use <code>DogLog.nt.log()</code> to log values to both DataLog and NetworkTables, regardless of
+   * Use <code>DogLog.forceNt.log()</code> to log values to both DataLog and NetworkTables, regardless of
    * the <code>ntPublish</code> option.
    */
-  public static final DogLogForceNt nt = new DogLogForceNt(enabled, logger);
+  public static final DogLogForceNt forceNt = new DogLogForceNt(enabled, logger);
 
   protected static final Tunable tunable = new Tunable(options);
 
@@ -96,7 +96,7 @@ public class DogLog {
       tunable.setOptions(newOptions);
     }
 
-    nt.setLogger(logger);
+    forceNt.setLogger(logger);
   }
 
   /**
@@ -122,7 +122,7 @@ public class DogLog {
    */
   public static void setEnabled(boolean newEnabled) {
     enabled = newEnabled;
-    nt.setEnabled(newEnabled);
+    forceNt.setEnabled(newEnabled);
   }
 
   /**
