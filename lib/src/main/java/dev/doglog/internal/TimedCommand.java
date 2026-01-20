@@ -14,13 +14,13 @@ public class TimedCommand extends Command {
 
     setName("Timed" + command.getName());
 
+    CommandScheduler.getInstance().registerComposedCommands(command);
+
     addRequirements(command.getRequirements());
   }
 
   @Override
   public void initialize() {
-    CommandScheduler.getInstance().registerComposedCommands(command);
-
     DogLog.time(key + "/.initialize()");
     command.initialize();
     DogLog.timeEnd(key + "/.initialize()");
