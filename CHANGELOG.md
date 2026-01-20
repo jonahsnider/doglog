@@ -1,5 +1,12 @@
 # Changelog
 
+## [2026.3.1](https://github.com/jonahsnider/doglog/compare/2026.3.0...2026.3.1) (2026-01-20)
+
+
+### Bug Fixes
+
+* register Commands as composed once in DogLog.time() ([#153](https://github.com/jonahsnider/doglog/issues/153)) ([4a20e0c](https://github.com/jonahsnider/doglog/commit/4a20e0c20d69eec0a90afbfbbcf1d28934729507))
+
 ## [2026.3.0](https://github.com/jonahsnider/doglog/compare/2026.2.0...2026.3.0) (2026-01-13)
 
 
