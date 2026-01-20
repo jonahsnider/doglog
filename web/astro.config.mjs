@@ -88,7 +88,7 @@ export default defineConfig({
 	redirects: {
 		'/guides/faults': '/reference/faults',
 		'/guides/tunable-values': '/reference/tunable-values',
-	}
+	},
 });
 
 async function writeChangelogToContent() {
