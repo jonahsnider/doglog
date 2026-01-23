@@ -1,7 +1,7 @@
 plugins {
 	id "java"
 	id "edu.wpi.first.GradleRIO" version "2026.2.1"
-	id "com.diffplug.spotless" version "8.1.0"
+	id "com.diffplug.spotless" version "8.2.0"
 }
 
 java {
