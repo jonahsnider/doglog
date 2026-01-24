@@ -73,7 +73,7 @@ dependencies {
 	errorprone "tech.picnic.error-prone-support:error-prone-contrib:0.28.0"
 	errorprone "tech.picnic.error-prone-support:refaster-runner:0.28.0"
 
-	testImplementation "org.assertj:assertj-core:3.27.6"
+	testImplementation "org.assertj:assertj-core:3.27.7"
 
 	api "org.jspecify:jspecify:1.0.0"
 }
