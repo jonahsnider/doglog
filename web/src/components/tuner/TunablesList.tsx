@@ -1,9 +1,9 @@
-import type { TunableValue } from './Tuner';
+import type { TunableValue, TunableValueType } from './Tuner';
 import { TunableValueRow } from './TunableValueRow';
 
 interface TunablesListProps {
 	tunables: Map<string, TunableValue>;
-	onUpdateValue: (key: string, value: string | number | boolean) => void;
+	onUpdateValue: (key: string, value: TunableValueType) => void;
 }
 
 export function TunablesList({ tunables, onUpdateValue }: TunablesListProps) {
