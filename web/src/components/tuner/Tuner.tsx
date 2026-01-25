@@ -26,93 +26,96 @@ export function Tuner() {
 	const [currentUri, setCurrentUri] = useState<string | null>(null);
 	const ntClientRef = useRef<NTClient | null>(null);
 
-	const connect = useCallback((ip: string) => {
-		setError(null);
-		setConnectionStatus('connecting');
-		setTunables(new Map());
+	const connect = useCallback(
+		(ip: string) => {
+			setError(null);
+			setConnectionStatus('connecting');
+			setTunables(new Map());
 
-		try {
-			// If we have an existing client with a different URI, change it
-			// Otherwise create a new one
-			let client: NTClient;
-			if (ntClientRef.current && currentUri && currentUri !== ip) {
-				ntClientRef.current.changeURI(ip, 5810);
-				client = ntClientRef.current;
-			} else {
-				client = NetworkTables.getInstanceByURI(ip, 5810);
-				ntClientRef.current = client;
-			}
-			setCurrentUri(ip);
-
-			// Listen for connection status changes
-			client.addRobotConnectionListener((connected) => {
-				setConnectionStatus(connected ? 'connected' : 'disconnected');
-				if (!connected) {
-					setTunables(new Map());
+			try {
+				// If we have an existing client with a different URI, change it
+				// Otherwise create a new one
+				let client: NTClient;
+				if (ntClientRef.current && currentUri && currentUri !== ip) {
+					ntClientRef.current.changeURI(ip, 5810);
+					client = ntClientRef.current;
+				} else {
+					client = NetworkTables.getInstanceByURI(ip, 5810);
+					ntClientRef.current = client;
 				}
-			});
+				setCurrentUri(ip);
 
-			// Subscribe to all topics under Tunable/ prefix
-			const tunableTopic = client.createPrefixTopic('/Tunable/');
-
-			tunableTopic.subscribe((value, params) => {
-				if (value === null) return;
-
-				const key = params.name.replace('/Tunable/', '');
-
-				// Determine the type info based on the NT type string
-				let typeInfo: NetworkTablesTypeInfo;
-				switch (params.type) {
-					case 'boolean':
-						typeInfo = NetworkTablesTypeInfos.kBoolean;
-						break;
-					case 'int':
-						typeInfo = NetworkTablesTypeInfos.kInteger;
-						break;
-					case 'double':
-					case 'float':
-						typeInfo = NetworkTablesTypeInfos.kDouble;
-						break;
-					case 'string':
-						typeInfo = NetworkTablesTypeInfos.kString;
-						break;
-					case 'boolean[]':
-						typeInfo = NetworkTablesTypeInfos.kBooleanArray;
-						break;
-					case 'int[]':
-						typeInfo = NetworkTablesTypeInfos.kIntegerArray;
-						break;
-					case 'double[]':
-					case 'float[]':
-						typeInfo = NetworkTablesTypeInfos.kDoubleArray;
-						break;
-					case 'string[]':
-						typeInfo = NetworkTablesTypeInfos.kStringArray;
-						break;
-					default:
-						// Skip unsupported types
-						return;
-				}
-
-				// Create a topic for this specific tunable so we can publish to it
-				const topic = client.createTopic<TunableValueType>(params.name, typeInfo);
-
-				setTunables((prev) => {
-					const next = new Map(prev);
-					next.set(key, {
-						key,
-						value: value as TunableValueType,
-						type: typeInfo,
-						topic,
-					});
-					return next;
+				// Listen for connection status changes
+				client.addRobotConnectionListener((connected) => {
+					setConnectionStatus(connected ? 'connected' : 'disconnected');
+					if (!connected) {
+						setTunables(new Map());
+					}
 				});
-			});
-		} catch (err) {
-			setError(err instanceof Error ? err.message : 'Failed to connect');
-			setConnectionStatus('disconnected');
-		}
-	}, [currentUri]);
+
+				// Subscribe to all topics under Tunable/ prefix
+				const tunableTopic = client.createPrefixTopic('/Tunable/');
+
+				tunableTopic.subscribe((value, params) => {
+					if (value === null) return;
+
+					const key = params.name.replace('/Tunable/', '');
+
+					// Determine the type info based on the NT type string
+					let typeInfo: NetworkTablesTypeInfo;
+					switch (params.type) {
+						case 'boolean':
+							typeInfo = NetworkTablesTypeInfos.kBoolean;
+							break;
+						case 'int':
+							typeInfo = NetworkTablesTypeInfos.kInteger;
+							break;
+						case 'double':
+						case 'float':
+							typeInfo = NetworkTablesTypeInfos.kDouble;
+							break;
+						case 'string':
+							typeInfo = NetworkTablesTypeInfos.kString;
+							break;
+						case 'boolean[]':
+							typeInfo = NetworkTablesTypeInfos.kBooleanArray;
+							break;
+						case 'int[]':
+							typeInfo = NetworkTablesTypeInfos.kIntegerArray;
+							break;
+						case 'double[]':
+						case 'float[]':
+							typeInfo = NetworkTablesTypeInfos.kDoubleArray;
+							break;
+						case 'string[]':
+							typeInfo = NetworkTablesTypeInfos.kStringArray;
+							break;
+						default:
+							// Skip unsupported types
+							return;
+					}
+
+					// Create a topic for this specific tunable so we can publish to it
+					const topic = client.createTopic<TunableValueType>(params.name, typeInfo);
+
+					setTunables((prev) => {
+						const next = new Map(prev);
+						next.set(key, {
+							key,
+							value: value as TunableValueType,
+							type: typeInfo,
+							topic,
+						});
+						return next;
+					});
+				});
+			} catch (err) {
+				setError(err instanceof Error ? err.message : 'Failed to connect');
+				setConnectionStatus('disconnected');
+			}
+		},
+		[currentUri],
+	);
 
 	const disconnect = useCallback(() => {
 		// Note: ntcore-ts-client doesn't expose a cleanup/disconnect method
@@ -147,16 +150,9 @@ export function Tuner() {
 
 	return (
 		<div className="tuner-container mt-6 space-y-6">
-			<ConnectionForm
-				status={connectionStatus}
-				onConnect={connect}
-				onDisconnect={disconnect}
-				error={error}
-			/>
+			<ConnectionForm status={connectionStatus} onConnect={connect} onDisconnect={disconnect} error={error} />
 
-			{connectionStatus === 'connected' && (
-				<TunablesList tunables={tunables} onUpdateValue={updateValue} />
-			)}
+			{connectionStatus === 'connected' && <TunablesList tunables={tunables} onUpdateValue={updateValue} />}
 		</div>
 	);
 }

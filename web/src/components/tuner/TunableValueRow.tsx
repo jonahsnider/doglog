@@ -10,8 +10,7 @@ interface TunableValueRowProps {
 export function TunableValueRow({ tunable, onUpdateValue }: TunableValueRowProps) {
 	const isArray = Array.isArray(tunable.value);
 	const isNumberArray =
-		tunable.type === NetworkTablesTypeInfos.kDoubleArray ||
-		tunable.type === NetworkTablesTypeInfos.kIntegerArray;
+		tunable.type === NetworkTablesTypeInfos.kDoubleArray || tunable.type === NetworkTablesTypeInfos.kIntegerArray;
 	const isBooleanArray = tunable.type === NetworkTablesTypeInfos.kBooleanArray;
 
 	// For scalar values
@@ -20,7 +19,7 @@ export function TunableValueRow({ tunable, onUpdateValue }: TunableValueRowProps
 
 	// For array values - store as array of strings for editing
 	const [arrayValues, setArrayValues] = useState<string[]>(
-		isArray ? (tunable.value as (number | boolean | string)[]).map(String) : []
+		isArray ? (tunable.value as (number | boolean | string)[]).map(String) : [],
 	);
 	const [isArrayEditing, setIsArrayEditing] = useState(false);
 
@@ -46,14 +45,9 @@ export function TunableValueRow({ tunable, onUpdateValue }: TunableValueRowProps
 
 			if (tunable.type === NetworkTablesTypeInfos.kBoolean) {
 				parsedValue = editValue.toLowerCase() === 'true';
-			} else if (
-				tunable.type === NetworkTablesTypeInfos.kDouble ||
-				tunable.type === NetworkTablesTypeInfos.kInteger
-			) {
+			} else if (tunable.type === NetworkTablesTypeInfos.kDouble || tunable.type === NetworkTablesTypeInfos.kInteger) {
 				parsedValue =
-					tunable.type === NetworkTablesTypeInfos.kInteger
-						? parseInt(editValue, 10)
-						: parseFloat(editValue);
+					tunable.type === NetworkTablesTypeInfos.kInteger ? parseInt(editValue, 10) : parseFloat(editValue);
 				if (isNaN(parsedValue)) {
 					setEditValue(String(tunable.value));
 					setIsEditing(false);
@@ -66,7 +60,7 @@ export function TunableValueRow({ tunable, onUpdateValue }: TunableValueRowProps
 			onUpdateValue(tunable.key, parsedValue);
 			setIsEditing(false);
 		},
-		[editValue, tunable, onUpdateValue]
+		[editValue, tunable, onUpdateValue],
 	);
 
 	// Handle array value submit
@@ -75,7 +69,7 @@ export function TunableValueRow({ tunable, onUpdateValue }: TunableValueRowProps
 
 		if (isNumberArray) {
 			const numbers = arrayValues.map((s) =>
-				tunable.type === NetworkTablesTypeInfos.kIntegerArray ? parseInt(s, 10) : parseFloat(s)
+				tunable.type === NetworkTablesTypeInfos.kIntegerArray ? parseInt(s, 10) : parseFloat(s),
 			);
 			if (numbers.some(isNaN)) {
 				setArrayValues((tunable.value as number[]).map(String));
@@ -110,9 +104,7 @@ export function TunableValueRow({ tunable, onUpdateValue }: TunableValueRowProps
 			if (isNumberArray) {
 				const currentValue = arrayValues[index] ?? '';
 				const parsed =
-					tunable.type === NetworkTablesTypeInfos.kIntegerArray
-						? parseInt(currentValue, 10)
-						: parseFloat(currentValue);
+					tunable.type === NetworkTablesTypeInfos.kIntegerArray ? parseInt(currentValue, 10) : parseFloat(currentValue);
 				if (isNaN(parsed)) {
 					setArrayValues((prev) => {
 						const next = [...prev];
@@ -122,7 +114,7 @@ export function TunableValueRow({ tunable, onUpdateValue }: TunableValueRowProps
 				}
 			}
 		},
-		[arrayValues, tunable, isNumberArray]
+		[arrayValues, tunable, isNumberArray],
 	);
 
 	// Add a new element to the array
@@ -239,58 +231,36 @@ export function TunableValueRow({ tunable, onUpdateValue }: TunableValueRowProps
 					<table className="w-full">
 						<thead>
 							<tr className="border-b border-[var(--sl-color-gray-5)] bg-[var(--sl-color-gray-6)]">
-								<th className="px-3 py-2 text-left text-xs font-medium text-[var(--sl-color-gray-2)]">
-									Index
-								</th>
-								<th className="px-3 py-2 text-left text-xs font-medium text-[var(--sl-color-gray-2)]">
-									Value
-								</th>
+								<th className="px-3 py-2 text-left text-xs font-medium text-[var(--sl-color-gray-2)]">Index</th>
+								<th className="px-3 py-2 text-left text-xs font-medium text-[var(--sl-color-gray-2)]">Value</th>
 								<th className="w-10 px-3 py-2" />
 							</tr>
 						</thead>
 						<tbody>
 							{arrayValues.map((value, index) => (
-								<tr
-									key={index}
-									className="border-b border-[var(--sl-color-gray-6)] last:border-b-0"
-								>
-									<td className="px-3 py-2 font-mono text-sm text-[var(--sl-color-gray-3)]">
-										{index}
-									</td>
+								<tr key={index} className="border-b border-[var(--sl-color-gray-6)] last:border-b-0">
+									<td className="px-3 py-2 font-mono text-sm text-[var(--sl-color-gray-3)]">{index}</td>
 									<td className="px-3 py-2">
 										{isBooleanArray ? (
 											<button
 												type="button"
-												onClick={() =>
-													handleArrayCellChange(
-														index,
-														value.toLowerCase() === 'true' ? 'false' : 'true'
-													)
-												}
+												onClick={() => handleArrayCellChange(index, value.toLowerCase() === 'true' ? 'false' : 'true')}
 												className={`relative h-5 w-9 rounded-full transition-colors ${
-													value.toLowerCase() === 'true'
-														? 'bg-[var(--sl-color-accent)]'
-														: 'bg-[var(--sl-color-gray-4)]'
+													value.toLowerCase() === 'true' ? 'bg-[var(--sl-color-accent)]' : 'bg-[var(--sl-color-gray-4)]'
 												}`}
 												role="switch"
 												aria-checked={value.toLowerCase() === 'true'}
 											>
 												<span
 													className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
-														value.toLowerCase() === 'true'
-															? 'translate-x-4'
-															: 'translate-x-0'
+														value.toLowerCase() === 'true' ? 'translate-x-4' : 'translate-x-0'
 													}`}
 												/>
 											</button>
 										) : (
 											<input
 												type={isNumberArray ? 'number' : 'text'}
-												step={
-													tunable.type === NetworkTablesTypeInfos.kDoubleArray
-														? 'any'
-														: '1'
-												}
+												step={tunable.type === NetworkTablesTypeInfos.kDoubleArray ? 'any' : '1'}
 												value={value}
 												onChange={(e) => handleArrayCellChange(index, e.target.value)}
 												onBlur={() => handleArrayCellBlur(index)}
