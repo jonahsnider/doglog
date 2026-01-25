@@ -75,7 +75,7 @@ public record DogLogOptions(
    * @param ntPublish Whether logged values should be published to NetworkTables.
    * @return A new options object with {@link DogLogOptions#ntPublish} set to the provided value.
    */
-	// TODO: Always have NT publishing enabled in 2027
+  // TODO: Always have NT publishing enabled in 2027
   public DogLogOptions withNtPublish(boolean ntPublish) {
     return withNtPublish(() -> ntPublish);
   }
