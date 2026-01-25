@@ -1,0 +1,18 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { Tuner as TunerApp } from '../../components/tuner/Tuner';
+---
+
+<StarlightPage
+	frontmatter={{
+		title: 'Live Tuner',
+		description: 'Tune DogLog tunable values over NetworkTables in real-time.',
+		tableOfContents: false,
+	}}
+>
+	<p class="sl-text-lg">
+		Connect to your robot over NetworkTables to view and edit tunable values in real-time.
+	</p>
+
+	<TunerApp client:only="react" />
+</StarlightPage>

@@ -1,14 +1,18 @@
 import markdoc from '@astrojs/markdoc';
+import react from '@astrojs/react';
 import starlight from '@astrojs/starlight';
 import AstroPWA from '@vite-pwa/astro';
 import { defineConfig } from 'astro/config';
 import fs from 'fs/promises';
 import path from 'path';
 
+import tailwindcss from '@tailwindcss/vite';
+
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://doglog.dev',
 	trailingSlash: 'never',
+
 	integrations: [
 		{
 			name: 'copy-files',
@@ -43,19 +47,27 @@ export default defineConfig({
 				},
 				{
 					label: 'Reference',
-					autogenerate: { directory: 'reference' },
+					items: [
+						{ slug: 'reference/configuring' },
+						{ slug: 'reference/convenience-features' },
+						{ slug: 'reference/faults' },
+						{ slug: 'reference/tunable-values' },
+						{ label: 'Live Tuner', link: '/reference/tuner' },
+						{ slug: 'reference/changelog' },
+					],
 				},
 				{
 					label: 'Javadoc',
 					link: 'https://javadoc.doglog.dev',
 				},
 			],
-			customCss: ['/src/styles/custom.css'],
+			customCss: ['/src/styles/custom.css', '/src/styles/global.css'],
 			components: {
 				Head: './src/components/PwaHead.astro',
 			},
 		}),
 		markdoc(),
+		react(),
 		AstroPWA({
 			base: '/',
 			scope: '/',
@@ -85,9 +97,14 @@ export default defineConfig({
 			},
 		}),
 	],
+
 	redirects: {
 		'/guides/faults': '/reference/faults',
 		'/guides/tunable-values': '/reference/tunable-values',
+	},
+
+	vite: {
+		plugins: [tailwindcss()],
 	},
 });
 
