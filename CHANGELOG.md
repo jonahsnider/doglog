@@ -1,5 +1,12 @@
 # Changelog
 
+## [2026.4.0](https://github.com/jonahsnider/doglog/compare/2026.3.1...2026.4.0) (2026-01-25)
+
+
+### Features
+
+* add tunable double arrays ([0fc4622](https://github.com/jonahsnider/doglog/commit/0fc46229256a0d1c1fa174cb66740c231d2c5da0))
+
 ## [2026.3.1](https://github.com/jonahsnider/doglog/compare/2026.3.0...2026.3.1) (2026-01-20)
 
 
