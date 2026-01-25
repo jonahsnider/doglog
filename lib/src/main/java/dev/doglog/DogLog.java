@@ -10,6 +10,7 @@ import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.networktables.BooleanSubscriber;
+import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.FloatSubscriber;
 import edu.wpi.first.networktables.IntegerSubscriber;
@@ -709,6 +710,93 @@ public class DogLog {
       return tunable(key, 0.0, onChange);
     }
     return tunable(key, defaultValue.magnitude(), defaultValue.unit().name(), onChange);
+  }
+
+  /**
+   * Create a tunable double array.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @return A {@link DoubleArraySubscriber} used to retrieve the tunable value.
+   */
+  public static DoubleArraySubscriber tunable(String key, double[] defaultValue) {
+    return tunable(key, defaultValue, (Consumer<double[]>) null);
+  }
+
+  /**
+   * Create a tunable double array.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param onChange A function to call when the tunable value changes.
+   * @return A {@link DoubleArraySubscriber} used to retrieve the tunable value.
+   */
+  public static DoubleArraySubscriber tunable(
+      String key, double[] defaultValue, @Nullable Consumer<double[]> onChange) {
+    return tunable.create(key, defaultValue, null, onChange);
+  }
+
+  /**
+   * Create a tunable double array with unit metadata.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param unit The unit for the tunable value.
+   * @return A {@link DoubleArraySubscriber} used to retrieve the tunable value.
+   */
+  public static DoubleArraySubscriber tunable(
+      String key, double[] defaultValue, @Nullable String unit) {
+    return tunable(key, defaultValue, unit, (Consumer<double[]>) null);
+  }
+
+  /**
+   * Create a tunable double array with unit metadata.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param unit The unit for the tunable value.
+   * @param onChange A function to call when the tunable value changes.
+   * @return A {@link DoubleArraySubscriber} used to retrieve the tunable value.
+   */
+  public static DoubleArraySubscriber tunable(
+      String key,
+      double[] defaultValue,
+      @Nullable String unit,
+      @Nullable Consumer<double[]> onChange) {
+    return tunable.create(key, defaultValue, unit, onChange);
+  }
+
+  /**
+   * Create a tunable double array with unit metadata.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param unit The unit for the tunable value.
+   * @return A {@link DoubleArraySubscriber} used to retrieve the tunable value.
+   */
+  public static DoubleArraySubscriber tunable(
+      String key, double[] defaultValue, @Nullable Unit unit) {
+    return tunable(key, defaultValue, unit, (Consumer<double[]>) null);
+  }
+
+  /**
+   * Create a tunable double array with unit metadata.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param unit The unit for the tunable value.
+   * @param onChange A function to call when the tunable value changes.
+   * @return A {@link DoubleArraySubscriber} used to retrieve the tunable value.
+   */
+  public static DoubleArraySubscriber tunable(
+      String key,
+      double[] defaultValue,
+      @Nullable Unit unit,
+      @Nullable Consumer<double[]> onChange) {
+    if (unit == null) {
+      return tunable(key, defaultValue, onChange);
+    }
+    return tunable(key, defaultValue, unit.name(), onChange);
   }
 
   /**

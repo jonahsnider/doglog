@@ -2,6 +2,7 @@ package dev.doglog.internal.tunable;
 
 import dev.doglog.DogLogOptions;
 import dev.doglog.internal.tunable.entry.ToggleableBooleanSubscriber;
+import dev.doglog.internal.tunable.entry.ToggleableDoubleArraySubscriber;
 import dev.doglog.internal.tunable.entry.ToggleableDoubleSubscriber;
 import dev.doglog.internal.tunable.entry.ToggleableFloatSubscriber;
 import dev.doglog.internal.tunable.entry.ToggleableIntegerSubscriber;
@@ -12,6 +13,7 @@ import dev.doglog.internal.tunable.on_change.FloatOnChange;
 import dev.doglog.internal.tunable.on_change.LongOnChange;
 import dev.doglog.internal.tunable.on_change.OnChange;
 import edu.wpi.first.networktables.BooleanSubscriber;
+import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.FloatSubscriber;
 import edu.wpi.first.networktables.IntegerSubscriber;
@@ -40,6 +42,9 @@ public class Tunable implements AutoCloseable {
 
   /** Maps NT listener handles to onChange callbacks for double fields. */
   private final Map<Integer, DoubleOnChange> doubleChangeCallbacks = new HashMap<>();
+
+  /** Maps NT listener handles to onChange callbacks for double array fields. */
+  private final Map<Integer, OnChange<double[]>> doubleArrayChangeCallbacks = new HashMap<>();
 
   /** Maps NT listener handles to onChange callbacks for float fields. */
   private final Map<Integer, FloatOnChange> floatChangeCallbacks = new HashMap<>();
@@ -89,6 +94,30 @@ public class Tunable implements AutoCloseable {
     }
 
     return new ToggleableDoubleSubscriber(
+        entry, defaultValue, () -> options.ntTunables().getAsBoolean());
+  }
+
+  public DoubleArraySubscriber create(
+      String key,
+      double[] defaultValue,
+      @Nullable String unit,
+      @Nullable Consumer<double[]> onChange) {
+    startNotifier();
+    var topic = TUNABLE_TABLE.getDoubleArrayTopic(key);
+    var entry = topic.getEntry(defaultValue);
+
+    entry.set(defaultValue);
+
+    if (unit != null) {
+      topic.setProperty("unit", "\"" + unit + "\"");
+    }
+
+    var listenerHandle = poller.addListener(entry, LISTENER_EVENT_KINDS);
+    if (onChange != null) {
+      doubleArrayChangeCallbacks.put(listenerHandle, new OnChange<>(onChange, defaultValue));
+    }
+
+    return new ToggleableDoubleArraySubscriber(
         entry, defaultValue, () -> options.ntTunables().getAsBoolean());
   }
 
@@ -188,6 +217,12 @@ public class Tunable implements AutoCloseable {
               callback.onChange().accept(change.valueData.value.getDouble());
             }
           }
+          case kDoubleArray -> {
+            var callback = doubleArrayChangeCallbacks.get(change.listener);
+            if (callback != null) {
+              callback.onChange().accept(change.valueData.value.getDoubleArray());
+            }
+          }
           case kFloat -> {
             var callback = floatChangeCallbacks.get(change.listener);
             if (callback != null) {
@@ -220,6 +255,7 @@ public class Tunable implements AutoCloseable {
       // values
 
       doubleChangeCallbacks.values().forEach(DoubleOnChange::acceptDefault);
+      doubleArrayChangeCallbacks.values().forEach(OnChange::acceptDefault);
       floatChangeCallbacks.values().forEach(FloatOnChange::acceptDefault);
       booleanChangeCallbacks.values().forEach(BooleanOnChange::acceptDefault);
       stringChangeCallbacks.values().forEach(OnChange::acceptDefault);
