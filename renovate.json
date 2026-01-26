@@ -1,4 +1,22 @@
 {
-	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
-	"extends": ["github>jonahsnider/renovate-config"]
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "customDatasources": {
+    "wpilib-vendordep": {
+      "defaultRegistryUrlTemplate": "{{registryUrl}}",
+      "format": "json",
+      "transformTemplates": ["{ \"releases\": [{ \"version\": version }] }"]
+    }
+  },
+  "customManagers": [
+    {
+      "customType": "jsonata",
+      "datasourceTemplate": "custom.wpilib-vendordep",
+      "fileFormat": "json",
+      "managerFilePatterns": ["**/vendordeps/*.json"],
+      "matchStrings": [
+        "jsonUrl ? { \"depName\": name, \"currentValue\": version, \"registryUrl\": jsonUrl }"
+      ]
+    }
+  ],
+  "extends": ["github>jonahsnider/renovate-config"]
 }
