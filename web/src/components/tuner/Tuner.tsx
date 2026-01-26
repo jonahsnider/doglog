@@ -25,12 +25,16 @@ export function Tuner() {
 	const [error, setError] = useState<string | null>(null);
 	const [currentUri, setCurrentUri] = useState<string | null>(null);
 	const ntClientRef = useRef<NTClient | null>(null);
+	// Track topics that have been set up for publishing
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const topicsRef = useRef<Map<string, NetworkTablesTopic<any>>>(new Map());
 
 	const connect = useCallback(
 		(ip: string) => {
 			setError(null);
 			setConnectionStatus('connecting');
 			setTunables(new Map());
+			topicsRef.current.clear();
 
 			try {
 				// If we have an existing client with a different URI, change it
@@ -50,6 +54,7 @@ export function Tuner() {
 					setConnectionStatus(connected ? 'connected' : 'disconnected');
 					if (!connected) {
 						setTunables(new Map());
+						topicsRef.current.clear();
 					}
 				});
 
@@ -95,8 +100,38 @@ export function Tuner() {
 							return;
 					}
 
-					// Create a topic for this specific tunable so we can publish to it
-					const topic = client.createTopic<TunableValueType>(params.name, typeInfo);
+					// Get or create topic for this specific tunable
+					let topic = topicsRef.current.get(params.name);
+					if (!topic) {
+						topic = client.createTopic<TunableValueType>(params.name, typeInfo);
+						topicsRef.current.set(params.name, topic);
+
+						// WORKAROUND: ntcore-ts-client requires server acknowledgement before allowing
+						// setValue() to work. Since the robot already owns these topics, it won't send
+						// the acknowledgement we need. We work around this by manually setting the
+						// library's internal state to mark us as a publisher.
+						// See: https://github.com/cjlawson02/ntcore-ts-client
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						const announceParams = params as any;
+						if (announceParams.id !== undefined) {
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
+							const topicAny = topic as any;
+							const pubuid = topicAny.client?.messenger?.getNextPubUID?.() ?? Math.floor(Math.random() * 1000000);
+
+							// Mark the topic as announced with our pubuid
+							topic.announce({
+								id: announceParams.id,
+								name: params.name,
+								type: params.type,
+								pubuid: pubuid,
+								properties: announceParams.properties ?? {},
+							});
+
+							// Set internal state to allow setValue() to work
+							topicAny._pubuid = pubuid;
+							topicAny._publisher = true;
+						}
+					}
 
 					setTunables((prev) => {
 						const next = new Map(prev);
@@ -132,21 +167,35 @@ export function Tuner() {
 		ntClientRef.current = null;
 	}, []);
 
-	const updateValue = useCallback(async (key: string, newValue: TunableValueType) => {
-		setTunables((prev) => {
-			const tunable = prev.get(key);
-			if (!tunable) return prev;
+	const updateValue = useCallback(
+		(key: string, newValue: TunableValueType) => {
+			const tunable = tunables.get(key);
+			if (!tunable) return;
 
-			// Publish the new value
-			tunable.topic.publish().then(() => {
-				tunable.topic.setValue(newValue);
-			});
+			// Get the topic from topicsRef which has the proper publish setup
+			const topicName = '/Tunable/' + key;
+			const topic = topicsRef.current.get(topicName);
+			if (!topic) {
+				console.error('Topic not found in ref:', topicName);
+				return;
+			}
 
-			const next = new Map(prev);
-			next.set(key, { ...tunable, value: newValue });
-			return next;
-		});
-	}, []);
+			try {
+				// Set the value - the topic was set up as a publisher during subscription
+				topic.setValue(newValue);
+
+				// Update local state
+				setTunables((prev) => {
+					const next = new Map(prev);
+					next.set(key, { ...tunable, value: newValue });
+					return next;
+				});
+			} catch (err) {
+				console.error('Failed to set value:', err);
+			}
+		},
+		[tunables],
+	);
 
 	return (
 		<div className="tuner-container mt-6 space-y-6">
