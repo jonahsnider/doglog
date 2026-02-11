@@ -3,18 +3,14 @@ title: Formatting a USB drive
 description: Learn how to format a USB drive to use with DogLog.
 ---
 
-While DogLog supports logging to the roboRIO's internal storage, using a USB drive is the preferred method for storing logs.
+While DogLog supports logging to the controller's internal storage, using a USB drive is the preferred method for storing logs.
 
 Some benefits of using a USB drive for logging include:
 
 - Having an easy way to access logs when the robot is turned off
-- Ensuring you always have enough storage for logs, without worrying about old ones being overwritten to make
-- A safer way to store logs than on the roboRIO's storage
-  - On the roboRIO 1, using a USB drive for logs avoids bricking the internal flash storage
-    - Read more about this failure mode [here](/reference/warnings/unsafe_log_destination)
-  - On the roboRIO 2, the microSD card frequently comes loose during hard collisions, causing log writes to fail without a USB
+- Ensuring you always have enough storage for logs, without worrying about old ones being overwritten
 
-This guide will walk you through the steps of formatting a USB drive to get it ready for use with DogLog on a robot.
+This guide will walk you through the steps of formatting a USB drive to get it ready for use with DogLog.
 
 ## Steps
 
@@ -49,14 +45,14 @@ This guide will walk you through the steps of formatting a USB drive to get it r
 
    ![A screenshot of a File Explorer window, with the context menu for the USB drive opened, and the "Eject" option hovered](../../../assets/guides/flashing-a-usb-drive/windows/file-explorer-eject.png)
 
-1. Insert the USB drive into one of the roboRIO's USB ports
+1. Insert the USB drive into one of the USB ports on your robot controller
 
    The next time your robot code starts up, logs will automatically be saved to the USB drive.
 {% /steps %}
 {% /tabitem %}
 
 {% tabitem label="Large drives (more than 32GB)" %}
-Due to a limitation in the built-in Windows formatter, USB drives larger than 32GB can't be formatted as FAT32, which is the only format supported by the roboRIO.
+Due to a limitation in the built-in Windows formatter, USB drives larger than 32GB can't be formatted as FAT32, which is the format supported by FRC robot controllers.
 As a workaround, this guide uses [Rufus](https://rufus.ie/en/), a free and open-source app for formatting USB drives.
 
 {% steps %}
@@ -97,7 +93,7 @@ As a workaround, this guide uses [Rufus](https://rufus.ie/en/), a free and open-
 
    ![A screenshot of a File Explorer window, with the context menu for the USB drive opened, and the "Eject" option hovered](../../../assets/guides/flashing-a-usb-drive/windows/file-explorer-eject.png)
 
-1. Insert the USB drive into one of the roboRIO's USB ports
+1. Insert the USB drive into one of the USB ports on your robot controller
 
    The next time your robot code starts up, logs will automatically be saved to the USB drive.
 {% /steps %}
@@ -127,7 +123,7 @@ As a workaround, this guide uses [Rufus](https://rufus.ie/en/), a free and open-
 
    ![A screenshot from a Finder window, showing a USB drive under the "Locations" tab with the eject button highlighted](../../../assets/guides/flashing-a-usb-drive/mac/eject.png)
 
-1. Insert the USB drive into one of the roboRIO's USB ports
+1. Insert the USB drive into one of the USB ports on your robot controller
 
    The next time your robot code starts up, logs will automatically be saved to the USB drive.
 {% /steps %}
