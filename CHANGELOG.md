@@ -1,5 +1,12 @@
 # Changelog
 
+## [2026.5.0](https://github.com/jonahsnider/doglog/compare/2026.4.0...2026.5.0) (2026-02-11)
+
+
+### Features
+
+* gracefully handle WPILib's broken struct generation for enums ([ace84eb](https://github.com/jonahsnider/doglog/commit/ace84eb7ce66210354021ef8a2e8b8283bc05c68))
+
 ## [2026.4.0](https://github.com/jonahsnider/doglog/compare/2026.3.1...2026.4.0) (2026-01-25)
 
 
