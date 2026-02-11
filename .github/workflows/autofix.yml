@@ -6,19 +6,9 @@ permissions:
   contents: read
 
 jobs:
-  validation:
-    name: Validate Gradle wrappers
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Git repository
-        uses: actions/checkout@v6
-      - name: Validate Gradle wrappers
-        uses: gradle/actions/wrapper-validation@v5
   autofix:
     name: Autofix
     runs-on: ubuntu-latest
-    needs:
-      - validation
     steps:
       - name: Checkout Git repository
         uses: actions/checkout@v6
@@ -28,10 +18,9 @@ jobs:
         with:
           distribution: "temurin"
           java-version: 25
-          cache: "gradle"
-          cache-dependency-path: |
-            lib/*.gradle*
-            test-project/*.gradle*
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Fix Error Prone issues
         run: ./gradlew assemble

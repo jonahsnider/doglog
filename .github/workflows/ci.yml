@@ -3,22 +3,12 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  validation:
-    name: Validate Gradle wrappers
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Git repository
-        uses: actions/checkout@v6
-      - name: Validate Gradle wrappers
-        uses: gradle/actions/wrapper-validation@v5
   assemble:
     name: Assemble
 
     runs-on: ubuntu-latest
 
     timeout-minutes: 5
-
-    needs: [validation]
 
     steps:
       - name: Checkout Git repository
@@ -28,9 +18,8 @@ jobs:
         with:
           distribution: "temurin"
           java-version: 25
-          cache: "gradle"
-      - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v5
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
       - name: Assemble project
         run: ./gradlew assemble
   style:
@@ -40,7 +29,7 @@ jobs:
 
     timeout-minutes: 5
 
-    needs: [validation]
+    needs: [assemble]
 
     steps:
       - name: Checkout Git repository
@@ -50,7 +39,8 @@ jobs:
         with:
           distribution: "temurin"
           java-version: 25
-          cache: "gradle"
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
       - name: Check formatting
         run: ./gradlew spotlessCheck
   assemble-test-project:
@@ -60,7 +50,7 @@ jobs:
 
     timeout-minutes: 5
 
-    needs: [assemble, validation]
+    needs: [assemble]
 
     steps:
       - name: Checkout Git repository
@@ -70,10 +60,8 @@ jobs:
         with:
           distribution: "temurin"
           java-version: 25
-          cache: "gradle"
-          cache-dependency-path: |
-            lib/*.gradle*
-            test-project/*.gradle*
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
       - name: Assemble DogLog
         run: ./gradlew assemble
       - name: Assemble test project
@@ -86,7 +74,7 @@ jobs:
 
     timeout-minutes: 5
 
-    needs: [validation]
+    needs: [assemble]
 
     steps:
       - name: Checkout Git repository
@@ -96,10 +84,8 @@ jobs:
         with:
           distribution: "temurin"
           java-version: 25
-          cache: "gradle"
-          cache-dependency-path: |
-            lib/*.gradle*
-            test-project/*.gradle*
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
       - name: Check formatting
         run: ./gradlew spotlessCheck
         working-directory: test-project
@@ -110,7 +96,7 @@ jobs:
 
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
-    needs: [assemble, validation]
+    needs: [assemble]
 
     timeout-minutes: 5
 
@@ -122,7 +108,8 @@ jobs:
         with:
           distribution: "temurin"
           java-version: 25
-          cache: "gradle"
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
       - name: Build
         run: ./gradlew build
       - name: Enable Corepack
