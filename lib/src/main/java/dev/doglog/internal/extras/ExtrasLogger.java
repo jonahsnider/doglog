@@ -79,12 +79,9 @@ public class ExtrasLogger implements AutoCloseable {
   }
 
   private void logSystem(long now) {
-    logger.log(now, "SystemStats/FPGAVersion", false, HALUtil.getFPGAVersion());
-    logger.log(now, "SystemStats/FPGARevision", false, HALUtil.getFPGARevision());
     logger.log(now, "SystemStats/SerialNumber", false, HALUtil.getSerialNumber());
     logger.log(now, "SystemStats/Comments", false, HALUtil.getComments());
     logger.log(now, "SystemStats/TeamNumber", false, HALUtil.getTeamNumber());
-    logger.log(now, "SystemStats/FPGAButton", false, HALUtil.getFPGAButton());
     logger.log(now, "SystemStats/SystemActive", false, HAL.getSystemActive());
     logger.log(now, "SystemStats/BrownedOut", false, HAL.getBrownedOut());
     logger.log(now, "SystemStats/RSLState", false, HAL.getRSLState());
@@ -92,8 +89,6 @@ public class ExtrasLogger implements AutoCloseable {
 
     logger.log(
         now, "SystemStats/BatteryVoltage", false, PowerJNI.getVinVoltage(), VOLTS_UNIT_STRING);
-    logger.log(
-        now, "SystemStats/BatteryCurrent", false, PowerJNI.getVinCurrent(), AMPS_UNIT_STRING);
 
     logger.log(
         now, "SystemStats/3v3Rail/Voltage", false, PowerJNI.getUserVoltage3V3(), VOLTS_UNIT_STRING);
@@ -103,20 +98,6 @@ public class ExtrasLogger implements AutoCloseable {
     logger.log(now, "SystemStats/3v3Rail/CurrentFaults", false, PowerJNI.getUserCurrentFaults3V3());
 
     logger.log(
-        now, "SystemStats/5vRail/Voltage", false, PowerJNI.getUserVoltage5V(), VOLTS_UNIT_STRING);
-    logger.log(
-        now, "SystemStats/5vRail/Current", false, PowerJNI.getUserCurrent5V(), AMPS_UNIT_STRING);
-    logger.log(now, "SystemStats/5vRail/Active", false, PowerJNI.getUserActive5V());
-    logger.log(now, "SystemStats/5vRail/CurrentFaults", false, PowerJNI.getUserCurrentFaults5V());
-
-    logger.log(
-        now, "SystemStats/6vRail/Voltage", false, PowerJNI.getUserVoltage6V(), VOLTS_UNIT_STRING);
-    logger.log(
-        now, "SystemStats/6vRail/Current", false, PowerJNI.getUserCurrent6V(), AMPS_UNIT_STRING);
-    logger.log(now, "SystemStats/6vRail/Active", false, PowerJNI.getUserActive6V());
-    logger.log(now, "SystemStats/6vRail/CurrentFaults", false, PowerJNI.getUserCurrentFaults6V());
-
-    logger.log(
         now,
         "SystemStats/BrownoutVoltage",
         false,
@@ -124,18 +105,23 @@ public class ExtrasLogger implements AutoCloseable {
         VOLTS_UNIT_STRING);
     logger.log(
         now, "SystemStats/CPUTempCelcius", false, PowerJNI.getCPUTemp(), CELSIUS_UNIT_STRING);
-  }
-
-  private void logCan(long now) {
-    CANJNI.getCANStatus(status);
-    logger.log(now, "SystemStats/CANBus/Utilization", false, status.percentBusUtilization);
-    logger.log(now, "SystemStats/CANBus/OffCount", false, status.busOffCount);
-    logger.log(now, "SystemStats/CANBus/TxFullCount", false, status.txFullCount);
-    logger.log(now, "SystemStats/CANBus/ReceiveErrorCount", false, status.receiveErrorCount);
-    logger.log(now, "SystemStats/CANBus/TransmitErrorCount", false, status.transmitErrorCount);
 
     logger.log(
         now, "SystemStats/EpochTimeMicros", false, HALUtil.getFPGATime(), MICROSECONDS_UNIT_STRING);
+  }
+
+  private void logCan(long now) {
+    for (int i = 0; i < 5; i++) {
+      CANJNI.getCANStatus(i, status);
+      logger.log(
+          now, "SystemStats/CANBus/" + i + "/Utilization", false, status.percentBusUtilization);
+      logger.log(now, "SystemStats/CANBus/" + i + "/OffCount", false, status.busOffCount);
+      logger.log(now, "SystemStats/CANBus/" + i + "/TxFullCount", false, status.txFullCount);
+      logger.log(
+          now, "SystemStats/CANBus/" + i + "/ReceiveErrorCount", false, status.receiveErrorCount);
+      logger.log(
+          now, "SystemStats/CANBus/" + i + "/TransmitErrorCount", false, status.transmitErrorCount);
+    }
   }
 
   private void logPdh(long now) {
