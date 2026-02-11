@@ -8,6 +8,7 @@ import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import java.util.Arrays;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 
@@ -214,6 +215,12 @@ public class CombinedWriter {
     var struct =
         (Struct<E>) structRegistry.getEnumStruct((@NonNull Class<E>) value.getDeclaringClass());
 
+    if (struct.getSize() == 0) {
+      // The struct is empty, just log the enum name as a string
+      log(timestamp, key, forceNt, value.toString());
+      return;
+    }
+
     log(timestamp, key, forceNt, struct, value);
   }
 
@@ -222,6 +229,12 @@ public class CombinedWriter {
     var struct =
         (@NonNull Struct<E>)
             structRegistry.getEnumStruct((@NonNull Class<E>) value.getClass().getComponentType());
+
+    if (struct.getSize() == 0) {
+      // The struct is empty, just log the enum names as a string array
+      log(timestamp, key, forceNt, Arrays.stream(value).map(Enum::toString).toArray(String[]::new));
+      return;
+    }
 
     log(timestamp, key, forceNt, struct, value);
   }

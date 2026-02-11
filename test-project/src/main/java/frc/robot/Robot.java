@@ -11,6 +11,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import dev.doglog.DogLog;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import java.util.function.DoubleSupplier;
@@ -65,6 +66,9 @@ public class Robot extends TimedRobot {
     DogLog.log("Units/Height4", 123, "Meter");
     DogLog.log("Units/Height5", 123, "meter");
     DogLog.log("Units/Height7", motor.getPosition().getValue());
+
+    // An enum that can't be converted to a struct
+    DogLog.log("BrokenEnumStruct", SysIdRoutineLog.State.kDynamicForward);
   }
 
   @Override
