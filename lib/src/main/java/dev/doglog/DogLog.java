@@ -137,76 +137,99 @@ public class DogLog {
 
   /** Log a boolean array. */
   public static void log(String key, boolean @Nullable [] value) {
+    log(0, key, value);
+  }
+
+  public static void log(long timestamp, String key, boolean @Nullable [] value) {
     if (!enabled || value == null) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value);
   }
 
   /** Log a boolean. */
   public static void log(String key, boolean value) {
+    log(0, key, value);
+  }
+
+  public static void log(long timestamp, String key, boolean value) {
     if (!enabled) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value);
   }
 
   /** Log a double array. */
   public static void log(String key, double @Nullable [] value) {
+    log(0, key, value);
+  }
+
+  public static void log(long timestamp, String key, double @Nullable [] value) {
     if (!enabled || value == null) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value);
   }
 
   /** Log a double array with unit metadata. */
   public static void log(String key, double @Nullable [] value, @Nullable String unit) {
+    log(0, key, value, unit);
+  }
+
+  public static void log(long timestamp, String key, double @Nullable [] value, @Nullable String unit) {
     if (!enabled) {
       return;
     }
     if (unit == null) {
-      log(key, value);
+      log(timestamp, key, value);
       return;
     }
     if (value == null) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value, unit);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value, unit);
   }
 
   /** Log a double array with unit metadata. */
   public static void log(String key, double @Nullable [] value, @Nullable Unit unit) {
+    log(0, key, value, unit);
+  }
+
+  public static void log(long timestamp, String key, double @Nullable [] value, @Nullable Unit unit) {
     if (!enabled) {
       return;
     }
     if (unit == null) {
-      log(key, value);
+      log(timestamp, key, value);
       return;
     }
 
-    log(key, value, unit.name());
+    log(timestamp, key, value, unit.name());
   }
 
   /** Log a double. */
   public static void log(String key, double value) {
+    log(0, key, value);
+  }
+
+  public static void log(long timestamp, String key, double value) {
     if (!enabled) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value);
   }
 
   /** Log a double with unit metadata. */
   public static void log(String key, double value, @Nullable String unit) {
+    log(0, key, value, unit);
+  }
+
+  public static void log(long timestamp, String key, double value, @Nullable String unit) {
     if (!enabled) {
       return;
     }
@@ -215,239 +238,300 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value, unit);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value, unit);
   }
 
   /** Log a double with unit metadata. */
   public static void log(String key, double value, @Nullable Unit unit) {
+    log(0, key, value, unit);
+  }
+
+  public static void log(long timestamp, String key, double value, @Nullable Unit unit) {
     if (!enabled) {
       return;
     }
     if (unit == null) {
-      log(key, value);
+      log(timestamp, key, value);
       return;
     }
 
-    log(key, value, unit.name());
+    log(timestamp, key, value, unit.name());
   }
 
   /** Log a measure, preserving the user-specified unit. */
   public static void log(String key, @Nullable Measure<?> value) {
+    log(0, key, value);
+  }
+
+  public static void log(long timestamp, String key, @Nullable Measure<?> value) {
     if (!enabled || value == null) {
       return;
     }
 
-    log(key, value.magnitude(), value.unit().name());
+    log(timestamp, key, value.magnitude(), value.unit().name());
   }
 
   /** Log a float array. */
   public static void log(String key, float @Nullable [] value) {
+    log(0, key, value);
+  }
+
+  public static void log(long timestamp, String key, float @Nullable [] value) {
     if (!enabled || value == null) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value);
   }
 
   /** Log a float array with unit metadata. */
   public static void log(String key, float @Nullable [] value, @Nullable String unit) {
+    log(0, key, value, unit);
+  }
+
+  public static void log(long timestamp, String key, float @Nullable [] value, @Nullable String unit) {
     if (!enabled) {
       return;
     }
     if (unit == null) {
-      log(key, value);
+      log(timestamp, key, value);
       return;
     }
     if (value == null) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value, unit);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value, unit);
   }
 
   /** Log a float. */
   public static void log(String key, float value) {
+    log(0, key, value);
+  }
+
+  public static void log(long timestamp, String key, float value) {
     if (!enabled) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value);
   }
 
   /** Log a float with unit metadata. */
   public static void log(String key, float value, @Nullable String unit) {
+    log(0, key, value, unit);
+  }
+
+  public static void log(long timestamp, String key, float value, @Nullable String unit) {
     if (!enabled) {
       return;
     }
     if (unit == null) {
-      log(key, value);
+      log(timestamp, key, value);
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value, unit);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value, unit);
   }
 
   /** Log an int array. */
   public static void log(String key, int @Nullable [] value) {
+    log(0, key, value);
+  }
+
+  public static void log(long timestamp, String key, int @Nullable [] value) {
     if (!enabled || value == null) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value);
   }
 
   /** Log a long array. */
   public static void log(String key, long @Nullable [] value) {
+    log(0, key, value);
+  }
+
+  public static void log(long timestamp, String key, long @Nullable [] value) {
     if (!enabled || value == null) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value);
   }
 
   /** Log a long array with unit metadata. */
   public static void log(String key, long @Nullable [] value, @Nullable String unit) {
+    log(0, key, value, unit);
+  }
+
+  public static void log(long timestamp, String key, long @Nullable [] value, @Nullable String unit) {
     if (!enabled) {
       return;
     }
     if (unit == null) {
-      log(key, value);
+      log(timestamp, key, value);
       return;
     }
     if (value == null) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value, unit);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value, unit);
   }
 
   /** Log a long. */
   public static void log(String key, long value) {
+    log(0, key, value);
+  }
+
+  public static void log(long timestamp, String key, long value) {
     if (!enabled) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value);
   }
 
   /** Log a long with unit metadata. */
   public static void log(String key, long value, @Nullable String unit) {
+    log(0, key, value, unit);
+  }
+
+  public static void log(long timestamp, String key, long value, @Nullable String unit) {
     if (!enabled) {
       return;
     }
     if (unit == null) {
-      log(key, value);
+      log(timestamp, key, value);
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value, unit);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value, unit);
   }
 
   // TODO: Raw logs
 
   /** Log a string array. */
   public static void log(String key, @Nullable String[] value) {
+    log(0, key, value);
+  }
+
+  public static void log(long timestamp, String key, @Nullable String[] value) {
     if (!enabled || value == null) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value);
   }
 
   /** Log an enum array. */
   public static <E extends Enum<E>> void log(String key, @Nullable E[] value) {
+    log(0, key, value);
+  }
+
+  public static <E extends Enum<E>> void log(long timestamp, String key, @Nullable E[] value) {
     if (!enabled || value == null) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value);
   }
 
   /** Log a string. */
   public static void log(String key, @Nullable String value) {
+    log(0, key, value);
+  }
+
+  public static void log(long timestamp, String key, @Nullable String value) {
     if (!enabled || value == null) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value);
   }
 
   /** Log a string with a custom type string. */
   public static void log(String key, @Nullable String value, @Nullable String customTypeString) {
+    log(0, key, value, customTypeString);
+  }
+
+  public static void log(long timestamp, String key, @Nullable String value, @Nullable String customTypeString) {
     if (!enabled || value == null) {
       return;
     }
 
     if (customTypeString == null) {
-      log(key, value);
+      log(timestamp, key, value);
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value, customTypeString);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value, customTypeString);
   }
 
   /** Log an enum. */
   public static <E extends Enum<E>> void log(String key, @Nullable E value) {
+    log(0, key, value);
+  }
+
+  public static <E extends Enum<E>> void log(long timestamp, String key, @Nullable E value) {
     if (!enabled || value == null) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value);
   }
 
   /** Log a struct array. */
   public static <T extends StructSerializable> void log(String key, @Nullable T[] value) {
+    log(0, key, value);
+  }
+
+  public static <T extends StructSerializable> void log(long timestamp, String key, @Nullable T[] value) {
     if (!enabled || value == null) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value);
   }
 
   /** Log a struct. */
   public static <T extends StructSerializable> void log(String key, @Nullable T value) {
+    log(0, key, value);
+  }
+
+  public static <T extends StructSerializable> void log(long timestamp, String key, @Nullable T value) {
     if (!enabled || value == null) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value);
   }
 
   /** Log a record. */
   public static void log(String key, @Nullable Record value) {
+    log(0, key, value);
+  }
+
+  public static void log(long timestamp, String key, @Nullable Record value) {
     if (!enabled || value == null) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value);
   }
 
   /** Log a record array. */
   public static void log(String key, @Nullable Record[] value) {
+    log(0, key, value);
+  }
+
+  public static void log(long timestamp, String key, @Nullable Record[] value) {
     if (!enabled || value == null) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
-    logger.log(now, key, false, value);
+    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value);
   }
 
   /**
