@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.Meters;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import dev.doglog.DogLog;
+import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
@@ -69,6 +70,42 @@ public class Robot extends TimedRobot {
 
     // An enum that can't be converted to a struct
     DogLog.log("BrokenEnumStruct", SysIdRoutineLog.State.kDynamicForward);
+
+    DogLog.log("Random/RandomLater", Math.random());
+
+    // these should all have the same timestamp
+    long timestamp = HALUtil.getFPGATime();
+    DogLog.log(timestamp, "ts/Debug/SwerveState", new SwerveModuleState());
+    DogLog.log(
+        timestamp,
+        "ts/Debug/SwerveStates",
+        new SwerveModuleState[] {
+          new SwerveModuleState(),
+          new SwerveModuleState(),
+          new SwerveModuleState(),
+          new SwerveModuleState()
+        });
+    DogLog.log(timestamp, "ts/Debug/Position", motor.getPosition().getValueAsDouble());
+    DogLog.log(timestamp, "ts/Debug/Json", "{\"test\": \"json\"}", "json");
+
+    DogLog.log(timestamp, "ts/Tunable/SupplierValue", tunableSupplier.getAsDouble());
+
+    DogLog.log(timestamp, "ts/Random/Random", Math.random());
+
+    DogLog.log(timestamp, "ts/Units/Height1", 123, "inches");
+    DogLog.log(timestamp, "ts/Units/Height2", 123, Meters);
+    DogLog.log(timestamp, "ts/Units/Height3", Centimeters.of(123));
+    DogLog.log(timestamp, "ts/Units/Height4", 123, "Meter");
+    DogLog.log(timestamp, "ts/Units/Height5", 123, "meter");
+    DogLog.log(timestamp, "ts/Units/Height7", motor.getPosition().getValue());
+
+    // An enum that can't be converted to a struct
+    DogLog.log(timestamp, "ts/BrokenEnumStruct", SysIdRoutineLog.State.kDynamicForward);
+
+    DogLog.log(timestamp, "ts/Random/RandomLater", Math.random());
+    DogLog.log(timestamp, "ts/ts", timestamp);
+
+    DogLog.log(timestamp - 1000000, "ts/ts-1", timestamp);
   }
 
   @Override
