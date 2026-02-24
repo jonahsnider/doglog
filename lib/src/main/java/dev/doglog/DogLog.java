@@ -179,7 +179,8 @@ public class DogLog {
     log(0, key, value, unit);
   }
 
-  public static void log(long timestamp, String key, double @Nullable [] value, @Nullable String unit) {
+  public static void log(
+      long timestamp, String key, double @Nullable [] value, @Nullable String unit) {
     if (!enabled) {
       return;
     }
@@ -199,7 +200,8 @@ public class DogLog {
     log(0, key, value, unit);
   }
 
-  public static void log(long timestamp, String key, double @Nullable [] value, @Nullable Unit unit) {
+  public static void log(
+      long timestamp, String key, double @Nullable [] value, @Nullable Unit unit) {
     if (!enabled) {
       return;
     }
@@ -289,7 +291,8 @@ public class DogLog {
     log(0, key, value, unit);
   }
 
-  public static void log(long timestamp, String key, float @Nullable [] value, @Nullable String unit) {
+  public static void log(
+      long timestamp, String key, float @Nullable [] value, @Nullable String unit) {
     if (!enabled) {
       return;
     }
@@ -365,7 +368,8 @@ public class DogLog {
     log(0, key, value, unit);
   }
 
-  public static void log(long timestamp, String key, long @Nullable [] value, @Nullable String unit) {
+  public static void log(
+      long timestamp, String key, long @Nullable [] value, @Nullable String unit) {
     if (!enabled) {
       return;
     }
@@ -456,7 +460,8 @@ public class DogLog {
     log(0, key, value, customTypeString);
   }
 
-  public static void log(long timestamp, String key, @Nullable String value, @Nullable String customTypeString) {
+  public static void log(
+      long timestamp, String key, @Nullable String value, @Nullable String customTypeString) {
     if (!enabled || value == null) {
       return;
     }
@@ -466,7 +471,8 @@ public class DogLog {
       return;
     }
 
-    logger.log(timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value, customTypeString);
+    logger.log(
+        timestamp == 0 ? HALUtil.getFPGATime() : timestamp, key, false, value, customTypeString);
   }
 
   /** Log an enum. */
@@ -487,7 +493,8 @@ public class DogLog {
     log(0, key, value);
   }
 
-  public static <T extends StructSerializable> void log(long timestamp, String key, @Nullable T[] value) {
+  public static <T extends StructSerializable> void log(
+      long timestamp, String key, @Nullable T[] value) {
     if (!enabled || value == null) {
       return;
     }
@@ -500,7 +507,8 @@ public class DogLog {
     log(0, key, value);
   }
 
-  public static <T extends StructSerializable> void log(long timestamp, String key, @Nullable T value) {
+  public static <T extends StructSerializable> void log(
+      long timestamp, String key, @Nullable T value) {
     if (!enabled || value == null) {
       return;
     }

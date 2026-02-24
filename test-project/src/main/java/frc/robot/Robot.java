@@ -73,11 +73,11 @@ public class Robot extends TimedRobot {
 
     DogLog.log("Random/RandomLater", Math.random());
 
-
     // these should all have the same timestamp
     long timestamp = HALUtil.getFPGATime();
     DogLog.log(timestamp, "ts/Debug/SwerveState", new SwerveModuleState());
-    DogLog.log(timestamp,
+    DogLog.log(
+        timestamp,
         "ts/Debug/SwerveStates",
         new SwerveModuleState[] {
           new SwerveModuleState(),
