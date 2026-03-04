@@ -1596,7 +1596,7 @@ __metadata:
     prettier: "npm:3.8.1"
     prettier-plugin-astro: "npm:0.14.1"
     prettier-plugin-java: "npm:2.7.7"
-    prettier-plugin-packagejson: "npm:3.0.0"
+    prettier-plugin-packagejson: "npm:3.0.1"
     sharp: "npm:^0.34.0"
     typescript: "npm:^5.4.5"
     wrangler: "npm:^4.45.0"
@@ -8398,9 +8398,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-packagejson@npm:3.0.0":
-  version: 3.0.0
-  resolution: "prettier-plugin-packagejson@npm:3.0.0"
+"prettier-plugin-packagejson@npm:3.0.1":
+  version: 3.0.1
+  resolution: "prettier-plugin-packagejson@npm:3.0.1"
   dependencies:
     sort-package-json: "npm:3.6.0"
   peerDependencies:
@@ -8408,7 +8408,7 @@ __metadata:
   peerDependenciesMeta:
     prettier:
       optional: true
-  checksum: 10c0/ddcc6d4b70dc6afb97775187e620fa102f2acd64fe7305651eea250505f0dc77da234e85d9fc1163a4cf0bc008a5e8e1772c00e29d22df735f0828efc7aabe45
+  checksum: 10c0/30e0cc951673fb7402de3fdd96728a078c1a515a519e130edba7bb94a298c84cef50738a4cad8bd5d16a945fd8b0b73b8b21e030d94be81c0ba999b4eef8397a
   languageName: node
   linkType: hard
 
