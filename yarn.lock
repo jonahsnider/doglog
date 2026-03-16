@@ -7134,9 +7134,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"miniflare@npm:4.20260312.0":
-  version: 4.20260312.0
-  resolution: "miniflare@npm:4.20260312.0"
+"miniflare@npm:4.20260312.1":
+  version: 4.20260312.1
+  resolution: "miniflare@npm:4.20260312.1"
   dependencies:
     "@cspotcode/source-map-support": "npm:0.8.1"
     sharp: "npm:^0.34.5"
@@ -7146,7 +7146,7 @@ __metadata:
     youch: "npm:4.1.0-beta.10"
   bin:
     miniflare: bootstrap.js
-  checksum: 10c0/f55c7ef7f6a6c519e91ded716bae79807086ecc3cfdc415232e1f04e66e2df3cf7944cf222e70e79cf02a67ae8864475af0b3c206d7564fb2985cfe9e5aee500
+  checksum: 10c0/ada3b9aa312b2dae81c06df35ff9961fade319c0066469436a1253fd6e64826e02da5cc548363a802381f5795712b7ffbd6d30115c08bfd9778e5915919574f8
   languageName: node
   linkType: hard
 
@@ -10563,15 +10563,15 @@ __metadata:
   linkType: hard
 
 "wrangler@npm:^4.25.0, wrangler@npm:^4.45.0":
-  version: 4.73.0
-  resolution: "wrangler@npm:4.73.0"
+  version: 4.74.0
+  resolution: "wrangler@npm:4.74.0"
   dependencies:
     "@cloudflare/kv-asset-handler": "npm:0.4.2"
     "@cloudflare/unenv-preset": "npm:2.15.0"
     blake3-wasm: "npm:2.1.5"
     esbuild: "npm:0.27.3"
     fsevents: "npm:~2.3.2"
-    miniflare: "npm:4.20260312.0"
+    miniflare: "npm:4.20260312.1"
     path-to-regexp: "npm:6.3.0"
     unenv: "npm:2.0.0-rc.24"
     workerd: "npm:1.20260312.1"
@@ -10586,7 +10586,7 @@ __metadata:
   bin:
     wrangler: bin/wrangler.js
     wrangler2: bin/wrangler.js
-  checksum: 10c0/fb709e6828381e4a7625055c9356b0baeb56c47431e6b0ce236341e60dbc4e8336e2c4939e71fae20e8d1bb4d923c4cbf60ceafb224d16b94a0efe48b6268a3f
+  checksum: 10c0/16478d6b127b2dadff9b390d3340d3e3d281afa007c8c074e0abb30600baeb26c2fb7339fbe4b2ce2b251dbc2425e9ecaf637af53989ca87806d922b58150e73
   languageName: node
   linkType: hard
 
