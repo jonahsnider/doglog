@@ -100,20 +100,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/markdoc@npm:1.0.1":
-  version: 1.0.1
-  resolution: "@astrojs/markdoc@npm:1.0.1"
+"@astrojs/markdoc@npm:1.0.2":
+  version: 1.0.2
+  resolution: "@astrojs/markdoc@npm:1.0.2"
   dependencies:
     "@astrojs/internal-helpers": "npm:0.8.0"
-    "@astrojs/markdown-remark": "npm:7.0.0"
-    "@astrojs/prism": "npm:4.0.0"
+    "@astrojs/markdown-remark": "npm:7.0.1"
+    "@astrojs/prism": "npm:4.0.1"
     "@markdoc/markdoc": "npm:^0.5.4"
     esbuild: "npm:^0.27.3"
     github-slugger: "npm:^2.0.0"
     htmlparser2: "npm:^10.1.0"
   peerDependencies:
     astro: ^6.0.0
-  checksum: 10c0/a5bdd0f2c2134e8b6b4c206c16eb42b68ade5b810c8fafba7fa79ab0dee15a742399ff6a540c3faa5daa14557fbb9225b078d2488934e650dd19dada5943915c
+  checksum: 10c0/f2721e2561b992055a90cdc7986528d6184a30cc2fc9095108c7215d760d753df28c733520f2f3ace46a90086204c5643e453851fcd47335fcad251d42e5fdb0
   languageName: node
   linkType: hard
 
@@ -142,6 +142,34 @@ __metadata:
     unist-util-visit-parents: "npm:^6.0.2"
     vfile: "npm:^6.0.3"
   checksum: 10c0/da443ba07cf57295178267ba595522bbcfdb04b37daa7f9414f08b75bdb0614d456be06a90664401dbcf4e756d1ecbb58fb87922beecb91cc6fbe3aca2b82dc1
+  languageName: node
+  linkType: hard
+
+"@astrojs/markdown-remark@npm:7.0.1":
+  version: 7.0.1
+  resolution: "@astrojs/markdown-remark@npm:7.0.1"
+  dependencies:
+    "@astrojs/internal-helpers": "npm:0.8.0"
+    "@astrojs/prism": "npm:4.0.1"
+    github-slugger: "npm:^2.0.0"
+    hast-util-from-html: "npm:^2.0.3"
+    hast-util-to-text: "npm:^4.0.2"
+    js-yaml: "npm:^4.1.1"
+    mdast-util-definitions: "npm:^6.0.0"
+    rehype-raw: "npm:^7.0.0"
+    rehype-stringify: "npm:^10.0.1"
+    remark-gfm: "npm:^4.0.1"
+    remark-parse: "npm:^11.0.0"
+    remark-rehype: "npm:^11.1.2"
+    remark-smartypants: "npm:^3.0.2"
+    shiki: "npm:^4.0.0"
+    smol-toml: "npm:^1.6.0"
+    unified: "npm:^11.0.5"
+    unist-util-remove-position: "npm:^5.0.0"
+    unist-util-visit: "npm:^5.1.0"
+    unist-util-visit-parents: "npm:^6.0.2"
+    vfile: "npm:^6.0.3"
+  checksum: 10c0/5e6c56e2f6f1d0efa51a1b86293d77d90d2ca987a23b643a2aec4974f70b9f4e8ea48ddb171f1b2af687d2fcc61641ea1e34ee3e9b3050d0409630e56f95f7dc
   languageName: node
   linkType: hard
 
@@ -174,6 +202,15 @@ __metadata:
   dependencies:
     prismjs: "npm:^1.30.0"
   checksum: 10c0/d81a940c42a2aaa8b17adc9bba8163d9964a6e9bc4ca3096dd7ba4db36f1918e89102987d5bb5b44461f9f7486a390128c3d193863280fa106804ac4e6d603e1
+  languageName: node
+  linkType: hard
+
+"@astrojs/prism@npm:4.0.1":
+  version: 4.0.1
+  resolution: "@astrojs/prism@npm:4.0.1"
+  dependencies:
+    prismjs: "npm:^1.30.0"
+  checksum: 10c0/e4d1513e3f665e1fc2267db474e363ac6a86c29fcb668d32413723826dec32d007de616f1f3df9be219f4226e271e83d9492e7810d26c5b4cf7c8ca18de484a5
   languageName: node
   linkType: hard
 
@@ -1569,12 +1606,12 @@ __metadata:
   resolution: "@doglog/web@workspace:web"
   dependencies:
     "@astrojs/check": "npm:0.9.8"
-    "@astrojs/markdoc": "npm:1.0.1"
+    "@astrojs/markdoc": "npm:1.0.2"
     "@astrojs/starlight": "npm:0.38.1"
     "@astrojs/starlight-markdoc": "npm:0.6.0"
     "@vite-pwa/assets-generator": "npm:^1.0.1"
     "@vite-pwa/astro": "npm:^1.2.0"
-    astro: "npm:6.0.5"
+    astro: "npm:6.0.6"
     prettier: "npm:3.8.1"
     prettier-plugin-astro: "npm:0.14.1"
     prettier-plugin-java: "npm:2.7.7"
@@ -3506,13 +3543,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"astro@npm:6.0.5":
-  version: 6.0.5
-  resolution: "astro@npm:6.0.5"
+"astro@npm:6.0.6":
+  version: 6.0.6
+  resolution: "astro@npm:6.0.6"
   dependencies:
     "@astrojs/compiler": "npm:^3.0.0"
     "@astrojs/internal-helpers": "npm:0.8.0"
-    "@astrojs/markdown-remark": "npm:7.0.0"
+    "@astrojs/markdown-remark": "npm:7.0.1"
     "@astrojs/telemetry": "npm:3.3.0"
     "@capsizecss/unpack": "npm:^4.0.0"
     "@clack/prompts": "npm:^1.0.1"
@@ -3571,7 +3608,7 @@ __metadata:
       optional: true
   bin:
     astro: bin/astro.mjs
-  checksum: 10c0/defe7f299e9fdc51d61d75df17c8f0a9ff653252f89ab9b8d66f49d546148052bac2da790275c7a56a5577e40b059b67202dcd836e804100164a4e4394d67425
+  checksum: 10c0/4adaae3bba71e98f652db7d87f65416999af6c1a42295274ca57eea42738474fdb6e38105a378f10be8849c8474852dce91a09ead7c3261951093aa5b5138fdc
   languageName: node
   linkType: hard
 
