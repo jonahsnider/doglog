@@ -28,13 +28,13 @@ You will almost certainly encounter bugs or other compatibility issues as a resu
 DogLog is used by teams across the FRC community for a variety of purposes.
 Here's a selection of DogLog users with open-source robot code you can review for inspiration:
 
-- [Team 4522 - Team SCREAM](https://www.thebluealliance.com/team/4522), extends DogLog to [support logging fields at different frequencies](https://github.com/TeamSCREAMRobotics/4522_2025Competition/blob/5e15fb5ddbe254524759e0cf7a9c4714a160b48d/src/main/java/frc2025/logging/Logger.java) to minimize loop times
+- [Team 4522 - Team SCREAM](https://www.thebluealliance.com/team/4522), extends DogLog to [support logging fields at different frequencies](https://github.com/TeamSCREAMRobotics/4522_2026Competition/blob/1639aea5fc6a1717e58a546a6e9a4ebb2478dcdb/src/main/java/frc2026/tars/Robot.java#L27-L35) to minimize loop times
 - [Team 3847 - Spectrum](https://www.thebluealliance.com/team/3847), uses [their Telemetry class](https://github.com/Spectrum3847/2026-Spectrum/blob/HEAD/src/main/java/frc/spectrumLib/Telemetry.java) to seamlessly integrate priority levels, `Command` logging, etc., with DogLog's extensible API
-- [Team 9496 - LYNK](https://www.thebluealliance.com/team/9496), breaks down triggers for high-level logic by [logging their main robot state](https://github.com/LynkRobotics/RobotCode2025/blob/747012aab2138378f4c0545704f1fb9f258a5350/src/main/java/frc/robot/subsystems/RobotState.java#L296-L301) with DogLog
+- [Team 9496 - LYNK](https://www.thebluealliance.com/team/9496), breaks down triggers for high-level logic by [logging their main robot state](https://github.com/LynkRobotics/RobotCode2026Public/blob/a4c4835085c87fdc0fc5539c77d387b5a1e781d1/src/main/java/frc/robot/superstructure/Superstructure.java#L157-L160) with DogLog
 
 And of course,
 
-- [Team 581 - Blazing Bulldogs](https://www.thebluealliance.com/team/581), uses DogLog to [provide visibility into robot automation](https://github.com/team581/2024-offseason-bot/blob/4ba4c17f4e07bb44fb5cb433b1519f07246e390a/src/main/java/frc/robot/robot_manager/RobotManager.java#L415-L426), accelerating development at home and improving reliability at competitions
+- [Team 581 - Blazing Bulldogs](https://www.thebluealliance.com/team/581), uses DogLog to [provide visibility into robot automation](https://github.com/team581/offseason-2025/blob/3284254fd11cd767e2861580a4671837224b1380/offseason-bot/src/main/java/frc/robot/robot_manager/RobotManager.java#L106-L144), accelerating development at home and improving reliability at competitions
 
 ## What should I log?
 
