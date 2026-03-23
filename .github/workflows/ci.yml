@@ -19,7 +19,7 @@ jobs:
           distribution: "temurin"
           java-version: 25
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
       - name: Assemble project
         run: ./gradlew assemble
   style:
@@ -40,7 +40,7 @@ jobs:
           distribution: "temurin"
           java-version: 25
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
       - name: Check formatting
         run: ./gradlew spotlessCheck
   assemble-test-project:
@@ -61,7 +61,7 @@ jobs:
           distribution: "temurin"
           java-version: 25
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
       - name: Assemble DogLog
         run: ./gradlew assemble
       - name: Assemble test project
@@ -85,7 +85,7 @@ jobs:
           distribution: "temurin"
           java-version: 25
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
       - name: Check formatting
         run: ./gradlew spotlessCheck
         working-directory: test-project
@@ -109,7 +109,7 @@ jobs:
           distribution: "temurin"
           java-version: 25
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
       - name: Build
         run: ./gradlew build
       - name: Enable Corepack
