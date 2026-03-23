@@ -20,7 +20,7 @@
 		"@astrojs/starlight-markdoc": "0.6.0",
 		"astro": "6.0.8",
 		"sharp": "^0.34.0",
-		"typescript": "^5.4.5"
+		"typescript": "^6.0.0"
 	},
 	"devDependencies": {
 		"@vite-pwa/assets-generator": "^1.0.1",
