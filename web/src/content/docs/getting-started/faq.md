@@ -29,7 +29,7 @@ DogLog is used by teams across the FRC community for a variety of purposes.
 Here's a selection of DogLog users with open-source robot code you can review for inspiration:
 
 - [Team 4522 - Team SCREAM](https://www.thebluealliance.com/team/4522), extends DogLog to [support logging fields at different frequencies](https://github.com/TeamSCREAMRobotics/4522_2025Competition/blob/5e15fb5ddbe254524759e0cf7a9c4714a160b48d/src/main/java/frc2025/logging/Logger.java) to minimize loop times
-- [Team 3847 - Spectrum](https://www.thebluealliance.com/team/3847), uses [their Telemetry class](https://github.com/Spectrum3847/2025-Spectrum/blob/15fe02ad68d86d82df43b5a81ded2fdb2bf3036b/src/main/java/frc/spectrumLib/Telemetry.java) to seamlessly integrate priority levels, `Command` logging, etc., with DogLog's extensible API
+- [Team 3847 - Spectrum](https://www.thebluealliance.com/team/3847), uses [their Telemetry class](https://github.com/Spectrum3847/2026-Spectrum/blob/HEAD/src/main/java/frc/spectrumLib/Telemetry.java) to seamlessly integrate priority levels, `Command` logging, etc., with DogLog's extensible API
 - [Team 9496 - LYNK](https://www.thebluealliance.com/team/9496), breaks down triggers for high-level logic by [logging their main robot state](https://github.com/LynkRobotics/RobotCode2025/blob/747012aab2138378f4c0545704f1fb9f258a5350/src/main/java/frc/robot/subsystems/RobotState.java#L296-L301) with DogLog
 
 And of course,
