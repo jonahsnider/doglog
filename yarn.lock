@@ -48,10 +48,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/compiler@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "@astrojs/compiler@npm:3.0.0"
-  checksum: 10c0/5ad73495faf0b4b9043d1a4c7d029890a6401ee654653a3899b12bd07f0da77098d18edc3a98a7ff1a462a12340529ff9d19feba72e2d72ae12179c6df8c8d67
+"@astrojs/compiler@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "@astrojs/compiler@npm:3.0.1"
+  checksum: 10c0/f2ec194a6c0b18044cf77b9bc3ff48f972d3c017dbdd9f8d4512fe7b0c1abcd2996cb4b8378831f0432f7a4289248235a082b95f90a1d0c7ca7e6a5c24fe6779
   languageName: node
   linkType: hard
 
@@ -100,12 +100,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/markdoc@npm:1.0.2":
-  version: 1.0.2
-  resolution: "@astrojs/markdoc@npm:1.0.2"
+"@astrojs/markdoc@npm:1.0.3":
+  version: 1.0.3
+  resolution: "@astrojs/markdoc@npm:1.0.3"
   dependencies:
     "@astrojs/internal-helpers": "npm:0.8.0"
-    "@astrojs/markdown-remark": "npm:7.0.1"
+    "@astrojs/markdown-remark": "npm:7.1.0"
     "@astrojs/prism": "npm:4.0.1"
     "@markdoc/markdoc": "npm:^0.5.4"
     esbuild: "npm:^0.27.3"
@@ -113,7 +113,7 @@ __metadata:
     htmlparser2: "npm:^10.1.0"
   peerDependencies:
     astro: ^6.0.0
-  checksum: 10c0/f2721e2561b992055a90cdc7986528d6184a30cc2fc9095108c7215d760d753df28c733520f2f3ace46a90086204c5643e453851fcd47335fcad251d42e5fdb0
+  checksum: 10c0/e9318a7ad1f66de8eb43e1e153fbb520149bccb7fb5c439ebf5c1555eb83c0c97b19580f0776698572f3a614292523da7a79a1554c8624ebfd2dcefd4894b0ec
   languageName: node
   linkType: hard
 
@@ -145,9 +145,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/markdown-remark@npm:7.0.1":
-  version: 7.0.1
-  resolution: "@astrojs/markdown-remark@npm:7.0.1"
+"@astrojs/markdown-remark@npm:7.1.0":
+  version: 7.1.0
+  resolution: "@astrojs/markdown-remark@npm:7.1.0"
   dependencies:
     "@astrojs/internal-helpers": "npm:0.8.0"
     "@astrojs/prism": "npm:4.0.1"
@@ -162,6 +162,7 @@ __metadata:
     remark-parse: "npm:^11.0.0"
     remark-rehype: "npm:^11.1.2"
     remark-smartypants: "npm:^3.0.2"
+    retext-smartypants: "npm:^6.2.0"
     shiki: "npm:^4.0.0"
     smol-toml: "npm:^1.6.0"
     unified: "npm:^11.0.5"
@@ -169,7 +170,7 @@ __metadata:
     unist-util-visit: "npm:^5.1.0"
     unist-util-visit-parents: "npm:^6.0.2"
     vfile: "npm:^6.0.3"
-  checksum: 10c0/5e6c56e2f6f1d0efa51a1b86293d77d90d2ca987a23b643a2aec4974f70b9f4e8ea48ddb171f1b2af687d2fcc61641ea1e34ee3e9b3050d0409630e56f95f7dc
+  checksum: 10c0/8c27865a3d522326731d81a23d98fa714a73b81b384d482bfcb946e9fa07f80d04a9b22b210d2dfbcfc605a559d4fc9eb13522be6b8ffa077151a4c704d0516f
   languageName: node
   linkType: hard
 
@@ -1506,7 +1507,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@clack/prompts@npm:^1.0.1":
+"@clack/prompts@npm:^1.1.0":
   version: 1.1.0
   resolution: "@clack/prompts@npm:1.1.0"
   dependencies:
@@ -1606,12 +1607,12 @@ __metadata:
   resolution: "@doglog/web@workspace:web"
   dependencies:
     "@astrojs/check": "npm:0.9.8"
-    "@astrojs/markdoc": "npm:1.0.2"
+    "@astrojs/markdoc": "npm:1.0.3"
     "@astrojs/starlight": "npm:0.38.2"
     "@astrojs/starlight-markdoc": "npm:0.6.0"
     "@vite-pwa/assets-generator": "npm:^1.0.1"
     "@vite-pwa/astro": "npm:^1.2.0"
-    astro: "npm:6.0.8"
+    astro: "npm:6.1.1"
     prettier: "npm:3.8.1"
     prettier-plugin-astro: "npm:0.14.1"
     prettier-plugin-java: "npm:2.7.7"
@@ -3543,16 +3544,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"astro@npm:6.0.8":
-  version: 6.0.8
-  resolution: "astro@npm:6.0.8"
+"astro@npm:6.1.1":
+  version: 6.1.1
+  resolution: "astro@npm:6.1.1"
   dependencies:
-    "@astrojs/compiler": "npm:^3.0.0"
+    "@astrojs/compiler": "npm:^3.0.1"
     "@astrojs/internal-helpers": "npm:0.8.0"
-    "@astrojs/markdown-remark": "npm:7.0.1"
+    "@astrojs/markdown-remark": "npm:7.1.0"
     "@astrojs/telemetry": "npm:3.3.0"
     "@capsizecss/unpack": "npm:^4.0.0"
-    "@clack/prompts": "npm:^1.0.1"
+    "@clack/prompts": "npm:^1.1.0"
     "@oslojs/encoding": "npm:^1.1.0"
     "@rollup/pluginutils": "npm:^5.3.0"
     aria-query: "npm:^5.3.2"
@@ -3586,11 +3587,11 @@ __metadata:
     rehype: "npm:^13.0.2"
     semver: "npm:^7.7.4"
     sharp: "npm:^0.34.0"
-    shiki: "npm:^4.0.0"
+    shiki: "npm:^4.0.2"
     smol-toml: "npm:^1.6.0"
-    svgo: "npm:^4.0.0"
-    tinyclip: "npm:^0.1.6"
-    tinyexec: "npm:^1.0.2"
+    svgo: "npm:^4.0.1"
+    tinyclip: "npm:^0.1.12"
+    tinyexec: "npm:^1.0.4"
     tinyglobby: "npm:^0.2.15"
     tsconfck: "npm:^3.1.6"
     ultrahtml: "npm:^1.6.0"
@@ -3608,7 +3609,7 @@ __metadata:
       optional: true
   bin:
     astro: bin/astro.mjs
-  checksum: 10c0/f03844c0ac4dbf506a36fabd3211b81262a2d620ceb6f5150012bd1bc80202fe015b2ce55e1efc377ad6887e0a8dad22ebd019eb6d051a6c4955fdf11cfc7776
+  checksum: 10c0/7fe171f816face6fae1505486e443db73bb6c8932787c7c61cd6a7ccad30b01db63f457eb603daf0bb989a41a99bf3d4a9bcc4345f2cac5a4c94b0575eca6196
   languageName: node
   linkType: hard
 
@@ -8370,6 +8371,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"retext-smartypants@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "retext-smartypants@npm:6.2.0"
+  dependencies:
+    "@types/nlcst": "npm:^2.0.0"
+    nlcst-to-string: "npm:^4.0.0"
+    unist-util-visit: "npm:^5.0.0"
+  checksum: 10c0/36f925353dd7f31df642bca2493524a8daee15f9b0e0dfe7fb8982462d23ccb12a99864989db22f0bacb6d7fea1f696ba96e031d3fbac4f013e1c95ef3fed881
+  languageName: node
+  linkType: hard
+
 "retext-stringify@npm:^4.0.0":
   version: 4.0.0
   resolution: "retext-stringify@npm:4.0.0"
@@ -8572,6 +8584,13 @@ __metadata:
   version: 1.4.3
   resolution: "sax@npm:1.4.3"
   checksum: 10c0/45bba07561d93f184a8686e1a543418ced8c844b994fbe45cc49d5cd2fc8ac7ec949dae38565e35e388ad0cca2b75997a29b6857c927bf6553da3f80ed0e4e62
+  languageName: node
+  linkType: hard
+
+"sax@npm:^1.5.0":
+  version: 1.6.0
+  resolution: "sax@npm:1.6.0"
+  checksum: 10c0/e5593f4a91eb25761a688c4d96902e4e95a0dd6017bc65146b6f21236e3d715cf893333b76bc758923c9574c2fb5a7a76c3a81e96ea15432f2624f906c027c1e
   languageName: node
   linkType: hard
 
@@ -8853,7 +8872,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"shiki@npm:^4.0.0":
+"shiki@npm:^4.0.0, shiki@npm:^4.0.2":
   version: 4.0.2
   resolution: "shiki@npm:4.0.2"
   dependencies:
@@ -9282,9 +9301,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svgo@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "svgo@npm:4.0.0"
+"svgo@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "svgo@npm:4.0.1"
   dependencies:
     commander: "npm:^11.1.0"
     css-select: "npm:^5.1.0"
@@ -9292,10 +9311,10 @@ __metadata:
     css-what: "npm:^6.1.0"
     csso: "npm:^5.0.5"
     picocolors: "npm:^1.1.1"
-    sax: "npm:^1.4.1"
+    sax: "npm:^1.5.0"
   bin:
     svgo: ./bin/svgo.js
-  checksum: 10c0/2b01c910d59d10bb15e17714181a8fa96531b09a4e2cf2ca1abe24dbcb8400725b6d542d6e456c62222546e334d5b344799c170c5b6be0c48e31b02c23297275
+  checksum: 10c0/f61f9957b42e0c97593b49a01f3b93cb239b2e818efccb056fcc866d622704d9021c4ef8bd0287264c3e4f33da60e4af14d841b4a624b87ff8888e3b896d13d5
   languageName: node
   linkType: hard
 
@@ -9353,17 +9372,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tinyclip@npm:^0.1.6":
+"tinyclip@npm:^0.1.12":
   version: 0.1.12
   resolution: "tinyclip@npm:0.1.12"
   checksum: 10c0/5319ca4d430cc7cafe9624b86ba331467e0f6c718b2a961e3fc2a48bff932a319b1aaf8bd7f8edb70f4bef24e233e442e4fc9ffa77c994bace415324e0bc86cf
   languageName: node
   linkType: hard
 
-"tinyexec@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "tinyexec@npm:1.0.2"
-  checksum: 10c0/1261a8e34c9b539a9aae3b7f0bb5372045ff28ee1eba035a2a059e532198fe1a182ec61ac60fa0b4a4129f0c4c4b1d2d57355b5cb9aa2d17ac9454ecace502ee
+"tinyexec@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "tinyexec@npm:1.0.4"
+  checksum: 10c0/d4a5bbcf6bdb23527a4b74c4aa566f41432167112fe76f420ec7e3a90a3ecfd3a7d944383e2719fc3987b69400f7b928daf08700d145fb527c2e80ec01e198bd
   languageName: node
   linkType: hard
 
