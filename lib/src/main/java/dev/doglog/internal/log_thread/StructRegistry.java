@@ -3,9 +3,9 @@ package dev.doglog.internal.log_thread;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructGenerator;
 import edu.wpi.first.util.struct.StructSerializable;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /** Used internally for working with WPILib {@link Struct}s. */
 public class StructRegistry {
@@ -35,9 +35,9 @@ public class StructRegistry {
   }
 
   private final Map<Class<? extends StructSerializable>, Optional<Struct<?>>> resolvedStructs =
-      new HashMap<>();
-  private final Map<Class<? extends Enum<?>>, Struct<?>> resolvedEnums = new HashMap<>();
-  private final Map<Class<? extends Record>, Struct<?>> resolvedRecords = new HashMap<>();
+      new ConcurrentHashMap<>();
+  private final Map<Class<? extends Enum<?>>, Struct<?>> resolvedEnums = new ConcurrentHashMap<>();
+  private final Map<Class<? extends Record>, Struct<?>> resolvedRecords = new ConcurrentHashMap<>();
 
   public Optional<Struct<?>> getStruct(Class<? extends StructSerializable> entryClass) {
     return resolvedStructs.computeIfAbsent(entryClass, key -> getStructRaw(entryClass));

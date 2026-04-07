@@ -22,8 +22,8 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RuntimeType;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.jspecify.annotations.NullMarked;
 
 /** Logs to a WPILib {@link DataLog}. */
@@ -56,27 +56,27 @@ public class DataLogWriter implements LogWriterLowLevel {
     unitCache.put(key, unit);
   }
 
-  private final Map<String, BooleanArrayLogEntry> booleanArrayLogs = new HashMap<>();
-  private final Map<String, BooleanLogEntry> booleanLogs = new HashMap<>();
-  private final Map<String, DoubleArrayLogEntry> doubleArrayLogs = new HashMap<>();
-  private final Map<String, DoubleLogEntry> doubleLogs = new HashMap<>();
-  private final Map<String, FloatArrayLogEntry> floatArrayLogs = new HashMap<>();
-  private final Map<String, FloatLogEntry> floatLogs = new HashMap<>();
-  private final Map<String, IntegerArrayLogEntry> integerArrayLogs = new HashMap<>();
-  private final Map<String, IntegerLogEntry> integerLogs = new HashMap<>();
-  private final Map<String, StringArrayLogEntry> stringArrayLogs = new HashMap<>();
-  private final Map<String, StringLogEntry> stringLogs = new HashMap<>();
-  private final Map<String, StructArrayLogEntry<?>> structArrayLogs = new HashMap<>();
-  private final Map<String, StructLogEntry<?>> structLogs = new HashMap<>();
+  private final Map<String, BooleanArrayLogEntry> booleanArrayLogs = new ConcurrentHashMap<>();
+  private final Map<String, BooleanLogEntry> booleanLogs = new ConcurrentHashMap<>();
+  private final Map<String, DoubleArrayLogEntry> doubleArrayLogs = new ConcurrentHashMap<>();
+  private final Map<String, DoubleLogEntry> doubleLogs = new ConcurrentHashMap<>();
+  private final Map<String, FloatArrayLogEntry> floatArrayLogs = new ConcurrentHashMap<>();
+  private final Map<String, FloatLogEntry> floatLogs = new ConcurrentHashMap<>();
+  private final Map<String, IntegerArrayLogEntry> integerArrayLogs = new ConcurrentHashMap<>();
+  private final Map<String, IntegerLogEntry> integerLogs = new ConcurrentHashMap<>();
+  private final Map<String, StringArrayLogEntry> stringArrayLogs = new ConcurrentHashMap<>();
+  private final Map<String, StringLogEntry> stringLogs = new ConcurrentHashMap<>();
+  private final Map<String, StructArrayLogEntry<?>> structArrayLogs = new ConcurrentHashMap<>();
+  private final Map<String, StructLogEntry<?>> structLogs = new ConcurrentHashMap<>();
 
   /** Maps keys of double entries to their units. */
-  private final Map<String, String> doubleUnits = new HashMap<>();
+  private final Map<String, String> doubleUnits = new ConcurrentHashMap<>();
 
-  private final Map<String, String> doubleArrayUnits = new HashMap<>();
-  private final Map<String, String> floatUnits = new HashMap<>();
-  private final Map<String, String> floatArrayUnits = new HashMap<>();
-  private final Map<String, String> integerUnits = new HashMap<>();
-  private final Map<String, String> integerArrayUnits = new HashMap<>();
+  private final Map<String, String> doubleArrayUnits = new ConcurrentHashMap<>();
+  private final Map<String, String> floatUnits = new ConcurrentHashMap<>();
+  private final Map<String, String> floatArrayUnits = new ConcurrentHashMap<>();
+  private final Map<String, String> integerUnits = new ConcurrentHashMap<>();
+  private final Map<String, String> integerArrayUnits = new ConcurrentHashMap<>();
 
   private final DataLog log;
   private int alertNtLogHandle = -1;
