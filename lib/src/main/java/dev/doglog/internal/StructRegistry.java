@@ -1,8 +1,8 @@
 package dev.doglog.internal;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import org.wpilib.util.struct.Struct;
 import org.wpilib.util.struct.StructGenerator;
 import org.wpilib.util.struct.StructSerializable;
@@ -35,9 +35,9 @@ public class StructRegistry {
   }
 
   private final Map<Class<? extends StructSerializable>, Optional<Struct<?>>> resolvedStructs =
-      new HashMap<>();
-  private final Map<Class<? extends Enum<?>>, Struct<?>> resolvedEnums = new HashMap<>();
-  private final Map<Class<? extends Record>, Struct<?>> resolvedRecords = new HashMap<>();
+      new ConcurrentHashMap<>();
+  private final Map<Class<? extends Enum<?>>, Struct<?>> resolvedEnums = new ConcurrentHashMap<>();
+  private final Map<Class<? extends Record>, Struct<?>> resolvedRecords = new ConcurrentHashMap<>();
 
   public Struct<?> getEnumStruct(Class<? extends Enum<?>> enumClass) {
     return resolvedEnums.computeIfAbsent(enumClass, key -> getEnumStructRaw(enumClass));

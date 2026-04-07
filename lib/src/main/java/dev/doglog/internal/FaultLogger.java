@@ -1,10 +1,9 @@
 package dev.doglog.internal;
 
 import dev.doglog.internal.writers.LogWriter;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.jspecify.annotations.Nullable;
 import org.wpilib.driverstation.Alert;
 import org.wpilib.driverstation.Alert.Level;
@@ -16,11 +15,12 @@ import org.wpilib.hardware.hal.HALUtil;
  * interface to logging errors that writes to both NT and DataLog.
  */
 public class FaultLogger {
-  private static final Map<String, Integer> FAULT_COUNTS = new HashMap<>();
-  private static final Map<String, Alert> FAULT_ALERTS = new HashMap<>();
+  private static final Map<String, Integer> FAULT_COUNTS = new ConcurrentHashMap<>();
+  private static final Map<String, Alert> FAULT_ALERTS = new ConcurrentHashMap<>();
 
   /** Faults that are currently active. */
-  private static final Set<String> ACTIVE_FAULTS = new HashSet<>();
+  @SuppressWarnings("null")
+  private static final Set<String> ACTIVE_FAULTS = ConcurrentHashMap.newKeySet();
 
   // This function doesn't need to have the LogConsumer parameter, it could just call DogLog
   // directly. But doing that would mean getting the current time twice, which can be avoided by

@@ -1,8 +1,8 @@
 package dev.doglog.internal;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import org.wpilib.util.protobuf.Protobuf;
 import org.wpilib.util.protobuf.ProtobufSerializable;
 
@@ -24,7 +24,7 @@ public class ProtobufRegistry {
   }
 
   private final Map<Class<? extends ProtobufSerializable>, Optional<Protobuf<?, ?>>>
-      resolvedProtos = new HashMap<>();
+      resolvedProtos = new ConcurrentHashMap<>();
 
   public Optional<Protobuf<?, ?>> getProto(Class<? extends ProtobufSerializable> entryClass) {
     return resolvedProtos.computeIfAbsent(entryClass, key -> getProtoRaw(entryClass));
