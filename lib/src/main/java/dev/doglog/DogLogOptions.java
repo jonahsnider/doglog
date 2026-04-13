@@ -9,35 +9,35 @@ import java.util.function.BooleanSupplier;
  * <p>See https://doglog.dev/reference/logger-options/ for more information.
  */
 public record DogLogOptions(
-    /**
+    /*
      * A function that returns whether logged values should be published to NetworkTables. Best
      * practice is to disable NetworkTables publishing during matches to reduce network bandwidth
      * consumption. The default behavior is to publish to NetworkTables unless the robot connects to
      * the FMS on a competition field.
      */
     BooleanSupplier ntPublish,
-    /** Whether all NetworkTables fields should be saved to the log file. */
+    /* Whether all NetworkTables fields should be saved to the log file. */
     boolean captureNt,
-    /**
+    /*
      * Whether driver station data (robot enable state and joystick inputs) should be saved to the
      * log file. Because of a limitation in WPILib, this option can't be disabled once it has been
      * enabled.
      */
     boolean captureDs,
-    /** Whether to log extra data, like PDH currents, CAN usage, etc. */
+    /* Whether to log extra data, like PDH currents, CAN usage, etc. */
     boolean logExtras,
-    /** Whether console output should be saved to the log file. */
+    /* Whether console output should be saved to the log file. */
     boolean captureConsole,
-    /** The maximum size of the log entry queue to use. */
+    /* The maximum size of the log entry queue to use. */
     int logEntryQueueCapacity,
-    /**
+    /*
      * A function that returns whether tunable values from NetworkTables should be used. Best
      * practice is to have this disabled when you are at competitions, to make robot behavior more
      * deterministic. The default behavior is to only use tunable values from NetworkTables when not
      * connected to the FMS on a competition field.
      */
     BooleanSupplier ntTunables,
-    /**
+    /*
      * Whether to use a separate thread to handle log entries. This setting defaults to true.
      * Turning off the log thread may reduce the memory usage of logging, but could cause increased
      * CPU load.
