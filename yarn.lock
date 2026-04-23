@@ -245,9 +245,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/starlight@npm:0.38.3":
-  version: 0.38.3
-  resolution: "@astrojs/starlight@npm:0.38.3"
+"@astrojs/starlight@npm:0.38.4":
+  version: 0.38.4
+  resolution: "@astrojs/starlight@npm:0.38.4"
   dependencies:
     "@astrojs/markdown-remark": "npm:^7.0.0"
     "@astrojs/mdx": "npm:^5.0.0"
@@ -279,7 +279,7 @@ __metadata:
     vfile: "npm:^6.0.2"
   peerDependencies:
     astro: ^6.0.0
-  checksum: 10c0/24855fb3d3e2c3c5bce89de39d5aa26ed436a17630b5bf5b06a77f840be8cddb8cb6ff77d1b4b6d98e9da0602cf18762d94a5cfde6683f620df9130dfae42888
+  checksum: 10c0/32b5564408832cd78dcf6f3187118c72b872213c3b8b5d9ea52e4aa362bc0f1e40f2b6cdc79fed2642255af72724314373e27ec1b11769ebe2d10e924df4179c
   languageName: node
   linkType: hard
 
@@ -1616,7 +1616,7 @@ __metadata:
   dependencies:
     "@astrojs/check": "npm:0.9.8"
     "@astrojs/markdoc": "npm:1.0.4"
-    "@astrojs/starlight": "npm:0.38.3"
+    "@astrojs/starlight": "npm:0.38.4"
     "@astrojs/starlight-markdoc": "npm:0.6.0"
     "@vite-pwa/assets-generator": "npm:^1.0.1"
     "@vite-pwa/astro": "npm:^1.2.0"
