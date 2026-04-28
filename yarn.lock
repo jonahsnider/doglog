@@ -18,19 +18,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/check@npm:0.9.8":
-  version: 0.9.8
-  resolution: "@astrojs/check@npm:0.9.8"
+"@astrojs/check@npm:0.9.9":
+  version: 0.9.9
+  resolution: "@astrojs/check@npm:0.9.9"
   dependencies:
-    "@astrojs/language-server": "npm:^2.16.5"
+    "@astrojs/language-server": "npm:^2.16.7"
     chokidar: "npm:^4.0.3"
     kleur: "npm:^4.1.5"
     yargs: "npm:^17.7.2"
   peerDependencies:
-    typescript: ^5.0.0
+    typescript: ^5.0.0 || ^6.0.0
   bin:
     astro-check: bin/astro-check.js
-  checksum: 10c0/ff5d71a02ca0434e5c3b46907435fb152f9b0a36a1997ae17702232a49ae010cd255fc43af8ded06d1d99998f45b93386e94b5bda08bb04bc3829d11d6a8138e
+  checksum: 10c0/539dcb0f9d570ba5bebe3a2a44ebb0f31de1d9005f059049968cd1c10246d171139b025284e4b1e56e6460aeb75f2f3482be4fc35113c7601d78927a0c7b8a9a
   languageName: node
   linkType: hard
 
@@ -73,9 +73,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/language-server@npm:^2.16.5":
-  version: 2.16.5
-  resolution: "@astrojs/language-server@npm:2.16.5"
+"@astrojs/language-server@npm:^2.16.7":
+  version: 2.16.7
+  resolution: "@astrojs/language-server@npm:2.16.7"
   dependencies:
     "@astrojs/compiler": "npm:^2.13.1"
     "@astrojs/yaml2ts": "npm:^0.2.3"
@@ -85,7 +85,7 @@ __metadata:
     "@volar/language-server": "npm:~2.4.28"
     "@volar/language-service": "npm:~2.4.28"
     muggle-string: "npm:^0.4.1"
-    tinyglobby: "npm:^0.2.15"
+    tinyglobby: "npm:^0.2.16"
     volar-service-css: "npm:0.0.70"
     volar-service-emmet: "npm:0.0.70"
     volar-service-html: "npm:0.0.70"
@@ -105,7 +105,7 @@ __metadata:
       optional: true
   bin:
     astro-ls: bin/nodeServer.js
-  checksum: 10c0/3dfca1b7caf9ad53d55fa8939c6599d6d6d6c136993a2ea83a7339091539924c15b91dd90d46718cf9b5f5fd3cf755290065bd882da3beac93bcdf21d3947645
+  checksum: 10c0/8b688374ecb326da9b221aa2579bd3d0ea21a3b89ac71325e6438c85483cff8c2cc28671cb98ef728365c5bbbde7adf8b97fbd75f95238920d9cf332213a72f5
   languageName: node
   linkType: hard
 
@@ -1614,13 +1614,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@doglog/web@workspace:web"
   dependencies:
-    "@astrojs/check": "npm:0.9.8"
+    "@astrojs/check": "npm:0.9.9"
     "@astrojs/markdoc": "npm:1.0.4"
     "@astrojs/starlight": "npm:0.38.4"
     "@astrojs/starlight-markdoc": "npm:0.6.0"
     "@vite-pwa/assets-generator": "npm:^1.0.1"
     "@vite-pwa/astro": "npm:^1.2.0"
-    astro: "npm:6.1.9"
+    astro: "npm:6.1.10"
     prettier: "npm:3.8.3"
     prettier-plugin-astro: "npm:0.14.1"
     prettier-plugin-java: "npm:2.7.7"
@@ -3552,9 +3552,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"astro@npm:6.1.9":
-  version: 6.1.9
-  resolution: "astro@npm:6.1.9"
+"astro@npm:6.1.10":
+  version: 6.1.10
+  resolution: "astro@npm:6.1.10"
   dependencies:
     "@astrojs/compiler": "npm:^3.0.1"
     "@astrojs/internal-helpers": "npm:0.9.0"
@@ -3616,7 +3616,7 @@ __metadata:
       optional: true
   bin:
     astro: bin/astro.mjs
-  checksum: 10c0/bacb7dab6a0b0c5727a7f3247b8527e7043756bbfda5103e9efb60cef697be4c8d26185d4d3a5ab8cb8415ff4a8b5ab4cff0b2eab43f0cc9aac20389ba667dda
+  checksum: 10c0/c5ec6cd9f70ec943c3cda4f19b650fce3632835e55ecdbefe3fca6cf7fba30ee73da0501d6b6403e1e1dbbf1b083bca9d52789aa4becb103d9ee0ffbe9a01a4b
   languageName: node
   linkType: hard
 
@@ -9404,6 +9404,16 @@ __metadata:
     fdir: "npm:^6.5.0"
     picomatch: "npm:^4.0.3"
   checksum: 10c0/869c31490d0d88eedb8305d178d4c75e7463e820df5a9b9d388291daf93e8b1eb5de1dad1c1e139767e4269fe75f3b10d5009b2cc14db96ff98986920a186844
+  languageName: node
+  linkType: hard
+
+"tinyglobby@npm:^0.2.16":
+  version: 0.2.16
+  resolution: "tinyglobby@npm:0.2.16"
+  dependencies:
+    fdir: "npm:^6.5.0"
+    picomatch: "npm:^4.0.4"
+  checksum: 10c0/f2e09fd93dd95c41e522113b686ff6f7c13020962f8698a864a257f3d7737599afc47722b7ab726e12f8a813f779906187911ff8ee6701ede65072671a7e934b
   languageName: node
   linkType: hard
 
