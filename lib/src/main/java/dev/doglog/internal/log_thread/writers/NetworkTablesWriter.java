@@ -20,8 +20,8 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.networktables.Topic;
 import edu.wpi.first.util.struct.Struct;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.jspecify.annotations.NullMarked;
 
 /** Logs to NetworkTables. */
@@ -47,28 +47,31 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
 
   private final NetworkTable logTable;
 
-  private final Map<String, BooleanArrayPublisher> booleanArrayPublishers = new HashMap<>();
-  private final Map<String, BooleanPublisher> booleanPublishers = new HashMap<>();
-  private final Map<String, DoubleArrayPublisher> doubleArrayPublishers = new HashMap<>();
-  private final Map<String, DoublePublisher> doublePublishers = new HashMap<>();
-  private final Map<String, FloatArrayPublisher> floatArrayPublishers = new HashMap<>();
-  private final Map<String, FloatPublisher> floatPublishers = new HashMap<>();
-  private final Map<String, IntegerArrayPublisher> integerArrayPublishers = new HashMap<>();
-  private final Map<String, IntegerPublisher> integerPublishers = new HashMap<>();
-  private final Map<String, RawPublisher> rawPublishers = new HashMap<>();
-  private final Map<String, StringArrayPublisher> stringArrayPublishers = new HashMap<>();
-  private final Map<String, StringPublisher> stringPublishers = new HashMap<>();
-  private final Map<String, GenericPublisher> customStringPublishers = new HashMap<>();
-  private final Map<String, StructArrayPublisher<?>> structArrayPublishers = new HashMap<>();
-  private final Map<String, StructPublisher<?>> structPublishers = new HashMap<>();
+  private final Map<String, BooleanArrayPublisher> booleanArrayPublishers =
+      new ConcurrentHashMap<>();
+  private final Map<String, BooleanPublisher> booleanPublishers = new ConcurrentHashMap<>();
+  private final Map<String, DoubleArrayPublisher> doubleArrayPublishers = new ConcurrentHashMap<>();
+  private final Map<String, DoublePublisher> doublePublishers = new ConcurrentHashMap<>();
+  private final Map<String, FloatArrayPublisher> floatArrayPublishers = new ConcurrentHashMap<>();
+  private final Map<String, FloatPublisher> floatPublishers = new ConcurrentHashMap<>();
+  private final Map<String, IntegerArrayPublisher> integerArrayPublishers =
+      new ConcurrentHashMap<>();
+  private final Map<String, IntegerPublisher> integerPublishers = new ConcurrentHashMap<>();
+  private final Map<String, RawPublisher> rawPublishers = new ConcurrentHashMap<>();
+  private final Map<String, StringArrayPublisher> stringArrayPublishers = new ConcurrentHashMap<>();
+  private final Map<String, StringPublisher> stringPublishers = new ConcurrentHashMap<>();
+  private final Map<String, GenericPublisher> customStringPublishers = new ConcurrentHashMap<>();
+  private final Map<String, StructArrayPublisher<?>> structArrayPublishers =
+      new ConcurrentHashMap<>();
+  private final Map<String, StructPublisher<?>> structPublishers = new ConcurrentHashMap<>();
 
   // Maps keys of numeric topics to the provided unit
-  private final Map<String, String> doubleUnits = new HashMap<>();
-  private final Map<String, String> doubleArrayUnits = new HashMap<>();
-  private final Map<String, String> floatUnits = new HashMap<>();
-  private final Map<String, String> floatArrayUnits = new HashMap<>();
-  private final Map<String, String> integerUnits = new HashMap<>();
-  private final Map<String, String> integerArrayUnits = new HashMap<>();
+  private final Map<String, String> doubleUnits = new ConcurrentHashMap<>();
+  private final Map<String, String> doubleArrayUnits = new ConcurrentHashMap<>();
+  private final Map<String, String> floatUnits = new ConcurrentHashMap<>();
+  private final Map<String, String> floatArrayUnits = new ConcurrentHashMap<>();
+  private final Map<String, String> integerUnits = new ConcurrentHashMap<>();
+  private final Map<String, String> integerArrayUnits = new ConcurrentHashMap<>();
 
   public NetworkTablesWriter(String logTable) {
     this.logTable = NetworkTableInstance.getDefault().getTable(logTable);
