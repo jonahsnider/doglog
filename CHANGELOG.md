@@ -1,5 +1,12 @@
 # Changelog
 
+## [2026.5.1](https://github.com/jonahsnider/doglog/compare/2026.5.0...2026.5.1) (2026-05-04)
+
+
+### Bug Fixes
+
+* fix DogLogOptions Javadoc ([0dd28a2](https://github.com/jonahsnider/doglog/commit/0dd28a2bf289573ad855f02cd86edf0b4d4025f5))
+
 ## [2026.5.0](https://github.com/jonahsnider/doglog/compare/2026.4.0...2026.5.0) (2026-02-11)
 
 
