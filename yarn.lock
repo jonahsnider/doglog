@@ -237,17 +237,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/telemetry@npm:3.3.1":
-  version: 3.3.1
-  resolution: "@astrojs/telemetry@npm:3.3.1"
+"@astrojs/telemetry@npm:3.3.2":
+  version: 3.3.2
+  resolution: "@astrojs/telemetry@npm:3.3.2"
   dependencies:
     ci-info: "npm:^4.4.0"
-    dlv: "npm:^1.1.3"
     dset: "npm:^3.1.4"
     is-docker: "npm:^4.0.0"
     is-wsl: "npm:^3.1.1"
     which-pm-runs: "npm:^1.1.0"
-  checksum: 10c0/4ce5a73808be3ebb0d5f73a36849fe69a716eef2f7c1e5d1ce879f9995e6aecca0ab0f3d2b53b6636a0f587ecde20132313238169541b004c3451cea60c5013d
+  checksum: 10c0/7af9e10bfb45bde66ce882c0aceec54141cf63255a4d85e2f99f6cebc2a0b388c38a0b7fe3c3eb3b20ae8a41b9a5103e22e27255582d8bf961cc47d71c29d230
   languageName: node
   linkType: hard
 
@@ -1574,7 +1573,7 @@ __metadata:
     "@astrojs/starlight-markdoc": "npm:0.6.0"
     "@vite-pwa/assets-generator": "npm:^1.0.1"
     "@vite-pwa/astro": "npm:^1.2.0"
-    astro: "npm:6.2.2"
+    astro: "npm:6.3.1"
     prettier: "npm:3.8.3"
     prettier-plugin-astro: "npm:0.14.1"
     prettier-plugin-java: "npm:2.7.7"
@@ -3445,14 +3444,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"astro@npm:6.2.2":
-  version: 6.2.2
-  resolution: "astro@npm:6.2.2"
+"astro@npm:6.3.1":
+  version: 6.3.1
+  resolution: "astro@npm:6.3.1"
   dependencies:
     "@astrojs/compiler": "npm:^4.0.0"
     "@astrojs/internal-helpers": "npm:0.9.0"
     "@astrojs/markdown-remark": "npm:7.1.1"
-    "@astrojs/telemetry": "npm:3.3.1"
+    "@astrojs/telemetry": "npm:3.3.2"
     "@capsizecss/unpack": "npm:^4.0.0"
     "@clack/prompts": "npm:^1.1.0"
     "@oslojs/encoding": "npm:^1.1.0"
@@ -3510,7 +3509,7 @@ __metadata:
       optional: true
   bin:
     astro: bin/astro.mjs
-  checksum: 10c0/a6d08269be0985cbbf12b1f33b3c6a955c324c4ca1c79473cd96819f5bd5d99ebdb5ced97ee1b3da75bdc5ade40c6d135ae61294f4b3d11dc929328b94367528
+  checksum: 10c0/c34824524d1d21de42a01ee9f107760edf0cdbf86f252b8cd6b374b2f67000820c0f959acb1440fb99886624f2bd20e9a0f2b340261cd10b3bce034d379e1ba4
   languageName: node
   linkType: hard
 
@@ -4301,13 +4300,6 @@ __metadata:
   bin:
     direction: cli.js
   checksum: 10c0/dce809431cad978e0778769a3818ea797ebe0bd542c85032ad9ad98971e2021a146be62feb259d7ffe4b76739e07b23e861b29c3f184ac8d38cc6ba956d5c586
-  languageName: node
-  linkType: hard
-
-"dlv@npm:^1.1.3":
-  version: 1.1.3
-  resolution: "dlv@npm:1.1.3"
-  checksum: 10c0/03eb4e769f19a027fd5b43b59e8a05e3fd2100ac239ebb0bf9a745de35d449e2f25cfaf3aa3934664551d72856f4ae8b7822016ce5c42c2d27c18ae79429ec42
   languageName: node
   linkType: hard
 
