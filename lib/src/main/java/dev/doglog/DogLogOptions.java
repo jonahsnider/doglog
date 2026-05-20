@@ -29,7 +29,7 @@ public record DogLogOptions(
     boolean captureDs,
     boolean logExtras,
     boolean captureConsole,
-    /**
+    /*
      * A function that returns whether tunable values from NetworkTables should be used. Best
      * practice is to have this disabled when you are at competitions, to make robot behavior more
      * deterministic. The default behavior is to only use tunable values from NetworkTables when not
