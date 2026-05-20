@@ -91,8 +91,6 @@ public class Robot extends TimedRobot {
     }
 
     DogLog.clearFault("ExampleFault");
-
-    DogLog.setOptions(DogLog.getOptions().withUseLogThread(false));
   }
 
   @Override
@@ -109,8 +107,6 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
     DogLog.logFault("ExampleFault");
-
-    DogLog.setOptions(DogLog.getOptions().withUseLogThread(true));
   }
 
   @Override
