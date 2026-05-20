@@ -70,6 +70,7 @@ echo location of your Java installation. 1>&2
 :execute
 @rem Setup the command line
 
+set CLASSPATH=
 
 
 @rem Execute Gradle
