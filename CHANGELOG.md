@@ -1,5 +1,36 @@
 # Changelog
 
+## [2028.0.0](https://github.com/jonahsnider/doglog/compare/2027.0.1...2028.0.0) (2026-05-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* update to WPILib 2026 ([#139](https://github.com/jonahsnider/doglog/issues/139))
+
+### Features
+
+* add logging of enums and records using StructGenerator ([#146](https://github.com/jonahsnider/doglog/issues/146)) ([98653a5](https://github.com/jonahsnider/doglog/commit/98653a5bb3e6e8a769ef3337856e2014d0b75ae4))
+* add tunable double arrays ([0fc4622](https://github.com/jonahsnider/doglog/commit/0fc46229256a0d1c1fa174cb66740c231d2c5da0))
+* gracefully handle WPILib's broken struct generation for enums ([ace84eb](https://github.com/jonahsnider/doglog/commit/ace84eb7ce66210354021ef8a2e8b8283bc05c68))
+* remove log thread ([a07380c](https://github.com/jonahsnider/doglog/commit/a07380c64b5048dfd8355ed53e93c94d95b27416))
+* support forced NetworkTables publishing for some logs ([#150](https://github.com/jonahsnider/doglog/issues/150)) ([ef44414](https://github.com/jonahsnider/doglog/commit/ef444146d17ec49fb3d7d3d8117d9898b61d3192))
+* support including units in logged numbers ([#128](https://github.com/jonahsnider/doglog/issues/128)) ([14b4851](https://github.com/jonahsnider/doglog/commit/14b485134d37a521199f112eac0ad87b3aae4e09))
+* support toggling log processing thread on or off ([#125](https://github.com/jonahsnider/doglog/issues/125)) ([9a96247](https://github.com/jonahsnider/doglog/commit/9a962472e3e8c5c5bbd07472c06bdebdad513be5))
+* update to stable release of WPILib 2026 ([#147](https://github.com/jonahsnider/doglog/issues/147)) ([9c2bb1e](https://github.com/jonahsnider/doglog/commit/9c2bb1e3fda59cb76a0f58e6e4ff9113e7606705))
+* update to WPILib 2026 ([#139](https://github.com/jonahsnider/doglog/issues/139)) ([853b085](https://github.com/jonahsnider/doglog/commit/853b085fb8629742444bcd95fd8f43aab51cf7ca))
+* upgrade to WPILib 2027 ([bae734c](https://github.com/jonahsnider/doglog/commit/bae734c159e4fdeb1e6bb405e37716e04d053344))
+
+
+### Bug Fixes
+
+* build with JDK 21 ([c667579](https://github.com/jonahsnider/doglog/commit/c6675790631d1274098f9f9a9978ab3f73acf203))
+* change frcYear to 2026beta ([a38ff20](https://github.com/jonahsnider/doglog/commit/a38ff20c4909880dab9f2e4c7afc06547684568c))
+* fix DogLogOptions Javadoc ([0dd28a2](https://github.com/jonahsnider/doglog/commit/0dd28a2bf289573ad855f02cd86edf0b4d4025f5))
+* fix NullPointerException when dispatching tunable onChange events ([d022a75](https://github.com/jonahsnider/doglog/commit/d022a75a4e7f5e04bcdb189f207f33ecef0ebc6b))
+* fix vendordep merge conflicts ([d1bd717](https://github.com/jonahsnider/doglog/commit/d1bd7171e42d02cd7183e9eb11e0ddeb2e8f1a31))
+* provide timestamp when updating datalog unit metadata ([de590f4](https://github.com/jonahsnider/doglog/commit/de590f48c4444e41b3e3607f4e37263003dc727b))
+* register Commands as composed once in DogLog.time() ([#153](https://github.com/jonahsnider/doglog/issues/153)) ([4a20e0c](https://github.com/jonahsnider/doglog/commit/4a20e0c20d69eec0a90afbfbbcf1d28934729507))
+
 ## [2027.0.1](https://github.com/jonahsnider/doglog/compare/2027.0.0...2027.0.1) (2025-09-10)
 
 
