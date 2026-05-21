@@ -39,7 +39,7 @@ tasks.withType(JavaCompile).configureEach {
 		}
 	}
 
-	options.release = 17
+	options.release = 25
 
 	// Set the ERRORPRONE_AUTOFIX environment variable to fix files in place
 	if (System.getenv().containsKey("ERRORPRONE_AUTOFIX")) {
@@ -99,7 +99,7 @@ java {
 		languageVersion = JavaLanguageVersion.of(25)
 	}
 }
-var javaVersion = "17"
+var javaVersion = "25"
 
 
 javadoc {
