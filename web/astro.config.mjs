@@ -109,4 +109,3 @@ async function writeChangelogToContent() {
 
 	await fs.writeFile(OUTPUT_PATH, newChangelog);
 }
-
