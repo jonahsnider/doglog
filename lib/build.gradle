@@ -117,6 +117,7 @@ spotless {
 	lineEndings = 'UNIX'
 
 	java {
+		eclipse().configFile('eclipse-formatter.properties').sortMembersEnabled(true).sortMembersVisibilityOrderEnabled(true)
 		googleJavaFormat()
 		licenseHeader ''
 
