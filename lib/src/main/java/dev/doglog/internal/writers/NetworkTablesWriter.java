@@ -2,6 +2,7 @@ package dev.doglog.internal.writers;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.jspecify.annotations.NullMarked;
 import org.wpilib.networktables.BooleanArrayPublisher;
 import org.wpilib.networktables.BooleanPublisher;
@@ -15,6 +16,7 @@ import org.wpilib.networktables.IntegerPublisher;
 import org.wpilib.networktables.NetworkTable;
 import org.wpilib.networktables.NetworkTableInstance;
 import org.wpilib.networktables.ProtobufPublisher;
+import org.wpilib.networktables.PubSub;
 import org.wpilib.networktables.PubSubOption;
 import org.wpilib.networktables.RawPublisher;
 import org.wpilib.networktables.StringArrayPublisher;
@@ -76,48 +78,24 @@ public class NetworkTablesWriter implements AutoCloseable {
 
   @Override
   public void close() {
-    for (var publisher : booleanArrayPublishers.values()) {
-      publisher.close();
-    }
-    for (var publisher : booleanPublishers.values()) {
-      publisher.close();
-    }
-    for (var publisher : doubleArrayPublishers.values()) {
-      publisher.close();
-    }
-    for (var publisher : doublePublishers.values()) {
-      publisher.close();
-    }
-    for (var publisher : floatArrayPublishers.values()) {
-      publisher.close();
-    }
-    for (var publisher : floatPublishers.values()) {
-      publisher.close();
-    }
-    for (var publisher : integerArrayPublishers.values()) {
-      publisher.close();
-    }
-    for (var publisher : integerPublishers.values()) {
-      publisher.close();
-    }
-    for (var publisher : rawPublishers.values()) {
-      publisher.close();
-    }
-    for (var publisher : stringArrayPublishers.values()) {
-      publisher.close();
-    }
-    for (var publisher : stringPublishers.values()) {
-      publisher.close();
-    }
-    for (var publisher : structArrayPublishers.values()) {
-      publisher.close();
-    }
-    for (var publisher : structPublishers.values()) {
-      publisher.close();
-    }
-    for (var publisher : protobufPublishers.values()) {
-      publisher.close();
-    }
+    Stream.of(
+            booleanArrayPublishers,
+            booleanPublishers,
+            customStringPublishers,
+            doubleArrayPublishers,
+            doublePublishers,
+            floatArrayPublishers,
+            floatPublishers,
+            integerArrayPublishers,
+            integerPublishers,
+            protobufPublishers,
+            rawPublishers,
+            stringArrayPublishers,
+            stringPublishers,
+            structArrayPublishers,
+            structPublishers)
+        .flatMap(map -> map.values().stream())
+        .forEach(PubSub::close);
   }
 
   public void log(long timestamp, String key, boolean value) {

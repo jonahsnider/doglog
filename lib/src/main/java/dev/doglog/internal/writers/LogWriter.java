@@ -113,13 +113,7 @@ public class LogWriter implements AutoCloseable {
   }
 
   public void log(long timestamp, String key, int[] value) {
-    long[] buffer = new long[value.length];
-
-    for (int i = 0; i < value.length; i++) {
-      buffer[i] = value[i];
-    }
-
-    ntWriter.log(timestamp, key, buffer);
+    ntWriter.log(timestamp, key, Arrays.stream(value).asLongStream().toArray());
   }
 
   public void log(long timestamp, String key, long value) {
