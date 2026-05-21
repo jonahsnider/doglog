@@ -7,7 +7,7 @@
     }
   ],
   "fileName": "DogLog.json",
-  "wpilibYear": "2027_alpha5",
+  "frcYear": "2026",
   "jsonUrl": "https://doglog.dev/vendordep.json",
   "name": "DogLog",
   "jniDependencies": [],

@@ -14,7 +14,7 @@ export default defineConfig({
 			name: 'copy-files',
 			hooks: {
 				'astro:config:setup': async () => {
-					await Promise.all([writeChangelogToContent(), copyVendordep()]);
+					await writeChangelogToContent();
 				},
 			},
 		},
@@ -110,9 +110,3 @@ async function writeChangelogToContent() {
 	await fs.writeFile(OUTPUT_PATH, newChangelog);
 }
 
-async function copyVendordep() {
-	const VENDORDEP_INPUT_PATH = path.join(import.meta.dirname, '..', 'vendordep.json');
-	const OUTPUT_PATH = path.join(import.meta.dirname, 'public', 'vendordep.json');
-
-	await fs.copyFile(VENDORDEP_INPUT_PATH, OUTPUT_PATH);
-}

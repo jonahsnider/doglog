@@ -145,7 +145,6 @@ dist
 
 # Dynamically generated files
 src/content/docs/reference/changelog.md
-public/vendordep.json
 
 # Yarn
 .pnp.*
