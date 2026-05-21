@@ -1,5 +1,6 @@
 package dev.doglog.internal;
 
+import com.google.errorprone.annotations.ThreadSafe;
 import dev.doglog.internal.writers.LogWriter;
 import java.util.Map;
 import java.util.Set;
@@ -14,6 +15,7 @@ import org.wpilib.hardware.hal.HALUtil;
  * WPILib alerts. Alerts are great but are NT only, so faults allow DogLog to provide a simple
  * interface to logging errors that writes to both NT and DataLog.
  */
+@ThreadSafe
 public class FaultLogger {
   private static final Map<String, Integer> FAULT_COUNTS = new ConcurrentHashMap<>();
   private static final Map<String, Alert> FAULT_ALERTS = new ConcurrentHashMap<>();

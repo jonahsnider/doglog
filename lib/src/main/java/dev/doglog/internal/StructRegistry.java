@@ -1,5 +1,6 @@
 package dev.doglog.internal;
 
+import com.google.errorprone.annotations.ThreadSafe;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -8,6 +9,7 @@ import org.wpilib.util.struct.StructGenerator;
 import org.wpilib.util.struct.StructSerializable;
 
 /** Used internally for working with WPILib {@link Struct}s. */
+@ThreadSafe
 public class StructRegistry {
   private static final String STRUCT_FIELD_NAME = "struct";
 

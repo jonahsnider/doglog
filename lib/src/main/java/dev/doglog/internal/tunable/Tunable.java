@@ -1,5 +1,6 @@
 package dev.doglog.internal.tunable;
 
+import com.google.errorprone.annotations.ThreadSafe;
 import dev.doglog.DogLogOptions;
 import dev.doglog.internal.tunable.entry.ToggleableBooleanSubscriber;
 import dev.doglog.internal.tunable.entry.ToggleableDoubleArraySubscriber;
@@ -35,6 +36,7 @@ import org.wpilib.util.function.BooleanConsumer;
 import org.wpilib.util.function.FloatConsumer;
 
 @NullMarked
+@ThreadSafe
 public class Tunable implements AutoCloseable {
   private static final NetworkTable TUNABLE_TABLE =
       NetworkTableInstance.getDefault().getTable("/Tunable");

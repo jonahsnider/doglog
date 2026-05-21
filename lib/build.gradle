@@ -72,6 +72,7 @@ dependencies {
 	implementation "org.wpilib:commands3-java:$wpilibVersion"
 
 	compileOnly "us.hebi.quickbuf:quickbuf-runtime:1.4"
+	compileOnly "com.google.errorprone:error_prone_annotations:2.49.0"
 
 	errorprone "com.google.errorprone:error_prone_core:2.49.0"
 	errorprone "com.uber.nullaway:nullaway:0.13.4"

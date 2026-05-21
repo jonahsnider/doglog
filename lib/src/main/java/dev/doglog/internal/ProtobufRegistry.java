@@ -1,5 +1,6 @@
 package dev.doglog.internal;
 
+import com.google.errorprone.annotations.ThreadSafe;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -7,6 +8,7 @@ import org.wpilib.util.protobuf.Protobuf;
 import org.wpilib.util.protobuf.ProtobufSerializable;
 
 /** Used internally for working with WPILib {@link Protobuf}s. */
+@ThreadSafe
 public class ProtobufRegistry {
   private static final String PROTO_FIELD_NAME = "proto";
 

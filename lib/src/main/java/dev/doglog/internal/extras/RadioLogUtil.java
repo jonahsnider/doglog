@@ -1,5 +1,6 @@
 package dev.doglog.internal.extras;
 
+import com.google.errorprone.annotations.ThreadSafe;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -9,6 +10,7 @@ import org.jspecify.annotations.NullMarked;
 import org.wpilib.system.RobotController;
 
 @NullMarked
+@ThreadSafe
 class RadioLogUtil {
   private static final Duration REQUEST_TIMEOUT_DURATION = Duration.ofSeconds(1);
 

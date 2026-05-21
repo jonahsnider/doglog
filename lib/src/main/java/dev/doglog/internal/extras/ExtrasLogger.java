@@ -7,6 +7,7 @@ import static org.wpilib.units.Units.Microseconds;
 import static org.wpilib.units.Units.Volts;
 import static org.wpilib.units.Units.Watts;
 
+import com.google.errorprone.annotations.ThreadSafe;
 import dev.doglog.DogLogOptions;
 import dev.doglog.internal.writers.LogWriter;
 import org.jspecify.annotations.NullMarked;
@@ -21,6 +22,7 @@ import org.wpilib.system.Notifier;
 
 /** Logs "extra" information. */
 @NullMarked
+@ThreadSafe
 public class ExtrasLogger implements AutoCloseable {
   private static final String VOLTS_UNIT_STRING = Volts.name();
   private static final String AMPS_UNIT_STRING = Amps.name();

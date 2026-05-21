@@ -1,5 +1,6 @@
 package dev.doglog.internal.writers;
 
+import com.google.errorprone.annotations.ThreadSafe;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
@@ -29,6 +30,7 @@ import org.wpilib.util.struct.Struct;
 
 /** Logs to NetworkTables. */
 @NullMarked
+@ThreadSafe
 public class NetworkTablesWriter implements AutoCloseable {
   private static final String PROPERTY_SOURCE_NAME = "source";
   private static final String PROPERTY_SOURCE_VALUE = "\"DogLog\"";
