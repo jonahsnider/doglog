@@ -25,7 +25,7 @@ import org.wpilib.util.struct.Struct;
 
 /** Logs to NetworkTables. */
 @NullMarked
-public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
+public class NetworkTablesWriter implements AutoCloseable {
   private static final String PROPERTY_SOURCE_NAME = "source";
   private static final String PROPERTY_SOURCE_VALUE = "\"DogLog\"";
 
@@ -34,7 +34,6 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
   /** Updates the unit property of a numeric topic. */
   private static void updateUnitForTopic(
       Map<String, String> unitCache, String key, String unit, Topic topic) {
-    // If we've never seen this key before, the current unit will be null
     var currentUnit = unitCache.get(key);
     if (unit.equals(currentUnit)) {
       return;
@@ -61,7 +60,6 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
   private final Map<String, StructArrayPublisher<?>> structArrayPublishers = new HashMap<>();
   private final Map<String, StructPublisher<?>> structPublishers = new HashMap<>();
 
-  // Maps keys of numeric topics to the provided unit
   private final Map<String, String> doubleUnits = new HashMap<>();
   private final Map<String, String> doubleArrayUnits = new HashMap<>();
   private final Map<String, String> floatUnits = new HashMap<>();
@@ -73,8 +71,7 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
     this.logTable = NetworkTableInstance.getDefault().getTable(logTable);
   }
 
-  @Override
-  public void log(long timestamp, String key, boolean forceNt, boolean[] value) {
+  public void log(long timestamp, String key, boolean[] value) {
     var publisher = booleanArrayPublishers.get(key);
 
     if (publisher == null) {
@@ -88,8 +85,7 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
     }
   }
 
-  @Override
-  public void log(long timestamp, String key, boolean forceNt, boolean value) {
+  public void log(long timestamp, String key, boolean value) {
     var publisher = booleanPublishers.get(key);
 
     if (publisher == null) {
@@ -103,8 +99,7 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
     }
   }
 
-  @Override
-  public void log(long timestamp, String key, boolean forceNt, double[] value) {
+  public void log(long timestamp, String key, double[] value) {
     var publisher = doubleArrayPublishers.get(key);
 
     if (publisher == null) {
@@ -118,14 +113,12 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
     }
   }
 
-  @Override
-  public void log(long timestamp, String key, boolean forceNt, double[] value, String unit) {
-    log(timestamp, key, false, value);
+  public void log(long timestamp, String key, double[] value, String unit) {
+    log(timestamp, key, value);
     updateUnitForTopic(doubleArrayUnits, key, unit, logTable.getDoubleArrayTopic(key));
   }
 
-  @Override
-  public void log(long timestamp, String key, boolean forceNt, double value) {
+  public void log(long timestamp, String key, double value) {
     var publisher = doublePublishers.get(key);
 
     if (publisher == null) {
@@ -139,15 +132,13 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
     }
   }
 
-  @Override
   @SuppressWarnings("NullAway")
-  public void log(long timestamp, String key, boolean forceNt, double value, String unit) {
-    log(timestamp, key, false, value);
+  public void log(long timestamp, String key, double value, String unit) {
+    log(timestamp, key, value);
     updateUnitForTopic(doubleUnits, key, unit, doublePublishers.get(key).getTopic());
   }
 
-  @Override
-  public void log(long timestamp, String key, boolean forceNt, float[] value) {
+  public void log(long timestamp, String key, float[] value) {
     var publisher = floatArrayPublishers.get(key);
 
     if (publisher == null) {
@@ -161,15 +152,13 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
     }
   }
 
-  @Override
   @SuppressWarnings("NullAway")
-  public void log(long timestamp, String key, boolean forceNt, float[] value, String unit) {
-    log(timestamp, key, false, value);
+  public void log(long timestamp, String key, float[] value, String unit) {
+    log(timestamp, key, value);
     updateUnitForTopic(floatArrayUnits, key, unit, floatArrayPublishers.get(key).getTopic());
   }
 
-  @Override
-  public void log(long timestamp, String key, boolean forceNt, float value) {
+  public void log(long timestamp, String key, float value) {
     var publisher = floatPublishers.get(key);
 
     if (publisher == null) {
@@ -183,15 +172,13 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
     }
   }
 
-  @Override
   @SuppressWarnings("NullAway")
-  public void log(long timestamp, String key, boolean forceNt, float value, String unit) {
-    log(timestamp, key, false, value);
+  public void log(long timestamp, String key, float value, String unit) {
+    log(timestamp, key, value);
     updateUnitForTopic(floatUnits, key, unit, floatPublishers.get(key).getTopic());
   }
 
-  @Override
-  public void log(long timestamp, String key, boolean forceNt, long[] value) {
+  public void log(long timestamp, String key, long[] value) {
     var publisher = integerArrayPublishers.get(key);
 
     if (publisher == null) {
@@ -205,15 +192,13 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
     }
   }
 
-  @Override
   @SuppressWarnings("NullAway")
-  public void log(long timestamp, String key, boolean forceNt, long[] value, String unit) {
-    log(timestamp, key, false, value);
+  public void log(long timestamp, String key, long[] value, String unit) {
+    log(timestamp, key, value);
     updateUnitForTopic(integerArrayUnits, key, unit, integerArrayPublishers.get(key).getTopic());
   }
 
-  @Override
-  public void log(long timestamp, String key, boolean forceNt, long value) {
+  public void log(long timestamp, String key, long value) {
     var publisher = integerPublishers.get(key);
 
     if (publisher == null) {
@@ -227,17 +212,13 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
     }
   }
 
-  @Override
   @SuppressWarnings("NullAway")
-  public void log(long timestamp, String key, boolean forceNt, long value, String unit) {
-    log(timestamp, key, false, value);
+  public void log(long timestamp, String key, long value, String unit) {
+    log(timestamp, key, value);
     updateUnitForTopic(integerUnits, key, unit, integerPublishers.get(key).getTopic());
   }
 
-  // TODO: Raw logs
-
-  @Override
-  public void log(long timestamp, String key, boolean forceNt, String[] value) {
+  public void log(long timestamp, String key, String[] value) {
     var publisher = stringArrayPublishers.get(key);
 
     if (publisher == null) {
@@ -251,8 +232,7 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
     }
   }
 
-  @Override
-  public void log(long timestamp, String key, boolean forceNt, String value) {
+  public void log(long timestamp, String key, String value) {
     var publisher = stringPublishers.get(key);
 
     if (publisher == null) {
@@ -266,9 +246,7 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
     }
   }
 
-  @Override
-  public void log(
-      long timestamp, String key, boolean forceNt, String value, String customTypeString) {
+  public void log(long timestamp, String key, String value, String customTypeString) {
     var publisher = customStringPublishers.get(key);
 
     if (publisher == null) {
@@ -282,8 +260,7 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
     }
   }
 
-  @Override
-  public <T> void log(long timestamp, String key, boolean forceNt, Struct<T> struct, T[] value) {
+  public <T> void log(long timestamp, String key, Struct<T> struct, T[] value) {
     @SuppressWarnings("unchecked")
     var publisher = (StructArrayPublisher<T>) structArrayPublishers.get(key);
 
@@ -298,8 +275,7 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
     }
   }
 
-  @Override
-  public <T> void log(long timestamp, String key, boolean forceNt, Struct<T> struct, T value) {
+  public <T> void log(long timestamp, String key, Struct<T> struct, T value) {
     @SuppressWarnings("unchecked")
     var publisher = (StructPublisher<T>) structPublishers.get(key);
 
@@ -316,7 +292,6 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
 
   @Override
   public void close() {
-    // Close all publishers stored in the maps
     for (var publisher : booleanArrayPublishers.values()) {
       publisher.close();
     }

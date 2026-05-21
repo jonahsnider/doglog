@@ -7,54 +7,6 @@ By default, DogLog uses a settings configuration that will be safe for a competi
 
 ## Logger options
 
-### NetworkTables publishing
-
-The `ntPublish` option controls whether logs should be published to NetworkTables.
-
-This introduces some overhead, and can consume a lot of network bandwidth, so this option should not be used with competition flashed radios.
-
-By default, DogLog will publish to NetworkTables unless the robot connects to the FMS on a competition field.
-
-{% tabs %}
-{% tabitem label="Static value" %}
-```java
-DogLog.setOptions(new DogLogOptions().withNtPublish(true));
-```
-{% /tabitem %}
-
-{% tabitem label="Dynamic value" %}
-```java
-DogLog.setOptions(new DogLogOptions().withNtPublish(() -> true));
-```
-{% /tabitem %}
-{% /tabs %}
-
-#### Forcing NetworkTables publishing
-
-Your robot may have some values that you want to publish to NetworkTables, regardless of whether `ntPublish` is enabled.
-This is especially useful for situations where you're using DogLog to log values to a driver station dashboard.
-
-DogLog makes it easy to selectively force NetworkTables publishing for some log entries.
-By changing calls to `DogLog.log()` to `DogLog.forceNt.log()`, you can ensure that values will always be logged to DataLog and published to NetworkTables:
-
-```java
-// Always publishes to NetworkTables
-DogLog.forceNt.log("MyValue", 1);
-```
-
-### Capture NetworkTables
-
-The `captureNt` option controls whether all NetworkTables values should be included in logs.
-
-This greatly increases the size of logs, and can introduce more overhead when logging.
-
-By default, DogLog disables NetworkTables capture.
-DogLog uses [`DataLogManager.logNetworkTables()`](https://github.wpilib.org/allwpilib/docs/release/java/src-html/edu/wpi/first/wpilibj/DataLogManager.html#line-204) to configure NT capture, which will overwrite the default configured behavior of `true`.
-
-```java
-DogLog.setOptions(new DogLogOptions().withCaptureNt(true));
-```
-
 ### Capture driver station
 
 The `captureDs` option controls whether joystick data and driver station values (ex. "enabled" or "autonomous") should be included in logs.

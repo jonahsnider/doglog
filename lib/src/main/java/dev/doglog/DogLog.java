@@ -1,12 +1,11 @@
 package dev.doglog;
 
-import dev.doglog.internal.DogLogForceNt;
 import dev.doglog.internal.EpochLogger;
 import dev.doglog.internal.FaultLogger;
 import dev.doglog.internal.TimedCommand;
 import dev.doglog.internal.TimedCommandV3;
 import dev.doglog.internal.tunable.Tunable;
-import dev.doglog.internal.writers.LogWriterHighLevel;
+import dev.doglog.internal.writers.LogWriter;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.LongConsumer;
@@ -40,16 +39,10 @@ public class DogLog {
   /** The options to use for the logger. */
   protected static DogLogOptions options = new DogLogOptions();
 
-  protected static LogWriterHighLevel logger = LogWriterHighLevel.create(options);
+  protected static LogWriter logger = new LogWriter(options);
 
   /** Whether the logger is enabled. */
   protected static boolean enabled = true;
-
-  /**
-   * Use <code>DogLog.forceNt.log()</code> to log values to both DataLog and NetworkTables,
-   * regardless of the <code>ntPublish</code> option.
-   */
-  public static final DogLogForceNt forceNt = new DogLogForceNt(enabled, logger);
 
   protected static final Tunable tunable = new Tunable(options);
 
@@ -65,7 +58,7 @@ public class DogLog {
    *
    * <p>Example:
    *
-   * <pre>DogLog.setOptions(new DogLogOptions().withNtPublish(true));</pre>
+   * <pre>DogLog.setOptions(new DogLogOptions().withCaptureDs(true));</pre>
    *
    * <p>See https://doglog.dev/reference/logger-options/ for more information.
    */
@@ -82,8 +75,6 @@ public class DogLog {
       logger.setOptions(newOptions);
       tunable.setOptions(newOptions);
     }
-
-    forceNt.setLogger(logger);
   }
 
   /**
@@ -109,7 +100,6 @@ public class DogLog {
    */
   public static void setEnabled(boolean newEnabled) {
     enabled = newEnabled;
-    forceNt.setEnabled(newEnabled);
   }
 
   /**
@@ -128,7 +118,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value);
+    logger.log(now, key, value);
   }
 
   /** Log a boolean. */
@@ -138,7 +128,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value);
+    logger.log(now, key, value);
   }
 
   /** Log a double array. */
@@ -148,7 +138,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value);
+    logger.log(now, key, value);
   }
 
   /** Log a double array with unit metadata. */
@@ -165,7 +155,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value, unit);
+    logger.log(now, key, value, unit);
   }
 
   /** Log a double array with unit metadata. */
@@ -188,7 +178,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value);
+    logger.log(now, key, value);
   }
 
   /** Log a double with unit metadata. */
@@ -202,7 +192,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value, unit);
+    logger.log(now, key, value, unit);
   }
 
   /** Log a double with unit metadata. */
@@ -225,7 +215,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value);
+    logger.log(now, key, value);
   }
 
   /** Log a float array with unit metadata. */
@@ -242,7 +232,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value, unit);
+    logger.log(now, key, value, unit);
   }
 
   /** Log a float. */
@@ -252,7 +242,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value);
+    logger.log(now, key, value);
   }
 
   /** Log a float with unit metadata. */
@@ -266,7 +256,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value, unit);
+    logger.log(now, key, value, unit);
   }
 
   /** Log an int array. */
@@ -276,7 +266,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value);
+    logger.log(now, key, value);
   }
 
   /** Log a long array. */
@@ -286,7 +276,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value);
+    logger.log(now, key, value);
   }
 
   /** Log a long array with unit metadata. */
@@ -303,7 +293,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value, unit);
+    logger.log(now, key, value, unit);
   }
 
   /** Log a long. */
@@ -313,7 +303,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value);
+    logger.log(now, key, value);
   }
 
   /** Log a long with unit metadata. */
@@ -327,7 +317,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value, unit);
+    logger.log(now, key, value, unit);
   }
 
   // TODO: Raw logs
@@ -339,7 +329,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value);
+    logger.log(now, key, value);
   }
 
   /** Log an enum array. */
@@ -349,7 +339,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value);
+    logger.log(now, key, value);
   }
 
   /** Log a string. */
@@ -359,7 +349,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value);
+    logger.log(now, key, value);
   }
 
   /** Log a string with a custom type string. */
@@ -374,7 +364,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value, customTypeString);
+    logger.log(now, key, value, customTypeString);
   }
 
   /** Log an enum. */
@@ -384,7 +374,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value);
+    logger.log(now, key, value);
   }
 
   /** Log a struct array. */
@@ -394,7 +384,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value);
+    logger.log(now, key, value);
   }
 
   /** Log a struct. */
@@ -404,7 +394,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value);
+    logger.log(now, key, value);
   }
 
   /** Log a record. */
@@ -426,7 +416,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value);
+    logger.log(now, key, value);
   }
 
   /** Log a record array. */
@@ -436,7 +426,7 @@ public class DogLog {
     }
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, false, value);
+    logger.log(now, key, value);
   }
 
   /**

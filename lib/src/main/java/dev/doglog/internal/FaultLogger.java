@@ -1,6 +1,6 @@
 package dev.doglog.internal;
 
-import dev.doglog.internal.writers.LogWriterHighLevel;
+import dev.doglog.internal.writers.LogWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -25,7 +25,7 @@ public class FaultLogger {
   // This function doesn't need to have the LogConsumer parameter, it could just call DogLog
   // directly. But doing that would mean getting the current time twice, which can be avoided by
   // getting the time once here and reusing that value.
-  public static void addFault(LogWriterHighLevel logger, String faultName) {
+  public static void addFault(LogWriter logger, String faultName) {
     var previousCount = FAULT_COUNTS.get(faultName);
     var newCount = previousCount == null ? 1 : previousCount + 1;
     FAULT_COUNTS.put(faultName, newCount);
@@ -34,14 +34,14 @@ public class FaultLogger {
 
     if (previousCount == null) {
       // A new fault has been seen
-      logger.log(now, "Faults/Seen", false, FAULT_COUNTS.keySet().toArray(String[]::new));
+      logger.log(now, "Faults/Seen", FAULT_COUNTS.keySet().toArray(String[]::new));
     }
     if (previousCount == null || previousCount == 0) {
       // Fault has just become active
       ACTIVE_FAULTS.add(faultName);
-      logger.log(now, "Faults/Active", false, ACTIVE_FAULTS.toArray(String[]::new));
+      logger.log(now, "Faults/Active", ACTIVE_FAULTS.toArray(String[]::new));
     }
-    logger.log(now, "Faults/Counts/" + faultName, false, newCount);
+    logger.log(now, "Faults/Counts/" + faultName, newCount);
   }
 
   /**
@@ -52,8 +52,7 @@ public class FaultLogger {
    * @param alertType The type of alert to create for the fault, or <code>null</code> if it should
    *     not create an alert
    */
-  public static void addFault(
-      LogWriterHighLevel logger, String faultName, @Nullable Level alertType) {
+  public static void addFault(LogWriter logger, String faultName, @Nullable Level alertType) {
     addFault(logger, faultName);
     if (alertType != null) {
       FAULT_ALERTS.computeIfAbsent(faultName, k -> new Alert(faultName, alertType)).set(true);
@@ -66,7 +65,7 @@ public class FaultLogger {
    * @param logger LogConsumer to use.
    * @param faultName The name of the fault to remove.
    */
-  public static void decreaseFault(LogWriterHighLevel logger, String faultName) {
+  public static void decreaseFault(LogWriter logger, String faultName) {
     var previousCount = FAULT_COUNTS.get(faultName);
     if (previousCount == null || previousCount == 0) {
       // This fault has never occurred
@@ -76,7 +75,7 @@ public class FaultLogger {
     FAULT_COUNTS.put(faultName, newCount);
 
     var now = HALUtil.getMonotonicTime();
-    logger.log(now, "Faults/Counts/" + faultName, false, newCount);
+    logger.log(now, "Faults/Counts/" + faultName, newCount);
 
     if (newCount == 0) {
       // Mark alert as inactive if it exists
@@ -87,18 +86,18 @@ public class FaultLogger {
       }
 
       ACTIVE_FAULTS.remove(faultName);
-      logger.log(now, "Faults/Active", false, ACTIVE_FAULTS.toArray(String[]::new));
+      logger.log(now, "Faults/Active", ACTIVE_FAULTS.toArray(String[]::new));
     }
   }
 
-  public static void clearFault(LogWriterHighLevel logger, String faultName) {
+  public static void clearFault(LogWriter logger, String faultName) {
     // The faultCounts map is used to track the seen faults, so we need to make sure that clearing a
     // fault which has never occurred doesn't mark it as seen with a count of 0
     var previousValue = FAULT_COUNTS.replace(faultName, 0);
 
     if (previousValue != null) {
       var now = HALUtil.getMonotonicTime();
-      logger.log(now, "Faults/Counts/" + faultName, false, 0);
+      logger.log(now, "Faults/Counts/" + faultName, 0);
 
       var alert = FAULT_ALERTS.get(faultName);
       if (alert != null) {
@@ -106,7 +105,7 @@ public class FaultLogger {
       }
 
       ACTIVE_FAULTS.remove(faultName);
-      logger.log(now, "Faults/Active", false, ACTIVE_FAULTS.toArray(String[]::new));
+      logger.log(now, "Faults/Active", ACTIVE_FAULTS.toArray(String[]::new));
     }
   }
 
