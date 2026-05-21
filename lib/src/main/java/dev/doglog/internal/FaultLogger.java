@@ -59,6 +59,25 @@ public class FaultLogger {
     }
   }
 
+  public static void clearFault(LogWriter logger, String faultName) {
+    // The faultCounts map is used to track the seen faults, so we need to make sure that clearing a
+    // fault which has never occurred doesn't mark it as seen with a count of 0
+    var previousValue = FAULT_COUNTS.replace(faultName, 0);
+
+    if (previousValue != null) {
+      var now = HALUtil.getMonotonicTime();
+      logger.log(now, "Faults/Counts/" + faultName, 0);
+
+      var alert = FAULT_ALERTS.get(faultName);
+      if (alert != null) {
+        alert.set(false);
+      }
+
+      ACTIVE_FAULTS.remove(faultName);
+      logger.log(now, "Faults/Active", ACTIVE_FAULTS.toArray(String[]::new));
+    }
+  }
+
   /**
    * Remove the alert associated with a fault.
    *
@@ -90,31 +109,12 @@ public class FaultLogger {
     }
   }
 
-  public static void clearFault(LogWriter logger, String faultName) {
-    // The faultCounts map is used to track the seen faults, so we need to make sure that clearing a
-    // fault which has never occurred doesn't mark it as seen with a count of 0
-    var previousValue = FAULT_COUNTS.replace(faultName, 0);
-
-    if (previousValue != null) {
-      var now = HALUtil.getMonotonicTime();
-      logger.log(now, "Faults/Counts/" + faultName, 0);
-
-      var alert = FAULT_ALERTS.get(faultName);
-      if (alert != null) {
-        alert.set(false);
-      }
-
-      ACTIVE_FAULTS.remove(faultName);
-      logger.log(now, "Faults/Active", ACTIVE_FAULTS.toArray(String[]::new));
-    }
+  public static boolean faultsActive() {
+    return !ACTIVE_FAULTS.isEmpty();
   }
 
   public static boolean faultsLogged() {
     return !FAULT_COUNTS.isEmpty();
-  }
-
-  public static boolean faultsActive() {
-    return !ACTIVE_FAULTS.isEmpty();
   }
 
   private FaultLogger() {}

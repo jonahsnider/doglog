@@ -39,41 +39,18 @@ public class LogWriter implements AutoCloseable {
     extras = new ExtrasLogger(this, initialOptions);
   }
 
-  public void setPdh(@Nullable PowerDistribution pdh) {
-    extras.setPdh(pdh);
-  }
-
-  public void setOptions(DogLogOptions options) {
-    DataLogManager.logConsoleOutput(options.captureConsole());
-
-    if (options.captureDs()) {
-      DriverStation.startDataLog(DataLogManager.getLog());
-    }
-
-    extras.setOptions(options);
-
-    printOptions(options);
-  }
-
-  private void printOptions(DogLogOptions options) {
-    var now = HALUtil.getMonotonicTime();
-    log(now, "DogLog/Options", options.toString());
-  }
-
-  public void log(long timestamp, String key, boolean[] value) {
-    ntWriter.log(timestamp, key, value);
+  @Override
+  public void close() {
+    extras.close();
+    ntWriter.close();
   }
 
   public void log(long timestamp, String key, boolean value) {
     ntWriter.log(timestamp, key, value);
   }
 
-  public void log(long timestamp, String key, double[] value) {
+  public void log(long timestamp, String key, boolean[] value) {
     ntWriter.log(timestamp, key, value);
-  }
-
-  public void log(long timestamp, String key, double[] value, String unit) {
-    ntWriter.log(timestamp, key, value, unit);
   }
 
   public void log(long timestamp, String key, double value) {
@@ -84,102 +61,12 @@ public class LogWriter implements AutoCloseable {
     ntWriter.log(timestamp, key, value, unit);
   }
 
-  public void log(long timestamp, String key, float[] value) {
+  public void log(long timestamp, String key, double[] value) {
     ntWriter.log(timestamp, key, value);
   }
 
-  public void log(long timestamp, String key, float[] value, String unit) {
+  public void log(long timestamp, String key, double[] value, String unit) {
     ntWriter.log(timestamp, key, value, unit);
-  }
-
-  public void log(long timestamp, String key, float value) {
-    ntWriter.log(timestamp, key, value);
-  }
-
-  public void log(long timestamp, String key, float value, String unit) {
-    ntWriter.log(timestamp, key, value, unit);
-  }
-
-  public void log(long timestamp, String key, int[] value) {
-    long[] buffer = new long[value.length];
-
-    for (int i = 0; i < value.length; i++) {
-      buffer[i] = value[i];
-    }
-
-    ntWriter.log(timestamp, key, buffer);
-  }
-
-  public void log(long timestamp, String key, long[] value) {
-    ntWriter.log(timestamp, key, value);
-  }
-
-  public void log(long timestamp, String key, long[] value, String unit) {
-    ntWriter.log(timestamp, key, value, unit);
-  }
-
-  public void log(long timestamp, String key, long value) {
-    ntWriter.log(timestamp, key, value);
-  }
-
-  public void log(long timestamp, String key, long value, String unit) {
-    ntWriter.log(timestamp, key, value, unit);
-  }
-
-  public void log(long timestamp, String key, String[] value) {
-    ntWriter.log(timestamp, key, value);
-  }
-
-  public void log(long timestamp, String key, String value) {
-    ntWriter.log(timestamp, key, value);
-  }
-
-  public void log(long timestamp, String key, String value, String customTypeString) {
-    ntWriter.log(timestamp, key, value, customTypeString);
-  }
-
-  public <T extends StructSerializable> void log(long timestamp, String key, T[] value) {
-    @SuppressWarnings("unchecked")
-    var maybeStruct =
-        structRegistry.getStruct((@NonNull Class<T>) value.getClass().getComponentType());
-
-    if (maybeStruct.isPresent()) {
-      @SuppressWarnings("unchecked")
-      var struct = (@NonNull Struct<T>) maybeStruct.orElseThrow();
-      ntWriter.log(timestamp, key, struct, value);
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  public <T extends WPISerializable> void log(long timestamp, String key, T value) {
-    switch (value) {
-      case StructSerializable s -> {
-        var maybeStruct =
-            structRegistry.getStruct((@NonNull Class<? extends StructSerializable>) s.getClass());
-
-        if (maybeStruct.isPresent()) {
-          var struct = (@NonNull Struct<T>) maybeStruct.orElseThrow();
-          ntWriter.log(timestamp, key, struct, value);
-        } else {
-          logProto(timestamp, key, value);
-        }
-      }
-      case ProtobufSerializable p -> logProto(timestamp, key, value);
-      default -> {}
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  private <T extends WPISerializable> void logProto(long timestamp, String key, T value) {
-    if (value instanceof ProtobufSerializable p) {
-      var maybeProto =
-          protobufRegistry.getProto((@NonNull Class<? extends ProtobufSerializable>) p.getClass());
-
-      if (maybeProto.isPresent()) {
-        var proto = (@NonNull Protobuf<T, ?>) maybeProto.orElseThrow();
-        ntWriter.log(timestamp, key, proto, value);
-      }
-    }
   }
 
   @SuppressWarnings("unchecked")
@@ -209,6 +96,48 @@ public class LogWriter implements AutoCloseable {
     ntWriter.log(timestamp, key, struct, value);
   }
 
+  public void log(long timestamp, String key, float value) {
+    ntWriter.log(timestamp, key, value);
+  }
+
+  public void log(long timestamp, String key, float value, String unit) {
+    ntWriter.log(timestamp, key, value, unit);
+  }
+
+  public void log(long timestamp, String key, float[] value) {
+    ntWriter.log(timestamp, key, value);
+  }
+
+  public void log(long timestamp, String key, float[] value, String unit) {
+    ntWriter.log(timestamp, key, value, unit);
+  }
+
+  public void log(long timestamp, String key, int[] value) {
+    long[] buffer = new long[value.length];
+
+    for (int i = 0; i < value.length; i++) {
+      buffer[i] = value[i];
+    }
+
+    ntWriter.log(timestamp, key, buffer);
+  }
+
+  public void log(long timestamp, String key, long value) {
+    ntWriter.log(timestamp, key, value);
+  }
+
+  public void log(long timestamp, String key, long value, String unit) {
+    ntWriter.log(timestamp, key, value, unit);
+  }
+
+  public void log(long timestamp, String key, long[] value) {
+    ntWriter.log(timestamp, key, value);
+  }
+
+  public void log(long timestamp, String key, long[] value, String unit) {
+    ntWriter.log(timestamp, key, value, unit);
+  }
+
   @SuppressWarnings("unchecked")
   public <R extends Record> void log(long timestamp, String key, R value) {
     var struct = (@NonNull Struct<R>) structRegistry.getRecordStruct(value.getClass());
@@ -226,9 +155,80 @@ public class LogWriter implements AutoCloseable {
     ntWriter.log(timestamp, key, struct, value);
   }
 
-  @Override
-  public void close() {
-    extras.close();
-    ntWriter.close();
+  public void log(long timestamp, String key, String value) {
+    ntWriter.log(timestamp, key, value);
+  }
+
+  public void log(long timestamp, String key, String value, String customTypeString) {
+    ntWriter.log(timestamp, key, value, customTypeString);
+  }
+
+  public void log(long timestamp, String key, String[] value) {
+    ntWriter.log(timestamp, key, value);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T extends WPISerializable> void log(long timestamp, String key, T value) {
+    switch (value) {
+      case StructSerializable s -> {
+        var maybeStruct =
+            structRegistry.getStruct((@NonNull Class<? extends StructSerializable>) s.getClass());
+
+        if (maybeStruct.isPresent()) {
+          var struct = (@NonNull Struct<T>) maybeStruct.orElseThrow();
+          ntWriter.log(timestamp, key, struct, value);
+        } else {
+          logProto(timestamp, key, value);
+        }
+      }
+      case ProtobufSerializable p -> logProto(timestamp, key, value);
+      default -> {}
+    }
+  }
+
+  public <T extends StructSerializable> void log(long timestamp, String key, T[] value) {
+    @SuppressWarnings("unchecked")
+    var maybeStruct =
+        structRegistry.getStruct((@NonNull Class<T>) value.getClass().getComponentType());
+
+    if (maybeStruct.isPresent()) {
+      @SuppressWarnings("unchecked")
+      var struct = (@NonNull Struct<T>) maybeStruct.orElseThrow();
+      ntWriter.log(timestamp, key, struct, value);
+    }
+  }
+
+  public void setOptions(DogLogOptions options) {
+    DataLogManager.logConsoleOutput(options.captureConsole());
+
+    if (options.captureDs()) {
+      DriverStation.startDataLog(DataLogManager.getLog());
+    }
+
+    extras.setOptions(options);
+
+    printOptions(options);
+  }
+
+  public void setPdh(@Nullable PowerDistribution pdh) {
+    extras.setPdh(pdh);
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T extends WPISerializable> void logProto(long timestamp, String key, T value) {
+    if (value instanceof ProtobufSerializable p) {
+      var maybeProto =
+          protobufRegistry.getProto((@NonNull Class<? extends ProtobufSerializable>) p.getClass());
+
+      if (maybeProto.isPresent()) {
+        var proto = (@NonNull Protobuf<T, ?>) maybeProto.orElseThrow();
+        ntWriter.log(timestamp, key, proto, value);
+      }
+    }
+  }
+
+  private void printOptions(DogLogOptions options) {
+    var now = HALUtil.getMonotonicTime();
+    log(now, "DogLog/Options", options.toString());
   }
 }

@@ -72,8 +72,26 @@ public class Tunable implements AutoCloseable {
     lastNtTunables = initialOptions.ntTunables().getAsBoolean();
   }
 
-  public void setOptions(DogLogOptions newOptions) {
-    options = newOptions;
+  @Override
+  public void close() {
+    poller.close();
+    notifier.close();
+  }
+
+  public BooleanSubscriber create(
+      String key, boolean defaultValue, @Nullable BooleanConsumer onChange) {
+    startNotifier();
+    var entry = TUNABLE_TABLE.getBooleanTopic(key).getEntry(defaultValue);
+
+    entry.set(defaultValue);
+
+    var listenerHandle = poller.addListener(entry, LISTENER_EVENT_KINDS);
+    if (onChange != null) {
+      booleanChangeCallbacks.put(listenerHandle, new BooleanOnChange(onChange, defaultValue));
+    }
+
+    return new ToggleableBooleanSubscriber(
+        entry, defaultValue, () -> options.ntTunables().getAsBoolean());
   }
 
   public DoubleSubscriber create(
@@ -142,38 +160,6 @@ public class Tunable implements AutoCloseable {
         entry, defaultValue, () -> options.ntTunables().getAsBoolean());
   }
 
-  public BooleanSubscriber create(
-      String key, boolean defaultValue, @Nullable BooleanConsumer onChange) {
-    startNotifier();
-    var entry = TUNABLE_TABLE.getBooleanTopic(key).getEntry(defaultValue);
-
-    entry.set(defaultValue);
-
-    var listenerHandle = poller.addListener(entry, LISTENER_EVENT_KINDS);
-    if (onChange != null) {
-      booleanChangeCallbacks.put(listenerHandle, new BooleanOnChange(onChange, defaultValue));
-    }
-
-    return new ToggleableBooleanSubscriber(
-        entry, defaultValue, () -> options.ntTunables().getAsBoolean());
-  }
-
-  public StringSubscriber create(
-      String key, String defaultValue, @Nullable Consumer<String> onChange) {
-    startNotifier();
-    var entry = TUNABLE_TABLE.getStringTopic(key).getEntry(defaultValue);
-
-    entry.set(defaultValue);
-
-    var listenerHandle = poller.addListener(entry, LISTENER_EVENT_KINDS);
-    if (onChange != null) {
-      stringChangeCallbacks.put(listenerHandle, new OnChange<>(onChange, defaultValue));
-    }
-
-    return new ToggleableStringSubscriber(
-        entry, defaultValue, () -> options.ntTunables().getAsBoolean());
-  }
-
   public IntegerSubscriber create(
       String key, long defaultValue, @Nullable String unit, @Nullable LongConsumer onChange) {
     startNotifier();
@@ -195,10 +181,24 @@ public class Tunable implements AutoCloseable {
         entry, defaultValue, () -> options.ntTunables().getAsBoolean());
   }
 
-  @Override
-  public void close() {
-    poller.close();
-    notifier.close();
+  public StringSubscriber create(
+      String key, String defaultValue, @Nullable Consumer<String> onChange) {
+    startNotifier();
+    var entry = TUNABLE_TABLE.getStringTopic(key).getEntry(defaultValue);
+
+    entry.set(defaultValue);
+
+    var listenerHandle = poller.addListener(entry, LISTENER_EVENT_KINDS);
+    if (onChange != null) {
+      stringChangeCallbacks.put(listenerHandle, new OnChange<>(onChange, defaultValue));
+    }
+
+    return new ToggleableStringSubscriber(
+        entry, defaultValue, () -> options.ntTunables().getAsBoolean());
+  }
+
+  public void setOptions(DogLogOptions newOptions) {
+    options = newOptions;
   }
 
   private void poll() {

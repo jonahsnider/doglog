@@ -19,10 +19,10 @@ public class RobotContainer {
     configureBindings();
   }
 
-  private void configureBindings() {}
-
   public Command getAutonomousCommand() {
     return DogLog.time(
         "Debug/AutoCommand", Commands.waitTime(Units.Seconds.of(0.75)).withName("MyAutoCommand"));
   }
+
+  private void configureBindings() {}
 }

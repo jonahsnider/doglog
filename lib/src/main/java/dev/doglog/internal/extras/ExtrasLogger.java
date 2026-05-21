@@ -54,6 +54,12 @@ public class ExtrasLogger implements AutoCloseable {
     }
   }
 
+  @Override
+  public void close() {
+    notifier.close();
+    radioNotifier.close();
+  }
+
   public void setOptions(DogLogOptions options) {
     if (options.logExtras()) {
       notifier.startPeriodic(DogLogOptions.LOOP_PERIOD_SECONDS);
@@ -76,30 +82,6 @@ public class ExtrasLogger implements AutoCloseable {
     logSystem(now);
     logCan(now);
     logPdh(now);
-  }
-
-  private void logSystem(long now) {
-    logger.log(now, "SystemStats/SerialNumber", HALUtil.getSerialNumber());
-    logger.log(now, "SystemStats/Comments", HALUtil.getComments());
-    logger.log(now, "SystemStats/TeamNumber", HALUtil.getTeamNumber());
-    logger.log(now, "SystemStats/SystemActive", HAL.getSystemActive());
-    logger.log(now, "SystemStats/BrownedOut", HAL.getBrownedOut());
-    logger.log(now, "SystemStats/RSLState", HAL.getRSLState());
-    logger.log(now, "SystemStats/SystemTimeValid", HAL.getSystemTimeValid());
-
-    logger.log(now, "SystemStats/BatteryVoltage", PowerJNI.getVinVoltage(), VOLTS_UNIT_STRING);
-
-    logger.log(now, "SystemStats/3v3Rail/Voltage", PowerJNI.getUserVoltage3V3(), VOLTS_UNIT_STRING);
-    logger.log(now, "SystemStats/3v3Rail/Current", PowerJNI.getUserCurrent3V3(), AMPS_UNIT_STRING);
-    logger.log(now, "SystemStats/3v3Rail/Active", PowerJNI.getUserActive3V3());
-    logger.log(now, "SystemStats/3v3Rail/CurrentFaults", PowerJNI.getUserCurrentFaults3V3());
-
-    logger.log(
-        now, "SystemStats/BrownoutVoltage", PowerJNI.getBrownoutVoltage(), VOLTS_UNIT_STRING);
-    logger.log(now, "SystemStats/CPUTempCelcius", PowerJNI.getCPUTemp(), CELSIUS_UNIT_STRING);
-
-    logger.log(
-        now, "SystemStats/EpochTimeMicros", HALUtil.getMonotonicTime(), MICROSECONDS_UNIT_STRING);
   }
 
   private void logCan(long now) {
@@ -146,9 +128,27 @@ public class ExtrasLogger implements AutoCloseable {
     logger.log(now, "RadioStatus/StatusJson", radioLogUtil.radioLogResult.statusJson, "json");
   }
 
-  @Override
-  public void close() {
-    notifier.close();
-    radioNotifier.close();
+  private void logSystem(long now) {
+    logger.log(now, "SystemStats/SerialNumber", HALUtil.getSerialNumber());
+    logger.log(now, "SystemStats/Comments", HALUtil.getComments());
+    logger.log(now, "SystemStats/TeamNumber", HALUtil.getTeamNumber());
+    logger.log(now, "SystemStats/SystemActive", HAL.getSystemActive());
+    logger.log(now, "SystemStats/BrownedOut", HAL.getBrownedOut());
+    logger.log(now, "SystemStats/RSLState", HAL.getRSLState());
+    logger.log(now, "SystemStats/SystemTimeValid", HAL.getSystemTimeValid());
+
+    logger.log(now, "SystemStats/BatteryVoltage", PowerJNI.getVinVoltage(), VOLTS_UNIT_STRING);
+
+    logger.log(now, "SystemStats/3v3Rail/Voltage", PowerJNI.getUserVoltage3V3(), VOLTS_UNIT_STRING);
+    logger.log(now, "SystemStats/3v3Rail/Current", PowerJNI.getUserCurrent3V3(), AMPS_UNIT_STRING);
+    logger.log(now, "SystemStats/3v3Rail/Active", PowerJNI.getUserActive3V3());
+    logger.log(now, "SystemStats/3v3Rail/CurrentFaults", PowerJNI.getUserCurrentFaults3V3());
+
+    logger.log(
+        now, "SystemStats/BrownoutVoltage", PowerJNI.getBrownoutVoltage(), VOLTS_UNIT_STRING);
+    logger.log(now, "SystemStats/CPUTempCelcius", PowerJNI.getCPUTemp(), CELSIUS_UNIT_STRING);
+
+    logger.log(
+        now, "SystemStats/EpochTimeMicros", HALUtil.getMonotonicTime(), MICROSECONDS_UNIT_STRING);
   }
 }

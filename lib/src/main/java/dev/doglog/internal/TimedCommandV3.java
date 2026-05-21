@@ -17,16 +17,13 @@ public class TimedCommandV3 implements Command {
   }
 
   @Override
-  public void run(Coroutine coroutine) {
-    var startTime = HALUtil.getMonotonicTime();
-    coroutine.await(command);
-    var elapsed = (HALUtil.getMonotonicTime() - startTime) / 1_000_000_000.0;
-    DogLog.log(key, elapsed);
+  public String name() {
+    return "Timed" + command.name();
   }
 
   @Override
-  public String name() {
-    return "Timed" + command.name();
+  public int priority() {
+    return command.priority();
   }
 
   @Override
@@ -35,7 +32,10 @@ public class TimedCommandV3 implements Command {
   }
 
   @Override
-  public int priority() {
-    return command.priority();
+  public void run(Coroutine coroutine) {
+    var startTime = HALUtil.getMonotonicTime();
+    coroutine.await(command);
+    var elapsed = (HALUtil.getMonotonicTime() - startTime) / 1_000_000_000.0;
+    DogLog.log(key, elapsed);
   }
 }

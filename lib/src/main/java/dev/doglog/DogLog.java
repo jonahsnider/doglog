@@ -49,58 +49,78 @@ public class DogLog {
 
   protected static final EpochLogger epochLogger = new EpochLogger();
 
+  /**
+   * Reset the count of a fault to 0, and set the alert associated with the fault to inactive if
+   * possible.
+   *
+   * @param faultName The name of the fault to reset.
+   */
+  public static void clearFault(@Nullable Enum<?> faultName) {
+    if (faultName != null) {
+      clearFault(faultName.name());
+    }
+  }
+
+  /**
+   * Reset the count of a fault to 0, and set the alert associated with the fault to inactive if
+   * possible.
+   *
+   * @param faultName The name of the fault to reset.
+   */
+  public static void clearFault(@Nullable String faultName) {
+    if (enabled && faultName != null) {
+      FaultLogger.clearFault(logger, faultName);
+    }
+  }
+
+  /**
+   * Lower the count of a fault by 1, unless it is already at 0. If there is an alert associated
+   * with the fault, it will be set to inactive once the fault's count is 0.
+   *
+   * @param faultName The name of the fault to decrement the count of.
+   * @see DogLog#clearFault(String)
+   */
+  public static void decreaseFault(@Nullable Enum<?> faultName) {
+    if (faultName != null) {
+      decreaseFault(faultName.name());
+    }
+  }
+
+  /**
+   * Lower the count of a fault by 1, unless it is already at 0. If there is an alert associated
+   * with the fault, it will be set to inactive once the fault's count is 0.
+   *
+   * @param faultName The name of the fault to decrement the count of.
+   * @see DogLog#clearFault(String)
+   */
+  public static void decreaseFault(@Nullable String faultName) {
+    if (enabled && faultName != null) {
+      FaultLogger.decreaseFault(logger, faultName);
+    }
+  }
+
+  /**
+   * Check if any faults logged using logged using {@link DogLog#logFault(String)} are currently
+   * active.
+   *
+   * @return Whether any faults are currently active.
+   */
+  public static boolean faultsActive() {
+    return FaultLogger.faultsActive();
+  }
+
+  /**
+   * Check if faults have been logged using {@link DogLog#logFault(String)}.
+   *
+   * @return Whether any faults have been logged.
+   */
+  public static boolean faultsLogged() {
+    return FaultLogger.faultsLogged();
+  }
+
   /** Get the options used by the logger. */
   public static DogLogOptions getOptions() {
     return options;
-  }
-
-  /**
-   * Update the options used by the logger.
-   *
-   * <p>Example:
-   *
-   * <pre>DogLog.setOptions(new DogLogOptions().withCaptureDs(true));</pre>
-   *
-   * <p>See https://doglog.dev/reference/logger-options/ for more information.
-   */
-  public static void setOptions(@Nullable DogLogOptions newOptions) {
-    if (newOptions == null) {
-      newOptions = new DogLogOptions();
-    }
-
-    var oldOptions = options;
-    options = newOptions;
-
-    if (!oldOptions.equals(newOptions)) {
-      System.out.println("[DogLog] Options changed: " + newOptions);
-      logger.setOptions(newOptions);
-      tunable.setOptions(newOptions);
-    }
-  }
-
-  /**
-   * Set the {@link PowerDistribution} instance to use for logging PDH/PDP data when logging extras
-   * is enabled. If this is set to `null`, no PDH data will be logged. Otherwise, information like
-   * battery voltage, device currents, etc. will be logged.
-   *
-   * <p>Example:
-   *
-   * <pre>DogLog.setPdh(new PowerDistribution());</pre>
-   *
-   * @param pdh The {@link PowerDistribution} instance to use for logging PDH/PDP data.
-   */
-  public static void setPdh(@Nullable PowerDistribution pdh) {
-    logger.setPdh(pdh);
-  }
-
-  /**
-   * Set whether the logger is enabled. If the logger is not enabled, calls to `log()` functions
-   * will not do anything.
-   *
-   * <p>By default, the logger is enabled.
-   */
-  public static void setEnabled(boolean newEnabled) {
-    enabled = newEnabled;
   }
 
   /**
@@ -110,6 +130,16 @@ public class DogLog {
    */
   public static boolean isEnabled() {
     return enabled;
+  }
+
+  /** Log a boolean. */
+  public static void log(String key, boolean value) {
+    if (!enabled) {
+      return;
+    }
+
+    var now = HALUtil.getMonotonicTime();
+    logger.log(now, key, value);
   }
 
   /** Log a boolean array. */
@@ -122,14 +152,41 @@ public class DogLog {
     logger.log(now, key, value);
   }
 
-  /** Log a boolean. */
-  public static void log(String key, boolean value) {
+  /** Log a double. */
+  public static void log(String key, double value) {
     if (!enabled) {
       return;
     }
 
     var now = HALUtil.getMonotonicTime();
     logger.log(now, key, value);
+  }
+
+  /** Log a double with unit metadata. */
+  public static void log(String key, double value, @Nullable String unit) {
+    if (!enabled) {
+      return;
+    }
+    if (unit == null) {
+      log(key, value);
+      return;
+    }
+
+    var now = HALUtil.getMonotonicTime();
+    logger.log(now, key, value, unit);
+  }
+
+  /** Log a double with unit metadata. */
+  public static void log(String key, double value, @Nullable Unit unit) {
+    if (!enabled) {
+      return;
+    }
+    if (unit == null) {
+      log(key, value);
+      return;
+    }
+
+    log(key, value, unit.name());
   }
 
   /** Log a double array. */
@@ -172,8 +229,28 @@ public class DogLog {
     log(key, value, unit.name());
   }
 
-  /** Log a double. */
-  public static void log(String key, double value) {
+  /** Log an enum. */
+  public static <E extends Enum<E>> void log(String key, @Nullable E value) {
+    if (!enabled || value == null) {
+      return;
+    }
+
+    var now = HALUtil.getMonotonicTime();
+    logger.log(now, key, value);
+  }
+
+  /** Log an enum array. */
+  public static <E extends Enum<E>> void log(String key, @Nullable E[] value) {
+    if (!enabled || value == null) {
+      return;
+    }
+
+    var now = HALUtil.getMonotonicTime();
+    logger.log(now, key, value);
+  }
+
+  /** Log a float. */
+  public static void log(String key, float value) {
     if (!enabled) {
       return;
     }
@@ -182,8 +259,8 @@ public class DogLog {
     logger.log(now, key, value);
   }
 
-  /** Log a double with unit metadata. */
-  public static void log(String key, double value, @Nullable String unit) {
+  /** Log a float with unit metadata. */
+  public static void log(String key, float value, @Nullable String unit) {
     if (!enabled) {
       return;
     }
@@ -194,19 +271,6 @@ public class DogLog {
 
     var now = HALUtil.getMonotonicTime();
     logger.log(now, key, value, unit);
-  }
-
-  /** Log a double with unit metadata. */
-  public static void log(String key, double value, @Nullable Unit unit) {
-    if (!enabled) {
-      return;
-    }
-    if (unit == null) {
-      log(key, value);
-      return;
-    }
-
-    log(key, value, unit.name());
   }
 
   /** Log a float array. */
@@ -236,8 +300,20 @@ public class DogLog {
     logger.log(now, key, value, unit);
   }
 
-  /** Log a float. */
-  public static void log(String key, float value) {
+  // TODO: Raw logs
+
+  /** Log an int array. */
+  public static void log(String key, int @Nullable [] value) {
+    if (!enabled || value == null) {
+      return;
+    }
+
+    var now = HALUtil.getMonotonicTime();
+    logger.log(now, key, value);
+  }
+
+  /** Log a long. */
+  public static void log(String key, long value) {
     if (!enabled) {
       return;
     }
@@ -246,8 +322,8 @@ public class DogLog {
     logger.log(now, key, value);
   }
 
-  /** Log a float with unit metadata. */
-  public static void log(String key, float value, @Nullable String unit) {
+  /** Log a long with unit metadata. */
+  public static void log(String key, long value, @Nullable String unit) {
     if (!enabled) {
       return;
     }
@@ -258,16 +334,6 @@ public class DogLog {
 
     var now = HALUtil.getMonotonicTime();
     logger.log(now, key, value, unit);
-  }
-
-  /** Log an int array. */
-  public static void log(String key, int @Nullable [] value) {
-    if (!enabled || value == null) {
-      return;
-    }
-
-    var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, value);
   }
 
   /** Log a long array. */
@@ -295,107 +361,6 @@ public class DogLog {
 
     var now = HALUtil.getMonotonicTime();
     logger.log(now, key, value, unit);
-  }
-
-  /** Log a long. */
-  public static void log(String key, long value) {
-    if (!enabled) {
-      return;
-    }
-
-    var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, value);
-  }
-
-  /** Log a long with unit metadata. */
-  public static void log(String key, long value, @Nullable String unit) {
-    if (!enabled) {
-      return;
-    }
-    if (unit == null) {
-      log(key, value);
-      return;
-    }
-
-    var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, value, unit);
-  }
-
-  // TODO: Raw logs
-
-  /** Log a string array. */
-  public static void log(String key, @Nullable String[] value) {
-    if (!enabled || value == null) {
-      return;
-    }
-
-    var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, value);
-  }
-
-  /** Log an enum array. */
-  public static <E extends Enum<E>> void log(String key, @Nullable E[] value) {
-    if (!enabled || value == null) {
-      return;
-    }
-
-    var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, value);
-  }
-
-  /** Log a string. */
-  public static void log(String key, @Nullable String value) {
-    if (!enabled || value == null) {
-      return;
-    }
-
-    var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, value);
-  }
-
-  /** Log a string with a custom type string. */
-  public static void log(String key, @Nullable String value, @Nullable String customTypeString) {
-    if (!enabled || value == null) {
-      return;
-    }
-
-    if (customTypeString == null) {
-      log(key, value);
-      return;
-    }
-
-    var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, value, customTypeString);
-  }
-
-  /** Log an enum. */
-  public static <E extends Enum<E>> void log(String key, @Nullable E value) {
-    if (!enabled || value == null) {
-      return;
-    }
-
-    var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, value);
-  }
-
-  /** Log a struct array. */
-  public static <T extends StructSerializable> void log(String key, @Nullable T[] value) {
-    if (!enabled || value == null) {
-      return;
-    }
-
-    var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, value);
-  }
-
-  /** Log a struct or protobuf. Struct is preferred, with protobuf used as a fallback. */
-  public static <T extends WPISerializable> void log(String key, @Nullable T value) {
-    if (!enabled || value == null) {
-      return;
-    }
-
-    var now = HALUtil.getMonotonicTime();
-    logger.log(now, key, value);
   }
 
   /** Log a record. */
@@ -430,32 +395,59 @@ public class DogLog {
     logger.log(now, key, value);
   }
 
-  /**
-   * Log a fault and create an {@link Alert} for it at the specified level.
-   *
-   * <p>See https://doglog.dev/guides/faults for more information.
-   *
-   * @param faultName The name of the fault to log.
-   * @param alertType The type of alert to create for the fault, or <code>null</code> if it should
-   *     not create an alert
-   * @see DogLog#decreaseFault(String)
-   */
-  public static void logFault(@Nullable String faultName, @Nullable Level alertType) {
-    if (enabled && faultName != null) {
-      FaultLogger.addFault(logger, faultName, alertType);
+  /** Log a string. */
+  public static void log(String key, @Nullable String value) {
+    if (!enabled || value == null) {
+      return;
     }
+
+    var now = HALUtil.getMonotonicTime();
+    logger.log(now, key, value);
   }
 
-  /**
-   * Log a fault and create an error type {@link Alert} for it.
-   *
-   * <p>See https://doglog.dev/guides/faults for more information.
-   *
-   * @param faultName The name of the fault to log.
-   * @see DogLog#decreaseFault(String)
-   */
-  public static void logFault(@Nullable String faultName) {
-    logFault(faultName, Level.HIGH);
+  /** Log a string with a custom type string. */
+  public static void log(String key, @Nullable String value, @Nullable String customTypeString) {
+    if (!enabled || value == null) {
+      return;
+    }
+
+    if (customTypeString == null) {
+      log(key, value);
+      return;
+    }
+
+    var now = HALUtil.getMonotonicTime();
+    logger.log(now, key, value, customTypeString);
+  }
+
+  /** Log a string array. */
+  public static void log(String key, @Nullable String[] value) {
+    if (!enabled || value == null) {
+      return;
+    }
+
+    var now = HALUtil.getMonotonicTime();
+    logger.log(now, key, value);
+  }
+
+  /** Log a struct or protobuf. Struct is preferred, with protobuf used as a fallback. */
+  public static <T extends WPISerializable> void log(String key, @Nullable T value) {
+    if (!enabled || value == null) {
+      return;
+    }
+
+    var now = HALUtil.getMonotonicTime();
+    logger.log(now, key, value);
+  }
+
+  /** Log a struct array. */
+  public static <T extends StructSerializable> void log(String key, @Nullable T[] value) {
+    if (!enabled || value == null) {
+      return;
+    }
+
+    var now = HALUtil.getMonotonicTime();
+    logger.log(now, key, value);
   }
 
   /**
@@ -474,82 +466,80 @@ public class DogLog {
   }
 
   /**
-   * Lower the count of a fault by 1, unless it is already at 0. If there is an alert associated
-   * with the fault, it will be set to inactive once the fault's count is 0.
+   * Log a fault and create an error type {@link Alert} for it.
    *
-   * @param faultName The name of the fault to decrement the count of.
-   * @see DogLog#clearFault(String)
+   * <p>See https://doglog.dev/guides/faults for more information.
+   *
+   * @param faultName The name of the fault to log.
+   * @see DogLog#decreaseFault(String)
    */
-  public static void decreaseFault(@Nullable String faultName) {
+  public static void logFault(@Nullable String faultName) {
+    logFault(faultName, Level.HIGH);
+  }
+
+  /**
+   * Log a fault and create an {@link Alert} for it at the specified level.
+   *
+   * <p>See https://doglog.dev/guides/faults for more information.
+   *
+   * @param faultName The name of the fault to log.
+   * @param alertType The type of alert to create for the fault, or <code>null</code> if it should
+   *     not create an alert
+   * @see DogLog#decreaseFault(String)
+   */
+  public static void logFault(@Nullable String faultName, @Nullable Level alertType) {
     if (enabled && faultName != null) {
-      FaultLogger.decreaseFault(logger, faultName);
+      FaultLogger.addFault(logger, faultName, alertType);
     }
   }
 
   /**
-   * Lower the count of a fault by 1, unless it is already at 0. If there is an alert associated
-   * with the fault, it will be set to inactive once the fault's count is 0.
+   * Set whether the logger is enabled. If the logger is not enabled, calls to `log()` functions
+   * will not do anything.
    *
-   * @param faultName The name of the fault to decrement the count of.
-   * @see DogLog#clearFault(String)
+   * <p>By default, the logger is enabled.
    */
-  public static void decreaseFault(@Nullable Enum<?> faultName) {
-    if (faultName != null) {
-      decreaseFault(faultName.name());
+  public static void setEnabled(boolean newEnabled) {
+    enabled = newEnabled;
+  }
+
+  /**
+   * Update the options used by the logger.
+   *
+   * <p>Example:
+   *
+   * <pre>DogLog.setOptions(new DogLogOptions().withCaptureDs(true));</pre>
+   *
+   * <p>See https://doglog.dev/reference/logger-options/ for more information.
+   */
+  public static void setOptions(@Nullable DogLogOptions newOptions) {
+    if (newOptions == null) {
+      newOptions = new DogLogOptions();
+    }
+
+    var oldOptions = options;
+    options = newOptions;
+
+    if (!oldOptions.equals(newOptions)) {
+      System.out.println("[DogLog] Options changed: " + newOptions);
+      logger.setOptions(newOptions);
+      tunable.setOptions(newOptions);
     }
   }
 
   /**
-   * Reset the count of a fault to 0, and set the alert associated with the fault to inactive if
-   * possible.
+   * Set the {@link PowerDistribution} instance to use for logging PDH/PDP data when logging extras
+   * is enabled. If this is set to `null`, no PDH data will be logged. Otherwise, information like
+   * battery voltage, device currents, etc. will be logged.
    *
-   * @param faultName The name of the fault to reset.
-   */
-  public static void clearFault(@Nullable String faultName) {
-    if (enabled && faultName != null) {
-      FaultLogger.clearFault(logger, faultName);
-    }
-  }
-
-  /**
-   * Reset the count of a fault to 0, and set the alert associated with the fault to inactive if
-   * possible.
+   * <p>Example:
    *
-   * @param faultName The name of the fault to reset.
-   */
-  public static void clearFault(@Nullable Enum<?> faultName) {
-    if (faultName != null) {
-      clearFault(faultName.name());
-    }
-  }
-
-  /**
-   * Check if faults have been logged using {@link DogLog#logFault(String)}.
+   * <pre>DogLog.setPdh(new PowerDistribution());</pre>
    *
-   * @return Whether any faults have been logged.
+   * @param pdh The {@link PowerDistribution} instance to use for logging PDH/PDP data.
    */
-  public static boolean faultsLogged() {
-    return FaultLogger.faultsLogged();
-  }
-
-  /**
-   * Check if any faults logged using logged using {@link DogLog#logFault(String)} are currently
-   * active.
-   *
-   * @return Whether any faults are currently active.
-   */
-  public static boolean faultsActive() {
-    return FaultLogger.faultsActive();
-  }
-
-  /**
-   * Log the current FPGA timestamp. Useful for recording each time a block of code is executed,
-   * since timestamps are unique and monotonically increasing.
-   *
-   * @param key The key to log the timestamp to.
-   */
-  public static void timestamp(String key) {
-    log(key, Timer.getMonotonicTimestamp());
+  public static void setPdh(@Nullable PowerDistribution pdh) {
+    logger.setPdh(pdh);
   }
 
   /**
@@ -595,6 +585,40 @@ public class DogLog {
    */
   public static void timeEnd(String key) {
     epochLogger.timeEnd(key, HALUtil.getMonotonicTime(), logger);
+  }
+
+  /**
+   * Log the current FPGA timestamp. Useful for recording each time a block of code is executed,
+   * since timestamps are unique and monotonically increasing.
+   *
+   * @param key The key to log the timestamp to.
+   */
+  public static void timestamp(String key) {
+    log(key, Timer.getMonotonicTimestamp());
+  }
+
+  /**
+   * Create a tunable boolean.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @return A {@link BooleanSubscriber} used to retrieve the tunable value.
+   */
+  public static BooleanSubscriber tunable(String key, boolean defaultValue) {
+    return tunable(key, defaultValue, null);
+  }
+
+  /**
+   * Create a tunable boolean.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param onChange A function to call when the tunable value changes.
+   * @return A {@link BooleanSubscriber} used to retrieve the tunable value.
+   */
+  public static BooleanSubscriber tunable(
+      String key, boolean defaultValue, @Nullable BooleanConsumer onChange) {
+    return tunable.create(key, defaultValue, onChange);
   }
 
   /**
@@ -674,33 +698,6 @@ public class DogLog {
       return tunable(key, defaultValue, onChange);
     }
     return tunable(key, defaultValue, unit.name(), onChange);
-  }
-
-  /**
-   * Create a tunable from a measure, preserving the user-specified unit.
-   *
-   * @param key The key for the tunable value.
-   * @param defaultValue The default measure value for the tunable value.
-   * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
-   */
-  public static DoubleSubscriber tunable(String key, Measure<?> defaultValue) {
-    return tunable(key, defaultValue, null);
-  }
-
-  /**
-   * Create a tunable from a measure, preserving the user-specified unit.
-   *
-   * @param key The key for the tunable value.
-   * @param defaultValue The default measure value for the tunable value.
-   * @param onChange A function to call when the tunable value changes.
-   * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
-   */
-  public static DoubleSubscriber tunable(
-      String key, @Nullable Measure<?> defaultValue, @Nullable DoubleConsumer onChange) {
-    if (defaultValue == null) {
-      return tunable(key, 0.0, onChange);
-    }
-    return tunable(key, defaultValue.magnitude(), defaultValue.unit().name(), onChange);
   }
 
   /**
@@ -870,54 +867,6 @@ public class DogLog {
   }
 
   /**
-   * Create a tunable boolean.
-   *
-   * @param key The key for the tunable value.
-   * @param defaultValue The default value for the tunable value.
-   * @return A {@link BooleanSubscriber} used to retrieve the tunable value.
-   */
-  public static BooleanSubscriber tunable(String key, boolean defaultValue) {
-    return tunable(key, defaultValue, null);
-  }
-
-  /**
-   * Create a tunable boolean.
-   *
-   * @param key The key for the tunable value.
-   * @param defaultValue The default value for the tunable value.
-   * @param onChange A function to call when the tunable value changes.
-   * @return A {@link BooleanSubscriber} used to retrieve the tunable value.
-   */
-  public static BooleanSubscriber tunable(
-      String key, boolean defaultValue, @Nullable BooleanConsumer onChange) {
-    return tunable.create(key, defaultValue, onChange);
-  }
-
-  /**
-   * Create a tunable string.
-   *
-   * @param key The key for the tunable value.
-   * @param defaultValue The default value for the tunable value.
-   * @return A {@link StringSubscriber} used to retrieve the tunable value.
-   */
-  public static StringSubscriber tunable(String key, String defaultValue) {
-    return tunable(key, defaultValue, null);
-  }
-
-  /**
-   * Create a tunable string.
-   *
-   * @param key The key for the tunable value.
-   * @param defaultValue The default value for the tunable value.
-   * @param onChange A function to call when the tunable value changes.
-   * @return A {@link StringSubscriber} used to retrieve the tunable value.
-   */
-  public static StringSubscriber tunable(
-      String key, String defaultValue, @Nullable Consumer<String> onChange) {
-    return tunable.create(key, defaultValue, onChange);
-  }
-
-  /**
    * Create a tunable integer.
    *
    * @param key The key for the tunable value.
@@ -994,6 +943,57 @@ public class DogLog {
       return tunable(key, defaultValue, onChange);
     }
     return tunable(key, defaultValue, unit.name(), onChange);
+  }
+
+  /**
+   * Create a tunable from a measure, preserving the user-specified unit.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default measure value for the tunable value.
+   * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
+   */
+  public static DoubleSubscriber tunable(String key, Measure<?> defaultValue) {
+    return tunable(key, defaultValue, null);
+  }
+
+  /**
+   * Create a tunable from a measure, preserving the user-specified unit.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default measure value for the tunable value.
+   * @param onChange A function to call when the tunable value changes.
+   * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
+   */
+  public static DoubleSubscriber tunable(
+      String key, @Nullable Measure<?> defaultValue, @Nullable DoubleConsumer onChange) {
+    if (defaultValue == null) {
+      return tunable(key, 0.0, onChange);
+    }
+    return tunable(key, defaultValue.magnitude(), defaultValue.unit().name(), onChange);
+  }
+
+  /**
+   * Create a tunable string.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @return A {@link StringSubscriber} used to retrieve the tunable value.
+   */
+  public static StringSubscriber tunable(String key, String defaultValue) {
+    return tunable(key, defaultValue, null);
+  }
+
+  /**
+   * Create a tunable string.
+   *
+   * @param key The key for the tunable value.
+   * @param defaultValue The default value for the tunable value.
+   * @param onChange A function to call when the tunable value changes.
+   * @return A {@link StringSubscriber} used to retrieve the tunable value.
+   */
+  public static StringSubscriber tunable(
+      String key, String defaultValue, @Nullable Consumer<String> onChange) {
+    return tunable.create(key, defaultValue, onChange);
   }
 
   protected DogLog() {}

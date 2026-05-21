@@ -20,10 +20,11 @@ public class TimedCommand extends Command {
   }
 
   @Override
-  public void initialize() {
-    DogLog.time(key + "/.initialize()");
-    command.initialize();
-    DogLog.timeEnd(key + "/.initialize()");
+  public void end(boolean interrupted) {
+    var logKey = key + "/.end(" + interrupted + ")";
+    DogLog.time(logKey);
+    command.end(interrupted);
+    DogLog.timeEnd(logKey);
   }
 
   @Override
@@ -34,6 +35,13 @@ public class TimedCommand extends Command {
   }
 
   @Override
+  public void initialize() {
+    DogLog.time(key + "/.initialize()");
+    command.initialize();
+    DogLog.timeEnd(key + "/.initialize()");
+  }
+
+  @Override
   public boolean isFinished() {
     return command.isFinished();
   }
@@ -41,13 +49,5 @@ public class TimedCommand extends Command {
   @Override
   public boolean runsWhenDisabled() {
     return command.runsWhenDisabled();
-  }
-
-  @Override
-  public void end(boolean interrupted) {
-    var logKey = key + "/.end(" + interrupted + ")";
-    DogLog.time(logKey);
-    command.end(interrupted);
-    DogLog.timeEnd(logKey);
   }
 }

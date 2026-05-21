@@ -36,6 +36,34 @@ public class Robot extends TimedRobot {
   }
 
   @Override
+  public void autonomousExit() {}
+
+  @Override
+  public void autonomousInit() {
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+
+    if (m_autonomousCommand != null) {
+      CommandScheduler.getInstance().schedule(m_autonomousCommand);
+    }
+
+    DogLog.clearFault("ExampleFault");
+  }
+
+  @Override
+  public void autonomousPeriodic() {}
+
+  @Override
+  public void disabledExit() {}
+
+  @Override
+  public void disabledInit() {
+    DogLog.decreaseFault("ExampleFault");
+  }
+
+  @Override
+  public void disabledPeriodic() {}
+
+  @Override
   public void robotPeriodic() {
     DogLog.time("CommandSchedulerExecutionSec");
     CommandScheduler.getInstance().run();
@@ -69,32 +97,7 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void disabledInit() {
-    DogLog.decreaseFault("ExampleFault");
-  }
-
-  @Override
-  public void disabledPeriodic() {}
-
-  @Override
-  public void disabledExit() {}
-
-  @Override
-  public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-    if (m_autonomousCommand != null) {
-      CommandScheduler.getInstance().schedule(m_autonomousCommand);
-    }
-
-    DogLog.clearFault("ExampleFault");
-  }
-
-  @Override
-  public void autonomousPeriodic() {}
-
-  @Override
-  public void autonomousExit() {}
+  public void teleopExit() {}
 
   @Override
   public void teleopInit() {
@@ -108,7 +111,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {}
 
   @Override
-  public void teleopExit() {}
+  public void utilityExit() {}
 
   @Override
   public void utilityInit() {
@@ -117,7 +120,4 @@ public class Robot extends TimedRobot {
 
   @Override
   public void utilityPeriodic() {}
-
-  @Override
-  public void utilityExit() {}
 }

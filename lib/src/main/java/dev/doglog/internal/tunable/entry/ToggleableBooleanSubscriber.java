@@ -20,8 +20,13 @@ public class ToggleableBooleanSubscriber implements BooleanSubscriber {
   }
 
   @Override
-  public BooleanTopic getTopic() {
-    return subscriber.getTopic();
+  public void close() {
+    subscriber.close();
+  }
+
+  @Override
+  public boolean exists() {
+    return subscriber.exists();
   }
 
   @Override
@@ -53,18 +58,8 @@ public class ToggleableBooleanSubscriber implements BooleanSubscriber {
   }
 
   @Override
-  public TimestampedBoolean[] readQueue() {
-    return subscriber.readQueue();
-  }
-
-  @Override
-  public boolean[] readQueueValues() {
-    return subscriber.readQueueValues();
-  }
-
-  @Override
-  public boolean exists() {
-    return subscriber.exists();
+  public int getHandle() {
+    return subscriber.getHandle();
   }
 
   @Override
@@ -73,8 +68,8 @@ public class ToggleableBooleanSubscriber implements BooleanSubscriber {
   }
 
   @Override
-  public void close() {
-    subscriber.close();
+  public BooleanTopic getTopic() {
+    return subscriber.getTopic();
   }
 
   @Override
@@ -83,7 +78,12 @@ public class ToggleableBooleanSubscriber implements BooleanSubscriber {
   }
 
   @Override
-  public int getHandle() {
-    return subscriber.getHandle();
+  public TimestampedBoolean[] readQueue() {
+    return subscriber.readQueue();
+  }
+
+  @Override
+  public boolean[] readQueueValues() {
+    return subscriber.readQueueValues();
   }
 }

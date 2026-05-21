@@ -74,240 +74,6 @@ public class NetworkTablesWriter implements AutoCloseable {
     this.logTable = NetworkTableInstance.getDefault().getTable(logTable);
   }
 
-  public void log(long timestamp, String key, boolean[] value) {
-    var publisher = booleanArrayPublishers.get(key);
-
-    if (publisher == null) {
-      var topic = logTable.getBooleanArrayTopic(key);
-      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
-      newPublisher.set(value, timestamp);
-      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
-      booleanArrayPublishers.put(key, newPublisher);
-    } else {
-      publisher.set(value, timestamp);
-    }
-  }
-
-  public void log(long timestamp, String key, boolean value) {
-    var publisher = booleanPublishers.get(key);
-
-    if (publisher == null) {
-      var topic = logTable.getBooleanTopic(key);
-      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
-      newPublisher.set(value, timestamp);
-      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
-      booleanPublishers.put(key, newPublisher);
-    } else {
-      publisher.set(value, timestamp);
-    }
-  }
-
-  public void log(long timestamp, String key, double[] value) {
-    var publisher = doubleArrayPublishers.get(key);
-
-    if (publisher == null) {
-      var topic = logTable.getDoubleArrayTopic(key);
-      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
-      newPublisher.set(value, timestamp);
-      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
-      doubleArrayPublishers.put(key, newPublisher);
-    } else {
-      publisher.set(value, timestamp);
-    }
-  }
-
-  public void log(long timestamp, String key, double[] value, String unit) {
-    log(timestamp, key, value);
-    updateUnitForTopic(doubleArrayUnits, key, unit, logTable.getDoubleArrayTopic(key));
-  }
-
-  public void log(long timestamp, String key, double value) {
-    var publisher = doublePublishers.get(key);
-
-    if (publisher == null) {
-      var topic = logTable.getDoubleTopic(key);
-      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
-      newPublisher.set(value, timestamp);
-      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
-      doublePublishers.put(key, newPublisher);
-    } else {
-      publisher.set(value, timestamp);
-    }
-  }
-
-  @SuppressWarnings("NullAway")
-  public void log(long timestamp, String key, double value, String unit) {
-    log(timestamp, key, value);
-    updateUnitForTopic(doubleUnits, key, unit, doublePublishers.get(key).getTopic());
-  }
-
-  public void log(long timestamp, String key, float[] value) {
-    var publisher = floatArrayPublishers.get(key);
-
-    if (publisher == null) {
-      var topic = logTable.getFloatArrayTopic(key);
-      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
-      newPublisher.set(value, timestamp);
-      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
-      floatArrayPublishers.put(key, newPublisher);
-    } else {
-      publisher.set(value, timestamp);
-    }
-  }
-
-  @SuppressWarnings("NullAway")
-  public void log(long timestamp, String key, float[] value, String unit) {
-    log(timestamp, key, value);
-    updateUnitForTopic(floatArrayUnits, key, unit, floatArrayPublishers.get(key).getTopic());
-  }
-
-  public void log(long timestamp, String key, float value) {
-    var publisher = floatPublishers.get(key);
-
-    if (publisher == null) {
-      var topic = logTable.getFloatTopic(key);
-      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
-      newPublisher.set(value, timestamp);
-      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
-      floatPublishers.put(key, newPublisher);
-    } else {
-      publisher.set(value, timestamp);
-    }
-  }
-
-  @SuppressWarnings("NullAway")
-  public void log(long timestamp, String key, float value, String unit) {
-    log(timestamp, key, value);
-    updateUnitForTopic(floatUnits, key, unit, floatPublishers.get(key).getTopic());
-  }
-
-  public void log(long timestamp, String key, long[] value) {
-    var publisher = integerArrayPublishers.get(key);
-
-    if (publisher == null) {
-      var topic = logTable.getIntegerArrayTopic(key);
-      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
-      newPublisher.set(value, timestamp);
-      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
-      integerArrayPublishers.put(key, newPublisher);
-    } else {
-      publisher.set(value, timestamp);
-    }
-  }
-
-  @SuppressWarnings("NullAway")
-  public void log(long timestamp, String key, long[] value, String unit) {
-    log(timestamp, key, value);
-    updateUnitForTopic(integerArrayUnits, key, unit, integerArrayPublishers.get(key).getTopic());
-  }
-
-  public void log(long timestamp, String key, long value) {
-    var publisher = integerPublishers.get(key);
-
-    if (publisher == null) {
-      var topic = logTable.getIntegerTopic(key);
-      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
-      newPublisher.set(value, timestamp);
-      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
-      integerPublishers.put(key, newPublisher);
-    } else {
-      publisher.set(value, timestamp);
-    }
-  }
-
-  @SuppressWarnings("NullAway")
-  public void log(long timestamp, String key, long value, String unit) {
-    log(timestamp, key, value);
-    updateUnitForTopic(integerUnits, key, unit, integerPublishers.get(key).getTopic());
-  }
-
-  public void log(long timestamp, String key, String[] value) {
-    var publisher = stringArrayPublishers.get(key);
-
-    if (publisher == null) {
-      var topic = logTable.getStringArrayTopic(key);
-      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
-      newPublisher.set(value, timestamp);
-      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
-      stringArrayPublishers.put(key, newPublisher);
-    } else {
-      publisher.set(value, timestamp);
-    }
-  }
-
-  public void log(long timestamp, String key, String value) {
-    var publisher = stringPublishers.get(key);
-
-    if (publisher == null) {
-      var topic = logTable.getStringTopic(key);
-      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
-      newPublisher.set(value, timestamp);
-      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
-      stringPublishers.put(key, newPublisher);
-    } else {
-      publisher.set(value, timestamp);
-    }
-  }
-
-  public void log(long timestamp, String key, String value, String customTypeString) {
-    var publisher = customStringPublishers.get(key);
-
-    if (publisher == null) {
-      var topic = logTable.getTopic(key);
-      var newPublisher = topic.genericPublish(customTypeString, PUB_SUB_OPTIONS);
-      newPublisher.setString(value, timestamp);
-      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
-      customStringPublishers.put(key, newPublisher);
-    } else {
-      publisher.setString(value, timestamp);
-    }
-  }
-
-  public <T> void log(long timestamp, String key, Struct<T> struct, T[] value) {
-    @SuppressWarnings("unchecked")
-    var publisher = (StructArrayPublisher<T>) structArrayPublishers.get(key);
-
-    if (publisher == null) {
-      var topic = logTable.getStructArrayTopic(key, struct);
-      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
-      newPublisher.set(value, timestamp);
-      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
-      structArrayPublishers.put(key, newPublisher);
-    } else {
-      publisher.set(value, timestamp);
-    }
-  }
-
-  public <T> void log(long timestamp, String key, Struct<T> struct, T value) {
-    @SuppressWarnings("unchecked")
-    var publisher = (StructPublisher<T>) structPublishers.get(key);
-
-    if (publisher == null) {
-      var topic = logTable.getStructTopic(key, struct);
-      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
-      newPublisher.set(value, timestamp);
-      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
-      structPublishers.put(key, newPublisher);
-    } else {
-      publisher.set(value, timestamp);
-    }
-  }
-
-  public <T> void log(long timestamp, String key, Protobuf<T, ?> proto, T value) {
-    @SuppressWarnings("unchecked")
-    var publisher = (ProtobufPublisher<T>) protobufPublishers.get(key);
-
-    if (publisher == null) {
-      var topic = logTable.getProtobufTopic(key, proto);
-      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
-      newPublisher.set(value, timestamp);
-      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
-      protobufPublishers.put(key, newPublisher);
-    } else {
-      publisher.set(value, timestamp);
-    }
-  }
-
   @Override
   public void close() {
     for (var publisher : booleanArrayPublishers.values()) {
@@ -351,6 +117,240 @@ public class NetworkTablesWriter implements AutoCloseable {
     }
     for (var publisher : protobufPublishers.values()) {
       publisher.close();
+    }
+  }
+
+  public void log(long timestamp, String key, boolean value) {
+    var publisher = booleanPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getBooleanTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      booleanPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
+  }
+
+  public void log(long timestamp, String key, boolean[] value) {
+    var publisher = booleanArrayPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getBooleanArrayTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      booleanArrayPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
+  }
+
+  public void log(long timestamp, String key, double value) {
+    var publisher = doublePublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getDoubleTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      doublePublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
+  }
+
+  @SuppressWarnings("NullAway")
+  public void log(long timestamp, String key, double value, String unit) {
+    log(timestamp, key, value);
+    updateUnitForTopic(doubleUnits, key, unit, doublePublishers.get(key).getTopic());
+  }
+
+  public void log(long timestamp, String key, double[] value) {
+    var publisher = doubleArrayPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getDoubleArrayTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      doubleArrayPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
+  }
+
+  public void log(long timestamp, String key, double[] value, String unit) {
+    log(timestamp, key, value);
+    updateUnitForTopic(doubleArrayUnits, key, unit, logTable.getDoubleArrayTopic(key));
+  }
+
+  public void log(long timestamp, String key, float value) {
+    var publisher = floatPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getFloatTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      floatPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
+  }
+
+  @SuppressWarnings("NullAway")
+  public void log(long timestamp, String key, float value, String unit) {
+    log(timestamp, key, value);
+    updateUnitForTopic(floatUnits, key, unit, floatPublishers.get(key).getTopic());
+  }
+
+  public void log(long timestamp, String key, float[] value) {
+    var publisher = floatArrayPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getFloatArrayTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      floatArrayPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
+  }
+
+  @SuppressWarnings("NullAway")
+  public void log(long timestamp, String key, float[] value, String unit) {
+    log(timestamp, key, value);
+    updateUnitForTopic(floatArrayUnits, key, unit, floatArrayPublishers.get(key).getTopic());
+  }
+
+  public void log(long timestamp, String key, long value) {
+    var publisher = integerPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getIntegerTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      integerPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
+  }
+
+  @SuppressWarnings("NullAway")
+  public void log(long timestamp, String key, long value, String unit) {
+    log(timestamp, key, value);
+    updateUnitForTopic(integerUnits, key, unit, integerPublishers.get(key).getTopic());
+  }
+
+  public void log(long timestamp, String key, long[] value) {
+    var publisher = integerArrayPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getIntegerArrayTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      integerArrayPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
+  }
+
+  @SuppressWarnings("NullAway")
+  public void log(long timestamp, String key, long[] value, String unit) {
+    log(timestamp, key, value);
+    updateUnitForTopic(integerArrayUnits, key, unit, integerArrayPublishers.get(key).getTopic());
+  }
+
+  public <T> void log(long timestamp, String key, Protobuf<T, ?> proto, T value) {
+    @SuppressWarnings("unchecked")
+    var publisher = (ProtobufPublisher<T>) protobufPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getProtobufTopic(key, proto);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      protobufPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
+  }
+
+  public void log(long timestamp, String key, String value) {
+    var publisher = stringPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getStringTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      stringPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
+  }
+
+  public void log(long timestamp, String key, String value, String customTypeString) {
+    var publisher = customStringPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getTopic(key);
+      var newPublisher = topic.genericPublish(customTypeString, PUB_SUB_OPTIONS);
+      newPublisher.setString(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      customStringPublishers.put(key, newPublisher);
+    } else {
+      publisher.setString(value, timestamp);
+    }
+  }
+
+  public void log(long timestamp, String key, String[] value) {
+    var publisher = stringArrayPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getStringArrayTopic(key);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      stringArrayPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
+  }
+
+  public <T> void log(long timestamp, String key, Struct<T> struct, T value) {
+    @SuppressWarnings("unchecked")
+    var publisher = (StructPublisher<T>) structPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getStructTopic(key, struct);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      structPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
+  }
+
+  public <T> void log(long timestamp, String key, Struct<T> struct, T[] value) {
+    @SuppressWarnings("unchecked")
+    var publisher = (StructArrayPublisher<T>) structArrayPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getStructArrayTopic(key, struct);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      structArrayPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
     }
   }
 }

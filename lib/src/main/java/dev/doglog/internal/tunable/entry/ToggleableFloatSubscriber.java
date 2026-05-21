@@ -20,8 +20,13 @@ public class ToggleableFloatSubscriber implements FloatSubscriber {
   }
 
   @Override
-  public FloatTopic getTopic() {
-    return subscriber.getTopic();
+  public void close() {
+    subscriber.close();
+  }
+
+  @Override
+  public boolean exists() {
+    return subscriber.exists();
   }
 
   @Override
@@ -53,18 +58,8 @@ public class ToggleableFloatSubscriber implements FloatSubscriber {
   }
 
   @Override
-  public TimestampedFloat[] readQueue() {
-    return subscriber.readQueue();
-  }
-
-  @Override
-  public float[] readQueueValues() {
-    return subscriber.readQueueValues();
-  }
-
-  @Override
-  public boolean exists() {
-    return subscriber.exists();
+  public int getHandle() {
+    return subscriber.getHandle();
   }
 
   @Override
@@ -73,8 +68,8 @@ public class ToggleableFloatSubscriber implements FloatSubscriber {
   }
 
   @Override
-  public void close() {
-    subscriber.close();
+  public FloatTopic getTopic() {
+    return subscriber.getTopic();
   }
 
   @Override
@@ -83,7 +78,12 @@ public class ToggleableFloatSubscriber implements FloatSubscriber {
   }
 
   @Override
-  public int getHandle() {
-    return subscriber.getHandle();
+  public TimestampedFloat[] readQueue() {
+    return subscriber.readQueue();
+  }
+
+  @Override
+  public float[] readQueueValues() {
+    return subscriber.readQueueValues();
   }
 }

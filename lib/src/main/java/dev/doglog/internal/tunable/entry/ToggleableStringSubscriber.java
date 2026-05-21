@@ -20,8 +20,13 @@ public class ToggleableStringSubscriber implements StringSubscriber {
   }
 
   @Override
-  public StringTopic getTopic() {
-    return subscriber.getTopic();
+  public void close() {
+    subscriber.close();
+  }
+
+  @Override
+  public boolean exists() {
+    return subscriber.exists();
   }
 
   @Override
@@ -53,18 +58,8 @@ public class ToggleableStringSubscriber implements StringSubscriber {
   }
 
   @Override
-  public TimestampedString[] readQueue() {
-    return subscriber.readQueue();
-  }
-
-  @Override
-  public String[] readQueueValues() {
-    return subscriber.readQueueValues();
-  }
-
-  @Override
-  public boolean exists() {
-    return subscriber.exists();
+  public int getHandle() {
+    return subscriber.getHandle();
   }
 
   @Override
@@ -73,8 +68,8 @@ public class ToggleableStringSubscriber implements StringSubscriber {
   }
 
   @Override
-  public void close() {
-    subscriber.close();
+  public StringTopic getTopic() {
+    return subscriber.getTopic();
   }
 
   @Override
@@ -83,7 +78,12 @@ public class ToggleableStringSubscriber implements StringSubscriber {
   }
 
   @Override
-  public int getHandle() {
-    return subscriber.getHandle();
+  public TimestampedString[] readQueue() {
+    return subscriber.readQueue();
+  }
+
+  @Override
+  public String[] readQueueValues() {
+    return subscriber.readQueueValues();
   }
 }
