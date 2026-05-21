@@ -1,27 +1,27 @@
 package dev.doglog.internal.writers;
 
 import dev.doglog.DogLogOptions;
-import edu.wpi.first.datalog.BooleanArrayLogEntry;
-import edu.wpi.first.datalog.BooleanLogEntry;
-import edu.wpi.first.datalog.DataLog;
-import edu.wpi.first.datalog.DataLogEntry;
-import edu.wpi.first.datalog.DoubleArrayLogEntry;
-import edu.wpi.first.datalog.DoubleLogEntry;
-import edu.wpi.first.datalog.FloatArrayLogEntry;
-import edu.wpi.first.datalog.FloatLogEntry;
-import edu.wpi.first.datalog.IntegerArrayLogEntry;
-import edu.wpi.first.datalog.IntegerLogEntry;
-import edu.wpi.first.datalog.StringArrayLogEntry;
-import edu.wpi.first.datalog.StringLogEntry;
-import edu.wpi.first.datalog.StructArrayLogEntry;
-import edu.wpi.first.datalog.StructLogEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.util.struct.Struct;
-import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
 import java.util.HashMap;
 import java.util.Map;
 import org.jspecify.annotations.NullMarked;
+import org.wpilib.datalog.BooleanArrayLogEntry;
+import org.wpilib.datalog.BooleanLogEntry;
+import org.wpilib.datalog.DataLog;
+import org.wpilib.datalog.DataLogEntry;
+import org.wpilib.datalog.DoubleArrayLogEntry;
+import org.wpilib.datalog.DoubleLogEntry;
+import org.wpilib.datalog.FloatArrayLogEntry;
+import org.wpilib.datalog.FloatLogEntry;
+import org.wpilib.datalog.IntegerArrayLogEntry;
+import org.wpilib.datalog.IntegerLogEntry;
+import org.wpilib.datalog.StringArrayLogEntry;
+import org.wpilib.datalog.StringLogEntry;
+import org.wpilib.datalog.StructArrayLogEntry;
+import org.wpilib.datalog.StructLogEntry;
+import org.wpilib.driverstation.DriverStation;
+import org.wpilib.networktables.NetworkTableInstance;
+import org.wpilib.system.DataLogManager;
+import org.wpilib.util.struct.Struct;
 
 /** Logs to a WPILib {@link DataLog}. */
 @NullMarked

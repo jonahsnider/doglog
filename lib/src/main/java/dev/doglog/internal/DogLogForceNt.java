@@ -1,11 +1,11 @@
 package dev.doglog.internal;
 
 import dev.doglog.internal.writers.LogWriterHighLevel;
-import edu.wpi.first.hal.HALUtil;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Unit;
-import edu.wpi.first.util.struct.StructSerializable;
 import org.jspecify.annotations.Nullable;
+import org.wpilib.hardware.hal.HALUtil;
+import org.wpilib.units.Measure;
+import org.wpilib.units.Unit;
+import org.wpilib.util.struct.StructSerializable;
 
 public class DogLogForceNt {
   private boolean enabled;
@@ -30,7 +30,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value);
   }
 
@@ -40,7 +40,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value);
   }
 
@@ -50,7 +50,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value);
   }
 
@@ -67,7 +67,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value, unit);
   }
 
@@ -90,7 +90,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value);
   }
 
@@ -104,7 +104,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value, unit);
   }
 
@@ -121,22 +121,13 @@ public class DogLogForceNt {
     log(key, value, unit.name());
   }
 
-  /** Log a measure, preserving the user-specified unit, to DataLog and NetworkTables. */
-  public void log(String key, @Nullable Measure<?> value) {
-    if (!enabled || value == null) {
-      return;
-    }
-
-    log(key, value.magnitude(), value.unit().name());
-  }
-
   /** Log a float array to DataLog and NetworkTables. */
   public void log(String key, float @Nullable [] value) {
     if (!enabled || value == null) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value);
   }
 
@@ -153,7 +144,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value, unit);
   }
 
@@ -163,7 +154,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value);
   }
 
@@ -177,7 +168,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value, unit);
   }
 
@@ -187,7 +178,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value);
   }
 
@@ -197,7 +188,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value);
   }
 
@@ -214,7 +205,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value, unit);
   }
 
@@ -224,7 +215,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value);
   }
 
@@ -238,7 +229,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value, unit);
   }
 
@@ -250,7 +241,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value);
   }
 
@@ -260,7 +251,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value);
   }
 
@@ -270,7 +261,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value);
   }
 
@@ -285,7 +276,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value, customTypeString);
   }
 
@@ -295,7 +286,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value);
   }
 
@@ -305,7 +296,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value);
   }
 
@@ -315,7 +306,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value);
   }
 
@@ -325,7 +316,19 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    // Measure extends Record and javac is crashing if we try having a log(String, Measure)
+    // overload, so we handle it at runtime here
+    if (value instanceof Measure<?> measure) {
+      var unit = measure.unit();
+      if (unit == null) {
+        log(key, measure.magnitude());
+        return;
+      }
+      log(key, measure.magnitude(), unit.name());
+      return;
+    }
+
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value);
   }
 
@@ -335,7 +338,7 @@ public class DogLogForceNt {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, true, value);
   }
 }

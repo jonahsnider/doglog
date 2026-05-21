@@ -2,12 +2,12 @@ package dev.doglog.internal.writers;
 
 import dev.doglog.DogLogOptions;
 import dev.doglog.internal.StructRegistry;
-import edu.wpi.first.hal.HALUtil;
-import edu.wpi.first.util.struct.Struct;
-import edu.wpi.first.util.struct.StructSerializable;
 import java.util.Arrays;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
+import org.wpilib.hardware.hal.HALUtil;
+import org.wpilib.util.struct.Struct;
+import org.wpilib.util.struct.StructSerializable;
 
 @NullMarked
 public class CombinedWriter {
@@ -262,7 +262,7 @@ public class CombinedWriter {
   }
 
   private void printOptions() {
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     log(now, "DogLog/Options", false, options.toString());
   }
 }

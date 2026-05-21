@@ -2,10 +2,10 @@ package dev.doglog.internal.writers;
 
 import dev.doglog.DogLogOptions;
 import dev.doglog.internal.extras.ExtrasLogger;
-import edu.wpi.first.util.struct.StructSerializable;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import org.wpilib.hardware.power.PowerDistribution;
+import org.wpilib.util.struct.StructSerializable;
 
 /** Writes logs directly from the main thread. */
 @NullMarked

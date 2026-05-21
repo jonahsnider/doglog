@@ -1,7 +1,7 @@
 package dev.doglog.internal.writers;
 
-import edu.wpi.first.util.struct.Struct;
 import org.jspecify.annotations.NullMarked;
+import org.wpilib.util.struct.Struct;
 
 @NullMarked
 public interface LogWriterLowLevel extends LogWriterBase {

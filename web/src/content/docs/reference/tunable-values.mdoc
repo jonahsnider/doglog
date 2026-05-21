@@ -22,11 +22,11 @@ Once a tunable value is created, DogLog will continuously log its value to the `
 ### Adding units
 
 You can provide a unit when creating tunable numbers, which allows apps like AdvantageScope to better display the logged value.
-Pass a third argument containing a unit string, a [`Unit`](https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/Unit.html), or a [`Measure`](https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/Measure.html):
+Pass a third argument containing a unit string, a [`Unit`](https://github.wpilib.org/allwpilib/docs/release/java/org/wpilib/units/Unit.html), or a [`Measure`](https://github.wpilib.org/allwpilib/docs/release/java/org/wpilib/units/measure/package-summary.html):
 
 ```java
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.RPM;
+import static org.wpilib.units.Units.Inches;
+import static org.wpilib.units.Units.RPM;
 
 private final DoubleSubscriber intakeVoltage =
 	DogLog.tunable("Intake/Voltage", 4.5, "V");

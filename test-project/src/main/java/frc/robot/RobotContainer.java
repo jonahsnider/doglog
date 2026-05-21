@@ -6,9 +6,10 @@ package frc.robot;
 
 import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.Commands;
+import org.wpilib.hardware.power.PowerDistribution;
+import org.wpilib.units.Units;
 
 public class RobotContainer {
   public RobotContainer() {
@@ -21,6 +22,7 @@ public class RobotContainer {
   private void configureBindings() {}
 
   public Command getAutonomousCommand() {
-    return DogLog.time("Debug/AutoCommand", Commands.wait(0.75).withName("MyAutoCommand"));
+    return DogLog.time(
+        "Debug/AutoCommand", Commands.waitTime(Units.Seconds.of(0.75)).withName("MyAutoCommand"));
   }
 }

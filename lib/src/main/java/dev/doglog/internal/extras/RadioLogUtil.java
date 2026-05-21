@@ -1,12 +1,12 @@
 package dev.doglog.internal.extras;
 
-import edu.wpi.first.wpilibj.RobotController;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import org.jspecify.annotations.NullMarked;
+import org.wpilib.system.RobotController;
 
 @NullMarked
 class RadioLogUtil {

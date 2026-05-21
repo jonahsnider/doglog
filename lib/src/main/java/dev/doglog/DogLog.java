@@ -6,29 +6,29 @@ import dev.doglog.internal.FaultLogger;
 import dev.doglog.internal.TimedCommand;
 import dev.doglog.internal.tunable.Tunable;
 import dev.doglog.internal.writers.LogWriterHighLevel;
-import edu.wpi.first.hal.HAL;
-import edu.wpi.first.hal.HALUtil;
-import edu.wpi.first.networktables.BooleanSubscriber;
-import edu.wpi.first.networktables.DoubleArraySubscriber;
-import edu.wpi.first.networktables.DoubleSubscriber;
-import edu.wpi.first.networktables.FloatSubscriber;
-import edu.wpi.first.networktables.IntegerSubscriber;
-import edu.wpi.first.networktables.StringSubscriber;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Unit;
-import edu.wpi.first.util.function.BooleanConsumer;
-import edu.wpi.first.util.function.FloatConsumer;
-import edu.wpi.first.util.struct.StructSerializable;
-import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.Command;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.LongConsumer;
 import org.jspecify.annotations.Nullable;
+import org.wpilib.command2.Command;
+import org.wpilib.driverstation.Alert;
+import org.wpilib.driverstation.Alert.Level;
+import org.wpilib.hardware.hal.HAL;
+import org.wpilib.hardware.hal.HALUtil;
+import org.wpilib.hardware.power.PowerDistribution;
+import org.wpilib.networktables.BooleanSubscriber;
+import org.wpilib.networktables.DoubleArraySubscriber;
+import org.wpilib.networktables.DoubleSubscriber;
+import org.wpilib.networktables.FloatSubscriber;
+import org.wpilib.networktables.IntegerSubscriber;
+import org.wpilib.networktables.StringSubscriber;
+import org.wpilib.system.DataLogManager;
+import org.wpilib.system.Timer;
+import org.wpilib.units.Measure;
+import org.wpilib.units.Unit;
+import org.wpilib.util.function.BooleanConsumer;
+import org.wpilib.util.function.FloatConsumer;
+import org.wpilib.util.struct.StructSerializable;
 
 /** A logger based on WPILib's {@link DataLogManager} */
 public class DogLog {
@@ -126,7 +126,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value);
   }
 
@@ -136,7 +136,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value);
   }
 
@@ -146,7 +146,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value);
   }
 
@@ -163,7 +163,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value, unit);
   }
 
@@ -186,7 +186,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value);
   }
 
@@ -200,7 +200,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value, unit);
   }
 
@@ -217,22 +217,13 @@ public class DogLog {
     log(key, value, unit.name());
   }
 
-  /** Log a measure, preserving the user-specified unit. */
-  public static void log(String key, @Nullable Measure<?> value) {
-    if (!enabled || value == null) {
-      return;
-    }
-
-    log(key, value.magnitude(), value.unit().name());
-  }
-
   /** Log a float array. */
   public static void log(String key, float @Nullable [] value) {
     if (!enabled || value == null) {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value);
   }
 
@@ -249,7 +240,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value, unit);
   }
 
@@ -259,7 +250,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value);
   }
 
@@ -273,7 +264,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value, unit);
   }
 
@@ -283,7 +274,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value);
   }
 
@@ -293,7 +284,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value);
   }
 
@@ -310,7 +301,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value, unit);
   }
 
@@ -320,7 +311,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value);
   }
 
@@ -334,7 +325,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value, unit);
   }
 
@@ -346,7 +337,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value);
   }
 
@@ -356,7 +347,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value);
   }
 
@@ -366,7 +357,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value);
   }
 
@@ -381,7 +372,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value, customTypeString);
   }
 
@@ -391,7 +382,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value);
   }
 
@@ -401,7 +392,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value);
   }
 
@@ -411,7 +402,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value);
   }
 
@@ -421,7 +412,19 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    // Measure extends Record and javac is crashing if we try having a log(String, Measure)
+    // overload, so we handle it at runtime here
+    if (value instanceof Measure<?> measure) {
+      var unit = measure.unit();
+      if (unit == null) {
+        log(key, measure.magnitude());
+        return;
+      }
+      log(key, measure.magnitude(), unit.name());
+      return;
+    }
+
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value);
   }
 
@@ -431,7 +434,7 @@ public class DogLog {
       return;
     }
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, key, false, value);
   }
 
@@ -445,7 +448,7 @@ public class DogLog {
    *     not create an alert
    * @see DogLog#decreaseFault(String)
    */
-  public static void logFault(@Nullable String faultName, @Nullable AlertType alertType) {
+  public static void logFault(@Nullable String faultName, @Nullable Level alertType) {
     if (enabled && faultName != null) {
       FaultLogger.addFault(logger, faultName, alertType);
     }
@@ -460,7 +463,7 @@ public class DogLog {
    * @see DogLog#decreaseFault(String)
    */
   public static void logFault(@Nullable String faultName) {
-    logFault(faultName, AlertType.kError);
+    logFault(faultName, Level.HIGH);
   }
 
   /**
@@ -554,7 +557,7 @@ public class DogLog {
    * @param key The key to log the timestamp to.
    */
   public static void timestamp(String key) {
-    log(key, Timer.getFPGATimestamp());
+    log(key, Timer.getMonotonicTimestamp());
   }
 
   /**
@@ -565,7 +568,7 @@ public class DogLog {
    * @see DogLog#timeEnd(String)
    */
   public static void time(String key) {
-    epochLogger.time(key, HALUtil.getFPGATime());
+    epochLogger.time(key, HALUtil.getMonotonicTime());
   }
 
   /**
@@ -588,7 +591,7 @@ public class DogLog {
    * @see DogLog#time(String)
    */
   public static void timeEnd(String key) {
-    epochLogger.timeEnd(key, HALUtil.getFPGATime(), logger);
+    epochLogger.timeEnd(key, HALUtil.getMonotonicTime(), logger);
   }
 
   /**

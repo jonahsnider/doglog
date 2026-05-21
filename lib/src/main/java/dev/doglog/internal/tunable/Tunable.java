@@ -12,19 +12,6 @@ import dev.doglog.internal.tunable.on_change.DoubleOnChange;
 import dev.doglog.internal.tunable.on_change.FloatOnChange;
 import dev.doglog.internal.tunable.on_change.LongOnChange;
 import dev.doglog.internal.tunable.on_change.OnChange;
-import edu.wpi.first.networktables.BooleanSubscriber;
-import edu.wpi.first.networktables.DoubleArraySubscriber;
-import edu.wpi.first.networktables.DoubleSubscriber;
-import edu.wpi.first.networktables.FloatSubscriber;
-import edu.wpi.first.networktables.IntegerSubscriber;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEvent.Kind;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.NetworkTableListenerPoller;
-import edu.wpi.first.networktables.StringSubscriber;
-import edu.wpi.first.util.function.BooleanConsumer;
-import edu.wpi.first.util.function.FloatConsumer;
-import edu.wpi.first.wpilibj.Notifier;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,12 +20,25 @@ import java.util.function.DoubleConsumer;
 import java.util.function.LongConsumer;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import org.wpilib.networktables.BooleanSubscriber;
+import org.wpilib.networktables.DoubleArraySubscriber;
+import org.wpilib.networktables.DoubleSubscriber;
+import org.wpilib.networktables.FloatSubscriber;
+import org.wpilib.networktables.IntegerSubscriber;
+import org.wpilib.networktables.NetworkTable;
+import org.wpilib.networktables.NetworkTableEvent.Kind;
+import org.wpilib.networktables.NetworkTableInstance;
+import org.wpilib.networktables.NetworkTableListenerPoller;
+import org.wpilib.networktables.StringSubscriber;
+import org.wpilib.system.Notifier;
+import org.wpilib.util.function.BooleanConsumer;
+import org.wpilib.util.function.FloatConsumer;
 
 @NullMarked
 public class Tunable implements AutoCloseable {
   private static final NetworkTable TUNABLE_TABLE =
       NetworkTableInstance.getDefault().getTable("/Tunable");
-  private static final EnumSet<Kind> LISTENER_EVENT_KINDS = EnumSet.of(Kind.kValueAll);
+  private static final EnumSet<Kind> LISTENER_EVENT_KINDS = EnumSet.of(Kind.VALUE_ALL);
 
   /** Maps NT listener handles to onChange callbacks for double fields. */
   private final Map<Integer, DoubleOnChange> doubleChangeCallbacks = new HashMap<>();
@@ -211,37 +211,37 @@ public class Tunable implements AutoCloseable {
 
       for (var change : changes) {
         switch (change.valueData.value.getType()) {
-          case kDouble -> {
+          case DOUBLE -> {
             var callback = doubleChangeCallbacks.get(change.listener);
             if (callback != null) {
               callback.onChange().accept(change.valueData.value.getDouble());
             }
           }
-          case kDoubleArray -> {
+          case DOUBLE_ARRAY -> {
             var callback = doubleArrayChangeCallbacks.get(change.listener);
             if (callback != null) {
               callback.onChange().accept(change.valueData.value.getDoubleArray());
             }
           }
-          case kFloat -> {
+          case FLOAT -> {
             var callback = floatChangeCallbacks.get(change.listener);
             if (callback != null) {
               callback.onChange().accept(change.valueData.value.getFloat());
             }
           }
-          case kBoolean -> {
+          case BOOLEAN -> {
             var callback = booleanChangeCallbacks.get(change.listener);
             if (callback != null) {
               callback.onChange().accept(change.valueData.value.getBoolean());
             }
           }
-          case kString -> {
+          case STRING -> {
             var callback = stringChangeCallbacks.get(change.listener);
             if (callback != null) {
               callback.onChange().accept(change.valueData.value.getString());
             }
           }
-          case kInteger -> {
+          case INTEGER -> {
             var callback = longChangeCallbacks.get(change.listener);
             if (callback != null) {
               callback.onChange().accept(change.valueData.value.getInteger());

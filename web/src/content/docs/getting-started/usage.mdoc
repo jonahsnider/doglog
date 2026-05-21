@@ -29,15 +29,15 @@ When logging numbers, you can provide a unit to store alongside the value you're
 Apps like AdvantageScope will use the provided unit to better display the logged value.
 
 ```java
-import edu.wpi.first.units.Units;
-import static edu.wpi.first.units.Units.Meters;
+import org.wpilib.units.Units;
+import static org.wpilib.units.Units.Meters;
 
 DogLog.log("Intake/StatorCurrent", intake.getStatorCurrent().getValueAsDouble(), "amps");
 DogLog.log("Elevator/Height", elevatorHeightMeters, Meters);
 DogLog.log("Shooter/Velocity", shooter.getVelocity().getValue());
 ```
 
-Units can be provided as a string, a [`Unit`](https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/Unit.html), or a [`Measure`](https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/units/Measure.html).
+Units can be provided as a string, a [`Unit`](https://github.wpilib.org/allwpilib/docs/release/java/org/wpilib/units/Unit.html), or a [`Measure`](https://github.wpilib.org/allwpilib/docs/release/java/org/wpilib/units/measure/package-summary.html).
 
 ## Configuring
 
@@ -82,10 +82,10 @@ package frc.robot;
 
 import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import org.wpilib.hardware.power.PowerDistribution;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.button.CommandXboxController;
+import org.wpilib.command2.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;

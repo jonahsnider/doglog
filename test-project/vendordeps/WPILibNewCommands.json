@@ -1,19 +1,18 @@
 {
   "javaDependencies": [{
-    "groupId": "edu.wpi.first.wpilibNewCommands",
-    "artifactId": "wpilibNewCommands-java",
+    "groupId": "org.wpilib.commandsv2",
+    "artifactId": "commandsv2-java",
     "version": "wpilib"
   }],
   "fileName": "WPILibNewCommands.json",
-  "frcYear": "2027_alpha1",
   "jsonUrl": "",
   "name": "WPILib-New-Commands",
   "jniDependencies": [],
   "mavenUrls": [],
   "cppDependencies": [{
-    "groupId": "edu.wpi.first.wpilibNewCommands",
-    "libName": "wpilibNewCommands",
-    "artifactId": "wpilibNewCommands-cpp",
+    "groupId": "org.wpilib.commandsv2",
+    "libName": "commandsv2",
+    "artifactId": "commandsv2-cpp",
     "skipInvalidPlatforms": true,
     "sourcesClassifier": "sources",
     "version": "wpilib",
@@ -31,5 +30,6 @@
     "sharedLibrary": true
   }],
   "version": "1.0.0",
-  "uuid": "111e20f7-815e-48f8-9dd6-e675ce75b266"
+  "uuid": "111e20f7-815e-48f8-9dd6-e675ce75b266",
+  "wpilibYear": "2027_alpha5"
 }

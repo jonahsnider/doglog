@@ -10,7 +10,7 @@ plugins {
 	// Apply the java-library plugin for API and implementation separation.
 	id 'java-library'
 	id "com.diffplug.spotless" version "8.5.1"
-	id 'edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin' version '2025.0'
+	id 'org.wpilib.WPILibRepositoriesPlugin' version '2027.0.0'
 	id 'maven-publish'
 	id "net.ltgt.errorprone" version "5.1.0"
 	id "net.ltgt.nullaway" version "3.0.0"
@@ -28,8 +28,8 @@ nullaway {
 	onlyNullMarked = true
 }
 
-// Error Prone configs
 tasks.withType(JavaCompile).configureEach {
+	// Error Prone configs
 	options.errorprone {
 		disableWarningsInGeneratedCode = true
 		disable("InlineMeSuggester", "ImmutableEnumChecker", "Var", "BooleanParameter", "Java8ApiChecker", "ImmutableMemberCollection")
@@ -62,13 +62,13 @@ if (project.hasProperty('releaseMode')) {
 wpilibRepositories.use2027Repos()
 
 dependencies {
-	implementation "edu.wpi.first.ntcore:ntcore-java:$wpilibVersion"
-	implementation "edu.wpi.first.wpilibj:wpilibj-java:$wpilibVersion"
-	implementation "edu.wpi.first.wpiutil:wpiutil-java:$wpilibVersion"
-	implementation "edu.wpi.first.wpiunits:wpiunits-java:$wpilibVersion"
-	implementation "edu.wpi.first.hal:hal-java:$wpilibVersion"
-	implementation "edu.wpi.first.datalog:datalog-java:$wpilibVersion"
-	implementation "edu.wpi.first.wpilibNewCommands:wpilibNewCommands-java:$wpilibVersion"
+	implementation "org.wpilib.ntcore:ntcore-java:$wpilibVersion"
+	implementation "org.wpilib.wpilibj:wpilibj-java:$wpilibVersion"
+	implementation "org.wpilib.wpiutil:wpiutil-java:$wpilibVersion"
+	implementation "org.wpilib.wpiunits:wpiunits-java:$wpilibVersion"
+	implementation "org.wpilib.hal:hal-java:$wpilibVersion"
+	implementation "org.wpilib.datalog:datalog-java:$wpilibVersion"
+	implementation "org.wpilib.commandsv2:commandsv2-java:$wpilibVersion"
 
 	errorprone "com.google.errorprone:error_prone_core:2.49.0"
 	errorprone "com.uber.nullaway:nullaway:0.13.4"

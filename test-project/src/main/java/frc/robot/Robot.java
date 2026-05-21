@@ -4,17 +4,17 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Centimeters;
-import static edu.wpi.first.units.Units.Meters;
+import static org.wpilib.units.Units.Centimeters;
+import static org.wpilib.units.Units.Meters;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import dev.doglog.DogLog;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import java.util.function.DoubleSupplier;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.CommandScheduler;
+import org.wpilib.framework.TimedRobot;
+import org.wpilib.math.kinematics.SwerveModuleVelocity;
+import org.wpilib.sysid.SysIdRoutineLog;
 
 public class Robot extends TimedRobot {
   private final TalonFX motor = new TalonFX(5);
@@ -31,8 +31,7 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
-  @Override
-  public void robotInit() {
+  public Robot() {
     m_robotContainer = new RobotContainer();
   }
 
@@ -44,14 +43,14 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
     DogLog.timeEnd("CommandSchedulerExecutionSec");
 
-    DogLog.log("Debug/SwerveState", new SwerveModuleState());
+    DogLog.log("Debug/SwerveState", new SwerveModuleVelocity());
     DogLog.log(
         "Debug/SwerveStates",
-        new SwerveModuleState[] {
-          new SwerveModuleState(),
-          new SwerveModuleState(),
-          new SwerveModuleState(),
-          new SwerveModuleState()
+        new SwerveModuleVelocity[] {
+          new SwerveModuleVelocity(),
+          new SwerveModuleVelocity(),
+          new SwerveModuleVelocity(),
+          new SwerveModuleVelocity()
         });
     DogLog.log("Debug/Position", motor.getPosition().getValueAsDouble());
     DogLog.log("Debug/Json", "{\"test\": \"json\"}", "json");
@@ -65,10 +64,10 @@ public class Robot extends TimedRobot {
     DogLog.log("Units/Height3", Centimeters.of(123));
     DogLog.log("Units/Height4", 123, "Meter");
     DogLog.log("Units/Height5", 123, "meter");
-    DogLog.log("Units/Height7", motor.getPosition().getValue());
+    DogLog.log("Units/Height7", motor.getPosition().getValueAsDouble());
 
     // An enum that can't be converted to a struct
-    DogLog.log("BrokenEnumStruct", SysIdRoutineLog.State.kDynamicForward);
+    DogLog.log("BrokenEnumStruct", SysIdRoutineLog.State.DYNAMIC_FORWARD);
   }
 
   @Override
@@ -114,13 +113,13 @@ public class Robot extends TimedRobot {
   public void teleopExit() {}
 
   @Override
-  public void testInit() {
+  public void utilityInit() {
     CommandScheduler.getInstance().cancelAll();
   }
 
   @Override
-  public void testPeriodic() {}
+  public void utilityPeriodic() {}
 
   @Override
-  public void testExit() {}
+  public void utilityExit() {}
 }

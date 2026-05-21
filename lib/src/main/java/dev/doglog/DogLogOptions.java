@@ -1,7 +1,7 @@
 package dev.doglog;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import java.util.function.BooleanSupplier;
+import org.wpilib.driverstation.RobotState;
 
 /**
  * Options for configuring DogLog.
@@ -37,7 +37,7 @@ public record DogLogOptions(
      */
     BooleanSupplier ntTunables) {
   private static boolean isNotOnFms() {
-    return !DriverStation.isFMSAttached();
+    return !RobotState.isFMSAttached();
   }
 
   public static final double LOOP_PERIOD_SECONDS = 0.02;

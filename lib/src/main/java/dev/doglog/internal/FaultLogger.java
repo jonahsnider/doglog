@@ -1,14 +1,14 @@
 package dev.doglog.internal;
 
 import dev.doglog.internal.writers.LogWriterHighLevel;
-import edu.wpi.first.hal.HALUtil;
-import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.Alert.AlertType;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
+import org.wpilib.driverstation.Alert;
+import org.wpilib.driverstation.Alert.Level;
+import org.wpilib.hardware.hal.HALUtil;
 
 /**
  * Provides the interface for logging faults. Faults are a DogLog concept that were created prior to
@@ -30,7 +30,7 @@ public class FaultLogger {
     var newCount = previousCount == null ? 1 : previousCount + 1;
     FAULT_COUNTS.put(faultName, newCount);
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
 
     if (previousCount == null) {
       // A new fault has been seen
@@ -53,7 +53,7 @@ public class FaultLogger {
    *     not create an alert
    */
   public static void addFault(
-      LogWriterHighLevel logger, String faultName, @Nullable AlertType alertType) {
+      LogWriterHighLevel logger, String faultName, @Nullable Level alertType) {
     addFault(logger, faultName);
     if (alertType != null) {
       FAULT_ALERTS.computeIfAbsent(faultName, k -> new Alert(faultName, alertType)).set(true);
@@ -75,7 +75,7 @@ public class FaultLogger {
     var newCount = previousCount - 1;
     FAULT_COUNTS.put(faultName, newCount);
 
-    var now = HALUtil.getFPGATime();
+    var now = HALUtil.getMonotonicTime();
     logger.log(now, "Faults/Counts/" + faultName, false, newCount);
 
     if (newCount == 0) {
@@ -97,7 +97,7 @@ public class FaultLogger {
     var previousValue = FAULT_COUNTS.replace(faultName, 0);
 
     if (previousValue != null) {
-      var now = HALUtil.getFPGATime();
+      var now = HALUtil.getMonotonicTime();
       logger.log(now, "Faults/Counts/" + faultName, false, 0);
 
       var alert = FAULT_ALERTS.get(faultName);

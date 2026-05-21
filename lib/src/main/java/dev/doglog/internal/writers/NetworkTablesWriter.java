@@ -1,27 +1,27 @@
 package dev.doglog.internal.writers;
 
-import edu.wpi.first.networktables.BooleanArrayPublisher;
-import edu.wpi.first.networktables.BooleanPublisher;
-import edu.wpi.first.networktables.DoubleArrayPublisher;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.FloatArrayPublisher;
-import edu.wpi.first.networktables.FloatPublisher;
-import edu.wpi.first.networktables.GenericPublisher;
-import edu.wpi.first.networktables.IntegerArrayPublisher;
-import edu.wpi.first.networktables.IntegerPublisher;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.PubSubOption;
-import edu.wpi.first.networktables.RawPublisher;
-import edu.wpi.first.networktables.StringArrayPublisher;
-import edu.wpi.first.networktables.StringPublisher;
-import edu.wpi.first.networktables.StructArrayPublisher;
-import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.networktables.Topic;
-import edu.wpi.first.util.struct.Struct;
 import java.util.HashMap;
 import java.util.Map;
 import org.jspecify.annotations.NullMarked;
+import org.wpilib.networktables.BooleanArrayPublisher;
+import org.wpilib.networktables.BooleanPublisher;
+import org.wpilib.networktables.DoubleArrayPublisher;
+import org.wpilib.networktables.DoublePublisher;
+import org.wpilib.networktables.FloatArrayPublisher;
+import org.wpilib.networktables.FloatPublisher;
+import org.wpilib.networktables.GenericPublisher;
+import org.wpilib.networktables.IntegerArrayPublisher;
+import org.wpilib.networktables.IntegerPublisher;
+import org.wpilib.networktables.NetworkTable;
+import org.wpilib.networktables.NetworkTableInstance;
+import org.wpilib.networktables.PubSubOption;
+import org.wpilib.networktables.RawPublisher;
+import org.wpilib.networktables.StringArrayPublisher;
+import org.wpilib.networktables.StringPublisher;
+import org.wpilib.networktables.StructArrayPublisher;
+import org.wpilib.networktables.StructPublisher;
+import org.wpilib.networktables.Topic;
+import org.wpilib.util.struct.Struct;
 
 /** Logs to NetworkTables. */
 @NullMarked
@@ -29,7 +29,7 @@ public class NetworkTablesWriter implements AutoCloseable, LogWriterLowLevel {
   private static final String PROPERTY_SOURCE_NAME = "source";
   private static final String PROPERTY_SOURCE_VALUE = "\"DogLog\"";
 
-  private static final PubSubOption PUB_SUB_OPTIONS = PubSubOption.sendAll(true);
+  private static final PubSubOption PUB_SUB_OPTIONS = PubSubOption.SEND_ALL;
 
   /** Updates the unit property of a numeric topic. */
   private static void updateUnitForTopic(

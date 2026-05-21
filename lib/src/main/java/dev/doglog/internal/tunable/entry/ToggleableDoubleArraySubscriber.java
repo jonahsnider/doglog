@@ -1,10 +1,10 @@
 package dev.doglog.internal.tunable.entry;
 
-import edu.wpi.first.networktables.DoubleArraySubscriber;
-import edu.wpi.first.networktables.DoubleArrayTopic;
-import edu.wpi.first.networktables.TimestampedDoubleArray;
 import java.util.function.BooleanSupplier;
 import org.jspecify.annotations.NullMarked;
+import org.wpilib.networktables.DoubleArraySubscriber;
+import org.wpilib.networktables.DoubleArrayTopic;
+import org.wpilib.networktables.TimestampedDoubleArray;
 
 @NullMarked
 public class ToggleableDoubleArraySubscriber implements DoubleArraySubscriber {
