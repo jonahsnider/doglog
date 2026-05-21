@@ -40,7 +40,7 @@ public class DogLog {
   /** The options to use for the logger. */
   protected static DogLogOptions options = new DogLogOptions();
 
-  protected static LogWriter logger = new LogWriter(options);
+  protected static final LogWriter logger = new LogWriter(options);
 
   /** Whether the logger is enabled. */
   protected static boolean enabled = true;
