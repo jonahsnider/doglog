@@ -18,7 +18,7 @@
 		"@astrojs/markdoc": "1.0.5",
 		"@astrojs/starlight": "0.38.5",
 		"@astrojs/starlight-markdoc": "0.6.0",
-		"astro": "6.3.5",
+		"astro": "6.3.6",
 		"sharp": "^0.34.0",
 		"typescript": "^6.0.0"
 	},
