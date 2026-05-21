@@ -26,6 +26,7 @@ import org.wpilib.system.DataLogManager;
 import org.wpilib.system.Timer;
 import org.wpilib.units.Measure;
 import org.wpilib.units.Unit;
+import org.wpilib.util.WPISerializable;
 import org.wpilib.util.function.BooleanConsumer;
 import org.wpilib.util.function.FloatConsumer;
 import org.wpilib.util.struct.StructSerializable;
@@ -387,8 +388,8 @@ public class DogLog {
     logger.log(now, key, value);
   }
 
-  /** Log a struct. */
-  public static <T extends StructSerializable> void log(String key, @Nullable T value) {
+  /** Log a struct or protobuf. Struct is preferred, with protobuf used as a fallback. */
+  public static <T extends WPISerializable> void log(String key, @Nullable T value) {
     if (!enabled || value == null) {
       return;
     }

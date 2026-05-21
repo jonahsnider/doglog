@@ -14,6 +14,7 @@ import org.wpilib.networktables.IntegerArrayPublisher;
 import org.wpilib.networktables.IntegerPublisher;
 import org.wpilib.networktables.NetworkTable;
 import org.wpilib.networktables.NetworkTableInstance;
+import org.wpilib.networktables.ProtobufPublisher;
 import org.wpilib.networktables.PubSubOption;
 import org.wpilib.networktables.RawPublisher;
 import org.wpilib.networktables.StringArrayPublisher;
@@ -21,6 +22,7 @@ import org.wpilib.networktables.StringPublisher;
 import org.wpilib.networktables.StructArrayPublisher;
 import org.wpilib.networktables.StructPublisher;
 import org.wpilib.networktables.Topic;
+import org.wpilib.util.protobuf.Protobuf;
 import org.wpilib.util.struct.Struct;
 
 /** Logs to NetworkTables. */
@@ -59,6 +61,7 @@ public class NetworkTablesWriter implements AutoCloseable {
   private final Map<String, GenericPublisher> customStringPublishers = new HashMap<>();
   private final Map<String, StructArrayPublisher<?>> structArrayPublishers = new HashMap<>();
   private final Map<String, StructPublisher<?>> structPublishers = new HashMap<>();
+  private final Map<String, ProtobufPublisher<?>> protobufPublishers = new HashMap<>();
 
   private final Map<String, String> doubleUnits = new HashMap<>();
   private final Map<String, String> doubleArrayUnits = new HashMap<>();
@@ -290,6 +293,21 @@ public class NetworkTablesWriter implements AutoCloseable {
     }
   }
 
+  public <T> void log(long timestamp, String key, Protobuf<T, ?> proto, T value) {
+    @SuppressWarnings("unchecked")
+    var publisher = (ProtobufPublisher<T>) protobufPublishers.get(key);
+
+    if (publisher == null) {
+      var topic = logTable.getProtobufTopic(key, proto);
+      var newPublisher = topic.publish(PUB_SUB_OPTIONS);
+      newPublisher.set(value, timestamp);
+      topic.setProperty(PROPERTY_SOURCE_NAME, PROPERTY_SOURCE_VALUE);
+      protobufPublishers.put(key, newPublisher);
+    } else {
+      publisher.set(value, timestamp);
+    }
+  }
+
   @Override
   public void close() {
     for (var publisher : booleanArrayPublishers.values()) {
@@ -329,6 +347,9 @@ public class NetworkTablesWriter implements AutoCloseable {
       publisher.close();
     }
     for (var publisher : structPublishers.values()) {
+      publisher.close();
+    }
+    for (var publisher : protobufPublishers.values()) {
       publisher.close();
     }
   }

@@ -1,6 +1,7 @@
 package dev.doglog.internal.writers;
 
 import dev.doglog.DogLogOptions;
+import dev.doglog.internal.ProtobufRegistry;
 import dev.doglog.internal.StructRegistry;
 import dev.doglog.internal.extras.ExtrasLogger;
 import java.util.Arrays;
@@ -11,6 +12,9 @@ import org.wpilib.driverstation.DriverStation;
 import org.wpilib.hardware.hal.HALUtil;
 import org.wpilib.hardware.power.PowerDistribution;
 import org.wpilib.system.DataLogManager;
+import org.wpilib.util.WPISerializable;
+import org.wpilib.util.protobuf.Protobuf;
+import org.wpilib.util.protobuf.ProtobufSerializable;
 import org.wpilib.util.struct.Struct;
 import org.wpilib.util.struct.StructSerializable;
 
@@ -21,6 +25,7 @@ public class LogWriter implements AutoCloseable {
 
   private final NetworkTablesWriter ntWriter = new NetworkTablesWriter(LOG_TABLE);
   private final StructRegistry structRegistry = new StructRegistry();
+  private final ProtobufRegistry protobufRegistry = new ProtobufRegistry();
   private final ExtrasLogger extras;
 
   public LogWriter(DogLogOptions initialOptions) {
@@ -145,14 +150,35 @@ public class LogWriter implements AutoCloseable {
     }
   }
 
-  public <T extends StructSerializable> void log(long timestamp, String key, T value) {
-    var maybeStruct =
-        structRegistry.getStruct((@NonNull Class<? extends StructSerializable>) value.getClass());
+  @SuppressWarnings("unchecked")
+  public <T extends WPISerializable> void log(long timestamp, String key, T value) {
+    switch (value) {
+      case StructSerializable s -> {
+        var maybeStruct =
+            structRegistry.getStruct((@NonNull Class<? extends StructSerializable>) s.getClass());
 
-    if (maybeStruct.isPresent()) {
-      @SuppressWarnings("unchecked")
-      var struct = (@NonNull Struct<T>) maybeStruct.orElseThrow();
-      ntWriter.log(timestamp, key, struct, value);
+        if (maybeStruct.isPresent()) {
+          var struct = (@NonNull Struct<T>) maybeStruct.orElseThrow();
+          ntWriter.log(timestamp, key, struct, value);
+        } else {
+          logProto(timestamp, key, value);
+        }
+      }
+      case ProtobufSerializable p -> logProto(timestamp, key, value);
+      default -> {}
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T extends WPISerializable> void logProto(long timestamp, String key, T value) {
+    if (value instanceof ProtobufSerializable p) {
+      var maybeProto =
+          protobufRegistry.getProto((@NonNull Class<? extends ProtobufSerializable>) p.getClass());
+
+      if (maybeProto.isPresent()) {
+        var proto = (@NonNull Protobuf<T, ?>) maybeProto.orElseThrow();
+        ntWriter.log(timestamp, key, proto, value);
+      }
     }
   }
 
