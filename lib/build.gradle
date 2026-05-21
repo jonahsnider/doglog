@@ -69,6 +69,7 @@ dependencies {
 	implementation "org.wpilib.hal:hal-java:$wpilibVersion"
 	implementation "org.wpilib.datalog:datalog-java:$wpilibVersion"
 	implementation "org.wpilib.commandsv2:commandsv2-java:$wpilibVersion"
+	implementation "org.wpilib:commands3-java:$wpilibVersion"
 
 	errorprone "com.google.errorprone:error_prone_core:2.49.0"
 	errorprone "com.uber.nullaway:nullaway:0.13.4"

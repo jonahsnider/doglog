@@ -4,6 +4,7 @@ import dev.doglog.internal.DogLogForceNt;
 import dev.doglog.internal.EpochLogger;
 import dev.doglog.internal.FaultLogger;
 import dev.doglog.internal.TimedCommand;
+import dev.doglog.internal.TimedCommandV3;
 import dev.doglog.internal.tunable.Tunable;
 import dev.doglog.internal.writers.LogWriterHighLevel;
 import java.util.function.Consumer;
@@ -572,8 +573,8 @@ public class DogLog {
   }
 
   /**
-   * Wraps a {@link Command} with a timer that records how long the command runs. The command name
-   * will be copied with a prefix of "Timed".
+   * Wraps a Commands v2 {@link Command} with a timer that records how long the command runs. The
+   * command name will be copied with a prefix of "Timed".
    *
    * @param key The key to log the duration of the command to.
    * @param command The command to wrap.
@@ -581,6 +582,17 @@ public class DogLog {
    */
   public static Command time(String key, Command command) {
     return new TimedCommand(command, key);
+  }
+
+  /**
+   * Wraps a Commands v3 {@link org.wpilib.command3.Command} with a timer that logs the total
+   * duration of the command in seconds. The command name will be copied with a prefix of "Timed".
+   *
+   * @param key The key to log the duration of the command to.
+   * @param command The command to wrap.
+   */
+  public static org.wpilib.command3.Command time(String key, org.wpilib.command3.Command command) {
+    return new TimedCommandV3(command, key);
   }
 
   /**
