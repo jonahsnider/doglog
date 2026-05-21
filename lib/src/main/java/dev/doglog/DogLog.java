@@ -483,13 +483,13 @@ public class DogLog {
    * <p>See https://doglog.dev/guides/faults for more information.
    *
    * @param faultName The name of the fault to log.
-   * @param alertType The type of alert to create for the fault, or <code>null</code> if it should
+   * @param alertLevel The level of alert to create for the fault, or <code>null</code> if it should
    *     not create an alert
    * @see DogLog#decreaseFault(String)
    */
-  public static void logFault(@Nullable String faultName, @Nullable Level alertType) {
+  public static void logFault(@Nullable String faultName, @Nullable Level alertLevel) {
     if (enabled && faultName != null) {
-      FaultLogger.addFault(logger, faultName, alertType);
+      FaultLogger.addFault(logger, faultName, alertLevel);
     }
   }
 

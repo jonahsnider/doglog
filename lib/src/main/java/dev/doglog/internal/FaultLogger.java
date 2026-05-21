@@ -49,13 +49,13 @@ public class FaultLogger {
    *
    * @param logger LogConsumer to use.
    * @param faultName The name of the fault to log.
-   * @param alertType The type of alert to create for the fault, or <code>null</code> if it should
+   * @param alertLevel The level of alert to create for the fault, or <code>null</code> if it should
    *     not create an alert
    */
-  public static void addFault(LogWriter logger, String faultName, @Nullable Level alertType) {
+  public static void addFault(LogWriter logger, String faultName, @Nullable Level alertLevel) {
     addFault(logger, faultName);
-    if (alertType != null) {
-      FAULT_ALERTS.computeIfAbsent(faultName, k -> new Alert(faultName, alertType)).set(true);
+    if (alertLevel != null) {
+      FAULT_ALERTS.computeIfAbsent(faultName, k -> new Alert(faultName, alertLevel)).set(true);
     }
   }
 
