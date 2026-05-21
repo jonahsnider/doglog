@@ -17,10 +17,10 @@ DogLog.logFault("Camera offline");
 
 By default, faults are also reported as [WPILib persistent alerts](https://docs.wpilib.org/en/stable/docs/software/telemetry/persistent-alerts.html), with the "error" urgency.
 
-You can customize what urgency to report the alerts as by providing an `AlertType` value to `DogLog.logFault()`:
+You can customize what urgency to report the alerts as by providing an alert level value to `DogLog.logFault()`:
 
 ```java
-DogLog.logFault("Arm not homed", AlertType.kWarning);
+DogLog.logFault("Arm not homed", Alert.Level.kWarning);
 ```
 
 Or if you'd like to disable reporting the fault using alerts, you can pass `null` as the alert urgency:
