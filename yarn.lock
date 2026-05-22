@@ -1620,7 +1620,7 @@ __metadata:
     "@astrojs/starlight-markdoc": "npm:0.6.0"
     "@vite-pwa/assets-generator": "npm:^1.0.1"
     "@vite-pwa/astro": "npm:^1.2.0"
-    astro: "npm:6.3.6"
+    astro: "npm:6.3.7"
     prettier: "npm:3.8.3"
     prettier-plugin-astro: "npm:0.14.1"
     prettier-plugin-java: "npm:2.7.7"
@@ -3491,9 +3491,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"astro@npm:6.3.6":
-  version: 6.3.6
-  resolution: "astro@npm:6.3.6"
+"astro@npm:6.3.7":
+  version: 6.3.7
+  resolution: "astro@npm:6.3.7"
   dependencies:
     "@astrojs/compiler": "npm:^4.0.0"
     "@astrojs/internal-helpers": "npm:0.9.1"
@@ -3556,7 +3556,7 @@ __metadata:
       optional: true
   bin:
     astro: ./bin/astro.mjs
-  checksum: 10c0/12723d974a0a7e98aed3a87353f97e2ba96d4aa46e924ca2e8c34da273f248f173fc6486b7bbb3326fb283d8a818aa9502c87ea716028e8e2005b64953ecb90c
+  checksum: 10c0/5ba358816a4c8c50ebb055e9f0d37540abbeeee8b33334d9bfecd20e1255d0de163c870a08767a2b614ec889242c5b9f22a9f819eb043cc876aa029c81522b2a
   languageName: node
   linkType: hard
 
