@@ -1,5 +1,6 @@
 package dev.doglog.internal.tunable;
 
+import com.google.errorprone.annotations.ThreadSafe;
 import dev.doglog.DogLogOptions;
 import dev.doglog.internal.tunable.entry.ToggleableBooleanSubscriber;
 import dev.doglog.internal.tunable.entry.ToggleableDoubleArraySubscriber;
@@ -13,8 +14,8 @@ import dev.doglog.internal.tunable.on_change.FloatOnChange;
 import dev.doglog.internal.tunable.on_change.LongOnChange;
 import dev.doglog.internal.tunable.on_change.OnChange;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.LongConsumer;
@@ -35,28 +36,30 @@ import org.wpilib.util.function.BooleanConsumer;
 import org.wpilib.util.function.FloatConsumer;
 
 @NullMarked
+@ThreadSafe
 public class Tunable implements AutoCloseable {
   private static final NetworkTable TUNABLE_TABLE =
       NetworkTableInstance.getDefault().getTable("/Tunable");
   private static final EnumSet<Kind> LISTENER_EVENT_KINDS = EnumSet.of(Kind.VALUE_ALL);
 
   /** Maps NT listener handles to onChange callbacks for double fields. */
-  private final Map<Integer, DoubleOnChange> doubleChangeCallbacks = new HashMap<>();
+  private final Map<Integer, DoubleOnChange> doubleChangeCallbacks = new ConcurrentHashMap<>();
 
   /** Maps NT listener handles to onChange callbacks for double array fields. */
-  private final Map<Integer, OnChange<double[]>> doubleArrayChangeCallbacks = new HashMap<>();
+  private final Map<Integer, OnChange<double[]>> doubleArrayChangeCallbacks =
+      new ConcurrentHashMap<>();
 
   /** Maps NT listener handles to onChange callbacks for float fields. */
-  private final Map<Integer, FloatOnChange> floatChangeCallbacks = new HashMap<>();
+  private final Map<Integer, FloatOnChange> floatChangeCallbacks = new ConcurrentHashMap<>();
 
   /** Maps NT listener handles to onChange callbacks for boolean fields. */
-  private final Map<Integer, BooleanOnChange> booleanChangeCallbacks = new HashMap<>();
+  private final Map<Integer, BooleanOnChange> booleanChangeCallbacks = new ConcurrentHashMap<>();
 
   /** Maps NT listener handles to onChange callbacks for string fields. */
-  private final Map<Integer, OnChange<String>> stringChangeCallbacks = new HashMap<>();
+  private final Map<Integer, OnChange<String>> stringChangeCallbacks = new ConcurrentHashMap<>();
 
   /** Maps NT listener handles to onChange callbacks for long/integer fields. */
-  private final Map<Integer, LongOnChange> longChangeCallbacks = new HashMap<>();
+  private final Map<Integer, LongOnChange> longChangeCallbacks = new ConcurrentHashMap<>();
 
   private final NetworkTableListenerPoller poller =
       new NetworkTableListenerPoller(NetworkTableInstance.getDefault());

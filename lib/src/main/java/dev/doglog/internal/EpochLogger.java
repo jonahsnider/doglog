@@ -1,11 +1,13 @@
 package dev.doglog.internal;
 
+import com.google.errorprone.annotations.ThreadSafe;
 import dev.doglog.internal.writers.LogWriter;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+@ThreadSafe
 public class EpochLogger {
-  private final Map<String, Long> epochMap = new HashMap<>();
+  private final Map<String, Long> epochMap = new ConcurrentHashMap<>();
 
   public void time(String key, long timestamp) {
     epochMap.put(key, timestamp);

@@ -1,5 +1,6 @@
 package dev.doglog;
 
+import com.google.errorprone.annotations.ThreadSafe;
 import dev.doglog.internal.EpochLogger;
 import dev.doglog.internal.FaultLogger;
 import dev.doglog.internal.TimedCommand;
@@ -32,6 +33,7 @@ import org.wpilib.util.function.FloatConsumer;
 import org.wpilib.util.struct.StructSerializable;
 
 /** A logger based on WPILib's {@link DataLogManager} */
+@ThreadSafe
 public class DogLog {
   static {
     HAL.reportUsage("LoggingFramework", "DogLog");

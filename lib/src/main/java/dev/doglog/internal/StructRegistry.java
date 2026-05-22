@@ -1,13 +1,15 @@
 package dev.doglog.internal;
 
-import java.util.HashMap;
+import com.google.errorprone.annotations.ThreadSafe;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import org.wpilib.util.struct.Struct;
 import org.wpilib.util.struct.StructGenerator;
 import org.wpilib.util.struct.StructSerializable;
 
 /** Used internally for working with WPILib {@link Struct}s. */
+@ThreadSafe
 public class StructRegistry {
   private static final String STRUCT_FIELD_NAME = "struct";
 
@@ -35,9 +37,9 @@ public class StructRegistry {
   }
 
   private final Map<Class<? extends StructSerializable>, Optional<Struct<?>>> resolvedStructs =
-      new HashMap<>();
-  private final Map<Class<? extends Enum<?>>, Struct<?>> resolvedEnums = new HashMap<>();
-  private final Map<Class<? extends Record>, Struct<?>> resolvedRecords = new HashMap<>();
+      new ConcurrentHashMap<>();
+  private final Map<Class<? extends Enum<?>>, Struct<?>> resolvedEnums = new ConcurrentHashMap<>();
+  private final Map<Class<? extends Record>, Struct<?>> resolvedRecords = new ConcurrentHashMap<>();
 
   public Struct<?> getEnumStruct(Class<? extends Enum<?>> enumClass) {
     return resolvedEnums.computeIfAbsent(enumClass, key -> getEnumStructRaw(enumClass));

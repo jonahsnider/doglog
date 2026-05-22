@@ -1,5 +1,6 @@
 package dev.doglog.internal.writers;
 
+import com.google.errorprone.annotations.ThreadSafe;
 import dev.doglog.DogLogOptions;
 import dev.doglog.internal.ProtobufRegistry;
 import dev.doglog.internal.StructRegistry;
@@ -20,6 +21,7 @@ import org.wpilib.util.struct.StructSerializable;
 
 /** Writes logs to NetworkTables. WPILib automatically captures NT entries to DataLog. */
 @NullMarked
+@ThreadSafe
 public class LogWriter implements AutoCloseable {
   private static final String LOG_TABLE = "/Robot";
 

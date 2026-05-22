@@ -1,7 +1,8 @@
 package dev.doglog.internal.writers;
 
-import java.util.HashMap;
+import com.google.errorprone.annotations.ThreadSafe;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import org.jspecify.annotations.NullMarked;
 import org.wpilib.networktables.BooleanArrayPublisher;
@@ -29,6 +30,7 @@ import org.wpilib.util.struct.Struct;
 
 /** Logs to NetworkTables. */
 @NullMarked
+@ThreadSafe
 public class NetworkTablesWriter implements AutoCloseable {
   private static final String PROPERTY_SOURCE_NAME = "source";
   private static final String PROPERTY_SOURCE_VALUE = "\"DogLog\"";
@@ -49,28 +51,31 @@ public class NetworkTablesWriter implements AutoCloseable {
 
   private final NetworkTable logTable;
 
-  private final Map<String, BooleanArrayPublisher> booleanArrayPublishers = new HashMap<>();
-  private final Map<String, BooleanPublisher> booleanPublishers = new HashMap<>();
-  private final Map<String, DoubleArrayPublisher> doubleArrayPublishers = new HashMap<>();
-  private final Map<String, DoublePublisher> doublePublishers = new HashMap<>();
-  private final Map<String, FloatArrayPublisher> floatArrayPublishers = new HashMap<>();
-  private final Map<String, FloatPublisher> floatPublishers = new HashMap<>();
-  private final Map<String, IntegerArrayPublisher> integerArrayPublishers = new HashMap<>();
-  private final Map<String, IntegerPublisher> integerPublishers = new HashMap<>();
-  private final Map<String, RawPublisher> rawPublishers = new HashMap<>();
-  private final Map<String, StringArrayPublisher> stringArrayPublishers = new HashMap<>();
-  private final Map<String, StringPublisher> stringPublishers = new HashMap<>();
-  private final Map<String, GenericPublisher> customStringPublishers = new HashMap<>();
-  private final Map<String, StructArrayPublisher<?>> structArrayPublishers = new HashMap<>();
-  private final Map<String, StructPublisher<?>> structPublishers = new HashMap<>();
-  private final Map<String, ProtobufPublisher<?>> protobufPublishers = new HashMap<>();
+  private final Map<String, BooleanArrayPublisher> booleanArrayPublishers =
+      new ConcurrentHashMap<>();
+  private final Map<String, BooleanPublisher> booleanPublishers = new ConcurrentHashMap<>();
+  private final Map<String, DoubleArrayPublisher> doubleArrayPublishers = new ConcurrentHashMap<>();
+  private final Map<String, DoublePublisher> doublePublishers = new ConcurrentHashMap<>();
+  private final Map<String, FloatArrayPublisher> floatArrayPublishers = new ConcurrentHashMap<>();
+  private final Map<String, FloatPublisher> floatPublishers = new ConcurrentHashMap<>();
+  private final Map<String, IntegerArrayPublisher> integerArrayPublishers =
+      new ConcurrentHashMap<>();
+  private final Map<String, IntegerPublisher> integerPublishers = new ConcurrentHashMap<>();
+  private final Map<String, RawPublisher> rawPublishers = new ConcurrentHashMap<>();
+  private final Map<String, StringArrayPublisher> stringArrayPublishers = new ConcurrentHashMap<>();
+  private final Map<String, StringPublisher> stringPublishers = new ConcurrentHashMap<>();
+  private final Map<String, GenericPublisher> customStringPublishers = new ConcurrentHashMap<>();
+  private final Map<String, StructArrayPublisher<?>> structArrayPublishers =
+      new ConcurrentHashMap<>();
+  private final Map<String, StructPublisher<?>> structPublishers = new ConcurrentHashMap<>();
+  private final Map<String, ProtobufPublisher<?>> protobufPublishers = new ConcurrentHashMap<>();
 
-  private final Map<String, String> doubleUnits = new HashMap<>();
-  private final Map<String, String> doubleArrayUnits = new HashMap<>();
-  private final Map<String, String> floatUnits = new HashMap<>();
-  private final Map<String, String> floatArrayUnits = new HashMap<>();
-  private final Map<String, String> integerUnits = new HashMap<>();
-  private final Map<String, String> integerArrayUnits = new HashMap<>();
+  private final Map<String, String> doubleUnits = new ConcurrentHashMap<>();
+  private final Map<String, String> doubleArrayUnits = new ConcurrentHashMap<>();
+  private final Map<String, String> floatUnits = new ConcurrentHashMap<>();
+  private final Map<String, String> floatArrayUnits = new ConcurrentHashMap<>();
+  private final Map<String, String> integerUnits = new ConcurrentHashMap<>();
+  private final Map<String, String> integerArrayUnits = new ConcurrentHashMap<>();
 
   public NetworkTablesWriter(String logTable) {
     this.logTable = NetworkTableInstance.getDefault().getTable(logTable);
