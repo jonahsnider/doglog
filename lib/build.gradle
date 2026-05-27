@@ -84,6 +84,39 @@ dependencies {
 	api "org.jspecify:jspecify:1.0.0"
 }
 
+tasks.register('infer', Exec) {
+	group = 'verification'
+	description = 'Run Infer RacerD.'
+	workingDir = rootDir
+
+	def classesDir = layout.buildDirectory.dir('infer/classes').get().asFile
+
+	doFirst {
+		classesDir.mkdirs()
+	}
+
+	def inferCommand = [
+		'infer',
+		'run',
+		'--racerd-only'
+	]
+	if (project.hasProperty('inferFailOnIssue')) {
+		inferCommand.add('--fail-on-issue')
+	}
+	inferCommand.addAll([
+		'--',
+		'javac',
+		'--release',
+		'25',
+		'-cp',
+		sourceSets.main.compileClasspath.asPath,
+		'-d',
+		classesDir.absolutePath
+	])
+	inferCommand.addAll(sourceSets.main.allJava.files.collect { it.absolutePath })
+	commandLine inferCommand
+}
+
 publishing {
 	publications {
 		maven(MavenPublication) {
@@ -133,6 +166,6 @@ spotless {
 		target '**/*.json'
 		simple().indentWithSpaces(2)
 
-		targetExclude('package.json')
+		targetExclude('package.json', 'infer-out/**')
 	}
 }
