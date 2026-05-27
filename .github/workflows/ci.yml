@@ -44,7 +44,7 @@ jobs:
       - name: Check formatting
         run: ./gradlew spotlessCheck
   infer:
-    name: Infer RacerD
+    name: Infer
 
     runs-on: ubuntu-latest
 
@@ -79,7 +79,7 @@ jobs:
             | tar xJ -C /tmp/infer
       - name: Add Infer to PATH
         run: echo "/tmp/infer/infer-linux-x86_64-${INFER_VERSION}/bin" >> "$GITHUB_PATH"
-      - name: Run Infer RacerD
+      - name: Run Infer
         run: ./gradlew infer -PinferFailOnIssue
 
   assemble-test-project:

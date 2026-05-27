@@ -86,7 +86,7 @@ dependencies {
 
 tasks.register('infer', Exec) {
 	group = 'verification'
-	description = 'Run Infer RacerD.'
+	description = 'Run Infer.'
 	workingDir = rootDir
 
 	def classesDir = layout.buildDirectory.dir('infer/classes').get().asFile
@@ -95,11 +95,7 @@ tasks.register('infer', Exec) {
 		classesDir.mkdirs()
 	}
 
-	def inferCommand = [
-		'infer',
-		'run',
-		'--racerd-only'
-	]
+	def inferCommand = ['infer', 'run']
 	if (project.hasProperty('inferFailOnIssue')) {
 		inferCommand.add('--fail-on-issue')
 	}
