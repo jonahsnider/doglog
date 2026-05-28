@@ -27,7 +27,7 @@ public class FaultLogger {
   // This function doesn't need to have the LogConsumer parameter, it could just call DogLog
   // directly. But doing that would mean getting the current time twice, which can be avoided by
   // getting the time once here and reusing that value.
-  public static void addFault(LogWriter logger, String faultName) {
+  public static synchronized void addFault(LogWriter logger, String faultName) {
     var previousCount = FAULT_COUNTS.get(faultName);
     var newCount = previousCount == null ? 1 : previousCount + 1;
     FAULT_COUNTS.put(faultName, newCount);
@@ -54,14 +54,15 @@ public class FaultLogger {
    * @param alertLevel The level of alert to create for the fault, or <code>null</code> if it should
    *     not create an alert
    */
-  public static void addFault(LogWriter logger, String faultName, @Nullable Level alertLevel) {
+  public static synchronized void addFault(
+      LogWriter logger, String faultName, @Nullable Level alertLevel) {
     addFault(logger, faultName);
     if (alertLevel != null) {
       FAULT_ALERTS.computeIfAbsent(faultName, k -> new Alert(faultName, alertLevel)).set(true);
     }
   }
 
-  public static void clearFault(LogWriter logger, String faultName) {
+  public static synchronized void clearFault(LogWriter logger, String faultName) {
     // The faultCounts map is used to track the seen faults, so we need to make sure that clearing a
     // fault which has never occurred doesn't mark it as seen with a count of 0
     var previousValue = FAULT_COUNTS.replace(faultName, 0);
@@ -86,7 +87,7 @@ public class FaultLogger {
    * @param logger LogConsumer to use.
    * @param faultName The name of the fault to remove.
    */
-  public static void decreaseFault(LogWriter logger, String faultName) {
+  public static synchronized void decreaseFault(LogWriter logger, String faultName) {
     var previousCount = FAULT_COUNTS.get(faultName);
     if (previousCount == null || previousCount == 0) {
       // This fault has never occurred
@@ -111,11 +112,11 @@ public class FaultLogger {
     }
   }
 
-  public static boolean faultsActive() {
+  public static synchronized boolean faultsActive() {
     return !ACTIVE_FAULTS.isEmpty();
   }
 
-  public static boolean faultsLogged() {
+  public static synchronized boolean faultsLogged() {
     return !FAULT_COUNTS.isEmpty();
   }
 
