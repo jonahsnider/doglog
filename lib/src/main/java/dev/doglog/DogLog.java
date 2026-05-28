@@ -7,6 +7,8 @@ import dev.doglog.internal.TimedCommand;
 import dev.doglog.internal.TimedCommandV3;
 import dev.doglog.internal.tunable.Tunable;
 import dev.doglog.internal.writers.LogWriter;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.LongConsumer;
@@ -40,14 +42,17 @@ public class DogLog {
   }
 
   /** The options to use for the logger. */
-  protected static DogLogOptions options = new DogLogOptions();
+  protected static final AtomicReference<DogLogOptions> options =
+      new AtomicReference<>(new DogLogOptions());
 
-  protected static final LogWriter logger = new LogWriter(options);
+  @SuppressWarnings("NullAway")
+  protected static final LogWriter logger = new LogWriter(options.get());
 
   /** Whether the logger is enabled. */
-  protected static boolean enabled = true;
+  protected static final AtomicBoolean enabled = new AtomicBoolean(true);
 
-  protected static final Tunable tunable = new Tunable(options);
+  @SuppressWarnings("NullAway")
+  protected static final Tunable tunable = new Tunable(options.get());
 
   protected static final EpochLogger epochLogger = new EpochLogger();
 
@@ -70,7 +75,7 @@ public class DogLog {
    * @param faultName The name of the fault to reset.
    */
   public static void clearFault(@Nullable String faultName) {
-    if (enabled && faultName != null) {
+    if (enabled.get() && faultName != null) {
       FaultLogger.clearFault(logger, faultName);
     }
   }
@@ -96,7 +101,7 @@ public class DogLog {
    * @see DogLog#clearFault(String)
    */
   public static void decreaseFault(@Nullable String faultName) {
-    if (enabled && faultName != null) {
+    if (enabled.get() && faultName != null) {
       FaultLogger.decreaseFault(logger, faultName);
     }
   }
@@ -121,8 +126,9 @@ public class DogLog {
   }
 
   /** Get the options used by the logger. */
+  @SuppressWarnings("NullAway")
   public static DogLogOptions getOptions() {
-    return options;
+    return options.get();
   }
 
   /**
@@ -131,12 +137,12 @@ public class DogLog {
    * @see DogLog#setEnabled(boolean)
    */
   public static boolean isEnabled() {
-    return enabled;
+    return enabled.get();
   }
 
   /** Log a boolean. */
   public static void log(String key, boolean value) {
-    if (!enabled) {
+    if (!enabled.get()) {
       return;
     }
 
@@ -146,7 +152,7 @@ public class DogLog {
 
   /** Log a boolean array. */
   public static void log(String key, boolean @Nullable [] value) {
-    if (!enabled || value == null) {
+    if (!enabled.get() || value == null) {
       return;
     }
 
@@ -156,7 +162,7 @@ public class DogLog {
 
   /** Log a double. */
   public static void log(String key, double value) {
-    if (!enabled) {
+    if (!enabled.get()) {
       return;
     }
 
@@ -166,7 +172,7 @@ public class DogLog {
 
   /** Log a double with unit metadata. */
   public static void log(String key, double value, @Nullable String unit) {
-    if (!enabled) {
+    if (!enabled.get()) {
       return;
     }
     if (unit == null) {
@@ -180,7 +186,7 @@ public class DogLog {
 
   /** Log a double with unit metadata. */
   public static void log(String key, double value, @Nullable Unit unit) {
-    if (!enabled) {
+    if (!enabled.get()) {
       return;
     }
     if (unit == null) {
@@ -193,7 +199,7 @@ public class DogLog {
 
   /** Log a double array. */
   public static void log(String key, double @Nullable [] value) {
-    if (!enabled || value == null) {
+    if (!enabled.get() || value == null) {
       return;
     }
 
@@ -203,7 +209,7 @@ public class DogLog {
 
   /** Log a double array with unit metadata. */
   public static void log(String key, double @Nullable [] value, @Nullable String unit) {
-    if (!enabled) {
+    if (!enabled.get()) {
       return;
     }
     if (unit == null) {
@@ -220,7 +226,7 @@ public class DogLog {
 
   /** Log a double array with unit metadata. */
   public static void log(String key, double @Nullable [] value, @Nullable Unit unit) {
-    if (!enabled) {
+    if (!enabled.get()) {
       return;
     }
     if (unit == null) {
@@ -233,7 +239,7 @@ public class DogLog {
 
   /** Log an enum. */
   public static <E extends Enum<E>> void log(String key, @Nullable E value) {
-    if (!enabled || value == null) {
+    if (!enabled.get() || value == null) {
       return;
     }
 
@@ -243,7 +249,7 @@ public class DogLog {
 
   /** Log an enum array. */
   public static <E extends Enum<E>> void log(String key, @Nullable E[] value) {
-    if (!enabled || value == null) {
+    if (!enabled.get() || value == null) {
       return;
     }
 
@@ -253,7 +259,7 @@ public class DogLog {
 
   /** Log a float. */
   public static void log(String key, float value) {
-    if (!enabled) {
+    if (!enabled.get()) {
       return;
     }
 
@@ -263,7 +269,7 @@ public class DogLog {
 
   /** Log a float with unit metadata. */
   public static void log(String key, float value, @Nullable String unit) {
-    if (!enabled) {
+    if (!enabled.get()) {
       return;
     }
     if (unit == null) {
@@ -277,7 +283,7 @@ public class DogLog {
 
   /** Log a float array. */
   public static void log(String key, float @Nullable [] value) {
-    if (!enabled || value == null) {
+    if (!enabled.get() || value == null) {
       return;
     }
 
@@ -287,7 +293,7 @@ public class DogLog {
 
   /** Log a float array with unit metadata. */
   public static void log(String key, float @Nullable [] value, @Nullable String unit) {
-    if (!enabled) {
+    if (!enabled.get()) {
       return;
     }
     if (unit == null) {
@@ -306,7 +312,7 @@ public class DogLog {
 
   /** Log an int array. */
   public static void log(String key, int @Nullable [] value) {
-    if (!enabled || value == null) {
+    if (!enabled.get() || value == null) {
       return;
     }
 
@@ -316,7 +322,7 @@ public class DogLog {
 
   /** Log a long. */
   public static void log(String key, long value) {
-    if (!enabled) {
+    if (!enabled.get()) {
       return;
     }
 
@@ -326,7 +332,7 @@ public class DogLog {
 
   /** Log a long with unit metadata. */
   public static void log(String key, long value, @Nullable String unit) {
-    if (!enabled) {
+    if (!enabled.get()) {
       return;
     }
     if (unit == null) {
@@ -340,7 +346,7 @@ public class DogLog {
 
   /** Log a long array. */
   public static void log(String key, long @Nullable [] value) {
-    if (!enabled || value == null) {
+    if (!enabled.get() || value == null) {
       return;
     }
 
@@ -350,7 +356,7 @@ public class DogLog {
 
   /** Log a long array with unit metadata. */
   public static void log(String key, long @Nullable [] value, @Nullable String unit) {
-    if (!enabled) {
+    if (!enabled.get()) {
       return;
     }
     if (unit == null) {
@@ -367,7 +373,7 @@ public class DogLog {
 
   /** Log a record. */
   public static void log(String key, @Nullable Record value) {
-    if (!enabled || value == null) {
+    if (!enabled.get() || value == null) {
       return;
     }
 
@@ -389,7 +395,7 @@ public class DogLog {
 
   /** Log a record array. */
   public static void log(String key, @Nullable Record[] value) {
-    if (!enabled || value == null) {
+    if (!enabled.get() || value == null) {
       return;
     }
 
@@ -399,7 +405,7 @@ public class DogLog {
 
   /** Log a string. */
   public static void log(String key, @Nullable String value) {
-    if (!enabled || value == null) {
+    if (!enabled.get() || value == null) {
       return;
     }
 
@@ -409,7 +415,7 @@ public class DogLog {
 
   /** Log a string with a custom type string. */
   public static void log(String key, @Nullable String value, @Nullable String customTypeString) {
-    if (!enabled || value == null) {
+    if (!enabled.get() || value == null) {
       return;
     }
 
@@ -424,7 +430,7 @@ public class DogLog {
 
   /** Log a string array. */
   public static void log(String key, @Nullable String[] value) {
-    if (!enabled || value == null) {
+    if (!enabled.get() || value == null) {
       return;
     }
 
@@ -434,7 +440,7 @@ public class DogLog {
 
   /** Log a struct or protobuf. Struct is preferred, with protobuf used as a fallback. */
   public static <T extends WPISerializable> void log(String key, @Nullable T value) {
-    if (!enabled || value == null) {
+    if (!enabled.get() || value == null) {
       return;
     }
 
@@ -444,7 +450,7 @@ public class DogLog {
 
   /** Log a struct array. */
   public static <T extends StructSerializable> void log(String key, @Nullable T[] value) {
-    if (!enabled || value == null) {
+    if (!enabled.get() || value == null) {
       return;
     }
 
@@ -490,7 +496,7 @@ public class DogLog {
    * @see DogLog#decreaseFault(String)
    */
   public static void logFault(@Nullable String faultName, @Nullable Level alertLevel) {
-    if (enabled && faultName != null) {
+    if (enabled.get() && faultName != null) {
       FaultLogger.addFault(logger, faultName, alertLevel);
     }
   }
@@ -502,7 +508,7 @@ public class DogLog {
    * <p>By default, the logger is enabled.
    */
   public static void setEnabled(boolean newEnabled) {
-    enabled = newEnabled;
+    enabled.set(newEnabled);
   }
 
   /**
@@ -514,13 +520,13 @@ public class DogLog {
    *
    * <p>See https://doglog.dev/reference/logger-options/ for more information.
    */
-  public static void setOptions(@Nullable DogLogOptions newOptions) {
+  @SuppressWarnings("NullAway")
+  public static synchronized void setOptions(@Nullable DogLogOptions newOptions) {
     if (newOptions == null) {
       newOptions = new DogLogOptions();
     }
 
-    var oldOptions = options;
-    options = newOptions;
+    var oldOptions = options.getAndSet(newOptions);
 
     if (!oldOptions.equals(newOptions)) {
       System.out.println("[DogLog] Options changed: " + newOptions);
@@ -955,6 +961,8 @@ public class DogLog {
    * @return A {@link DoubleSubscriber} used to retrieve the tunable value.
    */
   public static DoubleSubscriber tunable(String key, Measure<?> defaultValue) {
+    // WPILib Measure is immutable, but its interface is not annotated @ThreadSafe.
+    // @infer-ignore INTERFACE_NOT_THREAD_SAFE
     return tunable(key, defaultValue, null);
   }
 
@@ -971,7 +979,14 @@ public class DogLog {
     if (defaultValue == null) {
       return tunable(key, 0.0, onChange);
     }
-    return tunable(key, defaultValue.magnitude(), defaultValue.unit().name(), onChange);
+
+    return tunable(
+        key,
+        // WPILib Measure is immutable, but its interface is not annotated @ThreadSafe.
+        // @infer-ignore INTERFACE_NOT_THREAD_SAFE
+        defaultValue.magnitude(),
+        defaultValue.unit().name(),
+        onChange);
   }
 
   /**
