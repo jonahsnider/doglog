@@ -6,6 +6,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.concurrent.atomic.AtomicReference;
 import org.jspecify.annotations.NullMarked;
 import org.wpilib.system.RobotController;
 
@@ -20,7 +21,8 @@ class RadioLogUtil {
     return URI.create("http://10." + teamNumber / 100 + "." + teamNumber % 100 + ".1/status");
   }
 
-  public final RadioLogResult radioLogResult = new RadioLogResult();
+  private final AtomicReference<RadioLogResult> radioLogResult =
+      new AtomicReference<>(RadioLogResult.DISCONNECTED);
 
   private final HttpClient httpClient = HttpClient.newHttpClient();
   private final HttpRequest request =
@@ -29,18 +31,22 @@ class RadioLogUtil {
           .timeout(REQUEST_TIMEOUT_DURATION)
           .build();
 
-  /** Get the latest radio status and update the {@link #radioLogResult} object. */
+  @SuppressWarnings("NullAway")
+  public RadioLogResult radioLogResult() {
+    return radioLogResult.get();
+  }
+
+  /** Get the latest radio status and update the {@link #radioLogResult()} object. */
+  @SuppressWarnings("NullAway")
   public void refresh() {
     try {
       var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-      radioLogResult.isConnected = true;
-      radioLogResult.statusJson = response.body();
+      radioLogResult.set(new RadioLogResult(true, response.body()));
     } catch (
         @SuppressWarnings("InterruptedExceptionSwallowed")
         Exception e) {
-      radioLogResult.isConnected = false;
-      radioLogResult.statusJson = "";
+      radioLogResult.set(RadioLogResult.DISCONNECTED);
     }
   }
 }

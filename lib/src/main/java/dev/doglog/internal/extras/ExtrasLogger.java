@@ -125,9 +125,10 @@ public class ExtrasLogger implements AutoCloseable {
   private void logRadio() {
     var now = HALUtil.getMonotonicTime();
     radioLogUtil.refresh();
+    var radioLogResult = radioLogUtil.radioLogResult();
 
-    logger.log(now, "RadioStatus/Connected", radioLogUtil.radioLogResult.isConnected);
-    logger.log(now, "RadioStatus/StatusJson", radioLogUtil.radioLogResult.statusJson, "json");
+    logger.log(now, "RadioStatus/Connected", radioLogResult.isConnected());
+    logger.log(now, "RadioStatus/StatusJson", radioLogResult.statusJson(), "json");
   }
 
   private void logSystem(long now) {
