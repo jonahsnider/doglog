@@ -246,9 +246,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/starlight@npm:0.38.5":
-  version: 0.38.5
-  resolution: "@astrojs/starlight@npm:0.38.5"
+"@astrojs/starlight@npm:0.39.2":
+  version: 0.39.2
+  resolution: "@astrojs/starlight@npm:0.39.2"
   dependencies:
     "@astrojs/markdown-remark": "npm:^7.1.1"
     "@astrojs/mdx": "npm:^5.0.4"
@@ -263,7 +263,7 @@ __metadata:
     hast-util-select: "npm:^6.0.4"
     hast-util-to-string: "npm:^3.0.1"
     hastscript: "npm:^9.0.1"
-    i18next: "npm:^23.11.5"
+    i18next: "npm:^26.0.7"
     js-yaml: "npm:^4.1.1"
     klona: "npm:^2.0.6"
     magic-string: "npm:^0.30.21"
@@ -280,7 +280,7 @@ __metadata:
     vfile: "npm:^6.0.3"
   peerDependencies:
     astro: ^6.0.0
-  checksum: 10c0/74e4e26602c467b8e66cb052a7a186aa00dbf27639d099ea57896422f5a697dd5dabe6423d21252d82c223be80183d4abe9027df4d441ff0d36a898143f3d6cb
+  checksum: 10c0/83bb1e93b5769c37bc65019d646e17b24850b1a55507ded6ca7f4cf10600e9559cae40a68196feff73b4f928f2ba5c6b8770fed0d46edb2ebb0c367f1fab6168
   languageName: node
   linkType: hard
 
@@ -1393,15 +1393,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.23.2":
-  version: 7.25.7
-  resolution: "@babel/runtime@npm:7.25.7"
-  dependencies:
-    regenerator-runtime: "npm:^0.14.0"
-  checksum: 10c0/86b7829d2fc9343714a9afe92757cf96c4dc799006ca61d73cda62f4b9e29bfa1ce36794955bc6cb4c188f5b10db832c949339895e1bbe81a69022d9d578ce29
-  languageName: node
-  linkType: hard
-
 "@babel/template@npm:^7.27.1, @babel/template@npm:^7.27.2":
   version: 7.27.2
   resolution: "@babel/template@npm:7.27.2"
@@ -1616,7 +1607,7 @@ __metadata:
   dependencies:
     "@astrojs/check": "npm:0.9.9"
     "@astrojs/markdoc": "npm:1.0.5"
-    "@astrojs/starlight": "npm:0.38.5"
+    "@astrojs/starlight": "npm:0.39.2"
     "@astrojs/starlight-markdoc": "npm:0.6.0"
     "@vite-pwa/assets-generator": "npm:^1.0.1"
     "@vite-pwa/astro": "npm:^1.2.0"
@@ -5672,12 +5663,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"i18next@npm:^23.11.5":
-  version: 23.15.2
-  resolution: "i18next@npm:23.15.2"
-  dependencies:
-    "@babel/runtime": "npm:^7.23.2"
-  checksum: 10c0/6e079bf486ac24440c2e01f1852b518c3c7f2cf9754ab98c25c78e4bc50f5af936b7cbb3c566f60fbbc093ec14d7432d5320016376038bc23fc1167a03cdb6bc
+"i18next@npm:^26.0.7":
+  version: 26.3.0
+  resolution: "i18next@npm:26.3.0"
+  peerDependencies:
+    typescript: ^5 || ^6
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 10c0/e5dc29171d9a05746b31ad68e179ce2f36459c0a20d2d6733837961fe9492d1b48706804fa12059aa91dbb004655cb54ade817eb9e72371649f26d6dba1ca211
   languageName: node
   linkType: hard
 
@@ -8036,13 +8030,6 @@ __metadata:
   version: 1.4.2
   resolution: "regenerate@npm:1.4.2"
   checksum: 10c0/f73c9eba5d398c818edc71d1c6979eaa05af7a808682749dd079f8df2a6d91a9b913db216c2c9b03e0a8ba2bba8701244a93f45211afbff691c32c7b275db1b8
-  languageName: node
-  linkType: hard
-
-"regenerator-runtime@npm:^0.14.0":
-  version: 0.14.1
-  resolution: "regenerator-runtime@npm:0.14.1"
-  checksum: 10c0/1b16eb2c4bceb1665c89de70dcb64126a22bc8eb958feef3cd68fe11ac6d2a4899b5cd1b80b0774c7c03591dc57d16631a7f69d2daa2ec98100e2f29f7ec4cc4
   languageName: node
   linkType: hard
 
