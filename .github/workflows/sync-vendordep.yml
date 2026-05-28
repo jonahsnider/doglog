@@ -17,6 +17,19 @@ jobs:
         uses: actions/checkout@v6
       - name: Copy vendordep.json to web/public/
         run: cp vendordep.json web/public/vendordep.json
+      - name: Enable Corepack
+        # Required due to a limitation in setup-node https://github.com/actions/setup-node/issues/480#issuecomment-1820622085
+        run: corepack enable
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*"
+          cache: "yarn"
+      - name: Install docs dependencies
+        run: yarn install --immutable
+      - name: Format copied vendordep
+        run: yarn prettier --write public/vendordep.json
+        working-directory: web
       - name: Check for changes
         id: diff
         run: |
