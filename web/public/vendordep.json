@@ -11,9 +11,7 @@
 	"jsonUrl": "https://doglog.dev/vendordep.json",
 	"name": "DogLog",
 	"jniDependencies": [],
-	"mavenUrls": [
-		"https://jitpack.io"
-	],
+	"mavenUrls": ["https://jitpack.io"],
 	"cppDependencies": [],
 	"version": "2027.0.0",
 	"uuid": "65592ce1-2251-4a31-8e4b-2df20dacebe4"
