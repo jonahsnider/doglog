@@ -1,5 +1,30 @@
 # Changelog
 
+## [2027.0.0](https://github.com/jonahsnider/doglog/compare/2026.5.0...2027.0.0) (2026-05-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove ntPublish and captureNt options
+* update to WPILib 2027 ([#99](https://github.com/jonahsnider/doglog/issues/99))
+
+### Features
+
+* add Protobuf logging ([9c8ea59](https://github.com/jonahsnider/doglog/commit/9c8ea5971c4a14e398ecd85d3b84fd482dd3f16d))
+* remove log thread ([#135](https://github.com/jonahsnider/doglog/issues/135)) ([679ba29](https://github.com/jonahsnider/doglog/commit/679ba29adf4129074705bdcfe180fc5c3820e87d))
+* remove ntPublish and captureNt options ([28ab236](https://github.com/jonahsnider/doglog/commit/28ab236ffe9e94f77d316a7c331fc87061bbd3d4))
+* set release target to JDK 25 ([45d25e0](https://github.com/jonahsnider/doglog/commit/45d25e03191ea952541b7c0eb71ca9493e8017cc))
+* support DogLog.time() with Commands v3 ([98a4734](https://github.com/jonahsnider/doglog/commit/98a4734c9c3cf6c9f71943c78107c8d81e82631a))
+* support multithreading ([#167](https://github.com/jonahsnider/doglog/issues/167)) ([3cb07e4](https://github.com/jonahsnider/doglog/commit/3cb07e497f94fc1759c50cf8e6aced59587d123f))
+* update to WPILib 2027 ([#99](https://github.com/jonahsnider/doglog/issues/99)) ([6888e3f](https://github.com/jonahsnider/doglog/commit/6888e3f79220b69032089924ae9f7b8601f2a4b1))
+* upgrade to WPILib 2027_alpha5 ([c055262](https://github.com/jonahsnider/doglog/commit/c055262fce23fc137e11e13dc4332ab72a439de2))
+
+
+### Bug Fixes
+
+* fix DogLogOptions Javadoc ([0dd28a2](https://github.com/jonahsnider/doglog/commit/0dd28a2bf289573ad855f02cd86edf0b4d4025f5))
+* make all config operations thread safe ([#177](https://github.com/jonahsnider/doglog/issues/177)) ([8aa041e](https://github.com/jonahsnider/doglog/commit/8aa041e9d73407e89e1cf94d8a1272809836430a))
+
 ## [2026.5.0](https://github.com/jonahsnider/doglog/compare/2026.4.0...2026.5.0) (2026-02-11)
 
 
