@@ -287,3 +287,6 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/java,linux,macos,gradle,windows,visualstudiocode,node
+
+# Infer
+infer-out/

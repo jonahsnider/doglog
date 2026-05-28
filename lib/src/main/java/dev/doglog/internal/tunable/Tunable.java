@@ -16,6 +16,8 @@ import dev.doglog.internal.tunable.on_change.OnChange;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.LongConsumer;
@@ -65,14 +67,14 @@ public class Tunable implements AutoCloseable {
       new NetworkTableListenerPoller(NetworkTableInstance.getDefault());
 
   private final Notifier notifier = new Notifier(this::poll);
-  private boolean lastNtTunables;
-  private boolean notifierStarted = false;
-  private DogLogOptions options;
+  private final AtomicBoolean lastNtTunables;
+  private final AtomicBoolean notifierStarted = new AtomicBoolean(false);
+  private final AtomicReference<DogLogOptions> options;
 
   public Tunable(DogLogOptions initialOptions) {
     notifier.setName("DogLog tunable poller");
-    options = initialOptions;
-    lastNtTunables = initialOptions.ntTunables().getAsBoolean();
+    options = new AtomicReference<>(initialOptions);
+    lastNtTunables = new AtomicBoolean(initialOptions.ntTunables().getAsBoolean());
   }
 
   @Override
@@ -81,6 +83,7 @@ public class Tunable implements AutoCloseable {
     notifier.close();
   }
 
+  @SuppressWarnings("NullAway")
   public BooleanSubscriber create(
       String key, boolean defaultValue, @Nullable BooleanConsumer onChange) {
     startNotifier();
@@ -94,9 +97,10 @@ public class Tunable implements AutoCloseable {
     }
 
     return new ToggleableBooleanSubscriber(
-        entry, defaultValue, () -> options.ntTunables().getAsBoolean());
+        entry, defaultValue, () -> options.get().ntTunables().getAsBoolean());
   }
 
+  @SuppressWarnings("NullAway")
   public DoubleSubscriber create(
       String key, double defaultValue, @Nullable String unit, @Nullable DoubleConsumer onChange) {
     startNotifier();
@@ -115,9 +119,10 @@ public class Tunable implements AutoCloseable {
     }
 
     return new ToggleableDoubleSubscriber(
-        entry, defaultValue, () -> options.ntTunables().getAsBoolean());
+        entry, defaultValue, () -> options.get().ntTunables().getAsBoolean());
   }
 
+  @SuppressWarnings("NullAway")
   public DoubleArraySubscriber create(
       String key,
       double[] defaultValue,
@@ -139,9 +144,10 @@ public class Tunable implements AutoCloseable {
     }
 
     return new ToggleableDoubleArraySubscriber(
-        entry, defaultValue, () -> options.ntTunables().getAsBoolean());
+        entry, defaultValue, () -> options.get().ntTunables().getAsBoolean());
   }
 
+  @SuppressWarnings("NullAway")
   public FloatSubscriber create(
       String key, float defaultValue, @Nullable String unit, @Nullable FloatConsumer onChange) {
     startNotifier();
@@ -160,9 +166,10 @@ public class Tunable implements AutoCloseable {
     }
 
     return new ToggleableFloatSubscriber(
-        entry, defaultValue, () -> options.ntTunables().getAsBoolean());
+        entry, defaultValue, () -> options.get().ntTunables().getAsBoolean());
   }
 
+  @SuppressWarnings("NullAway")
   public IntegerSubscriber create(
       String key, long defaultValue, @Nullable String unit, @Nullable LongConsumer onChange) {
     startNotifier();
@@ -181,9 +188,10 @@ public class Tunable implements AutoCloseable {
     }
 
     return new ToggleableIntegerSubscriber(
-        entry, defaultValue, () -> options.ntTunables().getAsBoolean());
+        entry, defaultValue, () -> options.get().ntTunables().getAsBoolean());
   }
 
+  @SuppressWarnings("NullAway")
   public StringSubscriber create(
       String key, String defaultValue, @Nullable Consumer<String> onChange) {
     startNotifier();
@@ -197,17 +205,18 @@ public class Tunable implements AutoCloseable {
     }
 
     return new ToggleableStringSubscriber(
-        entry, defaultValue, () -> options.ntTunables().getAsBoolean());
+        entry, defaultValue, () -> options.get().ntTunables().getAsBoolean());
   }
 
   public void setOptions(DogLogOptions newOptions) {
-    options = newOptions;
+    options.set(newOptions);
   }
 
+  @SuppressWarnings("NullAway")
   private void poll() {
     var changes = poller.readQueue();
 
-    var currentNtTunables = options.ntTunables().getAsBoolean();
+    var currentNtTunables = options.get().ntTunables().getAsBoolean();
 
     if (currentNtTunables) {
       // NT tunables are enabled
@@ -253,7 +262,7 @@ public class Tunable implements AutoCloseable {
           default -> {}
         }
       }
-    } else if (lastNtTunables) {
+    } else if (lastNtTunables.get()) {
       // This is the first time we have disabled NT tunables, emit a change event with the default
       // values
 
@@ -265,15 +274,12 @@ public class Tunable implements AutoCloseable {
       longChangeCallbacks.values().forEach(LongOnChange::acceptDefault);
     }
 
-    lastNtTunables = currentNtTunables;
+    lastNtTunables.set(currentNtTunables);
   }
 
   private void startNotifier() {
-    if (notifierStarted) {
-      return;
+    if (notifierStarted.compareAndSet(false, true)) {
+      notifier.startPeriodic(DogLogOptions.LOOP_PERIOD_SECONDS);
     }
-
-    notifierStarted = true;
-    notifier.startPeriodic(DogLogOptions.LOOP_PERIOD_SECONDS);
   }
 }

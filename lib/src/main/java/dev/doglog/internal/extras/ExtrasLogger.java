@@ -10,6 +10,7 @@ import static org.wpilib.units.Units.Watts;
 import com.google.errorprone.annotations.ThreadSafe;
 import dev.doglog.DogLogOptions;
 import dev.doglog.internal.writers.LogWriter;
+import java.util.concurrent.atomic.AtomicReference;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.wpilib.hardware.hal.HAL;
@@ -37,7 +38,7 @@ public class ExtrasLogger implements AutoCloseable {
 
   private final CANStatus status = new CANStatus();
 
-  private @Nullable PowerDistribution pdh;
+  private final AtomicReference<@Nullable PowerDistribution> pdh = new AtomicReference<>();
 
   private final Notifier notifier = new Notifier(this::log);
 
@@ -73,7 +74,7 @@ public class ExtrasLogger implements AutoCloseable {
   }
 
   public void setPdh(@Nullable PowerDistribution pdh) {
-    this.pdh = pdh;
+    this.pdh.set(pdh);
   }
 
   private void log() {
@@ -98,36 +99,48 @@ public class ExtrasLogger implements AutoCloseable {
   }
 
   private void logPdh(long now) {
-    if (pdh == null) {
+    var currentPdh = pdh.get();
+    if (currentPdh == null) {
       return;
     }
 
     logger.log(
         now,
         "SystemStats/PowerDistribution/Temperature",
-        pdh.getTemperature(),
+        currentPdh.getTemperature(),
         CELSIUS_UNIT_STRING);
-    logger.log(now, "SystemStats/PowerDistribution/Voltage", pdh.getVoltage(), VOLTS_UNIT_STRING);
+    logger.log(
+        now, "SystemStats/PowerDistribution/Voltage", currentPdh.getVoltage(), VOLTS_UNIT_STRING);
     logger.log(
         now,
         "SystemStats/PowerDistribution/ChannelCurrent",
-        pdh.getAllCurrents(),
+        currentPdh.getAllCurrents(),
         AMPS_UNIT_STRING);
     logger.log(
-        now, "SystemStats/PowerDistribution/TotalCurrent", pdh.getTotalCurrent(), AMPS_UNIT_STRING);
+        now,
+        "SystemStats/PowerDistribution/TotalCurrent",
+        currentPdh.getTotalCurrent(),
+        AMPS_UNIT_STRING);
     logger.log(
-        now, "SystemStats/PowerDistribution/TotalPower", pdh.getTotalPower(), WATTS_UNIT_STRING);
+        now,
+        "SystemStats/PowerDistribution/TotalPower",
+        currentPdh.getTotalPower(),
+        WATTS_UNIT_STRING);
     logger.log(
-        now, "SystemStats/PowerDistribution/TotalEnergy", pdh.getTotalEnergy(), JOULES_UNIT_STRING);
-    logger.log(now, "SystemStats/PowerDistribution/ChannelCount", pdh.getNumChannels());
+        now,
+        "SystemStats/PowerDistribution/TotalEnergy",
+        currentPdh.getTotalEnergy(),
+        JOULES_UNIT_STRING);
+    logger.log(now, "SystemStats/PowerDistribution/ChannelCount", currentPdh.getNumChannels());
   }
 
   private void logRadio() {
     var now = HALUtil.getMonotonicTime();
     radioLogUtil.refresh();
+    var radioLogResult = radioLogUtil.radioLogResult();
 
-    logger.log(now, "RadioStatus/Connected", radioLogUtil.radioLogResult.isConnected);
-    logger.log(now, "RadioStatus/StatusJson", radioLogUtil.radioLogResult.statusJson, "json");
+    logger.log(now, "RadioStatus/Connected", radioLogResult.isConnected());
+    logger.log(now, "RadioStatus/StatusJson", radioLogResult.statusJson(), "json");
   }
 
   private void logSystem(long now) {

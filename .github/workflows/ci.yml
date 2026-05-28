@@ -43,6 +43,45 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
       - name: Check formatting
         run: ./gradlew spotlessCheck
+  infer:
+    name: Infer
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 10
+
+    needs: [assemble]
+
+    env:
+      INFER_VERSION: v1.3.0
+
+    steps:
+      - name: Checkout Git repository
+        uses: actions/checkout@v6
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: 25
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+      - name: Cache Infer
+        id: cache-infer
+        uses: actions/cache@v4
+        with:
+          path: /tmp/infer
+          key: infer-linux-x86_64-${{ env.INFER_VERSION }}
+      - name: Install Infer
+        if: steps.cache-infer.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p /tmp/infer
+          curl -sL "https://github.com/facebook/infer/releases/download/${INFER_VERSION}/infer-linux-x86_64-${INFER_VERSION}.tar.xz" \
+            | tar xJ -C /tmp/infer
+      - name: Add Infer to PATH
+        run: echo "/tmp/infer/infer-linux-x86_64-${INFER_VERSION}/bin" >> "$GITHUB_PATH"
+      - name: Run Infer
+        run: ./gradlew infer -PinferFailOnIssue
+
   assemble-test-project:
     name: Assemble test project
 
