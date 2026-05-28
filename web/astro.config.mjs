@@ -35,19 +35,21 @@ export default defineConfig({
 			sidebar: [
 				{
 					label: 'Getting started',
-					autogenerate: { directory: 'getting-started' },
+					items: [{ autogenerate: { directory: 'getting-started' } }],
 				},
 				{
 					label: 'Guides',
-					autogenerate: { directory: 'guides' },
+					items: [{ autogenerate: { directory: 'guides' } }],
 				},
 				{
 					label: 'Reference',
-					autogenerate: { directory: 'reference' },
-				},
-				{
-					label: 'Javadoc',
-					link: 'https://javadoc.doglog.dev',
+					items: [
+						{ autogenerate: { directory: 'reference' } },
+						{
+							label: 'Javadoc',
+							link: 'https://javadoc.doglog.dev',
+						},
+					],
 				},
 			],
 			customCss: ['/src/styles/custom.css'],
