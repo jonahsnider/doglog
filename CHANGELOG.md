@@ -25,6 +25,11 @@
 * fix DogLogOptions Javadoc ([0dd28a2](https://github.com/jonahsnider/doglog/commit/0dd28a2bf289573ad855f02cd86edf0b4d4025f5))
 * make all config operations thread safe ([#177](https://github.com/jonahsnider/doglog/issues/177)) ([8aa041e](https://github.com/jonahsnider/doglog/commit/8aa041e9d73407e89e1cf94d8a1272809836430a))
 
+
+### Build System
+
+* **deps:** update dependency @astrojs/starlight to v0.39.2 ([#173](https://github.com/jonahsnider/doglog/issues/173)) ([8221711](https://github.com/jonahsnider/doglog/commit/82217114cb295526bb2b4f638509a8bb6e6c13f4))
+
 ## [2026.5.0](https://github.com/jonahsnider/doglog/compare/2026.4.0...2026.5.0) (2026-02-11)
 
 
