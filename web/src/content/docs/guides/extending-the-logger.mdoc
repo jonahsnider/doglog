@@ -76,3 +76,182 @@ As an example, we will add in a new `log()` method to help log motor values.
 
    ```
 {% /steps %}
+
+## Timing commands
+
+If you want to track how long a command takes to run, you can extend the logger with a helper that wraps a command with a timer.
+
+{% steps %}
+1. Create a `CustomLogger` class if you don't already have one, following the steps above.
+
+1. Create a new file for the command wrapper:
+
+   {% filetree %}
+   - src
+     - main
+       - deploy/
+       - java/
+         - frc/
+           - robot/
+             - CustomLogger.java
+             - **TimedCommand.java** Create this file
+             - Main.java
+             - Robot.java
+             - RobotContainer.java
+   {% /filetree %}
+
+1. Paste in the wrapper for your command framework version, then add a matching `time()` method to your `CustomLogger`:
+
+   {% tabs %}
+   {% tabitem label="Commands v3" %}
+   This wraps a Commands v3 command and logs its total execution time in seconds.
+
+   ```java {% title="src/main/java/frc/robot/TimedCommand.java" %}
+   package frc.robot;
+
+   import dev.doglog.DogLog;
+   import java.util.Set;
+   import org.wpilib.command3.Command;
+   import org.wpilib.command3.Coroutine;
+   import org.wpilib.command3.Mechanism;
+   import org.wpilib.hardware.hal.HALUtil;
+
+   public class TimedCommand implements Command {
+   	private final Command command;
+   	private final String key;
+
+   	public TimedCommand(Command command, String key) {
+   		this.command = command;
+   		this.key = key;
+   	}
+
+   	@Override
+   	public String name() {
+   		return "Timed" + command.name();
+   	}
+
+   	@Override
+   	public int priority() {
+   		return command.priority();
+   	}
+
+   	@Override
+   	public Set<Mechanism> requirements() {
+   		return command.requirements();
+   	}
+
+   	@Override
+   	public void run(Coroutine coroutine) {
+   		var startTime = HALUtil.getMonotonicTime();
+   		coroutine.await(command);
+   		var elapsed = (HALUtil.getMonotonicTime() - startTime) / 1_000_000_000.0;
+   		DogLog.log(key, elapsed);
+   	}
+   }
+
+   ```
+
+   Then add a `time()` method to your `CustomLogger` so you can wrap commands with it. The highlighted lines are what you need to add:
+
+   ```java {% meta="{4,7-9}" title="src/main/java/frc/robot/CustomLogger.java" %}
+   package frc.robot;
+
+   import dev.doglog.DogLog;
+   import org.wpilib.command3.Command;
+
+   public class CustomLogger extends DogLog {
+   	public static Command time(String key, Command command) {
+   		return new TimedCommand(command, key);
+   	}
+   }
+
+   ```
+   {% /tabitem %}
+   {% tabitem label="Commands v2" %}
+   This wraps a Commands v2 command and logs the duration of each phase of the command (`initialize`, `execute`, `end`).
+
+   ```java {% title="src/main/java/frc/robot/TimedCommand.java" %}
+   package frc.robot;
+
+   import dev.doglog.DogLog;
+   import org.wpilib.command2.Command;
+   import org.wpilib.command2.CommandScheduler;
+
+   public class TimedCommand extends Command {
+   	private final Command command;
+   	private final String key;
+
+   	public TimedCommand(Command command, String key) {
+   		this.command = command;
+   		this.key = key;
+
+   		setName("Timed" + command.getName());
+
+   		CommandScheduler.getInstance().registerComposedCommands(command);
+
+   		addRequirements(command.getRequirements());
+   	}
+
+   	@Override
+   	public void end(boolean interrupted) {
+   		var logKey = key + "/.end(" + interrupted + ")";
+   		DogLog.time(logKey);
+   		command.end(interrupted);
+   		DogLog.timeEnd(logKey);
+   	}
+
+   	@Override
+   	public void execute() {
+   		DogLog.time(key + "/.execute()");
+   		command.execute();
+   		DogLog.timeEnd(key + "/.execute()");
+   	}
+
+   	@Override
+   	public void initialize() {
+   		DogLog.time(key + "/.initialize()");
+   		command.initialize();
+   		DogLog.timeEnd(key + "/.initialize()");
+   	}
+
+   	@Override
+   	public boolean isFinished() {
+   		return command.isFinished();
+   	}
+
+   	@Override
+   	public boolean runsWhenDisabled() {
+   		return command.runsWhenDisabled();
+   	}
+   }
+
+   ```
+
+   Then add a `time()` method to your `CustomLogger` so you can wrap commands with it. The highlighted lines are what you need to add:
+
+   ```java {% meta="{4,7-9}" title="src/main/java/frc/robot/CustomLogger.java" %}
+   package frc.robot;
+
+   import dev.doglog.DogLog;
+   import org.wpilib.command2.Command;
+
+   public class CustomLogger extends DogLog {
+   	public static Command time(String key, Command command) {
+   		return new TimedCommand(command, key);
+   	}
+   }
+
+   ```
+   {% /tabitem %}
+   {% /tabs %}
+
+1. Wrap your commands with the new `time()` method:
+
+   ```java {% title="src/main/java/frc/robot/RobotContainer.java" %}
+   public Command getAutonomousCommand() {
+   	return CustomLogger.time(
+   		"Autos/AutoCommand", Commands.waitTime(Units.Seconds.of(0.75)).withName("MyAutoCommand"));
+   }
+
+   ```
+{% /steps %}
