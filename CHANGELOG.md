@@ -1,5 +1,12 @@
 # Changelog
 
+## [2027.1.0](https://github.com/jonahsnider/doglog/compare/2027.0.0...2027.1.0) (2026-05-31)
+
+
+### Features
+
+* remove DogLog.time() for commands ([66a5c94](https://github.com/jonahsnider/doglog/commit/66a5c94480978ddc32450231d10c3a6dbc01d11b)), closes [#183](https://github.com/jonahsnider/doglog/issues/183)
+
 ## [2027.0.0](https://github.com/jonahsnider/doglog/compare/2026.5.0...2027.0.0) (2026-05-28)
 
 
