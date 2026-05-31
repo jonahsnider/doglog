@@ -20,8 +20,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return DogLog.time(
-        "Debug/AutoCommand", Commands.waitTime(Units.Seconds.of(0.75)).withName("MyAutoCommand"));
+    return Commands.waitTime(Units.Seconds.of(0.75)).withName("MyAutoCommand");
   }
 
   private void configureBindings() {}
