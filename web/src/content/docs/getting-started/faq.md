@@ -9,14 +9,14 @@ Within the FRC software ecosystem, there are three main solutions for logging: D
 
 Here's a quick breakdown of the differences between each library:
 
-|                               | DogLog                                                                   | AdvantageKit                                                                                                             | Epilogue                                     |
-| ----------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- |
-| Creator                       | Team 581                                                                 | Team 6328                                                                                                                | WPILib                                       |
-| Logging pattern               | [`DogLog.log()`](/getting-started/usage#logging)                         | [IO interfaces](https://docs.advantagekit.org/data-flow/recording-inputs/io-interfaces) and annotations                  | Annotations                                  |
-| Use case                      | Simplest logging possible                                                | [Replaying logs in simulation](https://docs.advantagekit.org/getting-started/what-is-advantagekit/)                      | Log every public or private field in a class |
-| Tunable values                | [Yes](/guides/tunable-values)                                            | [Yes](https://docs.advantagekit.org/data-flow/recording-inputs/dashboard-inputs/)                                        | No                                           |
-| Unit metadata                 | [Yes](/getting-started/usage#logging-with-units)                         | [Yes](https://docs.advantagekit.org/data-flow/supported-types/#units)                                                    | No                                           |
-| Supported language            | Java                                                                     | Java                                                                                                                     | Java                                         |
+|                    | DogLog                                           | AdvantageKit                                                                                            | Epilogue                                     |
+| ------------------ | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| Creator            | Team 581                                         | Team 6328                                                                                               | WPILib                                       |
+| Logging pattern    | [`DogLog.log()`](/getting-started/usage#logging) | [IO interfaces](https://docs.advantagekit.org/data-flow/recording-inputs/io-interfaces) and annotations | Annotations                                  |
+| Use case           | Simplest logging possible                        | [Replaying logs in simulation](https://docs.advantagekit.org/getting-started/what-is-advantagekit/)     | Log every public or private field in a class |
+| Tunable values     | [Yes](/guides/tunable-values)                    | [Yes](https://docs.advantagekit.org/data-flow/recording-inputs/dashboard-inputs/)                       | No                                           |
+| Unit metadata      | [Yes](/getting-started/usage#logging-with-units) | [Yes](https://docs.advantagekit.org/data-flow/supported-types/#units)                                   | No                                           |
+| Supported language | Java                                             | Java                                                                                                    | Java                                         |
 
 While it may technically be possible to use DogLog in combination with other logging libraries, this is definitely not recommended.
 You will almost certainly encounter bugs or other compatibility issues as a result.
