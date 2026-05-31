@@ -1457,48 +1457,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chevrotain/cst-dts-gen@npm:11.0.3":
-  version: 11.0.3
-  resolution: "@chevrotain/cst-dts-gen@npm:11.0.3"
-  dependencies:
-    "@chevrotain/gast": "npm:11.0.3"
-    "@chevrotain/types": "npm:11.0.3"
-    lodash-es: "npm:4.17.21"
-  checksum: 10c0/9e945a0611386e4e08af34c2d0b3af36c1af08f726b58145f11310f2aeafcb2d65264c06ec65a32df6b6a65771e6a55be70580c853afe3ceb51487e506967104
-  languageName: node
-  linkType: hard
-
-"@chevrotain/gast@npm:11.0.3":
-  version: 11.0.3
-  resolution: "@chevrotain/gast@npm:11.0.3"
-  dependencies:
-    "@chevrotain/types": "npm:11.0.3"
-    lodash-es: "npm:4.17.21"
-  checksum: 10c0/54fc44d7b4a7b0323f49d957dd88ad44504922d30cb226d93b430b0e09925efe44e0726068581d777f423fabfb878a2238ed2c87b690c0c0014ebd12b6968354
-  languageName: node
-  linkType: hard
-
-"@chevrotain/regexp-to-ast@npm:11.0.3":
-  version: 11.0.3
-  resolution: "@chevrotain/regexp-to-ast@npm:11.0.3"
-  checksum: 10c0/6939c5c94fbfb8c559a4a37a283af5ded8e6147b184a7d7bcf5ad1404d9d663c78d81602bd8ea8458ec497358a9e1671541099c511835d0be2cad46f00c62b3f
-  languageName: node
-  linkType: hard
-
-"@chevrotain/types@npm:11.0.3":
-  version: 11.0.3
-  resolution: "@chevrotain/types@npm:11.0.3"
-  checksum: 10c0/72fe8f0010ebef848e47faea14a88c6fdc3cdbafaef6b13df4a18c7d33249b1b675e37b05cb90a421700c7016dae7cd4187ab6b549e176a81cea434f69cd2503
-  languageName: node
-  linkType: hard
-
-"@chevrotain/utils@npm:11.0.3":
-  version: 11.0.3
-  resolution: "@chevrotain/utils@npm:11.0.3"
-  checksum: 10c0/b31972d1b2d444eef1499cf9b7576fc1793e8544910de33a3c18e07c270cfad88067f175d0ee63e7bc604713ebed647f8190db45cc8311852cd2d4fe2ef14068
-  languageName: node
-  linkType: hard
-
 "@clack/core@npm:1.1.0":
   version: 1.1.0
   resolution: "@clack/core@npm:1.1.0"
@@ -1616,7 +1574,7 @@ __metadata:
     astro: "npm:6.4.2"
     prettier: "npm:3.8.3"
     prettier-plugin-astro: "npm:0.14.1"
-    prettier-plugin-java: "npm:2.7.7"
+    prettier-plugin-java: "npm:2.9.7"
     prettier-plugin-packagejson: "npm:3.0.2"
     sharp: "npm:^0.34.0"
     typescript: "npm:^6.0.0"
@@ -3810,31 +3768,6 @@ __metadata:
   version: 2.0.1
   resolution: "character-reference-invalid@npm:2.0.1"
   checksum: 10c0/2ae0dec770cd8659d7e8b0ce24392d83b4c2f0eb4a3395c955dce5528edd4cc030a794cfa06600fcdd700b3f2de2f9b8e40e309c0011c4180e3be64a0b42e6a1
-  languageName: node
-  linkType: hard
-
-"chevrotain-allstar@npm:0.3.1":
-  version: 0.3.1
-  resolution: "chevrotain-allstar@npm:0.3.1"
-  dependencies:
-    lodash-es: "npm:^4.17.21"
-  peerDependencies:
-    chevrotain: ^11.0.0
-  checksum: 10c0/5cadedffd3114eb06b15fd3939bb1aa6c75412dbd737fe302b52c5c24334f9cb01cee8edc1d1067d98ba80dddf971f1d0e94b387de51423fc6cf3c5d8b7ef27a
-  languageName: node
-  linkType: hard
-
-"chevrotain@npm:11.0.3":
-  version: 11.0.3
-  resolution: "chevrotain@npm:11.0.3"
-  dependencies:
-    "@chevrotain/cst-dts-gen": "npm:11.0.3"
-    "@chevrotain/gast": "npm:11.0.3"
-    "@chevrotain/regexp-to-ast": "npm:11.0.3"
-    "@chevrotain/types": "npm:11.0.3"
-    "@chevrotain/utils": "npm:11.0.3"
-    lodash-es: "npm:4.17.21"
-  checksum: 10c0/ffd425fa321e3f17e9833d7f44cd39f2743f066e92ca74b226176080ca5d455f853fe9091cdfd86354bd899d85c08b3bdc3f55b267e7d07124b048a88349765f
   languageName: node
   linkType: hard
 
@@ -6146,17 +6079,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"java-parser@npm:3.0.1":
-  version: 3.0.1
-  resolution: "java-parser@npm:3.0.1"
-  dependencies:
-    chevrotain: "npm:11.0.3"
-    chevrotain-allstar: "npm:0.3.1"
-    lodash: "npm:4.17.21"
-  checksum: 10c0/9b60f1132b65785fe4f4c10785fc1638a4092aecf222f63706c119425d0ffb676b7229390abe289082cf837cd470df63f9b9383743d470816fa170240f8b1e22
-  languageName: node
-  linkType: hard
-
 "jiti@npm:^2.5.1":
   version: 2.5.1
   resolution: "jiti@npm:2.5.1"
@@ -6287,13 +6209,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash-es@npm:4.17.21, lodash-es@npm:^4.17.21":
-  version: 4.17.21
-  resolution: "lodash-es@npm:4.17.21"
-  checksum: 10c0/fb407355f7e6cd523a9383e76e6b455321f0f153a6c9625e21a8827d10c54c2a2341bd2ae8d034358b60e07325e1330c14c224ff582d04612a46a4f0479ff2f2
-  languageName: node
-  linkType: hard
-
 "lodash.debounce@npm:^4.0.8":
   version: 4.0.8
   resolution: "lodash.debounce@npm:4.0.8"
@@ -6308,7 +6223,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.21, lodash@npm:^4.17.20":
+"lodash@npm:^4.17.20":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: 10c0/d8cbea072bb08655bb4c989da418994b073a608dffa608b09ac04b43a791b12aeae7cd7ad919aa4c925f33b48490b5cfe6c1f71d827956071dae2e7bb3a6b74c
@@ -7807,14 +7722,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-java@npm:2.7.7":
-  version: 2.7.7
-  resolution: "prettier-plugin-java@npm:2.7.7"
+"prettier-plugin-java@npm:2.9.7":
+  version: 2.9.7
+  resolution: "prettier-plugin-java@npm:2.9.7"
   dependencies:
-    java-parser: "npm:3.0.1"
+    web-tree-sitter: "npm:0.26.9"
   peerDependencies:
     prettier: ^3.0.0
-  checksum: 10c0/0acf9ab0dcb39739f9dd80c880cc9d703d73abf62b807d213258d2424ffc7d6617be4d95dfed25e0af5856a13fc3e0b16c694e150e202d2a180d9c6c5d7f5bd8
+  checksum: 10c0/2394746eb78f88d211e2ec4530d485142551c5db47cd4143f25887efe9815dd449488fecc3b64186c2424c142bbff33fd272bbf09178b5b3d165e767e13a38c0
   languageName: node
   linkType: hard
 
@@ -10302,6 +10217,13 @@ __metadata:
   version: 2.0.1
   resolution: "web-namespaces@npm:2.0.1"
   checksum: 10c0/df245f466ad83bd5cd80bfffc1674c7f64b7b84d1de0e4d2c0934fb0782e0a599164e7197a4bce310ee3342fd61817b8047ff04f076a1ce12dd470584142a4bd
+  languageName: node
+  linkType: hard
+
+"web-tree-sitter@npm:0.26.9":
+  version: 0.26.9
+  resolution: "web-tree-sitter@npm:0.26.9"
+  checksum: 10c0/7df36536f65384a08c78d98836d163f74635167b55d8f2c86b1404f4915238d1369cb0ce88f5fb5d78fd81ad5898a0b02aec0cda8bd77f19311781aa989962a5
   languageName: node
   linkType: hard
 
