@@ -14,7 +14,6 @@ Here's a quick breakdown of the differences between each library:
 | Creator                       | Team 581                                                                 | Team 6328                                                                                                                | WPILib                                       |
 | Logging pattern               | [`DogLog.log()`](/getting-started/usage#logging)                         | [IO interfaces](https://docs.advantagekit.org/data-flow/recording-inputs/io-interfaces) and annotations                  | Annotations                                  |
 | Use case                      | Simplest logging possible                                                | [Replaying logs in simulation](https://docs.advantagekit.org/getting-started/what-is-advantagekit/)                      | Log every public or private field in a class |
-| Customizable log destinations | [Yes (NT and datalog)](/reference/configuring/#networktables-publishing) | [Yes (NT and datalog)](https://docs.advantagekit.org/getting-started/installation/existing-projects#robot-configuration) | No (NT always on, datalog can be toggled)    |
 | Tunable values                | [Yes](/guides/tunable-values)                                            | [Yes](https://docs.advantagekit.org/data-flow/recording-inputs/dashboard-inputs/)                                        | No                                           |
 | Unit metadata                 | [Yes](/getting-started/usage#logging-with-units)                         | [Yes](https://docs.advantagekit.org/data-flow/supported-types/#units)                                                    | No                                           |
 | Supported language            | Java                                                                     | Java                                                                                                                     | Java                                         |
@@ -44,7 +43,6 @@ Take a look at all the fields you are logging, and think about whether or not th
 
 - Several debug logs added when first doing robot bring-up, which aren't relevant anymore
 - Logging more values than necessary for every motor (ex. temperature, stator current, supply current, applied voltage, velocity, etc.)
-- [Capturing all NetworkTables values](/reference/configuring#capture-networktables), instead of just manually logging the handful of relevant fields
 
 ## How can I get help with DogLog?
 
