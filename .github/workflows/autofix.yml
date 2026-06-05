@@ -42,7 +42,6 @@ jobs:
 
       - name: Format docs with Prettier
         run: aubr format:write
-        working-directory: web
 
       - name: Run autofix.ci
         uses: autofix-ci/action@v1
