@@ -16,7 +16,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
-          distribution: "temurin"
+          distribution: 'temurin'
           java-version: 25
 
       - name: Setup Gradle
@@ -37,7 +37,7 @@ jobs:
       - name: Setup aube
         uses: endevco/aube-action@v1
         with:
-          node-version: "auto"
+          node-version: 'auto'
           run-install: true
 
       - name: Format docs with Prettier
@@ -46,4 +46,4 @@ jobs:
       - name: Run autofix.ci
         uses: autofix-ci/action@v1
         with:
-          commit-message: "style: run autofix.ci"
+          commit-message: 'style: run autofix.ci'

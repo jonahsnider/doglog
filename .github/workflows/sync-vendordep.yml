@@ -21,7 +21,7 @@ jobs:
         uses: endevco/aube-action@v1
         with:
           version: 1.18.0
-          node-version: "auto"
+          node-version: 'auto'
           run-install: true
       - name: Format copied vendordep
         run: aubr prettier --write public/vendordep.json

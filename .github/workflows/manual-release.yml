@@ -2,7 +2,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "The version to release (ex. `2026.1.0`)"
+        description: 'The version to release (ex. `2026.1.0`)'
         required: true
         type: string
 
@@ -24,5 +24,5 @@ jobs:
           repo: jonahsnider/vendor-json-repo
           token: ${{ secrets.DOGLOG_VENDORDEP_ACCESS_TOKEN }}
           vendordep_file: ${{ github.workspace }}/DogLog-${{ inputs.version }}.json
-          pr_title: "Add DogLog v${{ inputs.version }}"
-          pr_branch: "doglog-v${{ inputs.version }}"
+          pr_title: 'Add DogLog v${{ inputs.version }}'
+          pr_branch: 'doglog-v${{ inputs.version }}'
