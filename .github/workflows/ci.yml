@@ -151,18 +151,14 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
       - name: Build
         run: ./gradlew build
-      - name: Enable Corepack
-        # Required due to a limitation in setup-node https://github.com/actions/setup-node/issues/480#issuecomment-1820622085
-        run: corepack enable
-      - name: Setup Node
-        uses: actions/setup-node@v6
+      - name: Setup aube
+        uses: endevco/aube-action@v1
         with:
-          node-version: "lts/*"
-          cache: "yarn"
-      - name: Install dependencies
-        run: yarn install --immutable
+          version: 1.18.0
+          node-version: "auto"
+          run-install: true
       - name: Publish Javadoc to Cloudflare Workers
-        run: yarn workspace @doglog/lib wrangler deploy
+        run: aube -F @doglog/lib exec wrangler deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
   docs:
@@ -175,16 +171,12 @@ jobs:
     steps:
       - name: Checkout Git repository
         uses: actions/checkout@v6
-      - name: Enable Corepack
-        # Required due to a limitation in setup-node https://github.com/actions/setup-node/issues/480#issuecomment-1820622085
-        run: corepack enable
-      - name: Setup Node
-        uses: actions/setup-node@v6
+      - name: Setup aube
+        uses: endevco/aube-action@v1
         with:
-          node-version: "lts/*"
-          cache: "yarn"
-      - name: Install dependencies
-        run: yarn install --immutable
+          version: 1.18.0
+          node-version: "auto"
+          run-install: true
       - name: Build docs
-        run: yarn build
-        working-directory: ./web
+        run: aubr build
+        working-directory: web

@@ -34,21 +34,14 @@ jobs:
         run: ./gradlew spotlessApply
         working-directory: test-project
 
-      - name: Enable Corepack
-        # Required due to a limitation in setup-node https://github.com/actions/setup-node/issues/480#issuecomment-1820622085
-        run: corepack enable
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
+      - name: Setup aube
+        uses: endevco/aube-action@v1
         with:
-          node-version: "lts/*"
-          cache: "yarn"
-
-      - name: Install docs dependencies
-        run: yarn install --immutable
+          node-version: "auto"
+          run-install: true
 
       - name: Format docs with Prettier
-        run: yarn run format:write
+        run: aubr format:write
         working-directory: web
 
       - name: Run autofix.ci

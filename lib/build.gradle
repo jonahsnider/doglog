@@ -160,6 +160,6 @@ spotless {
 		target '**/*.json'
 		simple().indentWithSpaces(2)
 
-		targetExclude('package.json', 'infer-out/**')
+		targetExclude('package.json', 'infer-out/**', 'node_modules/**')
 	}
 }

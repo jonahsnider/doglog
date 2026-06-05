@@ -143,6 +143,8 @@ spotless {
 	json {
 		target '**/*.json'
 		simple().indentWithSpaces(2)
+
+		targetExclude('node_modules/**')
 	}
 
 	format 'misc', {

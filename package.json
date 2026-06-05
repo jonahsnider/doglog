@@ -7,5 +7,5 @@
     "lib",
     "web"
   ],
-  "packageManager": "yarn@4.16.0"
+  "packageManager": "aube@1.18.0"
 }
