@@ -9,7 +9,7 @@
 	],
 	"scripts": {
 		"format": "prettier --check .",
-		"format:write": "prettier --write ."
+		"format:write": "prettier --check --write ."
 	},
 	"devDependencies": {
 		"prettier": "3.8.3",
