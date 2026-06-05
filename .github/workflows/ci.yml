@@ -158,7 +158,8 @@ jobs:
           node-version: "auto"
           run-install: true
       - name: Publish Javadoc to Cloudflare Workers
-        run: aube -F @doglog/lib exec wrangler deploy
+        run: aubr wrangler deploy
+        working-directory: web
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
   docs:
