@@ -1,0 +1,10 @@
+build/
+infer-out/
+lib/
+test-project/
+web/.astro/
+
+.claude/
+aube-lock.yaml
+CHANGELOG.md
+web/src/content/docs/reference/changelog.md

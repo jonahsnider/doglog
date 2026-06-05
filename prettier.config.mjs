@@ -3,7 +3,7 @@ const config = {
 	tabWidth: 2,
 	useTabs: true,
 	singleQuote: true,
-	plugins: ['prettier-plugin-astro', 'prettier-plugin-packagejson', 'prettier-plugin-java'],
+	plugins: ['prettier-plugin-astro', 'prettier-plugin-packagejson'],
 	printWidth: 120,
 	overrides: [
 		{
