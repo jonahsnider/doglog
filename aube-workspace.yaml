@@ -1,9 +1,9 @@
 trustPolicyExclude:
-  - "@trickfilm400/rollup-plugin-off-main-thread"
+  - '@trickfilm400/rollup-plugin-off-main-thread'
 
 packages:
-  - "lib"
-  - "web"
+  - 'lib'
+  - 'web'
 allowBuilds:
   esbuild: true
   sharp: false
