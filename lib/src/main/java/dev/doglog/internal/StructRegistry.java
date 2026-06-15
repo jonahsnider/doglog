@@ -15,12 +15,12 @@ public class StructRegistry {
 
   @SuppressWarnings("unchecked")
   private static <E extends Enum<E>> Struct<?> getEnumStructRaw(Class<?> enumClass) {
-    return (Struct<?>) StructGenerator.genEnum((Class<E>) enumClass);
+    return StructGenerator.genEnum((Class<E>) enumClass);
   }
 
   @SuppressWarnings("unchecked")
   private static <R extends Record> Struct<?> getRecordStructRaw(Class<?> recordClass) {
-    return (Struct<?>) StructGenerator.genRecord((Class<R>) recordClass);
+    return StructGenerator.genRecord((Class<R>) recordClass);
   }
 
   private static <T extends StructSerializable> Optional<Struct<?>> getStructRaw(

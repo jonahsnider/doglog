@@ -71,10 +71,9 @@ public class LogWriter implements AutoCloseable {
     ntWriter.log(timestamp, key, value, unit);
   }
 
-  @SuppressWarnings("unchecked")
   public <E extends Enum<E>> void log(long timestamp, String key, E value) {
-    var struct =
-        (Struct<E>) structRegistry.getEnumStruct((@NonNull Class<E>) value.getDeclaringClass());
+    @SuppressWarnings("unchecked")
+    var struct = (@NonNull Struct<E>) structRegistry.getEnumStruct(value.getDeclaringClass());
 
     if (struct.getSize() == 0) {
       log(timestamp, key, value.toString());
@@ -84,8 +83,8 @@ public class LogWriter implements AutoCloseable {
     ntWriter.log(timestamp, key, struct, value);
   }
 
-  @SuppressWarnings("unchecked")
   public <E extends Enum<E>> void log(long timestamp, String key, E[] value) {
+    @SuppressWarnings("unchecked")
     var struct =
         (@NonNull Struct<E>)
             structRegistry.getEnumStruct((@NonNull Class<E>) value.getClass().getComponentType());
@@ -134,15 +133,15 @@ public class LogWriter implements AutoCloseable {
     ntWriter.log(timestamp, key, value, unit);
   }
 
-  @SuppressWarnings("unchecked")
   public <R extends Record> void log(long timestamp, String key, R value) {
+    @SuppressWarnings("unchecked")
     var struct = (@NonNull Struct<R>) structRegistry.getRecordStruct(value.getClass());
 
     ntWriter.log(timestamp, key, struct, value);
   }
 
-  @SuppressWarnings("unchecked")
   public <R extends Record> void log(long timestamp, String key, R[] value) {
+    @SuppressWarnings("unchecked")
     var struct =
         (@NonNull Struct<R>)
             structRegistry.getRecordStruct(
@@ -163,21 +162,20 @@ public class LogWriter implements AutoCloseable {
     ntWriter.log(timestamp, key, value);
   }
 
-  @SuppressWarnings("unchecked")
   public <T extends WPISerializable> void log(long timestamp, String key, T value) {
     switch (value) {
       case StructSerializable s -> {
-        var maybeStruct =
-            structRegistry.getStruct((@NonNull Class<? extends StructSerializable>) s.getClass());
+        var maybeStruct = structRegistry.getStruct(s.getClass());
 
         if (maybeStruct.isPresent()) {
+          @SuppressWarnings("unchecked")
           var struct = (@NonNull Struct<T>) maybeStruct.orElseThrow();
           ntWriter.log(timestamp, key, struct, value);
         } else {
           logProto(timestamp, key, value);
         }
       }
-      case ProtobufSerializable p -> logProto(timestamp, key, value);
+      case ProtobufSerializable _ -> logProto(timestamp, key, value);
       default -> {}
     }
   }
@@ -210,13 +208,12 @@ public class LogWriter implements AutoCloseable {
     extras.setPdh(pdh);
   }
 
-  @SuppressWarnings("unchecked")
   private <T extends WPISerializable> void logProto(long timestamp, String key, T value) {
     if (value instanceof ProtobufSerializable p) {
-      var maybeProto =
-          protobufRegistry.getProto((@NonNull Class<? extends ProtobufSerializable>) p.getClass());
+      var maybeProto = protobufRegistry.getProto(p.getClass());
 
       if (maybeProto.isPresent()) {
+        @SuppressWarnings("unchecked")
         var proto = (@NonNull Protobuf<T, ?>) maybeProto.orElseThrow();
         ntWriter.log(timestamp, key, proto, value);
       }

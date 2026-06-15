@@ -21,7 +21,6 @@ public class FaultLogger {
   private static final Map<String, Alert> FAULT_ALERTS = new ConcurrentHashMap<>();
 
   /** Faults that are currently active. */
-  @SuppressWarnings("null")
   private static final Set<String> ACTIVE_FAULTS = ConcurrentHashMap.newKeySet();
 
   // This function doesn't need to have the LogConsumer parameter, it could just call DogLog
