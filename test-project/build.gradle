@@ -1,7 +1,7 @@
 plugins {
 	id "java"
 	id "org.wpilib.GradleRIO" version "2027.0.0-alpha-6"
-	id "com.diffplug.spotless" version "8.6.0"
+	id "com.diffplug.spotless" version "8.7.0"
 }
 
 java {
