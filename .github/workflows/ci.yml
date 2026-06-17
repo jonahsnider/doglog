@@ -158,10 +158,11 @@ jobs:
           node-version: 'auto'
           run-install: true
       - name: Publish Javadoc to Cloudflare Workers
-        run: aubr wrangler deploy
-        working-directory: lib
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: deploy
+          workingDirectory: lib
   docs:
     name: Build docs
 
@@ -181,3 +182,10 @@ jobs:
       - name: Build docs
         run: aubr build
         working-directory: web
+      - name: Publish docs to Cloudflare Workers
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: deploy
+          workingDirectory: web
