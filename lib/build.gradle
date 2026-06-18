@@ -73,7 +73,7 @@ dependencies {
 	compileOnly "com.google.errorprone:error_prone_annotations:2.49.0"
 
 	errorprone "com.google.errorprone:error_prone_core:2.49.0"
-	errorprone "com.uber.nullaway:nullaway:0.13.6"
+	errorprone "com.uber.nullaway:nullaway:0.13.7"
 	errorprone "tech.picnic.error-prone-support:error-prone-contrib:0.29.0"
 	errorprone "tech.picnic.error-prone-support:refaster-runner:0.29.0"
 
