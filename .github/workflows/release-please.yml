@@ -24,7 +24,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout Git repository
         if: steps.release.outputs.release_created
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Create copy of vendordep.json
         if: steps.release.outputs.release_created
         run: cp vendordep.json DogLog-${{ steps.release.outputs.version }}.json
