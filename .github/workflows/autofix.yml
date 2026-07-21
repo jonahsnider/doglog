@@ -35,7 +35,7 @@ jobs:
         working-directory: test-project
 
       - name: Setup aube
-        uses: endevco/aube-action@v1
+        uses: jdx/aube-action@v1
         with:
           node-version: 'auto'
           run-install: true

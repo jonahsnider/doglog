@@ -152,7 +152,7 @@ jobs:
       - name: Build
         run: ./gradlew build
       - name: Setup aube
-        uses: endevco/aube-action@v1
+        uses: jdx/aube-action@v1
         with:
           version: 1.18.0
           node-version: 'auto'
@@ -174,7 +174,7 @@ jobs:
       - name: Checkout Git repository
         uses: actions/checkout@v7
       - name: Setup aube
-        uses: endevco/aube-action@v1
+        uses: jdx/aube-action@v1
         with:
           version: 1.18.0
           node-version: 'auto'
