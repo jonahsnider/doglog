@@ -1,5 +1,13 @@
 # Changelog
 
+## [2027.1.1](https://github.com/jonahsnider/doglog/compare/2027.1.0...2027.1.1) (2026-08-12)
+
+
+### Bug Fixes
+
+* remove brownout voltage logs ([31b7f79](https://github.com/jonahsnider/doglog/commit/31b7f79e52338d0d10e123801e8e2ba12bd77d5b))
+* update WPILib Alert API usage ([9c540d7](https://github.com/jonahsnider/doglog/commit/9c540d726822f3770354ec7e7fab9936fe14cf3b))
+
 ## [2027.1.0](https://github.com/jonahsnider/doglog/compare/2027.0.0...2027.1.0) (2026-05-31)
 
 
