@@ -6,9 +6,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jspecify.annotations.Nullable;
-import org.wpilib.driverstation.Alert;
-import org.wpilib.driverstation.Alert.Level;
 import org.wpilib.hardware.hal.HALUtil;
+import org.wpilib.util.Alert;
+import org.wpilib.util.Alert.Level;
 
 /**
  * Provides the interface for logging faults. Faults are a DogLog concept that were created prior to
@@ -57,7 +57,9 @@ public class FaultLogger {
       LogWriter logger, String faultName, @Nullable Level alertLevel) {
     addFault(logger, faultName);
     if (alertLevel != null) {
-      FAULT_ALERTS.computeIfAbsent(faultName, k -> new Alert(faultName, alertLevel)).set(true);
+      FAULT_ALERTS
+          .computeIfAbsent(faultName, k -> new Alert(faultName, faultName, alertLevel))
+          .set(true);
     }
   }
 
