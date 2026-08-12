@@ -47,6 +47,9 @@ importers:
       sharp:
         specifier: ^0.34.0
         version: 0.34.5
+      starlight-changelogs:
+        specifier: 0.5.1
+        version: 0.5.1(@astrojs/starlight@0.41.0(@astrojs/markdown-remark@7.2.0)(astro@7.0.2(@astrojs/markdown-remark@7.2.0)))
       typescript:
         specifier: ^6.0.0
         version: 6.0.3
@@ -74,6 +77,11 @@ packages:
     engines: {node: '>=10'}
     peerDependencies:
       ajv: '>=8'
+
+  '@ascorbic/loader-utils@1.0.2':
+    resolution: {integrity: sha512-pg43g83gojVtEsAkXfjWuzJhuXneJp4wM/leBftGkCPV3yxKgB92EWA+nWu735BgbBMph3P7DrVqVc3ikt+dJA==}
+    peerDependencies:
+      astro: ^4.14.0 || ^5.0.0-beta.0
 
   '@astrojs/check@0.9.9':
     resolution: {integrity: sha512-A5UW8uIuErLWEoRQvzgXpO1gTjUFtK8r7nU2Z7GewAMxUb7bPvpk11qaKKgxqXlHJWlAvaaxy+Xg28A6bmQ1Tg==}
@@ -3255,6 +3263,12 @@ packages:
   space-separated-tokens@2.0.2:
     resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
 
+  starlight-changelogs@0.5.1:
+    resolution: {integrity: sha512-xfX02Ls8yWEYCHP+P4LLnOUftkj2kru+eOzTmnAWCDPa5DT1GhYCliIO7+cOKx2FI5TLy8ySmSFjgUvzczPvxw==}
+    engines: {node: '>=22.12.0'}
+    peerDependencies:
+      '@astrojs/starlight': '>=0.38.0'
+
   stop-iteration-iterator@1.1.0:
     resolution: {integrity: sha512-eLoXW/DHyl62zxY4SCaIgnRhuMr6ri4juEYARS8E6sCEqzKpOiE521Ucofdx+KnDZl5xmvGYaaKCk5FEOxJCoQ==}
     engines: {node: '>= 0.4'}
@@ -3944,6 +3958,10 @@ snapshots:
       ajv: 8.20.0
       jsonpointer: 5.0.1
       leven: 3.1.0
+
+  '@ascorbic/loader-utils@1.0.2(astro@7.0.2(@astrojs/markdown-remark@7.2.0))':
+    dependencies:
+      astro: 7.0.2(@astrojs/markdown-remark@7.2.0)
 
   '@astrojs/check@0.9.9(typescript@6.0.3)':
     dependencies:
@@ -7895,6 +7913,18 @@ snapshots:
       whatwg-url: 7.1.0
 
   space-separated-tokens@2.0.2: {}
+
+  starlight-changelogs@0.5.1(@astrojs/starlight@0.41.0(@astrojs/markdown-remark@7.2.0)(astro@7.0.2(@astrojs/markdown-remark@7.2.0))):
+    dependencies:
+      '@ascorbic/loader-utils': 1.0.2(astro@7.0.2(@astrojs/markdown-remark@7.2.0))
+      '@astrojs/starlight': 0.41.0(@astrojs/markdown-remark@7.2.0)(astro@7.0.2(@astrojs/markdown-remark@7.2.0))
+      github-slugger: 2.0.0
+      mdast-util-from-markdown: 2.0.3
+      mdast-util-to-markdown: 2.1.2
+      mdast-util-to-string: 4.0.0
+      unist-util-visit: 5.1.0
+    transitivePeerDependencies:
+      - supports-color
 
   stop-iteration-iterator@1.1.0:
     dependencies:

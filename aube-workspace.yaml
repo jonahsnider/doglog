@@ -8,3 +8,5 @@ allowBuilds:
   esbuild: true
   sharp: false
   workerd: false
+patchedDependencies:
+  starlight-changelogs@0.5.1: patches/starlight-changelogs@0.5.1.patch

@@ -143,9 +143,6 @@ dist
 
 # End of https://www.toptal.com/developers/gitignore/api/node
 
-# Dynamically generated files
-src/content/docs/reference/changelog.md
-
 # Yarn
 .pnp.*
 .yarn/*
