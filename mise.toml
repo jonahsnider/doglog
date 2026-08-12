@@ -1,4 +1,4 @@
 [tools]
 java = "temurin-25.0.4+7.0.LTS"
 node = "24"
-aube = "1.37.0"
+aube = "1.39.0"
