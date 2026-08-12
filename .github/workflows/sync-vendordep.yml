@@ -20,7 +20,6 @@ jobs:
       - name: Setup aube
         uses: jdx/aube-action@v1
         with:
-          version: 1.18.0
           node-version: 'auto'
           run-install: true
       - name: Format copied vendordep
