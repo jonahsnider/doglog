@@ -159,8 +159,6 @@ public class ExtrasLogger implements AutoCloseable {
     logger.log(now, "SystemStats/3v3Rail/Active", PowerJNI.getUserActive3V3());
     logger.log(now, "SystemStats/3v3Rail/CurrentFaults", PowerJNI.getUserCurrentFaults3V3());
 
-    logger.log(
-        now, "SystemStats/BrownoutVoltage", PowerJNI.getBrownoutVoltage(), VOLTS_UNIT_STRING);
     logger.log(now, "SystemStats/CPUTempCelcius", PowerJNI.getCPUTemp(), CELSIUS_UNIT_STRING);
 
     logger.log(
