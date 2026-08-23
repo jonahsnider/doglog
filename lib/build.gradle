@@ -63,6 +63,7 @@ wpilibRepositories.use2027Repos()
 
 dependencies {
 	implementation "org.wpilib.ntcore:ntcore-java:$wpilibVersion"
+	implementation "org.wpilib.telemetry:telemetry-java:$wpilibVersion"
 	implementation "org.wpilib.wpilibj:wpilibj-java:$wpilibVersion"
 	implementation "org.wpilib.wpiutil:wpiutil-java:$wpilibVersion"
 	implementation "org.wpilib.wpiunits:wpiunits-java:$wpilibVersion"
