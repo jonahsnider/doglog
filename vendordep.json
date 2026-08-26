@@ -3,7 +3,7 @@
 		{
 			"groupId": "com.github.jonahsnider",
 			"artifactId": "doglog",
-			"version": "2027.1.1"
+			"version": "2027.1.2"
 		}
 	],
 	"fileName": "DogLog.json",
@@ -13,6 +13,6 @@
 	"jniDependencies": [],
 	"mavenUrls": ["https://jitpack.io"],
 	"cppDependencies": [],
-	"version": "2027.1.1",
+	"version": "2027.1.2",
 	"uuid": "65592ce1-2251-4a31-8e4b-2df20dacebe4"
 }

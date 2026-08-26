@@ -1,5 +1,12 @@
 # Changelog
 
+## [2027.1.2](https://github.com/jonahsnider/doglog/compare/2027.1.1...2027.1.2) (2026-08-25)
+
+
+### Bug Fixes
+
+* add org.wpilib.telemetry:telemetry-java to dependencies ([2f1152f](https://github.com/jonahsnider/doglog/commit/2f1152fd1a1b2cd154145a0f37145dfb46a76eee))
+
 ## [2027.1.1](https://github.com/jonahsnider/doglog/compare/2027.1.0...2027.1.1) (2026-08-12)
 
 
