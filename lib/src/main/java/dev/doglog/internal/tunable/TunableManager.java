@@ -82,6 +82,8 @@ public final class TunableManager {
   public <M extends Measure<?>> Tunable<M> create(
       String key, M defaultValue, @Nullable Consumer<M> onChange) {
     GuardedValue<M> state = guarded(defaultValue, UnaryOperator.identity());
+    // WPILib Measure is immutable, but its interface is not annotated @ThreadSafe.
+    // @infer-ignore INTERFACE_NOT_THREAD_SAFE
     var baseUnit = defaultValue.unit().getBaseUnit();
     var config = config(baseUnit.symbol(), state, onChange);
     var tunable = new GuardedMeasureTunable<>(state, config);
