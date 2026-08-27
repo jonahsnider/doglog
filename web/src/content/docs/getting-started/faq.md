@@ -63,7 +63,7 @@ Rather than the sort of "magic" that reflection uses, DogLog prioritizes clarity
 
 ## How does DogLog work internally?
 
-DogLog itself is a fairly minimal library, all the actual logging is handled by WPILib using `DataLogManager` and NetworkTables 4.
+DogLog itself is a fairly minimal library, all the actual logging and tunable values are handled by WPILib's `Telemetry` and `Tunables` APIs.
 This ensures that DogLog takes advantage of the stability and performance of WPILib's logging system.
 
 Rather than trying to reinvent core logging primitives, DogLog focuses on providing a clean, powerful API on top of the WPILib logging featureset, without introducing extra complexity.

@@ -1,12 +1,11 @@
 package dev.doglog.internal;
 
 import com.google.errorprone.annotations.ThreadSafe;
-import dev.doglog.internal.writers.LogWriter;
+import dev.doglog.DogLog;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jspecify.annotations.Nullable;
-import org.wpilib.hardware.hal.HALUtil;
 import org.wpilib.util.Alert;
 import org.wpilib.util.Alert.Level;
 
@@ -23,39 +22,32 @@ public class FaultLogger {
   /** Faults that are currently active. */
   private static final Set<String> ACTIVE_FAULTS = ConcurrentHashMap.newKeySet();
 
-  // This function doesn't need to have the LogConsumer parameter, it could just call DogLog
-  // directly. But doing that would mean getting the current time twice, which can be avoided by
-  // getting the time once here and reusing that value.
-  public static synchronized void addFault(LogWriter logger, String faultName) {
+  public static synchronized void addFault(String faultName) {
     var previousCount = FAULT_COUNTS.get(faultName);
     var newCount = previousCount == null ? 1 : previousCount + 1;
     FAULT_COUNTS.put(faultName, newCount);
 
-    var now = HALUtil.getMonotonicTime();
-
     if (previousCount == null) {
       // A new fault has been seen
-      logger.log(now, "Faults/Seen", FAULT_COUNTS.keySet().toArray(String[]::new));
+      DogLog.log("Faults/Seen", FAULT_COUNTS.keySet().toArray(String[]::new));
     }
     if (previousCount == null || previousCount == 0) {
       // Fault has just become active
       ACTIVE_FAULTS.add(faultName);
-      logger.log(now, "Faults/Active", ACTIVE_FAULTS.toArray(String[]::new));
+      DogLog.log("Faults/Active", ACTIVE_FAULTS.toArray(String[]::new));
     }
-    logger.log(now, "Faults/Counts/" + faultName, newCount);
+    DogLog.log("Faults/Counts/" + faultName, newCount);
   }
 
   /**
    * Log a fault.
    *
-   * @param logger LogConsumer to use.
    * @param faultName The name of the fault to log.
    * @param alertLevel The level of alert to create for the fault, or <code>null</code> if it should
    *     not create an alert
    */
-  public static synchronized void addFault(
-      LogWriter logger, String faultName, @Nullable Level alertLevel) {
-    addFault(logger, faultName);
+  public static synchronized void addFault(String faultName, @Nullable Level alertLevel) {
+    addFault(faultName);
     if (alertLevel != null) {
       FAULT_ALERTS
           .computeIfAbsent(faultName, k -> new Alert(faultName, faultName, alertLevel))
@@ -63,14 +55,13 @@ public class FaultLogger {
     }
   }
 
-  public static synchronized void clearFault(LogWriter logger, String faultName) {
+  public static synchronized void clearFault(String faultName) {
     // The faultCounts map is used to track the seen faults, so we need to make sure that clearing a
     // fault which has never occurred doesn't mark it as seen with a count of 0
     var previousValue = FAULT_COUNTS.replace(faultName, 0);
 
     if (previousValue != null) {
-      var now = HALUtil.getMonotonicTime();
-      logger.log(now, "Faults/Counts/" + faultName, 0);
+      DogLog.log("Faults/Counts/" + faultName, 0);
 
       var alert = FAULT_ALERTS.get(faultName);
       if (alert != null) {
@@ -78,17 +69,16 @@ public class FaultLogger {
       }
 
       ACTIVE_FAULTS.remove(faultName);
-      logger.log(now, "Faults/Active", ACTIVE_FAULTS.toArray(String[]::new));
+      DogLog.log("Faults/Active", ACTIVE_FAULTS.toArray(String[]::new));
     }
   }
 
   /**
    * Remove the alert associated with a fault.
    *
-   * @param logger LogConsumer to use.
    * @param faultName The name of the fault to remove.
    */
-  public static synchronized void decreaseFault(LogWriter logger, String faultName) {
+  public static synchronized void decreaseFault(String faultName) {
     var previousCount = FAULT_COUNTS.get(faultName);
     if (previousCount == null || previousCount == 0) {
       // This fault has never occurred
@@ -97,8 +87,7 @@ public class FaultLogger {
     var newCount = previousCount - 1;
     FAULT_COUNTS.put(faultName, newCount);
 
-    var now = HALUtil.getMonotonicTime();
-    logger.log(now, "Faults/Counts/" + faultName, newCount);
+    DogLog.log("Faults/Counts/" + faultName, newCount);
 
     if (newCount == 0) {
       // Mark alert as inactive if it exists
@@ -109,7 +98,7 @@ public class FaultLogger {
       }
 
       ACTIVE_FAULTS.remove(faultName);
-      logger.log(now, "Faults/Active", ACTIVE_FAULTS.toArray(String[]::new));
+      DogLog.log("Faults/Active", ACTIVE_FAULTS.toArray(String[]::new));
     }
   }
 

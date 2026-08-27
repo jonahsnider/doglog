@@ -11,13 +11,11 @@ You can create a tunable value by calling `DogLog.tunable()` and providing a key
 
 ```java
 // Create a tunable double with a key of "Intake/Voltage" and a default value of 4.5
-private final DoubleSubscriber voltage = DogLog.tunable("Intake/Voltage", 4.5);
+private final TunableDouble voltage = DogLog.tunable("Intake/Voltage", 4.5);
 
 ```
 
-Creating a tunable value will return a NetworkTables `Subscriber` used for accessing the tunable value.
-
-Once a tunable value is created, DogLog will continuously log its value to the `Robot/Tunable/` table in the robot DataLog.
+Creating a tunable value returns a WPILib tunable.
 
 ### Adding units
 
@@ -27,20 +25,22 @@ Pass a third argument containing a unit string, a [`Unit`](https://github.wpilib
 ```java
 import static org.wpilib.units.Units.Inches;
 import static org.wpilib.units.Units.RPM;
+import org.wpilib.units.measure.AngularVelocity;
 
-private final DoubleSubscriber intakeVoltage =
+private final TunableDouble intakeVoltage =
 	DogLog.tunable("Intake/Voltage", 4.5, "V");
-private final DoubleSubscriber elevatorHeightOverride = DogLog.tunable("Elevator/HeightOverride", 0.0, Inches);
-private final DoubleSubscriber shooterVelocity =
+private final TunableDouble elevatorHeightOverride = DogLog.tunable("Elevator/HeightOverride", 0.0, Inches);
+private final Tunable<AngularVelocity> shooterVelocity =
 	DogLog.tunable("Shooter/Velocity", RPM.of(2000));
 
 ```
 
-DogLog writes the unit to both the `Tunable` NetworkTables topic and the DataLog metadata, so tools that understand WPILib unit metadata display it automatically.
+DogLog writes unit metadata for tools that understand WPILib units.
+A measure tunable retains its specific measure type and is published in its base unit.
 
 ## Reading a tunable value
 
-Once you've created a tunable value, you can read the value from the NetworkTables entry like so:
+Once you've created a tunable value, you can read it from the returned WPILib tunable:
 
 ```java
 tunable.get();
@@ -53,14 +53,15 @@ By default, DogLog will ignore tunable values from NetworkTables when connected 
 
 You can customize this behavior with the [`ntTunables` option in `DogLogOptions`](/reference/configuring#networktables-tunable-values).
 
-When `ntTunables` is disabled, reading the value of a tunable will return the default value.
+When `ntTunables` is disabled, reads return the original default value and dashboard edits are discarded.
+Re-enabling tuning restores the most recent value accepted while tuning was enabled.
 
 ### On change callbacks
 
 In addition to periodically polling the latest value of a tunable, you can also register a consumer function to be called whenever the value changes.
 
 ```java
-private final DoubleSubscriber voltage = DogLog.tunable("Intake/Voltage", 4, newVoltage -> {
+private final TunableDouble voltage = DogLog.tunable("Intake/Voltage", 4, newVoltage -> {
 	motor.setVoltage(newVoltage);
 });
 
@@ -73,8 +74,8 @@ When the value is changed, the provided function will be called with the updated
 
 Once a tunable value is created in code, you can change the value via NetworkTables.
 
-Tunable values are published under the "Tunable/" table in NetworkTables.
-So, a tunable value with a key of `Intake/Voltage` would be published under the `Tunable/Intake/Voltage` key.
+Tunable values are published under the `/Tunables/` table in NetworkTables.
+So, a tunable value with a key of `Intake/Voltage` is published at `/Tunables/Intake/Voltage`.
 
 Here are some examples of how to change a tunable value using various popular FRC dashboards:
 

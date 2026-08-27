@@ -62,13 +62,12 @@ if (project.hasProperty('releaseMode')) {
 wpilibRepositories.use2027Repos()
 
 dependencies {
-	implementation "org.wpilib.ntcore:ntcore-java:$wpilibVersion"
 	implementation "org.wpilib.telemetry:telemetry-java:$wpilibVersion"
+	implementation "org.wpilib.datalog:datalog-java:$wpilibVersion"
 	implementation "org.wpilib.wpilibj:wpilibj-java:$wpilibVersion"
 	implementation "org.wpilib.wpiutil:wpiutil-java:$wpilibVersion"
 	implementation "org.wpilib.wpiunits:wpiunits-java:$wpilibVersion"
 	implementation "org.wpilib.hal:hal-java:$wpilibVersion"
-	implementation "org.wpilib.datalog:datalog-java:$wpilibVersion"
 
 	compileOnly "us.hebi.quickbuf:quickbuf-runtime:1.4"
 	compileOnly "com.google.errorprone:error_prone_annotations:2.50.0"
@@ -81,6 +80,7 @@ dependencies {
 	testImplementation "org.assertj:assertj-core:3.27.7"
 
 	api "org.jspecify:jspecify:1.0.1"
+	api "org.wpilib.tunables:tunables-java:$wpilibVersion"
 }
 
 tasks.register('infer', Exec) {

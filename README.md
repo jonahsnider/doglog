@@ -43,7 +43,7 @@ You can include these log statements in your periodic methods, or anywhere else 
 - Get started in seconds
   - Add the vendordep and start logging, no configuration or setup boilerplate needed
 - Performance where it counts
-  - DogLog was designed for fast logging, powered by WPILib's highly optimized `DataLogManager` API
+  - DogLog was designed for fast logging, powered by WPILib's highly optimized `Telemetry` API
 - Configurable to the core
   - Customize practically all logger behavior with a simple, yet powerful, configuration API
 - Log with confidence
