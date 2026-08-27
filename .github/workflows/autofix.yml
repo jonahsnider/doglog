@@ -34,14 +34,13 @@ jobs:
         run: ./gradlew spotlessApply
         working-directory: test-project
 
-      - name: Setup aube
-        uses: jdx/aube-action@v1
+      - name: Setup pnpm
+        uses: pnpm/setup@v2
         with:
-          node-version: 'auto'
-          run-install: true
+          cache: true
 
       - name: Format docs with Prettier
-        run: aubr format:write
+        run: pnpm format:write
 
       - name: Run autofix.ci
         uses: autofix-ci/action@v1

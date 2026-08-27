@@ -5,6 +5,6 @@ test-project/
 web/.astro/
 
 .claude/
-aube-lock.yaml
+pnpm-lock.yaml
 CHANGELOG.md
 web/src/content/docs/reference/changelog.md
