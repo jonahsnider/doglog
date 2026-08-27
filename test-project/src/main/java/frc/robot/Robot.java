@@ -9,16 +9,16 @@ import static org.wpilib.units.Units.Meters;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import dev.doglog.DogLog;
-import java.util.function.DoubleSupplier;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
 import org.wpilib.framework.TimedRobot;
 import org.wpilib.math.kinematics.SwerveModuleVelocity;
 import org.wpilib.sysid.SysIdRoutineLog;
+import org.wpilib.tunable.TunableDouble;
 
 public class Robot extends TimedRobot {
   private final TalonFX motor = new TalonFX(5);
-  private final DoubleSupplier tunableSupplier =
+  private final TunableDouble tunableSupplier =
       DogLog.tunable(
           "my tunable number",
           0.0,

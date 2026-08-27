@@ -4,6 +4,20 @@ plugins {
 	id "com.diffplug.spotless" version "8.10.0"
 }
 
+repositories {
+	maven {
+		url = uri('https://frcmaven.wpi.edu/artifactory/development')
+	}
+}
+
+configurations.configureEach {
+	resolutionStrategy.eachDependency {
+		if (requested.group.startsWith('org.wpilib') && !requested.group.contains('.thirdparty.')) {
+			useVersion '2027.+'
+		}
+	}
+}
+
 java {
 	sourceCompatibility = JavaVersion.VERSION_17
 	targetCompatibility = JavaVersion.VERSION_17
@@ -75,6 +89,9 @@ dependencies {
 
 	implementation files('../lib/build/libs/doglog.jar')
 	implementation "org.wpilib:commands3-java:${wpi.versions.wpilibVersion.get()}"
+	implementation "org.wpilib.telemetry:telemetry-java:2027.+"
+	implementation "org.wpilib.tunables:tunables-java:2027.+"
+	implementation "org.wpilib.wpilibj:wpilibj-java:2027.+"
 }
 
 test {

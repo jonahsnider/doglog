@@ -8,8 +8,8 @@ import static org.wpilib.units.Units.Volts;
 import static org.wpilib.units.Units.Watts;
 
 import com.google.errorprone.annotations.ThreadSafe;
+import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
-import dev.doglog.internal.writers.LogWriter;
 import java.util.concurrent.atomic.AtomicReference;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -34,8 +34,6 @@ public class ExtrasLogger implements AutoCloseable {
 
   private static final double RADIO_LOG_PERIOD_SECONDS = 5.81;
 
-  private final LogWriter logger;
-
   private final CANStatus status = new CANStatus();
 
   private final AtomicReference<@Nullable PowerDistribution> pdh = new AtomicReference<>();
@@ -45,9 +43,7 @@ public class ExtrasLogger implements AutoCloseable {
   private final Notifier radioNotifier = new Notifier(this::logRadio);
   private final RadioLogUtil radioLogUtil = new RadioLogUtil();
 
-  public ExtrasLogger(LogWriter logger, DogLogOptions initialOptions) {
-    this.logger = logger;
-
+  public ExtrasLogger(DogLogOptions initialOptions) {
     notifier.setName("DogLog extras logger");
     radioNotifier.setName("DogLog radio logger");
 
@@ -78,90 +74,76 @@ public class ExtrasLogger implements AutoCloseable {
   }
 
   private void log() {
-    // Instead of logging directly to DogLog, we write logs to the consumer directly. This lets us
-    // get the timestamp a single time and reuse that value for all log entries.
-    var now = HALUtil.getMonotonicTime();
-
-    logSystem(now);
-    logCan(now);
-    logPdh(now);
+    logSystem();
+    logCan();
+    logPdh();
   }
 
-  private void logCan(long now) {
+  private void logCan() {
     for (int i = 0; i < 5; i++) {
       CANJNI.getCANStatus(i, status);
-      logger.log(now, "SystemStats/CANBus/" + i + "/Utilization", status.percentBusUtilization);
-      logger.log(now, "SystemStats/CANBus/" + i + "/OffCount", status.busOffCount);
-      logger.log(now, "SystemStats/CANBus/" + i + "/TxFullCount", status.txFullCount);
-      logger.log(now, "SystemStats/CANBus/" + i + "/ReceiveErrorCount", status.receiveErrorCount);
-      logger.log(now, "SystemStats/CANBus/" + i + "/TransmitErrorCount", status.transmitErrorCount);
+      DogLog.log("SystemStats/CANBus/" + i + "/Utilization", status.percentBusUtilization);
+      DogLog.log("SystemStats/CANBus/" + i + "/OffCount", status.busOffCount);
+      DogLog.log("SystemStats/CANBus/" + i + "/TxFullCount", status.txFullCount);
+      DogLog.log("SystemStats/CANBus/" + i + "/ReceiveErrorCount", status.receiveErrorCount);
+      DogLog.log("SystemStats/CANBus/" + i + "/TransmitErrorCount", status.transmitErrorCount);
     }
   }
 
-  private void logPdh(long now) {
+  private void logPdh() {
     var currentPdh = pdh.get();
     if (currentPdh == null) {
       return;
     }
 
-    logger.log(
-        now,
+    DogLog.log(
         "SystemStats/PowerDistribution/Temperature",
         currentPdh.getTemperature(),
         CELSIUS_UNIT_STRING);
-    logger.log(
-        now, "SystemStats/PowerDistribution/Voltage", currentPdh.getVoltage(), VOLTS_UNIT_STRING);
-    logger.log(
-        now,
+    DogLog.log("SystemStats/PowerDistribution/Voltage", currentPdh.getVoltage(), VOLTS_UNIT_STRING);
+    DogLog.log(
         "SystemStats/PowerDistribution/ChannelCurrent",
         currentPdh.getAllCurrents(),
         AMPS_UNIT_STRING);
-    logger.log(
-        now,
+    DogLog.log(
         "SystemStats/PowerDistribution/TotalCurrent",
         currentPdh.getTotalCurrent(),
         AMPS_UNIT_STRING);
-    logger.log(
-        now,
-        "SystemStats/PowerDistribution/TotalPower",
-        currentPdh.getTotalPower(),
-        WATTS_UNIT_STRING);
-    logger.log(
-        now,
+    DogLog.log(
+        "SystemStats/PowerDistribution/TotalPower", currentPdh.getTotalPower(), WATTS_UNIT_STRING);
+    DogLog.log(
         "SystemStats/PowerDistribution/TotalEnergy",
         currentPdh.getTotalEnergy(),
         JOULES_UNIT_STRING);
-    logger.log(now, "SystemStats/PowerDistribution/ChannelCount", currentPdh.getNumChannels());
+    DogLog.log("SystemStats/PowerDistribution/ChannelCount", currentPdh.getNumChannels());
   }
 
   private void logRadio() {
-    var now = HALUtil.getMonotonicTime();
     radioLogUtil.refresh();
     var radioLogResult = radioLogUtil.radioLogResult();
 
-    logger.log(now, "RadioStatus/Connected", radioLogResult.isConnected());
-    logger.log(now, "RadioStatus/StatusJson", radioLogResult.statusJson(), "json");
+    DogLog.log("RadioStatus/Connected", radioLogResult.isConnected());
+    DogLog.log("RadioStatus/StatusJson", radioLogResult.statusJson(), "json");
   }
 
-  private void logSystem(long now) {
-    logger.log(now, "SystemStats/SerialNumber", HALUtil.getSerialNumber());
-    logger.log(now, "SystemStats/Comments", HALUtil.getComments());
-    logger.log(now, "SystemStats/TeamNumber", HALUtil.getTeamNumber());
-    logger.log(now, "SystemStats/SystemActive", HAL.getSystemActive());
-    logger.log(now, "SystemStats/BrownedOut", HAL.getBrownedOut());
-    logger.log(now, "SystemStats/RSLState", HAL.getRSLState());
-    logger.log(now, "SystemStats/SystemTimeValid", HAL.getSystemTimeValid());
+  private void logSystem() {
+    DogLog.log("SystemStats/SerialNumber", HALUtil.getSerialNumber());
+    DogLog.log("SystemStats/Comments", HALUtil.getComments());
+    DogLog.log("SystemStats/TeamNumber", HALUtil.getTeamNumber());
+    DogLog.log("SystemStats/SystemActive", HAL.getSystemActive());
+    DogLog.log("SystemStats/BrownedOut", HAL.getBrownedOut());
+    DogLog.log("SystemStats/RSLState", HAL.getRSLState());
+    DogLog.log("SystemStats/SystemTimeValid", HAL.getSystemTimeValid());
 
-    logger.log(now, "SystemStats/BatteryVoltage", PowerJNI.getVinVoltage(), VOLTS_UNIT_STRING);
+    DogLog.log("SystemStats/BatteryVoltage", PowerJNI.getVinVoltage(), VOLTS_UNIT_STRING);
 
-    logger.log(now, "SystemStats/3v3Rail/Voltage", PowerJNI.getUserVoltage3V3(), VOLTS_UNIT_STRING);
-    logger.log(now, "SystemStats/3v3Rail/Current", PowerJNI.getUserCurrent3V3(), AMPS_UNIT_STRING);
-    logger.log(now, "SystemStats/3v3Rail/Active", PowerJNI.getUserActive3V3());
-    logger.log(now, "SystemStats/3v3Rail/CurrentFaults", PowerJNI.getUserCurrentFaults3V3());
+    DogLog.log("SystemStats/3v3Rail/Voltage", PowerJNI.getUserVoltage3V3(), VOLTS_UNIT_STRING);
+    DogLog.log("SystemStats/3v3Rail/Current", PowerJNI.getUserCurrent3V3(), AMPS_UNIT_STRING);
+    DogLog.log("SystemStats/3v3Rail/Active", PowerJNI.getUserActive3V3());
+    DogLog.log("SystemStats/3v3Rail/CurrentFaults", PowerJNI.getUserCurrentFaults3V3());
 
-    logger.log(now, "SystemStats/CPUTempCelcius", PowerJNI.getCPUTemp(), CELSIUS_UNIT_STRING);
+    DogLog.log("SystemStats/CPUTempCelcius", PowerJNI.getCPUTemp(), CELSIUS_UNIT_STRING);
 
-    logger.log(
-        now, "SystemStats/EpochTimeMicros", HALUtil.getMonotonicTime(), MICROSECONDS_UNIT_STRING);
+    DogLog.log("SystemStats/EpochTimeMicros", HALUtil.getMonotonicTime(), MICROSECONDS_UNIT_STRING);
   }
 }

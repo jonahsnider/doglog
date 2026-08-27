@@ -1,7 +1,7 @@
 package dev.doglog.internal;
 
 import com.google.errorprone.annotations.ThreadSafe;
-import dev.doglog.internal.writers.LogWriter;
+import dev.doglog.DogLog;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,12 +13,12 @@ public class EpochLogger {
     epochMap.put(key, timestamp);
   }
 
-  public void timeEnd(String key, long timestamp, LogWriter logger) {
+  public void timeEnd(String key, long timestamp) {
     var previous = epochMap.get(key);
     if (previous != null) {
       // Get the difference between previous and current timestamps in microseconds
       // Divide by 1e6 to convert to seconds
-      logger.log(timestamp, key, (timestamp - previous) / 1e6);
+      DogLog.log(key, (timestamp - previous) / 1e6);
       epochMap.remove(key);
     }
   }

@@ -1,5 +1,5 @@
 /**
- * DogLog is a simple, unopinionated logging library for FRC.
+ * DogLog is a thin, opinionated wrapper over WPILib Telemetry and Tunables for FRC.
  *
  * <p>See https://doglog.dev for more information.
  */

@@ -8,13 +8,14 @@ import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
+import org.wpilib.hardware.bus.CANPort;
 import org.wpilib.hardware.power.PowerDistribution;
 import org.wpilib.units.Units;
 
 public class RobotContainer {
   public RobotContainer() {
     DogLog.setOptions(new DogLogOptions().withCaptureDs(true));
-    DogLog.setPdh(new PowerDistribution(0));
+    DogLog.setPdh(new PowerDistribution(CANPort.CAN_S0));
 
     configureBindings();
   }
