@@ -50,11 +50,12 @@ final class GuardedMeasureTunable<M extends Measure<?>> extends Tunable<M>
 
   @Override
   public void set(M value) {
-    if (!unit.getBaseUnit().equivalent(value.unit().getBaseUnit())) {
-      throw new IllegalArgumentException(
-          "Measure unit " + value.unit() + " is not compatible with " + unit);
+    if (unit.getBaseUnit().equivalent(value.unit().getBaseUnit())) {
+      magnitudeTunable.set(value.baseUnitMagnitude());
+      return;
     }
-    magnitudeTunable.set(value.baseUnitMagnitude());
+    throw new IllegalArgumentException(
+        "Measure unit " + value.unit() + " is not compatible with " + unit);
   }
 
   @Override
