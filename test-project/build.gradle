@@ -174,7 +174,7 @@ spotless {
 		target '**/*.json'
 		simple().indentWithSpaces(2)
 
-		targetExclude('node_modules/**')
+		targetExclude('node_modules/**', 'simgui*.json')
 	}
 
 	format 'misc', {
