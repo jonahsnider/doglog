@@ -21,7 +21,7 @@
 		"runtime": {
 			"name": "node",
 			"version": "24.x",
-			"onFail": "error"
+			"onFail": "warn"
 		}
 	}
 }
