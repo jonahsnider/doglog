@@ -1,5 +1,12 @@
 # Changelog
 
+## [2027.2.0](https://github.com/jonahsnider/doglog/compare/2027.1.2...2027.2.0) (2026-09-05)
+
+
+### Features
+
+* rewrite using WPILib Telemetry API ([#218](https://github.com/jonahsnider/doglog/issues/218)) ([ce7f25d](https://github.com/jonahsnider/doglog/commit/ce7f25db358a600d5f69ef1d1fb9f66873be3a09))
+
 ## [2027.1.2](https://github.com/jonahsnider/doglog/compare/2027.1.1...2027.1.2) (2026-08-25)
 
 
