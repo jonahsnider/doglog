@@ -9,6 +9,8 @@ allowBuilds:
   sharp: false
   workerd: false
 packageExtensions:
-  starlight-changelogs@0.6.0:
+  starlight-changelogs@0.7.0:
     peerDependencies:
       astro: '*'
+minimumReleaseAgeExclude:
+  - starlight-changelogs@0.7.0

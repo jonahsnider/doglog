@@ -105,7 +105,7 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-packageExtensionsChecksum: sha256-s3ul1Z3HT4apnyPd2XYG6d6vemEsVvuHONWygwYXIZQ=
+packageExtensionsChecksum: sha256-bfv8jjqSLPiBxMmA4T+wEfHaIgitgDapWuNY/nEjKF8=
 
 importers:
 
@@ -148,8 +148,8 @@ importers:
         specifier: ^0.35.0
         version: 0.35.4(@types/node@24.12.4)
       starlight-changelogs:
-        specifier: github:jonahsnider/starlight-changelogs#conventional-changelog&path:/packages/starlight-changelogs
-        version: https://codeload.github.com/jonahsnider/starlight-changelogs/tar.gz/5ed8f9601a98d8d5f15a4d40a595c51fc6e40b58#path:/packages/starlight-changelogs(@astrojs/starlight@0.42.0(astro@7.3.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.12.4)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(supports-color@10.2.2)(typescript@6.0.3))(astro@7.3.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.12.4)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(supports-color@10.2.2)
+        specifier: ^0.7.0
+        version: 0.7.0(@astrojs/starlight@0.42.0(astro@7.3.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.12.4)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(supports-color@10.2.2)(typescript@6.0.3))(astro@7.3.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.12.4)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(supports-color@10.2.2)
       typescript:
         specifier: ^6.0.0
         version: 6.0.3
@@ -3672,9 +3672,8 @@ packages:
   space-separated-tokens@2.0.2:
     resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
 
-  starlight-changelogs@https://codeload.github.com/jonahsnider/starlight-changelogs/tar.gz/5ed8f9601a98d8d5f15a4d40a595c51fc6e40b58#path:/packages/starlight-changelogs:
-    resolution: {gitHosted: true, integrity: sha512-pfblaKVlxd6HplRucV7r+NRR2BTLbmBBLSBZA3eXkBQQTVg4D7hh22gmGKLyt3021swBsSEFzYzuxCSCm7RGUA==, path: /packages/starlight-changelogs, tarball: https://codeload.github.com/jonahsnider/starlight-changelogs/tar.gz/5ed8f9601a98d8d5f15a4d40a595c51fc6e40b58}
-    version: 0.6.0
+  starlight-changelogs@0.7.0:
+    resolution: {integrity: sha512-WuuTNX12HKgoLBpEYjXkCgRIJesSwmmVVJ3t5VdSE/ubBoWSdNj95q3QM/aZB04/+TBRJk0aTgk9LrfPampeFQ==}
     engines: {node: '>=22.12.0'}
     peerDependencies:
       '@astrojs/starlight': '>=0.38.0'
@@ -8105,7 +8104,7 @@ snapshots:
 
   space-separated-tokens@2.0.2: {}
 
-  starlight-changelogs@https://codeload.github.com/jonahsnider/starlight-changelogs/tar.gz/5ed8f9601a98d8d5f15a4d40a595c51fc6e40b58#path:/packages/starlight-changelogs(@astrojs/starlight@0.42.0(astro@7.3.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.12.4)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(supports-color@10.2.2)(typescript@6.0.3))(astro@7.3.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.12.4)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(supports-color@10.2.2):
+  starlight-changelogs@0.7.0(@astrojs/starlight@0.42.0(astro@7.3.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.12.4)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(supports-color@10.2.2)(typescript@6.0.3))(astro@7.3.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.12.4)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(supports-color@10.2.2):
     dependencies:
       '@ascorbic/loader-utils': 1.0.2(astro@7.3.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.12.4)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))
       '@astrojs/starlight': 0.42.0(astro@7.3.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.12.4)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(supports-color@10.2.2)(typescript@6.0.3)

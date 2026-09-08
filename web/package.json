@@ -18,7 +18,7 @@
 		"@astrojs/starlight-markdoc": "0.7.0",
 		"astro": "7.3.1",
 		"sharp": "^0.35.0",
-		"starlight-changelogs": "github:jonahsnider/starlight-changelogs#conventional-changelog&path:/packages/starlight-changelogs",
+		"starlight-changelogs": "^0.7.0",
 		"typescript": "^6.0.0"
 	},
 	"devDependencies": {
