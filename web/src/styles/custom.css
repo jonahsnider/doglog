@@ -1,5 +1,8 @@
+@import '@fontsource-variable/source-sans-3/wght.css';
+
 /* Dark mode colors. */
 :root {
+	--doglog-font-heading: 'Source Sans 3 Variable', var(--sl-font-system);
 	--sl-color-accent-low: #460b05;
 	--sl-color-accent: #c60e00;
 	--sl-color-accent-high: #feb3a6;
@@ -26,4 +29,10 @@
 	--sl-color-gray-6: #f3ecea;
 	--sl-color-gray-7: #f9f5f5;
 	--sl-color-black: #ffffff;
+}
+
+:is(h1, h2, h3, h4, h5, h6, .site-title, #starlight__sidebar .large) {
+	font-family: var(--doglog-font-heading);
+	/* Match the perceived size of Starlight's system font despite Source Sans 3's lower x-height. */
+	font-size-adjust: 0.52;
 }
