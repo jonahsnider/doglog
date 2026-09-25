@@ -13,12 +13,13 @@ import dev.doglog.DogLog;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
 import org.wpilib.framework.TimedRobot;
+import org.wpilib.hardware.bus.CANPort;
 import org.wpilib.math.kinematics.SwerveModuleVelocity;
 import org.wpilib.sysid.SysIdRoutineLog;
 import org.wpilib.tunable.TunableDouble;
 
 public class Robot extends TimedRobot {
-  private final TalonFX motor = new TalonFX(5, CANBus.systemcore(0));
+  private final TalonFX motor = new TalonFX(5, new CANBus(CANPort.CAN_S0));
   private final TunableDouble tunableSupplier =
       DogLog.tunable(
           "my tunable number",
