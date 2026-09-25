@@ -16,5 +16,5 @@
 			"matchStrings": ["jsonUrl ? { \"depName\": name, \"currentValue\": version, \"registryUrl\": jsonUrl }"]
 		}
 	],
-	"extends": ["github>jonahsnider/renovate-config"]
+	"extends": ["github>jonahsnider/renovate-config", ":semanticCommitTypeAll(build)"]
 }
