@@ -16,9 +16,8 @@ public class EpochLogger {
   public void timeEnd(String key, long timestamp) {
     var previous = epochMap.get(key);
     if (previous != null) {
-      // Get the difference between previous and current timestamps in microseconds
-      // Divide by 1e6 to convert to seconds
-      DogLog.log(key, (timestamp - previous) / 1e6);
+      // Monotonic timestamps are in nanoseconds.
+      DogLog.log(key, (timestamp - previous) / 1e9);
       epochMap.remove(key);
     }
   }

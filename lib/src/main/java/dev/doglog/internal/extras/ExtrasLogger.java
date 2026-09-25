@@ -144,6 +144,7 @@ public class ExtrasLogger implements AutoCloseable {
 
     DogLog.log("SystemStats/CPUTempCelcius", PowerJNI.getCPUTemp(), CELSIUS_UNIT_STRING);
 
-    DogLog.log("SystemStats/EpochTimeMicros", HALUtil.getMonotonicTime(), MICROSECONDS_UNIT_STRING);
+    DogLog.log(
+        "SystemStats/EpochTimeMicros", HALUtil.getMonotonicTime() / 1000, MICROSECONDS_UNIT_STRING);
   }
 }
