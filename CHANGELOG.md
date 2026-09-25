@@ -7,14 +7,6 @@
 
 * rewrite using WPILib Telemetry API ([#218](https://github.com/jonahsnider/doglog/issues/218)) ([ce7f25d](https://github.com/jonahsnider/doglog/commit/ce7f25db358a600d5f69ef1d1fb9f66873be3a09))
 
-
-### Bug Fixes
-
-* **deps:** update dependency @astrojs/starlight to v0.42.4 ([14b5dc9](https://github.com/jonahsnider/doglog/commit/14b5dc932f3b992198a0c7499f7918b21edf6aa0))
-* **deps:** update dependency astro to v7.3.5 ([278399a](https://github.com/jonahsnider/doglog/commit/278399a442f60b0e6fe81504715e06d011f7311d))
-* **deps:** update dependency com.uber.nullaway:nullaway to v0.14.2 ([343318f](https://github.com/jonahsnider/doglog/commit/343318f79a1ee8d11289b849f9e1910b704df3ea))
-* mark next vendordep for WPILib alpha 7 ([60ed489](https://github.com/jonahsnider/doglog/commit/60ed489cc889d0a82088519bf42b3efff1532325))
-
 ## [2027.1.2](https://github.com/jonahsnider/doglog/compare/2027.1.1...2027.1.2) (2026-08-25)
 
 
