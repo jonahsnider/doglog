@@ -23,6 +23,7 @@ import org.wpilib.internal.UnitTelemetry;
 import org.wpilib.system.DataLogManager;
 import org.wpilib.system.Timer;
 import org.wpilib.telemetry.Telemetry;
+import org.wpilib.telemetry.TelemetryLoggable;
 import org.wpilib.tunable.Tunable;
 import org.wpilib.tunable.TunableBoolean;
 import org.wpilib.tunable.TunableDouble;
@@ -456,6 +457,16 @@ public class DogLog {
 
   /** Log a struct array. */
   public static <T extends StructSerializable> void log(String key, @Nullable T[] value) {
+    if (!enabled.get() || value == null) {
+      return;
+    }
+
+    prepareKey(key);
+    Telemetry.log(key, value);
+  }
+
+  /** Log a WPILib telemetry object, such as a Mechanism2d. */
+  public static void log(String key, @Nullable TelemetryLoggable value) {
     if (!enabled.get() || value == null) {
       return;
     }
