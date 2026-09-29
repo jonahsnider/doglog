@@ -1,5 +1,20 @@
 # Changelog
 
+## [2027.3.0](https://github.com/jonahsnider/doglog/compare/2027.2.0...2027.3.0) (2026-09-29)
+
+
+### Features
+
+* add updated Alert logging ([1bbe4da](https://github.com/jonahsnider/doglog/commit/1bbe4da47ff3cf2808f7e491b13fc05e34e51b7b))
+* allow logging TelemetryLoggable ([3012f6b](https://github.com/jonahsnider/doglog/commit/3012f6ba141138bc08ce3fef3b31d5aae5acb476))
+* capture all SystemCore stats to logs ([dbaab2f](https://github.com/jonahsnider/doglog/commit/dbaab2f1ad9b0b5690613a3031681b2c58d15927))
+* mark logged values as immutable ([1c64a4b](https://github.com/jonahsnider/doglog/commit/1c64a4b2a70bea83c397103e7384fe54743b95f2))
+
+
+### Bug Fixes
+
+* pin wpilibVersion to 2027.0.0-alpha-7 ([3f116a1](https://github.com/jonahsnider/doglog/commit/3f116a1e0f1d659f463bb43de06552d66a2ea387))
+
 ## [2027.2.0](https://github.com/jonahsnider/doglog/compare/2027.1.2...2027.2.0) (2026-09-25)
 
 
