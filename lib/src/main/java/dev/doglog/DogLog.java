@@ -1009,6 +1009,7 @@ public class DogLog {
         key,
         sourcedKey -> {
           Telemetry.setProperty(sourcedKey, "source", "\"DogLog\"");
+          Telemetry.setProperty(sourcedKey, "mutable", "false");
           return Boolean.TRUE;
         });
   }
