@@ -7,6 +7,12 @@ const config = {
 	printWidth: 120,
 	overrides: [
 		{
+			files: ['vendordep.json', 'web/public/vendordep.json'],
+			options: {
+				parser: 'json-stringify',
+			},
+		},
+		{
 			files: '*.astro',
 			options: {
 				parser: 'astro',

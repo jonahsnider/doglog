@@ -19,6 +19,16 @@
 				},
 				{
 					"jsonpath": "$.version",
+					"path": "web/public/vendordep.json",
+					"type": "json"
+				},
+				{
+					"jsonpath": "$.javaDependencies[0].version",
+					"path": "web/public/vendordep.json",
+					"type": "json"
+				},
+				{
+					"jsonpath": "$.version",
 					"path": "lib/package.json",
 					"type": "json"
 				}
