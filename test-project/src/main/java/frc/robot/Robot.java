@@ -15,6 +15,7 @@ import org.wpilib.command2.CommandScheduler;
 import org.wpilib.framework.TimedRobot;
 import org.wpilib.hardware.bus.CANPort;
 import org.wpilib.math.kinematics.SwerveModuleVelocity;
+import org.wpilib.smartdashboard.Mechanism2d;
 import org.wpilib.sysid.SysIdRoutineLog;
 import org.wpilib.tunable.TunableDouble;
 import org.wpilib.util.Alert;
@@ -23,6 +24,7 @@ import org.wpilib.util.Alert.Level;
 public class Robot extends TimedRobot {
   private final Alert simulationAlert =
       new Alert("Simulation", "Example", "Example simulator alert", Level.MEDIUM);
+  private final Mechanism2d mechanism = new Mechanism2d(3, 3);
   private final TalonFX motor = new TalonFX(5, new CANBus(CANPort.CAN_S0));
   private final TunableDouble tunableSupplier =
       DogLog.tunable(
@@ -87,6 +89,8 @@ public class Robot extends TimedRobot {
         });
     DogLog.log("Debug/Position", motor.getPosition().getValueAsDouble());
     DogLog.log("Debug/Json", "{\"test\": \"json\"}", "json");
+    DogLog.log("Debug/Mechanism", mechanism);
+    DogLog.timestamp("Debug/Timestamp");
 
     DogLog.log("Tunable/SupplierValue", tunableSupplier.getAsDouble());
 

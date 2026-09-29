@@ -3,7 +3,6 @@ package dev.doglog.internal.extras;
 import static org.wpilib.units.Units.Amps;
 import static org.wpilib.units.Units.Celsius;
 import static org.wpilib.units.Units.Joules;
-import static org.wpilib.units.Units.Microseconds;
 import static org.wpilib.units.Units.Volts;
 import static org.wpilib.units.Units.Watts;
 
@@ -13,13 +12,12 @@ import dev.doglog.DogLogOptions;
 import java.util.concurrent.atomic.AtomicReference;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-import org.wpilib.hardware.hal.HAL;
-import org.wpilib.hardware.hal.HALUtil;
-import org.wpilib.hardware.hal.PowerJNI;
-import org.wpilib.hardware.hal.can.CANJNI;
-import org.wpilib.hardware.hal.can.CANStatus;
 import org.wpilib.hardware.power.PowerDistribution;
+import org.wpilib.networktables.NetworkTableInstance;
+import org.wpilib.system.DataLogManager;
 import org.wpilib.system.Notifier;
+import org.wpilib.system.RobotController;
+import org.wpilib.system.SystemServer;
 
 /** Logs "extra" information. */
 @NullMarked
@@ -30,11 +28,8 @@ public class ExtrasLogger implements AutoCloseable {
   private static final String CELSIUS_UNIT_STRING = Celsius.name();
   private static final String WATTS_UNIT_STRING = Watts.name();
   private static final String JOULES_UNIT_STRING = Joules.name();
-  private static final String MICROSECONDS_UNIT_STRING = Microseconds.name();
 
   private static final double RADIO_LOG_PERIOD_SECONDS = 5.81;
-
-  private final CANStatus status = new CANStatus();
 
   private final AtomicReference<@Nullable PowerDistribution> pdh = new AtomicReference<>();
 
@@ -43,9 +38,13 @@ public class ExtrasLogger implements AutoCloseable {
   private final Notifier radioNotifier = new Notifier(this::logRadio);
   private final RadioLogUtil radioLogUtil = new RadioLogUtil();
 
+  private final NetworkTableInstance systemServer;
+  private int systemServerEntryLogger;
+  private boolean metadataLogged;
   private volatile boolean logExtras;
 
   public ExtrasLogger(DogLogOptions initialOptions) {
+    systemServer = SystemServer.getSystemServer();
     logExtras = initialOptions.logExtras();
 
     notifier.setName("DogLog extras logger");
@@ -53,21 +52,25 @@ public class ExtrasLogger implements AutoCloseable {
     notifier.startPeriodic(DogLogOptions.LOOP_PERIOD_SECONDS);
 
     if (logExtras) {
+      startSystemServerLog();
       radioNotifier.startPeriodic(RADIO_LOG_PERIOD_SECONDS);
     }
   }
 
   @Override
-  public void close() {
+  public synchronized void close() {
     notifier.close();
     radioNotifier.close();
+    stopSystemServerLog();
   }
 
-  public void setOptions(DogLogOptions options) {
+  public synchronized void setOptions(DogLogOptions options) {
     logExtras = options.logExtras();
     if (logExtras) {
+      startSystemServerLog();
       radioNotifier.startPeriodic(RADIO_LOG_PERIOD_SECONDS);
     } else {
+      stopSystemServerLog();
       radioNotifier.stop();
     }
   }
@@ -79,20 +82,15 @@ public class ExtrasLogger implements AutoCloseable {
   private void log() {
     AlertLogger.log();
     if (logExtras) {
-      logSystem();
-      logCan();
+      logMetadata();
       logPdh();
     }
   }
 
-  private void logCan() {
-    for (int i = 0; i < 5; i++) {
-      CANJNI.getCANStatus(i, status);
-      DogLog.log("SystemStats/CANBus/" + i + "/Utilization", status.percentBusUtilization);
-      DogLog.log("SystemStats/CANBus/" + i + "/OffCount", status.busOffCount);
-      DogLog.log("SystemStats/CANBus/" + i + "/TxFullCount", status.txFullCount);
-      DogLog.log("SystemStats/CANBus/" + i + "/ReceiveErrorCount", status.receiveErrorCount);
-      DogLog.log("SystemStats/CANBus/" + i + "/TransmitErrorCount", status.transmitErrorCount);
+  private void logMetadata() {
+    if (!metadataLogged && DogLog.isEnabled()) {
+      DogLog.log("Metadata/SerialNumber", RobotController.getSerialNumber());
+      metadataLogged = true;
     }
   }
 
@@ -132,25 +130,16 @@ public class ExtrasLogger implements AutoCloseable {
     DogLog.log("RadioStatus/StatusJson", radioLogResult.statusJson(), "json");
   }
 
-  private void logSystem() {
-    DogLog.log("SystemStats/SerialNumber", HALUtil.getSerialNumber());
-    DogLog.log("SystemStats/Comments", HALUtil.getComments());
-    DogLog.log("SystemStats/TeamNumber", HALUtil.getTeamNumber());
-    DogLog.log("SystemStats/SystemActive", HAL.getSystemActive());
-    DogLog.log("SystemStats/BrownedOut", HAL.getBrownedOut());
-    DogLog.log("SystemStats/RSLState", HAL.getRSLState());
-    DogLog.log("SystemStats/SystemTimeValid", HAL.getSystemTimeValid());
+  private void startSystemServerLog() {
+    if (systemServerEntryLogger == 0) {
+      systemServerEntryLogger = systemServer.startEntryDataLog(DataLogManager.getLog(), "", "NT:");
+    }
+  }
 
-    DogLog.log("SystemStats/BatteryVoltage", PowerJNI.getVinVoltage(), VOLTS_UNIT_STRING);
-
-    DogLog.log("SystemStats/3v3Rail/Voltage", PowerJNI.getUserVoltage3V3(), VOLTS_UNIT_STRING);
-    DogLog.log("SystemStats/3v3Rail/Current", PowerJNI.getUserCurrent3V3(), AMPS_UNIT_STRING);
-    DogLog.log("SystemStats/3v3Rail/Active", PowerJNI.getUserActive3V3());
-    DogLog.log("SystemStats/3v3Rail/CurrentFaults", PowerJNI.getUserCurrentFaults3V3());
-
-    DogLog.log("SystemStats/CPUTempCelcius", PowerJNI.getCPUTemp(), CELSIUS_UNIT_STRING);
-
-    DogLog.log(
-        "SystemStats/EpochTimeMicros", HALUtil.getMonotonicTime() / 1000, MICROSECONDS_UNIT_STRING);
+  private void stopSystemServerLog() {
+    if (systemServerEntryLogger != 0) {
+      NetworkTableInstance.stopEntryDataLog(systemServerEntryLogger);
+      systemServerEntryLogger = 0;
+    }
   }
 }
