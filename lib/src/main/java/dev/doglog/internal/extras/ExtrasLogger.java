@@ -43,13 +43,17 @@ public class ExtrasLogger implements AutoCloseable {
   private final Notifier radioNotifier = new Notifier(this::logRadio);
   private final RadioLogUtil radioLogUtil = new RadioLogUtil();
 
+  private volatile boolean logExtras;
+
   public ExtrasLogger(DogLogOptions initialOptions) {
+    logExtras = initialOptions.logExtras();
+
     notifier.setName("DogLog extras logger");
     radioNotifier.setName("DogLog radio logger");
+    notifier.startPeriodic(DogLogOptions.LOOP_PERIOD_SECONDS);
 
-    if (initialOptions.logExtras()) {
+    if (logExtras) {
       radioNotifier.startPeriodic(RADIO_LOG_PERIOD_SECONDS);
-      notifier.startPeriodic(DogLogOptions.LOOP_PERIOD_SECONDS);
     }
   }
 
@@ -60,11 +64,10 @@ public class ExtrasLogger implements AutoCloseable {
   }
 
   public void setOptions(DogLogOptions options) {
-    if (options.logExtras()) {
-      notifier.startPeriodic(DogLogOptions.LOOP_PERIOD_SECONDS);
+    logExtras = options.logExtras();
+    if (logExtras) {
       radioNotifier.startPeriodic(RADIO_LOG_PERIOD_SECONDS);
     } else {
-      notifier.stop();
       radioNotifier.stop();
     }
   }
@@ -74,9 +77,12 @@ public class ExtrasLogger implements AutoCloseable {
   }
 
   private void log() {
-    logSystem();
-    logCan();
-    logPdh();
+    AlertLogger.log();
+    if (logExtras) {
+      logSystem();
+      logCan();
+      logPdh();
+    }
   }
 
   private void logCan() {

@@ -11,8 +11,8 @@ import org.wpilib.util.Alert.Level;
 
 /**
  * Provides the interface for logging faults. Faults are a DogLog concept that were created prior to
- * WPILib alerts. Alerts are great but are NT only, so faults allow DogLog to provide a simple
- * interface to logging errors that writes to both NT and DataLog.
+ * WPILib alerts. Faults track occurrence counts and history in addition to optionally creating a
+ * WPILib alert for display on the driver station.
  */
 @ThreadSafe
 public class FaultLogger {

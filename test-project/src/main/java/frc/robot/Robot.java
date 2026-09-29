@@ -17,8 +17,12 @@ import org.wpilib.hardware.bus.CANPort;
 import org.wpilib.math.kinematics.SwerveModuleVelocity;
 import org.wpilib.sysid.SysIdRoutineLog;
 import org.wpilib.tunable.TunableDouble;
+import org.wpilib.util.Alert;
+import org.wpilib.util.Alert.Level;
 
 public class Robot extends TimedRobot {
+  private final Alert simulationAlert =
+      new Alert("Simulation", "Example", "Example simulator alert", Level.MEDIUM);
   private final TalonFX motor = new TalonFX(5, new CANBus(CANPort.CAN_S0));
   private final TunableDouble tunableSupplier =
       DogLog.tunable(
@@ -35,6 +39,7 @@ public class Robot extends TimedRobot {
 
   public Robot() {
     m_robotContainer = new RobotContainer();
+    simulationAlert.set(true);
   }
 
   @Override
