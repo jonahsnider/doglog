@@ -17,11 +17,10 @@ import java.util.function.LongConsumer;
 import org.jspecify.annotations.Nullable;
 import org.wpilib.driverstation.DriverStation;
 import org.wpilib.hardware.hal.HAL;
-import org.wpilib.hardware.hal.HALUtil;
 import org.wpilib.hardware.power.PowerDistribution;
 import org.wpilib.internal.UnitTelemetry;
 import org.wpilib.system.DataLogManager;
-import org.wpilib.system.Timer;
+import org.wpilib.system.RobotController;
 import org.wpilib.telemetry.Telemetry;
 import org.wpilib.telemetry.TelemetryLoggable;
 import org.wpilib.tunable.Tunable;
@@ -580,7 +579,7 @@ public class DogLog {
    * @see DogLog#timeEnd(String)
    */
   public static void time(String key) {
-    epochLogger.time(key, HALUtil.getMonotonicTime());
+    epochLogger.time(key, RobotController.getMonotonicTime());
   }
 
   /**
@@ -591,7 +590,7 @@ public class DogLog {
    * @see DogLog#time(String)
    */
   public static void timeEnd(String key) {
-    epochLogger.timeEnd(key, HALUtil.getMonotonicTime());
+    epochLogger.timeEnd(key, RobotController.getMonotonicTime());
   }
 
   /**
@@ -601,7 +600,7 @@ public class DogLog {
    * @param key The key to log the timestamp to.
    */
   public static void timestamp(String key) {
-    log(key, Timer.getMonotonicTimestamp());
+    log(key, RobotController.getMonotonicTime(), "nanoseconds");
   }
 
   /**
