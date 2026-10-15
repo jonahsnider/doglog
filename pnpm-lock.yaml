@@ -209,7 +209,7 @@ importers:
         version: 0.35.5(@types/node@24.13.3)
       starlight-changelogs:
         specifier: ^0.7.0
-        version: 0.7.0(@astrojs/starlight@0.42.6(astro@7.3.8(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))(supports-color@10.2.2)(typescript@6.0.3))(astro@7.3.8(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))(supports-color@10.2.2)
+        version: 0.7.1(@astrojs/starlight@0.42.6(astro@7.3.8(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))(supports-color@10.2.2)(typescript@6.0.3))(astro@7.3.8(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))(supports-color@10.2.2)
       typescript:
         specifier: ^6.0.0
         version: 6.0.3
@@ -3532,12 +3532,10 @@ packages:
   space-separated-tokens@2.0.2:
     resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
 
-  starlight-changelogs@0.7.0:
-    resolution: {integrity: sha512-WuuTNX12HKgoLBpEYjXkCgRIJesSwmmVVJ3t5VdSE/ubBoWSdNj95q3QM/aZB04/+TBRJk0aTgk9LrfPampeFQ==}
-    engines: {node: '>=22.12.0'}
+  starlight-changelogs@0.7.1:
+    resolution: {integrity: sha512-JKuNEzq9HbiM+Uhu5vQmFuyM3LA6ZlrWRQn2DJ8ubFRvbbeexL9G8sAA7DZcjXxCrDwn6V/oK042uCD0PnNhJw==}
     peerDependencies:
       '@astrojs/starlight': '>=0.38.0'
-      astro: '*'
 
   stop-iteration-iterator@1.1.0:
     resolution: {integrity: sha512-eLoXW/DHyl62zxY4SCaIgnRhuMr6ri4juEYARS8E6sCEqzKpOiE521Ucofdx+KnDZl5xmvGYaaKCk5FEOxJCoQ==}
@@ -7788,17 +7786,17 @@ snapshots:
 
   space-separated-tokens@2.0.2: {}
 
-  starlight-changelogs@0.7.0(@astrojs/starlight@0.42.6(astro@7.3.8(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))(supports-color@10.2.2)(typescript@6.0.3))(astro@7.3.8(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))(supports-color@10.2.2):
+  starlight-changelogs@0.7.1(@astrojs/starlight@0.42.6(astro@7.3.8(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))(supports-color@10.2.2)(typescript@6.0.3))(astro@7.3.8(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))(supports-color@10.2.2):
     dependencies:
       '@ascorbic/loader-utils': 1.0.2(astro@7.3.8(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
       '@astrojs/starlight': 0.42.6(astro@7.3.8(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))(supports-color@10.2.2)(typescript@6.0.3)
-      astro: 7.3.8(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0)
       github-slugger: 2.0.0
       mdast-util-from-markdown: 2.0.3(supports-color@10.2.2)
       mdast-util-to-markdown: 2.1.2
       mdast-util-to-string: 4.0.0
       unist-util-visit: 5.1.0
     transitivePeerDependencies:
+      - astro
       - supports-color
 
   stop-iteration-iterator@1.1.0:
