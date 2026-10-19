@@ -62,6 +62,7 @@ export default defineConfig({
 				cleanupOutdatedCaches: true,
 				cacheId: 'doglog-docs',
 				globPatterns: ['**/*'],
+				globIgnores: ['**/_headers'],
 			},
 			manifest: {
 				name: 'DogLog Docs',
