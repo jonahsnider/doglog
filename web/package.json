@@ -16,7 +16,7 @@
 		"@astrojs/markdoc": "2.1.0",
 		"@astrojs/starlight": "0.42.6",
 		"@astrojs/starlight-markdoc": "0.7.0",
-		"@fontsource-variable/source-sans-3": "^5.3.0",
+		"@team581/starlight-theme": "^1.0.0",
 		"astro": "7.4.0",
 		"sharp": "^0.35.0",
 		"starlight-changelogs": "^0.7.0",

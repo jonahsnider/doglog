@@ -1,6 +1,5 @@
 ---
-import Default from '@astrojs/starlight/components/Head.astro';
-import headingFont from '@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2?url';
+import Default from '@team581/starlight-theme/Head.astro';
 import { ClientRouter } from 'astro:transitions';
 import { pwaInfo } from 'virtual:pwa-info';
 import { pwaAssetsHead } from 'virtual:pwa-assets/head';
@@ -9,7 +8,6 @@ import { pwaAssetsHead } from 'virtual:pwa-assets/head';
 <Default>
 	<slot />
 </Default>
-<link rel="preload" href={headingFont} as="font" type="font/woff2" crossorigin />
 <ClientRouter />
 <script src="/src/pwa.ts"></script>
 {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}

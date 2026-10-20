@@ -162,7 +162,7 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-packageExtensionsChecksum: sha256-bfv8jjqSLPiBxMmA4T+wEfHaIgitgDapWuNY/nEjKF8=
+packageExtensionsChecksum: sha256-DIWz1rYFlgfs27ArpOm4XwLFlq2U597i7ZkEvi48wlA=
 
 importers:
 
@@ -198,9 +198,9 @@ importers:
       '@astrojs/starlight-markdoc':
         specifier: 0.7.0
         version: 0.7.0(@astrojs/markdoc@2.1.0(astro@7.4.0(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0)))(@astrojs/starlight@0.42.6(astro@7.4.0(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))(supports-color@10.2.2)(typescript@6.0.3))
-      '@fontsource-variable/source-sans-3':
-        specifier: ^5.3.0
-        version: 5.3.1
+      '@team581/starlight-theme':
+        specifier: ^1.0.0
+        version: 1.0.0(@astrojs/starlight@0.42.6(astro@7.4.0(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))(supports-color@10.2.2)(typescript@6.0.3))(astro@7.4.0(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
       astro:
         specifier: 7.4.0
         version: 7.4.0(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0)
@@ -1923,6 +1923,12 @@ packages:
   '@speed-highlight/core@1.2.24':
     resolution: {integrity: sha512-qeW2e1l78afw8VhRPfPQ1Gjj+KU5XFQ/OFV5ti6eTa9bruO7mJyZtA4vw0ofqmA3tKCkROE9xLk3VZoeRc98nw==}
 
+  '@team581/starlight-theme@1.0.0':
+    resolution: {integrity: sha512-IBMG7DUut+bfqEiBoyjebKEJtMMvfSfLW2Eaw4bdrqlw4ljFLCyeCUzpW7fELyrCJeJ26TlA4UziBjMb8cKCKA==}
+    peerDependencies:
+      '@astrojs/starlight': ^0.42.6
+      astro: ^7.2.10
+
   '@trickfilm400/rollup-plugin-off-main-thread@3.0.0-pre1':
     resolution: {integrity: sha512-/67zpWDBLV+oYAEL682s1ktXL0HgqX76f6gaVGkGnVZlBbm1zd0v4Bz8MFF2GGhoX9rvfq3KSQHubFHwa6w6/Q==}
     engines: {node: '>=12'}
@@ -3592,6 +3598,7 @@ packages:
     resolution: {integrity: sha512-JKuNEzq9HbiM+Uhu5vQmFuyM3LA6ZlrWRQn2DJ8ubFRvbbeexL9G8sAA7DZcjXxCrDwn6V/oK042uCD0PnNhJw==}
     peerDependencies:
       '@astrojs/starlight': '>=0.38.0'
+      astro: '*'
 
   std-env@4.3.0:
     resolution: {integrity: sha512-OtU/EgQ1kIm5KwqQpBC6ZEMXrZRui11w8zgfTWp8cdO9B8OaPsbA8bTHO2P+HNo1VlUTGMVBwPhydu6poeXiag==}
@@ -5866,6 +5873,12 @@ snapshots:
 
   '@speed-highlight/core@1.2.24': {}
 
+  '@team581/starlight-theme@1.0.0(@astrojs/starlight@0.42.6(astro@7.4.0(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))(supports-color@10.2.2)(typescript@6.0.3))(astro@7.4.0(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))':
+    dependencies:
+      '@astrojs/starlight': 0.42.6(astro@7.4.0(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))(supports-color@10.2.2)(typescript@6.0.3)
+      '@fontsource-variable/source-sans-3': 5.3.1
+      astro: 7.4.0(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0)
+
   '@trickfilm400/rollup-plugin-off-main-thread@3.0.0-pre1':
     dependencies:
       ejs: 3.1.10
@@ -7936,13 +7949,13 @@ snapshots:
     dependencies:
       '@ascorbic/loader-utils': 1.0.2(astro@7.4.0(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))
       '@astrojs/starlight': 0.42.6(astro@7.4.0(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0))(supports-color@10.2.2)(typescript@6.0.3)
+      astro: 7.4.0(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.0)
       github-slugger: 2.0.0
       mdast-util-from-markdown: 2.0.3(supports-color@10.2.2)
       mdast-util-to-markdown: 2.1.2
       mdast-util-to-string: 4.0.0
       unist-util-visit: 5.1.0
     transitivePeerDependencies:
-      - astro
       - supports-color
 
   std-env@4.3.0: {}

@@ -9,8 +9,9 @@ allowBuilds:
   sharp: false
   workerd: false
 packageExtensions:
-  starlight-changelogs@0.7.0:
+  starlight-changelogs@^0.7.0:
     peerDependencies:
       astro: '*'
 minimumReleaseAgeExclude:
   - starlight-changelogs@0.7.0
+  - '@team581/starlight-theme@1.0.0'

@@ -1,5 +1,6 @@
 import markdoc from '@astrojs/markdoc';
 import starlight from '@astrojs/starlight';
+import team581Theme from '@team581/starlight-theme';
 import AstroPWA from '@vite-pwa/astro';
 import { defineConfig } from 'astro/config';
 import starlightChangelogs from 'starlight-changelogs';
@@ -11,7 +12,7 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'DogLog Docs',
-			plugins: [starlightChangelogs()],
+			plugins: [team581Theme(), starlightChangelogs()],
 			favicon: '/favicon.ico',
 			social: [
 				{
@@ -48,7 +49,6 @@ export default defineConfig({
 					],
 				},
 			],
-			customCss: ['/src/styles/custom.css'],
 			components: {
 				Head: './src/components/PwaHead.astro',
 			},
