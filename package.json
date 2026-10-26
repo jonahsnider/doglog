@@ -2,26 +2,25 @@
 	"name": "@doglog/root",
 	"version": "1.0.0",
 	"private": true,
-	"type": "module",
 	"workspaces": [
 		"lib",
 		"web"
 	],
+	"type": "module",
 	"scripts": {
-		"format": "prettier --check .",
-		"format:write": "prettier --check --write ."
+		"format": "oxfmt --check",
+		"format:write": "oxfmt"
 	},
 	"devDependencies": {
-		"prettier": "3.9.10",
-		"prettier-plugin-astro": "1.1.2",
-		"prettier-plugin-packagejson": "3.0.3"
+		"@astrojs/compiler-rs": "0.5.2",
+		"oxfmt": "0.74.0"
 	},
-	"packageManager": "pnpm@12.15.0",
 	"devEngines": {
 		"runtime": {
 			"name": "node",
 			"version": "24.x",
 			"onFail": "warn"
 		}
-	}
+	},
+	"packageManager": "pnpm@12.15.0"
 }

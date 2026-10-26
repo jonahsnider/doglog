@@ -40,7 +40,7 @@ jobs:
         with:
           cache: true
 
-      - name: Format docs with Prettier
+      - name: Format docs with Oxfmt
         run: pnpm format:write
 
       - name: Run autofix.ci

@@ -175,6 +175,8 @@ jobs:
         uses: pnpm/setup@v3
         with:
           cache: true
+      - name: Check formatting with Oxfmt
+        run: pnpm format
       - name: Build docs
         run: pnpm build
         working-directory: web

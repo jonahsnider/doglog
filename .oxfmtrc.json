@@ -1,0 +1,19 @@
+{
+	"$schema": "./node_modules/oxfmt/configuration_schema.json",
+	"tabWidth": 2,
+	"useTabs": true,
+	"singleQuote": true,
+	"printWidth": 120,
+	"astro": true,
+	"ignorePatterns": [
+		"build/",
+		"infer-out/",
+		"lib/",
+		"test-project/",
+		"web/.astro/",
+		".claude/",
+		"pnpm-lock.yaml",
+		"CHANGELOG.md",
+		"web/src/content/docs/reference/changelog.md"
+	]
+}
