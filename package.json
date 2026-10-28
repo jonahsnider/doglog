@@ -13,7 +13,7 @@
 	},
 	"devDependencies": {
 		"@astrojs/compiler-rs": "0.5.2",
-		"oxfmt": "0.74.0"
+		"oxfmt": "0.75.0"
 	},
 	"devEngines": {
 		"runtime": {
