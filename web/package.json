@@ -13,11 +13,11 @@
 	},
 	"dependencies": {
 		"@astrojs/check": "0.9.12",
-		"@astrojs/markdoc": "2.1.1",
+		"@astrojs/markdoc": "2.1.2",
 		"@astrojs/starlight": "0.42.7",
 		"@astrojs/starlight-markdoc": "0.7.0",
 		"@team581/starlight-theme": "^1.0.0",
-		"astro": "7.4.2",
+		"astro": "7.4.3",
 		"sharp": "^0.35.0",
 		"starlight-changelogs": "^0.7.0",
 		"typescript": "^6.0.0"
