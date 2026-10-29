@@ -1,3 +1,10 @@
 {
-	"extends": "astro/tsconfigs/strictest"
+	"extends": "astro/tsconfigs/strictest",
+	"contentMappers": [
+		{
+			"package": "@astrojs/ts-content-mapper",
+			"extensions": [".astro"]
+		}
+	],
+	"include": [".astro/types.d.ts", "**/*", "node_modules/starlight-changelogs/virtual.d.ts"]
 }

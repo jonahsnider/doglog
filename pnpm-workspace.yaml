@@ -10,6 +10,8 @@ allowBuilds:
   workerd: false
 packageExtensions:
   starlight-changelogs@^0.7.0:
+    dependencies:
+      '@types/mdast': 4.0.4
     peerDependencies:
       astro: '*'
 minimumReleaseAgeExclude:
