@@ -20,7 +20,7 @@
 		"astro": "7.4.3",
 		"sharp": "^0.35.0",
 		"starlight-changelogs": "^0.7.0",
-		"typescript": "7.1.0-beta"
+		"typescript": "7.1.0-dev.20261028.1"
 	},
 	"devDependencies": {
 		"@vite-pwa/assets-generator": "^2.0.0",
