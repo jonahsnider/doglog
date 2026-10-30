@@ -47,7 +47,7 @@ tasks.withType(JavaCompile).configureEach {
 	}
 }
 
-ext.wpilibVersion = "2027.0.0-alpha-7"
+ext.wpilibVersion = "2027.0.0-alpha-8"
 
 repositories {
 	// Use Maven Central for resolving dependencies.
