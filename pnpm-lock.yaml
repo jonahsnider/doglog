@@ -188,16 +188,16 @@ importers:
         version: 2.1.2(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
       '@astrojs/starlight':
         specifier: 0.42.8
-        version: 0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261029.1)
+        version: 0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261030.1)
       '@astrojs/starlight-markdoc':
         specifier: 0.7.0
-        version: 0.7.0(@astrojs/markdoc@2.1.2(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)))(@astrojs/starlight@0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261029.1))
+        version: 0.7.0(@astrojs/markdoc@2.1.2(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)))(@astrojs/starlight@0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261030.1))
       '@astrojs/ts-content-mapper':
         specifier: 0.2.0
         version: 0.2.0(@emnapi/runtime@1.11.3)
       '@team581/starlight-theme':
         specifier: ^1.0.0
-        version: 1.0.0(@astrojs/starlight@0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261029.1))(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
+        version: 1.0.0(@astrojs/starlight@0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261030.1))(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
       astro:
         specifier: 7.4.4
         version: 7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)
@@ -206,10 +206,10 @@ importers:
         version: 0.35.5(@types/node@24.13.3)
       starlight-changelogs:
         specifier: ^0.7.0
-        version: 0.7.1(@astrojs/starlight@0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261029.1))(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)
+        version: 0.7.1(@astrojs/starlight@0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261030.1))(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)
       typescript:
-        specifier: 7.1.0-dev.20261029.1
-        version: 7.1.0-dev.20261029.1
+        specifier: 7.1.0-dev.20261030.1
+        version: 7.1.0-dev.20261030.1
     devDependencies:
       '@vite-pwa/assets-generator':
         specifier: ^2.0.0
@@ -1962,44 +1962,44 @@ packages:
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
 
-  '@typescript/typescript-darwin-arm64@7.1.0-dev.20261029.1':
-    resolution: {integrity: sha512-NO1mUF+GRbgWjwgMCuHrLN/+swslg6cFI1GupexvrRYXPp7w53LjUDHoTxolAPGIiIZIVEsulp2pt6ILGj5QKw==}
+  '@typescript/typescript-darwin-arm64@7.1.0-dev.20261030.1':
+    resolution: {integrity: sha512-rTW2PpYEphzAsy9OHOe2eupDS6AM8tHdrEk0MxW9y6O+uLFOZ2lUB5vVZhtKvTnpw//bN1yjeg+WZ++TUGR3bg==}
     engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [darwin]
 
-  '@typescript/typescript-darwin-x64@7.1.0-dev.20261029.1':
-    resolution: {integrity: sha512-l2g8TokSz2YIDt6exRnypeUElMTDoiZRO6JV6Lvr8xGVA61HzvZ7V+AytDlLP0qOwnwCAZnRrrqLlfvMvP3OAA==}
+  '@typescript/typescript-darwin-x64@7.1.0-dev.20261030.1':
+    resolution: {integrity: sha512-6zrxK36LQW8hFQsjRXgqA6fbmN54NCTmNpdKEwVULLPm22x8mK99Vh7RbXhXpp4pwatHpSPysY1fvxcEsMNIgQ==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [darwin]
 
-  '@typescript/typescript-linux-arm64@7.1.0-dev.20261029.1':
-    resolution: {integrity: sha512-NQ46KTz76GnuLrjxHqSNuftD9T2u21PXthtL08bz4azV3WGSOATfzz5vl3LXnhWqy3V4Hp2UG1TogzF50vDskQ==}
+  '@typescript/typescript-linux-arm64@7.1.0-dev.20261030.1':
+    resolution: {integrity: sha512-id+Un0JOtIKn6RZ/deoyu4S9qR1w3f0omWSp5CapfyB7OXqB7dGLhFf3cvYDmpqnKp+BQD04oF6pyb6eEM0DDQ==}
     engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [linux]
 
-  '@typescript/typescript-linux-arm@7.1.0-dev.20261029.1':
-    resolution: {integrity: sha512-PQftPCKoX21iYXgQnovx9XWcRXU9zCqUWqoLEN120IM6vtQReUJb2LP5diNCrDgCO+YFwWAjHwaOznoM23YY/g==}
+  '@typescript/typescript-linux-arm@7.1.0-dev.20261030.1':
+    resolution: {integrity: sha512-Upd1yowmHih4aaEdCckNeSEAIoqRh65QZAUd4d+cEB0HD/mG4mUL8LJIbOKtbwto4mRDxs7O5CRdYfdqfdKZVw==}
     engines: {node: '>=16.20.0'}
     cpu: [arm]
     os: [linux]
 
-  '@typescript/typescript-linux-x64@7.1.0-dev.20261029.1':
-    resolution: {integrity: sha512-58SzN6oMOJwPEXqZRK+r08GVWceDUhyzZyiVDekvJfKU3ElTZfTsprq9h97dQbh9reMGkNfl2huKol9OEwwNUQ==}
+  '@typescript/typescript-linux-x64@7.1.0-dev.20261030.1':
+    resolution: {integrity: sha512-i9s3tj9tp9e7F6VHiuh9s0RAiqQl5fCieizVLeynxkmRh0FK0Kg8Pco6LRzFEUSzU3gCHx9q44n1bexkpQrI0A==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [linux]
 
-  '@typescript/typescript-win32-arm64@7.1.0-dev.20261029.1':
-    resolution: {integrity: sha512-y+hD887n/jcEAs9RlXforuVOfNWhCsFBgx8bMwy4ML83HbGbdqYQ+eG0/NF4IWZS95LVGrnBg8m8AXGY2TgEtA==}
+  '@typescript/typescript-win32-arm64@7.1.0-dev.20261030.1':
+    resolution: {integrity: sha512-K2vICZV6aztU0NJVgc0DAvmJMqtnrA3ej5bVmRXWnjVYVKJ5mVdTAGcJQHWlNhzMxZFWD8Fv1b4ZGA3GrLaXaA==}
     engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [win32]
 
-  '@typescript/typescript-win32-x64@7.1.0-dev.20261029.1':
-    resolution: {integrity: sha512-j9z9f3arfblTzd1R6XfSIw/riXg9s7TixlaiwmBu45TuA6SkogKm0cw6jqhDEKld7eXID0jUYQPEv3AzQregcg==}
+  '@typescript/typescript-win32-x64@7.1.0-dev.20261030.1':
+    resolution: {integrity: sha512-lOtLps7lORzpCJ5ynge0aA9O1XMdSep/Ga03qtcVzLVUwvkCpwbBkpC4oX71gTOFQ2Gqjqd6mQIfu6vGxBotwA==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [win32]
@@ -3573,8 +3573,8 @@ packages:
     resolution: {integrity: sha512-phPGCwqr2+Qo0fwniCE8e4pKnGu/yFb5nD5Y8bf0EEeiI5GklnACYA9GFy/DrAeRrKHXvHn+1SUsOWgJp6RO+g==}
     engines: {node: '>= 0.4'}
 
-  typescript@7.1.0-dev.20261029.1:
-    resolution: {integrity: sha512-DIaae5jGFQEJATorWEcHL4QjG2beOotMV9cq1pbbsHpwZqwtNliCXGh7db5Kjl6ZBqwmv5pQ71TEvwFaWVGkbw==}
+  typescript@7.1.0-dev.20261030.1:
+    resolution: {integrity: sha512-y5prFqSwq0qTd/oL+E/fKsGbigIn6CJ6sVTbg8HK70GTO7wo3BAhZdkrrtUgmNn3C93xUWwDp2nXqScbbQ5bhQ==}
     engines: {node: '>=16.20.0'}
     hasBin: true
 
@@ -4071,12 +4071,12 @@ snapshots:
       sitemap: 9.0.1
       zod: 4.6.7
 
-  '@astrojs/starlight-markdoc@0.7.0(@astrojs/markdoc@2.1.2(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)))(@astrojs/starlight@0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261029.1))':
+  '@astrojs/starlight-markdoc@0.7.0(@astrojs/markdoc@2.1.2(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)))(@astrojs/starlight@0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261030.1))':
     dependencies:
       '@astrojs/markdoc': 2.1.2(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
-      '@astrojs/starlight': 0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261029.1)
+      '@astrojs/starlight': 0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261030.1)
 
-  '@astrojs/starlight@0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261029.1)':
+  '@astrojs/starlight@0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261030.1)':
     dependencies:
       '@astrojs/markdown-satteri': 0.4.6
       '@astrojs/mdx': 8.0.1(@astrojs/markdown-satteri@0.4.6)(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
@@ -4093,7 +4093,7 @@ snapshots:
       hast-util-to-html: 9.0.5
       hast-util-to-string: 3.0.1
       hastscript: 9.0.1
-      i18next: 26.4.2(typescript@7.1.0-dev.20261029.1)
+      i18next: 26.4.2(typescript@7.1.0-dev.20261030.1)
       js-yaml: 4.3.2
       klona: 2.0.6
       magic-string: 1.4.3
@@ -5474,9 +5474,9 @@ snapshots:
 
   '@speed-highlight/core@1.2.24': {}
 
-  '@team581/starlight-theme@1.0.0(@astrojs/starlight@0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261029.1))(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))':
+  '@team581/starlight-theme@1.0.0(@astrojs/starlight@0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261030.1))(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))':
     dependencies:
-      '@astrojs/starlight': 0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261029.1)
+      '@astrojs/starlight': 0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261030.1)
       '@fontsource-variable/source-sans-3': 5.3.1
       astro: 7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)
 
@@ -5545,25 +5545,25 @@ snapshots:
 
   '@types/unist@3.0.3': {}
 
-  '@typescript/typescript-darwin-arm64@7.1.0-dev.20261029.1':
+  '@typescript/typescript-darwin-arm64@7.1.0-dev.20261030.1':
     optional: true
 
-  '@typescript/typescript-darwin-x64@7.1.0-dev.20261029.1':
+  '@typescript/typescript-darwin-x64@7.1.0-dev.20261030.1':
     optional: true
 
-  '@typescript/typescript-linux-arm64@7.1.0-dev.20261029.1':
+  '@typescript/typescript-linux-arm64@7.1.0-dev.20261030.1':
     optional: true
 
-  '@typescript/typescript-linux-arm@7.1.0-dev.20261029.1':
+  '@typescript/typescript-linux-arm@7.1.0-dev.20261030.1':
     optional: true
 
-  '@typescript/typescript-linux-x64@7.1.0-dev.20261029.1':
+  '@typescript/typescript-linux-x64@7.1.0-dev.20261030.1':
     optional: true
 
-  '@typescript/typescript-win32-arm64@7.1.0-dev.20261029.1':
+  '@typescript/typescript-win32-arm64@7.1.0-dev.20261030.1':
     optional: true
 
-  '@typescript/typescript-win32-x64@7.1.0-dev.20261029.1':
+  '@typescript/typescript-win32-x64@7.1.0-dev.20261030.1':
     optional: true
 
   '@ungap/structured-clone@1.4.0': {}
@@ -6438,9 +6438,9 @@ snapshots:
 
   http-cache-semantics@4.3.0: {}
 
-  i18next@26.4.2(typescript@7.1.0-dev.20261029.1):
+  i18next@26.4.2(typescript@7.1.0-dev.20261030.1):
     optionalDependencies:
-      typescript: 7.1.0-dev.20261029.1
+      typescript: 7.1.0-dev.20261030.1
 
   ico-endec@0.1.6: {}
 
@@ -7423,10 +7423,10 @@ snapshots:
 
   space-separated-tokens@2.0.2: {}
 
-  starlight-changelogs@0.7.1(@astrojs/starlight@0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261029.1))(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2):
+  starlight-changelogs@0.7.1(@astrojs/starlight@0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261030.1))(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2):
     dependencies:
       '@ascorbic/loader-utils': 1.0.2(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
-      '@astrojs/starlight': 0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261029.1)
+      '@astrojs/starlight': 0.42.8(astro@7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261030.1)
       '@types/mdast': 4.0.4
       astro: 7.4.4(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)
       github-slugger: 2.0.0
@@ -7585,15 +7585,15 @@ snapshots:
       possible-typed-array-names: 1.1.0
       reflect.getprototypeof: 1.0.10
 
-  typescript@7.1.0-dev.20261029.1:
+  typescript@7.1.0-dev.20261030.1:
     optionalDependencies:
-      '@typescript/typescript-darwin-arm64': 7.1.0-dev.20261029.1
-      '@typescript/typescript-darwin-x64': 7.1.0-dev.20261029.1
-      '@typescript/typescript-linux-arm': 7.1.0-dev.20261029.1
-      '@typescript/typescript-linux-arm64': 7.1.0-dev.20261029.1
-      '@typescript/typescript-linux-x64': 7.1.0-dev.20261029.1
-      '@typescript/typescript-win32-arm64': 7.1.0-dev.20261029.1
-      '@typescript/typescript-win32-x64': 7.1.0-dev.20261029.1
+      '@typescript/typescript-darwin-arm64': 7.1.0-dev.20261030.1
+      '@typescript/typescript-darwin-x64': 7.1.0-dev.20261030.1
+      '@typescript/typescript-linux-arm': 7.1.0-dev.20261030.1
+      '@typescript/typescript-linux-arm64': 7.1.0-dev.20261030.1
+      '@typescript/typescript-linux-x64': 7.1.0-dev.20261030.1
+      '@typescript/typescript-win32-arm64': 7.1.0-dev.20261030.1
+      '@typescript/typescript-win32-x64': 7.1.0-dev.20261030.1
 
   ufo@1.6.4: {}
 
