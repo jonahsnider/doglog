@@ -13,7 +13,7 @@
 	},
 	"dependencies": {
 		"@astrojs/markdoc": "2.1.2",
-		"@astrojs/starlight": "0.42.7",
+		"@astrojs/starlight": "0.42.8",
 		"@astrojs/starlight-markdoc": "0.7.0",
 		"@astrojs/ts-content-mapper": "0.2.0",
 		"@team581/starlight-theme": "^1.0.0",
