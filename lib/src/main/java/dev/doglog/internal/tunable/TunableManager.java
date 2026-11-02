@@ -112,12 +112,11 @@ public final class TunableManager {
     }
     if (onChange != null) {
       config =
-          config.withOnTune(
-              () -> {
-                if (isEnabled()) {
-                  onChange.accept(state.get());
-                }
-              });
+          config.withOnTune(() -> {
+            if (isEnabled()) {
+              onChange.accept(state.get());
+            }
+          });
     }
     return config;
   }

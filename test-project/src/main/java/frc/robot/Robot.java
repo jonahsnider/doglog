@@ -30,7 +30,7 @@ public class Robot extends TimedRobot {
       DogLog.tunable(
           "my tunable number",
           0.0,
-          (value) -> {
+          value -> {
             DogLog.timestamp("Tunable/OnChange/Timestamp");
             DogLog.log("Tunable/OnChange/Value", value);
           });
