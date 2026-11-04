@@ -1,7 +1,7 @@
 import markdoc from '@astrojs/markdoc';
 import starlight from '@astrojs/starlight';
 import team581Theme from '@team581/starlight-theme';
-import AstroPWA from '@vite-pwa/astro';
+import { AstroPWAIntegration } from '@vite-pwa/astro';
 import { defineConfig } from 'astro/config';
 import starlightChangelogs from 'starlight-changelogs';
 
@@ -54,15 +54,15 @@ export default defineConfig({
 			},
 		}),
 		markdoc(),
-		AstroPWA({
+		AstroPWAIntegration({
 			base: '/',
 			scope: '/',
 			registerType: 'autoUpdate',
-			workbox: {
+			generateSW: {
 				cleanupOutdatedCaches: true,
 				cacheId: 'doglog-docs',
 				globPatterns: ['**/*'],
-				globIgnores: ['**/_headers'],
+				globIgnores: ['**/_headers', '**/manifest.webmanifest'],
 			},
 			manifest: {
 				name: 'DogLog Docs',
@@ -77,7 +77,7 @@ export default defineConfig({
 				orientation: 'any',
 			},
 			pwaAssets: {
-				image: './public/logo.svg',
+				config: true,
 			},
 			experimental: {
 				directoryAndTrailingSlashHandler: true,
