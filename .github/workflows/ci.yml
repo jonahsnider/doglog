@@ -21,7 +21,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
       - name: Assemble project
-        run: ./gradlew assemble
+        run: ./gradlew assemble :lib:plainJavadocJar :lib:generatePomFileForMavenPublication :lib:generateMetadataFileForMavenPublication
   style:
     name: Check formatting
 
@@ -150,7 +150,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
       - name: Build
-        run: ./gradlew build
+        run: ./gradlew javadoc
       - name: Setup pnpm
         uses: pnpm/setup@v3
         with:
@@ -180,8 +180,21 @@ jobs:
       - name: Build docs
         run: pnpm build
         working-directory: web
-      - name: Publish docs to Cloudflare Workers
+      - name: Check vendordep is downloadable
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        id: central
+        run: |
+          version="$(cat version.txt)"
+          http_status="$(curl --head --silent --show-error --connect-timeout 10 --max-time 60 \
+            --output /dev/null --write-out '%{http_code}' \
+            "https://repo.maven.apache.org/maven2/dev/doglog/doglog/$version/doglog-$version.jar")"
+          case "$http_status" in
+            200) echo 'published=true' >> "$GITHUB_OUTPUT" ;;
+            404) echo '::notice::Docs deployment deferred until the vendordep is available on Maven Central.' ;;
+            *) echo "Unexpected Maven Central response: $http_status" >&2; exit 1 ;;
+          esac
+      - name: Publish docs to Cloudflare Workers
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.central.outputs.published == 'true'
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}

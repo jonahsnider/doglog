@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
   pull-requests: write
 
 name: release-please
@@ -13,27 +14,105 @@ jobs:
   release-please:
     timeout-minutes: 30
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      version: ${{ steps.release.outputs.version }}
     steps:
       - name: Run release-please
         uses: googleapis/release-please-action@v5
         id: release
         with:
-          # this assumes that you have created a personal access token
-          # (PAT) and configured it as a GitHub action secret named
-          # `MY_RELEASE_PLEASE_TOKEN` (this secret name is not important).
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Checkout Git repository
-        if: steps.release.outputs.release_created
+
+  publish:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      RELEASE_VERSION: ${{ needs.release-please.outputs.version }}
+    concurrency:
+      group: doglog-publish
+      cancel-in-progress: false
+    steps:
+      - name: Checkout release tag
         uses: actions/checkout@v7
+        with:
+          ref: refs/tags/${{ needs.release-please.outputs.tag_name }}
+      - name: Setup Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 25
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+      - name: Build release
+        run: ./gradlew build :lib:plainJavadocJar
+      - name: Check Maven Central
+        id: central
+        run: |
+          http_status="$(curl --head --silent --show-error --connect-timeout 10 --max-time 60 \
+            --output /dev/null --write-out '%{http_code}' \
+            "https://repo.maven.apache.org/maven2/dev/doglog/doglog/$RELEASE_VERSION/doglog-$RELEASE_VERSION.jar")"
+          case "$http_status" in
+            200) echo 'published=true' >> "$GITHUB_OUTPUT" ;;
+            404) echo 'published=false' >> "$GITHUB_OUTPUT" ;;
+            *) echo "Unexpected Maven Central response: $http_status" >&2; exit 1 ;;
+          esac
+      - name: Publish to Maven Central
+        if: steps.central.outputs.published != 'true'
+        run: ./gradlew :lib:publishAndReleaseToMavenCentral
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.MAVEN_SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.MAVEN_SIGNING_PASSWORD }}
       - name: Create copy of vendordep.json
-        if: steps.release.outputs.release_created
-        run: cp vendordep.json DogLog-${{ steps.release.outputs.version }}.json
+        run: cp vendordep.json "DogLog-$RELEASE_VERSION.json"
       - name: Create Vendor JSON Repo PR
-        if: steps.release.outputs.release_created
         uses: wpilibsuite/vendor-json-repo/.github/actions/add_vendordep@main
         with:
           repo: jonahsnider/vendor-json-repo
           token: ${{ secrets.DOGLOG_VENDORDEP_ACCESS_TOKEN }}
-          vendordep_file: ${{ github.workspace }}/DogLog-${{ steps.release.outputs.version }}.json
-          pr_title: 'Add DogLog v${{ steps.release.outputs.version }}'
-          pr_branch: 'doglog-v${{ steps.release.outputs.version }}'
+          vendordep_file: ${{ github.workspace }}/DogLog-${{ needs.release-please.outputs.version }}.json
+          pr_title: 'Add DogLog v${{ needs.release-please.outputs.version }}'
+          pr_branch: 'doglog-v${{ needs.release-please.outputs.version }}'
+
+  docs:
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout current docs
+        uses: actions/checkout@v7
+        with:
+          ref: main
+      - name: Setup pnpm
+        uses: pnpm/setup@v3
+        with:
+          cache: true
+      - name: Build docs
+        run: pnpm build
+        working-directory: web
+      - name: Check vendordep is downloadable
+        id: central
+        run: |
+          version="$(cat version.txt)"
+          http_status="$(curl --head --silent --show-error --connect-timeout 10 --max-time 60 \
+            --output /dev/null --write-out '%{http_code}' \
+            "https://repo.maven.apache.org/maven2/dev/doglog/doglog/$version/doglog-$version.jar")"
+          case "$http_status" in
+            200) echo 'published=true' >> "$GITHUB_OUTPUT" ;;
+            404) echo '::notice::Docs deployment deferred until the vendordep is available on Maven Central.' ;;
+            *) echo "Unexpected Maven Central response: $http_status" >&2; exit 1 ;;
+          esac
+      - name: Publish docs to Cloudflare Workers
+        if: steps.central.outputs.published == 'true'
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: deploy
+          workingDirectory: web
