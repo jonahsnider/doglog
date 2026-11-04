@@ -23,10 +23,13 @@
 		"typescript": "7.1.0-dev.20261102.1"
 	},
 	"devDependencies": {
+		"@unplugin-pwa/core": "^0.0.3",
 		"@vite-pwa/assets-generator": "^2.0.0",
 		"@vite-pwa/astro": "^2.0.0",
-		"vite-plugin-pwa": "^2.0.0",
-		"workbox-window": "^7.4.1",
+		"@vite-pwa/workbox-swkit": "^8.0.13",
+		"@vite-pwa/workbox-window": "^8.0.13",
+		"magicast": "^0.5.5",
+		"rolldown": "^1.2.14",
 		"wrangler": "^4.45.0"
 	},
 	"engines": {
