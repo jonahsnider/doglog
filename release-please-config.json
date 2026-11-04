@@ -35,7 +35,8 @@
 			],
 			"include-v-in-tag": false,
 			"prerelease": false,
-			"release-type": "simple"
+			"release-type": "simple",
+			"version-file": "version.txt"
 		}
 	}
 }
