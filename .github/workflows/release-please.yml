@@ -20,7 +20,7 @@ jobs:
       version: ${{ steps.release.outputs.version }}
     steps:
       - name: Run release-please
-        uses: googleapis/release-please-action@v5
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5
         id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -39,16 +39,16 @@ jobs:
       cancel-in-progress: false
     steps:
       - name: Checkout release tag
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: refs/tags/${{ needs.release-please.outputs.tag_name }}
       - name: Setup Java
-        uses: actions/setup-java@v6
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
         with:
           distribution: temurin
           java-version: 25
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6
       - name: Build release
         run: ./gradlew build :lib:plainJavadocJar
       - name: Check Maven Central
@@ -73,7 +73,7 @@ jobs:
       - name: Create copy of vendordep.json
         run: cp vendordep.json "DogLog-$RELEASE_VERSION.json"
       - name: Create Vendor JSON Repo PR
-        uses: wpilibsuite/vendor-json-repo/.github/actions/add_vendordep@main
+        uses: wpilibsuite/vendor-json-repo/.github/actions/add_vendordep@697281bc2e9825c6e15ab36efe13467d70ee1ade # main
         with:
           repo: jonahsnider/vendor-json-repo
           token: ${{ secrets.DOGLOG_VENDORDEP_ACCESS_TOKEN }}
@@ -87,11 +87,11 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout current docs
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: main
       - name: Setup pnpm
-        uses: pnpm/setup@v3
+        uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3
         with:
           cache: true
       - name: Build docs
@@ -111,7 +111,7 @@ jobs:
           esac
       - name: Publish docs to Cloudflare Workers
         if: steps.central.outputs.published == 'true'
-        uses: cloudflare/wrangler-action@v4
+        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           command: deploy
