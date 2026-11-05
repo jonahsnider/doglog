@@ -12,16 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Git repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup Java
-        uses: actions/setup-java@v6
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
         with:
           distribution: 'temurin'
           java-version: 25
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6
 
       - name: Fix Error Prone issues
         run: ./gradlew assemble
@@ -36,7 +36,7 @@ jobs:
         working-directory: test-project
 
       - name: Setup pnpm
-        uses: pnpm/setup@v3
+        uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3
         with:
           cache: true
 
@@ -44,6 +44,6 @@ jobs:
         run: pnpm format:write
 
       - name: Run autofix.ci
-        uses: autofix-ci/action@v1
+        uses: autofix-ci/action@c5b2d67aa2274e7b5a18224e8171550871fc7e4a # v1
         with:
           commit-message: 'style: run autofix.ci'

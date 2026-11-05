@@ -12,14 +12,14 @@ jobs:
 
     steps:
       - name: Checkout Git repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Setup Java
-        uses: actions/setup-java@v6
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
         with:
           distribution: 'temurin'
           java-version: 25
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6
       - name: Assemble project
         run: ./gradlew assemble :lib:plainJavadocJar :lib:generatePomFileForMavenPublication :lib:generateMetadataFileForMavenPublication
   style:
@@ -33,14 +33,14 @@ jobs:
 
     steps:
       - name: Checkout Git repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Setup Java
-        uses: actions/setup-java@v6
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
         with:
           distribution: 'temurin'
           java-version: 25
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6
       - name: Check formatting
         run: ./gradlew spotlessCheck
   infer:
@@ -57,17 +57,17 @@ jobs:
 
     steps:
       - name: Checkout Git repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Setup Java
-        uses: actions/setup-java@v6
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
         with:
           distribution: 'temurin'
           java-version: 25
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6
       - name: Cache Infer
         id: cache-infer
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: /tmp/infer
           key: infer-linux-x86_64-${{ env.INFER_VERSION }}
@@ -93,14 +93,14 @@ jobs:
 
     steps:
       - name: Checkout Git repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Setup Java
-        uses: actions/setup-java@v6
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
         with:
           distribution: 'temurin'
           java-version: 25
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6
       - name: Assemble DogLog
         run: ./gradlew assemble
       - name: Assemble test project
@@ -117,14 +117,14 @@ jobs:
 
     steps:
       - name: Checkout Git repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Setup Java
-        uses: actions/setup-java@v6
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
         with:
           distribution: 'temurin'
           java-version: 25
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6
       - name: Check formatting
         run: ./gradlew spotlessCheck
         working-directory: test-project
@@ -141,22 +141,22 @@ jobs:
 
     steps:
       - name: Checkout Git repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Setup Java
-        uses: actions/setup-java@v6
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
         with:
           distribution: 'temurin'
           java-version: 25
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6
       - name: Build
         run: ./gradlew javadoc
       - name: Setup pnpm
-        uses: pnpm/setup@v3
+        uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3
         with:
           cache: true
       - name: Publish Javadoc to Cloudflare Workers
-        uses: cloudflare/wrangler-action@v4
+        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           command: deploy
@@ -170,9 +170,9 @@ jobs:
 
     steps:
       - name: Checkout Git repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Setup pnpm
-        uses: pnpm/setup@v3
+        uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3
         with:
           cache: true
       - name: Check formatting with Oxfmt
@@ -195,7 +195,7 @@ jobs:
           esac
       - name: Publish docs to Cloudflare Workers
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.central.outputs.published == 'true'
-        uses: cloudflare/wrangler-action@v4
+        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           command: deploy
