@@ -73,7 +73,7 @@ jobs:
       - name: Create copy of vendordep.json
         run: cp vendordep.json "DogLog-$RELEASE_VERSION.json"
       - name: Create Vendor JSON Repo PR
-        uses: wpilibsuite/vendor-json-repo/.github/actions/add_vendordep@697281bc2e9825c6e15ab36efe13467d70ee1ade # main
+        uses: wpilibsuite/vendor-json-repo/.github/actions/add_vendordep@f3c94a13ef006b9af78ef0a654d9d198909a51b7 # main
         with:
           repo: jonahsnider/vendor-json-repo
           token: ${{ secrets.DOGLOG_VENDORDEP_ACCESS_TOKEN }}
