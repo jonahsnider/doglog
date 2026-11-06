@@ -12,12 +12,12 @@
 		"start": "astro dev"
 	},
 	"dependencies": {
-		"@astrojs/markdoc": "2.1.2",
+		"@astrojs/markdoc": "2.1.3",
 		"@astrojs/starlight": "0.42.9",
 		"@astrojs/starlight-markdoc": "0.7.0",
 		"@astrojs/ts-content-mapper": "0.2.0",
 		"@team581/starlight-theme": "^1.0.0",
-		"astro": "7.4.6",
+		"astro": "7.4.7",
 		"sharp": "^0.35.0",
 		"starlight-changelogs": "^0.7.0",
 		"typescript": "7.1.0-dev.20261105.1"
