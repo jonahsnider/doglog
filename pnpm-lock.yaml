@@ -225,7 +225,7 @@ importers:
         version: 8.0.14
       '@vite-pwa/workbox-window':
         specifier: ^8.0.13
-        version: 8.0.13
+        version: 8.0.14
       magicast:
         specifier: ^0.5.5
         version: 0.5.5
@@ -1462,6 +1462,9 @@ packages:
 
   '@vite-pwa/workbox-window@8.0.13':
     resolution: {integrity: sha512-jb74txMXdS/laitdtIpsj/p+ersyTkHKg2dRpOv2HCB5fFoy96QKZnKQcI64Oh33Sr/kjyQNOgQ1pY/XZvD3NQ==}
+
+  '@vite-pwa/workbox-window@8.0.14':
+    resolution: {integrity: sha512-KhQ/+B70udMwluP8AhZDyWb59TfJmYIqoDVeCBeTuU496yYK4nfIvysxIp7BlDkZf8VUO7SWqYlYptlrWmPU4Q==}
 
   acorn@8.18.0:
     resolution: {integrity: sha512-lGq+9yr1/GuAWaVYIHRjvvySG5/4VfKIvC8EWxStPdcDh/Ka7FG3twP6v4d5BkravUilhIAsG4Qj83t02LWUPQ==}
@@ -3482,7 +3485,7 @@ snapshots:
       '@unplugin-pwa/inspector': 0.0.3
       '@vite-pwa/workbox-build': 8.0.13(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261106.1)(vite@8.3.5(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
       '@vite-pwa/workbox-swkit': 8.0.14
-      '@vite-pwa/workbox-window': 8.0.13
+      '@vite-pwa/workbox-window': 8.0.14
     optionalDependencies:
       '@vite-pwa/assets-generator': 2.0.0(@types/node@24.13.3)
       magicast: 0.5.5
@@ -3511,7 +3514,7 @@ snapshots:
       '@unplugin-pwa/vite': 0.0.3(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261106.1)(vite@8.3.5(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
       '@vite-pwa/workbox-build': 8.0.13(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261106.1)(vite@8.3.5(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
       '@vite-pwa/workbox-swkit': 8.0.14
-      '@vite-pwa/workbox-window': 8.0.13
+      '@vite-pwa/workbox-window': 8.0.14
       astro: 7.4.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)
     optionalDependencies:
       '@vite-pwa/assets-generator': 2.0.0(@types/node@24.13.3)
@@ -3550,6 +3553,10 @@ snapshots:
       idb: 8.0.4
 
   '@vite-pwa/workbox-window@8.0.13':
+    dependencies:
+      '@types/trusted-types': 2.0.7
+
+  '@vite-pwa/workbox-window@8.0.14':
     dependencies:
       '@types/trusted-types': 2.0.7
 
