@@ -23,7 +23,7 @@
 		"typescript": "7.1.0-dev.20261109.1"
 	},
 	"devDependencies": {
-		"@unplugin-pwa/core": "^0.0.4",
+		"@unplugin-pwa/core": "^0.0.5",
 		"@vite-pwa/assets-generator": "^2.0.0",
 		"@vite-pwa/astro": "^2.0.0",
 		"@vite-pwa/workbox-swkit": "^8.0.13",
