@@ -12,7 +12,7 @@
 		"format:write": "oxfmt"
 	},
 	"devDependencies": {
-		"@astrojs/compiler-rs": "0.5.2",
+		"@astrojs/compiler-rs": "0.5.3",
 		"oxfmt": "0.78.0"
 	},
 	"devEngines": {
