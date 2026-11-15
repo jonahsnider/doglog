@@ -18,6 +18,10 @@ allowBuilds:
   sharp: false
   workerd: false
 packageExtensions:
+  # Its types import from `react`, which only resolves to types if @types/react is linked beside it
+  '@dnd-kit/react':
+    peerDependencies:
+      '@types/react': '*'
   starlight-changelogs@^0.7.0:
     dependencies:
       '@types/mdast': 4.0.4
