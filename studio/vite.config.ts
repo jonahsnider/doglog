@@ -72,6 +72,7 @@ export default defineConfig({
 				short_name: 'DogLog Studio',
 				description: 'Review FRC robot logs and debug robots live',
 				display: 'standalone',
+				theme_color: '#591616',
 				start_url: '/',
 			},
 		}),

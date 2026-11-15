@@ -5,6 +5,13 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>DogLog Studio</title>
+		<script>
+			// Follow the system color scheme, runs before render to avoid a flash of the wrong theme
+			const darkQuery = matchMedia('(prefers-color-scheme: dark)');
+			const applyColorScheme = () => document.documentElement.classList.toggle('dark', darkQuery.matches);
+			applyColorScheme();
+			darkQuery.addEventListener('change', applyColorScheme);
+		</script>
 	</head>
 	<body>
 		<div id="root"></div>
