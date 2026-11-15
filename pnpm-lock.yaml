@@ -197,16 +197,16 @@ importers:
         version: 2.1.5(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
       '@astrojs/starlight':
         specifier: 0.43.1
-        version: 0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261113.1)
+        version: 0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261114.1)
       '@astrojs/starlight-markdoc':
         specifier: 0.7.0
-        version: 0.7.0(@astrojs/markdoc@2.1.5(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)))(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261113.1))
+        version: 0.7.0(@astrojs/markdoc@2.1.5(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)))(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261114.1))
       '@astrojs/ts-content-mapper':
         specifier: 0.2.0
         version: 0.2.0(@emnapi/runtime@1.11.3)
       '@team581/starlight-theme':
         specifier: ^1.0.0
-        version: 1.0.0(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261113.1))(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
+        version: 1.0.0(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261114.1))(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
       astro:
         specifier: 7.4.12
         version: 7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)
@@ -215,20 +215,20 @@ importers:
         version: 0.35.5(@types/node@24.13.3)
       starlight-changelogs:
         specifier: ^0.7.0
-        version: 0.7.1(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261113.1))(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)
+        version: 0.7.1(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261114.1))(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)
       typescript:
-        specifier: 7.1.0-dev.20261113.1
-        version: 7.1.0-dev.20261113.1
+        specifier: 7.1.0-dev.20261114.1
+        version: 7.1.0-dev.20261114.1
     devDependencies:
       '@unplugin-pwa/core':
         specifier: ^0.0.6
-        version: 0.0.6(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261113.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
+        version: 0.0.6(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261114.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
       '@vite-pwa/assets-generator':
         specifier: ^2.0.0
         version: 2.0.0(@types/node@24.13.3)
       '@vite-pwa/astro':
         specifier: ^2.0.0
-        version: 2.0.2(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261113.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
+        version: 2.0.2(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261114.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
       '@vite-pwa/workbox-swkit':
         specifier: ^8.0.13
         version: 8.0.15
@@ -1436,44 +1436,44 @@ packages:
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
 
-  '@typescript/typescript-darwin-arm64@7.1.0-dev.20261113.1':
-    resolution: {integrity: sha512-Juc8nPM40vr3OIdjhLRtA8Mx3vlcjtrdcvI3u/Z3OsE38o6oDIHZJalYnaRw5muYCV9Fqr1S3CmYxJyo33q8wg==}
+  '@typescript/typescript-darwin-arm64@7.1.0-dev.20261114.1':
+    resolution: {integrity: sha512-toj/9PfxNSHtH0v6RCYVNea8zRrBpI5opyPo68gHaJJ7K+korbJ1TEbzRfeFCeBZcT/xcsMutO7HRbiv52OTig==}
     engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [darwin]
 
-  '@typescript/typescript-darwin-x64@7.1.0-dev.20261113.1':
-    resolution: {integrity: sha512-P/axauXGqD6M8WsUbtRNsoEugvO52NVkz1qh98MNcOphvplpAtJaKK9aZAcGKi+yu02lVxGtdDnBQvKbseaOEA==}
+  '@typescript/typescript-darwin-x64@7.1.0-dev.20261114.1':
+    resolution: {integrity: sha512-cvOytfAJEiHxUgAjLd1A++zdsliEOC5l/WyJq3dpx95u8XIuS8/ku+R72/6LyTwWprHt8hvmbcuMP1pKy31taw==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [darwin]
 
-  '@typescript/typescript-linux-arm64@7.1.0-dev.20261113.1':
-    resolution: {integrity: sha512-LZLAfBvAyOBJlV1+j4Rl/IbBuY880l04o/3OySt5eqnqX8z5B9koK5h6IuNaqcHPzlXjPIZ4+7/kGZLPuO7XBg==}
+  '@typescript/typescript-linux-arm64@7.1.0-dev.20261114.1':
+    resolution: {integrity: sha512-Bs6XVmJ9UwBnfzjFRN0DSrJQRPaHRjHYxxTtFzy7GMZoQuEOGJ0lPLDax4EUvrzd+N4yUyXU9jsGtQvrxACwSA==}
     engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [linux]
 
-  '@typescript/typescript-linux-arm@7.1.0-dev.20261113.1':
-    resolution: {integrity: sha512-iy+BlIsWuFkvJH5z5u2RWM3HkzddZ/jI9djqxfn3d9rIF8+u5MTSV1I1zaZE9eq8zcGih6pbsTYRBql3T65ENA==}
+  '@typescript/typescript-linux-arm@7.1.0-dev.20261114.1':
+    resolution: {integrity: sha512-hhDwgprafNFBWMYnc25tdieuNlCIYlPiSaHk07ZZ/GvFVcRNKNyYXvHym29VLsUPrrSoTg/y0j563uhNgCdq9w==}
     engines: {node: '>=16.20.0'}
     cpu: [arm]
     os: [linux]
 
-  '@typescript/typescript-linux-x64@7.1.0-dev.20261113.1':
-    resolution: {integrity: sha512-hFLP4kZ/WVMb7CIoKLxE+2RE0/d0zqW/qTJb4rDcx02qBEMgj8gdnj/BdPQB1ztBKVXP4FPav6snLQVdnhOycQ==}
+  '@typescript/typescript-linux-x64@7.1.0-dev.20261114.1':
+    resolution: {integrity: sha512-wc7hgAYqq+SHmXl0JZmDD4nvWb1ZEzryDiHp645K+huEllrfE4xlReUdkSqRKuEUheUgTAFsVPYCWy7XshxHMg==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [linux]
 
-  '@typescript/typescript-win32-arm64@7.1.0-dev.20261113.1':
-    resolution: {integrity: sha512-REIsipAlAJQFzjO/9uAou1MWzqKoWDTv73Y6HolexgUBThBVNX9qzWj/LLznXXQT/4JgytoMo1cTkAkP/XKsnA==}
+  '@typescript/typescript-win32-arm64@7.1.0-dev.20261114.1':
+    resolution: {integrity: sha512-YOeyEN/70OrE6hZDshnwZN45SS8Q9mPAE1oGqFgMonirhDllp2ls1ChjgUJ5Qz8o0wc7NWNb1JnBISRDfmH5oA==}
     engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [win32]
 
-  '@typescript/typescript-win32-x64@7.1.0-dev.20261113.1':
-    resolution: {integrity: sha512-BWxxpsBRywtxtu5jZFp2GFV4xXALqdHp26Sq8shLcGk6E83t+88p7ALPU+ObTMRZy8iAtrvEisgBo1KvaQfvGg==}
+  '@typescript/typescript-win32-x64@7.1.0-dev.20261114.1':
+    resolution: {integrity: sha512-rkun9gVxcXqPA+nbqSUulzUarH8VeKvpLUR8UZkRkB2B2RjmjKQOi8ubPgSp4BH0PnTkrKzGza1hjogLddH2DA==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [win32]
@@ -2477,8 +2477,8 @@ packages:
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
-  typescript@7.1.0-dev.20261113.1:
-    resolution: {integrity: sha512-WmEwH7QQ2xARFV1Pw4uOOv0YFDeOOOysi84UUnR+E+YFDBsFkLZDmc1aiGWJFiAV8T0//SCzJWPowWTxf0K1hg==}
+  typescript@7.1.0-dev.20261114.1:
+    resolution: {integrity: sha512-XMiO2wrYdIGBTc89tkWi2CMGU/NFiX/ADGc4m9HbYSoxkVJ86G7R5ISC1mifnKoT/FA9rJQkIx3KaTD6Nz9yQg==}
     engines: {node: '>=16.20.0'}
     hasBin: true
 
@@ -2855,12 +2855,12 @@ snapshots:
       sitemap: 9.0.1
       zod: 4.6.7
 
-  '@astrojs/starlight-markdoc@0.7.0(@astrojs/markdoc@2.1.5(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)))(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261113.1))':
+  '@astrojs/starlight-markdoc@0.7.0(@astrojs/markdoc@2.1.5(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)))(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261114.1))':
     dependencies:
       '@astrojs/markdoc': 2.1.5(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
-      '@astrojs/starlight': 0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261113.1)
+      '@astrojs/starlight': 0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261114.1)
 
-  '@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261113.1)':
+  '@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261114.1)':
     dependencies:
       '@astrojs/markdown-satteri': 0.4.10
       '@astrojs/mdx': 8.1.2(@astrojs/markdown-satteri@0.4.10)(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
@@ -2876,7 +2876,7 @@ snapshots:
       hast-util-to-html: 9.0.6
       hast-util-to-string: 3.0.1
       hastscript: 9.0.1
-      i18next: 27.1.1(typescript@7.1.0-dev.20261113.1)
+      i18next: 27.1.1(typescript@7.1.0-dev.20261114.1)
       klona: 2.0.6
       magic-string: 1.4.5
       mdast-util-directive: 3.1.0(supports-color@10.2.2)
@@ -3577,9 +3577,9 @@ snapshots:
 
   '@speed-highlight/core@1.2.24': {}
 
-  '@team581/starlight-theme@1.0.0(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261113.1))(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))':
+  '@team581/starlight-theme@1.0.0(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261114.1))(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))':
     dependencies:
-      '@astrojs/starlight': 0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261113.1)
+      '@astrojs/starlight': 0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261114.1)
       '@fontsource-variable/source-sans-3': 5.3.1
       astro: 7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)
 
@@ -3625,32 +3625,32 @@ snapshots:
 
   '@types/unist@3.0.3': {}
 
-  '@typescript/typescript-darwin-arm64@7.1.0-dev.20261113.1':
+  '@typescript/typescript-darwin-arm64@7.1.0-dev.20261114.1':
     optional: true
 
-  '@typescript/typescript-darwin-x64@7.1.0-dev.20261113.1':
+  '@typescript/typescript-darwin-x64@7.1.0-dev.20261114.1':
     optional: true
 
-  '@typescript/typescript-linux-arm64@7.1.0-dev.20261113.1':
+  '@typescript/typescript-linux-arm64@7.1.0-dev.20261114.1':
     optional: true
 
-  '@typescript/typescript-linux-arm@7.1.0-dev.20261113.1':
+  '@typescript/typescript-linux-arm@7.1.0-dev.20261114.1':
     optional: true
 
-  '@typescript/typescript-linux-x64@7.1.0-dev.20261113.1':
+  '@typescript/typescript-linux-x64@7.1.0-dev.20261114.1':
     optional: true
 
-  '@typescript/typescript-win32-arm64@7.1.0-dev.20261113.1':
+  '@typescript/typescript-win32-arm64@7.1.0-dev.20261114.1':
     optional: true
 
-  '@typescript/typescript-win32-x64@7.1.0-dev.20261113.1':
+  '@typescript/typescript-win32-x64@7.1.0-dev.20261114.1':
     optional: true
 
   '@ungap/structured-clone@1.4.0': {}
 
-  '@unplugin-pwa/core@0.0.5(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261113.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))':
+  '@unplugin-pwa/core@0.0.5(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261114.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))':
     dependencies:
-      '@vite-pwa/workbox-build': 8.0.15(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261113.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
+      '@vite-pwa/workbox-build': 8.0.15(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261114.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
       '@vite-pwa/workbox-window': 8.0.15
       hookable: 6.1.2
     optionalDependencies:
@@ -3663,9 +3663,9 @@ snapshots:
       - typescript
       - webpack
 
-  '@unplugin-pwa/core@0.0.6(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261113.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))':
+  '@unplugin-pwa/core@0.0.6(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261114.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))':
     dependencies:
-      '@vite-pwa/workbox-build': 8.0.15(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261113.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
+      '@vite-pwa/workbox-build': 8.0.15(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261114.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
       '@vite-pwa/workbox-window': 8.0.15
       hookable: 6.1.2
     optionalDependencies:
@@ -3680,12 +3680,12 @@ snapshots:
 
   '@unplugin-pwa/inspector@0.0.5': {}
 
-  '@unplugin-pwa/vite@0.0.5(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261113.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))':
+  '@unplugin-pwa/vite@0.0.5(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261114.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
-      '@unplugin-pwa/core': 0.0.5(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261113.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
+      '@unplugin-pwa/core': 0.0.5(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261114.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
       '@unplugin-pwa/inspector': 0.0.5
-      '@vite-pwa/workbox-build': 8.0.15(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261113.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
+      '@vite-pwa/workbox-build': 8.0.15(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261114.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
       '@vite-pwa/workbox-swkit': 8.0.15
       '@vite-pwa/workbox-window': 8.0.15
     optionalDependencies:
@@ -3709,12 +3709,12 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@vite-pwa/astro@2.0.2(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261113.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))':
+  '@vite-pwa/astro@2.0.2(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261114.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))':
     dependencies:
-      '@unplugin-pwa/core': 0.0.5(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261113.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
+      '@unplugin-pwa/core': 0.0.5(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261114.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
       '@unplugin-pwa/inspector': 0.0.5
-      '@unplugin-pwa/vite': 0.0.5(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261113.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
-      '@vite-pwa/workbox-build': 8.0.15(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261113.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
+      '@unplugin-pwa/vite': 0.0.5(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261114.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
+      '@vite-pwa/workbox-build': 8.0.15(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261114.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
       '@vite-pwa/workbox-swkit': 8.0.15
       '@vite-pwa/workbox-window': 8.0.15
       astro: 7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)
@@ -3728,7 +3728,7 @@ snapshots:
       - vite
       - webpack
 
-  '@vite-pwa/workbox-build@8.0.15(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261113.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))':
+  '@vite-pwa/workbox-build@8.0.15(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261114.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))':
     dependencies:
       '@jridgewell/remapping': 2.3.5
       '@vite-pwa/workbox-swkit': 8.0.15
@@ -3737,7 +3737,7 @@ snapshots:
       proper-tags: 2.0.2
       serialize-javascript: 7.1.4
       tinyglobby: 0.2.17
-      valibot: 1.5.0(typescript@7.1.0-dev.20261113.1)
+      valibot: 1.5.0(typescript@7.1.0-dev.20261114.1)
       verkit: 0.5.0
     optionalDependencies:
       magicast: 0.5.5
@@ -4242,9 +4242,9 @@ snapshots:
 
   http-cache-semantics@4.3.0: {}
 
-  i18next@27.1.1(typescript@7.1.0-dev.20261113.1):
+  i18next@27.1.1(typescript@7.1.0-dev.20261114.1):
     optionalDependencies:
-      typescript: 7.1.0-dev.20261113.1
+      typescript: 7.1.0-dev.20261114.1
 
   ico-endec@0.1.6: {}
 
@@ -4888,10 +4888,10 @@ snapshots:
 
   space-separated-tokens@2.0.2: {}
 
-  starlight-changelogs@0.7.1(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261113.1))(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2):
+  starlight-changelogs@0.7.1(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261114.1))(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2):
     dependencies:
       '@ascorbic/loader-utils': 1.0.2(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
-      '@astrojs/starlight': 0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261113.1)
+      '@astrojs/starlight': 0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261114.1)
       '@types/mdast': 4.0.4
       astro: 7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)
       github-slugger: 2.0.0
@@ -4952,15 +4952,15 @@ snapshots:
 
   tslib@2.8.1: {}
 
-  typescript@7.1.0-dev.20261113.1:
+  typescript@7.1.0-dev.20261114.1:
     optionalDependencies:
-      '@typescript/typescript-darwin-arm64': 7.1.0-dev.20261113.1
-      '@typescript/typescript-darwin-x64': 7.1.0-dev.20261113.1
-      '@typescript/typescript-linux-arm': 7.1.0-dev.20261113.1
-      '@typescript/typescript-linux-arm64': 7.1.0-dev.20261113.1
-      '@typescript/typescript-linux-x64': 7.1.0-dev.20261113.1
-      '@typescript/typescript-win32-arm64': 7.1.0-dev.20261113.1
-      '@typescript/typescript-win32-x64': 7.1.0-dev.20261113.1
+      '@typescript/typescript-darwin-arm64': 7.1.0-dev.20261114.1
+      '@typescript/typescript-darwin-x64': 7.1.0-dev.20261114.1
+      '@typescript/typescript-linux-arm': 7.1.0-dev.20261114.1
+      '@typescript/typescript-linux-arm64': 7.1.0-dev.20261114.1
+      '@typescript/typescript-linux-x64': 7.1.0-dev.20261114.1
+      '@typescript/typescript-win32-arm64': 7.1.0-dev.20261114.1
+      '@typescript/typescript-win32-x64': 7.1.0-dev.20261114.1
 
   ufo@1.6.4: {}
 
@@ -5051,9 +5051,9 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  valibot@1.5.0(typescript@7.1.0-dev.20261113.1):
+  valibot@1.5.0(typescript@7.1.0-dev.20261114.1):
     optionalDependencies:
-      typescript: 7.1.0-dev.20261113.1
+      typescript: 7.1.0-dev.20261114.1
 
   verkit@0.5.0: {}
 
