@@ -15,6 +15,7 @@ import {
 import { Popover, PopoverPopup, PopoverTitle, PopoverTrigger } from '@/components/ui/popover';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { useEntries } from '@/data/data-store';
+import { formatEntryType } from '@/data/samples';
 import { acceptsEntry, type WidgetType } from '@/widgets/widget-type';
 
 /** Rendering thousands of items is slow, searching narrows the list down */
@@ -56,7 +57,12 @@ function EntryPicker({ type, entries, onEntriesChange }: EntryPickerProps) {
 	const { contains } = useComboboxFilter();
 
 	const entryTypes = useMemo(
-		() => new Map(allEntries.filter((entry) => acceptsEntry(type, entry)).map((entry) => [entry.name, entry.type])),
+		() =>
+			new Map(
+				allEntries
+					.filter((entry) => acceptsEntry(type, entry))
+					.map((entry) => [entry.name, formatEntryType(entry.type)]),
+			),
 		[allEntries, type],
 	);
 	// Bound entries missing from the source are listed too, so they can be unbound

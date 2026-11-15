@@ -1,7 +1,7 @@
 import { LogLevel, NetworkTables, type NetworkTablesTypes } from '@ntcore-ts/client';
 import { StructRegistry } from 'wpilib-struct';
 import { addEntry, addSample, type Entry, setStartTime } from '@/data/data-store';
-import { normalizeEntryName, type Value } from '@/data/samples';
+import { isSchemaEntry, normalizeEntryName, type Value } from '@/data/samples';
 
 export type LiveStatus = 'connecting' | 'connected' | 'disconnected';
 
@@ -102,14 +102,23 @@ export function connectLive(host: string, onStatus: (status: LiveStatus) => void
 	const announce = topic.announce.bind(topic);
 	topic.announce = (params) => {
 		announce(params);
-		if (!closed) {
-			addEntry(normalizeEntryName(params.name), params.type);
+		const name = normalizeEntryName(params.name);
+		if (!closed && !isSchemaEntry(name)) {
+			addEntry(name, params.type);
 		}
 	};
 
 	topic.subscribe(
 		(value, params) => {
 			if (closed || value === null) {
+				return;
+			}
+
+			const name = normalizeEntryName(params.name);
+			if (isSchemaEntry(name)) {
+				if (params.type === 'structschema' && name.startsWith(structSchemaPrefix)) {
+					registerStructSchema(name, value instanceof Uint8Array ? textDecoder.decode(value) : String(value));
+				}
 				return;
 			}
 
@@ -120,16 +129,13 @@ export function connectLive(host: string, onStatus: (status: LiveStatus) => void
 			// Values that changed before this connection (sent when subscribing) are placed at the connection time
 			const timestamp = Math.max(serverTime + clockOffset, connectedAt);
 
-			const entry = addEntry(normalizeEntryName(params.name), params.type);
+			const entry = addEntry(name, params.type);
 			const decoded = toValue(entry, value, timestamp);
 			if (decoded === undefined) {
 				return;
 			}
 
 			addSample(entry, timestamp, decoded);
-			if (params.type === 'structschema' && typeof decoded === 'string' && entry.name.startsWith(structSchemaPrefix)) {
-				registerStructSchema(entry.name, decoded);
-			}
 		},
 		{ all: true, periodic: 0.02 },
 	);

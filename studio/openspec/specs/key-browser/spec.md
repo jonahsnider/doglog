@@ -62,7 +62,7 @@ The key browser SHALL show each entry's type as a compact icon that is visually 
 
 - **GIVEN** the source has a `struct:Pose2d` entry
 - **THEN** its row shows a struct type icon
-- **AND** hovering the icon shows `struct:Pose2d`
+- **AND** hovering the icon shows `Pose2d`
 
 ### Requirement: Double-click to add
 

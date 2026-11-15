@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import type { TooltipPrimitive } from '@/components/ui/tooltip';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
-import { type EntryKind, getEntryKind } from '@/data/samples';
+import { type EntryKind, formatEntryType, getEntryKind } from '@/data/samples';
 
 /**
  * One tooltip shared by many marks, so long lists don't render a tooltip per row.
@@ -48,11 +48,11 @@ export function TypeMark({ type, tooltip }: { type: string; tooltip: MarkTooltip
 	return (
 		<TooltipTrigger
 			handle={tooltip}
-			payload={type}
+			payload={formatEntryType(type)}
 			render={
 				<span
 					role="img"
-					aria-label={`Type: ${type}`}
+					aria-label={`Type: ${formatEntryType(type)}`}
 					className="flex size-4 shrink-0 items-center justify-center text-muted-foreground"
 				/>
 			}
