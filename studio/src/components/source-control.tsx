@@ -10,8 +10,9 @@ import {
 	ZapIcon,
 } from 'lucide-react';
 import { useRef } from 'react';
+import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuTrigger } from '@/components/ui/menu';
-import { SidebarMenuButton } from '@/components/ui/sidebar';
+import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Spinner } from '@/components/ui/spinner';
 import { toastManager } from '@/components/ui/toast';
 import { shortcuts, startQuickConnect } from '@/commands';
@@ -42,6 +43,10 @@ function SourceIcon({ source }: { source: Source | undefined }) {
 	return <RadioTowerIcon className={source.status === 'connected' ? 'text-success' : 'text-destructive-foreground'} />;
 }
 
+function connectToSimulator(): void {
+	void connect(simulatorHost);
+}
+
 /** Shows the active data source and lets the user open a log or connect live */
 export function SourceControl() {
 	const source = useSource();
@@ -65,11 +70,20 @@ export function SourceControl() {
 		});
 	};
 
+	const openLogFile = () => fileInput.current?.click();
+	const menuItems: MenuEntry[] = [
+		{ label: 'Open log', icon: FolderOpenIcon, onSelect: openLogFile },
+		'separator',
+		{ label: 'Quick connect', icon: ZapIcon, shortcut: shortcuts.quickConnect, onSelect: startQuickConnect },
+		{ label: 'Connect to robot', icon: RadioTowerIcon, onSelect: connectToRobot },
+		{ label: 'Simulator', icon: LaptopIcon, onSelect: connectToSimulator },
+	];
+
 	const name = source === undefined ? 'No data source' : source.type === 'log' ? source.fileName : source.host;
 	const status = source === undefined ? 'Open a log or connect' : statusLabels[source.status];
 
 	return (
-		<>
+		<AppContextMenu items={menuItems} render={<SidebarMenuItem />}>
 			<Menu>
 				<MenuTrigger
 					render={
@@ -96,7 +110,7 @@ export function SourceControl() {
 					<ChevronsUpDownIcon className="ms-auto text-muted-foreground" />
 				</MenuTrigger>
 				<MenuPopup align="start" className="w-(--anchor-width) min-w-56">
-					<MenuItem onClick={() => fileInput.current?.click()}>
+					<MenuItem onClick={openLogFile}>
 						<FolderOpenIcon />
 						Open log
 					</MenuItem>
@@ -111,7 +125,7 @@ export function SourceControl() {
 						Connect to robot
 						<span className="ms-auto text-xs text-muted-foreground">{robotHost ?? 'Set up'}</span>
 					</MenuItem>
-					<MenuItem onClick={() => void connect(simulatorHost)}>
+					<MenuItem onClick={connectToSimulator}>
 						<LaptopIcon />
 						Simulator
 					</MenuItem>
@@ -131,6 +145,6 @@ export function SourceControl() {
 					event.currentTarget.value = '';
 				}}
 			/>
-		</>
+		</AppContextMenu>
 	);
 }

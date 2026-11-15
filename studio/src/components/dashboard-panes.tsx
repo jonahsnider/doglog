@@ -1,7 +1,16 @@
 import { useFormatForDisplay } from '@tanstack/react-hotkeys';
-import { ChevronDownIcon, Columns2Icon, LayoutGridIcon, Rows2Icon, XIcon } from 'lucide-react';
-import { type ReactNode, useMemo } from 'react';
+import {
+	ChevronDownIcon,
+	Columns2Icon,
+	LayoutGridIcon,
+	ReplaceIcon,
+	Rows2Icon,
+	Settings2Icon,
+	XIcon,
+} from 'lucide-react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { Group, Panel, Separator } from 'react-resizable-panels';
+import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { WidgetOptions } from '@/components/entry-picker';
 import { Button } from '@/components/ui/button';
 import { Kbd } from '@/components/ui/kbd';
@@ -18,10 +27,11 @@ import {
 	splitDashboardPane,
 	updateLayout,
 } from '@/dashboards';
+import { getEntry } from '@/data/data-store';
 import { cn } from '@/lib/utils';
-import { type Pane, type PaneNode, resizeSplit, setPaneWidget, type Split } from '@/pane-layout';
+import { type Pane, type PaneNode, resizeSplit, setPaneWidget, type Split, type SplitDirection } from '@/pane-layout';
 import { getWidgetType, widgetTypes } from '@/widgets/registry';
-import { type WidgetType, widgetConfigSchema } from '@/widgets/widget-type';
+import { acceptsEntry, type WidgetType, widgetConfigSchema } from '@/widgets/widget-type';
 
 type PaneNodeProps = {
 	dashboardId: string;
@@ -84,14 +94,23 @@ function SplitView({ split, ...props }: PaneNodeProps & { split: Split }) {
 
 function PaneView({ dashboardId, focusedPaneId, pane, closable }: PaneNodeProps & { pane: Pane; closable: boolean }) {
 	const formatForDisplay = useFormatForDisplay();
+	const [optionsOpen, setOptionsOpen] = useState(false);
 	const update = (operation: (layout: PaneNode) => PaneNode) => updateLayout(dashboardId, operation);
 	const { widget } = pane;
 	const type = widget && getWidgetType(widget.type);
 	const config = useMemo(() => widgetConfigSchema.parse(widget?.config), [widget?.config]);
 
-	const addWidget = (newType: WidgetType) => {
-		const newConfig = { ...newType.defaultConfig, entries: [...newType.defaultConfig.entries] };
+	const setWidget = (newType: WidgetType, entries: readonly string[] = newType.defaultConfig.entries) => {
+		const newConfig = { ...newType.defaultConfig, entries: [...entries] };
 		update((layout) => setPaneWidget(layout, pane.id, { type: newType.id, config: newConfig }));
+	};
+	const changeWidget = (newType: WidgetType) => {
+		// Entries missing from the source might be accepted once they're loaded, so only known mismatches are unbound
+		const entries = config.entries.filter((name) => {
+			const entry = getEntry(name);
+			return entry === undefined || acceptsEntry(newType, entry);
+		});
+		setWidget(newType, entries.length > 0 ? entries : undefined);
 	};
 	// Keeps any other config fields as they are
 	const setEntries = (entries: string[]) =>
@@ -102,50 +121,81 @@ function PaneView({ dashboardId, focusedPaneId, pane, closable }: PaneNodeProps 
 				widget && { ...widget, config: { ...(typeof widget.config === 'object' ? widget.config : {}), entries } },
 			),
 		);
+	const split = (direction: SplitDirection) => splitDashboardPane(dashboardId, pane.id, direction);
+	const close = () => closeDashboardPane(dashboardId, pane.id);
+
+	const menuItems: MenuEntry[] = [
+		{ label: 'Split right', icon: Columns2Icon, onSelect: () => split('row') },
+		{ label: 'Split down', icon: Rows2Icon, onSelect: () => split('column') },
+		'separator',
+		{
+			label: 'Change widget',
+			icon: ReplaceIcon,
+			disabled: widget === undefined,
+			items: widgetTypes.map((other) => ({
+				label: other.name,
+				icon: other.icon,
+				disabled: other === type,
+				onSelect: () => changeWidget(other),
+			})),
+		},
+		{ label: 'Widget options', icon: Settings2Icon, disabled: !type, onSelect: () => setOptionsOpen(true) },
+		'separator',
+		{ label: 'Close', icon: XIcon, shortcut: shortcuts.close, disabled: !closable, onSelect: close },
+	];
 
 	return (
-		<div
-			className={cn(
-				'relative flex size-full flex-col',
-				pane.id === focusedPaneId &&
-					'after:pointer-events-none after:absolute after:inset-0 after:ring-1 after:ring-primary/50 after:ring-inset',
-			)}
-			// Capturing, so clicks that widgets handle themselves still focus the pane
-			onPointerDownCapture={() => focusPane(dashboardId, pane.id)}
-			onFocusCapture={() => focusPane(dashboardId, pane.id)}
+		<AppContextMenu
+			items={menuItems}
+			render={
+				<div
+					className={cn(
+						'relative flex size-full flex-col',
+						pane.id === focusedPaneId &&
+							'after:pointer-events-none after:absolute after:inset-0 after:ring-1 after:ring-primary/50 after:ring-inset',
+					)}
+					// Capturing, so clicks that widgets handle themselves still focus the pane, right-clicks included
+					onPointerDownCapture={() => focusPane(dashboardId, pane.id)}
+					onFocusCapture={() => focusPane(dashboardId, pane.id)}
+				/>
+			}
 		>
 			<div className="flex h-9 shrink-0 items-center gap-0.5 border-b px-2">
 				<span className="flex min-w-0 flex-1 items-center gap-1.5 text-xs font-medium text-muted-foreground">
 					{type && <type.icon className="size-3.5 shrink-0" />}
 					<span className="truncate">{type?.name ?? widget?.type}</span>
 				</span>
-				{type && <WidgetOptions type={type} entries={config.entries} onEntriesChange={setEntries} />}
-				<PaneButton label="Split right" onClick={() => splitDashboardPane(dashboardId, pane.id, 'row')}>
+				{type && (
+					<WidgetOptions
+						type={type}
+						entries={config.entries}
+						onEntriesChange={setEntries}
+						open={optionsOpen}
+						onOpenChange={setOptionsOpen}
+					/>
+				)}
+				<PaneButton label="Split right" onClick={() => split('row')}>
 					<Columns2Icon />
 				</PaneButton>
-				<PaneButton label="Split down" onClick={() => splitDashboardPane(dashboardId, pane.id, 'column')}>
+				<PaneButton label="Split down" onClick={() => split('column')}>
 					<Rows2Icon />
 				</PaneButton>
 				{closable && (
-					<PaneButton
-						label="Close pane"
-						shortcut={formatForDisplay(shortcuts.close)}
-						onClick={() => closeDashboardPane(dashboardId, pane.id)}
-					>
+					<PaneButton label="Close pane" shortcut={formatForDisplay(shortcuts.close)} onClick={close}>
 						<XIcon />
 					</PaneButton>
 				)}
 			</div>
 			<div className="min-h-0 flex-1">
 				{widget === undefined ? (
-					<AddWidgetPrompt onAdd={addWidget} />
+					<AddWidgetPrompt onAdd={setWidget} />
 				) : type ? (
 					<WidgetView type={type} entries={config.entries} onEntriesChange={setEntries} />
 				) : (
 					<p className="p-3 text-sm text-muted-foreground">Unknown widget type {widget.type}.</p>
 				)}
 			</div>
-		</div>
+		</AppContextMenu>
 	);
 }
 

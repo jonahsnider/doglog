@@ -30,7 +30,8 @@ const shortcut = 'Mod+B';
 /** How long the pointer has to stay on or away from the collapsed sidebar before it's shown or hidden */
 const peekDelay = 300;
 /** Keeps the peeking sidebar open while the pointer is elsewhere: an open menu, renaming a dashboard, or dragging one */
-const keepPeekingSelector = '[data-slot="menu-trigger"][data-popup-open], input:focus, [data-dnd-dragging]';
+const keepPeekingSelector =
+	'[data-slot="menu-trigger"][data-popup-open], [data-slot="context-menu-trigger"][data-popup-open], input:focus, [data-dnd-dragging]';
 
 function noop(): void {}
 
@@ -122,9 +123,7 @@ export function AppSidebar() {
 				>
 					<SidebarHeader>
 						<SidebarMenu>
-							<SidebarMenuItem>
-								<SourceControl />
-							</SidebarMenuItem>
+							<SourceControl />
 						</SidebarMenu>
 					</SidebarHeader>
 					<SidebarContent>

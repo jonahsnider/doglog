@@ -1,10 +1,11 @@
 import { useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { Link, useMatchRoute, useRouter } from '@tanstack/react-router';
-import { EllipsisIcon, LayoutDashboardIcon, PencilIcon, PlusIcon, XIcon } from 'lucide-react';
+import { EllipsisIcon, LayoutDashboardIcon, PencilIcon, PlusIcon, Trash2Icon, XIcon } from 'lucide-react';
 import { PointerActivationConstraints } from '@dnd-kit/dom';
 import { DragDropProvider, KeyboardSensor, PointerSensor } from '@dnd-kit/react';
 import { isSortable, useSortable } from '@dnd-kit/react/sortable';
 import { useState } from 'react';
+import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import {
 	AlertDialog,
 	AlertDialogClose,
@@ -132,9 +133,14 @@ function DashboardItem({ dashboard, index, onClose }: { dashboard: Dashboard; in
 	const matchRoute = useMatchRoute();
 	const [renaming, setRenaming] = useState(false);
 	const { ref, handleRef } = useSortable({ id: dashboard.id, index, disabled: renaming });
+	const menuItems: MenuEntry[] = [
+		{ label: 'Rename', icon: PencilIcon, onSelect: () => setRenaming(true) },
+		{ label: 'Delete', icon: Trash2Icon, destructive: true, onSelect: onClose },
+	];
 
 	return (
-		<SidebarMenuItem ref={ref}>
+		// The input keeps the browser's menu while renaming
+		<AppContextMenu items={menuItems} render={<SidebarMenuItem ref={ref} />} disabled={renaming}>
 			{renaming ? (
 				<SidebarInput
 					aria-label="Dashboard name"
@@ -186,6 +192,6 @@ function DashboardItem({ dashboard, index, onClose }: { dashboard: Dashboard; in
 					</Menu>
 				</>
 			)}
-		</SidebarMenuItem>
+		</AppContextMenu>
 	);
 }

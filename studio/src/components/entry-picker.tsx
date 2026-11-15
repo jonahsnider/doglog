@@ -27,9 +27,13 @@ type EntryPickerProps = {
 };
 
 /** The widget options button, opens a searchable picker for binding entries of the widget's accepted kinds */
-export function WidgetOptions(props: EntryPickerProps) {
+export function WidgetOptions({
+	open,
+	onOpenChange,
+	...props
+}: EntryPickerProps & { open: boolean; onOpenChange: (open: boolean) => void }) {
 	return (
-		<Popover>
+		<Popover open={open} onOpenChange={onOpenChange}>
 			<Tooltip>
 				<TooltipTrigger
 					render={<PopoverTrigger render={<Button variant="ghost" size="icon-xs" aria-label="Widget options" />} />}
