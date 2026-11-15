@@ -1,4 +1,4 @@
-import { useFormatForDisplay } from '@tanstack/react-hotkeys';
+import type { Hotkey } from '@tanstack/react-hotkeys';
 import {
 	ChevronDownIcon,
 	Columns2Icon,
@@ -13,10 +13,10 @@ import { Group, Panel, Separator } from 'react-resizable-panels';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { WidgetOptions } from '@/components/entry-picker';
 import { Button } from '@/components/ui/button';
-import { Kbd } from '@/components/ui/kbd';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
+import { TooltipLabel } from '@/components/tooltip-label';
 import { WidgetView } from '@/components/widget-view';
 import { shortcuts } from '@/commands';
 import {
@@ -93,7 +93,6 @@ function SplitView({ split, ...props }: PaneNodeProps & { split: Split }) {
 }
 
 function PaneView({ dashboardId, focusedPaneId, pane, closable }: PaneNodeProps & { pane: Pane; closable: boolean }) {
-	const formatForDisplay = useFormatForDisplay();
 	const [optionsOpen, setOptionsOpen] = useState(false);
 	const update = (operation: (layout: PaneNode) => PaneNode) => updateLayout(dashboardId, operation);
 	const { widget } = pane;
@@ -183,7 +182,7 @@ function PaneView({ dashboardId, focusedPaneId, pane, closable }: PaneNodeProps 
 					<Rows2Icon />
 				</PaneButton>
 				{closable && (
-					<PaneButton label="Close pane" shortcut={formatForDisplay(shortcuts.close)} onClick={close}>
+					<PaneButton label="Close pane" shortcut={shortcuts.close} onClick={close}>
 						<XIcon />
 					</PaneButton>
 				)}
@@ -239,7 +238,7 @@ function PaneButton({
 	children,
 }: {
 	label: string;
-	shortcut?: string;
+	shortcut?: Hotkey;
 	onClick: () => void;
 	children: ReactNode;
 }) {
@@ -249,10 +248,7 @@ function PaneButton({
 				{children}
 			</TooltipTrigger>
 			<TooltipPopup>
-				<span className="flex items-center gap-2">
-					{label}
-					{shortcut !== undefined && <Kbd>{shortcut}</Kbd>}
-				</span>
+				<TooltipLabel label={label} shortcut={shortcut} />
 			</TooltipPopup>
 		</Tooltip>
 	);

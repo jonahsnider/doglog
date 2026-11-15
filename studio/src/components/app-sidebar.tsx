@@ -1,10 +1,9 @@
-import { useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
+import { useHotkey } from '@tanstack/react-hotkeys';
 import { Link, useMatchRoute } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import { FolderSyncIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, SettingsIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import * as z from 'zod';
-import { Kbd } from '@/components/ui/kbd';
 import {
 	Sidebar,
 	SidebarContent,
@@ -20,6 +19,7 @@ import {
 } from '@/components/ui/sidebar';
 import { SourceControl } from '@/components/source-control';
 import { SidebarDashboards } from '@/components/sidebar-dashboards';
+import { TooltipLabel } from '@/components/tooltip-label';
 import { shortcuts } from '@/commands';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { cn } from '@/lib/utils';
@@ -37,7 +37,6 @@ function noop(): void {}
 
 export function AppSidebar() {
 	const matchRoute = useMatchRoute();
-	const formatForDisplay = useFormatForDisplay();
 	const collapsed = useSelector(collapsedStore);
 	// Showing the collapsed sidebar over the dashboard while it's hovered
 	const [peeking, setPeeking] = useState(false);
@@ -144,14 +143,7 @@ export function AppSidebar() {
 									<SidebarMenuButton
 										isActive={Boolean(matchRoute({ to: '/settings' }))}
 										render={<Link to="/settings" />}
-										tooltip={{
-											children: (
-												<span className="flex items-center gap-2">
-													Settings
-													<Kbd>{formatForDisplay(shortcuts.settings)}</Kbd>
-												</span>
-											),
-										}}
+										tooltip={{ children: <TooltipLabel label="Settings" shortcut={shortcuts.settings} /> }}
 									>
 										<SettingsIcon />
 										<span>Settings</span>
@@ -167,14 +159,7 @@ export function AppSidebar() {
 								<SidebarMenuButton
 									aria-expanded={!collapsed}
 									onClick={toggle}
-									tooltip={{
-										children: (
-											<span className="flex items-center gap-2">
-												{toggleLabel}
-												<Kbd>{formatForDisplay(shortcut)}</Kbd>
-											</span>
-										),
-									}}
+									tooltip={{ children: <TooltipLabel label={toggleLabel} shortcut={shortcut} /> }}
 								>
 									{collapsed ? <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />}
 									<span>{toggleLabel}</span>
