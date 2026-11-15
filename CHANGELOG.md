@@ -1,5 +1,12 @@
 # Changelog
 
+## [2027.4.0](https://github.com/jonahsnider/doglog/compare/2027.3.0...2027.4.0) (2026-11-15)
+
+
+### Features
+
+* **studio:** DogLog Studio ([#243](https://github.com/jonahsnider/doglog/issues/243)) ([84e631b](https://github.com/jonahsnider/doglog/commit/84e631b46dd9ab2e28b1d95d0a8b5a0ec6933d86))
+
 ## [2027.3.0](https://github.com/jonahsnider/doglog/compare/2027.2.0...2027.3.0) (2026-09-29)
 
 

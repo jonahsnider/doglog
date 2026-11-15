@@ -3,7 +3,7 @@
 		{
 			"groupId": "dev.doglog",
 			"artifactId": "doglog",
-			"version": "2027.3.0"
+			"version": "2027.4.0"
 		}
 	],
 	"fileName": "DogLog.json",
@@ -11,8 +11,10 @@
 	"jsonUrl": "https://doglog.dev/vendordep.json",
 	"name": "DogLog",
 	"jniDependencies": [],
-	"mavenUrls": ["https://repo.maven.apache.org/maven2/"],
+	"mavenUrls": [
+		"https://repo.maven.apache.org/maven2/"
+	],
 	"cppDependencies": [],
-	"version": "2027.3.0",
+	"version": "2027.4.0",
 	"uuid": "65592ce1-2251-4a31-8e4b-2df20dacebe4"
 }
