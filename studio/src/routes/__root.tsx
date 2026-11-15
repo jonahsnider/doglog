@@ -1,6 +1,7 @@
 import { Outlet, createRootRoute } from '@tanstack/react-router';
 import { useGlobalShortcuts } from '@/commands';
 import { AppSidebar } from '@/components/app-sidebar';
+import { CloseDashboardDialog } from '@/components/close-dashboard-dialog';
 import { LogDropOverlay } from '@/components/log-drop-overlay';
 import { SidebarInset } from '@/components/ui/sidebar';
 import { ToastProvider } from '@/components/ui/toast';
@@ -21,6 +22,7 @@ function RootLayout() {
 				</SidebarInset>
 			</div>
 			<LogDropOverlay />
+			<CloseDashboardDialog />
 		</ToastProvider>
 	);
 }

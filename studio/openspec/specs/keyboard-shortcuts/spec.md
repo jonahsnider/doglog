@@ -8,7 +8,7 @@ Define Studio's app-wide keyboard shortcuts and how they differ between the desk
 
 ### Requirement: Global shortcuts
 
-Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Settings (⌘, or Alt+,), Toggle sidebar (⌘B), Toggle key browser (⌥⌘B), and Quick connect (⌘K).
+Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Settings (⌘, or Alt+,), Toggle sidebar (⌘B), Toggle key browser (⌥⌘B), and Quick connect (⌘K).
 
 #### Scenario: New dashboard
 
@@ -46,7 +46,7 @@ Every control with a keyboard shortcut SHALL show the shortcut in its tooltip, f
 
 ### Requirement: Desktop-only shortcuts
 
-⌘T, ⌘W, and ⌘, SHALL only be active in the desktop app, because browsers reserve them. Their Alt variants MUST work in both the desktop app and the web.
+⌘T, ⌘W, ⇧⌘W, and ⌘, SHALL only be active in the desktop app, because browsers reserve them. Their Alt variants MUST work in both the desktop app and the web.
 
 #### Scenario: Web app
 
@@ -85,26 +85,13 @@ The close shortcut SHALL close the focused pane. When the dashboard is down to a
 
 ### Requirement: Close the current dashboard
 
-Adding Shift to the platform's close shortcut (⌘⇧W on macOS desktop, Ctrl+Shift+W on Windows and Linux desktop, or Alt+Shift+W on the web) SHALL close the current dashboard using the same confirmation rules as closing it from the sidebar.
+The close dashboard shortcut SHALL close the current dashboard the same way as any other dashboard close, including the confirmation rules.
 
 #### Scenario: Close a dashboard with widgets
 
 - **GIVEN** the current dashboard has widgets
-- **WHEN** the user presses the dashboard close shortcut
+- **WHEN** the user presses the close dashboard shortcut
 - **THEN** the dashboard close confirmation opens
-- **AND** the dashboard is unchanged until the user confirms
-
-#### Scenario: Close a dashboard without widgets
-
-- **GIVEN** the current dashboard has no widgets
-- **WHEN** the user presses the dashboard close shortcut
-- **THEN** the dashboard is deleted without a confirmation
-
-#### Scenario: No current dashboard
-
-- **GIVEN** the user is on a page other than a dashboard
-- **WHEN** the user presses the dashboard close shortcut
-- **THEN** no dashboard is closed
 
 ### Requirement: Shortcuts while typing
 

@@ -2,7 +2,8 @@ import { isTauri } from '@tauri-apps/api/core';
 import { Menu } from '@tauri-apps/api/menu';
 import { detectPlatform, type Hotkey, useHotkeys } from '@tanstack/react-hotkeys';
 import { type RegisteredRouter, useRouter } from '@tanstack/react-router';
-import { closeFocusedPane, createDashboard } from '@/dashboards';
+import { closeDashboard } from '@/close-dashboard';
+import { closeFocusedPane, createDashboard, getDashboard } from '@/dashboards';
 import { quickConnect } from '@/data/source';
 import { getRobotHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
@@ -18,7 +19,6 @@ const desktopOnly = { enabled: desktop && !nativeMenu };
 export const shortcuts = {
 	newDashboard: desktop ? 'Mod+T' : 'Alt+T',
 	close: desktop ? 'Mod+W' : 'Alt+W',
-	closeDashboard: desktop ? 'Mod+Shift+W' : 'Alt+Shift+W',
 	settings: desktop ? 'Mod+,' : 'Alt+,',
 	quickConnect: 'Mod+K',
 } as const satisfies Record<string, Hotkey>;
@@ -32,6 +32,17 @@ function closeFocused(router: RegisteredRouter): void {
 	for (const match of router.state.matches) {
 		if (match.routeId === '/dashboards/$dashboardId') {
 			closeFocusedPane(match.params.dashboardId);
+		}
+	}
+}
+
+function closeCurrentDashboard(router: RegisteredRouter): void {
+	for (const match of router.state.matches) {
+		if (match.routeId === '/dashboards/$dashboardId') {
+			const dashboard = getDashboard(match.params.dashboardId);
+			if (dashboard) {
+				closeDashboard(dashboard);
+			}
 		}
 	}
 }
@@ -53,9 +64,11 @@ export function useGlobalShortcuts(): void {
 		[
 			{ hotkey: 'Alt+T', callback: () => newDashboard(router) },
 			{ hotkey: 'Alt+W', callback: () => closeFocused(router) },
+			{ hotkey: 'Alt+Shift+W', callback: () => closeCurrentDashboard(router) },
 			{ hotkey: 'Alt+,', callback: () => openSettings(router) },
 			{ hotkey: 'Mod+T', callback: () => newDashboard(router), options: desktopOnly },
 			{ hotkey: 'Mod+W', callback: () => closeFocused(router), options: desktopOnly },
+			{ hotkey: 'Mod+Shift+W', callback: () => closeCurrentDashboard(router), options: desktopOnly },
 			{ hotkey: 'Mod+,', callback: () => openSettings(router), options: desktopOnly },
 			{ hotkey: shortcuts.quickConnect, callback: startQuickConnect },
 		],
@@ -94,6 +107,11 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 					{ text: 'New Dashboard', accelerator: 'CmdOrCtrl+T', action: () => newDashboard(router) },
 					separator,
 					{ text: 'Close Pane', accelerator: 'CmdOrCtrl+W', action: () => closeFocused(router) },
+					{
+						text: 'Close Dashboard',
+						accelerator: 'CmdOrCtrl+Shift+W',
+						action: () => closeCurrentDashboard(router),
+					},
 				],
 			},
 			{
