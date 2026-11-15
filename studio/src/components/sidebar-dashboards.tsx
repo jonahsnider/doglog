@@ -5,16 +5,7 @@ import { DragDropProvider, KeyboardSensor, PointerSensor } from '@dnd-kit/react'
 import { isSortable, useSortable } from '@dnd-kit/react/sortable';
 import { useState } from 'react';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
-import {
-	AlertDialog,
-	AlertDialogClose,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogPopup,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+import { closeDashboard } from '@/close-dashboard';
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
 import {
 	SidebarGroup,
@@ -27,8 +18,7 @@ import {
 } from '@/components/ui/sidebar';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { newDashboard, shortcuts } from '@/commands';
-import { type Dashboard, deleteDashboard, moveDashboard, renameDashboard, useDashboards } from '@/dashboards';
-import { hasWidgets } from '@/pane-layout';
+import { type Dashboard, moveDashboard, renameDashboard, useDashboards } from '@/dashboards';
 
 const sensors = [
 	// Only start dragging once the pointer moves, so clicking a dashboard still opens it
@@ -40,8 +30,6 @@ const sensors = [
 export function SidebarDashboards() {
 	const dashboards = useDashboards();
 	const router = useRouter();
-	const [closing, setClosing] = useState<Dashboard>();
-	const [confirmOpen, setConfirmOpen] = useState(false);
 
 	return (
 		// Fills the rest of the sidebar so the empty space below the list can be double-clicked
@@ -79,42 +67,11 @@ export function SidebarDashboards() {
 							key={dashboard.id}
 							dashboard={dashboard}
 							index={index}
-							onClose={() => {
-								// Nothing would be lost, so there's nothing to confirm
-								if (hasWidgets(dashboard.layout)) {
-									setClosing(dashboard);
-									setConfirmOpen(true);
-								} else {
-									deleteDashboard(dashboard.id);
-								}
-							}}
+							onClose={() => closeDashboard(dashboard)}
 						/>
 					))}
 				</SidebarMenu>
 			</DragDropProvider>
-			<AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-				<AlertDialogPopup>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Delete {closing?.name}?</AlertDialogTitle>
-						<AlertDialogDescription>
-							Closing a dashboard permanently deletes it, including its panes and widgets.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogClose render={<Button variant="ghost" />}>Cancel</AlertDialogClose>
-						<AlertDialogClose
-							render={<Button variant="destructive" />}
-							onClick={() => {
-								if (closing) {
-									deleteDashboard(closing.id);
-								}
-							}}
-						>
-							Delete
-						</AlertDialogClose>
-					</AlertDialogFooter>
-				</AlertDialogPopup>
-			</AlertDialog>
 		</SidebarGroup>
 	);
 }

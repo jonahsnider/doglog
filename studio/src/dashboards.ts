@@ -45,6 +45,10 @@ export function useDashboards(): Dashboard[] {
 	return useSelector(store);
 }
 
+export function getDashboard(id: string): Dashboard | undefined {
+	return store.get().find((dashboard) => dashboard.id === id);
+}
+
 export function useDashboard(id: string): Dashboard | undefined {
 	return useDashboards().find((dashboard) => dashboard.id === id);
 }

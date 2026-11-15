@@ -8,7 +8,7 @@ Define Studio's app-wide keyboard shortcuts and how they differ between the desk
 
 ### Requirement: Global shortcuts
 
-Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Settings (⌘, or Alt+,), Toggle sidebar (⌘B), Toggle key browser (⌥⌘B), and Quick connect (⌘K).
+Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Settings (⌘, or Alt+,), Toggle sidebar (⌘B), Toggle key browser (⌥⌘B), and Quick connect (⌘K).
 
 #### Scenario: New dashboard
 
@@ -46,7 +46,7 @@ Every control with a keyboard shortcut SHALL show the shortcut in its tooltip, f
 
 ### Requirement: Desktop-only shortcuts
 
-⌘T, ⌘W, and ⌘, SHALL only be active in the desktop app, because browsers reserve them. Their Alt variants MUST work in both the desktop app and the web.
+⌘T, ⌘W, ⇧⌘W, and ⌘, SHALL only be active in the desktop app, because browsers reserve them. Their Alt variants MUST work in both the desktop app and the web.
 
 #### Scenario: Web app
 
@@ -82,6 +82,16 @@ The close shortcut SHALL close the focused pane. When the dashboard is down to a
 - **GIVEN** a dashboard with a single empty pane
 - **WHEN** the user presses the close shortcut
 - **THEN** the dashboard is deleted without a confirmation
+
+### Requirement: Close the current dashboard
+
+The close dashboard shortcut SHALL close the current dashboard the same way as any other dashboard close, including the confirmation rules.
+
+#### Scenario: Close a dashboard with widgets
+
+- **GIVEN** the current dashboard has widgets
+- **WHEN** the user presses the close dashboard shortcut
+- **THEN** the dashboard close confirmation opens
 
 ### Requirement: Shortcuts while typing
 
