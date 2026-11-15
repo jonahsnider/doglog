@@ -1,5 +1,8 @@
 [tools]
+hk = { version = "2.12.0", workflow = "release.yml" }
 java = "temurin-25.0.5+8.0.LTS"
+pkl = "0.32.2"
+rust = "1.99.1"
 
 [settings]
 idiomatic_version_file_enable_tools = ["node", "pnpm"]

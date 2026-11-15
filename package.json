@@ -4,15 +4,18 @@
 	"private": true,
 	"workspaces": [
 		"lib",
+		"studio",
 		"web"
 	],
 	"type": "module",
 	"scripts": {
 		"format": "oxfmt --check",
-		"format:write": "oxfmt"
+		"format:write": "oxfmt",
+		"knip": "knip"
 	},
 	"devDependencies": {
 		"@astrojs/compiler-rs": "0.5.3",
+		"knip": "6.45.1",
 		"oxfmt": "0.78.0"
 	},
 	"devEngines": {

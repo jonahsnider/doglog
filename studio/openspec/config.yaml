@@ -1,0 +1,65 @@
+schema: spec-driven
+
+context: |
+  Product: DogLog Studio is an all-in-one app for FRC teams to review robot logs and debug robots live.
+  It works with any WPILOG file or NetworkTables 4 (NT4) source, not only DogLog. Where it costs nothing,
+  defaults favor DogLog conventions (ex. the console widget binding WPILib's `console` and `messages` entries).
+
+  Update this context as needed, when information becomes outdated or new details emerge.
+
+  Spec conventions:
+  - Specs describe the target product, not a release phase. MVP/release scoping is tracked outside OpenSpec.
+  - Specs describe user-facing behavior. Library and implementation choices belong here, not in requirements.
+  - OpenSpec changes are not used. Edit `specs/` directly and run `openspec validate --specs`.
+
+  Tech stack:
+  - Frontend: React in the web ecosystem only. UI components from coss ui (https://coss.com/ui, Base UI + Tailwind CSS v4).
+  - Charts: Base UI charts once released. It has not shipped yet; a temporary chart library is acceptable if it
+    supports real-time streaming, as long as it stays behind the widget contract so it can be swapped later.
+  - Core logic: TypeScript. Avoid other languages for core logic unless there's a strong reason.
+  - WPILOG parsing: wpilog-parser. NT4 client: @ntcore-ts/client.
+  - Distribution: a PWA website, plus a Tauri desktop app built from the same frontend.
+  - State: TanStack Store, with Zod validating all persisted and external data.
+  - Interactions: dnd-kit for drag and drop, react-resizable-panels for pane splits, TanStack Hotkeys for shortcuts.
+  - Theming: Material Design 3 "tonal spot" scheme generated with @material/material-color-utilities from a seed
+    color. The default seed is Team 581 maroon #591616, which matches jonahsnider/dashshund.
+  - App icon: the DogLog logo (web/public/logo.svg), which is also the Team 581 logo.
+  - Context menus: native Tauri popup menus on desktop, coss menus on the web, from one menu definition.
+  - Desktop-only shortcuts (⌘T, ⌘W, ⌘,): native app menu items on macOS, where the default menu already uses ⌘W, and
+    TanStack Hotkeys on Windows and Linux.
+
+  Platform constraints:
+  - Browsers only allow live NT connections from an HTTPS page via Chrome's Local Network Access (Chrome 147+),
+    and only when connecting by IP literal or localhost. Firefox support is unclear and Safari blocks it.
+    The desktop app has no such restriction.
+
+  Non-goals:
+  - Writing or editing NT values. Everything in Studio is read-only.
+  - Accounts, cloud sync, analytics, or telemetry.
+  - Mobile layouts.
+  - Explicit handling for browsers that can't make live NT connections (the connection simply fails).
+
+  Future needs (not specced yet):
+  - Log sync (the Logs page is a placeholder).
+  - Comparing multiple logs at once, and multiple simultaneous data sources.
+  - Protobuf-encoded entries.
+  - Managed sync service for dashboards; dashboard import/export.
+  - Saving a live session to a log file.
+  - Tabbed widget stacks inside a pane.
+  - Playback looping and trimming the playback range.
+  - FRC match time display (ex. "Teleop 1:32").
+  - Recent files, and opening `.wpilog` files from the OS (desktop file association).
+  - FRC-specific widgets (field view, swerve module visualizer, etc.). Double-clicking matching entries
+    (ex. swerve module states) should default to these once they exist.
+  - A command palette. Quick connect may move off ⌘K to make room for it.
+
+  Open questions:
+  - Whether the sidebar's dashboard list fits every page long term, or pages need their own secondary content.
+  - The live NT story for Firefox and Safari users of the web app.
+  - Per-project defaults for common entries (ex. the robot pose is always /Robot/Localization/EstimatedPose).
+    Possibly declared by robot code (ex. NT topic metadata or DogLog) instead of in Studio.
+
+rules:
+  specs:
+    - Describe observable user behavior; leave library and implementation details to the config context
+    - Keep requirements library-agnostic, especially for charts

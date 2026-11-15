@@ -200,3 +200,32 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           command: deploy
           workingDirectory: web
+  studio:
+    name: Studio
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Git repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Setup pnpm
+        uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3
+        with:
+          cache: true
+      - name: Lint, format, and type check
+        run: pnpm check
+        working-directory: studio
+      - name: React Doctor
+        # `pnpm doctor` is a built-in pnpm command
+        run: pnpm react-doctor
+        working-directory: studio
+      - name: Test
+        run: pnpm test
+        working-directory: studio
+      - name: Knip
+        run: pnpm knip
+      - name: Build
+        run: pnpm build
+        working-directory: studio
