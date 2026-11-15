@@ -83,6 +83,29 @@ The close shortcut SHALL close the focused pane. When the dashboard is down to a
 - **WHEN** the user presses the close shortcut
 - **THEN** the dashboard is deleted without a confirmation
 
+### Requirement: Close the current dashboard
+
+Alt+Shift+W SHALL close the current dashboard using the same confirmation rules as closing it from the sidebar.
+
+#### Scenario: Close a dashboard with widgets
+
+- **GIVEN** the current dashboard has widgets
+- **WHEN** the user presses Alt+Shift+W
+- **THEN** the dashboard close confirmation opens
+- **AND** the dashboard is unchanged until the user confirms
+
+#### Scenario: Close a dashboard without widgets
+
+- **GIVEN** the current dashboard has no widgets
+- **WHEN** the user presses Alt+Shift+W
+- **THEN** the dashboard is deleted without a confirmation
+
+#### Scenario: No current dashboard
+
+- **GIVEN** the user is on a page other than a dashboard
+- **WHEN** the user presses Alt+Shift+W
+- **THEN** no dashboard is closed
+
 ### Requirement: Shortcuts while typing
 
 Shortcuts SHALL NOT trigger while the user is typing in a text field, except shortcuts that use ⌘ or Ctrl.

@@ -1,3 +1,4 @@
+import { useHotkey } from '@tanstack/react-hotkeys';
 import { Link, useMatchRoute, useRouter } from '@tanstack/react-router';
 import { EllipsisIcon, LayoutDashboardIcon, PencilIcon, PlusIcon, Trash2Icon, XIcon } from 'lucide-react';
 import { PointerActivationConstraints } from '@dnd-kit/dom';
@@ -40,8 +41,34 @@ const sensors = [
 export function SidebarDashboards() {
 	const dashboards = useDashboards();
 	const router = useRouter();
+	const matchRoute = useMatchRoute();
 	const [closing, setClosing] = useState<Dashboard>();
 	const [confirmOpen, setConfirmOpen] = useState(false);
+
+	const closeDashboard = (dashboard: Dashboard) => {
+		// Nothing would be lost, so there's nothing to confirm
+		if (hasWidgets(dashboard.layout)) {
+			setClosing(dashboard);
+			setConfirmOpen(true);
+		} else {
+			deleteDashboard(dashboard.id);
+		}
+	};
+
+	useHotkey(
+		shortcuts.closeDashboard,
+		() => {
+			const match = matchRoute({ to: '/dashboards/$dashboardId' });
+			if (match === false) {
+				return;
+			}
+			const dashboard = dashboards.find((other) => other.id === match.dashboardId);
+			if (dashboard) {
+				closeDashboard(dashboard);
+			}
+		},
+		{ requireReset: true, enabled: !confirmOpen },
+	);
 
 	return (
 		// Fills the rest of the sidebar so the empty space below the list can be double-clicked
@@ -79,15 +106,7 @@ export function SidebarDashboards() {
 							key={dashboard.id}
 							dashboard={dashboard}
 							index={index}
-							onClose={() => {
-								// Nothing would be lost, so there's nothing to confirm
-								if (hasWidgets(dashboard.layout)) {
-									setClosing(dashboard);
-									setConfirmOpen(true);
-								} else {
-									deleteDashboard(dashboard.id);
-								}
-							}}
+							onClose={() => closeDashboard(dashboard)}
 						/>
 					))}
 				</SidebarMenu>

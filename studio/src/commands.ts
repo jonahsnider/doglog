@@ -18,6 +18,7 @@ const desktopOnly = { enabled: desktop && !nativeMenu };
 export const shortcuts = {
 	newDashboard: desktop ? 'Mod+T' : 'Alt+T',
 	close: desktop ? 'Mod+W' : 'Alt+W',
+	closeDashboard: 'Alt+Shift+W',
 	settings: desktop ? 'Mod+,' : 'Alt+,',
 	quickConnect: 'Mod+K',
 } as const satisfies Record<string, Hotkey>;
