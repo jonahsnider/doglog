@@ -23,12 +23,18 @@ The key browser SHALL list every entry in the active source as a tree grouped by
 
 ### Requirement: Search
 
-The key browser SHALL provide a search box that filters the tree to entries whose names match.
+The key browser SHALL provide a search box that filters the tree to entries whose names fuzzy match, tolerating typos, and MUST highlight the matching parts of each entry's name.
 
 #### Scenario: Search entries
 
 - **WHEN** the user types "velocity"
 - **THEN** only entries whose names match "velocity" and their parent groups are shown
+- **AND** "Velocity" is highlighted in each matching entry
+
+#### Scenario: Search with a typo
+
+- **WHEN** the user types "velcoity"
+- **THEN** entries whose names contain "Velocity" are shown
 
 ### Requirement: Collapsible panel
 
