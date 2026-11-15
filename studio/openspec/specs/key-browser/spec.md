@@ -66,11 +66,25 @@ The key browser SHALL show each entry's type as a compact icon that is visually 
 
 ### Requirement: Double-click to add
 
-Double-clicking a bindable entry SHALL add it to the open dashboard in a new pane, using the entry's default widget.
+Double-clicking a bindable entry SHALL add it to the open dashboard using the entry's default widget. If the dashboard already has a widget of that type, the entry MUST be added to it instead of creating a new pane, preferring the focused pane's widget.
 
-#### Scenario: Add to a dashboard with widgets
+#### Scenario: Add to a matching widget
 
-- **GIVEN** the open dashboard has a focused pane with a widget
+- **GIVEN** the focused pane shows a discrete timeline bound to `/Intake/HasGamePiece`
+- **WHEN** the user double-clicks the boolean entry `/Arm/AtSetpoint`
+- **THEN** the same discrete timeline shows both entries
+- **AND** no new pane is created
+
+#### Scenario: Add to a matching widget that isn't focused
+
+- **GIVEN** the dashboard has a discrete timeline and a console, and the console's pane is focused
+- **WHEN** the user double-clicks a boolean entry
+- **THEN** the entry is added to the discrete timeline
+- **AND** the discrete timeline's pane becomes focused
+
+#### Scenario: Add to a dashboard without a matching widget
+
+- **GIVEN** no pane shows the default widget for `/Arm/Angle`, and the focused pane has a widget
 - **WHEN** the user double-clicks `/Arm/Angle`
 - **THEN** the focused pane is split and the new pane shows the default widget for `/Arm/Angle`, bound to it
 

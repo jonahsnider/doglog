@@ -1,13 +1,24 @@
 import { useDraggable } from '@dnd-kit/react';
+import { useParams } from '@tanstack/react-router';
 import { useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
 import { useSelector } from '@tanstack/react-store';
-import { BanIcon, ChevronRightIcon, PanelRightCloseIcon, PanelRightOpenIcon, SearchIcon } from 'lucide-react';
+import {
+	BanIcon,
+	ChevronRightIcon,
+	CopyIcon,
+	LayoutGridIcon,
+	PanelRightCloseIcon,
+	PanelRightOpenIcon,
+	SearchIcon,
+} from 'lucide-react';
 import { memo, useCallback, useDeferredValue, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { Kbd } from '@/components/ui/kbd';
 import { Tooltip, TooltipCreateHandle, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { MarkTooltip, TypeMark } from '@/components/value-marks';
+import { addDashboardWidget } from '@/dashboards';
 import { type Entry, useDataVersion, useEntries } from '@/data/data-store';
 import { formatValue } from '@/data/format-value';
 import { useSource } from '@/data/source';
@@ -16,6 +27,7 @@ import { buildKeyTree, type KeyRow, visibleKeyRows } from '@/key-tree';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { cn } from '@/lib/utils';
 import { useCursorTime } from '@/timeline';
+import { defaultWidget } from '@/widgets/registry';
 import * as z from 'zod';
 
 /** Rows have a fixed height so only the rows in view need to be rendered */
@@ -179,10 +191,13 @@ const KeyRowView = memo(function KeyRowView({
 	top: number;
 	onToggle: (path: string) => void;
 }) {
+	const { dashboardId } = useParams({ from: '/dashboards/$dashboardId' });
 	const { node, depth, expanded } = row;
 	const { entry } = node;
 	const unsupported = entry?.kind === 'unsupported';
 	const draggable = entry !== undefined && !unsupported;
+	const widget = entry && defaultWidget(entry);
+	const add = widget && (() => addDashboardWidget(dashboardId, widget));
 	const { ref } = useDraggable<EntryDragData>({
 		id: node.path,
 		type: entryDragType,
@@ -195,16 +210,31 @@ const KeyRowView = memo(function KeyRowView({
 		</span>
 	);
 	const typeMark = entry && <TypeMark type={entry.type} tooltip={markTooltip} />;
+	const menuItems: MenuEntry[] = entry
+		? [
+				{ label: 'Add to dashboard', icon: LayoutGridIcon, disabled: !add, onSelect: () => add?.() },
+				{ label: 'Copy name', icon: CopyIcon, onSelect: () => void navigator.clipboard.writeText(entry.name) },
+			]
+		: [];
 
 	return (
-		<div
-			// Without an element, rows that can't be dragged don't get dnd-kit's drag handle attributes
-			ref={draggable ? ref : undefined}
-			className={cn(
-				'absolute inset-x-0 flex items-center gap-1.5 pe-3 text-sm outline-none hover:bg-accent focus-visible:bg-accent',
-				draggable && 'cursor-grab active:cursor-grabbing',
-			)}
-			style={{ top, height: rowHeight, paddingInlineStart: 8 + depth * 12 }}
+		<AppContextMenu
+			items={menuItems}
+			// Groups that aren't entries keep the browser's menu
+			disabled={!entry}
+			render={
+				<div
+					// Without an element, rows that can't be dragged don't get dnd-kit's drag handle attributes
+					ref={draggable ? ref : undefined}
+					className={cn(
+						// Not selectable, so double-clicking doesn't select the label
+						'absolute inset-x-0 flex items-center gap-1.5 pe-3 text-sm outline-none select-none hover:bg-accent focus-visible:bg-accent',
+						draggable && 'cursor-grab active:cursor-grabbing',
+					)}
+					style={{ top, height: rowHeight, paddingInlineStart: 8 + depth * 12 }}
+					onDoubleClick={add}
+				/>
+			}
 		>
 			{node.children.length > 0 ? (
 				<button
@@ -237,7 +267,7 @@ const KeyRowView = memo(function KeyRowView({
 				) : (
 					<EntryValue entry={entry} />
 				))}
-		</div>
+		</AppContextMenu>
 	);
 });
 

@@ -119,6 +119,15 @@ export function findPane(layout: PaneNode, paneId: string): Pane | undefined {
 	return findPane(layout.first, paneId) ?? findPane(layout.second, paneId);
 }
 
+/** The first pane showing a widget type, in layout order (top left first) */
+export function findWidgetPane(layout: PaneNode, widgetType: string): Pane | undefined {
+	if (layout.kind === 'pane') {
+		return layout.widget?.type === widgetType ? layout : undefined;
+	}
+
+	return findWidgetPane(layout.first, widgetType) ?? findWidgetPane(layout.second, widgetType);
+}
+
 /** The top left pane */
 export function firstPane(layout: PaneNode): Pane {
 	return layout.kind === 'pane' ? layout : firstPane(layout.first);

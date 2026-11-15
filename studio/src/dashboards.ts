@@ -6,13 +6,17 @@ import {
 	createPane,
 	findPane,
 	findSibling,
+	findWidgetPane,
 	firstPane,
 	type Pane,
 	type PaneNode,
 	paneNodeSchema,
+	setPaneWidget,
 	type SplitDirection,
 	splitPane,
+	type Widget,
 } from '@/pane-layout';
+import { widgetConfigSchema } from '@/widgets/widget-type';
 
 const dashboardSchema = z.object({
 	id: z.string(),
@@ -116,6 +120,43 @@ export function splitDashboardPane(id: string, paneId: string, direction: SplitD
 		layout: splitPane(dashboard.layout, paneId, direction, newPane),
 		focusedPaneId: newPane.id,
 	}));
+}
+
+/** Splits along the longer side of the pane's element, so adding several widgets tiles the dashboard instead of making slivers */
+function splitDirectionFor(paneId: string): SplitDirection {
+	const rect = document.querySelector(`[data-pane-id="${CSS.escape(paneId)}"]`)?.getBoundingClientRect();
+	return rect && rect.height > rect.width ? 'column' : 'row';
+}
+
+/**
+ * Add a widget's entries to a widget of the same type (preferring the focused pane), show the widget in the focused pane
+ * if it's empty, or otherwise split the focused pane and show it in the new pane. The pane it ends up in is focused.
+ */
+export function addDashboardWidget(id: string, widget: Widget): void {
+	updateDashboard(id, (dashboard) => {
+		const focused = getFocusedPane(dashboard);
+		const matching = focused.widget?.type === widget.type ? focused : findWidgetPane(dashboard.layout, widget.type);
+		if (matching?.widget !== undefined) {
+			const { entries } = widgetConfigSchema.parse(matching.widget.config);
+			const allEntries = [...new Set([...entries, ...widgetConfigSchema.parse(widget.config).entries])];
+			if (allEntries.length === entries.length) {
+				return { ...dashboard, focusedPaneId: matching.id };
+			}
+
+			// Keeps any other config fields as they are
+			const config = typeof matching.widget.config === 'object' ? matching.widget.config : {};
+			const merged = { ...matching.widget, config: { ...config, entries: allEntries } };
+			return { ...dashboard, layout: setPaneWidget(dashboard.layout, matching.id, merged), focusedPaneId: matching.id };
+		}
+
+		if (focused.widget === undefined) {
+			return { ...dashboard, layout: setPaneWidget(dashboard.layout, focused.id, widget), focusedPaneId: focused.id };
+		}
+
+		const newPane = { ...createPane(), widget };
+		const layout = splitPane(dashboard.layout, focused.id, splitDirectionFor(focused.id), newPane);
+		return { ...dashboard, layout, focusedPaneId: newPane.id };
+	});
 }
 
 /** Close a pane and focus the pane that takes its place */
