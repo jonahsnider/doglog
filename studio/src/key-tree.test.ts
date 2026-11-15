@@ -39,3 +39,20 @@ test('search matches the full name', () => {
 	expect(paths([], 'drive/module')).toEqual(['/Drive', '/Drive/Module2', '/Drive/Module10']);
 	expect(paths([], 'nothing')).toEqual([]);
 });
+
+test('search tolerates typos', () => {
+	expect(paths([], 'velcoity')).toEqual(['/Arm', '/Arm/Velocity']);
+	expect(paths([], 'velocty')).toEqual(['/Arm', '/Arm/Velocity']);
+});
+
+test('search without letters or numbers shows the whole tree', () => {
+	expect(paths([], '/')).toEqual(['/Arm', '/Drive', '/Time']);
+});
+
+test('search highlights the matching parts of each label', () => {
+	const rows = visibleKeyRows(tree, new Set(), 'arm vel');
+	expect(rows.map((row) => [row.node.path, row.highlights])).toEqual([
+		['/Arm', undefined],
+		['/Arm/Velocity', [0, 3]],
+	]);
+});

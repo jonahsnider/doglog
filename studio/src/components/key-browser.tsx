@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { memo, useCallback, useDeferredValue, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
+import { HighlightedText } from '@/components/highlighted-text';
 import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { Tooltip, TooltipCreateHandle, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
@@ -206,7 +207,7 @@ const KeyRowView = memo(function KeyRowView({
 			payload={node.path}
 			render={<span className={cn('min-w-24 flex-1 truncate', unsupported && 'text-muted-foreground')} />}
 		>
-			{node.label}
+			<HighlightedText text={node.label} ranges={row.highlights} />
 		</TooltipTrigger>
 	);
 	const typeMark = entry && <TypeMark type={entry.type} tooltip={markTooltip} />;
