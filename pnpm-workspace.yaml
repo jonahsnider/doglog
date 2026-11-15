@@ -3,7 +3,16 @@ trustPolicyExclude:
 
 packages:
   - 'lib'
+  - 'studio'
   - 'web'
+catalog:
+  vite: npm:@voidzero-dev/vite-plus-core@1.5.0
+  vite-plus: 1.5.0
+peerDependencyRules:
+  allowAny:
+    - vite
+  allowedVersions:
+    vite: '*'
 allowBuilds:
   esbuild: true
   sharp: false

@@ -9,6 +9,7 @@
 		"build/",
 		"infer-out/",
 		"lib/",
+		"studio/",
 		"test-project/",
 		"web/.astro/",
 		".claude/",

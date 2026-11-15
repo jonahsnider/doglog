@@ -43,6 +43,15 @@ jobs:
       - name: Format docs with Oxfmt
         run: pnpm format:write
 
+      - name: Fix Studio lint and formatting issues
+        run: pnpm check:fix
+        working-directory: studio
+        continue-on-error: true
+
+      - name: Fix Knip issues
+        run: pnpm knip --fix
+        continue-on-error: true
+
       - name: Run autofix.ci
         uses: autofix-ci/action@c5b2d67aa2274e7b5a18224e8171550871fc7e4a # v1
         with:
