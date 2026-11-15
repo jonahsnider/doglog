@@ -73,6 +73,25 @@ export function splitPane(
 	}));
 }
 
+/** Most splits in one direction above a pane, so panes are at least a quarter of the dashboard's width and height */
+const maxSplitDepth = 2;
+
+/** Splits in `direction` above a pane, `undefined` if the pane isn't in the layout */
+function splitDepth(node: PaneNode, paneId: string, direction: SplitDirection): number | undefined {
+	if (node.kind === 'pane') {
+		return node.id === paneId ? 0 : undefined;
+	}
+
+	const depth = splitDepth(node.first, paneId, direction) ?? splitDepth(node.second, paneId, direction);
+	return depth === undefined || node.direction !== direction ? depth : depth + 1;
+}
+
+/** Whether a pane can be split without making panes too small to use */
+export function canSplitPane(layout: PaneNode, paneId: string, direction: SplitDirection): boolean {
+	const depth = splitDepth(layout, paneId, direction);
+	return depth !== undefined && depth < maxSplitDepth;
+}
+
 /** Remove a pane so its sibling takes its space. Closing the only pane leaves an empty pane. */
 export function closePane(layout: PaneNode, paneId: string): PaneNode {
 	if (layout.id === paneId) {

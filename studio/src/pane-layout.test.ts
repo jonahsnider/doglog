@@ -1,5 +1,6 @@
 import { expect, test } from 'vite-plus/test';
 import {
+	canSplitPane,
 	closePane,
 	createPane,
 	findSibling,
@@ -103,4 +104,17 @@ test('parsing round-trips valid layouts and rejects invalid ones', () => {
 	expect(parse({ kind: 'split', id: 'a', direction: 'row', ratio: 2, first: pane, second: pane })).toMatchObject({
 		ratio: 0.9,
 	});
+});
+
+test('splitting stops at panes a quarter of the dashboard wide or tall', () => {
+	const left = createPane();
+	const right = createPane();
+	const quarter = createPane();
+	const layout = splitPane(splitPane(left, left.id, 'row', right), right.id, 'row', quarter);
+
+	expect(canSplitPane(layout, right.id, 'row')).toBe(false);
+	expect(canSplitPane(layout, quarter.id, 'row')).toBe(false);
+	// Splitting the half makes 4 equal columns
+	expect(canSplitPane(layout, left.id, 'row')).toBe(true);
+	expect(canSplitPane(layout, quarter.id, 'column')).toBe(true);
 });

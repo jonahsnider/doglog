@@ -29,12 +29,21 @@ import {
 } from '@/dashboards';
 import { getEntry } from '@/data/data-store';
 import { cn } from '@/lib/utils';
-import { type Pane, type PaneNode, resizeSplit, setPaneWidget, type Split, type SplitDirection } from '@/pane-layout';
+import {
+	canSplitPane,
+	type Pane,
+	type PaneNode,
+	resizeSplit,
+	setPaneWidget,
+	type Split,
+	type SplitDirection,
+} from '@/pane-layout';
 import { getWidgetType, widgetTypes } from '@/widgets/registry';
 import { acceptsEntry, type WidgetType, widgetConfigSchema } from '@/widgets/widget-type';
 
 type PaneNodeProps = {
 	dashboardId: string;
+	dashboardLayout: PaneNode;
 	/** Only set when there's more than one pane */
 	focusedPaneId: string | undefined;
 };
@@ -42,7 +51,15 @@ type PaneNodeProps = {
 export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 	const { layout } = dashboard;
 	const focusedPaneId = layout.kind === 'split' ? getFocusedPane(dashboard).id : undefined;
-	return <PaneNodeView dashboardId={dashboard.id} focusedPaneId={focusedPaneId} node={layout} root />;
+	return (
+		<PaneNodeView
+			dashboardId={dashboard.id}
+			dashboardLayout={layout}
+			focusedPaneId={focusedPaneId}
+			node={layout}
+			root
+		/>
+	);
 }
 
 function PaneNodeView({ node, root = false, ...props }: PaneNodeProps & { node: PaneNode; root?: boolean }) {
@@ -92,7 +109,13 @@ function SplitView({ split, ...props }: PaneNodeProps & { split: Split }) {
 	);
 }
 
-function PaneView({ dashboardId, focusedPaneId, pane, closable }: PaneNodeProps & { pane: Pane; closable: boolean }) {
+function PaneView({
+	dashboardId,
+	dashboardLayout,
+	focusedPaneId,
+	pane,
+	closable,
+}: PaneNodeProps & { pane: Pane; closable: boolean }) {
 	const [optionsOpen, setOptionsOpen] = useState(false);
 	const update = (operation: (layout: PaneNode) => PaneNode) => updateLayout(dashboardId, operation);
 	const { widget } = pane;
@@ -121,11 +144,13 @@ function PaneView({ dashboardId, focusedPaneId, pane, closable }: PaneNodeProps 
 			),
 		);
 	const split = (direction: SplitDirection) => splitDashboardPane(dashboardId, pane.id, direction);
+	const canSplitRight = canSplitPane(dashboardLayout, pane.id, 'row');
+	const canSplitDown = canSplitPane(dashboardLayout, pane.id, 'column');
 	const close = () => closeDashboardPane(dashboardId, pane.id);
 
 	const menuItems: MenuEntry[] = [
-		{ label: 'Split right', icon: Columns2Icon, onSelect: () => split('row') },
-		{ label: 'Split down', icon: Rows2Icon, onSelect: () => split('column') },
+		{ label: 'Split right', icon: Columns2Icon, disabled: !canSplitRight, onSelect: () => split('row') },
+		{ label: 'Split down', icon: Rows2Icon, disabled: !canSplitDown, onSelect: () => split('column') },
 		'separator',
 		{
 			label: 'Change widget',
@@ -175,10 +200,10 @@ function PaneView({ dashboardId, focusedPaneId, pane, closable }: PaneNodeProps 
 						onOpenChange={setOptionsOpen}
 					/>
 				)}
-				<PaneButton label="Split right" onClick={() => split('row')}>
+				<PaneButton label="Split right" disabled={!canSplitRight} onClick={() => split('row')}>
 					<Columns2Icon />
 				</PaneButton>
-				<PaneButton label="Split down" onClick={() => split('column')}>
+				<PaneButton label="Split down" disabled={!canSplitDown} onClick={() => split('column')}>
 					<Rows2Icon />
 				</PaneButton>
 				{closable && (
@@ -234,17 +259,21 @@ function AddWidgetPrompt({ onAdd }: { onAdd: (type: WidgetType) => void }) {
 function PaneButton({
 	label,
 	shortcut,
+	disabled = false,
 	onClick,
 	children,
 }: {
 	label: string;
 	shortcut?: Hotkey;
+	disabled?: boolean;
 	onClick: () => void;
 	children: ReactNode;
 }) {
 	return (
 		<Tooltip>
-			<TooltipTrigger render={<Button variant="ghost" size="icon-xs" aria-label={label} onClick={onClick} />}>
+			<TooltipTrigger
+				render={<Button variant="ghost" size="icon-xs" aria-label={label} disabled={disabled} onClick={onClick} />}
+			>
 				{children}
 			</TooltipTrigger>
 			<TooltipPopup>
