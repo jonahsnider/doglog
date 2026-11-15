@@ -217,6 +217,9 @@ jobs:
       - name: Lint, format, and type check
         run: pnpm check
         working-directory: studio
+      - name: Test
+        run: pnpm test
+        working-directory: studio
       - name: Knip
         run: pnpm knip
       - name: Build
