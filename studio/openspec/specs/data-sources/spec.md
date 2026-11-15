@@ -51,6 +51,12 @@ Users SHALL be able to open a WPILOG file with a file picker or by dropping it a
 - **WHEN** the user drops a `.wpilog` file anywhere on the app window
 - **THEN** that log becomes the active source
 
+#### Scenario: Dragging a file over the window
+
+- **WHEN** the user drags a file over the app window
+- **THEN** an overlay shows that dropping it opens the log
+- **AND** the overlay hides when the file is dropped or dragged out of the window
+
 ### Requirement: Connect to a live NT4 server
 
 Users SHALL be able to connect to a robot or simulator over NT4, using the connection target from Settings.

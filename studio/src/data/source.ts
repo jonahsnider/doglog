@@ -140,7 +140,8 @@ export function quickConnect(robotHost: string | undefined): void {
 	void attempt();
 }
 
-const hasFiles = (event: DragEvent) => event.dataTransfer?.types.includes('Files') ?? false;
+/** Whether a drag event is dragging files from outside the window */
+export const hasFiles = (event: DragEvent) => event.dataTransfer?.types.includes('Files') ?? false;
 
 /** Open WPILOG files dropped anywhere on the window */
 export function handleLogFileDrops(): void {
