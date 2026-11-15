@@ -54,22 +54,32 @@ export function SourceControl() {
 		});
 	};
 
+	const name = source === undefined ? 'No data source' : source.type === 'log' ? source.fileName : source.host;
+	const status = source === undefined ? 'Open a log or connect' : statusLabels[source.status];
+
 	return (
 		<>
 			<Menu>
-				<MenuTrigger render={<SidebarMenuButton size="lg" />}>
+				<MenuTrigger
+					render={
+						<SidebarMenuButton
+							size="lg"
+							// Keep the icon aligned and the height the same when only icons are shown
+							className="group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:p-2!"
+							tooltip={`${name}: ${status}`}
+						/>
+					}
+				>
 					<SourceIcon source={source} />
 					<div className="grid flex-1 text-left leading-tight">
-						<span className="truncate font-medium">
-							{source === undefined ? 'No data source' : source.type === 'log' ? source.fileName : source.host}
-						</span>
+						<span className="truncate font-medium">{name}</span>
 						<span
 							className={cn(
 								'truncate text-xs text-muted-foreground',
 								source?.status === 'disconnected' && 'text-destructive-foreground',
 							)}
 						>
-							{source === undefined ? 'Open a log or connect' : statusLabels[source.status]}
+							{status}
 						</span>
 					</div>
 					<ChevronsUpDownIcon className="ms-auto text-muted-foreground" />

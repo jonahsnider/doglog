@@ -47,19 +47,27 @@ export function SidebarDashboards() {
 	const [closing, setClosing] = useState<Dashboard>();
 	const [confirmOpen, setConfirmOpen] = useState(false);
 
+	const addDashboard = () => {
+		const { id } = createDashboard();
+		void navigate({ to: '/dashboards/$dashboardId', params: { dashboardId: id } });
+	};
+
 	return (
 		<SidebarGroup>
 			<SidebarGroupLabel>Dashboards</SidebarGroupLabel>
-			<SidebarGroupAction
-				title="New dashboard"
-				onClick={() => {
-					const { id } = createDashboard();
-					void navigate({ to: '/dashboards/$dashboardId', params: { dashboardId: id } });
-				}}
-			>
+			<SidebarGroupAction title="New dashboard" onClick={addDashboard}>
 				<PlusIcon />
 				<span className="sr-only">New dashboard</span>
 			</SidebarGroupAction>
+			{/* Takes the place of the label and its action when the sidebar only shows icons */}
+			<SidebarMenu className="hidden group-data-[collapsible=icon]:flex">
+				<SidebarMenuItem>
+					<SidebarMenuButton tooltip="New dashboard" onClick={addDashboard}>
+						<PlusIcon />
+						<span>New dashboard</span>
+					</SidebarMenuButton>
+				</SidebarMenuItem>
+			</SidebarMenu>
 			<DragDropProvider
 				sensors={sensors}
 				onDragEnd={(event) => {
@@ -145,6 +153,7 @@ function DashboardItem({ dashboard, index, onClose }: { dashboard: Dashboard; in
 						// Keeps the link a link, dnd-kit makes drag handles without a role into buttons
 						role="link"
 						onDoubleClick={() => setRenaming(true)}
+						tooltip={dashboard.name}
 					>
 						<LayoutDashboardIcon />
 						<span>{dashboard.name}</span>
