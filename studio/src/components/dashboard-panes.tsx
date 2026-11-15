@@ -37,7 +37,7 @@ function SplitView({ dashboardId, split }: { dashboardId: string; split: Split }
 			orientation={row ? 'horizontal' : 'vertical'}
 			defaultLayout={{ [firstId]: split.ratio * 100, [secondId]: (1 - split.ratio) * 100 }}
 			// Called once a drag is released or a key is pressed, not on every pointer move
-			onLayoutChanged={(layout, { isUserInteraction, requestedLayout = layout }) => {
+			onLayoutChanged={(panelLayout, { isUserInteraction, requestedLayout = panelLayout }) => {
 				const size = requestedLayout[firstId];
 				if (isUserInteraction && size !== undefined) {
 					updateLayout(dashboardId, (layout) => resizeSplit(layout, split.id, size / 100));
@@ -70,13 +70,17 @@ function PaneView({ dashboardId, pane, closable }: { dashboardId: string; pane: 
 	const config = useMemo(() => widgetConfigSchema.parse(widget?.config), [widget?.config]);
 
 	const addWidget = (newType: WidgetType) => {
-		const config = { ...newType.defaultConfig, entries: [...newType.defaultConfig.entries] };
-		update((layout) => setPaneWidget(layout, pane.id, { type: newType.id, config }));
+		const newConfig = { ...newType.defaultConfig, entries: [...newType.defaultConfig.entries] };
+		update((layout) => setPaneWidget(layout, pane.id, { type: newType.id, config: newConfig }));
 	};
 	// Keeps any other config fields as they are
 	const setEntries = (entries: string[]) =>
 		update((layout) =>
-			setPaneWidget(layout, pane.id, widget && { ...widget, config: { ...(widget.config as object), entries } }),
+			setPaneWidget(
+				layout,
+				pane.id,
+				widget && { ...widget, config: { ...(typeof widget.config === 'object' ? widget.config : {}), entries } },
+			),
 		);
 
 	return (

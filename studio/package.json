@@ -9,6 +9,7 @@
 		"check:fix": "vp check --fix",
 		"dev": "portless",
 		"dev:app": "vp dev",
+		"react-doctor": "react-doctor --no-telemetry --verbose",
 		"preview": "vp preview",
 		"tauri": "tauri",
 		"test": "vp test run"
@@ -47,6 +48,7 @@
 		"@types/react-dom": "19.3.0",
 		"@vitejs/plugin-react": "6.3.0",
 		"portless": "0.17.0",
+		"react-doctor": "0.9.23",
 		"tailwindcss": "4.3.5",
 		"typescript": "7.1.0-dev.20261113.1",
 		"vite": "catalog:",

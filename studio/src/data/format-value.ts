@@ -14,15 +14,15 @@ export function formatValue(value: Formattable): string {
 			return String(value);
 		case 'undefined':
 			return '';
-	}
+		default:
+			if (Array.isArray(value)) {
+				return `[${value.map((item) => formatNested(item)).join(', ')}]`;
+			}
 
-	if (Array.isArray(value)) {
-		return `[${value.map(formatNested).join(', ')}]`;
+			return `{${Object.entries(value)
+				.map(([key, field]) => `${key}: ${formatNested(field)}`)
+				.join(', ')}}`;
 	}
-
-	return `{${Object.entries(value)
-		.map(([key, field]) => `${key}: ${formatNested(field)}`)
-		.join(', ')}}`;
 }
 
 /** Strings inside arrays and structs are quoted so commas in them stay readable */

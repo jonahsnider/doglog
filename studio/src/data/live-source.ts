@@ -127,8 +127,8 @@ export function connectLive(host: string, onStatus: (status: LiveStatus) => void
 			}
 
 			addSample(entry, timestamp, decoded);
-			if (params.type === 'structschema' && entry.name.startsWith(structSchemaPrefix)) {
-				registerStructSchema(entry.name, decoded as string);
+			if (params.type === 'structschema' && typeof decoded === 'string' && entry.name.startsWith(structSchemaPrefix)) {
+				registerStructSchema(entry.name, decoded);
 			}
 		},
 		{ all: true, periodic: 0.02 },

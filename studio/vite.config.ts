@@ -23,9 +23,12 @@ export default defineConfig({
 		ignorePatterns,
 	},
 	lint: {
-		plugins: ['react', 'typescript', 'oxc'],
+		// react-perf is left out: without React Compiler, its rules ask for useCallback/useMemo around every inline prop
+		plugins: ['eslint', 'typescript', 'unicorn', 'oxc', 'react', 'jsx-a11y', 'import', 'promise', 'vitest'],
 		categories: {
 			correctness: 'error',
+			suspicious: 'error',
+			pedantic: 'error',
 			perf: 'error',
 		},
 		rules: {
@@ -37,6 +40,83 @@ export default defineConfig({
 				},
 			],
 			'vite-plus/prefer-vite-plus-imports': 'error',
+
+			// Too noisy or opinionated
+			// The automatic JSX runtime doesn't need React in scope
+			'react/react-in-jsx-scope': 'off',
+			// Library and DOM types aren't deeply readonly, so this flags almost every parameter
+			'typescript/prefer-readonly-parameter-types': 'off',
+			// Components and hooks are naturally long and import a lot
+			'eslint/max-lines-per-function': 'off',
+			'import/max-dependencies': 'off',
+			// Zod's `.catch()` looks like a promise chain
+			'unicorn/prefer-top-level-await': 'off',
+			// TypeScript often needs an explicit `undefined`, ex. for required parameters and `noImplicitReturns`
+			'unicorn/no-useless-undefined': 'off',
+			// Flags ARIA roles on components and SVG icons, where a native tag isn't an option
+			'jsx-a11y/prefer-tag-over-role': 'off',
+			// Only used to focus inputs opened by a user action, ex. renaming a dashboard
+			'jsx-a11y/no-autofocus': 'off',
+
+			// Rule options
+			'typescript/no-confusing-void-expression': ['error', { ignoreArrowShorthand: true }],
+			'typescript/switch-exhaustiveness-check': ['error', { considerDefaultExhaustiveForUnions: true }],
+			'import/no-unassigned-import': ['error', { allow: ['**/*.css'] }],
+
+			// Selected rules from the restriction and style categories, which are too opinionated to enable wholesale
+			'eslint/curly': 'error',
+			'eslint/no-alert': 'error',
+			'eslint/no-console': 'error',
+			'eslint/no-implicit-coercion': 'error',
+			'eslint/no-param-reassign': 'error',
+			'eslint/no-sequences': 'error',
+			'eslint/no-var': 'error',
+			'eslint/object-shorthand': 'error',
+			'eslint/prefer-const': 'error',
+			'eslint/prefer-object-has-own': 'error',
+			'eslint/prefer-object-spread': 'error',
+			'eslint/prefer-spread': 'error',
+			'eslint/prefer-template': 'error',
+			'import/first': 'error',
+			'import/no-cycle': 'error',
+			'import/no-duplicates': 'error',
+			'import/no-mutable-exports': 'error',
+			'promise/no-nesting': 'error',
+			'promise/param-names': 'error',
+			'react/button-has-type': 'error',
+			'react/jsx-boolean-value': 'error',
+			'react/jsx-curly-brace-presence': 'error',
+			'react/jsx-fragments': 'error',
+			'react/no-danger': 'error',
+			'react/no-unknown-property': 'error',
+			'react/self-closing-comp': 'error',
+			'typescript/array-type': 'error',
+			'typescript/consistent-type-assertions': 'error',
+			'typescript/consistent-type-imports': 'error',
+			'typescript/no-empty-object-type': 'error',
+			'typescript/no-explicit-any': 'error',
+			'typescript/no-import-type-side-effects': 'error',
+			'typescript/no-inferrable-types': 'error',
+			'typescript/prefer-for-of': 'error',
+			'typescript/use-unknown-in-catch-callback-variable': 'error',
+			'unicorn/filename-case': 'error',
+			'unicorn/no-abusive-eslint-disable': 'error',
+			'unicorn/no-array-method-this-argument': 'error',
+			'unicorn/prefer-array-index-of': 'error',
+			'unicorn/prefer-includes': 'error',
+			'unicorn/prefer-keyboard-event-key': 'error',
+			'unicorn/prefer-modern-dom-apis': 'error',
+			'unicorn/prefer-modern-math-apis': 'error',
+			'unicorn/prefer-negative-index': 'error',
+			'unicorn/prefer-node-protocol': 'error',
+			'unicorn/prefer-number-properties': 'error',
+			'unicorn/prefer-optional-catch-binding': 'error',
+			'unicorn/prefer-structured-clone': 'error',
+			'unicorn/require-array-join-separator': 'error',
+			'unicorn/throw-new-error': 'error',
+			'vitest/no-identical-title': 'error',
+			'vitest/prefer-to-be': 'error',
+			'vitest/prefer-to-have-length': 'error',
 		},
 		overrides: [
 			{
@@ -49,6 +129,8 @@ export default defineConfig({
 		options: {
 			typeAware: true,
 			typeCheck: true,
+			denyWarnings: true,
+			reportUnusedDisableDirectives: 'error',
 		},
 		jsPlugins: [
 			{

@@ -28,7 +28,7 @@ function Settings() {
 
 			<Field name="theme">
 				<Fieldset
-					render={<RadioGroup value={theme} onValueChange={(value) => updateSettings({ theme: value as Theme })} />}
+					render={<RadioGroup value={theme} onValueChange={(value: Theme) => updateSettings({ theme: value })} />}
 				>
 					<FieldsetLegend className="mb-1 text-sm">Theme</FieldsetLegend>
 					{themes.map((value) => (
@@ -53,7 +53,7 @@ function Settings() {
 					<FieldError match>Enter a team number or an IP address</FieldError>
 				) : (
 					<FieldDescription>
-						{robotHost ? `Connect to robot uses ${robotHost}` : 'Team number or IP address of the robot'}
+						{robotHost === undefined ? 'Team number or IP address of the robot' : `Connect to robot uses ${robotHost}`}
 					</FieldDescription>
 				)}
 			</Field>

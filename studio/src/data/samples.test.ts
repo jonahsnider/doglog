@@ -42,14 +42,14 @@ describe('Samples', () => {
 			samples.push(i, i);
 		}
 
-		expect(samples.length).toBe(100);
+		expect(samples).toHaveLength(100);
 		expect(samples.valueAt(42.5)).toBe(42);
 	});
 });
 
-describe('trimOldest', () => {
-	const timestampsOf = (samples: Samples) => [...samples.timestamps.subarray(0, samples.length)];
+const timestampsOf = (samples: Samples) => [...samples.timestamps.subarray(0, samples.length)];
 
+describe('trimOldest', () => {
 	test('removes the oldest samples across entries first', () => {
 		const a = samplesOf([10, 0], [20, 0], [30, 0], [40, 0]);
 		const b = samplesOf([15, 0], [25, 0], [35, 0]);
@@ -77,6 +77,6 @@ describe('trimOldest', () => {
 
 		expect(old.valueAt(1000)).toBe(7);
 		expect(busy.valueAt(1000)).toBe(2);
-		expect(busy.length).toBe(1);
+		expect(busy).toHaveLength(1);
 	});
 });

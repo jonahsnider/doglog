@@ -1,3 +1,4 @@
+import { formatValue } from '@/data/format-value';
 import type { Samples } from '@/data/samples';
 
 /** Console messages in time order, `times[i]` (µs) is the time of `texts[i]` */
@@ -22,7 +23,7 @@ export function mergeMessages(sources: readonly Samples[]): ConsoleMessages {
 				times[i] = samples.timestamps[next[source]!]!;
 			}
 		}
-		texts.push(sources[best]!.values[next[best]!] as string);
+		texts.push(formatValue(sources[best]!.values[next[best]!]));
 		next[best]!++;
 	}
 

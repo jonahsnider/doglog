@@ -49,6 +49,7 @@ export function loadLog(file: File, { onLoaded, onError }: LoadLogCallbacks): ()
 		}
 	});
 
+	// oxlint-disable-next-line unicorn/require-post-message-target-origin -- Workers don't take a target origin
 	worker.postMessage(file);
 
 	return stop;

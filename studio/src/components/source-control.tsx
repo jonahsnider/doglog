@@ -23,16 +23,13 @@ function SourceIcon({ source }: { source: Source | undefined }) {
 		return <Spinner />;
 	}
 
-	switch (source?.type) {
-		case undefined:
-			return <DatabaseIcon />;
-		case 'log':
-			return <FileIcon />;
-		case 'live':
-			return (
-				<RadioTowerIcon className={source.status === 'connected' ? 'text-success' : 'text-destructive-foreground'} />
-			);
+	if (source === undefined) {
+		return <DatabaseIcon />;
 	}
+	if (source.type === 'log') {
+		return <FileIcon />;
+	}
+	return <RadioTowerIcon className={source.status === 'connected' ? 'text-success' : 'text-destructive-foreground'} />;
 }
 
 /** Shows the active data source and lets the user open a log or connect live */
@@ -44,7 +41,7 @@ export function SourceControl() {
 	const fileInput = useRef<HTMLInputElement>(null);
 
 	const connectToRobot = () => {
-		if (robotHost) {
+		if (robotHost !== undefined) {
 			void connect(robotHost);
 			return;
 		}

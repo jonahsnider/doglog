@@ -67,7 +67,7 @@ function EntryPicker({ type, entries, onEntriesChange }: EntryPickerProps) {
 			inline
 			open
 			autoHighlight
-			value={entries as string[]}
+			value={entries}
 			onValueChange={onEntriesChange}
 			inputValue={query}
 			onInputValueChange={setQuery}

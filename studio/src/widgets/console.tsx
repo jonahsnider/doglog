@@ -21,7 +21,7 @@ export function Console({ bindings }: WidgetProps) {
 	// Samples are mutated in place, so `signature` tells when a bound entry's samples changed and need merging again
 	const signature = sources
 		.map((samples) => `${samples.length}:${samples.timestamps[0]}:${samples.timestamps[samples.length - 1]}`)
-		.join();
+		.join(',');
 	// oxlint-disable-next-line react-hooks/exhaustive-deps
 	const merged = useMemo(() => mergeMessages(sources), [sources, signature]);
 	const messages = useMemo(() => (filter ? filterMessages(merged, filter) : merged), [merged, filter]);

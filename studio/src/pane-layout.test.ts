@@ -6,10 +6,20 @@ import {
 	paneNodeSchema,
 	resizeSplit,
 	setPaneWidget,
+	type Split,
 	splitPane,
 } from './pane-layout.ts';
 
 const graph = { type: 'line-graph', config: { entries: ['/Arm/Angle'] } };
+
+function expectSplit(node: PaneNode): Split {
+	if (node.kind !== 'split') {
+		throw new Error(`Expected a split, got a ${node.kind}`);
+	}
+	return node;
+}
+
+const parse = (stored: unknown) => paneNodeSchema.safeParse(stored).data;
 
 test('splitting a pane keeps it first and adds an empty pane after it', () => {
 	const original = { ...createPane(), widget: graph };
@@ -23,17 +33,17 @@ test('splitting a pane keeps it first and adds an empty pane after it', () => {
 		first: original,
 		second: { kind: 'pane' },
 	});
-	expect(layout.kind === 'split' && layout.second.kind === 'pane' && layout.second.widget).toBeFalsy();
+	expect(expectSplit(layout).second).not.toHaveProperty('widget');
 });
 
 test('closing a pane lets its sibling take its place', () => {
 	const left = { ...createPane(), widget: graph };
-	const split = splitPane(left, left.id, 'row');
-	const right = split.kind === 'split' ? split.second : split;
-	const nested = splitPane(split, right.id, 'column');
+	const split = expectSplit(splitPane(left, left.id, 'row'));
+	const right = split.second;
+	const nested = expectSplit(splitPane(split, right.id, 'column'));
 
 	// Closing the bottom right pane collapses the nested split back to the original
-	const bottomRight = nested.kind === 'split' && nested.second.kind === 'split' ? nested.second.second : nested;
+	const bottomRight = expectSplit(nested.second).second;
 	expect(closePane(nested, bottomRight.id)).toEqual(split);
 
 	expect(closePane(split, right.id)).toEqual(left);
@@ -45,13 +55,13 @@ test('closing the only pane leaves an empty pane', () => {
 	const layout = closePane(pane, pane.id);
 
 	expect(layout.kind).toBe('pane');
-	expect(layout.kind === 'pane' && layout.widget).toBeUndefined();
+	expect(layout).not.toHaveProperty('widget');
 });
 
 test('setting and clearing a nested pane widget', () => {
 	const first = createPane();
-	const split = splitPane(first, first.id, 'column');
-	const second = split.kind === 'split' ? split.second : split;
+	const split = expectSplit(splitPane(first, first.id, 'column'));
+	const { second } = split;
 
 	const withWidget = setPaneWidget(split, second.id, graph);
 	expect(withWidget).toMatchObject({ first, second: { id: second.id, widget: graph } });
@@ -72,9 +82,9 @@ test('parsing round-trips valid layouts and rejects invalid ones', () => {
 	const pane = { ...createPane(), widget: graph };
 	const layout: PaneNode = splitPane(pane, pane.id, 'column');
 
-	const parse = (stored: unknown) => paneNodeSchema.safeParse(stored).data;
-
-	expect(parse(JSON.parse(JSON.stringify(layout)))).toEqual(layout);
+	// Stored like localStorage does
+	const stored = JSON.stringify(layout);
+	expect(parse(JSON.parse(stored))).toEqual(layout);
 	expect(parse(undefined)).toBeUndefined();
 	expect(parse({ kind: 'split', id: 'a', direction: 'row', ratio: 0.5, first: pane })).toBeUndefined();
 	expect(parse({ kind: 'pane', id: 'a', widget: { config: {} } })).toEqual({ kind: 'pane', id: 'a' });

@@ -80,10 +80,10 @@ export async function connect(host: string): Promise<void> {
 	});
 }
 
+const hasFiles = (event: DragEvent) => event.dataTransfer?.types.includes('Files') ?? false;
+
 /** Open WPILOG files dropped anywhere on the window */
 export function handleLogFileDrops(): void {
-	const hasFiles = (event: DragEvent) => event.dataTransfer?.types.includes('Files') ?? false;
-
 	window.addEventListener('dragover', (event) => {
 		if (hasFiles(event)) {
 			event.preventDefault();

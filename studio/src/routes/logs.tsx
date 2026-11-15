@@ -14,7 +14,7 @@ function Logs() {
 					<FolderSyncIcon />
 				</EmptyMedia>
 				<EmptyTitle>Log sync is coming soon</EmptyTitle>
-				<EmptyDescription>Syncing logs from your robot isn't available yet.</EmptyDescription>
+				<EmptyDescription>Syncing logs from your robot isn’t available yet.</EmptyDescription>
 			</EmptyHeader>
 		</Empty>
 	);

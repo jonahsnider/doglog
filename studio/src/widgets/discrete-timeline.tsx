@@ -254,6 +254,8 @@ export function DiscreteTimeline({ bindings }: WidgetProps) {
 	}
 
 	return (
+		// Clicking to seek is a pointer shortcut, keyboard users seek with the timeline bar
+		// oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions, react-doctor/click-events-have-key-events, react-doctor/no-static-element-interactions
 		<div
 			ref={container}
 			className="relative cursor-crosshair"

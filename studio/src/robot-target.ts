@@ -7,7 +7,7 @@ export const simulatorHost = 'localhost';
 
 const teamNumberSchema = z
 	.string()
-	.regex(/^\d{1,5}$/)
+	.regex(/^\d{1,5}$/u)
 	.transform(Number)
 	.refine((team) => team !== 0)
 	.transform((team) => `10.${Math.floor(team / 100)}.${team % 100}.2`);

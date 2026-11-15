@@ -59,7 +59,7 @@ export function renameDashboard(id: string, name: string): void {
 /** Move a dashboard so it ends up at `index` */
 export function moveDashboard(id: string, index: number): void {
 	store.set((dashboards) => {
-		const dashboard = dashboards.find((dashboard) => dashboard.id === id);
+		const dashboard = dashboards.find((other) => other.id === id);
 		if (!dashboard) {
 			return dashboards;
 		}

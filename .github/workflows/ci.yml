@@ -217,6 +217,10 @@ jobs:
       - name: Lint, format, and type check
         run: pnpm check
         working-directory: studio
+      - name: React Doctor
+        # `pnpm doctor` is a built-in pnpm command
+        run: pnpm react-doctor
+        working-directory: studio
       - name: Test
         run: pnpm test
         working-directory: studio

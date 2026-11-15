@@ -157,7 +157,11 @@ function TimelineControls() {
 			<Select
 				items={speedItems}
 				value={speed}
-				onValueChange={(value) => value !== null && setSpeed(value)}
+				onValueChange={(value) => {
+					if (value !== null) {
+						setSpeed(value);
+					}
+				}}
 				onOpenChange={setSpeedOpen}
 			>
 				<SelectTrigger size="sm" aria-label="Playback speed" className="w-auto min-w-0">

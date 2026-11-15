@@ -153,17 +153,19 @@ export function getTimeRange(): TimeRange | undefined {
  */
 export function subscribeData(listener: () => void): () => void {
 	dataListeners.add(listener);
-	return () => dataListeners.delete(listener);
+	return () => {
+		dataListeners.delete(listener);
+	};
 }
 
 /** All entries of the active source, sorted by name. Doesn't change when samples are added. @public */
 export function useEntries(): readonly Entry[] {
-	return useSelector(entriesStore, (entries) => entries.list);
+	return useSelector(entriesStore, (state) => state.list);
 }
 
 /** An entry of the active source by name, `undefined` if it doesn't exist. @public */
 export function useEntry(name: string): Entry | undefined {
-	return useSelector(entriesStore, (entries) => entries.map.get(name));
+	return useSelector(entriesStore, (state) => state.map.get(name));
 }
 
 /** @public */

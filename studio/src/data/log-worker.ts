@@ -66,11 +66,13 @@ function parse(bytes: Uint8Array): void {
 		for (const record of parseDataLog(bytes)) {
 			if (!isDataRecord(record)) {
 				const { payload } = record;
-				if (payload.controlRecordType === 0) {
-					const name = normalizeEntryName(payload.entryName);
-					if (entries.get(name)?.type !== payload.entryType) {
-						entries.set(name, { type: payload.entryType, samples: new Samples() });
-					}
+				// Only start records define entries
+				if (payload.controlRecordType !== 0) {
+					continue;
+				}
+				const name = normalizeEntryName(payload.entryName);
+				if (entries.get(name)?.type !== payload.entryType) {
+					entries.set(name, { type: payload.entryType, samples: new Samples() });
 				}
 				continue;
 			}
@@ -112,13 +114,17 @@ function parse(bytes: Uint8Array): void {
 	postMessage({ type: 'done', start, end, damaged } satisfies LogWorkerMessage);
 }
 
-addEventListener('message', async (event: MessageEvent<File>) => {
+async function parseFile(file: File): Promise<void> {
 	try {
-		parse(new Uint8Array(await event.data.arrayBuffer()));
+		parse(new Uint8Array(await file.arrayBuffer()));
 	} catch (error) {
 		postMessage({
 			type: 'error',
 			message: error instanceof Error ? error.message : String(error),
 		} satisfies LogWorkerMessage);
 	}
+}
+
+addEventListener('message', (event: MessageEvent<File>) => {
+	void parseFile(event.data);
 });
