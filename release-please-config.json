@@ -1,43 +1,57 @@
 {
 	"$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
 	"packages": {
-		".": {
+		"lib": {
 			"bump-minor-pre-major": false,
 			"bump-patch-for-minor-pre-major": false,
-			"changelog-path": "CHANGELOG.md",
+			"changelog-path": "/CHANGELOG.md",
+			"component": "doglog",
 			"draft": false,
-			"exclude-paths": ["studio"],
 			"extra-files": [
 				{
 					"jsonpath": "$.version",
-					"path": "vendordep.json",
+					"path": "/vendordep.json",
 					"type": "json"
 				},
 				{
 					"jsonpath": "$.javaDependencies[0].version",
-					"path": "vendordep.json",
+					"path": "/vendordep.json",
 					"type": "json"
 				},
 				{
 					"jsonpath": "$.version",
-					"path": "web/public/vendordep.json",
+					"path": "/web/public/vendordep.json",
 					"type": "json"
 				},
 				{
 					"jsonpath": "$.javaDependencies[0].version",
-					"path": "web/public/vendordep.json",
+					"path": "/web/public/vendordep.json",
 					"type": "json"
 				},
 				{
 					"jsonpath": "$.version",
-					"path": "lib/package.json",
+					"path": "package.json",
 					"type": "json"
 				}
 			],
+			"include-component-in-tag": false,
 			"include-v-in-tag": false,
 			"prerelease": false,
 			"release-type": "simple",
-			"version-file": "version.txt"
+			"version-file": "/version.txt"
+		},
+		"studio": {
+			"component": "studio",
+			"extra-files": [
+				{
+					"jsonpath": "$.version",
+					"path": "src-tauri/tauri.conf.json",
+					"type": "json"
+				}
+			],
+			"initial-version": "2026.0.0",
+			"release-type": "node"
 		}
-	}
+	},
+	"separate-pull-requests": true
 }

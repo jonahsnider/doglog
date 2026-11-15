@@ -15,9 +15,9 @@ jobs:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
-      version: ${{ steps.release.outputs.version }}
+      release_created: ${{ steps.release.outputs['lib--release_created'] }}
+      tag_name: ${{ steps.release.outputs['lib--tag_name'] }}
+      version: ${{ steps.release.outputs['lib--version'] }}
     steps:
       - name: Run release-please
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5
