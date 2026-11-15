@@ -18,7 +18,6 @@ import { Button } from '@/components/ui/button';
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
 import {
 	SidebarGroup,
-	SidebarGroupAction,
 	SidebarGroupLabel,
 	SidebarInput,
 	SidebarMenu,
@@ -26,7 +25,6 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { newDashboard, shortcuts } from '@/commands';
 import { type Dashboard, deleteDashboard, moveDashboard, renameDashboard, useDashboards } from '@/dashboards';
@@ -45,28 +43,18 @@ export function SidebarDashboards() {
 	const [closing, setClosing] = useState<Dashboard>();
 	const [confirmOpen, setConfirmOpen] = useState(false);
 
-	const addDashboard = () => newDashboard(router);
-	const addDashboardTooltip = <TooltipLabel label="New dashboard" shortcut={shortcuts.newDashboard} />;
-
 	return (
-		<SidebarGroup>
+		// Fills the rest of the sidebar so the empty space below the list can be double-clicked
+		<SidebarGroup
+			className="flex-1"
+			onDoubleClick={(event) => {
+				// Dashboards and the new dashboard button handle their own clicks
+				if (event.target instanceof Element && !event.target.closest('[data-sidebar="menu-item"]')) {
+					newDashboard(router, 'bottom');
+				}
+			}}
+		>
 			<SidebarGroupLabel>Dashboards</SidebarGroupLabel>
-			<Tooltip>
-				<TooltipTrigger render={<SidebarGroupAction onClick={addDashboard} />}>
-					<PlusIcon />
-					<span className="sr-only">New dashboard</span>
-				</TooltipTrigger>
-				<TooltipPopup>{addDashboardTooltip}</TooltipPopup>
-			</Tooltip>
-			{/* Takes the place of the label and its action when the sidebar only shows icons */}
-			<SidebarMenu className="hidden group-data-[collapsible=icon]:flex">
-				<SidebarMenuItem>
-					<SidebarMenuButton tooltip={{ children: addDashboardTooltip }} onClick={addDashboard}>
-						<PlusIcon />
-						<span>New dashboard</span>
-					</SidebarMenuButton>
-				</SidebarMenuItem>
-			</SidebarMenu>
 			<DragDropProvider
 				sensors={sensors}
 				onDragEnd={(event) => {
@@ -77,6 +65,15 @@ export function SidebarDashboards() {
 				}}
 			>
 				<SidebarMenu>
+					<SidebarMenuItem>
+						<SidebarMenuButton
+							tooltip={{ children: <TooltipLabel label="New dashboard" shortcut={shortcuts.newDashboard} /> }}
+							onClick={() => newDashboard(router)}
+						>
+							<PlusIcon />
+							<span>New dashboard</span>
+						</SidebarMenuButton>
+					</SidebarMenuItem>
 					{dashboards.map((dashboard, index) => (
 						<DashboardItem
 							key={dashboard.id}

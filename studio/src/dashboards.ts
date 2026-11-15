@@ -49,8 +49,8 @@ export function useDashboard(id: string): Dashboard | undefined {
 	return useDashboards().find((dashboard) => dashboard.id === id);
 }
 
-/** Create an empty, auto-named dashboard at the top of the list */
-export function createDashboard(): Dashboard {
+/** Create an empty, auto-named dashboard at the top or bottom of the list */
+export function createDashboard(position: 'top' | 'bottom' = 'top'): Dashboard {
 	const names = new Set(store.get().map((dashboard) => dashboard.name));
 	let number = 1;
 	while (names.has(`Dashboard ${number}`)) {
@@ -58,7 +58,7 @@ export function createDashboard(): Dashboard {
 	}
 
 	const dashboard = newDashboard(`Dashboard ${number}`);
-	store.set((dashboards) => [dashboard, ...dashboards]);
+	store.set((dashboards) => (position === 'top' ? [dashboard, ...dashboards] : [...dashboards, dashboard]));
 	return dashboard;
 }
 

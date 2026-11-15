@@ -22,8 +22,8 @@ export const shortcuts = {
 	quickConnect: 'Mod+K',
 } as const satisfies Record<string, Hotkey>;
 
-export function newDashboard(router: RegisteredRouter): void {
-	const { id } = createDashboard();
+export function newDashboard(router: RegisteredRouter, position?: 'top' | 'bottom'): void {
+	const { id } = createDashboard(position);
 	void router.navigate({ to: '/dashboards/$dashboardId', params: { dashboardId: id } });
 }
 
