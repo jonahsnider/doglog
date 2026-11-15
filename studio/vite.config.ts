@@ -12,6 +12,8 @@ const ignorePatterns = [
 	'src/components/ui/',
 	'src/hooks/use-media-query.ts',
 	'src/lib/utils.ts',
+	// Edited with Apple's Icon Composer
+	'assets/mac.icon/',
 ];
 
 // https://vite.dev/config/
@@ -156,6 +158,10 @@ export default defineConfig({
 				display: 'standalone',
 				theme_color: '#591616',
 				start_url: '/',
+			},
+			// Generates icons from public/logo.svg and injects their links into index.html
+			pwaAssets: {
+				config: true,
 			},
 		}),
 	]),
