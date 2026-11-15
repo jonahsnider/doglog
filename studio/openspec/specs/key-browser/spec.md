@@ -64,16 +64,6 @@ The key browser SHALL show each entry's type as a compact icon that is visually 
 - **THEN** its row shows a struct type icon
 - **AND** hovering the icon shows `struct:Pose2d`
 
-### Requirement: Boolean values
-
-Boolean values SHALL be shown as a visual mark instead of the text `true` or `false`, so they can be read at a glance.
-
-#### Scenario: True and false
-
-- **GIVEN** two boolean entries, one true and one false at the cursor
-- **THEN** the true entry shows a filled mark
-- **AND** the false entry shows a hollow mark
-
 ### Requirement: Double-click to add
 
 Double-clicking a bindable entry SHALL add it to the open dashboard in a new pane, using the entry's default widget.

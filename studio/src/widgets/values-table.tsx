@@ -1,6 +1,7 @@
 import { ChevronRightIcon } from 'lucide-react';
 import { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { EntryTypeIcon } from '@/components/value-marks';
 import { useDataVersion } from '@/data/data-store';
 import { formatValue } from '@/data/format-value';
 import { cn } from '@/lib/utils';
@@ -29,6 +30,25 @@ function childrenOf(value: FieldValue): [label: string, value: FieldValue][] | u
 		return Object.entries(value);
 	}
 	return undefined;
+}
+
+function TypeLabel({ type }: { type: string }) {
+	return (
+		<span className="flex items-center gap-1.5 font-mono text-xs text-muted-foreground">
+			<EntryTypeIcon type={type} className="size-3.5 shrink-0" />
+			{type}
+		</span>
+	);
+}
+
+function valueCell(row: Row, isExpanded: boolean) {
+	if (row.missing) {
+		return <NoData />;
+	}
+	if (isExpanded) {
+		return undefined;
+	}
+	return formatValue(row.value);
 }
 
 export function ValuesTable({ bindings }: WidgetProps) {
@@ -100,10 +120,8 @@ export function ValuesTable({ bindings }: WidgetProps) {
 									{row.label}
 								</div>
 							</TableCell>
-							<TableCell className="text-muted-foreground">{row.type}</TableCell>
-							<TableCell className="font-mono text-xs whitespace-normal">
-								{row.missing ? <NoData /> : isExpanded ? undefined : formatValue(row.value)}
-							</TableCell>
+							<TableCell>{row.type !== undefined && <TypeLabel type={row.type} />}</TableCell>
+							<TableCell className="font-mono text-xs whitespace-normal">{valueCell(row, isExpanded)}</TableCell>
 						</TableRow>
 					);
 				})}

@@ -6,7 +6,8 @@ import { memo, useCallback, useDeferredValue, useLayoutEffect, useMemo, useRef, 
 import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { Kbd } from '@/components/ui/kbd';
-import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipCreateHandle, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
+import { MarkTooltip, TypeMark } from '@/components/value-marks';
 import { type Entry, useDataVersion, useEntries } from '@/data/data-store';
 import { formatValue } from '@/data/format-value';
 import { useSource } from '@/data/source';
@@ -21,6 +22,9 @@ import * as z from 'zod';
 const rowHeight = 28;
 /** Rows rendered above and below the visible ones, so fast scrolling doesn't show blank space */
 const overscan = 10;
+
+/** Shared by the type, boolean, and unsupported marks of every row */
+const markTooltip = TooltipCreateHandle<string>();
 
 const openStore = createPersistedAtom('key-browser-open', z.boolean(), true);
 
@@ -121,6 +125,7 @@ function KeyTree() {
 					/>
 				</InputGroup>
 			</div>
+			<MarkTooltip handle={markTooltip} />
 			{message === undefined ? (
 				<VirtualRows rows={rows} onToggle={toggleGroup} />
 			) : (
@@ -162,6 +167,8 @@ function VirtualRows({ rows, onToggle }: { rows: readonly KeyRow[]; onToggle: (p
 	);
 }
 
+const unsupportedLabel = "Unsupported type, can't be shown in widgets";
+
 // Memoized so rows don't re-render when the cursor moves, only their values do
 const KeyRowView = memo(function KeyRowView({
 	row,
@@ -183,8 +190,11 @@ const KeyRowView = memo(function KeyRowView({
 		...(entry && { data: { entry } }),
 	});
 	const label = (
-		<span className={cn('min-w-24 flex-1 truncate', unsupported && 'text-muted-foreground')}>{node.label}</span>
+		<span className={cn('min-w-24 flex-1 truncate', unsupported && 'text-muted-foreground')} title={node.path}>
+			{node.label}
+		</span>
 	);
+	const typeMark = entry && <TypeMark type={entry.type} tooltip={markTooltip} />;
 
 	return (
 		<div
@@ -195,11 +205,6 @@ const KeyRowView = memo(function KeyRowView({
 				draggable && 'cursor-grab active:cursor-grabbing',
 			)}
 			style={{ top, height: rowHeight, paddingInlineStart: 8 + depth * 12 }}
-			title={
-				entry
-					? `${entry.name}\n${entry.type}${unsupported ? " (unsupported, can't be shown in widgets)" : ''}`
-					: node.path
-			}
 		>
 			{node.children.length > 0 ? (
 				<button
@@ -211,21 +216,23 @@ const KeyRowView = memo(function KeyRowView({
 					<ChevronRightIcon
 						className={cn('size-4 shrink-0 text-muted-foreground transition-transform', expanded && 'rotate-90')}
 					/>
+					{typeMark}
 					{label}
 				</button>
 			) : (
 				<>
-					<span className="size-4 shrink-0" />
+					{typeMark}
 					{label}
 				</>
 			)}
-			{entry && <span className="min-w-0 max-w-20 shrink truncate text-xs text-muted-foreground">{entry.type}</span>}
 			{entry &&
 				(unsupported ? (
-					<BanIcon
-						role="img"
-						className="size-3.5 shrink-0 text-muted-foreground"
-						aria-label="Unsupported type, can't be shown in widgets"
+					<TooltipTrigger
+						handle={markTooltip}
+						payload={unsupportedLabel}
+						render={
+							<BanIcon role="img" className="size-3.5 shrink-0 text-muted-foreground" aria-label={unsupportedLabel} />
+						}
 					/>
 				) : (
 					<EntryValue entry={entry} />
