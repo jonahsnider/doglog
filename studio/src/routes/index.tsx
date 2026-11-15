@@ -1,8 +1,9 @@
-import { Navigate, createFileRoute, useNavigate } from '@tanstack/react-router';
+import { Navigate, createFileRoute, useRouter } from '@tanstack/react-router';
 import { LayoutDashboardIcon, PlusIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import { createDashboard, useDashboards } from '@/dashboards';
+import { newDashboard } from '@/commands';
+import { useDashboards } from '@/dashboards';
 
 export const Route = createFileRoute('/')({
 	component: Index,
@@ -10,7 +11,7 @@ export const Route = createFileRoute('/')({
 
 function Index() {
 	const [dashboard] = useDashboards();
-	const navigate = useNavigate();
+	const router = useRouter();
 
 	if (dashboard) {
 		return <Navigate to="/dashboards/$dashboardId" params={{ dashboardId: dashboard.id }} replace />;
@@ -26,12 +27,7 @@ function Index() {
 				<EmptyDescription>Create a dashboard to start adding widgets.</EmptyDescription>
 			</EmptyHeader>
 			<EmptyContent>
-				<Button
-					onClick={() => {
-						const { id } = createDashboard();
-						void navigate({ to: '/dashboards/$dashboardId', params: { dashboardId: id } });
-					}}
-				>
+				<Button onClick={() => newDashboard(router)}>
 					<PlusIcon />
 					New dashboard
 				</Button>

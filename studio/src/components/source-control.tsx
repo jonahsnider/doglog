@@ -1,10 +1,20 @@
+import { useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { useNavigate } from '@tanstack/react-router';
-import { ChevronsUpDownIcon, DatabaseIcon, FileIcon, FolderOpenIcon, LaptopIcon, RadioTowerIcon } from 'lucide-react';
+import {
+	ChevronsUpDownIcon,
+	DatabaseIcon,
+	FileIcon,
+	FolderOpenIcon,
+	LaptopIcon,
+	RadioTowerIcon,
+	ZapIcon,
+} from 'lucide-react';
 import { useRef } from 'react';
-import { Menu, MenuItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
+import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuTrigger } from '@/components/ui/menu';
 import { SidebarMenuButton } from '@/components/ui/sidebar';
 import { Spinner } from '@/components/ui/spinner';
 import { toastManager } from '@/components/ui/toast';
+import { shortcuts, startQuickConnect } from '@/commands';
 import { connect, openLog, type Source, useSource } from '@/data/source';
 import { cn } from '@/lib/utils';
 import { getRobotHost, simulatorHost } from '@/robot-target';
@@ -38,6 +48,7 @@ export function SourceControl() {
 	const { robotTarget } = useSettings();
 	const robotHost = getRobotHost(robotTarget);
 	const navigate = useNavigate();
+	const formatForDisplay = useFormatForDisplay();
 	const fileInput = useRef<HTMLInputElement>(null);
 
 	const connectToRobot = () => {
@@ -88,6 +99,12 @@ export function SourceControl() {
 					<MenuItem onClick={() => fileInput.current?.click()}>
 						<FolderOpenIcon />
 						Open log
+					</MenuItem>
+					<MenuSeparator />
+					<MenuItem onClick={startQuickConnect}>
+						<ZapIcon />
+						Quick connect
+						<span className="ms-auto text-xs text-muted-foreground">{formatForDisplay(shortcuts.quickConnect)}</span>
 					</MenuItem>
 					<MenuItem onClick={connectToRobot}>
 						<RadioTowerIcon />

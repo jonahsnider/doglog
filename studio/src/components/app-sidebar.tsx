@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/sidebar';
 import { SourceControl } from '@/components/source-control';
 import { SidebarDashboards } from '@/components/sidebar-dashboards';
+import { shortcuts } from '@/commands';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { cn } from '@/lib/utils';
 
@@ -144,7 +145,14 @@ export function AppSidebar() {
 									<SidebarMenuButton
 										isActive={Boolean(matchRoute({ to: '/settings' }))}
 										render={<Link to="/settings" />}
-										tooltip="Settings"
+										tooltip={{
+											children: (
+												<span className="flex items-center gap-2">
+													Settings
+													<Kbd>{formatForDisplay(shortcuts.settings)}</Kbd>
+												</span>
+											),
+										}}
 									>
 										<SettingsIcon />
 										<span>Settings</span>

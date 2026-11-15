@@ -56,15 +56,20 @@ function replaceNode(node: PaneNode, id: string, update: (node: PaneNode) => Pan
 	return { ...node, first: replaceNode(node.first, id, update), second: replaceNode(node.second, id, update) };
 }
 
-/** Split a pane in two, the new empty pane goes after (right of or below) the existing one */
-export function splitPane(layout: PaneNode, paneId: string, direction: SplitDirection): PaneNode {
+/** Split a pane in two, `newPane` goes after (right of or below) the existing one */
+export function splitPane(
+	layout: PaneNode,
+	paneId: string,
+	direction: SplitDirection,
+	newPane: Pane = createPane(),
+): PaneNode {
 	return replaceNode(layout, paneId, (pane) => ({
 		kind: 'split',
 		id: crypto.randomUUID(),
 		direction,
 		ratio: 0.5,
 		first: pane,
-		second: createPane(),
+		second: newPane,
 	}));
 }
 
@@ -87,6 +92,40 @@ export function closePane(layout: PaneNode, paneId: string): PaneNode {
 	}
 
 	return { ...layout, first: closePane(layout.first, paneId), second: closePane(layout.second, paneId) };
+}
+
+/** The node that takes a pane's place when it's closed, `undefined` for the only pane */
+export function findSibling(layout: PaneNode, paneId: string): PaneNode | undefined {
+	if (layout.kind === 'pane') {
+		return undefined;
+	}
+
+	if (layout.first.id === paneId) {
+		return layout.second;
+	}
+
+	if (layout.second.id === paneId) {
+		return layout.first;
+	}
+
+	return findSibling(layout.first, paneId) ?? findSibling(layout.second, paneId);
+}
+
+export function findPane(layout: PaneNode, paneId: string): Pane | undefined {
+	if (layout.kind === 'pane') {
+		return layout.id === paneId ? layout : undefined;
+	}
+
+	return findPane(layout.first, paneId) ?? findPane(layout.second, paneId);
+}
+
+/** The top left pane */
+export function firstPane(layout: PaneNode): Pane {
+	return layout.kind === 'pane' ? layout : firstPane(layout.first);
+}
+
+export function hasWidgets(layout: PaneNode): boolean {
+	return layout.kind === 'pane' ? layout.widget !== undefined : hasWidgets(layout.first) || hasWidgets(layout.second);
 }
 
 /** Set a pane's widget, or clear it with `undefined` */

@@ -1,4 +1,5 @@
-import { Link, useMatchRoute, useNavigate } from '@tanstack/react-router';
+import { useFormatForDisplay } from '@tanstack/react-hotkeys';
+import { Link, useMatchRoute, useRouter } from '@tanstack/react-router';
 import { EllipsisIcon, LayoutDashboardIcon, PencilIcon, PlusIcon, XIcon } from 'lucide-react';
 import { PointerActivationConstraints } from '@dnd-kit/dom';
 import { DragDropProvider, KeyboardSensor, PointerSensor } from '@dnd-kit/react';
@@ -14,6 +15,7 @@ import {
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { Kbd } from '@/components/ui/kbd';
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
 import {
 	SidebarGroup,
@@ -25,14 +27,10 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import {
-	createDashboard,
-	type Dashboard,
-	deleteDashboard,
-	moveDashboard,
-	renameDashboard,
-	useDashboards,
-} from '@/dashboards';
+import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
+import { newDashboard, shortcuts } from '@/commands';
+import { type Dashboard, deleteDashboard, moveDashboard, renameDashboard, useDashboards } from '@/dashboards';
+import { hasWidgets } from '@/pane-layout';
 
 const sensors = [
 	// Only start dragging once the pointer moves, so clicking a dashboard still opens it
@@ -43,26 +41,33 @@ const sensors = [
 
 export function SidebarDashboards() {
 	const dashboards = useDashboards();
-	const navigate = useNavigate();
+	const router = useRouter();
+	const formatForDisplay = useFormatForDisplay();
 	const [closing, setClosing] = useState<Dashboard>();
 	const [confirmOpen, setConfirmOpen] = useState(false);
 
-	const addDashboard = () => {
-		const { id } = createDashboard();
-		void navigate({ to: '/dashboards/$dashboardId', params: { dashboardId: id } });
-	};
+	const addDashboard = () => newDashboard(router);
+	const addDashboardTooltip = (
+		<span className="flex items-center gap-2">
+			New dashboard
+			<Kbd>{formatForDisplay(shortcuts.newDashboard)}</Kbd>
+		</span>
+	);
 
 	return (
 		<SidebarGroup>
 			<SidebarGroupLabel>Dashboards</SidebarGroupLabel>
-			<SidebarGroupAction title="New dashboard" onClick={addDashboard}>
-				<PlusIcon />
-				<span className="sr-only">New dashboard</span>
-			</SidebarGroupAction>
+			<Tooltip>
+				<TooltipTrigger render={<SidebarGroupAction onClick={addDashboard} />}>
+					<PlusIcon />
+					<span className="sr-only">New dashboard</span>
+				</TooltipTrigger>
+				<TooltipPopup>{addDashboardTooltip}</TooltipPopup>
+			</Tooltip>
 			{/* Takes the place of the label and its action when the sidebar only shows icons */}
 			<SidebarMenu className="hidden group-data-[collapsible=icon]:flex">
 				<SidebarMenuItem>
-					<SidebarMenuButton tooltip="New dashboard" onClick={addDashboard}>
+					<SidebarMenuButton tooltip={{ children: addDashboardTooltip }} onClick={addDashboard}>
 						<PlusIcon />
 						<span>New dashboard</span>
 					</SidebarMenuButton>
@@ -84,8 +89,13 @@ export function SidebarDashboards() {
 							dashboard={dashboard}
 							index={index}
 							onClose={() => {
-								setClosing(dashboard);
-								setConfirmOpen(true);
+								// Nothing would be lost, so there's nothing to confirm
+								if (hasWidgets(dashboard.layout)) {
+									setClosing(dashboard);
+									setConfirmOpen(true);
+								} else {
+									deleteDashboard(dashboard.id);
+								}
 							}}
 						/>
 					))}

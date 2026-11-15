@@ -4,6 +4,7 @@ import { toastManager } from '@/components/ui/toast';
 import { clearData } from '@/data/data-store';
 import type { LiveStatus } from '@/data/live-source';
 import { loadLog } from '@/data/log-source';
+import { simulatorHost } from '@/robot-target';
 import { resetTimeline } from '@/timeline';
 
 /** The active data source, shared by every dashboard and widget */
@@ -78,6 +79,65 @@ export async function connect(host: string): Promise<void> {
 	stopSource = connectLive(host, (status) => {
 		sourceStore.set({ type: 'live', host, status });
 	});
+}
+
+/** How long quick connect waits for a server to accept a connection */
+const probeTimeout = 1000;
+/** How long quick connect waits before trying again when nothing was reachable */
+const retryDelay = 1000;
+
+/** Whether an NT4 server at `host` accepts a WebSocket connection. The connection is closed right away. */
+async function isReachable(host: string): Promise<boolean> {
+	let socket: WebSocket;
+	try {
+		socket = new WebSocket(`ws://${host}:5810/nt/doglog-studio`, [
+			'v4.1.networktables.first.wpi.edu',
+			'networktables.first.wpi.edu',
+		]);
+	} catch {
+		// Browsers block insecure connections to some addresses from HTTPS pages
+		return false;
+	}
+
+	let timer: ReturnType<typeof setTimeout> | undefined;
+	const reachable = await new Promise<boolean>((resolve) => {
+		timer = setTimeout(() => resolve(false), probeTimeout);
+		socket.addEventListener('open', () => resolve(true));
+		// Also fires when the connection fails
+		socket.addEventListener('close', () => resolve(false));
+	});
+	clearTimeout(timer);
+	socket.close();
+	return reachable;
+}
+
+/**
+ * Connect to the robot at `robotHost` if it's reachable, otherwise to the simulator.
+ * Keeps trying both until one is reachable, only tries the simulator without a robot host.
+ */
+export function quickConnect(robotHost: string | undefined): void {
+	const hosts = robotHost === undefined ? [simulatorHost] : [robotHost, simulatorHost];
+	replaceSource({ type: 'live', host: hosts.join(' or '), status: 'connecting' });
+	const requestedAt = generation;
+	let retryTimer: ReturnType<typeof setTimeout> | undefined;
+	stopSource = () => clearTimeout(retryTimer);
+
+	const attempt = async () => {
+		const reachable = await Promise.all(hosts.map((host) => isReachable(host)));
+		if (generation !== requestedAt) {
+			// Another source was chosen while checking
+			return;
+		}
+
+		// Hosts are in order of preference
+		const host = hosts.find((_, index) => reachable[index] === true);
+		if (host === undefined) {
+			retryTimer = setTimeout(() => void attempt(), retryDelay);
+		} else {
+			void connect(host);
+		}
+	};
+	void attempt();
 }
 
 const hasFiles = (event: DragEvent) => event.dataTransfer?.types.includes('Files') ?? false;

@@ -1,12 +1,25 @@
 import { useSelector } from '@tanstack/react-store';
 import * as z from 'zod';
 import { createPersistedAtom } from '@/lib/persisted-store';
-import { createPane, type PaneNode, paneNodeSchema } from '@/pane-layout';
+import {
+	closePane,
+	createPane,
+	findPane,
+	findSibling,
+	firstPane,
+	type Pane,
+	type PaneNode,
+	paneNodeSchema,
+	type SplitDirection,
+	splitPane,
+} from '@/pane-layout';
 
 const dashboardSchema = z.object({
 	id: z.string(),
 	name: z.string(),
 	layout: paneNodeSchema.catch(() => createPane()),
+	/** The pane the user last interacted with, use `getFocusedPane()` since it can be outdated */
+	focusedPaneId: z.string().optional().catch(undefined),
 });
 
 export type Dashboard = z.infer<typeof dashboardSchema>;
@@ -79,4 +92,50 @@ export function deleteDashboard(id: string): void {
  */
 export function updateLayout(id: string, update: (layout: PaneNode) => PaneNode): void {
 	updateDashboard(id, (dashboard) => ({ ...dashboard, layout: update(dashboard.layout) }));
+}
+
+/** The pane that keyboard shortcuts act on, the first pane if the focused pane is gone */
+export function getFocusedPane(dashboard: Dashboard): Pane {
+	const focused =
+		dashboard.focusedPaneId === undefined ? undefined : findPane(dashboard.layout, dashboard.focusedPaneId);
+	return focused ?? firstPane(dashboard.layout);
+}
+
+export function focusPane(id: string, paneId: string): void {
+	// Called on every click in a pane, so skip updates that wouldn't change anything
+	if (store.get().some((dashboard) => dashboard.id === id && dashboard.focusedPaneId !== paneId)) {
+		updateDashboard(id, (dashboard) => ({ ...dashboard, focusedPaneId: paneId }));
+	}
+}
+
+/** Split a pane and focus the new pane */
+export function splitDashboardPane(id: string, paneId: string, direction: SplitDirection): void {
+	const newPane = createPane();
+	updateDashboard(id, (dashboard) => ({
+		...dashboard,
+		layout: splitPane(dashboard.layout, paneId, direction, newPane),
+		focusedPaneId: newPane.id,
+	}));
+}
+
+/** Close a pane and focus the pane that takes its place */
+export function closeDashboardPane(id: string, paneId: string): void {
+	updateDashboard(id, (dashboard) => {
+		const layout = closePane(dashboard.layout, paneId);
+		return { ...dashboard, layout, focusedPaneId: firstPane(findSibling(dashboard.layout, paneId) ?? layout).id };
+	});
+}
+
+/** Close the focused pane, or delete the dashboard if it's down to a single empty pane */
+export function closeFocusedPane(id: string): void {
+	const dashboard = store.get().find((other) => other.id === id);
+	if (!dashboard) {
+		return;
+	}
+
+	if (dashboard.layout.kind === 'pane' && dashboard.layout.widget === undefined) {
+		deleteDashboard(id);
+	} else {
+		closeDashboardPane(id, getFocusedPane(dashboard).id);
+	}
 }

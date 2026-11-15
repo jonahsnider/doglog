@@ -23,7 +23,7 @@ function DashboardView() {
 			<div className="flex min-h-0 flex-1">
 				<EntryDragProvider>
 					<section aria-label="Panes" className="min-w-0 flex-1">
-						<DashboardPanes dashboardId={dashboard.id} layout={dashboard.layout} />
+						<DashboardPanes dashboard={dashboard} />
 					</section>
 					<KeyBrowser />
 				</EntryDragProvider>

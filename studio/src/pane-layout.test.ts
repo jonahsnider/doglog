@@ -2,6 +2,7 @@ import { expect, test } from 'vite-plus/test';
 import {
 	closePane,
 	createPane,
+	findSibling,
 	type PaneNode,
 	paneNodeSchema,
 	resizeSplit,
@@ -47,6 +48,17 @@ test('closing a pane lets its sibling take its place', () => {
 	expect(closePane(nested, bottomRight.id)).toEqual(split);
 
 	expect(closePane(split, right.id)).toEqual(left);
+});
+
+test('the sibling of a pane is the node that takes its place when closed', () => {
+	const left = createPane();
+	const split = expectSplit(splitPane(left, left.id, 'row'));
+	const nested = expectSplit(splitPane(split, split.second.id, 'column'));
+	const right = expectSplit(nested.second);
+
+	expect(findSibling(nested, left.id)).toBe(right);
+	expect(findSibling(nested, right.second.id)).toBe(right.first);
+	expect(findSibling(left, left.id)).toBeUndefined();
 });
 
 test('closing the only pane leaves an empty pane', () => {

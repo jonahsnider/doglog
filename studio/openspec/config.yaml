@@ -25,6 +25,8 @@ context: |
     color. The default seed is Team 581 maroon #591616, which matches jonahsnider/dashshund.
   - App icon: the DogLog logo (web/public/logo.svg), which is also the Team 581 logo.
   - Context menus: native Tauri popup menus on desktop, coss menus on the web, from one menu definition.
+  - Desktop-only shortcuts (⌘T, ⌘W, ⌘,): native app menu items on macOS, where the default menu already uses ⌘W, and
+    TanStack Hotkeys on Windows and Linux.
 
   Platform constraints:
   - Browsers only allow live NT connections from an HTTPS page via Chrome's Local Network Access (Chrome 147+),
