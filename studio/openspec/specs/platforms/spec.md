@@ -40,6 +40,22 @@ Studio SHALL be available as a desktop app for Windows, macOS, and Linux with ev
 - **WHEN** a user on the desktop app connects to a robot by team number
 - **THEN** the connection works without any permission prompt or browser restriction
 
+### Requirement: Open logs from the OS
+
+The desktop app SHALL register itself as an app for `.wpilog` files, so opening one from the OS opens it in Studio.
+
+#### Scenario: Double-click a log
+
+- **GIVEN** the desktop app is installed
+- **WHEN** the user double-clicks a `.wpilog` file
+- **THEN** Studio opens and shows that log
+
+#### Scenario: Studio is already open
+
+- **GIVEN** the desktop app is open
+- **WHEN** the user opens a `.wpilog` file from the OS
+- **THEN** Studio shows that log
+
 ### Requirement: Desktop auto-update
 
 The desktop app SHALL update itself automatically.

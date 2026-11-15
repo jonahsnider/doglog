@@ -1,5 +1,7 @@
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
+import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
 import { toastManager } from '@/components/ui/toast';
 import { clearData } from '@/data/data-store';
 import type { LiveStatus } from '@/data/live-source';
@@ -140,7 +142,33 @@ export function quickConnect(robotHost: string | undefined): void {
 	void attempt();
 }
 
-const hasFiles = (event: DragEvent) => event.dataTransfer?.types.includes('Files') ?? false;
+/** Whether a drag event is dragging files from outside the window */
+export const hasFiles = (event: DragEvent) => event.dataTransfer?.types.includes('Files') ?? false;
+
+/** Open the last log the OS asked the desktop app to open, if it hasn't been opened yet */
+async function openTakenLog(): Promise<void> {
+	const path = await invoke<string | null>('take_opened_log');
+	if (path === null) {
+		return;
+	}
+
+	const fileName = path.split(/[/\\]/u).at(-1)!;
+	let contents: ArrayBuffer;
+	try {
+		contents = await invoke<ArrayBuffer>('read_file', { path });
+	} catch (error) {
+		toastManager.add({ type: 'error', title: `Couldn't open ${fileName}`, description: String(error) });
+		return;
+	}
+	await openLog(new File([contents], fileName));
+}
+
+/** Open WPILOG files the OS asks the desktop app to open, ex. when one is double-clicked */
+export async function handleOpenedLogFiles(): Promise<void> {
+	await listen('log-opened', () => void openTakenLog());
+	// Logs opened before the listener was added, ex. the one that launched the app
+	await openTakenLog();
+}
 
 /** Open WPILOG files dropped anywhere on the window */
 export function handleLogFileDrops(): void {

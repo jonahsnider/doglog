@@ -1,6 +1,6 @@
 import { useDraggable } from '@dnd-kit/react';
 import { useParams } from '@tanstack/react-router';
-import { useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
+import { useHotkey } from '@tanstack/react-hotkeys';
 import { useSelector } from '@tanstack/react-store';
 import {
 	BanIcon,
@@ -16,8 +16,8 @@ import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { HighlightedText } from '@/components/highlighted-text';
 import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
-import { Kbd } from '@/components/ui/kbd';
 import { Tooltip, TooltipCreateHandle, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
+import { TooltipLabel } from '@/components/tooltip-label';
 import { MarkTooltip, TypeMark } from '@/components/value-marks';
 import { addDashboardWidget } from '@/dashboards';
 import { type Entry, useDataVersion, useEntries } from '@/data/data-store';
@@ -73,7 +73,6 @@ export function KeyBrowser() {
 
 function ToggleButton({ open }: { open: boolean }) {
 	const label = open ? 'Hide key browser' : 'Show key browser';
-	const formatForDisplay = useFormatForDisplay();
 	return (
 		<Tooltip>
 			<TooltipTrigger
@@ -82,10 +81,7 @@ function ToggleButton({ open }: { open: boolean }) {
 				{open ? <PanelRightCloseIcon /> : <PanelRightOpenIcon />}
 			</TooltipTrigger>
 			<TooltipPopup>
-				<span className="flex items-center gap-2">
-					{label}
-					<Kbd>{formatForDisplay(shortcut)}</Kbd>
-				</span>
+				<TooltipLabel label={label} shortcut={shortcut} />
 			</TooltipPopup>
 		</Tooltip>
 	);
@@ -206,9 +202,13 @@ const KeyRowView = memo(function KeyRowView({
 		...(entry && { data: { entry } }),
 	});
 	const label = (
-		<span className={cn('min-w-24 flex-1 truncate', unsupported && 'text-muted-foreground')} title={node.path}>
+		<TooltipTrigger
+			handle={markTooltip}
+			payload={node.path}
+			render={<span className={cn('min-w-24 flex-1 truncate', unsupported && 'text-muted-foreground')} />}
+		>
 			<HighlightedText text={node.label} ranges={row.highlights} />
-		</span>
+		</TooltipTrigger>
 	);
 	const typeMark = entry && <TypeMark type={entry.type} tooltip={markTooltip} />;
 	const menuItems: MenuEntry[] = entry

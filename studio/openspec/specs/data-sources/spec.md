@@ -51,6 +51,12 @@ Users SHALL be able to open a WPILOG file with a file picker or by dropping it a
 - **WHEN** the user drops a `.wpilog` file anywhere on the app window
 - **THEN** that log becomes the active source
 
+#### Scenario: Dragging a file over the window
+
+- **WHEN** the user drags a file over the app window
+- **THEN** an overlay shows that dropping it opens the log
+- **AND** the overlay hides when the file is dropped or dragged out of the window
+
 ### Requirement: Connect to a live NT4 server
 
 Users SHALL be able to connect to a robot or simulator over NT4, using the connection target from Settings.
@@ -103,6 +109,13 @@ Studio SHALL decode numeric, boolean, string, array, and WPILib struct entries. 
 
 - **GIVEN** a log contains a `Pose2d` struct entry
 - **THEN** its fields are decoded and available to widgets
+- **AND** its type is shown as `Pose2d`, without the `struct:` prefix
+
+#### Scenario: Struct schemas
+
+- **GIVEN** a source contains the `/.schema/struct:Pose2d` schema entry
+- **THEN** the schema is used to decode `Pose2d` entries
+- **AND** the schema entry isn't listed anywhere in Studio
 
 #### Scenario: Protobuf entry
 

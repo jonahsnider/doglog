@@ -1,4 +1,3 @@
-import { useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { Link, useMatchRoute, useRouter } from '@tanstack/react-router';
 import { EllipsisIcon, LayoutDashboardIcon, PencilIcon, PlusIcon, Trash2Icon, XIcon } from 'lucide-react';
 import { PointerActivationConstraints } from '@dnd-kit/dom';
@@ -16,7 +15,6 @@ import {
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { Kbd } from '@/components/ui/kbd';
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
 import {
 	SidebarGroup,
@@ -29,6 +27,7 @@ import {
 	SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
+import { TooltipLabel } from '@/components/tooltip-label';
 import { newDashboard, shortcuts } from '@/commands';
 import { type Dashboard, deleteDashboard, moveDashboard, renameDashboard, useDashboards } from '@/dashboards';
 import { hasWidgets } from '@/pane-layout';
@@ -43,17 +42,11 @@ const sensors = [
 export function SidebarDashboards() {
 	const dashboards = useDashboards();
 	const router = useRouter();
-	const formatForDisplay = useFormatForDisplay();
 	const [closing, setClosing] = useState<Dashboard>();
 	const [confirmOpen, setConfirmOpen] = useState(false);
 
 	const addDashboard = () => newDashboard(router);
-	const addDashboardTooltip = (
-		<span className="flex items-center gap-2">
-			New dashboard
-			<Kbd>{formatForDisplay(shortcuts.newDashboard)}</Kbd>
-		</span>
-	);
+	const addDashboardTooltip = <TooltipLabel label="New dashboard" shortcut={shortcuts.newDashboard} />;
 
 	return (
 		<SidebarGroup>

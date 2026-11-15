@@ -2,6 +2,7 @@ import { useSelector } from '@tanstack/react-store';
 import * as z from 'zod';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import {
+	canSplitPane,
 	closePane,
 	createPane,
 	findPane,
@@ -131,6 +132,7 @@ function splitDirectionFor(paneId: string): SplitDirection {
 /**
  * Add a widget's entries to a widget of the same type (preferring the focused pane), show the widget in the focused pane
  * if it's empty, or otherwise split the focused pane and show it in the new pane. The pane it ends up in is focused.
+ * Does nothing if the focused pane can't be split in either direction.
  */
 export function addDashboardWidget(id: string, widget: Widget): void {
 	updateDashboard(id, (dashboard) => {
@@ -153,8 +155,16 @@ export function addDashboardWidget(id: string, widget: Widget): void {
 			return { ...dashboard, layout: setPaneWidget(dashboard.layout, focused.id, widget), focusedPaneId: focused.id };
 		}
 
+		const preferred = splitDirectionFor(focused.id);
+		const directions: SplitDirection[] = [preferred, preferred === 'row' ? 'column' : 'row'];
+		const direction = directions.find((other) => canSplitPane(dashboard.layout, focused.id, other));
+		// The focused pane's row and column are both full
+		if (direction === undefined) {
+			return dashboard;
+		}
+
 		const newPane = { ...createPane(), widget };
-		const layout = splitPane(dashboard.layout, focused.id, splitDirectionFor(focused.id), newPane);
+		const layout = splitPane(dashboard.layout, focused.id, direction, newPane);
 		return { ...dashboard, layout, focusedPaneId: newPane.id };
 	});
 }

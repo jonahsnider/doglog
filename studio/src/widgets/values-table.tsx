@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { EntryTypeIcon } from '@/components/value-marks';
 import { useDataVersion } from '@/data/data-store';
 import { formatValue } from '@/data/format-value';
+import { formatEntryType } from '@/data/samples';
 import { cn } from '@/lib/utils';
 import { useCursorTime } from '@/timeline';
 import { NoData } from '@/widgets/no-data';
@@ -36,7 +37,7 @@ function TypeLabel({ type }: { type: string }) {
 	return (
 		<span className="flex items-center gap-1.5 font-mono text-xs text-muted-foreground">
 			<EntryTypeIcon type={type} className="size-3.5 shrink-0" />
-			{type}
+			{formatEntryType(type)}
 		</span>
 	);
 }

@@ -30,6 +30,20 @@ Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and
 - **WHEN** the user presses ⌘K
 - **THEN** Studio starts quick connect
 
+### Requirement: Shortcuts in tooltips
+
+Every control with a keyboard shortcut SHALL show the shortcut in its tooltip, formatted for the user's platform. All tooltips MUST use the same tooltip style, never the browser's native `title` tooltips.
+
+#### Scenario: Hover a timeline button
+
+- **WHEN** the user hovers the step forward button
+- **THEN** its tooltip shows `Step forward` and `→`
+
+#### Scenario: Hover the playback speed
+
+- **WHEN** the user hovers the playback speed select
+- **THEN** its tooltip shows `Playback speed` with `[` and `]`
+
 ### Requirement: Desktop-only shortcuts
 
 ⌘T, ⌘W, and ⌘, SHALL only be active in the desktop app, because browsers reserve them. Their Alt variants MUST work in both the desktop app and the web.

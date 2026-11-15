@@ -1,10 +1,10 @@
 import { PauseIcon, PlayIcon, SkipBackIcon, SkipForwardIcon, StepBackIcon, StepForwardIcon } from 'lucide-react';
-import { type UseHotkeyDefinition, useHotkeys } from '@tanstack/react-hotkeys';
+import { type Hotkey, type UseHotkeyDefinition, useHotkeys } from '@tanstack/react-hotkeys';
 import { type PointerEvent, type ReactNode, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Kbd } from '@/components/ui/kbd';
 import { Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
+import { TooltipLabel } from '@/components/tooltip-label';
 import { type TimeRange, useTimeRange } from '@/data/data-store';
 import { useSource } from '@/data/source';
 import { cn } from '@/lib/utils';
@@ -45,7 +45,7 @@ function ControlButton({
 	children,
 }: {
 	label: string;
-	shortcut: string;
+	shortcut: Hotkey;
 	onClick: () => void;
 	children: ReactNode;
 }) {
@@ -55,10 +55,7 @@ function ControlButton({
 				{children}
 			</TooltipTrigger>
 			<TooltipPopup>
-				<span className="flex items-center gap-2">
-					{label}
-					<Kbd>{shortcut}</Kbd>
-				</span>
+				<TooltipLabel label={label} shortcut={shortcut} />
 			</TooltipPopup>
 		</Tooltip>
 	);
@@ -127,13 +124,13 @@ function TimelineControls() {
 			<ControlButton label="Jump to start" shortcut="Home" onClick={jumpToStart}>
 				<SkipBackIcon />
 			</ControlButton>
-			<ControlButton label="Step back" shortcut="←" onClick={() => step(-1)}>
+			<ControlButton label="Step back" shortcut="ArrowLeft" onClick={() => step(-1)}>
 				<StepBackIcon />
 			</ControlButton>
 			<ControlButton label={playback === 'paused' ? 'Play' : 'Pause'} shortcut="Space" onClick={togglePlayback}>
 				{playback === 'paused' ? <PlayIcon /> : <PauseIcon />}
 			</ControlButton>
-			<ControlButton label="Step forward" shortcut="→" onClick={() => step(1)}>
+			<ControlButton label="Step forward" shortcut="ArrowRight" onClick={() => step(1)}>
 				<StepForwardIcon />
 			</ControlButton>
 			{!live && (
@@ -164,9 +161,14 @@ function TimelineControls() {
 				}}
 				onOpenChange={setSpeedOpen}
 			>
-				<SelectTrigger size="sm" aria-label="Playback speed" className="w-auto min-w-0">
-					<SelectValue />
-				</SelectTrigger>
+				<Tooltip>
+					<TooltipTrigger render={<SelectTrigger size="sm" aria-label="Playback speed" className="w-auto min-w-0" />}>
+						<SelectValue />
+					</TooltipTrigger>
+					<TooltipPopup>
+						<TooltipLabel label="Playback speed" shortcut={['[', ']']} />
+					</TooltipPopup>
+				</Tooltip>
 				<SelectPopup>
 					{speedItems.map((item) => (
 						<SelectItem key={item.value} value={item.value}>
