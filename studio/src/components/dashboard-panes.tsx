@@ -228,7 +228,16 @@ function PaneView({
 /** Shown in empty panes */
 function AddWidgetPrompt({ onAdd }: { onAdd: (type: WidgetType) => void }) {
 	return (
-		<Empty className="h-full overflow-auto">
+		<Empty
+			// Without select-none, double-clicking selects text in the new widget
+			className="h-full overflow-auto select-none"
+			onDoubleClick={(event) => {
+				// Double-clicking the Add widget button shouldn't also add a widget
+				if (!(event.target instanceof Element && event.target.closest('button'))) {
+					onAdd(getWidgetType('discrete-timeline')!);
+				}
+			}}
+		>
 			<EmptyHeader>
 				<EmptyMedia variant="icon">
 					<LayoutGridIcon />

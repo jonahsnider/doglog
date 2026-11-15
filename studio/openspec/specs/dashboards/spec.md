@@ -104,6 +104,12 @@ Studio SHALL guide users from empty states to a usable dashboard.
 - **GIVEN** a pane with no widget
 - **THEN** it shows an Add widget prompt
 
+#### Scenario: Double-click an empty pane
+
+- **GIVEN** a pane with no widget
+- **WHEN** the user double-clicks the pane outside the Add widget button
+- **THEN** an empty discrete timeline is added to the pane
+
 #### Scenario: No dashboards
 
 - **GIVEN** the user has deleted every dashboard
