@@ -6,11 +6,15 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>DogLog Studio</title>
 		<script>
-			// Follow the system color scheme, runs before render to avoid a flash of the wrong theme
-			const darkQuery = matchMedia('(prefers-color-scheme: dark)');
-			const applyColorScheme = () => document.documentElement.classList.toggle('dark', darkQuery.matches);
-			applyColorScheme();
-			darkQuery.addEventListener('change', applyColorScheme);
+			// Apply the theme setting before render to avoid a flash of the wrong theme, src/settings.ts takes over after load
+			{
+				let theme;
+				try {
+					theme = JSON.parse(localStorage.getItem('doglog-studio:settings')).theme;
+				} catch {}
+				const dark = theme === 'dark' || (theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+				document.documentElement.classList.toggle('dark', dark);
+			}
 		</script>
 	</head>
 	<body>

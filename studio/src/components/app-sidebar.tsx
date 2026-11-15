@@ -1,18 +1,17 @@
 import { Link, useMatchRoute } from '@tanstack/react-router';
-import { DatabaseIcon, FolderSyncIcon, LayoutDashboardIcon, PlusIcon, SettingsIcon } from 'lucide-react';
+import { FolderSyncIcon, SettingsIcon } from 'lucide-react';
 import {
 	Sidebar,
 	SidebarContent,
 	SidebarGroup,
-	SidebarGroupAction,
-	SidebarGroupLabel,
 	SidebarHeader,
 	SidebarMenu,
 	SidebarMenuBadge,
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboards } from '@/dashboards';
+import { SourceControl } from '@/components/source-control';
+import { SidebarDashboards } from '@/components/sidebar-dashboards';
 
 export function AppSidebar() {
 	const matchRoute = useMatchRoute();
@@ -22,11 +21,7 @@ export function AppSidebar() {
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
-						{/* Placeholder until log files and NT connections are implemented */}
-						<SidebarMenuButton size="lg" disabled>
-							<DatabaseIcon />
-							<span>No data source</span>
-						</SidebarMenuButton>
+						<SourceControl />
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarHeader>
@@ -48,29 +43,7 @@ export function AppSidebar() {
 						</SidebarMenuItem>
 					</SidebarMenu>
 				</SidebarGroup>
-				<SidebarGroup>
-					<SidebarGroupLabel>Dashboards</SidebarGroupLabel>
-					{/* Placeholder until dashboards can be created */}
-					<SidebarGroupAction title="New dashboard" disabled>
-						<PlusIcon />
-						<span className="sr-only">New dashboard</span>
-					</SidebarGroupAction>
-					<SidebarMenu>
-						{dashboards.map((dashboard) => (
-							<SidebarMenuItem key={dashboard.id}>
-								<SidebarMenuButton
-									isActive={Boolean(
-										matchRoute({ to: '/dashboards/$dashboardId', params: { dashboardId: dashboard.id } }),
-									)}
-									render={<Link to="/dashboards/$dashboardId" params={{ dashboardId: dashboard.id }} />}
-								>
-									<LayoutDashboardIcon />
-									<span>{dashboard.name}</span>
-								</SidebarMenuButton>
-							</SidebarMenuItem>
-						))}
-					</SidebarMenu>
-				</SidebarGroup>
+				<SidebarDashboards />
 			</SidebarContent>
 		</Sidebar>
 	);
