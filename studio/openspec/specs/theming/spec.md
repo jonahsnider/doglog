@@ -2,19 +2,29 @@
 
 ## Purpose
 
-Define Studio's visual identity: a Material Design 3 color scheme generated from a theme color (Team 581 maroon by default), available in both light and dark variants.
+Define Studio's visual identity: a Material Design 3 color scheme generated from a theme color (Team 581 maroon by default) or a neutral gray scheme, available in both light and dark variants.
 
 ## Requirements
 
 ### Requirement: Generated color scheme
 
-Studio SHALL generate its colors from the theme color setting as a Material Design 3 color scheme (primary, surface, container, and similar roles). The default theme color MUST be Team 581 maroon `#591616`.
+Unless the Neutral preset is selected, Studio SHALL generate its colors from the theme color setting as a Material Design 3 color scheme (primary, surface, container, and similar roles). The default theme color MUST be Team 581 maroon `#591616`.
 
 #### Scenario: Default color
 
 - **GIVEN** the theme color is the default
 - **WHEN** the user views primary actions such as New dashboard
 - **THEN** they use the Team 581 maroon primary color
+
+### Requirement: Neutral colors
+
+When the Neutral preset is selected, Studio SHALL use untinted gray colors instead of a generated scheme.
+
+#### Scenario: Neutral primary actions
+
+- **GIVEN** the Neutral preset is selected
+- **WHEN** the user views primary actions such as New dashboard
+- **THEN** they use a gray primary color instead of a maroon tint
 
 ### Requirement: Light and dark variants
 
