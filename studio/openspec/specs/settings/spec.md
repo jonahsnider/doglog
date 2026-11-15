@@ -42,7 +42,18 @@ Settings and UI state MUST be saved on the device and restored when Studio reope
 
 ### Requirement: Theme color setting
 
-Settings SHALL let users choose the theme color that the color scheme is generated from, defaulting to Team 581 maroon `#591616`, and MUST let users reset it to the default.
+Settings SHALL offer Team 581 maroon `#591616`, stock coss ui, and Custom theme color presets, defaulting to Team 581 maroon. Custom SHALL generate a Material Design 3 scheme from the user's hex color and MUST let users reset it to the default. Switching presets MUST retain the custom color.
+
+#### Scenario: Stock coss ui
+
+- **WHEN** the user selects coss ui
+- **THEN** Studio uses the stock coss ui neutral tokens in light and dark mode
+
+#### Scenario: Existing settings
+
+- **GIVEN** saved settings without a theme preset
+- **WHEN** Studio is reopened
+- **THEN** the existing theme mode and hex color are preserved, using Team 581 maroon for `#591616` and Custom for other colors
 
 #### Scenario: Custom color
 

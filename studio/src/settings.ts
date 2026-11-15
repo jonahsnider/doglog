@@ -1,22 +1,30 @@
 import { useSelector } from '@tanstack/react-store';
 import * as z from 'zod';
 import { createPersistedAtom } from '@/lib/persisted-store';
-import { applyThemeColor, defaultThemeColor } from '@/theme-color';
+import { applyThemeColor, defaultThemeColor, themePresets } from '@/theme-color';
 
 export const themes = ['light', 'dark', 'system'] as const;
 export type Theme = (typeof themes)[number];
 
 // Invalid fields fall back to their defaults
-const settingsSchema = z.object({
-	theme: z.enum(themes).catch('system'),
-	/** Hex color that the color scheme is generated from */
-	themeColor: z
-		.string()
-		.regex(/^#[\da-f]{6}$/iu)
-		.catch(defaultThemeColor),
-	/** Team number or IP address, use `getRobotHost()` to get the NT server host */
-	robotTarget: z.string().catch(''),
-});
+const settingsSchema = z
+	.object({
+		theme: z.enum(themes).catch('system'),
+		themePreset: z.enum(themePresets).optional().catch(undefined),
+		/** Hex color that the color scheme is generated from */
+		themeColor: z
+			.string()
+			.regex(/^#[\da-f]{6}$/iu)
+			.catch(defaultThemeColor),
+		/** Team number or IP address, use `getRobotHost()` to get the NT server host */
+		robotTarget: z.string().catch(''),
+	})
+	.transform((settings) => ({
+		...settings,
+		// Older settings only store a seed color. Keep their scheme when adding presets.
+		themePreset:
+			settings.themePreset ?? (settings.themeColor.toLowerCase() === defaultThemeColor ? 'team581' : 'custom'),
+	}));
 
 export type Settings = z.infer<typeof settingsSchema>;
 
@@ -42,13 +50,15 @@ export function updateSettings(changes: Partial<Settings>): void {
 export function syncTheme(): void {
 	const darkQuery = matchMedia('(prefers-color-scheme: dark)');
 	let appliedThemeColor: string | undefined;
+	let appliedThemePreset: Settings['themePreset'] | undefined;
 	const applyTheme = () => {
-		const { theme, themeColor } = settingsStore.get();
+		const { theme, themeColor, themePreset } = settingsStore.get();
 		document.documentElement.classList.toggle('dark', theme === 'dark' || (theme === 'system' && darkQuery.matches));
 		// Other settings changes, ex. typing a robot target, don't need the colors regenerated
-		if (themeColor !== appliedThemeColor) {
-			applyThemeColor(themeColor);
+		if (themeColor !== appliedThemeColor || themePreset !== appliedThemePreset) {
+			applyThemeColor(themeColor, themePreset);
 			appliedThemeColor = themeColor;
+			appliedThemePreset = themePreset;
 		}
 	};
 

@@ -3,6 +3,9 @@ import { Hct, SchemeTonalSpot, argbFromHex, hexFromArgb } from '@material/materi
 /** Team 581 maroon, the hard-coded `--md-*` colors in `index.css` are generated from it */
 export const defaultThemeColor = '#591616';
 
+export const themePresets = ['team581', 'coss', 'custom'] as const;
+export type ThemePreset = (typeof themePresets)[number];
+
 /** MD3 color roles applied as `--md-*` CSS variables, ex. `surfaceContainerLow` is `--md-surface-container-low` */
 const roles = [
 	'primary',
@@ -78,9 +81,10 @@ function themeColorCss(themeColor: string): string {
 /** `index.html` applies the cached stylesheet from this key before render to avoid a flash of the default colors, keep them in sync */
 const cssStorageKey = 'doglog-studio:theme-color-css';
 
-/** Apply the colors generated from the theme color, and cache them for `index.html` to use on the next load */
-export function applyThemeColor(themeColor: string): void {
-	const css = themeColorCss(themeColor);
+/** Apply a preset and cache generated colors for `index.html` to use on the next load */
+export function applyThemeColor(themeColor: string, preset: ThemePreset): void {
+	document.documentElement.classList.toggle('coss-theme', preset === 'coss');
+	const css = preset === 'coss' ? '' : themeColorCss(preset === 'team581' ? defaultThemeColor : themeColor);
 
 	// `index.html` may have added this element already
 	let style = document.querySelector<HTMLStyleElement>('#theme-color');
