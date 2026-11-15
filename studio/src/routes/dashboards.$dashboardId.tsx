@@ -1,4 +1,5 @@
 import { Navigate, createFileRoute } from '@tanstack/react-router';
+import { Group, Panel } from 'react-resizable-panels';
 import { DashboardPanes } from '@/components/dashboard-panes';
 import { KeyBrowser } from '@/components/key-browser';
 import { TimelineBar } from '@/components/timeline-bar';
@@ -20,14 +21,16 @@ function DashboardView() {
 
 	return (
 		<div className="flex h-full flex-col">
-			<div className="flex min-h-0 flex-1">
+			<Group orientation="horizontal" className="min-h-0 flex-1">
 				<EntryDragProvider>
-					<section aria-label="Panes" className="min-w-0 flex-1">
-						<DashboardPanes dashboard={dashboard} />
-					</section>
+					<Panel minSize="7rem" style={{ overflow: 'hidden' }}>
+						<section aria-label="Panes" className="h-full min-w-0">
+							<DashboardPanes dashboard={dashboard} />
+						</section>
+					</Panel>
 					<KeyBrowser />
 				</EntryDragProvider>
-			</div>
+			</Group>
 			<TimelineBar />
 		</div>
 	);
