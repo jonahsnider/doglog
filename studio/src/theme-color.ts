@@ -3,6 +3,9 @@ import { Hct, SchemeTonalSpot, argbFromHex, hexFromArgb } from '@material/materi
 /** Team 581 maroon, the hard-coded `--md-*` colors in `index.css` are generated from it */
 export const defaultThemeColor = '#591616';
 
+/** Default for the Custom preset, `hsl(20deg 12% 9.8%)` */
+export const defaultCustomColor = '#1c1816';
+
 export const themePresets = ['team581', 'coss', 'custom'] as const;
 export type ThemePreset = (typeof themePresets)[number];
 
@@ -76,6 +79,52 @@ export function themeColorVariables(themeColor: string, dark: boolean): string {
  */
 function themeColorCss(themeColor: string): string {
 	return `:root:root{${themeColorVariables(themeColor, false)}}:root.dark{${themeColorVariables(themeColor, true)}}`;
+}
+
+/** Colors used to draw a preview of a theme in Settings */
+export interface ThemePreviewColors {
+	surface: string;
+	sidebar: string;
+	bar: string;
+	border: string;
+	primary: string;
+	accent: string;
+}
+
+/** Approximations of the `.coss-theme` tokens in `index.css` */
+const neutralPreviewColors: Record<'light' | 'dark', ThemePreviewColors> = {
+	light: {
+		surface: '#ffffff',
+		sidebar: '#fafafa',
+		bar: '#f0f0f0',
+		border: '#ebebeb',
+		primary: '#262626',
+		accent: '#e5e5e5',
+	},
+	dark: {
+		surface: '#161616',
+		sidebar: '#111111',
+		bar: '#262626',
+		border: '#222222',
+		primary: '#f5f5f5',
+		accent: '#404040',
+	},
+};
+
+export function themePreviewColors(preset: ThemePreset, themeColor: string, dark: boolean): ThemePreviewColors {
+	if (preset === 'coss') {
+		return neutralPreviewColors[dark ? 'dark' : 'light'];
+	}
+	const seed = preset === 'team581' ? defaultThemeColor : themeColor;
+	const scheme = new SchemeTonalSpot(Hct.fromInt(argbFromHex(seed)), dark, 0);
+	return {
+		surface: hexFromArgb(scheme.surface),
+		sidebar: hexFromArgb(scheme.surfaceContainerLow),
+		bar: hexFromArgb(scheme.surfaceContainerHighest),
+		border: hexFromArgb(scheme.outlineVariant),
+		primary: hexFromArgb(scheme.primary),
+		accent: hexFromArgb(scheme.primaryContainer),
+	};
 }
 
 /** `index.html` applies the cached stylesheet from this key before render to avoid a flash of the default colors, keep them in sync */

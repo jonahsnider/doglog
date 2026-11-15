@@ -21,26 +21,29 @@ test('new settings keep the Team 581 default', async () => {
 	expect(settingsStore.get()).toStrictEqual({
 		theme: 'system',
 		themePreset: 'team581',
-		themeColor: '#591616',
+		themeColor: '#1c1816',
 		robotTarget: '',
 	});
 });
 
 test.each([
-	{ themeColor: '#591616', themePreset: 'team581' },
-	{ themeColor: '#1234AB', themePreset: 'custom' },
-])('existing color $themeColor and theme mode survive adding presets', async ({ themeColor, themePreset }) => {
-	storage.set(storageKey, JSON.stringify({ theme: 'light', themeColor, robotTarget: '581' }));
-	const { settingsStore } = await import('./settings.ts');
-	const expected = {
-		theme: 'light',
-		themeColor,
-		robotTarget: '581',
-		themePreset,
-	};
-	expect(settingsStore.get()).toStrictEqual(expected);
-	expect(JSON.parse(String(storage.get(storageKey)))).toStrictEqual(expected);
-});
+	{ themeColor: '#591616', themePreset: 'team581', expectedColor: '#1c1816' },
+	{ themeColor: '#1234AB', themePreset: 'custom', expectedColor: '#1234AB' },
+])(
+	'existing color $themeColor and theme mode survive adding presets',
+	async ({ themeColor, themePreset, expectedColor }) => {
+		storage.set(storageKey, JSON.stringify({ theme: 'light', themeColor, robotTarget: '581' }));
+		const { settingsStore } = await import('./settings.ts');
+		const expected = {
+			theme: 'light',
+			themeColor: expectedColor,
+			robotTarget: '581',
+			themePreset,
+		};
+		expect(settingsStore.get()).toStrictEqual(expected);
+		expect(JSON.parse(String(storage.get(storageKey)))).toStrictEqual(expected);
+	},
+);
 
 test('custom colors survive preset changes and a reload', async () => {
 	storage.set(storageKey, JSON.stringify({ theme: 'dark', themeColor: '#123456' }));

@@ -1,7 +1,7 @@
 import { useSelector } from '@tanstack/react-store';
 import * as z from 'zod';
 import { createPersistedAtom } from '@/lib/persisted-store';
-import { applyThemeColor, defaultThemeColor, themePresets } from '@/theme-color';
+import { applyThemeColor, defaultCustomColor, defaultThemeColor, themePresets } from '@/theme-color';
 
 export const themes = ['light', 'dark', 'system'] as const;
 export type Theme = (typeof themes)[number];
@@ -11,20 +11,24 @@ const settingsSchema = z
 	.object({
 		theme: z.enum(themes).catch('system'),
 		themePreset: z.enum(themePresets).optional().catch(undefined),
-		/** Hex color that the color scheme is generated from */
+		/** Hex color that the Custom preset's color scheme is generated from */
 		themeColor: z
 			.string()
 			.regex(/^#[\da-f]{6}$/iu)
-			.catch(defaultThemeColor),
+			.optional()
+			.catch(undefined),
 		/** Team number or IP address, use `getRobotHost()` to get the NT server host */
 		robotTarget: z.string().catch(''),
 	})
-	.transform((settings) => ({
-		...settings,
-		// Older settings only store a seed color. Keep their scheme when adding presets.
-		themePreset:
-			settings.themePreset ?? (settings.themeColor.toLowerCase() === defaultThemeColor ? 'team581' : 'custom'),
-	}));
+	.transform(({ themePreset, themeColor, ...settings }) => {
+		if (themePreset !== undefined) {
+			return { ...settings, themePreset, themeColor: themeColor ?? defaultCustomColor };
+		}
+		// Older settings only store a theme color, where Team 581 maroon was the default
+		return themeColor === undefined || themeColor.toLowerCase() === defaultThemeColor
+			? { ...settings, themePreset: 'team581' as const, themeColor: defaultCustomColor }
+			: { ...settings, themePreset: 'custom' as const, themeColor };
+	});
 
 export type Settings = z.infer<typeof settingsSchema>;
 
