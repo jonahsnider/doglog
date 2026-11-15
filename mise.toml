@@ -1,8 +1,13 @@
 [tools]
 hk = { version = "2.12.0", workflow = "release.yml" }
 java = "temurin-25.0.5+8.0.LTS"
+"npm:@fission-ai/openspec" = "2.0.0"
 pkl = "0.33.0"
 rust = "1.100.0"
 
 [settings]
 idiomatic_version_file_enable_tools = ["node", "pnpm"]
+
+[tasks."openspec:check"]
+description = "Validate OpenSpec specs and active changes"
+run = "openspec validate --all --strict --no-interactive"
