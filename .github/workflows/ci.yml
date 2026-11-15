@@ -20,12 +20,12 @@ jobs:
     steps:
       - name: Checkout Git repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - name: Setup mise
-        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4
+      - name: Setup pnpm
+        uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3
         with:
-          install_args: node npm:@fission-ai/openspec
+          cache: true
       - name: Validate specs and active changes
-        run: mise run --skip-tools openspec:check
+        run: pnpm openspec:check
 
   assemble:
     name: Assemble

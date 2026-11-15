@@ -11,10 +11,12 @@
 	"scripts": {
 		"format": "oxfmt --check",
 		"format:write": "oxfmt",
-		"knip": "knip"
+		"knip": "knip",
+		"openspec:check": "openspec validate --all --strict --no-interactive"
 	},
 	"devDependencies": {
 		"@astrojs/compiler-rs": "0.5.3",
+		"@fission-ai/openspec": "2.0.0",
 		"knip": "6.45.1",
 		"oxfmt": "0.78.0"
 	},
