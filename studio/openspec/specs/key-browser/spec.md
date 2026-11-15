@@ -38,7 +38,7 @@ The key browser SHALL provide a search box that filters the tree to entries whos
 
 ### Requirement: Collapsible panel
 
-The key browser SHALL be a collapsible panel on the right side of the dashboard view, toggled by a button or keyboard shortcut, and its open state MUST persist. Users MUST be able to resize it by dragging the divider between it and the panes.
+The key browser SHALL be a collapsible panel on the right side of the dashboard view, toggled by a button or keyboard shortcut, and its open state MUST persist. Users MUST be able to resize it by dragging the divider between it and the panes, and its width MUST persist.
 
 #### Scenario: Toggle and remember
 
@@ -50,6 +50,11 @@ The key browser SHALL be a collapsible panel on the right side of the dashboard 
 - **WHEN** the user drags the divider between the panes and the key browser
 - **THEN** the key browser's width changes
 - **AND** the panes resize to fill the remaining space
+
+#### Scenario: Remember the width
+
+- **WHEN** the user resizes the key browser and reopens Studio
+- **THEN** the key browser has the same width
 
 #### Scenario: Resize the window
 
