@@ -292,6 +292,9 @@ importers:
       '@types/react-dom':
         specifier: 19.3.0
         version: 19.3.0(@types/react@19.3.0)
+      '@vite-pwa/assets-generator':
+        specifier: 2.0.0
+        version: 2.0.0(@types/node@26.6.6)
       '@vitejs/plugin-react':
         specifier: 6.3.0
         version: 6.3.0(@voidzero-dev/vite-plus-core@1.5.0(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(typescript@7.1.0-dev.20261113.1)(yaml@2.9.1))
@@ -9379,7 +9382,6 @@ snapshots:
       unconfig: 7.5.0
     transitivePeerDependencies:
       - '@types/node'
-    optional: true
 
   '@vite-pwa/astro@2.0.2(@vite-pwa/assets-generator@2.0.0(@types/node@24.13.3))(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(magicast@0.5.5)(rolldown@1.2.16)(typescript@7.1.0-dev.20261113.1)(vite@8.3.7(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))':
     dependencies:
@@ -12114,7 +12116,6 @@ snapshots:
       sharp: 0.35.5(@types/node@26.6.6)
     transitivePeerDependencies:
       - '@types/node'
-    optional: true
 
   sharp@0.35.5(@types/node@24.13.3):
     dependencies:
@@ -12181,7 +12182,6 @@ snapshots:
       '@img/sharp-win32-ia32': 0.35.5
       '@img/sharp-win32-x64': 0.35.5
       '@types/node': 26.6.6
-    optional: true
 
   shebang-command@2.0.0:
     dependencies:
