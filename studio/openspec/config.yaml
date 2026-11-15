@@ -48,7 +48,7 @@ context: |
   - Tabbed widget stacks inside a pane.
   - Playback looping and trimming the playback range.
   - FRC match time display (ex. "Teleop 1:32").
-  - Recent files, and opening `.wpilog` files from the OS (desktop file association).
+  - Recent files.
   - FRC-specific widgets (field view, swerve module visualizer, etc.). Double-clicking matching entries
     (ex. swerve module states) should default to these once they exist.
   - A command palette. Quick connect may move off ⌘K to make room for it.
