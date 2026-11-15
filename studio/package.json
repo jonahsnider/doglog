@@ -10,6 +10,7 @@
 		"deploy": "wrangler deploy",
 		"dev": "portless",
 		"dev:app": "vp dev",
+		"openspec:check": "openspec validate --specs --strict --no-interactive",
 		"react-doctor": "react-doctor --no-telemetry --verbose",
 		"preview": "vp preview",
 		"tauri": "tauri",
@@ -43,6 +44,7 @@
 		"zod": "4.6.7"
 	},
 	"devDependencies": {
+		"@fission-ai/openspec": "2.0.0",
 		"@tailwindcss/vite": "4.3.5",
 		"@tanstack/router-plugin": "1.169.0",
 		"@tauri-apps/cli": "2.12.4",
