@@ -1,20 +1,11 @@
 import type { Hotkey } from '@tanstack/react-hotkeys';
-import {
-	ChevronDownIcon,
-	Columns2Icon,
-	LayoutGridIcon,
-	ReplaceIcon,
-	Rows2Icon,
-	Settings2Icon,
-	XIcon,
-} from 'lucide-react';
+import { Columns2Icon, ReplaceIcon, Rows2Icon, Settings2Icon, XIcon } from 'lucide-react';
 import { type ReactNode, useMemo, useState } from 'react';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { WidgetOptions } from '@/components/entry-picker';
 import { Button } from '@/components/ui/button';
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import { Menu, MenuItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from '@/components/ui/empty';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { WidgetView } from '@/components/widget-view';
@@ -230,37 +221,33 @@ function AddWidgetPrompt({ onAdd }: { onAdd: (type: WidgetType) => void }) {
 	return (
 		<Empty
 			// Without select-none, double-clicking selects text in the new widget
-			className="h-full overflow-auto select-none"
+			className="h-full justify-start overflow-auto p-4 select-none"
 			onDoubleClick={(event) => {
-				// Double-clicking the Add widget button shouldn't also add a widget
+				// Double-clicking a widget tile shouldn't also add the default widget
 				if (!(event.target instanceof Element && event.target.closest('button'))) {
 					onAdd(getWidgetType('discrete-timeline')!);
 				}
 			}}
 		>
 			<EmptyHeader>
-				<EmptyMedia variant="icon">
-					<LayoutGridIcon />
-				</EmptyMedia>
 				<EmptyTitle>Add widget</EmptyTitle>
 				<EmptyDescription>Choose a widget to show data in this pane.</EmptyDescription>
 			</EmptyHeader>
-			<EmptyContent>
-				<Menu>
-					<MenuTrigger render={<Button variant="outline" />}>
-						Add widget
-						<ChevronDownIcon />
-					</MenuTrigger>
-					<MenuPopup>
-						{widgetTypes.map((type) => (
-							<MenuItem key={type.id} onClick={() => onAdd(type)}>
-								<type.icon />
-								{type.name}
-							</MenuItem>
-						))}
-					</MenuPopup>
-				</Menu>
-			</EmptyContent>
+			<div className="grid w-full max-w-sm grid-cols-2 gap-3">
+				{widgetTypes.map((type) => (
+					<button
+						key={type.id}
+						type="button"
+						className="flex cursor-pointer flex-col gap-2 rounded-xl border bg-card p-2 text-sm text-muted-foreground outline-none transition-[border-color,box-shadow,color] hover:border-ring/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background"
+						onClick={() => onAdd(type)}
+					>
+						<div className="flex aspect-16/10 items-center justify-center rounded-md border bg-muted/50">
+							<type.icon className="size-8" />
+						</div>
+						<span className="pb-0.5 text-center">{type.name}</span>
+					</button>
+				))}
+			</div>
 		</Empty>
 	);
 }
