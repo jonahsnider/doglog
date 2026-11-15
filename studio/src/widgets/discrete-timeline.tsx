@@ -246,7 +246,7 @@ export function DiscreteTimeline({ bindings }: WidgetProps) {
 				>
 					<div className="font-mono font-medium">{formatValue(band.value)}</div>
 					<div className="text-muted-foreground tabular-nums">
-						{formatTime(band.start, range.start)} – {formatTime(band.end, range.start)}
+						{formatTime(band.start, range.start)} - {formatTime(band.end, range.start)}
 					</div>
 				</div>
 			);

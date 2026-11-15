@@ -140,7 +140,7 @@ function TimelineControls() {
 			)}
 
 			<span className="ms-1 min-w-20 text-right font-mono text-sm tabular-nums">
-				{range && time !== undefined ? formatTime(time, range.start) : '–'}
+				{range && time !== undefined ? formatTime(time, range.start) : '-'}
 			</span>
 			{range && time !== undefined ? (
 				<Scrubber range={range} time={time} />
@@ -148,7 +148,7 @@ function TimelineControls() {
 				<div className="mx-2 h-1 flex-1 rounded-full bg-input" />
 			)}
 			<span className="min-w-20 font-mono text-sm text-muted-foreground tabular-nums">
-				{range ? formatTime(range.end, range.start) : '–'}
+				{range ? formatTime(range.end, range.start) : '-'}
 			</span>
 
 			<Select
