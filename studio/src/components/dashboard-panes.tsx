@@ -140,8 +140,20 @@ function PaneView({
 	const close = () => closeDashboardPane(dashboardId, pane.id);
 
 	const menuItems: MenuEntry[] = [
-		{ label: 'Split right', icon: Columns2Icon, disabled: !canSplitRight, onSelect: () => split('row') },
-		{ label: 'Split down', icon: Rows2Icon, disabled: !canSplitDown, onSelect: () => split('column') },
+		{
+			label: 'Split right',
+			icon: Columns2Icon,
+			shortcut: shortcuts.splitRight,
+			disabled: !canSplitRight,
+			onSelect: () => split('row'),
+		},
+		{
+			label: 'Split down',
+			icon: Rows2Icon,
+			shortcut: shortcuts.splitDown,
+			disabled: !canSplitDown,
+			onSelect: () => split('column'),
+		},
 		'separator',
 		{
 			label: 'Change widget',
@@ -191,10 +203,20 @@ function PaneView({
 						onOpenChange={setOptionsOpen}
 					/>
 				)}
-				<PaneButton label="Split right" disabled={!canSplitRight} onClick={() => split('row')}>
+				<PaneButton
+					label="Split right"
+					shortcut={shortcuts.splitRight}
+					disabled={!canSplitRight}
+					onClick={() => split('row')}
+				>
 					<Columns2Icon />
 				</PaneButton>
-				<PaneButton label="Split down" disabled={!canSplitDown} onClick={() => split('column')}>
+				<PaneButton
+					label="Split down"
+					shortcut={shortcuts.splitDown}
+					disabled={!canSplitDown}
+					onClick={() => split('column')}
+				>
 					<Rows2Icon />
 				</PaneButton>
 				{closable && (

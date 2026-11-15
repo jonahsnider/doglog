@@ -142,6 +142,20 @@ export function connect(robotHost: string | undefined): void {
 	void attempt();
 }
 
+/** Let the user pick a WPILOG file to open */
+export function chooseLog(): void {
+	const input = document.createElement('input');
+	input.type = 'file';
+	input.accept = '.wpilog';
+	input.addEventListener('change', () => {
+		const file = input.files?.[0];
+		if (file) {
+			void openLog(file);
+		}
+	});
+	input.click();
+}
+
 /** Whether a drag event is dragging files from outside the window */
 export const hasFiles = (event: DragEvent) => event.dataTransfer?.types.includes('Files') ?? false;
 

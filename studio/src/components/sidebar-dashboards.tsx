@@ -17,7 +17,7 @@ import {
 	SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { TooltipLabel } from '@/components/tooltip-label';
-import { newDashboard, shortcuts } from '@/commands';
+import { dashboardShortcut, newDashboard, shortcuts } from '@/commands';
 import { type Dashboard, moveDashboard, renameDashboard, useDashboards } from '@/dashboards';
 
 const sensors = [
@@ -116,7 +116,7 @@ function DashboardItem({ dashboard, index, onClose }: { dashboard: Dashboard; in
 						// Keeps the link a link, dnd-kit makes drag handles without a role into buttons
 						role="link"
 						onDoubleClick={() => setRenaming(true)}
-						tooltip={dashboard.name}
+						tooltip={{ children: <TooltipLabel label={dashboard.name} shortcut={dashboardShortcut(index)} /> }}
 					>
 						<LayoutDashboardIcon />
 						<span>{dashboard.name}</span>

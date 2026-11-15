@@ -3,8 +3,17 @@ import { Menu } from '@tauri-apps/api/menu';
 import { detectPlatform, type Hotkey, useHotkeys } from '@tanstack/react-hotkeys';
 import { type RegisteredRouter, useRouter } from '@tanstack/react-router';
 import { closeDashboard } from '@/close-dashboard';
-import { closeFocusedPane, createDashboard, getDashboard } from '@/dashboards';
-import { connect } from '@/data/source';
+import {
+	closeFocusedPane,
+	createDashboard,
+	type Dashboard,
+	getDashboard,
+	getDashboards,
+	getFocusedPane,
+	splitDashboardPane,
+} from '@/dashboards';
+import { chooseLog, connect } from '@/data/source';
+import { canSplitPane, type SplitDirection } from '@/pane-layout';
 import { getRobotHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
 
@@ -21,29 +30,62 @@ export const shortcuts = {
 	close: desktop ? 'Mod+W' : 'Alt+W',
 	settings: desktop ? 'Mod+,' : 'Alt+,',
 	connect: 'Mod+K',
+	splitRight: 'Mod+D',
+	splitDown: 'Mod+Shift+D',
+	openLog: 'Mod+O',
 } as const satisfies Record<string, Hotkey>;
+
+const dashboardNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
+
+/** The shortcut that switches to the dashboard at `index` in the sidebar, if it has one */
+export function dashboardShortcut(index: number): Hotkey | undefined {
+	const number = dashboardNumbers[index];
+	if (number === undefined) {
+		return undefined;
+	}
+	return desktop ? `Mod+${number}` : `Alt+${number}`;
+}
 
 export function newDashboard(router: RegisteredRouter, position?: 'top' | 'bottom'): void {
 	const { id } = createDashboard(position);
 	void router.navigate({ to: '/dashboards/$dashboardId', params: { dashboardId: id } });
 }
 
+function currentDashboard(router: RegisteredRouter): Dashboard | undefined {
+	const match = router.state.matches.find((other) => other.routeId === '/dashboards/$dashboardId');
+	return match && getDashboard(match.params.dashboardId);
+}
+
 function closeFocused(router: RegisteredRouter): void {
-	for (const match of router.state.matches) {
-		if (match.routeId === '/dashboards/$dashboardId') {
-			closeFocusedPane(match.params.dashboardId);
-		}
+	const dashboard = currentDashboard(router);
+	if (dashboard) {
+		closeFocusedPane(dashboard.id);
 	}
 }
 
 function closeCurrentDashboard(router: RegisteredRouter): void {
-	for (const match of router.state.matches) {
-		if (match.routeId === '/dashboards/$dashboardId') {
-			const dashboard = getDashboard(match.params.dashboardId);
-			if (dashboard) {
-				closeDashboard(dashboard);
-			}
-		}
+	const dashboard = currentDashboard(router);
+	if (dashboard) {
+		closeDashboard(dashboard);
+	}
+}
+
+function splitFocused(router: RegisteredRouter, direction: SplitDirection): void {
+	const dashboard = currentDashboard(router);
+	if (!dashboard) {
+		return;
+	}
+
+	const pane = getFocusedPane(dashboard);
+	if (canSplitPane(dashboard.layout, pane.id, direction)) {
+		splitDashboardPane(dashboard.id, pane.id, direction);
+	}
+}
+
+function openDashboardAt(router: RegisteredRouter, index: number): void {
+	const dashboard = getDashboards()[index];
+	if (dashboard) {
+		void router.navigate({ to: '/dashboards/$dashboardId', params: { dashboardId: dashboard.id } });
 	}
 }
 
@@ -71,6 +113,17 @@ export function useGlobalShortcuts(): void {
 			{ hotkey: 'Mod+Shift+W', callback: () => closeCurrentDashboard(router), options: desktopOnly },
 			{ hotkey: 'Mod+,', callback: () => openSettings(router), options: desktopOnly },
 			{ hotkey: shortcuts.connect, callback: startConnect },
+			{ hotkey: shortcuts.splitRight, callback: () => splitFocused(router, 'row') },
+			{ hotkey: shortcuts.splitDown, callback: () => splitFocused(router, 'column') },
+			{ hotkey: shortcuts.openLog, callback: chooseLog },
+			...dashboardNumbers.flatMap((number) => [
+				{ hotkey: `Alt+${number}` as const, callback: () => openDashboardAt(router, number - 1) },
+				{
+					hotkey: `Mod+${number}` as const,
+					callback: () => openDashboardAt(router, number - 1),
+					options: { enabled: desktop },
+				},
+			]),
 		],
 		{ requireReset: true },
 	);

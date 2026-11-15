@@ -1,12 +1,11 @@
 import { useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { ChevronsUpDownIcon, DatabaseIcon, FileIcon, FolderOpenIcon, RadioTowerIcon } from 'lucide-react';
-import { useRef } from 'react';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuTrigger } from '@/components/ui/menu';
 import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Spinner } from '@/components/ui/spinner';
 import { shortcuts, startConnect } from '@/commands';
-import { openLog, type Source, useSource } from '@/data/source';
+import { chooseLog, type Source, useSource } from '@/data/source';
 import { cn } from '@/lib/utils';
 
 const statusLabels: Record<Source['status'], string> = {
@@ -35,11 +34,8 @@ function SourceIcon({ source }: { source: Source | undefined }) {
 export function SourceControl() {
 	const source = useSource();
 	const formatForDisplay = useFormatForDisplay();
-	const fileInput = useRef<HTMLInputElement>(null);
-
-	const openLogFile = () => fileInput.current?.click();
 	const menuItems: MenuEntry[] = [
-		{ label: 'Open log', icon: FolderOpenIcon, onSelect: openLogFile },
+		{ label: 'Open log', icon: FolderOpenIcon, shortcut: shortcuts.openLog, onSelect: chooseLog },
 		'separator',
 		{ label: 'Connect', icon: RadioTowerIcon, shortcut: shortcuts.connect, onSelect: startConnect },
 	];
@@ -75,9 +71,10 @@ export function SourceControl() {
 					<ChevronsUpDownIcon className="ms-auto text-muted-foreground" />
 				</MenuTrigger>
 				<MenuPopup align="start" className="w-(--anchor-width) min-w-56">
-					<MenuItem onClick={openLogFile}>
+					<MenuItem onClick={chooseLog}>
 						<FolderOpenIcon />
 						Open log
+						<span className="ms-auto text-xs text-muted-foreground">{formatForDisplay(shortcuts.openLog)}</span>
 					</MenuItem>
 					<MenuSeparator />
 					<MenuItem onClick={startConnect}>
@@ -87,20 +84,6 @@ export function SourceControl() {
 					</MenuItem>
 				</MenuPopup>
 			</Menu>
-			<input
-				ref={fileInput}
-				type="file"
-				accept=".wpilog"
-				hidden
-				onChange={(event) => {
-					const file = event.currentTarget.files?.[0];
-					if (file) {
-						void openLog(file);
-					}
-					// Allow choosing the same file again
-					event.currentTarget.value = '';
-				}}
-			/>
 		</AppContextMenu>
 	);
 }

@@ -8,7 +8,7 @@ Define Studio's app-wide keyboard shortcuts and how they differ between the desk
 
 ### Requirement: Global shortcuts
 
-Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Settings (⌘, or Alt+,), Toggle sidebar (⌘B), Toggle key browser (⌥⌘B), and Connect (⌘K).
+Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Settings (⌘, or Alt+,), Toggle sidebar (⌘B), Toggle key browser (⌥⌘B), Connect (⌘K), Split right (⌘D), Split down (⇧⌘D), Open log (⌘O), and Switch to dashboard 1-9 (⌘1-⌘9, or Alt+1-Alt+9).
 
 #### Scenario: New dashboard
 
@@ -24,6 +24,22 @@ Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and
 
 - **WHEN** the user presses ⌘B
 - **THEN** the sidebar collapses or expands
+
+#### Scenario: Split the focused pane
+
+- **WHEN** the user presses ⌘D
+- **THEN** the focused pane splits to the right, the same way as pressing Split right
+
+#### Scenario: Open a log
+
+- **WHEN** the user presses ⌘O
+- **THEN** the file picker for opening a log opens
+
+#### Scenario: Switch dashboards
+
+- **GIVEN** there are at least three dashboards
+- **WHEN** the user presses Alt+3
+- **THEN** the third dashboard in the sidebar opens
 
 #### Scenario: Connect
 
@@ -46,7 +62,7 @@ Every control with a keyboard shortcut SHALL show the shortcut in its tooltip, f
 
 ### Requirement: Desktop-only shortcuts
 
-⌘T, ⌘W, ⇧⌘W, and ⌘, SHALL only be active in the desktop app, because browsers reserve them. Their Alt variants MUST work in both the desktop app and the web.
+⌘T, ⌘W, ⇧⌘W, ⌘, and ⌘1-⌘9 SHALL only be active in the desktop app, because browsers reserve them. Their Alt variants MUST work in both the desktop app and the web.
 
 #### Scenario: Web app
 
