@@ -7,6 +7,7 @@
 		"build": "vp build",
 		"check": "vp check",
 		"check:fix": "vp check --fix",
+		"deploy": "wrangler deploy",
 		"dev": "portless",
 		"dev:app": "vp dev",
 		"react-doctor": "react-doctor --no-telemetry --verbose",
@@ -56,7 +57,8 @@
 		"typescript": "7.1.0-dev.20261113.1",
 		"vite": "catalog:",
 		"vite-plugin-pwa": "2.0.0",
-		"vite-plus": "catalog:"
+		"vite-plus": "catalog:",
+		"wrangler": "4.162.0"
 	},
 	"devEngines": {
 		"runtime": {

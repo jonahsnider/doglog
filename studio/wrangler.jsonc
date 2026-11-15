@@ -1,0 +1,14 @@
+{
+	"assets": {
+		"directory": "./dist",
+		"not_found_handling": "single-page-application",
+	},
+	"compatibility_date": "2026-11-15",
+	"name": "doglog-studio",
+	"route": {
+		"custom_domain": true,
+		"pattern": "studio.doglog.dev",
+	},
+	"workers_dev": false,
+	"$schema": "./node_modules/wrangler/config-schema.json",
+}

@@ -149,6 +149,7 @@ export default defineConfig({
 			registerType: 'autoUpdate',
 			workbox: {
 				globPatterns: ['**/*'],
+				globIgnores: ['**/_headers'],
 				cleanupOutdatedCaches: true,
 			},
 			manifest: {
