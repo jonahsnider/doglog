@@ -442,4 +442,21 @@
 	html {
 		@apply font-sans font-mono;
 	}
+	/* Tailwind v4 removed the pointer cursor from buttons, see https://ui.shadcn.com/docs/tailwind-v4#buttons-use-the-default-cursor */
+	:is(
+		button,
+		select,
+		summary,
+		[role='button'],
+		[role='checkbox'],
+		[role='radio'],
+		[role='switch'],
+		[role='tab'],
+		[role='option'],
+		[role='menuitem'],
+		[role='menuitemcheckbox'],
+		[role='menuitemradio']
+	):not(:disabled, [aria-disabled='true'], [data-disabled]) {
+		cursor: pointer;
+	}
 }
