@@ -12,7 +12,7 @@
 		"format": "oxfmt --check",
 		"format:write": "oxfmt",
 		"knip": "knip",
-		"openspec:check": "openspec validate --all --strict --no-interactive"
+		"openspec:check": "pnpm --dir studio exec openspec validate --specs --strict --no-interactive"
 	},
 	"devDependencies": {
 		"@astrojs/compiler-rs": "0.5.3",

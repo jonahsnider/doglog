@@ -24,7 +24,7 @@ jobs:
         uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3
         with:
           cache: true
-      - name: Validate specs and active changes
+      - name: Validate Studio specs
         run: pnpm openspec:check
 
   assemble:
