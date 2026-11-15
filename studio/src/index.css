@@ -3,6 +3,9 @@
 @import '@fontsource-variable/geist-mono';
 
 @custom-variant dark (&:is(.dark *));
+/* Breakpoints for the add widget prompt, based on how much space its content needs */
+@custom-variant add-widget-compact (@container add-widget ((height < 23rem) or (width < 18rem)));
+@custom-variant add-widget-tiny (@container add-widget (height < 11rem));
 
 @theme inline {
 	--animate-skeleton: skeleton 2s -1s infinite linear;
