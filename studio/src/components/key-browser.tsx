@@ -12,6 +12,7 @@ import {
 	SearchIcon,
 } from 'lucide-react';
 import { memo, useCallback, useDeferredValue, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { Panel, Separator } from 'react-resizable-panels';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { HighlightedText } from '@/components/highlighted-text';
 import { Button } from '@/components/ui/button';
@@ -61,13 +62,21 @@ export function KeyBrowser() {
 	}
 
 	return (
-		<aside aria-label="Key browser" className="flex w-80 shrink-0 flex-col border-l">
-			<div className="flex h-9 shrink-0 items-center border-b ps-3 pe-1.5">
-				<h2 className="flex-1 text-xs font-medium text-muted-foreground">Keys</h2>
-				<ToggleButton open />
-			</div>
-			<KeyTree />
-		</aside>
+		<>
+			<Separator
+				aria-label="Resize key browser"
+				className="w-px bg-border outline-none transition-colors focus-visible:bg-ring data-[separator=active]:bg-ring data-[separator=hover]:bg-ring"
+			/>
+			<Panel defaultSize="20rem" minSize="7rem" groupResizeBehavior="preserve-pixel-size">
+				<aside aria-label="Key browser" className="flex h-full flex-col">
+					<div className="flex h-9 shrink-0 items-center border-b ps-3 pe-1.5">
+						<h2 className="flex-1 text-xs font-medium text-muted-foreground">Keys</h2>
+						<ToggleButton open />
+					</div>
+					<KeyTree />
+				</aside>
+			</Panel>
+		</>
 	);
 }
 
