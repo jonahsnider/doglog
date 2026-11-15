@@ -7,7 +7,8 @@
 		"build": "vp build",
 		"check": "vp check",
 		"check:fix": "vp check --fix",
-		"dev": "vp dev",
+		"dev": "portless",
+		"dev:app": "vp dev",
 		"preview": "vp preview",
 		"tauri": "tauri"
 	},
@@ -33,6 +34,7 @@
 		"@types/react": "19.3.0",
 		"@types/react-dom": "19.3.0",
 		"@vitejs/plugin-react": "6.3.0",
+		"portless": "0.17.0",
 		"tailwindcss": "4.3.5",
 		"typescript": "7.1.0-dev.20261113.1",
 		"vite": "catalog:",
@@ -45,5 +47,9 @@
 			"version": "26.x",
 			"onFail": "warn"
 		}
+	},
+	"portless": {
+		"name": "studio.doglog.dev",
+		"script": "dev:app"
 	}
 }
