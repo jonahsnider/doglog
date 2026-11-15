@@ -1,0 +1,51 @@
+# platforms Specification
+
+## Purpose
+
+Define how Studio is distributed: as an installable, offline-capable website, and as a desktop app for Windows, macOS, and Linux that removes browser networking limits.
+
+## Requirements
+
+### Requirement: Web app
+
+Studio SHALL be available as a website that supports opening logs in modern browsers and live connections where the browser allows them.
+
+#### Scenario: Open a log in the browser
+
+- **WHEN** a user visits the Studio website and opens a `.wpilog` file
+- **THEN** the log is viewable without installing anything
+
+#### Scenario: Live connection in Chrome
+
+- **GIVEN** a user on Chrome visits the Studio website
+- **WHEN** they connect to a robot by IP address and grant the local network permission
+- **THEN** the live connection works
+
+### Requirement: Offline web app
+
+The web app SHALL be an installable PWA that works offline after the first visit, including opening logs.
+
+#### Scenario: No internet at an event
+
+- **GIVEN** the user visited Studio before
+- **WHEN** they open it with no internet connection
+- **THEN** Studio loads and can open logs
+
+### Requirement: Desktop app
+
+Studio SHALL be available as a desktop app for Windows, macOS, and Linux with every feature of the web app and live connections without browser restrictions.
+
+#### Scenario: Live connection on desktop
+
+- **WHEN** a user on the desktop app connects to a robot by team number
+- **THEN** the connection works without any permission prompt or browser restriction
+
+### Requirement: Desktop auto-update
+
+The desktop app SHALL update itself automatically.
+
+#### Scenario: New version available
+
+- **GIVEN** a newer desktop version is released
+- **WHEN** the user opens the desktop app with internet access
+- **THEN** the update is installed without the user downloading it manually
