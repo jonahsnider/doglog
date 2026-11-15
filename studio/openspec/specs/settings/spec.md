@@ -39,3 +39,18 @@ Settings and UI state MUST be saved on the device and restored when Studio reope
 - **GIVEN** the user set the theme to light
 - **WHEN** Studio is reopened
 - **THEN** the light theme is used
+
+### Requirement: Theme color setting
+
+Settings SHALL let users choose the theme color that the color scheme is generated from, defaulting to Team 581 maroon `#591616`, and MUST let users reset it to the default.
+
+#### Scenario: Custom color
+
+- **WHEN** the user picks a blue theme color
+- **THEN** Studio's light and dark themes are regenerated from that blue
+
+#### Scenario: Reset
+
+- **GIVEN** the user picked a custom theme color
+- **WHEN** the user resets it
+- **THEN** the theme color is `#591616` again

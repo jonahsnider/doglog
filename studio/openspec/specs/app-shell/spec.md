@@ -65,3 +65,42 @@ When a dashboard is shown, the main area SHALL show the dashboard's panes, a col
 
 - **WHEN** the user opens the Settings page
 - **THEN** the timeline bar and key browser are not shown
+
+### Requirement: Collapsible sidebar
+
+Users SHALL be able to collapse the sidebar to a narrow icon-only rail and expand it again. Hovering the collapsed rail MUST temporarily expand it over the dashboard without resizing the dashboard, and the collapsed state MUST persist.
+
+#### Scenario: Collapse for more space
+
+- **WHEN** the user collapses the sidebar
+- **THEN** it shrinks to an icon-only rail
+- **AND** the dashboard area grows to use the freed space
+
+#### Scenario: Peek on hover
+
+- **GIVEN** the sidebar is collapsed
+- **WHEN** the user hovers the rail
+- **THEN** the full sidebar is shown over the dashboard
+- **AND** the dashboard layout does not change
+
+#### Scenario: Remember collapsed state
+
+- **GIVEN** the user collapsed the sidebar
+- **WHEN** Studio is reopened
+- **THEN** the sidebar is still collapsed
+
+### Requirement: Context menus
+
+Context menus SHALL be shown as native operating system menus in the desktop app and as in-app menus on the web, with the same items on both.
+
+#### Scenario: Desktop context menu
+
+- **GIVEN** the user is using the desktop app
+- **WHEN** the user right-clicks a dashboard in the sidebar
+- **THEN** a native menu is shown
+
+#### Scenario: Web context menu
+
+- **GIVEN** the user is using the web app
+- **WHEN** the user right-clicks a dashboard in the sidebar
+- **THEN** an in-app menu with the same items is shown

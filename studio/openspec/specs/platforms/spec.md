@@ -49,3 +49,17 @@ The desktop app SHALL update itself automatically.
 - **GIVEN** a newer desktop version is released
 - **WHEN** the user opens the desktop app with internet access
 - **THEN** the update is installed without the user downloading it manually
+
+### Requirement: App icon
+
+The desktop app icon, the installed web app icon, and the browser tab icon SHALL use the DogLog logo.
+
+#### Scenario: Desktop icon
+
+- **WHEN** the user installs the desktop app
+- **THEN** its icon is the DogLog logo
+
+#### Scenario: Installed web app
+
+- **WHEN** the user installs the web app
+- **THEN** its icon is the DogLog logo

@@ -8,7 +8,7 @@ Define the key browser, a collapsible panel listing every entry in the active so
 
 ### Requirement: Entry tree
 
-The key browser SHALL list every entry in the active source as a tree grouped by path segments, showing each entry's type and value at the cursor.
+The key browser SHALL list every entry in the active source as a tree grouped by path segments, showing each entry's type indicator and value at the cursor.
 
 #### Scenario: Nested entries
 
@@ -47,3 +47,64 @@ Users SHALL be able to drag entries from the key browser onto widgets to bind th
 
 - **WHEN** the user drags `/Arm/Angle` onto a values table
 - **THEN** the values table binds `/Arm/Angle`
+
+### Requirement: Type indicators
+
+The key browser SHALL show each entry's type as a compact icon that is visually distinct from its value, and MUST show the full type name in a tooltip.
+
+#### Scenario: Integer entry
+
+- **GIVEN** the source has an `int64` entry
+- **THEN** its row shows an integer type icon instead of the text `int64`
+- **AND** hovering the icon shows `int64`
+
+#### Scenario: Struct entry
+
+- **GIVEN** the source has a `struct:Pose2d` entry
+- **THEN** its row shows a struct type icon
+- **AND** hovering the icon shows `struct:Pose2d`
+
+### Requirement: Boolean values
+
+Boolean values SHALL be shown as a visual mark instead of the text `true` or `false`, so they can be read at a glance.
+
+#### Scenario: True and false
+
+- **GIVEN** two boolean entries, one true and one false at the cursor
+- **THEN** the true entry shows a filled mark
+- **AND** the false entry shows a hollow mark
+
+### Requirement: Double-click to add
+
+Double-clicking a bindable entry SHALL add it to the open dashboard in a new pane, using the entry's default widget.
+
+#### Scenario: Add to a dashboard with widgets
+
+- **GIVEN** the open dashboard has a focused pane with a widget
+- **WHEN** the user double-clicks `/Arm/Angle`
+- **THEN** the focused pane is split and the new pane shows the default widget for `/Arm/Angle`, bound to it
+
+#### Scenario: Add to an empty dashboard
+
+- **GIVEN** the open dashboard has a single empty pane
+- **WHEN** the user double-clicks `/console`
+- **THEN** the empty pane shows a console widget bound to `/console`
+
+#### Scenario: Unsupported entry
+
+- **WHEN** the user double-clicks an entry marked as unsupported
+- **THEN** nothing is added
+
+### Requirement: Entry context menu
+
+Right-clicking an entry SHALL open a context menu with Add to dashboard and Copy name.
+
+#### Scenario: Copy name
+
+- **WHEN** the user right-clicks `/Arm/Angle` and chooses Copy name
+- **THEN** `/Arm/Angle` is copied to the clipboard
+
+#### Scenario: Add to dashboard
+
+- **WHEN** the user right-clicks a bindable entry and chooses Add to dashboard
+- **THEN** it is added the same way as double-clicking it

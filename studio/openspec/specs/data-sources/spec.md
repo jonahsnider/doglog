@@ -109,3 +109,32 @@ Studio SHALL decode numeric, boolean, string, array, and WPILib struct entries. 
 - **GIVEN** a source contains a protobuf-encoded entry
 - **THEN** the entry appears in the key browser marked as unsupported
 - **AND** it cannot be bound to widgets
+
+### Requirement: Quick connect
+
+Quick connect SHALL try the robot connection target and the simulator at the same time, connect to the robot if it is reachable and otherwise to the simulator, and MUST keep trying both until one is reachable without showing an error.
+
+#### Scenario: Robot available
+
+- **GIVEN** the robot is reachable
+- **WHEN** the user triggers quick connect
+- **THEN** Studio connects to the robot, even if a simulator is also running
+
+#### Scenario: Only the simulator is running
+
+- **GIVEN** the robot is not reachable and a simulator is running
+- **WHEN** the user triggers quick connect
+- **THEN** Studio connects to the simulator
+
+#### Scenario: Nothing reachable yet
+
+- **GIVEN** neither the robot nor a simulator is reachable
+- **WHEN** the user triggers quick connect
+- **THEN** the source control shows the connecting state
+- **AND** Studio connects as soon as one becomes reachable
+
+#### Scenario: No robot target
+
+- **GIVEN** Settings has no valid robot connection target
+- **WHEN** the user triggers quick connect
+- **THEN** Studio only tries the simulator

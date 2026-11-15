@@ -19,8 +19,12 @@ context: |
   - Core logic: TypeScript. Avoid other languages for core logic unless there's a strong reason.
   - WPILOG parsing: wpilog-parser. NT4 client: @ntcore-ts/client.
   - Distribution: a PWA website, plus a Tauri desktop app built from the same frontend.
-  - Theming: Team 581 theme tokens based on a slightly tweaked Material Design 3 color scheme, like
-    jonahsnider/dashshund and team581/starlight-theme. There is no shared token package yet.
+  - State: TanStack Store, with Zod validating all persisted and external data.
+  - Interactions: dnd-kit for drag and drop, react-resizable-panels for pane splits, TanStack Hotkeys for shortcuts.
+  - Theming: Material Design 3 "tonal spot" scheme generated with @material/material-color-utilities from a seed
+    color. The default seed is Team 581 maroon #591616, which matches jonahsnider/dashshund.
+  - App icon: the DogLog logo (web/public/logo.svg), which is also the Team 581 logo.
+  - Context menus: native Tauri popup menus on desktop, coss menus on the web, from one menu definition.
 
   Platform constraints:
   - Browsers only allow live NT connections from an HTTPS page via Chrome's Local Network Access (Chrome 147+),
@@ -43,11 +47,15 @@ context: |
   - Playback looping and trimming the playback range.
   - FRC match time display (ex. "Teleop 1:32").
   - Recent files, and opening `.wpilog` files from the OS (desktop file association).
-  - FRC-specific widgets (field view, swerve module visualizer, etc.).
+  - FRC-specific widgets (field view, swerve module visualizer, etc.). Double-clicking matching entries
+    (ex. swerve module states) should default to these once they exist.
+  - A command palette. Quick connect may move off ⌘K to make room for it.
 
   Open questions:
   - Whether the sidebar's dashboard list fits every page long term, or pages need their own secondary content.
   - The live NT story for Firefox and Safari users of the web app.
+  - Per-project defaults for common entries (ex. the robot pose is always /Robot/Localization/EstimatedPose).
+    Possibly declared by robot code (ex. NT topic metadata or DogLog) instead of in Studio.
 
 rules:
   specs:

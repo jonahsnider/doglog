@@ -71,3 +71,27 @@ When a bound entry doesn't exist in the active source, or no source is active, t
 - **WHEN** the user opens a log without `/Arm/Angle`
 - **THEN** the widget shows "no data" for that entry
 - **AND** the binding is kept for future sources
+
+### Requirement: Default widget for an entry
+
+Each bindable entry SHALL have a default widget, used when the entry is added without choosing a widget: numeric entries use the line graph, `/console` and `/messages` use the console, other string and boolean entries use the discrete timeline, and all other entries use the values table.
+
+#### Scenario: Numeric entry
+
+- **WHEN** a `double` entry is added by double-clicking it
+- **THEN** it is shown in a line graph
+
+#### Scenario: Console entry
+
+- **WHEN** `/messages` is added by double-clicking it
+- **THEN** it is shown in a console
+
+#### Scenario: Boolean entry
+
+- **WHEN** a boolean entry is added by double-clicking it
+- **THEN** it is shown in a discrete timeline
+
+#### Scenario: Struct entry
+
+- **WHEN** a `struct:Pose2d` entry is added by double-clicking it
+- **THEN** it is shown in a values table
