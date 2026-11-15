@@ -195,6 +195,7 @@
 	color-scheme: light;
 	/* Team 581 Material Design 3 colors, generated with @material/material-color-utilities */
 	/* SchemeTonalSpot with the Team 581 maroon #591616 as the seed, matching jonahsnider/dashshund */
+	/* These are the defaults before JS loads, src/theme-color.ts overrides them with colors from the theme color setting */
 	--md-primary: rgb(144 74 70);
 	--md-surface-tint: rgb(144 74 70);
 	--md-on-primary: rgb(255 255 255);

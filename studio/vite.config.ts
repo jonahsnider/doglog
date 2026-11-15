@@ -168,6 +168,16 @@ export default defineConfig({
 	resolve: {
 		tsconfigPaths: true,
 	},
+	test: {
+		// Lets `theme-color.test.ts` import the default colors with `?raw`, Vitest replaces CSS with an empty string by default
+		css: { include: [/index\.css/u] },
+		server: {
+			deps: {
+				// Its ESM imports leave off file extensions, which Node can't resolve
+				inline: ['@material/material-color-utilities'],
+			},
+		},
+	},
 	// Tauri expects a fixed dev server port
 	clearScreen: false,
 	server: {
