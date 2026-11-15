@@ -1,6 +1,6 @@
 // Parses WPILOG files off the main thread so the UI stays responsive while large logs load
 import { type DataRecord, isDataRecord, parseDataLog } from 'wpilog-parser';
-import { normalizeEntryName, Samples, type Value } from '@/data/samples';
+import { isSchemaEntry, normalizeEntryName, Samples, type Value } from '@/data/samples';
 
 /** Messages posted by the worker, in order: one `entry` per entry, then `done` or `error` */
 export type LogWorkerMessage =
@@ -71,6 +71,10 @@ function parse(bytes: Uint8Array): void {
 					continue;
 				}
 				const name = normalizeEntryName(payload.entryName);
+				// The parser reads schemas itself
+				if (isSchemaEntry(name)) {
+					continue;
+				}
 				if (entries.get(name)?.type !== payload.entryType) {
 					entries.set(name, { type: payload.entryType, samples: new Samples() });
 				}

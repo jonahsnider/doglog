@@ -3,6 +3,7 @@ import { DatabaseIcon, ListPlusIcon } from 'lucide-react';
 import { type ReactNode, useId, useMemo } from 'react';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { useEntries } from '@/data/data-store';
+import { formatEntryType } from '@/data/samples';
 import { useSource } from '@/data/source';
 import { type EntryDragData, entryDragType } from '@/entry-drag';
 import { cn } from '@/lib/utils';
@@ -90,7 +91,7 @@ export function WidgetView({
 				>
 					{acceptsEntry(type, draggedEntry)
 						? `Drop to show ${draggedEntry.name}`
-						: `${type.name} doesn't accept ${draggedEntry.type} entries`}
+						: `${type.name} doesn't accept ${formatEntryType(draggedEntry.type)} entries`}
 				</div>
 			)}
 		</div>

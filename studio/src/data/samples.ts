@@ -27,7 +27,6 @@ export function getEntryKind(type: string): EntryKind {
 			return 'number';
 		case 'string':
 		case 'json':
-		case 'structschema':
 			return 'string';
 		case 'boolean[]':
 			return 'boolean[]';
@@ -46,6 +45,16 @@ export function getEntryKind(type: string): EntryKind {
 
 	// Protobuf, msgpack, raw bytes, etc.
 	return 'unsupported';
+}
+
+/** Type string shown to users, ex. `Pose2d` for `struct:Pose2d` */
+export function formatEntryType(type: string): string {
+	return type.startsWith('struct:') ? type.slice('struct:'.length) : type;
+}
+
+/** Whether an entry holds schemas used to decode other entries (ex. `/.schema/struct:Pose2d`), these are hidden from users */
+export function isSchemaEntry(name: string): boolean {
+	return name.startsWith('/.schema/');
 }
 
 /** Entry names always start with `/`, matching how WPILOG and NT4 names are usually written */

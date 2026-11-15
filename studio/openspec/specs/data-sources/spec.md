@@ -103,6 +103,13 @@ Studio SHALL decode numeric, boolean, string, array, and WPILib struct entries. 
 
 - **GIVEN** a log contains a `Pose2d` struct entry
 - **THEN** its fields are decoded and available to widgets
+- **AND** its type is shown as `Pose2d`, without the `struct:` prefix
+
+#### Scenario: Struct schemas
+
+- **GIVEN** a source contains the `/.schema/struct:Pose2d` schema entry
+- **THEN** the schema is used to decode `Pose2d` entries
+- **AND** the schema entry isn't listed anywhere in Studio
 
 #### Scenario: Protobuf entry
 
