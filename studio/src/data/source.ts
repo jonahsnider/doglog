@@ -68,7 +68,7 @@ export async function openLog(file: File): Promise<void> {
 }
 
 /** Make a live NT4 connection to `host` the active source */
-export async function connect(host: string): Promise<void> {
+async function connectToHost(host: string): Promise<void> {
 	const source: Source = { type: 'live', host, status: 'connecting' };
 	replaceSource(source);
 	const requestedAt = generation;
@@ -83,9 +83,9 @@ export async function connect(host: string): Promise<void> {
 	});
 }
 
-/** How long quick connect waits for a server to accept a connection */
+/** How long connecting waits for a server to accept a connection */
 const probeTimeout = 1000;
-/** How long quick connect waits before trying again when nothing was reachable */
+/** How long connecting waits before trying again when nothing was reachable */
 const retryDelay = 1000;
 
 /** Whether an NT4 server at `host` accepts a WebSocket connection. The connection is closed right away. */
@@ -117,7 +117,7 @@ async function isReachable(host: string): Promise<boolean> {
  * Connect to the robot at `robotHost` if it's reachable, otherwise to the simulator.
  * Keeps trying both until one is reachable, only tries the simulator without a robot host.
  */
-export function quickConnect(robotHost: string | undefined): void {
+export function connect(robotHost: string | undefined): void {
 	const hosts = robotHost === undefined ? [simulatorHost] : [robotHost, simulatorHost];
 	replaceSource({ type: 'live', host: hosts.join(' or '), status: 'connecting' });
 	const requestedAt = generation;
@@ -136,7 +136,7 @@ export function quickConnect(robotHost: string | undefined): void {
 		if (host === undefined) {
 			retryTimer = setTimeout(() => void attempt(), retryDelay);
 		} else {
-			void connect(host);
+			void connectToHost(host);
 		}
 	};
 	void attempt();

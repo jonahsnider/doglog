@@ -20,7 +20,7 @@ Studio SHALL have at most one active data source at a time, shared by every dash
 
 ### Requirement: Source control
 
-The source control at the top of the sidebar SHALL show the active source and its state, and MUST offer actions to open a log and to connect to a robot or simulator.
+The source control at the top of the sidebar SHALL show the active source and its state, and MUST offer actions to open a log and to connect.
 
 #### Scenario: Log source shown
 
@@ -59,17 +59,19 @@ Users SHALL be able to open a WPILOG file with a file picker or by dropping it a
 
 ### Requirement: Connect to a live NT4 server
 
-Users SHALL be able to connect to a robot or simulator over NT4, using the connection target from Settings.
+Users SHALL be able to connect to a robot or simulator over NT4 with a single Connect action, using the connection target from Settings. The source control MUST NOT offer separate actions for the robot and the simulator.
 
 #### Scenario: Connect to a robot by team number
 
 - **GIVEN** Settings has team number 581
-- **WHEN** the user chooses Connect to robot
+- **AND** the robot is reachable
+- **WHEN** the user chooses Connect
 - **THEN** Studio connects to the robot address for team 581
 
 #### Scenario: Connect to a simulator
 
-- **WHEN** the user chooses Simulator
+- **GIVEN** the robot is not reachable and a simulator is running
+- **WHEN** the user chooses Connect
 - **THEN** Studio connects to an NT4 server on localhost
 
 ### Requirement: Live connection resilience
@@ -123,31 +125,31 @@ Studio SHALL decode numeric, boolean, string, array, and WPILib struct entries. 
 - **THEN** the entry appears in the key browser marked as unsupported
 - **AND** it cannot be bound to widgets
 
-### Requirement: Quick connect
+### Requirement: Connect target selection
 
-Quick connect SHALL try the robot connection target and the simulator at the same time, connect to the robot if it is reachable and otherwise to the simulator, and MUST keep trying both until one is reachable without showing an error.
+Connect SHALL try the robot connection target and the simulator at the same time, connect to the robot if it is reachable and otherwise to the simulator, and MUST keep trying both until one is reachable without showing an error.
 
 #### Scenario: Robot available
 
 - **GIVEN** the robot is reachable
-- **WHEN** the user triggers quick connect
+- **WHEN** the user chooses Connect
 - **THEN** Studio connects to the robot, even if a simulator is also running
 
 #### Scenario: Only the simulator is running
 
 - **GIVEN** the robot is not reachable and a simulator is running
-- **WHEN** the user triggers quick connect
+- **WHEN** the user chooses Connect
 - **THEN** Studio connects to the simulator
 
 #### Scenario: Nothing reachable yet
 
 - **GIVEN** neither the robot nor a simulator is reachable
-- **WHEN** the user triggers quick connect
+- **WHEN** the user chooses Connect
 - **THEN** the source control shows the connecting state
 - **AND** Studio connects as soon as one becomes reachable
 
 #### Scenario: No robot target
 
 - **GIVEN** Settings has no valid robot connection target
-- **WHEN** the user triggers quick connect
+- **WHEN** the user chooses Connect
 - **THEN** Studio only tries the simulator

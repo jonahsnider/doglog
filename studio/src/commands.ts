@@ -4,7 +4,7 @@ import { detectPlatform, type Hotkey, useHotkeys } from '@tanstack/react-hotkeys
 import { type RegisteredRouter, useRouter } from '@tanstack/react-router';
 import { closeDashboard } from '@/close-dashboard';
 import { closeFocusedPane, createDashboard, getDashboard } from '@/dashboards';
-import { quickConnect } from '@/data/source';
+import { connect } from '@/data/source';
 import { getRobotHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
 
@@ -20,7 +20,7 @@ export const shortcuts = {
 	newDashboard: desktop ? 'Mod+T' : 'Alt+T',
 	close: desktop ? 'Mod+W' : 'Alt+W',
 	settings: desktop ? 'Mod+,' : 'Alt+,',
-	quickConnect: 'Mod+K',
+	connect: 'Mod+K',
 } as const satisfies Record<string, Hotkey>;
 
 export function newDashboard(router: RegisteredRouter, position?: 'top' | 'bottom'): void {
@@ -51,9 +51,9 @@ function openSettings(router: RegisteredRouter): void {
 	void router.navigate({ to: '/settings' });
 }
 
-/** Start quick connect with the robot target from Settings */
-export function startQuickConnect(): void {
-	quickConnect(getRobotHost(settingsStore.get().robotTarget));
+/** Connect to the robot target from Settings, or the simulator */
+export function startConnect(): void {
+	connect(getRobotHost(settingsStore.get().robotTarget));
 }
 
 /** Register the app-wide keyboard shortcuts */
@@ -70,7 +70,7 @@ export function useGlobalShortcuts(): void {
 			{ hotkey: 'Mod+W', callback: () => closeFocused(router), options: desktopOnly },
 			{ hotkey: 'Mod+Shift+W', callback: () => closeCurrentDashboard(router), options: desktopOnly },
 			{ hotkey: 'Mod+,', callback: () => openSettings(router), options: desktopOnly },
-			{ hotkey: shortcuts.quickConnect, callback: startQuickConnect },
+			{ hotkey: shortcuts.connect, callback: startConnect },
 		],
 		{ requireReset: true },
 	);

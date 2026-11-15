@@ -1,25 +1,13 @@
 import { useFormatForDisplay } from '@tanstack/react-hotkeys';
-import { useNavigate } from '@tanstack/react-router';
-import {
-	ChevronsUpDownIcon,
-	DatabaseIcon,
-	FileIcon,
-	FolderOpenIcon,
-	LaptopIcon,
-	RadioTowerIcon,
-	ZapIcon,
-} from 'lucide-react';
+import { ChevronsUpDownIcon, DatabaseIcon, FileIcon, FolderOpenIcon, RadioTowerIcon } from 'lucide-react';
 import { useRef } from 'react';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuTrigger } from '@/components/ui/menu';
 import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Spinner } from '@/components/ui/spinner';
-import { toastManager } from '@/components/ui/toast';
-import { shortcuts, startQuickConnect } from '@/commands';
-import { connect, openLog, type Source, useSource } from '@/data/source';
+import { shortcuts, startConnect } from '@/commands';
+import { openLog, type Source, useSource } from '@/data/source';
 import { cn } from '@/lib/utils';
-import { getRobotHost, simulatorHost } from '@/robot-target';
-import { useSettings } from '@/settings';
 
 const statusLabels: Record<Source['status'], string> = {
 	loading: 'Loading…',
@@ -43,40 +31,17 @@ function SourceIcon({ source }: { source: Source | undefined }) {
 	return <RadioTowerIcon className={source.status === 'connected' ? 'text-success' : 'text-destructive-foreground'} />;
 }
 
-function connectToSimulator(): void {
-	void connect(simulatorHost);
-}
-
 /** Shows the active data source and lets the user open a log or connect live */
 export function SourceControl() {
 	const source = useSource();
-	const { robotTarget } = useSettings();
-	const robotHost = getRobotHost(robotTarget);
-	const navigate = useNavigate();
 	const formatForDisplay = useFormatForDisplay();
 	const fileInput = useRef<HTMLInputElement>(null);
-
-	const connectToRobot = () => {
-		if (robotHost !== undefined) {
-			void connect(robotHost);
-			return;
-		}
-
-		void navigate({ to: '/settings' });
-		toastManager.add({
-			type: 'info',
-			title: 'Set up your robot connection',
-			description: 'Enter your team number or robot IP address in Settings.',
-		});
-	};
 
 	const openLogFile = () => fileInput.current?.click();
 	const menuItems: MenuEntry[] = [
 		{ label: 'Open log', icon: FolderOpenIcon, onSelect: openLogFile },
 		'separator',
-		{ label: 'Quick connect', icon: ZapIcon, shortcut: shortcuts.quickConnect, onSelect: startQuickConnect },
-		{ label: 'Connect to robot', icon: RadioTowerIcon, onSelect: connectToRobot },
-		{ label: 'Simulator', icon: LaptopIcon, onSelect: connectToSimulator },
+		{ label: 'Connect', icon: RadioTowerIcon, shortcut: shortcuts.connect, onSelect: startConnect },
 	];
 
 	const name = source === undefined ? 'No data source' : source.type === 'log' ? source.fileName : source.host;
@@ -115,19 +80,10 @@ export function SourceControl() {
 						Open log
 					</MenuItem>
 					<MenuSeparator />
-					<MenuItem onClick={startQuickConnect}>
-						<ZapIcon />
-						Quick connect
-						<span className="ms-auto text-xs text-muted-foreground">{formatForDisplay(shortcuts.quickConnect)}</span>
-					</MenuItem>
-					<MenuItem onClick={connectToRobot}>
+					<MenuItem onClick={startConnect}>
 						<RadioTowerIcon />
-						Connect to robot
-						<span className="ms-auto text-xs text-muted-foreground">{robotHost ?? 'Set up'}</span>
-					</MenuItem>
-					<MenuItem onClick={connectToSimulator}>
-						<LaptopIcon />
-						Simulator
+						Connect
+						<span className="ms-auto text-xs text-muted-foreground">{formatForDisplay(shortcuts.connect)}</span>
 					</MenuItem>
 				</MenuPopup>
 			</Menu>

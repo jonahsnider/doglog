@@ -23,12 +23,12 @@ Settings SHALL let users set the robot connection target as a team number or an 
 #### Scenario: Team number
 
 - **WHEN** the user enters team number 581
-- **THEN** Connect to robot targets the standard robot address for team 581
+- **THEN** Connect targets the standard robot address for team 581
 
 #### Scenario: IP address
 
 - **WHEN** the user enters `10.5.81.2`
-- **THEN** Connect to robot targets `10.5.81.2`
+- **THEN** Connect targets `10.5.81.2`
 
 ### Requirement: Persisted settings
 

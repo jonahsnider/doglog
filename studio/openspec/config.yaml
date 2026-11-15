@@ -53,7 +53,7 @@ context: |
   - Recent files.
   - FRC-specific widgets (field view, swerve module visualizer, etc.). Double-clicking matching entries
     (ex. swerve module states) should default to these once they exist.
-  - A command palette. Quick connect may move off ⌘K to make room for it.
+  - A command palette. Connect may move off ⌘K to make room for it.
 
   Open questions:
   - Whether the sidebar's dashboard list fits every page long term, or pages need their own secondary content.

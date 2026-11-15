@@ -8,7 +8,7 @@ Define Studio's app-wide keyboard shortcuts and how they differ between the desk
 
 ### Requirement: Global shortcuts
 
-Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Settings (⌘, or Alt+,), Toggle sidebar (⌘B), Toggle key browser (⌥⌘B), and Quick connect (⌘K).
+Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Settings (⌘, or Alt+,), Toggle sidebar (⌘B), Toggle key browser (⌥⌘B), and Connect (⌘K).
 
 #### Scenario: New dashboard
 
@@ -25,10 +25,10 @@ Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and
 - **WHEN** the user presses ⌘B
 - **THEN** the sidebar collapses or expands
 
-#### Scenario: Quick connect
+#### Scenario: Connect
 
 - **WHEN** the user presses ⌘K
-- **THEN** Studio starts quick connect
+- **THEN** Studio starts connecting, the same way as choosing Connect
 
 ### Requirement: Shortcuts in tooltips
 

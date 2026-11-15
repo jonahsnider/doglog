@@ -134,7 +134,7 @@ function Settings() {
 					<FieldError match>Enter a team number or an IP address</FieldError>
 				) : (
 					<FieldDescription>
-						{robotHost === undefined ? 'Team number or IP address of the robot' : `Connect to robot uses ${robotHost}`}
+						{robotHost === undefined ? 'Team number or IP address of the robot' : `Connect uses ${robotHost}`}
 					</FieldDescription>
 				)}
 			</Field>
