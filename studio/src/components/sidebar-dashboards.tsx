@@ -87,6 +87,7 @@ function DashboardItem({
 	const matchRoute = useMatchRoute();
 	const active = Boolean(matchRoute({ to: '/dashboards/$dashboardId', params: { dashboardId: dashboard.id } }));
 	const [renaming, setRenaming] = useState(false);
+	const [optionsOpen, setOptionsOpen] = useState(false);
 	const { ref, handleRef } = useSortable({ id: dashboard.id, index, disabled: renaming });
 	const shortcut = dashboardShortcut(index);
 	// Holding the shortcut's modifier shows every dashboard's shortcut in place of its options button
@@ -161,8 +162,12 @@ function DashboardItem({
 							</PreviewCardPopup>
 						)}
 					</PreviewCard>
-					<Menu>
-						<MenuTrigger render={<SidebarMenuAction showOnHover className={showShortcut ? 'invisible' : undefined} />}>
+					<Menu open={optionsOpen} onOpenChange={setOptionsOpen}>
+						<MenuTrigger
+							render={<SidebarMenuAction showOnHover className={showShortcut ? 'invisible' : undefined} />}
+							// The open menu doesn't cover its own button, so right-clicking it would open the context menu on top
+							onContextMenu={() => setOptionsOpen(false)}
+						>
 							<EllipsisIcon />
 							<span className="sr-only">Dashboard options</span>
 						</MenuTrigger>
