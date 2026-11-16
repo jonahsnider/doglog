@@ -1,3 +1,4 @@
+import type { Hotkey } from '@tanstack/react-hotkeys';
 import type { LucideIcon } from 'lucide-react';
 import type { ComponentType } from 'react';
 import * as z from 'zod';
@@ -38,6 +39,8 @@ export type WidgetType = {
 	/** Shown in the pane header and widget picker, ex. `Values table` */
 	readonly name: string;
 	readonly icon: LucideIcon;
+	/** Picks this widget in a focused empty pane, or in the Change widget menu while it's open */
+	readonly hotkey: Hotkey;
 	/** Kinds of entries that can be bound */
 	readonly accepts: readonly BindableKind[];
 	/** Narrows `accepts` further, ex. to specific struct types */

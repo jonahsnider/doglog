@@ -1,9 +1,16 @@
+import { useHotkeys } from '@tanstack/react-hotkeys';
 import { Empty, EmptyTitle } from '@/components/ui/empty';
+import { Kbd } from '@/components/ui/kbd';
 import { getWidgetType, widgetTypes } from '@/widgets/registry';
 import type { WidgetType } from '@/widgets/widget-type';
 
-/** Shown in empty panes */
-export function AddWidgetPrompt({ onAdd }: { onAdd: (type: WidgetType) => void }) {
+/** Shown in empty panes, its hotkeys only work while the pane is focused */
+export function AddWidgetPrompt({ onAdd, focused }: { onAdd: (type: WidgetType) => void; focused: boolean }) {
+	useHotkeys(
+		widgetTypes.map((type) => ({ hotkey: type.hotkey, callback: () => onAdd(type) })),
+		{ enabled: focused },
+	);
+
 	return (
 		<Empty
 			// Without select-none, double-clicking selects text in the new widget
@@ -21,13 +28,17 @@ export function AddWidgetPrompt({ onAdd }: { onAdd: (type: WidgetType) => void }
 					<button
 						key={type.id}
 						type="button"
-						className="flex cursor-pointer flex-col gap-2 rounded-xl border bg-card p-2 text-sm text-muted-foreground outline-none transition-[border-color,box-shadow,color] hover:border-ring/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background add-widget-compact:flex-row add-widget-compact:items-center add-widget-compact:justify-center add-widget-compact:px-3"
+						aria-label={type.name}
+						className="flex cursor-pointer flex-col gap-2 rounded-xl border bg-card p-2 text-sm text-muted-foreground outline-none transition-[border-color,box-shadow,color] hover:border-ring/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background add-widget-compact:flex-row add-widget-compact:items-center add-widget-compact:px-3"
 						onClick={() => onAdd(type)}
 					>
 						<div className="flex aspect-16/10 items-center justify-center rounded-md border bg-muted/50 add-widget-compact:contents">
 							<type.icon className="size-8 shrink-0 add-widget-compact:size-4" />
 						</div>
-						<span className="pb-0.5 text-center add-widget-compact:pb-0">{type.name}</span>
+						<div className="flex items-center justify-between gap-2 px-1 pb-0.5 add-widget-compact:flex-1 add-widget-compact:px-0 add-widget-compact:pb-0">
+							<span>{type.name}</span>
+							<Kbd>{type.hotkey}</Kbd>
+						</div>
 					</button>
 				))}
 			</div>

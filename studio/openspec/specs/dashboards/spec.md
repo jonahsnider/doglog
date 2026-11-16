@@ -286,6 +286,13 @@ Studio SHALL guide users from empty states to a usable dashboard.
 - **WHEN** the user double-clicks the pane outside the widget tiles
 - **THEN** an empty discrete timeline is added to the pane
 
+#### Scenario: Add a widget with its key
+
+- **GIVEN** the focused pane has no widget
+- **WHEN** the user presses `S`
+- **THEN** a swerve widget is added to the pane
+- **AND** each widget tile shows its key: `V` for values table, `C` for console, `D` for discrete timeline, and `S` for swerve
+
 #### Scenario: No dashboards
 
 - **GIVEN** the user has closed every dashboard
@@ -359,3 +366,10 @@ Right-clicking a pane SHALL open a context menu with Split right, Split down, Ch
 
 - **WHEN** the user right-clicks a pane with a console and chooses Change widget
 - **THEN** the user can pick a different widget type for that pane
+
+#### Scenario: Change widget with its key
+
+- **GIVEN** the user opened a pane's context menu and Change widget is expanded
+- **WHEN** the user presses `S`
+- **THEN** the pane's widget changes to swerve and the menu closes
+- **AND** each widget type in Change widget shows its key, the same keys as the Add widget tiles

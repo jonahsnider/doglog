@@ -182,6 +182,7 @@ function PaneView({
 				disabled: widget === undefined,
 				items: widgetTypes.map((other) => ({
 					label: other.name,
+					accessKey: other.hotkey,
 					disabled: other === type,
 					onSelect: () => changeWidget(other),
 				})),
@@ -274,7 +275,7 @@ function PaneView({
 			</div>
 			<div className="min-h-0 flex-1">
 				{widget === undefined ? (
-					<AddWidgetPrompt onAdd={setWidget} />
+					<AddWidgetPrompt onAdd={setWidget} focused={focused} />
 				) : type ? (
 					<WidgetView paneId={pane.id} type={type} entryNames={config.entryNames} />
 				) : (

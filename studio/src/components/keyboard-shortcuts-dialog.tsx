@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { dashboardShortcut, shortcuts } from '@/commands';
 import { Dialog, DialogHeader, DialogPanel, DialogPopup, DialogTitle } from '@/components/ui/dialog';
 import { Kbd } from '@/components/ui/kbd';
+import { widgetTypes } from '@/widgets/registry';
 
 interface Shortcut {
 	label: string;
@@ -35,6 +36,10 @@ const sections: { title: string; shortcuts: Shortcut[] }[] = [
 			{ label: 'Split right', keys: [shortcuts.splitRight] },
 			{ label: 'Split down', keys: [shortcuts.splitDown] },
 		],
+	},
+	{
+		title: 'Empty pane',
+		shortcuts: widgetTypes.map((type) => ({ label: `Add ${type.name.toLowerCase()}`, keys: [type.hotkey] })),
 	},
 	{
 		title: 'Data',
