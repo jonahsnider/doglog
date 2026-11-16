@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the Settings page, where users choose the color theme and the robot connection target, with all settings persisted locally on the device.
+Define the Settings page, where users choose the color theme, the robot connection target, and whether media controls control playback, with all settings persisted locally on the device.
 
 ## Requirements
 
@@ -29,6 +29,15 @@ Settings SHALL let users set the robot connection target as a team number or an 
 
 - **WHEN** the user enters `10.5.81.2`
 - **THEN** Connect targets `10.5.81.2`
+
+### Requirement: Media controls setting
+
+Settings SHALL let users turn media controls for log playback on or off, defaulting to off.
+
+#### Scenario: Default
+
+- **WHEN** Studio is opened for the first time
+- **THEN** media controls are off
 
 ### Requirement: Persisted settings
 

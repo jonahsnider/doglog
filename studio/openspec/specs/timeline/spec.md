@@ -56,6 +56,29 @@ For log sources, Studio SHALL provide play/pause, a playback speed multiplier, s
 - **WHEN** the user sets playback speed to 2x and plays
 - **THEN** the cursor advances at twice real time
 
+### Requirement: Media controls
+
+While the media controls setting is on and a log is open, media keys and the operating system's media controls SHALL control playback: play and pause toggle playback, previous and next track or skip back and forward move the cursor 5 seconds back or forward, and seeking moves the cursor. The OS's media controls MUST show the log's file name and the cursor's position in the log. Media controls MUST NOT control live sources.
+
+#### Scenario: Media key
+
+- **GIVEN** media controls are on and a log is open and paused
+- **WHEN** the user presses the play/pause media key
+- **THEN** the log plays
+
+#### Scenario: Skip
+
+- **GIVEN** media controls are on and the cursor is at 42.0 s in a log
+- **WHEN** the user presses the next track media key
+- **THEN** the cursor moves to 47.0 s
+- **AND** playback doesn't change
+
+#### Scenario: Setting off
+
+- **GIVEN** media controls are off
+- **WHEN** the user presses the play/pause media key
+- **THEN** playback doesn't change
+
 ### Requirement: Remember log position
 
 Studio SHALL remember where the cursor was in each log by file name, and MUST move the cursor there when a log with that name is opened again.

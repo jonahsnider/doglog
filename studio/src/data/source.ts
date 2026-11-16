@@ -27,6 +27,10 @@ export function useSource(): Source | undefined {
 	return useSelector(sourceStore);
 }
 
+export function getSource(): Source | undefined {
+	return sourceStore.get();
+}
+
 /** Fraction of the loading log parsed so far, from 0 to 1 */
 export function useLogProgress(): number {
 	return useSelector(logProgressStore);

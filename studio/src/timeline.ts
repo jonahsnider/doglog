@@ -124,6 +124,10 @@ export function useCursorTime(): number | undefined {
 	return useSelector(store, (timeline) => timeline.time);
 }
 
+export function getTimeline(): Timeline {
+	return store.get();
+}
+
 export function getCursorTime(): number | undefined {
 	return store.get().time;
 }

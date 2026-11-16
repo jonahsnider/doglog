@@ -5,6 +5,7 @@ import { Field, FieldControl, FieldDescription, FieldError, FieldLabel } from '@
 import { Fieldset, FieldsetLegend } from '@/components/ui/fieldset';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
+import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { getRobotHost } from '@/robot-target';
 import { type Theme, themes, updateSettings, useSettings } from '@/settings';
@@ -34,7 +35,7 @@ const themePresetLabels: Record<ThemePreset, string> = {
 };
 
 function Settings() {
-	const { theme, themeColor, themePreset, robotTarget } = useSettings();
+	const { theme, themeColor, themePreset, robotTarget, mediaControls } = useSettings();
 	const robotHost = getRobotHost(robotTarget);
 	const robotTargetInvalid = robotTarget.trim() !== '' && robotHost === undefined;
 
@@ -138,6 +139,14 @@ function Settings() {
 						{robotHost === undefined ? 'Team number or IP address of the robot' : `Connect uses ${robotHost}`}
 					</FieldDescription>
 				)}
+			</Field>
+
+			<Field name="mediaControls">
+				<FieldLabel>
+					<Switch checked={mediaControls} onCheckedChange={(checked) => updateSettings({ mediaControls: checked })} />
+					Media controls
+				</FieldLabel>
+				<FieldDescription>Play, pause, and seek logs with media keys and the system media controls</FieldDescription>
 			</Field>
 		</div>
 	);

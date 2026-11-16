@@ -5,10 +5,12 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import { setUpAppMenu } from './commands.ts';
 import { handleLogFileDrops, handleOpenedLogFiles, reopenDevLog } from './data/source.ts';
+import { syncMediaSession } from './media-session.ts';
 import { routeTree } from './routeTree.gen.ts';
 import { syncTheme } from './settings.ts';
 
 syncTheme();
+syncMediaSession();
 handleLogFileDrops();
 if (isTauri()) {
 	void handleOpenedLogFiles();

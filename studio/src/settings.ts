@@ -19,6 +19,8 @@ const settingsSchema = z
 			.catch(undefined),
 		/** Team number or IP address, use `getRobotHost()` to get the NT server host */
 		robotTarget: z.string().catch(''),
+		/** Whether media keys and the OS's media controls control log playback */
+		mediaControls: z.boolean().catch(false),
 	})
 	.transform(({ themePreset, themeColor, ...settings }) => {
 		if (themePreset !== undefined) {
