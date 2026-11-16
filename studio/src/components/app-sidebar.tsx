@@ -1,4 +1,4 @@
-import { useHotkey } from '@tanstack/react-hotkeys';
+import { useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
 import { Link, useMatchRoute } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import { FolderSyncIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, SettingsIcon } from 'lucide-react';
@@ -21,6 +21,7 @@ import {
 import { SourceControl } from '@/components/source-control';
 import { SidebarDashboards } from '@/components/sidebar-dashboards';
 import { TooltipLabel } from '@/components/tooltip-label';
+import { Kbd } from '@/components/ui/kbd';
 import { shortcuts } from '@/commands';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { cn } from '@/lib/utils';
@@ -38,6 +39,7 @@ function noop(): void {}
 
 export function AppSidebar() {
 	const matchRoute = useMatchRoute();
+	const formatForDisplay = useFormatForDisplay();
 	const collapsed = useSelector(collapsedStore);
 	// Showing the collapsed sidebar over the dashboard while it's hovered
 	const [peeking, setPeeking] = useState(false);
@@ -166,6 +168,9 @@ export function AppSidebar() {
 									{collapsed ? <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />}
 									<span>{toggleLabel}</span>
 								</SidebarMenuButton>
+								<SidebarMenuBadge className="invisible peer-hover/menu-button:visible">
+									<Kbd>{formatForDisplay(shortcut)}</Kbd>
+								</SidebarMenuBadge>
 							</SidebarMenuItem>
 						</SidebarMenu>
 					</SidebarFooter>
