@@ -49,146 +49,148 @@ function Settings() {
 	const robotTargetInvalid = robotTarget.trim() !== '' && robotHost === undefined;
 
 	return (
-		<div className="flex max-w-xl flex-col gap-8 p-6">
-			<h1 className="font-heading text-2xl font-semibold">Settings</h1>
+		<div className="flex-1 overflow-y-auto">
+			<div className="flex max-w-xl flex-col gap-8 p-6">
+				<h1 className="font-heading text-2xl font-semibold">Settings</h1>
 
-			<Field name="theme">
-				<Fieldset
-					render={
-						<RadioGroup
-							className="w-full"
-							value={theme}
-							onValueChange={(value: Theme) => updateSettings({ theme: value })}
-						/>
-					}
-				>
-					<FieldsetLegend className="mb-1 text-sm">Theme</FieldsetLegend>
-					<div className="grid grid-cols-3 gap-3">
-						{themes.map((value) => (
-							<OptionCard key={value} value={value} label={themeLabels[value]}>
-								<div className="relative aspect-16/10">
-									{value === 'system' ? (
-										<>
-											<ThemePreview colors={themePreviewColors(themePreset, themeColor, false, contrast)} />
-											<ThemePreview
-												colors={themePreviewColors(themePreset, themeColor, true, contrast)}
-												className="[clip-path:inset(0_0_0_50%)]"
-											/>
-										</>
-									) : (
-										<ThemePreview colors={themePreviewColors(themePreset, themeColor, value === 'dark', contrast)} />
-									)}
-								</div>
-							</OptionCard>
-						))}
-					</div>
-				</Fieldset>
-			</Field>
-
-			<Field name="themePreset">
-				<Fieldset
-					render={
-						<RadioGroup
-							className="w-full"
-							value={themePreset}
-							onValueChange={(value: ThemePreset) => updateSettings({ themePreset: value })}
-						/>
-					}
-				>
-					<FieldsetLegend className="mb-1 text-sm">Theme color</FieldsetLegend>
-					<div className="grid grid-cols-4 gap-3">
-						{themePresets.map((value) => (
-							<OptionCard key={value} value={value} label={themePresetLabels[value]}>
-								<div className="flex justify-center gap-2 py-2">
-									<ThemeSwatch colors={themePreviewColors(value, themeColor, false, contrast)} />
-									<ThemeSwatch colors={themePreviewColors(value, themeColor, true, contrast)} />
-								</div>
-							</OptionCard>
-						))}
-					</div>
-				</Fieldset>
-			</Field>
-
-			{themePreset === 'custom' && (
-				<Field name="themeColor">
-					<FieldLabel>Custom color</FieldLabel>
-					<div className="flex items-center gap-3">
-						<FieldControl
-							type="color"
-							value={themeColor}
-							onValueChange={(value) => updateSettings({ themeColor: value })}
-							className="h-8 w-12 cursor-pointer rounded-lg border border-input bg-background p-0.5 [&::-moz-color-swatch]:rounded-md [&::-moz-color-swatch]:border-none [&::-webkit-color-swatch]:rounded-md [&::-webkit-color-swatch]:border-none [&::-webkit-color-swatch-wrapper]:p-0"
-						/>
-						<span className="font-mono text-sm text-muted-foreground">{themeColor}</span>
-						<Button
-							variant="outline"
-							size="sm"
-							disabled={themeColor === defaultCustomColor}
-							onClick={() => updateSettings({ themeColor: defaultCustomColor })}
-						>
-							Reset to default
-						</Button>
-					</div>
-				</Field>
-			)}
-
-			<Field name="contrast" disabled={themePreset === 'coss'}>
-				<Fieldset>
-					<FieldsetLegend className="mb-1 text-sm">Contrast</FieldsetLegend>
-					<SegmentedControl
+				<Field name="theme">
+					<Fieldset
 						render={
 							<RadioGroup
-								className="flex-row gap-0.5"
-								value={contrast}
-								onValueChange={(value: Contrast) => updateSettings({ contrast: value })}
+								className="w-full"
+								value={theme}
+								onValueChange={(value: Theme) => updateSettings({ theme: value })}
 							/>
 						}
 					>
-						{contrasts.map((value) => (
-							<SegmentedControlItem key={value} render={<RadioPrimitive.Root value={value} />}>
-								{contrastLabels[value]}
-							</SegmentedControlItem>
-						))}
-					</SegmentedControl>
-				</Fieldset>
-				{themePreset === 'coss' && <FieldDescription>Neutral colors have a fixed contrast</FieldDescription>}
-			</Field>
+						<FieldsetLegend className="mb-1 text-sm">Theme</FieldsetLegend>
+						<div className="grid grid-cols-3 gap-3">
+							{themes.map((value) => (
+								<OptionCard key={value} value={value} label={themeLabels[value]}>
+									<div className="relative aspect-16/10">
+										{value === 'system' ? (
+											<>
+												<ThemePreview colors={themePreviewColors(themePreset, themeColor, false, contrast)} />
+												<ThemePreview
+													colors={themePreviewColors(themePreset, themeColor, true, contrast)}
+													className="[clip-path:inset(0_0_0_50%)]"
+												/>
+											</>
+										) : (
+											<ThemePreview colors={themePreviewColors(themePreset, themeColor, value === 'dark', contrast)} />
+										)}
+									</div>
+								</OptionCard>
+							))}
+						</div>
+					</Fieldset>
+				</Field>
 
-			<Field name="robotTarget" invalid={robotTargetInvalid}>
-				<FieldLabel>Robot connection</FieldLabel>
-				<Input
-					value={robotTarget}
-					onValueChange={(value) => updateSettings({ robotTarget: value })}
-					placeholder="581 or 10.5.81.2"
-					autoComplete="off"
-					spellCheck={false}
-				/>
-				{robotTargetInvalid ? (
-					<FieldError match>Enter a team number or an IP address</FieldError>
-				) : (
-					<FieldDescription>
-						{robotHost === undefined ? 'Team number or IP address of the robot' : `Connect uses ${robotHost}`}
-					</FieldDescription>
+				<Field name="themePreset">
+					<Fieldset
+						render={
+							<RadioGroup
+								className="w-full"
+								value={themePreset}
+								onValueChange={(value: ThemePreset) => updateSettings({ themePreset: value })}
+							/>
+						}
+					>
+						<FieldsetLegend className="mb-1 text-sm">Theme color</FieldsetLegend>
+						<div className="grid grid-cols-4 gap-3">
+							{themePresets.map((value) => (
+								<OptionCard key={value} value={value} label={themePresetLabels[value]}>
+									<div className="flex justify-center gap-2 py-2">
+										<ThemeSwatch colors={themePreviewColors(value, themeColor, false, contrast)} />
+										<ThemeSwatch colors={themePreviewColors(value, themeColor, true, contrast)} />
+									</div>
+								</OptionCard>
+							))}
+						</div>
+					</Fieldset>
+				</Field>
+
+				{themePreset === 'custom' && (
+					<Field name="themeColor">
+						<FieldLabel>Custom color</FieldLabel>
+						<div className="flex items-center gap-3">
+							<FieldControl
+								type="color"
+								value={themeColor}
+								onValueChange={(value) => updateSettings({ themeColor: value })}
+								className="h-8 w-12 cursor-pointer rounded-lg border border-input bg-background p-0.5 [&::-moz-color-swatch]:rounded-md [&::-moz-color-swatch]:border-none [&::-webkit-color-swatch]:rounded-md [&::-webkit-color-swatch]:border-none [&::-webkit-color-swatch-wrapper]:p-0"
+							/>
+							<span className="font-mono text-sm text-muted-foreground">{themeColor}</span>
+							<Button
+								variant="outline"
+								size="sm"
+								disabled={themeColor === defaultCustomColor}
+								onClick={() => updateSettings({ themeColor: defaultCustomColor })}
+							>
+								Reset to default
+							</Button>
+						</div>
+					</Field>
 				)}
-			</Field>
 
-			<Field name="mediaControls">
-				<FieldLabel>
-					<Switch checked={mediaControls} onCheckedChange={(checked) => updateSettings({ mediaControls: checked })} />
-					Media controls
-				</FieldLabel>
-				<FieldDescription>Play, pause, and seek logs with media keys and the system media controls</FieldDescription>
-			</Field>
+				<Field name="contrast" disabled={themePreset === 'coss'}>
+					<Fieldset>
+						<FieldsetLegend className="mb-1 text-sm">Contrast</FieldsetLegend>
+						<SegmentedControl
+							render={
+								<RadioGroup
+									className="flex-row gap-0.5"
+									value={contrast}
+									onValueChange={(value: Contrast) => updateSettings({ contrast: value })}
+								/>
+							}
+						>
+							{contrasts.map((value) => (
+								<SegmentedControlItem key={value} render={<RadioPrimitive.Root value={value} />}>
+									{contrastLabels[value]}
+								</SegmentedControlItem>
+							))}
+						</SegmentedControl>
+					</Fieldset>
+					{themePreset === 'coss' && <FieldDescription>Neutral colors have a fixed contrast</FieldDescription>}
+				</Field>
 
-			<p className="text-sm text-muted-foreground">
-				DogLog Studio {STUDIO_VERSION}
-				{STUDIO_COMMIT !== null && (
-					<>
-						{' '}
-						(<span className="font-mono">{STUDIO_COMMIT}</span>)
-					</>
-				)}
-			</p>
+				<Field name="robotTarget" invalid={robotTargetInvalid}>
+					<FieldLabel>Robot connection</FieldLabel>
+					<Input
+						value={robotTarget}
+						onValueChange={(value) => updateSettings({ robotTarget: value })}
+						placeholder="581 or 10.5.81.2"
+						autoComplete="off"
+						spellCheck={false}
+					/>
+					{robotTargetInvalid ? (
+						<FieldError match>Enter a team number or an IP address</FieldError>
+					) : (
+						<FieldDescription>
+							{robotHost === undefined ? 'Team number or IP address of the robot' : `Connect uses ${robotHost}`}
+						</FieldDescription>
+					)}
+				</Field>
+
+				<Field name="mediaControls">
+					<FieldLabel>
+						<Switch checked={mediaControls} onCheckedChange={(checked) => updateSettings({ mediaControls: checked })} />
+						Media controls
+					</FieldLabel>
+					<FieldDescription>Play, pause, and seek logs with media keys and the system media controls</FieldDescription>
+				</Field>
+
+				<p className="text-sm text-muted-foreground">
+					DogLog Studio {STUDIO_VERSION}
+					{STUDIO_COMMIT !== null && (
+						<>
+							{' '}
+							(<span className="font-mono">{STUDIO_COMMIT}</span>)
+						</>
+					)}
+				</p>
+			</div>
 		</div>
 	);
 }
