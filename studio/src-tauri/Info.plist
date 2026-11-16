@@ -4,5 +4,7 @@
 <dict>
 	<key>CFBundleIconName</key>
 	<string>AppIcon</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>DogLog Studio connects to your robot over the local network to show live data.</string>
 </dict>
 </plist>

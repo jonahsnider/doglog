@@ -143,6 +143,40 @@ async function isReachable(host: string): Promise<boolean> {
 	return reachable;
 }
 
+/** Whether connecting to an address space won't show Chrome's Local Network Access permission prompt */
+async function canConnectWithoutPrompt(permission: 'local-network' | 'loopback-network'): Promise<boolean> {
+	// Pages served from this computer, ex. the dev server, are never asked, so the permission stays at "prompt"
+	if (isTauri() || /^(localhost|127\.[\d.]+|\[::1\])$|\.localhost$/u.test(location.hostname)) {
+		return true;
+	}
+	try {
+		// oxlint-disable-next-line typescript/no-unsafe-type-assertion -- TypeScript doesn't know the Local Network Access permissions yet
+		const status = await navigator.permissions.query({ name: permission as PermissionName });
+		return status.state === 'granted';
+	} catch {
+		// Browsers without Local Network Access don't prompt
+		return true;
+	}
+}
+
+/** What Connect would connect to right now */
+export type ConnectTarget = 'robot' | 'simulator';
+
+/**
+ * Check what Connect would connect to, without starting a connection.
+ * Hosts that would show a permission prompt aren't checked, so this returns `undefined` until the user grants it by connecting.
+ */
+export async function findConnectTarget(robotHost: string | undefined): Promise<ConnectTarget | undefined> {
+	const [robot, simulator] = await Promise.all([
+		robotHost !== undefined && (await canConnectWithoutPrompt('local-network')) && isReachable(robotHost),
+		(await canConnectWithoutPrompt('loopback-network')) && isReachable(simulatorHost),
+	]);
+	if (robot) {
+		return 'robot';
+	}
+	return simulator ? 'simulator' : undefined;
+}
+
 /**
  * Connect to the robot at `robotHost` if it's reachable, otherwise to the simulator.
  * Keeps trying both until one is reachable, only tries the simulator without a robot host.
