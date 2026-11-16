@@ -1,13 +1,10 @@
-import type { Hotkey } from '@tanstack/react-hotkeys';
 import { Columns2Icon, Rows2Icon, XIcon } from 'lucide-react';
-import { type ReactNode, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Group, Panel, Separator, useGroupRef } from 'react-resizable-panels';
 import { AddWidgetPrompt } from '@/components/add-widget-prompt';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { WidgetOptions } from '@/components/entry-picker';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
-import { TooltipLabel } from '@/components/tooltip-label';
+import { PaneButton } from '@/components/pane-button';
 import { WidgetView } from '@/components/widget-view';
 import { shortcuts } from '@/commands';
 import { closeDashboardPane, getFocusedPane, splitDashboardPane, updateLayout } from '@/dashboard-panes';
@@ -106,6 +103,10 @@ function SplitView({ split, ...props }: PaneNodeProps & { split: Split }) {
 	);
 }
 
+// Widgets mark the elements that show an entry, ex. a values table row
+const entryNameAt = (target: EventTarget) =>
+	target instanceof Element ? target.closest<HTMLElement>('[data-entry-name]')?.dataset['entryName'] : undefined;
+
 function PaneView({
 	dashboardId,
 	dashboardLayout,
@@ -151,8 +152,7 @@ function PaneView({
 	const removeEntry = (name: string) => setEntryNames(config.entryNames.filter((other) => other !== name));
 
 	const menuItems = (target: Element): MenuEntry[] => {
-		// Widgets mark the elements that show an entry, ex. a values table row
-		const targetEntryName = target.closest<HTMLElement>('[data-entry-name]')?.dataset['entryName'];
+		const targetEntryName = entryNameAt(target);
 		return [
 			{
 				label: 'Split right',
@@ -204,10 +204,25 @@ function PaneView({
 					// Capturing, so clicks that widgets handle themselves still focus the pane, right-clicks included
 					onPointerDownCapture={() => focusPane(dashboardId, pane.id)}
 					onFocusCapture={() => focusPane(dashboardId, pane.id)}
+					// Middle-clicking an entry removes it
+					onAuxClick={(event) => {
+						const entryName = event.button === 1 ? entryNameAt(event.target) : undefined;
+						if (entryName !== undefined) {
+							removeEntry(entryName);
+						}
+					}}
 				/>
 			}
 		>
-			<div className="flex h-9 shrink-0 items-center gap-0.5 border-b px-2">
+			<div
+				className="flex h-9 shrink-0 items-center gap-0.5 border-b px-2"
+				// Middle-clicking the header closes the pane, like a browser tab
+				onAuxClick={(event) => {
+					if (event.button === 1 && closable) {
+						close();
+					}
+				}}
+			>
 				<span className="flex min-w-0 flex-1 items-center gap-1.5 text-xs font-medium text-muted-foreground">
 					{type && <type.icon className="size-3.5 shrink-0" />}
 					<span className="truncate">{type?.name ?? widget?.type}</span>
@@ -253,32 +268,5 @@ function PaneView({
 				)}
 			</div>
 		</AppContextMenu>
-	);
-}
-
-function PaneButton({
-	label,
-	shortcut,
-	disabled = false,
-	onClick,
-	children,
-}: {
-	label: string;
-	shortcut?: Hotkey;
-	disabled?: boolean;
-	onClick: () => void;
-	children: ReactNode;
-}) {
-	return (
-		<Tooltip>
-			<TooltipTrigger
-				render={<Button variant="ghost" size="icon-xs" aria-label={label} disabled={disabled} onClick={onClick} />}
-			>
-				{children}
-			</TooltipTrigger>
-			<TooltipPopup>
-				<TooltipLabel label={label} shortcut={shortcut} />
-			</TooltipPopup>
-		</Tooltip>
 	);
 }

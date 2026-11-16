@@ -65,12 +65,18 @@ The entry picker SHALL list few enough entries to fit without scrolling, at most
 
 ### Requirement: Edit entries from the context menu
 
-A widget's context menu SHALL offer to add entries, which opens the entry picker, and to remove a bound entry. Right-clicking the part of a widget that shows an entry, such as a values table or discrete timeline row, MUST offer to remove that entry directly; elsewhere, bound entries MUST be listed in a submenu.
+A widget's context menu SHALL offer to add entries, which opens the entry picker, and to remove a bound entry. Right-clicking the part of a widget that shows an entry, such as a values table or discrete timeline row, MUST offer to remove that entry directly; elsewhere, bound entries MUST be listed in a submenu. Middle-clicking the part of a widget that shows an entry SHALL remove it.
 
 #### Scenario: Remove a values table row
 
 - **GIVEN** a values table showing `/Arm/Angle`
 - **WHEN** the user right-clicks the `/Arm/Angle` row and chooses "Remove /Arm/Angle"
+- **THEN** the table stops showing `/Arm/Angle`
+
+#### Scenario: Middle-click to remove
+
+- **GIVEN** a values table showing `/Arm/Angle`
+- **WHEN** the user middle-clicks the `/Arm/Angle` row
 - **THEN** the table stops showing `/Arm/Angle`
 
 ### Requirement: Bind by drag and drop

@@ -270,7 +270,7 @@ export function DiscreteTimeline({ bindings }: WidgetProps) {
 					key={name}
 					className="absolute inset-x-2 text-xs"
 					style={{ top: padding + row * rowHeight, height: rowHeight }}
-					// Right-clicking the row offers to remove its entry
+					// Right-clicking the row offers to remove its entry, middle-clicking removes it
 					data-entry-name={name}
 				>
 					<div className="truncate font-mono leading-4 text-muted-foreground">

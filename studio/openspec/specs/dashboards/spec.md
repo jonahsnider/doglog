@@ -120,7 +120,7 @@ Users SHALL be able to reorder dashboards in the sidebar by dragging them.
 
 ### Requirement: Close a dashboard
 
-Closing a dashboard SHALL remove it from the sidebar without asking for confirmation, since it can be reopened.
+Closing a dashboard SHALL remove it from the sidebar without asking for confirmation, since it can be reopened. Like browser tabs, middle-clicking a dashboard in the sidebar SHALL close it.
 
 #### Scenario: Close a dashboard
 
@@ -259,6 +259,11 @@ A dashboard SHALL be a layout of panes, each holding exactly one widget. Users M
 
 - **WHEN** the user closes one of two panes
 - **THEN** the remaining pane expands to fill the space
+
+#### Scenario: Middle-click a pane header
+
+- **WHEN** the user middle-clicks the header of one of two panes
+- **THEN** that pane is closed
 
 ### Requirement: Empty states
 

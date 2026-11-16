@@ -162,6 +162,13 @@ function DashboardItem({
 									// Keeps the link a link, dnd-kit makes drag handles without a role into buttons
 									role="link"
 									onDoubleClick={() => setRenaming(true)}
+									// Closes the dashboard like a browser tab, instead of opening the link in a new one
+									onAuxClick={(event) => {
+										if (event.button === 1) {
+											event.preventDefault();
+											deleteDashboard(dashboard.id);
+										}
+									}}
 									tooltip={{ children: <TooltipLabel label={name} shortcut={shortcut} /> }}
 								/>
 							}

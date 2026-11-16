@@ -121,7 +121,7 @@ export function ValuesTable({ bindings }: WidgetProps) {
 					return (
 						<TableRow
 							key={row.path}
-							// Right-clicking the row offers to remove its entry
+							// Right-clicking the row offers to remove its entry, middle-clicking removes it
 							data-entry-name={row.entryName}
 							className={cn(expandable && 'cursor-pointer')}
 							onClick={
