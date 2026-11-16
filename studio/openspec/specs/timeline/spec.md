@@ -18,13 +18,19 @@ Studio SHALL have one time cursor shared by every dashboard and widget.
 
 ### Requirement: Timeline bar
 
-When a dashboard is open and a source is active, a timeline bar SHALL be shown along the bottom of the dashboard area, and dragging along it MUST move the cursor.
+When a dashboard is open and a source is active, a timeline bar SHALL be shown along the bottom of the dashboard area, and dragging or scrolling horizontally along it MUST move the cursor.
 
 #### Scenario: Scrub
 
 - **WHEN** the user drags along the timeline bar
 - **THEN** the cursor follows the drag
 - **AND** every widget updates to the new cursor time
+
+#### Scenario: Scroll
+
+- **WHEN** the user scrolls horizontally over the timeline bar
+- **THEN** the cursor moves as far as dragging the same distance would
+- **AND** the browser doesn't navigate back or forward
 
 ### Requirement: Log playback controls
 

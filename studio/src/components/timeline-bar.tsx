@@ -1,6 +1,7 @@
 import { PauseIcon, PlayIcon, SkipBackIcon, SkipForwardIcon, StepBackIcon, StepForwardIcon } from 'lucide-react';
 import { type Hotkey, type UseHotkeyDefinition, useHotkeys } from '@tanstack/react-hotkeys';
 import { type PointerEvent, type ReactNode, useRef, useState } from 'react';
+import { useEventListener } from 'usehooks-ts';
 import { Button } from '@/components/ui/button';
 import { Progress, ProgressIndicator, ProgressLabel, ProgressTrack, ProgressValue } from '@/components/ui/progress';
 import { Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -12,6 +13,7 @@ import { cn } from '@/lib/utils';
 import {
 	changeSpeed,
 	formatTime,
+	getCursorTime,
 	goLive,
 	jumpToEnd,
 	jumpToStart,
@@ -62,7 +64,7 @@ function ControlButton({
 	);
 }
 
-/** Drag or click to move the cursor */
+/** Drag, click, or scroll horizontally to move the cursor */
 function Scrubber({ range, time }: { range: TimeRange; time: number }) {
 	const slider = useRef<HTMLDivElement>(null);
 	const track = useRef<HTMLDivElement>(null);
@@ -76,6 +78,22 @@ function Scrubber({ range, time }: { range: TimeRange; time: number }) {
 		const fraction = Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1);
 		seek(range.start + fraction * duration);
 	};
+
+	// Scrolling moves the cursor as far as dragging the same distance would.
+	// Not passive so it can stop the browser from treating a horizontal swipe as back or forward.
+	useEventListener(
+		'wheel',
+		(event) => {
+			const cursor = getCursorTime();
+			if (event.deltaX === 0 || cursor === undefined) {
+				return;
+			}
+			event.preventDefault();
+			seek(cursor + (event.deltaX / track.current!.clientWidth) * duration);
+		},
+		slider,
+		{ passive: false },
+	);
 
 	return (
 		<div
