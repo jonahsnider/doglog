@@ -1,8 +1,10 @@
-import { ChartNoAxesGanttIcon, TableIcon, TerminalIcon } from 'lucide-react';
+import { ChartNoAxesGanttIcon, MoveIcon, TableIcon, TerminalIcon } from 'lucide-react';
 import type { Entry } from '@/data/data-store';
 import type { Widget } from '@/pane-layout';
 import { Console } from '@/widgets/console';
 import { DiscreteTimeline } from '@/widgets/discrete-timeline';
+import { Swerve } from '@/widgets/swerve';
+import { swerveRole } from '@/widgets/swerve-data';
 import { ValuesTable } from '@/widgets/values-table';
 import { bindableKinds, type WidgetType } from '@/widgets/widget-type';
 
@@ -33,6 +35,15 @@ export const widgetTypes: readonly WidgetType[] = [
 		defaultConfig: { entries: [] },
 		component: DiscreteTimeline,
 	},
+	{
+		id: 'swerve',
+		name: 'Swerve',
+		icon: MoveIcon,
+		accepts: ['number', 'struct', 'struct[]'],
+		matches: (entry) => swerveRole(entry) !== undefined,
+		defaultConfig: { entries: [] },
+		component: Swerve,
+	},
 ];
 
 export function getWidgetType(id: string): WidgetType | undefined {
@@ -46,6 +57,10 @@ function defaultWidgetTypeId(entry: Entry): string {
 
 	if (entry.kind === 'string' || entry.kind === 'boolean') {
 		return 'discrete-timeline';
+	}
+
+	if (entry.type === 'struct:SwerveModuleState[]' || entry.type === 'struct:SwerveModuleVelocity[]') {
+		return 'swerve';
 	}
 
 	// Numeric entries (`entry.kind === 'number'`) should use the line graph once it exists, they use the values table until then

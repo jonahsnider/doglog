@@ -13,6 +13,8 @@ test.each([
 	['/Arm/State', 'string', 'discrete-timeline'],
 	['/Arm/Enabled', 'boolean', 'discrete-timeline'],
 	['/Drive/Pose', 'struct:Pose2d', 'values-table'],
+	['/Drive/MeasuredStates', 'struct:SwerveModuleState[]', 'swerve'],
+	['/Drive/MeasuredStates', 'struct:SwerveModuleVelocity[]', 'swerve'],
 	['/Arm/Setpoints', 'double[]', 'values-table'],
 ])('%s (%s) defaults to the %s', (name, type, widgetType) => {
 	expect(defaultWidget(entry(name, type))).toEqual({ type: widgetType, config: { entries: [name] } });

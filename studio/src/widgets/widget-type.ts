@@ -40,6 +40,8 @@ export type WidgetType = {
 	readonly icon: LucideIcon;
 	/** Kinds of entries that can be bound */
 	readonly accepts: readonly BindableKind[];
+	/** Narrows `accepts` further, ex. to specific struct types */
+	readonly matches?: (entry: Entry) => boolean;
 	/** Config of a newly added widget, ex. default bindings */
 	readonly defaultConfig: WidgetConfig;
 	readonly component: ComponentType<WidgetProps>;
@@ -57,5 +59,5 @@ export const bindableKinds: readonly BindableKind[] = [
 ];
 
 export function acceptsEntry(type: WidgetType, entry: Entry): boolean {
-	return (type.accepts as readonly EntryKind[]).includes(entry.kind);
+	return (type.accepts as readonly EntryKind[]).includes(entry.kind) && (type.matches?.(entry) ?? true);
 }

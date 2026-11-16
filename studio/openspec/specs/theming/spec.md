@@ -35,3 +35,13 @@ The theme SHALL have both light and dark variants derived from the same color sc
 - **WHEN** the user switches from dark to light theme
 - **THEN** every surface, text, and widget color switches to the light variant
 - **AND** status colors remain distinguishable
+
+### Requirement: Series colors
+
+The theme SHALL provide 5 series colors for widgets that color entries, and every series color MUST be distinguishable from the others in both light and dark variants.
+
+#### Scenario: Five entries in light theme
+
+- **GIVEN** the light theme is active
+- **WHEN** a widget colors 5 entries
+- **THEN** each entry has a visibly different color

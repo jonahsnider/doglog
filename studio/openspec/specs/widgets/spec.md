@@ -17,7 +17,7 @@ Widgets SHALL only display data and MUST NOT write to or modify any data source.
 
 ### Requirement: Accepted data types
 
-Each widget type SHALL declare the data types it accepts, and only entries of accepted types MUST be bindable to it.
+Each widget type SHALL declare the data types it accepts, which MAY be specific struct types such as `SwerveModuleState[]`, and only entries of accepted types MUST be bindable to it.
 
 #### Scenario: Type mismatch on drop
 
@@ -74,7 +74,7 @@ When a bound entry doesn't exist in the active source, or no source is active, t
 
 ### Requirement: Default widget for an entry
 
-Each bindable entry SHALL have a default widget, used when the entry is added without choosing a widget: numeric entries use the line graph, `/console` and `/messages` use the console, other string and boolean entries use the discrete timeline, and all other entries use the values table.
+Each bindable entry SHALL have a default widget, used when the entry is added without choosing a widget: numeric entries use the line graph, `/console` and `/messages` use the console, other string and boolean entries use the discrete timeline, `SwerveModuleState[]` and `SwerveModuleVelocity[]` entries use the swerve widget, and all other entries use the values table.
 
 #### Scenario: Numeric entry
 
@@ -90,6 +90,11 @@ Each bindable entry SHALL have a default widget, used when the entry is added wi
 
 - **WHEN** a boolean entry is added by double-clicking it
 - **THEN** it is shown in a discrete timeline
+
+#### Scenario: Swerve module states
+
+- **WHEN** a `SwerveModuleState[]` entry is added by double-clicking it
+- **THEN** it is shown in a swerve widget
 
 #### Scenario: Struct entry
 

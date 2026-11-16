@@ -19,6 +19,9 @@ context: |
   - Core logic: TypeScript. Avoid other languages for core logic unless there's a strong reason.
   - WPILOG parsing: wpilog-parser. NT4 client: @ntcore-ts/client, patched with `pnpm patch` so topic properties
     (ex. `unit`) pass through its schema instead of being stripped, until that's fixed upstream.
+  - Drawn widgets: plain SVG in React when the element count is small (ex. the swerve widget). Pick drawing
+    libraries per widget when it's specced (ex. canvas for dense time series, three.js for 3D).
+  - Avoid per-widget settings where possible; prefer inferring from entry types, metadata, and names.
   - Distribution: a PWA website, plus a Tauri desktop app built from the same frontend.
   - State: TanStack Store, with Zod validating all persisted and external data.
   - Interactions: dnd-kit for drag and drop, react-resizable-panels for pane splits, TanStack Hotkeys for shortcuts.
@@ -52,8 +55,11 @@ context: |
   - Playback looping and trimming the playback range.
   - FRC match time display (ex. "Teleop 1:32").
   - Recent files.
-  - FRC-specific widgets (field view, swerve module visualizer, etc.). Double-clicking matching entries
-    (ex. swerve module states) should default to these once they exist.
+  - More FRC-specific widgets (field view, etc.). Double-clicking matching entries should default to these once
+    they exist.
+  - Choosing robot-relative or field-relative for `ChassisSpeeds` in the swerve widget (currently always
+    robot-relative).
+  - Unit inference beyond angles (ex. distance, velocity).
   - A command palette. Connect may move off ⌘K to make room for it.
 
   Open questions:
