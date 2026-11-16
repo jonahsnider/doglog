@@ -97,8 +97,6 @@ export function AppSidebar() {
 		toggleSidebar: toggle,
 	};
 
-	const toggleLabel = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
-
 	return (
 		<SidebarContext value={context}>
 			{/* Reserves the sidebar's space in the layout, so peeking doesn't resize the dashboard */}
@@ -175,11 +173,15 @@ export function AppSidebar() {
 							<SidebarMenuItem>
 								<SidebarMenuButton
 									aria-expanded={!collapsed}
+									className="group/toggle"
 									onClick={toggle}
-									tooltip={{ children: <TooltipLabel label={toggleLabel} shortcut={shortcuts.toggleSidebar} /> }}
+									tooltip={{ children: <TooltipLabel label="Toggle sidebar" shortcut={shortcuts.toggleSidebar} /> }}
 								>
 									{collapsed ? <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />}
-									<span>{toggleLabel}</span>
+									{/* Icon-only until hovered, the text is kept for its accessible name */}
+									<span className="opacity-0 group-hover/toggle:opacity-100 group-focus-visible/toggle:opacity-100">
+										Toggle sidebar
+									</span>
 								</SidebarMenuButton>
 								<SidebarMenuBadge className="invisible peer-hover/menu-button:visible">
 									<Kbd>{formatForDisplay(shortcuts.toggleSidebar)}</Kbd>
