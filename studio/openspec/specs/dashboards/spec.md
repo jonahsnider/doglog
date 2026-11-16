@@ -135,7 +135,7 @@ Closing a dashboard SHALL remove it from the sidebar without asking for confirma
 
 ### Requirement: Close several dashboards
 
-Like browser tabs, a dashboard's menus SHALL offer to close every other dashboard, or every dashboard below it in the sidebar. Each option MUST be disabled when there's nothing for it to close.
+Like browser tabs, a dashboard's menus SHALL offer to close every other dashboard, or every dashboard below it in the sidebar. Each option MUST be disabled when there's nothing for it to close. Like Dia, hovering the separator above the dashboards in the sidebar SHALL reveal a button to close every dashboard, hidden when there are none.
 
 #### Scenario: Close other dashboards
 
@@ -148,6 +148,12 @@ Like browser tabs, a dashboard's menus SHALL offer to close every other dashboar
 - **WHEN** the user chooses Close dashboards below on a dashboard
 - **THEN** every dashboard below it in the sidebar is closed
 - **AND** if the selected dashboard was closed, that dashboard is selected
+
+#### Scenario: Close all dashboards
+
+- **WHEN** the user hovers the separator above the dashboards in the expanded sidebar and chooses Close all
+- **THEN** every dashboard is closed together
+- **AND** the main area shows a New dashboard prompt
 
 #### Scenario: Last dashboard in the list
 

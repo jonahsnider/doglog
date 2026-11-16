@@ -23,6 +23,7 @@ import { SidebarDashboards } from '@/components/sidebar-dashboards';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { Kbd } from '@/components/ui/kbd';
 import { shortcuts } from '@/commands';
+import { deleteDashboards, useDashboards } from '@/dashboards';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { cn } from '@/lib/utils';
 
@@ -41,6 +42,7 @@ export function AppSidebar() {
 	const matchRoute = useMatchRoute();
 	const formatForDisplay = useFormatForDisplay();
 	const collapsed = useSelector(collapsedStore);
+	const dashboards = useDashboards();
 	// Showing the collapsed sidebar over the dashboard while it's hovered
 	const [peeking, setPeeking] = useState(false);
 	const showTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -154,7 +156,19 @@ export function AppSidebar() {
 								</SidebarMenuItem>
 							</SidebarMenu>
 						</SidebarGroup>
-						<SidebarSeparator />
+						{/* Like Dia, hovering the separator reveals a button to close every dashboard. The negative margin extends the hover area into the surrounding gaps. */}
+						<div className="group/separator relative -my-2 py-2">
+							<SidebarSeparator />
+							{dashboards.length > 0 && (
+								<button
+									type="button"
+									className="absolute end-2 top-1/2 -translate-y-1/2 rounded-md bg-sidebar px-1.5 text-xs whitespace-nowrap text-sidebar-foreground/70 opacity-0 outline-hidden ring-sidebar-ring group-hover/separator:opacity-100 group-data-[collapsible=icon]:hidden hover:text-sidebar-foreground focus-visible:opacity-100 focus-visible:ring-2"
+									onClick={() => deleteDashboards(dashboards.map((dashboard) => dashboard.id))}
+								>
+									Close all
+								</button>
+							)}
+						</div>
 						<SidebarDashboards />
 					</SidebarContent>
 					<SidebarFooter>
