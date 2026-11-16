@@ -8,7 +8,7 @@ Define Studio's app-wide keyboard shortcuts and how they differ between the desk
 
 ### Requirement: Global shortcuts
 
-Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Reopen closed dashboard (⇧⌘T, or Alt+Shift+T), Undo (⌘Z), Redo (⇧⌘Z), Settings (⌘, or Alt+,), Toggle sidebar (⌘B), Toggle entry browser (⌥⌘B), Connect (⌘K), Split right (⌘D), Split down (⇧⌘D), Open log (⌘O), and Switch to dashboard 1-9 (⌘1-⌘9, or Alt+1-Alt+9).
+Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Reopen closed dashboard (⇧⌘T, or Alt+Shift+T), Undo (⌘Z), Redo (⇧⌘Z), Settings (⌘, or Alt+,), Toggle sidebar (⌘B), Toggle entry browser (⌥⌘B), Connect (⌘K), Split right (⌘D), Split down (⇧⌘D), Open log (⌘O), Keyboard shortcuts (⌘/), and Switch to dashboard 1-9 (⌘1-⌘9, or Alt+1-Alt+9).
 
 #### Scenario: New dashboard
 
@@ -57,6 +57,21 @@ Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and
 
 - **WHEN** the user presses ⌘K
 - **THEN** Studio starts connecting, the same way as choosing Connect
+
+### Requirement: Keyboard shortcuts list
+
+The keyboard shortcuts shortcut SHALL open a dialog listing every keyboard shortcut, grouped by area and formatted for the user's platform. Pressing the shortcut again MUST close it.
+
+#### Scenario: Open the list
+
+- **WHEN** the user presses ⌘/
+- **THEN** a dialog lists every keyboard shortcut, including the timeline's
+
+#### Scenario: Web app
+
+- **GIVEN** the user is using the web app
+- **WHEN** the user opens the keyboard shortcuts list
+- **THEN** New dashboard shows Alt+T
 
 ### Requirement: Shortcuts in tooltips
 

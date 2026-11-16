@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { TooltipLabel } from '@/components/tooltip-label';
+import { shortcuts } from '@/commands';
 import { useEntries } from '@/data/data-store';
 import { useSource } from '@/data/source';
 import { buildEntryTree, entryTreeView } from '@/entry-tree';
@@ -22,12 +23,10 @@ function toggleOpen(): void {
 	openStore.set((open) => !open);
 }
 
-const shortcut = 'Mod+Alt+B';
-
 /** Collapsible panel listing every entry of the active source as a searchable tree */
 export function EntryBrowser() {
 	const open = useSelector(openStore);
-	useHotkey(shortcut, toggleOpen, { requireReset: true });
+	useHotkey(shortcuts.toggleEntryBrowser, toggleOpen, { requireReset: true });
 	const panelRef = usePanelRef();
 
 	if (!open) {
@@ -78,7 +77,7 @@ function ToggleButton({ open }: { open: boolean }) {
 				{open ? <PanelRightCloseIcon /> : <PanelRightOpenIcon />}
 			</TooltipTrigger>
 			<TooltipPopup>
-				<TooltipLabel label={label} shortcut={shortcut} />
+				<TooltipLabel label={label} shortcut={shortcuts.toggleEntryBrowser} />
 			</TooltipPopup>
 		</Tooltip>
 	);

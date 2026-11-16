@@ -29,7 +29,6 @@ import { cn } from '@/lib/utils';
 
 const collapsedStore = createPersistedAtom('sidebar-collapsed', z.boolean(), false);
 
-const shortcut = 'Mod+B';
 /** How long the pointer has to stay on or away from the collapsed sidebar before it's shown or hidden */
 const peekDelay = 300;
 /** Keeps the peeking sidebar open while the pointer is elsewhere: an open menu, renaming a dashboard, or dragging one */
@@ -54,7 +53,7 @@ export function AppSidebar() {
 		setPeeking(false);
 		collapsedStore.set((value) => !value);
 	};
-	useHotkey(shortcut, toggle, { requireReset: true });
+	useHotkey(shortcuts.toggleSidebar, toggle, { requireReset: true });
 
 	// Hide the peeking sidebar once the pointer leaves it, checked on pointer moves since menus are rendered outside of it
 	// react-doctor-disable-next-line react-doctor/effect-needs-cleanup -- The cleanup clears `hide.timer`
@@ -177,13 +176,13 @@ export function AppSidebar() {
 								<SidebarMenuButton
 									aria-expanded={!collapsed}
 									onClick={toggle}
-									tooltip={{ children: <TooltipLabel label={toggleLabel} shortcut={shortcut} /> }}
+									tooltip={{ children: <TooltipLabel label={toggleLabel} shortcut={shortcuts.toggleSidebar} /> }}
 								>
 									{collapsed ? <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />}
 									<span>{toggleLabel}</span>
 								</SidebarMenuButton>
 								<SidebarMenuBadge className="invisible peer-hover/menu-button:visible">
-									<Kbd>{formatForDisplay(shortcut)}</Kbd>
+									<Kbd>{formatForDisplay(shortcuts.toggleSidebar)}</Kbd>
 								</SidebarMenuBadge>
 							</SidebarMenuItem>
 						</SidebarMenu>

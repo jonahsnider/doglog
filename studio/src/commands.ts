@@ -42,6 +42,9 @@ export const shortcuts = {
 	openLog: 'Mod+O',
 	undo: 'Mod+Z',
 	redo: 'Mod+Shift+Z',
+	toggleSidebar: 'Mod+B',
+	toggleEntryBrowser: 'Mod+Alt+B',
+	keyboardShortcuts: 'Mod+/',
 } as const satisfies Record<string, Hotkey>;
 
 const dashboardNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
