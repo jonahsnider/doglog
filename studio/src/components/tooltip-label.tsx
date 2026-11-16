@@ -1,5 +1,5 @@
 import { type Hotkey, useFormatForDisplay } from '@tanstack/react-hotkeys';
-import { Kbd } from '@/components/ui/kbd';
+import { Kbd, KbdGroup } from '@/components/ui/kbd';
 
 /** Tooltip content for a control, followed by its keyboard shortcuts if it has any */
 export function TooltipLabel({
@@ -15,11 +15,11 @@ export function TooltipLabel({
 		<span className="flex items-center gap-2">
 			{label}
 			{keys.length > 0 && (
-				<span className="flex gap-1">
+				<KbdGroup>
 					{keys.map((key) => (
 						<Kbd key={key}>{key}</Kbd>
 					))}
-				</span>
+				</KbdGroup>
 			)}
 		</span>
 	);
