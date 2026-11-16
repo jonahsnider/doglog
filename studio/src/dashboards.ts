@@ -91,7 +91,7 @@ export function moveDashboard(id: string, index: number): void {
 	});
 }
 
-export function deleteDashboard(id: string): void {
+function deleteDashboard(id: string): void {
 	deleteDashboards([id]);
 }
 
