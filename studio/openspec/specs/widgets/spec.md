@@ -74,7 +74,7 @@ When a bound entry doesn't exist in the active source, or no source is active, t
 
 ### Requirement: Shortened entry names
 
-Widgets and the entry picker SHALL shorten the `/Robot`, `/RealOutputs`, `/AdvantageKit`, `/AdvantageKit/RealOutputs`, and `/AdvantageKit/DriverStation` prefixes of entry names to their slashes and capital letters, shown dimmed, and MUST show the full prefix when the name has been hovered for a short delay. `/ReplayOutputs` MUST NOT be shortened, so replayed outputs stand out from real ones.
+Widgets and the entry picker SHALL shorten the `/Robot`, `/RealOutputs`, `/AdvantageKit`, `/AdvantageKit/RealOutputs`, and `/AdvantageKit/DriverStation` prefixes of entry names to their slashes and capital letters, shown dimmed, and MUST show the full prefix when the shortened prefix has been hovered for a short delay. `/ReplayOutputs` MUST NOT be shortened, so replayed outputs stand out from real ones.
 
 #### Scenario: Shortened name
 
@@ -88,8 +88,13 @@ Widgets and the entry picker SHALL shorten the `/Robot`, `/RealOutputs`, `/Advan
 
 #### Scenario: Hover to expand
 
-- **WHEN** the user hovers `/R/Arm/Angle`
+- **WHEN** the user hovers `/R` in `/R/Arm/Angle`
 - **THEN** after a short delay it grows to show `/Robot/Arm/Angle`
+
+#### Scenario: Hovering the rest of the name
+
+- **WHEN** the user hovers `/Arm/Angle` in `/R/Arm/Angle`
+- **THEN** the prefix stays shortened
 
 ### Requirement: Default widget for an entry
 

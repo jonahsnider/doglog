@@ -12,7 +12,7 @@ const shortenedPrefixes = [
 	'/Robot',
 ];
 
-/** An entry's name with common prefixes shortened, hovering shows the full name. `ranges` of the name are highlighted, ex. the parts matching a search. */
+/** An entry's name with common prefixes shortened, hovering the prefix shows it in full. `ranges` of the name are highlighted, ex. the parts matching a search. */
 export function EntryName({ name, ranges }: { name: string; ranges?: readonly number[] | undefined }) {
 	const prefix = shortenedPrefixes.find((candidate) => name.startsWith(`${candidate}/`));
 	if (prefix === undefined) {
@@ -22,8 +22,8 @@ export function EntryName({ name, ranges }: { name: string; ranges?: readonly nu
 	// Runs of lowercase letters are hidden, ex. `/RealOutputs` is split into `/R`, `eal`, `O`, `utputs`
 	const parts = prefix.matchAll(/[a-z]+|[^a-z]+/gu);
 	return (
-		<span className="group/entry-name">
-			<span className="text-muted-foreground">
+		<span>
+			<span className="group/entry-name text-muted-foreground">
 				{Array.from(parts, ({ 0: part, index: start }) => {
 					const text = <HighlightedText key={start} text={part} ranges={ranges} offset={start} />;
 					if (!/^[a-z]/u.test(part)) {
