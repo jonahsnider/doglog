@@ -22,6 +22,7 @@ test('new settings keep the Team 581 default', async () => {
 		theme: 'system',
 		themePreset: 'team581',
 		themeColor: '#1c1816',
+		contrast: 'standard',
 		robotTarget: '',
 		mediaControls: false,
 	});
@@ -38,6 +39,7 @@ test.each([
 		const expected = {
 			theme: 'light',
 			themeColor: expectedColor,
+			contrast: 'standard',
 			robotTarget: '581',
 			mediaControls: false,
 			themePreset,
@@ -61,6 +63,7 @@ test('custom colors survive preset changes and a reload', async () => {
 		theme: 'dark',
 		themePreset: 'coss',
 		themeColor: '#123456',
+		contrast: 'standard',
 		robotTarget: '',
 		mediaControls: false,
 	});

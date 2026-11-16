@@ -15,7 +15,7 @@ function cssVariables(block: string): string[] {
 }
 
 function generatedVariables(dark: boolean): string[] {
-	return themeColorVariables(defaultThemeColor, dark).split(';').filter(Boolean);
+	return themeColorVariables(defaultThemeColor, dark, 'standard').split(';').filter(Boolean);
 }
 
 // The default colors in index.css are used before JS loads, so they must match the generated ones
@@ -42,21 +42,21 @@ test('switching presets clears stale generated colors and restores the chosen sc
 	});
 	vi.stubGlobal('localStorage', { setItem });
 
-	applyThemeColor('#123456', 'custom');
+	applyThemeColor('#123456', 'custom', 'standard');
 	const customCss = style.textContent;
-	expect(customCss).toContain(themeColorVariables('#123456', false));
-	expect(customCss).toContain(themeColorVariables('#123456', true));
+	expect(customCss).toContain(themeColorVariables('#123456', false, 'standard'));
+	expect(customCss).toContain(themeColorVariables('#123456', true, 'standard'));
 
-	applyThemeColor('#123456', 'coss');
+	applyThemeColor('#123456', 'coss', 'standard');
 	expect(toggle).toHaveBeenLastCalledWith('coss-theme', true);
 	expect(style.textContent).toBe('');
 	expect(setItem).toHaveBeenLastCalledWith('doglog-studio:theme-color-css', '');
 
-	applyThemeColor('#123456', 'team581');
+	applyThemeColor('#123456', 'team581', 'standard');
 	expect(toggle).toHaveBeenLastCalledWith('coss-theme', false);
-	expect(style.textContent).toContain(themeColorVariables(defaultThemeColor, false));
-	expect(style.textContent).toContain(themeColorVariables(defaultThemeColor, true));
+	expect(style.textContent).toContain(themeColorVariables(defaultThemeColor, false, 'standard'));
+	expect(style.textContent).toContain(themeColorVariables(defaultThemeColor, true, 'standard'));
 
-	applyThemeColor('#123456', 'custom');
+	applyThemeColor('#123456', 'custom', 'standard');
 	expect(style.textContent).toBe(customCss);
 });

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the Settings page, where users choose the color theme, the robot connection target, and whether media controls control playback, with all settings persisted locally on the device.
+Define the Settings page, where users choose the color theme and contrast, the robot connection target, and whether media controls control playback, with all settings persisted locally on the device.
 
 ## Requirements
 
@@ -70,3 +70,18 @@ Settings SHALL let users choose a theme color preset of Team 581 maroon, match13
 - **GIVEN** the user picked a custom color
 - **WHEN** the user resets it
 - **THEN** the custom color is `#1c1816` again
+
+### Requirement: Contrast setting
+
+Settings SHALL let users choose standard, medium, or high contrast for generated color schemes, defaulting to standard. The setting MUST be disabled while the Neutral preset is selected.
+
+#### Scenario: High contrast
+
+- **GIVEN** the Team 581 maroon preset is selected
+- **WHEN** the user selects high contrast
+- **THEN** Studio's light and dark themes are regenerated at high contrast
+
+#### Scenario: Neutral preset
+
+- **WHEN** the user selects the Neutral preset
+- **THEN** the contrast setting is disabled

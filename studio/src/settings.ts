@@ -1,7 +1,7 @@
 import { useSelector } from '@tanstack/react-store';
 import * as z from 'zod';
 import { createPersistedAtom } from '@/lib/persisted-store';
-import { applyThemeColor, defaultCustomColor, defaultThemeColor, themePresets } from '@/theme-color';
+import { applyThemeColor, contrasts, defaultCustomColor, defaultThemeColor, themePresets } from '@/theme-color';
 
 export const themes = ['light', 'dark', 'system'] as const;
 export type Theme = (typeof themes)[number];
@@ -17,6 +17,7 @@ const settingsSchema = z
 			.regex(/^#[\da-f]{6}$/iu)
 			.optional()
 			.catch(undefined),
+		contrast: z.enum(contrasts).catch('standard'),
 		/** Team number or IP address, use `getRobotHost()` to get the NT server host */
 		robotTarget: z.string().catch(''),
 		/** Whether media keys and the OS's media controls control log playback */
@@ -51,20 +52,22 @@ export function updateSettings(changes: Partial<Settings>): void {
 
 /**
  * Keep the `dark` class on the root element in sync with the theme setting and the OS color scheme, and the colors in sync
- * with the theme color setting
+ * with the theme color and contrast settings
  */
 export function syncTheme(): void {
 	const darkQuery = matchMedia('(prefers-color-scheme: dark)');
 	let appliedThemeColor: string | undefined;
 	let appliedThemePreset: Settings['themePreset'] | undefined;
+	let appliedContrast: Settings['contrast'] | undefined;
 	const applyTheme = () => {
-		const { theme, themeColor, themePreset } = settingsStore.get();
+		const { theme, themeColor, themePreset, contrast } = settingsStore.get();
 		document.documentElement.classList.toggle('dark', theme === 'dark' || (theme === 'system' && darkQuery.matches));
 		// Other settings changes, ex. typing a robot target, don't need the colors regenerated
-		if (themeColor !== appliedThemeColor || themePreset !== appliedThemePreset) {
-			applyThemeColor(themeColor, themePreset);
+		if (themeColor !== appliedThemeColor || themePreset !== appliedThemePreset || contrast !== appliedContrast) {
+			applyThemeColor(themeColor, themePreset, contrast);
 			appliedThemeColor = themeColor;
 			appliedThemePreset = themePreset;
+			appliedContrast = contrast;
 		}
 	};
 

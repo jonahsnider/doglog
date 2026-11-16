@@ -9,6 +9,16 @@ export const defaultCustomColor = '#1c1816';
 export const themePresets = ['team581', 'match13', 'coss', 'custom'] as const;
 export type ThemePreset = (typeof themePresets)[number];
 
+export const contrasts = ['standard', 'medium', 'high'] as const;
+export type Contrast = (typeof contrasts)[number];
+
+/** MD3 contrast levels matching the Material Theme Builder's options */
+const contrastLevels: Record<Contrast, number> = {
+	standard: 0,
+	medium: 0.5,
+	high: 1,
+};
+
 /** Colors that presets generate their color scheme from, match13's is the `theme-color` from match13.com */
 const presetColors: Partial<Record<ThemePreset, string>> = {
 	team581: defaultThemeColor,
@@ -68,13 +78,17 @@ const roles = [
 	'surfaceContainerHighest',
 ] as const;
 
+function scheme(themeColor: string, dark: boolean, contrast: Contrast): SchemeTonalSpot {
+	return new SchemeTonalSpot(Hct.fromInt(argbFromHex(themeColor)), dark, contrastLevels[contrast]);
+}
+
 /** Generate the MD3 tonal spot scheme for a theme color as `--md-*` CSS variable declarations */
-export function themeColorVariables(themeColor: string, dark: boolean): string {
-	const scheme = new SchemeTonalSpot(Hct.fromInt(argbFromHex(themeColor)), dark, 0);
+export function themeColorVariables(themeColor: string, dark: boolean, contrast: Contrast): string {
+	const colors = scheme(themeColor, dark, contrast);
 	return roles
 		.map(
 			(role) =>
-				`--md-${role.replaceAll(/[A-Z]/gu, (letter) => `-${letter.toLowerCase()}`)}:${hexFromArgb(scheme[role])};`,
+				`--md-${role.replaceAll(/[A-Z]/gu, (letter) => `-${letter.toLowerCase()}`)}:${hexFromArgb(colors[role])};`,
 		)
 		.join('');
 }
@@ -83,8 +97,8 @@ export function themeColorVariables(themeColor: string, dark: boolean): string {
  * Stylesheet that overrides the default colors in `index.css` with ones generated from the theme color.
  * The doubled selectors win over `:root` and `.dark` in `index.css` regardless of which stylesheet loads last.
  */
-function themeColorCss(themeColor: string): string {
-	return `:root:root{${themeColorVariables(themeColor, false)}}:root.dark{${themeColorVariables(themeColor, true)}}`;
+function themeColorCss(themeColor: string, contrast: Contrast): string {
+	return `:root:root{${themeColorVariables(themeColor, false, contrast)}}:root.dark{${themeColorVariables(themeColor, true, contrast)}}`;
 }
 
 /** Colors used to draw a preview of a theme in Settings */
@@ -117,29 +131,33 @@ const neutralPreviewColors: Record<'light' | 'dark', ThemePreviewColors> = {
 	},
 };
 
-export function themePreviewColors(preset: ThemePreset, themeColor: string, dark: boolean): ThemePreviewColors {
+export function themePreviewColors(
+	preset: ThemePreset,
+	themeColor: string,
+	dark: boolean,
+	contrast: Contrast,
+): ThemePreviewColors {
 	if (preset === 'coss') {
 		return neutralPreviewColors[dark ? 'dark' : 'light'];
 	}
-	const seed = presetColors[preset] ?? themeColor;
-	const scheme = new SchemeTonalSpot(Hct.fromInt(argbFromHex(seed)), dark, 0);
+	const colors = scheme(presetColors[preset] ?? themeColor, dark, contrast);
 	return {
-		surface: hexFromArgb(scheme.surface),
-		sidebar: hexFromArgb(scheme.surfaceContainerLow),
-		bar: hexFromArgb(scheme.surfaceContainerHighest),
-		border: hexFromArgb(scheme.outlineVariant),
-		primary: hexFromArgb(scheme.primary),
-		accent: hexFromArgb(scheme.primaryContainer),
+		surface: hexFromArgb(colors.surface),
+		sidebar: hexFromArgb(colors.surfaceContainerLow),
+		bar: hexFromArgb(colors.surfaceContainerHighest),
+		border: hexFromArgb(colors.outlineVariant),
+		primary: hexFromArgb(colors.primary),
+		accent: hexFromArgb(colors.primaryContainer),
 	};
 }
 
 /** `index.html` applies the cached stylesheet from this key before render to avoid a flash of the default colors, keep them in sync */
 const cssStorageKey = 'doglog-studio:theme-color-css';
 
-/** Apply a preset and cache generated colors for `index.html` to use on the next load */
-export function applyThemeColor(themeColor: string, preset: ThemePreset): void {
+/** Apply a preset and cache generated colors for `index.html` to use on the next load, Neutral ignores the contrast */
+export function applyThemeColor(themeColor: string, preset: ThemePreset, contrast: Contrast): void {
 	document.documentElement.classList.toggle('coss-theme', preset === 'coss');
-	const css = preset === 'coss' ? '' : themeColorCss(presetColors[preset] ?? themeColor);
+	const css = preset === 'coss' ? '' : themeColorCss(presetColors[preset] ?? themeColor, contrast);
 
 	// `index.html` may have added this element already
 	let style = document.querySelector<HTMLStyleElement>('#theme-color');

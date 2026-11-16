@@ -5,11 +5,14 @@ import { Field, FieldControl, FieldDescription, FieldError, FieldLabel } from '@
 import { Fieldset, FieldsetLegend } from '@/components/ui/fieldset';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
+import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { getRobotHost } from '@/robot-target';
 import { type Theme, themes, updateSettings, useSettings } from '@/settings';
 import {
+	type Contrast,
+	contrasts,
 	defaultCustomColor,
 	type ThemePreset,
 	type ThemePreviewColors,
@@ -34,8 +37,14 @@ const themePresetLabels: Record<ThemePreset, string> = {
 	custom: 'Custom',
 };
 
+const contrastLabels: Record<Contrast, string> = {
+	standard: 'Standard',
+	medium: 'Medium',
+	high: 'High',
+};
+
 function Settings() {
-	const { theme, themeColor, themePreset, robotTarget, mediaControls } = useSettings();
+	const { theme, themeColor, themePreset, contrast, robotTarget, mediaControls } = useSettings();
 	const robotHost = getRobotHost(robotTarget);
 	const robotTargetInvalid = robotTarget.trim() !== '' && robotHost === undefined;
 
@@ -60,14 +69,14 @@ function Settings() {
 								<div className="relative aspect-16/10">
 									{value === 'system' ? (
 										<>
-											<ThemePreview colors={themePreviewColors(themePreset, themeColor, false)} />
+											<ThemePreview colors={themePreviewColors(themePreset, themeColor, false, contrast)} />
 											<ThemePreview
-												colors={themePreviewColors(themePreset, themeColor, true)}
+												colors={themePreviewColors(themePreset, themeColor, true, contrast)}
 												className="[clip-path:inset(0_0_0_50%)]"
 											/>
 										</>
 									) : (
-										<ThemePreview colors={themePreviewColors(themePreset, themeColor, value === 'dark')} />
+										<ThemePreview colors={themePreviewColors(themePreset, themeColor, value === 'dark', contrast)} />
 									)}
 								</div>
 							</OptionCard>
@@ -91,8 +100,8 @@ function Settings() {
 						{themePresets.map((value) => (
 							<OptionCard key={value} value={value} label={themePresetLabels[value]}>
 								<div className="flex justify-center gap-2 py-2">
-									<ThemeSwatch colors={themePreviewColors(value, themeColor, false)} />
-									<ThemeSwatch colors={themePreviewColors(value, themeColor, true)} />
+									<ThemeSwatch colors={themePreviewColors(value, themeColor, false, contrast)} />
+									<ThemeSwatch colors={themePreviewColors(value, themeColor, true, contrast)} />
 								</div>
 							</OptionCard>
 						))}
@@ -122,6 +131,28 @@ function Settings() {
 					</div>
 				</Field>
 			)}
+
+			<Field name="contrast" disabled={themePreset === 'coss'}>
+				<Fieldset>
+					<FieldsetLegend className="mb-1 text-sm">Contrast</FieldsetLegend>
+					<SegmentedControl
+						render={
+							<RadioGroup
+								className="flex-row gap-0.5"
+								value={contrast}
+								onValueChange={(value: Contrast) => updateSettings({ contrast: value })}
+							/>
+						}
+					>
+						{contrasts.map((value) => (
+							<SegmentedControlItem key={value} render={<RadioPrimitive.Root value={value} />}>
+								{contrastLabels[value]}
+							</SegmentedControlItem>
+						))}
+					</SegmentedControl>
+				</Fieldset>
+				{themePreset === 'coss' && <FieldDescription>Neutral colors have a fixed contrast</FieldDescription>}
+			</Field>
 
 			<Field name="robotTarget" invalid={robotTargetInvalid}>
 				<FieldLabel>Robot connection</FieldLabel>
