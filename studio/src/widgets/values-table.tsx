@@ -1,5 +1,6 @@
 import { ChevronRightIcon } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { EntryTypeIcon } from '@/components/value-marks';
 import { useDataVersion } from '@/data/data-store';
@@ -106,17 +107,19 @@ export function ValuesTable({ bindings }: WidgetProps) {
 							<TableCell className="font-mono text-xs">
 								<div className="flex items-center gap-1" style={{ paddingLeft: `${row.depth * 1.25}rem` }}>
 									{expandable ? (
-										<button
-											type="button"
-											className="-m-1 rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+										<Button
+											variant="ghost"
+											size="icon-xs"
+											className="-m-1 text-muted-foreground"
 											aria-expanded={isExpanded}
 											aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${row.label}`}
 											onClick={() => toggle(row.path)}
 										>
 											<ChevronRightIcon className={cn('size-3.5 transition-transform', isExpanded && 'rotate-90')} />
-										</button>
+										</Button>
 									) : (
-										<span className="size-3.5 shrink-0" />
+										// Takes the same space as the expand button
+										<span className="-m-1 size-7 shrink-0 sm:size-6" />
 									)}
 									{row.label}
 								</div>
