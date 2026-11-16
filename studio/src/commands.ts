@@ -30,6 +30,7 @@ const outsideNativeMenu = { enabled: !nativeMenu };
 export const shortcuts = {
 	newDashboard: desktop ? 'Mod+T' : 'Alt+T',
 	close: desktop ? 'Mod+W' : 'Alt+W',
+	closeDashboard: desktop ? 'Mod+Shift+W' : 'Alt+Shift+W',
 	settings: desktop ? 'Mod+,' : 'Alt+,',
 	connect: 'Mod+K',
 	splitRight: 'Mod+D',

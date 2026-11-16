@@ -60,6 +60,15 @@ Every control with a keyboard shortcut SHALL show the shortcut in its tooltip, f
 - **WHEN** the user hovers the playback speed select
 - **THEN** its tooltip shows `Playback speed` with `[` and `]`
 
+### Requirement: Shortcuts in menus
+
+Every menu item with a keyboard shortcut SHALL show the shortcut on the right of the item, formatted for the user's platform.
+
+#### Scenario: Open a dashboard's options
+
+- **WHEN** the user opens a dashboard's options menu
+- **THEN** Close dashboard shows ⇧⌘W, or Alt+Shift+W on the web
+
 ### Requirement: Dashboard shortcut hints
 
 While the user holds the modifier for switching dashboards (⌘ in the desktop app, Alt on the web) for 300 ms, each of the first nine dashboards in the sidebar SHALL show its switch shortcut on the right of its row.

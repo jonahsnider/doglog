@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { closeDashboard } from '@/close-dashboard';
-import { Menu, MenuItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
+import { Menu, MenuItem, MenuPopup, MenuShortcut, MenuTrigger } from '@/components/ui/menu';
 import {
 	SidebarGroup,
 	SidebarGroupLabel,
@@ -93,7 +93,7 @@ function DashboardItem({ dashboard, index, onClose }: { dashboard: Dashboard; in
 	const formatForDisplay = useFormatForDisplay();
 	const menuItems: MenuEntry[] = [
 		{ label: 'Rename', icon: PencilIcon, onSelect: () => setRenaming(true) },
-		{ label: 'Delete', icon: Trash2Icon, destructive: true, onSelect: onClose },
+		{ label: 'Delete', icon: Trash2Icon, shortcut: shortcuts.closeDashboard, destructive: true, onSelect: onClose },
 	];
 
 	return (
@@ -145,6 +145,7 @@ function DashboardItem({ dashboard, index, onClose }: { dashboard: Dashboard; in
 							<MenuItem variant="destructive" onClick={onClose}>
 								<XIcon />
 								Close dashboard
+								<MenuShortcut>{formatForDisplay(shortcuts.closeDashboard)}</MenuShortcut>
 							</MenuItem>
 						</MenuPopup>
 					</Menu>
