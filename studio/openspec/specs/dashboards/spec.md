@@ -28,7 +28,7 @@ Users SHALL be able to create a new, empty dashboard from the sidebar. New dashb
 
 ### Requirement: Suggested names
 
-A dashboard the user hasn't named SHALL be named after its contents, updating as they change. Each widget MUST contribute the first path segment of its entries, skipping the `/Robot` prefix and capitalizing the first letter. A widget without entries, or with only its widget type's default entries, MUST contribute its widget type's name instead. Past three names, the rest MUST be counted.
+A dashboard the user hasn't named SHALL be named after its contents, updating as they change. Each widget MUST contribute the first path segment of its entries, skipping the `/Robot`, `/RealOutputs`, `/AdvantageKit`, and `/AdvantageKit/RealOutputs` prefixes and capitalizing the first letter. A widget without entries, or with only its widget type's default entries, MUST contribute its widget type's name instead. Past three names, the rest MUST be counted.
 
 #### Scenario: Name from entries
 

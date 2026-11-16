@@ -3,8 +3,11 @@ import type { PaneNode, Widget } from '@/pane-layout';
 import { getWidgetType } from '@/widgets/registry';
 import { widgetConfigSchema, type WidgetType } from '@/widgets/widget-type';
 
-/** Prefixes skipped when naming a dashboard after its entries, since nearly every DogLog entry starts with them */
-const skippedPrefixes = ['/Robot/'];
+/**
+ * Prefixes skipped when naming a dashboard after its entries, since nearly every DogLog or AdvantageKit entry starts
+ * with them. Longer prefixes come first.
+ */
+const skippedPrefixes = ['/AdvantageKit/RealOutputs/', '/AdvantageKit/', '/RealOutputs/', '/Robot/'];
 
 /** How many topics are listed by name before the rest are counted */
 const maxTopics = 3;

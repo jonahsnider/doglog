@@ -74,12 +74,17 @@ When a bound entry doesn't exist in the active source, or no source is active, t
 
 ### Requirement: Shortened entry names
 
-Widgets and the entry picker SHALL shorten the `/Robot` prefix of entry names to `/R`, shown dimmed, and MUST show the full prefix when the name has been hovered for a short delay.
+Widgets and the entry picker SHALL shorten the `/Robot`, `/RealOutputs`, `/AdvantageKit`, `/AdvantageKit/RealOutputs`, and `/AdvantageKit/DriverStation` prefixes of entry names to their slashes and capital letters, shown dimmed, and MUST show the full prefix when the name has been hovered for a short delay. `/ReplayOutputs` MUST NOT be shortened, so replayed outputs stand out from real ones.
 
 #### Scenario: Shortened name
 
 - **GIVEN** a widget bound to `/Robot/Arm/Angle`
 - **THEN** the widget shows `/R/Arm/Angle` with `/R` dimmed
+
+#### Scenario: Shortened AdvantageKit name
+
+- **GIVEN** a widget bound to `/AdvantageKit/RealOutputs/Arm/Angle`
+- **THEN** the widget shows `/AK/RO/Arm/Angle` with `/AK/RO` dimmed
 
 #### Scenario: Hover to expand
 

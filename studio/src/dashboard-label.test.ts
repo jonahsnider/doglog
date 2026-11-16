@@ -22,6 +22,12 @@ test('names a dashboard after the groups of its entries, in layout order', () =>
 	expect(suggestDashboardName(layout)).toBe('Localization & Intake');
 });
 
+test('skips AdvantageKit prefixes', () => {
+	expect(suggestDashboardName(layoutOf(table('/RealOutputs/Arm/Angle')))).toBe('Arm');
+	expect(suggestDashboardName(layoutOf(table('/AdvantageKit/RealOutputs/Arm/Angle')))).toBe('Arm');
+	expect(suggestDashboardName(layoutOf(table('/AdvantageKit/DriverStation/Enabled')))).toBe('DriverStation');
+});
+
 test('lists three groups, then counts the rest', () => {
 	expect(suggestDashboardName(layoutOf(table('/A/x', '/B/x', '/C/x')))).toBe('A, B & C');
 	expect(suggestDashboardName(layoutOf(table('/A/x', '/B/x', '/C/x', '/D/x')))).toBe('A, B & 2 more');
