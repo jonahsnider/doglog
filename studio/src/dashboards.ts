@@ -96,7 +96,8 @@ function deleteDashboard(id: string): void {
 }
 
 export function deleteDashboards(ids: readonly string[]): void {
-	store.set((dashboards) => dashboards.filter((dashboard) => !ids.includes(dashboard.id)));
+	const removed = new Set(ids);
+	store.set((dashboards) => dashboards.filter((dashboard) => !removed.has(dashboard.id)));
 }
 
 /**
