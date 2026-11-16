@@ -41,7 +41,7 @@
 		"react-resizable-panels": "4.23.0",
 		"tailwind-merge": "3.7.0",
 		"wpilib-struct": "1.0.2",
-		"wpilog-parser": "3.2.2",
+		"wpilog-parser": "4.1.0",
 		"zod": "4.6.7"
 	},
 	"devDependencies": {

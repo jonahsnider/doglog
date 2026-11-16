@@ -17,12 +17,19 @@ export type Source =
 	| { type: 'live'; host: string; status: LiveStatus };
 
 const sourceStore = createAtom<Source | undefined>(undefined);
+// Kept apart from the source so progress updates don't rerender everything that uses the source
+const logProgressStore = createAtom(0);
 let stopSource: (() => void) | undefined;
 // Changes every time the source is replaced, so slow requests can tell they're outdated
 let generation = 0;
 
 export function useSource(): Source | undefined {
 	return useSelector(sourceStore);
+}
+
+/** Fraction of the loading log parsed so far, from 0 to 1 */
+export function useLogProgress(): number {
+	return useSelector(logProgressStore);
 }
 
 function replaceSource(source: Source | undefined): void {
@@ -53,8 +60,10 @@ async function openLog(file: File): Promise<void> {
 		return;
 	}
 
+	logProgressStore.set(0);
 	replaceSource({ type: 'log', fileName: file.name, status: 'loading' });
 	stopSource = loadLog(file, {
+		onProgress: (progress) => logProgressStore.set(progress),
 		onLoaded: (damaged) => {
 			sourceStore.set({ type: 'log', fileName: file.name, status: 'loaded' });
 			if (import.meta.env.DEV) {

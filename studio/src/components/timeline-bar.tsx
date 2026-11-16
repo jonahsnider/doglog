@@ -2,11 +2,12 @@ import { PauseIcon, PlayIcon, SkipBackIcon, SkipForwardIcon, StepBackIcon, StepF
 import { type Hotkey, type UseHotkeyDefinition, useHotkeys } from '@tanstack/react-hotkeys';
 import { type PointerEvent, type ReactNode, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Progress, ProgressIndicator, ProgressLabel, ProgressTrack, ProgressValue } from '@/components/ui/progress';
 import { Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { type TimeRange, useTimeRange } from '@/data/data-store';
-import { useSource } from '@/data/source';
+import { useLogProgress, useSource } from '@/data/source';
 import { cn } from '@/lib/utils';
 import {
 	changeSpeed,
@@ -195,8 +196,33 @@ function TimelineControls() {
 	);
 }
 
+/** Takes the timeline's place while a log loads, so the controls appear where the progress was */
+function LogProgress({ fileName }: { fileName: string }) {
+	const progress = useLogProgress();
+	return (
+		<footer aria-label="Timeline" className="flex h-12 shrink-0 items-center border-t px-4">
+			{/* Fades in after a moment so small logs that load instantly don't flash it */}
+			<Progress
+				value={progress * 100}
+				className="flex-row items-center gap-3 transition-opacity delay-200 duration-300 starting:opacity-0"
+			>
+				<ProgressLabel className="max-w-1/3 truncate font-normal text-muted-foreground">
+					Loading {fileName}
+				</ProgressLabel>
+				<ProgressTrack className="h-1 flex-1">
+					<ProgressIndicator />
+				</ProgressTrack>
+				<ProgressValue className="min-w-10 text-right font-mono text-muted-foreground" />
+			</Progress>
+		</footer>
+	);
+}
+
 /** Playback controls and scrubber for the global time cursor, shown while a source is active */
 export function TimelineBar() {
 	const source = useSource();
+	if (source?.type === 'log' && source.status === 'loading') {
+		return <LogProgress fileName={source.fileName} />;
+	}
 	return source ? <TimelineControls /> : null;
 }

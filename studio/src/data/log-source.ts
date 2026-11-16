@@ -3,12 +3,14 @@ import type { LogWorkerMessage } from '@/data/log-worker';
 import { Samples } from '@/data/samples';
 
 type LoadLogCallbacks = {
+	/** Called with the fraction of the log parsed, from 0 to 1 */
+	onProgress: (progress: number) => void;
 	onLoaded: (damaged: boolean) => void;
 	onError: (message: string) => void;
 };
 
 /** Parse a WPILOG file in a worker and add its entries to the data store. Returns a function that cancels loading. */
-export function loadLog(file: File, { onLoaded, onError }: LoadLogCallbacks): () => void {
+export function loadLog(file: File, { onProgress, onLoaded, onError }: LoadLogCallbacks): () => void {
 	const worker = new Worker(new URL('./log-worker.ts', import.meta.url), { type: 'module' });
 	let stopped = false;
 
@@ -24,6 +26,9 @@ export function loadLog(file: File, { onLoaded, onError }: LoadLogCallbacks): ()
 
 		const message = event.data;
 		switch (message.type) {
+			case 'progress':
+				onProgress(message.progress);
+				break;
 			case 'entry':
 				addEntry(
 					message.name,

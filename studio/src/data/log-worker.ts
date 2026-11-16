@@ -8,8 +8,13 @@ import {
 } from 'wpilog-parser';
 import { isSchemaEntry, normalizeEntryName, Samples, type Value } from '@/data/samples';
 
-/** Messages posted by the worker, in order: one `entry` per entry, then `done` or `error` */
+/** Messages posted by the worker, in order: `progress` while parsing, one `entry` per entry, then `done` or `error` */
 export type LogWorkerMessage =
+	| {
+			type: 'progress';
+			/** Fraction of the file parsed, from 0 to 1 */
+			progress: number;
+	  }
 	| {
 			type: 'entry';
 			name: string;
@@ -110,14 +115,24 @@ function parse(bytes: Uint8Array): void {
 	let end: number | undefined;
 	let damaged = false;
 
+	const records = parseDataLog(bytes);
+	let percent = 0;
+
 	try {
-		for (const record of parseDataLog(bytes)) {
+		for (const record of records) {
+			// Only report whole percent changes, so the main thread isn't flooded with messages
+			const nextPercent = Math.floor((records.bytesRead / bytes.byteLength) * 100);
+			if (nextPercent !== percent) {
+				percent = nextPercent;
+				postMessage({ type: 'progress', progress: percent / 100 } satisfies LogWorkerMessage);
+			}
+
 			if (!isDataRecord(record)) {
 				handleControlRecord(record.payload, entries, names);
 				continue;
 			}
 
-			const entry = entries.get(record.name);
+			const entry = entries.get(normalizeEntryName(record.entry.name));
 			if (!entry) {
 				continue;
 			}
@@ -126,7 +141,7 @@ function parse(bytes: Uint8Array): void {
 				continue;
 			}
 
-			const timestamp = Number(record.timestamp);
+			const { timestamp } = record;
 			entry.samples.push(timestamp, value);
 			start = start === undefined ? timestamp : Math.min(start, timestamp);
 			end = end === undefined ? timestamp : Math.max(end, timestamp);
