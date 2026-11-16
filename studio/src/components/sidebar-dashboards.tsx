@@ -20,6 +20,8 @@ import {
 	SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { TooltipLabel } from '@/components/tooltip-label';
+import { DashboardPreview } from '@/components/dashboard-preview';
+import { PreviewCard, PreviewCardPopup, PreviewCardTrigger } from '@/components/ui/preview-card';
 import { Kbd } from '@/components/ui/kbd';
 import { dashboardShortcut, newDashboard, shortcuts } from '@/commands';
 import { type Dashboard, moveDashboard, renameDashboard, useDashboards } from '@/dashboards';
@@ -82,6 +84,7 @@ export function SidebarDashboards() {
 
 function DashboardItem({ dashboard, index, onClose }: { dashboard: Dashboard; index: number; onClose: () => void }) {
 	const matchRoute = useMatchRoute();
+	const active = Boolean(matchRoute({ to: '/dashboards/$dashboardId', params: { dashboardId: dashboard.id } }));
 	const [renaming, setRenaming] = useState(false);
 	const { ref, handleRef } = useSortable({ id: dashboard.id, index, disabled: renaming });
 	const shortcut = dashboardShortcut(index);
@@ -120,18 +123,30 @@ function DashboardItem({ dashboard, index, onClose }: { dashboard: Dashboard; in
 				/>
 			) : (
 				<>
-					<SidebarMenuButton
-						isActive={Boolean(matchRoute({ to: '/dashboards/$dashboardId', params: { dashboardId: dashboard.id } }))}
-						render={<Link to="/dashboards/$dashboardId" params={{ dashboardId: dashboard.id }} />}
-						ref={handleRef}
-						// Keeps the link a link, dnd-kit makes drag handles without a role into buttons
-						role="link"
-						onDoubleClick={() => setRenaming(true)}
-						tooltip={{ children: <TooltipLabel label={dashboard.name} shortcut={shortcut} /> }}
-					>
-						<LayoutDashboardIcon />
-						<span>{dashboard.name}</span>
-					</SidebarMenuButton>
+					<PreviewCard>
+						<PreviewCardTrigger
+							render={
+								<SidebarMenuButton
+									isActive={active}
+									render={<Link to="/dashboards/$dashboardId" params={{ dashboardId: dashboard.id }} />}
+									ref={handleRef}
+									// Keeps the link a link, dnd-kit makes drag handles without a role into buttons
+									role="link"
+									onDoubleClick={() => setRenaming(true)}
+									tooltip={{ children: <TooltipLabel label={dashboard.name} shortcut={shortcut} /> }}
+								/>
+							}
+						>
+							<LayoutDashboardIcon />
+							<span>{dashboard.name}</span>
+						</PreviewCardTrigger>
+						{/* Only previews other dashboards, the selected one is already on screen. A single empty pane has nothing to preview. */}
+						{!active && !(dashboard.layout.kind === 'pane' && dashboard.layout.widget === undefined) && (
+							<PreviewCardPopup side="right" align="start" className="w-auto p-2">
+								<DashboardPreview layout={dashboard.layout} />
+							</PreviewCardPopup>
+						)}
+					</PreviewCard>
 					<Menu>
 						<MenuTrigger render={<SidebarMenuAction showOnHover className={showShortcut ? 'invisible' : undefined} />}>
 							<EllipsisIcon />

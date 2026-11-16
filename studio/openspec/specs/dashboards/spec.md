@@ -40,6 +40,26 @@ Users SHALL be able to rename a dashboard inline in the sidebar.
 - **WHEN** the user double-clicks a dashboard in the sidebar
 - **THEN** its name becomes editable in place
 
+### Requirement: Preview a dashboard
+
+Hovering a dashboard in the sidebar SHALL show a miniature of its pane layout, with each pane showing its widget's icon. The selected dashboard MUST NOT show a preview, since it's already on screen. A dashboard whose layout is a single empty pane MUST NOT show a preview.
+
+#### Scenario: Hover another dashboard
+
+- **WHEN** the user hovers a dashboard that isn't selected
+- **THEN** a miniature of its pane layout is shown next to it
+
+#### Scenario: Hover the selected dashboard
+
+- **WHEN** the user hovers the selected dashboard
+- **THEN** no preview is shown
+
+#### Scenario: Hover an empty dashboard
+
+- **GIVEN** a dashboard whose only pane is empty
+- **WHEN** the user hovers it
+- **THEN** no preview is shown
+
 ### Requirement: Reorder dashboards
 
 Users SHALL be able to reorder dashboards in the sidebar by dragging them.
