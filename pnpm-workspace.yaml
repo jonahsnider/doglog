@@ -30,3 +30,5 @@ packageExtensions:
 minimumReleaseAgeExclude:
   - starlight-changelogs@0.7.0
   - '@team581/starlight-theme@1.0.0'
+patchedDependencies:
+  '@ntcore-ts/client': patches/@ntcore-ts__client.patch

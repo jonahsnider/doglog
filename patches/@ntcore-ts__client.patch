@@ -1,0 +1,28 @@
+diff --git a/dist/index.esm.js b/dist/index.esm.js
+index a31aa17210f2313402559392e5e98c33b75084ec..dc04eeed5d3327c8ff65a63a46ffae4c15b71358 100644
+--- a/dist/index.esm.js
++++ b/dist/index.esm.js
+@@ -1439,7 +1439,9 @@ const topicPropertiesSchema = z
+     retained: z.boolean(),
+     cached: z.boolean(),
+ })
+-    .partial();
++    .partial()
++    // Keep other properties, ex. `unit`
++    .loose();
+ /** Schema for a topic in the NT protocol. */
+ const topicSchema = z.object({
+     name: z.string(),
+@@ -3875,6 +3877,12 @@ class PubSubClient {
+          * @param params - The properties message parameters.
+          */
+         this.onTopicProperties = (params) => {
++            // Let prefix topics see property changes, ex. to read `unit`
++            this.prefixTopics.forEach((prefixTopic) => {
++                if (params.name.startsWith(prefixTopic.name)) {
++                    prefixTopic.onProperties?.(params);
++                }
++            });
+             const topic = this.topics.get(params.name);
+             if (params.ack) {
+                 if (!topic) {

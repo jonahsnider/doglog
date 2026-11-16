@@ -1,6 +1,6 @@
 import { LogLevel, NetworkTables, type NetworkTablesTypes } from '@ntcore-ts/client';
 import { StructRegistry } from 'wpilib-struct';
-import { addEntry, addSample, type Entry, setStartTime } from '@/data/data-store';
+import { addEntry, addSample, type Entry, getEntry, parseMetadata, setMetadata, setStartTime } from '@/data/data-store';
 import { isSchemaEntry, normalizeEntryName, type Value } from '@/data/samples';
 
 export type LiveStatus = 'connecting' | 'connected' | 'disconnected';
@@ -8,6 +8,9 @@ export type LiveStatus = 'connecting' | 'connected' | 'disconnected';
 NetworkTables.setLogLevel(LogLevel.WARN);
 
 const structSchemaPrefix = '/.schema/struct:';
+
+/** Called by our @ntcore-ts/client patch when topic properties change. `null` values remove a property. */
+type PropertiesListener = (params: { name: string; update: Record<string, unknown> }) => void;
 const textDecoder = new TextDecoder();
 
 /** Live sample timestamps use this clock (microseconds), so history stays in order when the robot reboots and its clock resets */
@@ -104,8 +107,21 @@ export function connectLive(host: string, onStatus: (status: LiveStatus) => void
 		announce(params);
 		const name = normalizeEntryName(params.name);
 		if (!closed && !isSchemaEntry(name)) {
-			addEntry(name, params.type);
+			addEntry(name, params.type, undefined, parseMetadata(params.properties));
 		}
+	};
+	(topic as typeof topic & { onProperties?: PropertiesListener }).onProperties = ({ name, update }) => {
+		const entry = getEntry(normalizeEntryName(name));
+		if (closed || !entry) {
+			return;
+		}
+		const metadata = { ...entry.metadata, ...parseMetadata(update) };
+		for (const [key, value] of Object.entries(update)) {
+			if (value === null) {
+				delete metadata[key];
+			}
+		}
+		setMetadata(entry, metadata);
 	};
 
 	topic.subscribe(

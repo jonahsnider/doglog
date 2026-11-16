@@ -1,6 +1,7 @@
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import { useSyncExternalStore } from 'react';
+import * as z from 'zod';
 import { type EntryKind, getEntryKind, Samples, trimOldest, type Value } from '@/data/samples';
 
 export type Entry = {
@@ -11,7 +12,23 @@ export type Entry = {
 	readonly kind: EntryKind;
 	/** Mutated in place as data arrives, read it when rendering instead of copying it into React state */
 	readonly samples: Samples;
+	/** WPILOG entry metadata or NT4 topic properties, ex. `{ "unit": "deg" }`. Replaced when it changes, like `samples`. */
+	metadata: Readonly<Record<string, unknown>>;
 };
+
+const metadataSchema = z.record(z.string(), z.unknown()).catch({});
+
+/** Parse entry metadata from a WPILOG metadata string or NT4 topic properties, invalid metadata is empty */
+export function parseMetadata(metadata: unknown): Record<string, unknown> {
+	if (typeof metadata !== 'string') {
+		return metadataSchema.parse(metadata);
+	}
+	try {
+		return metadataSchema.parse(JSON.parse(metadata));
+	} catch {
+		return {};
+	}
+}
 
 /** Times in microseconds, on the same clock as sample timestamps. @public */
 export type TimeRange = {
@@ -87,18 +104,34 @@ export function clearData(): void {
 	scheduleFlush();
 }
 
-/** Add an entry, or replace it with an empty entry if its type changed */
-export function addEntry(name: string, type: string, samples = new Samples()): Entry {
+/** Add an entry, or replace it with an empty entry if its type changed. Updates the entry's metadata when `metadata` is given. */
+export function addEntry(
+	name: string,
+	type: string,
+	samples = new Samples(),
+	metadata?: Record<string, unknown>,
+): Entry {
 	const existing = entries.get(name);
 	if (existing?.type === type) {
+		if (metadata !== undefined) {
+			setMetadata(existing, metadata);
+		}
 		return existing;
 	}
 
-	const entry: Entry = { name, type, kind: getEntryKind(type), samples };
+	const entry: Entry = { name, type, kind: getEntryKind(type), samples, metadata: metadata ?? {} };
 	entries.set(name, entry);
 	entriesChanged = true;
 	scheduleFlush();
 	return entry;
+}
+
+/** Replace an entry's metadata, ex. when NT4 topic properties change */
+export function setMetadata(entry: Entry, metadata: Record<string, unknown>): void {
+	entry.metadata = metadata;
+	// Widgets re-render on data changes, metadata can change how they show values
+	dataChanged = true;
+	scheduleFlush();
 }
 
 /** Add a sample to an entry's history, dropping the oldest history once it gets too large */

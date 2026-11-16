@@ -1,10 +1,24 @@
 // Parses WPILOG files off the main thread so the UI stays responsive while large logs load
-import { type DataRecord, isDataRecord, parseDataLog } from 'wpilog-parser';
+import {
+	type ControlRecordPayload,
+	ControlRecordType,
+	type DataRecord,
+	isDataRecord,
+	parseDataLog,
+} from 'wpilog-parser';
 import { isSchemaEntry, normalizeEntryName, Samples, type Value } from '@/data/samples';
 
 /** Messages posted by the worker, in order: one `entry` per entry, then `done` or `error` */
 export type LogWorkerMessage =
-	| { type: 'entry'; name: string; entryType: string; timestamps: Float64Array<ArrayBuffer>; values: Value[] }
+	| {
+			type: 'entry';
+			name: string;
+			entryType: string;
+			/** The entry's latest metadata string */
+			metadata: string;
+			timestamps: Float64Array<ArrayBuffer>;
+			values: Value[];
+	  }
 	| {
 			type: 'done';
 			/** Timestamp of the first data record */
@@ -56,8 +70,42 @@ function endsCleanly(bytes: Uint8Array): boolean {
 	return offset === bytes.byteLength;
 }
 
+type ParsedEntry = { type: string; metadata: string; samples: Samples };
+
+/** Add entries from start records and update their metadata, `names` maps entry IDs to names since set metadata records only have the ID */
+function handleControlRecord(
+	payload: ControlRecordPayload,
+	entries: Map<string, ParsedEntry>,
+	names: Map<number, string>,
+): void {
+	if (payload.controlRecordType === ControlRecordType.SetMetadata) {
+		const entry = entries.get(names.get(payload.entryId) ?? '');
+		if (entry) {
+			entry.metadata = payload.entryMetadata;
+		}
+		return;
+	}
+	if (payload.controlRecordType !== ControlRecordType.Start) {
+		return;
+	}
+
+	const name = normalizeEntryName(payload.entryName);
+	// The parser reads schemas itself
+	if (isSchemaEntry(name)) {
+		return;
+	}
+	names.set(payload.entryId, name);
+	const existing = entries.get(name);
+	if (existing?.type === payload.entryType) {
+		existing.metadata = payload.entryMetadata;
+	} else {
+		entries.set(name, { type: payload.entryType, metadata: payload.entryMetadata, samples: new Samples() });
+	}
+}
+
 function parse(bytes: Uint8Array): void {
-	const entries = new Map<string, { type: string; samples: Samples }>();
+	const entries = new Map<string, ParsedEntry>();
+	const names = new Map<number, string>();
 	let start: number | undefined;
 	let end: number | undefined;
 	let damaged = false;
@@ -65,19 +113,7 @@ function parse(bytes: Uint8Array): void {
 	try {
 		for (const record of parseDataLog(bytes)) {
 			if (!isDataRecord(record)) {
-				const { payload } = record;
-				// Only start records define entries
-				if (payload.controlRecordType !== 0) {
-					continue;
-				}
-				const name = normalizeEntryName(payload.entryName);
-				// The parser reads schemas itself
-				if (isSchemaEntry(name)) {
-					continue;
-				}
-				if (entries.get(name)?.type !== payload.entryType) {
-					entries.set(name, { type: payload.entryType, samples: new Samples() });
-				}
+				handleControlRecord(record.payload, entries, names);
 				continue;
 			}
 
@@ -104,11 +140,12 @@ function parse(bytes: Uint8Array): void {
 	}
 	damaged ||= !endsCleanly(bytes);
 
-	for (const [name, { type, samples }] of entries) {
+	for (const [name, { type, metadata, samples }] of entries) {
 		const message: LogWorkerMessage = {
 			type: 'entry',
 			name,
 			entryType: type,
+			metadata,
 			timestamps: samples.timestamps,
 			values: samples.values,
 		};

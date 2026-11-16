@@ -4,7 +4,7 @@ import { Samples } from './data/samples.ts';
 import { buildKeyTree, visibleKeyRows } from './key-tree.ts';
 
 function entries(...names: string[]): Entry[] {
-	return names.map((name) => ({ name, type: 'double', kind: 'number', samples: new Samples() }));
+	return names.map((name) => ({ name, type: 'double', kind: 'number', samples: new Samples(), metadata: {} }));
 }
 
 const tree = buildKeyTree(entries('/Arm', '/Arm/Angle', '/Arm/Velocity', '/Drive/Module10', '/Drive/Module2', '/Time'));

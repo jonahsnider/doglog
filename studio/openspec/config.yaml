@@ -17,7 +17,8 @@ context: |
   - Charts: Base UI charts once released. It has not shipped yet; a temporary chart library is acceptable if it
     supports real-time streaming, as long as it stays behind the widget contract so it can be swapped later.
   - Core logic: TypeScript. Avoid other languages for core logic unless there's a strong reason.
-  - WPILOG parsing: wpilog-parser. NT4 client: @ntcore-ts/client.
+  - WPILOG parsing: wpilog-parser. NT4 client: @ntcore-ts/client, patched with `pnpm patch` so topic properties
+    (ex. `unit`) pass through its schema instead of being stripped, until that's fixed upstream.
   - Distribution: a PWA website, plus a Tauri desktop app built from the same frontend.
   - State: TanStack Store, with Zod validating all persisted and external data.
   - Interactions: dnd-kit for drag and drop, react-resizable-panels for pane splits, TanStack Hotkeys for shortcuts.

@@ -125,6 +125,25 @@ Studio SHALL decode numeric, boolean, string, array, and WPILib struct entries. 
 - **THEN** the entry appears in the key browser marked as unsupported
 - **AND** it cannot be bound to widgets
 
+### Requirement: Entry metadata
+
+Studio SHALL read each entry's JSON metadata from WPILOG entry metadata and from NT4 topic properties, and MUST use the most recent metadata when it changes. Metadata that isn't valid JSON SHALL be treated as empty.
+
+#### Scenario: Log metadata
+
+- **GIVEN** a log entry `/Arm/Angle` with metadata `{"unit": "deg"}`
+- **THEN** Studio knows `/Arm/Angle` is in degrees
+
+#### Scenario: Live topic properties
+
+- **GIVEN** Studio is connected to a robot publishing `/Arm/Angle` with the topic property `"unit": "deg"`
+- **THEN** Studio knows `/Arm/Angle` is in degrees
+
+#### Scenario: Metadata changes
+
+- **GIVEN** a log entry's metadata is set to `{"unit": "rad"}` and later to `{"unit": "deg"}`
+- **THEN** Studio uses `{"unit": "deg"}`
+
 ### Requirement: Connect target selection
 
 Connect SHALL try the robot connection target and the simulator at the same time, connect to the robot if it is reachable and otherwise to the simulator, and MUST keep trying both until one is reachable without showing an error.

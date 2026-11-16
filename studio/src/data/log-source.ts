@@ -1,4 +1,4 @@
-import { addEntry, extendTimeRange, setStartTime } from '@/data/data-store';
+import { addEntry, extendTimeRange, parseMetadata, setStartTime } from '@/data/data-store';
 import type { LogWorkerMessage } from '@/data/log-worker';
 import { Samples } from '@/data/samples';
 
@@ -25,7 +25,12 @@ export function loadLog(file: File, { onLoaded, onError }: LoadLogCallbacks): ()
 		const message = event.data;
 		switch (message.type) {
 			case 'entry':
-				addEntry(message.name, message.entryType, new Samples(message.timestamps, message.values));
+				addEntry(
+					message.name,
+					message.entryType,
+					new Samples(message.timestamps, message.values),
+					parseMetadata(message.metadata),
+				);
 				break;
 			case 'done':
 				stop();

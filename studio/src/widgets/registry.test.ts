@@ -4,7 +4,7 @@ import { getEntryKind, Samples } from '@/data/samples';
 import { defaultWidget } from '@/widgets/registry';
 
 function entry(name: string, type: string): Entry {
-	return { name, type, kind: getEntryKind(type), samples: new Samples() };
+	return { name, type, kind: getEntryKind(type), samples: new Samples(), metadata: {} };
 }
 
 test.each([
