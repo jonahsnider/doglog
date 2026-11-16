@@ -144,12 +144,17 @@ Double-clicking a bindable entry SHALL add it to the open dashboard using the en
 
 ### Requirement: Entry context menu
 
-Right-clicking an entry SHALL open a context menu with Add to dashboard and Copy name.
+Right-clicking an entry SHALL open a context menu with Add to dashboard, Copy name, and Copy value.
 
 #### Scenario: Copy name
 
 - **WHEN** the user right-clicks `/Arm/Angle` and chooses Copy name
 - **THEN** `/Arm/Angle` is copied to the clipboard
+
+#### Scenario: Copy value
+
+- **WHEN** the user right-clicks an entry and chooses Copy value
+- **THEN** its value at the cursor is copied to the clipboard as JSON, except plain strings which are copied without quotes
 
 #### Scenario: Add to dashboard
 

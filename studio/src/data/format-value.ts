@@ -29,3 +29,13 @@ export function formatValue(value: Formattable): string {
 function formatNested(value: Formattable): string {
 	return typeof value === 'string' ? JSON.stringify(value) : formatValue(value);
 }
+
+/** Format a value for the clipboard, JSON except plain strings which aren't quoted */
+export function formatValueForCopy(value: Formattable): string {
+	if (typeof value === 'string') {
+		return value;
+	}
+
+	// JSON has no bigints, struct int64 fields beyond 2^53 lose precision
+	return JSON.stringify(value, (_key, field: unknown) => (typeof field === 'bigint' ? Number(field) : field)) ?? '';
+}

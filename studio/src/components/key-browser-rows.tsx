@@ -10,11 +10,11 @@ import { TooltipCreateHandle, TooltipTrigger } from '@/components/ui/tooltip';
 import { MarkTooltip, TypeMark } from '@/components/value-marks';
 import { addDashboardWidget } from '@/dashboards';
 import { type Entry, useDataVersion } from '@/data/data-store';
-import { formatValue } from '@/data/format-value';
+import { formatValue, formatValueForCopy } from '@/data/format-value';
 import { type EntryDragData, entryDragType } from '@/entry-drag';
 import type { KeyRow, KeyTreeView } from '@/key-tree';
 import { cn } from '@/lib/utils';
-import { useCursorTime } from '@/timeline';
+import { getCursorTime, useCursorTime } from '@/timeline';
 import { defaultWidget } from '@/widgets/registry';
 
 /** Rows have a fixed height so only the rows in view need to be rendered */
@@ -133,6 +133,7 @@ const KeyRowView = memo(function KeyRowView({
 		? [
 				{ label: 'Add to dashboard', icon: LayoutGridIcon, disabled: !add, onSelect: () => add?.() },
 				{ label: 'Copy name', icon: CopyIcon, onSelect: () => void navigator.clipboard.writeText(entry.name) },
+				{ label: 'Copy value', icon: CopyIcon, disabled: unsupported, onSelect: () => copyValue(entry) },
 			]
 		: [];
 
@@ -180,6 +181,15 @@ const KeyRowView = memo(function KeyRowView({
 		</AppContextMenu>
 	);
 });
+
+/** Copies the value at the cursor, read when chosen since rows don't re-render as the cursor moves */
+function copyValue(entry: Entry): void {
+	const time = getCursorTime();
+	const value = time === undefined ? undefined : entry.samples.valueAt(time);
+	if (value !== undefined) {
+		void navigator.clipboard.writeText(formatValueForCopy(value));
+	}
+}
 
 function EntryValue({ entry }: { entry: Entry }) {
 	const time = useCursorTime();
