@@ -66,6 +66,8 @@ export function SidebarDashboards() {
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton
+							// Muted to set it apart from the dashboards below it
+							className="text-sidebar-foreground/70 hover:text-sidebar-foreground/70 active:text-sidebar-foreground/70"
 							tooltip={{ children: <TooltipLabel label="New dashboard" shortcut={shortcuts.newDashboard} /> }}
 							onClick={() => newDashboard(router)}
 						>
