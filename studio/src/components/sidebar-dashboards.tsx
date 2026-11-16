@@ -23,6 +23,7 @@ import { DashboardPreview } from '@/components/dashboard-preview';
 import { PreviewCard, PreviewCardPopup, PreviewCardTrigger } from '@/components/ui/preview-card';
 import { Kbd } from '@/components/ui/kbd';
 import { dashboardShortcut, newDashboard, shortcuts } from '@/commands';
+import { dashboardName, mainWidgetType, suggestDashboardName } from '@/dashboard-label';
 import { type Dashboard, moveDashboard, renameDashboard, useDashboards } from '@/dashboards';
 
 const sensors = [
@@ -96,6 +97,8 @@ function DashboardItem({
 	const [hintDelayed] = useDebounceValue(shortcutHinted, 300);
 	const showShortcut = shortcutHinted && hintDelayed;
 	const formatForDisplay = useFormatForDisplay();
+	const name = dashboardName(dashboard);
+	const Icon = mainWidgetType(dashboard.layout)?.icon ?? LayoutDashboardIcon;
 	// Disabled rather than hidden like in a browser's tab menu, so the menu's layout doesn't shift
 	const isOnly = dashboards.length === 1;
 	const isLast = index === dashboards.length - 1;
@@ -120,7 +123,9 @@ function DashboardItem({
 			{renaming ? (
 				<SidebarInput
 					aria-label="Dashboard name"
-					defaultValue={dashboard.name}
+					// Starts blank for a suggested name, so it keeps following the dashboard's contents unless a name is typed
+					defaultValue={dashboard.name ?? ''}
+					placeholder={suggestDashboardName(dashboard.layout)}
 					autoFocus
 					onFocus={(event) => event.currentTarget.select()}
 					onBlur={(event) => {
@@ -131,7 +136,7 @@ function DashboardItem({
 						if (event.key === 'Enter') {
 							event.currentTarget.blur();
 						} else if (event.key === 'Escape') {
-							event.currentTarget.value = dashboard.name;
+							event.currentTarget.value = dashboard.name ?? '';
 							event.currentTarget.blur();
 						}
 					}}
@@ -148,12 +153,12 @@ function DashboardItem({
 									// Keeps the link a link, dnd-kit makes drag handles without a role into buttons
 									role="link"
 									onDoubleClick={() => setRenaming(true)}
-									tooltip={{ children: <TooltipLabel label={dashboard.name} shortcut={shortcut} /> }}
+									tooltip={{ children: <TooltipLabel label={name} shortcut={shortcut} /> }}
 								/>
 							}
 						>
-							<LayoutDashboardIcon />
-							<span>{dashboard.name}</span>
+							<Icon />
+							<span>{name}</span>
 						</PreviewCardTrigger>
 						{/* Only previews other dashboards, the selected one is already on screen. A single empty pane has nothing to preview. */}
 						{!active && !(dashboard.layout.kind === 'pane' && dashboard.layout.widget === undefined) && (

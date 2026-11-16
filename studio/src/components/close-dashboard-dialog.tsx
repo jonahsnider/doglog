@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { closeConfirmation } from '@/close-dashboard';
+import { dashboardName } from '@/dashboard-label';
 import { deleteDashboards } from '@/dashboards';
 
 export function CloseDashboardDialog() {
@@ -21,7 +22,7 @@ export function CloseDashboardDialog() {
 			<AlertDialogPopup>
 				<AlertDialogHeader>
 					<AlertDialogTitle>
-						Delete {dashboards.length === 1 ? first?.name : `${dashboards.length} dashboards`}?
+						Delete {dashboards.length === 1 ? first && dashboardName(first) : `${dashboards.length} dashboards`}?
 					</AlertDialogTitle>
 					<AlertDialogDescription>
 						{dashboards.length === 1

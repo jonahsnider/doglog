@@ -21,7 +21,8 @@ import { widgetConfigSchema } from '@/widgets/widget-type';
 
 const dashboardSchema = z.object({
 	id: z.string(),
-	name: z.string(),
+	/** Set when the user renames the dashboard, otherwise a name is suggested from its contents with `dashboardName()` */
+	name: z.string().optional(),
 	layout: paneNodeSchema.catch(() => createPane()),
 	/** The pane the user last interacted with, use `getFocusedPane()` since it can be outdated */
 	focusedPaneId: z.string().optional().catch(undefined),
@@ -34,12 +35,12 @@ const dashboardsSchema = z
 	.array(dashboardSchema.nullable().catch(null))
 	.transform((dashboards) => dashboards.filter((dashboard) => dashboard !== null));
 
-function newDashboard(name: string): Dashboard {
-	return { id: crypto.randomUUID(), name, layout: createPane() };
+function newDashboard(): Dashboard {
+	return { id: crypto.randomUUID(), layout: createPane() };
 }
 
 /** Dashboards in sidebar order, first launch starts with one empty dashboard */
-const store = createPersistedAtom('dashboards', dashboardsSchema, [newDashboard('Dashboard 1')]);
+const store = createPersistedAtom('dashboards', dashboardsSchema, [newDashboard()]);
 
 export function useDashboards(): Dashboard[] {
 	return useSelector(store);
@@ -53,15 +54,9 @@ export function getDashboard(id: string): Dashboard | undefined {
 	return store.get().find((dashboard) => dashboard.id === id);
 }
 
-/** Create an empty, auto-named dashboard at the top or bottom of the list */
+/** Create an empty dashboard at the top or bottom of the list */
 export function createDashboard(position: 'top' | 'bottom' = 'top'): Dashboard {
-	const names = new Set(store.get().map((dashboard) => dashboard.name));
-	let number = 1;
-	while (names.has(`Dashboard ${number}`)) {
-		number++;
-	}
-
-	const dashboard = newDashboard(`Dashboard ${number}`);
+	const dashboard = newDashboard();
 	store.set((dashboards) => (position === 'top' ? [dashboard, ...dashboards] : [...dashboards, dashboard]));
 	return dashboard;
 }
@@ -70,12 +65,10 @@ function updateDashboard(id: string, update: (dashboard: Dashboard) => Dashboard
 	store.set((dashboards) => dashboards.map((dashboard) => (dashboard.id === id ? update(dashboard) : dashboard)));
 }
 
-/** Blank names are ignored */
+/** A blank name goes back to suggesting one from the dashboard's contents */
 export function renameDashboard(id: string, name: string): void {
 	const trimmed = name.trim();
-	if (trimmed !== '') {
-		updateDashboard(id, (dashboard) => ({ ...dashboard, name: trimmed }));
-	}
+	updateDashboard(id, (dashboard) => ({ ...dashboard, name: trimmed === '' ? undefined : trimmed }));
 }
 
 /** Move a dashboard so it ends up at `index` */

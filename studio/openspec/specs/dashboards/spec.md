@@ -18,22 +18,71 @@ Dashboards SHALL reference data only by entry name, so the same dashboard works 
 
 ### Requirement: Create a dashboard
 
-Users SHALL be able to create a new, empty dashboard from the sidebar. New dashboards MUST be auto-named and added to the top of the dashboard list.
+Users SHALL be able to create a new, empty dashboard from the sidebar. New dashboards MUST be added to the top of the dashboard list.
 
 #### Scenario: New dashboard
 
 - **WHEN** the user presses New dashboard
-- **THEN** an empty, auto-named dashboard is added to the top of the list
+- **THEN** an empty dashboard is added to the top of the list
 - **AND** it is opened
+
+### Requirement: Suggested names
+
+A dashboard the user hasn't named SHALL be named after its contents, updating as they change. Each widget MUST contribute the first path segment of its entries, skipping the `/Robot` prefix and capitalizing the first letter. A widget without entries, or with only its widget type's default entries, MUST contribute its widget type's name instead. Past three names, the rest MUST be counted.
+
+#### Scenario: Name from entries
+
+- **GIVEN** a dashboard the user hasn't named
+- **WHEN** it shows `/Robot/Localization/Pose` and `/Robot/Intake/Speed`
+- **THEN** it's named "Localization & Intake"
+
+#### Scenario: Many topics
+
+- **GIVEN** a dashboard the user hasn't named
+- **WHEN** it shows entries from Swerve, Drive, Shooter, and Vision
+- **THEN** it's named "Swerve, Drive & 2 more"
+
+#### Scenario: Empty dashboard name
+
+- **GIVEN** a dashboard the user hasn't named
+- **WHEN** it has no widgets
+- **THEN** it's named "Empty dashboard"
+
+#### Scenario: Default console
+
+- **GIVEN** a dashboard the user hasn't named
+- **WHEN** it only has a console showing `/console` and `/messages`
+- **THEN** it's named "Console"
+
+#### Scenario: Named dashboards keep their name
+
+- **GIVEN** a dashboard the user renamed to "Arm tuning"
+- **WHEN** a widget is added to it
+- **THEN** it's still named "Arm tuning"
+
+### Requirement: Dashboard icons
+
+A dashboard's icon in the sidebar SHALL be the icon of the widget in its biggest pane, the first one in layout order on ties. Empty panes MUST be ignored. A dashboard without widgets MUST show a generic dashboard icon.
+
+#### Scenario: Icon follows contents
+
+- **GIVEN** a dashboard with a console taking up most of it and two smaller values tables
+- **THEN** its sidebar icon is the console's icon
 
 ### Requirement: Rename a dashboard
 
-Users SHALL be able to rename a dashboard inline in the sidebar.
+Users SHALL be able to rename a dashboard inline in the sidebar. The name field MUST show the suggested name as a placeholder, and a blank name MUST go back to the suggested name.
 
 #### Scenario: Inline rename
 
 - **WHEN** the user renames a dashboard to "Arm tuning"
 - **THEN** the sidebar shows "Arm tuning"
+
+#### Scenario: Clear a name
+
+- **GIVEN** a dashboard the user renamed
+- **WHEN** the user renames it to a blank name
+- **THEN** it's named after its contents again
 
 #### Scenario: Double-click to rename
 
