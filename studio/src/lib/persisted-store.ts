@@ -39,7 +39,13 @@ export function createPersistedAtom<T>(
 
 	// Save right away so generated defaults, ex. new IDs, stay the same after a reload
 	writeStorage(key, atom.get());
-	atom.subscribe((value) => writeStorage(key, value));
+	let followingStorage = false;
+	atom.subscribe((value) => {
+		// Values from other windows are already saved, saving them again could overwrite a newer value
+		if (!followingStorage) {
+			writeStorage(key, value);
+		}
+	});
 
 	// Other tabs and windows save to the same storage, follow their changes so they don't overwrite each other
 	// Tests run without a DOM
@@ -51,7 +57,12 @@ export function createPersistedAtom<T>(
 
 			const changed = schema.safeParse(readStorage(key));
 			if (changed.success) {
-				atom.set(changed.data);
+				followingStorage = true;
+				try {
+					atom.set(changed.data);
+				} finally {
+					followingStorage = false;
+				}
 			}
 		});
 	}
