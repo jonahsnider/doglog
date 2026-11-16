@@ -64,7 +64,13 @@ The desktop app SHALL update itself automatically.
 
 - **GIVEN** a newer desktop version is released
 - **WHEN** the user opens the desktop app with internet access
-- **THEN** the update is installed without the user downloading it manually
+- **THEN** the bottom of the sidebar shows a button to update to that version
+- **AND** clicking it installs the update and restarts Studio, without the user downloading it manually
+
+#### Scenario: No internet at an event
+
+- **WHEN** the user opens the desktop app with no internet connection
+- **THEN** Studio opens normally without showing an update error
 
 ### Requirement: App icon
 

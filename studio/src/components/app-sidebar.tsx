@@ -1,7 +1,7 @@
 import { useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
 import { Link, useMatchRoute } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
-import { FolderSyncIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, SettingsIcon } from 'lucide-react';
+import { CircleArrowUpIcon, FolderSyncIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, SettingsIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import * as z from 'zod';
 import {
@@ -22,10 +22,12 @@ import { SourceControl } from '@/components/source-control';
 import { SidebarDashboards } from '@/components/sidebar-dashboards';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { Kbd } from '@/components/ui/kbd';
+import { Spinner } from '@/components/ui/spinner';
 import { shortcuts } from '@/commands';
 import { deleteDashboards, useDashboards } from '@/dashboards';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { cn } from '@/lib/utils';
+import { installUpdate, useUpdate } from '@/updater';
 import { useWindowColor } from '@/window-color';
 
 const collapsedStore = createPersistedAtom('sidebar-collapsed', z.boolean(), false, { perWindow: true });
@@ -44,6 +46,7 @@ export function AppSidebar() {
 	const collapsed = useSelector(collapsedStore);
 	const dashboards = useDashboards();
 	const windowColor = useWindowColor();
+	const update = useUpdate();
 	// Showing the collapsed sidebar over the dashboard while it's hovered
 	const [peeking, setPeeking] = useState(false);
 	// Toggling with the keyboard skips the animation, clicking and peeking keep it
@@ -182,6 +185,18 @@ export function AppSidebar() {
 					</SidebarContent>
 					<SidebarFooter>
 						<SidebarMenu>
+							{update && (
+								<SidebarMenuItem>
+									<SidebarMenuButton
+										disabled={update.installing}
+										onClick={() => void installUpdate(update.update)}
+										tooltip={`Update to ${update.update.version}`}
+									>
+										{update.installing ? <Spinner /> : <CircleArrowUpIcon className="text-sidebar-primary" />}
+										<span>{update.installing ? 'Updating…' : `Update to ${update.update.version}`}</span>
+									</SidebarMenuButton>
+								</SidebarMenuItem>
+							)}
 							<SidebarMenuItem>
 								<SidebarMenuButton
 									aria-expanded={!collapsed}

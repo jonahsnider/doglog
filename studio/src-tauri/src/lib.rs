@@ -36,6 +36,8 @@ fn handle_run_event(app: &AppHandle, event: RunEvent) {
 pub fn run() {
   tauri::Builder::default()
     .plugin(tauri_plugin_dialog::init())
+    .plugin(tauri_plugin_process::init())
+    .plugin(tauri_plugin_updater::Builder::new().build())
     .manage(OpenedLog::default())
     .invoke_handler(tauri::generate_handler![take_opened_log, read_file])
     .setup(|app| {
