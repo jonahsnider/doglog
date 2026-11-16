@@ -60,7 +60,7 @@ context: |
   - Choosing robot-relative or field-relative for `ChassisSpeeds` in the swerve widget (currently always
     robot-relative).
   - Unit inference beyond angles (ex. distance, velocity).
-  - A command palette. Connect may move off ⌘K to make room for it.
+  - A command palette. ⇧⌘P or ⌘P.
 
   Open questions:
   - Whether the sidebar's dashboard list fits every page long term, or pages need their own secondary content.
