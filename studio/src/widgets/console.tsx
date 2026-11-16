@@ -256,7 +256,7 @@ export function Console({ bindings }: WidgetProps) {
 								)}
 								style={{ transform: `translateY(${item.start}px)` }}
 							>
-								<span className="min-w-[9ch] shrink-0 text-right text-muted-foreground tabular-nums">
+								<span className="min-w-[9ch] shrink-0 text-right text-muted-foreground tabular-nums select-none">
 									{formatTime(messages.times[item.index]!, range?.start ?? 0)}
 								</span>
 								<span className="min-w-0 break-words whitespace-pre-wrap">

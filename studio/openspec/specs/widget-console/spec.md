@@ -8,12 +8,17 @@ Define the console widget, which merges one or more string entries into a single
 
 ### Requirement: Merged string output
 
-The console SHALL accept string entries and show messages from all bound entries in one list, ordered by time, with each message's timestamp.
+The console SHALL accept string entries and show messages from all bound entries in one list, ordered by time, with each message's timestamp. Timestamps SHALL NOT be selectable, so copying messages copies only their text.
 
 #### Scenario: Two sources merged
 
 - **GIVEN** the console is bound to `console` and `messages`
 - **THEN** messages from both entries appear interleaved in time order
+
+#### Scenario: Copying messages
+
+- **WHEN** the user selects several messages and copies them
+- **THEN** the copied text contains the messages without their timestamps
 
 ### Requirement: DogLog-friendly default
 
