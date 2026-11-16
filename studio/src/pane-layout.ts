@@ -1,4 +1,5 @@
 import * as z from 'zod';
+import { widgetConfigSchema } from '@/widgets/widget-type';
 
 /** The widget shown in a pane, `config` is owned by the widget type (ex. bound entry names) */
 const widgetSchema = z.object({
@@ -162,6 +163,47 @@ export function setPaneWidget(layout: PaneNode, paneId: string, widget: Widget |
 		const { widget: _, ...pane } = node;
 		return widget ? { ...pane, widget } : pane;
 	});
+}
+
+/** Set the entries bound to a pane's widget, keeping its other config fields */
+export function setPaneEntryNames(layout: PaneNode, paneId: string, entryNames: readonly string[]): PaneNode {
+	const widget = findPane(layout, paneId)?.widget;
+	if (widget === undefined) {
+		return layout;
+	}
+
+	const config = typeof widget.config === 'object' ? widget.config : {};
+	return setPaneWidget(layout, paneId, { ...widget, config: { ...config, entryNames: [...entryNames] } });
+}
+
+/** Where a dragged entry is dropped: a pane's widget, optionally onto one of its bound entries to take that entry's position */
+export type EntryDrop = { paneId: string; index?: number };
+
+/**
+ * Bind a dropped entry to a pane's widget, at `to.index` or after its other entries.
+ * Dropping an entry from the same pane reorders it, and dropping one from another pane (`fromPaneId`) moves it out of that pane.
+ * Entries the widget already shows aren't moved from other panes.
+ */
+export function dropEntry(layout: PaneNode, name: string, fromPaneId: string | undefined, to: EntryDrop): PaneNode {
+	const entryNamesOf = (paneId: string) =>
+		widgetConfigSchema.parse(findPane(layout, paneId)?.widget?.config).entryNames;
+	const entryNames = entryNamesOf(to.paneId);
+	const others = entryNames.filter((other) => other !== name);
+	if (
+		findPane(layout, to.paneId)?.widget === undefined ||
+		(fromPaneId !== to.paneId && others.length !== entryNames.length)
+	) {
+		return layout;
+	}
+
+	const moved = setPaneEntryNames(layout, to.paneId, others.toSpliced(to.index ?? others.length, 0, name));
+	return fromPaneId === undefined || fromPaneId === to.paneId
+		? moved
+		: setPaneEntryNames(
+				moved,
+				fromPaneId,
+				entryNamesOf(fromPaneId).filter((other) => other !== name),
+			);
 }
 
 export function resizeSplit(layout: PaneNode, splitId: string, ratio: number): PaneNode {

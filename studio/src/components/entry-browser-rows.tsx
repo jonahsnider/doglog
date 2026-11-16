@@ -116,7 +116,7 @@ const EntryRowView = memo(function EntryRowView({
 		id: node.value,
 		type: entryDragType,
 		disabled: !draggable,
-		...(entry && { data: { entry } }),
+		...(entry && { data: { name: entry.name } }),
 	});
 	const label = (
 		<TooltipTrigger

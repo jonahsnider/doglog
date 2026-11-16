@@ -1,20 +1,25 @@
 import { type Dashboard, deleteDashboard, getDashboard, updateDashboard } from '@/dashboards';
+import { getEntry } from '@/data/data-store';
 import {
 	canSplitPane,
 	closePane,
 	createPane,
+	dropEntry,
+	type EntryDrop,
 	findPane,
 	findSibling,
 	findWidgetPane,
 	firstPane,
 	type Pane,
 	type PaneNode,
+	setPaneEntryNames,
 	setPaneWidget,
 	type SplitDirection,
 	splitPane,
 	type Widget,
 } from '@/pane-layout';
-import { widgetConfigSchema } from '@/widgets/widget-type';
+import { getWidgetType } from '@/widgets/registry';
+import { acceptsEntry, widgetConfigSchema } from '@/widgets/widget-type';
 
 /**
  * Change a dashboard's pane layout with one of the `@/pane-layout` operations.
@@ -22,6 +27,19 @@ import { widgetConfigSchema } from '@/widgets/widget-type';
  */
 export function updateLayout(id: string, update: (layout: PaneNode) => PaneNode): void {
 	updateDashboard(id, (dashboard) => ({ ...dashboard, layout: update(dashboard.layout) }));
+}
+
+/** Bind an entry dropped on a pane's widget if the widget accepts it, see `dropEntry()` */
+export function dropDashboardEntry(id: string, name: string, fromPaneId: string | undefined, to: EntryDrop): void {
+	const entry = getEntry(name);
+	updateLayout(id, (layout) => {
+		const widget = findPane(layout, to.paneId)?.widget;
+		const type = widget && getWidgetType(widget.type);
+		// Entries missing from the source might be accepted once they're loaded
+		return type && (entry === undefined || acceptsEntry(type, entry))
+			? dropEntry(layout, name, fromPaneId, to)
+			: layout;
+	});
 }
 
 /** The pane that keyboard shortcuts act on, the first pane if the focused pane is gone */
@@ -63,10 +81,11 @@ export function addDashboardWidget(id: string, widget: Widget): void {
 				return { ...dashboard, focusedPaneId: matching.id };
 			}
 
-			// Keeps any other config fields as they are
-			const config = typeof matching.widget.config === 'object' ? matching.widget.config : {};
-			const merged = { ...matching.widget, config: { ...config, entryNames: allEntryNames } };
-			return { ...dashboard, layout: setPaneWidget(dashboard.layout, matching.id, merged), focusedPaneId: matching.id };
+			return {
+				...dashboard,
+				layout: setPaneEntryNames(dashboard.layout, matching.id, allEntryNames),
+				focusedPaneId: matching.id,
+			};
 		}
 
 		if (focused.widget === undefined) {

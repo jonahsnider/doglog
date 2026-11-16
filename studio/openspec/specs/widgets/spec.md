@@ -88,6 +88,35 @@ Users SHALL be able to bind an entry by dragging it from the entry browser onto 
 - **WHEN** the user drags an accepted entry from the entry browser onto a widget
 - **THEN** the entry is bound to that widget
 
+#### Scenario: Already shown
+
+- **GIVEN** a widget showing `/Arm/Angle`
+- **WHEN** the user drags `/Arm/Angle` onto it from the entry browser or another widget
+- **THEN** the user is shown that the widget already shows it
+- **AND** dropping it changes nothing
+
+### Requirement: Drag entries out of widgets
+
+The part of a widget that shows an entry, such as a values table row or swerve legend item, SHALL be draggable. Dropping it on another entry of the same widget MUST move it to that entry's position, and dropping it on another widget MUST move it after that widget's entries. Rows whose other parts have their own interactions, such as selecting values, MUST be dragged by the entry name. Widgets that don't show entries individually, such as the console, are exempt.
+
+#### Scenario: Reorder
+
+- **GIVEN** a values table showing `/Arm/Angle` then `/Arm/Voltage`
+- **WHEN** the user drags the `/Arm/Voltage` row onto the `/Arm/Angle` row
+- **THEN** the table shows `/Arm/Voltage` then `/Arm/Angle`
+- **AND** while dragging, a line marks where it will go
+
+#### Scenario: Move to another widget
+
+- **GIVEN** a values table and a discrete timeline showing `/Intake/HasPiece`
+- **WHEN** the user drags the `/Intake/HasPiece` timeline row onto the values table
+- **THEN** the values table shows `/Intake/HasPiece` and the discrete timeline doesn't
+
+#### Scenario: Dropped outside a widget
+
+- **WHEN** the user drags a values table row and drops it outside any widget
+- **THEN** the table is unchanged
+
 ### Requirement: Follow the cursor
 
 Widgets SHALL reflect the global time cursor. Value-style widgets MUST show the latest value at or before the cursor; time-series widgets MUST mark the cursor position.

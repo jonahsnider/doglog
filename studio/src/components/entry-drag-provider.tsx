@@ -1,14 +1,8 @@
 import { type Draggable, PointerActivationConstraints } from '@dnd-kit/dom';
 import { DragDropProvider, DragOverlay, KeyboardSensor, PointerSensor } from '@dnd-kit/react';
 import type { ReactNode } from 'react';
-import type { Entry } from '@/data/data-store';
 import { EntryName } from '@/components/entry-name';
-
-/** Data of an entry dragged from the entry browser */
-export type EntryDragData = { entry: Entry };
-
-/** Drag type of entry browser entries, accepted by widgets */
-export const entryDragType = 'entry';
+import type { EntryDragData } from '@/entry-drag';
 
 const sensors = [
 	PointerSensor.configure({
@@ -20,7 +14,7 @@ const sensors = [
 	KeyboardSensor,
 ];
 
-/** Lets entries be dragged from the entry browser onto widgets */
+/** Lets entries be dragged from the entry browser onto widgets, and between and within widgets */
 export function EntryDragProvider({ children }: { children: ReactNode }) {
 	return (
 		<DragDropProvider sensors={sensors}>
@@ -29,7 +23,7 @@ export function EntryDragProvider({ children }: { children: ReactNode }) {
 			<DragOverlay<EntryDragData, Draggable<EntryDragData>> dropAnimation={null}>
 				{(source) => (
 					<div className="w-max max-w-80 truncate rounded-md border bg-popover px-2 py-1 font-mono text-xs text-popover-foreground shadow-md">
-						<EntryName name={source.data.entry.name} />
+						<EntryName name={source.data.name} />
 					</div>
 				)}
 			</DragOverlay>

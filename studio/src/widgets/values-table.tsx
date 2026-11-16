@@ -11,6 +11,7 @@ import { useCursorTime } from '@/timeline';
 import { NoData } from '@/widgets/no-data';
 import type { WidgetProps } from '@/widgets/widget-type';
 import { EntryName } from '@/components/entry-name';
+import { useEntryDrag } from '@/entry-drag';
 
 type FieldValue = Parameters<typeof formatValue>[0];
 
@@ -115,61 +116,80 @@ export function ValuesTable({ bindings }: WidgetProps) {
 				</TableRow>
 			</TableHeader>
 			<TableBody>
-				{rows.map((row) => {
-					const expandable = childrenOf(row.value) !== undefined;
-					const isExpanded = expandable && expanded.has(row.path);
-					return (
-						<TableRow
-							key={row.path}
-							// Right-clicking the row offers to remove its entry, middle-clicking removes it
-							data-entry-name={row.entryName}
-							className={cn(expandable && 'cursor-pointer')}
-							onClick={
-								expandable
-									? () => {
-											// Selecting text in the row shouldn't toggle it
-											if (window.getSelection()?.isCollapsed === false) {
-												return;
-											}
-											toggle(row.path);
-										}
-									: undefined
-							}
-						>
-							<TableCell className="font-mono text-xs">
-								<div className="flex items-center gap-1" style={{ paddingLeft: `${row.depth * 1.25}rem` }}>
-									{expandable ? (
-										<Button
-											variant="ghost"
-											size="icon-xs"
-											className="-m-1 text-muted-foreground"
-											aria-expanded={isExpanded}
-											aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${row.label}`}
-										>
-											<ChevronRightIcon className={cn('size-3.5 transition-transform', isExpanded && 'rotate-90')} />
-										</Button>
-									) : (
-										anyExpandable && (
-											// Takes the same space as the expand button
-											<span className="-m-1 size-7 shrink-0 sm:size-6" />
-										)
-									)}
-									{row.depth === 0 ? (
-										// The prefix animating open on hover briefly leaves the browser's automatic cursor on a non-text box
-										<span className={cn(!expandable && 'cursor-text')}>
-											<EntryName name={row.label} />
-										</span>
-									) : (
-										row.label
-									)}
-								</div>
-							</TableCell>
-							<TableCell>{row.type !== undefined && <TypeLabel type={row.type} />}</TableCell>
-							<TableCell className="font-mono text-xs whitespace-normal">{valueCell(row, isExpanded)}</TableCell>
-						</TableRow>
-					);
-				})}
+				{rows.map((row) => (
+					<ValuesTableRow
+						key={row.path}
+						row={row}
+						expanded={expanded.has(row.path)}
+						anyExpandable={anyExpandable}
+						onToggle={() => toggle(row.path)}
+					/>
+				))}
 			</TableBody>
 		</Table>
+	);
+}
+
+function ValuesTableRow({
+	row,
+	expanded,
+	anyExpandable,
+	onToggle,
+}: {
+	row: Row;
+	expanded: boolean;
+	anyExpandable: boolean;
+	onToggle: () => void;
+}) {
+	// Rows of an entry's fields and elements are part of its row, only the entry's own row can be dragged or dropped on
+	const { ref, handleRef } = useEntryDrag(row.entryName, { disabled: row.depth > 0 });
+	const expandable = childrenOf(row.value) !== undefined;
+	const isExpanded = expandable && expanded;
+	return (
+		<TableRow
+			ref={ref}
+			// Right-clicking the row offers to remove its entry, middle-clicking removes it
+			data-entry-name={row.entryName}
+			className={cn(expandable && 'cursor-pointer')}
+			onClick={
+				expandable
+					? () => {
+							// Selecting text in the row shouldn't toggle it
+							if (window.getSelection()?.isCollapsed === false) {
+								return;
+							}
+							onToggle();
+						}
+					: undefined
+			}
+		>
+			{/* Dragged by the name, so values stay selectable */}
+			<TableCell
+				ref={row.depth === 0 ? handleRef : undefined}
+				className={cn('font-mono text-xs', row.depth === 0 && 'cursor-grab')}
+			>
+				<div className="flex items-center gap-1" style={{ paddingLeft: `${row.depth * 1.25}rem` }}>
+					{expandable ? (
+						<Button
+							variant="ghost"
+							size="icon-xs"
+							className="-m-1 text-muted-foreground"
+							aria-expanded={isExpanded}
+							aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${row.label}`}
+						>
+							<ChevronRightIcon className={cn('size-3.5 transition-transform', isExpanded && 'rotate-90')} />
+						</Button>
+					) : (
+						anyExpandable && (
+							// Takes the same space as the expand button
+							<span className="-m-1 size-7 shrink-0 sm:size-6" />
+						)
+					)}
+					{row.depth === 0 ? <EntryName name={row.label} /> : row.label}
+				</div>
+			</TableCell>
+			<TableCell>{row.type !== undefined && <TypeLabel type={row.type} />}</TableCell>
+			<TableCell className="font-mono text-xs whitespace-normal">{valueCell(row, isExpanded)}</TableCell>
+		</TableRow>
 	);
 }

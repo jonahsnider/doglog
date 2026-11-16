@@ -1,4 +1,6 @@
 import { Columns2Icon, Rows2Icon, XIcon } from 'lucide-react';
+import type { Draggable, Droppable } from '@dnd-kit/dom';
+import { useDragDropMonitor } from '@dnd-kit/react';
 import { useEffect, useMemo, useState } from 'react';
 import { Group, Panel, Separator, useGroupRef } from 'react-resizable-panels';
 import { AddWidgetPrompt } from '@/components/add-widget-prompt';
@@ -7,15 +9,23 @@ import { WidgetOptions } from '@/components/entry-picker';
 import { PaneButton } from '@/components/pane-button';
 import { WidgetView } from '@/components/widget-view';
 import { shortcuts } from '@/commands';
-import { closeDashboardPane, getFocusedPane, splitDashboardPane, updateLayout } from '@/dashboard-panes';
+import {
+	closeDashboardPane,
+	dropDashboardEntry,
+	getFocusedPane,
+	splitDashboardPane,
+	updateLayout,
+} from '@/dashboard-panes';
 import { type Dashboard, focusPane } from '@/dashboards';
 import { getEntry } from '@/data/data-store';
+import { type EntryDragData, type EntryDropData, entryDragType } from '@/entry-drag';
 import { cn } from '@/lib/utils';
 import {
 	canSplitPane,
 	type Pane,
 	type PaneNode,
 	resizeSplit,
+	setPaneEntryNames,
 	setPaneWidget,
 	type Split,
 	type SplitDirection,
@@ -33,6 +43,17 @@ type PaneNodeProps = {
 export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 	const { layout } = dashboard;
 	const focusedPaneId = layout.kind === 'split' ? getFocusedPane(dashboard).id : undefined;
+
+	// Entries dropped on a widget or one of its entries, from the entry browser or another widget
+	useDragDropMonitor<EntryDragData | EntryDropData, Draggable<EntryDragData>, Droppable<EntryDropData>>({
+		onDragEnd: ({ operation, canceled }) => {
+			const { source, target } = operation;
+			if (!canceled && source?.type === entryDragType && target) {
+				dropDashboardEntry(dashboard.id, source.data.name, source.data.paneId, target.data);
+			}
+		},
+	});
+
 	return (
 		<PaneNodeView
 			dashboardId={dashboard.id}
@@ -132,18 +153,7 @@ function PaneView({
 		});
 		setWidget(newType, entryNames.length > 0 ? entryNames : undefined);
 	};
-	// Keeps any other config fields as they are
-	const setEntryNames = (entryNames: string[]) =>
-		update((layout) =>
-			setPaneWidget(
-				layout,
-				pane.id,
-				widget && {
-					...widget,
-					config: { ...(typeof widget.config === 'object' ? widget.config : {}), entryNames },
-				},
-			),
-		);
+	const setEntryNames = (entryNames: string[]) => update((layout) => setPaneEntryNames(layout, pane.id, entryNames));
 	const split = (direction: SplitDirection) => splitDashboardPane(dashboardId, pane.id, direction);
 	const canSplitRight = canSplitPane(dashboardLayout, pane.id, 'row');
 	const canSplitDown = canSplitPane(dashboardLayout, pane.id, 'column');
@@ -262,7 +272,7 @@ function PaneView({
 				{widget === undefined ? (
 					<AddWidgetPrompt onAdd={setWidget} />
 				) : type ? (
-					<WidgetView type={type} entryNames={config.entryNames} onEntryNamesChange={setEntryNames} />
+					<WidgetView paneId={pane.id} type={type} entryNames={config.entryNames} />
 				) : (
 					<p className="p-3 text-sm text-muted-foreground">Unknown widget type {widget.type}.</p>
 				)}

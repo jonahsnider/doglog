@@ -10,6 +10,7 @@ import { chassisHalf, move, type Point, strokeWidth } from '@/widgets/swerve-geo
 import { Arrow, Line, ModuleLabel, RotationArc, Wheel } from '@/widgets/swerve-shapes';
 import type { WidgetProps } from '@/widgets/widget-type';
 import { EntryName } from '@/components/entry-name';
+import { useEntryDrag } from '@/entry-drag';
 
 // Sizes in robot-frame meters-like units: the chassis is 1 wide, the view leaves room for arrows when it's rotated
 /** Modules sit inside the chassis, like a real robot's */
@@ -42,20 +43,32 @@ function Legend({ items }: { items: LegendItem[] }) {
 	return (
 		<ul className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
 			{items.map((item) => (
-				<li key={item.name} className={cn('flex min-w-0 items-center gap-1.5', item.dimmed && 'opacity-50')}>
-					{item.heading === undefined ? (
-						<span className="size-2.5 shrink-0 rounded-full" style={{ background: item.color }} />
-					) : (
-						<CompassIcon className="size-3.5 shrink-0 text-muted-foreground" />
-					)}
-					<span className="truncate font-mono">
-						<EntryName name={item.name} />
-					</span>
-					{item.heading !== undefined && <span className="text-muted-foreground">({item.heading})</span>}
-					{item.error !== undefined && <span className="text-destructive-foreground">{item.error}</span>}
-				</li>
+				<LegendEntry key={item.name} item={item} />
 			))}
 		</ul>
+	);
+}
+
+function LegendEntry({ item }: { item: LegendItem }) {
+	const { ref } = useEntryDrag(item.name, { orientation: 'horizontal' });
+	return (
+		<li
+			ref={ref}
+			className={cn('flex min-w-0 cursor-grab items-center gap-1.5', item.dimmed && 'opacity-50')}
+			// Right-clicking the item offers to remove its entry, middle-clicking removes it
+			data-entry-name={item.name}
+		>
+			{item.heading === undefined ? (
+				<span className="size-2.5 shrink-0 rounded-full" style={{ background: item.color }} />
+			) : (
+				<CompassIcon className="size-3.5 shrink-0 text-muted-foreground" />
+			)}
+			<span className="truncate font-mono">
+				<EntryName name={item.name} />
+			</span>
+			{item.heading !== undefined && <span className="text-muted-foreground">({item.heading})</span>}
+			{item.error !== undefined && <span className="text-destructive-foreground">{item.error}</span>}
+		</li>
 	);
 }
 

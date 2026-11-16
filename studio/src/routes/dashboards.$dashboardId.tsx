@@ -5,7 +5,7 @@ import { DashboardPanes } from '@/components/dashboard-panes';
 import { EntryBrowser } from '@/components/entry-browser';
 import { TimelineBar } from '@/components/timeline-bar';
 import { useDashboards } from '@/dashboards';
-import { EntryDragProvider } from '@/entry-drag';
+import { EntryDragProvider } from '@/components/entry-drag-provider';
 
 export const Route = createFileRoute('/dashboards/$dashboardId')({
 	component: DashboardView,

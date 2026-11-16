@@ -3,9 +3,11 @@ import { type Entry, getTimeRange, subscribeData, type TimeRange } from '@/data/
 import { formatValue } from '@/data/format-value';
 import { useSource } from '@/data/source';
 import { formatTime, getCursorTime, seek, subscribeTimeline } from '@/timeline';
+import { bandColor, type ColorAssignments } from '@/widgets/discrete-timeline-colors';
 import { NoData } from '@/widgets/no-data';
 import type { WidgetProps } from '@/widgets/widget-type';
 import { EntryName } from '@/components/entry-name';
+import { useEntryDrag } from '@/entry-drag';
 
 /** Live sources show the newest 30 s, matching the line graph */
 const liveWindow = 30_000_000;
@@ -16,46 +18,6 @@ const labelHeight = 16;
 const bandTop = 18;
 const bandHeight = 20;
 const rowHeight = 44;
-
-type BandColor = { fill: string; text: string };
-
-/** Mid-tone colors that stand out on both light and dark backgrounds, with readable text on top */
-const palette: readonly BandColor[] = [
-	{ fill: '#3b82f6', text: '#ffffff' },
-	{ fill: '#f59e0b', text: '#000000' },
-	{ fill: '#8b5cf6', text: '#ffffff' },
-	{ fill: '#10b981', text: '#000000' },
-	{ fill: '#f43f5e', text: '#ffffff' },
-	{ fill: '#22d3ee', text: '#000000' },
-	{ fill: '#d946ef', text: '#ffffff' },
-	{ fill: '#a3e635', text: '#000000' },
-	{ fill: '#f97316', text: '#000000' },
-	{ fill: '#0d9488', text: '#ffffff' },
-];
-const trueColor: BandColor = { fill: '#10b981', text: '#000000' };
-const falseColor: BandColor = { fill: '#a1a1aa', text: '#000000' };
-
-/** String values get palette colors in the order they're first seen, so each distinct value has its own color */
-type ColorAssignments = Map<Entry, Map<string, number>>;
-
-function bandColor(assignments: ColorAssignments, entry: Entry, value: unknown): BandColor {
-	if (typeof value === 'boolean') {
-		return value ? trueColor : falseColor;
-	}
-
-	let colors = assignments.get(entry);
-	if (!colors) {
-		colors = new Map();
-		assignments.set(entry, colors);
-	}
-	const text = String(value);
-	let index = colors.get(text);
-	if (index === undefined) {
-		index = colors.size;
-		colors.set(text, index);
-	}
-	return palette[index % palette.length]!;
-}
 
 /** The time range shown: the whole source for logs, the newest data for live sources */
 function visibleWindow(live: boolean): TimeRange | undefined {
@@ -266,22 +228,7 @@ export function DiscreteTimeline({ bindings }: WidgetProps) {
 			onClick={handleClick}
 		>
 			{bindings.map(({ name, entry }, row) => (
-				<div
-					key={name}
-					className="absolute inset-x-2 text-xs"
-					style={{ top: padding + row * rowHeight, height: rowHeight }}
-					// Right-clicking the row offers to remove its entry, middle-clicking removes it
-					data-entry-name={name}
-				>
-					<div className="truncate font-mono leading-4 text-muted-foreground">
-						<EntryName name={name} />
-					</div>
-					{!entry && (
-						<div className="flex items-center" style={{ height: bandHeight, marginTop: bandTop - labelHeight }}>
-							<NoData />
-						</div>
-					)}
-				</div>
+				<TimelineRow key={name} name={name} missing={!entry} row={row} />
 			))}
 			<canvas
 				ref={canvas}
@@ -291,6 +238,29 @@ export function DiscreteTimeline({ bindings }: WidgetProps) {
 			/>
 			<div ref={cursorLine} hidden className="pointer-events-none absolute inset-y-0 left-2 w-px bg-foreground" />
 			{tooltip}
+		</div>
+	);
+}
+
+function TimelineRow({ name, missing, row }: { name: string; missing: boolean; row: number }) {
+	const { ref, handleRef } = useEntryDrag(name);
+	return (
+		<div
+			ref={ref}
+			className="absolute inset-x-2 text-xs"
+			style={{ top: padding + row * rowHeight, height: rowHeight }}
+			// Right-clicking the row offers to remove its entry, middle-clicking removes it
+			data-entry-name={name}
+		>
+			{/* Dragged by the name, clicking the band seeks */}
+			<div ref={handleRef} className="w-fit max-w-full cursor-grab truncate font-mono leading-4 text-muted-foreground">
+				<EntryName name={name} />
+			</div>
+			{missing && (
+				<div className="flex items-center" style={{ height: bandHeight, marginTop: bandTop - labelHeight }}>
+					<NoData />
+				</div>
+			)}
 		</div>
 	);
 }
