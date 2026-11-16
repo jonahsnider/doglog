@@ -179,6 +179,16 @@ function Settings() {
 				</FieldLabel>
 				<FieldDescription>Play, pause, and seek logs with media keys and the system media controls</FieldDescription>
 			</Field>
+
+			<p className="text-sm text-muted-foreground">
+				DogLog Studio {STUDIO_VERSION}
+				{STUDIO_COMMIT !== null && (
+					<>
+						{' '}
+						(<span className="font-mono">{STUDIO_COMMIT}</span>)
+					</>
+				)}
+			</p>
 		</div>
 	);
 }

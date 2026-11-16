@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the Settings page, where users choose the color theme and contrast, the robot connection target, and whether media controls control playback, with all settings persisted locally on the device.
+Define the Settings page, where users choose the color theme and contrast, the robot connection target, and whether media controls control playback, with all settings persisted locally on the device. The page also shows which version of Studio is running.
 
 ## Requirements
 
@@ -85,3 +85,13 @@ Settings SHALL let users choose standard, medium, or high contrast for generated
 
 - **WHEN** the user selects the Neutral preset
 - **THEN** the contrast setting is disabled
+
+### Requirement: Version info
+
+Settings SHALL show the running Studio version and, when Studio was built from a Git repository, the short hash of the commit it was built from.
+
+#### Scenario: Built from Git
+
+- **GIVEN** Studio version 2026.1.0 was built from commit `9867e24`
+- **WHEN** the user opens Settings
+- **THEN** Settings shows version 2026.1.0 and commit `9867e24`

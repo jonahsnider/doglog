@@ -1,8 +1,10 @@
 import tailwindcss from '@tailwindcss/vite';
+import { execFileSync } from 'node:child_process';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig, lazyPlugins } from 'vite-plus';
+import packageJson from './package.json' with { type: 'json' };
 
 const ignorePatterns = [
 	'src/routeTree.gen.ts',
@@ -15,6 +17,15 @@ const ignorePatterns = [
 	// Edited with Apple's Icon Composer
 	'assets/mac.icon/',
 ];
+
+/** Short hash of the commit Studio is built from, or `null` outside a Git repository */
+function getCommitHash(): string | null {
+	try {
+		return execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf8' }).trim();
+	} catch {
+		return null;
+	}
+}
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -166,6 +177,10 @@ export default defineConfig({
 			},
 		}),
 	]),
+	define: {
+		STUDIO_VERSION: JSON.stringify(packageJson.version),
+		STUDIO_COMMIT: JSON.stringify(getCommitHash()),
+	},
 	resolve: {
 		tsconfigPaths: true,
 	},
