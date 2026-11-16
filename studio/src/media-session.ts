@@ -1,20 +1,10 @@
 import { getTimeRange, subscribeData } from '@/data/data-store';
 import { getSource } from '@/data/source';
 import { settingsStore } from '@/settings';
-import { getCursorTime, getTimeline, seek, subscribeTimeline, togglePlayback } from '@/timeline';
+import { getTimeline, seek, skip, subscribeTimeline, togglePlayback } from '@/timeline';
 
 /** How far the OS's playback position can drift from the cursor before it's corrected (µs) */
 const maxDrift = 100_000;
-
-/** How far skipping moves the cursor (µs) */
-const skipSize = 5_000_000;
-
-function skip(direction: 1 | -1): void {
-	const time = getCursorTime();
-	if (time !== undefined) {
-		seek(time + direction * skipSize);
-	}
-}
 
 /** A silent WAV, browsers only send media keys to pages playing media, and ignore media shorter than 5 seconds */
 function silentAudio(): HTMLAudioElement {
@@ -78,10 +68,10 @@ export function syncMediaSession(): void {
 			},
 		],
 		// Media keys send previous and next track, some media controls show skip buttons instead
-		['previoustrack', () => skip(-1)],
-		['nexttrack', () => skip(1)],
-		['seekbackward', () => skip(-1)],
-		['seekforward', () => skip(1)],
+		['previoustrack', () => skip(-5)],
+		['nexttrack', () => skip(5)],
+		['seekbackward', () => skip(-5)],
+		['seekforward', () => skip(5)],
 		[
 			'seekto',
 			({ seekTime }) => {

@@ -20,6 +20,7 @@ import {
 	playbackSpeeds,
 	seek,
 	setSpeed,
+	skip,
 	step,
 	togglePlayback,
 	useTimeline,
@@ -28,8 +29,8 @@ import {
 const speedItems = playbackSpeeds.map((speed) => ({ value: speed, label: `${speed}x` }));
 
 const seekHotkeys: UseHotkeyDefinition[] = [
-	{ hotkey: 'ArrowLeft', callback: () => step(-1) },
-	{ hotkey: 'ArrowRight', callback: () => step(1) },
+	{ hotkey: 'ArrowLeft', callback: () => skip(-5) },
+	{ hotkey: 'ArrowRight', callback: () => skip(5) },
 	{ hotkey: 'Home', callback: jumpToStart },
 	{ hotkey: 'End', callback: jumpToEnd },
 ];
@@ -37,6 +38,12 @@ const seekHotkeys: UseHotkeyDefinition[] = [
 const hotkeys: UseHotkeyDefinition[] = [
 	{ hotkey: 'Space', callback: togglePlayback, options: { requireReset: true } },
 	...seekHotkeys,
+	// Same as YouTube
+	{ hotkey: 'J', callback: () => skip(-10) },
+	{ hotkey: 'K', callback: togglePlayback, options: { requireReset: true } },
+	{ hotkey: 'L', callback: () => skip(10) },
+	{ hotkey: ',', callback: () => step(-1) },
+	{ hotkey: '.', callback: () => step(1) },
 	{ hotkey: '[', callback: () => changeSpeed(-1) },
 	{ hotkey: ']', callback: () => changeSpeed(1) },
 ];
@@ -150,13 +157,13 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 				<ControlButton label="Jump to start" shortcut="Home" onClick={jumpToStart}>
 					<SkipBackIcon />
 				</ControlButton>
-				<ControlButton label="Step back" shortcut="ArrowLeft" onClick={() => step(-1)}>
+				<ControlButton label="Step back" shortcut="," onClick={() => step(-1)}>
 					<StepBackIcon />
 				</ControlButton>
 				<ControlButton label={playback === 'paused' ? 'Play' : 'Pause'} shortcut="Space" onClick={togglePlayback}>
 					{playback === 'paused' ? <PlayIcon /> : <PauseIcon />}
 				</ControlButton>
-				<ControlButton label="Step forward" shortcut="ArrowRight" onClick={() => step(1)}>
+				<ControlButton label="Step forward" shortcut="." onClick={() => step(1)}>
 					<StepForwardIcon />
 				</ControlButton>
 				{!live && (

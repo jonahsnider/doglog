@@ -185,6 +185,14 @@ export function step(direction: 1 | -1): void {
 	}
 }
 
+/** Move the cursor `seconds` forward, or back if negative, without changing playback */
+export function skip(seconds: number): void {
+	const { time } = store.get();
+	if (time !== undefined) {
+		seek(time + seconds * 1_000_000);
+	}
+}
+
 export function jumpToStart(): void {
 	const range = getTimeRange();
 	if (range !== undefined) {

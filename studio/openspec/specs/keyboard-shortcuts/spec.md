@@ -53,7 +53,7 @@ Every control with a keyboard shortcut SHALL show the shortcut in its tooltip, f
 #### Scenario: Hover a timeline button
 
 - **WHEN** the user hovers the step forward button
-- **THEN** its tooltip shows `Step forward` and `→`
+- **THEN** its tooltip shows `Step forward` and `.`
 
 #### Scenario: Hover the playback speed
 

@@ -34,7 +34,7 @@ When a dashboard is open and a source is active, a timeline bar SHALL be shown a
 
 ### Requirement: Log playback controls
 
-For log sources, Studio SHALL provide play/pause, a playback speed multiplier, step forward and back, and jump to start and end, each with a keyboard shortcut.
+For log sources, Studio SHALL provide play/pause, a playback speed multiplier, step forward and back, skip forward and back, and jump to start and end, each with a keyboard shortcut. The shortcuts SHALL match YouTube's: Space or K plays and pauses, comma and period step back and forward, the left and right arrow keys skip 5 seconds, and J and L skip 10 seconds. Skipping MUST NOT change playback.
 
 #### Scenario: Play and pause
 
@@ -43,8 +43,15 @@ For log sources, Studio SHALL provide play/pause, a playback speed multiplier, s
 
 #### Scenario: Step
 
-- **WHEN** the user presses the right arrow key
+- **WHEN** the user presses period
 - **THEN** the cursor moves forward by a small fixed step
+
+#### Scenario: Skip
+
+- **GIVEN** the cursor is at 42.0 s in a log
+- **WHEN** the user presses L
+- **THEN** the cursor moves to 52.0 s
+- **AND** playback doesn't change
 
 #### Scenario: Jump to ends
 
