@@ -50,31 +50,6 @@ function toValue(record: DataRecord, entryType: string): Value | undefined {
 	}
 }
 
-/** Whether the last record ends exactly at the end of the file, the parser silently stops at a cut off record */
-function endsCleanly(bytes: Uint8Array): boolean {
-	const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-	let offset = 12 + view.getUint32(8, true);
-
-	while (offset < bytes.byteLength) {
-		const bitfield = view.getUint8(offset);
-		const entryIdLength = (bitfield & 0b11) + 1;
-		const payloadSizeLength = ((bitfield >> 2) & 0b11) + 1;
-		const timestampLength = ((bitfield >> 4) & 0b111) + 1;
-		const headerLength = 1 + entryIdLength + payloadSizeLength + timestampLength;
-		if (offset + headerLength > bytes.byteLength) {
-			return false;
-		}
-
-		let payloadSize = 0;
-		for (let i = 0; i < payloadSizeLength; i++) {
-			payloadSize += view.getUint8(offset + 1 + entryIdLength + i) * 2 ** (8 * i);
-		}
-		offset += headerLength + payloadSize;
-	}
-
-	return offset === bytes.byteLength;
-}
-
 type ParsedEntry = { type: string; metadata: string; samples: Samples };
 
 /** Add entries from start records and update their metadata, `names` maps entry IDs to names since set metadata records only have the ID */
@@ -153,7 +128,7 @@ function parse(bytes: Uint8Array): void {
 		}
 		damaged = true;
 	}
-	damaged ||= !endsCleanly(bytes);
+	damaged ||= records.truncated;
 
 	for (const [name, { type, metadata, samples }] of entries) {
 		const message: LogWorkerMessage = {

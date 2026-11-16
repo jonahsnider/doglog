@@ -31,7 +31,7 @@ minimumReleaseAgeExclude:
   - starlight-changelogs@0.7.0
   - '@team581/starlight-theme@1.0.0'
   - wpilib-struct@1.0.2
-  - wpilog-parser@4.1.0
+  - wpilog-parser@4.2.0
   - '@ui-sdk/core@0.1.0-beta.5'
   - '@ui-sdk/react@0.1.0-beta.5'
 patchedDependencies:
