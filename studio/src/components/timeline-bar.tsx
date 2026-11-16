@@ -111,7 +111,7 @@ function Scrubber({ range, time }: { range: TimeRange; time: number }) {
 	);
 }
 
-function TimelineControls() {
+function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 	const range = useTimeRange();
 	const { time, playback, speed, live } = useTimeline();
 	const [speedOpen, setSpeedOpen] = useState(false);
@@ -121,77 +121,85 @@ function TimelineControls() {
 	useHotkeys(hotkeys, { ignoreDefaultPrevented: true, enabled: !speedOpen });
 
 	return (
-		<footer aria-label="Timeline" className="flex h-12 shrink-0 items-center gap-1 border-t px-2">
-			<ControlButton label="Jump to start" shortcut="Home" onClick={jumpToStart}>
-				<SkipBackIcon />
-			</ControlButton>
-			<ControlButton label="Step back" shortcut="ArrowLeft" onClick={() => step(-1)}>
-				<StepBackIcon />
-			</ControlButton>
-			<ControlButton label={playback === 'paused' ? 'Play' : 'Pause'} shortcut="Space" onClick={togglePlayback}>
-				{playback === 'paused' ? <PlayIcon /> : <PauseIcon />}
-			</ControlButton>
-			<ControlButton label="Step forward" shortcut="ArrowRight" onClick={() => step(1)}>
-				<StepForwardIcon />
-			</ControlButton>
-			{!live && (
-				<ControlButton label="Jump to end" shortcut="End" onClick={jumpToEnd}>
-					<SkipForwardIcon />
-				</ControlButton>
-			)}
-
-			<span className="ms-1 min-w-20 text-right font-mono text-sm tabular-nums">
-				{range && time !== undefined ? formatTime(time, range.start) : '-'}
-			</span>
-			{range && time !== undefined ? (
-				<Scrubber range={range} time={time} />
-			) : (
-				<div className="mx-2 h-1 flex-1 rounded-full bg-input" />
-			)}
-			<span className="min-w-20 font-mono text-sm text-muted-foreground tabular-nums">
-				{range ? formatTime(range.end, range.start) : '-'}
-			</span>
-
-			<Select
-				items={speedItems}
-				value={speed}
-				onValueChange={(value) => {
-					if (value !== null) {
-						setSpeed(value);
-					}
-				}}
-				onOpenChange={setSpeedOpen}
+		<footer aria-label="Timeline" className="flex h-12 shrink-0 border-t">
+			{/* Fades the contents so the border stays put */}
+			<div
+				className={cn(
+					'flex min-w-0 flex-1 items-center gap-1 px-2',
+					fadeIn && 'transition-opacity duration-300 starting:opacity-0',
+				)}
 			>
-				<Tooltip>
-					<TooltipTrigger render={<SelectTrigger size="sm" aria-label="Playback speed" className="w-auto min-w-0" />}>
-						<SelectValue />
-					</TooltipTrigger>
-					<TooltipPopup>
-						<TooltipLabel label="Playback speed" shortcut={['[', ']']} />
-					</TooltipPopup>
-				</Tooltip>
-				<SelectPopup>
-					{speedItems.map((item) => (
-						<SelectItem key={item.value} value={item.value}>
-							{item.label}
-						</SelectItem>
-					))}
-				</SelectPopup>
-			</Select>
+				<ControlButton label="Jump to start" shortcut="Home" onClick={jumpToStart}>
+					<SkipBackIcon />
+				</ControlButton>
+				<ControlButton label="Step back" shortcut="ArrowLeft" onClick={() => step(-1)}>
+					<StepBackIcon />
+				</ControlButton>
+				<ControlButton label={playback === 'paused' ? 'Play' : 'Pause'} shortcut="Space" onClick={togglePlayback}>
+					{playback === 'paused' ? <PlayIcon /> : <PauseIcon />}
+				</ControlButton>
+				<ControlButton label="Step forward" shortcut="ArrowRight" onClick={() => step(1)}>
+					<StepForwardIcon />
+				</ControlButton>
+				{!live && (
+					<ControlButton label="Jump to end" shortcut="End" onClick={jumpToEnd}>
+						<SkipForwardIcon />
+					</ControlButton>
+				)}
 
-			{live && (
-				<Button
-					variant={playback === 'following' ? 'ghost' : 'outline'}
-					size="sm"
-					disabled={playback === 'following'}
-					onClick={goLive}
+				<span className="ms-1 min-w-20 text-right font-mono text-sm tabular-nums">
+					{range && time !== undefined ? formatTime(time, range.start) : '-'}
+				</span>
+				{range && time !== undefined ? (
+					<Scrubber range={range} time={time} />
+				) : (
+					<div className="mx-2 h-1 flex-1 rounded-full bg-input" />
+				)}
+				<span className="min-w-20 font-mono text-sm text-muted-foreground tabular-nums">
+					{range ? formatTime(range.end, range.start) : '-'}
+				</span>
+
+				<Select
+					items={speedItems}
+					value={speed}
+					onValueChange={(value) => {
+						if (value !== null) {
+							setSpeed(value);
+						}
+					}}
+					onOpenChange={setSpeedOpen}
 				>
-					<span
-						className={cn('size-2 rounded-full', playback === 'following' ? 'bg-destructive' : 'bg-muted-foreground')}
-					/>
-					{playback === 'following' ? 'Live' : 'Go live'}
-				</Button>
-			)}
+					<Tooltip>
+						<TooltipTrigger render={<SelectTrigger size="sm" aria-label="Playback speed" className="w-auto min-w-0" />}>
+							<SelectValue />
+						</TooltipTrigger>
+						<TooltipPopup>
+							<TooltipLabel label="Playback speed" shortcut={['[', ']']} />
+						</TooltipPopup>
+					</Tooltip>
+					<SelectPopup>
+						{speedItems.map((item) => (
+							<SelectItem key={item.value} value={item.value}>
+								{item.label}
+							</SelectItem>
+						))}
+					</SelectPopup>
+				</Select>
+
+				{live && (
+					<Button
+						variant={playback === 'following' ? 'ghost' : 'outline'}
+						size="sm"
+						disabled={playback === 'following'}
+						onClick={goLive}
+					>
+						<span
+							className={cn('size-2 rounded-full', playback === 'following' ? 'bg-destructive' : 'bg-muted-foreground')}
+						/>
+						{playback === 'following' ? 'Live' : 'Go live'}
+					</Button>
+				)}
+			</div>
 		</footer>
 	);
 }
@@ -221,8 +229,15 @@ function LogProgress({ fileName }: { fileName: string }) {
 /** Playback controls and scrubber for the global time cursor, shown while a source is active */
 export function TimelineBar() {
 	const source = useSource();
-	if (source?.type === 'log' && source.status === 'loading') {
+	const loading = source?.type === 'log' && source.status === 'loading';
+	// Only fade the controls in when they replace the progress, not every time a dashboard is opened
+	const [showedProgress, setShowedProgress] = useState(false);
+	if (loading && !showedProgress) {
+		setShowedProgress(true);
+	}
+
+	if (loading) {
 		return <LogProgress fileName={source.fileName} />;
 	}
-	return source ? <TimelineControls /> : null;
+	return source ? <TimelineControls fadeIn={showedProgress} /> : null;
 }
