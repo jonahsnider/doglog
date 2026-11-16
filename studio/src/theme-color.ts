@@ -79,10 +79,10 @@ const roles = [
 ] as const;
 
 function scheme(themeColor: string, dark: boolean, contrast: Contrast): SchemeTonalSpot {
-	return new SchemeTonalSpot(Hct.fromInt(argbFromHex(themeColor)), dark, contrastLevels[contrast]);
+	return new SchemeTonalSpot(Hct.fromInt(argbFromHex(themeColor)), dark, contrastLevels[contrast], '2025');
 }
 
-/** Generate the MD3 tonal spot scheme for a theme color as `--md-*` CSS variable declarations */
+/** Generate the MD3 tonal spot scheme (2025 spec) for a theme color as `--md-*` CSS variable declarations */
 export function themeColorVariables(themeColor: string, dark: boolean, contrast: Contrast): string {
 	const colors = scheme(themeColor, dark, contrast);
 	return roles

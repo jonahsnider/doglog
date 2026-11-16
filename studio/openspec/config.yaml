@@ -25,7 +25,7 @@ context: |
   - Distribution: a PWA website, plus a Tauri desktop app built from the same frontend.
   - State: TanStack Store, with Zod validating all persisted and external data.
   - Interactions: dnd-kit for drag and drop, react-resizable-panels for pane splits, TanStack Hotkeys for shortcuts.
-  - Theming: Material Design 3 "tonal spot" scheme generated with @material/material-color-utilities from a seed
+  - Theming: Material Design 3 "tonal spot" scheme (2025 spec) generated with @material/material-color-utilities from a seed
     color. The default seed is Team 581 maroon #591616, which matches jonahsnider/dashshund.
     Presets: Team 581 maroon, a custom seed, or Neutral, which uses coss ui's stock neutral tokens
     (https://coss.com/ui/docs/styling) with no generated scheme.
