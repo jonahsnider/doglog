@@ -180,7 +180,7 @@ catalogs:
       specifier: 1.6.0
       version: 1.6.0
 
-packageExtensionsChecksum: sha256-mIDFPGyLJU6vvSrkfvChm+6psw9q+cHgAM0CmmSGPK8=
+packageExtensionsChecksum: sha256-ZBlcMkg/8R6qUnIB3P6q4UKVMPoD13JOK6HZ+Ukaa14=
 
 patchedDependencies:
   '@ntcore-ts/client': d14ce551d64d31b211dafc24cb928586a2455242ad208d041fa4949d594d9dac
@@ -287,7 +287,7 @@ importers:
         version: 3.7.0
       usehooks-ts:
         specifier: 3.1.1
-        version: 3.1.1(react@19.3.1)
+        version: 3.1.1(@types/react@19.3.0)(react@19.3.1)
       wpilib-struct:
         specifier: 1.0.2
         version: 1.0.2
@@ -6462,6 +6462,7 @@ packages:
     resolution: {integrity: sha512-I4diPp9Cq6ieSUH2wu+fDAVQO43xwtulo+fKEidHUwZPnYImbtkTjzIJYcDcJqxgmX31GVqNFURodvcgHcW0pA==}
     engines: {node: '>=16.15.0'}
     peerDependencies:
+      '@types/react': '*'
       react: ^16.8.0  || ^17 || ^18 || ^19 || ^19.0.0-rc
 
   util-deprecate@1.0.2:
@@ -12899,8 +12900,9 @@ snapshots:
     dependencies:
       react: 19.3.1
 
-  usehooks-ts@3.1.1(react@19.3.1):
+  usehooks-ts@3.1.1(@types/react@19.3.0)(react@19.3.1):
     dependencies:
+      '@types/react': 19.3.0
       lodash.debounce: 4.0.8
       react: 19.3.1
 

@@ -73,7 +73,8 @@ function ControlButton({
 
 /** Drag, click, or scroll horizontally to move the cursor */
 function Scrubber({ range, time }: { range: TimeRange; time: number }) {
-	const slider = useRef<HTMLDivElement>(null);
+	// Non-null so it matches the React 18 `RefObject` that usehooks-ts' `useEventListener` expects
+	const slider = useRef<HTMLDivElement>(null!);
 	const track = useRef<HTMLDivElement>(null);
 	// Hotkeys skip the arrow, Home, and End keys a focused slider uses itself, so they're given to the slider directly
 	useHotkeys(seekHotkeys, { target: slider });

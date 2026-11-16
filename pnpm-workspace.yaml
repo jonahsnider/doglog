@@ -22,6 +22,9 @@ packageExtensions:
   '@dnd-kit/react':
     peerDependencies:
       '@types/react': '*'
+  usehooks-ts:
+    peerDependencies:
+      '@types/react': '*'
   starlight-changelogs@^0.7.0:
     dependencies:
       '@types/mdast': 4.0.4
