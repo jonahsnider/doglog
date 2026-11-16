@@ -2,7 +2,6 @@ import { useRender } from '@base-ui/react/use-render';
 import { isTauri } from '@tauri-apps/api/core';
 import { Menu, type MenuItemOptions, type PredefinedMenuItemOptions, type SubmenuOptions } from '@tauri-apps/api/menu';
 import { type HotkeyChord, useFormatForDisplay } from '@tanstack/react-hotkeys';
-import type { LucideIcon } from 'lucide-react';
 import type { MouseEvent, ReactElement, ReactNode } from 'react';
 import {
 	ContextMenu,
@@ -18,8 +17,6 @@ import {
 
 type MenuAction = {
 	label: string;
-	/** Only shown on the web */
-	icon?: LucideIcon;
 	shortcut?: HotkeyChord;
 	disabled?: boolean;
 	/** Only styled on the web */
@@ -29,8 +26,6 @@ type MenuAction = {
 
 type Submenu = {
 	label: string;
-	/** Only shown on the web */
-	icon?: LucideIcon;
 	disabled?: boolean;
 	items: readonly MenuEntry[];
 };
@@ -56,14 +51,10 @@ function WebMenuEntries({ items }: { items: readonly MenuEntry[] }) {
 			return <ContextMenuSeparator key={`after ${typeof previous === 'object' ? previous.label : ''}`} />;
 		}
 
-		const icon = item.icon && <item.icon />;
 		if ('items' in item) {
 			return (
 				<ContextMenuSub key={item.label}>
-					<ContextMenuSubTrigger disabled={item.disabled ?? false}>
-						{icon}
-						{item.label}
-					</ContextMenuSubTrigger>
+					<ContextMenuSubTrigger disabled={item.disabled ?? false}>{item.label}</ContextMenuSubTrigger>
 					<ContextMenuSubPopup>
 						<WebMenuEntries items={item.items} />
 					</ContextMenuSubPopup>
@@ -78,7 +69,6 @@ function WebMenuEntries({ items }: { items: readonly MenuEntry[] }) {
 				variant={item.destructive === true ? 'destructive' : 'default'}
 				onClick={item.onSelect}
 			>
-				{icon}
 				{item.label}
 				{item.shortcut !== undefined && <ContextMenuShortcut>{formatForDisplay(item.shortcut)}</ContextMenuShortcut>}
 			</ContextMenuItem>

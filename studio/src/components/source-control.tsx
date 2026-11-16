@@ -1,5 +1,5 @@
 import { useFormatForDisplay } from '@tanstack/react-hotkeys';
-import { ChevronsUpDownIcon, DatabaseIcon, FileIcon, FolderOpenIcon, RadioTowerIcon } from 'lucide-react';
+import { ChevronsUpDownIcon, DatabaseIcon, FileIcon, RadioTowerIcon } from 'lucide-react';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuShortcut, MenuTrigger } from '@/components/ui/menu';
 import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
@@ -17,9 +17,9 @@ const statusLabels: Record<Source['status'], string> = {
 };
 
 const menuItems: MenuEntry[] = [
-	{ label: 'Open log', icon: FolderOpenIcon, shortcut: shortcuts.openLog, onSelect: chooseLog },
+	{ label: 'Open log', shortcut: shortcuts.openLog, onSelect: chooseLog },
 	'separator',
-	{ label: 'Connect', icon: RadioTowerIcon, shortcut: shortcuts.connect, onSelect: startConnect },
+	{ label: 'Connect', shortcut: shortcuts.connect, onSelect: startConnect },
 ];
 
 function SourceIcon({ source }: { source: Source | undefined }) {
@@ -73,13 +73,11 @@ export function SourceControl() {
 				</MenuTrigger>
 				<MenuPopup align="start" className="w-(--anchor-width) min-w-56">
 					<MenuItem onClick={chooseLog}>
-						<FolderOpenIcon />
 						Open log
 						<MenuShortcut>{formatForDisplay(shortcuts.openLog)}</MenuShortcut>
 					</MenuItem>
 					<MenuSeparator />
 					<MenuItem onClick={startConnect}>
-						<RadioTowerIcon />
 						Connect
 						<MenuShortcut>{formatForDisplay(shortcuts.connect)}</MenuShortcut>
 					</MenuItem>

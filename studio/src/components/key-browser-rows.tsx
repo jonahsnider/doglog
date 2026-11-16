@@ -2,7 +2,7 @@ import { useDraggable } from '@dnd-kit/react';
 import { useParams } from '@tanstack/react-router';
 import { defaultRangeExtractor, type Range, useVirtualizer } from '@tanstack/react-virtual';
 import { Tree, TreeItem, TreeItemIndicator, TreeItemLabel } from '@ui-sdk/react/tree';
-import { BanIcon, ChevronRightIcon, CopyIcon, LayoutGridIcon } from 'lucide-react';
+import { BanIcon, ChevronRightIcon } from 'lucide-react';
 import { memo, useCallback, useRef, useState } from 'react';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { HighlightedText } from '@/components/highlighted-text';
@@ -131,9 +131,9 @@ const KeyRowView = memo(function KeyRowView({
 	const typeMark = entry && <TypeMark type={entry.type} tooltip={markTooltip} />;
 	const menuItems: MenuEntry[] = entry
 		? [
-				{ label: 'Add to dashboard', icon: LayoutGridIcon, disabled: !add, onSelect: () => add?.() },
-				{ label: 'Copy name', icon: CopyIcon, onSelect: () => void navigator.clipboard.writeText(entry.name) },
-				{ label: 'Copy value', icon: CopyIcon, disabled: unsupported, onSelect: () => copyValue(entry) },
+				{ label: 'Add to dashboard', disabled: !add, onSelect: () => add?.() },
+				{ label: 'Copy name', onSelect: () => void navigator.clipboard.writeText(entry.name) },
+				{ label: 'Copy value', disabled: unsupported, onSelect: () => copyValue(entry) },
 			]
 		: [];
 

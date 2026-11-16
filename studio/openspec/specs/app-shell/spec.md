@@ -104,3 +104,18 @@ Context menus SHALL be shown as native operating system menus in the desktop app
 - **GIVEN** the user is using the web app
 - **WHEN** the user right-clicks a dashboard in the sidebar
 - **THEN** an in-app menu with the same items is shown
+
+### Requirement: Menu items are text only
+
+Items in context menus and dropdown menus SHALL NOT show icons, so in-app menus match native menus and stay easy to scan.
+
+#### Scenario: Open a dropdown menu
+
+- **WHEN** the user opens the dashboard options menu in the sidebar
+- **THEN** each item shows only its label and keyboard shortcut, if any
+
+#### Scenario: Open a context menu on the web
+
+- **GIVEN** the user is using the web app
+- **WHEN** the user right-clicks a dashboard pane
+- **THEN** each item shows only its label and keyboard shortcut, if any

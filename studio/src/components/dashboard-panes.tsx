@@ -1,5 +1,5 @@
 import type { Hotkey } from '@tanstack/react-hotkeys';
-import { Columns2Icon, ReplaceIcon, Rows2Icon, Settings2Icon, XIcon } from 'lucide-react';
+import { Columns2Icon, Rows2Icon, XIcon } from 'lucide-react';
 import { type ReactNode, useMemo, useState } from 'react';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
@@ -142,14 +142,12 @@ function PaneView({
 	const menuItems: MenuEntry[] = [
 		{
 			label: 'Split right',
-			icon: Columns2Icon,
 			shortcut: shortcuts.splitRight,
 			disabled: !canSplitRight,
 			onSelect: () => split('row'),
 		},
 		{
 			label: 'Split down',
-			icon: Rows2Icon,
 			shortcut: shortcuts.splitDown,
 			disabled: !canSplitDown,
 			onSelect: () => split('column'),
@@ -157,18 +155,16 @@ function PaneView({
 		'separator',
 		{
 			label: 'Change widget',
-			icon: ReplaceIcon,
 			disabled: widget === undefined,
 			items: widgetTypes.map((other) => ({
 				label: other.name,
-				icon: other.icon,
 				disabled: other === type,
 				onSelect: () => changeWidget(other),
 			})),
 		},
-		{ label: 'Widget options', icon: Settings2Icon, disabled: !type, onSelect: () => setOptionsOpen(true) },
+		{ label: 'Widget options', disabled: !type, onSelect: () => setOptionsOpen(true) },
 		'separator',
-		{ label: 'Close', icon: XIcon, shortcut: shortcuts.close, disabled: !closable, onSelect: close },
+		{ label: 'Close', shortcut: shortcuts.close, disabled: !closable, onSelect: close },
 	];
 
 	return (

@@ -1,6 +1,6 @@
 import { useFormatForDisplay, useHotkeyHint } from '@tanstack/react-hotkeys';
 import { Link, useMatchRoute, useRouter } from '@tanstack/react-router';
-import { EllipsisIcon, LayoutDashboardIcon, PencilIcon, PlusIcon, XIcon } from 'lucide-react';
+import { EllipsisIcon, LayoutDashboardIcon, PlusIcon } from 'lucide-react';
 import { PointerActivationConstraints } from '@dnd-kit/dom';
 import { DragDropProvider, KeyboardSensor, PointerSensor } from '@dnd-kit/react';
 import { isSortable, useSortable } from '@dnd-kit/react/sortable';
@@ -101,11 +101,10 @@ function DashboardItem({
 	const closeOthers = () => closeDashboards(dashboards.filter((other) => other !== dashboard));
 	const closeBelow = () => closeDashboards(dashboards.slice(index + 1));
 	const menuItems: MenuEntry[] = [
-		{ label: 'Rename', icon: PencilIcon, onSelect: () => setRenaming(true) },
+		{ label: 'Rename', onSelect: () => setRenaming(true) },
 		'separator',
 		{
 			label: 'Close dashboard',
-			icon: XIcon,
 			shortcut: shortcuts.closeDashboard,
 			destructive: true,
 			onSelect: () => closeDashboard(dashboard),
@@ -168,13 +167,9 @@ function DashboardItem({
 							<span className="sr-only">Dashboard options</span>
 						</MenuTrigger>
 						<MenuPopup align="start" side="right">
-							<MenuItem onClick={() => setRenaming(true)}>
-								<PencilIcon />
-								Rename
-							</MenuItem>
+							<MenuItem onClick={() => setRenaming(true)}>Rename</MenuItem>
 							<MenuSeparator />
 							<MenuItem variant="destructive" onClick={() => closeDashboard(dashboard)}>
-								<XIcon />
 								Close dashboard
 								<MenuShortcut>{formatForDisplay(shortcuts.closeDashboard)}</MenuShortcut>
 							</MenuItem>
