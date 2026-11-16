@@ -4,7 +4,5 @@
 	},
 	"editor.defaultFormatter": "oxc.oxc-vscode",
 	"java.compile.nullAnalysis.mode": "disabled",
-	"rust-analyzer.linkedProjects": [
-		"studio/src-tauri/Cargo.toml"
-	]
+	"rust-analyzer.linkedProjects": ["studio/src-tauri/Cargo.toml"]
 }
