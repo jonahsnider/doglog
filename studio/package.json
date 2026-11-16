@@ -8,6 +8,7 @@
 		"check": "vp check && tsc -b",
 		"check:fix": "vp check --fix",
 		"deploy": "wrangler deploy",
+		"desktop:install": "tauri build --bundles app && rm -rf \"/Applications/DogLog Studio.app\" && ditto \"src-tauri/target/release/bundle/macos/DogLog Studio.app\" \"/Applications/DogLog Studio.app\"",
 		"dev": "portless",
 		"dev:app": "vp dev",
 		"openspec:check": "openspec validate --specs --strict --no-interactive",
