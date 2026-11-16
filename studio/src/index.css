@@ -1,6 +1,8 @@
 @import 'tailwindcss';
-@import '@fontsource-variable/inter';
-@import '@fontsource-variable/geist-mono';
+@import '@fontsource-variable/ibm-plex-sans';
+@import '@fontsource-variable/source-sans-3';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
 
 @custom-variant dark (&:is(.dark *));
 /* Breakpoints for the add widget prompt, based on how much space its content needs */
@@ -14,9 +16,9 @@
 	--animate-toast-error-odd: toast-error-odd 0.28s cubic-bezier(0.5, 1, 0.89, 1);
 	--animate-toast-error-even: toast-error-even 0.28s cubic-bezier(0.5, 1, 0.89, 1);
 	--animate-caret-blink: 1s ease-out infinite caret-blink;
-	--font-heading: 'Inter Variable', sans-serif;
-	--font-mono: 'Geist Mono Variable', monospace;
-	--font-sans: 'Inter Variable', sans-serif;
+	--font-heading: 'Source Sans 3 Variable', sans-serif;
+	--font-mono: 'IBM Plex Mono', monospace;
+	--font-sans: 'IBM Plex Sans Variable', sans-serif;
 	--color-sidebar-ring: var(--sidebar-ring);
 	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
 	--color-sidebar-primary: var(--sidebar-primary);
@@ -391,7 +393,10 @@
 		font-family: var(--font-mono);
 	}
 	html {
-		@apply font-sans font-mono;
+		@apply font-sans;
+	}
+	body {
+		font-variant-numeric: tabular-nums;
 	}
 	/* Tailwind v4 removed the pointer cursor from buttons, see https://ui.shadcn.com/docs/tailwind-v4#buttons-use-the-default-cursor */
 	:is(
