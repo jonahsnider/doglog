@@ -7,7 +7,6 @@ import { isSortable, useSortable } from '@dnd-kit/react/sortable';
 import { useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
-import { closeDashboard, closeDashboards } from '@/close-dashboard';
 import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuShortcut, MenuTrigger } from '@/components/ui/menu';
 import {
 	SidebarGroup,
@@ -24,7 +23,14 @@ import { PreviewCard, PreviewCardPopup, PreviewCardTrigger } from '@/components/
 import { Kbd } from '@/components/ui/kbd';
 import { dashboardShortcut, newDashboard, shortcuts } from '@/commands';
 import { dashboardName, mainWidgetType, suggestDashboardName } from '@/dashboard-label';
-import { type Dashboard, moveDashboard, renameDashboard, useDashboards } from '@/dashboards';
+import {
+	type Dashboard,
+	deleteDashboard,
+	deleteDashboards,
+	moveDashboard,
+	renameDashboard,
+	useDashboards,
+} from '@/dashboards';
 
 const sensors = [
 	// Only start dragging once the pointer moves, so clicking a dashboard still opens it
@@ -102,8 +108,9 @@ function DashboardItem({
 	// Disabled rather than hidden like in a browser's tab menu, so the menu's layout doesn't shift
 	const isOnly = dashboards.length === 1;
 	const isLast = index === dashboards.length - 1;
-	const closeOthers = () => closeDashboards(dashboards.filter((other) => other !== dashboard));
-	const closeBelow = () => closeDashboards(dashboards.slice(index + 1));
+	const closeOthers = () =>
+		deleteDashboards(dashboards.filter((other) => other !== dashboard).map((other) => other.id));
+	const closeBelow = () => deleteDashboards(dashboards.slice(index + 1).map((other) => other.id));
 	const menuItems: MenuEntry[] = [
 		{ label: 'Rename', onSelect: () => setRenaming(true) },
 		'separator',
@@ -111,7 +118,7 @@ function DashboardItem({
 			label: 'Close dashboard',
 			shortcut: shortcuts.closeDashboard,
 			destructive: true,
-			onSelect: () => closeDashboard(dashboard),
+			onSelect: () => deleteDashboard(dashboard.id),
 		},
 		{ label: 'Close other dashboards', disabled: isOnly, onSelect: closeOthers },
 		{ label: 'Close dashboards below', disabled: isLast, onSelect: closeBelow },
@@ -179,7 +186,7 @@ function DashboardItem({
 						<MenuPopup align="start" side="right">
 							<MenuItem onClick={() => setRenaming(true)}>Rename</MenuItem>
 							<MenuSeparator />
-							<MenuItem variant="destructive" onClick={() => closeDashboard(dashboard)}>
+							<MenuItem variant="destructive" onClick={() => deleteDashboard(dashboard.id)}>
 								Close dashboard
 								<MenuShortcut>{formatForDisplay(shortcuts.closeDashboard)}</MenuShortcut>
 							</MenuItem>

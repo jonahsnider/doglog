@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define how users create, arrange, reorder, and delete dashboards, which are source-agnostic layouts of widget panes that persist locally on the device.
+Define how users create, arrange, reorder, and close dashboards, which are source-agnostic layouts of widget panes that persist locally on the device.
 
 ## Requirements
 
@@ -118,25 +118,14 @@ Users SHALL be able to reorder dashboards in the sidebar by dragging them.
 - **WHEN** the user drags a dashboard above another
 - **THEN** the list order updates and is persisted
 
-### Requirement: Delete a dashboard
+### Requirement: Close a dashboard
 
-Closing a dashboard SHALL permanently delete it. Studio MUST ask for confirmation first, unless the dashboard has no widgets.
+Closing a dashboard SHALL remove it from the sidebar without asking for confirmation, since it can be reopened.
 
-#### Scenario: Confirmed close
+#### Scenario: Close a dashboard
 
-- **WHEN** the user closes a dashboard and confirms
-- **THEN** the dashboard is permanently deleted
-
-#### Scenario: Cancelled close
-
-- **WHEN** the user closes a dashboard and cancels the confirmation
-- **THEN** the dashboard is unchanged
-
-#### Scenario: Close an empty dashboard
-
-- **GIVEN** a dashboard with no widgets
-- **WHEN** the user closes it
-- **THEN** it is deleted without a confirmation
+- **WHEN** the user closes a dashboard
+- **THEN** it is removed from the sidebar
 
 #### Scenario: Close the selected dashboard
 
@@ -146,19 +135,19 @@ Closing a dashboard SHALL permanently delete it. Studio MUST ask for confirmatio
 
 ### Requirement: Close several dashboards
 
-Like browser tabs, a dashboard's menus SHALL offer to close every other dashboard, or every dashboard below it in the sidebar. These follow the same confirmation rule as closing one dashboard: Studio MUST ask once if any of them have widgets. Each option MUST be disabled when there's nothing for it to close.
+Like browser tabs, a dashboard's menus SHALL offer to close every other dashboard, or every dashboard below it in the sidebar. Each option MUST be disabled when there's nothing for it to close.
 
 #### Scenario: Close other dashboards
 
-- **WHEN** the user chooses Close other dashboards on a dashboard and confirms
-- **THEN** every other dashboard is permanently deleted
+- **WHEN** the user chooses Close other dashboards on a dashboard
+- **THEN** every other dashboard is closed
 - **AND** the remaining dashboard is selected
 
 #### Scenario: Close dashboards below
 
-- **WHEN** the user chooses Close dashboards below on a dashboard and confirms
-- **THEN** every dashboard below it in the sidebar is permanently deleted
-- **AND** if the selected dashboard was deleted, that dashboard is selected
+- **WHEN** the user chooses Close dashboards below on a dashboard
+- **THEN** every dashboard below it in the sidebar is closed
+- **AND** if the selected dashboard was closed, that dashboard is selected
 
 #### Scenario: Last dashboard in the list
 
@@ -171,6 +160,57 @@ Like browser tabs, a dashboard's menus SHALL offer to close every other dashboar
 - **GIVEN** a single dashboard
 - **WHEN** the user opens its menu
 - **THEN** Close other dashboards is disabled
+
+### Requirement: Reopen closed dashboards
+
+Like browser tabs, users SHALL be able to reopen the most recently closed dashboards, back to where they were in the sidebar. Dashboards closed together MUST reopen together. Closed dashboards MUST be remembered on the device, up to the last 25 closes.
+
+#### Scenario: Reopen a dashboard
+
+- **GIVEN** the user closed the second dashboard in the sidebar
+- **WHEN** the user reopens closed dashboards
+- **THEN** it is the second dashboard again
+- **AND** it is selected
+
+#### Scenario: Reopen dashboards closed together
+
+- **GIVEN** the user chose Close dashboards below
+- **WHEN** the user reopens closed dashboards
+- **THEN** every dashboard that was below it is back
+
+#### Scenario: Reopen after a restart
+
+- **GIVEN** the user closed a dashboard and restarted Studio
+- **WHEN** the user reopens closed dashboards
+- **THEN** the dashboard is back
+
+### Requirement: Undo and redo
+
+Users SHALL be able to undo and redo changes to the current dashboard, including its panes, widgets, divider positions, and name. Each dashboard MUST have its own history, kept until Studio is closed, including while the dashboard is closed. Undoing a change MUST also restore which pane was focused before it. Focusing a pane MUST NOT be a change of its own.
+
+#### Scenario: Undo closing a pane
+
+- **GIVEN** a dashboard with two panes
+- **WHEN** the user closes a pane and then undoes
+- **THEN** the pane is back with its widget, and focused
+
+#### Scenario: Redo
+
+- **GIVEN** the user undid splitting a pane
+- **WHEN** the user redoes
+- **THEN** the pane is split again
+
+#### Scenario: Histories are per dashboard
+
+- **GIVEN** the user changed dashboard A and then switched to dashboard B
+- **WHEN** the user undoes
+- **THEN** only dashboard B's changes are undone
+
+#### Scenario: Undo in a reopened dashboard
+
+- **GIVEN** the user removed every pane from a dashboard and then closed it
+- **WHEN** the user reopens it and undoes
+- **THEN** its last removed pane is back
 
 ### Requirement: Pane layout
 
@@ -221,7 +261,7 @@ Studio SHALL guide users from empty states to a usable dashboard.
 
 #### Scenario: No dashboards
 
-- **GIVEN** the user has deleted every dashboard
+- **GIVEN** the user has closed every dashboard
 - **THEN** the main area shows a New dashboard prompt
 
 ### Requirement: Local persistence
@@ -236,12 +276,12 @@ Every dashboard change MUST be saved on the device immediately, so dashboards su
 
 ### Requirement: Dashboard context menu
 
-Right-clicking a dashboard in the sidebar SHALL open a context menu with Rename and Delete.
+Right-clicking a dashboard in the sidebar SHALL open a context menu with Rename, Close dashboard, Close other dashboards, and Close dashboards below.
 
-#### Scenario: Delete from the context menu
+#### Scenario: Close from the context menu
 
-- **WHEN** the user right-clicks a dashboard and chooses Delete
-- **THEN** it is closed the same way as any other dashboard close, including the confirmation rules
+- **WHEN** the user right-clicks a dashboard and chooses Close dashboard
+- **THEN** it is closed the same way as any other dashboard close
 
 ### Requirement: Focused pane
 

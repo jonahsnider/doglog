@@ -8,12 +8,24 @@ Define Studio's app-wide keyboard shortcuts and how they differ between the desk
 
 ### Requirement: Global shortcuts
 
-Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Settings (⌘, or Alt+,), Toggle sidebar (⌘B), Toggle key browser (⌥⌘B), Connect (⌘K), Split right (⌘D), Split down (⇧⌘D), Open log (⌘O), and Switch to dashboard 1-9 (⌘1-⌘9, or Alt+1-Alt+9).
+Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Reopen closed dashboard (⇧⌘T, or Alt+Shift+T), Undo (⌘Z), Redo (⇧⌘Z), Settings (⌘, or Alt+,), Toggle sidebar (⌘B), Toggle key browser (⌥⌘B), Connect (⌘K), Split right (⌘D), Split down (⇧⌘D), Open log (⌘O), and Switch to dashboard 1-9 (⌘1-⌘9, or Alt+1-Alt+9).
 
 #### Scenario: New dashboard
 
 - **WHEN** the user presses Alt+T
 - **THEN** a new dashboard is created the same way as pressing New dashboard
+
+#### Scenario: Reopen a closed dashboard
+
+- **GIVEN** the user closed a dashboard
+- **WHEN** the user presses Alt+Shift+T
+- **THEN** the dashboard is reopened
+
+#### Scenario: Undo in a text field
+
+- **GIVEN** the user is renaming a dashboard
+- **WHEN** the user presses ⌘Z
+- **THEN** the text field undoes its typing and the dashboard is unchanged
 
 #### Scenario: Open Settings
 
@@ -82,7 +94,7 @@ While the user holds the modifier for switching dashboards (⌘ in the desktop a
 
 ### Requirement: Desktop-only shortcuts
 
-⌘T, ⌘W, ⇧⌘W, ⌘, and ⌘1-⌘9 SHALL only be active in the desktop app, because browsers reserve them. Their Alt variants MUST work in both the desktop app and the web.
+⌘T, ⌘W, ⇧⌘W, ⇧⌘T, ⌘, and ⌘1-⌘9 SHALL only be active in the desktop app, because browsers reserve them. Their Alt variants MUST work in both the desktop app and the web.
 
 #### Scenario: Web app
 
@@ -99,7 +111,7 @@ While the user holds the modifier for switching dashboards (⌘ in the desktop a
 
 ### Requirement: App menu
 
-On macOS, the desktop app SHALL list New dashboard, Open log, Close pane, and Close dashboard in its File menu, and Settings in its app menu, each with its shortcut.
+On macOS, the desktop app SHALL list New dashboard, Reopen closed dashboard, Open log, Close pane, and Close dashboard in its File menu, Undo and Redo in its Edit menu, and Settings in its app menu, each with its shortcut. Undo and Redo MUST act on the focused text field while one is focused.
 
 #### Scenario: Open a log from the menu
 
@@ -127,17 +139,17 @@ The close shortcut SHALL close the focused pane. When the dashboard is down to a
 
 - **GIVEN** a dashboard with a single empty pane
 - **WHEN** the user presses the close shortcut
-- **THEN** the dashboard is deleted without a confirmation
+- **THEN** the dashboard is closed
 
 ### Requirement: Close the current dashboard
 
-The close dashboard shortcut SHALL close the current dashboard the same way as any other dashboard close, including the confirmation rules.
+The close dashboard shortcut SHALL close the current dashboard the same way as any other dashboard close.
 
 #### Scenario: Close a dashboard with widgets
 
 - **GIVEN** the current dashboard has widgets
 - **WHEN** the user presses the close dashboard shortcut
-- **THEN** the dashboard close confirmation opens
+- **THEN** the dashboard is closed without a confirmation
 
 ### Requirement: Shortcuts while typing
 

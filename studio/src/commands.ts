@@ -2,15 +2,18 @@ import { isTauri } from '@tauri-apps/api/core';
 import { Menu } from '@tauri-apps/api/menu';
 import { detectPlatform, type Hotkey, useHotkeys } from '@tanstack/react-hotkeys';
 import { type RegisteredRouter, useRouter } from '@tanstack/react-router';
-import { closeDashboard } from '@/close-dashboard';
 import {
 	closeFocusedPane,
 	createDashboard,
 	type Dashboard,
+	deleteDashboard,
 	getDashboard,
 	getDashboards,
 	getFocusedPane,
+	redoDashboard,
+	reopenClosedDashboards,
 	splitDashboardPane,
+	undoDashboard,
 } from '@/dashboards';
 import { chooseLog, connect } from '@/data/source';
 import { canSplitPane, type SplitDirection } from '@/pane-layout';
@@ -31,11 +34,14 @@ export const shortcuts = {
 	newDashboard: desktop ? 'Mod+T' : 'Alt+T',
 	close: desktop ? 'Mod+W' : 'Alt+W',
 	closeDashboard: desktop ? 'Mod+Shift+W' : 'Alt+Shift+W',
+	reopenDashboard: desktop ? 'Mod+Shift+T' : 'Alt+Shift+T',
 	settings: desktop ? 'Mod+,' : 'Alt+,',
 	connect: 'Mod+K',
 	splitRight: 'Mod+D',
 	splitDown: 'Mod+Shift+D',
 	openLog: 'Mod+O',
+	undo: 'Mod+Z',
+	redo: 'Mod+Shift+Z',
 } as const satisfies Record<string, Hotkey>;
 
 const dashboardNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
@@ -69,7 +75,38 @@ function closeFocused(router: RegisteredRouter): void {
 function closeCurrentDashboard(router: RegisteredRouter): void {
 	const dashboard = currentDashboard(router);
 	if (dashboard) {
-		closeDashboard(dashboard);
+		deleteDashboard(dashboard.id);
+	}
+}
+
+function reopenDashboard(router: RegisteredRouter): void {
+	const dashboard = reopenClosedDashboards();
+	if (dashboard) {
+		void router.navigate({ to: '/dashboards/$dashboardId', params: { dashboardId: dashboard.id } });
+	}
+}
+
+/** Text fields keep their own undo history */
+function isEditingText(): boolean {
+	const element = document.activeElement;
+	return (
+		element instanceof HTMLInputElement ||
+		element instanceof HTMLTextAreaElement ||
+		(element instanceof HTMLElement && element.isContentEditable)
+	);
+}
+
+function undoOrRedo(router: RegisteredRouter, direction: 'undo' | 'redo'): void {
+	if (isEditingText()) {
+		// The native menu's Undo and Redo replace the predefined items that would do this for text fields
+		// oxlint-disable-next-line typescript/no-deprecated -- It's the only way to trigger a text field's undo
+		document.execCommand(direction);
+		return;
+	}
+
+	const dashboard = currentDashboard(router);
+	if (dashboard) {
+		(direction === 'undo' ? undoDashboard : redoDashboard)(dashboard.id);
 	}
 }
 
@@ -110,15 +147,28 @@ export function useGlobalShortcuts(): void {
 			{ hotkey: 'Alt+T', callback: () => newDashboard(router) },
 			{ hotkey: 'Alt+W', callback: () => closeFocused(router) },
 			{ hotkey: 'Alt+Shift+W', callback: () => closeCurrentDashboard(router) },
+			{ hotkey: 'Alt+Shift+T', callback: () => reopenDashboard(router) },
 			{ hotkey: 'Alt+,', callback: () => openSettings(router) },
 			{ hotkey: 'Mod+T', callback: () => newDashboard(router), options: desktopOnly },
 			{ hotkey: 'Mod+W', callback: () => closeFocused(router), options: desktopOnly },
 			{ hotkey: 'Mod+Shift+W', callback: () => closeCurrentDashboard(router), options: desktopOnly },
+			{ hotkey: 'Mod+Shift+T', callback: () => reopenDashboard(router), options: desktopOnly },
 			{ hotkey: 'Mod+,', callback: () => openSettings(router), options: desktopOnly },
 			{ hotkey: shortcuts.connect, callback: startConnect },
 			{ hotkey: shortcuts.splitRight, callback: () => splitFocused(router, 'row') },
 			{ hotkey: shortcuts.splitDown, callback: () => splitFocused(router, 'column') },
 			{ hotkey: shortcuts.openLog, callback: chooseLog, options: outsideNativeMenu },
+			// Text fields handle these themselves
+			{
+				hotkey: shortcuts.undo,
+				callback: () => undoOrRedo(router, 'undo'),
+				options: { ...outsideNativeMenu, ignoreInputs: true },
+			},
+			{
+				hotkey: shortcuts.redo,
+				callback: () => undoOrRedo(router, 'redo'),
+				options: { ...outsideNativeMenu, ignoreInputs: true },
+			},
 			...dashboardNumbers.flatMap((number) => [
 				{ hotkey: `Alt+${number}` as const, callback: () => openDashboardAt(router, number - 1) },
 				{
@@ -161,6 +211,11 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 				text: 'File',
 				items: [
 					{ text: 'New Dashboard', accelerator: 'CmdOrCtrl+T', action: () => newDashboard(router) },
+					{
+						text: 'Reopen Closed Dashboard',
+						accelerator: 'CmdOrCtrl+Shift+T',
+						action: () => reopenDashboard(router),
+					},
 					{ text: 'Open Log…', accelerator: 'CmdOrCtrl+O', action: chooseLog },
 					separator,
 					{ text: 'Close Pane', accelerator: 'CmdOrCtrl+W', action: () => closeFocused(router) },
@@ -174,8 +229,8 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 			{
 				text: 'Edit',
 				items: [
-					{ item: 'Undo' },
-					{ item: 'Redo' },
+					{ text: 'Undo', accelerator: 'CmdOrCtrl+Z', action: () => undoOrRedo(router, 'undo') },
+					{ text: 'Redo', accelerator: 'CmdOrCtrl+Shift+Z', action: () => undoOrRedo(router, 'redo') },
 					separator,
 					{ item: 'Cut' },
 					{ item: 'Copy' },

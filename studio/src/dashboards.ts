@@ -61,8 +61,55 @@ export function createDashboard(position: 'top' | 'bottom' = 'top'): Dashboard {
 	return dashboard;
 }
 
+type History = { undo: Dashboard[]; redo: Dashboard[] };
+
+/** Each dashboard's undo history, kept for the session so a reopened dashboard can still undo */
+const histories = new Map<string, History>();
+const historyLimit = 100;
+
+function setDashboard(dashboard: Dashboard): void {
+	store.set((dashboards) => dashboards.map((other) => (other.id === dashboard.id ? dashboard : other)));
+}
+
+/** Focusing a pane isn't an edit, and some operations recreate a layout without changing it */
+function sameContents(a: Dashboard, b: Dashboard): boolean {
+	return a.name === b.name && JSON.stringify(a.layout) === JSON.stringify(b.layout);
+}
+
+/** Change a dashboard, saving its previous state as an undo step if its contents changed */
 function updateDashboard(id: string, update: (dashboard: Dashboard) => Dashboard): void {
-	store.set((dashboards) => dashboards.map((dashboard) => (dashboard.id === id ? update(dashboard) : dashboard)));
+	const dashboard = getDashboard(id);
+	if (!dashboard) {
+		return;
+	}
+
+	const updated = update(dashboard);
+	if (!sameContents(dashboard, updated)) {
+		const history = histories.get(id) ?? { undo: [], redo: [] };
+		history.undo = [...history.undo, dashboard].slice(-historyLimit);
+		history.redo = [];
+		histories.set(id, history);
+	}
+	setDashboard(updated);
+}
+
+/** Go back to the dashboard's state from before its last edit, including which pane was focused */
+export function undoDashboard(id: string): void {
+	travel(id, 'undo', 'redo');
+}
+
+export function redoDashboard(id: string): void {
+	travel(id, 'redo', 'undo');
+}
+
+function travel(id: string, from: keyof History, to: keyof History): void {
+	const dashboard = getDashboard(id);
+	const history = histories.get(id);
+	const target = dashboard && history?.[from].pop();
+	if (dashboard && history && target) {
+		history[to].push(dashboard);
+		setDashboard(target);
+	}
 }
 
 /** A blank name goes back to suggesting one from the dashboard's contents */
@@ -84,13 +131,46 @@ export function moveDashboard(id: string, index: number): void {
 	});
 }
 
-function deleteDashboard(id: string): void {
+const closedDashboardSchema = z.object({ dashboard: dashboardSchema, index: z.number() });
+
+/** Groups of dashboards that were closed together, oldest first, for reopening them like closed browser tabs */
+const closedStore = createPersistedAtom('closed-dashboards', z.array(z.array(closedDashboardSchema)).catch([]), []);
+const closedLimit = 25;
+
+export function deleteDashboard(id: string): void {
 	deleteDashboards([id]);
 }
 
+/** Close dashboards, they can be brought back with `reopenClosedDashboards()` */
 export function deleteDashboards(ids: readonly string[]): void {
 	const removed = new Set(ids);
-	store.set((dashboards) => dashboards.filter((dashboard) => !removed.has(dashboard.id)));
+	const dashboards = store.get();
+	const closed = dashboards.flatMap((dashboard, index) => (removed.has(dashboard.id) ? [{ dashboard, index }] : []));
+	if (closed.length === 0) {
+		return;
+	}
+
+	closedStore.set((groups) => [...groups, closed].slice(-closedLimit));
+	store.set(dashboards.filter((dashboard) => !removed.has(dashboard.id)));
+}
+
+/** Put the most recently closed dashboards back where they were, returns the first of them */
+export function reopenClosedDashboards(): Dashboard | undefined {
+	const closed = closedStore.get().at(-1);
+	if (!closed) {
+		return undefined;
+	}
+
+	closedStore.set((groups) => groups.slice(0, -1));
+	store.set((dashboards) => {
+		const reopened = [...dashboards];
+		// In their original order, so each index lines up with the dashboards before it
+		for (const { dashboard, index } of closed) {
+			reopened.splice(index, 0, dashboard);
+		}
+		return reopened;
+	});
+	return closed[0]?.dashboard;
 }
 
 /**

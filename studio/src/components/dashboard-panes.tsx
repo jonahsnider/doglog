@@ -1,6 +1,6 @@
 import type { Hotkey } from '@tanstack/react-hotkeys';
 import { Columns2Icon, Rows2Icon, XIcon } from 'lucide-react';
-import { type ReactNode, useMemo, useState } from 'react';
+import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { Group, Panel, Separator, useGroupRef } from 'react-resizable-panels';
 import { AddWidgetPrompt } from '@/components/add-widget-prompt';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
@@ -69,6 +69,11 @@ function SplitView({ split, ...props }: PaneNodeProps & { split: Split }) {
 	const firstId = `${split.id}-first`;
 	const secondId = `${split.id}-second`;
 	const groupRef = useGroupRef();
+
+	// The group only reads `defaultLayout` when it mounts, so a ratio changed by undo or redo is applied here
+	useEffect(() => {
+		groupRef.current?.setLayout({ [firstId]: split.ratio * 100, [secondId]: (1 - split.ratio) * 100 });
+	}, [groupRef, firstId, secondId, split.ratio]);
 
 	return (
 		<Group
