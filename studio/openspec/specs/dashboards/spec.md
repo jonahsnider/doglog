@@ -69,6 +69,12 @@ Closing a dashboard SHALL permanently delete it. Studio MUST ask for confirmatio
 - **WHEN** the user closes it
 - **THEN** it is deleted without a confirmation
 
+#### Scenario: Close the selected dashboard
+
+- **GIVEN** the selected dashboard is not the only dashboard
+- **WHEN** the user closes it
+- **THEN** the dashboard below it in the sidebar is selected, or the one above it if it was last
+
 ### Requirement: Pane layout
 
 A dashboard SHALL be a layout of panes, each holding exactly one widget. Users MUST be able to split panes horizontally or vertically, resize them, and close them.
