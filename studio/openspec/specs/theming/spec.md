@@ -8,7 +8,7 @@ Define Studio's visual identity: a Material Design 3 color scheme generated from
 
 ### Requirement: Generated color scheme
 
-Unless the Neutral preset is selected, Studio SHALL generate its colors from the theme color setting as a Material Design 3 tonal spot color scheme using the 2025 spec (primary, surface, container, and similar roles). The default theme color MUST be Team 581 maroon `#591616`. The match13 preset MUST use match13's blue `#1a7ccd`. The scheme MUST use the MD3 contrast level for the contrast setting: 0 for standard, 0.5 for medium, and 1 for high.
+Unless the Neutral preset is selected, Studio SHALL generate its colors from the theme color setting as a Material Design 3 tonal spot color scheme using the 2025 spec (primary, surface, container, and similar roles). The default theme color MUST be Team 581 maroon `#591616`. The match13 preset MUST use match13's blue `#1a7ccd`, with white `#ffffff` as the secondary color. The scheme MUST use the MD3 contrast level for the contrast setting: 0 for standard, 0.5 for medium, and 1 for high.
 
 #### Scenario: Default color
 
