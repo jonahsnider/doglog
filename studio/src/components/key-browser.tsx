@@ -2,7 +2,7 @@ import { useHotkey } from '@tanstack/react-hotkeys';
 import { useSelector } from '@tanstack/react-store';
 import { PanelRightCloseIcon, PanelRightOpenIcon, SearchIcon } from 'lucide-react';
 import { useDeferredValue, useMemo, useState } from 'react';
-import { Panel, Separator } from 'react-resizable-panels';
+import { Panel, Separator, usePanelRef } from 'react-resizable-panels';
 import { KeyRows } from '@/components/key-browser-rows';
 import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
@@ -15,7 +15,8 @@ import { createPersistedAtom } from '@/lib/persisted-store';
 import * as z from 'zod';
 
 const openStore = createPersistedAtom('key-browser-open', z.boolean(), true);
-const widthPxStore = createPersistedAtom('key-browser-width', z.number().positive(), 320);
+const defaultWidthPx = 320;
+const widthPxStore = createPersistedAtom('key-browser-width', z.number().positive(), defaultWidthPx);
 
 function toggleOpen(): void {
 	openStore.set((open) => !open);
@@ -27,6 +28,7 @@ const shortcut = 'Mod+Alt+B';
 export function KeyBrowser() {
 	const open = useSelector(openStore);
 	useHotkey(shortcut, toggleOpen, { requireReset: true });
+	const panelRef = usePanelRef();
 
 	if (!open) {
 		return (
@@ -40,9 +42,14 @@ export function KeyBrowser() {
 		<>
 			<Separator
 				aria-label="Resize key browser"
-				className="w-px bg-border outline-none transition-colors focus-visible:bg-ring data-[separator=active]:bg-ring data-[separator=hover]:bg-ring"
+				// Covers the library's 10px hit area so double-clicks land on the separator
+				className="relative z-10 w-px bg-border after:absolute after:inset-y-0 after:-inset-x-[4.5px] outline-none transition-colors focus-visible:bg-ring data-[separator=active]:bg-ring data-[separator=hover]:bg-ring"
+				// The built-in reset would use the saved width
+				disableDoubleClick
+				onDoubleClick={() => panelRef.current?.resize(defaultWidthPx)}
 			/>
 			<Panel
+				panelRef={panelRef}
 				defaultSize={widthPxStore.get()}
 				minSize="7rem"
 				groupResizeBehavior="preserve-pixel-size"

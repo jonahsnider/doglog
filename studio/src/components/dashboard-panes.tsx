@@ -1,11 +1,11 @@
 import type { Hotkey } from '@tanstack/react-hotkeys';
 import { Columns2Icon, Rows2Icon, XIcon } from 'lucide-react';
 import { type ReactNode, useMemo, useState } from 'react';
-import { Group, Panel, Separator } from 'react-resizable-panels';
+import { Group, Panel, Separator, useGroupRef } from 'react-resizable-panels';
+import { AddWidgetPrompt } from '@/components/add-widget-prompt';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { WidgetOptions } from '@/components/entry-picker';
 import { Button } from '@/components/ui/button';
-import { Empty, EmptyTitle } from '@/components/ui/empty';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { WidgetView } from '@/components/widget-view';
@@ -68,9 +68,11 @@ function SplitView({ split, ...props }: PaneNodeProps & { split: Split }) {
 	const row = split.direction === 'row';
 	const firstId = `${split.id}-first`;
 	const secondId = `${split.id}-second`;
+	const groupRef = useGroupRef();
 
 	return (
 		<Group
+			groupRef={groupRef}
 			orientation={row ? 'horizontal' : 'vertical'}
 			defaultLayout={{ [firstId]: split.ratio * 100, [secondId]: (1 - split.ratio) * 100 }}
 			// Called once a drag is released or a key is pressed, not on every pointer move
@@ -87,11 +89,16 @@ function SplitView({ split, ...props }: PaneNodeProps & { split: Split }) {
 			</Panel>
 			<Separator
 				aria-label="Resize panes"
-				// The library makes the hit area wider than the visible line
+				// The library's 10px hit area is mostly outside the line, so the pseudo-element catches double-clicks there
 				className={cn(
 					'bg-border outline-none transition-colors focus-visible:bg-ring data-[separator=active]:bg-ring data-[separator=hover]:bg-ring',
-					row ? 'w-px' : 'h-px',
+					'relative z-10 after:absolute',
+					row ? 'w-px after:inset-y-0 after:-inset-x-[4.5px]' : 'h-px after:inset-x-0 after:-inset-y-[4.5px]',
 				)}
+				onDoubleClick={() => {
+					groupRef.current?.setLayout({ [firstId]: 50, [secondId]: 50 });
+					updateLayout(dashboardId, (layout) => resizeSplit(layout, split.id, 0.5));
+				}}
 			/>
 			<Panel id={secondId} minSize="7rem" style={{ overflow: 'hidden' }}>
 				<PaneNodeView {...props} node={split.second} />
@@ -231,39 +238,6 @@ function PaneView({
 				)}
 			</div>
 		</AppContextMenu>
-	);
-}
-
-/** Shown in empty panes */
-function AddWidgetPrompt({ onAdd }: { onAdd: (type: WidgetType) => void }) {
-	return (
-		<Empty
-			// Without select-none, double-clicking selects text in the new widget
-			className="h-full justify-start gap-4 overflow-auto p-4 select-none [container-type:size] [container-name:add-widget] md:p-4"
-			onDoubleClick={(event) => {
-				// Double-clicking a widget tile shouldn't also add the default widget
-				if (!(event.target instanceof Element && event.target.closest('button'))) {
-					onAdd(getWidgetType('discrete-timeline')!);
-				}
-			}}
-		>
-			<EmptyTitle className="add-widget-tiny:hidden">Add widget</EmptyTitle>
-			<div className="grid w-full max-w-sm grid-cols-2 gap-3 add-widget-compact:max-w-56 add-widget-compact:grid-cols-1 add-widget-compact:gap-2">
-				{widgetTypes.map((type) => (
-					<button
-						key={type.id}
-						type="button"
-						className="flex cursor-pointer flex-col gap-2 rounded-xl border bg-card p-2 text-sm text-muted-foreground outline-none transition-[border-color,box-shadow,color] hover:border-ring/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background add-widget-compact:flex-row add-widget-compact:items-center add-widget-compact:justify-center add-widget-compact:px-3"
-						onClick={() => onAdd(type)}
-					>
-						<div className="flex aspect-16/10 items-center justify-center rounded-md border bg-muted/50 add-widget-compact:contents">
-							<type.icon className="size-8 shrink-0 add-widget-compact:size-4" />
-						</div>
-						<span className="pb-0.5 text-center add-widget-compact:pb-0">{type.name}</span>
-					</button>
-				))}
-			</div>
-		</Empty>
 	);
 }
 

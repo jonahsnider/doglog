@@ -139,6 +139,11 @@ A dashboard SHALL be a layout of panes, each holding exactly one widget. Users M
 - **THEN** the pane is divided into two side-by-side panes
 - **AND** the divider between them can be dragged to resize
 
+#### Scenario: Reset a divider
+
+- **WHEN** the user double-clicks the divider between two panes
+- **THEN** the panes return to equal sizes
+
 #### Scenario: Close a pane
 
 - **WHEN** the user closes one of two panes

@@ -72,6 +72,11 @@ The key browser SHALL be a collapsible panel on the right side of the dashboard 
 - **THEN** the key browser's width changes
 - **AND** the panes resize to fill the remaining space
 
+#### Scenario: Reset the width
+
+- **WHEN** the user double-clicks the divider between the panes and the key browser
+- **THEN** the key browser returns to its default width
+
 #### Scenario: Remember the width
 
 - **WHEN** the user resizes the key browser and reopens Studio
