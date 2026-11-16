@@ -11,7 +11,6 @@ import { closeDashboard } from '@/close-dashboard';
 import { Menu, MenuItem, MenuPopup, MenuShortcut, MenuTrigger } from '@/components/ui/menu';
 import {
 	SidebarGroup,
-	SidebarGroupLabel,
 	SidebarInput,
 	SidebarMenu,
 	SidebarMenuAction,
@@ -48,7 +47,6 @@ export function SidebarDashboards() {
 				}
 			}}
 		>
-			<SidebarGroupLabel>Dashboards</SidebarGroupLabel>
 			<DragDropProvider
 				sensors={sensors}
 				onDragEnd={(event) => {

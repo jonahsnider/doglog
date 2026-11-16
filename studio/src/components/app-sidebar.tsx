@@ -16,6 +16,7 @@ import {
 	SidebarMenuBadge,
 	SidebarMenuButton,
 	SidebarMenuItem,
+	SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { SourceControl } from '@/components/source-control';
 import { SidebarDashboards } from '@/components/sidebar-dashboards';
@@ -151,6 +152,7 @@ export function AppSidebar() {
 								</SidebarMenuItem>
 							</SidebarMenu>
 						</SidebarGroup>
+						<SidebarSeparator />
 						<SidebarDashboards />
 					</SidebarContent>
 					<SidebarFooter>
