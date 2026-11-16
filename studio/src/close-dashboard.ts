@@ -1,16 +1,23 @@
 import { createAtom } from '@tanstack/store';
-import { type Dashboard, deleteDashboard } from '@/dashboards';
+import { type Dashboard, deleteDashboards } from '@/dashboards';
 import { hasWidgets } from '@/pane-layout';
 
 /** Global so the shortcut and the confirmation work while the sidebar is unmounted */
-export const closeConfirmation = createAtom<{ dashboard?: Dashboard; open: boolean }>({ open: false });
+export const closeConfirmation = createAtom<{ dashboards: readonly Dashboard[]; open: boolean }>({
+	dashboards: [],
+	open: false,
+});
 
-/** Delete a dashboard, asking for confirmation first if it has widgets */
-export function closeDashboard(dashboard: Dashboard): void {
+/** Delete dashboards, asking for confirmation first if any of them have widgets */
+export function closeDashboards(dashboards: readonly Dashboard[]): void {
 	// Nothing would be lost, so there's nothing to confirm
-	if (hasWidgets(dashboard.layout)) {
-		closeConfirmation.set({ dashboard, open: true });
+	if (dashboards.some((dashboard) => hasWidgets(dashboard.layout))) {
+		closeConfirmation.set({ dashboards, open: true });
 	} else {
-		deleteDashboard(dashboard.id);
+		deleteDashboards(dashboards.map((dashboard) => dashboard.id));
 	}
+}
+
+export function closeDashboard(dashboard: Dashboard): void {
+	closeDashboards([dashboard]);
 }

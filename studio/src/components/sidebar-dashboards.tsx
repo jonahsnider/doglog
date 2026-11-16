@@ -1,14 +1,14 @@
 import { useFormatForDisplay, useHotkeyHint } from '@tanstack/react-hotkeys';
 import { Link, useMatchRoute, useRouter } from '@tanstack/react-router';
-import { EllipsisIcon, LayoutDashboardIcon, PencilIcon, PlusIcon, Trash2Icon, XIcon } from 'lucide-react';
+import { EllipsisIcon, LayoutDashboardIcon, PencilIcon, PlusIcon, XIcon } from 'lucide-react';
 import { PointerActivationConstraints } from '@dnd-kit/dom';
 import { DragDropProvider, KeyboardSensor, PointerSensor } from '@dnd-kit/react';
 import { isSortable, useSortable } from '@dnd-kit/react/sortable';
 import { useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
-import { closeDashboard } from '@/close-dashboard';
-import { Menu, MenuItem, MenuPopup, MenuShortcut, MenuTrigger } from '@/components/ui/menu';
+import { closeDashboard, closeDashboards } from '@/close-dashboard';
+import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuShortcut, MenuTrigger } from '@/components/ui/menu';
 import {
 	SidebarGroup,
 	SidebarInput,
@@ -67,12 +67,7 @@ export function SidebarDashboards() {
 						</SidebarMenuButton>
 					</SidebarMenuItem>
 					{dashboards.map((dashboard, index) => (
-						<DashboardItem
-							key={dashboard.id}
-							dashboard={dashboard}
-							index={index}
-							onClose={() => closeDashboard(dashboard)}
-						/>
+						<DashboardItem key={dashboard.id} dashboard={dashboard} dashboards={dashboards} index={index} />
 					))}
 				</SidebarMenu>
 			</DragDropProvider>
@@ -80,7 +75,15 @@ export function SidebarDashboards() {
 	);
 }
 
-function DashboardItem({ dashboard, index, onClose }: { dashboard: Dashboard; index: number; onClose: () => void }) {
+function DashboardItem({
+	dashboard,
+	dashboards,
+	index,
+}: {
+	dashboard: Dashboard;
+	dashboards: Dashboard[];
+	index: number;
+}) {
 	const matchRoute = useMatchRoute();
 	const active = Boolean(matchRoute({ to: '/dashboards/$dashboardId', params: { dashboardId: dashboard.id } }));
 	const [renaming, setRenaming] = useState(false);
@@ -92,9 +95,23 @@ function DashboardItem({ dashboard, index, onClose }: { dashboard: Dashboard; in
 	const [hintDelayed] = useDebounceValue(shortcutHinted, 300);
 	const showShortcut = shortcutHinted && hintDelayed;
 	const formatForDisplay = useFormatForDisplay();
+	// Disabled rather than hidden like in a browser's tab menu, so the menu's layout doesn't shift
+	const isOnly = dashboards.length === 1;
+	const isLast = index === dashboards.length - 1;
+	const closeOthers = () => closeDashboards(dashboards.filter((other) => other !== dashboard));
+	const closeBelow = () => closeDashboards(dashboards.slice(index + 1));
 	const menuItems: MenuEntry[] = [
 		{ label: 'Rename', icon: PencilIcon, onSelect: () => setRenaming(true) },
-		{ label: 'Delete', icon: Trash2Icon, shortcut: shortcuts.closeDashboard, destructive: true, onSelect: onClose },
+		'separator',
+		{
+			label: 'Close dashboard',
+			icon: XIcon,
+			shortcut: shortcuts.closeDashboard,
+			destructive: true,
+			onSelect: () => closeDashboard(dashboard),
+		},
+		{ label: 'Close other dashboards', disabled: isOnly, onSelect: closeOthers },
+		{ label: 'Close dashboards below', disabled: isLast, onSelect: closeBelow },
 	];
 
 	return (
@@ -155,10 +172,17 @@ function DashboardItem({ dashboard, index, onClose }: { dashboard: Dashboard; in
 								<PencilIcon />
 								Rename
 							</MenuItem>
-							<MenuItem variant="destructive" onClick={onClose}>
+							<MenuSeparator />
+							<MenuItem variant="destructive" onClick={() => closeDashboard(dashboard)}>
 								<XIcon />
 								Close dashboard
 								<MenuShortcut>{formatForDisplay(shortcuts.closeDashboard)}</MenuShortcut>
+							</MenuItem>
+							<MenuItem disabled={isOnly} onClick={closeOthers}>
+								Close other dashboards
+							</MenuItem>
+							<MenuItem disabled={isLast} onClick={closeBelow}>
+								Close dashboards below
 							</MenuItem>
 						</MenuPopup>
 					</Menu>

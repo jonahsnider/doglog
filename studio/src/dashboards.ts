@@ -92,7 +92,11 @@ export function moveDashboard(id: string, index: number): void {
 }
 
 export function deleteDashboard(id: string): void {
-	store.set((dashboards) => dashboards.filter((dashboard) => dashboard.id !== id));
+	deleteDashboards([id]);
+}
+
+export function deleteDashboards(ids: readonly string[]): void {
+	store.set((dashboards) => dashboards.filter((dashboard) => !ids.includes(dashboard.id)));
 }
 
 /**
