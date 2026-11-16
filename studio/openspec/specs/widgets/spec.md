@@ -42,6 +42,37 @@ Each widget SHALL have an options button that opens a searchable entry picker, f
 - **WHEN** the user removes a bound entry in the picker
 - **THEN** the widget stops showing that entry
 
+### Requirement: Entry picker list
+
+The entry picker SHALL list few enough entries to fit without scrolling, at most 10 before searching and 20 while searching, and MUST say how many more entries are hidden. Before searching, bound entries MUST be listed first, in the order the widget shows them, and entries MUST NOT move while they're toggled. Selecting an entry MUST keep the search, and names too long to fit MUST scroll back and forth while hovered.
+
+#### Scenario: Bound entries first
+
+- **GIVEN** a console widget bound to `/messages`
+- **WHEN** the user opens its options
+- **THEN** `/messages` is listed first and checked
+
+#### Scenario: Pick several entries from one search
+
+- **WHEN** the user searches "power" and selects a result
+- **THEN** the search stays "power" so another result can be selected
+
+#### Scenario: Hidden entries
+
+- **GIVEN** a source with 85 entries a widget accepts
+- **WHEN** the user opens the widget's options
+- **THEN** 10 entries are listed, followed by "75 more"
+
+### Requirement: Edit entries from the context menu
+
+A widget's context menu SHALL offer to add entries, which opens the entry picker, and to remove a bound entry. Right-clicking the part of a widget that shows an entry, such as a values table or discrete timeline row, MUST offer to remove that entry directly; elsewhere, bound entries MUST be listed in a submenu.
+
+#### Scenario: Remove a values table row
+
+- **GIVEN** a values table showing `/Arm/Angle`
+- **WHEN** the user right-clicks the `/Arm/Angle` row and chooses "Remove /Arm/Angle"
+- **THEN** the table stops showing `/Arm/Angle`
+
 ### Requirement: Bind by drag and drop
 
 Users SHALL be able to bind an entry by dragging it from the entry browser onto a widget.

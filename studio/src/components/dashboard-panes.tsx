@@ -154,33 +154,46 @@ function PaneView({
 	const canSplitDown = canSplitPane(dashboardLayout, pane.id, 'column');
 	const close = () => closeDashboardPane(dashboardId, pane.id);
 
-	const menuItems: MenuEntry[] = [
-		{
-			label: 'Split right',
-			shortcut: shortcuts.splitRight,
-			disabled: !canSplitRight,
-			onSelect: () => split('row'),
-		},
-		{
-			label: 'Split down',
-			shortcut: shortcuts.splitDown,
-			disabled: !canSplitDown,
-			onSelect: () => split('column'),
-		},
-		'separator',
-		{
-			label: 'Change widget',
-			disabled: widget === undefined,
-			items: widgetTypes.map((other) => ({
-				label: other.name,
-				disabled: other === type,
-				onSelect: () => changeWidget(other),
-			})),
-		},
-		{ label: 'Widget options', disabled: !type, onSelect: () => setOptionsOpen(true) },
-		'separator',
-		{ label: 'Close', shortcut: shortcuts.close, disabled: !closable, onSelect: close },
-	];
+	const removeEntry = (name: string) => setEntryNames(config.entryNames.filter((other) => other !== name));
+
+	const menuItems = (target: Element): MenuEntry[] => {
+		// Widgets mark the elements that show an entry, ex. a values table row
+		const targetEntryName = target.closest<HTMLElement>('[data-entry-name]')?.dataset['entryName'];
+		return [
+			{
+				label: 'Split right',
+				shortcut: shortcuts.splitRight,
+				disabled: !canSplitRight,
+				onSelect: () => split('row'),
+			},
+			{
+				label: 'Split down',
+				shortcut: shortcuts.splitDown,
+				disabled: !canSplitDown,
+				onSelect: () => split('column'),
+			},
+			'separator',
+			{
+				label: 'Change widget',
+				disabled: widget === undefined,
+				items: widgetTypes.map((other) => ({
+					label: other.name,
+					disabled: other === type,
+					onSelect: () => changeWidget(other),
+				})),
+			},
+			{ label: 'Add entries', disabled: !type, onSelect: () => setOptionsOpen(true) },
+			targetEntryName === undefined
+				? {
+						label: 'Remove entry',
+						disabled: config.entryNames.length === 0,
+						items: config.entryNames.map((name) => ({ label: name, onSelect: () => removeEntry(name) })),
+					}
+				: { label: `Remove ${targetEntryName}`, onSelect: () => removeEntry(targetEntryName) },
+			'separator',
+			{ label: 'Close', shortcut: shortcuts.close, disabled: !closable, onSelect: close },
+		];
+	};
 
 	return (
 		<AppContextMenu

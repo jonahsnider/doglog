@@ -2,7 +2,7 @@ import { useRender } from '@base-ui/react/use-render';
 import { isTauri } from '@tauri-apps/api/core';
 import { Menu, type MenuItemOptions, type PredefinedMenuItemOptions, type SubmenuOptions } from '@tauri-apps/api/menu';
 import { type HotkeyChord, useFormatForDisplay } from '@tanstack/react-hotkeys';
-import type { MouseEvent, ReactElement, ReactNode } from 'react';
+import { type MouseEvent, type ReactElement, type ReactNode, useState } from 'react';
 import {
 	ContextMenu,
 	ContextMenuItem,
@@ -34,7 +34,8 @@ type Submenu = {
 export type MenuEntry = MenuAction | Submenu | 'separator';
 
 type AppContextMenuProps = {
-	items: readonly MenuEntry[];
+	/** Or a function of the right-clicked element, for menus that depend on what's under the pointer */
+	items: readonly MenuEntry[] | ((target: Element) => readonly MenuEntry[]);
 	/** The element that opens the menu when right-clicked, it's rendered with `children` */
 	render: ReactElement;
 	children?: ReactNode;
@@ -77,11 +78,18 @@ function WebMenuEntries({ items }: { items: readonly MenuEntry[] }) {
 }
 
 function WebContextMenu({ items, render, children, disabled = false }: AppContextMenuProps) {
+	const [target, setTarget] = useState<Element>();
+
 	return (
 		<ContextMenu disabled={disabled}>
-			<ContextMenuTrigger render={render}>{children}</ContextMenuTrigger>
+			<ContextMenuTrigger
+				render={render}
+				onContextMenu={(event) => setTarget(event.target instanceof Element ? event.target : event.currentTarget)}
+			>
+				{children}
+			</ContextMenuTrigger>
 			<ContextMenuPopup align="start" side="bottom" sideOffset={0}>
-				<WebMenuEntries items={items} />
+				<WebMenuEntries items={typeof items === 'function' ? (target ? items(target) : []) : items} />
 			</ContextMenuPopup>
 		</ContextMenu>
 	);
@@ -134,7 +142,11 @@ function NativeContextMenu({ items, render, children, disabled = false }: AppCon
 
 				event.preventDefault();
 				event.stopPropagation();
-				void popUpNativeMenu(items);
+				void popUpNativeMenu(
+					typeof items === 'function'
+						? items(event.target instanceof Element ? event.target : event.currentTarget)
+						: items,
+				);
 			},
 		},
 	});

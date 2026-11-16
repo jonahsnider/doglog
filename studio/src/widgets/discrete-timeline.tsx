@@ -266,7 +266,13 @@ export function DiscreteTimeline({ bindings }: WidgetProps) {
 			onClick={handleClick}
 		>
 			{bindings.map(({ name, entry }, row) => (
-				<div key={name} className="absolute inset-x-2 text-xs" style={{ top: padding + row * rowHeight }}>
+				<div
+					key={name}
+					className="absolute inset-x-2 text-xs"
+					style={{ top: padding + row * rowHeight, height: rowHeight }}
+					// Right-clicking the row offers to remove its entry
+					data-entry-name={name}
+				>
 					<div className="truncate font-mono leading-4 text-muted-foreground">
 						<EntryName name={name} />
 					</div>

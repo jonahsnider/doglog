@@ -15,6 +15,8 @@ import { EntryName } from '@/components/entry-name';
 type FieldValue = Parameters<typeof formatValue>[0];
 
 type Row = {
+	/** The bound entry the row belongs to, ex. `/Robot/Pose` */
+	entryName: string;
 	/** Identifies the row for expansion, ex. `/Robot/Pose.translation` */
 	path: string;
 	label: string;
@@ -75,12 +77,21 @@ export function ValuesTable({ bindings }: WidgetProps) {
 		if (expanded.has(row.path)) {
 			for (const [label, value] of childrenOf(row.value) ?? []) {
 				const path = label.startsWith('[') ? row.path + label : `${row.path}.${label}`;
-				addRows({ path, label, type: undefined, value, depth: row.depth + 1, missing: false });
+				addRows({
+					entryName: row.entryName,
+					path,
+					label,
+					type: undefined,
+					value,
+					depth: row.depth + 1,
+					missing: false,
+				});
 			}
 		}
 	};
 	for (const { name, entry } of bindings) {
 		addRows({
+			entryName: name,
 			path: name,
 			label: name,
 			type: entry?.type,
@@ -110,6 +121,8 @@ export function ValuesTable({ bindings }: WidgetProps) {
 					return (
 						<TableRow
 							key={row.path}
+							// Right-clicking the row offers to remove its entry
+							data-entry-name={row.entryName}
 							className={cn(expandable && 'cursor-pointer')}
 							onClick={
 								expandable

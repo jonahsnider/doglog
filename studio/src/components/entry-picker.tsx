@@ -1,16 +1,7 @@
 import { SearchIcon, Settings2Icon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-	Combobox,
-	ComboboxChip,
-	ComboboxChips,
-	ComboboxChipsInput,
-	ComboboxEmpty,
-	ComboboxItem,
-	ComboboxList,
-	ComboboxValue,
-} from '@/components/ui/combobox';
+import { Combobox, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from '@/components/ui/combobox';
 import { Popover, PopoverPopup, PopoverTitle, PopoverTrigger } from '@/components/ui/popover';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { useEntries } from '@/data/data-store';
@@ -18,9 +9,11 @@ import { formatEntryType } from '@/data/samples';
 import { matchRanges, searchEntries } from '@/entry-search';
 import { acceptsEntry, type WidgetType } from '@/widgets/widget-type';
 import { EntryName } from '@/components/entry-name';
+import { MarqueeText } from '@/components/marquee-text';
 
-/** Rendering thousands of items is slow, searching narrows the list down */
-const itemLimit = 100;
+/** Few enough items to fit without scrolling, searching narrows the list down */
+const browseLimit = 10;
+const searchLimit = 20;
 
 type EntryPickerProps = {
 	type: WidgetType;
@@ -44,8 +37,9 @@ export function WidgetOptions({
 				</TooltipTrigger>
 				<TooltipPopup>Widget options</TooltipPopup>
 			</Tooltip>
-			<PopoverPopup align="end" className="w-96">
-				<PopoverTitle className="mb-3 text-sm">Entries</PopoverTitle>
+			{/* Padded like a menu, items have their own padding so their highlight nearly reaches the edges */}
+			<PopoverPopup align="end" className="w-96 *:data-[slot=popover-viewport]:p-1">
+				<PopoverTitle className="px-2 pt-2 pb-2 text-sm">Entries</PopoverTitle>
 				<EntryPicker {...props} />
 			</PopoverPopup>
 		</Popover>
@@ -55,6 +49,9 @@ export function WidgetOptions({
 function EntryPicker({ type, entryNames, onEntryNamesChange }: EntryPickerProps) {
 	const entries = useEntries();
 	const [query, setQuery] = useState('');
+	// Bound entries are listed first while browsing so the menu shows what's bound. Read when the search changes rather
+	// than on every change so items don't jump around as they're toggled.
+	const [pinned, setPinned] = useState(() => new Set(entryNames));
 
 	const accepted = useMemo(
 		() => new Map(entries.filter((entry) => acceptsEntry(type, entry)).map((entry) => [entry.name, entry])),
@@ -74,12 +71,25 @@ function EntryPicker({ type, entryNames, onEntryNamesChange }: EntryPickerProps)
 			}
 		);
 	}, [items, accepted, query]);
-	const matches = search?.names ?? items;
+	const matches = useMemo(() => {
+		if (search) {
+			return search.names;
+		}
+		const available = new Set(items);
+		return [
+			// In the order they're shown in the widget
+			...[...pinned].filter((name) => available.has(name)),
+			...items.filter((name) => !pinned.has(name)),
+		];
+	}, [search, items, pinned]);
+	// Every bound entry fits while browsing, even past the limit
+	const limit = search ? searchLimit : Math.max(browseLimit, pinned.size);
+	const hidden = matches.length - limit;
 
 	return (
 		<Combobox
 			items={items}
-			filteredItems={matches.slice(0, itemLimit)}
+			filteredItems={matches.slice(0, limit)}
 			multiple
 			inline
 			open
@@ -87,40 +97,41 @@ function EntryPicker({ type, entryNames, onEntryNamesChange }: EntryPickerProps)
 			value={entryNames}
 			onValueChange={onEntryNamesChange}
 			inputValue={query}
-			onInputValueChange={setQuery}
+			onInputValueChange={(newQuery, { reason }) => {
+				// Selecting an item clears the search by default, the picker unmounts on close so it never needs clearing
+				if (reason === 'input-clear') {
+					return;
+				}
+				setQuery(newQuery);
+				setPinned(new Set(entryNames));
+			}}
 		>
-			<ComboboxChips startAddon={<SearchIcon />}>
-				<ComboboxValue>
-					{(names: string[]) =>
-						names.map((name) => (
-							<ComboboxChip key={name} aria-label={name}>
-								<EntryName name={name} />
-							</ComboboxChip>
-						))
-					}
-				</ComboboxValue>
-				<ComboboxChipsInput aria-label="Search entries" placeholder="Search entries" autoFocus />
-			</ComboboxChips>
-			<div className="mt-2 flex max-h-72 min-h-0 flex-col">
-				<ComboboxEmpty>No matching entries</ComboboxEmpty>
-				<ComboboxList>
-					{(name: string) => (
-						<ComboboxItem key={name} value={name}>
-							<span className="flex items-baseline gap-2">
-								<span className="min-w-0 flex-1 truncate font-mono text-xs">
-									<EntryName name={name} ranges={search?.ranges.get(name)} />
-								</span>
-								<span className="shrink-0 text-xs text-muted-foreground">
-									{formatEntryType(accepted.get(name)?.type ?? 'No data')}
-								</span>
+			<ComboboxInput
+				aria-label="Search entries"
+				placeholder="Search entries"
+				startAddon={<SearchIcon />}
+				showTrigger={false}
+				autoFocus
+			/>
+			<ComboboxEmpty className="mt-1">No matching entries</ComboboxEmpty>
+			<ComboboxList className="mt-1 not-empty:p-0">
+				{(name: string) => (
+					<ComboboxItem key={name} value={name} className="pe-2">
+						<span className="flex items-baseline gap-2">
+							<MarqueeText className="min-w-0 flex-1 font-mono text-xs">
+								<EntryName name={name} ranges={search?.ranges.get(name)} />
+							</MarqueeText>
+							<span className="shrink-0 text-xs text-muted-foreground">
+								{formatEntryType(accepted.get(name)?.type ?? 'No data')}
 							</span>
-						</ComboboxItem>
-					)}
-				</ComboboxList>
-			</div>
-			{matches.length > itemLimit && (
-				<p className="mt-2 text-xs text-muted-foreground">
-					Showing {itemLimit} of {matches.length} entries, search to find more.
+						</span>
+					</ComboboxItem>
+				)}
+			</ComboboxList>
+			{hidden > 0 && (
+				// Styled like a disabled item, aligned with the items' names
+				<p className="flex min-h-8 items-center ps-8 text-sm text-muted-foreground opacity-64 sm:min-h-7">
+					{hidden} more
 				</p>
 			)}
 		</Combobox>
