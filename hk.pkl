@@ -23,6 +23,15 @@ local studio = new Mapping<String, Step> {
     glob = "openspec/**/*"
     check = "pnpm openspec:check"
   }
+  // Runs from the root since Knip also reads CI workflows and the workspace config
+  ["knip"] {
+    glob = List("studio/**/*", ".github/workflows/*", "knip.config.ts", "package.json", "pnpm-workspace.yaml")
+    check = "pnpm knip"
+  }
+  ["format"] {
+    glob = "**/*"
+    check = "pnpm format"
+  }
 }
 
 hooks {
