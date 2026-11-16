@@ -152,7 +152,7 @@ export function firstPane(layout: PaneNode): Pane {
 	return layout.kind === 'pane' ? layout : firstPane(layout.first);
 }
 
-export function hasWidgets(layout: PaneNode): boolean {
+function hasWidgets(layout: PaneNode): boolean {
 	return layout.kind === 'pane' ? layout.widget !== undefined : hasWidgets(layout.first) || hasWidgets(layout.second);
 }
 
