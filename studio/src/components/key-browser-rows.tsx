@@ -78,13 +78,12 @@ export function KeyRows({
 				>
 					{virtualizer.getVirtualItems().map((item) => {
 						const row = rows[item.index]!;
-						const { entry } = row.item;
 						return (
 							<KeyRowView
 								key={row.item.value}
 								row={row}
 								top={item.start}
-								highlights={entry && highlights?.get(entry.name)}
+								highlights={highlights?.get(row.item.value)}
 							/>
 						);
 					})}

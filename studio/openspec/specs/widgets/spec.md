@@ -28,7 +28,7 @@ Each widget type SHALL declare the data types it accepts, which MAY be specific 
 
 ### Requirement: Entry picker
 
-Each widget SHALL have an options button that opens a searchable entry picker, filtered to the widget's accepted types, for binding one or more entries.
+Each widget SHALL have an options button that opens a searchable entry picker, filtered to the widget's accepted types, for binding one or more entries. Its search MUST match entries the same way as the key browser's search, listing the best matches first and highlighting the matched characters.
 
 #### Scenario: Pick entries by typing
 

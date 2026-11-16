@@ -10,12 +10,12 @@ import {
 	ComboboxItem,
 	ComboboxList,
 	ComboboxValue,
-	useComboboxFilter,
 } from '@/components/ui/combobox';
 import { Popover, PopoverPopup, PopoverTitle, PopoverTrigger } from '@/components/ui/popover';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { useEntries } from '@/data/data-store';
 import { formatEntryType } from '@/data/samples';
+import { matchRanges, searchEntries } from '@/entry-search';
 import { acceptsEntry, type WidgetType } from '@/widgets/widget-type';
 import { EntryName } from '@/components/entry-name';
 
@@ -55,20 +55,26 @@ export function WidgetOptions({
 function EntryPicker({ type, entries, onEntriesChange }: EntryPickerProps) {
 	const allEntries = useEntries();
 	const [query, setQuery] = useState('');
-	const { contains } = useComboboxFilter();
 
-	const entryTypes = useMemo(
-		() =>
-			new Map(
-				allEntries
-					.filter((entry) => acceptsEntry(type, entry))
-					.map((entry) => [entry.name, formatEntryType(entry.type)]),
-			),
+	const accepted = useMemo(
+		() => new Map(allEntries.filter((entry) => acceptsEntry(type, entry)).map((entry) => [entry.name, entry])),
 		[allEntries, type],
 	);
 	// Bound entries missing from the source are listed too, so they can be unbound
-	const items = useMemo(() => [...new Set([...entryTypes.keys(), ...entries])].toSorted(), [entryTypes, entries]);
-	const matches = useMemo(() => items.filter((name) => contains(name, query)), [items, query, contains]);
+	const items = useMemo(() => [...new Set([...accepted.keys(), ...entries])].toSorted(), [accepted, entries]);
+	const search = useMemo(() => {
+		const results = searchEntries(
+			items.map((name) => accepted.get(name) ?? { name }),
+			query,
+		);
+		return (
+			results && {
+				names: results.map((result) => result.obj.name),
+				ranges: new Map(results.map((result) => [result.obj.name, matchRanges(result[0]!.indexes)])),
+			}
+		);
+	}, [items, accepted, query]);
+	const matches = search?.names ?? items;
 
 	return (
 		<Combobox
@@ -102,9 +108,11 @@ function EntryPicker({ type, entries, onEntriesChange }: EntryPickerProps) {
 						<ComboboxItem key={name} value={name}>
 							<span className="flex items-baseline gap-2">
 								<span className="min-w-0 flex-1 truncate font-mono text-xs">
-									<EntryName name={name} />
+									<EntryName name={name} ranges={search?.ranges.get(name)} />
 								</span>
-								<span className="shrink-0 text-xs text-muted-foreground">{entryTypes.get(name) ?? 'No data'}</span>
+								<span className="shrink-0 text-xs text-muted-foreground">
+									{formatEntryType(accepted.get(name)?.type ?? 'No data')}
+								</span>
 							</span>
 						</ComboboxItem>
 					)}

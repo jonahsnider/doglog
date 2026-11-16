@@ -1,6 +1,6 @@
-import uFuzzy from '@leeoniya/ufuzzy';
 import { type TreeRow, visibleTreeRows } from '@ui-sdk/core/tree';
 import type { Entry } from '@/data/data-store';
+import { matchRanges, searchEntries } from '@/entry-search';
 
 /** An entry or group in the key browser tree, in the tree's item data shape. A node can be both, ex. `/Arm` and `/Arm/Angle` are both entries. */
 export type KeyNode = {
@@ -23,7 +23,7 @@ export type KeyTreeView = {
 	readonly expanded: string[];
 	/** The rows to show, in order */
 	readonly rows: KeyRow[];
-	/** Ranges of each matching entry's label, keyed by entry name, as `[start, end, start, end, ...]`. Only set while searching. */
+	/** Ranges of each node's label that matched, keyed by path, as `[start, end, start, end, ...]`. Only set while searching. */
 	readonly highlights?: ReadonlyMap<string, readonly number[]>;
 };
 
@@ -71,11 +71,11 @@ export function buildKeyTree(entries: readonly Entry[]): KeyNode[] {
 
 /**
  * The hierarchy and rows to show. Children of expanded groups are shown.
- * With a search query, only entries whose names fuzzy match it and their parent groups are shown, all expanded.
+ * With a search query, only entries whose names or struct types fuzzy match it and their parent groups are shown, all expanded.
  */
 export function keyTreeView(tree: KeyNode[], expanded: string[], query: string): KeyTreeView {
-	const highlights = searchNames(tree, query);
-	if (!highlights) {
+	const search = searchTree(tree, query);
+	if (!search) {
 		return { items: tree, expanded, rows: visibleTreeRows(tree, expanded) };
 	}
 
@@ -87,7 +87,7 @@ export function keyTreeView(tree: KeyNode[], expanded: string[], query: string):
 				groups.push(node.value);
 				return [{ ...node, children }];
 			}
-			if (!node.entry || !highlights.has(node.entry.name)) {
+			if (!node.entry || !search.matches.has(node.entry.name)) {
 				return [];
 			}
 			// Groups without matching children are shown as plain entries
@@ -96,20 +96,19 @@ export function keyTreeView(tree: KeyNode[], expanded: string[], query: string):
 		});
 
 	const items = filter(tree);
-	return { items, expanded: groups, rows: visibleTreeRows(items, groups), highlights };
+	return { items, expanded: groups, rows: visibleTreeRows(items, groups), highlights: search.highlights };
 }
 
-// Tolerates a single typo in each search term
-// oxlint-disable-next-line typescript/no-unsafe-enum-assignment -- uFuzzy's const enum can't be used with verbatimModuleSyntax
-const fuzzy = new uFuzzy({ intraMode: 1 });
-
-/** Map each entry name matching the query to the ranges of its label that matched, or `undefined` when the query has nothing to search for */
-function searchNames(tree: readonly KeyNode[], query: string): Map<string, number[]> | undefined {
-	const names: string[] = [];
+/** Names of the entries matching the query and the matched ranges of each node's label, or `undefined` when the query has nothing to search for */
+function searchTree(
+	tree: readonly KeyNode[],
+	query: string,
+): { matches: Set<string>; highlights: Map<string, number[]> } | undefined {
+	const entries: Entry[] = [];
 	const collect = (nodes: readonly KeyNode[]) => {
 		for (const node of nodes) {
 			if (node.entry) {
-				names.push(node.entry.name);
+				entries.push(node.entry);
 			}
 			if (node.children) {
 				collect(node.children);
@@ -118,24 +117,30 @@ function searchNames(tree: readonly KeyNode[], query: string): Map<string, numbe
 	};
 	collect(tree);
 
-	// oxlint-disable-next-line unicorn/no-array-callback-reference, unicorn/no-array-method-this-argument -- Not an array method
-	const indexes = fuzzy.filter(names, query);
-	if (!indexes) {
+	const results = searchEntries(entries, query);
+	if (!results) {
 		return undefined;
 	}
-	const info = fuzzy.info(indexes, names, query);
-	return new Map(info.idx.map((index, i) => [names[index]!, labelRanges(names[index]!, info.ranges[i]!)]));
-}
 
-/** Shift ranges of a full name to be relative to its last segment, dropping ranges in earlier segments */
-function labelRanges(name: string, ranges: readonly number[]): number[] {
-	const offset = name.lastIndexOf('/') + 1;
-	const result: number[] = [];
-	for (let i = 0; i < ranges.length; i += 2) {
-		const end = ranges[i + 1]! - offset;
-		if (end > 0) {
-			result.push(Math.max(ranges[i]! - offset, 0), end);
+	// Matched positions in each segment's label, keyed by path. Groups combine the matches of every entry in them.
+	const positions = new Map<string, number[]>();
+	for (const result of results) {
+		const { name } = result.obj;
+		for (const index of result[0]!.indexes) {
+			const end = name.indexOf('/', index);
+			const path = end === -1 ? name : name.slice(0, end);
+			const segmentStart = name.lastIndexOf('/', index) + 1;
+			let matched = positions.get(path);
+			if (!matched) {
+				matched = [];
+				positions.set(path, matched);
+			}
+			matched.push(index - segmentStart);
 		}
 	}
-	return result;
+
+	return {
+		matches: new Set(results.map((result) => result.obj.name)),
+		highlights: new Map(Array.from(positions, ([path, matched]) => [path, matchRanges(matched)])),
+	};
 }

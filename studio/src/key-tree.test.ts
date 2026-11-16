@@ -40,17 +40,45 @@ test('search matches the full name', () => {
 	expect(paths([], 'nothing')).toEqual([]);
 });
 
-test('search tolerates typos', () => {
-	expect(paths([], 'velcoity')).toEqual(['/Arm', '/Arm/Velocity']);
-	expect(paths([], 'velocty')).toEqual(['/Arm', '/Arm/Velocity']);
+test('search ignores separators', () => {
+	expect(paths([], 'drivemodule2')).toEqual(['/Drive', '/Drive/Module2']);
+	expect(paths([], 'ArmVelocity')).toEqual(['/Arm', '/Arm/Velocity']);
+
+	const styles = buildKeyTree(entries('/Swerve/module_states', '/Swerve/Module States', '/Swerve/module-states'));
+	const view = keyTreeView(styles, [], 'modulestates');
+	expect(view.rows.map((row) => row.item.value)).toEqual([
+		'/Swerve',
+		'/Swerve/Module States',
+		'/Swerve/module_states',
+		'/Swerve/module-states',
+	]);
+	// Separators inside a match aren't highlighted
+	expect(view.highlights?.get('/Swerve/module_states')).toEqual([0, 6, 7, 13]);
+});
+
+test('search matches struct types but not primitive types', () => {
+	const typed = buildKeyTree([
+		{ name: '/Drive/Pose', type: 'struct:Pose2d', kind: 'struct', samples: new Samples(), metadata: {} },
+		{ name: '/Drive/Enabled', type: 'boolean', kind: 'boolean', samples: new Samples(), metadata: {} },
+	]);
+	const search = (query: string) => keyTreeView(typed, [], query).rows.map((row) => row.item.value);
+	expect(search('pose2d')).toEqual(['/Drive', '/Drive/Pose']);
+	expect(search('boolean')).toEqual([]);
+	// The type isn't shown, so it isn't highlighted
+	expect(keyTreeView(typed, [], 'pose2d').highlights?.get('/Drive/Pose')).toBeUndefined();
+});
+
+test('search matches abbreviations', () => {
+	expect(paths([], 'armvel')).toEqual(['/Arm', '/Arm/Velocity']);
+	expect(paths([], 'mod10')).toEqual(['/Drive', '/Drive/Module10']);
 });
 
 test('search without letters or numbers shows the whole tree', () => {
 	expect(paths([], '/')).toEqual(['/Arm', '/Drive', '/Time']);
 });
 
-test('search highlights the matching parts of each label', () => {
+test('search highlights the matching parts of each label, including groups', () => {
 	const { highlights } = keyTreeView(tree, [], 'arm vel');
-	expect(highlights?.get('/Arm')).toBeUndefined();
+	expect(highlights?.get('/Arm')).toEqual([0, 3]);
 	expect(highlights?.get('/Arm/Velocity')).toEqual([0, 3]);
 });

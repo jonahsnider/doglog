@@ -44,7 +44,7 @@ The entry tree SHALL follow the WAI-ARIA tree view pattern: it MUST be a single 
 
 ### Requirement: Search
 
-The key browser SHALL provide a search box that filters the tree to entries whose names fuzzy match, tolerating typos, and MUST highlight the matching parts of each entry's name.
+The key browser SHALL provide a search box that filters the tree to entries whose names contain the query's characters in order, so abbreviations match and separators like `/`, `_`, `-`, and spaces can be skipped, and MUST highlight the matched characters in each entry's and group's name. Struct entries MUST also match their struct type. Primitive types like `boolean` or `double` MUST NOT match, since nearly every entry has one.
 
 #### Scenario: Search entries
 
@@ -52,10 +52,25 @@ The key browser SHALL provide a search box that filters the tree to entries whos
 - **THEN** only entries whose names match "velocity" and their parent groups are shown
 - **AND** "Velocity" is highlighted in each matching entry
 
-#### Scenario: Search with a typo
+#### Scenario: Search with an abbreviation
 
-- **WHEN** the user types "velcoity"
-- **THEN** entries whose names contain "Velocity" are shown
+- **GIVEN** the source has `/Swerve/ModuleStates` and `/Swerve/Module1/Current`
+- **WHEN** the user types "swmodst"
+- **THEN** `/Swerve/ModuleStates` is shown
+- **WHEN** the user types "mod1"
+- **THEN** `/Swerve/Module1/Current` is shown
+
+#### Scenario: Search ignores separators
+
+- **GIVEN** the source has `/Swerve/ModuleStates` and `/Swerve/module_states`
+- **WHEN** the user types "SwerveModuleStates"
+- **THEN** both entries are shown
+
+#### Scenario: Search by struct type
+
+- **GIVEN** the source has `/Drive/Pose` of type `struct:Pose2d`
+- **WHEN** the user types "Pose2d"
+- **THEN** `/Drive/Pose` is shown
 
 ### Requirement: Collapsible panel
 
