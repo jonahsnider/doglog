@@ -12,7 +12,7 @@ import {
 	splitPane,
 } from './pane-layout.ts';
 
-const graph = { type: 'line-graph', config: { entries: ['/Arm/Angle'] } };
+const graph = { type: 'line-graph', config: { entryNames: ['/Arm/Angle'] } };
 
 function expectSplit(node: PaneNode): Split {
 	if (node.kind !== 'split') {

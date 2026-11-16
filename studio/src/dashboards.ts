@@ -221,15 +221,15 @@ export function addDashboardWidget(id: string, widget: Widget): void {
 		const focused = getFocusedPane(dashboard);
 		const matching = focused.widget?.type === widget.type ? focused : findWidgetPane(dashboard.layout, widget.type);
 		if (matching?.widget !== undefined) {
-			const { entries } = widgetConfigSchema.parse(matching.widget.config);
-			const allEntries = [...new Set([...entries, ...widgetConfigSchema.parse(widget.config).entries])];
-			if (allEntries.length === entries.length) {
+			const { entryNames } = widgetConfigSchema.parse(matching.widget.config);
+			const allEntryNames = [...new Set([...entryNames, ...widgetConfigSchema.parse(widget.config).entryNames])];
+			if (allEntryNames.length === entryNames.length) {
 				return { ...dashboard, focusedPaneId: matching.id };
 			}
 
 			// Keeps any other config fields as they are
 			const config = typeof matching.widget.config === 'object' ? matching.widget.config : {};
-			const merged = { ...matching.widget, config: { ...config, entries: allEntries } };
+			const merged = { ...matching.widget, config: { ...config, entryNames: allEntryNames } };
 			return { ...dashboard, layout: setPaneWidget(dashboard.layout, matching.id, merged), focusedPaneId: matching.id };
 		}
 

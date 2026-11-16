@@ -1,16 +1,18 @@
 import { expect, test } from 'vite-plus/test';
 import type { Entry } from './data/data-store.ts';
 import { Samples } from './data/samples.ts';
-import { buildKeyTree, keyTreeView } from './key-tree.ts';
+import { buildEntryTree, entryTreeView } from './entry-tree.ts';
 
 function entries(...names: string[]): Entry[] {
 	return names.map((name) => ({ name, type: 'double', kind: 'number', samples: new Samples(), metadata: {} }));
 }
 
-const tree = buildKeyTree(entries('/Arm', '/Arm/Angle', '/Arm/Velocity', '/Drive/Module10', '/Drive/Module2', '/Time'));
+const tree = buildEntryTree(
+	entries('/Arm', '/Arm/Angle', '/Arm/Velocity', '/Drive/Module10', '/Drive/Module2', '/Time'),
+);
 
 function paths(expanded: string[], query = ''): string[] {
-	return keyTreeView(tree, expanded, query).rows.map((row) => row.item.value);
+	return entryTreeView(tree, expanded, query).rows.map((row) => row.item.value);
 }
 
 test('entries are grouped by path segment and collapsed groups hide their children', () => {
@@ -29,7 +31,7 @@ test('numbers in names sort naturally', () => {
 });
 
 test('search shows matching entries and their parent groups, expanded', () => {
-	const view = keyTreeView(tree, [], 'velocity');
+	const view = entryTreeView(tree, [], 'velocity');
 	expect(view.rows.map((row) => row.item.value)).toEqual(['/Arm', '/Arm/Velocity']);
 	expect(view.expanded).toEqual(['/Arm']);
 	expect(view.rows.map((row) => row.level)).toEqual([1, 2]);
@@ -44,8 +46,8 @@ test('search ignores separators', () => {
 	expect(paths([], 'drivemodule2')).toEqual(['/Drive', '/Drive/Module2']);
 	expect(paths([], 'ArmVelocity')).toEqual(['/Arm', '/Arm/Velocity']);
 
-	const styles = buildKeyTree(entries('/Swerve/module_states', '/Swerve/Module States', '/Swerve/module-states'));
-	const view = keyTreeView(styles, [], 'modulestates');
+	const styles = buildEntryTree(entries('/Swerve/module_states', '/Swerve/Module States', '/Swerve/module-states'));
+	const view = entryTreeView(styles, [], 'modulestates');
 	expect(view.rows.map((row) => row.item.value)).toEqual([
 		'/Swerve',
 		'/Swerve/Module States',
@@ -57,15 +59,15 @@ test('search ignores separators', () => {
 });
 
 test('search matches struct types but not primitive types', () => {
-	const typed = buildKeyTree([
+	const typed = buildEntryTree([
 		{ name: '/Drive/Pose', type: 'struct:Pose2d', kind: 'struct', samples: new Samples(), metadata: {} },
 		{ name: '/Drive/Enabled', type: 'boolean', kind: 'boolean', samples: new Samples(), metadata: {} },
 	]);
-	const search = (query: string) => keyTreeView(typed, [], query).rows.map((row) => row.item.value);
+	const search = (query: string) => entryTreeView(typed, [], query).rows.map((row) => row.item.value);
 	expect(search('pose2d')).toEqual(['/Drive', '/Drive/Pose']);
 	expect(search('boolean')).toEqual([]);
 	// The type isn't shown, so it isn't highlighted
-	expect(keyTreeView(typed, [], 'pose2d').highlights?.get('/Drive/Pose')).toBeUndefined();
+	expect(entryTreeView(typed, [], 'pose2d').highlights?.get('/Drive/Pose')).toBeUndefined();
 });
 
 test('search matches abbreviations', () => {
@@ -78,7 +80,7 @@ test('search without letters or numbers shows the whole tree', () => {
 });
 
 test('search highlights the matching parts of each label, including groups', () => {
-	const { highlights } = keyTreeView(tree, [], 'arm vel');
+	const { highlights } = entryTreeView(tree, [], 'arm vel');
 	expect(highlights?.get('/Arm')).toEqual([0, 3]);
 	expect(highlights?.get('/Arm/Velocity')).toEqual([0, 3]);
 });

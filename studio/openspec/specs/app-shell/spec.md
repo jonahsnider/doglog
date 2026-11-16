@@ -52,7 +52,7 @@ The dashboards section SHALL always list the user's dashboards, regardless of wh
 
 ### Requirement: Dashboard view chrome
 
-When a dashboard is shown, the main area SHALL show the dashboard's panes, a collapsible key browser panel on the right, and the timeline bar along the bottom.
+When a dashboard is shown, the main area SHALL show the dashboard's panes, a collapsible entry browser panel on the right, and the timeline bar along the bottom.
 
 #### Scenario: Dashboard view with an active source
 
@@ -64,7 +64,7 @@ When a dashboard is shown, the main area SHALL show the dashboard's panes, a col
 #### Scenario: Pages hide dashboard chrome
 
 - **WHEN** the user opens the Settings page
-- **THEN** the timeline bar and key browser are not shown
+- **THEN** the timeline bar and entry browser are not shown
 
 ### Requirement: Collapsible sidebar
 

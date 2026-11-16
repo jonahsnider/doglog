@@ -125,25 +125,28 @@ function PaneView({
 	const type = widget && getWidgetType(widget.type);
 	const config = useMemo(() => widgetConfigSchema.parse(widget?.config), [widget?.config]);
 
-	const setWidget = (newType: WidgetType, entries: readonly string[] = newType.defaultConfig.entries) => {
-		const newConfig = { ...newType.defaultConfig, entries: [...entries] };
+	const setWidget = (newType: WidgetType, entryNames: readonly string[] = newType.defaultConfig.entryNames) => {
+		const newConfig = { ...newType.defaultConfig, entryNames: [...entryNames] };
 		update((layout) => setPaneWidget(layout, pane.id, { type: newType.id, config: newConfig }));
 	};
 	const changeWidget = (newType: WidgetType) => {
 		// Entries missing from the source might be accepted once they're loaded, so only known mismatches are unbound
-		const entries = config.entries.filter((name) => {
+		const entryNames = config.entryNames.filter((name) => {
 			const entry = getEntry(name);
 			return entry === undefined || acceptsEntry(newType, entry);
 		});
-		setWidget(newType, entries.length > 0 ? entries : undefined);
+		setWidget(newType, entryNames.length > 0 ? entryNames : undefined);
 	};
 	// Keeps any other config fields as they are
-	const setEntries = (entries: string[]) =>
+	const setEntryNames = (entryNames: string[]) =>
 		update((layout) =>
 			setPaneWidget(
 				layout,
 				pane.id,
-				widget && { ...widget, config: { ...(typeof widget.config === 'object' ? widget.config : {}), entries } },
+				widget && {
+					...widget,
+					config: { ...(typeof widget.config === 'object' ? widget.config : {}), entryNames },
+				},
 			),
 		);
 	const split = (direction: SplitDirection) => splitDashboardPane(dashboardId, pane.id, direction);
@@ -205,8 +208,8 @@ function PaneView({
 				{type && (
 					<WidgetOptions
 						type={type}
-						entries={config.entries}
-						onEntriesChange={setEntries}
+						entryNames={config.entryNames}
+						onEntryNamesChange={setEntryNames}
 						open={optionsOpen}
 						onOpenChange={setOptionsOpen}
 					/>
@@ -237,7 +240,7 @@ function PaneView({
 				{widget === undefined ? (
 					<AddWidgetPrompt onAdd={setWidget} />
 				) : type ? (
-					<WidgetView type={type} entries={config.entries} onEntriesChange={setEntries} />
+					<WidgetView type={type} entryNames={config.entryNames} onEntryNamesChange={setEntryNames} />
 				) : (
 					<p className="p-3 text-sm text-muted-foreground">Unknown widget type {widget.type}.</p>
 				)}

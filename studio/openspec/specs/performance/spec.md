@@ -13,7 +13,7 @@ Studio SHALL make a 100 MB log ready to browse within about 3 seconds.
 #### Scenario: Full match log
 
 - **WHEN** the user opens a 100 MB log
-- **THEN** the key browser and widgets are usable within about 3 seconds
+- **THEN** the entry browser and widgets are usable within about 3 seconds
 
 ### Requirement: Responsive UI
 

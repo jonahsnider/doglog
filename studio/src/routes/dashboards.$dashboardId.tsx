@@ -2,7 +2,7 @@ import { Navigate, createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { Group, Panel } from 'react-resizable-panels';
 import { DashboardPanes } from '@/components/dashboard-panes';
-import { KeyBrowser } from '@/components/key-browser';
+import { EntryBrowser } from '@/components/entry-browser';
 import { TimelineBar } from '@/components/timeline-bar';
 import { useDashboards } from '@/dashboards';
 import { EntryDragProvider } from '@/entry-drag';
@@ -42,7 +42,7 @@ function DashboardView() {
 							<DashboardPanes dashboard={dashboard} />
 						</section>
 					</Panel>
-					<KeyBrowser />
+					<EntryBrowser />
 				</EntryDragProvider>
 			</Group>
 			<TimelineBar />

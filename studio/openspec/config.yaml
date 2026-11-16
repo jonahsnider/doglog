@@ -12,6 +12,10 @@ context: |
   - Specs describe user-facing behavior. Library and implementation choices belong here, not in requirements.
   - OpenSpec changes are not used. Edit `specs/` directly and run `openspec validate --specs`.
 
+  Terminology, in the UI, specs, and code:
+  - An entry is a whole logged item (name, type, metadata, and values), from a WPILOG entry or an NT4 topic.
+  - An entry name is the `/`-separated string identifying an entry, ex. `/Robot/Arm/Angle`. Don't call it a key.
+
   Tech stack:
   - Frontend: React in the web ecosystem only. UI components from coss ui (https://coss.com/ui, Base UI + Tailwind CSS v4).
   - Charts: Base UI charts once released. It has not shipped yet; a temporary chart library is acceptable if it

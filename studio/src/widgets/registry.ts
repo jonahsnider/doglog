@@ -15,7 +15,7 @@ export const widgetTypes: readonly WidgetType[] = [
 		name: 'Values table',
 		icon: TableIcon,
 		accepts: bindableKinds,
-		defaultConfig: { entries: [] },
+		defaultConfig: { entryNames: [] },
 		component: ValuesTable,
 	},
 	{
@@ -24,7 +24,7 @@ export const widgetTypes: readonly WidgetType[] = [
 		icon: TerminalIcon,
 		accepts: ['string'],
 		// WPILib's console output and Driver Station messages
-		defaultConfig: { entries: ['/console', '/messages'] },
+		defaultConfig: { entryNames: ['/console', '/messages'] },
 		component: Console,
 	},
 	{
@@ -32,7 +32,7 @@ export const widgetTypes: readonly WidgetType[] = [
 		name: 'Discrete timeline',
 		icon: ChartNoAxesGanttIcon,
 		accepts: ['boolean', 'string'],
-		defaultConfig: { entries: [] },
+		defaultConfig: { entryNames: [] },
 		component: DiscreteTimeline,
 	},
 	{
@@ -41,7 +41,7 @@ export const widgetTypes: readonly WidgetType[] = [
 		icon: MoveIcon,
 		accepts: ['number', 'struct', 'struct[]'],
 		matches: (entry) => swerveRole(entry) !== undefined,
-		defaultConfig: { entries: [] },
+		defaultConfig: { entryNames: [] },
 		component: Swerve,
 	},
 ];
@@ -74,5 +74,5 @@ export function defaultWidget(entry: Entry): Widget | undefined {
 	}
 
 	const type = getWidgetType(defaultWidgetTypeId(entry))!;
-	return { type: type.id, config: { ...type.defaultConfig, entries: [entry.name] } };
+	return { type: type.id, config: { ...type.defaultConfig, entryNames: [entry.name] } };
 }

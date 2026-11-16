@@ -1,14 +1,14 @@
-# key-browser Specification
+# entry-browser Specification
 
 ## Purpose
 
-Define the key browser, a collapsible panel listing every entry in the active source as a searchable tree, used to find entries and drag them onto widgets.
+Define the entry browser, a collapsible panel listing every entry in the active source as a searchable tree, used to find entries and drag them onto widgets.
 
 ## Requirements
 
 ### Requirement: Entry tree
 
-The key browser SHALL list every entry in the active source as a tree grouped by path segments, showing each entry's type indicator and value at the cursor.
+The entry browser SHALL list every entry in the active source as a tree grouped by path segments, showing each entry's type indicator and value at the cursor.
 
 #### Scenario: Nested entries
 
@@ -44,7 +44,7 @@ The entry tree SHALL follow the WAI-ARIA tree view pattern: it MUST be a single 
 
 ### Requirement: Search
 
-The key browser SHALL provide a search box that filters the tree to entries whose names contain the query's characters in order, so abbreviations match and separators like `/`, `_`, `-`, and spaces can be skipped, and MUST highlight the matched characters in each entry's and group's name. Struct entries MUST also match their struct type. Primitive types like `boolean` or `double` MUST NOT match, since nearly every entry has one.
+The entry browser SHALL provide a search box that filters the tree to entries whose names contain the query's characters in order, so abbreviations match and separators like `/`, `_`, `-`, and spaces can be skipped, and MUST highlight the matched characters in each entry's and group's name. Struct entries MUST also match their struct type. Primitive types like `boolean` or `double` MUST NOT match, since nearly every entry has one.
 
 #### Scenario: Search entries
 
@@ -74,37 +74,37 @@ The key browser SHALL provide a search box that filters the tree to entries whos
 
 ### Requirement: Collapsible panel
 
-The key browser SHALL be a collapsible panel on the right side of the dashboard view, toggled by a button or keyboard shortcut, and its open state MUST persist. Users MUST be able to resize it by dragging the divider between it and the panes, and its width MUST persist.
+The entry browser SHALL be a collapsible panel on the right side of the dashboard view, toggled by a button or keyboard shortcut, and its open state MUST persist. Users MUST be able to resize it by dragging the divider between it and the panes, and its width MUST persist.
 
 #### Scenario: Toggle and remember
 
-- **WHEN** the user collapses the key browser and reopens Studio
-- **THEN** the key browser is still collapsed
+- **WHEN** the user collapses the entry browser and reopens Studio
+- **THEN** the entry browser is still collapsed
 
-#### Scenario: Resize the key browser
+#### Scenario: Resize the entry browser
 
-- **WHEN** the user drags the divider between the panes and the key browser
-- **THEN** the key browser's width changes
+- **WHEN** the user drags the divider between the panes and the entry browser
+- **THEN** the entry browser's width changes
 - **AND** the panes resize to fill the remaining space
 
 #### Scenario: Reset the width
 
-- **WHEN** the user double-clicks the divider between the panes and the key browser
-- **THEN** the key browser returns to its default width
+- **WHEN** the user double-clicks the divider between the panes and the entry browser
+- **THEN** the entry browser returns to its default width
 
 #### Scenario: Remember the width
 
-- **WHEN** the user resizes the key browser and reopens Studio
-- **THEN** the key browser has the same width
+- **WHEN** the user resizes the entry browser and reopens Studio
+- **THEN** the entry browser has the same width
 
 #### Scenario: Resize the window
 
 - **WHEN** the user resizes the window
-- **THEN** the key browser keeps its width and the panes absorb the change
+- **THEN** the entry browser keeps its width and the panes absorb the change
 
 ### Requirement: Drag to bind
 
-Users SHALL be able to drag entries from the key browser onto widgets to bind them.
+Users SHALL be able to drag entries from the entry browser onto widgets to bind them.
 
 #### Scenario: Drag an entry
 
@@ -113,7 +113,7 @@ Users SHALL be able to drag entries from the key browser onto widgets to bind th
 
 ### Requirement: Type indicators
 
-The key browser SHALL show each entry's type as a compact icon that is visually distinct from its value, and MUST show the full type name in a tooltip.
+The entry browser SHALL show each entry's type as a compact icon that is visually distinct from its value, and MUST show the full type name in a tooltip.
 
 #### Scenario: Integer entry
 

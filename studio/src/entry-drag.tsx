@@ -4,10 +4,10 @@ import type { ReactNode } from 'react';
 import type { Entry } from '@/data/data-store';
 import { EntryName } from '@/components/entry-name';
 
-/** Data of an entry dragged from the key browser */
+/** Data of an entry dragged from the entry browser */
 export type EntryDragData = { entry: Entry };
 
-/** Drag type of key browser entries, accepted by widgets */
+/** Drag type of entry browser entries, accepted by widgets */
 export const entryDragType = 'entry';
 
 const sensors = [
@@ -20,12 +20,12 @@ const sensors = [
 	KeyboardSensor,
 ];
 
-/** Lets entries be dragged from the key browser onto widgets */
+/** Lets entries be dragged from the entry browser onto widgets */
 export function EntryDragProvider({ children }: { children: ReactNode }) {
 	return (
 		<DragDropProvider sensors={sensors}>
 			{children}
-			{/* Key browser rows are virtualized and can unmount mid-drag, the overlay is what follows the pointer */}
+			{/* Entry browser rows are virtualized and can unmount mid-drag, the overlay is what follows the pointer */}
 			<DragOverlay<EntryDragData, Draggable<EntryDragData>> dropAnimation={null}>
 				{(source) => (
 					<div className="w-max max-w-80 truncate rounded-md border bg-popover px-2 py-1 font-mono text-xs text-popover-foreground shadow-md">

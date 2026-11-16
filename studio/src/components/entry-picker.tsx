@@ -24,8 +24,8 @@ const itemLimit = 100;
 
 type EntryPickerProps = {
 	type: WidgetType;
-	entries: readonly string[];
-	onEntriesChange: (entries: string[]) => void;
+	entryNames: readonly string[];
+	onEntryNamesChange: (entryNames: string[]) => void;
 };
 
 /** The widget options button, opens a searchable picker for binding entries of the widget's accepted kinds */
@@ -52,16 +52,16 @@ export function WidgetOptions({
 	);
 }
 
-function EntryPicker({ type, entries, onEntriesChange }: EntryPickerProps) {
-	const allEntries = useEntries();
+function EntryPicker({ type, entryNames, onEntryNamesChange }: EntryPickerProps) {
+	const entries = useEntries();
 	const [query, setQuery] = useState('');
 
 	const accepted = useMemo(
-		() => new Map(allEntries.filter((entry) => acceptsEntry(type, entry)).map((entry) => [entry.name, entry])),
-		[allEntries, type],
+		() => new Map(entries.filter((entry) => acceptsEntry(type, entry)).map((entry) => [entry.name, entry])),
+		[entries, type],
 	);
 	// Bound entries missing from the source are listed too, so they can be unbound
-	const items = useMemo(() => [...new Set([...accepted.keys(), ...entries])].toSorted(), [accepted, entries]);
+	const items = useMemo(() => [...new Set([...accepted.keys(), ...entryNames])].toSorted(), [accepted, entryNames]);
 	const search = useMemo(() => {
 		const results = searchEntries(
 			items.map((name) => accepted.get(name) ?? { name }),
@@ -84,8 +84,8 @@ function EntryPicker({ type, entries, onEntriesChange }: EntryPickerProps) {
 			inline
 			open
 			autoHighlight
-			value={entries}
-			onValueChange={onEntriesChange}
+			value={entryNames}
+			onValueChange={onEntryNamesChange}
 			inputValue={query}
 			onInputValueChange={setQuery}
 		>

@@ -25,15 +25,15 @@ export function suggestDashboardName(layout: PaneNode): string {
 	const topics = new Set<string>();
 	for (const { widget } of widgetAreas(layout)) {
 		const type = getWidgetType(widget.type);
-		const { entries } = widgetConfigSchema.parse(widget.config);
-		const defaults = new Set(type?.defaultConfig.entries);
-		const isDefault = entries.length === defaults.size && entries.every((entry) => defaults.has(entry));
+		const { entryNames } = widgetConfigSchema.parse(widget.config);
+		const defaults = new Set(type?.defaultConfig.entryNames);
+		const isDefault = entryNames.length === defaults.size && entryNames.every((name) => defaults.has(name));
 		if (isDefault) {
 			topics.add(type?.name ?? 'Unknown widget');
 			continue;
 		}
-		for (const entry of entries) {
-			topics.add(entryTopic(entry));
+		for (const name of entryNames) {
+			topics.add(entryTopic(name));
 		}
 	}
 

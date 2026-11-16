@@ -12,15 +12,15 @@ import { acceptsEntry, type WidgetBinding, type WidgetType } from '@/widgets/wid
 /** Renders a widget with its bound entries, handles the shared empty and "no data" states, and binds entries dropped on it */
 export function WidgetView({
 	type,
-	entries,
-	onEntriesChange,
+	entryNames,
+	onEntryNamesChange,
 }: {
 	type: WidgetType;
-	entries: readonly string[];
-	onEntriesChange: (entries: string[]) => void;
+	entryNames: readonly string[];
+	onEntryNamesChange: (entryNames: string[]) => void;
 }) {
 	const source = useSource();
-	const allEntries = useEntries();
+	const entries = useEntries();
 	const dropId = useId();
 	// Accepts every entry so rejected ones can explain why they can't be dropped
 	const { ref, isDropTarget } = useDroppable({ id: dropId, accept: entryDragType });
@@ -28,12 +28,12 @@ export function WidgetView({
 	const draggedEntry = isDropTarget ? dragSource?.data.entry : undefined;
 
 	const bindings = useMemo((): WidgetBinding[] => {
-		const byName = new Map(allEntries.map((entry) => [entry.name, entry]));
-		return entries.map((name) => {
+		const byName = new Map(entries.map((entry) => [entry.name, entry]));
+		return entryNames.map((name) => {
 			const entry = byName.get(name);
 			return { name, entry: entry && acceptsEntry(type, entry) ? entry : undefined };
 		});
-	}, [allEntries, entries, type]);
+	}, [entries, entryNames, type]);
 
 	useDragDropMonitor<EntryDragData>({
 		onDragEnd: ({ operation, canceled }) => {
@@ -43,20 +43,20 @@ export function WidgetView({
 				operation.target?.id === dropId &&
 				entry &&
 				acceptsEntry(type, entry) &&
-				!entries.includes(entry.name)
+				!entryNames.includes(entry.name)
 			) {
-				onEntriesChange([...entries, entry.name]);
+				onEntryNamesChange([...entryNames, entry.name]);
 			}
 		},
 	});
 
 	let content: ReactNode;
-	if (entries.length === 0) {
+	if (entryNames.length === 0) {
 		content = (
 			<WidgetEmpty
 				icon={<ListPlusIcon />}
 				title="No entries"
-				description="Drag entries here from the key browser, or choose them in the widget options."
+				description="Drag entries here from the entry browser, or choose them in the widget options."
 			/>
 		);
 	} else if (!source) {
@@ -67,8 +67,8 @@ export function WidgetView({
 				icon={<DatabaseIcon />}
 				title="No data"
 				description={
-					entries.length === 1
-						? `The current source doesn't have ${entries[0]}.`
+					entryNames.length === 1
+						? `The current source doesn't have ${entryNames[0]}.`
 						: "The current source doesn't have any of this widget's entries."
 				}
 			/>

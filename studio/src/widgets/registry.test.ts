@@ -17,7 +17,7 @@ test.each([
 	['/Drive/MeasuredStates', 'struct:SwerveModuleVelocity[]', 'swerve'],
 	['/Arm/Setpoints', 'double[]', 'values-table'],
 ])('%s (%s) defaults to the %s', (name, type, widgetType) => {
-	expect(defaultWidget(entry(name, type))).toEqual({ type: widgetType, config: { entries: [name] } });
+	expect(defaultWidget(entry(name, type))).toEqual({ type: widgetType, config: { entryNames: [name] } });
 });
 
 test('unsupported entries have no default widget', () => {

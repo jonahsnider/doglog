@@ -122,7 +122,7 @@ Studio SHALL decode numeric, boolean, string, array, and WPILib struct entries. 
 #### Scenario: Protobuf entry
 
 - **GIVEN** a source contains a protobuf-encoded entry
-- **THEN** the entry appears in the key browser marked as unsupported
+- **THEN** the entry appears in the entry browser marked as unsupported
 - **AND** it cannot be bound to widgets
 
 ### Requirement: Entry metadata

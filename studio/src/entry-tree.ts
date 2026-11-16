@@ -2,34 +2,34 @@ import { type TreeRow, visibleTreeRows } from '@ui-sdk/core/tree';
 import type { Entry } from '@/data/data-store';
 import { matchRanges, searchEntries } from '@/entry-search';
 
-/** An entry or group in the key browser tree, in the tree's item data shape. A node can be both, ex. `/Arm` and `/Arm/Angle` are both entries. */
-export type KeyNode = {
+/** An entry or group in the entry browser tree, in the tree's item data shape. A node can be both, ex. `/Arm` and `/Arm/Angle` are both entries. */
+export type EntryTreeNode = {
 	/** Unique full path, ex. `/Arm/Angle` */
 	readonly value: string;
 	/** Last path segment, ex. `Angle` */
 	readonly label: string;
 	entry?: Entry;
 	/** Only set on groups, the tree treats any item with children as a branch */
-	children?: KeyNode[];
+	children?: EntryTreeNode[];
 };
 
-export type KeyRow = TreeRow & { readonly item: KeyNode };
+export type EntryTreeRow = TreeRow & { readonly item: EntryTreeNode };
 
-/** What the key browser shows for the current expanded groups and search query */
-export type KeyTreeView = {
+/** What the entry browser shows for the current expanded groups and search query */
+export type EntryTreeView = {
 	/** The hierarchy the tree navigates, only matches and their parent groups while searching */
-	readonly items: KeyNode[];
+	readonly items: EntryTreeNode[];
 	/** Expanded groups, every group while searching */
 	readonly expanded: string[];
 	/** The rows to show, in order */
-	readonly rows: KeyRow[];
+	readonly rows: EntryTreeRow[];
 	/** Ranges of each node's label that matched, keyed by path, as `[start, end, start, end, ...]`. Only set while searching. */
 	readonly highlights?: ReadonlyMap<string, readonly number[]>;
 };
 
 const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 
-function sortNodes(nodes: KeyNode[]): void {
+function sortNodes(nodes: EntryTreeNode[]): void {
 	nodes.sort((a, b) => collator.compare(a.label, b.label));
 	for (const node of nodes) {
 		if (node.children) {
@@ -39,13 +39,13 @@ function sortNodes(nodes: KeyNode[]): void {
 }
 
 /** Group entries into a tree by the `/`-separated segments of their names */
-export function buildKeyTree(entries: readonly Entry[]): KeyNode[] {
-	const root: KeyNode[] = [];
-	const nodes = new Map<string, KeyNode>();
+export function buildEntryTree(entries: readonly Entry[]): EntryTreeNode[] {
+	const root: EntryTreeNode[] = [];
+	const nodes = new Map<string, EntryTreeNode>();
 
 	for (const entry of entries) {
 		let siblings = root;
-		let node: KeyNode | undefined;
+		let node: EntryTreeNode | undefined;
 		let path = '';
 		// Names start with `/`, skip the empty segment before it
 		for (const segment of entry.name.split('/').slice(1)) {
@@ -73,14 +73,14 @@ export function buildKeyTree(entries: readonly Entry[]): KeyNode[] {
  * The hierarchy and rows to show. Children of expanded groups are shown.
  * With a search query, only entries whose names or struct types fuzzy match it and their parent groups are shown, all expanded.
  */
-export function keyTreeView(tree: KeyNode[], expanded: string[], query: string): KeyTreeView {
+export function entryTreeView(tree: EntryTreeNode[], expanded: string[], query: string): EntryTreeView {
 	const search = searchTree(tree, query);
 	if (!search) {
 		return { items: tree, expanded, rows: visibleTreeRows(tree, expanded) };
 	}
 
 	const groups: string[] = [];
-	const filter = (nodes: readonly KeyNode[]): KeyNode[] =>
+	const filter = (nodes: readonly EntryTreeNode[]): EntryTreeNode[] =>
 		nodes.flatMap((node) => {
 			const children = node.children && filter(node.children);
 			if (children && children.length > 0) {
@@ -101,11 +101,11 @@ export function keyTreeView(tree: KeyNode[], expanded: string[], query: string):
 
 /** Names of the entries matching the query and the matched ranges of each node's label, or `undefined` when the query has nothing to search for */
 function searchTree(
-	tree: readonly KeyNode[],
+	tree: readonly EntryTreeNode[],
 	query: string,
 ): { matches: Set<string>; highlights: Map<string, number[]> } | undefined {
 	const entries: Entry[] = [];
-	const collect = (nodes: readonly KeyNode[]) => {
+	const collect = (nodes: readonly EntryTreeNode[]) => {
 		for (const node of nodes) {
 			if (node.entry) {
 				entries.push(node.entry);

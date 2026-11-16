@@ -12,7 +12,7 @@ import { addDashboardWidget } from '@/dashboards';
 import { type Entry, useDataVersion } from '@/data/data-store';
 import { formatValue, formatValueForCopy } from '@/data/format-value';
 import { type EntryDragData, entryDragType } from '@/entry-drag';
-import type { KeyRow, KeyTreeView } from '@/key-tree';
+import type { EntryTreeRow, EntryTreeView } from '@/entry-tree';
 import { cn } from '@/lib/utils';
 import { getCursorTime, useCursorTime } from '@/timeline';
 import { defaultWidget } from '@/widgets/registry';
@@ -23,11 +23,11 @@ const rowHeight = 28;
 const markTooltip = TooltipCreateHandle<string>();
 
 /** Only renders the rows scrolled into view, logs can have thousands of entries */
-export function KeyRows({
+export function EntryRows({
 	view,
 	onExpandedChange,
 }: {
-	view: KeyTreeView;
+	view: EntryTreeView;
 	onExpandedChange: (expanded: string[]) => void;
 }) {
 	const { rows, highlights } = view;
@@ -79,7 +79,7 @@ export function KeyRows({
 					{virtualizer.getVirtualItems().map((item) => {
 						const row = rows[item.index]!;
 						return (
-							<KeyRowView
+							<EntryRowView
 								key={row.item.value}
 								row={row}
 								top={item.start}
@@ -96,12 +96,12 @@ export function KeyRows({
 const unsupportedLabel = "Unsupported type, can't be shown in widgets";
 
 // Memoized so rows don't re-render when the cursor moves, only their values do
-const KeyRowView = memo(function KeyRowView({
+const EntryRowView = memo(function EntryRowView({
 	row,
 	top,
 	highlights,
 }: {
-	row: KeyRow;
+	row: EntryTreeRow;
 	top: number;
 	highlights: readonly number[] | undefined;
 }) {

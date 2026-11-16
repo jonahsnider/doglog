@@ -28,7 +28,7 @@ Each widget type SHALL declare the data types it accepts, which MAY be specific 
 
 ### Requirement: Entry picker
 
-Each widget SHALL have an options button that opens a searchable entry picker, filtered to the widget's accepted types, for binding one or more entries. Its search MUST match entries the same way as the key browser's search, listing the best matches first and highlighting the matched characters.
+Each widget SHALL have an options button that opens a searchable entry picker, filtered to the widget's accepted types, for binding one or more entries. Its search MUST match entries the same way as the entry browser's search, listing the best matches first and highlighting the matched characters.
 
 #### Scenario: Pick entries by typing
 
@@ -44,11 +44,11 @@ Each widget SHALL have an options button that opens a searchable entry picker, f
 
 ### Requirement: Bind by drag and drop
 
-Users SHALL be able to bind an entry by dragging it from the key browser onto a widget.
+Users SHALL be able to bind an entry by dragging it from the entry browser onto a widget.
 
-#### Scenario: Drag from key browser
+#### Scenario: Drag from entry browser
 
-- **WHEN** the user drags an accepted entry from the key browser onto a widget
+- **WHEN** the user drags an accepted entry from the entry browser onto a widget
 - **THEN** the entry is bound to that widget
 
 ### Requirement: Follow the cursor

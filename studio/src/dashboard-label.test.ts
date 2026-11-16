@@ -10,8 +10,8 @@ function layoutOf(...widgets: Widget[]): PaneNode {
 	return layout;
 }
 
-function table(...entries: string[]): Widget {
-	return { type: 'values-table', config: { entries } };
+function table(...entryNames: string[]): Widget {
+	return { type: 'values-table', config: { entryNames } };
 }
 
 test('names a dashboard after the groups of its entries, in layout order', () => {
@@ -33,7 +33,7 @@ test('capitalizes top level entries', () => {
 });
 
 test("names widgets with no entries or only their type's default entries after their type", () => {
-	const console = { type: 'console', config: { entries: ['/messages', '/console'] } };
+	const console = { type: 'console', config: { entryNames: ['/messages', '/console'] } };
 	expect(suggestDashboardName(layoutOf(console, table()))).toBe('Console & Values table');
 });
 

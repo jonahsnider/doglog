@@ -8,7 +8,7 @@ Define Studio's app-wide keyboard shortcuts and how they differ between the desk
 
 ### Requirement: Global shortcuts
 
-Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Reopen closed dashboard (⇧⌘T, or Alt+Shift+T), Undo (⌘Z), Redo (⇧⌘Z), Settings (⌘, or Alt+,), Toggle sidebar (⌘B), Toggle key browser (⌥⌘B), Connect (⌘K), Split right (⌘D), Split down (⇧⌘D), Open log (⌘O), and Switch to dashboard 1-9 (⌘1-⌘9, or Alt+1-Alt+9).
+Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Reopen closed dashboard (⇧⌘T, or Alt+Shift+T), Undo (⌘Z), Redo (⇧⌘Z), Settings (⌘, or Alt+,), Toggle sidebar (⌘B), Toggle entry browser (⌥⌘B), Connect (⌘K), Split right (⌘D), Split down (⇧⌘D), Open log (⌘O), and Switch to dashboard 1-9 (⌘1-⌘9, or Alt+1-Alt+9).
 
 #### Scenario: New dashboard
 
@@ -157,6 +157,6 @@ Shortcuts SHALL NOT trigger while the user is typing in a text field, except sho
 
 #### Scenario: Typing in search
 
-- **GIVEN** the key browser search box is focused
+- **GIVEN** the entry browser search box is focused
 - **WHEN** the user types a space
 - **THEN** a space is typed and playback does not toggle

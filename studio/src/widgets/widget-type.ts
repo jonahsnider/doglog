@@ -11,9 +11,9 @@ export type BindableKind = Exclude<EntryKind, 'unsupported'>;
 export const widgetConfigSchema = z
 	.object({
 		/** Entries are bound by name so dashboards work with any source */
-		entries: z.array(z.string()).catch([]),
+		entryNames: z.array(z.string()).catch([]),
 	})
-	.catch({ entries: [] });
+	.catch({ entryNames: [] });
 
 type WidgetConfig = z.infer<typeof widgetConfigSchema>;
 
