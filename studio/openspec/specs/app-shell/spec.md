@@ -17,6 +17,23 @@ The app SHALL show a vertical sidebar on the left containing, from top to bottom
 - **AND** the pages section below it
 - **AND** the dashboards section below the pages section
 
+### Requirement: Window colors
+
+Like VS Code's Peacock extension, the top of the sidebar SHALL be tinted to tell open Studio tabs and windows apart. The first window MUST keep the default color, and each additional window MUST take the next chart color in order, repeating after the last. A window MUST keep its color while it's open, and a newly opened window MUST take the first color no open window is using.
+
+#### Scenario: Open a second window
+
+- **GIVEN** Studio is open in one window
+- **WHEN** the user opens Studio in another window
+- **THEN** the first window's sidebar is unchanged
+- **AND** the top of the second window's sidebar is tinted with the first chart color
+
+#### Scenario: Reuse a closed window's color
+
+- **GIVEN** Studio is open in three windows
+- **WHEN** the user closes the second window and opens a new one
+- **THEN** the new window takes the color the closed window had
+
 ### Requirement: Pages section
 
 The pages section SHALL list the auxiliary pages Logs and Settings, and selecting a page MUST show it in the main area.

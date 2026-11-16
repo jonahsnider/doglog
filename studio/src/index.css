@@ -411,3 +411,35 @@
 		cursor: pointer;
 	}
 }
+
+/* Like VS Code's Peacock, tints the top of the sidebar to tell open windows apart, see `window-color.ts` */
+[data-window-color='1'] {
+	--window-color: var(--chart-1);
+}
+[data-window-color='2'] {
+	--window-color: var(--chart-2);
+}
+[data-window-color='3'] {
+	--window-color: var(--chart-3);
+}
+[data-window-color='4'] {
+	--window-color: var(--chart-4);
+}
+[data-window-color='5'] {
+	--window-color: var(--chart-5);
+}
+[data-window-color] {
+	--window-tint: color-mix(in srgb, var(--window-color) 25%, transparent);
+	background-color: var(--window-tint);
+
+	/*
+	 * Hovered buttons layer the same tint over their accent and the plain sidebar,
+	 * an opaque accent would cover the tint and a translucent one would double it
+	 */
+	& [data-sidebar='menu-button']:is(:hover, :active) {
+		background-color: var(--sidebar);
+		background-image:
+			linear-gradient(var(--window-tint), var(--window-tint)),
+			linear-gradient(var(--sidebar-accent), var(--sidebar-accent));
+	}
+}

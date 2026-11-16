@@ -26,6 +26,7 @@ import { shortcuts } from '@/commands';
 import { deleteDashboards, useDashboards } from '@/dashboards';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { cn } from '@/lib/utils';
+import { useWindowColor } from '@/window-color';
 
 const collapsedStore = createPersistedAtom('sidebar-collapsed', z.boolean(), false, { perWindow: true });
 
@@ -42,6 +43,7 @@ export function AppSidebar() {
 	const formatForDisplay = useFormatForDisplay();
 	const collapsed = useSelector(collapsedStore);
 	const dashboards = useDashboards();
+	const windowColor = useWindowColor();
 	// Showing the collapsed sidebar over the dashboard while it's hovered
 	const [peeking, setPeeking] = useState(false);
 	// Toggling with the keyboard skips the animation, clicking and peeking keep it
@@ -129,7 +131,10 @@ export function AppSidebar() {
 					}}
 					onPointerLeave={() => clearTimeout(showTimer.current)}
 				>
-					<SidebarHeader>
+					<SidebarHeader
+						// Tints the top of the sidebar, see `index.css`
+						data-window-color={windowColor}
+					>
 						<SidebarMenu>
 							<SourceControl />
 						</SidebarMenu>
