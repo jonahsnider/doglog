@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "vp build",
-		"check": "vp check",
+		"check": "vp check && tsc -b",
 		"check:fix": "vp check --fix",
 		"deploy": "wrangler deploy",
 		"dev": "portless",

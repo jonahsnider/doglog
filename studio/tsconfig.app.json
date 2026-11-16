@@ -14,6 +14,8 @@
 		"noEmit": true,
 		"jsx": "react-jsx",
 		"erasableSyntaxOnly": true,
+		// Registry components, ex. coss ui's toast, aren't written for this option
+		"exactOptionalPropertyTypes": false,
 		"paths": {
 			"@/*": ["./src/*"]
 		}
