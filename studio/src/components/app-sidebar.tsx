@@ -44,16 +44,19 @@ export function AppSidebar() {
 	const dashboards = useDashboards();
 	// Showing the collapsed sidebar over the dashboard while it's hovered
 	const [peeking, setPeeking] = useState(false);
+	// Toggling with the keyboard skips the animation, clicking and peeking keep it
+	const [animated, setAnimated] = useState(true);
 	const showTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 	const sidebarRef = useRef<HTMLDivElement>(null);
 	const iconOnly = collapsed && !peeking;
 
-	const toggle = () => {
+	const toggle = (animate: boolean) => {
 		clearTimeout(showTimer.current);
 		setPeeking(false);
+		setAnimated(animate);
 		collapsedStore.set((value) => !value);
 	};
-	useHotkey(shortcuts.toggleSidebar, toggle, { requireReset: true });
+	useHotkey(shortcuts.toggleSidebar, () => toggle(false), { requireReset: true });
 
 	// Hide the peeking sidebar once the pointer leaves it, checked on pointer moves since menus are rendered outside of it
 	// react-doctor-disable-next-line react-doctor/effect-needs-cleanup -- The cleanup clears `hide.timer`
@@ -94,7 +97,7 @@ export function AppSidebar() {
 		openMobile: false,
 		setOpenMobile: noop,
 		isMobile: false,
-		toggleSidebar: toggle,
+		toggleSidebar: () => toggle(true),
 	};
 
 	return (
@@ -114,10 +117,14 @@ export function AppSidebar() {
 						'group absolute inset-y-0 start-0 z-20 overflow-hidden border-r transition-[width,box-shadow] duration-200 ease-linear motion-reduce:transition-none',
 						iconOnly && 'w-(--sidebar-width-icon)',
 						collapsed && peeking && 'shadow-lg',
+						!animated && 'transition-none [&_[data-sidebar=menu-button]]:transition-none',
 					)}
 					onPointerEnter={(event) => {
 						if (collapsed && !peeking && event.pointerType !== 'touch') {
-							showTimer.current = setTimeout(() => setPeeking(true), peekDelay);
+							showTimer.current = setTimeout(() => {
+								setAnimated(true);
+								setPeeking(true);
+							}, peekDelay);
 						}
 					}}
 					onPointerLeave={() => clearTimeout(showTimer.current)}
@@ -174,7 +181,7 @@ export function AppSidebar() {
 								<SidebarMenuButton
 									aria-expanded={!collapsed}
 									className="group/toggle"
-									onClick={toggle}
+									onClick={() => toggle(true)}
 									tooltip={{ children: <TooltipLabel label="Toggle sidebar" shortcut={shortcuts.toggleSidebar} /> }}
 								>
 									{collapsed ? <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />}

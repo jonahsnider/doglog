@@ -89,6 +89,12 @@ Users SHALL be able to collapse the sidebar to a narrow icon-only rail and expan
 - **WHEN** Studio is reopened
 - **THEN** the sidebar is still collapsed
 
+#### Scenario: Toggle instantly with the keyboard
+
+- **WHEN** the user toggles the sidebar with its keyboard shortcut
+- **THEN** it collapses or expands without animating
+- **AND** toggling it by clicking still animates
+
 ### Requirement: Context menus
 
 Context menus SHALL be shown as native operating system menus in the desktop app and as in-app menus on the web, with the same items on both.
