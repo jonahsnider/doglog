@@ -1,5 +1,5 @@
 [tools]
-hk = { version = "2.12.0", workflow = "release.yml" }
+hk = { version = "2.13.0", workflow = "release.yml" }
 java = "temurin-25.0.5+8.0.LTS"
 pkl = "0.33.0"
 rust = "1.100.0"
