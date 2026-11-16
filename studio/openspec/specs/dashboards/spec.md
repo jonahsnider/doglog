@@ -280,6 +280,16 @@ Every dashboard change MUST be saved on the device immediately, so dashboards su
 - **WHEN** the app crashes and is reopened
 - **THEN** the dashboard has the split pane and binding
 
+### Requirement: Shared across windows
+
+Dashboards and closed dashboards MUST be shared by every open Studio tab or window on the device. A change in one MUST appear in the others immediately, without overwriting changes made elsewhere.
+
+#### Scenario: Edit in another tab
+
+- **GIVEN** Studio is open in two tabs
+- **WHEN** the user renames a dashboard in one tab and splits a pane in the other
+- **THEN** both tabs show the renamed dashboard with the split pane
+
 ### Requirement: Dashboard context menu
 
 Right-clicking a dashboard in the sidebar SHALL open a context menu with Rename, Close dashboard, Close other dashboards, and Close dashboards below.

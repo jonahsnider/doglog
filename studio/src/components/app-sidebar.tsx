@@ -27,7 +27,7 @@ import { deleteDashboards, useDashboards } from '@/dashboards';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { cn } from '@/lib/utils';
 
-const collapsedStore = createPersistedAtom('sidebar-collapsed', z.boolean(), false);
+const collapsedStore = createPersistedAtom('sidebar-collapsed', z.boolean(), false, { perWindow: true });
 
 /** How long the pointer has to stay on or away from the collapsed sidebar before it's shown or hidden */
 const peekDelay = 300;

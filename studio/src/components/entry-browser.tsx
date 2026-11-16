@@ -15,9 +15,11 @@ import { buildEntryTree, entryTreeView } from '@/entry-tree';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import * as z from 'zod';
 
-const openStore = createPersistedAtom('entry-browser-open', z.boolean(), true);
+const openStore = createPersistedAtom('entry-browser-open', z.boolean(), true, { perWindow: true });
 const defaultWidthPx = 320;
-const widthPxStore = createPersistedAtom('entry-browser-width', z.number().positive(), defaultWidthPx);
+const widthPxStore = createPersistedAtom('entry-browser-width', z.number().positive(), defaultWidthPx, {
+	perWindow: true,
+});
 
 function toggleOpen(): void {
 	openStore.set((open) => !open);

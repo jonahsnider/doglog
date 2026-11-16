@@ -41,13 +41,26 @@ Settings SHALL let users turn media controls for log playback on or off, default
 
 ### Requirement: Persisted settings
 
-Settings and UI state MUST be saved on the device and restored when Studio reopens.
+Settings and UI state MUST be saved on the device and restored when Studio reopens. Settings MUST be shared by every open Studio tab or window, so a change in one appears in the others immediately. Each tab or window MUST keep its own data source, timeline, and layout UI state, like whether the sidebar is collapsed, with the most recent change used when a new window opens or Studio reopens.
 
 #### Scenario: Restore settings
 
 - **GIVEN** the user set the theme to light
 - **WHEN** Studio is reopened
 - **THEN** the light theme is used
+
+#### Scenario: Change settings in another tab
+
+- **GIVEN** Studio is open in two tabs
+- **WHEN** the user sets the theme to light in one tab
+- **THEN** the other tab switches to the light theme
+
+#### Scenario: Collapse the sidebar in another tab
+
+- **GIVEN** Studio is open in two tabs
+- **WHEN** the user collapses the sidebar in one tab
+- **THEN** the other tab's sidebar stays expanded
+- **AND** a newly opened tab starts with the sidebar collapsed
 
 ### Requirement: Theme color setting
 
