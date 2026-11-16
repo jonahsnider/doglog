@@ -5,6 +5,7 @@ import { listen } from '@tauri-apps/api/event';
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
 import { toastManager } from '@/components/ui/toast';
 import { clearData } from '@/data/data-store';
+import { loadDevLog, saveDevLog } from '@/data/dev-log';
 import type { LiveStatus } from '@/data/live-source';
 import { loadLog } from '@/data/log-source';
 import { simulatorHost } from '@/robot-target';
@@ -31,6 +32,9 @@ function replaceSource(source: Source | undefined): void {
 	resetTimeline(source?.type === 'live');
 	generation++;
 	sourceStore.set(source);
+	if (import.meta.env.DEV && source?.type !== 'log') {
+		void saveDevLog(undefined);
+	}
 }
 
 async function isWpilog(file: File): Promise<boolean> {
@@ -53,6 +57,9 @@ export async function openLog(file: File): Promise<void> {
 	stopSource = loadLog(file, {
 		onLoaded: (damaged) => {
 			sourceStore.set({ type: 'log', fileName: file.name, status: 'loaded' });
+			if (import.meta.env.DEV) {
+				void saveDevLog(file);
+			}
 			if (damaged) {
 				toastManager.add({
 					type: 'warning',
@@ -66,6 +73,15 @@ export async function openLog(file: File): Promise<void> {
 			toastManager.add({ type: 'error', title: `Couldn't open ${file.name}`, description: message });
 		},
 	});
+}
+
+/** Reopen the log that was open before the page reloaded. Only call this in dev. */
+export async function reopenDevLog(): Promise<void> {
+	const file = await loadDevLog();
+	// Keep a source chosen while loading, ex. the log the desktop app was launched with
+	if (file !== undefined && sourceStore.get() === undefined) {
+		await openLog(file);
+	}
 }
 
 /** Make a live NT4 connection to `host` the active source */
