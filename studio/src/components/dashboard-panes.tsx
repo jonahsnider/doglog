@@ -36,13 +36,12 @@ import { acceptsEntry, type WidgetType, widgetConfigSchema } from '@/widgets/wid
 type PaneNodeProps = {
 	dashboardId: string;
 	dashboardLayout: PaneNode;
-	/** Only set when there's more than one pane */
-	focusedPaneId: string | undefined;
+	focusedPaneId: string;
 };
 
 export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 	const { layout } = dashboard;
-	const focusedPaneId = layout.kind === 'split' ? getFocusedPane(dashboard).id : undefined;
+	const focusedPaneId = getFocusedPane(dashboard).id;
 
 	// Entries dropped on a widget or one of its entries, from the entry browser or another widget
 	useDragDropMonitor<EntryDragData | EntryDropData, Draggable<EntryDragData>, Droppable<EntryDropData>>({
@@ -158,6 +157,7 @@ function PaneView({
 	const canSplitRight = canSplitPane(dashboardLayout, pane.id, 'row');
 	const canSplitDown = canSplitPane(dashboardLayout, pane.id, 'column');
 	const close = () => closeDashboardPane(dashboardId, pane.id);
+	const focused = pane.id === focusedPaneId;
 
 	const removeEntry = (name: string) => setEntryNames(config.entryNames.filter((other) => other !== name));
 
@@ -205,8 +205,10 @@ function PaneView({
 			render={
 				<div
 					className={cn(
-						'relative flex size-full flex-col',
-						pane.id === focusedPaneId &&
+						'group/pane relative flex size-full flex-col',
+						// A lone pane is always focused, so it isn't outlined
+						focused &&
+							dashboardLayout.kind === 'split' &&
 							'after:pointer-events-none after:absolute after:inset-0 after:ring-1 after:ring-primary/50 after:ring-inset',
 					)}
 					// Lets `addDashboardWidget()` pick a split direction from the pane's size
@@ -237,36 +239,44 @@ function PaneView({
 					{type && <type.icon className="size-3.5 shrink-0" />}
 					<span className="truncate">{type?.name ?? widget?.type}</span>
 				</span>
-				{type && (
-					<WidgetOptions
-						type={type}
-						entryNames={config.entryNames}
-						onEntryNamesChange={setEntryNames}
-						open={optionsOpen}
-						onOpenChange={setOptionsOpen}
-					/>
-				)}
-				<PaneButton
-					label="Split right"
-					shortcut={shortcuts.splitRight}
-					disabled={!canSplitRight}
-					onClick={() => split('row')}
+				{/* Pane controls stay out of the way unless the pane is hovered or focused */}
+				<div
+					className={cn(
+						'flex items-center gap-0.5 transition-opacity duration-75',
+						!focused && 'opacity-0 group-hover/pane:opacity-100',
+					)}
 				>
-					<Columns2Icon />
-				</PaneButton>
-				<PaneButton
-					label="Split down"
-					shortcut={shortcuts.splitDown}
-					disabled={!canSplitDown}
-					onClick={() => split('column')}
-				>
-					<Rows2Icon />
-				</PaneButton>
-				{closable && (
-					<PaneButton label="Close pane" shortcut={shortcuts.close} onClick={close}>
-						<XIcon />
+					{type && (
+						<WidgetOptions
+							type={type}
+							entryNames={config.entryNames}
+							onEntryNamesChange={setEntryNames}
+							open={optionsOpen}
+							onOpenChange={setOptionsOpen}
+						/>
+					)}
+					<PaneButton
+						label="Split right"
+						shortcut={shortcuts.splitRight}
+						disabled={!canSplitRight}
+						onClick={() => split('row')}
+					>
+						<Columns2Icon />
 					</PaneButton>
-				)}
+					<PaneButton
+						label="Split down"
+						shortcut={shortcuts.splitDown}
+						disabled={!canSplitDown}
+						onClick={() => split('column')}
+					>
+						<Rows2Icon />
+					</PaneButton>
+					{closable && (
+						<PaneButton label="Close pane" shortcut={shortcuts.close} onClick={close}>
+							<XIcon />
+						</PaneButton>
+					)}
+				</div>
 			</div>
 			<div className="min-h-0 flex-1">
 				{widget === undefined ? (

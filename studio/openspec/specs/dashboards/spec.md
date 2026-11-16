@@ -330,6 +330,22 @@ The pane the user last clicked or interacted with SHALL be the focused pane, and
 - **WHEN** the user clicks inside the second pane
 - **THEN** the second pane is shown as focused
 
+### Requirement: Pane header controls
+
+A pane's header buttons, like widget options, split, and close, SHALL only be shown while the pane is hovered or focused.
+
+#### Scenario: Unfocused pane
+
+- **GIVEN** a dashboard with two panes, the first focused
+- **WHEN** the user isn't hovering the second pane
+- **THEN** the second pane's header buttons are hidden, and the first pane's are shown
+
+#### Scenario: Hover an unfocused pane
+
+- **GIVEN** a dashboard with two panes, the first focused
+- **WHEN** the user hovers the second pane
+- **THEN** the second pane's header buttons are shown
+
 ### Requirement: Pane context menu
 
 Right-clicking a pane SHALL open a context menu with Split right, Split down, Change widget, Widget options, and Close.
