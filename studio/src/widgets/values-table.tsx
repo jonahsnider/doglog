@@ -127,7 +127,14 @@ export function ValuesTable({ bindings }: WidgetProps) {
 											<span className="-m-1 size-7 shrink-0 sm:size-6" />
 										)
 									)}
-									{row.depth === 0 ? <EntryName name={row.label} /> : row.label}
+									{row.depth === 0 ? (
+										// The prefix animating open on hover briefly leaves the browser's automatic cursor on a non-text box
+										<span className="cursor-text">
+											<EntryName name={row.label} />
+										</span>
+									) : (
+										row.label
+									)}
 								</div>
 							</TableCell>
 							<TableCell>{row.type !== undefined && <TypeLabel type={row.type} />}</TableCell>
