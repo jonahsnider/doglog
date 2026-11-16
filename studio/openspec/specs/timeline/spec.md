@@ -50,6 +50,21 @@ For log sources, Studio SHALL provide play/pause, a playback speed multiplier, s
 - **WHEN** the user sets playback speed to 2x and plays
 - **THEN** the cursor advances at twice real time
 
+### Requirement: Remember log position
+
+Studio SHALL remember where the cursor was in each log by file name, and MUST move the cursor there when a log with that name is opened again.
+
+#### Scenario: Reopen a log
+
+- **GIVEN** the cursor was at 42.0 s when the user last had `match.wpilog` open
+- **WHEN** the user opens `match.wpilog` again
+- **THEN** the cursor starts paused at 42.0 s
+
+#### Scenario: New log
+
+- **WHEN** the user opens a log they haven't opened before
+- **THEN** the cursor starts paused at the beginning of the log
+
 ### Requirement: Live follow
 
 For live sources, Studio SHALL support following (tracking the newest data), playing, and paused states, and MUST keep receiving data in every state.

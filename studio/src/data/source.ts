@@ -36,7 +36,7 @@ function replaceSource(source: Source | undefined): void {
 	stopSource?.();
 	stopSource = undefined;
 	clearData();
-	resetTimeline(source?.type === 'live');
+	resetTimeline(source);
 	generation++;
 	sourceStore.set(source);
 	if (import.meta.env.DEV && source?.type !== 'log') {

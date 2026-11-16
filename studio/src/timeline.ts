@@ -1,6 +1,9 @@
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
+import * as z from 'zod';
 import { getTimeRange, subscribeData, type TimeRange } from '@/data/data-store';
+import type { Source } from '@/data/source';
+import { createPersistedAtom } from '@/lib/persisted-store';
 
 /** `following` keeps the cursor on the newest data, it's only used by live sources */
 type Playback = 'paused' | 'playing' | 'following';
@@ -22,6 +25,14 @@ const stepSize = 20_000;
 
 // The one time cursor shared by every dashboard and widget
 const store = createAtom<Timeline>({ time: undefined, playback: 'paused', speed: 1, live: false });
+
+/** How many logs to remember the cursor time of, the least recently saved are forgotten first */
+const maxSavedLogs = 100;
+
+// Cursor time (µs) of recently opened logs by file name, restored when a log is reopened
+const savedTimes = createPersistedAtom('log-cursor-times', z.record(z.string(), z.number()), {});
+// File name of the active log, `undefined` for live sources
+let logName: string | undefined;
 
 let frame: number | undefined;
 let lastFrameTime = 0;
@@ -76,12 +87,30 @@ subscribeData(() => {
 			update({ time: range.end });
 		}
 	} else if (time === undefined) {
-		update({ time: range.start });
+		const saved = logName === undefined ? undefined : savedTimes.get()[logName];
+		update({ time: saved === undefined ? range.start : clamp(saved, range) });
 	}
 });
 
-/** Reset the cursor for a new source: live sources follow the newest data, logs start paused at the beginning */
-export function resetTimeline(live: boolean): void {
+// Save the cursor of the active log when it settles, saving every frame while playing would be wasteful
+store.subscribe(({ time, playback }) => {
+	if (logName === undefined || time === undefined || playback === 'playing' || savedTimes.get()[logName] === time) {
+		return;
+	}
+	const times = { ...savedTimes.get() };
+	// Re-add the log so it's the most recently saved
+	delete times[logName];
+	times[logName] = time;
+	savedTimes.set(Object.fromEntries(Object.entries(times).slice(-maxSavedLogs)));
+});
+
+/**
+ * Reset the cursor for a new source: live sources follow the newest data,
+ * logs start paused where the cursor was when the log was last open, or at the beginning
+ */
+export function resetTimeline(source: Source | undefined): void {
+	const live = source?.type === 'live';
+	logName = source?.type === 'log' ? source.fileName : undefined;
 	update({ time: undefined, playback: live ? 'following' : 'paused', live });
 }
 
