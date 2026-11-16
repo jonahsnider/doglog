@@ -277,8 +277,8 @@ importers:
         specifier: 3.7.0
         version: 3.7.0
       wpilib-struct:
-        specifier: 1.0.1
-        version: 1.0.1
+        specifier: 1.0.2
+        version: 1.0.2
       wpilog-parser:
         specifier: 3.2.1
         version: 3.2.1(cac@7.0.0)(commander@14.0.3)
@@ -6671,8 +6671,8 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
 
-  wpilib-struct@1.0.1:
-    resolution: {integrity: sha512-qeBLcRFGcn3KbFRdmgUEJKPyL1gPiIl2Vnr48bTudqysis8mE6WXiH//fFG5PgBZLfA1nXWbLw2MA2gguNct+g==}
+  wpilib-struct@1.0.2:
+    resolution: {integrity: sha512-6c7nPlseHfD9JQahIoOJogMAEKUn8IaPWTYIq9R+Gk58FJvASTnq6L0UT+oZ6foHpFw2VntDcGGCfUQ8vGEbPQ==}
 
   wpilog-parser@3.2.1:
     resolution: {integrity: sha512-x0t4LnR8eZl3mT3ed0yt/wMqYDMAPZX0LhopQrU+j+Jbmj6S54PV3g5lMd/aZXC36sDDNu7lpV47O4ziUQMOuQ==}
@@ -8391,7 +8391,7 @@ snapshots:
       isomorphic-ws: 5.0.0(ws@8.23.0)
       protobufjs: 8.8.1
       tslog: 5.5.0
-      wpilib-struct: 1.0.1
+      wpilib-struct: 1.0.2
       zod: 4.6.7
     transitivePeerDependencies:
       - ws
@@ -13263,7 +13263,7 @@ snapshots:
       '@cloudflare/workerd-linux-arm64': 1.20261113.1
       '@cloudflare/workerd-windows-64': 1.20261113.1
 
-  wpilib-struct@1.0.1: {}
+  wpilib-struct@1.0.2: {}
 
   wpilog-parser@3.2.1(cac@7.0.0)(commander@14.0.3):
     dependencies:
@@ -13272,7 +13272,7 @@ snapshots:
       '@toon-format/toon': 4.4.0
       nostics: 1.3.0
       osc-status: 1.0.0
-      wpilib-struct: 1.0.1
+      wpilib-struct: 1.0.2
     transitivePeerDependencies:
       - cac
       - citty
