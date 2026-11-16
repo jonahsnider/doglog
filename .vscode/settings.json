@@ -1,7 +1,10 @@
 {
-	"editor.defaultFormatter": "oxc.oxc-vscode",
 	"[java]": {
 		"editor.defaultFormatter": "josevseb.google-java-format-for-vs-code"
 	},
-	"java.compile.nullAnalysis.mode": "disabled"
+	"editor.defaultFormatter": "oxc.oxc-vscode",
+	"java.compile.nullAnalysis.mode": "disabled",
+	"rust-analyzer.linkedProjects": [
+		"studio/src-tauri/Cargo.toml"
+	]
 }
