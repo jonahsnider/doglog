@@ -10,14 +10,8 @@ import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { WidgetView } from '@/components/widget-view';
 import { shortcuts } from '@/commands';
-import {
-	closeDashboardPane,
-	type Dashboard,
-	focusPane,
-	getFocusedPane,
-	splitDashboardPane,
-	updateLayout,
-} from '@/dashboards';
+import { closeDashboardPane, getFocusedPane, splitDashboardPane, updateLayout } from '@/dashboard-panes';
+import { type Dashboard, focusPane } from '@/dashboards';
 import { getEntry } from '@/data/data-store';
 import { cn } from '@/lib/utils';
 import {

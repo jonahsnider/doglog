@@ -1,4 +1,5 @@
 import { type Atom, createAtom } from '@tanstack/store';
+import { decodeImportBlobMeta, LoroDoc } from 'loro-crdt';
 import type * as z from 'zod';
 
 const keyPrefix = 'doglog-studio:';
@@ -56,4 +57,58 @@ export function createPersistedAtom<T>(
 	}
 
 	return atom;
+}
+
+function readDoc(doc: LoroDoc, key: string): Uint8Array | undefined {
+	const stored = readStorage(key);
+	if (typeof stored !== 'string') {
+		return undefined;
+	}
+
+	try {
+		const bytes = Uint8Array.fromBase64(stored);
+		doc.import(bytes);
+		return bytes;
+	} catch {
+		// Invalid data is replaced the next time the document is saved
+		return undefined;
+	}
+}
+
+/**
+ * Create a Loro document that's saved to localStorage under `key` whenever it changes locally.
+ * Changes saved by other tabs and windows are merged in, so edits made in several windows at once are all kept.
+ */
+export function createPersistedDoc(key: string): LoroDoc {
+	const doc = new LoroDoc();
+	readDoc(doc, key);
+
+	const save = () => writeStorage(key, doc.export({ mode: 'snapshot' }).toBase64());
+	doc.subscribeLocalUpdates(save);
+
+	// Tests run without a DOM
+	if (typeof window !== 'undefined') {
+		window.addEventListener('storage', (event) => {
+			if (event.key !== keyPrefix + key) {
+				return;
+			}
+
+			const bytes = readDoc(doc, key);
+			// Another window saved over changes it hadn't received yet, save them again so they aren't lost
+			if (bytes && doc.oplogVersion().compare(decodeImportBlobMeta(bytes, false).partialEndVersionVector) !== 0) {
+				save();
+			}
+		});
+	}
+
+	return doc;
+}
+
+/** Remove a value saved by `createPersistedAtom()` or `createPersistedDoc()` */
+export function removeStorage(key: string): void {
+	try {
+		localStorage.removeItem(keyPrefix + key);
+	} catch {
+		// Storage can be disabled
+	}
 }

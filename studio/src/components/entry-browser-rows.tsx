@@ -8,7 +8,7 @@ import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { HighlightedText } from '@/components/highlighted-text';
 import { TooltipCreateHandle, TooltipTrigger } from '@/components/ui/tooltip';
 import { MarkTooltip, TypeMark } from '@/components/value-marks';
-import { addDashboardWidget } from '@/dashboards';
+import { addDashboardWidget } from '@/dashboard-panes';
 import { type Entry, useDataVersion } from '@/data/data-store';
 import { formatValue, formatValueForCopy } from '@/data/format-value';
 import { type EntryDragData, entryDragType } from '@/entry-drag';

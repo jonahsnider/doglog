@@ -2,17 +2,15 @@ import { isTauri } from '@tauri-apps/api/core';
 import { Menu } from '@tauri-apps/api/menu';
 import { detectPlatform, type Hotkey, useHotkeys } from '@tanstack/react-hotkeys';
 import { type RegisteredRouter, useRouter } from '@tanstack/react-router';
+import { closeFocusedPane, getFocusedPane, splitDashboardPane } from '@/dashboard-panes';
 import {
-	closeFocusedPane,
 	createDashboard,
 	type Dashboard,
 	deleteDashboard,
 	getDashboard,
 	getDashboards,
-	getFocusedPane,
 	redoDashboard,
 	reopenClosedDashboards,
-	splitDashboardPane,
 	undoDashboard,
 } from '@/dashboards';
 import { chooseLog, connect } from '@/data/source';

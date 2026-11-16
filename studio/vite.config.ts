@@ -161,6 +161,8 @@ export default defineConfig({
 			workbox: {
 				globPatterns: ['**/*'],
 				globIgnores: ['**/_headers'],
+				// Loro's WASM is about 3.6 MB, and dashboards need it to load offline
+				maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
 				cleanupOutdatedCaches: true,
 			},
 			manifest: {
@@ -193,6 +195,10 @@ export default defineConfig({
 				inline: ['@material/material-color-utilities'],
 			},
 		},
+	},
+	optimizeDeps: {
+		// Pre-bundling loads Loro's WASM glue code twice, leaving the copy it uses uninitialized
+		exclude: ['loro-crdt'],
 	},
 	// Tauri expects a fixed dev server port
 	clearScreen: false,

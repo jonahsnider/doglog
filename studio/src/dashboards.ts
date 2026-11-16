@@ -1,47 +1,84 @@
 import { useSelector } from '@tanstack/react-store';
+import { createAtom } from '@tanstack/store';
 import * as z from 'zod';
-import { createPersistedAtom } from '@/lib/persisted-store';
-import { createSharedMap } from '@/lib/shared-map';
 import {
-	canSplitPane,
-	closePane,
-	createPane,
-	findPane,
-	findSibling,
-	findWidgetPane,
-	firstPane,
-	type Pane,
-	type PaneNode,
-	paneNodeSchema,
-	setPaneWidget,
-	type SplitDirection,
-	splitPane,
-	type Widget,
-} from '@/pane-layout';
-import { widgetConfigSchema } from '@/widgets/widget-type';
+	type DashboardContents,
+	type DashboardDoc,
+	deleteDashboardDoc,
+	loadDashboardDoc,
+	readDashboardDoc,
+	writeDashboardDoc,
+} from '@/dashboard-doc';
+import { createPersistedAtom } from '@/lib/persisted-store';
 
-const dashboardSchema = z.object({
-	id: z.string(),
-	/** Set when the user renames the dashboard, otherwise a name is suggested from its contents with `dashboardName()` */
-	name: z.string().optional(),
-	layout: paneNodeSchema.catch(() => createPane()),
+export type Dashboard = DashboardContents & {
+	id: string;
 	/** The pane the user last interacted with, use `getFocusedPane()` since it can be outdated */
-	focusedPaneId: z.string().optional().catch(undefined),
-});
+	focusedPaneId?: string | undefined;
+};
 
-export type Dashboard = z.infer<typeof dashboardSchema>;
+/** Dashboard IDs in sidebar order, first launch starts with one empty dashboard */
+const idsStore = createPersistedAtom('dashboard-ids', z.array(z.string()), [crypto.randomUUID()]);
 
-// Invalid dashboards are dropped instead of resetting every dashboard
-const dashboardsSchema = z
-	.array(dashboardSchema.nullable().catch(null))
-	.transform((dashboards) => dashboards.filter((dashboard) => dashboard !== null));
+/** Each dashboard's focused pane, kept outside its document since it isn't part of the dashboard */
+const focusedPanesStore = createPersistedAtom(
+	'focused-panes',
+	z.record(z.string(), z.string().optional()).catch({}),
+	{},
+);
 
-function newDashboard(): Dashboard {
-	return { id: crypto.randomUUID(), layout: createPane() };
+/** Focusing a pane isn't a change to the dashboard, so it isn't undone */
+export function focusPane(id: string, paneId: string | undefined): void {
+	// Called on every click in a pane, so skip updates that wouldn't change anything
+	if (focusedPanesStore.get()[id] !== paneId) {
+		focusedPanesStore.set((focusedPanes) => ({ ...focusedPanes, [id]: paneId }));
+	}
 }
 
-/** Dashboards in sidebar order, first launch starts with one empty dashboard */
-const store = createPersistedAtom('dashboards', dashboardsSchema, [newDashboard()]);
+type LoadedDashboard = DashboardDoc & {
+	/** Read from its document, cleared when it changes */
+	dashboard?: Dashboard | undefined;
+};
+
+/** Every dashboard loaded by this window, closed ones are kept for their undo history */
+const docs = new Map<string, LoadedDashboard>();
+
+function getDoc(id: string): LoadedDashboard {
+	let entry = docs.get(id);
+	if (!entry) {
+		// Undo steps are committed before the focus changes, so they save the pane that was focused before them
+		const loaded: LoadedDashboard = loadDashboardDoc(id, () => focusedPanesStore.get()[id]);
+		loaded.doc.subscribe(() => {
+			loaded.dashboard = undefined;
+			refresh();
+		});
+		docs.set(id, loaded);
+		entry = loaded;
+	}
+	return entry;
+}
+
+function readDashboard(id: string): Dashboard {
+	const entry = getDoc(id);
+	const focusedPaneId = focusedPanesStore.get()[id];
+	if (!entry.dashboard || entry.dashboard.focusedPaneId !== focusedPaneId) {
+		// Keeps the same layout when only the focus changed
+		const { name, layout } = entry.dashboard ?? readDashboardDoc(entry.doc);
+		entry.dashboard = { id, name, layout, focusedPaneId };
+	}
+	return entry.dashboard;
+}
+
+/** Dashboards in sidebar order */
+const store = createAtom<Dashboard[]>([]);
+
+function refresh(): void {
+	store.set(idsStore.get().map((id) => readDashboard(id)));
+}
+
+refresh();
+idsStore.subscribe(refresh);
+focusedPanesStore.subscribe(refresh);
 
 export function useDashboards(): Dashboard[] {
 	return useSelector(store);
@@ -57,62 +94,40 @@ export function getDashboard(id: string): Dashboard | undefined {
 
 /** Create an empty dashboard at the top or bottom of the list */
 export function createDashboard(position: 'top' | 'bottom' = 'top'): Dashboard {
-	const dashboard = newDashboard();
-	store.set((dashboards) => (position === 'top' ? [dashboard, ...dashboards] : [...dashboards, dashboard]));
+	const id = crypto.randomUUID();
+	// Saves its document before its ID, so other windows find it
+	const dashboard = readDashboard(id);
+	idsStore.set((ids) => (position === 'top' ? [id, ...ids] : [...ids, id]));
 	return dashboard;
 }
 
-const historySchema = z.object({ undo: z.array(dashboardSchema), redo: z.array(dashboardSchema) });
-type History = z.infer<typeof historySchema>;
-
-/**
- * Each dashboard's undo history, kept for the session so a reopened dashboard can still undo.
- * Shared by every open window since they edit the same dashboards.
- */
-const histories = createSharedMap('dashboard-history', historySchema);
-const historyLimit = 100;
-
-function setDashboard(dashboard: Dashboard): void {
-	store.set((dashboards) => dashboards.map((other) => (other.id === dashboard.id ? dashboard : other)));
-}
-
-/** Focusing a pane isn't an edit, and some operations recreate a layout without changing it */
-function sameContents(a: Dashboard, b: Dashboard): boolean {
-	return a.name === b.name && JSON.stringify(a.layout) === JSON.stringify(b.layout);
-}
-
-/** Change a dashboard, saving its previous state as an undo step if its contents changed */
-function updateDashboard(id: string, update: (dashboard: Dashboard) => Dashboard): void {
+/** Change a dashboard, its contents changing is an undo step */
+export function updateDashboard(id: string, update: (dashboard: Dashboard) => Dashboard): void {
 	const dashboard = getDashboard(id);
 	if (!dashboard) {
 		return;
 	}
 
 	const updated = update(dashboard);
-	if (!sameContents(dashboard, updated)) {
-		const undo = [...(histories.get(id)?.undo ?? []), dashboard].slice(-historyLimit);
-		histories.set(id, { undo, redo: [] });
-	}
-	setDashboard(updated);
+	const { doc } = getDoc(id);
+	writeDashboardDoc(doc, updated);
+	doc.commit();
+	focusPane(id, updated.focusedPaneId);
 }
 
 /** Go back to the dashboard's state from before its last edit, including which pane was focused */
 export function undoDashboard(id: string): void {
-	travel(id, 'undo', 'redo');
+	travel(id, 'undo');
 }
 
 export function redoDashboard(id: string): void {
-	travel(id, 'redo', 'undo');
+	travel(id, 'redo');
 }
 
-function travel(id: string, from: keyof History, to: keyof History): void {
-	const dashboard = getDashboard(id);
-	const history = histories.get(id);
-	const target = dashboard && history?.[from].pop();
-	if (dashboard && history && target) {
-		history[to].push(dashboard);
-		histories.set(id, history);
-		setDashboard(target);
+function travel(id: string, direction: 'undo' | 'redo'): void {
+	const restored = getDoc(id).travel(direction);
+	if (restored !== false) {
+		focusPane(id, restored.focusedPaneId);
 	}
 }
 
@@ -124,21 +139,20 @@ export function renameDashboard(id: string, name: string): void {
 
 /** Move a dashboard so it ends up at `index` */
 export function moveDashboard(id: string, index: number): void {
-	store.set((dashboards) => {
-		const dashboard = dashboards.find((other) => other.id === id);
-		if (!dashboard) {
-			return dashboards;
+	idsStore.set((ids) => {
+		if (!ids.includes(id)) {
+			return ids;
 		}
 
-		const rest = dashboards.filter((other) => other !== dashboard);
-		return [...rest.slice(0, index), dashboard, ...rest.slice(index)];
+		const rest = ids.filter((other) => other !== id);
+		return [...rest.slice(0, index), id, ...rest.slice(index)];
 	});
 }
 
-const closedDashboardSchema = z.object({ dashboard: dashboardSchema, index: z.number() });
+const closedDashboardSchema = z.object({ id: z.string(), index: z.number() });
 
 /** Groups of dashboards that were closed together, oldest first, for reopening them like closed browser tabs */
-const closedStore = createPersistedAtom('closed-dashboards', z.array(z.array(closedDashboardSchema)).catch([]), []);
+const closedStore = createPersistedAtom('closed-dashboard-ids', z.array(z.array(closedDashboardSchema)).catch([]), []);
 const closedLimit = 25;
 
 export function deleteDashboard(id: string): void {
@@ -148,14 +162,20 @@ export function deleteDashboard(id: string): void {
 /** Close dashboards, they can be brought back with `reopenClosedDashboards()` */
 export function deleteDashboards(ids: readonly string[]): void {
 	const removed = new Set(ids);
-	const dashboards = store.get();
-	const closed = dashboards.flatMap((dashboard, index) => (removed.has(dashboard.id) ? [{ dashboard, index }] : []));
+	const openIds = idsStore.get();
+	const closed = openIds.flatMap((id, index) => (removed.has(id) ? [{ id, index }] : []));
 	if (closed.length === 0) {
 		return;
 	}
 
-	closedStore.set((groups) => [...groups, closed].slice(-closedLimit));
-	store.set(dashboards.filter((dashboard) => !removed.has(dashboard.id)));
+	const groups = [...closedStore.get(), closed];
+	// Dashboards too old to reopen are deleted
+	for (const { id } of groups.slice(0, -closedLimit).flat()) {
+		deleteDashboardDoc(id);
+		focusPane(id, undefined);
+	}
+	closedStore.set(groups.slice(-closedLimit));
+	idsStore.set(openIds.filter((id) => !removed.has(id)));
 }
 
 /** Put the most recently closed dashboards back where they were, returns the first of them */
@@ -166,113 +186,13 @@ export function reopenClosedDashboards(): Dashboard | undefined {
 	}
 
 	closedStore.set((groups) => groups.slice(0, -1));
-	store.set((dashboards) => {
-		const reopened = [...dashboards];
+	idsStore.set((ids) => {
+		const reopened = [...ids];
 		// In their original order, so each index lines up with the dashboards before it
-		for (const { dashboard, index } of closed) {
-			reopened.splice(index, 0, dashboard);
+		for (const { id, index } of closed) {
+			reopened.splice(index, 0, id);
 		}
 		return reopened;
 	});
-	return closed[0]?.dashboard;
-}
-
-/**
- * Change a dashboard's pane layout with one of the `@/pane-layout` operations.
- * @example updateLayout(dashboardId, (layout) => setPaneWidget(layout, paneId, widget))
- */
-export function updateLayout(id: string, update: (layout: PaneNode) => PaneNode): void {
-	updateDashboard(id, (dashboard) => ({ ...dashboard, layout: update(dashboard.layout) }));
-}
-
-/** The pane that keyboard shortcuts act on, the first pane if the focused pane is gone */
-export function getFocusedPane(dashboard: Dashboard): Pane {
-	const focused =
-		dashboard.focusedPaneId === undefined ? undefined : findPane(dashboard.layout, dashboard.focusedPaneId);
-	return focused ?? firstPane(dashboard.layout);
-}
-
-export function focusPane(id: string, paneId: string): void {
-	// Called on every click in a pane, so skip updates that wouldn't change anything
-	if (store.get().some((dashboard) => dashboard.id === id && dashboard.focusedPaneId !== paneId)) {
-		updateDashboard(id, (dashboard) => ({ ...dashboard, focusedPaneId: paneId }));
-	}
-}
-
-/** Split a pane and focus the new pane */
-export function splitDashboardPane(id: string, paneId: string, direction: SplitDirection): void {
-	const newPane = createPane();
-	updateDashboard(id, (dashboard) => ({
-		...dashboard,
-		layout: splitPane(dashboard.layout, paneId, direction, newPane),
-		focusedPaneId: newPane.id,
-	}));
-}
-
-/** Splits along the longer side of the pane's element, so adding several widgets tiles the dashboard instead of making slivers */
-function splitDirectionFor(paneId: string): SplitDirection {
-	const rect = document.querySelector(`[data-pane-id="${CSS.escape(paneId)}"]`)?.getBoundingClientRect();
-	return rect && rect.height > rect.width ? 'column' : 'row';
-}
-
-/**
- * Add a widget's entries to a widget of the same type (preferring the focused pane), show the widget in the focused pane
- * if it's empty, or otherwise split the focused pane and show it in the new pane. The pane it ends up in is focused.
- * Does nothing if the focused pane can't be split in either direction.
- */
-export function addDashboardWidget(id: string, widget: Widget): void {
-	updateDashboard(id, (dashboard) => {
-		const focused = getFocusedPane(dashboard);
-		const matching = focused.widget?.type === widget.type ? focused : findWidgetPane(dashboard.layout, widget.type);
-		if (matching?.widget !== undefined) {
-			const { entryNames } = widgetConfigSchema.parse(matching.widget.config);
-			const allEntryNames = [...new Set([...entryNames, ...widgetConfigSchema.parse(widget.config).entryNames])];
-			if (allEntryNames.length === entryNames.length) {
-				return { ...dashboard, focusedPaneId: matching.id };
-			}
-
-			// Keeps any other config fields as they are
-			const config = typeof matching.widget.config === 'object' ? matching.widget.config : {};
-			const merged = { ...matching.widget, config: { ...config, entryNames: allEntryNames } };
-			return { ...dashboard, layout: setPaneWidget(dashboard.layout, matching.id, merged), focusedPaneId: matching.id };
-		}
-
-		if (focused.widget === undefined) {
-			return { ...dashboard, layout: setPaneWidget(dashboard.layout, focused.id, widget), focusedPaneId: focused.id };
-		}
-
-		const preferred = splitDirectionFor(focused.id);
-		const directions: SplitDirection[] = [preferred, preferred === 'row' ? 'column' : 'row'];
-		const direction = directions.find((other) => canSplitPane(dashboard.layout, focused.id, other));
-		// The focused pane's row and column are both full
-		if (direction === undefined) {
-			return dashboard;
-		}
-
-		const newPane = { ...createPane(), widget };
-		const layout = splitPane(dashboard.layout, focused.id, direction, newPane);
-		return { ...dashboard, layout, focusedPaneId: newPane.id };
-	});
-}
-
-/** Close a pane and focus the pane that takes its place */
-export function closeDashboardPane(id: string, paneId: string): void {
-	updateDashboard(id, (dashboard) => {
-		const layout = closePane(dashboard.layout, paneId);
-		return { ...dashboard, layout, focusedPaneId: firstPane(findSibling(dashboard.layout, paneId) ?? layout).id };
-	});
-}
-
-/** Close the focused pane, or delete the dashboard if it's down to a single empty pane */
-export function closeFocusedPane(id: string): void {
-	const dashboard = store.get().find((other) => other.id === id);
-	if (!dashboard) {
-		return;
-	}
-
-	if (dashboard.layout.kind === 'pane' && dashboard.layout.widget === undefined) {
-		deleteDashboard(id);
-	} else {
-		closeDashboardPane(id, getFocusedPane(dashboard).id);
-	}
+	return closed[0] && getDashboard(closed[0].id);
 }
