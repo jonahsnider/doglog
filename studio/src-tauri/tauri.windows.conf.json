@@ -1,0 +1,10 @@
+{
+	"$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+	"bundle": {
+		"resources": { "cli/windows/doglog.cmd": "bin/doglog.cmd" },
+		"windows": {
+			"nsis": { "installerHooks": "cli/windows/hooks.nsh" },
+			"wix": { "fragmentPaths": ["cli/windows/path.wxs"], "componentRefs": ["DogLogCliPath"] }
+		}
+	}
+}

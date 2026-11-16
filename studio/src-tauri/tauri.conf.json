@@ -46,7 +46,20 @@
 		},
 		"macOS": {
 			"files": {
-				"Resources/AppIcon.icon": "../assets/mac.icon"
+				"Resources/AppIcon.icon": "../assets/mac.icon",
+				"Resources/bin/doglog": "cli/macos/doglog"
+			}
+		},
+		"linux": {
+			"deb": {
+				"files": {
+					"/usr/bin/doglog": "cli/linux/doglog"
+				}
+			},
+			"rpm": {
+				"files": {
+					"/usr/bin/doglog": "cli/linux/doglog"
+				}
 			}
 		}
 	},

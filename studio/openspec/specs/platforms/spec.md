@@ -56,6 +56,34 @@ The desktop app SHALL register itself as an app for `.wpilog` files, so opening 
 - **WHEN** the user opens a `.wpilog` file from the OS
 - **THEN** Studio shows that log
 
+### Requirement: Open logs from a terminal
+
+The desktop app SHALL provide a `doglog` terminal command that opens Studio in a new window, showing the log at the path it's given. Installing the desktop app SHALL add the command to the PATH where the installer allows it, and macOS SHALL have a button in settings to install it.
+
+#### Scenario: Open a log from a terminal
+
+- **GIVEN** the `doglog` command is installed
+- **WHEN** the user runs `doglog match.wpilog`
+- **THEN** a new Studio window opens and shows that log
+- **AND** the terminal is free to use while Studio is open
+
+#### Scenario: Studio is already open
+
+- **GIVEN** a Studio window is open
+- **WHEN** the user runs `doglog match.wpilog`
+- **THEN** a separate window shows that log, so each window keeps its own data source
+
+#### Scenario: Help
+
+- **WHEN** the user runs `doglog --help` on macOS or Linux
+- **THEN** the terminal shows how to use the command
+
+#### Scenario: Install on macOS
+
+- **GIVEN** the desktop app is installed on macOS
+- **WHEN** the user clicks the button in settings to install the command and enters their password
+- **THEN** `doglog` works in new terminals
+
 ### Requirement: Desktop auto-update
 
 The desktop app SHALL update itself automatically.

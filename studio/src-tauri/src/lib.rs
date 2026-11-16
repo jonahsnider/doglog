@@ -1,3 +1,5 @@
+mod cli;
+
 use std::{path::PathBuf, sync::Mutex};
 use tauri::{AppHandle, Emitter, Manager, RunEvent, State, ipc::Response};
 
@@ -34,12 +36,23 @@ fn handle_run_event(app: &AppHandle, event: RunEvent) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+  let context = tauri::generate_context!();
+  // Before Tauri starts, so `--help` and `--version` don't open a window
+  let log = cli::parse_args(context.package_info().version.to_string());
+
   tauri::Builder::default()
     .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_process::init())
     .plugin(tauri_plugin_updater::Builder::new().build())
     .manage(OpenedLog::default())
-    .invoke_handler(tauri::generate_handler![take_opened_log, read_file])
+    .invoke_handler(tauri::generate_handler![
+      take_opened_log,
+      read_file,
+      #[cfg(target_os = "macos")]
+      cli::cli_status,
+      #[cfg(target_os = "macos")]
+      cli::install_cli
+    ])
     .setup(|app| {
       if cfg!(debug_assertions) {
         app.handle().plugin(
@@ -49,15 +62,13 @@ pub fn run() {
         )?;
       }
 
-      // Windows and Linux pass opened files as arguments
-      #[cfg(any(windows, target_os = "linux"))]
-      if let Some(path) = std::env::args_os().skip(1).map(PathBuf::from).find(|path| path.is_file()) {
-        set_opened_log(app.handle(), path);
+      if let Some(log) = log {
+        set_opened_log(app.handle(), log);
       }
 
       Ok(())
     })
-    .build(tauri::generate_context!())
+    .build(context)
     .expect("error while building tauri application")
     .run(handle_run_event);
 }

@@ -1,0 +1,10 @@
+#!/bin/sh
+# Open DogLog Studio from a terminal, ex. `doglog match.wpilog`
+
+# Flags and extra arguments run Studio in the foreground, so its output, like `--help` or an error, shows in the terminal
+if [ $# -gt 1 ] || [ "${1#-}" != "$1" ]; then
+	exec /usr/bin/doglog-studio "$@"
+fi
+
+# Start a new window without tying up the terminal
+exec setsid -f /usr/bin/doglog-studio "$@" > /dev/null 2>&1

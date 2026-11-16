@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
+import { CliField } from '@/components/cli-field';
 import { Button } from '@/components/ui/button';
 import { Field, FieldControl, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { Fieldset, FieldsetLegend } from '@/components/ui/fieldset';
@@ -180,6 +181,8 @@ function Settings() {
 					</FieldLabel>
 					<FieldDescription>Play, pause, and seek logs with media keys and the system media controls</FieldDescription>
 				</Field>
+
+				<CliField />
 
 				<p className="text-sm text-muted-foreground">
 					DogLog Studio {STUDIO_VERSION}
