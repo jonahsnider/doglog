@@ -1,39 +1,30 @@
 import { FileUpIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
+import { useEventListener } from 'usehooks-ts';
 import { hasFiles } from '@/data/source';
 
 /** Covers the window while files are dragged over it, dropping them is handled by `handleLogFileDrops` */
 export function LogDropOverlay() {
 	const [dragging, setDragging] = useState(false);
 
-	useEffect(() => {
-		// Entering a child element fires before leaving its parent, so count how deep the drag is
-		let depth = 0;
-		const onDragEnter = (event: DragEvent) => {
-			if (hasFiles(event)) {
-				depth++;
-				setDragging(true);
-			}
-		};
-		const onDragLeave = (event: DragEvent) => {
-			if (hasFiles(event) && --depth === 0) {
-				setDragging(false);
-			}
-		};
-		const onDrop = () => {
-			depth = 0;
-			setDragging(false);
-		};
+	// Entering a child element fires before leaving its parent, so count how deep the drag is
+	const depth = useRef(0);
 
-		window.addEventListener('dragenter', onDragEnter);
-		window.addEventListener('dragleave', onDragLeave);
-		window.addEventListener('drop', onDrop);
-		return () => {
-			window.removeEventListener('dragenter', onDragEnter);
-			window.removeEventListener('dragleave', onDragLeave);
-			window.removeEventListener('drop', onDrop);
-		};
-	}, []);
+	useEventListener('dragenter', (event) => {
+		if (hasFiles(event)) {
+			depth.current++;
+			setDragging(true);
+		}
+	});
+	useEventListener('dragleave', (event) => {
+		if (hasFiles(event) && --depth.current === 0) {
+			setDragging(false);
+		}
+	});
+	useEventListener('drop', () => {
+		depth.current = 0;
+		setDragging(false);
+	});
 
 	if (!dragging) {
 		return null;

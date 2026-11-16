@@ -1,7 +1,8 @@
 import { useDraggable } from '@dnd-kit/react';
 import { useParams } from '@tanstack/react-router';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { BanIcon, ChevronRightIcon, CopyIcon, LayoutGridIcon } from 'lucide-react';
-import { memo, useLayoutEffect, useRef, useState } from 'react';
+import { memo, useRef } from 'react';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { HighlightedText } from '@/components/highlighted-text';
 import { TooltipCreateHandle, TooltipTrigger } from '@/components/ui/tooltip';
@@ -17,41 +18,31 @@ import { defaultWidget } from '@/widgets/registry';
 
 /** Rows have a fixed height so only the rows in view need to be rendered */
 const rowHeight = 28;
-/** Rows rendered above and below the visible ones, so fast scrolling doesn't show blank space */
-const overscan = 10;
-
 /** Shared by the type, boolean, and unsupported marks of every row */
 const markTooltip = TooltipCreateHandle<string>();
 
 /** Only renders the rows scrolled into view, logs can have thousands of entries */
 export function KeyRows({ rows, onToggle }: { rows: readonly KeyRow[]; onToggle: (path: string) => void }) {
 	const container = useRef<HTMLDivElement>(null);
-	const [scrollTop, setScrollTop] = useState(0);
-	const [height, setHeight] = useState(0);
-
-	useLayoutEffect(() => {
-		const element = container.current!;
-		setHeight(element.clientHeight);
-		const observer = new ResizeObserver(() => setHeight(element.clientHeight));
-		observer.observe(element);
-		return () => observer.disconnect();
-	}, []);
-
-	const first = Math.max(0, Math.floor(scrollTop / rowHeight) - overscan);
-	const last = Math.min(rows.length, Math.ceil((scrollTop + height) / rowHeight) + overscan);
+	// oxlint-disable-next-line react/incompatible-library -- React Compiler isn't used, and rows only take `item.start`
+	const virtualizer = useVirtualizer({
+		count: rows.length,
+		getScrollElement: () => container.current,
+		estimateSize: () => rowHeight,
+		// Rows rendered above and below the visible ones, so fast scrolling doesn't show blank space
+		overscan: 10,
+		useFlushSync: false,
+	});
 
 	return (
 		<>
 			<MarkTooltip handle={markTooltip} />
-			<div
-				ref={container}
-				className="min-h-0 flex-1 overflow-y-auto pb-2"
-				onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
-			>
-				<div className="relative" style={{ height: rows.length * rowHeight }}>
-					{rows.slice(first, last).map((row, index) => (
-						<KeyRowView key={row.node.path} row={row} top={(first + index) * rowHeight} onToggle={onToggle} />
-					))}
+			<div ref={container} className="min-h-0 flex-1 overflow-y-auto pb-2">
+				<div className="relative" style={{ height: virtualizer.getTotalSize() }}>
+					{virtualizer.getVirtualItems().map((item) => {
+						const row = rows[item.index]!;
+						return <KeyRowView key={row.node.path} row={row} top={item.start} onToggle={onToggle} />;
+					})}
 				</div>
 			</div>
 		</>

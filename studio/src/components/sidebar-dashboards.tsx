@@ -4,7 +4,8 @@ import { EllipsisIcon, LayoutDashboardIcon, PencilIcon, PlusIcon, Trash2Icon, XI
 import { PointerActivationConstraints } from '@dnd-kit/dom';
 import { DragDropProvider, KeyboardSensor, PointerSensor } from '@dnd-kit/react';
 import { isSortable, useSortable } from '@dnd-kit/react/sortable';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useDebounceValue } from 'usehooks-ts';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { closeDashboard } from '@/close-dashboard';
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
@@ -86,18 +87,8 @@ function DashboardItem({ dashboard, index, onClose }: { dashboard: Dashboard; in
 	const shortcut = dashboardShortcut(index);
 	// Holding the shortcut's modifier shows every dashboard's shortcut in place of its options button
 	const shortcutHinted = useHotkeyHint(shortcut);
-	const [hintDelayed, setHintDelayed] = useState(false);
 	// Waits a moment so quickly pressing a shortcut doesn't flash the hints
-	useEffect(() => {
-		if (!shortcutHinted) {
-			return undefined;
-		}
-		const timeout = setTimeout(() => setHintDelayed(true), 300);
-		return () => {
-			clearTimeout(timeout);
-			setHintDelayed(false);
-		};
-	}, [shortcutHinted]);
+	const [hintDelayed] = useDebounceValue(shortcutHinted, 300);
 	const showShortcut = shortcutHinted && hintDelayed;
 	const formatForDisplay = useFormatForDisplay();
 	const menuItems: MenuEntry[] = [
