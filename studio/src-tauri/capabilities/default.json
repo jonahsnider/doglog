@@ -3,5 +3,14 @@
 	"identifier": "default",
 	"description": "enables the default permissions",
 	"windows": ["main"],
-	"permissions": ["core:default", "dialog:allow-open", "updater:default", "process:allow-restart"]
+	"permissions": [
+		"core:default",
+		"dialog:allow-open",
+		"updater:default",
+		"process:allow-restart",
+		"fs:allow-mkdir",
+		"fs:allow-read-dir",
+		"fs:allow-stat",
+		"fs:allow-remove"
+	]
 }

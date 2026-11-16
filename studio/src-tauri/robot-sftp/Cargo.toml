@@ -1,0 +1,17 @@
+[package]
+name = "robot-sftp"
+version = "0.0.0"
+description = "SFTP access to roboRIO logs for DogLog Studio"
+license = "MIT"
+edition = "2024"
+rust-version = "1.90"
+publish = false
+
+[dependencies]
+russh = { version = "0.65", default-features = false, features = ["ring", "rsa"] }
+russh-sftp = "3"
+tokio = { version = "1", features = ["fs", "io-util", "time"] }
+
+[dev-dependencies]
+testcontainers = "0.28"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

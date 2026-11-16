@@ -1,7 +1,9 @@
 mod cli;
+mod sync;
 
 use std::{path::PathBuf, sync::Mutex};
 use tauri::{AppHandle, Emitter, Manager, RunEvent, State, ipc::Response};
+use tauri_plugin_fs::FsExt;
 
 /// The last log the OS asked Studio to open, until the frontend takes it
 #[derive(Default)]
@@ -41,13 +43,24 @@ pub fn run() {
   let log = cli::parse_args(context.package_info().version.to_string());
 
   tauri::Builder::default()
+    .plugin(tauri_plugin_fs::init())
+    // After the file system plugin, keeps access to the sync folder the user picked after Studio restarts
+    .plugin(tauri_plugin_persisted_scope::init())
     .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_process::init())
     .plugin(tauri_plugin_updater::Builder::new().build())
     .manage(OpenedLog::default())
+    .manage(sync::RobotConnection::default())
+    .manage(sync::CancelDownload::default())
+    .manage(sync::SyncLock::default())
     .invoke_handler(tauri::generate_handler![
       take_opened_log,
       read_file,
+      sync::lock_sync,
+      sync::list_robot_logs,
+      sync::download_robot_log,
+      sync::cancel_robot_download,
+      sync::disconnect_robot,
       #[cfg(target_os = "macos")]
       cli::cli_status,
       #[cfg(target_os = "macos")]
@@ -61,6 +74,11 @@ pub fn run() {
             .build(),
         )?;
       }
+
+      // The default log sync folder, other folders are allowed when the user picks them
+      app
+        .fs_scope()
+        .allow_directory(app.path().document_dir()?.join("DogLog"), true)?;
 
       if let Some(log) = log {
         set_opened_log(app.handle(), log);

@@ -9,6 +9,9 @@ rust-version = "1.90"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[workspace]
+members = ["robot-sftp"]
+
 [lib]
 name = "doglog_studio_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
@@ -26,3 +29,7 @@ tauri-plugin-dialog = "2"
 tauri-plugin-process = "2"
 tauri-plugin-updater = "2"
 clap = { version = "4", features = ["string"] }
+robot-sftp = { path = "robot-sftp" }
+tokio = "1"
+tauri-plugin-fs = "2"
+tauri-plugin-persisted-scope = "2"
