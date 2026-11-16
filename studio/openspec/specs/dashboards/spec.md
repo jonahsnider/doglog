@@ -192,7 +192,7 @@ Like browser tabs, users SHALL be able to reopen the most recently closed dashbo
 
 ### Requirement: Undo and redo
 
-Users SHALL be able to undo and redo changes to the current dashboard, including its panes, widgets, divider positions, and name. Each dashboard MUST have its own history, kept until Studio is closed, including while the dashboard is closed. Undoing a change MUST also restore which pane was focused before it. Focusing a pane MUST NOT be a change of its own.
+Users SHALL be able to undo and redo changes to the current dashboard, including its panes, widgets, divider positions, and name. Each dashboard MUST have its own history, kept until Studio is closed, including while the dashboard is closed. The history MUST be shared by every open Studio tab or window, including ones opened after the changes were made. Undoing a change MUST also restore which pane was focused before it. Focusing a pane MUST NOT be a change of its own.
 
 #### Scenario: Undo closing a pane
 
@@ -217,6 +217,12 @@ Users SHALL be able to undo and redo changes to the current dashboard, including
 - **GIVEN** the user removed every pane from a dashboard and then closed it
 - **WHEN** the user reopens it and undoes
 - **THEN** its last removed pane is back
+
+#### Scenario: Undo in another tab
+
+- **GIVEN** Studio is open in two tabs
+- **WHEN** the user splits a pane in one tab and undoes in the other
+- **THEN** the split is undone in both tabs
 
 ### Requirement: Pane layout
 

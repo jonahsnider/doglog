@@ -1,6 +1,7 @@
 import { useSelector } from '@tanstack/react-store';
 import * as z from 'zod';
 import { createPersistedAtom } from '@/lib/persisted-store';
+import { createSharedMap } from '@/lib/shared-map';
 import {
 	canSplitPane,
 	closePane,
@@ -61,10 +62,14 @@ export function createDashboard(position: 'top' | 'bottom' = 'top'): Dashboard {
 	return dashboard;
 }
 
-type History = { undo: Dashboard[]; redo: Dashboard[] };
+const historySchema = z.object({ undo: z.array(dashboardSchema), redo: z.array(dashboardSchema) });
+type History = z.infer<typeof historySchema>;
 
-/** Each dashboard's undo history, kept for the session so a reopened dashboard can still undo */
-const histories = new Map<string, History>();
+/**
+ * Each dashboard's undo history, kept for the session so a reopened dashboard can still undo.
+ * Shared by every open window since they edit the same dashboards.
+ */
+const histories = createSharedMap('dashboard-history', historySchema);
 const historyLimit = 100;
 
 function setDashboard(dashboard: Dashboard): void {
@@ -85,10 +90,8 @@ function updateDashboard(id: string, update: (dashboard: Dashboard) => Dashboard
 
 	const updated = update(dashboard);
 	if (!sameContents(dashboard, updated)) {
-		const history = histories.get(id) ?? { undo: [], redo: [] };
-		history.undo = [...history.undo, dashboard].slice(-historyLimit);
-		history.redo = [];
-		histories.set(id, history);
+		const undo = [...(histories.get(id)?.undo ?? []), dashboard].slice(-historyLimit);
+		histories.set(id, { undo, redo: [] });
 	}
 	setDashboard(updated);
 }
@@ -108,6 +111,7 @@ function travel(id: string, from: keyof History, to: keyof History): void {
 	const target = dashboard && history?.[from].pop();
 	if (dashboard && history && target) {
 		history[to].push(dashboard);
+		histories.set(id, history);
 		setDashboard(target);
 	}
 }
