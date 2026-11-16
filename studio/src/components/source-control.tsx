@@ -1,7 +1,7 @@
 import { useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { ChevronsUpDownIcon, DatabaseIcon, FileIcon, FolderOpenIcon, RadioTowerIcon } from 'lucide-react';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
-import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuTrigger } from '@/components/ui/menu';
+import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuShortcut, MenuTrigger } from '@/components/ui/menu';
 import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Spinner } from '@/components/ui/spinner';
 import { shortcuts, startConnect } from '@/commands';
@@ -75,13 +75,13 @@ export function SourceControl() {
 					<MenuItem onClick={chooseLog}>
 						<FolderOpenIcon />
 						Open log
-						<span className="ms-auto text-xs text-muted-foreground">{formatForDisplay(shortcuts.openLog)}</span>
+						<MenuShortcut>{formatForDisplay(shortcuts.openLog)}</MenuShortcut>
 					</MenuItem>
 					<MenuSeparator />
 					<MenuItem onClick={startConnect}>
 						<RadioTowerIcon />
 						Connect
-						<span className="ms-auto text-xs text-muted-foreground">{formatForDisplay(shortcuts.connect)}</span>
+						<MenuShortcut>{formatForDisplay(shortcuts.connect)}</MenuShortcut>
 					</MenuItem>
 				</MenuPopup>
 			</Menu>
