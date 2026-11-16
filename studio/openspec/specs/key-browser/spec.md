@@ -21,6 +21,27 @@ The key browser SHALL list every entry in the active source as a tree grouped by
 - **WHEN** a new topic is announced
 - **THEN** it appears in the tree
 
+### Requirement: Keyboard navigation
+
+The entry tree SHALL follow the WAI-ARIA tree view pattern: it MUST be a single tab stop, the arrow keys MUST move between rows and expand or collapse groups, and typing MUST focus the next row whose label starts with the typed text. Keyboard navigation MUST reach rows scrolled out of view.
+
+#### Scenario: Expand with the keyboard
+
+- **GIVEN** the `Arm` group is focused and collapsed
+- **WHEN** the user presses Right Arrow
+- **THEN** `Arm` expands
+
+#### Scenario: Jump to the last row
+
+- **GIVEN** the tree has more rows than fit in the panel
+- **WHEN** the user presses End
+- **THEN** the last row is scrolled into view and focused
+
+#### Scenario: Typeahead
+
+- **WHEN** the user types "v" while `Arm` is expanded and `Arm/Angle` is focused
+- **THEN** `Velocity` is focused
+
 ### Requirement: Search
 
 The key browser SHALL provide a search box that filters the tree to entries whose names fuzzy match, tolerating typos, and MUST highlight the matching parts of each entry's name.

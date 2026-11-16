@@ -1,8 +1,9 @@
 import { useDraggable } from '@dnd-kit/react';
 import { useParams } from '@tanstack/react-router';
-import { useVirtualizer } from '@tanstack/react-virtual';
+import { defaultRangeExtractor, type Range, useVirtualizer } from '@tanstack/react-virtual';
+import { Tree, TreeItem, TreeItemIndicator, TreeItemLabel } from '@ui-sdk/react/tree';
 import { BanIcon, ChevronRightIcon, CopyIcon, LayoutGridIcon } from 'lucide-react';
-import { memo, useRef } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { HighlightedText } from '@/components/highlighted-text';
 import { TooltipCreateHandle, TooltipTrigger } from '@/components/ui/tooltip';
@@ -11,7 +12,7 @@ import { addDashboardWidget } from '@/dashboards';
 import { type Entry, useDataVersion } from '@/data/data-store';
 import { formatValue } from '@/data/format-value';
 import { type EntryDragData, entryDragType } from '@/entry-drag';
-import type { KeyRow } from '@/key-tree';
+import type { KeyRow, KeyTreeView } from '@/key-tree';
 import { cn } from '@/lib/utils';
 import { useCursorTime } from '@/timeline';
 import { defaultWidget } from '@/widgets/registry';
@@ -22,8 +23,17 @@ const rowHeight = 28;
 const markTooltip = TooltipCreateHandle<string>();
 
 /** Only renders the rows scrolled into view, logs can have thousands of entries */
-export function KeyRows({ rows, onToggle }: { rows: readonly KeyRow[]; onToggle: (path: string) => void }) {
+export function KeyRows({
+	view,
+	onExpandedChange,
+}: {
+	view: KeyTreeView;
+	onExpandedChange: (expanded: string[]) => void;
+}) {
+	const { rows, highlights } = view;
 	const container = useRef<HTMLDivElement>(null);
+	// Index of the row keyboard focus moved to, see `rangeExtractor`
+	const [highlighted, setHighlighted] = useState(0);
 	// oxlint-disable-next-line react/incompatible-library -- React Compiler isn't used, and rows only take `item.start`
 	const virtualizer = useVirtualizer({
 		count: rows.length,
@@ -32,18 +42,53 @@ export function KeyRows({ rows, onToggle }: { rows: readonly KeyRow[]; onToggle:
 		// Rows rendered above and below the visible ones, so fast scrolling doesn't show blank space
 		overscan: 10,
 		useFlushSync: false,
+		// The tree only focuses a row that mounts right after a key press, and a focused row that unmounts loses focus.
+		// Keep the highlighted row rendered even when it's scrolled out of view.
+		rangeExtractor: useCallback(
+			(range: Range) => {
+				const indexes = defaultRangeExtractor(range);
+				if (highlighted < range.count && !indexes.includes(highlighted)) {
+					indexes.push(highlighted);
+					indexes.sort((a, b) => a - b);
+				}
+				return indexes;
+			},
+			[highlighted],
+		),
 	});
 
 	return (
 		<>
 			<MarkTooltip handle={markTooltip} />
 			<div ref={container} className="min-h-0 flex-1 overflow-y-auto pb-2">
-				<div className="relative" style={{ height: virtualizer.getTotalSize() }}>
+				<Tree
+					aria-label="Entries"
+					mode="none"
+					items={view.items}
+					expanded={view.expanded}
+					onExpandedChange={onExpandedChange}
+					onHighlight={(_value, { index }) => {
+						if (index >= 0) {
+							setHighlighted(index);
+							virtualizer.scrollToIndex(index);
+						}
+					}}
+					className="relative"
+					style={{ height: virtualizer.getTotalSize() }}
+				>
 					{virtualizer.getVirtualItems().map((item) => {
 						const row = rows[item.index]!;
-						return <KeyRowView key={row.node.path} row={row} top={item.start} onToggle={onToggle} />;
+						const { entry } = row.item;
+						return (
+							<KeyRowView
+								key={row.item.value}
+								row={row}
+								top={item.start}
+								highlights={entry && highlights?.get(entry.name)}
+							/>
+						);
 					})}
-				</div>
+				</Tree>
 			</div>
 		</>
 	);
@@ -55,21 +100,21 @@ const unsupportedLabel = "Unsupported type, can't be shown in widgets";
 const KeyRowView = memo(function KeyRowView({
 	row,
 	top,
-	onToggle,
+	highlights,
 }: {
 	row: KeyRow;
 	top: number;
-	onToggle: (path: string) => void;
+	highlights: readonly number[] | undefined;
 }) {
 	const { dashboardId } = useParams({ from: '/dashboards/$dashboardId' });
-	const { node, depth, expanded } = row;
+	const { item: node, level } = row;
 	const { entry } = node;
 	const unsupported = entry?.kind === 'unsupported';
 	const draggable = entry !== undefined && !unsupported;
 	const widget = entry && defaultWidget(entry);
 	const add = widget && (() => addDashboardWidget(dashboardId, widget));
 	const { ref } = useDraggable<EntryDragData>({
-		id: node.path,
+		id: node.value,
 		type: entryDragType,
 		disabled: !draggable,
 		...(entry && { data: { entry } }),
@@ -77,10 +122,10 @@ const KeyRowView = memo(function KeyRowView({
 	const label = (
 		<TooltipTrigger
 			handle={markTooltip}
-			payload={node.path}
+			payload={node.value}
 			render={<span className={cn('min-w-24 flex-1 truncate', unsupported && 'text-muted-foreground')} />}
 		>
-			<HighlightedText text={node.label} ranges={row.highlights} />
+			<HighlightedText text={node.label} ranges={highlights} />
 		</TooltipTrigger>
 	);
 	const typeMark = entry && <TypeMark type={entry.type} tooltip={markTooltip} />;
@@ -97,7 +142,8 @@ const KeyRowView = memo(function KeyRowView({
 			// Groups that aren't entries keep the browser's menu
 			disabled={!entry}
 			render={
-				<div
+				<TreeItem
+					value={node.value}
 					// Without an element, rows that can't be dragged don't get dnd-kit's drag handle attributes
 					ref={draggable ? ref : undefined}
 					className={cn(
@@ -105,30 +151,20 @@ const KeyRowView = memo(function KeyRowView({
 						'absolute inset-x-0 flex items-center gap-1.5 pe-3 text-sm outline-none select-none hover:bg-accent focus-visible:bg-accent',
 						draggable && 'cursor-grab active:cursor-grabbing',
 					)}
-					style={{ top, height: rowHeight, paddingInlineStart: 8 + depth * 12 }}
+					style={{ top, height: rowHeight, paddingInlineStart: 8 + (level - 1) * 12 }}
 					onDoubleClick={add}
 				/>
 			}
 		>
-			{node.children.length > 0 ? (
-				<button
-					type="button"
-					className="flex h-full min-w-0 flex-1 items-center gap-1.5 text-start outline-none focus-visible:underline"
-					aria-expanded={expanded}
-					onClick={() => onToggle(node.path)}
-				>
-					<ChevronRightIcon
-						className={cn('size-4 shrink-0 text-muted-foreground transition-transform', expanded && 'rotate-90')}
-					/>
-					{typeMark}
-					{label}
-				</button>
-			) : (
-				<>
-					{typeMark}
-					{label}
-				</>
-			)}
+			<TreeItemLabel className="flex h-full min-w-0 flex-1 items-center gap-1.5">
+				{node.children && (
+					<TreeItemIndicator className="shrink-0 text-muted-foreground transition-transform data-expanded:rotate-90">
+						<ChevronRightIcon className="size-4" />
+					</TreeItemIndicator>
+				)}
+				{typeMark}
+				{label}
+			</TreeItemLabel>
 			{entry &&
 				(unsupported ? (
 					<TooltipTrigger

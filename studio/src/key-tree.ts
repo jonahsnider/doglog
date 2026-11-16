@@ -1,22 +1,30 @@
 import uFuzzy from '@leeoniya/ufuzzy';
+import { type TreeRow, visibleTreeRows } from '@ui-sdk/core/tree';
 import type { Entry } from '@/data/data-store';
 
-/** An entry or group in the key browser tree. A node can be both, ex. `/Arm` and `/Arm/Angle` are both entries. */
+/** An entry or group in the key browser tree, in the tree's item data shape. A node can be both, ex. `/Arm` and `/Arm/Angle` are both entries. */
 export type KeyNode = {
 	/** Unique full path, ex. `/Arm/Angle` */
-	readonly path: string;
+	readonly value: string;
 	/** Last path segment, ex. `Angle` */
 	readonly label: string;
 	entry?: Entry;
-	readonly children: KeyNode[];
+	/** Only set on groups, the tree treats any item with children as a branch */
+	children?: KeyNode[];
 };
 
-export type KeyRow = {
-	readonly node: KeyNode;
-	readonly depth: number;
-	readonly expanded: boolean;
-	/** Ranges of the label matching the search query, as `[start, end, start, end, ...]` */
-	readonly highlights?: readonly number[];
+export type KeyRow = TreeRow & { readonly item: KeyNode };
+
+/** What the key browser shows for the current expanded groups and search query */
+export type KeyTreeView = {
+	/** The hierarchy the tree navigates, only matches and their parent groups while searching */
+	readonly items: KeyNode[];
+	/** Expanded groups, every group while searching */
+	readonly expanded: string[];
+	/** The rows to show, in order */
+	readonly rows: KeyRow[];
+	/** Ranges of each matching entry's label, keyed by entry name, as `[start, end, start, end, ...]`. Only set while searching. */
+	readonly highlights?: ReadonlyMap<string, readonly number[]>;
 };
 
 const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
@@ -24,34 +32,71 @@ const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'bas
 function sortNodes(nodes: KeyNode[]): void {
 	nodes.sort((a, b) => collator.compare(a.label, b.label));
 	for (const node of nodes) {
-		sortNodes(node.children);
+		if (node.children) {
+			sortNodes(node.children);
+		}
 	}
 }
 
 /** Group entries into a tree by the `/`-separated segments of their names */
 export function buildKeyTree(entries: readonly Entry[]): KeyNode[] {
-	const root: KeyNode = { path: '', label: '', children: [] };
+	const root: KeyNode[] = [];
 	const nodes = new Map<string, KeyNode>();
 
 	for (const entry of entries) {
-		let parent = root;
+		let siblings = root;
+		let node: KeyNode | undefined;
 		let path = '';
 		// Names start with `/`, skip the empty segment before it
 		for (const segment of entry.name.split('/').slice(1)) {
-			path += `/${segment}`;
-			let node = nodes.get(path);
-			if (!node) {
-				node = { path, label: segment, children: [] };
-				nodes.set(path, node);
-				parent.children.push(node);
+			if (node) {
+				siblings = node.children ??= [];
 			}
-			parent = node;
+			path += `/${segment}`;
+			node = nodes.get(path);
+			if (!node) {
+				node = { value: path, label: segment };
+				nodes.set(path, node);
+				siblings.push(node);
+			}
 		}
-		parent.entry = entry;
+		if (node) {
+			node.entry = entry;
+		}
 	}
 
-	sortNodes(root.children);
-	return root.children;
+	sortNodes(root);
+	return root;
+}
+
+/**
+ * The hierarchy and rows to show. Children of expanded groups are shown.
+ * With a search query, only entries whose names fuzzy match it and their parent groups are shown, all expanded.
+ */
+export function keyTreeView(tree: KeyNode[], expanded: string[], query: string): KeyTreeView {
+	const highlights = searchNames(tree, query);
+	if (!highlights) {
+		return { items: tree, expanded, rows: visibleTreeRows(tree, expanded) };
+	}
+
+	const groups: string[] = [];
+	const filter = (nodes: readonly KeyNode[]): KeyNode[] =>
+		nodes.flatMap((node) => {
+			const children = node.children && filter(node.children);
+			if (children && children.length > 0) {
+				groups.push(node.value);
+				return [{ ...node, children }];
+			}
+			if (!node.entry || !highlights.has(node.entry.name)) {
+				return [];
+			}
+			// Groups without matching children are shown as plain entries
+			const { children: _children, ...leaf } = node;
+			return [leaf];
+		});
+
+	const items = filter(tree);
+	return { items, expanded: groups, rows: visibleTreeRows(items, groups), highlights };
 }
 
 // Tolerates a single typo in each search term
@@ -66,7 +111,9 @@ function searchNames(tree: readonly KeyNode[], query: string): Map<string, numbe
 			if (node.entry) {
 				names.push(node.entry.name);
 			}
-			collect(node.children);
+			if (node.children) {
+				collect(node.children);
+			}
 		}
 	};
 	collect(tree);
@@ -91,38 +138,4 @@ function labelRanges(name: string, ranges: readonly number[]): number[] {
 		}
 	}
 	return result;
-}
-
-/**
- * The rows to show, in order. Children of expanded groups are shown.
- * With a search query, only entries whose names fuzzy match it and their parent groups are shown, all expanded.
- */
-export function visibleKeyRows(tree: readonly KeyNode[], expanded: ReadonlySet<string>, query: string): KeyRow[] {
-	const matches = searchNames(tree, query);
-	const rows: KeyRow[] = [];
-
-	const addRows = (nodes: readonly KeyNode[], depth: number) => {
-		for (const node of nodes) {
-			if (!matches) {
-				const isExpanded = expanded.has(node.path);
-				rows.push({ node, depth, expanded: isExpanded });
-				if (isExpanded) {
-					addRows(node.children, depth + 1);
-				}
-				continue;
-			}
-
-			const highlights = node.entry && matches.get(node.entry.name);
-			const index =
-				rows.push({ node, depth, expanded: node.children.length > 0, ...(highlights && { highlights }) }) - 1;
-			addRows(node.children, depth + 1);
-			if (!highlights && rows.length === index + 1) {
-				// Nothing in this group matches
-				rows.pop();
-			}
-		}
-	};
-
-	addRows(tree, 0);
-	return rows;
 }

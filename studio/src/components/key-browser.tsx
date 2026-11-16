@@ -1,7 +1,7 @@
 import { useHotkey } from '@tanstack/react-hotkeys';
 import { useSelector } from '@tanstack/react-store';
 import { PanelRightCloseIcon, PanelRightOpenIcon, SearchIcon } from 'lucide-react';
-import { useCallback, useDeferredValue, useMemo, useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 import { Panel, Separator } from 'react-resizable-panels';
 import { KeyRows } from '@/components/key-browser-rows';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { useEntries } from '@/data/data-store';
 import { useSource } from '@/data/source';
-import { buildKeyTree, visibleKeyRows } from '@/key-tree';
+import { buildKeyTree, keyTreeView } from '@/key-tree';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import * as z from 'zod';
 
@@ -83,27 +83,17 @@ function KeyTree() {
 	const [query, setQuery] = useState('');
 	// Keep typing responsive while searching thousands of entries
 	const deferredQuery = useDeferredValue(query);
-	const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
+	const [expanded, setExpanded] = useState<string[]>([]);
 
 	const tree = useMemo(() => buildKeyTree(entries), [entries]);
-	const rows = useMemo(() => visibleKeyRows(tree, expanded, deferredQuery), [tree, expanded, deferredQuery]);
-
-	const toggleGroup = useCallback((path: string) => {
-		setExpanded((previous) => {
-			const next = new Set(previous);
-			if (!next.delete(path)) {
-				next.add(path);
-			}
-			return next;
-		});
-	}, []);
+	const view = useMemo(() => keyTreeView(tree, expanded, deferredQuery), [tree, expanded, deferredQuery]);
 
 	let message: string | undefined;
 	if (!source) {
 		message = 'Open a log or connect to a robot to browse its entries.';
 	} else if (entries.length === 0) {
 		message = 'No entries yet.';
-	} else if (rows.length === 0) {
+	} else if (view.rows.length === 0) {
 		message = 'No matching entries.';
 	}
 
@@ -125,7 +115,15 @@ function KeyTree() {
 				</InputGroup>
 			</div>
 			{message === undefined ? (
-				<KeyRows rows={rows} onToggle={toggleGroup} />
+				<KeyRows
+					view={view}
+					// Every group stays expanded while searching
+					onExpandedChange={(next) => {
+						if (view.highlights === undefined) {
+							setExpanded(next);
+						}
+					}}
+				/>
 			) : (
 				<p className="px-3 py-2 text-sm text-muted-foreground">{message}</p>
 			)}

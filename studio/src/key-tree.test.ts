@@ -1,7 +1,7 @@
 import { expect, test } from 'vite-plus/test';
 import type { Entry } from './data/data-store.ts';
 import { Samples } from './data/samples.ts';
-import { buildKeyTree, visibleKeyRows } from './key-tree.ts';
+import { buildKeyTree, keyTreeView } from './key-tree.ts';
 
 function entries(...names: string[]): Entry[] {
 	return names.map((name) => ({ name, type: 'double', kind: 'number', samples: new Samples(), metadata: {} }));
@@ -10,7 +10,7 @@ function entries(...names: string[]): Entry[] {
 const tree = buildKeyTree(entries('/Arm', '/Arm/Angle', '/Arm/Velocity', '/Drive/Module10', '/Drive/Module2', '/Time'));
 
 function paths(expanded: string[], query = ''): string[] {
-	return visibleKeyRows(tree, new Set(expanded), query).map((row) => row.node.path);
+	return keyTreeView(tree, expanded, query).rows.map((row) => row.item.value);
 }
 
 test('entries are grouped by path segment and collapsed groups hide their children', () => {
@@ -21,7 +21,7 @@ test('entries are grouped by path segment and collapsed groups hide their childr
 test('a name can be both an entry and a group', () => {
 	const arm = tree[0]!;
 	expect(arm.entry?.name).toBe('/Arm');
-	expect(arm.children.map((node) => node.label)).toEqual(['Angle', 'Velocity']);
+	expect(arm.children?.map((node) => node.label)).toEqual(['Angle', 'Velocity']);
 });
 
 test('numbers in names sort naturally', () => {
@@ -29,10 +29,10 @@ test('numbers in names sort naturally', () => {
 });
 
 test('search shows matching entries and their parent groups, expanded', () => {
-	const rows = visibleKeyRows(tree, new Set(), 'velocity');
-	expect(rows.map((row) => row.node.path)).toEqual(['/Arm', '/Arm/Velocity']);
-	expect(rows[0]?.expanded).toBe(true);
-	expect(rows.map((row) => row.depth)).toEqual([0, 1]);
+	const view = keyTreeView(tree, [], 'velocity');
+	expect(view.rows.map((row) => row.item.value)).toEqual(['/Arm', '/Arm/Velocity']);
+	expect(view.expanded).toEqual(['/Arm']);
+	expect(view.rows.map((row) => row.level)).toEqual([1, 2]);
 });
 
 test('search matches the full name', () => {
@@ -50,9 +50,7 @@ test('search without letters or numbers shows the whole tree', () => {
 });
 
 test('search highlights the matching parts of each label', () => {
-	const rows = visibleKeyRows(tree, new Set(), 'arm vel');
-	expect(rows.map((row) => [row.node.path, row.highlights])).toEqual([
-		['/Arm', undefined],
-		['/Arm/Velocity', [0, 3]],
-	]);
+	const { highlights } = keyTreeView(tree, [], 'arm vel');
+	expect(highlights?.get('/Arm')).toBeUndefined();
+	expect(highlights?.get('/Arm/Velocity')).toEqual([0, 3]);
 });
