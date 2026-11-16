@@ -322,13 +322,13 @@ Right-clicking a dashboard in the sidebar SHALL open a context menu with Rename,
 
 ### Requirement: Focused pane
 
-The pane the user last clicked or interacted with SHALL be the focused pane, and it MUST be visually indicated.
+The pane the user last clicked or interacted with SHALL be the focused pane. The focused pane MUST NOT be outlined; showing its header controls is the only indication.
 
 #### Scenario: Focus follows interaction
 
 - **GIVEN** a dashboard with two panes
 - **WHEN** the user clicks inside the second pane
-- **THEN** the second pane is shown as focused
+- **THEN** the second pane becomes focused and its header buttons stay shown
 
 ### Requirement: Pane header controls
 

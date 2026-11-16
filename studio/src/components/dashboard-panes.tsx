@@ -204,13 +204,7 @@ function PaneView({
 			items={menuItems}
 			render={
 				<div
-					className={cn(
-						'group/pane relative flex size-full flex-col',
-						// A lone pane is always focused, so it isn't outlined
-						focused &&
-							dashboardLayout.kind === 'split' &&
-							'after:pointer-events-none after:absolute after:inset-0 after:ring-1 after:ring-primary/50 after:ring-inset',
-					)}
+					className="group/pane relative flex size-full flex-col"
 					// Lets `addDashboardWidget()` pick a split direction from the pane's size
 					data-pane-id={pane.id}
 					// Capturing, so clicks that widgets handle themselves still focus the pane, right-clicks included
