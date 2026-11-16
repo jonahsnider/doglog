@@ -36,11 +36,11 @@ function moduleSpeed(module: unknown): number {
 	return typeof speed === 'number' ? speed : numberField(module, 'velocity');
 }
 
-type Module = { angle: number; speed: number };
+export type Module = { angle: number; speed: number };
 
-export function readModules(value: Value | undefined, role: Role): Module[] | undefined {
+export function readModules(value: Value | undefined, role: Role): Module[] {
 	if (!Array.isArray(value)) {
-		return undefined;
+		return [];
 	}
 	return value.map((module) => ({
 		angle: numberField(field(module, 'angle'), 'value'),

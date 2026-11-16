@@ -89,7 +89,10 @@ function DashboardItem({ dashboard, index, onClose }: { dashboard: Dashboard; in
 	const [hintDelayed, setHintDelayed] = useState(false);
 	// Waits a moment so quickly pressing a shortcut doesn't flash the hints
 	useEffect(() => {
-		const timeout = shortcutHinted ? setTimeout(() => setHintDelayed(true), 300) : undefined;
+		if (!shortcutHinted) {
+			return undefined;
+		}
+		const timeout = setTimeout(() => setHintDelayed(true), 300);
 		return () => {
 			clearTimeout(timeout);
 			setHintDelayed(false);

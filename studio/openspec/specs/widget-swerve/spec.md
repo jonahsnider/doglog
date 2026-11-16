@@ -8,7 +8,12 @@ Define the swerve widget, which draws a top-down view of a 4-module swerve drive
 
 ### Requirement: Swerve inputs
 
-The swerve widget SHALL accept `SwerveModuleState[]`, `SwerveModuleVelocity[]`, `SwerveModulePosition[]`, `ChassisSpeeds`, `ChassisVelocities`, `Rotation2d`, and numeric entries. `SwerveModuleVelocity[]` and `ChassisVelocities` (WPILib 2027 names) MUST behave like `SwerveModuleState[]` and `ChassisSpeeds`. Each bound entry's role MUST be inferred from its type: module arrays and chassis speeds are drawn, and the first bound `Rotation2d` or numeric entry is the robot heading. Any number of module array and chassis speeds entries MAY be bound.
+The swerve widget SHALL accept `SwerveModuleState[]`, `SwerveModuleVelocity[]`, `SwerveModulePosition[]`, `ChassisSpeeds`, `ChassisVelocities`, `Rotation2d`, and numeric entries. Each bound entry's role MUST be inferred from its type: module arrays and chassis speeds are drawn, and the first bound `Rotation2d` or numeric entry is the robot heading. Any number of module array and chassis speeds entries MAY be bound.
+
+#### Scenario: WPILib 2027 names
+
+- **WHEN** the user binds a `SwerveModuleVelocity[]` or `ChassisVelocities` entry
+- **THEN** it is drawn like a `SwerveModuleState[]` or `ChassisSpeeds` entry
 
 #### Scenario: Measured and desired states
 
@@ -44,7 +49,7 @@ The swerve widget SHALL draw a square chassis, centered and fit to the widget, w
 
 ### Requirement: Module state arrows
 
-For each bound `SwerveModuleState[]` or `SwerveModuleVelocity[]` entry, the swerve widget SHALL draw an arrow from each module showing that module's velocity. A negative speed MUST draw the arrow opposite the module angle so it always shows the actual direction of travel. Arrows SHALL start at the module's center. Arrow length MUST grow linearly with speed, from a short base length at zero speed to the full length at the largest speed in any bound entry's history, so a module with zero speed still shows a short arrow along its angle.
+For each bound `SwerveModuleState[]` or `SwerveModuleVelocity[]` entry, the swerve widget SHALL draw an arrow from each module's center showing that module's velocity. A negative speed MUST draw the arrow opposite the module angle so it always shows the actual direction of travel. Arrow length MUST grow linearly with speed, from a short base length at zero speed to the full length at the largest speed in any bound entry's history.
 
 #### Scenario: Optimized state
 

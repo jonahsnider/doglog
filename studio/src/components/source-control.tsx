@@ -16,6 +16,12 @@ const statusLabels: Record<Source['status'], string> = {
 	disconnected: 'Disconnected, reconnecting…',
 };
 
+const menuItems: MenuEntry[] = [
+	{ label: 'Open log', icon: FolderOpenIcon, shortcut: shortcuts.openLog, onSelect: chooseLog },
+	'separator',
+	{ label: 'Connect', icon: RadioTowerIcon, shortcut: shortcuts.connect, onSelect: startConnect },
+];
+
 function SourceIcon({ source }: { source: Source | undefined }) {
 	if (source?.status === 'loading' || source?.status === 'connecting') {
 		return <Spinner />;
@@ -34,11 +40,6 @@ function SourceIcon({ source }: { source: Source | undefined }) {
 export function SourceControl() {
 	const source = useSource();
 	const formatForDisplay = useFormatForDisplay();
-	const menuItems: MenuEntry[] = [
-		{ label: 'Open log', icon: FolderOpenIcon, shortcut: shortcuts.openLog, onSelect: chooseLog },
-		'separator',
-		{ label: 'Connect', icon: RadioTowerIcon, shortcut: shortcuts.connect, onSelect: startConnect },
-	];
 
 	const name = source === undefined ? 'No data source' : source.type === 'log' ? source.fileName : source.host;
 	const status = source === undefined ? 'Open a log or connect' : statusLabels[source.status];
