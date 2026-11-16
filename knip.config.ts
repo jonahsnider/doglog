@@ -6,6 +6,10 @@ const config: KnipConfig = {
 	ignoreBinaries: [
 		// `pnpm build` in CI workflows runs in the web workspace
 		'build',
+		// Run from the studio workspace with `pnpm --dir studio exec`
+		'wrangler',
+		// Built into macOS
+		'ditto',
 	],
 	workspaces: {
 		studio: {
