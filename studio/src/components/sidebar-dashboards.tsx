@@ -1,9 +1,10 @@
+import { useFormatForDisplay, useHotkeyHint } from '@tanstack/react-hotkeys';
 import { Link, useMatchRoute, useRouter } from '@tanstack/react-router';
 import { EllipsisIcon, LayoutDashboardIcon, PencilIcon, PlusIcon, Trash2Icon, XIcon } from 'lucide-react';
 import { PointerActivationConstraints } from '@dnd-kit/dom';
 import { DragDropProvider, KeyboardSensor, PointerSensor } from '@dnd-kit/react';
 import { isSortable, useSortable } from '@dnd-kit/react/sortable';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { closeDashboard } from '@/close-dashboard';
 import { Menu, MenuItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
@@ -13,10 +14,12 @@ import {
 	SidebarInput,
 	SidebarMenu,
 	SidebarMenuAction,
+	SidebarMenuBadge,
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { TooltipLabel } from '@/components/tooltip-label';
+import { Kbd } from '@/components/ui/kbd';
 import { dashboardShortcut, newDashboard, shortcuts } from '@/commands';
 import { type Dashboard, moveDashboard, renameDashboard, useDashboards } from '@/dashboards';
 
@@ -80,6 +83,20 @@ function DashboardItem({ dashboard, index, onClose }: { dashboard: Dashboard; in
 	const matchRoute = useMatchRoute();
 	const [renaming, setRenaming] = useState(false);
 	const { ref, handleRef } = useSortable({ id: dashboard.id, index, disabled: renaming });
+	const shortcut = dashboardShortcut(index);
+	// Holding the shortcut's modifier shows every dashboard's shortcut in place of its options button
+	const shortcutHinted = useHotkeyHint(shortcut);
+	const [hintDelayed, setHintDelayed] = useState(false);
+	// Waits a moment so quickly pressing a shortcut doesn't flash the hints
+	useEffect(() => {
+		const timeout = shortcutHinted ? setTimeout(() => setHintDelayed(true), 300) : undefined;
+		return () => {
+			clearTimeout(timeout);
+			setHintDelayed(false);
+		};
+	}, [shortcutHinted]);
+	const showShortcut = shortcutHinted && hintDelayed;
+	const formatForDisplay = useFormatForDisplay();
 	const menuItems: MenuEntry[] = [
 		{ label: 'Rename', icon: PencilIcon, onSelect: () => setRenaming(true) },
 		{ label: 'Delete', icon: Trash2Icon, destructive: true, onSelect: onClose },
@@ -116,13 +133,13 @@ function DashboardItem({ dashboard, index, onClose }: { dashboard: Dashboard; in
 						// Keeps the link a link, dnd-kit makes drag handles without a role into buttons
 						role="link"
 						onDoubleClick={() => setRenaming(true)}
-						tooltip={{ children: <TooltipLabel label={dashboard.name} shortcut={dashboardShortcut(index)} /> }}
+						tooltip={{ children: <TooltipLabel label={dashboard.name} shortcut={shortcut} /> }}
 					>
 						<LayoutDashboardIcon />
 						<span>{dashboard.name}</span>
 					</SidebarMenuButton>
 					<Menu>
-						<MenuTrigger render={<SidebarMenuAction showOnHover />}>
+						<MenuTrigger render={<SidebarMenuAction showOnHover className={showShortcut ? 'invisible' : undefined} />}>
 							<EllipsisIcon />
 							<span className="sr-only">Dashboard options</span>
 						</MenuTrigger>
@@ -137,6 +154,11 @@ function DashboardItem({ dashboard, index, onClose }: { dashboard: Dashboard; in
 							</MenuItem>
 						</MenuPopup>
 					</Menu>
+					{showShortcut && shortcut !== undefined && (
+						<SidebarMenuBadge>
+							<Kbd>{formatForDisplay(shortcut)}</Kbd>
+						</SidebarMenuBadge>
+					)}
 				</>
 			)}
 		</AppContextMenu>

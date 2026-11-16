@@ -60,6 +60,17 @@ Every control with a keyboard shortcut SHALL show the shortcut in its tooltip, f
 - **WHEN** the user hovers the playback speed select
 - **THEN** its tooltip shows `Playback speed` with `[` and `]`
 
+### Requirement: Dashboard shortcut hints
+
+While the user holds the modifier for switching dashboards (⌘ in the desktop app, Alt on the web) for 300 ms, each of the first nine dashboards in the sidebar SHALL show its switch shortcut on the right of its row.
+
+#### Scenario: Hold the modifier
+
+- **GIVEN** the user is using the web app with three dashboards
+- **WHEN** the user holds Alt for 300 ms
+- **THEN** the dashboards show Alt+1, Alt+2, and Alt+3 in sidebar order
+- **AND** the hints disappear when Alt is released
+
 ### Requirement: Desktop-only shortcuts
 
 ⌘T, ⌘W, ⇧⌘W, ⌘, and ⌘1-⌘9 SHALL only be active in the desktop app, because browsers reserve them. Their Alt variants MUST work in both the desktop app and the web.
