@@ -19,7 +19,7 @@ export function swerveRole(entry: Entry): Role | undefined {
 	return entry.kind === 'number' ? 'heading' : structRoles[entry.type];
 }
 
-export function field(struct: unknown, name: string): unknown {
+function field(struct: unknown, name: string): unknown {
 	return typeof struct === 'object' && struct !== null && !Array.isArray(struct)
 		? Reflect.get(struct, name)
 		: undefined;

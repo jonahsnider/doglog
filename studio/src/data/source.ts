@@ -42,7 +42,7 @@ async function isWpilog(file: File): Promise<boolean> {
 }
 
 /** Make a WPILOG file the active source. The current source is kept if the file isn't a WPILOG file. */
-export async function openLog(file: File): Promise<void> {
+async function openLog(file: File): Promise<void> {
 	const requestedAt = generation;
 	if (!(await isWpilog(file))) {
 		toastManager.add({ type: 'error', title: `Couldn't open ${file.name}`, description: "It isn't a WPILOG file." });
