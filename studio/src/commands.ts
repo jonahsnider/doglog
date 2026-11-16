@@ -23,6 +23,8 @@ const nativeMenu = desktop && detectPlatform() === 'mac';
 
 /** Options for shortcuts that the native menu handles on macOS */
 const desktopOnly = { enabled: desktop && !nativeMenu };
+/** Options for shortcuts that the native menu handles on macOS, and that also work on the web */
+const outsideNativeMenu = { enabled: !nativeMenu };
 
 /** Browsers reserve the ⌘ versions of these, so the web app only has the Alt versions */
 export const shortcuts = {
@@ -115,7 +117,7 @@ export function useGlobalShortcuts(): void {
 			{ hotkey: shortcuts.connect, callback: startConnect },
 			{ hotkey: shortcuts.splitRight, callback: () => splitFocused(router, 'row') },
 			{ hotkey: shortcuts.splitDown, callback: () => splitFocused(router, 'column') },
-			{ hotkey: shortcuts.openLog, callback: chooseLog },
+			{ hotkey: shortcuts.openLog, callback: chooseLog, options: outsideNativeMenu },
 			...dashboardNumbers.flatMap((number) => [
 				{ hotkey: `Alt+${number}` as const, callback: () => openDashboardAt(router, number - 1) },
 				{
@@ -158,6 +160,7 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 				text: 'File',
 				items: [
 					{ text: 'New Dashboard', accelerator: 'CmdOrCtrl+T', action: () => newDashboard(router) },
+					{ text: 'Open Log…', accelerator: 'CmdOrCtrl+O', action: chooseLog },
 					separator,
 					{ text: 'Close Pane', accelerator: 'CmdOrCtrl+W', action: () => closeFocused(router) },
 					{

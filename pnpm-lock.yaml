@@ -249,6 +249,9 @@ importers:
       '@tauri-apps/api':
         specifier: 2.12.4
         version: 2.12.4
+      '@tauri-apps/plugin-dialog':
+        specifier: 2.8.4
+        version: 2.8.4
       class-variance-authority:
         specifier: 0.7.1
         version: 0.7.1
@@ -3551,6 +3554,9 @@ packages:
     resolution: {integrity: sha512-JI9bHfudSRJikGOrjbXEm6RjzzvmKuLc+JixB1NE8hNzQkNlCCIC3pTES3uypkR9lxHrsbxzcnSwhI2IxBQphw==}
     engines: {node: '>= 10'}
     hasBin: true
+
+  '@tauri-apps/plugin-dialog@2.8.4':
+    resolution: {integrity: sha512-+6ZOiXenOaxXwb8qCbBPdT2jX2cFPaVVHGIskrpmJLpmWj+qKRTD6X/z9x7hTdSQn7NedcoXCkWGej4a7dC4lw==}
 
   '@team581/starlight-theme@1.0.0':
     resolution: {integrity: sha512-IBMG7DUut+bfqEiBoyjebKEJtMMvfSfLW2Eaw4bdrqlw4ljFLCyeCUzpW7fELyrCJeJ26TlA4UziBjMb8cKCKA==}
@@ -9366,6 +9372,10 @@ snapshots:
       '@tauri-apps/cli-win32-arm64-msvc': 2.12.4
       '@tauri-apps/cli-win32-ia32-msvc': 2.12.4
       '@tauri-apps/cli-win32-x64-msvc': 2.12.4
+
+  '@tauri-apps/plugin-dialog@2.8.4':
+    dependencies:
+      '@tauri-apps/api': 2.12.4
 
   '@team581/starlight-theme@1.0.0(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261114.1))(astro@7.4.12(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))':
     dependencies:

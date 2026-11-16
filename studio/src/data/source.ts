@@ -1,7 +1,8 @@
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
-import { invoke } from '@tauri-apps/api/core';
+import { invoke, isTauri } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
+import { open as openDialog } from '@tauri-apps/plugin-dialog';
 import { toastManager } from '@/components/ui/toast';
 import { clearData } from '@/data/data-store';
 import type { LiveStatus } from '@/data/live-source';
@@ -142,8 +143,21 @@ export function connect(robotHost: string | undefined): void {
 	void attempt();
 }
 
+async function chooseLogWithDialog(): Promise<void> {
+	const path = await openDialog({ filters: [{ name: 'WPILOG', extensions: ['wpilog'] }] });
+	if (path !== null) {
+		await openLogPath(path);
+	}
+}
+
 /** Let the user pick a WPILOG file to open */
 export function chooseLog(): void {
+	// The desktop app's menu can't open the web file picker, since it only opens during a click or key press in the page
+	if (isTauri()) {
+		void chooseLogWithDialog();
+		return;
+	}
+
 	const input = document.createElement('input');
 	input.type = 'file';
 	input.accept = '.wpilog';
@@ -162,10 +176,13 @@ export const hasFiles = (event: DragEvent) => event.dataTransfer?.types.includes
 /** Open the last log the OS asked the desktop app to open, if it hasn't been opened yet */
 async function openTakenLog(): Promise<void> {
 	const path = await invoke<string | null>('take_opened_log');
-	if (path === null) {
-		return;
+	if (path !== null) {
+		await openLogPath(path);
 	}
+}
 
+/** Open a log from the desktop app's file system */
+async function openLogPath(path: string): Promise<void> {
 	const fileName = path.split(/[/\\]/u).at(-1)!;
 	let contents: ArrayBuffer;
 	try {

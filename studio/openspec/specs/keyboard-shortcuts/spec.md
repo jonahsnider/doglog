@@ -77,6 +77,16 @@ Every control with a keyboard shortcut SHALL show the shortcut in its tooltip, f
 - **WHEN** the user presses ⌘W
 - **THEN** Studio closes the focused pane
 
+### Requirement: App menu
+
+On macOS, the desktop app SHALL list New dashboard, Open log, Close pane, and Close dashboard in its File menu, and Settings in its app menu, each with its shortcut.
+
+#### Scenario: Open a log from the menu
+
+- **GIVEN** the user is using the desktop app on macOS
+- **WHEN** the user chooses File > Open Log…
+- **THEN** the file picker for opening a log opens
+
 ### Requirement: Close pane or dashboard
 
 The close shortcut SHALL close the focused pane. When the dashboard is down to a single empty pane, it MUST close the dashboard instead.
