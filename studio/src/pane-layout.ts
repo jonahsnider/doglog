@@ -152,10 +152,6 @@ export function firstPane(layout: PaneNode): Pane {
 	return layout.kind === 'pane' ? layout : firstPane(layout.first);
 }
 
-function hasWidgets(layout: PaneNode): boolean {
-	return layout.kind === 'pane' ? layout.widget !== undefined : hasWidgets(layout.first) || hasWidgets(layout.second);
-}
-
 /** Set a pane's widget, or clear it with `undefined` */
 export function setPaneWidget(layout: PaneNode, paneId: string, widget: Widget | undefined): PaneNode {
 	return replaceNode(layout, paneId, (node) => {
