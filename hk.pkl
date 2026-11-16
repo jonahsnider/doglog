@@ -1,7 +1,37 @@
 amends "package://github.com/jdx/hk/releases/download/v2.12.0/hk@2.12.0#/Config.pkl"
 import "package://github.com/jdx/hk/releases/download/v2.12.0/hk@2.12.0#/Builtins.pkl"
 
+// Studio checks that CI runs, each on the whole project so cross-file errors are caught
+local studio = new Mapping<String, Step> {
+  ["studio:check"] {
+    dir = "studio"
+    glob = "**/*"
+    check = "pnpm check"
+  }
+  ["studio:test"] {
+    dir = "studio"
+    glob = "src/**/*"
+    check = "pnpm test"
+  }
+  ["studio:react-doctor"] {
+    dir = "studio"
+    glob = "src/**/*"
+    check = "pnpm react-doctor"
+  }
+  ["studio:openspec"] {
+    dir = "studio"
+    glob = "openspec/**/*"
+    check = "pnpm openspec:check"
+  }
+}
+
 hooks {
+  ["pre-commit"] {
+    // Only check, never fix, so there are no unstaged changes to stash and restore
+    fix = false
+    stash = "none"
+    steps = studio
+  }
   ["commit-msg"] {
     steps {
       ["check-conventional-commit"] = (Builtins.check_conventional_commit) {
