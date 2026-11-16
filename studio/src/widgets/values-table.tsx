@@ -97,8 +97,9 @@ export function ValuesTable({ bindings }: WidgetProps) {
 		<Table>
 			<TableHeader>
 				<TableRow>
-					<TableHead>Name</TableHead>
-					<TableHead>Type</TableHead>
+					{/* Fit to content and give the rest to values, otherwise columns resize as values change */}
+					<TableHead className="w-px">Name</TableHead>
+					<TableHead className="w-px">Type</TableHead>
 					<TableHead>Value</TableHead>
 				</TableRow>
 			</TableHeader>
@@ -107,7 +108,21 @@ export function ValuesTable({ bindings }: WidgetProps) {
 					const expandable = childrenOf(row.value) !== undefined;
 					const isExpanded = expandable && expanded.has(row.path);
 					return (
-						<TableRow key={row.path}>
+						<TableRow
+							key={row.path}
+							className={cn(expandable && 'cursor-pointer')}
+							onClick={
+								expandable
+									? () => {
+											// Selecting text in the row shouldn't toggle it
+											if (window.getSelection()?.isCollapsed === false) {
+												return;
+											}
+											toggle(row.path);
+										}
+									: undefined
+							}
+						>
 							<TableCell className="font-mono text-xs">
 								<div className="flex items-center gap-1" style={{ paddingLeft: `${row.depth * 1.25}rem` }}>
 									{expandable ? (
@@ -117,7 +132,6 @@ export function ValuesTable({ bindings }: WidgetProps) {
 											className="-m-1 text-muted-foreground"
 											aria-expanded={isExpanded}
 											aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${row.label}`}
-											onClick={() => toggle(row.path)}
 										>
 											<ChevronRightIcon className={cn('size-3.5 transition-transform', isExpanded && 'rotate-90')} />
 										</Button>
@@ -129,7 +143,7 @@ export function ValuesTable({ bindings }: WidgetProps) {
 									)}
 									{row.depth === 0 ? (
 										// The prefix animating open on hover briefly leaves the browser's automatic cursor on a non-text box
-										<span className="cursor-text">
+										<span className={cn(!expandable && 'cursor-text')}>
 											<EntryName name={row.label} />
 										</span>
 									) : (

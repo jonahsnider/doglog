@@ -24,3 +24,9 @@ Struct and array values SHALL be expandable to show their individual fields or e
 - **GIVEN** the table is bound to a `Pose2d` entry
 - **WHEN** the user expands the row
 - **THEN** the pose's x, y, and rotation fields are shown
+
+#### Scenario: Toggle by clicking the row
+
+- **GIVEN** the table shows an expandable row
+- **WHEN** the user clicks anywhere in the row without selecting text
+- **THEN** the row toggles between expanded and collapsed
