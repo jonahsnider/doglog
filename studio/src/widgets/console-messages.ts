@@ -65,9 +65,24 @@ export function mergeMessages(sources: readonly Samples[]): ConsoleMessages {
 	return { times: Float64Array.from(times), texts, levels };
 }
 
-/** Messages containing `query`, ignoring case, at `minimumLevel` or above */
-export function filterMessages(messages: ConsoleMessages, query: string, minimumLevel: MessageLevel): ConsoleMessages {
-	const needle = query.toLowerCase();
+/** How to match a search query, like VS Code's find options */
+export type SearchOptions = { readonly caseSensitive: boolean; readonly wholeWord: boolean; readonly regex: boolean };
+
+/** Pattern for finding `query` with `options`, throws a `SyntaxError` for an invalid regular expression */
+export function searchPattern(query: string, options: SearchOptions): RegExp {
+	let source = options.regex ? query : query.replaceAll(/[\\^$.*+?()[\]{}|/]/gu, '\\$&');
+	if (options.wholeWord) {
+		source = `\\b(?:${source})\\b`;
+	}
+	return new RegExp(source, options.caseSensitive ? 'gu' : 'giu');
+}
+
+/** Messages matching `pattern` at `minimumLevel` or above, or every message at the level without a pattern */
+export function filterMessages(
+	messages: ConsoleMessages,
+	pattern: RegExp | undefined,
+	minimumLevel: MessageLevel,
+): ConsoleMessages {
 	const minimumRank = messageLevels.indexOf(minimumLevel);
 	const times: number[] = [];
 	const texts: string[] = [];
@@ -75,7 +90,8 @@ export function filterMessages(messages: ConsoleMessages, query: string, minimum
 
 	for (const [i, text] of messages.texts.entries()) {
 		const level = messages.levels[i]!;
-		if (messageLevels.indexOf(level) >= minimumRank && text.toLowerCase().includes(needle)) {
+		// `search()` ignores `lastIndex`, unlike `test()` with a global pattern
+		if (messageLevels.indexOf(level) >= minimumRank && (pattern === undefined || text.search(pattern) !== -1)) {
 			times.push(messages.times[i]!);
 			texts.push(text);
 			levels.push(level);
@@ -83,6 +99,17 @@ export function filterMessages(messages: ConsoleMessages, query: string, minimum
 	}
 
 	return { times: Float64Array.from(times), texts, levels };
+}
+
+/** Where `pattern` matches `text` as `[start, end, start, end, ...]`, skipping empty matches */
+export function matchRanges(text: string, pattern: RegExp): number[] {
+	const ranges: number[] = [];
+	for (const match of text.matchAll(pattern)) {
+		if (match[0] !== '') {
+			ranges.push(match.index, match.index + match[0].length);
+		}
+	}
+	return ranges;
 }
 
 /** How many messages are at or before `time` */
@@ -98,4 +125,20 @@ export function countAtOrBefore(messages: ConsoleMessages, time: number): number
 		}
 	}
 	return low;
+}
+
+/**
+ * Where to move the cursor to show the next message, or the one before the latest message at or before `time`, or `undefined` when there isn't one.
+ * Messages at the same time can only be shown together, so going back skips past all of them.
+ */
+export function stepTime(messages: ConsoleMessages, time: number, direction: 1 | -1): number | undefined {
+	const count = countAtOrBefore(messages, time);
+	if (direction === 1) {
+		return messages.times[count];
+	}
+	let index = count - 1;
+	while (index > 0 && messages.times[index - 1] === messages.times[count - 1]) {
+		index--;
+	}
+	return index > 0 ? messages.times[index - 1] : undefined;
 }

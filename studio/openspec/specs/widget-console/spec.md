@@ -35,12 +35,30 @@ The console SHALL only show messages at or before the global cursor.
 
 ### Requirement: Text filter
 
-The console SHALL provide a text filter that hides messages not matching the filter.
+The console SHALL provide a text filter that hides messages not matching the filter and highlights the matching text in the messages shown. The filter SHALL ignore case and match its text literally by default, with toggles to match case, match whole words, and use a regular expression, like VS Code's find options. An invalid regular expression SHALL mark the filter as invalid and show no messages.
 
 #### Scenario: Filter messages
 
 - **WHEN** the user types "CAN" in the filter
-- **THEN** only messages containing "CAN" are shown
+- **THEN** only messages containing "CAN", in any case, are shown
+- **AND** each match in them is highlighted
+
+#### Scenario: Whole word
+
+- **WHEN** the user types "CAN" in the filter and turns on match whole word
+- **THEN** messages containing "CAN bus" are shown, but not ones only containing "CANcoder"
+
+### Requirement: Message navigation
+
+The console SHALL provide previous and next message buttons, also bound to Shift+Enter and Enter in the filter, that move the global cursor to the previous or next message passing the filters. While filtering, the filter SHALL show how many matching messages are at or before the cursor out of all matching messages in the log.
+
+#### Scenario: Matches after the cursor
+
+- **GIVEN** the cursor is at the start of the log, and "CAN" matches 41 messages later in the log
+- **WHEN** the user types "CAN" in the filter
+- **THEN** the filter shows "0 of 41"
+- **WHEN** the user presses Enter
+- **THEN** the cursor moves to the first matching message, which is shown at the bottom of the console
 
 ### Requirement: Messages split by line
 

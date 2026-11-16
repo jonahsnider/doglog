@@ -1,18 +1,29 @@
+import type { Hotkey } from '@tanstack/react-hotkeys';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { SearchIcon } from 'lucide-react';
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
+import { CaseSensitiveIcon, ChevronDownIcon, ChevronUpIcon, RegexIcon, SearchIcon, WholeWordIcon } from 'lucide-react';
+import { type ReactElement, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { HighlightedText } from '@/components/highlighted-text';
+import { TooltipLabel } from '@/components/tooltip-label';
+import { Button } from '@/components/ui/button';
+import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
 import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control';
+import { Toggle } from '@/components/ui/toggle';
+import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useDataVersion, useTimeRange } from '@/data/data-store';
-import { stopFollowing, useCursorTime, useTimeline, formatTime } from '@/timeline';
+import { formatTime, seek, stopFollowing, useCursorTime, useTimeline } from '@/timeline';
 import {
+	type ConsoleMessages,
 	countAtOrBefore,
 	filterMessages,
+	matchRanges,
 	mergeMessages,
 	type MessageLevel,
 	messageLevels,
+	type SearchOptions,
+	searchPattern,
+	stepTime,
 } from '@/widgets/console-messages';
 import type { WidgetProps } from '@/widgets/widget-type';
 
@@ -28,14 +39,35 @@ const levelClassNames: Record<MessageLevel, string> = {
 	error: 'bg-destructive/8 text-destructive-foreground',
 };
 
+const searchToggles = [
+	{ option: 'caseSensitive', label: 'Match case', icon: <CaseSensitiveIcon /> },
+	{ option: 'wholeWord', label: 'Match whole word', icon: <WholeWordIcon /> },
+	{ option: 'regex', label: 'Use regular expression', icon: <RegexIcon /> },
+] as const;
+
+const noMessages: ConsoleMessages = { times: new Float64Array(), texts: [], levels: [] };
+
 export function Console({ bindings }: WidgetProps) {
 	useDataVersion();
 	const time = useCursorTime();
 	const range = useTimeRange();
 	const { playback } = useTimeline();
 	const [filter, setFilter] = useState('');
+	const [options, setOptions] = useState<SearchOptions>({ caseSensitive: false, wholeWord: false, regex: false });
 	const [minimumLevel, setMinimumLevel] = useState<MessageLevel>('info');
-	const filtering = filter !== '' || minimumLevel !== 'info';
+
+	/** `undefined` without a filter, and `null` when it's an invalid regular expression */
+	const pattern = useMemo(() => {
+		if (filter === '') {
+			return undefined;
+		}
+		try {
+			return searchPattern(filter, options);
+		} catch {
+			return null;
+		}
+	}, [filter, options]);
+	const filtering = pattern !== undefined || minimumLevel !== 'info';
 
 	const sources = useMemo(() => bindings.flatMap(({ entry }) => (entry ? [entry.samples] : [])), [bindings]);
 	// Samples are mutated in place, so `signature` tells when a bound entry's samples changed and need merging again
@@ -44,11 +76,15 @@ export function Console({ bindings }: WidgetProps) {
 		.join(',');
 	// oxlint-disable-next-line react-hooks/exhaustive-deps
 	const merged = useMemo(() => mergeMessages(sources), [sources, signature]);
-	const messages = useMemo(
-		() => (filtering ? filterMessages(merged, filter, minimumLevel) : merged),
-		[merged, filtering, filter, minimumLevel],
-	);
+	const messages = useMemo(() => {
+		if (pattern === null) {
+			return noMessages;
+		}
+		return filtering ? filterMessages(merged, pattern, minimumLevel) : merged;
+	}, [merged, filtering, pattern, minimumLevel]);
 	const count = time === undefined ? 0 : countAtOrBefore(messages, time);
+	const previousTime = time === undefined ? undefined : stepTime(messages, time, -1);
+	const nextTime = time === undefined ? undefined : stepTime(messages, time, 1);
 
 	const scrollElement = useRef<HTMLDivElement>(null);
 	const virtualizer = useVirtualizer({
@@ -86,22 +122,101 @@ export function Console({ bindings }: WidgetProps) {
 		lastScrollTop.current = element.scrollTop;
 	};
 
+	/** Move the cursor to a message, which shows it at the bottom of the list */
+	const seekMessage = (target: number | undefined) => {
+		if (target !== undefined) {
+			stickToBottom.current = true;
+			seek(target);
+		}
+	};
+
+	let emptyText = 'No messages';
+	if (pattern === null) {
+		emptyText = 'Invalid regular expression';
+	} else if (messages.texts.length > 0) {
+		emptyText = filtering ? 'No matching messages before the cursor' : 'No messages before the cursor';
+	} else if (filtering) {
+		emptyText = 'No messages match the filter';
+	}
+
 	return (
 		<div className="flex h-full flex-col">
-			<div className="flex shrink-0 gap-2 p-2">
-				<InputGroup>
+			<div className="flex shrink-0 flex-wrap gap-2 p-2">
+				<InputGroup className="min-w-56 flex-1">
 					<InputGroupAddon>
 						<SearchIcon />
 					</InputGroupAddon>
 					<InputGroupInput
 						type="search"
 						aria-label="Filter messages"
+						aria-invalid={pattern === null || undefined}
 						placeholder="Filter messages"
 						size="sm"
 						value={filter}
 						onChange={(event) => setFilter(event.target.value)}
+						onKeyDown={(event) => {
+							if (event.key === 'Enter') {
+								event.preventDefault();
+								seekMessage(event.shiftKey ? previousTime : nextTime);
+							}
+						}}
 					/>
+					<InputGroupAddon align="inline-end" className="gap-0.5 has-[>button]:-me-1.5">
+						{filtering && pattern !== null && (
+							<InputGroupText className="me-1 text-xs tabular-nums">
+								{count} of {messages.texts.length}
+							</InputGroupText>
+						)}
+						{searchToggles.map(({ option, label, icon }) => (
+							<ControlTooltip
+								key={option}
+								label={label}
+								render={
+									<Toggle
+										className="h-6 min-w-6 rounded-md px-0.5 sm:h-6 sm:min-w-6"
+										aria-label={label}
+										pressed={options[option]}
+										onPressedChange={(pressed) => setOptions({ ...options, [option]: pressed })}
+									/>
+								}
+							>
+								{icon}
+							</ControlTooltip>
+						))}
+					</InputGroupAddon>
 				</InputGroup>
+				<div className="flex shrink-0 items-center">
+					<ControlTooltip
+						label="Previous message"
+						shortcut="Shift+Enter"
+						render={
+							<Button
+								variant="ghost"
+								size="icon-xs"
+								aria-label="Previous message"
+								disabled={previousTime === undefined}
+								onClick={() => seekMessage(previousTime)}
+							/>
+						}
+					>
+						<ChevronUpIcon />
+					</ControlTooltip>
+					<ControlTooltip
+						label="Next message"
+						shortcut="Enter"
+						render={
+							<Button
+								variant="ghost"
+								size="icon-xs"
+								aria-label="Next message"
+								disabled={nextTime === undefined}
+								onClick={() => seekMessage(nextTime)}
+							/>
+						}
+					>
+						<ChevronDownIcon />
+					</ControlTooltip>
+				</div>
 				<SegmentedControl
 					size="sm"
 					aria-label="Minimum level"
@@ -127,9 +242,7 @@ export function Console({ bindings }: WidgetProps) {
 				role="log"
 			>
 				{count === 0 ? (
-					<p className="p-2 text-muted-foreground italic">
-						{filtering ? 'No messages match the filter' : 'No messages'}
-					</p>
+					<p className="p-2 text-muted-foreground italic">{emptyText}</p>
 				) : (
 					<div className="relative" style={{ height: virtualizer.getTotalSize() }}>
 						{virtualizer.getVirtualItems().map((item) => (
@@ -146,12 +259,39 @@ export function Console({ bindings }: WidgetProps) {
 								<span className="min-w-[9ch] shrink-0 text-right text-muted-foreground tabular-nums">
 									{formatTime(messages.times[item.index]!, range?.start ?? 0)}
 								</span>
-								<span className="min-w-0 break-words whitespace-pre-wrap">{messages.texts[item.index]}</span>
+								<span className="min-w-0 break-words whitespace-pre-wrap">
+									<HighlightedText
+										text={messages.texts[item.index]!}
+										ranges={pattern ? matchRanges(messages.texts[item.index]!, pattern) : undefined}
+									/>
+								</span>
 							</div>
 						))}
 					</div>
 				)}
 			</div>
 		</div>
+	);
+}
+
+/** A toolbar control with a tooltip naming it */
+function ControlTooltip({
+	label,
+	shortcut,
+	render,
+	children,
+}: {
+	label: string;
+	shortcut?: Hotkey;
+	render: ReactElement;
+	children: ReactElement;
+}) {
+	return (
+		<Tooltip>
+			<TooltipTrigger render={render}>{children}</TooltipTrigger>
+			<TooltipPopup>
+				<TooltipLabel label={label} shortcut={shortcut} />
+			</TooltipPopup>
+		</Tooltip>
 	);
 }
