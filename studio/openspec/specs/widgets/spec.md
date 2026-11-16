@@ -72,6 +72,20 @@ When a bound entry doesn't exist in the active source, or no source is active, t
 - **THEN** the widget shows "no data" for that entry
 - **AND** the binding is kept for future sources
 
+### Requirement: Shortened entry names
+
+Widgets and the entry picker SHALL shorten the `/Robot` prefix of entry names to `/R`, shown dimmed, and MUST show the full prefix when the name has been hovered for a short delay.
+
+#### Scenario: Shortened name
+
+- **GIVEN** a widget bound to `/Robot/Arm/Angle`
+- **THEN** the widget shows `/R/Arm/Angle` with `/R` dimmed
+
+#### Scenario: Hover to expand
+
+- **WHEN** the user hovers `/R/Arm/Angle`
+- **THEN** after a short delay it grows to show `/Robot/Arm/Angle`
+
 ### Requirement: Default widget for an entry
 
 Each bindable entry SHALL have a default widget, used when the entry is added without choosing a widget: numeric entries use the line graph, `/console` and `/messages` use the console, other string and boolean entries use the discrete timeline, `SwerveModuleState[]` and `SwerveModuleVelocity[]` entries use the swerve widget, and all other entries use the values table.

@@ -5,6 +5,7 @@ import { useSource } from '@/data/source';
 import { formatTime, getCursorTime, seek, subscribeTimeline } from '@/timeline';
 import { NoData } from '@/widgets/no-data';
 import type { WidgetProps } from '@/widgets/widget-type';
+import { EntryName } from '@/components/entry-name';
 
 /** Live sources show the newest 30 s, matching the line graph */
 const liveWindow = 30_000_000;
@@ -266,7 +267,9 @@ export function DiscreteTimeline({ bindings }: WidgetProps) {
 		>
 			{bindings.map(({ name, entry }, row) => (
 				<div key={name} className="absolute inset-x-2 text-xs" style={{ top: padding + row * rowHeight }}>
-					<div className="truncate font-mono leading-4 text-muted-foreground">{name}</div>
+					<div className="truncate font-mono leading-4 text-muted-foreground">
+						<EntryName name={name} />
+					</div>
 					{!entry && (
 						<div className="flex items-center" style={{ height: bandHeight, marginTop: bandTop - labelHeight }}>
 							<NoData />

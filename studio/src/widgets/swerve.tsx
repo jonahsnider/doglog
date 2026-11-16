@@ -9,6 +9,7 @@ import { historyMax, type Module, numberField, readModules, swerveRole } from '@
 import { chassisHalf, move, type Point, strokeWidth } from '@/widgets/swerve-geometry';
 import { Arrow, Line, ModuleLabel, RotationArc, Wheel } from '@/widgets/swerve-shapes';
 import type { WidgetProps } from '@/widgets/widget-type';
+import { EntryName } from '@/components/entry-name';
 
 // Sizes in robot-frame meters-like units: the chassis is 1 wide, the view leaves room for arrows when it's rotated
 /** Modules sit inside the chassis, like a real robot's */
@@ -47,7 +48,9 @@ function Legend({ items }: { items: LegendItem[] }) {
 					) : (
 						<CompassIcon className="size-3.5 shrink-0 text-muted-foreground" />
 					)}
-					<span className="truncate font-mono">{item.name}</span>
+					<span className="truncate font-mono">
+						<EntryName name={item.name} />
+					</span>
 					{item.heading !== undefined && <span className="text-muted-foreground">({item.heading})</span>}
 					{item.error !== undefined && <span className="text-destructive-foreground">{item.error}</span>}
 				</li>

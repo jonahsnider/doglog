@@ -17,6 +17,7 @@ import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { useEntries } from '@/data/data-store';
 import { formatEntryType } from '@/data/samples';
 import { acceptsEntry, type WidgetType } from '@/widgets/widget-type';
+import { EntryName } from '@/components/entry-name';
 
 /** Rendering thousands of items is slow, searching narrows the list down */
 const itemLimit = 100;
@@ -87,7 +88,7 @@ function EntryPicker({ type, entries, onEntriesChange }: EntryPickerProps) {
 					{(names: string[]) =>
 						names.map((name) => (
 							<ComboboxChip key={name} aria-label={name}>
-								{name}
+								<EntryName name={name} />
 							</ComboboxChip>
 						))
 					}
@@ -100,7 +101,9 @@ function EntryPicker({ type, entries, onEntriesChange }: EntryPickerProps) {
 					{(name: string) => (
 						<ComboboxItem key={name} value={name}>
 							<span className="flex items-baseline gap-2">
-								<span className="min-w-0 flex-1 truncate font-mono text-xs">{name}</span>
+								<span className="min-w-0 flex-1 truncate font-mono text-xs">
+									<EntryName name={name} />
+								</span>
 								<span className="shrink-0 text-xs text-muted-foreground">{entryTypes.get(name) ?? 'No data'}</span>
 							</span>
 						</ComboboxItem>

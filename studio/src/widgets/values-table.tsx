@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { useCursorTime } from '@/timeline';
 import { NoData } from '@/widgets/no-data';
 import type { WidgetProps } from '@/widgets/widget-type';
+import { EntryName } from '@/components/entry-name';
 
 type FieldValue = Parameters<typeof formatValue>[0];
 
@@ -121,7 +122,7 @@ export function ValuesTable({ bindings }: WidgetProps) {
 										// Takes the same space as the expand button
 										<span className="-m-1 size-7 shrink-0 sm:size-6" />
 									)}
-									{row.label}
+									{row.depth === 0 ? <EntryName name={row.label} /> : row.label}
 								</div>
 							</TableCell>
 							<TableCell>{row.type !== undefined && <TypeLabel type={row.type} />}</TableCell>
