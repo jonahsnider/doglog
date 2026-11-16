@@ -2,13 +2,31 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { SearchIcon } from 'lucide-react';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
+import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
+import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control';
+import { cn } from '@/lib/utils';
 import { useDataVersion, useTimeRange } from '@/data/data-store';
 import { stopFollowing, useCursorTime, useTimeline, formatTime } from '@/timeline';
-import { countAtOrBefore, filterMessages, mergeMessages } from '@/widgets/console-messages';
+import {
+	countAtOrBefore,
+	filterMessages,
+	mergeMessages,
+	type MessageLevel,
+	messageLevels,
+} from '@/widgets/console-messages';
 import type { WidgetProps } from '@/widgets/widget-type';
 
 /** Height of a one line message (px), messages are never shorter so measuring them only moves later rows down */
 const rowHeight = 20;
+
+/** Labels for the minimum level to show */
+const minimumLevelLabels: Record<MessageLevel, string> = { info: 'All', warning: 'Warnings', error: 'Errors' };
+
+const levelClassNames: Record<MessageLevel, string> = {
+	info: '',
+	warning: 'bg-warning/8 text-warning-foreground',
+	error: 'bg-destructive/8 text-destructive-foreground',
+};
 
 export function Console({ bindings }: WidgetProps) {
 	useDataVersion();
@@ -16,6 +34,8 @@ export function Console({ bindings }: WidgetProps) {
 	const range = useTimeRange();
 	const { playback } = useTimeline();
 	const [filter, setFilter] = useState('');
+	const [minimumLevel, setMinimumLevel] = useState<MessageLevel>('info');
+	const filtering = filter !== '' || minimumLevel !== 'info';
 
 	const sources = useMemo(() => bindings.flatMap(({ entry }) => (entry ? [entry.samples] : [])), [bindings]);
 	// Samples are mutated in place, so `signature` tells when a bound entry's samples changed and need merging again
@@ -24,7 +44,10 @@ export function Console({ bindings }: WidgetProps) {
 		.join(',');
 	// oxlint-disable-next-line react-hooks/exhaustive-deps
 	const merged = useMemo(() => mergeMessages(sources), [sources, signature]);
-	const messages = useMemo(() => (filter ? filterMessages(merged, filter) : merged), [merged, filter]);
+	const messages = useMemo(
+		() => (filtering ? filterMessages(merged, filter, minimumLevel) : merged),
+		[merged, filtering, filter, minimumLevel],
+	);
 	const count = time === undefined ? 0 : countAtOrBefore(messages, time);
 
 	const scrollElement = useRef<HTMLDivElement>(null);
@@ -65,7 +88,7 @@ export function Console({ bindings }: WidgetProps) {
 
 	return (
 		<div className="flex h-full flex-col">
-			<div className="shrink-0 p-2">
+			<div className="flex shrink-0 gap-2 p-2">
 				<InputGroup>
 					<InputGroupAddon>
 						<SearchIcon />
@@ -79,6 +102,23 @@ export function Console({ bindings }: WidgetProps) {
 						onChange={(event) => setFilter(event.target.value)}
 					/>
 				</InputGroup>
+				<SegmentedControl
+					size="sm"
+					aria-label="Minimum level"
+					render={
+						<RadioGroup
+							className="shrink-0 flex-row gap-0.5"
+							value={minimumLevel}
+							onValueChange={(value: MessageLevel) => setMinimumLevel(value)}
+						/>
+					}
+				>
+					{messageLevels.map((level) => (
+						<SegmentedControlItem key={level} render={<RadioPrimitive.Root value={level} />}>
+							{minimumLevelLabels[level]}
+						</SegmentedControlItem>
+					))}
+				</SegmentedControl>
 			</div>
 			<div
 				ref={scrollElement}
@@ -87,7 +127,9 @@ export function Console({ bindings }: WidgetProps) {
 				role="log"
 			>
 				{count === 0 ? (
-					<p className="p-2 text-muted-foreground italic">{filter ? 'No messages match the filter' : 'No messages'}</p>
+					<p className="p-2 text-muted-foreground italic">
+						{filtering ? 'No messages match the filter' : 'No messages'}
+					</p>
 				) : (
 					<div className="relative" style={{ height: virtualizer.getTotalSize() }}>
 						{virtualizer.getVirtualItems().map((item) => (
@@ -95,7 +137,10 @@ export function Console({ bindings }: WidgetProps) {
 								key={item.key}
 								ref={virtualizer.measureElement}
 								data-index={item.index}
-								className="absolute inset-x-0 top-0 flex gap-3 px-2 py-0.5 leading-4"
+								className={cn(
+									'absolute inset-x-0 top-0 flex gap-3 px-2 py-0.5 leading-4',
+									levelClassNames[messages.levels[item.index]!],
+								)}
 								style={{ transform: `translateY(${item.start}px)` }}
 							>
 								<span className="min-w-[9ch] shrink-0 text-right text-muted-foreground tabular-nums">

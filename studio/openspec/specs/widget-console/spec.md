@@ -42,6 +42,33 @@ The console SHALL provide a text filter that hides messages not matching the fil
 - **WHEN** the user types "CAN" in the filter
 - **THEN** only messages containing "CAN" are shown
 
+### Requirement: Messages split by line
+
+The console SHALL show each line of a sample as its own message, skipping blank lines. An indented line SHALL instead join the previous message from the same entry, even when it was logged in a later sample, since console output is logged in arbitrary chunks.
+
+#### Scenario: Stack trace
+
+- **GIVEN** `console` has a sample `Error at Main.java:9: Unhandled exception` followed by a sample with indented `at ...` lines
+- **THEN** the console shows one message containing the error and its stack trace
+
+### Requirement: Message levels
+
+The console SHALL mark messages starting with `Error at ` or `Exception in thread ` as errors, messages starting with `Warning at ` or `CommandScheduler loop overrun` as warnings, and all other messages as info. These are the prefixes WPILib prints for `DriverStation.reportError()`, `DriverStation.reportWarning()`, uncaught exceptions, and command scheduler overruns. Errors and warnings SHALL be tinted with distinct colors.
+
+#### Scenario: Loop overrun
+
+- **GIVEN** `console` has the message `Warning at ...: Loop time of 0.02s overrun`
+- **THEN** the message is tinted as a warning
+
+### Requirement: Level filter
+
+The console SHALL provide a minimum level filter with the options All, Warnings (warnings and errors), and Errors, defaulting to All.
+
+#### Scenario: Errors only
+
+- **WHEN** the user picks Errors
+- **THEN** only error messages are shown
+
 ### Requirement: Live auto-scroll
 
 The console SHALL auto-scroll to the newest message while following live data.
