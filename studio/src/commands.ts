@@ -1,7 +1,15 @@
 import { isTauri } from '@tauri-apps/api/core';
 import { Menu } from '@tauri-apps/api/menu';
-import { detectPlatform, type Hotkey, useHotkeys } from '@tanstack/react-hotkeys';
+import {
+	detectPlatform,
+	getKeyStateTracker,
+	type Hotkey,
+	matchesHeldModifiers,
+	useHotkeys,
+} from '@tanstack/react-hotkeys';
 import { type RegisteredRouter, useRouter } from '@tanstack/react-router';
+import { useSelector } from '@tanstack/react-store';
+import { useDebounceValue } from 'usehooks-ts';
 import { closeFocusedPane, getFocusedPane, splitDashboardPane } from '@/dashboard-panes';
 import {
 	createDashboard,
@@ -34,6 +42,7 @@ export const shortcuts = {
 	closeDashboard: desktop ? 'Mod+Shift+W' : 'Alt+Shift+W',
 	reopenDashboard: desktop ? 'Mod+Shift+T' : 'Alt+Shift+T',
 	settings: desktop ? 'Mod+,' : 'Alt+,',
+	logs: desktop ? 'Mod+L' : 'Alt+L',
 	connect: 'Mod+K',
 	splitRight: 'Mod+D',
 	splitDown: 'Mod+Shift+D',
@@ -54,6 +63,15 @@ export function dashboardShortcut(index: number): Hotkey | undefined {
 		return undefined;
 	}
 	return desktop ? `Mod+${number}` : `Alt+${number}`;
+}
+
+/** Whether the user is holding `shortcut`'s modifiers, so the sidebar can show it */
+export function useShortcutHint(shortcut: Hotkey | undefined): boolean {
+	// Unlike `useHotkeyHint`, this includes shortcuts that the native menu handles
+	const held = useSelector(getKeyStateTracker().store, (state) => matchesHeldModifiers(shortcut, state.heldKeys));
+	// Waits a moment so quickly pressing a shortcut doesn't flash the hints
+	const [delayed] = useDebounceValue(held, 300);
+	return held && delayed;
 }
 
 export function newDashboard(router: RegisteredRouter, position?: 'top' | 'bottom'): void {
@@ -134,6 +152,10 @@ function openSettings(router: RegisteredRouter): void {
 	void router.navigate({ to: '/settings' });
 }
 
+function openLogs(router: RegisteredRouter): void {
+	void router.navigate({ to: '/logs' });
+}
+
 /** Connect to the robot target from Settings, or the simulator */
 export function startConnect(): void {
 	connect(getRobotHost(settingsStore.get().robotTarget));
@@ -150,11 +172,13 @@ export function useGlobalShortcuts(): void {
 			{ hotkey: 'Alt+Shift+W', callback: () => closeCurrentDashboard(router) },
 			{ hotkey: 'Alt+Shift+T', callback: () => reopenDashboard(router) },
 			{ hotkey: 'Alt+,', callback: () => openSettings(router) },
+			{ hotkey: 'Alt+L', callback: () => openLogs(router) },
 			{ hotkey: 'Mod+T', callback: () => newDashboard(router), options: desktopOnly },
 			{ hotkey: 'Mod+W', callback: () => closeFocused(router), options: desktopOnly },
 			{ hotkey: 'Mod+Shift+W', callback: () => closeCurrentDashboard(router), options: desktopOnly },
 			{ hotkey: 'Mod+Shift+T', callback: () => reopenDashboard(router), options: desktopOnly },
 			{ hotkey: 'Mod+,', callback: () => openSettings(router), options: desktopOnly },
+			{ hotkey: 'Mod+L', callback: () => openLogs(router), options: { enabled: desktop } },
 			{ hotkey: shortcuts.connect, callback: startConnect },
 			{ hotkey: shortcuts.splitRight, callback: () => splitFocused(router, 'row') },
 			{ hotkey: shortcuts.splitDown, callback: () => splitFocused(router, 'column') },

@@ -1,8 +1,8 @@
-import { useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
+import { type Hotkey, useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
 import { Link, useMatchRoute } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import { CircleArrowUpIcon, FolderSyncIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, SettingsIcon } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import * as z from 'zod';
 import {
 	Sidebar,
@@ -23,7 +23,7 @@ import { SidebarDashboards } from '@/components/sidebar-dashboards';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { Kbd } from '@/components/ui/kbd';
 import { Spinner } from '@/components/ui/spinner';
-import { shortcuts } from '@/commands';
+import { shortcuts, useShortcutHint } from '@/commands';
 import { deleteDashboards, useDashboards } from '@/dashboards';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { cn } from '@/lib/utils';
@@ -39,6 +39,13 @@ const keepPeekingSelector =
 	'[data-slot="menu-trigger"][data-popup-open], [data-slot="context-menu-trigger"][data-popup-open], input:focus, [data-dnd-dragging]';
 
 function noop(): void {}
+
+/** Shows `shortcut` like the dashboards' shortcuts while its modifier is held, or `children` otherwise */
+function ShortcutHint({ shortcut, children }: { shortcut: Hotkey; children?: ReactNode }) {
+	const formatForDisplay = useFormatForDisplay();
+	const content = useShortcutHint(shortcut) ? <Kbd>{formatForDisplay(shortcut)}</Kbd> : children;
+	return content !== undefined && <SidebarMenuBadge>{content}</SidebarMenuBadge>;
+}
 
 export function AppSidebar() {
 	const matchRoute = useMatchRoute();
@@ -149,12 +156,12 @@ export function AppSidebar() {
 									<SidebarMenuButton
 										isActive={Boolean(matchRoute({ to: '/logs' }))}
 										render={<Link to="/logs" />}
-										tooltip="Logs"
+										tooltip={{ children: <TooltipLabel label="Logs" shortcut={shortcuts.logs} /> }}
 									>
 										<FolderSyncIcon />
 										<span>Logs</span>
 									</SidebarMenuButton>
-									<SidebarMenuBadge>Soon</SidebarMenuBadge>
+									<ShortcutHint shortcut={shortcuts.logs}>Soon</ShortcutHint>
 								</SidebarMenuItem>
 								<SidebarMenuItem>
 									<SidebarMenuButton
@@ -165,6 +172,7 @@ export function AppSidebar() {
 										<SettingsIcon />
 										<span>Settings</span>
 									</SidebarMenuButton>
+									<ShortcutHint shortcut={shortcuts.settings} />
 								</SidebarMenuItem>
 							</SidebarMenu>
 						</SidebarGroup>

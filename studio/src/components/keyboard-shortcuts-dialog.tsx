@@ -24,6 +24,7 @@ const sections: { title: string; shortcuts: Shortcut[] }[] = [
 			{ label: 'Switch to dashboard 1-9', keys: [dashboardShortcut(0)!, dashboardShortcut(8)!], separator: '–' },
 			{ label: 'Undo', keys: [shortcuts.undo] },
 			{ label: 'Redo', keys: [shortcuts.redo] },
+			{ label: 'Logs', keys: [shortcuts.logs] },
 			{ label: 'Settings', keys: [shortcuts.settings] },
 			{ label: 'Keyboard shortcuts', keys: [shortcuts.keyboardShortcuts] },
 		],

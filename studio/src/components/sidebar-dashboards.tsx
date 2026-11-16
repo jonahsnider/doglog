@@ -1,4 +1,4 @@
-import { useFormatForDisplay, useHotkeyHint } from '@tanstack/react-hotkeys';
+import { useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { Link, useLocation, useRouter } from '@tanstack/react-router';
 import { EllipsisIcon, LayoutDashboardIcon, PlusIcon } from 'lucide-react';
 import { PointerActivationConstraints } from '@dnd-kit/dom';
@@ -6,7 +6,6 @@ import { DragDropProvider, KeyboardSensor, PointerSensor } from '@dnd-kit/react'
 import { isSortable, useSortable } from '@dnd-kit/react/sortable';
 import { AnimatePresence, domAnimation, LazyMotion, m, useIsPresent, useReducedMotion } from 'motion/react';
 import { useState } from 'react';
-import { useDebounceValue } from 'usehooks-ts';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuShortcut, MenuTrigger } from '@/components/ui/menu';
 import {
@@ -22,7 +21,7 @@ import { TooltipLabel } from '@/components/tooltip-label';
 import { DashboardPreview } from '@/components/dashboard-preview';
 import { PreviewCard, PreviewCardPopup, PreviewCardTrigger } from '@/components/ui/preview-card';
 import { Kbd } from '@/components/ui/kbd';
-import { dashboardShortcut, newDashboard, shortcuts } from '@/commands';
+import { dashboardShortcut, newDashboard, shortcuts, useShortcutHint } from '@/commands';
 import { dashboardName, mainWidgetType, suggestDashboardName } from '@/dashboard-label';
 import {
 	type Dashboard,
@@ -112,10 +111,7 @@ function DashboardItem({
 	const transition = (useReducedMotion() ?? false) ? { duration: 0 } : { duration: 0.2, ease: 'easeInOut' as const };
 	const shortcut = dashboardShortcut(index);
 	// Holding the shortcut's modifier shows every dashboard's shortcut in place of its options button
-	const shortcutHinted = useHotkeyHint(shortcut);
-	// Waits a moment so quickly pressing a shortcut doesn't flash the hints
-	const [hintDelayed] = useDebounceValue(shortcutHinted, 300);
-	const showShortcut = shortcutHinted && hintDelayed;
+	const showShortcut = useShortcutHint(shortcut);
 	const formatForDisplay = useFormatForDisplay();
 	const name = dashboardName(dashboard);
 	const Icon = mainWidgetType(dashboard.layout)?.icon ?? LayoutDashboardIcon;

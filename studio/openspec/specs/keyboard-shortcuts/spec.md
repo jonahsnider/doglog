@@ -8,7 +8,7 @@ Define Studio's app-wide keyboard shortcuts and how they differ between the desk
 
 ### Requirement: Global shortcuts
 
-Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Reopen closed dashboard (⇧⌘T, or Alt+Shift+T), Undo (⌘Z), Redo (⇧⌘Z), Settings (⌘, or Alt+,), Toggle sidebar (⌘B), Toggle entry browser (⌥⌘B), Connect (⌘K), Split right (⌘D), Split down (⇧⌘D), Open log (⌘O), Keyboard shortcuts (⌘/), and Switch to dashboard 1-9 (⌘1-⌘9, or Alt+1-Alt+9).
+Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Reopen closed dashboard (⇧⌘T, or Alt+Shift+T), Undo (⌘Z), Redo (⇧⌘Z), Toggle sidebar (⌘B), Toggle entry browser (⌥⌘B), Connect (⌘K), Split right (⌘D), Split down (⇧⌘D), Open log (⌘O), and Keyboard shortcuts (⌘/).
 
 #### Scenario: New dashboard
 
@@ -26,11 +26,6 @@ Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and
 - **GIVEN** the user is renaming a dashboard
 - **WHEN** the user presses ⌘Z
 - **THEN** the text field undoes its typing and the dashboard is unchanged
-
-#### Scenario: Open Settings
-
-- **WHEN** the user presses Alt+,
-- **THEN** the Settings page opens
 
 #### Scenario: Toggle sidebar
 
@@ -96,20 +91,35 @@ Every menu item with a keyboard shortcut SHALL show the shortcut on the right of
 - **WHEN** the user opens a dashboard's options menu
 - **THEN** Close dashboard shows ⇧⌘W, or Alt+Shift+W on the web
 
-### Requirement: Dashboard shortcut hints
+### Requirement: Navigation shortcuts
 
-While the user holds the modifier for switching dashboards (⌘ in the desktop app, Alt on the web) for 300 ms, each of the first nine dashboards in the sidebar SHALL show its switch shortcut on the right of its row.
+Studio SHALL provide shortcuts for the sidebar's pages: Logs (⌘L, or Alt+L), Settings (⌘, or Alt+,), and Switch to dashboard 1-9 (⌘1-⌘9, or Alt+1-Alt+9).
+
+#### Scenario: Open Logs
+
+- **WHEN** the user presses Alt+L
+- **THEN** the Logs page opens
+
+#### Scenario: Open Settings
+
+- **WHEN** the user presses Alt+,
+- **THEN** the Settings page opens
+
+### Requirement: Sidebar shortcut hints
+
+While the user holds the modifier for switching dashboards (⌘ in the desktop app, Alt on the web) for 300 ms, Logs, Settings, and each of the first nine dashboards in the sidebar SHALL show their shortcut on the right of their row.
 
 #### Scenario: Hold the modifier
 
 - **GIVEN** the user is using the web app with three dashboards
 - **WHEN** the user holds Alt for 300 ms
-- **THEN** the dashboards show Alt+1, Alt+2, and Alt+3 in sidebar order
+- **THEN** Logs shows Alt+L and Settings shows Alt+,
+- **AND** the dashboards show Alt+1, Alt+2, and Alt+3 in sidebar order
 - **AND** the hints disappear when Alt is released
 
 ### Requirement: Desktop-only shortcuts
 
-⌘T, ⌘W, ⇧⌘W, ⇧⌘T, ⌘, and ⌘1-⌘9 SHALL only be active in the desktop app, because browsers reserve them. Their Alt variants MUST work in both the desktop app and the web.
+⌘T, ⌘W, ⇧⌘W, ⇧⌘T, ⌘L, ⌘, and ⌘1-⌘9 SHALL only be active in the desktop app, because browsers reserve them. Their Alt variants MUST work in both the desktop app and the web.
 
 #### Scenario: Web app
 
