@@ -90,6 +90,9 @@ export function ValuesTable({ bindings }: WidgetProps) {
 		});
 	}
 
+	// Rows only reserve space for the expand button when some row has one, so names stay aligned
+	const anyExpandable = rows.some((row) => childrenOf(row.value) !== undefined);
+
 	return (
 		<Table>
 			<TableHeader>
@@ -119,8 +122,10 @@ export function ValuesTable({ bindings }: WidgetProps) {
 											<ChevronRightIcon className={cn('size-3.5 transition-transform', isExpanded && 'rotate-90')} />
 										</Button>
 									) : (
-										// Takes the same space as the expand button
-										<span className="-m-1 size-7 shrink-0 sm:size-6" />
+										anyExpandable && (
+											// Takes the same space as the expand button
+											<span className="-m-1 size-7 shrink-0 sm:size-6" />
+										)
 									)}
 									{row.depth === 0 ? <EntryName name={row.label} /> : row.label}
 								</div>
