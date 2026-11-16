@@ -35,6 +35,11 @@ const seekHotkeys: UseHotkeyDefinition[] = [
 	{ hotkey: 'End', callback: jumpToEnd },
 ];
 
+const speedHotkeys: UseHotkeyDefinition[] = [
+	{ hotkey: '[', callback: () => changeSpeed(-1) },
+	{ hotkey: ']', callback: () => changeSpeed(1) },
+];
+
 const hotkeys: UseHotkeyDefinition[] = [
 	{ hotkey: 'Space', callback: togglePlayback, options: { requireReset: true } },
 	...seekHotkeys,
@@ -141,10 +146,13 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 	const range = useTimeRange();
 	const { time, playback, speed, live } = useTimeline();
 	const [speedOpen, setSpeedOpen] = useState(false);
+	const speedTrigger = useRef<HTMLButtonElement>(null);
 
 	// Skips keys used by a focused text field, button, or menu, and keys already handled, ex. by a pane divider.
 	// The speed list only uses the up and down arrows itself, so the shortcuts are off while it's open.
 	useHotkeys(hotkeys, { ignoreDefaultPrevented: true, enabled: !speedOpen });
+	// The focused speed button skips printable keys as typeahead, so its own shortcuts are given to it directly
+	useHotkeys(speedHotkeys, { target: speedTrigger, enabled: !speedOpen });
 
 	return (
 		<footer aria-label="Timeline" className="flex h-12 shrink-0 border-t">
@@ -196,7 +204,11 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 					onOpenChange={setSpeedOpen}
 				>
 					<Tooltip>
-						<TooltipTrigger render={<SelectTrigger size="sm" aria-label="Playback speed" className="w-auto min-w-0" />}>
+						<TooltipTrigger
+							render={
+								<SelectTrigger ref={speedTrigger} size="sm" aria-label="Playback speed" className="w-auto min-w-0" />
+							}
+						>
 							<SelectValue />
 						</TooltipTrigger>
 						<TooltipPopup>
