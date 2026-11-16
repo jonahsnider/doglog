@@ -8,7 +8,7 @@ Define Studio's visual identity: a Material Design 3 color scheme generated from
 
 ### Requirement: Generated color scheme
 
-Unless the Neutral preset is selected, Studio SHALL generate its colors from the theme color setting as a Material Design 3 color scheme (primary, surface, container, and similar roles). The default theme color MUST be Team 581 maroon `#591616`.
+Unless the Neutral preset is selected, Studio SHALL generate its colors from the theme color setting as a Material Design 3 color scheme (primary, surface, container, and similar roles). The default theme color MUST be Team 581 maroon `#591616`. The match13 preset MUST use match13's blue `#1a7ccd`.
 
 #### Scenario: Default color
 

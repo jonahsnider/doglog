@@ -6,8 +6,14 @@ export const defaultThemeColor = '#591616';
 /** Default for the Custom preset, `hsl(20deg 12% 9.8%)` */
 export const defaultCustomColor = '#1c1816';
 
-export const themePresets = ['team581', 'coss', 'custom'] as const;
+export const themePresets = ['team581', 'match13', 'coss', 'custom'] as const;
 export type ThemePreset = (typeof themePresets)[number];
+
+/** Colors that presets generate their color scheme from, match13's is the `theme-color` from match13.com */
+const presetColors: Partial<Record<ThemePreset, string>> = {
+	team581: defaultThemeColor,
+	match13: '#1a7ccd',
+};
 
 /** MD3 color roles applied as `--md-*` CSS variables, ex. `surfaceContainerLow` is `--md-surface-container-low` */
 const roles = [
@@ -115,7 +121,7 @@ export function themePreviewColors(preset: ThemePreset, themeColor: string, dark
 	if (preset === 'coss') {
 		return neutralPreviewColors[dark ? 'dark' : 'light'];
 	}
-	const seed = preset === 'team581' ? defaultThemeColor : themeColor;
+	const seed = presetColors[preset] ?? themeColor;
 	const scheme = new SchemeTonalSpot(Hct.fromInt(argbFromHex(seed)), dark, 0);
 	return {
 		surface: hexFromArgb(scheme.surface),
@@ -133,7 +139,7 @@ const cssStorageKey = 'doglog-studio:theme-color-css';
 /** Apply a preset and cache generated colors for `index.html` to use on the next load */
 export function applyThemeColor(themeColor: string, preset: ThemePreset): void {
 	document.documentElement.classList.toggle('coss-theme', preset === 'coss');
-	const css = preset === 'coss' ? '' : themeColorCss(preset === 'team581' ? defaultThemeColor : themeColor);
+	const css = preset === 'coss' ? '' : themeColorCss(presetColors[preset] ?? themeColor);
 
 	// `index.html` may have added this element already
 	let style = document.querySelector<HTMLStyleElement>('#theme-color');

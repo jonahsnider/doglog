@@ -28,6 +28,7 @@ const themeLabels: Record<Theme, string> = {
 
 const themePresetLabels: Record<ThemePreset, string> = {
 	team581: 'Team 581 maroon',
+	match13: 'match13',
 	coss: 'Neutral',
 	custom: 'Custom',
 };
@@ -85,7 +86,7 @@ function Settings() {
 					}
 				>
 					<FieldsetLegend className="mb-1 text-sm">Theme color</FieldsetLegend>
-					<div className="grid grid-cols-3 gap-3">
+					<div className="grid grid-cols-4 gap-3">
 						{themePresets.map((value) => (
 							<OptionCard key={value} value={value} label={themePresetLabels[value]}>
 								<div className="flex justify-center gap-2 py-2">
