@@ -100,10 +100,16 @@ Studio SHALL keep live history for the session until a memory limit is reached, 
 
 ### Requirement: Time display
 
-Timestamps SHALL be shown as seconds since the start of the source: the first record of a log, or the moment a live connection began.
+Timestamps SHALL be shown as time since the start of the source: the first record of a log, or the moment a live connection began. Times of a minute or more SHALL be shown in minutes and seconds.
 
 #### Scenario: Log time
 
 - **GIVEN** a log's first record has a robot timestamp of 3,000,000 µs
 - **WHEN** the cursor is at a record with timestamp 5,500,000 µs
-- **THEN** the time is shown as 2.5 s
+- **THEN** the time is shown as 2.50s
+
+#### Scenario: Time over a minute
+
+- **WHEN** the cursor is 65.5 seconds after the start of the source
+- **THEN** the time is shown as 1m 5.50s
+- **AND** the seconds are padded with blank space to the width of two digits so the time doesn't shift as it plays

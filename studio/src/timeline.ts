@@ -211,7 +211,12 @@ export function changeSpeed(direction: 1 | -1): void {
 	}
 }
 
-/** Format a time (µs) as seconds since the start of the source, ex. `2.50 s` */
+/** Format a time (µs) as time since the start of the source, ex. `2.50s` or `1m 5.00s` */
 export function formatTime(time: number, start: number): string {
-	return `${((time - start) / 1_000_000).toFixed(2)} s`;
+	// Round to hundredths first so 59.999s becomes 1m 0.00s instead of 60.00s
+	const hundredths = Math.round((time - start) / 10_000);
+	const minutes = Math.floor(hundredths / 6000);
+	const seconds = ((hundredths % 6000) / 100).toFixed(2);
+	// Pad with a figure space (digit width) so the text doesn't shift when the seconds reach 10
+	return minutes > 0 ? `${minutes}m ${seconds.padStart(5, ' ')}s` : `${seconds}s`;
 }
