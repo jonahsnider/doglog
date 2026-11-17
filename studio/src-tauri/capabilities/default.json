@@ -11,6 +11,7 @@
 		"fs:allow-mkdir",
 		"fs:allow-read-dir",
 		"fs:allow-stat",
-		"fs:allow-remove"
+		"fs:allow-remove",
+		"opener:allow-reveal-item-in-dir"
 	]
 }

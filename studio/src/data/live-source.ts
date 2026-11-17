@@ -23,7 +23,9 @@ function nowMicros(): number {
  * Reconnects automatically and keeps adding to the same history. Returns a function that disconnects.
  */
 export function connectLive(host: string, onStatus: (status: LiveStatus) => void): () => void {
+	// Shared with log sync when it watches the same robot
 	const nt = NetworkTables.getInstanceByURI(host);
+	nt.retain();
 	const structs = new StructRegistry();
 	// Struct values that arrived before their schema
 	let pendingStructs: { entry: Entry; timestamp: number; bytes: Uint8Array }[] = [];
@@ -124,7 +126,7 @@ export function connectLive(host: string, onStatus: (status: LiveStatus) => void
 		setMetadata(entry, metadata);
 	};
 
-	topic.subscribe(
+	const subscription = topic.subscribe(
 		(value, params) => {
 			if (closed || value === null) {
 				return;
@@ -161,6 +163,7 @@ export function connectLive(host: string, onStatus: (status: LiveStatus) => void
 	return () => {
 		closed = true;
 		removeConnectionListener();
-		nt.close();
+		topic.unsubscribe(subscription, true);
+		nt.release();
 	};
 }

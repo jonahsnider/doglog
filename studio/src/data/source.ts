@@ -245,7 +245,7 @@ async function openTakenLog(): Promise<void> {
 }
 
 /** Open a log from the desktop app's file system */
-async function openLogPath(path: string): Promise<void> {
+export async function openLogPath(path: string): Promise<void> {
 	const fileName = path.split(/[/\\]/u).at(-1)!;
 	let contents: ArrayBuffer;
 	try {

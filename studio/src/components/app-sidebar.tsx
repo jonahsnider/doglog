@@ -2,7 +2,7 @@ import { type Hotkey, useFormatForDisplay, useHotkey } from '@tanstack/react-hot
 import { Link, useMatchRoute } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import { CircleArrowUpIcon, FolderSyncIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, SettingsIcon } from 'lucide-react';
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as z from 'zod';
 import {
 	Sidebar,
@@ -40,11 +40,16 @@ const keepPeekingSelector =
 
 function noop(): void {}
 
-/** Shows `shortcut` like the dashboards' shortcuts while its modifier is held, or `children` otherwise */
-function ShortcutHint({ shortcut, children }: { shortcut: Hotkey; children?: ReactNode }) {
+/** Shows `shortcut` like the dashboards' shortcuts while its modifier is held */
+function ShortcutHint({ shortcut }: { shortcut: Hotkey }) {
 	const formatForDisplay = useFormatForDisplay();
-	const content = useShortcutHint(shortcut) ? <Kbd>{formatForDisplay(shortcut)}</Kbd> : children;
-	return content !== undefined && <SidebarMenuBadge>{content}</SidebarMenuBadge>;
+	return (
+		useShortcutHint(shortcut) && (
+			<SidebarMenuBadge>
+				<Kbd>{formatForDisplay(shortcut)}</Kbd>
+			</SidebarMenuBadge>
+		)
+	);
 }
 
 export function AppSidebar() {
@@ -161,7 +166,7 @@ export function AppSidebar() {
 										<FolderSyncIcon />
 										<span>Logs</span>
 									</SidebarMenuButton>
-									<ShortcutHint shortcut={shortcuts.logs}>Soon</ShortcutHint>
+									<ShortcutHint shortcut={shortcuts.logs} />
 								</SidebarMenuItem>
 								<SidebarMenuItem>
 									<SidebarMenuButton

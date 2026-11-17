@@ -234,6 +234,9 @@ importers:
       '@ntcore-ts/client':
         specifier: 1.1.1
         version: 1.1.1(patch_hash=d14ce551d64d31b211dafc24cb928586a2455242ad208d041fa4949d594d9dac)(ws@8.23.0)
+      '@sindresorhus/fnv1a':
+        specifier: 3.1.0
+        version: 3.1.0
       '@tanstack/react-hotkeys':
         specifier: 0.26.0
         version: 0.26.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -255,6 +258,12 @@ importers:
       '@tauri-apps/plugin-dialog':
         specifier: 2.8.4
         version: 2.8.4
+      '@tauri-apps/plugin-fs':
+        specifier: 2.7.1
+        version: 2.7.1
+      '@tauri-apps/plugin-opener':
+        specifier: 2.7.3
+        version: 2.7.3
       '@tauri-apps/plugin-process':
         specifier: 2.4.0
         version: 2.4.0
@@ -273,6 +282,9 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
+      convert:
+        specifier: 8.1.0
+        version: 8.1.0
       fuzzysort:
         specifier: 4.0.2
         version: 4.0.2
@@ -297,6 +309,9 @@ importers:
       tailwind-merge:
         specifier: 3.7.0
         version: 3.7.0
+      torph:
+        specifier: 0.1.4
+        version: 0.1.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       usehooks-ts:
         specifier: 3.1.1
         version: 3.1.1(@types/react@19.3.0)(react@19.3.1)
@@ -3323,6 +3338,10 @@ packages:
   '@shikijs/vscode-textmate@10.1.0':
     resolution: {integrity: sha512-cVBuhDQjBZaNMTwBquYfPydrUP+E3hE6oYGasx8h6ZrODIM7/r+gxLDXdd66oszbrggZHEntdE6j+5gYIVyMWQ==}
 
+  '@sindresorhus/fnv1a@3.1.0':
+    resolution: {integrity: sha512-KV321z5m/0nuAg83W1dPLy85HpHDk7Sdi4fJbwvacWsEhAh+rZUW4ZfGcXmUIvjZg4ss2bcwNlRhJ7GBEUG08w==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
   '@sindresorhus/is@7.2.0':
     resolution: {integrity: sha512-P1Cz1dWaFfR4IR+U13mqqiGsLFf1KbayybWwdd2vfctdV6hDpUkgCY0nKOLLTMSoRd/jJNjtbqzf13K8DCCXQw==}
     engines: {node: '>=18'}
@@ -3581,6 +3600,12 @@ packages:
 
   '@tauri-apps/plugin-dialog@2.8.4':
     resolution: {integrity: sha512-+6ZOiXenOaxXwb8qCbBPdT2jX2cFPaVVHGIskrpmJLpmWj+qKRTD6X/z9x7hTdSQn7NedcoXCkWGej4a7dC4lw==}
+
+  '@tauri-apps/plugin-fs@2.7.1':
+    resolution: {integrity: sha512-4TBVjpi/q8PuNzjpkAc2iBGXMTLjOrAyfTiiOL8ORaJCZJRG3tjzmQ4sqs2CMG75FvLyRkOkERfP7AyY4iBNwQ==}
+
+  '@tauri-apps/plugin-opener@2.7.3':
+    resolution: {integrity: sha512-Nm+v7vLBCDzYZxrmCJhpMgtPsPsKt5myMs7SMU/aBjPOmAFI1RrHfhMz7t5KlxjMOzRcelyNq1/j0pmC9SmBVA==}
 
   '@tauri-apps/plugin-process@2.4.0':
     resolution: {integrity: sha512-GddrmsSLAYrLa/yTXlXK/YRDzUgYeeOnUXTbiyvJWkmI424RmDPD3FVLeqcon7rv6O6ZfhBilcrHWnSo7o6hIQ==}
@@ -4381,6 +4406,9 @@ packages:
 
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
+
+  convert@8.1.0:
+    resolution: {integrity: sha512-zMKk2/tGzXMgTzztJwm+AP7sqJEibeB7jA/ykNnk1SzjKrNYvRKYyg8OpQndA9jvSkiuv4COpj4xpfNXkbRTPw==}
 
   cookie-es@1.2.3:
     resolution: {integrity: sha512-lXVyvUvrNXblMqzIRrxHb57UUVmqsSWlxqt3XIjCkUP0wDAf6uicO6KMbEgYrMNtEvWgWHwe42CKxPu9MYAnWw==}
@@ -6244,6 +6272,23 @@ packages:
 
   to-data-view@1.1.0:
     resolution: {integrity: sha512-1eAdufMg6mwgmlojAx3QeMnzB/BTVp7Tbndi3U7ftcT2zCZadjxkkmLmd97zmaxWi+sgGcgWrokmpEoy0Dn0vQ==}
+
+  torph@0.1.4:
+    resolution: {integrity: sha512-pZ/+7Ta42yjB+XmHrWQCsWvt+mii8J2OgzlJSA/vvxlQcTPdWaiZ8GeFlA+C82jM7mC6fJwNrK/LgIhs0h9Y/Q==}
+    peerDependencies:
+      react: '>=18'
+      react-dom: '>=18'
+      svelte: '>=5'
+      vue: '>=3'
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
+      svelte:
+        optional: true
+      vue:
+        optional: true
 
   totalist@3.0.1:
     resolution: {integrity: sha512-sf4i37nQ2LBx4m3wB74y+ubopq6W/dIzXg0FDGjsYnZHVa1Da8FH853wlL2gtUhg+xJXjfk3kUZS3BRoQeoQBQ==}
@@ -9246,6 +9291,8 @@ snapshots:
 
   '@shikijs/vscode-textmate@10.1.0': {}
 
+  '@sindresorhus/fnv1a@3.1.0': {}
+
   '@sindresorhus/is@7.2.0': {}
 
   '@speed-highlight/core@1.2.24': {}
@@ -9463,6 +9510,14 @@ snapshots:
       '@tauri-apps/cli-win32-x64-msvc': 2.12.4
 
   '@tauri-apps/plugin-dialog@2.8.4':
+    dependencies:
+      '@tauri-apps/api': 2.12.4
+
+  '@tauri-apps/plugin-fs@2.7.1':
+    dependencies:
+      '@tauri-apps/api': 2.12.4
+
+  '@tauri-apps/plugin-opener@2.7.3':
     dependencies:
       '@tauri-apps/api': 2.12.4
 
@@ -10336,6 +10391,8 @@ snapshots:
   consola@3.4.2: {}
 
   convert-source-map@2.0.0: {}
+
+  convert@8.1.0: {}
 
   cookie-es@1.2.3: {}
 
@@ -12778,6 +12835,11 @@ snapshots:
   tinyrainbow@3.2.0: {}
 
   to-data-view@1.1.0: {}
+
+  torph@0.1.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
+    optionalDependencies:
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
 
   totalist@3.0.1: {}
 

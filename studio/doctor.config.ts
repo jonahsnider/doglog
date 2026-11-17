@@ -8,6 +8,8 @@ export default defineConfig({
 			'src/components/ui/**',
 			'src/hooks/use-media-query.ts',
 			'src/lib/utils.ts',
+			// Rust build output, the crypto libraries' test keys look like leaked secrets
+			'src-tauri/target/**',
 		],
 	},
 	// Fail on warnings too, so nothing silently accumulates

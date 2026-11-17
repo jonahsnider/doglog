@@ -44,11 +44,10 @@ The pages section SHALL list the auxiliary pages Logs and Settings, and selectin
 - **THEN** the Settings page is shown in the main area
 - **AND** Settings is marked as the selected sidebar item
 
-#### Scenario: Logs placeholder
+#### Scenario: Open Logs
 
-- **WHEN** the user views the pages section
-- **THEN** Logs is visible but marked as not yet available
-- **AND** selecting it does not offer any log sync functionality
+- **WHEN** the user selects Logs in the sidebar
+- **THEN** the Logs page is shown, where the user manages log sync and opens synced logs
 
 ### Requirement: Dashboards section
 

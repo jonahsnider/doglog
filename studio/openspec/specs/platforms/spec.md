@@ -33,7 +33,7 @@ The web app SHALL be an installable PWA that works offline after the first visit
 
 ### Requirement: Desktop app
 
-Studio SHALL be available as a desktop app for Windows, macOS, and Linux with every feature of the web app and live connections without browser restrictions.
+Studio SHALL be available as a desktop app for Windows, macOS, and Linux with every feature of the web app, live connections without browser restrictions, and log sync from the robot.
 
 #### Scenario: Live connection on desktop
 

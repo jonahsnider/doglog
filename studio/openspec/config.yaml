@@ -27,6 +27,8 @@ context: |
     libraries per widget when it's specced (ex. canvas for dense time series, three.js for 3D).
   - Avoid per-widget settings where possible; prefer inferring from entry types, metadata, and names.
   - Distribution: a PWA website, plus a Tauri desktop app built from the same frontend.
+  - Log sync: desktop only. Rust (the `robot-sftp` crate, russh) does SSH/SFTP listing and offset downloads, TypeScript
+    decides what to sync and when. Only roboRIOs are supported; SystemCore support is planned for the 2027 release.
   - State: TanStack Store, with Zod validating all persisted and external data.
   - Interactions: dnd-kit for drag and drop, react-resizable-panels for pane splits, TanStack Hotkeys for shortcuts.
   - Theming: Material Design 3 "tonal spot" scheme (2025 spec) generated with @material/material-color-utilities from a seed
@@ -50,7 +52,6 @@ context: |
   - Explicit handling for browsers that can't make live NT connections (the connection simply fails).
 
   Future needs (not specced yet):
-  - Log sync (the Logs page is a placeholder).
   - Comparing multiple logs at once, and multiple simultaneous data sources.
   - Protobuf-encoded entries.
   - Managed sync service for dashboards; dashboard import/export.

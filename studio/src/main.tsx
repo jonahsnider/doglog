@@ -8,12 +8,14 @@ import { handleLogFileDrops, handleOpenedLogFiles, reopenDevLog } from './data/s
 import { syncMediaSession } from './media-session.ts';
 import { routeTree } from './routeTree.gen.ts';
 import { syncTheme } from './settings.ts';
+import { runLogSync } from './sync/sync.ts';
 
 syncTheme();
 syncMediaSession();
 handleLogFileDrops();
 if (isTauri()) {
 	void handleOpenedLogFiles();
+	void runLogSync();
 }
 if (import.meta.env.DEV) {
 	void reopenDevLog();
