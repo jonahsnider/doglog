@@ -490,3 +490,44 @@
 			linear-gradient(var(--sidebar-accent), var(--sidebar-accent));
 	}
 }
+
+/* Panes growing in from nothing when they're split, and shrinking away when they're closed, see `SplitView` */
+[data-split-animation] {
+	animation: 0.25s cubic-bezier(0.2, 0, 0, 1);
+}
+[data-split-animation='open'] {
+	animation-name: split-open;
+}
+/* The other side starts at the whole split so they always add up to it */
+[data-split-animation='make-room'] {
+	animation-name: split-make-room;
+}
+/* Held at the end until the closed pane is removed */
+[data-split-animation='close'] {
+	animation-name: split-close;
+	animation-fill-mode: forwards;
+}
+[data-split-animation='fill'] {
+	animation-name: split-fill;
+	animation-fill-mode: forwards;
+}
+@keyframes split-open {
+	from {
+		flex-grow: 0;
+	}
+}
+@keyframes split-make-room {
+	from {
+		flex-grow: 100;
+	}
+}
+@keyframes split-close {
+	to {
+		flex-grow: 0;
+	}
+}
+@keyframes split-fill {
+	to {
+		flex-grow: 100;
+	}
+}

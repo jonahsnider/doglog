@@ -352,6 +352,13 @@ A dashboard SHALL be a layout of panes, each holding exactly one widget. Users M
 - **THEN** the pane is divided into two side-by-side panes
 - **AND** the divider between them can be dragged to resize
 
+#### Scenario: Animate splitting and closing panes
+
+- **WHEN** the user splits a pane right
+- **THEN** the new pane grows in from the right edge as the divider slides to the middle
+- **AND** a closed pane shrinks away as the remaining pane expands into its space
+- **AND** panes appear and disappear instantly when the system is set to reduce motion
+
 #### Scenario: Reset a divider
 
 - **WHEN** the user double-clicks the divider between two panes
