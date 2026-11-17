@@ -1,10 +1,12 @@
-import { FastForwardIcon, PauseIcon, PlayIcon, SlidersHorizontalIcon } from 'lucide-react';
+import { ChevronsUpDownIcon, FastForwardIcon, PauseIcon, PlayIcon, SlidersHorizontalIcon } from 'lucide-react';
 import { type Hotkey, type UseHotkeyDefinition, useHotkeys } from '@tanstack/react-hotkeys';
+import { Select as SelectPrimitive } from '@base-ui/react/select';
 import { type ReactNode, useRef, useState } from 'react';
+import { TextMorph } from 'torph/react';
 import { Button } from '@/components/ui/button';
 import { Menu, MenuCheckboxItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
 import { Progress, ProgressIndicator, ProgressLabel, ProgressTrack, ProgressValue } from '@/components/ui/progress';
-import { Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectItem, SelectPopup } from '@/components/ui/select';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { Scrubber } from '@/timeline/timeline-scrubber';
 import { TooltipLabel } from '@/components/tooltip-label';
@@ -145,10 +147,19 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 					<Tooltip>
 						<TooltipTrigger
 							render={
-								<SelectTrigger ref={speedTrigger} size="sm" aria-label="Playback speed" className="w-auto min-w-0" />
+								// A ghost button like its neighbors, since it's rarely used and a bordered select stands out
+								<SelectPrimitive.Trigger
+									ref={speedTrigger}
+									aria-label="Playback speed"
+									render={<Button variant="ghost" size="sm" className="tabular-nums" />}
+								/>
 							}
 						>
-							<SelectValue />
+							{/* Just the number, so it rolls by place value instead of morphing as a word */}
+							<span>
+								<TextMorph as="span">{speed}</TextMorph>x
+							</span>
+							<ChevronsUpDownIcon />
 						</TooltipTrigger>
 						<TooltipPopup>
 							<TooltipLabel label="Playback speed" shortcut={['[', ']']} />
