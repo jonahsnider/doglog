@@ -9,8 +9,9 @@ export function SplitPanel({
 	side,
 	ratio,
 	sliding,
+	staying,
+	leavingSize,
 	contentHidden,
-	zoomedSize,
 	children,
 	...props
 }: Omit<PanelProps, 'style'> & {
@@ -20,38 +21,49 @@ export function SplitPanel({
 	ratio: number;
 	/** Growing in or shrinking away, or hidden by a zoomed pane on the other side */
 	sliding: boolean;
+	/** Making room for the other side growing in, or filling in after it shrinks away */
+	staying: 'make-room' | 'fill' | undefined;
+	/** In pixels, the size a side shrinking away had when it started, since the split around it can change size as it leaves */
+	leavingSize: number | undefined;
 	/** Skips rendering the hidden side's widgets, but keeps them for when it's restored */
 	contentHidden: boolean;
-	/** In pixels, set while the zoomed pane is on this side so it's laid out to fill the dashboard as it grows or shrinks */
-	zoomedSize: { width: number; height: number } | undefined;
 }) {
 	const row = direction === 'row';
-	// The sliding side keeps the size it ends (or starts) at, measured against the group with container units.
-	// It's clipped and pinned to the divider, so it slides in and out with it.
-	const size = `calc((${row ? '100cqw' : '100cqh'} - 1px) * ${ratio})`;
-	const slidingStyle: CSSProperties = {
+	// Each side keeps one size while the split animates, measured against the group with container units.
+	// The sliding side keeps the size it ends (or starts) at, and is clipped and pinned to the divider so it slides in and out with it.
+	// The staying side takes the size it ends at right away, pinned to the outer edge so the other side slides in or out next to it.
+	// A zoomed pane fills the split this way at every level, so its content stays where it ends up as the other panes slide away.
+	const extent = row ? '100cqw' : '100cqh';
+	const size =
+		leavingSize === undefined
+			? staying === 'fill'
+				? extent
+				: `calc((${extent} - 1px) * ${ratio})`
+			: `${leavingSize}px`;
+	const animatedStyle: CSSProperties = {
 		flex: 'none',
 		// Its size doesn't depend on its content, so the browser can skip laying it out while the split animates
 		contain: 'strict',
 		...(row ? { width: size } : { height: size }),
 		...(contentHidden && { contentVisibility: 'hidden' }),
 	};
+	const animated = sliding || staying !== undefined;
 
 	return (
 		<Panel
 			{...props}
 			style={
-				sliding
+				animated
 					? {
 							overflow: 'hidden',
 							display: 'flex',
 							flexDirection: row ? 'row' : 'column',
-							justifyContent: side === 'first' ? 'flex-end' : 'flex-start',
+							justifyContent: (side === 'first') === sliding ? 'flex-end' : 'flex-start',
 						}
 					: { overflow: 'hidden' }
 			}
 		>
-			<div className="size-full" style={sliding ? slidingStyle : zoomedSize && { ...zoomedSize, contain: 'strict' }}>
+			<div className="size-full" style={animated ? animatedStyle : undefined}>
 				{children}
 			</div>
 		</Panel>

@@ -364,6 +364,7 @@ A dashboard SHALL be a layout of panes, each holding exactly one widget. Users M
 - **WHEN** the user splits a pane right
 - **THEN** the new pane grows in from the right edge as the divider slides to the middle
 - **AND** a closed pane shrinks away as the remaining pane expands into its space
+- **AND** the remaining pane's content takes its new size right away instead of resizing as the divider moves
 - **AND** panes appear and disappear instantly when the system is set to reduce motion
 
 #### Scenario: Reset a divider
@@ -402,6 +403,7 @@ Like Rex, users SHALL be able to zoom a pane so it fills the dashboard, hiding t
 - **GIVEN** a dashboard with two panes
 - **WHEN** the user presses Zoom pane in the first pane's header
 - **THEN** the first pane grows to fill the dashboard as the second slides away
+- **AND** the first pane's content takes its zoomed size right away, staying where it ends up while the second pane slides off it
 - **AND** its header only shows widget options, a highlighted Restore pane button, and close
 
 #### Scenario: Restore a zoomed pane
@@ -409,6 +411,7 @@ Like Rex, users SHALL be able to zoom a pane so it fills the dashboard, hiding t
 - **GIVEN** a zoomed pane
 - **WHEN** the user presses Restore pane or ⇧⌘↩
 - **THEN** the other panes slide back in to their previous sizes
+- **AND** each pane's content keeps the size it ends at while it slides in
 
 #### Scenario: Only pane
 

@@ -552,12 +552,18 @@
 		flex-grow: 100;
 	}
 }
+/* Shrinks from the size it had when it started leaving, so it doesn't jump when a zoom resizes the split around it */
 @keyframes split-close {
+	from {
+		flex: 0 0 var(--split-leaving-size, 0px);
+	}
 	to {
-		flex-grow: 0;
+		flex: 0 0 0px;
 	}
 }
+/* Takes whatever the leaving side doesn't */
 @keyframes split-fill {
+	from,
 	to {
 		flex-grow: 100;
 	}
