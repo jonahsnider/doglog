@@ -76,7 +76,7 @@ function ControlButton({
 /** The cursor's time, marked while it's in a compressed disabled span, which playback fast-forwards through */
 function CursorTime({ range, time }: { range: TimeRange | undefined; time: number | undefined }) {
 	if (range === undefined || time === undefined) {
-		return <span className="ms-1 min-w-20 text-right font-mono text-sm">-</span>;
+		return <span className="ms-1.5 min-w-20 text-right font-mono text-sm">-</span>;
 	}
 	// Also shown while paused, so there's time to hover it for the tooltip
 	const skipped = getActiveCompressedSpans(range).some((span) => span.start <= time && time < span.end);
@@ -84,7 +84,7 @@ function CursorTime({ range, time }: { range: TimeRange | undefined; time: numbe
 	const maxLength = formatTime(range.end, range.start).length;
 	return (
 		<span
-			className="ms-1 flex items-center gap-1 font-mono text-sm tabular-nums"
+			className="ms-1.5 flex items-center gap-1 font-mono text-sm tabular-nums"
 			style={{ minWidth: `max(5rem, calc(${maxLength}ch + 1.125rem))` }}
 		>
 			{/* Always rendered so it can fade in and out, its tooltip only works while it's shown */}
@@ -148,7 +148,8 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 								<SelectPrimitive.Trigger
 									ref={speedTrigger}
 									aria-label="Playback speed"
-									render={<Button variant="ghost" size="sm" className="tabular-nums" />}
+									// Same inset as the icon buttons, so the gaps between controls look even
+									render={<Button variant="ghost" size="sm" className="px-1.5 tabular-nums" />}
 								/>
 							}
 						>
@@ -177,7 +178,8 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 				) : (
 					<div className="mx-2 h-1 flex-1 rounded-full bg-input" />
 				)}
-				<span className="min-w-20 font-mono text-sm text-muted-foreground tabular-nums">
+				{/* Margins match the speed button's inset, so text and icons are evenly spaced from neighboring buttons */}
+				<span className="me-1.5 font-mono text-sm text-muted-foreground tabular-nums">
 					{range ? formatTime(range.end, range.start) : '-'}
 				</span>
 
