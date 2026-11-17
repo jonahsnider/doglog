@@ -155,6 +155,28 @@ The desktop app SHALL update itself automatically.
 - **WHEN** the user opens the desktop app with no internet connection
 - **THEN** Studio opens normally without showing an update error
 
+### Requirement: Desktop window size and position
+
+Like VS Code, the desktop app SHALL open its window with the size, position, and maximized state of the last closed window. Only the first open window MUST go back to the saved position, other windows MUST open centered with the saved size so they don't cover it. Fullscreen MUST NOT be restored.
+
+#### Scenario: Reopen Studio
+
+- **GIVEN** the user moved and resized the Studio window
+- **WHEN** they close Studio and open it again
+- **THEN** the window has the same size and position
+
+#### Scenario: Open a second window
+
+- **GIVEN** a Studio window is open
+- **WHEN** the user opens another window
+- **THEN** the new window has the saved size and is centered on the screen
+
+#### Scenario: Screen was disconnected
+
+- **GIVEN** Studio was closed on an external monitor
+- **WHEN** the user opens Studio without that monitor connected
+- **THEN** the window opens on a connected screen
+
 ### Requirement: App icon
 
 The desktop app icon, the installed web app icon, and the browser tab icon SHALL use the DogLog logo.

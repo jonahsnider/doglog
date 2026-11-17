@@ -1,5 +1,6 @@
 mod cli;
 mod sync;
+mod window_state;
 
 use std::{path::PathBuf, sync::Mutex};
 use tauri::{AppHandle, Emitter, Manager, RunEvent, State, ipc::Response};
@@ -49,6 +50,7 @@ pub fn run() {
     .plugin(tauri_plugin_opener::init())
     .plugin(tauri_plugin_process::init())
     .plugin(tauri_plugin_updater::Builder::new().build())
+    .plugin(window_state::plugin())
     .manage(OpenedLog::default())
     .manage(sync::RobotConnection::default())
     .manage(sync::CancelDownload::default())
@@ -74,6 +76,8 @@ pub fn run() {
             .build(),
         )?;
       }
+
+      window_state::restore(app);
 
       if let Some(log) = log {
         set_opened_log(app.handle(), log);
