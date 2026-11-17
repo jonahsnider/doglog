@@ -11,6 +11,7 @@ import {
 	writeDashboardDoc,
 } from '@/dashboards/doc';
 import { createPersistedAtom } from '@/lib/persisted-store';
+import { copyLayout } from '@/panes/layout';
 
 export type Dashboard = DashboardContents & {
 	id: string;
@@ -47,11 +48,12 @@ type LoadedDashboard = DashboardDoc & {
 /** Every dashboard loaded by this window, closed ones are kept for their undo history */
 const docs = new Map<string, LoadedDashboard>();
 
-function getDoc(id: string): LoadedDashboard {
+/** `initial` is the contents of a dashboard that was never saved */
+function getDoc(id: string, initial?: DashboardContents): LoadedDashboard {
 	let entry = docs.get(id);
 	if (!entry) {
 		// Undo steps are committed before the focus changes, so they save the pane that was focused before them
-		const loaded: LoadedDashboard = loadDashboardDoc(id, () => focusedPanesStore.get()[id]);
+		const loaded: LoadedDashboard = loadDashboardDoc(id, () => focusedPanesStore.get()[id], initial);
 		loaded.doc.subscribe(() => {
 			loaded.dashboard = undefined;
 			refresh();
@@ -103,6 +105,27 @@ export function createDashboard(position: 'top' | 'bottom' = 'top'): Dashboard {
 	const dashboard = readDashboard(id);
 	idsStore.set((ids) => (position === 'top' ? [id, ...ids] : [...ids, id]));
 	return dashboard;
+}
+
+/** Copy dashboards, each copy goes right below its original. Returns the copies' IDs. */
+export function duplicateDashboards(ids: readonly string[]): string[] {
+	const copies = new Map<string, string>();
+	for (const id of ids) {
+		const dashboard = getDashboard(id);
+		if (dashboard) {
+			const copyId = createDashboardId();
+			// Saves its document before its ID, so other windows find it
+			getDoc(copyId, { name: dashboard.name, layout: copyLayout(dashboard.layout) });
+			copies.set(id, copyId);
+		}
+	}
+	idsStore.set((openIds) =>
+		openIds.flatMap((id) => {
+			const copyId = copies.get(id);
+			return copyId === undefined ? [id] : [id, copyId];
+		}),
+	);
+	return [...copies.values()];
 }
 
 /** Change a dashboard, its contents changing is an undo step */

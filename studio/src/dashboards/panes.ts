@@ -3,6 +3,7 @@ import {
 	createDashboard,
 	type Dashboard,
 	deleteDashboard,
+	deleteDashboards,
 	getDashboard,
 	getDashboards,
 	moveDashboard,
@@ -112,16 +113,32 @@ export function addDashboardWidget(id: string, widget: Widget): void {
 export function combineDashboards(id: string, otherId: string, side: 'left' | 'right'): void {
 	const other = getDashboard(otherId);
 	const dashboard = getDashboard(id);
-	if (!other || !dashboard || id === otherId || !canJoinLayouts(dashboard.layout, other.layout)) {
+	if (!other || !dashboard || id === otherId || !canJoinLayouts([dashboard.layout, other.layout])) {
 		return;
 	}
 
 	updateDashboard(id, (current) => ({
 		...current,
-		layout: side === 'left' ? joinLayouts(other.layout, current.layout) : joinLayouts(current.layout, other.layout),
+		layout: joinLayouts(side === 'left' ? [other.layout, current.layout] : [current.layout, other.layout]),
 		focusedPaneId: getFocusedPane(other).id,
 	}));
 	deleteDashboard(otherId);
+}
+
+/**
+ * Like Arc's Open as Split, put dashboards' panes side by side in the first of them, in order, and close the others.
+ * Does nothing if the panes wouldn't fit, see `canJoinLayouts()`.
+ */
+export function splitDashboards(ids: readonly string[]): void {
+	const dashboards = ids.flatMap((id) => getDashboard(id) ?? []);
+	const [first, ...others] = dashboards;
+	const layouts = dashboards.map((dashboard) => dashboard.layout);
+	if (!first || others.length === 0 || !canJoinLayouts(layouts)) {
+		return;
+	}
+
+	updateDashboard(first.id, (current) => ({ ...current, layout: joinLayouts(layouts) }));
+	deleteDashboards(others.map((other) => other.id));
 }
 
 /** Move a pane beside another pane and focus it, see `movePane()` */

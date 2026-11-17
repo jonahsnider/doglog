@@ -3,7 +3,7 @@ import { Link, useLocation, useRouter } from '@tanstack/react-router';
 import { LayoutDashboardIcon, PlusIcon } from 'lucide-react';
 import { useSortable } from '@dnd-kit/react/sortable';
 import { AnimatePresence, domAnimation, LazyMotion, m, useIsPresent, useReducedMotion } from 'motion/react';
-import { useRef, useState } from 'react';
+import { type MouseEvent, useRef, useState } from 'react';
 import { AppContextMenu, type MenuAction } from '@/components/app-context-menu';
 import { DashboardOptions } from '@/sidebar/dashboard-options';
 import {
@@ -30,20 +30,33 @@ import {
 	useDashboards,
 } from '@/dashboards/dashboards';
 import { useDragging, useNewDashboardDrop } from '@/sidebar/drag';
+import { type DashboardSelection, useDashboardSelection } from '@/sidebar/selection';
 import { cn } from '@/lib/utils';
 
 const MotionSidebarMenuItem = m.create(SidebarMenuItem);
 
+/** Dashboards and the new dashboard button handle their own clicks */
+function isEmptySpace(event: MouseEvent): boolean {
+	return event.target instanceof Element && !event.target.closest('[data-sidebar="menu-item"]');
+}
+
 export function SidebarDashboards() {
 	const dashboards = useDashboards();
 	const router = useRouter();
+	const selection = useDashboardSelection(dashboards);
 	const listRef = useRef<HTMLUListElement>(null);
 	const placeholderRef = useRef<HTMLLIElement>(null);
 	// Panes dropped anywhere on the dashboards move to a new dashboard
 	const { ref, dropIndex } = useNewDashboardDrop(listRef, placeholderRef);
 	const dragging = useDragging();
 	const items = dashboards.map((dashboard, index) => (
-		<DashboardItem key={dashboard.id} dashboard={dashboard} dashboards={dashboards} index={index} />
+		<DashboardItem
+			key={dashboard.id}
+			dashboard={dashboard}
+			dashboards={dashboards}
+			index={index}
+			selection={selection}
+		/>
 	));
 	if (dropIndex !== undefined) {
 		items.splice(dropIndex, 0, <NewDashboardPlaceholder key="new-dashboard" ref={placeholderRef} />);
@@ -54,9 +67,13 @@ export function SidebarDashboards() {
 		<SidebarGroup
 			ref={ref}
 			className="flex-1"
+			onClick={(event) => {
+				if (isEmptySpace(event)) {
+					selection.clear();
+				}
+			}}
 			onDoubleClick={(event) => {
-				// Dashboards and the new dashboard button handle their own clicks
-				if (event.target instanceof Element && !event.target.closest('[data-sidebar="menu-item"]')) {
+				if (isEmptySpace(event)) {
 					newDashboard(router, 'bottom');
 				}
 			}}
@@ -88,10 +105,12 @@ function DashboardItem({
 	dashboard,
 	dashboards,
 	index,
+	selection,
 }: {
 	dashboard: Dashboard;
 	dashboards: Dashboard[];
 	index: number;
+	selection: DashboardSelection;
 }) {
 	// Closed dashboards stay rendered while they slide away, but can't be selected or dragged
 	const present = useIsPresent();
@@ -120,18 +139,22 @@ function DashboardItem({
 	const closeOthers = () =>
 		deleteDashboards(dashboards.filter((other) => other !== dashboard).map((other) => other.id));
 	const closeBelow = () => deleteDashboards(dashboards.slice(index + 1).map((other) => other.id));
-	const menuItems: (MenuAction | 'separator')[] = [
-		{ label: 'Rename', onSelect: () => setRenaming(true) },
-		'separator',
-		{
-			label: 'Close dashboard',
-			shortcut: shortcuts.closeDashboard,
-			destructive: true,
-			onSelect: () => deleteDashboard(dashboard.id),
-		},
-		{ label: 'Close other dashboards', disabled: isOnly, onSelect: closeOthers },
-		{ label: 'Close dashboards below', disabled: isLast, onSelect: closeBelow },
-	];
+	const selected = selection.isSelected(dashboard);
+	const menuItems: (MenuAction | 'separator')[] = selected
+		? selection.menuItems
+		: [
+				{ label: 'Rename', onSelect: () => setRenaming(true) },
+				{ label: 'Duplicate', onSelect: () => selection.duplicate([dashboard.id]) },
+				'separator',
+				{
+					label: 'Close',
+					shortcut: shortcuts.closeDashboard,
+					destructive: true,
+					onSelect: () => deleteDashboard(dashboard.id),
+				},
+				{ label: 'Close other dashboards', disabled: isOnly, onSelect: closeOthers },
+				{ label: 'Close dashboards below', disabled: isLast, onSelect: closeBelow },
+			];
 
 	return (
 		// The input keeps the browser's menu while renaming
@@ -193,7 +216,14 @@ function DashboardItem({
 								render={
 									<SidebarMenuButton
 										isActive={active}
+										className={cn(selected && 'bg-sidebar-accent text-sidebar-accent-foreground')}
 										render={<Link to="/dashboards/$dashboardId" params={{ dashboardId: dashboard.id }} />}
+										onClick={(event) => {
+											// Instead of opening the link in a new tab or window
+											if (selection.click(event, dashboard)) {
+												event.preventDefault();
+											}
+										}}
 										ref={handleRef}
 										// Keeps the link a link, dnd-kit makes drag handles without a role into buttons
 										role="link"

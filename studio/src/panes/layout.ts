@@ -102,14 +102,35 @@ function deepestSplit(node: PaneNode, direction: SplitDirection): number {
 	return node.direction === direction ? depth + 1 : depth;
 }
 
-/** Whether two layouts can be put side by side without making panes too small to use */
-export function canJoinLayouts(first: PaneNode, second: PaneNode): boolean {
-	return deepestSplit(first, 'row') < maxSplitDepth && deepestSplit(second, 'row') < maxSplitDepth;
+/** Put layouts side by side, each taking an equal share of the width. No layouts make an empty pane. */
+export function joinLayouts(layouts: readonly PaneNode[]): PaneNode {
+	const [first, second] = layouts;
+	if (!first || !second) {
+		return first ?? createPane();
+	}
+
+	const half = Math.ceil(layouts.length / 2);
+	return {
+		kind: 'split',
+		id: crypto.randomUUID(),
+		direction: 'row',
+		ratio: half / layouts.length,
+		first: joinLayouts(layouts.slice(0, half)),
+		second: joinLayouts(layouts.slice(half)),
+	};
 }
 
-/** Put two layouts side by side, each taking half the space */
-export function joinLayouts(first: PaneNode, second: PaneNode): PaneNode {
-	return { kind: 'split', id: crypto.randomUUID(), direction: 'row', ratio: 0.5, first, second };
+/** Whether layouts can be put side by side without making panes too small to use */
+export function canJoinLayouts(layouts: readonly PaneNode[]): boolean {
+	return deepestSplit(joinLayouts(layouts), 'row') <= maxSplitDepth;
+}
+
+/** A copy of a layout with new pane and split IDs, so it can be combined with the original */
+export function copyLayout(node: PaneNode): PaneNode {
+	const id = crypto.randomUUID();
+	return node.kind === 'pane'
+		? { ...node, id }
+		: { ...node, id, first: copyLayout(node.first), second: copyLayout(node.second) };
 }
 
 /** Which side of another pane a moved pane goes on */

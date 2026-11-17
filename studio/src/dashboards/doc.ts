@@ -117,13 +117,17 @@ function storageKey(id: string): string {
 
 /**
  * Load a dashboard's document, which is saved to localStorage and follows changes made in other windows.
- * A dashboard that was never saved gets an empty layout. Its undo history lasts until the window closes.
- * Each undo step saves the pane from `getFocusedPaneId()` when the change is committed.
+ * A dashboard that was never saved gets the `initial` contents, which aren't an undo step. Its undo history lasts until
+ * the window closes. Each undo step saves the pane from `getFocusedPaneId()` when the change is committed.
  */
-export function loadDashboardDoc(id: string, getFocusedPaneId: () => string | undefined): DashboardDoc {
+export function loadDashboardDoc(
+	id: string,
+	getFocusedPaneId: () => string | undefined,
+	initial?: DashboardContents,
+): DashboardDoc {
 	const doc = createPersistedDoc(storageKey(id));
 	if (getLayoutTree(doc).roots().length === 0) {
-		writeDashboardDoc(doc, { layout: createPane() });
+		writeDashboardDoc(doc, initial ?? { layout: createPane() });
 		doc.commit();
 	}
 

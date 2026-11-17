@@ -19,7 +19,7 @@ export function DashboardSplitZones() {
 	const reducedMotion = useReducedMotion() ?? false;
 
 	const show = current !== undefined && dragged !== undefined;
-	const disabled = show && !canJoinLayouts(current.layout, dragged.layout);
+	const disabled = show && !canJoinLayouts([current.layout, dragged.layout]);
 
 	return (
 		<LazyMotion features={domAnimation} strict>

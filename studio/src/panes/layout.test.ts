@@ -131,12 +131,24 @@ test('layouts can be joined side by side unless either would end up with panes n
 	const top = createPane();
 	const rows = splitPane(splitPane(top, top.id, 'column'), top.id, 'column');
 
-	expect(canJoinLayouts(single, columns)).toBe(true);
-	expect(canJoinLayouts(single, quarters)).toBe(false);
-	expect(canJoinLayouts(quarters, single)).toBe(false);
+	expect(canJoinLayouts([single, columns])).toBe(true);
+	expect(canJoinLayouts([single, quarters])).toBe(false);
+	expect(canJoinLayouts([quarters, single])).toBe(false);
 	// Stacked panes don't make the joined panes narrower
-	expect(canJoinLayouts(rows, single)).toBe(true);
-	expect(joinLayouts(columns, single)).toMatchObject({ direction: 'row', ratio: 0.5, first: columns, second: single });
+	expect(canJoinLayouts([rows, single])).toBe(true);
+	expect(joinLayouts([columns, single])).toMatchObject({
+		direction: 'row',
+		ratio: 0.5,
+		first: columns,
+		second: single,
+	});
+	expect(canJoinLayouts([single, createPane(), createPane(), createPane()])).toBe(true);
+	expect(canJoinLayouts([single, createPane(), createPane(), createPane(), createPane()])).toBe(false);
+});
+
+test('several joined layouts each take an equal share of the width', () => {
+	const [a, b, c] = [createPane(), createPane(), createPane()];
+	expect(joinLayouts([a, b, c])).toMatchObject({ ratio: 2 / 3, first: { ratio: 0.5, first: a, second: b }, second: c });
 });
 
 test('moving a pane puts it on that side of the target and its sibling takes its old space', () => {

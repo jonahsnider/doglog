@@ -135,6 +135,48 @@ Like Dia's split view, dragging a dashboard from the sidebar over the open dashb
 - **WHEN** the user drags another dashboard over it
 - **THEN** the zones are shown disabled, and dropping on them does nothing
 
+### Requirement: Select several dashboards
+
+Like Arc, ⌘ or Ctrl-clicking a dashboard in the sidebar SHALL add it to or remove it from a selection that starts with the open dashboard, and Shift-clicking SHALL select every dashboard between it and the last ⌘ or Ctrl-clicked dashboard, or the open dashboard. Selecting MUST NOT open the dashboard. Clicking a dashboard or the empty space below the dashboards, or pressing Escape, SHALL clear the selection.
+
+#### Scenario: Shift-click a range
+
+- **GIVEN** the first dashboard is open
+- **WHEN** the user Shift-clicks the third dashboard
+- **THEN** the first three dashboards are selected, and the first is still open
+
+### Requirement: Act on selected dashboards
+
+While two or more dashboards are selected, the menus of selected dashboards SHALL offer Open as split, Duplicate dashboards, and Close dashboards for the whole selection.
+
+#### Scenario: Open as split
+
+- **GIVEN** dashboards A, B, and C are selected, in that order in the sidebar
+- **WHEN** the user chooses Open as split
+- **THEN** A shows its panes, B's panes, and C's panes side by side, each taking a third of the width
+- **AND** B and C are closed together, and A is opened
+
+#### Scenario: Too many side by side panes to split
+
+- **GIVEN** the selected dashboards would have panes narrower than a quarter of the combined dashboard
+- **WHEN** the user opens a selected dashboard's menu
+- **THEN** Open as split is disabled
+
+#### Scenario: Close the selection
+
+- **GIVEN** three dashboards are selected
+- **WHEN** the user chooses Close 3 dashboards
+- **THEN** they're closed together, and reopen together
+
+### Requirement: Duplicate dashboards
+
+Users SHALL be able to duplicate a dashboard, or every selected dashboard, from their menus. Each copy MUST go right below its original with the same name and panes, and the first copy MUST be opened. Copies MUST be able to be combined with their originals.
+
+#### Scenario: Duplicate a dashboard
+
+- **WHEN** the user chooses Duplicate on the second dashboard
+- **THEN** a copy of it is the third dashboard, and is opened
+
 ### Requirement: Move panes
 
 Like Rex, users SHALL be able to drag a pane by its title, which shows a move icon and a background while hovered, and drop it on the half of another pane nearest the pointer. That half MUST be highlighted, moving between sides without animating. The dragged pane MUST go on that side, each taking half the space, and its sibling MUST take its old space. Sides where panes would end up too small MUST be shown as unavailable.
@@ -380,7 +422,7 @@ Dashboards and closed dashboards MUST be shared by every open Studio tab or wind
 
 ### Requirement: Dashboard context menu
 
-Right-clicking a dashboard in the sidebar SHALL open a context menu with Rename, Close dashboard, Close other dashboards, and Close dashboards below.
+Right-clicking a dashboard in the sidebar SHALL open a context menu with Rename, Duplicate, Close dashboard, Close other dashboards, and Close dashboards below. A dashboard selected along with others SHALL show the selection's menu instead.
 
 #### Scenario: Close from the context menu
 
