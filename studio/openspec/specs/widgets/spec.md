@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the behavior shared by every widget: binding entries by name, filtering by accepted data type, following the time cursor, and handling missing data, so new widgets are cheap to add.
+Define the behavior shared by every widget: binding entries by name, filtering by accepted data type, following the time cursor, and handling missing data, so new widgets are cheap to add. Widgets that don't show entries, such as the notepad, accept no data types and are exempt from the entry binding requirements.
 
 ## Requirements
 

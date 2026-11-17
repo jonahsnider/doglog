@@ -1,10 +1,11 @@
-import { ChartNoAxesGanttIcon, MapIcon, MoveIcon, TableIcon, TerminalIcon } from 'lucide-react';
+import { ChartNoAxesGanttIcon, MapIcon, MoveIcon, NotebookPenIcon, TableIcon, TerminalIcon } from 'lucide-react';
 import type { Entry } from '@/data/data-store';
 import type { Widget } from '@/pane-layout';
 import { Console } from '@/widgets/console';
 import { DiscreteTimeline } from '@/widgets/discrete-timeline';
 import { Field } from '@/widgets/field';
 import { fieldRole } from '@/widgets/field-data';
+import { Notepad } from '@/widgets/notepad';
 import { Swerve } from '@/widgets/swerve';
 import { swerveRole } from '@/widgets/swerve-data';
 import { ValuesTable } from '@/widgets/values-table';
@@ -60,6 +61,16 @@ export const widgetTypes: readonly WidgetType[] = [
 		rendersEmpty: true,
 		defaultConfig: { entryNames: [] },
 		component: Field,
+	},
+	{
+		id: 'notepad',
+		name: 'Notepad',
+		icon: NotebookPenIcon,
+		hotkey: 'N',
+		accepts: [],
+		rendersEmpty: true,
+		defaultConfig: { entryNames: [] },
+		component: Notepad,
 	},
 ];
 

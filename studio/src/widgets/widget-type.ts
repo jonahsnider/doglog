@@ -42,7 +42,7 @@ export type WidgetType = {
 	readonly icon: LucideIcon;
 	/** Picks this widget in a focused empty pane, or in the Change widget menu while it's open */
 	readonly hotkey: Hotkey;
-	/** Kinds of entries that can be bound */
+	/** Kinds of entries that can be bound, none for widgets that don't show entries (ex. the notepad) */
 	readonly accepts: readonly BindableKind[];
 	/** Narrows `accepts` further, ex. to specific struct types */
 	readonly matches?: (entry: Entry) => boolean;
@@ -63,6 +63,11 @@ export const bindableKinds: readonly BindableKind[] = [
 	'struct',
 	'struct[]',
 ];
+
+/** Whether entries can be bound to the widget at all */
+export function bindsEntries(type: WidgetType): boolean {
+	return type.accepts.length > 0;
+}
 
 export function acceptsEntry(type: WidgetType, entry: Entry): boolean {
 	return (type.accepts as readonly EntryKind[]).includes(entry.kind) && (type.matches?.(entry) ?? true);

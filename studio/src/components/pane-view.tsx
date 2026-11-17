@@ -23,7 +23,7 @@ import {
 } from '@/pane-layout';
 import { useTrafficLightsOverlap } from '@/title-bar';
 import { getWidgetType, widgetTypes } from '@/widgets/registry';
-import { acceptsEntry, type WidgetType, widgetConfigSchema } from '@/widgets/widget-type';
+import { acceptsEntry, bindsEntries, type WidgetType, widgetConfigSchema } from '@/widgets/widget-type';
 
 export type PaneNodeProps = {
 	dashboardId: string;
@@ -100,7 +100,7 @@ export function PaneView({
 					onSelect: () => changeWidget(other),
 				})),
 			},
-			{ label: 'Add entries', disabled: !type, onSelect: () => setOptionsOpen(true) },
+			{ label: 'Add entries', disabled: !type || !bindsEntries(type), onSelect: () => setOptionsOpen(true) },
 			targetEntryName === undefined
 				? {
 						label: 'Remove entry',
@@ -158,7 +158,7 @@ export function PaneView({
 						!focused && 'opacity-0 group-hover/pane:opacity-100',
 					)}
 				>
-					{type && (
+					{type && bindsEntries(type) && (
 						<WidgetOptions
 							type={type}
 							entryNames={config.entryNames}
