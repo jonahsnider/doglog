@@ -181,23 +181,23 @@ The source control menu's Connect action SHALL show whether it would connect to 
 
 - **GIVEN** the robot is reachable
 - **WHEN** the user opens the source control menu
-- **THEN** the Connect action shows a robot icon
+- **THEN** the Connect action reads "Connect to robot"
 
 #### Scenario: Only the simulator is running
 
 - **GIVEN** the robot is not reachable and a simulator is running
 - **WHEN** the user opens the source control menu
-- **THEN** the Connect action shows a simulator icon
+- **THEN** the Connect action reads "Connect to simulator"
 
 #### Scenario: Target available at startup
 
 - **GIVEN** a simulator is running
 - **WHEN** Studio starts and the user opens the source control menu
-- **THEN** the Connect action shows a simulator icon right away
+- **THEN** the Connect action reads "Connect to simulator" right away
 
 #### Scenario: Local network permission not granted
 
 - **GIVEN** the user is on the web app and hasn't granted Chrome's local network permission
 - **WHEN** the user opens the source control menu
 - **THEN** no permission prompt is shown
-- **AND** the Connect action shows the generic connect icon
+- **AND** the Connect action reads "Connect"

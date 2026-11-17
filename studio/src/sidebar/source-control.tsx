@@ -1,14 +1,6 @@
 import { isTauri } from '@tauri-apps/api/core';
 import { useFormatForDisplay } from '@tanstack/react-hotkeys';
-import {
-	BotIcon,
-	ChevronsUpDownIcon,
-	DatabaseIcon,
-	FileIcon,
-	HistoryIcon,
-	MonitorIcon,
-	RadioTowerIcon,
-} from 'lucide-react';
+import { ChevronsUpDownIcon, DatabaseIcon, FileIcon, RadioTowerIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import {
@@ -59,7 +51,7 @@ function SourceIcon({ source }: { source: Source | undefined }) {
 	return <RadioTowerIcon className={source.status === 'connected' ? 'text-success' : 'text-destructive-foreground'} />;
 }
 
-const connectTargetIcons = { robot: BotIcon, simulator: MonitorIcon } as const;
+const connectLabels: Record<ConnectTarget, string> = { robot: 'Connect to robot', simulator: 'Connect to simulator' };
 
 /** The desktop app's recent logs, the web app can't reopen files */
 function OpenRecentMenu() {
@@ -67,10 +59,7 @@ function OpenRecentMenu() {
 	const labels = recentLogLabels(paths);
 	return (
 		<MenuSub>
-			<MenuSubTrigger>
-				<HistoryIcon />
-				Open recent
-			</MenuSubTrigger>
+			<MenuSubTrigger>Open recent</MenuSubTrigger>
 			<MenuSubPopup className="max-w-80">
 				{paths.map((path, index) => (
 					<MenuItem key={path} title={path} onClick={() => void openLogPath(path)}>
@@ -91,9 +80,8 @@ export function SourceControl() {
 	const source = useSource();
 	const formatForDisplay = useFormatForDisplay();
 	const [connectTarget, setConnectTarget] = useState<ConnectTarget>();
-	const ConnectIcon = connectTarget === undefined ? RadioTowerIcon : connectTargetIcons[connectTarget];
 
-	// Each check briefly connects to the NT server, so only check on mount (so the icon is ready when the menu first opens) and when the menu opens.
+	// Each check briefly connects to the NT server, so only check on mount (so the label is ready when the menu first opens) and when the menu opens.
 	// The last result is shown until a check finishes.
 	const checkConnectTarget = () => {
 		void findConnectTarget(getRobotHost(settingsStore.get().robotTarget)).then(setConnectTarget);
@@ -138,15 +126,13 @@ export function SourceControl() {
 				</MenuTrigger>
 				<MenuPopup align="start" className="w-(--anchor-width) min-w-56">
 					<MenuItem onClick={chooseLog}>
-						<FileIcon />
 						Open log
 						<MenuShortcut>{formatForDisplay(shortcuts.openLog)}</MenuShortcut>
 					</MenuItem>
 					{isTauri() && <OpenRecentMenu />}
 					<MenuSeparator />
 					<MenuItem onClick={startConnect}>
-						<ConnectIcon />
-						Connect
+						{connectTarget === undefined ? 'Connect' : connectLabels[connectTarget]}
 						<MenuShortcut>{formatForDisplay(shortcuts.connect)}</MenuShortcut>
 					</MenuItem>
 				</MenuPopup>
