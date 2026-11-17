@@ -18,8 +18,15 @@ import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Spinner } from '@/components/ui/spinner';
 import { shortcuts, startConnect } from '@/commands/commands';
 import { getEntry, useEntries } from '@/data/data-store';
-import { clearRecentLogs, recentLogLabels, useRecentLogs } from '@/data/recent-logs';
-import { chooseLog, type ConnectTarget, findConnectTarget, openLogPath, type Source, useSource } from '@/data/source';
+import {
+	clearRecentLogs,
+	recentLogLabels,
+	supportsFileHandles,
+	useRecentLogHandles,
+	useRecentLogs,
+} from '@/data/recent-logs';
+import { chooseLog, openLogPath, openRecentLogHandle } from '@/data/open-log';
+import { type ConnectTarget, findConnectTarget, type Source, useSource } from '@/data/source';
 import { cn } from '@/lib/utils';
 import { getRobotHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
@@ -67,10 +74,14 @@ function SourceIcon({ source }: { source: Source | undefined }) {
 
 const connectLabels: Record<ConnectTarget, string> = { robot: 'Connect to robot', simulator: 'Connect to simulator' };
 
-/** The desktop app's recent logs, the web app can't reopen files */
+/** The recent logs, from paths in the desktop app or file handles in the web app */
 function OpenRecentMenu() {
-	const paths = useRecentLogs();
+	const savedPaths = useRecentLogs();
+	// Only the desktop app can open paths, ignore any saved on the web
+	const paths = isTauri() ? savedPaths : [];
+	const handles = useRecentLogHandles();
 	const labels = recentLogLabels(paths);
+	const empty = paths.length === 0 && handles.length === 0;
 	return (
 		<MenuSub>
 			<MenuSubTrigger>Open recent</MenuSubTrigger>
@@ -80,8 +91,13 @@ function OpenRecentMenu() {
 						<span className="truncate">{labels[index]}</span>
 					</MenuItem>
 				))}
-				{paths.length > 0 && <MenuSeparator />}
-				<MenuItem disabled={paths.length === 0} onClick={clearRecentLogs}>
+				{handles.map((recent) => (
+					<MenuItem key={recent.id} onClick={() => void openRecentLogHandle(recent.handle)}>
+						<span className="truncate">{recent.handle.name}</span>
+					</MenuItem>
+				))}
+				{!empty && <MenuSeparator />}
+				<MenuItem disabled={empty} onClick={clearRecentLogs}>
 					Clear recent
 				</MenuItem>
 			</MenuSubPopup>
@@ -145,7 +161,7 @@ export function SourceControl() {
 						Open log
 						<MenuShortcut>{formatForDisplay(shortcuts.openLog)}</MenuShortcut>
 					</MenuItem>
-					{isTauri() && <OpenRecentMenu />}
+					{(isTauri() || supportsFileHandles) && <OpenRecentMenu />}
 					<MenuSeparator />
 					<MenuItem onClick={startConnect}>
 						{connectTarget === undefined ? 'Connect' : connectLabels[connectTarget]}

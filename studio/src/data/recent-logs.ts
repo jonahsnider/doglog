@@ -1,4 +1,7 @@
 import { useSelector } from '@tanstack/react-store';
+import { createAtom } from '@tanstack/store';
+import { isTauri } from '@tauri-apps/api/core';
+import { get, set } from 'idb-keyval';
 import * as z from 'zod';
 import { createPersistedAtom } from '@/lib/persisted-store';
 
@@ -30,4 +33,57 @@ export function removeRecentLog(path: string): void {
 
 export function clearRecentLogs(): void {
 	recentLogsStore.set([]);
+	if (supportsFileHandles) {
+		void saveRecentLogHandles([]);
+	}
+}
+
+/** Whether the web app can keep access to opened files, so it can list recent logs. Only Chromium browsers can. */
+export const supportsFileHandles = !isTauri() && 'showOpenFilePicker' in globalThis;
+
+// Handles can't be saved to localStorage, but IndexedDB can store them
+const handlesKey = 'doglog-studio:recent-log-handles';
+
+interface RecentLogHandle {
+	/** Handles don't have an ID or path to tell them apart */
+	id: string;
+	handle: FileSystemFileHandle;
+}
+
+/** The logs the web app opened most recently, newest first */
+const recentLogHandlesStore = createAtom<readonly RecentLogHandle[]>([]);
+
+async function loadRecentLogHandles(): Promise<void> {
+	recentLogHandlesStore.set((await get<RecentLogHandle[]>(handlesKey)) ?? []);
+}
+
+if (supportsFileHandles) {
+	void loadRecentLogHandles();
+	// Other tabs may have changed the list
+	window.addEventListener('focus', () => void loadRecentLogHandles());
+}
+
+export function useRecentLogHandles(): readonly RecentLogHandle[] {
+	return useSelector(recentLogHandlesStore);
+}
+
+/** The saved logs that aren't the same file as `handle` */
+async function otherHandles(handle: FileSystemFileHandle): Promise<RecentLogHandle[]> {
+	const handles = (await get<RecentLogHandle[]>(handlesKey)) ?? [];
+	const same = await Promise.all(handles.map((other) => other.handle.isSameEntry(handle)));
+	return handles.filter((_, index) => same[index] === false);
+}
+
+async function saveRecentLogHandles(handles: readonly RecentLogHandle[]): Promise<void> {
+	await set(handlesKey, handles);
+	recentLogHandlesStore.set(handles);
+}
+
+export async function addRecentLogHandle(handle: FileSystemFileHandle): Promise<void> {
+	const recent = { id: crypto.randomUUID(), handle };
+	await saveRecentLogHandles([recent, ...(await otherHandles(handle))].slice(0, maxRecentLogs));
+}
+
+export async function removeRecentLogHandle(handle: FileSystemFileHandle): Promise<void> {
+	await saveRecentLogHandles(await otherHandles(handle));
 }

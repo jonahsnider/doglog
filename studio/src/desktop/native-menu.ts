@@ -9,7 +9,7 @@ import {
 } from '@tauri-apps/api/menu';
 import type { MenuEntry } from '@/components/app-context-menu';
 import { clearRecentLogs, recentLogLabels, recentLogsStore } from '@/data/recent-logs';
-import { openLogPath } from '@/data/source';
+import { openLogPath } from '@/data/open-log';
 
 type NativeMenuEntry = MenuItemOptions | CheckMenuItemOptions | SubmenuOptions | PredefinedMenuItemOptions;
 

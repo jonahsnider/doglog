@@ -1,14 +1,11 @@
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
-import { invoke, isTauri } from '@tauri-apps/api/core';
-import { listen } from '@tauri-apps/api/event';
-import { open as openDialog } from '@tauri-apps/plugin-dialog';
+import { isTauri } from '@tauri-apps/api/core';
 import { toastManager } from '@/components/ui/toast';
 import { clearData } from '@/data/data-store';
 import { loadDevLog, saveDevLog } from '@/data/dev-log';
 import type { LiveStatus } from '@/data/live-source';
 import { loadLog } from '@/data/log-source';
-import { addRecentLog, removeRecentLog } from '@/data/recent-logs';
 import { simulatorHost } from '@/robot-target';
 import { resetTimeline } from '@/timeline/timeline';
 
@@ -57,7 +54,7 @@ async function isWpilog(file: File): Promise<boolean> {
  * Make a WPILOG file the active source. The current source is kept if the file isn't a WPILOG file.
  * Returns whether the file started loading.
  */
-async function openLog(file: File): Promise<boolean> {
+export async function openLog(file: File): Promise<boolean> {
 	const requestedAt = generation;
 	if (!(await isWpilog(file))) {
 		toastManager.add({ type: 'error', title: `Couldn't open ${file.name}`, description: "It isn't a WPILOG file." });
@@ -209,84 +206,4 @@ export function connect(robotHost: string | undefined): void {
 		}
 	};
 	void attempt();
-}
-
-async function chooseLogWithDialog(): Promise<void> {
-	const path = await openDialog({ filters: [{ name: 'WPILOG', extensions: ['wpilog'] }] });
-	if (path !== null) {
-		await openLogPath(path);
-	}
-}
-
-/** Let the user pick a WPILOG file to open */
-export function chooseLog(): void {
-	// The desktop app's menu can't open the web file picker, since it only opens during a click or key press in the page
-	if (isTauri()) {
-		void chooseLogWithDialog();
-		return;
-	}
-
-	const input = document.createElement('input');
-	input.type = 'file';
-	input.accept = '.wpilog';
-	input.addEventListener('change', () => {
-		const file = input.files?.[0];
-		if (file) {
-			void openLog(file);
-		}
-	});
-	input.click();
-}
-
-/** Whether a drag event is dragging files from outside the window */
-export const hasFiles = (event: DragEvent) => event.dataTransfer?.types.includes('Files') ?? false;
-
-/** Open the last log the OS asked the desktop app to open, if it hasn't been opened yet */
-async function openTakenLog(): Promise<void> {
-	const path = await invoke<string | null>('take_opened_log');
-	if (path !== null) {
-		await openLogPath(path);
-	}
-}
-
-/** Open a log from the desktop app's file system, and add it to the recent logs */
-export async function openLogPath(path: string): Promise<void> {
-	const fileName = path.split(/[/\\]/u).at(-1)!;
-	let contents: ArrayBuffer;
-	try {
-		contents = await invoke<ArrayBuffer>('read_file', { path });
-	} catch (error) {
-		// Ex. a recent log that was moved or deleted
-		removeRecentLog(path);
-		toastManager.add({ type: 'error', title: `Couldn't open ${fileName}`, description: String(error) });
-		return;
-	}
-	if (await openLog(new File([contents], fileName))) {
-		addRecentLog(path);
-	}
-}
-
-/** Open WPILOG files the OS asks the desktop app to open, ex. when one is double-clicked */
-export async function handleOpenedLogFiles(): Promise<void> {
-	await listen('log-opened', () => void openTakenLog());
-	// Logs opened before the listener was added, ex. the one that launched the app
-	await openTakenLog();
-}
-
-/** Open WPILOG files dropped anywhere on the window */
-export function handleLogFileDrops(): void {
-	window.addEventListener('dragover', (event) => {
-		if (hasFiles(event)) {
-			event.preventDefault();
-			event.dataTransfer!.dropEffect = 'copy';
-		}
-	});
-
-	window.addEventListener('drop', (event) => {
-		const file = event.dataTransfer?.files[0];
-		if (file) {
-			event.preventDefault();
-			void openLog(file);
-		}
-	});
 }

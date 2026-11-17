@@ -21,7 +21,8 @@ import {
 	reopenClosedDashboards,
 	undoDashboard,
 } from '@/dashboards/dashboards';
-import { chooseLog, connect } from '@/data/source';
+import { chooseLog } from '@/data/open-log';
+import { connect } from '@/data/source';
 import { createOpenRecentMenu } from '@/desktop/native-menu';
 import { checkForUpdateManually } from '@/desktop/updater';
 import { canSplitPane, type SplitDirection } from '@/panes/layout';

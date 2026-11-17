@@ -172,6 +172,8 @@ export default defineConfig({
 				display: 'standalone',
 				theme_color: '#591616',
 				start_url: '/',
+				// Lets the installed web app open logs from the OS, in Chromium browsers
+				file_handlers: [{ action: '/', accept: { 'application/octet-stream': ['.wpilog'] } }],
 			},
 			// Generates icons from public/logo.svg and injects their links into index.html
 			pwaAssets: {

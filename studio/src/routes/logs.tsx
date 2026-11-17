@@ -10,7 +10,7 @@ import { SyncStatusPanel } from '@/sync/sync-status';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { DownloadButton } from '@/desktop/download-button';
-import { openLogPath } from '@/data/source';
+import { openLogPath } from '@/data/open-log';
 import { dragRegion } from '@/desktop/title-bar';
 import { dateTimeFormat, logLabel, formatSize } from '@/sync/format';
 import { parseLogName } from '@/sync/log-names';

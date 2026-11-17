@@ -4,7 +4,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import { setUpAppMenu } from './commands/commands.ts';
-import { handleLogFileDrops, handleOpenedLogFiles, reopenDevLog } from './data/source.ts';
+import { handleLaunchedLogFiles, handleLogFileDrops, handleOpenedLogFiles } from './data/open-log.ts';
+import { reopenDevLog } from './data/source.ts';
 import { syncMediaSession } from './timeline/media-session.ts';
 import { routeTree } from './routeTree.gen.ts';
 import { syncTheme } from './settings.ts';
@@ -16,6 +17,8 @@ handleLogFileDrops();
 if (isTauri()) {
 	void handleOpenedLogFiles();
 	void runLogSync();
+} else {
+	handleLaunchedLogFiles();
 }
 if (import.meta.env.DEV) {
 	void reopenDevLog();

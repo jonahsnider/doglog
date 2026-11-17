@@ -1,7 +1,7 @@
 import { FileUpIcon } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
-import { hasFiles } from '@/data/source';
+import { hasFiles } from '@/data/open-log';
 
 /** Covers the window while files are dragged over it, dropping them is handled by `handleLogFileDrops` */
 export function LogDropOverlay() {

@@ -42,7 +42,7 @@ Studio SHALL be available as a desktop app for Windows, macOS, and Linux with ev
 
 ### Requirement: Open logs from the OS
 
-The desktop app SHALL register itself as an app for `.wpilog` files, so opening one from the OS opens it in Studio.
+The desktop app SHALL register itself as an app for `.wpilog` files, so opening one from the OS opens it in Studio. The installed web app SHALL do the same in browsers that support file handling, ex. Chrome and Edge.
 
 #### Scenario: Double-click a log
 
@@ -56,9 +56,15 @@ The desktop app SHALL register itself as an app for `.wpilog` files, so opening 
 - **WHEN** the user opens a `.wpilog` file from the OS
 - **THEN** Studio shows that log
 
+#### Scenario: Open a log with the installed web app
+
+- **GIVEN** the user installed the web app in Chrome
+- **WHEN** the user opens a `.wpilog` file with DogLog Studio from the OS
+- **THEN** Studio opens and shows that log
+
 ### Requirement: Open recent logs
 
-The desktop app SHALL keep a list of the 10 logs it opened most recently, newest first. The source control menu's Open recent submenu and, on macOS, File > Open Recent MUST list them, with an item that clears the list. Logs opened from a path, ex. with the file picker, from the OS, or from the Logs page, MUST be added, and logs that can't be read MUST be removed. The web app doesn't list recent logs, since browsers don't keep access to opened files.
+The desktop app SHALL keep a list of the 10 logs it opened most recently, newest first. The source control menu's Open recent submenu and, on macOS, File > Open Recent MUST list them, with an item that clears the list. Logs opened from a path, ex. with the file picker, from the OS, or from the Logs page, MUST be added, and logs that can't be read MUST be removed.
 
 #### Scenario: Reopen a recent log
 
@@ -79,6 +85,24 @@ The desktop app SHALL keep a list of the 10 logs it opened most recently, newest
 - **WHEN** the user chooses it
 - **THEN** Studio shows that it couldn't open the log
 - **AND** it's removed from the recent logs
+
+### Requirement: Open recent logs in the web app
+
+The web app SHALL keep the same recent logs list in browsers that support the File System Access API, ex. Chrome and Edge, with logs opened with the file picker, by dropping them on the window, or from the OS. Reopening a recent log MUST ask for permission to read it when the browser needs it, and declining MUST keep it in the list. Other browsers don't keep access to opened files, so the web app doesn't list recent logs in them.
+
+#### Scenario: Reopen a recent log in the web app
+
+- **GIVEN** the user opened `match.wpilog` in the web app in Chrome, then reloaded the page
+- **WHEN** the user chooses Open recent > match.wpilog in the source control menu
+- **AND** allows Studio to view the file
+- **THEN** that log becomes the active source
+
+#### Scenario: Decline access to a recent log
+
+- **GIVEN** `match.wpilog` is in the web app's recent logs
+- **WHEN** the user chooses it and doesn't allow Studio to view the file
+- **THEN** the active source doesn't change
+- **AND** `match.wpilog` stays in the recent logs
 
 ### Requirement: Open logs from a terminal
 
