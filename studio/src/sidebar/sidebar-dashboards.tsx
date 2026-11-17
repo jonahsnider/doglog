@@ -107,8 +107,14 @@ function SharedDashboards(props: SectionProps) {
 				: `Synced with ${robotTarget.trim()}`;
 
 	return (
-		<SidebarGroup ref={ref} className="flex-1 pt-0" onClick={props.onClick} onDoubleClick={props.onDoubleClick}>
-			<div className="flex h-8 items-center px-2 text-xs text-muted-foreground select-none">
+		<SidebarGroup
+			ref={ref}
+			// Pulled into the gap between the groups, so its row is spaced like the dashboards around it
+			className="-mt-2 flex-1 pt-0"
+			onClick={props.onClick}
+			onDoubleClick={props.onDoubleClick}
+		>
+			<div className="my-1 flex h-8 items-center ps-2 text-xs text-muted-foreground select-none">
 				<span className="me-2 font-medium group-data-[collapsible=icon]:hidden">Shared</span>
 				<Separator className="flex-1 bg-sidebar-border" />
 				{/* `TextMorph` doesn't animate to or from no text, so the status grows out of nothing and the line shrinks with it. Only "Disconnected" is ever hidden. */}
@@ -120,8 +126,13 @@ function SharedDashboards(props: SectionProps) {
 						status === undefined ? 'grid-cols-[0fr] opacity-0' : 'grid-cols-[1fr]',
 					)}
 				>
-					<span className="min-w-0 overflow-hidden ps-2">
-						<TextMorph key={status === undefined ? 'hidden' : 'shown'} as="span" className="truncate" numbers={false}>
+					<span className="min-w-0 overflow-hidden">
+						<TextMorph
+							key={status === undefined ? 'hidden' : 'shown'}
+							as="span"
+							className="ms-2 truncate"
+							numbers={false}
+						>
 							{status ?? 'Disconnected'}
 						</TextMorph>
 					</span>
@@ -142,7 +153,7 @@ function LocalDashboards(props: SectionProps) {
 	const dragging = useDragging();
 
 	return (
-		<SidebarGroup ref={ref} onClick={props.onClick} onDoubleClick={props.onDoubleClick}>
+		<SidebarGroup ref={ref} className="pb-0" onClick={props.onClick} onDoubleClick={props.onDoubleClick}>
 			{/* Tooltips and previews would open on the dashboards the pointer passes over */}
 			<SidebarMenu ref={listRef} className={cn(dragging && 'pointer-events-none')}>
 				<SidebarMenuItem>
