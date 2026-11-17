@@ -2,7 +2,6 @@
 hk = { version = "2.13.0", workflow = "release.yml" }
 java = "temurin-25.0.5+8.0.LTS"
 pkl = "0.33.0"
-rust = "1.100.0"
 
 [settings]
-idiomatic_version_file_enable_tools = ["node", "pnpm"]
+idiomatic_version_file_enable_tools = ["node", "pnpm", "rust"]
