@@ -31,6 +31,13 @@ The web app SHALL be an installable PWA that works offline after the first visit
 - **WHEN** they open it with no internet connection
 - **THEN** Studio loads and can open logs
 
+#### Scenario: New version deployed while Studio is open
+
+- **GIVEN** the user has Studio open in a browser tab
+- **WHEN** a new version of the website is deployed
+- **THEN** the open tab keeps working on its current version without errors or reloads
+- **AND** Studio opens on the new version once every Studio tab and window has been closed
+
 ### Requirement: Desktop app
 
 Studio SHALL be available as a desktop app for Windows, macOS, and Linux with every feature of the web app, live connections without browser restrictions, and log sync from the robot.

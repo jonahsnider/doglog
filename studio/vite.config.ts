@@ -210,7 +210,8 @@ export default defineConfig({
 		react(),
 		tailwindcss(),
 		VitePWA({
-			registerType: 'autoUpdate',
+			// A new version waits until every Studio tab closes, so open tabs keep loading their own version's chunks
+			registerType: 'prompt',
 			workbox: {
 				globPatterns: ['**/*'],
 				globIgnores: ['**/_headers'],
