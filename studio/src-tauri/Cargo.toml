@@ -37,3 +37,8 @@ tauri-plugin-fs = "2"
 tauri-plugin-persisted-scope = "2"
 tauri-plugin-opener = "2"
 tauri-plugin-window-state = "2"
+
+[profile.release]
+codegen-units = 1
+lto = true
+strip = true
