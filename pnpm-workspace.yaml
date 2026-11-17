@@ -39,3 +39,14 @@ minimumReleaseAgeExclude:
   - '@ui-sdk/react@0.1.0-beta.5'
 patchedDependencies:
   '@ntcore-ts/client': patches/@ntcore-ts__client.patch
+permissions:
+  '@tanstack/react-hotkeys':
+    skills: false
+  '@tanstack/react-router':
+    skills: false
+  '@tanstack/router-plugin':
+    skills: false
+  '@ui-sdk/core':
+    skills: false
+  wpilog-parser:
+    skills: false
