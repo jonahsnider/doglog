@@ -9,8 +9,9 @@ on:
       - main
 
 # Only the newest build matters, so a new push cancels the one in progress
+# Bot pushes get their own group so they don't cancel a build they won't replace
 concurrency:
-  group: studio-preview
+  group: studio-preview-${{ github.event.sender.type == 'Bot' && github.run_id || 'main' }}
   cancel-in-progress: true
 
 env:
@@ -24,6 +25,8 @@ env:
 jobs:
   release:
     name: Create preview release
+    # Bot pushes don't need a build of their own, and skipping this skips the jobs after it
+    if: github.event.sender.type != 'Bot'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
