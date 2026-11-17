@@ -158,7 +158,9 @@ export function AppSidebar() {
 						'data-[collapsible=icon]:has-data-[slot=title-bar]:after:top-9',
 						iconOnly && 'w-(--sidebar-width-icon)',
 						collapsed && peeking && 'shadow-lg',
-						!animated && 'transition-none [&_[data-sidebar=menu-button]]:transition-none',
+						// The content is already at its final size, see below
+						'[&_[data-sidebar=menu-button]]:transition-none',
+						!animated && 'transition-none',
 					)}
 					onPointerEnter={(event) => {
 						if (collapsed && !peeking && event.pointerType !== 'touch') {
@@ -167,91 +169,94 @@ export function AppSidebar() {
 					}}
 					onPointerLeave={() => clearTimeout(showTimer.current)}
 				>
-					<SidebarHeader
-						// Tints the top of the sidebar, see `index.css`
-						data-window-color={windowColor}
-					>
-						<TitleBar />
-						<SidebarMenu>
-							<SourceControl />
-						</SidebarMenu>
-					</SidebarHeader>
-					<SidebarContent>
-						<SidebarGroup>
+					{/* Like sliding panes, the content keeps the width it ends at and is clipped, so it isn't laid out again every frame while the sidebar's width animates */}
+					<div className="flex h-full w-(--sidebar-width) shrink-0 flex-col contain-strict group-data-[collapsible=icon]:w-(--sidebar-width-icon)">
+						<SidebarHeader
+							// Tints the top of the sidebar, see `index.css`
+							data-window-color={windowColor}
+						>
+							<TitleBar />
 							<SidebarMenu>
+								<SourceControl />
+							</SidebarMenu>
+						</SidebarHeader>
+						<SidebarContent>
+							<SidebarGroup>
+								<SidebarMenu>
+									<SidebarMenuItem>
+										<SidebarMenuButton
+											isActive={Boolean(matchRoute({ to: '/logs' }))}
+											render={<Link to="/logs" />}
+											tooltip={{ children: <TooltipLabel label="Logs" shortcut={shortcuts.logs} /> }}
+										>
+											<FolderSyncIcon />
+											<span>Logs</span>
+										</SidebarMenuButton>
+										<ShortcutHint shortcut={shortcuts.logs} />
+									</SidebarMenuItem>
+									<SidebarMenuItem>
+										<SidebarMenuButton
+											isActive={Boolean(matchRoute({ to: '/settings' }))}
+											render={<Link to="/settings" />}
+											tooltip={{ children: <TooltipLabel label="Settings" shortcut={shortcuts.settings} /> }}
+										>
+											<SettingsIcon />
+											<span>Settings</span>
+										</SidebarMenuButton>
+										<ShortcutHint shortcut={shortcuts.settings} />
+									</SidebarMenuItem>
+								</SidebarMenu>
+							</SidebarGroup>
+							{/* Like Dia, hovering the separator reveals a button to close every dashboard. The negative margin extends the hover area into the surrounding gaps. */}
+							<div className="group/separator relative -my-2 py-2">
+								<SidebarSeparator />
+								{dashboards.length > 0 && (
+									<button
+										type="button"
+										className="absolute end-2 top-1/2 -translate-y-1/2 rounded-md bg-sidebar px-1.5 text-xs whitespace-nowrap text-sidebar-foreground/70 opacity-0 outline-hidden ring-sidebar-ring group-hover/separator:opacity-100 group-data-[collapsible=icon]:hidden hover:text-sidebar-foreground focus-visible:opacity-100 focus-visible:ring-2"
+										onClick={() => deleteDashboards(dashboards.map((dashboard) => dashboard.id))}
+									>
+										Close all
+									</button>
+								)}
+							</div>
+							<SidebarDashboards />
+						</SidebarContent>
+						<SidebarFooter>
+							<WhatsNewCard onShow={peek} />
+							<SidebarMenu>
+								{update && (
+									<SidebarMenuItem>
+										<SidebarMenuButton
+											disabled={update.installing}
+											onClick={() => void installUpdate(update.update)}
+											tooltip={`Update to ${update.update.version}`}
+										>
+											{update.installing ? <Spinner /> : <CircleArrowUpIcon className="text-sidebar-primary" />}
+											<span>{update.installing ? 'Updating…' : `Update to ${update.update.version}`}</span>
+										</SidebarMenuButton>
+									</SidebarMenuItem>
+								)}
 								<SidebarMenuItem>
 									<SidebarMenuButton
-										isActive={Boolean(matchRoute({ to: '/logs' }))}
-										render={<Link to="/logs" />}
-										tooltip={{ children: <TooltipLabel label="Logs" shortcut={shortcuts.logs} /> }}
+										aria-expanded={!collapsed}
+										className="group/toggle"
+										onClick={() => toggle(true)}
+										tooltip={{ children: <TooltipLabel label="Toggle sidebar" shortcut={shortcuts.toggleSidebar} /> }}
 									>
-										<FolderSyncIcon />
-										<span>Logs</span>
+										{collapsed ? <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />}
+										{/* Icon-only until hovered, the text is kept for its accessible name */}
+										<span className="opacity-0 group-hover/toggle:opacity-100 group-focus-visible/toggle:opacity-100">
+											Toggle sidebar
+										</span>
 									</SidebarMenuButton>
-									<ShortcutHint shortcut={shortcuts.logs} />
-								</SidebarMenuItem>
-								<SidebarMenuItem>
-									<SidebarMenuButton
-										isActive={Boolean(matchRoute({ to: '/settings' }))}
-										render={<Link to="/settings" />}
-										tooltip={{ children: <TooltipLabel label="Settings" shortcut={shortcuts.settings} /> }}
-									>
-										<SettingsIcon />
-										<span>Settings</span>
-									</SidebarMenuButton>
-									<ShortcutHint shortcut={shortcuts.settings} />
+									<SidebarMenuBadge className="invisible peer-hover/menu-button:visible">
+										<Kbd>{formatForDisplay(shortcuts.toggleSidebar)}</Kbd>
+									</SidebarMenuBadge>
 								</SidebarMenuItem>
 							</SidebarMenu>
-						</SidebarGroup>
-						{/* Like Dia, hovering the separator reveals a button to close every dashboard. The negative margin extends the hover area into the surrounding gaps. */}
-						<div className="group/separator relative -my-2 py-2">
-							<SidebarSeparator />
-							{dashboards.length > 0 && (
-								<button
-									type="button"
-									className="absolute end-2 top-1/2 -translate-y-1/2 rounded-md bg-sidebar px-1.5 text-xs whitespace-nowrap text-sidebar-foreground/70 opacity-0 outline-hidden ring-sidebar-ring group-hover/separator:opacity-100 group-data-[collapsible=icon]:hidden hover:text-sidebar-foreground focus-visible:opacity-100 focus-visible:ring-2"
-									onClick={() => deleteDashboards(dashboards.map((dashboard) => dashboard.id))}
-								>
-									Close all
-								</button>
-							)}
-						</div>
-						<SidebarDashboards />
-					</SidebarContent>
-					<SidebarFooter>
-						<WhatsNewCard onShow={peek} />
-						<SidebarMenu>
-							{update && (
-								<SidebarMenuItem>
-									<SidebarMenuButton
-										disabled={update.installing}
-										onClick={() => void installUpdate(update.update)}
-										tooltip={`Update to ${update.update.version}`}
-									>
-										{update.installing ? <Spinner /> : <CircleArrowUpIcon className="text-sidebar-primary" />}
-										<span>{update.installing ? 'Updating…' : `Update to ${update.update.version}`}</span>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
-							)}
-							<SidebarMenuItem>
-								<SidebarMenuButton
-									aria-expanded={!collapsed}
-									className="group/toggle"
-									onClick={() => toggle(true)}
-									tooltip={{ children: <TooltipLabel label="Toggle sidebar" shortcut={shortcuts.toggleSidebar} /> }}
-								>
-									{collapsed ? <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />}
-									{/* Icon-only until hovered, the text is kept for its accessible name */}
-									<span className="opacity-0 group-hover/toggle:opacity-100 group-focus-visible/toggle:opacity-100">
-										Toggle sidebar
-									</span>
-								</SidebarMenuButton>
-								<SidebarMenuBadge className="invisible peer-hover/menu-button:visible">
-									<Kbd>{formatForDisplay(shortcuts.toggleSidebar)}</Kbd>
-								</SidebarMenuBadge>
-							</SidebarMenuItem>
-						</SidebarMenu>
-					</SidebarFooter>
+						</SidebarFooter>
+					</div>
 				</Sidebar>
 			</div>
 		</SidebarContext>
