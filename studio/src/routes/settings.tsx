@@ -5,7 +5,8 @@ import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui
 import { Frame, FrameHeader, FramePanel, FrameTitle } from '@/components/ui/frame';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { dragRegion } from '@/desktop/title-bar';
+import { dragRegion, useTrafficLightsOverlap } from '@/desktop/title-bar';
+import { cn } from '@/lib/utils';
 import { getRobotHost } from '@/robot-target';
 import { useAnonymousName } from '@/sharing/identity';
 import { updateSettings, useSettings } from '@/settings';
@@ -20,12 +21,16 @@ function Settings() {
 	const anonymousName = useAnonymousName();
 	const robotHost = getRobotHost(robotTarget);
 	const robotTargetInvalid = robotTarget.trim() !== '' && robotHost === undefined;
+	const trafficLightsOverlap = useTrafficLightsOverlap();
 
 	return (
 		<div className="flex flex-1 flex-col overflow-y-auto">
 			<div className="flex max-w-2xl grow flex-col gap-6 p-6">
-				{/* Reaches the top of the window, where the title bar would be */}
-				<h1 {...dragRegion} className="-mt-6 pt-6 font-heading text-2xl leading-none font-semibold">
+				{/* Reaches the top of the window, where the title bar would be, and makes room for the sidebar toggle when it's over the page */}
+				<h1
+					{...dragRegion}
+					className={cn('-mt-6 pt-6 font-heading text-2xl leading-none font-semibold', trafficLightsOverlap && 'ps-10')}
+				>
 					Settings
 				</h1>
 

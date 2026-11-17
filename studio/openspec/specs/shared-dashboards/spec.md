@@ -8,7 +8,7 @@ Define shared dashboards, which everyone connected to the same robot can see and
 
 ### Requirement: Shared section
 
-The sidebar SHALL list shared dashboards in a Shared section, below the dashboards that are only on the device and set apart from them by a divider line. The empty space below the section is part of it, so panes and dashboards dropped there are shared. The section MUST show whether shared dashboards are syncing, ex. "Synced with 581". It MUST show "Disconnected" for 5 minutes after the connection drops, and nothing otherwise, so it doesn't bother users who don't connect to a robot.
+The sidebar SHALL list shared dashboards in a Shared section, below the dashboards that are only on the device and set apart from them by its label. The empty space below the section is part of it, so panes and dashboards dropped there are shared. The section MUST show whether shared dashboards are syncing, ex. "Synced with 581". It MUST show "Disconnected" for 5 minutes after the connection drops, and nothing otherwise, so it doesn't bother users who don't connect to a robot.
 
 #### Scenario: No shared dashboards
 

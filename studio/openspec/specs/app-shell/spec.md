@@ -8,14 +8,15 @@ Define the overall layout of DogLog Studio: a vertical sidebar on the left for c
 
 ### Requirement: Sidebar layout
 
-The app SHALL show a vertical sidebar on the left containing, from top to bottom: the source control, a pages section, and a dashboards section.
+The app SHALL show a vertical sidebar on the left containing, from top to bottom: the sidebar toggle, the source control, a pages section, and a Dashboards section. Like Linear, sections MUST be set apart by spacing and muted labels instead of divider lines.
 
 #### Scenario: Sidebar sections
 
 - **WHEN** the user opens Studio
-- **THEN** the sidebar shows the source control at the top
-- **AND** the pages section below it
-- **AND** the dashboards section below the pages section
+- **THEN** the sidebar shows the sidebar toggle at the top
+- **AND** the source control below it
+- **AND** the pages section below the source control
+- **AND** the Dashboards section, labeled "Dashboards", below the pages section
 
 ### Requirement: What's new
 
@@ -114,13 +115,14 @@ When a dashboard is shown, the main area SHALL show the dashboard's panes, a col
 
 ### Requirement: Collapsible sidebar
 
-Users SHALL be able to collapse the sidebar to a narrow icon-only rail and expand it again. Hovering the collapsed rail MUST temporarily expand it over the dashboard without resizing the dashboard, and the collapsed state MUST persist.
+Users SHALL be able to collapse the sidebar to a narrow icon-only rail and expand it again. Like Linear, an icon-only toggle button at the top of the sidebar MUST stay in place in both states, named by a tooltip with its keyboard shortcut. Hovering the collapsed rail MUST temporarily expand it over the dashboard without resizing the dashboard, and the collapsed state MUST persist.
 
 #### Scenario: Collapse for more space
 
 - **WHEN** the user collapses the sidebar
 - **THEN** it shrinks to an icon-only rail
 - **AND** the dashboard area grows to use the freed space
+- **AND** the toggle stays at the top, with a tooltip reading "Expand sidebar"
 
 #### Scenario: Peek on hover
 
@@ -173,20 +175,21 @@ Like a browser, Back and Forward SHALL move through the pages the user visited i
 
 ### Requirement: macOS title bar
 
-The macOS desktop app SHALL draw the window controls over the top of the sidebar instead of showing a title bar, so the main area reaches the top of the window. The top of the sidebar MUST show "DogLog Studio" beside the window controls, followed by Back and Forward buttons, and MUST be draggable like a title bar.
+The macOS desktop app SHALL draw the window controls over the top of the sidebar instead of showing a title bar, so the main area reaches the top of the window. Like Linear, the sidebar toggle MUST be shown beside the window controls, followed by Back and Forward buttons, and the top of the sidebar MUST be draggable like a title bar.
 
 #### Scenario: Sidebar expanded
 
 - **GIVEN** the user is using the desktop app on macOS
-- **THEN** the window controls are shown at the top of the sidebar, followed by "DogLog Studio"
-- **AND** Back and Forward buttons are shown at the end of the bar
+- **THEN** the window controls are shown at the top of the sidebar
+- **AND** the sidebar toggle, Back, and Forward buttons are shown after them
 
 #### Scenario: Sidebar collapsed
 
 - **GIVEN** the user is using the desktop app on macOS
 - **WHEN** the user collapses the sidebar
-- **THEN** "DogLog Studio" and the Back and Forward buttons are hidden
-- **AND** the top left pane's header makes room for the window controls, which are wider than the rail
+- **THEN** the Back and Forward buttons are hidden
+- **AND** the sidebar toggle stays beside the window controls
+- **AND** the top left pane's header and the page titles make room for the window controls and the toggle, which are wider than the rail
 
 #### Scenario: Fullscreen
 

@@ -2,13 +2,12 @@ import { useRouter } from '@tanstack/react-router';
 import { PlusIcon } from 'lucide-react';
 import { AnimatePresence, domAnimation, LazyMotion } from 'motion/react';
 import { TextMorph } from 'torph/react';
-import { type MouseEvent, useRef } from 'react';
-import { Separator } from '@/components/ui/separator';
+import { type MouseEvent, type ReactNode, useRef } from 'react';
 import { SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { DropPlaceholder } from '@/sidebar/drop-placeholder';
 import { newDashboard, shortcuts } from '@/commands/commands';
-import { type Dashboard, useDashboards } from '@/dashboards/dashboards';
+import { type Dashboard, deleteDashboards, useDashboards } from '@/dashboards/dashboards';
 import { DashboardItem } from '@/sidebar/dashboard-item';
 import { useDragging, useNewDashboardDrop } from '@/sidebar/drag';
 import { type DashboardSelection, useDashboardSelection } from '@/sidebar/selection';
@@ -107,10 +106,17 @@ function sharingStatus(
 	return host === simulatorHost ? 'Synced with simulator' : `Synced with ${robotTarget.trim()}`;
 }
 
-/**
- * Below the other dashboards, set apart by a line so it doesn't move when the sidebar is collapsed like a group label would.
- * It fills the empty space below it, so the pointer stays in this section when the other's drop placeholder moves it down.
- */
+/** Like Linear, a muted label starting a section. The collapsed sidebar hides its text but keeps its space, so nothing moves. */
+function SectionLabel({ label, children }: { label: string; children?: ReactNode }) {
+	return (
+		<div className="group/label my-1 flex h-8 items-center px-2 text-xs text-muted-foreground select-none">
+			<span className="me-2 font-medium group-data-[collapsible=icon]:hidden">{label}</span>
+			{children}
+		</div>
+	);
+}
+
+/** Below the other dashboards, it fills the empty space below it, so the pointer stays in this section when the other's drop placeholder moves it down */
 function SharedDashboards(props: SectionProps) {
 	const { ref, listRef, items } = useSectionItems(props, true);
 	const dragging = useDragging();
@@ -128,15 +134,13 @@ function SharedDashboards(props: SectionProps) {
 			onClick={props.onClick}
 			onDoubleClick={props.onDoubleClick}
 		>
-			<div className="my-1 flex h-8 items-center ps-2 text-xs text-muted-foreground select-none">
-				<span className="me-2 font-medium group-data-[collapsible=icon]:hidden">Shared</span>
-				<Separator className="flex-1 bg-sidebar-border" />
-				{/* `TextMorph` doesn't animate to or from no text, so the status grows out of nothing and the line shrinks with it. Only "Disconnected" is ever hidden. */}
+			<SectionLabel label="Shared">
+				{/* `TextMorph` doesn't animate to or from no text, so the status grows out of nothing. Only "Disconnected" is ever hidden. */}
 				{/* It's remounted when shown, so it doesn't morph from the hidden "Disconnected", and numbers are off so addresses aren't morphed like decimals */}
 				<span
 					aria-hidden={status === undefined}
 					className={cn(
-						'grid min-w-0 transition-[grid-template-columns,opacity] duration-200 ease-in-out motion-reduce:transition-none group-data-[collapsible=icon]:hidden',
+						'ms-auto grid min-w-0 transition-[grid-template-columns,opacity] duration-200 ease-in-out motion-reduce:transition-none group-data-[collapsible=icon]:hidden',
 						status === undefined ? 'grid-cols-[0fr] opacity-0' : 'grid-cols-[1fr]',
 					)}
 				>
@@ -151,7 +155,7 @@ function SharedDashboards(props: SectionProps) {
 						</TextMorph>
 					</span>
 				</span>
-			</div>
+			</SectionLabel>
 			<SidebarMenu ref={listRef} className={cn(dragging && 'pointer-events-none')}>
 				<LazyMotion features={domAnimation} strict>
 					<AnimatePresence initial={false}>{items}</AnimatePresence>
@@ -168,6 +172,18 @@ function LocalDashboards(props: SectionProps) {
 
 	return (
 		<SidebarGroup ref={ref} className="pb-0" onClick={props.onClick} onDoubleClick={props.onDoubleClick}>
+			<SectionLabel label="Dashboards">
+				{/* Like Dia, hovering the label reveals a button to close every dashboard */}
+				{props.dashboards.length > 0 && (
+					<button
+						type="button"
+						className="-me-1.5 ms-auto rounded-md px-1.5 whitespace-nowrap text-sidebar-foreground/70 opacity-0 outline-hidden ring-sidebar-ring group-hover/label:opacity-100 group-data-[collapsible=icon]:hidden hover:text-sidebar-foreground focus-visible:opacity-100 focus-visible:ring-2"
+						onClick={() => deleteDashboards(props.dashboards.map((dashboard) => dashboard.id))}
+					>
+						Close all
+					</button>
+				)}
+			</SectionLabel>
 			{/* Tooltips and previews would open on the dashboards the pointer passes over */}
 			<SidebarMenu ref={listRef} className={cn(dragging && 'pointer-events-none')}>
 				<SidebarMenuItem>

@@ -40,7 +40,7 @@ export type PaneNodeProps = {
 	zoomedPaneId: string | undefined;
 	/** The pane zooming in, which fills the dashboard beneath the others as they slide away, see `useZoomAnimation()` */
 	zoomFillingPaneId: string | undefined;
-	/** Whether the node is in the top left corner of the dashboard, under the traffic lights when the sidebar is collapsed */
+	/** Whether the node is in the top left corner of the dashboard, under the traffic lights and sidebar toggle when the sidebar is collapsed */
 	topLeft: boolean;
 };
 
@@ -192,7 +192,7 @@ export function PaneView({
 			<div
 				className={cn(
 					'flex h-9 shrink-0 items-center gap-0.5 border-b px-2',
-					(topLeft || zoomed) && trafficLightsOverlap && 'ps-10',
+					(topLeft || zoomed) && trafficLightsOverlap && 'ps-16',
 				)}
 				// Middle-clicking the header closes the pane, like a browser tab
 				onAuxClick={(event) => {
