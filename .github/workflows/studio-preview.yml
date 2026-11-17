@@ -16,8 +16,8 @@ concurrency:
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GH_REPO: ${{ github.repository }}
-  # A rolling prerelease release-please ignores, since it isn't a version
-  TAG_NAME: studio-preview
+  # Immutable releases never free up a tag, so each build needs its own. Not a version, so release-please ignores it.
+  TAG_NAME: studio-preview-${{ github.run_number }}
   # Always increasing so the updater sees each build as newer, and below the first real release so testers update to it
   VERSION: 0.0.${{ github.run_number }}
 
@@ -31,14 +31,12 @@ jobs:
     outputs:
       id: ${{ steps.release.outputs.id }}
     steps:
-      - name: Replace preview release
+      # A draft, since assets can't be uploaded once an immutable release is published
+      - name: Create draft release
         id: release
         run: |
           set -euo pipefail
-          if gh release view "$TAG_NAME" > /dev/null 2>&1; then
-            gh release delete "$TAG_NAME" --cleanup-tag --yes
-          fi
-          gh release create "$TAG_NAME" --target "$GITHUB_SHA" --prerelease --title "Studio preview $VERSION" \
+          gh release create "$TAG_NAME" --draft --prerelease --target "$GITHUB_SHA" --title "Studio preview $VERSION" \
             --notes "Automatic preview build of $GITHUB_SHA for testers. Not a stable release."
           echo "id=$(gh release view "$TAG_NAME" --json databaseId --jq .databaseId)" >> "$GITHUB_OUTPUT"
 
@@ -110,6 +108,8 @@ jobs:
     needs: desktop
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: write
     steps:
       - name: Checkout Git repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -122,6 +122,9 @@ jobs:
       # Each build job merges its platform into the release's manifest, so make sure none were lost before publishing
       - name: Check every platform is in the manifest
         run: jq -e '.platforms | has("darwin-aarch64") and has("darwin-x86_64") and has("windows-x86_64") and has("linux-x86_64")' latest.json
+      # The manifest links to the release's assets, which can't be downloaded while it's a draft
+      - name: Publish release
+        run: gh release edit "$TAG_NAME" --draft=false
       # Same fixed names as release-please.yml, so the download button in Studio gets the preview builds
       - name: Publish installers
         run: |
@@ -148,3 +151,17 @@ jobs:
         run: pnpm --dir studio exec wrangler r2 object put doglog-updates/studio/latest.json --file ../latest.json --content-type application/json --cache-control 'public, max-age=300' --remote
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      # Testers only need the newest build, this also removes drafts left by cancelled runs
+      - name: Delete older previews
+        run: |
+          set -euo pipefail
+          gh release list --limit 100 --json tagName,isDraft \
+            --jq '.[] | select((.tagName | startswith("studio-preview-")) and .tagName != env.TAG_NAME) | "\(.tagName) \(.isDraft)"' |
+            while read -r tag draft; do
+              # Drafts don't have a tag yet
+              if [ "$draft" = true ]; then
+                gh release delete "$tag" --yes
+              else
+                gh release delete "$tag" --cleanup-tag --yes
+              fi
+            done

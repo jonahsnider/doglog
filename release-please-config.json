@@ -42,6 +42,8 @@
 		},
 		"studio": {
 			"component": "studio",
+			"draft": true,
+			"force-tag-creation": true,
 			"extra-files": [
 				{
 					"jsonpath": "$.version",

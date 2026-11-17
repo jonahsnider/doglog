@@ -205,6 +205,10 @@ jobs:
       # Each build job merges its platform into the release's manifest, so make sure none were lost before publishing
       - name: Check every platform is in the manifest
         run: jq -e '.platforms | has("darwin-aarch64") and has("darwin-x86_64") and has("windows-x86_64") and has("linux-x86_64")' latest.json
+      # release-please makes Studio releases drafts, since assets can't be uploaded once an immutable release is published
+      # The manifest links to the release's assets, which can't be downloaded while it's a draft
+      - name: Publish release
+        run: gh release edit "$TAG_NAME" --draft=false
       # Release asset names include the version, so the website links to copies with fixed names instead
       # Published before the manifest so the website never offers a version the updater doesn't know about yet
       - name: Publish installers
