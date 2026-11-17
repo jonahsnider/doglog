@@ -105,7 +105,7 @@ While the skip disabled time option is on, disabled periods longer than 15 secon
 
 ### Requirement: Fast-forward skipped time
 
-While playing, the cursor SHALL fast-forward through a skipped span in about 1.5 seconds, then continue at the playback speed from the end of the span. The current time MUST be marked with a fast-forward icon while this happens.
+While playing, the cursor SHALL fast-forward through a skipped span in about 1.5 seconds, then continue at the playback speed from the end of the span. The current time MUST be marked with a fast-forward icon while it is in a skipped span, playing or paused, with a tooltip saying what it means.
 
 #### Scenario: Play into a skipped span
 

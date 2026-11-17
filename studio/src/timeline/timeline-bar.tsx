@@ -73,22 +73,13 @@ function ControlButton({
 	);
 }
 
-/** The cursor's time, marked while playback fast-forwards through a compressed disabled span */
-function CursorTime({
-	range,
-	time,
-	playing,
-}: {
-	range: TimeRange | undefined;
-	time: number | undefined;
-	playing: boolean;
-}) {
+/** The cursor's time, marked while it's in a compressed disabled span, which playback fast-forwards through */
+function CursorTime({ range, time }: { range: TimeRange | undefined; time: number | undefined }) {
 	if (range === undefined || time === undefined) {
 		return <span className="ms-1 min-w-20 text-right font-mono text-sm">-</span>;
 	}
-	// Only checked while playing, since that's the only time playback fast-forwards
-	const fastForwarding =
-		playing && getActiveCompressedSpans(range).some((span) => span.start <= time && time < span.end);
+	// Also shown while paused, so there's time to hover it for the tooltip
+	const skipped = getActiveCompressedSpans(range).some((span) => span.start <= time && time < span.end);
 	// Reserves room for the widest time in the log plus the icon (size-3.5 and gap-1), so the label doesn't resize while playing
 	const maxLength = formatTime(range.end, range.start).length;
 	return (
@@ -96,12 +87,18 @@ function CursorTime({
 			className="ms-1 flex items-center gap-1 font-mono text-sm tabular-nums"
 			style={{ minWidth: `max(5rem, calc(${maxLength}ch + 1.125rem))` }}
 		>
-			{fastForwarding && (
-				<FastForwardIcon
-					className="size-3.5 text-muted-foreground"
-					aria-label="Fast-forwarding through disabled time"
-				/>
-			)}
+			{/* Always rendered so it can fade in and out, its tooltip only works while it's shown */}
+			<Tooltip disabled={!skipped}>
+				<TooltipTrigger
+					render={<span />}
+					className={cn('transition-opacity duration-300', !skipped && 'opacity-0')}
+					aria-label="Skipped disabled time"
+					aria-hidden={!skipped}
+				>
+					<FastForwardIcon className="size-3.5 text-muted-foreground" />
+				</TooltipTrigger>
+				<TooltipPopup>The robot was disabled, playback fast-forwards through this</TooltipPopup>
+			</Tooltip>
 			{/* Right-aligned on its own so the icon stays pinned to the left edge as the time widens */}
 			<span className="ms-auto">{formatTime(time, range.start)}</span>
 		</span>
@@ -174,7 +171,7 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 					</SelectPopup>
 				</Select>
 
-				<CursorTime range={range} time={time} playing={playback === 'playing'} />
+				<CursorTime range={range} time={time} />
 				{range && time !== undefined ? (
 					<Scrubber range={range} time={time} live={live} showAlerts={timelineAlerts} compress={timelineCompress} />
 				) : (
