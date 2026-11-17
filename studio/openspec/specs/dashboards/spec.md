@@ -40,7 +40,7 @@ A dashboard the user hasn't named SHALL be named after its contents, updating as
 
 - **GIVEN** a dashboard the user hasn't named
 - **WHEN** it shows entries from Swerve, Drive, Shooter, and Vision
-- **THEN** it's named "Swerve, Drive & 2 more"
+- **THEN** it's named "Swerve, Drive, & 2 more"
 
 #### Scenario: Empty dashboard name
 

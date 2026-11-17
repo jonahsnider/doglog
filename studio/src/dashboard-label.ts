@@ -12,6 +12,9 @@ const skippedPrefixes = ['/AdvantageKit/RealOutputs/', '/AdvantageKit/', '/RealO
 /** How many topics are listed by name before the rest are counted */
 const maxTopics = 3;
 
+/** Joins topics like `A, B, & C` */
+const topicList = new Intl.ListFormat('en', { style: 'short', type: 'conjunction' });
+
 /** An entry's topic is its first path segment, ex. `/Robot/Intake/Speed` is about `Intake` */
 function entryTopic(name: string): string {
 	const prefix = skippedPrefixes.find((candidate) => name.startsWith(candidate));
@@ -45,9 +48,9 @@ export function suggestDashboardName(layout: PaneNode): string {
 		return 'Empty dashboard';
 	}
 	if (names.length > maxTopics) {
-		return `${names.slice(0, maxTopics - 1).join(', ')} & ${names.length - maxTopics + 1} more`;
+		return topicList.format([...names.slice(0, maxTopics - 1), `${names.length - maxTopics + 1} more`]);
 	}
-	return names.length === 1 ? names[0]! : `${names.slice(0, -1).join(', ')} & ${names.at(-1)}`;
+	return topicList.format(names);
 }
 
 /** The name the user gave a dashboard, or one suggested from its contents */

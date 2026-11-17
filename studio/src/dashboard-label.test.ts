@@ -29,8 +29,8 @@ test('skips AdvantageKit prefixes', () => {
 });
 
 test('lists three groups, then counts the rest', () => {
-	expect(suggestDashboardName(layoutOf(table('/A/x', '/B/x', '/C/x')))).toBe('A, B & C');
-	expect(suggestDashboardName(layoutOf(table('/A/x', '/B/x', '/C/x', '/D/x')))).toBe('A, B & 2 more');
+	expect(suggestDashboardName(layoutOf(table('/A/x', '/B/x', '/C/x')))).toBe('A, B, & C');
+	expect(suggestDashboardName(layoutOf(table('/A/x', '/B/x', '/C/x', '/D/x')))).toBe('A, B, & 2 more');
 });
 
 test('capitalizes top level entries', () => {
