@@ -13,6 +13,11 @@
 		"fs:allow-read-dir",
 		"fs:allow-stat",
 		"fs:allow-remove",
+		{
+			"identifier": "fs:scope",
+			"$comment": "The default log sync folder, other folders are allowed when the user picks them. Not added at startup, since that asks for access to Documents.",
+			"allow": [{ "path": "$DOCUMENT/DogLog" }, { "path": "$DOCUMENT/DogLog/**" }]
+		},
 		"opener:allow-reveal-item-in-dir",
 		"opener:allow-open-url",
 		"opener:allow-default-urls"

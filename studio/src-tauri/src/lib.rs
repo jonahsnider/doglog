@@ -3,7 +3,6 @@ mod sync;
 
 use std::{path::PathBuf, sync::Mutex};
 use tauri::{AppHandle, Emitter, Manager, RunEvent, State, ipc::Response};
-use tauri_plugin_fs::FsExt;
 
 /// The last log the OS asked Studio to open, until the frontend takes it
 #[derive(Default)]
@@ -75,11 +74,6 @@ pub fn run() {
             .build(),
         )?;
       }
-
-      // The default log sync folder, other folders are allowed when the user picks them
-      app
-        .fs_scope()
-        .allow_directory(app.path().document_dir()?.join("DogLog"), true)?;
 
       if let Some(log) = log {
         set_opened_log(app.handle(), log);

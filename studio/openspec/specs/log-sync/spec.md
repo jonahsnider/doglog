@@ -143,6 +143,16 @@ Logs SHALL be copied to `DogLog/Logs` in the user's Documents folder, and the sy
 - **WHEN** the log is still on the robot and passes the sync filters
 - **THEN** sync copies it again
 
+### Requirement: No folder access before sync starts
+
+Studio MUST NOT access the sync folder until the user starts sync for the first time, so it doesn't ask for access to the Documents folder before sync needs it.
+
+#### Scenario: Sync never started
+
+- **GIVEN** the user never started sync
+- **WHEN** they open Studio or the Logs page
+- **THEN** the computer doesn't ask them to give Studio access to the Documents folder
+
 ### Requirement: Storage limit
 
 The Logs page SHALL let the user limit how much space synced logs take, which is off by default. With a limit, sync MUST keep the newest logs that fit, MUST NOT copy older logs that wouldn't fit, and MUST permanently delete older logs from the sync folder to stay under the limit. Sync MUST only delete files with WPILib's or AdvantageKit's log names, and MUST NOT delete anything on the robot.

@@ -99,8 +99,9 @@ async function sleep(ms: number): Promise<void> {
 
 /** Read the sync folder again after it changed */
 async function refreshFolder(): Promise<SyncFolder> {
-	const path = syncSettingsStore.get().folder ?? (await join(await documentDir(), 'DogLog', 'Logs'));
-	const folder = { path, logs: await currentBackend().listSavedLogs(path) };
+	const { folder: picked, enabled, started } = syncSettingsStore.get();
+	const path = picked ?? (await join(await documentDir(), 'DogLog', 'Logs'));
+	const folder = { path, logs: enabled || started ? await currentBackend().listSavedLogs(path) : [] };
 	folderStore.set(folder);
 	return folder;
 }

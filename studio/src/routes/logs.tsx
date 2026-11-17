@@ -132,7 +132,7 @@ function SyncOverview() {
 					</EmptyDescription>
 				</EmptyHeader>
 				<EmptyContent className="flex-row justify-center">
-					<Button onClick={() => updateSyncSettings({ enabled: true })}>
+					<Button onClick={() => updateSyncSettings({ enabled: true, started: true })}>
 						<PlayIcon />
 						Start syncing
 					</Button>

@@ -9,7 +9,7 @@ use std::{
 
 use robot_sftp::Robot;
 use serde::Serialize;
-use tauri::{AppHandle, Manager, State, ipc::Channel};
+use tauri::{AppHandle, Manager, State, ipc::Channel, scope::fs::Scope, utils::config::FsScope};
 use tauri_plugin_fs::FsExt;
 use tokio::sync::Mutex;
 
@@ -116,8 +116,11 @@ pub async fn download_robot_log(
   offset: u64,
   on_progress: Channel<u64>,
 ) -> Result<u64, String> {
-  // Same rules as the frontend's file access, so this can't write outside the sync folder
-  if !app.fs_scope().is_allowed(&local_path) {
+  // Same rules as the frontend's file access, so this can't write outside the sync folder.
+  // The default folder is allowed in the capability file instead of `fs_scope()`, which would access it at startup.
+  let default_folder = Scope::new(&app, &FsScope::AllowedPaths(vec!["$DOCUMENT/DogLog/**".into()]))
+    .map_err(|error| error.to_string())?;
+  if !app.fs_scope().is_allowed(&local_path) && !default_folder.is_allowed(&local_path) {
     return Err(format!("Studio doesn't have access to {}", local_path.display()));
   }
 

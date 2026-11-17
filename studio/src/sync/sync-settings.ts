@@ -5,6 +5,8 @@ import { createPersistedAtom } from '@/lib/persisted-store';
 // Invalid fields fall back to their defaults
 const syncSettingsSchema = z.object({
 	enabled: z.boolean().catch(false),
+	/** Whether the user ever started sync. Until then the sync folder isn't read, since that asks for access to Documents. */
+	started: z.boolean().catch(false),
 	/** Folder logs are synced to, `null` for the default folder */
 	folder: z.string().nullable().catch(null),
 	/** Only sync logs from this many days before now */
