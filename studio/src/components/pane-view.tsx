@@ -12,7 +12,9 @@ import { closeDashboardPane, splitDashboardPane, updateLayout } from '@/dashboar
 import { focusPane } from '@/dashboards';
 import { getEntry, useEntries } from '@/data/data-store';
 import {
+	bindingLabel,
 	changeWidgetType,
+	disconnectBindings,
 	createWidget,
 	type Binding,
 	removeBinding,
@@ -39,10 +41,6 @@ export type PaneNodeProps = {
 // Widgets mark the elements that show a binding, ex. a values table row
 const bindingIdAt = (target: EventTarget) =>
 	target instanceof Element ? target.closest<HTMLElement>('[data-binding-id]')?.dataset['bindingId'] : undefined;
-
-/** Copies of an entry are told apart by their roles, ex. `/Drive/Pose (Ghost)` */
-const bindingLabel = ({ name, roleLabel }: WidgetBinding) =>
-	roleLabel === undefined ? name : `${name} (${roleLabel})`;
 
 export function PaneView({
 	dashboardId,
@@ -78,6 +76,29 @@ export function PaneView({
 	const focused = pane.id === focusedPaneId;
 
 	const remove = (bindingId: string) => update((layout) => removeBinding(layout, pane.id, bindingId));
+
+	/** Disconnects the binding from the others it's connected to either way, ex. a robot from the tags it sees */
+	const disconnectItems = (binding: WidgetBinding | undefined): MenuEntry[] => {
+		const connections =
+			binding === undefined
+				? []
+				: bindings.flatMap((target) =>
+						target.sources
+							.filter((source) => source.id === binding.id || target.id === binding.id)
+							.map((source) => ({ source, target })),
+					);
+		return connections.length === 0
+			? []
+			: [
+					{
+						label: 'Disconnect',
+						items: connections.map(({ source, target }) => ({
+							label: `${bindingLabel(source)} → ${bindingLabel(target)}`,
+							onSelect: () => update((layout) => disconnectBindings(layout, pane.id, source.id, target.id)),
+						})),
+					},
+				];
+	};
 
 	const menuItems = (target: Element): MenuEntry[] => {
 		const targetId = bindingIdAt(target);
@@ -122,6 +143,7 @@ export function PaneView({
 						})),
 					}
 				: { label: `Remove ${bindingLabel(targetBinding)}`, onSelect: () => remove(targetBinding.id) },
+			...disconnectItems(targetBinding),
 			'separator',
 			{ label: 'Close', shortcut: shortcuts.close, disabled: !closable, onSelect: close },
 		];

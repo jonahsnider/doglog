@@ -31,7 +31,17 @@ export type WidgetBinding = {
 	readonly roleLabel: string | undefined;
 	/** Turned off from the legend, widgets with a legend list it but don't draw it */
 	readonly hidden: boolean;
+	/** How the binding can be connected to others, see `WidgetType.connects` */
+	readonly connects: Connects | undefined;
+	/** Bindings connected to this one, which the widget draws from, ex. the field draws lines from a robot to seen tags */
+	readonly sources: readonly WidgetBinding[];
 };
+
+/**
+ * A binding that shows one position, ex. a robot, can be connected to any connectable binding. One that shows `many`,
+ * ex. a path, can only be connected to from a `single` one.
+ */
+export type Connects = 'single' | 'many';
 
 export type WidgetProps = {
 	/**
@@ -57,6 +67,13 @@ export type WidgetType = {
 	 * accepted. Widgets without roles show every entry the same way.
 	 */
 	readonly roles?: (entry: Entry) => readonly RoleOption[];
+	/**
+	 * Infers a binding's role from the bindings before it, ex. the field draws the first pose as a robot and later ones as
+	 * ghosts. Without it, or when it returns `undefined`, a binding takes the first role no other binding of its entry has.
+	 */
+	readonly inferRole?: (roles: readonly RoleOption[], earlier: readonly WidgetBinding[]) => RoleOption | undefined;
+	/** How a binding can be connected to others from the legend, `undefined` for bindings that can't be connected */
+	readonly connects?: (binding: WidgetBinding) => Connects | undefined;
 	/** Rendered even with no entries or no data instead of the shared empty states, ex. the field shows the field */
 	readonly rendersEmpty?: boolean;
 	/** Entries bound to a newly added widget, ex. the console's `/console` and `/messages` */

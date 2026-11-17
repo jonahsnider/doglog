@@ -12,6 +12,8 @@ const bindingSchema = z.object({
 	/** A role the user picked, the widget infers one otherwise. Kept when it doesn't fit the entry, in case it fits again. */
 	role: z.string().optional(),
 	hidden: z.literal(true).optional(),
+	/** IDs of the bindings connected to this one from the legend, see `connectBindings()` */
+	sources: z.array(z.string()).optional(),
 });
 
 export type Binding = z.infer<typeof bindingSchema>;
@@ -44,7 +46,20 @@ function updateBindings(
 	}
 
 	const config = typeof widget.config === 'object' ? widget.config : {};
-	return setPaneWidget(layout, paneId, { ...widget, config: { ...config, bindings: update(widgetBindings(widget)) } });
+	return setPaneWidget(layout, paneId, {
+		...widget,
+		config: { ...config, bindings: withoutStaleSources(update(widgetBindings(widget))) },
+	});
+}
+
+/** Connections to bindings that were removed or moved to another widget are removed with them */
+function withoutStaleSources(bindings: readonly Binding[]): Binding[] {
+	const ids = new Set(bindings.map((binding) => binding.id));
+	return bindings.map((binding) => {
+		const { sources, ...rest } = binding;
+		const kept = sources?.filter((id) => ids.has(id));
+		return kept !== undefined && kept.length > 0 ? { ...rest, sources: kept } : rest;
+	});
 }
 
 /**
@@ -91,6 +106,34 @@ export function setBindingRole(layout: PaneNode, paneId: string, bindingId: stri
 	return updateBindings(layout, paneId, (bindings) =>
 		bindings.map((binding) => (binding.id === bindingId ? { ...binding, role } : binding)),
 	);
+}
+
+/** Connect `sourceId` to `targetId`, unless they're the same binding or already connected either way */
+export function connectBindings(layout: PaneNode, paneId: string, sourceId: string, targetId: string): PaneNode {
+	const bindings = widgetBindings(findPane(layout, paneId)?.widget);
+	const connected = (from: string, to: string) =>
+		bindings.find((binding) => binding.id === to)?.sources?.includes(from) === true;
+	if (sourceId === targetId || connected(sourceId, targetId) || connected(targetId, sourceId)) {
+		return layout;
+	}
+	return updateBindings(layout, paneId, (current) =>
+		current.map((binding) =>
+			binding.id === targetId ? { ...binding, sources: [...(binding.sources ?? []), sourceId] } : binding,
+		),
+	);
+}
+
+export function disconnectBindings(layout: PaneNode, paneId: string, sourceId: string, targetId: string): PaneNode {
+	return updateBindings(layout, paneId, (bindings) =>
+		bindings.map((binding) =>
+			binding.id === targetId ? { ...binding, sources: binding.sources?.filter((id) => id !== sourceId) } : binding,
+		),
+	);
+}
+
+/** Copies of an entry are told apart by their roles, ex. `/Drive/Pose (Ghost)` */
+export function bindingLabel({ name, roleLabel }: WidgetBinding): string {
+	return roleLabel === undefined ? name : `${name} (${roleLabel})`;
 }
 
 export function toggleBindingHidden(layout: PaneNode, paneId: string, bindingId: string): PaneNode {
@@ -151,9 +194,10 @@ export function changeWidgetType(
 }
 
 /**
- * Bindings as the widget shows them, with their entries and roles. A binding without a picked role (or with one that
- * doesn't fit) takes the first role no other binding of its entry has, so a second binding of a robot's pose is a ghost
- * instead of a robot drawn on top of it. Hidden bindings count too, so hiding one doesn't change the others' roles.
+ * Bindings as the widget shows them, with their entries, roles, and connections. A binding without a picked role (or
+ * with one that doesn't fit) takes the role the widget infers from the bindings before it, or the first role no other
+ * binding of its entry has, so a second binding of a robot's pose isn't drawn on top of it. Hidden bindings count too,
+ * so hiding one doesn't change the others' roles. Connections that don't fit the bindings' roles are kept but not used.
  */
 export function resolveBindings(
 	type: WidgetType,
@@ -179,14 +223,18 @@ export function resolveBindings(
 		}
 	}
 
-	return resolved.map(({ binding, entry, roles, picked }) => {
-		let role: RoleOption | undefined = picked;
+	// Connections are added once every binding has its role, since what can be connected depends on it
+	const withRoles: Mutable<WidgetBinding>[] = [];
+	for (const { binding, entry, roles, picked } of resolved) {
+		let role: RoleOption | undefined = picked ?? (roles.length > 0 ? type.inferRole?.(roles, withRoles) : undefined);
+		const others = taken.get(binding.name)!;
 		if (role === undefined && roles.length > 0) {
-			const others = taken.get(binding.name)!;
 			role = roles.find((option) => !others.has(option.id)) ?? roles[0]!;
+		}
+		if (role !== undefined) {
 			others.add(role.id);
 		}
-		return {
+		const withRole = {
 			id: binding.id,
 			name: binding.name,
 			entry,
@@ -194,6 +242,23 @@ export function resolveBindings(
 			role,
 			roleLabel: role && (roles.length > 1 || counts.get(binding.name)! > 1) ? role.label : undefined,
 			hidden: binding.hidden === true,
+			connects: undefined,
+			sources: [],
 		};
-	});
+		withRoles.push({ ...withRole, connects: entry ? type.connects?.(withRole) : undefined });
+	}
+
+	const byId = new Map(withRoles.map((binding) => [binding.id, binding]));
+	for (const [index, binding] of withRoles.entries()) {
+		binding.sources =
+			binding.connects === undefined
+				? []
+				: (bindings[index]!.sources ?? []).flatMap((id) => {
+						const source = byId.get(id);
+						return source?.connects === 'single' ? [source] : [];
+					});
+	}
+	return withRoles;
 }
+
+type Mutable<T> = { -readonly [K in keyof T]: T[K] };

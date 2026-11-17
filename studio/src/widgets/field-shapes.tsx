@@ -106,3 +106,16 @@ export function Path({ poses, color }: { poses: Pose[]; color: string }) {
 		/>
 	);
 }
+
+/** A line from `from` to each pose */
+export function Connections({ from, poses, color }: { from: Pose; poses: Pose[]; color: string }) {
+	return (
+		<path
+			d={poses.map(({ x, y }) => `M ${from.x} ${from.y} L ${x} ${y}`).join(' ')}
+			stroke={color}
+			strokeWidth={strokeWidth}
+			strokeLinecap="round"
+			vectorEffect="non-scaling-stroke"
+		/>
+	);
+}

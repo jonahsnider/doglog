@@ -1,9 +1,20 @@
 import { MapIcon } from 'lucide-react';
 import { expect, test } from 'vite-plus/test';
-import { addEntries, type Binding, dropEntry, resolveBindings, setBoundEntries, widgetBindings } from '@/bindings';
+import {
+	addEntries,
+	type Binding,
+	connectBindings,
+	disconnectBindings,
+	dropEntry,
+	removeBinding,
+	resolveBindings,
+	setBoundEntries,
+	widgetBindings,
+} from '@/bindings';
 import type { Entry } from '@/data/data-store';
 import { getEntryKind, Samples } from '@/data/samples';
 import { createPane, findPane, type PaneNode } from '@/pane-layout';
+import { getWidgetType } from '@/widgets/registry';
 import type { WidgetType } from '@/widgets/widget-type';
 
 const table = (...bindings: Binding[]) => ({ type: 'values-table', config: { bindings } });
@@ -126,4 +137,62 @@ test('roles are labeled when there is a choice or the entry is bound more than o
 	expect(labels(robotType, a)).toEqual(['Robot']);
 	expect(labels(singleRole, a)).toEqual([undefined]);
 	expect(labels(singleRole, a, { id: 'a2', name: '/a' })).toEqual(['Robot', 'Robot']);
+});
+
+const field = getWidgetType('field')!;
+const fieldEntries = new Map<string, Entry>(
+	(
+		[
+			['/pose', 'struct:Pose2d'],
+			['/setpoint', 'struct:Pose2d'],
+			['/tags', 'struct:Pose3d[]'],
+			['/path', 'struct:Pose2d[]'],
+		] as const
+	).map(([name, type]) => [name, { name, type, kind: getEntryKind(type), samples: new Samples(), metadata: {} }]),
+);
+const resolveField = (...bindings: Binding[]) => resolveBindings(field, bindings, (name) => fieldEntries.get(name));
+
+test('the first pose on the field is a robot and later ones are ghosts', () => {
+	expect(
+		resolveField(
+			{ id: '1', name: '/tags' },
+			{ id: '2', name: '/pose', hidden: true },
+			{ id: '3', name: '/setpoint' },
+		).map((binding) => binding.role?.id),
+	).toEqual(['points', 'robot', 'ghost']);
+});
+
+test('only single positions are drawn from', () => {
+	const tags = resolveField(
+		{ id: 'p', name: '/pose' },
+		{ id: 'path', name: '/path' },
+		{ id: 't', name: '/tags', sources: ['p', 'path', 'gone'] },
+	)[2]!;
+	expect(tags.sources.map((source) => source.id)).toEqual(['p']);
+});
+
+test('connecting skips bindings that are already connected either way', () => {
+	const { layout, left } = twoPanes([a, b], []);
+	const connected = connectBindings(layout, left, 'a', 'b');
+
+	expect(widgetBindings(findPane(connected, left)?.widget)[1]?.sources).toEqual(['a']);
+	expect(connectBindings(connected, left, 'a', 'b')).toBe(connected);
+	expect(connectBindings(connected, left, 'b', 'a')).toBe(connected);
+	expect(connectBindings(layout, left, 'a', 'a')).toBe(layout);
+	expect(
+		widgetBindings(findPane(disconnectBindings(connected, left, 'a', 'b'), left)?.widget)[1]?.sources,
+	).toBeUndefined();
+});
+
+const sources = (layout: PaneNode, paneId: string) =>
+	widgetBindings(findPane(layout, paneId)?.widget).map((binding) => binding.sources);
+
+test('connections are removed with either end', () => {
+	const { layout, left, right } = twoPanes([a, { ...b, sources: ['a'] }, { ...c, sources: ['b'] }], []);
+
+	expect(sources(removeBinding(layout, left, 'a'), left)).toEqual([undefined, ['b']]);
+	// Moved bindings are connected to bindings in the widget they came from
+	const moved = dropEntry(layout, { name: '/b', from: { paneId: left, bindingId: 'b' } }, { paneId: right });
+	expect(sources(moved, left)).toEqual([undefined, undefined]);
+	expect(sources(moved, right)).toEqual([undefined]);
 });

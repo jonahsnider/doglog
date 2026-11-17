@@ -3,8 +3,9 @@ import type { ReactNode } from 'react';
 import type { Entry } from '@/data/data-store';
 import type { Value } from '@/data/samples';
 import { readPose } from '@/widgets/field-data';
-import { Markers, Path, Robot, Shapes } from '@/widgets/field-shapes';
-import type { RoleOption } from '@/widgets/widget-type';
+import { seriesColor } from '@/widgets/series-color';
+import { Connections, Markers, Path, Robot, Shapes } from '@/widgets/field-shapes';
+import type { Connects, RoleOption, WidgetBinding } from '@/widgets/widget-type';
 
 type Draw = (value: Value, color: string) => ReactNode;
 
@@ -13,7 +14,6 @@ const items = (value: Value): readonly unknown[] => (Array.isArray(value) ? valu
 const poses = (value: Value) => items(value).map((item) => readPose(item));
 const points: Draw = (value, color) => <Markers poses={poses(value)} color={color} />;
 
-/** Every role in draw order, later ones are drawn on top */
 const roles = [
 	{ id: 'shape', label: 'Shape', draw: (value, color) => <Shapes values={items(value)} color={color} /> },
 	{ id: 'path', label: 'Path', draw: (value, color) => <Path poses={poses(value)} color={color} /> },
@@ -25,7 +25,14 @@ const roles = [
 
 type FieldRoleId = (typeof roles)[number]['id'];
 
+/** Every layer, later ones are drawn on top. Connections are drawn from the bindings connected to another, not by a role. */
+const drawOrder = ['shape', 'path', 'connections', 'points', 'point', 'ghost', 'robot'] as const satisfies readonly (
+	| FieldRoleId
+	| 'connections'
+)[];
+
 const pose: readonly FieldRoleId[] = ['robot', 'ghost', 'point'];
+const translation: readonly FieldRoleId[] = ['point'];
 const poseArray: readonly FieldRoleId[] = ['points', 'path'];
 const translationArray: readonly FieldRoleId[] = ['path', 'points'];
 const shape: readonly FieldRoleId[] = ['shape'];
@@ -36,8 +43,8 @@ const typeRoles: Partial<Record<string, readonly FieldRoleId[]>> = {
 	'struct:Pose3d': pose,
 	'struct:Pose2d[]': poseArray,
 	'struct:Pose3d[]': poseArray,
-	'struct:Translation2d': ['point'],
-	'struct:Translation3d': ['point'],
+	'struct:Translation2d': translation,
+	'struct:Translation3d': translation,
 	'struct:Translation2d[]': translationArray,
 	'struct:Translation3d[]': translationArray,
 	'struct:Rectangle2d': shape,
@@ -56,10 +63,66 @@ export function fieldRoles(entry: Entry): RoleOption[] {
 	return ids.flatMap((id) => roles.filter((role) => role.id === id).map(({ label }) => ({ id, label })));
 }
 
-/** How a role is drawn, and its `layer`: higher layers are drawn on top. `undefined` for roles the field doesn't have. */
-export function fieldDrawing(roleId: string): { layer: number; draw: Draw } | undefined {
-	const layer = roles.findIndex((role) => role.id === roleId);
-	return layer === -1 ? undefined : { layer, draw: roles[layer]!.draw };
+/** The first pose is drawn as a robot, and later ones as ghosts, ex. a setpoint added after the robot's pose */
+export function inferFieldRole(
+	options: readonly RoleOption[],
+	earlier: readonly WidgetBinding[],
+): RoleOption | undefined {
+	if (!options.some((option) => option.id === 'robot')) {
+		return undefined;
+	}
+	const anotherPose = earlier.some((binding) => binding.roles.some((option) => option.id === 'robot'));
+	return options.find((option) => option.id === (anotherPose ? 'ghost' : 'robot'));
 }
 
-export const layerCount = roles.length;
+const singleRoles: ReadonlySet<string> = new Set(['robot', 'ghost', 'point']);
+const manyRoles: ReadonlySet<string> = new Set(['points', 'path']);
+
+/** Single poses and translations can be connected to anything but shapes, which can't be connected */
+export function fieldConnects(binding: WidgetBinding): Connects | undefined {
+	const role = binding.role?.id;
+	if (role !== undefined && singleRoles.has(role)) {
+		return 'single';
+	}
+	return role !== undefined && manyRoles.has(role) ? 'many' : undefined;
+}
+
+/**
+ * Every binding's drawing at the cursor in draw order, with lines from the bindings connected to it. Earlier bindings
+ * are drawn on top of later ones with the same role.
+ */
+export function fieldDrawings(
+	bindings: readonly WidgetBinding[],
+	valueOf: (binding: WidgetBinding) => Value | undefined,
+): ReactNode[] {
+	const layers: ReactNode[][] = drawOrder.map(() => []);
+	bindings.forEach((binding, index) => {
+		const role = roles.find((option) => option.id === binding.role?.id);
+		const value = valueOf(binding);
+		if (role === undefined || value === undefined || binding.hidden) {
+			return;
+		}
+		const color = seriesColor(index);
+		layers[drawOrder.indexOf(role.id)]!.push(
+			// Right-clicking a drawing offers to remove its binding, middle-clicking removes it
+			<g key={binding.id} data-binding-id={binding.id}>
+				{role.draw(value, color)}
+			</g>,
+		);
+		// Hidden sources hide the lines drawn from them
+		for (const source of binding.sources) {
+			const sourceValue = source.hidden ? undefined : valueOf(source);
+			if (sourceValue !== undefined) {
+				layers[drawOrder.indexOf('connections')]!.push(
+					<Connections
+						key={`${source.id}-${binding.id}`}
+						from={readPose(sourceValue)}
+						poses={poses(value)}
+						color={color}
+					/>,
+				);
+			}
+		}
+	});
+	return layers.flatMap((layer) => layer.toReversed());
+}

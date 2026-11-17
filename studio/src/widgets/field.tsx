@@ -1,5 +1,5 @@
 import { useHotkey } from '@tanstack/react-hotkeys';
-import { type PointerEvent, type ReactNode, useEffect, useRef, useState } from 'react';
+import { type PointerEvent, useEffect, useRef, useState } from 'react';
 import { ControlTooltip } from '@/components/control-tooltip';
 import { Kbd } from '@/components/ui/kbd';
 import { Toggle } from '@/components/ui/toggle';
@@ -17,7 +17,7 @@ import {
 } from '@/widgets/field-geometry';
 import { FieldImage, Minimap } from '@/widgets/field-image';
 import { MeasurementDrawing } from '@/widgets/field-measure';
-import { fieldDrawing, layerCount } from '@/widgets/field-roles';
+import { fieldDrawings } from '@/widgets/field-roles';
 import { useFieldZoom } from '@/widgets/field-zoom';
 import { Legend, type LegendItem } from '@/widgets/legend';
 import { seriesColor } from '@/widgets/series-color';
@@ -160,22 +160,11 @@ export function Field({ bindings }: WidgetProps) {
 	};
 
 	const valueOf = (entry: Entry | undefined) => (entry && time !== undefined ? entry.samples.valueAt(time) : undefined);
-	const legend: LegendItem[] = [];
-	const layers: ReactNode[][] = Array.from({ length: layerCount }, () => []);
-	bindings.forEach((binding, index) => {
-		const color = seriesColor(index);
-		const value = valueOf(binding.entry);
-		legend.push({ binding, color, dimmed: value === undefined });
-		const drawing = binding.role && fieldDrawing(binding.role.id);
-		if (drawing && value !== undefined && !binding.hidden) {
-			layers[drawing.layer]!.push(
-				// Right-clicking a drawing offers to remove its binding, middle-clicking removes it
-				<g key={binding.id} data-binding-id={binding.id}>
-					{drawing.draw(value, color)}
-				</g>,
-			);
-		}
-	});
+	const legend = bindings.map((binding, index): LegendItem => ({
+		binding,
+		color: seriesColor(index),
+		dimmed: valueOf(binding.entry) === undefined,
+	}));
 
 	const label = measurement && measurementLabel(measurement);
 
@@ -267,8 +256,7 @@ export function Field({ bindings }: WidgetProps) {
 								<g transform={transform}>
 									<FieldImage />
 									<g transform="scale(1 -1)">
-										{/* Earlier entries draw on top of later ones */}
-										{layers.flatMap((layer) => layer.toReversed())}
+										{fieldDrawings(bindings, (binding) => valueOf(binding.entry))}
 										{measurement && <MeasurementDrawing measurement={measurement} />}
 									</g>
 								</g>

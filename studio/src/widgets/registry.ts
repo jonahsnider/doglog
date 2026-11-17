@@ -5,7 +5,7 @@ import type { Widget } from '@/pane-layout';
 import { Console } from '@/widgets/console';
 import { DiscreteTimeline } from '@/widgets/discrete-timeline';
 import { Field } from '@/widgets/field';
-import { fieldRoles } from '@/widgets/field-roles';
+import { fieldConnects, fieldRoles, inferFieldRole } from '@/widgets/field-roles';
 import { Notepad } from '@/widgets/notepad';
 import { Swerve } from '@/widgets/swerve';
 import { swerveRoles } from '@/widgets/swerve-data';
@@ -56,6 +56,8 @@ export const widgetTypes: readonly WidgetType[] = [
 		hotkey: 'F',
 		accepts: ['struct', 'struct[]'],
 		roles: fieldRoles,
+		inferRole: inferFieldRole,
+		connects: fieldConnects,
 		rendersEmpty: true,
 		component: Field,
 	},

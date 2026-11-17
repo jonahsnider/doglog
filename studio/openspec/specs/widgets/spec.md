@@ -140,7 +140,7 @@ The part of a widget that shows an entry, such as a values table row or swerve l
 
 ### Requirement: Roles
 
-A widget MAY show entries in different ways, called roles, such as the field drawing a `Pose2d` as a robot or a ghost. Each binding's role SHALL be inferred unless the user picks one, and a binding of an entry that's bound more than once MUST infer the first role none of the entry's other bindings have. A picked role the entry can't take, such as after opening a log where its type is different, MUST be kept but not used.
+A widget MAY show entries in different ways, called roles, such as the field drawing a `Pose2d` as a robot or a ghost. Each binding's role SHALL be inferred unless the user picks one, and unless the widget infers it from the bindings before it, a binding of an entry that's bound more than once MUST infer the first role none of the entry's other bindings have. A picked role the entry can't take, such as after opening a log where its type is different, MUST be kept but not used.
 
 #### Scenario: Second binding
 
@@ -155,9 +155,19 @@ A widget MAY show entries in different ways, called roles, such as the field dra
 - **THEN** it is drawn as a point
 - **AND** it is drawn as a ghost again once a log where it's a `Pose2d` is opened
 
+### Requirement: Connections
+
+A widget MAY let bindings be connected to each other, such as the field drawing lines from a robot to the tags it sees. Connections MUST be saved with the dashboard, and MUST be removed when either binding is removed or moved to another widget.
+
+#### Scenario: Source removed
+
+- **GIVEN** a field widget where `/Drive/Pose` is connected to `/Vision/SeenTags`
+- **WHEN** the user removes `/Drive/Pose`
+- **THEN** `/Vision/SeenTags` isn't connected to anything
+
 ### Requirement: Pick a role
 
-The legend SHALL show a binding's role after its name when the entry can take more than one role, or is bound more than once, and clicking the role MUST open a menu of the entry's roles to pick from.
+The legend SHALL show a binding's role after its name when the entry can take more than one role, or is bound more than once, and clicking the role MUST open a menu of the entry's roles to pick from. The role MUST take up the width of the entry's widest role, so picking another doesn't resize the legend or move what's beside it.
 
 #### Scenario: Pick a role
 

@@ -46,6 +46,8 @@ export type WidgetBindings = {
 	paneId: string;
 	bindings: readonly WidgetBinding[];
 	setRole: (bindingId: string, role: string) => void;
+	connect: (sourceId: string, targetId: string) => void;
+	disconnect: (sourceId: string, targetId: string) => void;
 	toggleHidden: (bindingId: string) => void;
 };
 

@@ -17,7 +17,7 @@ The field widget SHALL accept `Pose2d`, `Pose3d`, `Translation2d`, `Translation3
 
 ### Requirement: Field roles
 
-The field widget SHALL offer these roles, the inferred one first: single poses are a robot, ghost, or point; pose arrays are points or a path; single translations are a point; translation arrays are a path or points; and rectangles and ellipses are shapes. Pose arrays MUST infer a path instead when the last part of their name contains "path" or "trajectory" (ignoring case).
+The field widget SHALL offer these roles, the inferred one first: single poses are a robot, ghost, or point; pose arrays are points or a path; single translations are a point; translation arrays are a path or points; and rectangles and ellipses are shapes. The first single pose in the legend MUST infer a robot and later ones a ghost, and pose arrays MUST infer a path instead when the last part of their name contains "path" or "trajectory" (ignoring case).
 
 #### Scenario: Robot pose
 
@@ -123,9 +123,51 @@ Each `Rectangle2d` or `Ellipse2d` SHALL be drawn at its size as an outline over 
 - **GIVEN** a `Rectangle2d` entry centered at (4, 2) with a 90° rotation, 2 m along its X and 1 m along its Y
 - **THEN** a rectangle 1 m wide and 2 m tall is drawn centered on (4, 2)
 
+### Requirement: Connections
+
+A binding connected to a single pose or translation, its source, SHALL be drawn as usual, with a line from the source to each of its poses or translations in its color. A binding MAY be connected to from any number of sources. The lines MUST NOT be drawn while the source is hidden or has no value at the cursor.
+
+#### Scenario: Seen tags
+
+- **GIVEN** a field widget showing `/Drive/Pose` as a robot, and `/Vision/SeenTags`, a `Pose3d[]` entry, as points
+- **WHEN** the user connects `/Drive/Pose` to `/Vision/SeenTags`
+- **THEN** each seen tag is drawn as a point, with a line from the robot to it
+
+#### Scenario: Hidden source
+
+- **GIVEN** `/Drive/Pose` is connected to `/Vision/SeenTags`
+- **WHEN** the user hides `/Drive/Pose`
+- **THEN** the lines aren't drawn
+- **AND** the connection is kept
+
+### Requirement: Connect from the legend
+
+Each field legend row of a binding that can be connected SHALL have a handle on its right edge, and dragging a handle onto another row MUST connect them, from the dragged row to the one it's dropped on. Dragging from an array onto a single pose or translation MUST connect the other way, since lines start at single positions, and dropping an array onto another array or a shape MUST do nothing. Dropping onto bindings that are already connected MUST do nothing.
+
+#### Scenario: Connect a setpoint
+
+- **GIVEN** a field widget showing `/Drive/Pose` as a robot and `/Drive/Setpoint` as a ghost
+- **WHEN** the user drags the handle of `/Drive/Pose` onto `/Drive/Setpoint`
+- **THEN** a line is drawn from the robot to the ghost
+
+#### Scenario: Drag from an array
+
+- **WHEN** the user drags the handle of `/Vision/SeenTags` onto `/Drive/Pose`
+- **THEN** lines are drawn from the robot to each seen tag
+
+### Requirement: Connections in the legend
+
+The field legend SHALL draw each connection to the right of its rows, as straight lines with right angles from the source's handle to the target's, in the target's color, with each source in its own lane so links don't overlap. Hovering a link MUST highlight it and fill the handles at its ends, and clicking it MUST remove the connection. Right-clicking a row SHALL offer to disconnect it from each binding it's connected to.
+
+#### Scenario: Remove a connection
+
+- **GIVEN** `/Drive/Pose` is connected to `/Vision/SeenTags`
+- **WHEN** the user clicks the link between them in the legend
+- **THEN** the lines from the robot to the seen tags aren't drawn
+
 ### Requirement: Draw order
 
-Shapes SHALL be drawn under paths, paths under points, points under ghosts, and ghosts under robots. Within a role, earlier bindings MUST be drawn on top of later ones.
+Shapes SHALL be drawn under paths, paths under connections, connections under points, points under ghosts, and ghosts under robots. Within a role, earlier bindings MUST be drawn on top of later ones.
 
 #### Scenario: Robot over its path
 

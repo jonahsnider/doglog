@@ -3,7 +3,7 @@ import { useDragOperation, useDroppable } from '@dnd-kit/react';
 import { DatabaseIcon, ListPlusIcon } from 'lucide-react';
 import { type CSSProperties, type ReactNode, useMemo } from 'react';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import { setBindingRole, toggleBindingHidden } from '@/bindings';
+import { connectBindings, disconnectBindings, setBindingRole, toggleBindingHidden } from '@/bindings';
 import { updateLayout } from '@/dashboard-panes';
 import { getEntry } from '@/data/data-store';
 import { formatEntryType } from '@/data/samples';
@@ -44,6 +44,10 @@ export function WidgetView({
 			bindings,
 			setRole: (bindingId, role) =>
 				updateLayout(dashboardId, (layout) => setBindingRole(layout, paneId, bindingId, role)),
+			connect: (sourceId, targetId) =>
+				updateLayout(dashboardId, (layout) => connectBindings(layout, paneId, sourceId, targetId)),
+			disconnect: (sourceId, targetId) =>
+				updateLayout(dashboardId, (layout) => disconnectBindings(layout, paneId, sourceId, targetId)),
 			toggleHidden: (bindingId) =>
 				updateLayout(dashboardId, (layout) => toggleBindingHidden(layout, paneId, bindingId)),
 		}),
