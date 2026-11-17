@@ -46,17 +46,16 @@ context: |
     The desktop app has no such restriction.
 
   Non-goals:
-  - Writing or editing NT values. Everything in Studio is read-only.
-  - Accounts, cloud sync, analytics, or telemetry.
-  - Mobile layouts.
   - Explicit handling for browsers that can't make live NT connections (the connection simply fails).
 
   Future needs (not specced yet):
+  - Mobile layouts.
+  - Accounts, cloud sync, analytics, or telemetry.
+  - Writing or editing NT values.
   - Comparing multiple logs at once, and multiple simultaneous data sources.
   - Protobuf-encoded entries.
   - Managed sync service for dashboards; dashboard import/export.
   - Saving a live session to a log file.
-  - Tabbed widget stacks inside a pane.
   - Playback looping and trimming the playback range.
   - FRC match time display (ex. "Teleop 1:32").
   - Recent files.
