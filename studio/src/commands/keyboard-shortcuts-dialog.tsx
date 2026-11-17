@@ -52,6 +52,7 @@ const sections: {
 			{ label: 'Toggle entry browser', keys: [shortcuts.toggleEntryBrowser] },
 			{ label: 'Split right', keys: [shortcuts.splitRight] },
 			{ label: 'Split down', keys: [shortcuts.splitDown] },
+			{ label: 'Zoom or restore pane', keys: [shortcuts.zoom] },
 		],
 	},
 	{

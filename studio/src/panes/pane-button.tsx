@@ -9,12 +9,15 @@ export function PaneButton({
 	label,
 	shortcut,
 	disabled = false,
+	pressed,
 	onClick,
 	children,
 }: {
 	label: string;
 	shortcut?: Hotkey;
 	disabled?: boolean;
+	/** For toggles, shown in the primary color while on */
+	pressed?: boolean;
 	onClick: () => void;
 	children: ReactNode;
 }) {
@@ -23,8 +26,15 @@ export function PaneButton({
 			<TooltipTrigger
 				render={
 					<ToolbarButton
-						render={<Button variant="ghost" size="icon-xs" />}
+						render={
+							<Button
+								variant="ghost"
+								size="icon-xs"
+								className="aria-pressed:bg-primary/15 aria-pressed:text-primary aria-pressed:hover:bg-primary/25"
+							/>
+						}
 						aria-label={label}
+						aria-pressed={pressed}
 						disabled={disabled}
 						onClick={onClick}
 					/>

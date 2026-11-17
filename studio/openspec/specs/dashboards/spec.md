@@ -386,6 +386,34 @@ A dashboard SHALL be a layout of panes, each holding exactly one widget. Users M
 - **WHEN** the user middle-clicks the header of one of two panes
 - **THEN** that pane is closed
 
+### Requirement: Zoom pane
+
+Like Rex, users SHALL be able to zoom a pane so it fills the dashboard, hiding the other panes until it's restored. Zooming and restoring MUST animate the same way as splitting and closing panes. Splitting or closing any pane MUST restore the other panes. Zooming MUST NOT be an undo step, and a dashboard MUST stay zoomed when it's reopened.
+
+#### Scenario: Zoom a pane
+
+- **GIVEN** a dashboard with two panes
+- **WHEN** the user presses Zoom pane in the first pane's header
+- **THEN** the first pane grows to fill the dashboard as the second slides away
+- **AND** its header only shows widget options, a highlighted Restore pane button, and close
+
+#### Scenario: Restore a zoomed pane
+
+- **GIVEN** a zoomed pane
+- **WHEN** the user presses Restore pane or ⇧⌘↩
+- **THEN** the other panes slide back in to their previous sizes
+
+#### Scenario: Only pane
+
+- **GIVEN** a dashboard with one pane
+- **THEN** Zoom pane is disabled
+
+#### Scenario: Split a zoomed pane
+
+- **GIVEN** a zoomed pane
+- **WHEN** the user presses ⇧⌘D
+- **THEN** the other panes are restored and the pane splits down
+
 ### Requirement: Empty states
 
 Studio SHALL guide users from empty states to a usable dashboard.
@@ -476,7 +504,7 @@ A pane's header buttons, like widget options, split, and close, SHALL only be sh
 
 ### Requirement: Pane context menu
 
-Right-clicking a pane SHALL open a context menu with Split right, Split down, Change widget, Widget options, and Close.
+Right-clicking a pane SHALL open a context menu with Split right, Split down, Zoom pane (Restore pane while zoomed), Change widget, Widget options, and Close.
 
 #### Scenario: Split from the context menu
 

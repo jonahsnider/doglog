@@ -491,9 +491,24 @@
 	}
 }
 
-/* Panes growing in from nothing when they're split, and shrinking away when they're closed, see `SplitView` */
+/* Panes growing in from nothing when they're split or restored, and shrinking away when they're closed or another pane is zoomed, see `SplitView` */
 [data-split-animation] {
 	animation: 0.25s cubic-bezier(0.2, 0, 0, 1);
+}
+/* Panes leaving use Material's shorter standard accelerate timing, both sides need the same timing to add up to the split */
+[data-split-animation='close'],
+[data-split-animation='fill'] {
+	animation-duration: 0.2s;
+	animation-timing-function: cubic-bezier(0.3, 0, 1, 1);
+}
+/* A zoomed pane's dashboard that's opened, and splits when the system is set to reduce motion */
+[data-split-instant] {
+	animation-duration: 0s;
+}
+@media (prefers-reduced-motion: reduce) {
+	[data-split-animation] {
+		animation-duration: 0s;
+	}
 }
 [data-split-animation='open'] {
 	animation-name: split-open;

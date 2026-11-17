@@ -1,24 +1,27 @@
 import type { Draggable, Droppable } from '@dnd-kit/dom';
 import { useDragDropMonitor } from '@dnd-kit/react';
-import { useReducedMotion } from 'motion/react';
-import { type HTMLAttributes, type ReactNode, type RefObject, useEffect, useRef, useState } from 'react';
-import { Group, Panel, Separator, useGroupRef } from 'react-resizable-panels';
+import { type ReactNode, type RefObject, useEffect, useRef, useState } from 'react';
+import { Group, Separator, useGroupRef } from 'react-resizable-panels';
 import { PaneView, type PaneNodeProps } from '@/panes/pane-view';
-import { dropDashboardEntry, getFocusedPane, updateLayout } from '@/dashboards/panes';
+import { dropDashboardEntry, getFocusedPane, getZoomedPane, updateLayout } from '@/dashboards/panes';
 import type { Dashboard } from '@/dashboards/dashboards';
 import { type EntryDragData, type EntryDropData, type EntrySectionDropData, entryDragType } from '@/entries/drag';
 import { cn } from '@/lib/utils';
-import { findPane, type PaneNode, panesAlong, resizeSplit, type Split, type SplitDirection } from '@/panes/layout';
+import { type PaneNode, panesAlong, resizeSplit, type Split } from '@/panes/layout';
+import { SplitPanel } from '@/panes/split-panel';
+import {
+	useZoomAnimation,
+	splitPanelAnimation,
+	type SplitAnimation,
+	splitAnimation,
+	type SplitSide,
+} from '@/panes/split-animation';
 
-/** Smallest pane width (`row`) and height (`column`) in pixels */
-type MinPaneSize = Partial<Record<SplitDirection, number>>;
-
-/** A quarter of the dashboard, leaving room for the dividers between 4 panes */
-const quarter = (size: number | undefined) => (size === undefined ? undefined : (size - 3) / 4);
+type Size = { width: number; height: number };
 
 /** An element's size in pixels, `undefined` until it's measured */
 function useSize(ref: RefObject<HTMLElement | null>) {
-	const [size, setSize] = useState<{ width: number; height: number }>();
+	const [size, setSize] = useState<Size>();
 
 	useEffect(() => {
 		const element = ref.current!;
@@ -59,7 +62,8 @@ export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 				dashboardId={dashboard.id}
 				dashboardLayout={layout}
 				focusedPaneId={focusedPaneId}
-				minPaneSize={{ row: quarter(size?.width), column: quarter(size?.height) }}
+				zoomedPaneId={getZoomedPane(dashboard)?.id}
+				dashboardSize={size}
 				node={layout}
 				root
 				topLeft
@@ -68,45 +72,21 @@ export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 	);
 }
 
-type NodeProps = PaneNodeProps & { minPaneSize: MinPaneSize };
+type NodeProps = PaneNodeProps & {
+	/** In pixels, `undefined` until it's measured */
+	dashboardSize: Size | undefined;
+};
 
-type SplitSide = 'first' | 'second';
-
-/** A split's side growing in from nothing when it's opened, or shrinking away when it's closed */
-type SplitAnimation = { kind: 'open'; side: SplitSide } | { kind: 'close'; side: SplitSide; split: Split };
-
-/** How the layout changed from `previous` to `node` at the same place in it, like Rex animating its splits */
-function splitAnimation(previous: PaneNode, node: PaneNode, layout: PaneNode): SplitAnimation | undefined {
-	if (node.kind === 'split') {
-		if (node.first.id === previous.id) {
-			return { kind: 'open', side: 'second' };
-		}
-
-		if (node.second.id === previous.id) {
-			return { kind: 'open', side: 'first' };
-		}
-	}
-
-	if (previous.kind === 'split') {
-		const side = previous.first.id === node.id ? 'second' : previous.second.id === node.id ? 'first' : undefined;
-		const closed = side && previous[side];
-		// A pane moved somewhere else in the layout is already shown there
-		if (side && closed?.kind === 'pane' && !findPane(layout, closed.id)) {
-			return { kind: 'close', side, split: previous };
-		}
-	}
-
-	return undefined;
-}
-
-function PaneNodeView({ node, root = false, minPaneSize, ...props }: NodeProps & { node: PaneNode; root?: boolean }) {
-	const reducedMotion = useReducedMotion() ?? false;
-	const [previous, setPrevious] = useState(node);
+function PaneNodeView({ node, root = false, dashboardSize, ...props }: NodeProps & { node: PaneNode; root?: boolean }) {
+	const { zoomedPaneId } = props;
+	const [previous, setPrevious] = useState({ node, zoomedPaneId });
 	const [animation, setAnimation] = useState<SplitAnimation>();
-	if (previous !== node) {
-		setPrevious(node);
-		if (previous.id !== node.id) {
-			setAnimation(reducedMotion ? undefined : splitAnimation(previous, node, props.dashboardLayout));
+	if (previous.node !== node || previous.zoomedPaneId !== zoomedPaneId) {
+		setPrevious({ node, zoomedPaneId });
+		if (previous.node.id !== node.id) {
+			const changed = splitAnimation(previous.node, node, props.dashboardLayout);
+			// Closing a pane restores the zoomed pane's dashboard, which already animates the other panes back in
+			setAnimation(changed?.kind === 'close' && previous.zoomedPaneId !== undefined ? undefined : changed);
 		}
 	}
 
@@ -117,7 +97,7 @@ function PaneNodeView({ node, root = false, minPaneSize, ...props }: NodeProps &
 			<SplitView
 				key={split.id}
 				{...props}
-				minPaneSize={minPaneSize}
+				dashboardSize={dashboardSize}
 				split={animation.side === 'first' ? { ...split, second: node } : { ...split, first: node }}
 				animation={animation}
 				onClosed={() => setAnimation(undefined)}
@@ -130,13 +110,13 @@ function PaneNodeView({ node, root = false, minPaneSize, ...props }: NodeProps &
 		<PaneView {...props} pane={node} closable={!root || node.widget !== undefined} />
 	) : (
 		// Keyed so a split that takes another's place reads its own saved ratio
-		<SplitView key={node.id} {...props} minPaneSize={minPaneSize} split={node} animation={animation} />
+		<SplitView key={node.id} {...props} dashboardSize={dashboardSize} split={node} animation={animation} />
 	);
 }
 
 function SplitView({
 	split,
-	minPaneSize,
+	dashboardSize,
 	animation,
 	onClosed,
 	...props
@@ -149,7 +129,8 @@ function SplitView({
 	const group = useRef<HTMLDivElement>(null);
 	const groupSize = useSize(group);
 	// Keep every pane at least a quarter of the dashboard, so a side with a split inside needs room for its panes and the 1px dividers between them
-	const paneSize = minPaneSize[split.direction];
+	const dashboardExtent = row ? dashboardSize?.width : dashboardSize?.height;
+	const paneSize = dashboardExtent === undefined ? undefined : (dashboardExtent - 3) / 4;
 	const minSize = (node: PaneNode) => {
 		const panes = panesAlong(node, split.direction);
 		return paneSize === undefined ? undefined : paneSize * panes + panes - 1;
@@ -163,66 +144,37 @@ function SplitView({
 		secondMinSize !== undefined &&
 		(row ? groupSize.width : groupSize.height) - firstMinSize - secondMinSize - 1 < 1;
 
-	// Kept until the next animation, which may play on this split when a pane in it is closed
-	const [finished, setFinished] = useState<SplitAnimation>();
-	const playing = animation === finished ? undefined : animation;
+	const { hiddenSide, zoomAnimation } = useZoomAnimation(split, props.zoomedPaneId);
 
-	// The keyframes in `index.css` animate the sides' flex-grow, which the group sets to their percentages of the split
-	const animationProps = (side: SplitSide): HTMLAttributes<HTMLDivElement> & { 'data-split-animation'?: string } => {
-		if (!playing) {
-			return {};
-		}
+	// Kept so they don't play again, ex. when a pane is closed in a split that animated opening
+	const [finished, setFinished] = useState<readonly SplitAnimation[]>([]);
+	const playing = [animation, zoomAnimation].find((other) => other !== undefined && !finished.includes(other));
 
-		if (playing.side !== side) {
-			return { 'data-split-animation': playing.kind === 'open' ? 'make-room' : 'fill' };
-		}
-
-		return {
-			'data-split-animation': playing.kind,
-			inert: playing.kind === 'close',
-			onAnimationEnd: (event) => {
-				// Ignores animations inside the pane
-				if (event.target !== event.currentTarget) {
-					return;
-				}
-
-				if (playing.kind === 'close') {
-					onClosed?.();
-				} else {
-					setFinished(playing);
-				}
-			},
-		};
-	};
+	const animationProps = (side: SplitSide) =>
+		splitPanelAnimation(side, playing, hiddenSide, zoomAnimation === undefined, (ended) =>
+			ended.kind === 'close' ? onClosed?.() : setFinished((animations) => [...animations, ended]),
+		);
 
 	const panel = (side: SplitSide, panelMinSize: number | undefined, children: ReactNode) => {
-		const animated = playing?.side === side;
-		// The animated pane's content keeps the size it ends (or starts) at, measured against the group with container units.
-		// It's clipped and pinned to the divider, so it slides in and out with it instead of reflowing every frame.
-		const size = `calc((${row ? '100cqw' : '100cqh'} - 1px) * ${side === 'first' ? split.ratio : 1 - split.ratio})`;
+		const sliding = playing?.side === side || hiddenSide === side;
+		const zoomed =
+			!sliding &&
+			(side === 'first' ? split.first : split.second).kind === 'pane' &&
+			(hiddenSide !== undefined || (playing !== undefined && playing === zoomAnimation));
 		return (
-			<Panel
+			<SplitPanel
 				id={side === 'first' ? firstId : secondId}
 				minSize={panelMinSize}
-				style={
-					animated
-						? {
-								overflow: 'hidden',
-								display: 'flex',
-								flexDirection: row ? 'row' : 'column',
-								justifyContent: side === 'first' ? 'flex-end' : 'flex-start',
-							}
-						: { overflow: 'hidden' }
-				}
+				direction={split.direction}
+				side={side}
+				ratio={side === 'first' ? split.ratio : 1 - split.ratio}
+				sliding={sliding}
+				contentHidden={sliding && !playing}
+				zoomedSize={zoomed ? dashboardSize : undefined}
 				{...animationProps(side)}
 			>
-				<div
-					className="size-full"
-					style={animated ? { flex: 'none', ...(row ? { width: size } : { height: size }) } : undefined}
-				>
-					{children}
-				</div>
-			</Panel>
+				{children}
+			</SplitPanel>
 		);
 	};
 
@@ -238,7 +190,7 @@ function SplitView({
 			orientation={row ? 'horizontal' : 'vertical'}
 			defaultLayout={{ [firstId]: split.ratio * 100, [secondId]: (1 - split.ratio) * 100 }}
 			// For the animated pane's container units
-			style={playing ? { containerType: 'size' } : undefined}
+			style={playing || hiddenSide ? { containerType: 'size' } : undefined}
 			// Called once a drag is released or a key is pressed, not on every pointer move
 			onLayoutChanged={(panelLayout, { isUserInteraction, requestedLayout = panelLayout }) => {
 				const size = requestedLayout[firstId];
@@ -247,7 +199,7 @@ function SplitView({
 				}
 			}}
 		>
-			{panel('first', firstMinSize, <PaneNodeView {...props} minPaneSize={minPaneSize} node={split.first} />)}
+			{panel('first', firstMinSize, <PaneNodeView {...props} dashboardSize={dashboardSize} node={split.first} />)}
 			<Separator
 				aria-label="Resize panes"
 				// Disabled dividers don't get the hover and active highlights, and the not-allowed cursor is replaced so they don't look interactive
@@ -257,6 +209,7 @@ function SplitView({
 				className={cn(
 					'bg-border outline-none transition-colors focus-visible:bg-ring data-[separator=active]:bg-ring data-[separator=hover]:bg-ring',
 					'relative z-10 after:absolute',
+					hiddenSide && 'hidden',
 					row ? 'w-px after:inset-y-0 after:-inset-x-[4.5px]' : 'h-px after:inset-x-0 after:-inset-y-[4.5px]',
 				)}
 				onDoubleClick={() => {
@@ -271,7 +224,7 @@ function SplitView({
 			{panel(
 				'second',
 				secondMinSize,
-				<PaneNodeView {...props} minPaneSize={minPaneSize} topLeft={false} node={split.second} />,
+				<PaneNodeView {...props} dashboardSize={dashboardSize} topLeft={false} node={split.second} />,
 			)}
 		</Group>
 	);

@@ -234,6 +234,11 @@ export function findWidgetPane(layout: PaneNode, widgetType: string): Pane | und
 	return findWidgetPane(layout.first, widgetType) ?? findWidgetPane(layout.second, widgetType);
 }
 
+/** IDs of the layout's panes, top left first */
+export function paneIds(layout: PaneNode): string[] {
+	return layout.kind === 'pane' ? [layout.id] : [...paneIds(layout.first), ...paneIds(layout.second)];
+}
+
 /** The top left pane */
 export function firstPane(layout: PaneNode): Pane {
 	return layout.kind === 'pane' ? layout : firstPane(layout.first);

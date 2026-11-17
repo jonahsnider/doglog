@@ -11,12 +11,14 @@ import {
 	writeDashboardDoc,
 } from '@/dashboards/doc';
 import { createPersistedAtom } from '@/lib/persisted-store';
-import { copyLayout } from '@/panes/layout';
+import { copyLayout, type PaneNode, paneIds } from '@/panes/layout';
 
 export type Dashboard = DashboardContents & {
 	id: string;
 	/** The pane the user last interacted with, use `getFocusedPane()` since it can be outdated */
 	focusedPaneId?: string | undefined;
+	/** The pane filling the dashboard while the others are hidden, use `getZoomedPane()` since it can be outdated */
+	zoomedPaneId?: string | undefined;
 };
 
 /** Short enough for shareable URLs, random enough (~95 bits) to be unguessable. No `-` or `_`, which break links in chat apps. */
@@ -37,6 +39,23 @@ export function focusPane(id: string, paneId: string | undefined): void {
 	// Called on every click in a pane, so skip updates that wouldn't change anything
 	if (focusedPanesStore.get()[id] !== paneId) {
 		focusedPanesStore.set((focusedPanes) => ({ ...focusedPanes, [id]: paneId }));
+	}
+}
+
+/** Each dashboard's zoomed pane, which like the focus isn't part of the dashboard */
+const zoomedPanesStore = createPersistedAtom('zoomed-panes', z.record(z.string(), z.string().optional()).catch({}), {});
+
+/** Zoom a pane, or restore the dashboard's other panes with `undefined`. Not undone, like focusing a pane. */
+export function zoomPane(id: string, paneId: string | undefined): void {
+	if (zoomedPanesStore.get()[id] !== paneId) {
+		zoomedPanesStore.set((zoomedPanes) => ({ ...zoomedPanes, [id]: paneId }));
+	}
+}
+
+/** Splitting, closing, or moving panes restores the zoomed pane's dashboard */
+function restoreIfPanesChanged(id: string, before: PaneNode, after: PaneNode): void {
+	if (paneIds(before).join(',') !== paneIds(after).join(',')) {
+		zoomPane(id, undefined);
 	}
 }
 
@@ -67,10 +86,15 @@ function getDoc(id: string, initial?: DashboardContents): LoadedDashboard {
 function readDashboard(id: string): Dashboard {
 	const entry = getDoc(id);
 	const focusedPaneId = focusedPanesStore.get()[id];
-	if (!entry.dashboard || entry.dashboard.focusedPaneId !== focusedPaneId) {
-		// Keeps the same layout when only the focus changed
+	const zoomedPaneId = zoomedPanesStore.get()[id];
+	if (
+		!entry.dashboard ||
+		entry.dashboard.focusedPaneId !== focusedPaneId ||
+		entry.dashboard.zoomedPaneId !== zoomedPaneId
+	) {
+		// Keeps the same layout when only the focus or zoom changed
 		const { name, layout } = entry.dashboard ?? readDashboardDoc(entry.doc);
-		entry.dashboard = { id, name, layout, focusedPaneId };
+		entry.dashboard = { id, name, layout, focusedPaneId, zoomedPaneId };
 	}
 	return entry.dashboard;
 }
@@ -85,6 +109,7 @@ function refresh(): void {
 refresh();
 idsStore.subscribe(refresh);
 focusedPanesStore.subscribe(refresh);
+zoomedPanesStore.subscribe(refresh);
 
 export function useDashboards(): Dashboard[] {
 	return useSelector(store);
@@ -140,6 +165,7 @@ export function updateDashboard(id: string, update: (dashboard: Dashboard) => Da
 	writeDashboardDoc(doc, updated);
 	doc.commit();
 	focusPane(id, updated.focusedPaneId);
+	restoreIfPanesChanged(id, dashboard.layout, updated.layout);
 }
 
 /** Go back to the dashboard's state from before its last edit, including which pane was focused */
@@ -152,9 +178,12 @@ export function redoDashboard(id: string): void {
 }
 
 function travel(id: string, direction: 'undo' | 'redo'): void {
+	const { doc } = getDoc(id);
+	const before = readDashboardDoc(doc).layout;
 	const restored = getDoc(id).travel(direction);
 	if (restored !== false) {
 		focusPane(id, restored.focusedPaneId);
+		restoreIfPanesChanged(id, before, readDashboardDoc(doc).layout);
 	}
 }
 

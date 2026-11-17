@@ -1,14 +1,15 @@
-import { Columns2Icon, MoveIcon, Rows2Icon, XIcon } from 'lucide-react';
+import { MoveIcon, XIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { AddWidgetPrompt } from '@/panes/add-widget-prompt';
 import { AppContextMenu, type MenuCheckbox, type MenuEntry } from '@/components/app-context-menu';
 import { WidgetOptions } from '@/entries/entry-picker';
 import { PaneButton } from '@/panes/pane-button';
+import { PaneLayoutButtons } from '@/panes/pane-layout-buttons';
 import { PaneDropIndicator } from '@/panes/pane-drop-indicator';
 import { Toolbar } from '@/components/ui/toolbar';
 import { WidgetView } from '@/panes/widget-view';
 import { shortcuts } from '@/commands/commands';
-import { closeDashboardPane, splitDashboardPane, updateLayout } from '@/dashboards/panes';
+import { closeDashboardPane, splitDashboardPane, toggleZoom, updateLayout } from '@/dashboards/panes';
 import { focusPane } from '@/dashboards/dashboards';
 import { getEntry, useEntries } from '@/data/data-store';
 import {
@@ -34,6 +35,8 @@ export type PaneNodeProps = {
 	dashboardId: string;
 	dashboardLayout: PaneNode;
 	focusedPaneId: string;
+	/** The pane filling the dashboard while the others are hidden */
+	zoomedPaneId: string | undefined;
 	/** Whether the node is in the top left corner of the dashboard, under the traffic lights when the sidebar is collapsed */
 	topLeft: boolean;
 };
@@ -46,6 +49,7 @@ export function PaneView({
 	dashboardId,
 	dashboardLayout,
 	focusedPaneId,
+	zoomedPaneId,
 	topLeft,
 	pane,
 	closable,
@@ -74,6 +78,8 @@ export function PaneView({
 	const canSplitDown = canSplitPane(dashboardLayout, pane.id, 'column');
 	const close = () => closeDashboardPane(dashboardId, pane.id);
 	const focused = pane.id === focusedPaneId;
+	const zoomed = pane.id === zoomedPaneId;
+	const zoom = () => toggleZoom(dashboardId, pane.id);
 
 	const remove = (bindingId: string) => update((layout) => removeBinding(layout, pane.id, bindingId));
 
@@ -118,6 +124,12 @@ export function PaneView({
 				shortcut: shortcuts.splitDown,
 				disabled: !canSplitDown,
 				onSelect: () => split('column'),
+			},
+			{
+				label: zoomed ? 'Restore pane' : 'Zoom pane',
+				shortcut: shortcuts.zoom,
+				disabled: dashboardLayout.kind === 'pane',
+				onSelect: zoom,
 			},
 			'separator',
 			{
@@ -175,7 +187,7 @@ export function PaneView({
 			<div
 				className={cn(
 					'flex h-9 shrink-0 items-center gap-0.5 border-b px-2',
-					topLeft && trafficLightsOverlap && 'ps-10',
+					(topLeft || zoomed) && trafficLightsOverlap && 'ps-10',
 				)}
 				// Middle-clicking the header closes the pane, like a browser tab
 				onAuxClick={(event) => {
@@ -204,22 +216,14 @@ export function PaneView({
 							onOpenChange={setOptionsOpen}
 						/>
 					)}
-					<PaneButton
-						label="Split right"
-						shortcut={shortcuts.splitRight}
-						disabled={!canSplitRight}
-						onClick={() => split('row')}
-					>
-						<Columns2Icon />
-					</PaneButton>
-					<PaneButton
-						label="Split down"
-						shortcut={shortcuts.splitDown}
-						disabled={!canSplitDown}
-						onClick={() => split('column')}
-					>
-						<Rows2Icon />
-					</PaneButton>
+					<PaneLayoutButtons
+						canSplitRight={canSplitRight}
+						canSplitDown={canSplitDown}
+						canZoom={dashboardLayout.kind === 'split'}
+						zoomed={zoomed}
+						onSplit={split}
+						onZoom={zoom}
+					/>
 					{closable && (
 						<PaneButton label="Close pane" shortcut={shortcuts.close} onClick={close}>
 							<XIcon />

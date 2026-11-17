@@ -10,7 +10,7 @@ import {
 import { type RegisteredRouter, useRouter } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import { useDebounceValue } from 'usehooks-ts';
-import { closeFocusedPane, getFocusedPane, splitDashboardPane } from '@/dashboards/panes';
+import { closeFocusedPane, getFocusedPane, splitDashboardPane, toggleZoom } from '@/dashboards/panes';
 import {
 	createDashboard,
 	type Dashboard,
@@ -49,6 +49,7 @@ export const shortcuts = {
 	connect: 'Mod+K',
 	splitRight: 'Mod+D',
 	splitDown: 'Mod+Shift+D',
+	zoom: 'Mod+Shift+Enter',
 	openLog: 'Mod+O',
 	undo: 'Mod+Z',
 	redo: 'Mod+Shift+Z',
@@ -132,6 +133,13 @@ function undoOrRedo(router: RegisteredRouter, direction: 'undo' | 'redo'): void 
 	}
 }
 
+function toggleFocusedZoom(router: RegisteredRouter): void {
+	const dashboard = currentDashboard(router);
+	if (dashboard) {
+		toggleZoom(dashboard.id, getFocusedPane(dashboard).id);
+	}
+}
+
 function splitFocused(router: RegisteredRouter, direction: SplitDirection): void {
 	const dashboard = currentDashboard(router);
 	if (!dashboard) {
@@ -185,6 +193,7 @@ export function useGlobalShortcuts(): void {
 			{ hotkey: shortcuts.connect, callback: startConnect },
 			{ hotkey: shortcuts.splitRight, callback: () => splitFocused(router, 'row') },
 			{ hotkey: shortcuts.splitDown, callback: () => splitFocused(router, 'column') },
+			{ hotkey: shortcuts.zoom, callback: () => toggleFocusedZoom(router) },
 			{ hotkey: shortcuts.openLog, callback: chooseLog, options: outsideNativeMenu },
 			// Text fields handle these themselves
 			{

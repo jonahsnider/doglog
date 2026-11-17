@@ -8,6 +8,8 @@ import {
 	getDashboards,
 	moveDashboard,
 	updateDashboard,
+	focusPane,
+	zoomPane,
 } from '@/dashboards/dashboards';
 import { getEntry } from '@/data/data-store';
 import {
@@ -56,6 +58,24 @@ export function getFocusedPane(dashboard: Dashboard): Pane {
 	const focused =
 		dashboard.focusedPaneId === undefined ? undefined : findPane(dashboard.layout, dashboard.focusedPaneId);
 	return focused ?? firstPane(dashboard.layout);
+}
+
+/** The pane filling the dashboard, `undefined` if it's gone or the only pane */
+export function getZoomedPane(dashboard: Dashboard): Pane | undefined {
+	const { layout, zoomedPaneId } = dashboard;
+	return layout.kind === 'split' && zoomedPaneId !== undefined ? findPane(layout, zoomedPaneId) : undefined;
+}
+
+/** Zoom a pane to fill the dashboard and focus it, or restore the other panes if it's already zoomed */
+export function toggleZoom(id: string, paneId: string): void {
+	const dashboard = getDashboard(id);
+	if (!dashboard || dashboard.layout.kind === 'pane') {
+		return;
+	}
+
+	const zoomed = getZoomedPane(dashboard)?.id === paneId;
+	zoomPane(id, zoomed ? undefined : paneId);
+	focusPane(id, paneId);
 }
 
 /** Split a pane and focus the new pane */
