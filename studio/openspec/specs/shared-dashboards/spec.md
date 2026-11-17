@@ -114,12 +114,18 @@ Shared dashboards SHALL belong to the robot set in Settings. The robot and a sim
 
 ### Requirement: Sync connection
 
-Studio SHALL connect to the robot for sharing whenever the app is open, separately from the active data source, falling back to the simulator when the robot isn't reachable. It MUST NOT ask for local network access for sharing unless the user has shared dashboards.
+Studio SHALL connect to the robot for sharing whenever the app is open, separately from the active data source, falling back to the simulator when the robot isn't reachable. It MUST NOT ask for local network access for sharing unless the user has shared dashboards. Changing the robot connection setting MUST NOT reconnect unless it points to a different robot, so editing it doesn't interrupt syncing.
 
 #### Scenario: Reviewing a log in the pits
 
 - **GIVEN** a user is replaying a log while the robot is on
 - **THEN** shared dashboards stay in sync with others connected to the robot
+
+#### Scenario: Editing the robot connection
+
+- **GIVEN** shared dashboards are synced with the simulator
+- **WHEN** a user types an IP address into the robot connection setting
+- **THEN** sharing stays connected until the address is complete
 
 ### Requirement: Presence
 

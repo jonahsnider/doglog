@@ -111,10 +111,12 @@ export function startSharing(): void {
 	}
 
 	void attempt(generation);
-	let robotTarget = settingsStore.get().robotTarget;
-	settingsStore.subscribe(({ robotTarget: changed }) => {
-		if (changed !== robotTarget) {
-			robotTarget = changed;
+	// Only when the host changes, so typing a target that isn't valid yet doesn't reconnect to the same server
+	let robotHost = getRobotHost(settingsStore.get().robotTarget);
+	settingsStore.subscribe(({ robotTarget }) => {
+		const changed = getRobotHost(robotTarget);
+		if (changed !== robotHost) {
+			robotHost = changed;
 			restart();
 		}
 	});
