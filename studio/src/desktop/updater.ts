@@ -1,7 +1,6 @@
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
-import { isTauri } from '@tauri-apps/api/core';
-import { relaunch } from '@tauri-apps/plugin-process';
+import { invoke, isTauri } from '@tauri-apps/api/core';
 import { check, type Update } from '@tauri-apps/plugin-updater';
 import { toastManager } from '@/components/ui/toast';
 
@@ -62,5 +61,5 @@ export async function installUpdate(update: Update): Promise<void> {
 		toastManager.add({ type: 'error', title: "Couldn't update Studio", description: String(error) });
 		return;
 	}
-	await relaunch();
+	await invoke('relaunch');
 }

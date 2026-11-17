@@ -1,4 +1,5 @@
 mod cli;
+mod relaunch;
 mod sync;
 mod window_state;
 
@@ -50,7 +51,6 @@ pub fn run() {
         .plugin(tauri_plugin_persisted_scope::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
-        .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(window_state::plugin())
         .manage(OpenedLog::default())
@@ -60,6 +60,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             take_opened_log,
             read_file,
+            relaunch::relaunch,
             sync::lock_sync,
             sync::list_robot_logs,
             sync::download_robot_log,
