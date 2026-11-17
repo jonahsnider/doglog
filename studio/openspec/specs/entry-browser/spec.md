@@ -129,7 +129,7 @@ The entry browser SHALL show each entry's type as a compact icon that is visuall
 
 ### Requirement: Double-click to add
 
-Double-clicking a bindable entry SHALL add it to the open dashboard using the entry's default widget. If the dashboard already has a widget of that type, the entry MUST be added to it instead of creating a new pane, preferring the focused pane's widget.
+Double-clicking a bindable entry SHALL add it to the open dashboard using the entry's default widget. If the dashboard already has a widget of that type, the entry MUST be added to it instead of creating a new pane, preferring the focused pane's widget, unless that widget already shows the entry.
 
 #### Scenario: Add to a matching widget
 
@@ -137,6 +137,12 @@ Double-clicking a bindable entry SHALL add it to the open dashboard using the en
 - **WHEN** the user double-clicks the boolean entry `/Arm/AtSetpoint`
 - **THEN** the same discrete timeline shows both entries
 - **AND** no new pane is created
+
+#### Scenario: Already shown
+
+- **GIVEN** the focused pane shows a discrete timeline bound to `/Arm/AtSetpoint`
+- **WHEN** the user double-clicks `/Arm/AtSetpoint`
+- **THEN** the discrete timeline still shows it once
 
 #### Scenario: Add to a matching widget that isn't focused
 

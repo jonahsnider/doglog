@@ -1,28 +1,36 @@
 import type { Hotkey } from '@tanstack/react-hotkeys';
 import type { LucideIcon } from 'lucide-react';
 import type { ComponentType } from 'react';
-import * as z from 'zod';
 import type { Entry } from '@/data/data-store';
 import type { EntryKind } from '@/data/samples';
 
 /** Entry kinds that can be bound to widgets */
 export type BindableKind = Exclude<EntryKind, 'unsupported'>;
 
-/** Validates a widget's saved config (`Widget.config`), invalid configs have no bound entries */
-export const widgetConfigSchema = z
-	.object({
-		/** Entries are bound by name so dashboards work with any source */
-		entryNames: z.array(z.string()).catch([]),
-	})
-	.catch({ entryNames: [] });
+/** A way a widget can show an entry, ex. the field draws a `Pose2d` as a robot or a ghost */
+export type RoleOption = {
+	/** Saved in dashboards, don't change it */
+	readonly id: string;
+	/** Shown in the legend's role picker, ex. `Ghost` */
+	readonly label: string;
+};
 
-type WidgetConfig = z.infer<typeof widgetConfigSchema>;
-
+/** A bound entry as a widget shows it, see `resolveBindings()` */
 export type WidgetBinding = {
+	/** Tells apart bindings of the same entry, which can be bound more than once */
+	readonly id: string;
 	/** Bound entry name, ex. `/Arm/Angle` */
 	readonly name: string;
 	/** `undefined` when the active source has no entry with this name and an accepted kind. Show `<NoData />` for it. */
 	readonly entry: Entry | undefined;
+	/** Roles the entry can take in the widget, the inferred one first. Empty for widgets without roles. */
+	readonly roles: readonly RoleOption[];
+	/** The chosen or inferred role, `undefined` without an entry or for widgets without roles */
+	readonly role: RoleOption | undefined;
+	/** The role's label when it's worth showing: the entry has a choice of roles or is bound more than once */
+	readonly roleLabel: string | undefined;
+	/** Turned off from the legend, widgets with a legend list it but don't draw it */
+	readonly hidden: boolean;
 };
 
 export type WidgetProps = {
@@ -44,12 +52,15 @@ export type WidgetType = {
 	readonly hotkey: Hotkey;
 	/** Kinds of entries that can be bound, none for widgets that don't show entries (ex. the notepad) */
 	readonly accepts: readonly BindableKind[];
-	/** Narrows `accepts` further, ex. to specific struct types */
-	readonly matches?: (entry: Entry) => boolean;
+	/**
+	 * Roles an accepted entry can take, the inferred one first. Narrows `accepts` too: entries with no roles aren't
+	 * accepted. Widgets without roles show every entry the same way.
+	 */
+	readonly roles?: (entry: Entry) => readonly RoleOption[];
 	/** Rendered even with no entries or no data instead of the shared empty states, ex. the field shows the field */
 	readonly rendersEmpty?: boolean;
-	/** Config of a newly added widget, ex. default bindings */
-	readonly defaultConfig: WidgetConfig;
+	/** Entries bound to a newly added widget, ex. the console's `/console` and `/messages` */
+	readonly defaultEntryNames?: readonly string[];
 	readonly component: ComponentType<WidgetProps>;
 };
 
@@ -70,5 +81,5 @@ export function bindsEntries(type: WidgetType): boolean {
 }
 
 export function acceptsEntry(type: WidgetType, entry: Entry): boolean {
-	return (type.accepts as readonly EntryKind[]).includes(entry.kind) && (type.matches?.(entry) ?? true);
+	return (type.accepts as readonly EntryKind[]).includes(entry.kind) && (type.roles?.(entry).length ?? 1) > 0;
 }

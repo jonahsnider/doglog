@@ -1,5 +1,7 @@
 import { expect, test } from 'vite-plus/test';
+import { createWidget } from './bindings.ts';
 import { mainWidgetType, suggestDashboardName } from './dashboard-label.ts';
+import { getWidgetType } from './widgets/registry.ts';
 import { createPane, type PaneNode, resizeSplit, splitPane, type Widget } from './pane-layout.ts';
 
 function layoutOf(...widgets: Widget[]): PaneNode {
@@ -11,7 +13,7 @@ function layoutOf(...widgets: Widget[]): PaneNode {
 }
 
 function table(...entryNames: string[]): Widget {
-	return { type: 'values-table', config: { entryNames } };
+	return createWidget(getWidgetType('values-table')!, entryNames);
 }
 
 test('names a dashboard after the groups of its entries, in layout order', () => {
@@ -39,7 +41,7 @@ test('capitalizes top level entries', () => {
 });
 
 test("names widgets with no entries or only their type's default entries after their type", () => {
-	const console = { type: 'console', config: { entryNames: ['/messages', '/console'] } };
+	const console = createWidget(getWidgetType('console')!, ['/messages', '/console']);
 	expect(suggestDashboardName(layoutOf(console, table()))).toBe('Console & Values table');
 });
 

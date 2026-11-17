@@ -1,4 +1,5 @@
 import { expect, test } from 'vite-plus/test';
+import { widgetBindings } from '@/bindings';
 import type { Entry } from '@/data/data-store';
 import { getEntryKind, Samples } from '@/data/samples';
 import { defaultWidget } from '@/widgets/registry';
@@ -19,7 +20,9 @@ test.each([
 	['/Drive/MeasuredStates', 'struct:SwerveModuleVelocity[]', 'swerve'],
 	['/Arm/Setpoints', 'double[]', 'values-table'],
 ])('%s (%s) defaults to the %s', (name, type, widgetType) => {
-	expect(defaultWidget(entry(name, type))).toEqual({ type: widgetType, config: { entryNames: [name] } });
+	const widget = defaultWidget(entry(name, type));
+	expect(widget?.type).toBe(widgetType);
+	expect(widgetBindings(widget).map((binding) => binding.name)).toEqual([name]);
 });
 
 test('unsupported entries have no default widget', () => {

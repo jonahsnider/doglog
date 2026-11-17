@@ -1,13 +1,14 @@
 import { ChartNoAxesGanttIcon, MapIcon, MoveIcon, NotebookPenIcon, TableIcon, TerminalIcon } from 'lucide-react';
+import { createWidget } from '@/bindings';
 import type { Entry } from '@/data/data-store';
 import type { Widget } from '@/pane-layout';
 import { Console } from '@/widgets/console';
 import { DiscreteTimeline } from '@/widgets/discrete-timeline';
 import { Field } from '@/widgets/field';
-import { fieldRole } from '@/widgets/field-data';
+import { fieldRoles } from '@/widgets/field-roles';
 import { Notepad } from '@/widgets/notepad';
 import { Swerve } from '@/widgets/swerve';
-import { swerveRole } from '@/widgets/swerve-data';
+import { swerveRoles } from '@/widgets/swerve-data';
 import { ValuesTable } from '@/widgets/values-table';
 import { bindableKinds, type WidgetType } from '@/widgets/widget-type';
 
@@ -19,7 +20,6 @@ export const widgetTypes: readonly WidgetType[] = [
 		icon: TableIcon,
 		hotkey: 'V',
 		accepts: bindableKinds,
-		defaultConfig: { entryNames: [] },
 		component: ValuesTable,
 	},
 	{
@@ -29,7 +29,7 @@ export const widgetTypes: readonly WidgetType[] = [
 		hotkey: 'C',
 		accepts: ['string'],
 		// WPILib's console output and Driver Station messages
-		defaultConfig: { entryNames: ['/console', '/messages'] },
+		defaultEntryNames: ['/console', '/messages'],
 		component: Console,
 	},
 	{
@@ -38,7 +38,6 @@ export const widgetTypes: readonly WidgetType[] = [
 		icon: ChartNoAxesGanttIcon,
 		hotkey: 'D',
 		accepts: ['boolean', 'string'],
-		defaultConfig: { entryNames: [] },
 		component: DiscreteTimeline,
 	},
 	{
@@ -47,8 +46,7 @@ export const widgetTypes: readonly WidgetType[] = [
 		icon: MoveIcon,
 		hotkey: 'S',
 		accepts: ['number', 'struct', 'struct[]'],
-		matches: (entry) => swerveRole(entry) !== undefined,
-		defaultConfig: { entryNames: [] },
+		roles: swerveRoles,
 		component: Swerve,
 	},
 	{
@@ -57,9 +55,8 @@ export const widgetTypes: readonly WidgetType[] = [
 		icon: MapIcon,
 		hotkey: 'F',
 		accepts: ['struct', 'struct[]'],
-		matches: (entry) => fieldRole(entry) !== undefined,
+		roles: fieldRoles,
 		rendersEmpty: true,
-		defaultConfig: { entryNames: [] },
 		component: Field,
 	},
 	{
@@ -69,7 +66,6 @@ export const widgetTypes: readonly WidgetType[] = [
 		hotkey: 'N',
 		accepts: [],
 		rendersEmpty: true,
-		defaultConfig: { entryNames: [] },
 		component: Notepad,
 	},
 ];
@@ -87,11 +83,11 @@ function defaultWidgetTypeId(entry: Entry): string {
 		return 'discrete-timeline';
 	}
 
-	if (entry.type === 'struct:SwerveModuleState[]' || entry.type === 'struct:SwerveModuleVelocity[]') {
+	if (swerveRoles(entry)[0]?.id === 'states') {
 		return 'swerve';
 	}
 
-	if (fieldRole(entry) !== undefined) {
+	if (fieldRoles(entry).length > 0) {
 		return 'field';
 	}
 
@@ -105,6 +101,5 @@ export function defaultWidget(entry: Entry): Widget | undefined {
 		return undefined;
 	}
 
-	const type = getWidgetType(defaultWidgetTypeId(entry))!;
-	return { type: type.id, config: { ...type.defaultConfig, entryNames: [entry.name] } };
+	return createWidget(getWidgetType(defaultWidgetTypeId(entry))!, [entry.name]);
 }

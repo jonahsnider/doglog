@@ -5,8 +5,6 @@ import {
 	canSplitPane,
 	closePane,
 	createPane,
-	dropEntry,
-	findPane,
 	findSibling,
 	joinLayouts,
 	movePane,
@@ -17,9 +15,8 @@ import {
 	type Split,
 	splitPane,
 } from './pane-layout.ts';
-import { widgetConfigSchema } from './widgets/widget-type.ts';
 
-const graph = { type: 'line-graph', config: { entryNames: ['/Arm/Angle'] } };
+const graph = { type: 'line-graph', config: { bindings: [{ id: 'arm', name: '/Arm/Angle' }] } };
 
 function expectSplit(node: PaneNode): Split {
 	if (node.kind !== 'split') {
@@ -169,55 +166,4 @@ test("panes can't be moved onto themselves, out of a single pane layout, or wher
 	expect(canMovePane(quarters, d.id, a.id, 'left')).toBe(false);
 	expect(canMovePane(quarters, d.id, a.id, 'top')).toBe(true);
 	expect(movePane(quarters, d.id, a.id, 'left')).toBe(quarters);
-});
-
-const table = (...entryNames: string[]) => ({ type: 'values-table', config: { entryNames, extra: true } });
-
-const entryNames = (layout: PaneNode, paneId: string) =>
-	widgetConfigSchema.parse(findPane(layout, paneId)?.widget?.config).entryNames;
-
-function twoPanes(first: string[], second: string[]) {
-	const left = { ...createPane(), widget: table(...first) };
-	const right = { ...createPane(), widget: table(...second) };
-	const layout: PaneNode = { kind: 'split', id: 'split', direction: 'row', ratio: 0.5, first: left, second: right };
-	return { layout, left: left.id, right: right.id };
-}
-
-test("dropping a bound entry onto another of its widget entries takes that entry's position", () => {
-	const { layout, left } = twoPanes(['/a', '/b', '/c'], []);
-
-	expect(entryNames(dropEntry(layout, '/a', left, { paneId: left, index: 2 }), left)).toEqual(['/b', '/c', '/a']);
-	expect(entryNames(dropEntry(layout, '/c', left, { paneId: left, index: 0 }), left)).toEqual(['/c', '/a', '/b']);
-	expect(entryNames(dropEntry(layout, '/b', left, { paneId: left, index: 1 }), left)).toEqual(['/a', '/b', '/c']);
-});
-
-test('dropping an entry from another pane moves it and keeps other config fields', () => {
-	const { layout, left, right } = twoPanes(['/a', '/b'], ['/c']);
-
-	const moved = dropEntry(layout, '/a', left, { paneId: right });
-
-	expect(entryNames(moved, left)).toEqual(['/b']);
-	expect(entryNames(moved, right)).toEqual(['/c', '/a']);
-	expect(findPane(moved, left)?.widget?.config).toHaveProperty('extra', true);
-	expect(entryNames(dropEntry(layout, '/a', left, { paneId: right, index: 0 }), right)).toEqual(['/a', '/c']);
-});
-
-test('dropping an entry from the entry browser binds it', () => {
-	const { layout, right } = twoPanes([], ['/c']);
-
-	expect(entryNames(dropEntry(layout, '/a', undefined, { paneId: right }), right)).toEqual(['/c', '/a']);
-});
-
-test('entries a widget already shows are not moved from other panes', () => {
-	const { layout, left, right } = twoPanes(['/a'], ['/a']);
-
-	expect(dropEntry(layout, '/a', left, { paneId: right })).toBe(layout);
-	expect(dropEntry(layout, '/a', undefined, { paneId: right })).toBe(layout);
-});
-
-test('entries dropped on an empty pane stay where they are', () => {
-	const { layout, left } = twoPanes(['/a'], []);
-	const empty: PaneNode = { ...layout, second: createPane() };
-
-	expect(dropEntry(empty, '/a', left, { paneId: expectSplit(empty).second.id })).toBe(empty);
 });

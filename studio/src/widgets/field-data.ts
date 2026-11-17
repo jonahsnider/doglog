@@ -1,34 +1,5 @@
-// Reads field-relative poses from entries, shared by the field widget's drawing code
-import type { Entry } from '@/data/data-store';
+// Reads field-relative poses and shapes from entry values, shared by the field widget's drawing code
 import { numberField, structField } from '@/data/struct-fields';
-
-/** How an entry is drawn: a robot footprint, small pose markers, a line through its points, or outlined areas */
-export type FieldRole = 'robot' | 'markers' | 'path' | 'shapes';
-
-const structRoles: Partial<Record<string, FieldRole>> = {
-	'struct:Pose2d': 'robot',
-	'struct:Pose3d': 'robot',
-	'struct:Pose2d[]': 'markers',
-	'struct:Pose3d[]': 'markers',
-	'struct:Translation2d': 'markers',
-	'struct:Translation3d': 'markers',
-	'struct:Translation2d[]': 'path',
-	'struct:Translation3d[]': 'path',
-	'struct:Rectangle2d': 'shapes',
-	'struct:Rectangle2d[]': 'shapes',
-	'struct:Ellipse2d': 'shapes',
-	'struct:Ellipse2d[]': 'shapes',
-};
-
-/** What a bound entry is drawn as, `undefined` if the field widget doesn't accept it */
-export function fieldRole(entry: Entry): FieldRole | undefined {
-	const role = structRoles[entry.type];
-	// Pose arrays named like PathPlanner's `activePath` or Choreo's `Trajectory` are paths, not separate objects
-	if (role === 'markers' && /path|trajectory/iu.test(entry.name.slice(entry.name.lastIndexOf('/') + 1))) {
-		return 'path';
-	}
-	return role;
-}
 
 /** Field-relative position in meters, with `heading` in radians counterclockwise from +X, `undefined` for translations */
 export type Pose = { x: number; y: number; heading: number | undefined };

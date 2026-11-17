@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the field widget, which draws robots and other field-relative poses on a top-down view of the current season's FRC field, so teams can see where the robot was and where it was trying to go. The widget works without any per-widget settings.
+Define the field widget, which draws robots and other field-relative poses on a top-down view of the current season's FRC field, so teams can see where the robot was and where it was trying to go. The widget works without any settings: each entry's role is inferred, and MAY be changed from the legend.
 
 ## Requirements
 
@@ -15,9 +15,9 @@ The field widget SHALL accept `Pose2d`, `Pose3d`, `Translation2d`, `Translation3
 - **WHEN** the user binds `/Drive/Pose`, a `Pose2d` entry, and `/Auto/ShootingZone`, a `Rectangle2d` entry
 - **THEN** both are drawn on the field
 
-### Requirement: Inferred drawing
+### Requirement: Field roles
 
-Each bound entry's drawing MUST be inferred from its type and name: single poses are robots, single translations are markers, translation arrays are paths, and rectangles and ellipses are shapes. Pose arrays MUST be paths when the last part of their name contains "path" or "trajectory" (ignoring case) and markers otherwise.
+The field widget SHALL offer these roles, the inferred one first: single poses are a robot, ghost, or point; pose arrays are points or a path; single translations are a point; translation arrays are a path or points; and rectangles and ellipses are shapes. Pose arrays MUST infer a path instead when the last part of their name contains "path" or "trajectory" (ignoring case).
 
 #### Scenario: Robot pose
 
@@ -29,15 +29,15 @@ Each bound entry's drawing MUST be inferred from its type and name: single poses
 - **WHEN** the user binds `/PathPlanner/ActivePath`, a `Pose2d[]` entry
 - **THEN** it is drawn as a path
 
-#### Scenario: Pose array markers
+#### Scenario: Pose array points
 
 - **WHEN** the user binds `/Vision/TagPoses`, a `Pose3d[]` entry
-- **THEN** each pose is drawn as a marker
+- **THEN** each pose is drawn as a point
 
 #### Scenario: Game piece position
 
 - **WHEN** the user binds `/Vision/NotePosition`, a `Translation3d` entry
-- **THEN** it is drawn as a dot without a heading line
+- **THEN** it is drawn as a point without a heading line
 
 #### Scenario: Zone
 
@@ -60,7 +60,7 @@ The field widget SHALL draw the 2026 FRC field from a top-down render, fit to th
 
 ### Requirement: Zoom and pan
 
-Scrolling or pinching over the field SHALL zoom in and out around the pointer, from the whole view up to 8×. Dragging the zoomed field MUST pan it, and the field MUST NOT pan or zoom out past the edges of the view. Double-clicking SHALL reset the view. Robots, markers, paths, and shapes MUST zoom with the field. Robots MUST keep their look at every zoom, while marker, path, and shape lines keep their on-screen width.
+Scrolling or pinching over the field SHALL zoom in and out around the pointer, from the whole view up to 8×. Dragging the zoomed field MUST pan it, and the field MUST NOT pan or zoom out past the edges of the view. Double-clicking SHALL reset the view. Drawings MUST zoom with the field. Robots MUST keep their look at every zoom, while point, path, and shape lines keep their on-screen width.
 
 #### Scenario: Zoom to a robot
 
@@ -92,7 +92,7 @@ While the user zooms or pans a zoomed-in field, a minimap of the whole field SHA
 
 ### Requirement: Robots
 
-Each robot SHALL be drawn as a 0.9 m square centered on its pose, rotated by its heading (counterclockwise positive), with bumpers in the entry's color around a dark body and a white arrow pointing toward its front. `Pose3d` robots MUST be drawn at their yaw, ignoring height, pitch, and roll.
+Each robot SHALL be drawn as a 0.9 m square centered on its pose, rotated by its heading (counterclockwise positive), with bumpers in the entry's color around a dark body and a white arrow pointing toward its front. Ghosts MUST be drawn like robots, but see-through. `Pose3d` robots and ghosts MUST be drawn at their yaw, ignoring height, pitch, and roll.
 
 #### Scenario: Turned left
 
@@ -104,13 +104,13 @@ Each robot SHALL be drawn as a 0.9 m square centered on its pose, rotated by its
 - **GIVEN** a `Pose3d` entry 0.5 m off the floor, pitched 10°, with a 45° yaw
 - **THEN** the robot is drawn at its X and Y position, rotated 45°
 
-### Requirement: Markers and paths
+### Requirement: Points and paths
 
-Each pose in a marker entry SHALL be drawn as a dot with a short line toward its heading, and each translation as a dot alone. `Translation3d` entries MUST be drawn at their X and Y position, ignoring height. A path entry MUST be drawn as a line through its points in order. Lines SHALL keep the same on-screen width at any widget size.
+Each point SHALL be drawn as a dot, with a short line toward its heading if it's a pose. `Translation3d` entries MUST be drawn at their X and Y position, ignoring height. A path entry MUST be drawn as a line through its points in order. Lines SHALL keep the same on-screen width at any widget size.
 
 #### Scenario: Empty array
 
-- **GIVEN** a `Pose2d[]` marker entry whose value at the cursor is empty
+- **GIVEN** a `Pose2d[]` entry drawn as points whose value at the cursor is empty
 - **THEN** nothing is drawn for it
 - **AND** it isn't dimmed in the legend
 
@@ -123,9 +123,18 @@ Each `Rectangle2d` or `Ellipse2d` SHALL be drawn at its size as an outline over 
 - **GIVEN** a `Rectangle2d` entry centered at (4, 2) with a 90° rotation, 2 m along its X and 1 m along its Y
 - **THEN** a rectangle 1 m wide and 2 m tall is drawn centered on (4, 2)
 
+### Requirement: Draw order
+
+Shapes SHALL be drawn under paths, paths under points, points under ghosts, and ghosts under robots. Within a role, earlier bindings MUST be drawn on top of later ones.
+
+#### Scenario: Robot over its path
+
+- **GIVEN** a field widget showing `/Auto/Trajectory` as a path and `/Drive/Pose` as a robot on it
+- **THEN** the robot is drawn on top of the path
+
 ### Requirement: Colors and legend
 
-The field widget SHALL color each entry from the shared chart colors in binding order, and MUST show a legend listing each bound entry, one per line, with its color. The legend SHALL be above the field, unless the widget is wider than the field's shape, where it MUST be beside the field so the field isn't shrunk. Shapes SHALL be drawn under paths, paths under markers, and markers under robots. Entries with no value at or before the cursor MUST be dimmed in the legend and not drawn.
+The field widget SHALL color each entry from the shared chart colors in binding order, and MUST show a legend listing each bound entry, one per line, with its color. The legend SHALL be above the field, unless the widget is wider than the field's shape, where it MUST be beside the field so the field isn't shrunk. Entries with no value at or before the cursor MUST be dimmed in the legend and not drawn.
 
 #### Scenario: Wide widget
 

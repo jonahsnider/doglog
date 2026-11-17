@@ -6,7 +6,6 @@ import { Toggle } from '@/components/ui/toggle';
 import { type Entry, useDataVersion } from '@/data/data-store';
 import { cn } from '@/lib/utils';
 import { useCursorTime } from '@/timeline';
-import { type FieldRole, fieldRole } from '@/widgets/field-data';
 import {
 	type FieldPoint,
 	type Measurement,
@@ -18,7 +17,7 @@ import {
 } from '@/widgets/field-geometry';
 import { FieldImage, Minimap } from '@/widgets/field-image';
 import { MeasurementDrawing } from '@/widgets/field-measure';
-import { Drawing } from '@/widgets/field-shapes';
+import { fieldDrawing, layerCount } from '@/widgets/field-roles';
 import { useFieldZoom } from '@/widgets/field-zoom';
 import { Legend, type LegendItem } from '@/widgets/legend';
 import { seriesColor } from '@/widgets/series-color';
@@ -29,8 +28,6 @@ const readoutHeight = '1.5rem';
 
 /** Shorter measurements are dropped as accidental clicks */
 const minMeasurePixels = 8;
-
-const drawOrder: readonly FieldRole[] = ['shapes', 'path', 'markers', 'robot'];
 
 const tools: readonly { tool: MeasureTool; key: 'M' | 'A'; label: string; hint: string }[] = [
 	{ tool: 'distance', key: 'M', label: 'Distance', hint: 'Drag to measure distance, hold Shift to snap to 45°' },
@@ -164,17 +161,17 @@ export function Field({ bindings }: WidgetProps) {
 
 	const valueOf = (entry: Entry | undefined) => (entry && time !== undefined ? entry.samples.valueAt(time) : undefined);
 	const legend: LegendItem[] = [];
-	const layers = new Map<FieldRole, ReactNode[]>(drawOrder.map((role) => [role, []]));
-	bindings.forEach(({ name, entry }, index) => {
+	const layers: ReactNode[][] = Array.from({ length: layerCount }, () => []);
+	bindings.forEach((binding, index) => {
 		const color = seriesColor(index);
-		const role = entry && fieldRole(entry);
-		const value = valueOf(entry);
-		legend.push({ name, color, dimmed: value === undefined });
-		if (role !== undefined && value !== undefined) {
-			layers.get(role)!.push(
-				// Right-clicking a drawing offers to remove its entry, middle-clicking removes it
-				<g key={name} data-entry-name={name}>
-					<Drawing role={role} value={value} color={color} />
+		const value = valueOf(binding.entry);
+		legend.push({ binding, color, dimmed: value === undefined });
+		const drawing = binding.role && fieldDrawing(binding.role.id);
+		if (drawing && value !== undefined && !binding.hidden) {
+			layers[drawing.layer]!.push(
+				// Right-clicking a drawing offers to remove its binding, middle-clicking removes it
+				<g key={binding.id} data-binding-id={binding.id}>
+					{drawing.draw(value, color)}
 				</g>,
 			);
 		}
@@ -271,7 +268,7 @@ export function Field({ bindings }: WidgetProps) {
 									<FieldImage />
 									<g transform="scale(1 -1)">
 										{/* Earlier entries draw on top of later ones */}
-										{drawOrder.flatMap((role) => layers.get(role)!.toReversed())}
+										{layers.flatMap((layer) => layer.toReversed())}
 										{measurement && <MeasurementDrawing measurement={measurement} />}
 									</g>
 								</g>

@@ -10,20 +10,21 @@ import { WidgetView } from '@/components/widget-view';
 import { shortcuts } from '@/commands';
 import { closeDashboardPane, splitDashboardPane, updateLayout } from '@/dashboard-panes';
 import { focusPane } from '@/dashboards';
-import { getEntry } from '@/data/data-store';
+import { getEntry, useEntries } from '@/data/data-store';
+import {
+	changeWidgetType,
+	createWidget,
+	removeBinding,
+	resolveBindings,
+	setBoundEntries,
+	widgetBindings,
+} from '@/bindings';
 import { cn } from '@/lib/utils';
 import { usePaneDrag } from '@/pane-drag';
-import {
-	canSplitPane,
-	type Pane,
-	type PaneNode,
-	setPaneEntryNames,
-	setPaneWidget,
-	type SplitDirection,
-} from '@/pane-layout';
+import { canSplitPane, type Pane, type PaneNode, setPaneWidget, type SplitDirection } from '@/pane-layout';
 import { useTrafficLightsOverlap } from '@/title-bar';
 import { getWidgetType, widgetTypes } from '@/widgets/registry';
-import { acceptsEntry, bindsEntries, type WidgetType, widgetConfigSchema } from '@/widgets/widget-type';
+import { bindsEntries, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
 
 export type PaneNodeProps = {
 	dashboardId: string;
@@ -33,9 +34,13 @@ export type PaneNodeProps = {
 	topLeft: boolean;
 };
 
-// Widgets mark the elements that show an entry, ex. a values table row
-const entryNameAt = (target: EventTarget) =>
-	target instanceof Element ? target.closest<HTMLElement>('[data-entry-name]')?.dataset['entryName'] : undefined;
+// Widgets mark the elements that show a binding, ex. a values table row
+const bindingIdAt = (target: EventTarget) =>
+	target instanceof Element ? target.closest<HTMLElement>('[data-binding-id]')?.dataset['bindingId'] : undefined;
+
+/** Copies of an entry are told apart by their roles, ex. `/Drive/Pose (Ghost)` */
+const bindingLabel = ({ name, roleLabel }: WidgetBinding) =>
+	roleLabel === undefined ? name : `${name} (${roleLabel})`;
 
 export function PaneView({
 	dashboardId,
@@ -50,32 +55,29 @@ export function PaneView({
 	const update = (operation: (layout: PaneNode) => PaneNode) => updateLayout(dashboardId, operation);
 	const { widget } = pane;
 	const type = widget && getWidgetType(widget.type);
-	const config = useMemo(() => widgetConfigSchema.parse(widget?.config), [widget?.config]);
+	const entries = useEntries();
+	const bindings = useMemo(() => {
+		const byName = new Map(entries.map((entry) => [entry.name, entry]));
+		return type ? resolveBindings(type, widgetBindings(widget), (name) => byName.get(name)) : [];
+	}, [entries, type, widget]);
+	const entryNames = useMemo(() => [...new Set(bindings.map((binding) => binding.name))], [bindings]);
 	const { dragRef, isDragging, dropRef, isDropTarget } = usePaneDrag(dashboardId, pane);
 
-	const setWidget = (newType: WidgetType, entryNames: readonly string[] = newType.defaultConfig.entryNames) => {
-		const newConfig = { ...newType.defaultConfig, entryNames: [...entryNames] };
-		update((layout) => setPaneWidget(layout, pane.id, { type: newType.id, config: newConfig }));
-	};
-	const changeWidget = (newType: WidgetType) => {
-		// Entries missing from the source might be accepted once they're loaded, so only known mismatches are unbound
-		const entryNames = config.entryNames.filter((name) => {
-			const entry = getEntry(name);
-			return entry === undefined || acceptsEntry(newType, entry);
-		});
-		setWidget(newType, entryNames.length > 0 ? entryNames : undefined);
-	};
-	const setEntryNames = (entryNames: string[]) => update((layout) => setPaneEntryNames(layout, pane.id, entryNames));
+	const setWidget = (newType: WidgetType) => update((layout) => setPaneWidget(layout, pane.id, createWidget(newType)));
+	const changeWidget = (newType: WidgetType) =>
+		update((layout) => changeWidgetType(layout, pane.id, newType, getEntry));
+	const setEntryNames = (names: string[]) => update((layout) => setBoundEntries(layout, pane.id, names));
 	const split = (direction: SplitDirection) => splitDashboardPane(dashboardId, pane.id, direction);
 	const canSplitRight = canSplitPane(dashboardLayout, pane.id, 'row');
 	const canSplitDown = canSplitPane(dashboardLayout, pane.id, 'column');
 	const close = () => closeDashboardPane(dashboardId, pane.id);
 	const focused = pane.id === focusedPaneId;
 
-	const removeEntry = (name: string) => setEntryNames(config.entryNames.filter((other) => other !== name));
+	const remove = (bindingId: string) => update((layout) => removeBinding(layout, pane.id, bindingId));
 
 	const menuItems = (target: Element): MenuEntry[] => {
-		const targetEntryName = entryNameAt(target);
+		const targetId = bindingIdAt(target);
+		const targetBinding = bindings.find((binding) => binding.id === targetId);
 		return [
 			{
 				label: 'Split right',
@@ -101,13 +103,13 @@ export function PaneView({
 				})),
 			},
 			{ label: 'Add entries', disabled: !type || !bindsEntries(type), onSelect: () => setOptionsOpen(true) },
-			targetEntryName === undefined
+			targetBinding === undefined
 				? {
 						label: 'Remove entry',
-						disabled: config.entryNames.length === 0,
-						items: config.entryNames.map((name) => ({ label: name, onSelect: () => removeEntry(name) })),
+						disabled: bindings.length === 0,
+						items: bindings.map((binding) => ({ label: bindingLabel(binding), onSelect: () => remove(binding.id) })),
 					}
-				: { label: `Remove ${targetEntryName}`, onSelect: () => removeEntry(targetEntryName) },
+				: { label: `Remove ${bindingLabel(targetBinding)}`, onSelect: () => remove(targetBinding.id) },
 			'separator',
 			{ label: 'Close', shortcut: shortcuts.close, disabled: !closable, onSelect: close },
 		];
@@ -125,11 +127,11 @@ export function PaneView({
 					// Capturing, so clicks that widgets handle themselves still focus the pane, right-clicks included
 					onPointerDownCapture={() => focusPane(dashboardId, pane.id)}
 					onFocusCapture={() => focusPane(dashboardId, pane.id)}
-					// Middle-clicking an entry removes it
+					// Middle-clicking a binding removes it
 					onAuxClick={(event) => {
-						const entryName = event.button === 1 ? entryNameAt(event.target) : undefined;
-						if (entryName !== undefined) {
-							removeEntry(entryName);
+						const bindingId = event.button === 1 ? bindingIdAt(event.target) : undefined;
+						if (bindingId !== undefined) {
+							remove(bindingId);
 						}
 					}}
 				/>
@@ -161,7 +163,7 @@ export function PaneView({
 					{type && bindsEntries(type) && (
 						<WidgetOptions
 							type={type}
-							entryNames={config.entryNames}
+							entryNames={entryNames}
 							onEntryNamesChange={setEntryNames}
 							open={optionsOpen}
 							onOpenChange={setOptionsOpen}
@@ -194,7 +196,7 @@ export function PaneView({
 				{widget === undefined ? (
 					<AddWidgetPrompt onAdd={setWidget} focused={focused} />
 				) : type ? (
-					<WidgetView paneId={pane.id} type={type} entryNames={config.entryNames} />
+					<WidgetView dashboardId={dashboardId} paneId={pane.id} type={type} bindings={bindings} />
 				) : (
 					<p className="p-3 text-sm text-muted-foreground">Unknown widget type {widget.type}.</p>
 				)}

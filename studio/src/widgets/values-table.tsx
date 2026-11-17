@@ -11,14 +11,14 @@ import { useCursorTime } from '@/timeline';
 import { NoData } from '@/widgets/no-data';
 import type { WidgetProps } from '@/widgets/widget-type';
 import { EntryName } from '@/components/entry-name';
-import { useEntryDrag } from '@/entry-drag';
+import { useBindingDrag } from '@/entry-drag';
 
 type FieldValue = Parameters<typeof formatValue>[0];
 
 type Row = {
-	/** The bound entry the row belongs to, ex. `/Robot/Pose` */
-	entryName: string;
-	/** Identifies the row for expansion, ex. `/Robot/Pose.translation` */
+	/** The binding the row belongs to */
+	binding: { id: string; name: string };
+	/** Identifies the row for expansion, the binding's ID followed by the field, ex. `<id>.translation` */
 	path: string;
 	label: string;
 	type: string | undefined;
@@ -79,7 +79,7 @@ export function ValuesTable({ bindings }: WidgetProps) {
 			for (const [label, value] of childrenOf(row.value) ?? []) {
 				const path = label.startsWith('[') ? row.path + label : `${row.path}.${label}`;
 				addRows({
-					entryName: row.entryName,
+					binding: row.binding,
 					path,
 					label,
 					type: undefined,
@@ -90,10 +90,10 @@ export function ValuesTable({ bindings }: WidgetProps) {
 			}
 		}
 	};
-	for (const { name, entry } of bindings) {
+	for (const { id, name, entry } of bindings) {
 		addRows({
-			entryName: name,
-			path: name,
+			binding: { id, name },
+			path: id,
 			label: name,
 			type: entry?.type,
 			value: entry && time !== undefined ? entry.samples.valueAt(time) : undefined,
@@ -142,14 +142,14 @@ function ValuesTableRow({
 	onToggle: () => void;
 }) {
 	// Rows of an entry's fields and elements are part of its row, only the entry's own row can be dragged or dropped on
-	const { ref, handleRef } = useEntryDrag(row.entryName, { disabled: row.depth > 0 });
+	const { ref, handleRef } = useBindingDrag(row.binding, { disabled: row.depth > 0 });
 	const expandable = childrenOf(row.value) !== undefined;
 	const isExpanded = expandable && expanded;
 	return (
 		<TableRow
 			ref={ref}
-			// Right-clicking the row offers to remove its entry, middle-clicking removes it
-			data-entry-name={row.entryName}
+			// Right-clicking the row offers to remove its binding, middle-clicking removes it
+			data-binding-id={row.binding.id}
 			className={cn(expandable && 'cursor-pointer')}
 			onClick={
 				expandable

@@ -3,7 +3,7 @@ import { expect, test } from 'vite-plus/test';
 import { type DashboardContents, readDashboardDoc, writeDashboardDoc } from './dashboard-doc.ts';
 import { closePane, createPane, firstPane, resizeSplit, setPaneWidget, splitPane } from './pane-layout.ts';
 
-const graph = { type: 'line-graph', config: { entryNames: ['/Arm/Angle'] } };
+const graph = { type: 'line-graph', config: { bindings: [{ id: 'arm', name: '/Arm/Angle' }] } };
 
 function write(doc: LoroDoc, contents: DashboardContents): void {
 	writeDashboardDoc(doc, contents);

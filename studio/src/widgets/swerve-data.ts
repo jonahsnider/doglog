@@ -2,8 +2,11 @@
 import type { Entry } from '@/data/data-store';
 import type { Value } from '@/data/samples';
 import { numberField, structField } from '@/data/struct-fields';
+import type { RoleOption, WidgetBinding } from '@/widgets/widget-type';
 
-export type Role = 'states' | 'positions' | 'speeds' | 'heading';
+const roles = ['states', 'positions', 'speeds', 'heading'] as const;
+
+export type Role = (typeof roles)[number];
 
 // WPILib 2027 renamed SwerveModuleState to SwerveModuleVelocity and ChassisSpeeds to ChassisVelocities
 const structRoles: Partial<Record<string, Role>> = {
@@ -15,9 +18,22 @@ const structRoles: Partial<Record<string, Role>> = {
 	'struct:Rotation2d': 'heading',
 };
 
-/** What a bound entry is used for, `undefined` if the swerve widget doesn't accept it */
-export function swerveRole(entry: Entry): Role | undefined {
-	return entry.kind === 'number' ? 'heading' : structRoles[entry.type];
+const roleLabels: Record<Role, string> = {
+	states: 'Module states',
+	positions: 'Module positions',
+	speeds: 'Chassis speeds',
+	heading: 'Heading',
+};
+
+/** The one role an entry has, none if the swerve widget doesn't accept it */
+export function swerveRoles(entry: Entry): RoleOption[] {
+	const role = entry.kind === 'number' ? 'heading' : structRoles[entry.type];
+	return role === undefined ? [] : [{ id: role, label: roleLabels[role] }];
+}
+
+/** What a binding is used for, `undefined` without an entry */
+export function swerveRole(binding: WidgetBinding): Role | undefined {
+	return roles.find((role) => role === binding.role?.id);
 }
 
 /** A module's speed, `speed` in SwerveModuleState or `velocity` in SwerveModuleVelocity */

@@ -1,3 +1,4 @@
+import { addEntries, type DraggedEntry, dropEntry, type EntryDrop, widgetBindings } from '@/bindings';
 import {
 	createDashboard,
 	type Dashboard,
@@ -13,8 +14,6 @@ import {
 	canSplitPane,
 	closePane,
 	createPane,
-	dropEntry,
-	type EntryDrop,
 	findPane,
 	findSibling,
 	findWidgetPane,
@@ -24,14 +23,13 @@ import {
 	type Pane,
 	type PaneNode,
 	type PaneSide,
-	setPaneEntryNames,
 	setPaneWidget,
 	type SplitDirection,
 	splitPane,
 	type Widget,
 } from '@/pane-layout';
 import { getWidgetType } from '@/widgets/registry';
-import { acceptsEntry, widgetConfigSchema } from '@/widgets/widget-type';
+import { acceptsEntry } from '@/widgets/widget-type';
 
 /**
  * Change a dashboard's pane layout with one of the `@/pane-layout` operations.
@@ -42,15 +40,13 @@ export function updateLayout(id: string, update: (layout: PaneNode) => PaneNode)
 }
 
 /** Bind an entry dropped on a pane's widget if the widget accepts it, see `dropEntry()` */
-export function dropDashboardEntry(id: string, name: string, fromPaneId: string | undefined, to: EntryDrop): void {
-	const entry = getEntry(name);
+export function dropDashboardEntry(id: string, dragged: DraggedEntry, to: EntryDrop): void {
+	const entry = getEntry(dragged.name);
 	updateLayout(id, (layout) => {
 		const widget = findPane(layout, to.paneId)?.widget;
 		const type = widget && getWidgetType(widget.type);
 		// Entries missing from the source might be accepted once they're loaded
-		return type && (entry === undefined || acceptsEntry(type, entry))
-			? dropEntry(layout, name, fromPaneId, to)
-			: layout;
+		return type && (entry === undefined || acceptsEntry(type, entry)) ? dropEntry(layout, dragged, to) : layout;
 	});
 }
 
@@ -87,17 +83,8 @@ export function addDashboardWidget(id: string, widget: Widget): void {
 		const focused = getFocusedPane(dashboard);
 		const matching = focused.widget?.type === widget.type ? focused : findWidgetPane(dashboard.layout, widget.type);
 		if (matching?.widget !== undefined) {
-			const { entryNames } = widgetConfigSchema.parse(matching.widget.config);
-			const allEntryNames = [...new Set([...entryNames, ...widgetConfigSchema.parse(widget.config).entryNames])];
-			if (allEntryNames.length === entryNames.length) {
-				return { ...dashboard, focusedPaneId: matching.id };
-			}
-
-			return {
-				...dashboard,
-				layout: setPaneEntryNames(dashboard.layout, matching.id, allEntryNames),
-				focusedPaneId: matching.id,
-			};
+			const names = widgetBindings(widget).map((binding) => binding.name);
+			return { ...dashboard, layout: addEntries(dashboard.layout, matching.id, names), focusedPaneId: matching.id };
 		}
 
 		if (focused.widget === undefined) {

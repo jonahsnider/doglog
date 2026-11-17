@@ -1,7 +1,8 @@
+import { widgetBindings } from '@/bindings';
 import type { Dashboard } from '@/dashboards';
 import type { PaneNode, Widget } from '@/pane-layout';
 import { getWidgetType } from '@/widgets/registry';
-import { widgetConfigSchema, type WidgetType } from '@/widgets/widget-type';
+import type { WidgetType } from '@/widgets/widget-type';
 
 /**
  * Prefixes skipped when naming a dashboard after its entries, since nearly every DogLog or AdvantageKit entry starts
@@ -31,9 +32,9 @@ export function suggestDashboardName(layout: PaneNode): string {
 	const topics = new Set<string>();
 	for (const { widget } of widgetAreas(layout)) {
 		const type = getWidgetType(widget.type);
-		const { entryNames } = widgetConfigSchema.parse(widget.config);
-		const defaults = new Set(type?.defaultConfig.entryNames);
-		const isDefault = entryNames.length === defaults.size && entryNames.every((name) => defaults.has(name));
+		const entryNames = new Set(widgetBindings(widget).map((binding) => binding.name));
+		const defaults = new Set(type?.defaultEntryNames);
+		const isDefault = entryNames.size === defaults.size && [...entryNames].every((name) => defaults.has(name));
 		if (isDefault) {
 			topics.add(type?.name ?? 'Unknown widget');
 			continue;

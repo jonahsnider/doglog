@@ -42,6 +42,12 @@ Each widget SHALL have an options button that opens a searchable entry picker, f
 - **WHEN** the user removes a bound entry in the picker
 - **THEN** the widget stops showing that entry
 
+#### Scenario: Unbind an entry bound twice
+
+- **GIVEN** a field widget showing `/Drive/Pose` as a robot and as a ghost
+- **WHEN** the user removes `/Drive/Pose` in the picker
+- **THEN** the widget stops showing both
+
 ### Requirement: Entry picker list
 
 The entry picker SHALL list few enough entries to fit without scrolling, at most 10 before searching and 20 while searching, and MUST say how many more entries are hidden. Before searching, bound entries MUST be listed first, in the order the widget shows them, and entries MUST NOT move while they're toggled. Selecting an entry MUST keep the search, and names too long to fit MUST scroll back and forth while hovered.
@@ -65,7 +71,7 @@ The entry picker SHALL list few enough entries to fit without scrolling, at most
 
 ### Requirement: Edit entries from the context menu
 
-A widget's context menu SHALL offer to add entries, which opens the entry picker, and to remove a bound entry. Right-clicking the part of a widget that shows an entry, such as a values table or discrete timeline row, MUST offer to remove that entry directly; elsewhere, bound entries MUST be listed in a submenu. Middle-clicking the part of a widget that shows an entry SHALL remove it.
+A widget's context menu SHALL offer to add entries, which opens the entry picker, and to remove a bound entry. Right-clicking the part of a widget that shows an entry, such as a values table or discrete timeline row, MUST offer to remove that entry directly; elsewhere, bound entries MUST be listed in a submenu, with their role when it's shown in the legend. Middle-clicking the part of a widget that shows an entry SHALL remove it, and only that binding of an entry bound more than once.
 
 #### Scenario: Remove a values table row
 
@@ -79,6 +85,12 @@ A widget's context menu SHALL offer to add entries, which opens the entry picker
 - **WHEN** the user middle-clicks the `/Arm/Angle` row
 - **THEN** the table stops showing `/Arm/Angle`
 
+#### Scenario: Remove one of two bindings
+
+- **GIVEN** a field widget showing `/Drive/Pose` as a robot and as a ghost
+- **WHEN** the user opens the context menu outside the drawings and chooses "Remove entry", then "/Drive/Pose (Ghost)"
+- **THEN** the widget only shows `/Drive/Pose` as a robot
+
 ### Requirement: Bind by drag and drop
 
 Users SHALL be able to bind an entry by dragging it from the entry browser onto a widget.
@@ -88,12 +100,11 @@ Users SHALL be able to bind an entry by dragging it from the entry browser onto 
 - **WHEN** the user drags an accepted entry from the entry browser onto a widget
 - **THEN** the entry is bound to that widget
 
-#### Scenario: Already shown
+#### Scenario: Bind again
 
 - **GIVEN** a widget showing `/Arm/Angle`
 - **WHEN** the user drags `/Arm/Angle` onto it from the entry browser or another widget
-- **THEN** the user is shown that the widget already shows it
-- **AND** dropping it changes nothing
+- **THEN** the widget shows `/Arm/Angle` twice
 
 ### Requirement: Drag entries out of widgets
 
@@ -116,6 +127,50 @@ The part of a widget that shows an entry, such as a values table row or swerve l
 
 - **WHEN** the user drags a values table row and drops it outside any widget
 - **THEN** the table is unchanged
+
+### Requirement: Roles
+
+A widget MAY show entries in different ways, called roles, such as the field drawing a `Pose2d` as a robot or a ghost. Each binding's role SHALL be inferred unless the user picks one, and a binding of an entry that's bound more than once MUST infer the first role none of the entry's other bindings have. A picked role the entry can't take, such as after opening a log where its type is different, MUST be kept but not used.
+
+#### Scenario: Second binding
+
+- **GIVEN** a field widget showing `/Drive/Pose` as a robot
+- **WHEN** the user drags `/Drive/Pose` onto it again
+- **THEN** the new binding is drawn as a ghost
+
+#### Scenario: Picked role doesn't fit
+
+- **GIVEN** a field widget showing `/Drive/Pose` as a ghost
+- **WHEN** the user opens a log where `/Drive/Pose` is a `Translation2d`
+- **THEN** it is drawn as a point
+- **AND** it is drawn as a ghost again once a log where it's a `Pose2d` is opened
+
+### Requirement: Pick a role
+
+The legend SHALL show a binding's role after its name when the entry can take more than one role, or is bound more than once, and clicking the role MUST open a menu of the entry's roles to pick from.
+
+#### Scenario: Pick a role
+
+- **GIVEN** a field widget showing `/Drive/Pose` as a robot
+- **WHEN** the user clicks "Robot" in its legend item and chooses "Ghost"
+- **THEN** `/Drive/Pose` is drawn as a ghost
+
+#### Scenario: One role
+
+- **GIVEN** a swerve widget showing `/Drive/MeasuredStates`, a `SwerveModuleState[]` entry, once
+- **THEN** its legend item doesn't show a role
+
+### Requirement: Hide entries
+
+Clicking a binding's swatch in a widget's legend SHALL hide it, and clicking it again MUST show it. Hidden bindings MUST stay in the legend with a hollow swatch and a muted name, and MUST NOT be drawn or used, such as for the swerve widget's heading. Hiding a binding MUST NOT change the other bindings' colors or roles. Widgets without a legend SHALL show every binding.
+
+#### Scenario: Hide a robot
+
+- **GIVEN** a field widget showing `/Drive/Pose` and `/Vision/EstimatedPose`
+- **WHEN** the user clicks the swatch next to `/Vision/EstimatedPose`
+- **THEN** `/Vision/EstimatedPose` isn't drawn
+- **AND** its legend item has a hollow swatch
+- **AND** `/Drive/Pose` keeps its color
 
 ### Requirement: Follow the cursor
 

@@ -1,29 +1,5 @@
 import { expect, test } from 'vite-plus/test';
-import type { Entry } from '@/data/data-store';
-import { getEntryKind, Samples } from '@/data/samples';
-import { fieldRole, readPose } from '@/widgets/field-data';
-
-function entry(name: string, type: string): Entry {
-	return { name, type, kind: getEntryKind(type), samples: new Samples(), metadata: {} };
-}
-
-test.each([
-	['/Drive/Pose', 'struct:Pose2d', 'robot'],
-	['/Vision/TagPoses', 'struct:Pose3d[]', 'markers'],
-	['/PathPlanner/activePath', 'struct:Pose2d[]', 'path'],
-	['/Auto/Trajectory', 'struct:Pose3d[]', 'path'],
-	// Only the last part of the name counts
-	['/Trajectory/Targets', 'struct:Pose2d[]', 'markers'],
-	['/Auto/Waypoints', 'struct:Translation2d[]', 'path'],
-	['/Auto/Target', 'struct:Translation2d', 'markers'],
-	['/Vision/NotePosition', 'struct:Translation3d', 'markers'],
-	['/Auto/Waypoints3d', 'struct:Translation3d[]', 'path'],
-	['/Auto/ShootingZone', 'struct:Rectangle2d', 'shapes'],
-	['/Vision/Obstacles', 'struct:Ellipse2d[]', 'shapes'],
-	['/Drive/Speeds', 'struct:ChassisSpeeds', undefined],
-])('%s (%s) is drawn as %s', (name, type, role) => {
-	expect(fieldRole(entry(name, type))).toBe(role);
-});
+import { readPose } from '@/widgets/field-data';
 
 test('Pose3d heading is its yaw', () => {
 	const yaw = Math.PI / 4;

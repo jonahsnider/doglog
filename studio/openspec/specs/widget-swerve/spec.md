@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Define the swerve widget, which draws a top-down view of a 4-module swerve drivetrain with each module's velocity and angle, so teams can compare measured and desired module states at a glance. The widget works without any per-widget settings.
+Define the swerve widget, which draws a top-down view of a 4-module swerve drivetrain with each module's velocity and angle, so teams can compare measured and desired module states at a glance. The widget works without any settings.
 
 ## Requirements
 
 ### Requirement: Swerve inputs
 
-The swerve widget SHALL accept `SwerveModuleState[]`, `SwerveModuleVelocity[]`, `SwerveModulePosition[]`, `ChassisSpeeds`, `ChassisVelocities`, `Rotation2d`, and numeric entries. Each bound entry's role MUST be inferred from its type: module arrays and chassis speeds are drawn, and the first bound `Rotation2d` or numeric entry is the robot heading. Any number of module array and chassis speeds entries MAY be bound.
+The swerve widget SHALL accept `SwerveModuleState[]`, `SwerveModuleVelocity[]`, `SwerveModulePosition[]`, `ChassisSpeeds`, `ChassisVelocities`, `Rotation2d`, and numeric entries. Each bound entry's role MUST be inferred from its type: module arrays and chassis speeds are drawn, and the first shown `Rotation2d` or numeric entry is the robot heading. Any number of module array and chassis speeds entries MAY be bound.
 
 #### Scenario: WPILib 2027 names
 

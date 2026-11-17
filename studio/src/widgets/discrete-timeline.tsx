@@ -13,9 +13,9 @@ import {
 	type ColorAssignments,
 } from '@/widgets/discrete-timeline-colors';
 import { NoData } from '@/widgets/no-data';
-import type { WidgetProps } from '@/widgets/widget-type';
+import type { WidgetBinding, WidgetProps } from '@/widgets/widget-type';
 import { EntryName } from '@/components/entry-name';
-import { useEntryDrag } from '@/entry-drag';
+import { useBindingDrag } from '@/entry-drag';
 
 /** Live sources show the newest 30 s, matching the line graph */
 const liveWindow = 30_000_000;
@@ -238,8 +238,8 @@ export function DiscreteTimeline({ bindings }: WidgetProps) {
 			onPointerLeave={() => setHover(undefined)}
 			onClick={handleClick}
 		>
-			{bindings.map(({ name, entry }, row) => (
-				<TimelineRow key={name} name={name} missing={!entry} row={row} />
+			{bindings.map((binding, row) => (
+				<TimelineRow key={binding.id} binding={binding} missing={!binding.entry} row={row} />
 			))}
 			<canvas
 				ref={canvas}
@@ -253,19 +253,19 @@ export function DiscreteTimeline({ bindings }: WidgetProps) {
 	);
 }
 
-function TimelineRow({ name, missing, row }: { name: string; missing: boolean; row: number }) {
-	const { ref, handleRef } = useEntryDrag(name);
+function TimelineRow({ binding, missing, row }: { binding: WidgetBinding; missing: boolean; row: number }) {
+	const { ref, handleRef } = useBindingDrag(binding);
 	return (
 		<div
 			ref={ref}
 			className="absolute inset-x-2 text-xs"
 			style={{ top: padding + row * rowHeight, height: rowHeight }}
-			// Right-clicking the row offers to remove its entry, middle-clicking removes it
-			data-entry-name={name}
+			// Right-clicking the row offers to remove its binding, middle-clicking removes it
+			data-binding-id={binding.id}
 		>
 			{/* Dragged by the name, clicking the band seeks */}
 			<div ref={handleRef} className="w-fit max-w-full cursor-grab truncate font-mono leading-4 text-muted-foreground">
-				<EntryName name={name} />
+				<EntryName name={binding.name} />
 			</div>
 			{missing && (
 				<div className="flex items-center" style={{ height: bandHeight, marginTop: bandTop - labelHeight }}>

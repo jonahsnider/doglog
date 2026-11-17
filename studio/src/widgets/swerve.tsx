@@ -109,13 +109,13 @@ function scaledArrowLength(speed: number, maxSpeed: number): number {
 	return baseArrow + (maxSpeed > 0 ? (Math.abs(speed) / maxSpeed) * (fullArrow - baseArrow) : 0);
 }
 
-/** Fastest speed in the history of every module state and chassis speeds entry, for the arrow scale */
+/** Fastest speed in the history of every shown module state and chassis speeds entry, for the arrow scale */
 function maxBoundSpeed(bindings: WidgetProps['bindings']): number {
 	let maxSpeed = 0;
-	for (const { entry } of bindings) {
-		const role = entry && swerveRole(entry);
-		if (entry && (role === 'states' || role === 'speeds')) {
-			maxSpeed = Math.max(maxSpeed, historyMax(entry, role).speed);
+	for (const binding of bindings) {
+		const role = swerveRole(binding);
+		if (binding.entry && !binding.hidden && (role === 'states' || role === 'speeds')) {
+			maxSpeed = Math.max(maxSpeed, historyMax(binding.entry, role).speed);
 		}
 	}
 	return maxSpeed;
@@ -135,7 +135,9 @@ export function Swerve({ bindings }: WidgetProps) {
 	useDataVersion();
 
 	const valueOf = (entry: Entry | undefined) => (entry && time !== undefined ? entry.samples.valueAt(time) : undefined);
-	const headingEntry = bindings.find(({ entry }) => entry !== undefined && swerveRole(entry) === 'heading')?.entry;
+	// Hidden headings are skipped, so hiding the first heading uses the next one
+	const headingBinding = bindings.find((binding) => !binding.hidden && swerveRole(binding) === 'heading');
+	const headingEntry = headingBinding?.entry;
 	const heading = headingRadians(valueOf(headingEntry), headingEntry);
 
 	const maxSpeed = maxBoundSpeed(bindings);
@@ -152,30 +154,32 @@ export function Swerve({ bindings }: WidgetProps) {
 	let colorIndex = 0;
 	let speedsIndex = 0;
 
-	for (const { name, entry } of bindings) {
-		const role = entry && swerveRole(entry);
+	for (const binding of bindings) {
+		const { id, entry } = binding;
+		const role = swerveRole(binding);
 		const value = valueOf(entry);
 
 		if (role === 'heading') {
 			legend.push({
-				name,
+				binding,
 				icon: <CompassIcon className="size-3.5 shrink-0 text-muted-foreground" />,
 				note: `(${angleUnitLabels[inferAngleUnit(entry!)]})`,
-				dimmed: entry !== headingEntry || value === undefined,
+				dimmed: binding !== headingBinding || value === undefined,
 			});
 			continue;
 		}
 
+		// Counted for hidden bindings too, so hiding one doesn't recolor the others
 		const color = seriesColor(colorIndex++);
-		if (!entry || value === undefined) {
-			legend.push({ name, color, dimmed: true });
+		if (!entry || value === undefined || binding.hidden) {
+			legend.push({ binding, color, dimmed: value === undefined });
 			continue;
 		}
 
 		if (role === 'speeds') {
 			speedDrawings.push(
 				<ChassisSpeeds
-					key={name}
+					key={id}
 					value={value}
 					maxOmega={historyMax(entry, role).omega}
 					arrowLength={arrowLength}
@@ -185,14 +189,14 @@ export function Swerve({ bindings }: WidgetProps) {
 				/>,
 			);
 			speedsIndex++;
-			legend.push({ name, color, dimmed: false });
+			legend.push({ binding, color, dimmed: false });
 			continue;
 		}
 
 		const modules = readModules(value, role!);
 		if (modules.length !== modulePositions.length) {
 			legend.push({
-				name,
+				binding,
 				color,
 				dimmed: true,
 				error: `expected ${modulePositions.length} modules, got ${modules.length}`,
@@ -203,7 +207,7 @@ export function Swerve({ bindings }: WidgetProps) {
 		const isPrimary = wheelAngles === undefined;
 		const layer = (
 			<ModuleLayer
-				key={name}
+				key={id}
 				modules={modules}
 				isPositions={role === 'positions'}
 				showWheels={!isPrimary}
@@ -217,7 +221,7 @@ export function Swerve({ bindings }: WidgetProps) {
 		} else {
 			extraLayers.push(layer);
 		}
-		legend.push({ name, color, dimmed: false });
+		legend.push({ binding, color, dimmed: false });
 	}
 
 	return (

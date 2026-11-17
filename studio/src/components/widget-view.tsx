@@ -3,45 +3,58 @@ import { useDragOperation, useDroppable } from '@dnd-kit/react';
 import { DatabaseIcon, ListPlusIcon } from 'lucide-react';
 import { type CSSProperties, type ReactNode, useMemo } from 'react';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import { getEntry, useEntries } from '@/data/data-store';
+import { setBindingRole, toggleBindingHidden } from '@/bindings';
+import { updateLayout } from '@/dashboard-panes';
+import { getEntry } from '@/data/data-store';
 import { formatEntryType } from '@/data/samples';
 import { useSource } from '@/data/source';
-import { type EntryDragData, type EntryDropData, entryDragType, isEntryDrag, WidgetEntriesContext } from '@/entry-drag';
+import {
+	type EntryDragData,
+	type EntryDropData,
+	entryDragType,
+	isEntryDrag,
+	type WidgetBindings,
+	WidgetBindingsContext,
+} from '@/entry-drag';
 import { cn } from '@/lib/utils';
 import { acceptsEntry, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
 
-/** Renders a widget with its bound entries, handles the shared empty and "no data" states, and shows where dragged entries will be dropped */
+/** Renders a widget with its bindings, handles the shared empty and "no data" states, and shows where dragged entries will be dropped */
 export function WidgetView({
+	dashboardId,
 	paneId,
 	type,
-	entryNames,
+	bindings,
 }: {
+	dashboardId: string;
 	paneId: string;
 	type: WidgetType;
-	entryNames: readonly string[];
+	bindings: readonly WidgetBinding[];
 }) {
 	const source = useSource();
-	const entries = useEntries();
 	// Accepts every entry so rejected ones can explain why they can't be dropped. Entries from this widget are reordered by dropping them on each other instead.
 	const { ref } = useDroppable<EntryDropData>({
 		id: paneId,
 		accept: (draggable) => draggable.type === entryDragType && draggable.data['paneId'] !== paneId,
 		data: { paneId },
 	});
-	const widgetEntries = useMemo(() => ({ paneId, entryNames }), [paneId, entryNames]);
-
-	const bindings = useMemo((): WidgetBinding[] => {
-		const byName = new Map(entries.map((entry) => [entry.name, entry]));
-		return entryNames.map((name) => {
-			const entry = byName.get(name);
-			return { name, entry: entry && acceptsEntry(type, entry) ? entry : undefined };
-		});
-	}, [entries, entryNames, type]);
+	const widgetBindings = useMemo(
+		(): WidgetBindings => ({
+			paneId,
+			bindings,
+			setRole: (bindingId, role) =>
+				updateLayout(dashboardId, (layout) => setBindingRole(layout, paneId, bindingId, role)),
+			toggleHidden: (bindingId) =>
+				updateLayout(dashboardId, (layout) => toggleBindingHidden(layout, paneId, bindingId)),
+		}),
+		[dashboardId, paneId, bindings],
+	);
+	const names = new Set(bindings.map((binding) => binding.name));
 
 	let content: ReactNode;
 	if (type.rendersEmpty === true) {
 		content = <type.component bindings={bindings} />;
-	} else if (entryNames.length === 0) {
+	} else if (bindings.length === 0) {
 		content = (
 			<WidgetEmpty
 				icon={<ListPlusIcon />}
@@ -57,8 +70,8 @@ export function WidgetView({
 				icon={<DatabaseIcon />}
 				title="No data"
 				description={
-					entryNames.length === 1
-						? `The current source doesn't have ${entryNames[0]}.`
+					names.size === 1
+						? `The current source doesn't have ${bindings[0]!.name}.`
 						: "The current source doesn't have any of this widget's entries."
 				}
 			/>
@@ -69,10 +82,10 @@ export function WidgetView({
 
 	return (
 		<div ref={ref} className="relative h-full">
-			<WidgetEntriesContext value={widgetEntries}>
+			<WidgetBindingsContext value={widgetBindings}>
 				<div className="h-full overflow-auto">{content}</div>
-			</WidgetEntriesContext>
-			<DropFeedback paneId={paneId} type={type} entryNames={entryNames} />
+			</WidgetBindingsContext>
+			<DropFeedback paneId={paneId} type={type} bindings={bindings} />
 		</div>
 	);
 }
@@ -81,11 +94,11 @@ export function WidgetView({
 function DropFeedback({
 	paneId,
 	type,
-	entryNames,
+	bindings,
 }: {
 	paneId: string;
 	type: WidgetType;
-	entryNames: readonly string[];
+	bindings: readonly WidgetBinding[];
 }) {
 	const { source, target } = useDragOperation<
 		EntryDragData | EntryDropData,
@@ -100,16 +113,16 @@ function DropFeedback({
 	}
 
 	if (drop?.index !== undefined) {
-		return <ReorderIndicator from={entryNames.indexOf(dragged.name)} drop={drop} element={target?.element} />;
+		const from = bindings.findIndex((binding) => binding.id === dragged.bindingId);
+		return <ReorderIndicator from={from} drop={drop} element={target?.element} />;
 	}
 
+	// Entries the widget already shows can be bound again, ex. to draw a pose as a robot and a ghost
 	const entry = getEntry(dragged.name);
-	let rejection: string | undefined;
-	if (entry && !acceptsEntry(type, entry)) {
-		rejection = `${type.name} doesn't accept ${formatEntryType(entry.type)} entries`;
-	} else if (entryNames.includes(dragged.name)) {
-		rejection = `Already showing ${dragged.name}`;
-	}
+	const rejection =
+		entry && !acceptsEntry(type, entry)
+			? `${type.name} doesn't accept ${formatEntryType(entry.type)} entries`
+			: undefined;
 	return (
 		<div
 			className={cn(
