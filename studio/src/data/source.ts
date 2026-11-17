@@ -8,6 +8,7 @@ import { clearData } from '@/data/data-store';
 import { loadDevLog, saveDevLog } from '@/data/dev-log';
 import type { LiveStatus } from '@/data/live-source';
 import { loadLog } from '@/data/log-source';
+import { addRecentLog, removeRecentLog } from '@/data/recent-logs';
 import { simulatorHost } from '@/robot-target';
 import { resetTimeline } from '@/timeline';
 
@@ -52,16 +53,19 @@ async function isWpilog(file: File): Promise<boolean> {
 	return (await file.slice(0, 6).text()) === 'WPILOG';
 }
 
-/** Make a WPILOG file the active source. The current source is kept if the file isn't a WPILOG file. */
-async function openLog(file: File): Promise<void> {
+/**
+ * Make a WPILOG file the active source. The current source is kept if the file isn't a WPILOG file.
+ * Returns whether the file started loading.
+ */
+async function openLog(file: File): Promise<boolean> {
 	const requestedAt = generation;
 	if (!(await isWpilog(file))) {
 		toastManager.add({ type: 'error', title: `Couldn't open ${file.name}`, description: "It isn't a WPILOG file." });
-		return;
+		return false;
 	}
 	if (generation !== requestedAt) {
 		// Another source was chosen while the file was being checked
-		return;
+		return false;
 	}
 
 	logProgressStore.set(0);
@@ -86,6 +90,7 @@ async function openLog(file: File): Promise<void> {
 			toastManager.add({ type: 'error', title: `Couldn't open ${file.name}`, description: message });
 		},
 	});
+	return true;
 }
 
 /** Reopen the log that was open before the page reloaded. Only call this in dev. */
@@ -244,17 +249,21 @@ async function openTakenLog(): Promise<void> {
 	}
 }
 
-/** Open a log from the desktop app's file system */
+/** Open a log from the desktop app's file system, and add it to the recent logs */
 export async function openLogPath(path: string): Promise<void> {
 	const fileName = path.split(/[/\\]/u).at(-1)!;
 	let contents: ArrayBuffer;
 	try {
 		contents = await invoke<ArrayBuffer>('read_file', { path });
 	} catch (error) {
+		// Ex. a recent log that was moved or deleted
+		removeRecentLog(path);
 		toastManager.add({ type: 'error', title: `Couldn't open ${fileName}`, description: String(error) });
 		return;
 	}
-	await openLog(new File([contents], fileName));
+	if (await openLog(new File([contents], fileName))) {
+		addRecentLog(path);
+	}
 }
 
 /** Open WPILOG files the OS asks the desktop app to open, ex. when one is double-clicked */

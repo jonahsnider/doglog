@@ -56,6 +56,30 @@ The desktop app SHALL register itself as an app for `.wpilog` files, so opening 
 - **WHEN** the user opens a `.wpilog` file from the OS
 - **THEN** Studio shows that log
 
+### Requirement: Open recent logs
+
+The desktop app SHALL keep a list of the 10 logs it opened most recently, newest first. The source control menu's Open recent submenu and, on macOS, File > Open Recent MUST list them, with an item that clears the list. Logs opened from a path, ex. with the file picker, from the OS, or from the Logs page, MUST be added, and logs that can't be read MUST be removed. The web app doesn't list recent logs, since browsers don't keep access to opened files.
+
+#### Scenario: Reopen a recent log
+
+- **GIVEN** the user opened `match.wpilog` in the desktop app on macOS
+- **WHEN** the user chooses File > Open Recent > match.wpilog
+- **THEN** that log becomes the active source
+
+#### Scenario: Reopen a recent log from the source control
+
+- **GIVEN** the user opened `match.wpilog` in the desktop app
+- **WHEN** the user chooses Open recent > match.wpilog in the source control menu
+- **THEN** that log becomes the active source
+
+#### Scenario: Recent log was deleted
+
+- **GIVEN** `match.wpilog` is in the recent logs
+- **AND** the file was deleted
+- **WHEN** the user chooses it
+- **THEN** Studio shows that it couldn't open the log
+- **AND** it's removed from the recent logs
+
 ### Requirement: Open logs from a terminal
 
 The desktop app SHALL provide a `doglog` terminal command that opens Studio in a new window, showing the log at the path it's given. Installing the desktop app SHALL add the command to the PATH where the installer allows it, and macOS SHALL have a button in settings to install it.

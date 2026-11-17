@@ -22,6 +22,7 @@ import {
 	undoDashboard,
 } from '@/dashboards';
 import { chooseLog, connect } from '@/data/source';
+import { createOpenRecentMenu } from '@/native-menu';
 import { canSplitPane, type SplitDirection } from '@/pane-layout';
 import { getRobotHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
@@ -242,6 +243,7 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 						action: () => reopenDashboard(router),
 					},
 					{ text: 'Open Log…', accelerator: 'CmdOrCtrl+O', action: chooseLog },
+					await createOpenRecentMenu(),
 					separator,
 					{ text: 'Close Pane', accelerator: 'CmdOrCtrl+W', action: () => closeFocused(router) },
 					{

@@ -1,12 +1,32 @@
+import { isTauri } from '@tauri-apps/api/core';
 import { useFormatForDisplay } from '@tanstack/react-hotkeys';
-import { BotIcon, ChevronsUpDownIcon, DatabaseIcon, FileIcon, MonitorIcon, RadioTowerIcon } from 'lucide-react';
+import {
+	BotIcon,
+	ChevronsUpDownIcon,
+	DatabaseIcon,
+	FileIcon,
+	HistoryIcon,
+	MonitorIcon,
+	RadioTowerIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
-import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuShortcut, MenuTrigger } from '@/components/ui/menu';
+import {
+	Menu,
+	MenuItem,
+	MenuPopup,
+	MenuSeparator,
+	MenuShortcut,
+	MenuSub,
+	MenuSubPopup,
+	MenuSubTrigger,
+	MenuTrigger,
+} from '@/components/ui/menu';
 import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Spinner } from '@/components/ui/spinner';
 import { shortcuts, startConnect } from '@/commands';
-import { chooseLog, type ConnectTarget, findConnectTarget, type Source, useSource } from '@/data/source';
+import { clearRecentLogs, recentLogLabels, useRecentLogs } from '@/data/recent-logs';
+import { chooseLog, type ConnectTarget, findConnectTarget, openLogPath, type Source, useSource } from '@/data/source';
 import { cn } from '@/lib/utils';
 import { getRobotHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
@@ -40,6 +60,31 @@ function SourceIcon({ source }: { source: Source | undefined }) {
 }
 
 const connectTargetIcons = { robot: BotIcon, simulator: MonitorIcon } as const;
+
+/** The desktop app's recent logs, the web app can't reopen files */
+function OpenRecentMenu() {
+	const paths = useRecentLogs();
+	const labels = recentLogLabels(paths);
+	return (
+		<MenuSub>
+			<MenuSubTrigger>
+				<HistoryIcon />
+				Open recent
+			</MenuSubTrigger>
+			<MenuSubPopup className="max-w-80">
+				{paths.map((path, index) => (
+					<MenuItem key={path} title={path} onClick={() => void openLogPath(path)}>
+						<span className="truncate">{labels[index]}</span>
+					</MenuItem>
+				))}
+				{paths.length > 0 && <MenuSeparator />}
+				<MenuItem disabled={paths.length === 0} onClick={clearRecentLogs}>
+					Clear recent
+				</MenuItem>
+			</MenuSubPopup>
+		</MenuSub>
+	);
+}
 
 /** Shows the active data source and lets the user open a log or connect live */
 export function SourceControl() {
@@ -97,6 +142,7 @@ export function SourceControl() {
 						Open log
 						<MenuShortcut>{formatForDisplay(shortcuts.openLog)}</MenuShortcut>
 					</MenuItem>
+					{isTauri() && <OpenRecentMenu />}
 					<MenuSeparator />
 					<MenuItem onClick={startConnect}>
 						<ConnectIcon />
