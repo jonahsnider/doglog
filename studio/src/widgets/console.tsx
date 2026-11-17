@@ -1,6 +1,7 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { CaseSensitiveIcon, ChevronDownIcon, ChevronUpIcon, RegexIcon, SearchIcon, WholeWordIcon } from 'lucide-react';
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { AppContextMenu } from '@/components/app-context-menu';
 import { HighlightedText } from '@/components/highlighted-text';
 import { ControlTooltip } from '@/components/control-tooltip';
 import { Button } from '@/components/ui/button';
@@ -32,9 +33,9 @@ const rowHeight = 20;
 const minimumLevelLabels: Record<MessageLevel, string> = { info: 'All', warning: 'Warnings', error: 'Errors' };
 
 const levelClassNames: Record<MessageLevel, string> = {
-	info: '',
-	warning: 'bg-warning/8 text-warning-foreground',
-	error: 'bg-destructive/8 text-destructive-foreground',
+	info: 'hover:bg-accent data-popup-open:bg-accent',
+	warning: 'bg-warning/8 text-warning-foreground hover:bg-warning/16 data-popup-open:bg-warning/16',
+	error: 'bg-destructive/8 text-destructive-foreground hover:bg-destructive/16 data-popup-open:bg-destructive/16',
 };
 
 const searchToggles = [
@@ -249,15 +250,25 @@ export function Console({ bindings }: WidgetProps) {
 				) : (
 					<div className="relative" style={{ height: virtualizer.getTotalSize() }}>
 						{virtualizer.getVirtualItems().map((item) => (
-							<div
+							<AppContextMenu
 								key={item.key}
-								ref={virtualizer.measureElement}
-								data-index={item.index}
-								className={cn(
-									'absolute inset-x-0 top-0 flex gap-3 px-2 py-0.5 leading-4',
-									levelClassNames[messages.levels[item.index]!],
-								)}
-								style={{ transform: `translateY(${item.start}px)` }}
+								items={[
+									{
+										label: 'Copy message',
+										onSelect: () => void navigator.clipboard.writeText(messages.texts[item.index]!),
+									},
+								]}
+								render={
+									<div
+										ref={virtualizer.measureElement}
+										data-index={item.index}
+										className={cn(
+											'absolute inset-x-0 top-0 flex gap-3 px-2 py-0.5 leading-4',
+											levelClassNames[messages.levels[item.index]!],
+										)}
+										style={{ transform: `translateY(${item.start}px)` }}
+									/>
+								}
 							>
 								<span className="min-w-[9ch] shrink-0 text-right text-muted-foreground tabular-nums select-none">
 									{formatTime(messages.times[item.index]!, range?.start ?? 0)}
@@ -268,7 +279,7 @@ export function Console({ bindings }: WidgetProps) {
 										ranges={pattern ? matchRanges(messages.texts[item.index]!, pattern) : undefined}
 									/>
 								</span>
-							</div>
+							</AppContextMenu>
 						))}
 					</div>
 				)}

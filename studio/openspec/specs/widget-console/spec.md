@@ -20,6 +20,15 @@ The console SHALL accept string entries and show messages from all bound entries
 - **WHEN** the user selects several messages and copies them
 - **THEN** the copied text contains the messages without their timestamps
 
+### Requirement: Message row interaction
+
+The console SHALL highlight a message's row while it's hovered. Right-clicking a message SHALL open a context menu with an option to copy the message's text.
+
+#### Scenario: Copy a message
+
+- **WHEN** the user right-clicks a message and picks Copy message
+- **THEN** the message's text, without its timestamp, is copied to the clipboard
+
 ### Requirement: DogLog-friendly default
 
 A new console widget SHALL bind WPILib's `console` and `messages` entries by default.
