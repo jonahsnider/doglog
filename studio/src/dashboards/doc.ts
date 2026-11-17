@@ -1,6 +1,7 @@
-import { type LoroDoc, type LoroMap, type LoroTree, type LoroTreeNode, UndoManager, type Value } from 'loro-crdt';
+import { type LoroDoc, LoroMap, type LoroTree, type LoroTreeNode, UndoManager, type Value } from 'loro-crdt';
+import { setEntries, writeList } from '@/lib/loro';
 import { createPersistedDoc, removeStorage } from '@/lib/persisted-store';
-import { createPane, type PaneNode, paneNodeSchema } from '@/panes/layout';
+import { createPane, type PaneNode, paneNodeSchema, type Widget } from '@/panes/layout';
 
 /** The parts of a dashboard stored in its Loro document */
 export type DashboardContents = {
@@ -12,6 +13,7 @@ export type DashboardContents = {
 /**
  * Layouts are stored as a tree whose nodes hold a pane or split's fields, besides a split's `first` and `second` children.
  * Panes keep their tree node when a split moves them, so edits made to a pane while another peer splits it aren't lost.
+ * A pane's widget is a map whose `bindings` are a list of maps, so bindings edited by several peers at once are all kept.
  */
 function getLayoutTree(doc: LoroDoc): LoroTree {
 	return doc.getTree('layout');
@@ -23,32 +25,94 @@ function getInfo(doc: LoroDoc): LoroMap {
 
 const layoutSchema = paneNodeSchema.catch(() => createPane());
 
-function readNode(node: LoroTreeNode): unknown {
-	const [first, second] = node.children() ?? [];
-	return { ...node.data.toJSON(), first: first && readNode(first), second: second && readNode(second) };
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/** A node's fields, with its widget's `bindings` put back in its config */
+function readData(node: LoroTreeNode): Record<string, unknown> {
+	const data: unknown = node.data.toJSON();
+	if (!isRecord(data)) {
+		return {};
+	}
+	const widget = data['widget'];
+	if (isRecord(widget) && Array.isArray(widget['bindings'])) {
+		const { bindings, config, ...rest } = widget;
+		data['widget'] = { ...rest, config: { ...(isRecord(config) ? config : {}), bindings } };
+	}
+	return data;
+}
+
+/** Puts nodes side by side as one node, nesting the extra ones in splits like `split`, with IDs every peer agrees on */
+function nest(nodes: readonly Record<string, unknown>[], split: Record<string, unknown>): Record<string, unknown> {
+	const [first, ...rest] = nodes;
+	if (!first || rest.length === 0) {
+		return first ?? {};
+	}
+
+	const id = `${String(split['id'])}+`;
+	return { ...split, id, ratio: 0.5, first, second: nest(rest, { ...split, id }) };
+}
+
+/**
+ * Peers editing at once can leave splits without exactly two children, ex. when two peers split the same pane.
+ * Every peer reads them the same way: a split with one child is replaced by it, extra children are nested in splits, and
+ * empty splits are left out.
+ */
+function readNode(node: LoroTreeNode): Record<string, unknown> | undefined {
+	const data = readData(node);
+	if (data['kind'] !== 'split') {
+		return data;
+	}
+
+	const children = (node.children() ?? []).flatMap<Record<string, unknown>>((child) => readNode(child) ?? []);
+	const [first, ...rest] = children;
+	if (!first) {
+		return undefined;
+	}
+	return rest.length === 0 ? first : { ...data, first, second: nest(rest, data) };
 }
 
 /** An empty document has an empty layout with a new pane ID each time, so `writeDashboardDoc()` a layout to new documents */
 export function readDashboardDoc(doc: LoroDoc): DashboardContents {
 	const name = getInfo(doc).get('name');
-	const root = getLayoutTree(doc).roots()[0];
+	// Peers that replaced the root at once leave several roots
+	const roots = getLayoutTree(doc)
+		.roots()
+		.flatMap<Record<string, unknown>>((root) => readNode(root) ?? []);
+	const [first] = roots;
 	return {
 		name: typeof name === 'string' ? name : undefined,
-		layout: layoutSchema.parse(root && readNode(root)),
+		layout: layoutSchema.parse(
+			first && nest(roots, { kind: 'split', id: `${String(first['id'])}:root`, direction: 'row' }),
+		),
 	};
 }
 
-/** Set a map's entries to `values`, without making changes for values that are already set */
-function setEntries(map: LoroMap, values: Record<string, unknown>): void {
-	for (const [key] of map.entries()) {
-		if (values[key] === undefined) {
-			map.delete(key);
+function writeWidget(data: LoroMap, widget: Widget | undefined): void {
+	const existing = data.get('widget');
+	// Deleting a missing widget would still be a change, which could win over a widget another peer adds at the same time
+	if (widget === undefined) {
+		if (existing !== undefined) {
+			data.delete('widget');
 		}
+		return;
 	}
-	for (const [key, value] of Object.entries(values)) {
-		if (value !== undefined) {
-			map.set(key, value);
-		}
+
+	// Older documents store the widget as one value
+	if (existing !== undefined && !(existing instanceof LoroMap)) {
+		data.delete('widget');
+	}
+	const map = data.ensureMergeableMap('widget');
+	const { bindings, ...config } = isRecord(widget.config) ? widget.config : { config: widget.config };
+	setEntries(map, { type: widget.type, config }, 'bindings');
+	if (Array.isArray(bindings)) {
+		writeList(
+			map.ensureMergeableMovableList('bindings'),
+			bindings.filter((binding) => isRecord(binding)),
+		);
+	} else if (map.get('bindings') !== undefined) {
+		map.delete('bindings');
 	}
 }
 
@@ -69,7 +133,9 @@ function writeNode(
 	}
 
 	if (node.kind === 'pane') {
-		setEntries(treeNode.data, node);
+		const { widget, ...pane } = node;
+		setEntries(treeNode.data, pane, 'widget');
+		writeWidget(treeNode.data, widget);
 	} else {
 		const { first, second, ...split } = node;
 		setEntries(treeNode.data, split);

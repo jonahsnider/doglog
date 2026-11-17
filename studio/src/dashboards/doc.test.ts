@@ -1,7 +1,7 @@
 import { LoroDoc, UndoManager } from 'loro-crdt';
 import { expect, test } from 'vite-plus/test';
 import { type DashboardContents, readDashboardDoc, writeDashboardDoc } from './doc.ts';
-import { closePane, createPane, firstPane, resizeSplit, setPaneWidget, splitPane } from '../panes/layout.ts';
+import { closePane, createPane, firstPane, paneIds, resizeSplit, setPaneWidget, splitPane } from '../panes/layout.ts';
 
 const graph = { type: 'line-graph', config: { bindings: [{ id: 'arm', name: '/Arm/Angle' }] } };
 
@@ -66,4 +66,51 @@ test("a pane's widget changed while another peer splits it is kept", () => {
 	doc.import(other.export({ mode: 'update' }));
 
 	expect(readDashboardDoc(doc).layout).toEqual(setPaneWidget(split, pane.id, graph));
+});
+
+test('bindings edited by two peers at once are all kept', () => {
+	const doc = new LoroDoc();
+	const pane = { ...createPane(), widget: graph };
+	write(doc, { layout: pane });
+	const other = doc.fork();
+
+	const added = { ...graph, config: { bindings: [...graph.config.bindings, { id: 'wrist', name: '/Wrist/Angle' }] } };
+	const recolored = { ...graph, config: { bindings: [{ id: 'arm', name: '/Arm/Angle', color: 2 }] } };
+	write(doc, { layout: setPaneWidget(pane, pane.id, added) });
+	write(other, { layout: setPaneWidget(pane, pane.id, recolored) });
+	doc.import(other.export({ mode: 'update' }));
+
+	expect(readDashboardDoc(doc).layout).toEqual(
+		setPaneWidget(pane, pane.id, {
+			...graph,
+			config: {
+				bindings: [
+					{ id: 'arm', name: '/Arm/Angle', color: 2 },
+					{ id: 'wrist', name: '/Wrist/Angle' },
+				],
+			},
+		}),
+	);
+});
+
+test('peers splitting the same pane at once end up with the same valid layout', () => {
+	const doc = new LoroDoc();
+	const pane = createPane();
+	write(doc, { layout: pane });
+	const other = doc.fork();
+
+	write(doc, { layout: splitPane(pane, pane.id, 'row') });
+	write(other, { layout: splitPane(pane, pane.id, 'column') });
+	doc.import(other.export({ mode: 'update' }));
+	other.import(doc.export({ mode: 'update' }));
+
+	const { layout } = readDashboardDoc(doc);
+	expect(readDashboardDoc(other).layout).toEqual(layout);
+	// Every pane is kept: the original and each peer's new pane
+	expect(paneIds(layout)).toHaveLength(3);
+	expect(paneIds(layout)).toContain(pane.id);
+
+	// Writing the layout read back keeps it
+	write(doc, { layout });
+	expect(readDashboardDoc(doc).layout).toEqual(layout);
 });
