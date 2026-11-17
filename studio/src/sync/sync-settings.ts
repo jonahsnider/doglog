@@ -13,7 +13,7 @@ const syncSettingsSchema = z.object({
 	officialOnly: z.boolean().catch(false),
 	/** Most gigabytes of logs to keep in the sync folder, `null` for no limit */
 	capGb: z.number().positive().nullable().catch(null),
-	/** Sync from a pretend robot with made-up logs, for testing. Removed before release. */
+	/** Sync from a pretend robot with made-up logs, for testing. Only development builds can turn it on. */
 	demo: z.boolean().catch(false),
 });
 

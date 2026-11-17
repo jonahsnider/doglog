@@ -1,4 +1,4 @@
-// Demo mode pretends to sync from a robot with made-up logs, for trying sync without one. It's removed before release.
+// Demo mode pretends to sync from a robot with made-up logs, for trying sync without one. Only development builds show it.
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import { type SyncBackend, trackEnabled } from '@/sync/backend';

@@ -144,17 +144,18 @@ export function SyncSettingsSheet({ trigger }: { trigger: ReactElement }) {
 						</FieldDescription>
 					</Field>
 
-					<Field name="syncDemo" className="border-t pt-6">
-						<FieldLabel>
-							<Switch checked={demo} onCheckedChange={(checked) => updateSyncSettings({ demo: checked })} />
-							Demo mode
-						</FieldLabel>
-						<FieldDescription>
-							Pretends to sync from a robot with made-up logs, without saving anything. For testing, removed before
-							release.
-						</FieldDescription>
-					</Field>
-					{demo && <DemoControls />}
+					{import.meta.env.DEV && (
+						<Field name="syncDemo" className="border-t pt-6">
+							<FieldLabel>
+								<Switch checked={demo} onCheckedChange={(checked) => updateSyncSettings({ demo: checked })} />
+								Demo mode
+							</FieldLabel>
+							<FieldDescription>
+								Pretends to sync from a robot with made-up logs, without saving anything. Only in development builds.
+							</FieldDescription>
+						</Field>
+					)}
+					{import.meta.env.DEV && demo && <DemoControls />}
 				</SheetPanel>
 			</SheetPopup>
 		</Sheet>
