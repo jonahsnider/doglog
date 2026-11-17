@@ -73,8 +73,19 @@ export function splitPane(
 	}));
 }
 
-/** Most splits in one direction above a pane, so panes are at least a quarter of the dashboard's width and height */
+/** Most splits in one direction above a pane, so 4 panes of at least a quarter of the dashboard's width or height fit */
 const maxSplitDepth = 2;
+
+/** Most panes lined up one after another in `direction`, e.g. the most columns for `row` */
+export function panesAlong(node: PaneNode, direction: SplitDirection): number {
+	if (node.kind === 'pane') {
+		return 1;
+	}
+
+	const first = panesAlong(node.first, direction);
+	const second = panesAlong(node.second, direction);
+	return node.direction === direction ? first + second : Math.max(first, second);
+}
 
 /** Splits in `direction` above a pane, `undefined` if the pane isn't in the layout */
 function splitDepth(node: PaneNode, paneId: string, direction: SplitDirection): number | undefined {

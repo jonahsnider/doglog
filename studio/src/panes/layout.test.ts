@@ -8,6 +8,7 @@ import {
 	findSibling,
 	joinLayouts,
 	movePane,
+	panesAlong,
 	type PaneNode,
 	paneNodeSchema,
 	resizeSplit,
@@ -121,6 +122,21 @@ test('splitting stops at panes a quarter of the dashboard wide or tall', () => {
 	// Splitting the half makes 4 equal columns
 	expect(canSplitPane(layout, left.id, 'row')).toBe(true);
 	expect(canSplitPane(layout, quarter.id, 'column')).toBe(true);
+});
+
+test('panes along a direction count nested splits across the whole layout', () => {
+	const left = createPane();
+	const right = createPane();
+	const bottom = createPane();
+	// Left half, right half split into a top pane and a bottom pane split into two columns
+	const layout = splitPane(
+		splitPane(splitPane(left, left.id, 'row', right), right.id, 'column', bottom),
+		bottom.id,
+		'row',
+	);
+
+	expect(panesAlong(layout, 'row')).toBe(3);
+	expect(panesAlong(layout, 'column')).toBe(2);
 });
 
 test('layouts can be joined side by side unless either would end up with panes narrower than a quarter', () => {
