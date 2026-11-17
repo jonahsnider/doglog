@@ -12,11 +12,14 @@ const shortenedPrefixes = [
 	'/Robot',
 ];
 
-/** An entry's name with common prefixes shortened, hovering the prefix shows it in full. `ranges` of the name are highlighted, ex. the parts matching a search. */
+/**
+ * An entry's name with dimmed slashes and common prefixes shortened, hovering the prefix shows it in full. `ranges` of the
+ * name are highlighted, ex. the parts matching a search.
+ */
 export function EntryName({ name, ranges }: { name: string; ranges?: readonly number[] | undefined }) {
 	const prefix = shortenedPrefixes.find((candidate) => name.startsWith(`${candidate}/`));
 	if (prefix === undefined) {
-		return <HighlightedText text={name} ranges={ranges} />;
+		return <DimmedSlashes text={name} ranges={ranges} offset={0} />;
 	}
 
 	// Runs of lowercase letters are hidden, ex. `/RealOutputs` is split into `/R`, `eal`, `O`, `utputs`
@@ -40,7 +43,29 @@ export function EntryName({ name, ranges }: { name: string; ranges?: readonly nu
 					);
 				})}
 			</span>
-			<HighlightedText text={name.slice(prefix.length)} ranges={ranges} offset={prefix.length} />
+			<DimmedSlashes text={name.slice(prefix.length)} ranges={ranges} offset={prefix.length} />
 		</span>
 	);
+}
+
+/** Text with its slashes dimmed, so the path's segments stand out */
+function DimmedSlashes({
+	text,
+	ranges,
+	offset,
+}: {
+	text: string;
+	ranges: readonly number[] | undefined;
+	offset: number;
+}) {
+	return Array.from(text.matchAll(/\/+|[^/]+/gu), ({ 0: part, index: start }) => {
+		const highlighted = <HighlightedText key={start} text={part} ranges={ranges} offset={offset + start} />;
+		return part.startsWith('/') ? (
+			<span key={start} className="text-muted-foreground">
+				{highlighted}
+			</span>
+		) : (
+			highlighted
+		);
+	});
 }

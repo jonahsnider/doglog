@@ -227,6 +227,15 @@ Widgets and the entry picker SHALL shorten the `/Robot`, `/RealOutputs`, `/Advan
 - **WHEN** the user hovers `/Arm/Angle` in `/R/Arm/Angle`
 - **THEN** the prefix stays shortened
 
+### Requirement: Dimmed slashes in entry names
+
+Widgets, the entry picker, and the entry browser SHALL show the slashes in full entry names dimmed, so the name's segments stand out.
+
+#### Scenario: Dimmed slashes
+
+- **GIVEN** a widget bound to `/Drive/Module/Angle`
+- **THEN** the widget shows `Drive`, `Module`, and `Angle` with the slashes between them dimmed
+
 ### Requirement: Default widget for an entry
 
 Each bindable entry SHALL have a default widget, used when the entry is added without choosing a widget: numeric entries use the line graph, `/console` and `/messages` use the console, other string and boolean entries use the discrete timeline, `SwerveModuleState[]` and `SwerveModuleVelocity[]` entries use the swerve widget, entries the field widget accepts use the field widget, and all other entries use the values table.
