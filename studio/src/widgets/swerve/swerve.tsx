@@ -10,7 +10,7 @@ import { chassisHalf, move, type Point, strokeWidth } from '@/widgets/swerve/geo
 import { Arrow, Line, ModuleLabel, RotationArc, Wheel } from '@/widgets/swerve/shapes';
 import type { WidgetProps } from '@/widgets/widget-type';
 import { Legend, type LegendItem } from '@/widgets/legend/legend';
-import { seriesColor } from '@/widgets/series-color';
+import { bindingColor } from '@/widgets/series-color';
 
 // Sizes in robot-frame meters-like units: the chassis is 1 wide, the view leaves room for arrows when it's rotated
 /** Modules sit inside the chassis, like a real robot's */
@@ -169,8 +169,9 @@ export function Swerve({ bindings }: WidgetProps) {
 			continue;
 		}
 
-		// Counted for hidden bindings too, so hiding one doesn't recolor the others
-		const color = seriesColor(colorIndex++);
+		// Counted for hidden bindings and picked colors too, so hiding or recoloring one doesn't recolor the others
+		const autoColor = colorIndex++;
+		const color = bindingColor(binding, autoColor);
 		if (!entry || value === undefined || binding.hidden) {
 			legend.push({ binding, color, dimmed: value === undefined });
 			continue;

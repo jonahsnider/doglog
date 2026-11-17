@@ -192,6 +192,17 @@ Clicking a binding's swatch in a widget's legend SHALL hide it, and clicking it 
 - **AND** its legend item has a hollow swatch
 - **AND** `/Drive/Pose` keeps its color
 
+### Requirement: Pick entry colors
+
+Bindings SHALL be colored automatically by default. Right-clicking a binding's swatch in a widget's legend MUST open a picker with "Auto" and the chart colors, and MUST show the binding's current choice. Picking a color MUST draw the binding in it and save it with the dashboard, and picking "Auto" MUST go back to the automatic color. Picking a binding's color MUST NOT change the other bindings' colors.
+
+#### Scenario: Recolor a robot
+
+- **GIVEN** a field widget showing `/Drive/Pose` and `/Vision/EstimatedPose`
+- **WHEN** the user right-clicks the swatch next to `/Vision/EstimatedPose` and picks a green color
+- **THEN** `/Vision/EstimatedPose` and its swatch are green
+- **AND** `/Drive/Pose` keeps its color
+
 ### Requirement: Follow the cursor
 
 Widgets SHALL reflect the global time cursor. Value-style widgets MUST show the latest value at or before the cursor; time-series widgets MUST mark the cursor position.

@@ -3,7 +3,13 @@ import { useDragOperation, useDroppable } from '@dnd-kit/react';
 import { DatabaseIcon, ListPlusIcon } from 'lucide-react';
 import { type CSSProperties, type ReactNode, useMemo } from 'react';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import { connectBindings, disconnectBindings, setBindingRole, toggleBindingHidden } from '@/widgets/bindings';
+import {
+	connectBindings,
+	disconnectBindings,
+	setBindingColor,
+	setBindingRole,
+	toggleBindingHidden,
+} from '@/widgets/bindings';
 import { updateLayout } from '@/dashboards/panes';
 import { getEntry } from '@/data/data-store';
 import { formatEntryType } from '@/data/samples';
@@ -50,6 +56,8 @@ export function WidgetView({
 				updateLayout(dashboardId, (layout) => disconnectBindings(layout, paneId, sourceId, targetId)),
 			toggleHidden: (bindingId) =>
 				updateLayout(dashboardId, (layout) => toggleBindingHidden(layout, paneId, bindingId)),
+			setColor: (bindingId, color) =>
+				updateLayout(dashboardId, (layout) => setBindingColor(layout, paneId, bindingId, color)),
 		}),
 		[dashboardId, paneId, bindings],
 	);

@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import type { Entry } from '@/data/data-store';
 import type { Value } from '@/data/samples';
 import { readPose } from '@/widgets/field/data';
-import { seriesColor } from '@/widgets/series-color';
+import { bindingColor } from '@/widgets/series-color';
 import { Connections, Markers, Path, Robot, Shapes } from '@/widgets/field/shapes';
 import type { Connects, RoleOption, WidgetBinding } from '@/widgets/widget-type';
 
@@ -102,7 +102,7 @@ export function fieldDrawings(
 		if (role === undefined || value === undefined || binding.hidden) {
 			return;
 		}
-		const color = seriesColor(index);
+		const color = bindingColor(binding, index);
 		layers[drawOrder.indexOf(role.id)]!.push(
 			// Right-clicking a drawing offers to remove its binding, middle-clicking removes it
 			<g key={binding.id} data-binding-id={binding.id}>

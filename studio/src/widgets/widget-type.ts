@@ -31,6 +31,8 @@ export type WidgetBinding = {
 	readonly roleLabel: string | undefined;
 	/** Turned off from the legend, widgets with a legend list it but don't draw it */
 	readonly hidden: boolean;
+	/** Index of the color picked from the legend, widgets use it instead of their own, see `bindingColor()` */
+	readonly color: number | undefined;
 	/** How the binding can be connected to others, see `WidgetType.connects` */
 	readonly connects: Connects | undefined;
 	/** Bindings connected to this one, which the widget draws from, ex. the field draws lines from a robot to seen tags */

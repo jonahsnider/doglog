@@ -103,7 +103,7 @@ function scheme(themeColor: string, dark: boolean, contrast: Contrast, secondary
 }
 
 /** Number of `--chart-*` colors, spaced evenly around the hue wheel starting from the theme color's hue */
-const chartCount = 5;
+export const chartCount = 5;
 
 /**
  * Generate chart colors for a theme color as `--chart-*` CSS variable declarations.

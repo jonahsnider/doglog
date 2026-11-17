@@ -7,6 +7,7 @@ import { useBindingDrag, WidgetBindingsContext } from '@/entries/drag';
 import { cn } from '@/lib/utils';
 import { type Connection, type ConnectionDrag, connectionBetween, rowHeight } from '@/widgets/legend/connections';
 import { ConnectionGutter } from '@/widgets/legend/connection-gutter';
+import { LegendSwatch } from '@/widgets/legend/swatch';
 import type { WidgetBinding } from '@/widgets/widget-type';
 
 export type LegendItem = {
@@ -172,26 +173,7 @@ function LegendEntry({
 			// Right-clicking the item offers to remove its binding, middle-clicking removes it
 			data-binding-id={binding.id}
 		>
-			{/* Hidden bindings show a hollow swatch, unlike dimmed ones that just have no value */}
-			<button
-				type="button"
-				// Clicked anywhere in the row's height, around the small swatch it shows
-				className="-m-[6px] flex shrink-0 cursor-pointer rounded-full p-[6px] outline-none focus-visible:ring-2 focus-visible:ring-ring"
-				aria-label={`${binding.hidden ? 'Show' : 'Hide'} ${binding.name}`}
-				aria-pressed={!binding.hidden}
-				// Clicking doesn't focus it, so Space plays or pauses instead of toggling it again
-				onMouseDown={(event) => event.preventDefault()}
-				onClick={() => widget?.toggleHidden(binding.id)}
-			>
-				{item.icon === undefined ? (
-					<span
-						className="size-3 rounded-full border-2"
-						style={{ borderColor: item.color, background: binding.hidden ? undefined : item.color }}
-					/>
-				) : (
-					<span className={cn('flex', binding.hidden && 'opacity-40')}>{item.icon}</span>
-				)}
-			</button>
+			<LegendSwatch item={item} />
 			{/* Dragged by the name to reorder it, so its handle can be dragged to connect it */}
 			<span
 				ref={handleRef}

@@ -12,6 +12,8 @@ const bindingSchema = z.object({
 	/** A role the user picked, the widget infers one otherwise. Kept when it doesn't fit the entry, in case it fits again. */
 	role: z.string().optional(),
 	hidden: z.literal(true).optional(),
+	/** Index of the color picked from the legend, the widget picks one otherwise, see `seriesColor()` */
+	color: z.int().nonnegative().optional().catch(undefined),
 	/** IDs of the bindings connected to this one from the legend, see `connectBindings()` */
 	sources: z.array(z.string()).optional(),
 });
@@ -105,6 +107,24 @@ export function restoreBinding(
 export function setBindingRole(layout: PaneNode, paneId: string, bindingId: string, role: string): PaneNode {
 	return updateBindings(layout, paneId, (bindings) =>
 		bindings.map((binding) => (binding.id === bindingId ? { ...binding, role } : binding)),
+	);
+}
+
+/** Pick a series color for a binding, `undefined` lets the widget pick one again */
+export function setBindingColor(
+	layout: PaneNode,
+	paneId: string,
+	bindingId: string,
+	color: number | undefined,
+): PaneNode {
+	return updateBindings(layout, paneId, (bindings) =>
+		bindings.map((binding) => {
+			if (binding.id !== bindingId) {
+				return binding;
+			}
+			const { color: _, ...rest } = binding;
+			return color === undefined ? rest : { ...rest, color };
+		}),
 	);
 }
 
@@ -242,6 +262,7 @@ export function resolveBindings(
 			role,
 			roleLabel: role && (roles.length > 1 || counts.get(binding.name)! > 1) ? role.label : undefined,
 			hidden: binding.hidden === true,
+			color: binding.color,
 			connects: undefined,
 			sources: [],
 		};

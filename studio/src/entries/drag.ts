@@ -49,6 +49,8 @@ export type WidgetBindings = {
 	connect: (sourceId: string, targetId: string) => void;
 	disconnect: (sourceId: string, targetId: string) => void;
 	toggleHidden: (bindingId: string) => void;
+	/** `undefined` lets the widget pick the binding's color again */
+	setColor: (bindingId: string, color: number | undefined) => void;
 };
 
 export const WidgetBindingsContext = createContext<WidgetBindings | undefined>(undefined);

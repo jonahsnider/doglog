@@ -20,7 +20,7 @@ import { MeasurementDrawing } from '@/widgets/field/measure';
 import { fieldDrawings } from '@/widgets/field/roles';
 import { useFieldZoom } from '@/widgets/field/zoom';
 import { Legend, type LegendItem } from '@/widgets/legend/legend';
-import { seriesColor } from '@/widgets/series-color';
+import { bindingColor } from '@/widgets/series-color';
 import type { WidgetProps } from '@/widgets/widget-type';
 
 /** Height of the cursor position row under the field, and the gap above it */
@@ -162,7 +162,7 @@ export function Field({ bindings }: WidgetProps) {
 	const valueOf = (entry: Entry | undefined) => (entry && time !== undefined ? entry.samples.valueAt(time) : undefined);
 	const legend = bindings.map((binding, index): LegendItem => ({
 		binding,
-		color: seriesColor(index),
+		color: bindingColor(binding, index),
 		dimmed: valueOf(binding.entry) === undefined,
 	}));
 
