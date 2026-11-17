@@ -1,5 +1,7 @@
 import { expect, test } from 'vite-plus/test';
-import { parseLogName } from './log-names.ts';
+import type { Entry } from '@/data/data-store';
+import { getEntryKind, Samples, type Value } from '@/data/samples';
+import { parseLogName, readLogMatch } from './log-names.ts';
 
 test('WPILib logs', () => {
 	expect(parseLogName('FRC_20260315_143000.wpilog')).toEqual({
@@ -17,8 +19,8 @@ test('WPILib logs', () => {
 	});
 	// Without an event name
 	expect(parseLogName('FRC_20241110_165657__Q68.wpilog')?.match?.label).toBe('Q68');
-	// The Driver Station reports match 0 outside of matches, ex. at home
-	expect(parseLogName('FRC_20260422_015845__P0.wpilog')?.match).toBeUndefined();
+	// Ex. a practice match on a practice field
+	expect(parseLogName('FRC_20260422_015845__P0.wpilog')?.match).toEqual({ label: 'P0', type: 'practice' });
 });
 
 test('AdvantageKit logs', () => {
@@ -45,4 +47,42 @@ test('other files', () => {
 	expect(parseLogName('FRC_20260315_143000.hoot')).toBeUndefined();
 	expect(parseLogName('match.wpilog')).toBeUndefined();
 	expect(parseLogName('FRC_20260230_143000.wpilog')).toBeUndefined();
+});
+
+/** Look up entries with one latest value each, ex. `{ '/NT:/FMSInfo/MatchNumber': ['int64', 12] }` */
+function entries(values: Record<string, [type: string, value: Value]>) {
+	return (name: string): Entry | undefined => {
+		const [type, value] = values[name] ?? [];
+		if (type === undefined || value === undefined) {
+			return undefined;
+		}
+		return { name, type, kind: getEntryKind(type), samples: new Samples(new Float64Array([0]), [value]), metadata: {} };
+	};
+}
+
+test('Match from Driver Station data', () => {
+	expect(
+		readLogMatch(
+			entries({
+				'/NT:/FMSInfo/EventName': ['string', 'caph'],
+				'/NT:/FMSInfo/MatchType': ['int64', 2],
+				'/NT:/FMSInfo/MatchNumber': ['int64', 12],
+			}),
+		),
+	).toEqual({ label: 'CAPH Q12', type: 'qualification' });
+	// AdvantageKit, without an event name
+	expect(
+		readLogMatch(
+			entries({
+				'/DriverStation/EventName': ['string', ''],
+				'/DriverStation/MatchType': ['int64', 3],
+				'/DriverStation/MatchNumber': ['int64', 4],
+			}),
+		),
+	).toEqual({ label: 'E4', type: 'elimination' });
+	// Outside of a match
+	expect(
+		readLogMatch(entries({ '/NT:/FMSInfo/MatchType': ['int64', 0], '/NT:/FMSInfo/MatchNumber': ['int64', 0] })),
+	).toBeUndefined();
+	expect(readLogMatch(entries({}))).toBeUndefined();
 });

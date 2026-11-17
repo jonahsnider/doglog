@@ -1,7 +1,9 @@
+import type { Entry } from '@/data/data-store';
+
 export type MatchType = 'practice' | 'qualification' | 'elimination';
 
 /** A match run by the field (FMS) */
-interface Match {
+export interface Match {
 	/** The event, if the field sent one, and the match, ex. `CAPH Q12` */
 	label: string;
 	type: MatchType;
@@ -18,11 +20,11 @@ export interface LogName {
 // WPILib's DataLogManager, ex. `FRC_20260315_143000_CAPH_Q12.wpilog`
 const wpilibPattern = /^FRC_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})(_.*)?\.wpilog$/u;
 // The event name is empty when the field doesn't send one, ex. `FRC_20241110_165657__Q68.wpilog`.
-// Match 0 isn't from the field, the Driver Station reports it outside of matches.
-const wpilibMatchPattern = /_[PQE][1-9]\d*$/u;
+// Match numbers can be 0, ex. practice matches on a practice field.
+const wpilibMatchPattern = /_[PQE]\d+$/u;
 // AdvantageKit's WPILOGWriter, ex. `akit_26-03-15_14-30-00_caph_q12.wpilog`
 const advantageKitPattern = /^akit_(\d{2})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})(_.*)?\.wpilog$/u;
-const advantageKitMatchPattern = /_[pqe][1-9]\d*$/u;
+const advantageKitMatchPattern = /_[pqe]\d+$/u;
 const matchTypes: Record<string, MatchType> = { P: 'practice', Q: 'qualification', E: 'elimination' };
 
 /**
@@ -56,4 +58,29 @@ export function parseLogName(name: string): LogName | undefined {
 	const label = parts.join(' ').toUpperCase();
 	// The last part is the match, ex. `Q12`
 	return { date, match: { label, type: matchTypes[parts.at(-1)![0]!.toUpperCase()]! } };
+}
+
+// Where logs keep the Driver Station's match info: NetworkTables' FMSInfo when NT is logged, or AdvantageKit's inputs
+const matchInfoPrefixes = ['/NT:/FMSInfo/', '/DriverStation/'];
+// The Driver Station's match type numbers, 0 is outside of matches
+const matchTypeNumbers: Record<number, { type: MatchType; letter: string }> = {
+	1: { type: 'practice', letter: 'P' },
+	2: { type: 'qualification', letter: 'Q' },
+	3: { type: 'elimination', letter: 'E' },
+};
+
+/** Read the match a log is from out of its Driver Station data, which is still right after the log is renamed */
+export function readLogMatch(getEntry: (name: string) => Entry | undefined): Match | undefined {
+	for (const prefix of matchInfoPrefixes) {
+		const latest = (name: string) => getEntry(prefix + name)?.samples.valueAt(Infinity);
+		const matchType = matchTypeNumbers[Number(latest('MatchType'))];
+		const number = latest('MatchNumber');
+		if (matchType === undefined || typeof number !== 'number' || number < 0) {
+			continue;
+		}
+		const event = latest('EventName');
+		const label = [typeof event === 'string' ? event : '', `${matchType.letter}${number}`].filter(Boolean).join(' ');
+		return { label: label.toUpperCase(), type: matchType.type };
+	}
+	return undefined;
 }

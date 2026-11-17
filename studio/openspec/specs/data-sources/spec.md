@@ -27,6 +27,17 @@ The source control at the top of the sidebar SHALL show the active source and it
 - **GIVEN** the user opened `qual12.wpilog`
 - **THEN** the source control shows `qual12.wpilog`
 
+#### Scenario: Match log source shown
+
+- **GIVEN** the user opened `FRC_20260315_143000_CAPH_Q12.wpilog`
+- **THEN** the source control shows that the log file is for `CAPH Q12`
+
+#### Scenario: Renamed match log source shown
+
+- **GIVEN** the user opened `qual12.wpilog`, a renamed log with the Driver Station's match info for qualification 12 at `CAPH` (FMSInfo from NetworkTables or AdvantageKit's `DriverStation` inputs)
+- **THEN** the source control shows that the log file is for `CAPH Q12`
+- **AND** the log's match info is used over a match in its file name
+
 #### Scenario: Live source shown
 
 - **GIVEN** the user is connected to `10.5.81.2`

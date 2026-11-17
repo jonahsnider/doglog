@@ -17,11 +17,13 @@ import {
 import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Spinner } from '@/components/ui/spinner';
 import { shortcuts, startConnect } from '@/commands/commands';
+import { getEntry, useEntries } from '@/data/data-store';
 import { clearRecentLogs, recentLogLabels, useRecentLogs } from '@/data/recent-logs';
 import { chooseLog, type ConnectTarget, findConnectTarget, openLogPath, type Source, useSource } from '@/data/source';
 import { cn } from '@/lib/utils';
 import { getRobotHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
+import { parseLogName, readLogMatch } from '@/sync/log-names';
 
 const statusLabels: Record<Source['status'], string> = {
 	loading: 'Loading…',
@@ -30,6 +32,18 @@ const statusLabels: Record<Source['status'], string> = {
 	connected: 'Connected',
 	disconnected: 'Disconnected, reconnecting…',
 };
+
+/**
+ * The source's state, with the match a loaded log is from, ex. `Log file for CAPH Q12`.
+ * The log's Driver Station data is preferred, since people often rename logs when sharing them.
+ */
+function sourceStatus(source: Source): string {
+	const match =
+		source.status === 'loaded' && source.type === 'log'
+			? (readLogMatch(getEntry) ?? parseLogName(source.fileName)?.match)
+			: undefined;
+	return match === undefined ? statusLabels[source.status] : `Log file for ${match.label}`;
+}
 
 const menuItems: MenuEntry[] = [
 	{ label: 'Open log', shortcut: shortcuts.openLog, onSelect: chooseLog },
@@ -78,6 +92,8 @@ function OpenRecentMenu() {
 /** Shows the active data source and lets the user open a log or connect live */
 export function SourceControl() {
 	const source = useSource();
+	// Re-render when the log's entries load, so its match is read
+	useEntries();
 	const formatForDisplay = useFormatForDisplay();
 	const [connectTarget, setConnectTarget] = useState<ConnectTarget>();
 
@@ -89,7 +105,7 @@ export function SourceControl() {
 	useEffect(checkConnectTarget, []);
 
 	const name = source === undefined ? 'No data source' : source.type === 'log' ? source.fileName : source.host;
-	const status = source === undefined ? 'Open a log or connect' : statusLabels[source.status];
+	const status = source === undefined ? 'Open a log or connect' : sourceStatus(source);
 
 	return (
 		<AppContextMenu items={menuItems} render={<SidebarMenuItem />}>
