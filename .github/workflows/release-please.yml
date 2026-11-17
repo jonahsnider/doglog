@@ -22,7 +22,7 @@ jobs:
       studio_tag_name: ${{ steps.release.outputs['studio--tag_name'] }}
     steps:
       - name: Run release-please
-        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5
+        uses: googleapis/release-please-action@v5.0.0
         id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -41,16 +41,16 @@ jobs:
       cancel-in-progress: false
     steps:
       - name: Checkout release tag
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@v7.0.1
         with:
           ref: refs/tags/${{ needs.release-please.outputs.tag_name }}
       - name: Setup Java
-        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
+        uses: actions/setup-java@v6.3.0
         with:
           distribution: temurin
           java-version: 25
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6
+        uses: gradle/actions/setup-gradle@v6.4.1
       - name: Build release
         run: ./gradlew build :lib:plainJavadocJar
       - name: Check Maven Central
@@ -75,7 +75,7 @@ jobs:
       - name: Create copy of vendordep.json
         run: cp vendordep.json "DogLog-$RELEASE_VERSION.json"
       - name: Create Vendor JSON Repo PR
-        uses: wpilibsuite/vendor-json-repo/.github/actions/add_vendordep@f3c94a13ef006b9af78ef0a654d9d198909a51b7 # main
+        uses: wpilibsuite/vendor-json-repo/.github/actions/add_vendordep@main
         with:
           repo: jonahsnider/vendor-json-repo
           token: ${{ secrets.DOGLOG_VENDORDEP_ACCESS_TOKEN }}
@@ -89,11 +89,11 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout current docs
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@v7.0.1
         with:
           ref: main
       - name: Setup pnpm
-        uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3
+        uses: pnpm/setup@v3.2.0
         with:
           cache: true
       - name: Build docs
@@ -113,7 +113,7 @@ jobs:
           esac
       - name: Publish docs to Cloudflare Workers
         if: steps.central.outputs.published == 'true'
-        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4
+        uses: cloudflare/wrangler-action@v4.1.3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           command: deploy
@@ -144,7 +144,7 @@ jobs:
       TAG_NAME: ${{ needs.release-please.outputs.studio_tag_name }}
     steps:
       - name: Checkout release tag
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@v7.0.1
         with:
           ref: refs/tags/${{ needs.release-please.outputs.studio_tag_name }}
       - name: Install Linux dependencies
@@ -153,12 +153,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc # master
+        uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
           targets: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
       - name: Setup pnpm
-        uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3
+        uses: pnpm/setup@v3.2.0
         with:
           cache: true
       - name: Get release ID
@@ -166,7 +166,7 @@ jobs:
         shell: bash
         run: echo "id=$(gh release view "$TAG_NAME" --json databaseId --jq .databaseId)" >> "$GITHUB_OUTPUT"
       - name: Build and upload to release
-        uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # action-v1.0.0
+        uses: tauri-apps/tauri-action@v1.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
@@ -195,9 +195,9 @@ jobs:
       TAG_NAME: ${{ needs.release-please.outputs.studio_tag_name }}
     steps:
       - name: Checkout Git repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@v7.0.1
       - name: Setup pnpm
-        uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3
+        uses: pnpm/setup@v3.2.0
         with:
           cache: true
       - name: Download manifest from release
