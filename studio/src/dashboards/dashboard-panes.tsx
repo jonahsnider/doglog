@@ -1,28 +1,27 @@
 import type { Draggable, Droppable } from '@dnd-kit/dom';
 import { useDragDropMonitor } from '@dnd-kit/react';
-import { type ReactNode, type RefObject, useEffect, useRef, useState } from 'react';
-import { Group, Separator, useGroupRef } from 'react-resizable-panels';
+import { type RefObject, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { Group, type Layout, Separator, useGroupRef } from 'react-resizable-panels';
 import { PaneView, type PaneNodeProps } from '@/panes/pane-view';
 import { dropDashboardEntry, getFocusedPane, getZoomedPane, updateLayout } from '@/dashboards/panes';
 import type { Dashboard } from '@/dashboards/dashboards';
 import { type EntryDragData, type EntryDropData, type EntrySectionDropData, entryDragType } from '@/entries/drag';
 import { cn } from '@/lib/utils';
-import { type PaneNode, panesAlong, resizeSplit, type Split } from '@/panes/layout';
-import { SplitPanel } from '@/panes/split-panel';
 import {
-	useZoomAnimation,
-	splitPanelAnimation,
-	type SplitAnimation,
-	splitAnimation,
-	type SplitSide,
-} from '@/panes/split-animation';
+	findPane,
+	type PaneNode,
+	panesAlong,
+	resetDivider,
+	resizeSplit,
+	type Split,
+	type SplitDirection,
+} from '@/panes/layout';
+import { SplitPanel, type SplitPanelAnimation } from '@/panes/split-panel';
+import { closingSplit, percentages, type SplitAnimation, splitAnimation } from '@/panes/split-animation';
+import { useZoomAnimation } from '@/panes/zoom-animation';
 
-declare module 'react' {
-	interface CSSProperties {
-		/** The size a side of a split had when it started shrinking away, read by the `split-close` keyframes in `index.css` */
-		'--split-leaving-size'?: string;
-	}
-}
+/** How close a divider is dropped to an even split for it to snap there, in pixels */
+const snapDistance = 8;
 
 type Size = { width: number; height: number };
 
@@ -43,8 +42,11 @@ function useSize(ref: RefObject<HTMLElement | null>) {
 export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 	const { layout } = dashboard;
 	const focusedPaneId = getFocusedPane(dashboard).id;
+	const zoomedPaneId = getZoomedPane(dashboard)?.id;
 	const container = useRef<HTMLDivElement>(null);
 	const size = useSize(container);
+	const zoom = useZoomAnimation(container, layout, zoomedPaneId);
+	const zooming = zoom !== undefined;
 
 	// Entries dropped on a widget or one of its entries, from the entry browser or another widget
 	useDragDropMonitor<
@@ -64,12 +66,15 @@ export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 	});
 
 	return (
-		<div ref={container} className="h-full">
+		<div ref={container} className="h-full" data-zooming={zooming || undefined}>
 			<PaneNodeView
 				dashboardId={dashboard.id}
 				dashboardLayout={layout}
 				focusedPaneId={focusedPaneId}
-				zoomedPaneId={getZoomedPane(dashboard)?.id}
+				zoomedPaneId={zoomedPaneId}
+				hiddenBy={zooming ? undefined : zoomedPaneId}
+				zooming={zooming}
+				zoomFillingPaneId={zoom?.zoomingIn === true ? zoom.paneId : undefined}
 				dashboardSize={size}
 				node={layout}
 				root
@@ -80,34 +85,35 @@ export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 }
 
 type NodeProps = PaneNodeProps & {
+	/** The zoomed pane once it fills the dashboard, which hides the panes in the other children of its splits */
+	hiddenBy: string | undefined;
+	/** Whether a zoom is animating, which lets the panes move outside their splits */
+	zooming: boolean;
 	/** In pixels, `undefined` until it's measured */
 	dashboardSize: Size | undefined;
 };
 
-function PaneNodeView({ node, root = false, dashboardSize, ...props }: NodeProps & { node: PaneNode; root?: boolean }) {
+function PaneNodeView({ node, root = false, ...props }: NodeProps & { node: PaneNode; root?: boolean }) {
 	const { zoomedPaneId } = props;
 	const [previous, setPrevious] = useState({ node, zoomedPaneId });
 	const [animation, setAnimation] = useState<SplitAnimation>();
 	if (previous.node !== node || previous.zoomedPaneId !== zoomedPaneId) {
 		setPrevious({ node, zoomedPaneId });
-		if (previous.node.id !== node.id) {
-			const changed = splitAnimation(previous.node, node, props.dashboardLayout);
-			// Closing a pane restores the zoomed pane's dashboard, which already animates the other panes back in
-			setAnimation(changed?.kind === 'close' && previous.zoomedPaneId !== undefined ? undefined : changed);
+		const changed = previous.node === node ? undefined : splitAnimation(previous.node, node, props.dashboardLayout);
+		// Closing a pane restores the zoomed pane's dashboard, which already animates the other panes back in
+		if (changed && !(changed.kind === 'close' && previous.zoomedPaneId !== undefined)) {
+			setAnimation(changed);
 		}
 	}
 
 	if (animation?.kind === 'close') {
-		// The closed pane is kept until it has shrunk away, beside the latest version of the node taking its place
-		const { split } = animation;
 		return (
 			<SplitView
-				key={split.id}
+				key={animation.split.id}
 				{...props}
-				dashboardSize={dashboardSize}
-				split={animation.side === 'first' ? { ...split, second: node } : { ...split, first: node }}
+				split={closingSplit(animation, node)}
 				animation={animation}
-				onClosed={() => setAnimation(undefined)}
+				onAnimationEnd={() => setAnimation(undefined)}
 			/>
 		);
 	}
@@ -116,146 +122,164 @@ function PaneNodeView({ node, root = false, dashboardSize, ...props }: NodeProps
 		// Closing the only pane does nothing unless there's a widget to remove
 		<PaneView {...props} pane={node} closable={!root || node.widget !== undefined} />
 	) : (
-		// Keyed so a split that takes another's place reads its own saved ratio
-		<SplitView key={node.id} {...props} dashboardSize={dashboardSize} split={node} animation={animation} />
+		// Keyed so a split that takes another's place reads its own sizes
+		<SplitView
+			key={node.id}
+			{...props}
+			split={node}
+			animation={animation?.split.id === node.id ? animation : undefined}
+			onAnimationEnd={() => setAnimation(undefined)}
+		/>
 	);
 }
 
-/**
- * In pixels, the size the side shrinking away in `playing` had when it started. A zoom changes the size of the splits
- * around the zoomed pane right away, so the side leaving each of them is measured against the size from before.
- */
-function useLeavingSize(split: Split, playing: SplitAnimation | undefined, groupSize: Size | undefined) {
-	const [started, setStarted] = useState({ playing, groupSize });
-	if (started.playing !== playing) {
-		setStarted({ playing, groupSize });
-	}
-
-	const extent = split.direction === 'row' ? started.groupSize?.width : started.groupSize?.height;
-	if (!playing || playing.kind === 'open' || extent === undefined) {
-		return undefined;
-	}
-
-	return (extent - 1) * (playing.side === 'first' ? split.ratio : 1 - split.ratio);
+/** In pixels, the smallest a child of a split can be for each of its panes to be at least `paneSize` along it */
+function minSize(child: PaneNode, direction: SplitDirection, paneSize: number | undefined): number {
+	const panes = panesAlong(child, direction);
+	return paneSize === undefined ? 0 : paneSize * panes + panes - 1;
 }
 
 function SplitView({
 	split,
-	dashboardSize,
 	animation,
-	onClosed,
+	onAnimationEnd,
 	...props
-}: NodeProps & { split: Split; animation?: SplitAnimation | undefined; onClosed?: () => void }) {
-	const { dashboardId } = props;
+}: NodeProps & { split: Split; animation: SplitAnimation | undefined; onAnimationEnd: () => void }) {
+	const { dashboardId, dashboardSize, hiddenBy, zooming } = props;
 	const row = split.direction === 'row';
-	const firstId = `${split.id}-first`;
-	const secondId = `${split.id}-second`;
 	const groupRef = useGroupRef();
 	const group = useRef<HTMLDivElement>(null);
 	const groupSize = useSize(group);
-	// Keep every pane at least a quarter of the dashboard, so a side with a split inside needs room for its panes and the 1px dividers between them
+	const extent = row ? groupSize?.width : groupSize?.height;
+	const dividers = split.children.length - 1;
+	// Keep every pane at least a quarter of the dashboard, so a child with a split inside needs room for its panes and the 1px dividers between them
 	const dashboardExtent = row ? dashboardSize?.width : dashboardSize?.height;
 	const paneSize = dashboardExtent === undefined ? undefined : (dashboardExtent - 3) / 4;
-	const minSize = (node: PaneNode) => {
-		const panes = panesAlong(node, split.direction);
-		return paneSize === undefined ? undefined : paneSize * panes + panes - 1;
+	const minSizes = split.children.map((child) => minSize(child, split.direction, paneSize));
+	// Every child is as small as it can be, so the dividers can't move (within a pixel of rounding)
+	const locked = extent !== undefined && extent - minSizes.reduce((sum, size) => sum + size, 0) - dividers < 1;
+	// A child's smallest share of the split
+	const minimum = useCallback(
+		(child: PaneNode) =>
+			extent === undefined ? 0 : minSize(child, split.direction, paneSize) / Math.max(extent - dividers, 1),
+		[extent, dividers, split.direction, paneSize],
+	);
+
+	// The shares the children end at, a closing pane ends at nothing
+	const targets = useMemo(
+		() =>
+			animation?.kind === 'close'
+				? {
+						...percentages(
+							{ ...split, children: split.children.filter((child) => child.id !== animation.childId) },
+							minimum,
+						),
+						[animation.childId]: 0,
+					}
+				: percentages(split, minimum),
+		[split, animation, minimum],
+	);
+	const from = animation && percentages(animation.split, minimum);
+	const moving = animation ? split.children.findIndex((child) => child.id === animation.childId) : -1;
+
+	const panelAnimation = (childId: string, index: number): SplitPanelAnimation | undefined => {
+		if (!animation || !from) {
+			return undefined;
+		}
+
+		const closing = animation.kind === 'close';
+		const role = index === moving ? (closing ? 'leave' : 'enter') : 'stay';
+		return {
+			role,
+			from: from[childId] ?? 0,
+			closing,
+			size: ((role === 'leave' ? from[childId] : targets[childId]) ?? 0) / 100,
+			dividers: role === 'leave' ? animation.split.children.length - 1 : dividers - (closing ? 1 : 0),
+			// The children before the moving one are pinned to their start, the ones after it to their end
+			pin: index === moving ? (index === 0 ? 'end' : 'start') : index < moving ? 'start' : 'end',
+		};
 	};
-	const firstMinSize = minSize(split.first);
-	const secondMinSize = minSize(split.second);
-	// Both sides are as small as they can be, so the divider can't move (within a pixel of rounding)
-	const locked =
-		groupSize !== undefined &&
-		firstMinSize !== undefined &&
-		secondMinSize !== undefined &&
-		(row ? groupSize.width : groupSize.height) - firstMinSize - secondMinSize - 1 < 1;
 
-	const { hiddenSide, zoomAnimation } = useZoomAnimation(split, props.zoomedPaneId);
+	// The group only reads `defaultLayout` when it mounts, so new sizes are applied here, once it knows every child's panel
+	const pendingLayout = useRef<Layout>(undefined);
+	const applyLayout = useCallback(() => {
+		const layout = pendingLayout.current;
+		const current = groupRef.current?.getLayout();
+		const ids = current && Object.keys(current);
+		if (layout && ids?.length === Object.keys(layout).length && ids.every((id) => id in layout)) {
+			pendingLayout.current = undefined;
+			groupRef.current?.setLayout(layout);
+		}
+	}, [groupRef]);
+	useLayoutEffect(() => {
+		pendingLayout.current = targets;
+		applyLayout();
+	}, [applyLayout, targets]);
 
-	// Kept so they don't play again, ex. when a pane is closed in a split that animated opening
-	const [finished, setFinished] = useState<readonly SplitAnimation[]>([]);
-	const playing = [animation, zoomAnimation].find((other) => other !== undefined && !finished.includes(other));
-	const leavingSize = useLeavingSize(split, playing, groupSize);
-
-	const animationProps = (side: SplitSide) =>
-		splitPanelAnimation(side, playing, hiddenSide, zoomAnimation === undefined, (ended) =>
-			ended.kind === 'close' ? onClosed?.() : setFinished((animations) => [...animations, ended]),
-		);
-
-	const panel = (side: SplitSide, panelMinSize: number | undefined, children: ReactNode) => {
-		const sliding = playing?.side === side || hiddenSide === side;
-		return (
-			<SplitPanel
-				id={side === 'first' ? firstId : secondId}
-				minSize={panelMinSize}
-				direction={split.direction}
-				side={side}
-				ratio={side === 'first' ? split.ratio : 1 - split.ratio}
-				sliding={sliding}
-				staying={sliding || !playing ? undefined : playing.kind === 'open' ? 'make-room' : 'fill'}
-				leavingSize={playing?.side === side ? leavingSize : undefined}
-				contentHidden={sliding && !playing}
-				{...animationProps(side)}
-			>
-				{children}
-			</SplitPanel>
-		);
-	};
-
-	// The group only reads `defaultLayout` when it mounts, so a ratio changed by undo or redo is applied here
-	useEffect(() => {
-		groupRef.current?.setLayout({ [firstId]: split.ratio * 100, [secondId]: (1 - split.ratio) * 100 });
-	}, [groupRef, firstId, secondId, split.ratio]);
+	// While a zoomed pane fills the dashboard, its splits only show the child it's in
+	const zoomedHere = hiddenBy !== undefined && findPane(split, hiddenBy) !== undefined;
 
 	return (
 		<Group
 			groupRef={groupRef}
 			elementRef={group}
 			orientation={row ? 'horizontal' : 'vertical'}
-			defaultLayout={{ [firstId]: split.ratio * 100, [secondId]: (1 - split.ratio) * 100 }}
-			// For the animated pane's container units
-			style={
-				playing || hiddenSide
-					? {
-							containerType: 'size',
-							...(leavingSize !== undefined && { '--split-leaving-size': `${leavingSize}px` }),
-						}
-					: undefined
-			}
+			defaultLayout={targets}
+			onLayoutChange={applyLayout}
+			// Container units size the animating children, and panes move outside their splits while a zoom animates
+			style={{ containerType: animation ? 'size' : undefined, overflow: zooming ? 'visible' : undefined }}
 			// Called once a drag is released or a key is pressed, not on every pointer move
 			onLayoutChanged={(panelLayout, { isUserInteraction, requestedLayout = panelLayout }) => {
-				const size = requestedLayout[firstId];
-				if (isUserInteraction && size !== undefined) {
-					updateLayout(dashboardId, (layout) => resizeSplit(layout, split.id, size / 100));
+				if (!isUserInteraction || animation || extent === undefined) {
+					return;
 				}
+
+				const sizes = split.children.map((child) => (requestedLayout[child.id] ?? 0) / 100);
+				updateLayout(dashboardId, (layout) =>
+					resizeSplit(layout, split.id, sizes, snapDistance / Math.max(extent - dividers, 1)),
+				);
 			}}
 		>
-			{panel('first', firstMinSize, <PaneNodeView {...props} dashboardSize={dashboardSize} node={split.first} />)}
-			<Separator
-				aria-label="Resize panes"
-				// Disabled dividers don't get the hover and active highlights, and the not-allowed cursor is replaced so they don't look interactive
-				disabled={locked}
-				style={locked ? { cursor: 'auto' } : undefined}
-				// The library's 10px hit area is mostly outside the line, so the pseudo-element catches double-clicks there
-				className={cn(
-					'bg-border outline-none transition-colors focus-visible:bg-ring data-[separator=active]:bg-ring data-[separator=hover]:bg-ring',
-					'relative z-10 after:absolute',
-					hiddenSide && 'hidden',
-					row ? 'w-px after:inset-y-0 after:-inset-x-[4.5px]' : 'h-px after:inset-x-0 after:-inset-y-[4.5px]',
-				)}
-				onDoubleClick={() => {
-					if (locked) {
-						return;
-					}
-
-					groupRef.current?.setLayout({ [firstId]: 50, [secondId]: 50 });
-					updateLayout(dashboardId, (layout) => resizeSplit(layout, split.id, 0.5));
-				}}
-			/>
-			{panel(
-				'second',
-				secondMinSize,
-				<PaneNodeView {...props} dashboardSize={dashboardSize} topLeft={false} node={split.second} />,
-			)}
+			{split.children.flatMap((child, index) => [
+				index > 0 && (
+					<Separator
+						key={`${child.id}-separator`}
+						aria-label="Resize panes"
+						// Disabled dividers don't get the hover and active highlights, and the not-allowed cursor is replaced so they don't look interactive
+						disabled={locked}
+						style={locked ? { cursor: 'auto' } : undefined}
+						// The library's 10px hit area is mostly outside the line, so the pseudo-element catches double-clicks there
+						className={cn(
+							'bg-border outline-none transition-colors focus-visible:bg-ring data-[separator=active]:bg-ring data-[separator=hover]:bg-ring',
+							'relative z-10 after:absolute',
+							zoomedHere && 'hidden',
+							row ? 'w-px after:inset-y-0 after:-inset-x-[4.5px]' : 'h-px after:inset-x-0 after:-inset-y-[4.5px]',
+						)}
+						onDoubleClick={() => {
+							if (!locked) {
+								updateLayout(dashboardId, (layout) => resetDivider(layout, split.id, index - 1));
+							}
+						}}
+					/>
+				),
+				<SplitPanel
+					key={child.id}
+					id={child.id}
+					minSize={index === moving && animation?.kind === 'close' ? 0 : minSizes[index]}
+					direction={split.direction}
+					animation={panelAnimation(child.id, index)}
+					hidden={zoomedHere && findPane(child, hiddenBy) === undefined}
+					zooming={zooming}
+					onAnimationEnd={(event) => {
+						// Ignores animations inside the pane
+						if (index === moving && event.target === event.currentTarget) {
+							onAnimationEnd();
+						}
+					}}
+				>
+					<PaneNodeView {...props} topLeft={index === 0 && props.topLeft} node={child} />
+				</SplitPanel>,
+			])}
 		</Group>
 	);
 }

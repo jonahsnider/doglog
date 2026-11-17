@@ -38,6 +38,8 @@ export type PaneNodeProps = {
 	focusedPaneId: string;
 	/** The pane filling the dashboard while the others are hidden */
 	zoomedPaneId: string | undefined;
+	/** The pane zooming in, which fills the dashboard beneath the others as they slide away, see `useZoomAnimation()` */
+	zoomFillingPaneId: string | undefined;
 	/** Whether the node is in the top left corner of the dashboard, under the traffic lights when the sidebar is collapsed */
 	topLeft: boolean;
 };
@@ -51,6 +53,7 @@ export function PaneView({
 	dashboardLayout,
 	focusedPaneId,
 	zoomedPaneId,
+	zoomFillingPaneId,
 	topLeft,
 	pane,
 	closable,
@@ -172,6 +175,7 @@ export function PaneView({
 					className={cn('group/pane relative flex size-full flex-col transition-opacity', isDragging && 'opacity-40')}
 					// Lets `addDashboardWidget()` pick a split direction from the pane's size
 					data-pane-id={pane.id}
+					data-zoom-filling={pane.id === zoomFillingPaneId || undefined}
 					// Capturing, so clicks that widgets handle themselves still focus the pane, right-clicks included
 					onPointerDownCapture={() => focusPane(dashboardId, pane.id)}
 					onFocusCapture={() => focusPane(dashboardId, pane.id)}

@@ -21,7 +21,7 @@ test('dashboards read back the same after each edit', () => {
 	edit(({ layout }) => ({ layout: setPaneWidget(layout, pane.id, graph) }));
 	edit(({ layout }) => ({ layout: splitPane(layout, pane.id, 'row') }));
 	edit(({ layout }) => ({ layout: splitPane(layout, pane.id, 'column') }));
-	edit(({ layout }) => ({ layout: resizeSplit(layout, layout.id, 0.3) }));
+	edit(({ layout }) => ({ layout: resizeSplit(layout, layout.id, [0.3, 0.7]) }));
 	edit((contents) => ({ ...contents, name: 'Arm tuning' }));
 	edit((contents) => ({ ...contents, layout: closePane(contents.layout, pane.id) }));
 	edit(({ layout }) => ({ layout: setPaneWidget(layout, firstPane(layout).id, undefined) }));
@@ -113,4 +113,52 @@ test('peers splitting the same pane at once end up with the same valid layout', 
 	// Writing the layout read back keeps it
 	write(doc, { layout });
 	expect(readDashboardDoc(doc).layout).toEqual(layout);
+});
+
+test('splits saved with a ratio between two children read back with their sizes', () => {
+	const doc = new LoroDoc();
+	const tree = doc.getTree('layout');
+	const addNode = (data: Record<string, unknown>, parent?: ReturnType<typeof tree.createNode>) => {
+		const node = tree.createNode(parent?.id);
+		for (const [key, value] of Object.entries(data)) {
+			node.data.set(key, value);
+		}
+		return node;
+	};
+	// a | (d / (b | c)), both halves even, d taking 30% of the right half and b and c sharing the rest evenly
+	const root = addNode({ kind: 'split', id: 'root', direction: 'row', ratio: 0.5 });
+	addNode({ kind: 'pane', id: 'a' }, root);
+	const right = addNode({ kind: 'split', id: 'right', direction: 'column', ratio: 0.3 }, root);
+	addNode({ kind: 'pane', id: 'd' }, right);
+	const bottom = addNode({ kind: 'split', id: 'bottom', direction: 'row', ratio: 0.5 }, right);
+	addNode({ kind: 'pane', id: 'b' }, bottom);
+	addNode({ kind: 'pane', id: 'c' }, bottom);
+	doc.commit();
+
+	expect(readDashboardDoc(doc).layout).toEqual({
+		kind: 'split',
+		id: 'root',
+		direction: 'row',
+		children: [
+			{ kind: 'pane', id: 'a' },
+			{
+				kind: 'split',
+				id: 'right',
+				direction: 'column',
+				children: [
+					{ kind: 'pane', id: 'd', size: 0.3 },
+					{
+						kind: 'split',
+						id: 'bottom',
+						direction: 'row',
+						size: 0.7,
+						children: [
+							{ kind: 'pane', id: 'b' },
+							{ kind: 'pane', id: 'c' },
+						],
+					},
+				],
+			},
+		],
+	});
 });

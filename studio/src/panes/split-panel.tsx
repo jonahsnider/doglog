@@ -1,69 +1,74 @@
-import type { CSSProperties } from 'react';
+import { type CSSProperties, useLayoutEffect, useRef } from 'react';
 import { Panel, type PanelProps } from 'react-resizable-panels';
 import type { SplitDirection } from '@/panes/layout';
-import type { SplitSide } from '@/panes/split-animation';
 
-/** One side of a split, which keeps its content from reflowing every frame while it animates */
+/** How a child of a split takes part in its animation, see `SplitView` */
+export type SplitPanelAnimation = {
+	/** Growing in from nothing, shrinking away, or resizing to make room or fill in */
+	role: 'enter' | 'leave' | 'stay';
+	/** Its share of the split before the animation, as a percentage */
+	from: number;
+	/** In the closing timing, which is quicker and accelerates */
+	closing: boolean;
+	/** Its share of the split it keeps while animating: the one it ends at, or starts at when leaving */
+	size: number;
+	/** Dividers in the split when it has that share */
+	dividers: number;
+	/** The edge its content is pinned to, the other children move in or out next to it */
+	pin: 'start' | 'end';
+};
+
+/** One child of a split, which keeps its content from reflowing every frame while it animates */
 export function SplitPanel({
 	direction,
-	side,
-	ratio,
-	sliding,
-	staying,
-	leavingSize,
-	contentHidden,
+	animation,
+	hidden,
+	zooming,
 	children,
 	...props
-}: Omit<PanelProps, 'style'> & {
+}: Omit<PanelProps, 'style' | 'elementRef'> & {
 	direction: SplitDirection;
-	side: SplitSide;
-	/** Fraction of the split given to this side */
-	ratio: number;
-	/** Growing in or shrinking away, or hidden by a zoomed pane on the other side */
-	sliding: boolean;
-	/** Making room for the other side growing in, or filling in after it shrinks away */
-	staying: 'make-room' | 'fill' | undefined;
-	/** In pixels, the size a side shrinking away had when it started, since the split around it can change size as it leaves */
-	leavingSize: number | undefined;
-	/** Skips rendering the hidden side's widgets, but keeps them for when it's restored */
-	contentHidden: boolean;
+	animation: SplitPanelAnimation | undefined;
+	/** Hidden by a zoomed pane in another child of the split */
+	hidden: boolean;
+	/** Whether a zoom is animating, which moves panes outside their splits */
+	zooming: boolean;
 }) {
 	const row = direction === 'row';
-	// Each side keeps one size while the split animates, measured against the group with container units.
-	// The sliding side keeps the size it ends (or starts) at, and is clipped and pinned to the divider so it slides in and out with it.
-	// The staying side takes the size it ends at right away, pinned to the outer edge so the other side slides in or out next to it.
-	// A zoomed pane fills the split this way at every level, so its content stays where it ends up as the other panes slide away.
-	const extent = row ? '100cqw' : '100cqh';
-	const size =
-		leavingSize === undefined
-			? staying === 'fill'
-				? extent
-				: `calc((${extent} - 1px) * ${ratio})`
-			: `${leavingSize}px`;
-	const animatedStyle: CSSProperties = {
+	// Its content keeps one size while the split animates, measured against the split with container units
+	const size = `calc((${row ? '100cqw' : '100cqh'} - ${animation?.dividers ?? 0}px) * ${animation?.size ?? 1})`;
+	const contentStyle: CSSProperties | undefined = animation && {
 		flex: 'none',
 		// Its size doesn't depend on its content, so the browser can skip laying it out while the split animates
 		contain: 'strict',
 		...(row ? { width: size } : { height: size }),
-		...(contentHidden && { contentVisibility: 'hidden' }),
 	};
-	const animated = sliding || staying !== undefined;
+	// Read by the keyframes in `index.css`, set on the panel itself since its `style` goes to an element inside it
+	const element = useRef<HTMLDivElement>(null);
+	const from = String(animation?.from ?? 0);
+	useLayoutEffect(() => {
+		element.current?.style.setProperty('--split-from', from);
+	}, [from]);
 
 	return (
 		<Panel
 			{...props}
+			data-split-animation={animation?.role}
+			data-split-closing={animation?.closing === true || undefined}
+			data-split-hidden={hidden || undefined}
+			elementRef={element}
 			style={
-				animated
+				animation
 					? {
 							overflow: 'hidden',
 							display: 'flex',
 							flexDirection: row ? 'row' : 'column',
-							justifyContent: (side === 'first') === sliding ? 'flex-end' : 'flex-start',
+							justifyContent: animation.pin === 'start' ? 'flex-start' : 'flex-end',
 						}
-					: { overflow: 'hidden' }
+					: { overflow: zooming ? 'visible' : 'hidden' }
 			}
 		>
-			<div className="size-full" style={animated ? animatedStyle : undefined}>
+			<div className="size-full" style={contentStyle}>
 				{children}
 			</div>
 		</Panel>

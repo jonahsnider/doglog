@@ -1,6 +1,7 @@
 import { widgetBindings } from '@/widgets/bindings';
 import type { Dashboard } from '@/dashboards/dashboards';
 import type { PaneNode, Widget } from '@/panes/layout';
+import { childSizes } from '@/panes/split-sizes';
 import { getWidgetType } from '@/widgets/registry';
 import type { WidgetType } from '@/widgets/widget-type';
 
@@ -65,7 +66,8 @@ function widgetAreas(layout: PaneNode, area = 1): { widget: Widget; area: number
 		return layout.widget === undefined ? [] : [{ widget: layout.widget, area }];
 	}
 
-	return [...widgetAreas(layout.first, area * layout.ratio), ...widgetAreas(layout.second, area * (1 - layout.ratio))];
+	const sizes = childSizes(layout);
+	return layout.children.flatMap((child, index) => widgetAreas(child, area * (sizes[index] ?? 0)));
 }
 
 /** The widget type in the dashboard's biggest pane, the first one in the layout on ties. Its icon represents the dashboard. */

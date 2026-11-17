@@ -507,64 +507,60 @@
 	}
 }
 
-/* Panes growing in from nothing when they're split or restored, and shrinking away when they're closed or another pane is zoomed, see `SplitView` */
+/*
+ * A split's children resizing as a new one grows in from nothing or a closed one shrinks away, from their shares before
+ * (`--split-from`) to the ones the library sets inline, see `SplitView`
+ */
 [data-split-animation] {
-	animation: 250ms var(--ease-in-out);
+	animation: split-resize 250ms var(--ease-in-out);
 }
-/* Panes leaving are quicker and accelerate, both sides need the same timing to add up to the split */
-[data-split-animation='close'],
-[data-split-animation='fill'] {
+/* Closing is quicker and accelerates, every child needs the same timing to add up to the split */
+[data-split-closing] {
 	animation-duration: 200ms;
 	animation-timing-function: var(--ease-in);
 }
-/* A zoomed pane's dashboard that's opened, and splits when the system is set to reduce motion */
-[data-split-instant] {
-	animation-duration: 0s;
+/* Held at the end until the closed pane is removed */
+[data-split-animation='leave'] {
+	animation-name: split-leave;
+	animation-fill-mode: forwards;
 }
 @media (prefers-reduced-motion: reduce) {
 	[data-split-animation] {
 		animation-duration: 0s;
 	}
 }
-[data-split-animation='open'] {
-	animation-name: split-open;
-}
-/* The other side starts at the whole split so they always add up to it */
-[data-split-animation='make-room'] {
-	animation-name: split-make-room;
-}
-/* Held at the end until the closed pane is removed */
-[data-split-animation='close'] {
-	animation-name: split-close;
-	animation-fill-mode: forwards;
-}
-[data-split-animation='fill'] {
-	animation-name: split-fill;
-	animation-fill-mode: forwards;
-}
-@keyframes split-open {
+@keyframes split-resize {
 	from {
+		flex-grow: var(--split-from);
+	}
+}
+@keyframes split-leave {
+	from {
+		flex-grow: var(--split-from);
+	}
+	to {
 		flex-grow: 0;
 	}
 }
-@keyframes split-make-room {
-	from {
-		flex-grow: 100;
-	}
+/* Hidden while a zoomed pane in another child fills the dashboard, the library sets `display` inline */
+[data-split-hidden] {
+	display: none !important;
 }
-/* Shrinks from the size it had when it started leaving, so it doesn't jump when a zoom resizes the split around it */
-@keyframes split-close {
-	from {
-		flex: 0 0 var(--split-leaving-size, 0px);
+/* While a zoom animates, the zoomed pane fills the dashboard beneath the other panes as they slide, see `useZoomAnimation()` */
+[data-zooming] {
+	position: relative;
+	overflow: clip;
+
+	& [data-pane-id] {
+		z-index: 1;
+		background-color: var(--background);
 	}
-	to {
-		flex: 0 0 0px;
+	& [data-zoom-filling] {
+		position: absolute;
+		inset: 0;
+		z-index: 0;
 	}
-}
-/* Takes whatever the leaving side doesn't */
-@keyframes split-fill {
-	from,
-	to {
-		flex-grow: 100;
+	& [data-separator] {
+		visibility: hidden;
 	}
 }

@@ -1,105 +1,69 @@
-import { type HTMLAttributes, useState } from 'react';
 import { findPane, type PaneNode, type Split } from '@/panes/layout';
+import { childSizes, fitSizes } from '@/panes/split-sizes';
 
-export type SplitSide = 'first' | 'second';
-
-/** A split's side growing in from nothing when it's opened or restored, shrinking away when it's closed, or hidden by a zoomed pane */
+/**
+ * A split's children resizing as a new one grows in from nothing, or as a closed pane shrinks away. `split` is the split
+ * from before, which still holds the closed pane.
+ */
 export type SplitAnimation =
-	| { kind: 'open'; side: SplitSide }
-	| { kind: 'close'; side: SplitSide; split: Split }
-	| { kind: 'hide'; side: SplitSide };
+	| { kind: 'open'; childId: string; split: Split }
+	| { kind: 'close'; childId: string; split: Split };
 
 /** How the layout changed from `previous` to `node` at the same place in it, like Rex animating its splits */
 export function splitAnimation(previous: PaneNode, node: PaneNode, layout: PaneNode): SplitAnimation | undefined {
-	if (node.kind === 'split') {
-		if (node.first.id === previous.id) {
-			return { kind: 'open', side: 'second' };
-		}
-
-		if (node.second.id === previous.id) {
-			return { kind: 'open', side: 'first' };
-		}
+	// A pane split in two, as a split with the pane and the new pane
+	if (previous.kind === 'pane' && node.kind === 'split' && node.children.length === 2) {
+		const added = node.children.find((child) => child.id !== previous.id);
+		return added && node.children.some((child) => child.id === previous.id)
+			? { kind: 'open', childId: added.id, split: { ...node, children: [previous] } }
+			: undefined;
 	}
 
-	if (previous.kind === 'split') {
-		const side = previous.first.id === node.id ? 'second' : previous.second.id === node.id ? 'first' : undefined;
-		const closed = side && previous[side];
-		// A pane moved somewhere else in the layout is already shown there
-		if (side && closed?.kind === 'pane' && !findPane(layout, closed.id)) {
-			return { kind: 'close', side, split: previous };
-		}
+	if (previous.kind !== 'split') {
+		return undefined;
+	}
+
+	const current = node.kind === 'split' && node.id === previous.id ? node.children : [node];
+	const added = current.filter((child) => !previous.children.some((other) => other.id === child.id));
+	const removed = previous.children.filter((child) => !current.some((other) => other.id === child.id));
+	const [addedChild] = added;
+	const [removedChild] = removed;
+	if (node.id === previous.id && addedChild && added.length === 1 && removed.length === 0) {
+		return { kind: 'open', childId: addedChild.id, split: previous };
+	}
+
+	// A pane moved somewhere else in the layout is already shown there
+	if (
+		removedChild?.kind === 'pane' &&
+		removed.length === 1 &&
+		added.length === 0 &&
+		previous.children.length === current.length + 1 &&
+		!findPane(layout, removedChild.id)
+	) {
+		return { kind: 'close', childId: removedChild.id, split: previous };
 	}
 
 	return undefined;
 }
 
-/** The side of a split hidden while a pane on its other side is zoomed */
-function hiddenSplitSide(split: Split, zoomedPaneId: string | undefined): SplitSide | undefined {
-	if (zoomedPaneId === undefined) {
-		return undefined;
-	}
-
-	if (findPane(split.first, zoomedPaneId)) {
-		return 'second';
-	}
-
-	return findPane(split.second, zoomedPaneId) ? 'first' : undefined;
+/** Each child's share of a split as a percentage by ID, at least its share of `minimum(child)` */
+export function percentages(split: Split, minimum: (child: PaneNode) => number): Record<string, number> {
+	const sizes = fitSizes(
+		childSizes(split),
+		split.children.map((child) => minimum(child)),
+	);
+	return Object.fromEntries(split.children.map((child, index) => [child.id, (sizes[index] ?? 0) * 100]));
 }
 
-/**
- * Attributes for a split's side that play the keyframes in `index.css`, which animate its flex-grow (set by the group to
- * its percentage of the split). `instant` holds the hidden side in place without animating, for a dashboard opened zoomed.
- */
-export function splitPanelAnimation(
-	side: SplitSide,
-	playing: SplitAnimation | undefined,
-	hiddenSide: SplitSide | undefined,
-	instant: boolean,
-	onEnd: (animation: SplitAnimation) => void,
-): HTMLAttributes<HTMLDivElement> & { 'data-split-animation'?: string; 'data-split-instant'?: boolean } {
-	if (!playing) {
-		// The hidden side is held at the end of its animation
-		return hiddenSide === undefined
-			? {}
-			: {
-					'data-split-animation': side === hiddenSide ? 'close' : 'fill',
-					'data-split-instant': instant || undefined,
-					inert: side === hiddenSide,
-				};
-	}
-
-	if (playing.side !== side) {
-		return { 'data-split-animation': playing.kind === 'open' ? 'make-room' : 'fill' };
-	}
-
+/** The split shown while a pane closes: the closed pane is kept until it has shrunk away, beside the latest version of the nodes taking its place */
+export function closingSplit(animation: SplitAnimation, node: PaneNode): Split {
+	const { split, childId } = animation;
+	const same = node.kind === 'split' && node.id === split.id;
+	const current = same ? node.children : [node];
+	const index = split.children.findIndex((child) => child.id === childId);
+	const closed = split.children[index];
 	return {
-		'data-split-animation': playing.kind === 'open' ? 'open' : 'close',
-		inert: playing.kind !== 'open',
-		onAnimationEnd: (event) => {
-			// Ignores animations inside the pane
-			if (event.target === event.currentTarget) {
-				onEnd(playing);
-			}
-		},
+		...(same ? node : split),
+		children: closed ? [...current.slice(0, index), closed, ...current.slice(index)] : current,
 	};
-}
-
-/**
- * While a pane is zoomed, every split above it hides its other side. `zoomAnimation` hides it or restores it, and is
- * `undefined` while hidden if the split mounted that way, so it's hidden without animating.
- */
-export function useZoomAnimation(split: Split, zoomedPaneId: string | undefined) {
-	const hiddenSide = hiddenSplitSide(split, zoomedPaneId);
-	const [previousHiddenSide, setPreviousHiddenSide] = useState(hiddenSide);
-	const [zoomAnimation, setZoomAnimation] = useState<SplitAnimation>();
-	if (previousHiddenSide !== hiddenSide) {
-		setPreviousHiddenSide(hiddenSide);
-		setZoomAnimation(
-			hiddenSide
-				? { kind: 'hide', side: hiddenSide }
-				: previousHiddenSide && { kind: 'open', side: previousHiddenSide },
-		);
-	}
-
-	return { hiddenSide, zoomAnimation };
 }

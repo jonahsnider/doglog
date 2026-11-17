@@ -367,11 +367,6 @@ A dashboard SHALL be a layout of panes, each holding exactly one widget. Users M
 - **AND** the remaining pane's content takes its new size right away instead of resizing as the divider moves
 - **AND** panes appear and disappear instantly when the system is set to reduce motion
 
-#### Scenario: Reset a divider
-
-- **WHEN** the user double-clicks the divider between two panes
-- **THEN** the panes return to equal sizes
-
 #### Scenario: Resize a pane holding a split
 
 - **GIVEN** a pane split into two columns, beside another pane
@@ -394,16 +389,42 @@ A dashboard SHALL be a layout of panes, each holding exactly one widget. Users M
 - **WHEN** the user middle-clicks the header of one of two panes
 - **THEN** that pane is closed
 
+### Requirement: Pane sizes
+
+Like Rex, splitting a pane in the same direction as the panes beside it SHALL add a pane to that row or column rather than splitting the pane in two. Panes the user hasn't resized MUST share their row or column's space evenly, while resized panes keep their size, and splitting a resized pane MUST share its size with the new pane. Releasing a divider close to where it would be with the panes beside it sharing their space evenly MUST snap it there.
+
+#### Scenario: Split a pane again
+
+- **GIVEN** a dashboard with one pane
+- **WHEN** the user presses ⌘D three times
+- **THEN** the dashboard has four equal panes side by side
+
+#### Scenario: Split a resized pane
+
+- **GIVEN** two panes side by side, resized to 40% and 60% of the dashboard's width
+- **WHEN** the user splits the right pane right
+- **THEN** the panes are 40%, 30%, and 30% of the width
+
+#### Scenario: Snap a divider
+
+- **GIVEN** two panes side by side
+- **WHEN** the user drags the divider between them and releases it a few pixels from the middle
+- **THEN** it snaps to the middle, and the panes share their space evenly again
+
+#### Scenario: Reset a divider
+
+- **WHEN** the user double-clicks the divider between two panes
+- **THEN** the two panes share their space evenly again
+
 ### Requirement: Zoom pane
 
-Like Rex, users SHALL be able to zoom a pane so it fills the dashboard, hiding the other panes until it's restored. Zooming and restoring MUST animate the same way as splitting and closing panes. Splitting or closing any pane MUST restore the other panes. Zooming MUST NOT be an undo step, and a dashboard MUST stay zoomed when it's reopened.
+Like Rex, users SHALL be able to zoom a pane so it fills the dashboard, hiding the other panes until it's restored. Zooming MUST slide the other panes off the dashboard, away from the zoomed pane, and restoring MUST slide them back. Panes on the same side of the zoomed pane MUST move together, however the dashboard is split. Splitting or closing any pane MUST restore the other panes. Zooming MUST NOT be an undo step, and a dashboard MUST stay zoomed when it's reopened.
 
 #### Scenario: Zoom a pane
 
 - **GIVEN** a dashboard with two panes
 - **WHEN** the user presses Zoom pane in the first pane's header
-- **THEN** the first pane grows to fill the dashboard as the second slides away
-- **AND** the first pane's content takes its zoomed size right away, staying where it ends up while the second pane slides off it
+- **THEN** the second pane slides away, uncovering the first pane, which already fills the dashboard
 - **AND** its header only shows widget options, a highlighted Restore pane button, and close
 
 #### Scenario: Restore a zoomed pane
@@ -411,7 +432,13 @@ Like Rex, users SHALL be able to zoom a pane so it fills the dashboard, hiding t
 - **GIVEN** a zoomed pane
 - **WHEN** the user presses Restore pane or ⇧⌘↩
 - **THEN** the other panes slide back in to their previous sizes
-- **AND** each pane's content keeps the size it ends at while it slides in
+- **AND** the restored pane takes its previous size right away
+
+#### Scenario: Restore the right-most of four panes
+
+- **GIVEN** four panes side by side, the right-most one zoomed
+- **WHEN** the user restores it
+- **THEN** the other three panes slide in from the left together
 
 #### Scenario: Only pane
 

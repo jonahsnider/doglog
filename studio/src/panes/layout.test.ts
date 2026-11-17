@@ -11,60 +11,109 @@ import {
 	panesAlong,
 	type PaneNode,
 	paneNodeSchema,
+	resetDivider,
 	resizeSplit,
 	setPaneWidget,
 	type Split,
 	splitPane,
 } from './layout.ts';
+import { childSizes } from './split-sizes.ts';
 
 const graph = { type: 'line-graph', config: { bindings: [{ id: 'arm', name: '/Arm/Angle' }] } };
 
-function expectSplit(node: PaneNode): Split {
-	if (node.kind !== 'split') {
-		throw new Error(`Expected a split, got a ${node.kind}`);
+function expectSplit(node: PaneNode | undefined): Split {
+	if (node?.kind !== 'split') {
+		throw new Error(`Expected a split, got ${node?.kind}`);
 	}
 	return node;
 }
 
 const parse = (stored: unknown) => paneNodeSchema.safeParse(stored).data;
 
+/** Each child's share, within rounding */
+const sizesOf = (node: PaneNode) => childSizes(expectSplit(node));
+const shares = (...sizes: number[]) => sizes.map((size): unknown => expect.closeTo(size) as unknown);
+
 test('splitting a pane keeps it first and adds an empty pane after it', () => {
 	const original = { ...createPane(), widget: graph };
 
-	const layout = splitPane(original, original.id, 'row');
+	const layout = expectSplit(splitPane(original, original.id, 'row'));
 
-	expect(layout).toMatchObject({
-		kind: 'split',
+	expect(layout).toMatchObject({ kind: 'split', direction: 'row', children: [original, { kind: 'pane' }] });
+	expect(layout.children[1]).not.toHaveProperty('widget');
+	expect(sizesOf(layout)).toEqual(shares(0.5, 0.5));
+});
+
+test('splitting a pane again in the same direction lines up equal panes', () => {
+	const first = createPane();
+	let layout: PaneNode = first;
+	let last = first;
+	for (let count = 0; count < 3; count++) {
+		const next = createPane();
+		layout = splitPane(layout, last.id, 'row', next);
+		last = next;
+	}
+
+	const split = expectSplit(layout);
+	expect(split.children).toHaveLength(4);
+	expect(sizesOf(split)).toEqual(shares(0.25, 0.25, 0.25, 0.25));
+});
+
+test('splitting a resized pane shares its size with the new pane', () => {
+	const [left, right, added] = [createPane(), createPane(), createPane()];
+	const halves = expectSplit(splitPane(left, left.id, 'row', right));
+	const resized = resizeSplit(halves, halves.id, [2 / 3, 1 / 3]);
+
+	expect(sizesOf(splitPane(resized, right.id, 'row', added))).toEqual(shares(2 / 3, 1 / 6, 1 / 6));
+});
+
+test('splitting a pane the other way nests a split in its place', () => {
+	const [left, right, below] = [createPane(), createPane(), createPane()];
+	const halves = splitPane(left, left.id, 'row', right);
+
+	expect(splitPane(halves, right.id, 'column', below)).toMatchObject({
 		direction: 'row',
-		ratio: 0.5,
-		first: original,
-		second: { kind: 'pane' },
+		children: [left, { kind: 'split', direction: 'column', children: [right, below] }],
 	});
-	expect(expectSplit(layout).second).not.toHaveProperty('widget');
 });
 
-test('closing a pane lets its sibling take its place', () => {
-	const left = { ...createPane(), widget: graph };
-	const split = expectSplit(splitPane(left, left.id, 'row'));
-	const right = split.second;
-	const nested = expectSplit(splitPane(split, right.id, 'column'));
+test('closing a pane lets the panes beside it take its space', () => {
+	const [a, b, c] = [createPane(), createPane(), createPane()];
+	const thirds = splitPane(splitPane(a, a.id, 'row', b), b.id, 'row', c);
 
-	// Closing the bottom right pane collapses the nested split back to the original
-	const bottomRight = expectSplit(nested.second).second;
-	expect(closePane(nested, bottomRight.id)).toEqual(split);
+	expect(sizesOf(closePane(thirds, b.id))).toEqual(shares(0.5, 0.5));
 
-	expect(closePane(split, right.id)).toEqual(left);
+	// A split left with one pane is replaced by it
+	const nested = splitPane(splitPane(a, a.id, 'row', b), b.id, 'column', c);
+	expect(closePane(nested, c.id)).toMatchObject({ direction: 'row', children: [a, b] });
+	expect(closePane(closePane(nested, c.id), b.id)).toEqual(a);
 });
 
-test('the sibling of a pane is the node that takes its place when closed', () => {
-	const left = createPane();
-	const split = expectSplit(splitPane(left, left.id, 'row'));
-	const nested = expectSplit(splitPane(split, split.second.id, 'column'));
-	const right = expectSplit(nested.second);
+test('closing a pane between resized panes scales them up to fill the split', () => {
+	const [a, b, c] = [createPane(), createPane(), createPane()];
+	const thirds = expectSplit(splitPane(splitPane(a, a.id, 'row', b), b.id, 'row', c));
+	const resized = resizeSplit(thirds, thirds.id, [0.5, 0.25, 0.25]);
 
-	expect(findSibling(nested, left.id)).toBe(right);
-	expect(findSibling(nested, right.second.id)).toBe(right.first);
-	expect(findSibling(left, left.id)).toBeUndefined();
+	expect(sizesOf(closePane(resized, c.id))).toEqual(shares(2 / 3, 1 / 3));
+});
+
+test('closing a pane whose split is left inside one in the same direction moves its panes up', () => {
+	const [a, b, c, d] = [createPane(), createPane(), createPane(), createPane()];
+	// a | ((b | c) / d)
+	const layout = splitPane(splitPane(splitPane(a, a.id, 'row', b), b.id, 'column', d), b.id, 'row', c);
+
+	const closed = expectSplit(closePane(layout, d.id));
+	expect(closed.children.map((child) => child.id)).toEqual([a.id, b.id, c.id]);
+	expect(sizesOf(closed)).toEqual(shares(0.5, 0.25, 0.25));
+});
+
+test('the pane focused after closing one is the one before it, or after it for the first', () => {
+	const [a, b, c] = [createPane(), createPane(), createPane()];
+	const thirds = splitPane(splitPane(a, a.id, 'row', b), b.id, 'row', c);
+
+	expect(findSibling(thirds, a.id)).toEqual(b);
+	expect(findSibling(thirds, c.id)).toEqual(b);
+	expect(findSibling(a, a.id)).toBeUndefined();
 });
 
 test('closing the only pane leaves an empty pane', () => {
@@ -77,57 +126,70 @@ test('closing the only pane leaves an empty pane', () => {
 });
 
 test('setting and clearing a nested pane widget', () => {
-	const first = createPane();
-	const split = expectSplit(splitPane(first, first.id, 'column'));
-	const { second } = split;
+	const [top, bottom] = [createPane(), createPane()];
+	const split = splitPane(top, top.id, 'column', bottom);
 
-	const withWidget = setPaneWidget(split, second.id, graph);
-	expect(withWidget).toMatchObject({ first, second: { id: second.id, widget: graph } });
+	const withWidget = setPaneWidget(split, bottom.id, graph);
+	expect(withWidget).toMatchObject({ children: [top, { id: bottom.id, widget: graph }] });
 
-	expect(setPaneWidget(withWidget, second.id, undefined)).toEqual(split);
+	expect(setPaneWidget(withWidget, bottom.id, undefined)).toEqual(split);
 });
 
-test('resizing clamps the ratio', () => {
-	const pane = createPane();
-	const split = splitPane(pane, pane.id, 'row');
+test('resizing keeps the sizes of the panes that changed, and the rest share what is left', () => {
+	const [a, b, c] = [createPane(), createPane(), createPane()];
+	const thirds = expectSplit(splitPane(splitPane(a, a.id, 'row', b), b.id, 'row', c));
 
-	expect(resizeSplit(split, split.id, 0.3)).toMatchObject({ ratio: 0.3 });
-	expect(resizeSplit(split, split.id, 2)).toMatchObject({ ratio: 0.9 });
-	expect(resizeSplit(split, split.id, -1)).toMatchObject({ ratio: 0.1 });
+	const resized = expectSplit(resizeSplit(thirds, thirds.id, [0.5, 1 / 6, 1 / 3]));
+	expect(resized.children.map((child) => child.size)).toEqual([0.5, 1 / 6, undefined]);
+
+	// Closing the unsized pane gives its space to the others in proportion
+	expect(sizesOf(closePane(resized, c.id))).toEqual(shares(0.75, 0.25));
 });
 
-test('parsing round-trips valid layouts and rejects invalid ones', () => {
+test('resizing close to an even split snaps back to it', () => {
+	const [a, b] = [createPane(), createPane()];
+	const halves = expectSplit(splitPane(a, a.id, 'row', b));
+
+	expect(expectSplit(resizeSplit(halves, halves.id, [0.51, 0.49], 0.02)).children).toEqual([a, b]);
+	expect(expectSplit(resizeSplit(halves, halves.id, [0.6, 0.4], 0.02)).children.map((child) => child.size)).toEqual([
+		0.6, 0.4,
+	]);
+});
+
+test('resetting a divider lets the panes beside it share their space evenly', () => {
+	const [a, b, c] = [createPane(), createPane(), createPane()];
+	const thirds = expectSplit(splitPane(splitPane(a, a.id, 'row', b), b.id, 'row', c));
+	const resized = resizeSplit(thirds, thirds.id, [0.5, 0.25, 0.25]);
+
+	expect(sizesOf(resetDivider(resized, thirds.id, 1))).toEqual(shares(0.5, 0.25, 0.25));
+	expect(sizesOf(resetDivider(resized, thirds.id, 0))).toEqual(shares(0.375, 0.375, 0.25));
+});
+
+test('parsing round-trips valid layouts and fixes or rejects invalid ones', () => {
 	const pane = { ...createPane(), widget: graph };
-	const layout: PaneNode = splitPane(pane, pane.id, 'column');
+	const layout = splitPane(pane, pane.id, 'column');
 
-	// Stored like localStorage does
-	const stored = JSON.stringify(layout);
-	expect(parse(JSON.parse(stored))).toEqual(layout);
+	expect(parse(structuredClone(layout))).toEqual(layout);
 	expect(parse(undefined)).toBeUndefined();
-	expect(parse({ kind: 'split', id: 'a', direction: 'row', ratio: 0.5, first: pane })).toBeUndefined();
+	expect(parse({ kind: 'split', id: 'a', direction: 'row', children: [] })).toBeUndefined();
+	expect(parse({ kind: 'split', id: 'a', direction: 'row', children: [pane] })).toEqual(pane);
 	expect(parse({ kind: 'pane', id: 'a', widget: { config: {} } })).toEqual({ kind: 'pane', id: 'a' });
-	expect(parse({ kind: 'split', id: 'a', direction: 'row', ratio: 2, first: pane, second: pane })).toMatchObject({
-		ratio: 0.9,
-	});
+	expect(parse({ kind: 'pane', id: 'a', size: 2 })).toEqual({ kind: 'pane', id: 'a' });
 });
 
-test('splitting stops at panes a quarter of the dashboard wide or tall', () => {
-	const left = createPane();
-	const right = createPane();
-	const quarter = createPane();
-	const layout = splitPane(splitPane(left, left.id, 'row', right), right.id, 'row', quarter);
+test('splitting stops at 4 panes in a row or column', () => {
+	const [a, b, c, d] = [createPane(), createPane(), createPane(), createPane()];
+	const thirds = splitPane(splitPane(a, a.id, 'row', b), b.id, 'row', c);
+	const quarters = splitPane(thirds, c.id, 'row', d);
 
-	expect(canSplitPane(layout, right.id, 'row')).toBe(false);
-	expect(canSplitPane(layout, quarter.id, 'row')).toBe(false);
-	// Splitting the half makes 4 equal columns
-	expect(canSplitPane(layout, left.id, 'row')).toBe(true);
-	expect(canSplitPane(layout, quarter.id, 'column')).toBe(true);
+	expect(canSplitPane(thirds, c.id, 'row')).toBe(true);
+	expect(canSplitPane(quarters, a.id, 'row')).toBe(false);
+	expect(canSplitPane(quarters, a.id, 'column')).toBe(true);
+	expect(canSplitPane(quarters, 'missing', 'column')).toBe(false);
 });
 
 test('panes along a direction count nested splits across the whole layout', () => {
-	const left = createPane();
-	const right = createPane();
-	const bottom = createPane();
+	const [left, right, bottom] = [createPane(), createPane(), createPane()];
 	// Left half, right half split into a top pane and a bottom pane split into two columns
 	const layout = splitPane(
 		splitPane(splitPane(left, left.id, 'row', right), right.id, 'column', bottom),
@@ -139,35 +201,25 @@ test('panes along a direction count nested splits across the whole layout', () =
 	expect(panesAlong(layout, 'column')).toBe(2);
 });
 
-test('layouts can be joined side by side unless either would end up with panes narrower than a quarter', () => {
-	const single = createPane();
-	const left = createPane();
+test('joined layouts each take an equal share of the width, unless panes would end up narrower than a quarter', () => {
+	const [single, left, top] = [createPane(), createPane(), createPane()];
 	const columns = splitPane(left, left.id, 'row');
-	const quarters = splitPane(columns, left.id, 'row');
-	const top = createPane();
-	const rows = splitPane(splitPane(top, top.id, 'column'), top.id, 'column');
+	const quarters = splitPane(splitPane(columns, left.id, 'row'), left.id, 'row');
+	const rows = splitPane(top, top.id, 'column');
 
 	expect(canJoinLayouts([single, columns])).toBe(true);
 	expect(canJoinLayouts([single, quarters])).toBe(false);
-	expect(canJoinLayouts([quarters, single])).toBe(false);
 	// Stacked panes don't make the joined panes narrower
 	expect(canJoinLayouts([rows, single])).toBe(true);
-	expect(joinLayouts([columns, single])).toMatchObject({
-		direction: 'row',
-		ratio: 0.5,
-		first: columns,
-		second: single,
-	});
 	expect(canJoinLayouts([single, createPane(), createPane(), createPane()])).toBe(true);
 	expect(canJoinLayouts([single, createPane(), createPane(), createPane(), createPane()])).toBe(false);
+
+	expect(joinLayouts([rows, single])).toMatchObject({ direction: 'row', children: [rows, single] });
+	// The columns' panes are moved up into the joined row, keeping half of the width between them
+	expect(sizesOf(joinLayouts([columns, single]))).toEqual(shares(0.25, 0.25, 0.5));
 });
 
-test('several joined layouts each take an equal share of the width', () => {
-	const [a, b, c] = [createPane(), createPane(), createPane()];
-	expect(joinLayouts([a, b, c])).toMatchObject({ ratio: 2 / 3, first: { ratio: 0.5, first: a, second: b }, second: c });
-});
-
-test('moving a pane puts it on that side of the target and its sibling takes its old space', () => {
+test('moving a pane puts it on that side of the target and the panes around its old place take its space', () => {
 	const [a, b, c] = [createPane(), createPane(), createPane()];
 	// a | (b / c)
 	const layout = splitPane(splitPane(a, a.id, 'row', b), b.id, 'column', c);
@@ -175,23 +227,24 @@ test('moving a pane puts it on that side of the target and its sibling takes its
 	// (c / a) | b
 	expect(movePane(layout, c.id, a.id, 'top')).toMatchObject({
 		direction: 'row',
-		first: { direction: 'column', first: c, second: a },
-		second: b,
+		children: [{ direction: 'column', children: [c, a] }, b],
 	});
+	// c | a | b
+	expect(movePane(layout, c.id, a.id, 'left')).toMatchObject({ direction: 'row', children: [c, a, b] });
 });
 
 test("panes can't be moved onto themselves, out of a single pane layout, or where they'd be too narrow", () => {
-	const [a, b, c, d] = [createPane(), createPane(), createPane(), createPane()];
+	const [a, b, c, d, e] = [createPane(), createPane(), createPane(), createPane(), createPane()];
 	const halves = splitPane(a, a.id, 'row', b);
-	// a | c | b | d
-	const quarters = splitPane(splitPane(halves, a.id, 'row', c), b.id, 'row', d);
+	// a | b | c | d, then e below d
+	const quarters = splitPane(splitPane(splitPane(halves, b.id, 'row', c), c.id, 'row', d), d.id, 'column', e);
 
 	expect(canMovePane(halves, a.id, a.id, 'left')).toBe(false);
 	expect(canMovePane(a, a.id, a.id, 'left')).toBe(false);
 	expect(canMovePane(halves, a.id, b.id, 'right')).toBe(true);
-	// Taking d out leaves room beside b, but a's half is still full
-	expect(canMovePane(quarters, d.id, b.id, 'left')).toBe(true);
-	expect(canMovePane(quarters, d.id, a.id, 'left')).toBe(false);
-	expect(canMovePane(quarters, d.id, a.id, 'top')).toBe(true);
-	expect(movePane(quarters, d.id, a.id, 'left')).toBe(quarters);
+	expect(canMovePane(quarters, e.id, a.id, 'left')).toBe(false);
+	expect(canMovePane(quarters, e.id, a.id, 'top')).toBe(true);
+	// Taking c out of the row leaves room for it below e
+	expect(canMovePane(quarters, c.id, e.id, 'bottom')).toBe(true);
+	expect(movePane(quarters, e.id, a.id, 'left')).toBe(quarters);
 });

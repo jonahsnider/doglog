@@ -1,4 +1,5 @@
 import type { PaneNode } from '@/panes/layout';
+import { childSizes } from '@/panes/split-sizes';
 import { cn } from '@/lib/utils';
 import { getWidgetType } from '@/widgets/registry';
 
@@ -21,15 +22,15 @@ function PreviewNode({ node }: { node: PaneNode }) {
 		);
 	}
 
+	const sizes = childSizes(node);
 	return (
 		<div className={cn('flex size-full gap-1', node.direction === 'column' && 'flex-col')}>
-			{/* Basis 0 so each side's share of the space matches the split's ratio */}
-			<div className="flex min-h-0 min-w-0" style={{ flex: `${node.ratio} 1 0` }}>
-				<PreviewNode node={node.first} />
-			</div>
-			<div className="flex min-h-0 min-w-0" style={{ flex: `${1 - node.ratio} 1 0` }}>
-				<PreviewNode node={node.second} />
-			</div>
+			{node.children.map((child, index) => (
+				// Basis 0 so each child's share of the space matches its size
+				<div key={child.id} className="flex min-h-0 min-w-0" style={{ flex: `${sizes[index]} 1 0` }}>
+					<PreviewNode node={child} />
+				</div>
+			))}
 		</div>
 	);
 }

@@ -11,7 +11,7 @@ export type DashboardContents = {
 };
 
 /**
- * Layouts are stored as a tree whose nodes hold a pane or split's fields, besides a split's `first` and `second` children.
+ * Layouts are stored as a tree whose nodes hold a pane or split's fields, besides a split's `children`.
  * Panes keep their tree node when a split moves them, so edits made to a pane while another peer splits it aren't lost.
  * A pane's widget is a map whose `bindings` are a list of maps, so bindings edited by several peers at once are all kept.
  */
@@ -43,40 +43,41 @@ function readData(node: LoroTreeNode): Record<string, unknown> {
 	return data;
 }
 
-/** Puts nodes side by side as one node, nesting the extra ones in splits like `split`, with IDs every peer agrees on */
-function nest(nodes: readonly Record<string, unknown>[], split: Record<string, unknown>): Record<string, unknown> {
-	const [first, ...rest] = nodes;
-	if (!first || rest.length === 0) {
-		return first ?? {};
+/**
+ * Splits saved before they could hold more than two children kept the first child's share as `ratio`. An even split
+ * becomes children sharing the space evenly, and any other ratio becomes their sizes.
+ */
+function migrateRatio(data: Record<string, unknown>, children: Record<string, unknown>[]): Record<string, unknown>[] {
+	const { ratio } = data;
+	const [first, second] = children;
+	if (typeof ratio !== 'number' || !first || !second || children.length !== 2 || ratio === 0.5) {
+		return children;
 	}
-
-	const id = `${String(split['id'])}+`;
-	return { ...split, id, ratio: 0.5, first, second: nest(rest, { ...split, id }) };
+	return [
+		{ ...first, size: ratio },
+		{ ...second, size: 1 - ratio },
+	];
 }
 
 /**
- * Peers editing at once can leave splits without exactly two children, ex. when two peers split the same pane.
- * Every peer reads them the same way: a split with one child is replaced by it, extra children are nested in splits, and
- * empty splits are left out.
+ * Peers editing at once can leave splits with one child or none, ex. when two peers close panes in the same split.
+ * Every peer reads them the same way: `paneNodeSchema` replaces a split with one child by it, and empty splits are left out.
  */
 function readNode(node: LoroTreeNode): Record<string, unknown> | undefined {
-	const data = readData(node);
+	const stored = readData(node);
+	const { ratio: _, ...data } = stored;
 	if (data['kind'] !== 'split') {
 		return data;
 	}
 
 	const children = (node.children() ?? []).flatMap<Record<string, unknown>>((child) => readNode(child) ?? []);
-	const [first, ...rest] = children;
-	if (!first) {
-		return undefined;
-	}
-	return rest.length === 0 ? first : { ...data, first, second: nest(rest, data) };
+	return children.length === 0 ? undefined : { ...data, children: migrateRatio(stored, children) };
 }
 
 /** An empty document has an empty layout with a new pane ID each time, so `writeDashboardDoc()` a layout to new documents */
 export function readDashboardDoc(doc: LoroDoc): DashboardContents {
 	const name = getInfo(doc).get('name');
-	// Peers that replaced the root at once leave several roots
+	// Peers that replaced the root at once leave several roots, which are put side by side
 	const roots = getLayoutTree(doc)
 		.roots()
 		.flatMap<Record<string, unknown>>((root) => readNode(root) ?? []);
@@ -84,7 +85,7 @@ export function readDashboardDoc(doc: LoroDoc): DashboardContents {
 	return {
 		name: typeof name === 'string' ? name : undefined,
 		layout: layoutSchema.parse(
-			first && nest(roots, { kind: 'split', id: `${String(first['id'])}:root`, direction: 'row' }),
+			first && { kind: 'split', id: `${String(first['id'])}:root`, direction: 'row', children: roots },
 		),
 	};
 }
@@ -137,10 +138,9 @@ function writeNode(
 		setEntries(treeNode.data, pane, 'widget');
 		writeWidget(treeNode.data, widget);
 	} else {
-		const { first, second, ...split } = node;
+		const { children, ...split } = node;
 		setEntries(treeNode.data, split);
-		writeNode(tree, existing, written, first, treeNode, 0);
-		writeNode(tree, existing, written, second, treeNode, 1);
+		children.forEach((child, childIndex) => writeNode(tree, existing, written, child, treeNode, childIndex));
 	}
 }
 

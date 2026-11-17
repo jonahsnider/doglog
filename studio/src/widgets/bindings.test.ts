@@ -25,7 +25,7 @@ const names = (layout: PaneNode, paneId: string) =>
 function twoPanes(first: Binding[], second: Binding[]) {
 	const left = { ...createPane(), widget: table(...first) };
 	const right = { ...createPane(), widget: table(...second) };
-	const layout: PaneNode = { kind: 'split', id: 'split', direction: 'row', ratio: 0.5, first: left, second: right };
+	const layout: PaneNode = { kind: 'split', id: 'split', direction: 'row', children: [left, right] };
 	return { layout, left: left.id, right: right.id };
 }
 
@@ -69,11 +69,13 @@ test('an entry the widget already shows can be dropped again', () => {
 });
 
 test('entries dropped on an empty pane stay where they are', () => {
-	const { layout, left } = twoPanes([a], []);
-	const empty: PaneNode = { ...layout, second: createPane() };
-	const emptyId = (empty as { second: { id: string } }).second.id;
+	const leftPane = { ...createPane(), widget: table(a) };
+	const emptyPane = createPane();
+	const empty: PaneNode = { kind: 'split', id: 'split', direction: 'row', children: [leftPane, emptyPane] };
 
-	expect(dropEntry(empty, { name: '/a', from: { paneId: left, bindingId: 'a' } }, { paneId: emptyId })).toBe(empty);
+	expect(
+		dropEntry(empty, { name: '/a', from: { paneId: leftPane.id, bindingId: 'a' } }, { paneId: emptyPane.id }),
+	).toBe(empty);
 });
 
 test('adding entries skips ones the widget already shows', () => {

@@ -53,6 +53,6 @@ test('picks the widget type in the biggest pane, the first one on ties', () => {
 	const console = { type: 'console', config: {} };
 	const layout = layoutOf(console, table());
 	expect(mainWidgetType(layout)?.id).toBe('console');
-	expect(mainWidgetType(resizeSplit(layout, layout.id, 0.3))?.id).toBe('values-table');
+	expect(mainWidgetType(resizeSplit(layout, layout.id, [0.3, 0.7]))?.id).toBe('values-table');
 	expect(mainWidgetType(createPane())).toBeUndefined();
 });
