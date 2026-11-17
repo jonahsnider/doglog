@@ -2,6 +2,7 @@ import { invoke, isTauri } from '@tauri-apps/api/core';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldLabel } from '@/components/ui/field';
+import { FramePanel } from '@/components/ui/frame';
 import { toastManager } from '@/components/ui/toast';
 
 /** Other platforms install the `doglog` command with the app */
@@ -31,7 +32,7 @@ async function installCli(): Promise<boolean> {
 	return true;
 }
 
-/** Settings field to install the `doglog` command */
+/** Settings panel to install the `doglog` command */
 export function CliField() {
 	return canInstallCli ? <CliInstall /> : null;
 }
@@ -48,20 +49,22 @@ function CliInstall() {
 	}
 
 	return (
-		<Field name="cli">
-			<FieldLabel>Terminal command</FieldLabel>
-			<div>
-				<Button
-					variant="outline"
-					size="sm"
-					onClick={() => void installCli().then((installed) => installed && setStatus('installed'))}
-				>
-					{status === 'missing' ? 'Install' : 'Reinstall'} doglog command
-				</Button>
-			</div>
-			<FieldDescription>
-				{cliStatusDescriptions[status]} <code className="font-mono">doglog match.wpilog</code>
-			</FieldDescription>
-		</Field>
+		<FramePanel>
+			<Field name="cli">
+				<FieldLabel>Terminal command</FieldLabel>
+				<div>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => void installCli().then((installed) => installed && setStatus('installed'))}
+					>
+						{status === 'missing' ? 'Install' : 'Reinstall'} doglog command
+					</Button>
+				</div>
+				<FieldDescription>
+					{cliStatusDescriptions[status]} <code className="font-mono">doglog match.wpilog</code>
+				</FieldDescription>
+			</Field>
+		</FramePanel>
 	);
 }

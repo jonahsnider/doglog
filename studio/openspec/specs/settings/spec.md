@@ -6,6 +6,15 @@ Define the Settings page, where users choose the color theme and contrast, their
 
 ## Requirements
 
+### Requirement: Settings sections
+
+Settings SHALL group related settings under titled sections, in this order: Appearance (theme, theme color, and contrast), Robot (robot connection), Sharing (name), and System (media controls and the terminal command).
+
+#### Scenario: Find the theme
+
+- **WHEN** the user opens Settings
+- **THEN** the theme, theme color, and contrast settings are under Appearance
+
 ### Requirement: Theme setting
 
 Settings SHALL let users choose a light, dark, or system color theme, and each option MUST show a preview of Studio in that theme.
