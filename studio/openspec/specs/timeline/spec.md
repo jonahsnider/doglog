@@ -32,9 +32,94 @@ When a dashboard is open and a source is active, a timeline bar SHALL be shown a
 - **THEN** the cursor moves as far as dragging the same distance would
 - **AND** the browser doesn't navigate back or forward
 
+### Requirement: Snap to sections
+
+Clicking or dragging along the timeline bar SHALL snap the cursor to the start of a section of the robot's mode when the pointer is within 6 pixels of it, and the hover line and tooltip MUST show the snapped time.
+
+#### Scenario: Click near the start of auto
+
+- **GIVEN** auto starts at 2:16.94
+- **WHEN** the user clicks the track 4 pixels after the start of auto
+- **THEN** the cursor moves to 2:16.94
+
+### Requirement: Robot mode on the timeline
+
+When the source has Driver Station data (`DS:` entries in a log, or `/FMSInfo/FMSControlData` from NetworkTables), the timeline bar's track SHALL be colored by the robot's mode: autonomous, teleop, test, and e-stopped, leaving disabled periods uncolored.
+
+#### Scenario: Teleop
+
+- **GIVEN** a match log where teleop ran from 2:34.94 to 4:49.84
+- **THEN** that part of the track is colored as teleop
+
+### Requirement: Alerts on the timeline
+
+The timeline bar SHALL show when WPILib error and warning alerts were active, from entries in groups with a `.type` of `Alerts`, as bars above the track from when each alert became active until it cleared. Info alerts MUST NOT be shown. An alert that clears and becomes active again within 5 seconds MUST be shown as staying active, so flapping alerts don't clutter the timeline. Alerts too short to see SHALL still be drawn as a dot.
+
+#### Scenario: Alert span
+
+- **GIVEN** the error alert `Arm not homed` was active from 0:12.00 to 0:30.00
+- **THEN** a bar above the track spans 0:12.00 to 0:30.00
+
+#### Scenario: Flapping alert
+
+- **GIVEN** a warning alert that turns on and off every second for a minute
+- **THEN** it's shown as one bar spanning that minute
+
+### Requirement: Timeline tooltip
+
+Hovering the timeline bar's track SHALL show a tooltip of what was happening at that time, stacked vertically: the robot's mode, then each alert active there, and a thin vertical line MUST mark the hovered time on the track. Each item MUST show its name with its length on the right, and when it started and ended below. For items at least 2 seconds long, the right side MUST also show how far into the item the hovered time is.
+
+#### Scenario: Hover during teleop with an alert
+
+- **GIVEN** teleop ran from 2:34.94 to 4:49.84 and the warning `Battery voltage low` was active from 2:16.92 to 5:01.54
+- **WHEN** the user hovers the track at 3:37.70
+- **THEN** the tooltip shows "Teleop" with "1:02.76 / 2:14.90" on the right, above "2:34.94 – 4:49.84"
+- **AND** below that, "Battery voltage low" with "1:20.78 / 2:44.62" on the right, above "2:16.92 – 5:01.54"
+
+#### Scenario: Nothing known
+
+- **GIVEN** a log's Driver Station data starts 4 seconds in, and no alerts are active before then
+- **WHEN** the user moves the pointer from teleop to 0:02.00
+- **THEN** the tooltip fades out still showing what it last showed, not an empty box
+
+#### Scenario: Short alert
+
+- **GIVEN** an alert was active for 0.30 seconds
+- **WHEN** the user hovers it
+- **THEN** its right side only shows "0:00.30"
+
+### Requirement: Live timeline length
+
+For live sources, the timeline bar SHALL span at least one FRC match (2 min 40 s), so it doesn't rescale with every new sample right after connecting. The part of the track past the newest data MUST look distinct from the part with data.
+
+#### Scenario: New live connection
+
+- **GIVEN** a live connection started 10 seconds ago
+- **THEN** the data fills about the first 6% of the track
+
+### Requirement: Timeline bar controls
+
+The timeline bar SHALL have buttons for play/pause and playback speed at its start and a timeline options menu at its end, leaving the other playback controls to keyboard shortcuts so the track has room. Keyboard shortcuts MUST NOT act while the speed list or options menu is open.
+
+#### Scenario: Step from the keyboard
+
+- **WHEN** the user wants to step forward
+- **THEN** they press period, there's no step button
+
+### Requirement: Timeline options
+
+The timeline options menu SHALL let the user hide or show alerts on the timeline, and MUST remember the choice. Alerts are shown by default.
+
+#### Scenario: Hide alerts
+
+- **WHEN** the user turns off Show alerts in the timeline options
+- **THEN** alerts disappear from the track and its tooltip
+- **AND** the track moves to the vertical center of the timeline bar
+- **AND** they stay hidden after Studio restarts
+
 ### Requirement: Log playback controls
 
-For log sources, Studio SHALL provide play/pause, a playback speed multiplier, step forward and back, skip forward and back, and jump to start and end, each with a keyboard shortcut. The shortcuts SHALL match YouTube's: Space or K plays and pauses, comma and period step back and forward, the left and right arrow keys skip 5 seconds, and J and L skip 10 seconds. Skipping MUST NOT change playback.
+For log sources, Studio SHALL provide play/pause, a playback speed multiplier, step forward and back, skip forward and back, and jump to start and end, each with a keyboard shortcut. The shortcuts SHALL match YouTube's: Space or K plays and pauses, comma and period step back and forward, the left and right arrow keys skip 5 seconds, and J and L skip 10 seconds. Shift with the left and right arrow keys goes to the previous and next section. Skipping MUST NOT change playback.
 
 #### Scenario: Play and pause
 
@@ -58,14 +143,37 @@ For log sources, Studio SHALL provide play/pause, a playback speed multiplier, s
 - **WHEN** the user presses Home or End
 - **THEN** the cursor moves to the start or end of the log
 
+#### Scenario: Speed keys
+
+- **WHEN** the user presses ] or YouTube's >
+- **THEN** playback speed goes up one step
+- **AND** only ] is shown as the shortcut in the UI
+
 #### Scenario: Speed
 
 - **WHEN** the user sets playback speed to 2x and plays
 - **THEN** the cursor advances at twice real time
 
+### Requirement: Skip sections
+
+Shift+Left and Shift+Right, and the previous and next track media keys, SHALL go to the previous and next section of the robot's mode (ex. the start of auto). Going back more than 1 second into a section MUST go to its start first, like a music player. Without robot mode data, they SHALL skip 5 seconds.
+
+#### Scenario: Next section
+
+- **GIVEN** auto starts at 2:16.94 and the cursor is at 1:00.00 while the robot is disabled
+- **WHEN** the user presses Shift+Right
+- **THEN** the cursor moves to 2:16.94
+
+#### Scenario: Previous section
+
+- **GIVEN** teleop started at 2:34.94, after auto from 2:16.94
+- **WHEN** the user presses Shift+Left with the cursor at 3:00.00
+- **THEN** the cursor moves to 2:34.94
+- **AND** pressing Shift+Left again moves it to the start of the section before teleop
+
 ### Requirement: Media controls
 
-While the media controls setting is on and a log is open, media keys and the operating system's media controls SHALL control playback: play and pause toggle playback, previous and next track or skip back and forward move the cursor 5 seconds back or forward, and seeking moves the cursor. The OS's media controls MUST show the log's file name and the cursor's position in the log. Media controls MUST NOT control live sources.
+While the media controls setting is on and a log is open, media keys and the operating system's media controls SHALL control playback: play and pause toggle playback, previous and next track go to the previous and next section, skip back and forward move the cursor 5 seconds back or forward, and seeking moves the cursor. The OS's media controls MUST show the log's file name and the cursor's position in the log. Media controls MUST NOT control live sources.
 
 #### Scenario: Media key
 
@@ -76,9 +184,15 @@ While the media controls setting is on and a log is open, media keys and the ope
 #### Scenario: Skip
 
 - **GIVEN** media controls are on and the cursor is at 42.0 s in a log
-- **WHEN** the user presses the next track media key
+- **WHEN** the user presses the skip forward button in the OS's media controls
 - **THEN** the cursor moves to 47.0 s
 - **AND** playback doesn't change
+
+#### Scenario: Next track
+
+- **GIVEN** media controls are on, auto starts at 2:16.94, and the cursor is at 1:00.00
+- **WHEN** the user presses the next track media key
+- **THEN** the cursor moves to 2:16.94
 
 #### Scenario: Setting off
 
@@ -136,16 +250,15 @@ Studio SHALL keep live history for the session until a memory limit is reached, 
 
 ### Requirement: Time display
 
-Timestamps SHALL be shown as time since the start of the source: the first record of a log, or the moment a live connection began. Times of a minute or more SHALL be shown in minutes and seconds.
+Timestamps SHALL be shown as time since the start of the source (the first record of a log, or the moment a live connection began) in minutes and seconds to the hundredth, like `m:ss.cc`.
 
 #### Scenario: Log time
 
 - **GIVEN** a log's first record has a robot timestamp of 3,000,000 µs
 - **WHEN** the cursor is at a record with timestamp 5,500,000 µs
-- **THEN** the time is shown as 2.50s
+- **THEN** the time is shown as 0:02.50
 
 #### Scenario: Time over a minute
 
 - **WHEN** the cursor is 65.5 seconds after the start of the source
-- **THEN** the time is shown as 1m 5.50s
-- **AND** the seconds are padded with blank space to the width of two digits so the time doesn't shift as it plays
+- **THEN** the time is shown as 1:05.50

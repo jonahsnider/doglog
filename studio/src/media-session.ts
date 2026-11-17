@@ -1,7 +1,7 @@
 import { getTimeRange, subscribeData } from '@/data/data-store';
 import { getSource } from '@/data/source';
 import { settingsStore } from '@/settings';
-import { getTimeline, seek, skip, subscribeTimeline, togglePlayback } from '@/timeline';
+import { getTimeline, seek, skip, skipSection, subscribeTimeline, togglePlayback } from '@/timeline';
 
 /** How far the OS's playback position can drift from the cursor before it's corrected (µs) */
 const maxDrift = 100_000;
@@ -67,9 +67,10 @@ export function syncMediaSession(): void {
 				}
 			},
 		],
-		// Media keys send previous and next track, some media controls show skip buttons instead
-		['previoustrack', () => skip(-5)],
-		['nexttrack', () => skip(5)],
+		// Media keys send previous and next track, like chapters in a podcast app
+		['previoustrack', () => skipSection(-1)],
+		['nexttrack', () => skipSection(1)],
+		// Some media controls show skip buttons instead
 		['seekbackward', () => skip(-5)],
 		['seekforward', () => skip(5)],
 		[

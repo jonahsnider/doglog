@@ -22,6 +22,8 @@ const settingsSchema = z
 		robotTarget: z.string().catch(''),
 		/** Whether media keys and the OS's media controls control log playback */
 		mediaControls: z.boolean().catch(false),
+		/** Whether the timeline bar shows when alerts were active */
+		timelineAlerts: z.boolean().catch(true),
 	})
 	.transform(({ themePreset, themeColor, ...settings }) => {
 		if (themePreset !== undefined) {

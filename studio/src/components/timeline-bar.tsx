@@ -1,24 +1,23 @@
-import { PauseIcon, PlayIcon, SkipBackIcon, SkipForwardIcon, StepBackIcon, StepForwardIcon } from 'lucide-react';
+import { PauseIcon, PlayIcon, SlidersHorizontalIcon } from 'lucide-react';
 import { type Hotkey, type UseHotkeyDefinition, useHotkeys } from '@tanstack/react-hotkeys';
-import { type PointerEvent, type ReactNode, useRef, useState } from 'react';
-import { useEventListener } from 'usehooks-ts';
+import { type ReactNode, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Menu, MenuCheckboxItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
 import { Progress, ProgressIndicator, ProgressLabel, ProgressTrack, ProgressValue } from '@/components/ui/progress';
 import { Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
+import { Scrubber } from '@/components/timeline-scrubber';
 import { TooltipLabel } from '@/components/tooltip-label';
-import { type TimeRange, useTimeRange } from '@/data/data-store';
+import { useTimeRange } from '@/data/data-store';
 import { useLogProgress, useSource } from '@/data/source';
 import { cn } from '@/lib/utils';
+import { updateSettings, useSettings } from '@/settings';
 import {
 	changeSpeed,
 	formatTime,
-	getCursorTime,
 	goLive,
-	jumpToEnd,
-	jumpToStart,
 	playbackSpeeds,
-	seek,
+	seekHotkeys,
 	setSpeed,
 	skip,
 	step,
@@ -28,16 +27,12 @@ import {
 
 const speedItems = playbackSpeeds.map((speed) => ({ value: speed, label: `${speed}x` }));
 
-const seekHotkeys: UseHotkeyDefinition[] = [
-	{ hotkey: 'ArrowLeft', callback: () => skip(-5) },
-	{ hotkey: 'ArrowRight', callback: () => skip(5) },
-	{ hotkey: 'Home', callback: jumpToStart },
-	{ hotkey: 'End', callback: jumpToEnd },
-];
-
+// YouTube's < and > (Shift+comma and Shift+period on US keyboards) also work, the brackets are shown in the UI
 const speedHotkeys: UseHotkeyDefinition[] = [
 	{ hotkey: '[', callback: () => changeSpeed(-1) },
 	{ hotkey: ']', callback: () => changeSpeed(1) },
+	{ hotkey: '<', callback: () => changeSpeed(-1) },
+	{ hotkey: '>', callback: () => changeSpeed(1) },
 ];
 
 const hotkeys: UseHotkeyDefinition[] = [
@@ -49,8 +44,7 @@ const hotkeys: UseHotkeyDefinition[] = [
 	{ hotkey: 'L', callback: () => skip(10) },
 	{ hotkey: ',', callback: () => step(-1) },
 	{ hotkey: '.', callback: () => step(1) },
-	{ hotkey: '[', callback: () => changeSpeed(-1) },
-	{ hotkey: ']', callback: () => changeSpeed(1) },
+	...speedHotkeys,
 ];
 
 function ControlButton({
@@ -76,90 +70,22 @@ function ControlButton({
 	);
 }
 
-/** Drag, click, or scroll horizontally to move the cursor */
-function Scrubber({ range, time }: { range: TimeRange; time: number }) {
-	// Non-null so it matches the React 18 `RefObject` that usehooks-ts' `useEventListener` expects
-	const slider = useRef<HTMLDivElement>(null!);
-	const track = useRef<HTMLDivElement>(null);
-	// Hotkeys skip the arrow, Home, and End keys a focused slider uses itself, so they're given to the slider directly
-	useHotkeys(seekHotkeys, { target: slider });
-	const duration = range.end - range.start;
-	const percent = duration > 0 ? ((time - range.start) / duration) * 100 : 100;
-
-	const seekToPointer = (event: PointerEvent) => {
-		const rect = track.current!.getBoundingClientRect();
-		const fraction = Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1);
-		seek(range.start + fraction * duration);
-	};
-
-	// Scrolling moves the cursor as far as dragging the same distance would.
-	// Not passive so it can stop the browser from treating a horizontal swipe as back or forward.
-	useEventListener(
-		'wheel',
-		(event) => {
-			const cursor = getCursorTime();
-			if (event.deltaX === 0 || cursor === undefined) {
-				return;
-			}
-			event.preventDefault();
-			seek(cursor + (event.deltaX / track.current!.clientWidth) * duration);
-		},
-		slider,
-		{ passive: false },
-	);
-
-	return (
-		<div
-			ref={slider}
-			role="slider"
-			tabIndex={0}
-			aria-label="Time"
-			aria-valuemin={0}
-			aria-valuemax={duration / 1_000_000}
-			aria-valuenow={(time - range.start) / 1_000_000}
-			aria-valuetext={formatTime(time, range.start)}
-			className="group flex h-full min-w-0 flex-1 cursor-pointer touch-none items-center px-2 outline-none select-none"
-			onPointerDown={(event) => {
-				if (event.button === 0) {
-					// WebKit starts a text selection when dragging out of the slider despite `select-none`.
-					// Preventing that also prevents focusing, so the slider is focused manually.
-					event.preventDefault();
-					event.currentTarget.focus();
-					event.currentTarget.setPointerCapture(event.pointerId);
-					seekToPointer(event);
-				}
-			}}
-			onPointerMove={(event) => {
-				if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-					seekToPointer(event);
-				}
-			}}
-		>
-			<div ref={track} className="relative h-1 w-full rounded-full bg-input">
-				<div className="absolute inset-y-0 left-0 rounded-full bg-primary" style={{ width: `${percent}%` }} />
-				<div
-					className="absolute top-1/2 size-3.5 -translate-1/2 rounded-full border-2 border-primary bg-background group-focus-visible:ring-[3px] group-focus-visible:ring-ring/48"
-					style={{ left: `${percent}%` }}
-				/>
-			</div>
-		</div>
-	);
-}
-
 function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 	const range = useTimeRange();
 	const { time, playback, speed, live } = useTimeline();
+	const { timelineAlerts } = useSettings();
 	const [speedOpen, setSpeedOpen] = useState(false);
+	const [optionsOpen, setOptionsOpen] = useState(false);
 	const speedTrigger = useRef<HTMLButtonElement>(null);
 
 	// Skips keys used by a focused text field, button, or menu, and keys already handled, ex. by a pane divider.
-	// The speed list only uses the up and down arrows itself, so the shortcuts are off while it's open.
-	useHotkeys(hotkeys, { ignoreDefaultPrevented: true, enabled: !speedOpen });
+	// The speed list and options menu use keys like the arrows and Space themselves, so the shortcuts are off while they're open.
+	useHotkeys(hotkeys, { ignoreDefaultPrevented: true, enabled: !speedOpen && !optionsOpen });
 	// The focused speed button skips printable keys as typeahead, so its own shortcuts are given to it directly
 	useHotkeys(speedHotkeys, { target: speedTrigger, enabled: !speedOpen });
 
 	return (
-		<footer aria-label="Timeline" className="flex h-12 shrink-0 border-t">
+		<footer aria-label="Timeline" className="flex h-14 shrink-0 border-t">
 			{/* Fades the contents so the border stays put */}
 			<div
 				className={cn(
@@ -167,36 +93,9 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 					fadeIn && 'transition-opacity duration-300 starting:opacity-0',
 				)}
 			>
-				<ControlButton label="Jump to start" shortcut="Home" onClick={jumpToStart}>
-					<SkipBackIcon />
-				</ControlButton>
-				<ControlButton label="Step back" shortcut="," onClick={() => step(-1)}>
-					<StepBackIcon />
-				</ControlButton>
 				<ControlButton label={playback === 'paused' ? 'Play' : 'Pause'} shortcut="Space" onClick={togglePlayback}>
 					{playback === 'paused' ? <PlayIcon /> : <PauseIcon />}
 				</ControlButton>
-				<ControlButton label="Step forward" shortcut="." onClick={() => step(1)}>
-					<StepForwardIcon />
-				</ControlButton>
-				{!live && (
-					<ControlButton label="Jump to end" shortcut="End" onClick={jumpToEnd}>
-						<SkipForwardIcon />
-					</ControlButton>
-				)}
-
-				<span className="ms-1 min-w-20 text-right font-mono text-sm tabular-nums">
-					{range && time !== undefined ? formatTime(time, range.start) : '-'}
-				</span>
-				{range && time !== undefined ? (
-					<Scrubber range={range} time={time} />
-				) : (
-					<div className="mx-2 h-1 flex-1 rounded-full bg-input" />
-				)}
-				<span className="min-w-20 font-mono text-sm text-muted-foreground tabular-nums">
-					{range ? formatTime(range.end, range.start) : '-'}
-				</span>
-
 				<Select
 					items={speedItems}
 					value={speed}
@@ -228,6 +127,18 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 					</SelectPopup>
 				</Select>
 
+				<span className="ms-1 min-w-20 text-right font-mono text-sm tabular-nums">
+					{range && time !== undefined ? formatTime(time, range.start) : '-'}
+				</span>
+				{range && time !== undefined ? (
+					<Scrubber range={range} time={time} live={live} showAlerts={timelineAlerts} />
+				) : (
+					<div className="mx-2 h-1 flex-1 rounded-full bg-input" />
+				)}
+				<span className="min-w-20 font-mono text-sm text-muted-foreground tabular-nums">
+					{range ? formatTime(range.end, range.start) : '-'}
+				</span>
+
 				{live && (
 					<Button
 						variant={playback === 'following' ? 'ghost' : 'outline'}
@@ -241,6 +152,25 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 						{playback === 'following' ? 'Live' : 'Go live'}
 					</Button>
 				)}
+
+				<Menu onOpenChange={setOptionsOpen}>
+					<Tooltip>
+						<TooltipTrigger
+							render={<MenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Timeline options" />} />}
+						>
+							<SlidersHorizontalIcon />
+						</TooltipTrigger>
+						<TooltipPopup>Timeline options</TooltipPopup>
+					</Tooltip>
+					<MenuPopup align="end">
+						<MenuCheckboxItem
+							checked={timelineAlerts}
+							onCheckedChange={(checked) => updateSettings({ timelineAlerts: checked })}
+						>
+							Show alerts
+						</MenuCheckboxItem>
+					</MenuPopup>
+				</Menu>
 			</div>
 		</footer>
 	);
@@ -250,7 +180,7 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 function LogProgress({ fileName }: { fileName: string }) {
 	const progress = useLogProgress();
 	return (
-		<footer aria-label="Timeline" className="flex h-12 shrink-0 items-center border-t px-4">
+		<footer aria-label="Timeline" className="flex h-14 shrink-0 items-center border-t px-4">
 			{/* Fades in after a moment so small logs that load instantly don't flash it */}
 			<Progress
 				value={progress * 100}

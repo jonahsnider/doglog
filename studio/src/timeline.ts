@@ -1,9 +1,11 @@
+import type { UseHotkeyDefinition } from '@tanstack/react-hotkeys';
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import * as z from 'zod';
 import { getTimeRange, subscribeData, type TimeRange } from '@/data/data-store';
 import type { Source } from '@/data/source';
 import { createPersistedAtom } from '@/lib/persisted-store';
+import { getModePeriods } from '@/timeline-events';
 
 /** `following` keeps the cursor on the newest data, it's only used by live sources */
 type Playback = 'paused' | 'playing' | 'following';
@@ -193,7 +195,30 @@ export function skip(seconds: number): void {
 	}
 }
 
-export function jumpToStart(): void {
+/** How far (µs) into a section the cursor has to be for going back to go to its start, instead of the section before */
+const sectionRestartTime = 1_000_000;
+
+/**
+ * Move the cursor to the start of the next or previous section of the robot's mode, ex. the start of teleop, without changing playback.
+ * Going back goes to the start of the current section first, like a music player. Skips 5 seconds without mode data.
+ */
+export function skipSection(direction: 1 | -1): void {
+	const { time } = store.get();
+	const range = getTimeRange();
+	if (time === undefined || range === undefined) {
+		return;
+	}
+	const starts = getModePeriods(range).map((period) => period.start);
+	if (starts.length === 0) {
+		skip(direction * 5);
+	} else if (direction === 1) {
+		seek(starts.find((start) => start > time) ?? range.end);
+	} else {
+		seek(starts.findLast((start) => start < time - sectionRestartTime) ?? range.start);
+	}
+}
+
+function jumpToStart(): void {
 	const range = getTimeRange();
 	if (range !== undefined) {
 		seek(range.start);
@@ -201,7 +226,7 @@ export function jumpToStart(): void {
 }
 
 /** Jump to the end of a log, or go live */
-export function jumpToEnd(): void {
+function jumpToEnd(): void {
 	const range = getTimeRange();
 	if (store.get().live) {
 		goLive();
@@ -222,12 +247,21 @@ export function changeSpeed(direction: 1 | -1): void {
 	}
 }
 
-/** Format a time (µs) as time since the start of the source, ex. `2.50s` or `1m 5.00s` */
+/** Format a time (µs) as minutes and seconds since the start of the source, ex. `0:02.50` or `1:05.00` */
 export function formatTime(time: number, start: number): string {
-	// Round to hundredths first so 59.999s becomes 1m 0.00s instead of 60.00s
+	// Round to hundredths first so 59.999 s becomes 1:00.00 instead of 0:60.00
 	const hundredths = Math.round((time - start) / 10_000);
 	const minutes = Math.floor(hundredths / 6000);
-	const seconds = ((hundredths % 6000) / 100).toFixed(2);
-	// Pad with a figure space (digit width) so the text doesn't shift when the seconds reach 10
-	return minutes > 0 ? `${minutes}m ${seconds.padStart(5, ' ')}s` : `${seconds}s`;
+	const seconds = ((hundredths % 6000) / 100).toFixed(2).padStart(5, '0');
+	return `${minutes}:${seconds}`;
 }
+
+/** Shortcuts that move the cursor, also given directly to the timeline slider since a focused slider skips them otherwise */
+export const seekHotkeys: UseHotkeyDefinition[] = [
+	{ hotkey: 'ArrowLeft', callback: () => skip(-5) },
+	{ hotkey: 'ArrowRight', callback: () => skip(5) },
+	{ hotkey: 'Shift+ArrowLeft', callback: () => skipSection(-1) },
+	{ hotkey: 'Shift+ArrowRight', callback: () => skipSection(1) },
+	{ hotkey: 'Home', callback: jumpToStart },
+	{ hotkey: 'End', callback: jumpToEnd },
+];
