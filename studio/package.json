@@ -4,6 +4,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
+		"bench": "vp test bench",
 		"build": "vp build",
 		"check": "vp check && tsc -b",
 		"check:dev": "pnpm check && react-doctor --no-telemetry --scope files --include-untracked",
@@ -62,6 +63,7 @@
 		"zod": "4.6.7"
 	},
 	"devDependencies": {
+		"@codspeed/vitest-plugin": "6.1.1",
 		"@fission-ai/openspec": "2.0.0",
 		"@tailwindcss/vite": "4.3.5",
 		"@tanstack/router-plugin": "1.169.0",

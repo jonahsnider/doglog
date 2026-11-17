@@ -42,7 +42,7 @@ export type TimeRange = {
  * Live history keeps at most this many samples across all entries, about 160 MB of numeric samples.
  * Past the limit the oldest samples are dropped, always keeping the latest value of every entry.
  */
-const maxLiveSamples = 10_000_000;
+export const maxLiveSamples = 10_000_000;
 
 // Entries and samples of the active source. Kept out of React state, React only sees snapshots published once per frame.
 let entries = new Map<string, Entry>();

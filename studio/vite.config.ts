@@ -1,3 +1,4 @@
+import codspeedPlugin from '@codspeed/vitest-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import { execFileSync } from 'node:child_process';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
@@ -206,6 +207,8 @@ export default defineConfig({
 		],
 	},
 	plugins: lazyPlugins(() => [
+		// Only active when CodSpeed runs the benchmarks in CI
+		codspeedPlugin(),
 		tanstackRouter({ target: 'react', autoCodeSplitting: true }),
 		react(),
 		tailwindcss(),
@@ -243,6 +246,11 @@ export default defineConfig({
 		tsconfigPaths: true,
 	},
 	test: {
+		benchmark: {
+			// Calls between modules in `src` go through the module runner's export getters, which makes benchmarks a bit
+			// slower than production builds, where they're direct calls. That keeps performance budgets conservative.
+			suppressExportGetterWarnings: true,
+		},
 		// Lets `theme-color.test.ts` import the default colors with `?raw`, Vitest replaces CSS with an empty string by default
 		css: { include: [/index\.css/u] },
 		server: {
