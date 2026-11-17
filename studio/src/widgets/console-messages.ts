@@ -4,8 +4,9 @@ import type { Samples } from '@/data/samples';
 export const messageLevels = ['info', 'warning', 'error'] as const;
 export type MessageLevel = (typeof messageLevels)[number];
 
-/** Console messages in time order, `times[i]` (µs) is the time of `texts[i]` and `levels[i]` is its level */
+/** Console messages in time order, `times[i]` (µs) is the time of `texts[i]`, `levels[i]` is its level, and `ids[i]` is its index in the merged messages */
 export type ConsoleMessages = {
+	readonly ids: Uint32Array;
 	readonly times: Float64Array;
 	readonly texts: readonly string[];
 	readonly levels: readonly MessageLevel[];
@@ -62,7 +63,7 @@ export function mergeMessages(sources: readonly Samples[]): ConsoleMessages {
 		next[best]!++;
 	}
 
-	return { times: Float64Array.from(times), texts, levels };
+	return { ids: Uint32Array.from(texts.keys()), times: Float64Array.from(times), texts, levels };
 }
 
 /** How to match a search query, like VS Code's find options */
@@ -84,6 +85,7 @@ export function filterMessages(
 	minimumLevel: MessageLevel,
 ): ConsoleMessages {
 	const minimumRank = messageLevels.indexOf(minimumLevel);
+	const ids: number[] = [];
 	const times: number[] = [];
 	const texts: string[] = [];
 	const levels: MessageLevel[] = [];
@@ -92,13 +94,14 @@ export function filterMessages(
 		const level = messages.levels[i]!;
 		// `search()` ignores `lastIndex`, unlike `test()` with a global pattern
 		if (messageLevels.indexOf(level) >= minimumRank && (pattern === undefined || text.search(pattern) !== -1)) {
+			ids.push(messages.ids[i]!);
 			times.push(messages.times[i]!);
 			texts.push(text);
 			levels.push(level);
 		}
 	}
 
-	return { times: Float64Array.from(times), texts, levels };
+	return { ids: Uint32Array.from(ids), times: Float64Array.from(times), texts, levels };
 }
 
 /** Where `pattern` matches `text` as `[start, end, start, end, ...]`, skipping empty matches */

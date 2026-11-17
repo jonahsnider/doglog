@@ -1,15 +1,13 @@
-import type { Hotkey } from '@tanstack/react-hotkeys';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { CaseSensitiveIcon, ChevronDownIcon, ChevronUpIcon, RegexIcon, SearchIcon, WholeWordIcon } from 'lucide-react';
-import { type ReactElement, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { HighlightedText } from '@/components/highlighted-text';
-import { TooltipLabel } from '@/components/tooltip-label';
+import { ControlTooltip } from '@/components/control-tooltip';
 import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
 import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control';
 import { Toggle } from '@/components/ui/toggle';
-import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useDataVersion, useTimeRange } from '@/data/data-store';
 import { formatTime, seek, stopFollowing, useCursorTime, useTimeline } from '@/timeline';
@@ -45,7 +43,7 @@ const searchToggles = [
 	{ option: 'regex', label: 'Use regular expression', icon: <RegexIcon /> },
 ] as const;
 
-const noMessages: ConsoleMessages = { times: new Float64Array(), texts: [], levels: [] };
+const noMessages: ConsoleMessages = { ids: new Uint32Array(), times: new Float64Array(), texts: [], levels: [] };
 
 export function Console({ bindings }: WidgetProps) {
 	useDataVersion();
@@ -87,12 +85,14 @@ export function Console({ bindings }: WidgetProps) {
 	const nextTime = time === undefined ? undefined : stepTime(messages, time, 1);
 
 	const scrollElement = useRef<HTMLDivElement>(null);
+	// Keyed by message so a message keeps its measured height when filtering changes which messages are shown
+	const getItemKey = useCallback((index: number) => messages.ids[index]!, [messages]);
 	const virtualizer = useVirtualizer({
 		count,
 		getScrollElement: () => scrollElement.current,
 		estimateSize: () => rowHeight,
+		getItemKey,
 		overscan: 10,
-		useFlushSync: false,
 		// Start at the bottom, where the list is scrolled to on mount (ex. when the pane is split), so the first frame isn't blank
 		initialRect: { width: 0, height: window.innerHeight },
 		initialOffset: () => Math.max(count * rowHeight - window.innerHeight, 0),
@@ -274,27 +274,5 @@ export function Console({ bindings }: WidgetProps) {
 				)}
 			</div>
 		</div>
-	);
-}
-
-/** A toolbar control with a tooltip naming it */
-function ControlTooltip({
-	label,
-	shortcut,
-	render,
-	children,
-}: {
-	label: string;
-	shortcut?: Hotkey;
-	render: ReactElement;
-	children: ReactElement;
-}) {
-	return (
-		<Tooltip>
-			<TooltipTrigger render={render}>{children}</TooltipTrigger>
-			<TooltipPopup>
-				<TooltipLabel label={label} shortcut={shortcut} />
-			</TooltipPopup>
-		</Tooltip>
 	);
 }

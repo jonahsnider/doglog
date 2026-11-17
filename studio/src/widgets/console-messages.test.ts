@@ -72,6 +72,7 @@ test('filterMessages ignores case by default', () => {
 
 	expect(filtered.texts).toEqual(['CAN bus error', 'can timeout']);
 	expect([...filtered.times]).toEqual([10, 30]);
+	expect([...filtered.ids]).toEqual([0, 2]);
 });
 
 test('filterMessages hides messages below the minimum level', () => {
