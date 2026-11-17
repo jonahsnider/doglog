@@ -21,6 +21,27 @@ async function checkForUpdate(): Promise<void> {
 	}
 }
 
+/** Check for a newer release when the user asks, telling them if there isn't one */
+export async function checkForUpdateManually(): Promise<void> {
+	if (updateStore.get()?.installing === true) {
+		return;
+	}
+
+	let update: Update | null;
+	try {
+		update = await check();
+	} catch (error) {
+		toastManager.add({ type: 'error', title: "Couldn't check for updates", description: String(error) });
+		return;
+	}
+
+	if (update) {
+		updateStore.set({ update, installing: false });
+	} else {
+		toastManager.add({ type: 'info', title: "You're on the latest version", description: `Studio ${STUDIO_VERSION}` });
+	}
+}
+
 // Development builds would always find a "newer" release
 if (isTauri() && !import.meta.env.DEV) {
 	void checkForUpdate();

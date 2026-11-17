@@ -23,6 +23,7 @@ import {
 } from '@/dashboards/dashboards';
 import { chooseLog, connect } from '@/data/source';
 import { createOpenRecentMenu } from '@/desktop/native-menu';
+import { checkForUpdateManually } from '@/desktop/updater';
 import { canSplitPane, type SplitDirection } from '@/panes/layout';
 import { getRobotHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
@@ -221,6 +222,7 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 				text: 'DogLog Studio',
 				items: [
 					{ item: { About: null } },
+					{ text: 'Check for Updates…', action: () => void checkForUpdateManually() },
 					separator,
 					{ text: 'Settings…', accelerator: 'CmdOrCtrl+,', action: () => openSettings(router) },
 					separator,
