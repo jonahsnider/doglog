@@ -1,9 +1,9 @@
 import { Outlet, createRootRoute } from '@tanstack/react-router';
-import { useGlobalShortcuts } from '@/commands';
-import { AppSidebar } from '@/components/app-sidebar';
-import { DashboardSplitZones } from '@/components/dashboard-drag';
+import { useGlobalShortcuts } from '@/commands/commands';
+import { AppSidebar } from '@/sidebar/app-sidebar';
+import { DashboardSplitZones } from '@/dashboards/dashboard-drag';
 import { DragProvider } from '@/components/drag-provider';
-import { KeyboardShortcutsDialog } from '@/components/keyboard-shortcuts-dialog';
+import { KeyboardShortcutsDialog } from '@/commands/keyboard-shortcuts-dialog';
 import { LogDropOverlay } from '@/components/log-drop-overlay';
 import { SidebarInset } from '@/components/ui/sidebar';
 import { ToastProvider } from '@/components/ui/toast';

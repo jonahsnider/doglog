@@ -1,15 +1,15 @@
 import { ChartNoAxesGanttIcon, MapIcon, MoveIcon, NotebookPenIcon, TableIcon, TerminalIcon } from 'lucide-react';
-import { createWidget } from '@/bindings';
+import { createWidget } from '@/widgets/bindings';
 import type { Entry } from '@/data/data-store';
-import type { Widget } from '@/pane-layout';
-import { Console } from '@/widgets/console';
-import { DiscreteTimeline } from '@/widgets/discrete-timeline';
-import { Field } from '@/widgets/field';
-import { fieldConnects, fieldRoles, inferFieldRole } from '@/widgets/field-roles';
-import { Notepad } from '@/widgets/notepad';
-import { Swerve } from '@/widgets/swerve';
-import { swerveRoles } from '@/widgets/swerve-data';
-import { ValuesTable } from '@/widgets/values-table';
+import type { Widget } from '@/panes/layout';
+import { Console } from '@/widgets/console/console';
+import { DiscreteTimeline } from '@/widgets/discrete-timeline/discrete-timeline';
+import { Field } from '@/widgets/field/field';
+import { fieldConnects, fieldRoles, inferFieldRole } from '@/widgets/field/roles';
+import { Notepad } from '@/widgets/notepad/notepad';
+import { Swerve } from '@/widgets/swerve/swerve';
+import { swerveRoles } from '@/widgets/swerve/data';
+import { ValuesTable } from '@/widgets/values-table/values-table';
 import { bindableKinds, type WidgetType } from '@/widgets/widget-type';
 
 /** Every widget type, in the order they're listed in the widget picker */

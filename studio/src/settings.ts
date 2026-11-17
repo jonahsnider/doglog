@@ -1,7 +1,7 @@
 import { useSelector } from '@tanstack/react-store';
 import * as z from 'zod';
 import { createPersistedAtom } from '@/lib/persisted-store';
-import { applyThemeColor, contrasts, defaultCustomColor, defaultThemeColor, themePresets } from '@/theme-color';
+import { applyThemeColor, contrasts, defaultCustomColor, defaultThemeColor, themePresets } from '@/theme/theme-color';
 
 export const themes = ['light', 'dark', 'system'] as const;
 export type Theme = (typeof themes)[number];

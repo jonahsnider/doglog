@@ -10,7 +10,7 @@ import type { LiveStatus } from '@/data/live-source';
 import { loadLog } from '@/data/log-source';
 import { addRecentLog, removeRecentLog } from '@/data/recent-logs';
 import { simulatorHost } from '@/robot-target';
-import { resetTimeline } from '@/timeline';
+import { resetTimeline } from '@/timeline/timeline';
 
 /** The active data source, shared by every dashboard and widget */
 export type Source =

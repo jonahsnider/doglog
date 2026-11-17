@@ -9,7 +9,7 @@ import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
-import { dragRegion } from '@/title-bar';
+import { dragRegion } from '@/desktop/title-bar';
 import { getRobotHost } from '@/robot-target';
 import { type Theme, themes, updateSettings, useSettings } from '@/settings';
 import {
@@ -20,7 +20,7 @@ import {
 	type ThemePreviewColors,
 	themePresets,
 	themePreviewColors,
-} from '@/theme-color';
+} from '@/theme/theme-color';
 
 export const Route = createFileRoute('/settings')({
 	component: Settings,

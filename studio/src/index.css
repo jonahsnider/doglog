@@ -163,7 +163,7 @@
 	color-scheme: light;
 	/* Team 581 Material Design 3 colors, generated with @material/material-color-utilities */
 	/* SchemeTonalSpot with the 2025 spec and the Team 581 maroon #591616 as the seed */
-	/* These are the defaults before JS loads, src/theme-color.ts overrides them with colors from the theme color setting */
+	/* These are the defaults before JS loads, src/theme/theme-color.ts overrides them with colors from the theme color setting */
 	--md-primary: rgb(140 77 74);
 	--md-surface-tint: rgb(140 77 74);
 	--md-on-primary: rgb(255 247 246);
@@ -215,13 +215,13 @@
 	--md-surface-container-highest: rgb(246 221 219);
 
 	--destructive: var(--md-error);
-	/* Chart colors generated from the theme color, see `chartColorVariables()` in src/theme-color.ts */
+	/* Chart colors generated from the theme color, see `chartColorVariables()` in src/theme/theme-color.ts */
 	--chart-1: rgb(194 74 71);
 	--chart-2: rgb(137 111 0);
 	--chart-3: rgb(0 130 91);
 	--chart-4: rgb(0 122 170);
 	--chart-5: rgb(143 87 200);
-	/* Status colors generated from the theme color, see `statusColorVariables()` in src/theme-color.ts */
+	/* Status colors generated from the theme color, see `statusColorVariables()` in src/theme/theme-color.ts */
 	--success: rgb(64 164 85);
 	--success-foreground: rgb(0 110 43);
 	--info: rgb(120 133 255);
@@ -285,13 +285,13 @@
 
 	/* coss puts white text on destructive, so use the darker container color */
 	--destructive: var(--md-error-container);
-	/* Chart colors generated from the theme color, see `chartColorVariables()` in src/theme-color.ts */
+	/* Chart colors generated from the theme color, see `chartColorVariables()` in src/theme/theme-color.ts */
 	--chart-1: rgb(255 146 140);
 	--chart-2: rgb(211 173 0);
 	--chart-3: rgb(0 201 143);
 	--chart-4: rgb(45 188 255);
 	--chart-5: rgb(205 155 255);
-	/* Status colors generated from the theme color, see `statusColorVariables()` in src/theme-color.ts */
+	/* Status colors generated from the theme color, see `statusColorVariables()` in src/theme/theme-color.ts */
 	--success: rgb(92 191 109);
 	--success-foreground: rgb(120 220 134);
 	--info: rgb(155 164 255);
@@ -459,7 +459,7 @@
 	}
 }
 
-/* Like VS Code's Peacock, tints the top of the sidebar to tell open windows apart, see `window-color.ts` */
+/* Like VS Code's Peacock, tints the top of the sidebar to tell open windows apart, see `src/theme/window-color.ts` */
 [data-window-color='1'] {
 	--window-color: var(--chart-1);
 }

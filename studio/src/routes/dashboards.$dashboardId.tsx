@@ -2,12 +2,12 @@ import { useDragDropMonitor } from '@dnd-kit/react';
 import { Navigate, createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { Group, Panel } from 'react-resizable-panels';
-import { DashboardPanes } from '@/components/dashboard-panes';
-import { EntryBrowser } from '@/components/entry-browser';
-import { TimelineBar } from '@/components/timeline-bar';
-import { useDashboards } from '@/dashboards';
+import { DashboardPanes } from '@/dashboards/dashboard-panes';
+import { EntryBrowser } from '@/entries/entry-browser';
+import { TimelineBar } from '@/timeline/timeline-bar';
+import { useDashboards } from '@/dashboards/dashboards';
 import { cn } from '@/lib/utils';
-import { isPaneDrag } from '@/pane-drag';
+import { isPaneDrag } from '@/panes/drag';
 
 export const Route = createFileRoute('/dashboards/$dashboardId')({
 	component: DashboardView,

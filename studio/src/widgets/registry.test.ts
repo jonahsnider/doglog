@@ -1,5 +1,5 @@
 import { expect, test } from 'vite-plus/test';
-import { widgetBindings } from '@/bindings';
+import { widgetBindings } from '@/widgets/bindings';
 import type { Entry } from '@/data/data-store';
 import { getEntryKind, Samples } from '@/data/samples';
 import { defaultWidget } from '@/widgets/registry';

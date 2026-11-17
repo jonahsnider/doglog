@@ -3,12 +3,12 @@ import { DragDropProvider, DragOverlay, KeyboardSensor, PointerSensor } from '@d
 import { isSortable } from '@dnd-kit/react/sortable';
 import { LayoutDashboardIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { EntryName } from '@/components/entry-name';
-import { combineDashboards, moveDashboardPane, movePaneToNewDashboard } from '@/dashboard-panes';
-import { isDashboardDrag, isSplitZone } from '@/dashboard-drag';
-import { moveDashboard } from '@/dashboards';
-import { isEntryDrag, isEntryRowDrag } from '@/entry-drag';
-import { isNewDashboardDrop, isPaneDrag, isPaneDrop, nearestSide, type PaneDragData } from '@/pane-drag';
+import { EntryName } from '@/entries/entry-name';
+import { combineDashboards, moveDashboardPane, movePaneToNewDashboard } from '@/dashboards/panes';
+import { isDashboardDrag, isSplitZone } from '@/dashboards/drag';
+import { moveDashboard } from '@/dashboards/dashboards';
+import { isEntryDrag, isEntryRowDrag } from '@/entries/drag';
+import { isNewDashboardDrop, isPaneDrag, isPaneDrop, nearestSide, type PaneDragData } from '@/panes/drag';
 import { getWidgetType } from '@/widgets/registry';
 
 /** Sensors of entries, dashboards and panes use their own */

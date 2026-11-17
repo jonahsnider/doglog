@@ -47,7 +47,7 @@ export type WidgetProps = {
 	/**
 	 * Bound entries in the order they were bound. At least one of them has an entry, the widget isn't rendered otherwise,
 	 * unless its type is `rendersEmpty`.
-	 * Widgets are read-only, and follow the cursor with `useCursorTime()` or `subscribeTimeline()` from `@/timeline`.
+	 * Widgets are read-only, and follow the cursor with `useCursorTime()` or `subscribeTimeline()` from `@/timeline/timeline`.
 	 */
 	readonly bindings: readonly WidgetBinding[];
 };

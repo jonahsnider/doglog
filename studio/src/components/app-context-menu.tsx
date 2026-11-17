@@ -14,7 +14,7 @@ import {
 	ContextMenuSubTrigger,
 	ContextMenuTrigger,
 } from '@/components/ui/context-menu';
-import { popUpNativeMenu } from '@/native-menu';
+import { popUpNativeMenu } from '@/desktop/native-menu';
 
 export type MenuAction = {
 	label: string;
