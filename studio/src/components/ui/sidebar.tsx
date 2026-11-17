@@ -569,13 +569,13 @@ export function SidebarMenuButton({
   }
 
   return (
-    <Tooltip>
+    // Disabled rather than hidden, a hidden popup is measured at 0×0 and stays that size once shown
+    <Tooltip disabled={state !== "collapsed" || isMobile}>
       <TooltipTrigger
         render={buttonElement as React.ReactElement<Record<string, unknown>>}
       />
       <TooltipPopup
         align="center"
-        hidden={state !== "collapsed" || isMobile}
         side="right"
         {...tooltip}
       />
