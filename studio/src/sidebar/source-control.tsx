@@ -2,6 +2,7 @@ import { isTauri } from '@tauri-apps/api/core';
 import { useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { ChevronsUpDownIcon, DatabaseIcon, FileIcon, RadioTowerIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { TextMorph } from 'torph/react';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import {
 	Menu,
@@ -26,9 +27,9 @@ import {
 	useRecentLogs,
 } from '@/data/recent-logs';
 import { chooseLog, openLogPath, openRecentLogHandle } from '@/data/open-log';
-import { type ConnectTarget, findConnectTarget, type Source, useSource } from '@/data/source';
+import { type ConnectTarget, findConnectTarget, isSourceTarget, type Source, useSource } from '@/data/source';
 import { cn } from '@/lib/utils';
-import { getRobotHost } from '@/robot-target';
+import { getRobotHost, simulatorHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
 import { parseLogName, readLogMatch } from '@/sync/log-names';
 
@@ -37,7 +38,7 @@ const statusLabels: Record<Source['status'], string> = {
 	loaded: 'Log file',
 	connecting: 'Connecting…',
 	connected: 'Connected',
-	disconnected: 'Disconnected, reconnecting…',
+	disconnected: 'Reconnecting…',
 };
 
 /**
@@ -51,12 +52,6 @@ function sourceStatus(source: Source): string {
 			: undefined;
 	return match === undefined ? statusLabels[source.status] : `Log file for ${match.label}`;
 }
-
-const menuItems: MenuEntry[] = [
-	{ label: 'Open log', shortcut: shortcuts.openLog, onSelect: chooseLog },
-	'separator',
-	{ label: 'Connect', shortcut: shortcuts.connect, onSelect: startConnect },
-];
 
 function SourceIcon({ source }: { source: Source | undefined }) {
 	if (source?.status === 'loading' || source?.status === 'connecting') {
@@ -122,6 +117,18 @@ export function SourceControl() {
 
 	const name = source === undefined ? 'No data source' : source.type === 'log' ? source.fileName : source.host;
 	const status = source === undefined ? 'Open a log or connect' : sourceStatus(source);
+	// Connecting again would throw away the data and connect to the same server, so it's only offered when it switches to another one
+	const alreadyLive = source?.type === 'live' && isSourceTarget(source, connectTarget);
+	let connectLabel = connectTarget === undefined ? 'Connect' : connectLabels[connectTarget];
+	if (alreadyLive) {
+		const target = source.host === simulatorHost ? 'simulator' : 'robot';
+		connectLabel = source.status === 'connected' ? `Connected to ${target}` : `Reconnecting to ${target}…`;
+	}
+	const menuItems: MenuEntry[] = [
+		{ label: 'Open log', shortcut: shortcuts.openLog, onSelect: chooseLog },
+		'separator',
+		{ label: connectLabel, shortcut: shortcuts.connect, disabled: alreadyLive, onSelect: startConnect },
+	];
 
 	return (
 		<AppContextMenu items={menuItems} render={<SidebarMenuItem />}>
@@ -144,15 +151,20 @@ export function SourceControl() {
 				>
 					<SourceIcon source={source} />
 					<div className="grid flex-1 text-left leading-tight">
-						<span className="truncate font-medium">{name}</span>
-						<span
+						{/* Numbers are off so addresses aren't morphed like decimals */}
+						<TextMorph as="span" className="truncate font-medium" numbers={false}>
+							{name}
+						</TextMorph>
+						<TextMorph
+							as="span"
+							numbers={false}
 							className={cn(
 								'truncate text-xs text-muted-foreground',
 								source?.status === 'disconnected' && 'text-destructive-foreground',
 							)}
 						>
 							{status}
-						</span>
+						</TextMorph>
 					</div>
 					<ChevronsUpDownIcon className="ms-auto text-muted-foreground" />
 				</MenuTrigger>
@@ -163,8 +175,8 @@ export function SourceControl() {
 					</MenuItem>
 					{(isTauri() || supportsFileHandles) && <OpenRecentMenu />}
 					<MenuSeparator />
-					<MenuItem onClick={startConnect}>
-						{connectTarget === undefined ? 'Connect' : connectLabels[connectTarget]}
+					<MenuItem disabled={alreadyLive} onClick={startConnect}>
+						{connectLabel}
 						<MenuShortcut>{formatForDisplay(shortcuts.connect)}</MenuShortcut>
 					</MenuItem>
 				</MenuPopup>

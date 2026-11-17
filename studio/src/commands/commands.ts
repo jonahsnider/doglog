@@ -169,7 +169,7 @@ function openLogs(router: RegisteredRouter): void {
 
 /** Connect to the robot target from Settings, or the simulator */
 export function startConnect(): void {
-	connect(getRobotHost(settingsStore.get().robotTarget));
+	void connect(getRobotHost(settingsStore.get().robotTarget));
 }
 
 /** Register the app-wide keyboard shortcuts */

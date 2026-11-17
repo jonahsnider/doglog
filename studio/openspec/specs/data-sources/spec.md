@@ -167,7 +167,7 @@ Entries under `/DogLogStudio/`, which Studio uses to share dashboards, SHALL NOT
 
 ### Requirement: Connect target selection
 
-Connect SHALL try the robot connection target and the simulator at the same time, connect to the robot if it is reachable and otherwise to the simulator, and MUST keep trying both until one is reachable without showing an error.
+Connect SHALL try the robot connection target and the simulator at the same time, connect to the robot if it is reachable and otherwise to the simulator, and MUST keep trying both until one is reachable without showing an error. While a live source is connected or reconnecting, Connect MUST NOT replace it unless it would connect to a different target, so the received data isn't thrown away.
 
 #### Scenario: Robot available
 
@@ -193,6 +193,28 @@ Connect SHALL try the robot connection target and the simulator at the same time
 - **GIVEN** Settings has no valid robot connection target
 - **WHEN** the user chooses Connect
 - **THEN** Studio only tries the simulator
+
+#### Scenario: Connect while connected
+
+- **GIVEN** Studio is connected to the robot
+- **WHEN** the user opens the source control menu
+- **THEN** the Connect action reads "Connected to robot" and can't be chosen
+- **AND** the Connect shortcut does nothing
+
+#### Scenario: Connect while reconnecting
+
+- **GIVEN** the connection to the robot dropped
+- **AND** the simulator isn't running
+- **WHEN** the user opens the source control menu
+- **THEN** the Connect action reads "Reconnecting to robot…" and can't be chosen
+- **AND** the Connect shortcut does nothing
+
+#### Scenario: Switch targets while reconnecting
+
+- **GIVEN** the connection to the robot dropped
+- **AND** a simulator is running
+- **WHEN** the user chooses Connect
+- **THEN** Studio connects to the simulator, replacing the robot's data
 
 ### Requirement: Connect target preview
 

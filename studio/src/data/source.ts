@@ -180,10 +180,32 @@ export async function findConnectTarget(robotHost: string | undefined): Promise<
 }
 
 /**
+ * Whether Connect would only reconnect to the server `source` is connected or reconnecting to, throwing away its data.
+ * `target` is what Connect would connect to, `undefined` when nothing is reachable.
+ */
+export function isSourceTarget(source: Source | undefined, target: ConnectTarget | undefined): boolean {
+	if (source?.type !== 'live' || source.status === 'connecting') {
+		return false;
+	}
+	const sourceTarget: ConnectTarget = source.host === simulatorHost ? 'simulator' : 'robot';
+	return target === undefined || target === sourceTarget;
+}
+
+/**
  * Connect to the robot at `robotHost` if it's reachable, otherwise to the simulator.
  * Keeps trying both until one is reachable, only tries the simulator without a robot host.
+ * While a live source is connected or reconnecting, this only switches to another target that's reachable.
  */
-export function connect(robotHost: string | undefined): void {
+export async function connect(robotHost: string | undefined): Promise<void> {
+	const current = sourceStore.get();
+	if (current?.type === 'live' && current.status !== 'connecting') {
+		const target = await findConnectTarget(robotHost);
+		// Also skipped when the source changed while checking, ex. it reconnected
+		if (sourceStore.get() !== current || isSourceTarget(current, target)) {
+			return;
+		}
+	}
+
 	const hosts = robotHost === undefined ? [simulatorHost] : [robotHost, simulatorHost];
 	replaceSource({ type: 'live', host: hosts.join(' or '), status: 'connecting' });
 	const requestedAt = generation;
