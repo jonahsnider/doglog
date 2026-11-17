@@ -1,6 +1,7 @@
 import type { Draggable } from '@dnd-kit/dom';
 import { useDraggable, useDroppable } from '@dnd-kit/react';
 import { createContext, use, useCallback, useId } from 'react';
+import type { EntrySection } from '@/entry-sections';
 import type { EntryDrop } from '@/pane-layout';
 
 /** Data of a dragged entry */
@@ -8,6 +9,8 @@ export type EntryDragData = {
 	name: string;
 	/** The pane whose widget the entry was dragged out of, `undefined` when it's from the entry browser */
 	paneId?: string;
+	/** The entry browser section the entry or group was dragged out of, `undefined` when it's from a widget */
+	section?: EntrySection;
 };
 
 type EntryOrientation = 'vertical' | 'horizontal';
@@ -24,6 +27,16 @@ export const entryDragType = 'entry';
 export function isEntryDrag(source: Draggable | null | undefined): source is Draggable<EntryDragData> {
 	return source?.type === entryDragType;
 }
+
+/** Drag type of entry browser rows that widgets don't accept, ex. groups, which can only be moved between the entry browser's sections */
+export const entryRowDragType = 'entry-row';
+
+export function isEntryRowDrag(source: Draggable | null | undefined): source is Draggable<EntryDragData> {
+	return source?.type === entryRowDragType;
+}
+
+/** Data of an entry browser row, entries and groups dragged from the entry browser can be dropped on it to move them to its section */
+export type EntrySectionDropData = { section: EntrySection };
 
 /** The pane and bound entries of the widget being rendered */
 export const WidgetEntriesContext = createContext<{ paneId: string; entryNames: readonly string[] } | undefined>(

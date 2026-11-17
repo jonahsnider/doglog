@@ -162,9 +162,53 @@ Double-clicking a bindable entry SHALL add it to the open dashboard using the en
 - **WHEN** the user double-clicks an entry marked as unsupported
 - **THEN** nothing is added
 
+### Requirement: Pinned and hidden entries
+
+Users SHALL be able to pin and hide entries and groups. Pinned ones MUST be moved to a Pinned section at the top of the tree, and hidden ones to a collapsed Hidden section kept at the bottom of the entry browser, each labeled with its full path and set apart by a divider. Entries in a pinned or hidden group MUST move with it unless placed themselves. They MUST persist across sources and launches, MUST NOT be part of dashboards, and MUST be included in search.
+
+#### Scenario: Pin an entry
+
+- **WHEN** the user right-clicks `/Arm/Angle` and chooses Pin
+- **THEN** `/Arm/Angle` appears in the Pinned section at the top of the tree
+- **AND** it no longer appears under the `Arm` group
+
+#### Scenario: Hide a group
+
+- **WHEN** the user right-clicks the `SystemStats` group and chooses Hide
+- **THEN** `/SystemStats` and everything in it moves to the collapsed Hidden section at the bottom of the entry browser
+
+#### Scenario: Remember across logs
+
+- **GIVEN** `/Arm/Angle` is pinned
+- **WHEN** the user opens another log with `/Arm/Angle`
+- **THEN** `/Arm/Angle` is in the Pinned section
+
+### Requirement: Drag to pin and hide
+
+Users SHALL be able to drag entries and groups between the Pinned section, the Hidden section, and the rest of the tree to pin, hide, or restore them. Empty sections MUST NOT be shown, except while a row is being dragged so it can be dropped there.
+
+#### Scenario: Unhide by dragging
+
+- **GIVEN** `/SystemStats` is hidden
+- **WHEN** the user drags it from the Hidden section onto a row outside the Pinned and Hidden sections
+- **THEN** `/SystemStats` is shown in the tree again
+
+#### Scenario: Pin by dragging
+
+- **GIVEN** nothing is pinned
+- **WHEN** the user starts dragging `/Arm/Angle`
+- **THEN** an empty Pinned section appears at the top of the tree
+- **WHEN** the user drops it on the Pinned section
+- **THEN** `/Arm/Angle` is pinned
+
+#### Scenario: Empty sections
+
+- **GIVEN** nothing is pinned or hidden
+- **THEN** neither the Pinned nor the Hidden section is shown
+
 ### Requirement: Entry context menu
 
-Right-clicking an entry SHALL open a context menu with Add to dashboard, Copy name, and Copy value.
+Right-clicking an entry SHALL open a context menu with Add to dashboard, Copy name, Copy value, and actions to pin or unpin and hide or unhide it. Right-clicking a group SHALL open a context menu with the pin and hide actions.
 
 #### Scenario: Copy name
 

@@ -7,7 +7,7 @@ import { EntryName } from '@/components/entry-name';
 import { combineDashboards, moveDashboardPane, movePaneToNewDashboard } from '@/dashboard-panes';
 import { isDashboardDrag, isSplitZone } from '@/dashboard-drag';
 import { moveDashboard } from '@/dashboards';
-import { isEntryDrag } from '@/entry-drag';
+import { isEntryDrag, isEntryRowDrag } from '@/entry-drag';
 import { isNewDashboardDrop, isPaneDrag, isPaneDrop, nearestSide, type PaneDragData } from '@/pane-drag';
 import { getWidgetType } from '@/widgets/registry';
 
@@ -25,7 +25,7 @@ const sensors = [
 /**
  * Lets dashboards, panes, and entries be dragged anywhere in the app:
  * dashboards to reorder them or onto the open dashboard's split zones, panes beside other panes or onto the sidebar,
- * and entries onto widgets (handled by `DashboardPanes`).
+ * entries onto widgets (handled by `DashboardPanes`), and entry browser rows between its sections (handled by `EntryBrowser`).
  */
 export function DragProvider({ children }: { children: ReactNode }) {
 	return (
@@ -57,12 +57,15 @@ export function DragProvider({ children }: { children: ReactNode }) {
 		>
 			{children}
 			{/* Entry browser rows are virtualized and can unmount mid-drag, and panes are too big to drag around, so a preview follows the pointer instead. Dashboards move in the sidebar. */}
-			<DragOverlay dropAnimation={null} disabled={(source) => !isEntryDrag(source) && !isPaneDrag(source)}>
+			<DragOverlay
+				dropAnimation={null}
+				disabled={(source) => !isEntryDrag(source) && !isEntryRowDrag(source) && !isPaneDrag(source)}
+			>
 				{(source) =>
 					isPaneDrag(source) ? (
 						<PanePreview data={source.data} />
 					) : (
-						isEntryDrag(source) && (
+						(isEntryDrag(source) || isEntryRowDrag(source)) && (
 							<div className="w-max max-w-80 truncate rounded-md border bg-popover px-2 py-1 font-mono text-xs text-popover-foreground shadow-md">
 								<EntryName name={source.data.name} />
 							</div>

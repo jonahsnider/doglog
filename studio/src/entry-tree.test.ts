@@ -1,7 +1,7 @@
 import { expect, test } from 'vite-plus/test';
 import type { Entry } from './data/data-store.ts';
 import { Samples } from './data/samples.ts';
-import { buildEntryTree, entryTreeView } from './entry-tree.ts';
+import { buildEntryTree, entryTreeView, sectionEntryTree } from './entry-tree.ts';
 
 function entries(...names: string[]): Entry[] {
 	return names.map((name) => ({ name, type: 'double', kind: 'number', samples: new Samples(), metadata: {} }));
@@ -83,4 +83,56 @@ test('search highlights the matching parts of each label, including groups', () 
 	const { highlights } = entryTreeView(tree, [], 'arm vel');
 	expect(highlights?.get('/Arm')).toEqual([0, 3]);
 	expect(highlights?.get('/Arm/Velocity')).toEqual([0, 3]);
+});
+
+/** Rows of the tree and then the Hidden section, with the section each is in */
+function sectionPaths(placements: Record<string, 'pinned' | 'hidden'>, expanded: string[], query = ''): string[] {
+	const { items, hidden } = sectionEntryTree(tree, placements, false);
+	return [...entryTreeView(items, expanded, query).rows, ...entryTreeView(hidden, expanded, query, 'hidden').rows].map(
+		(row) => `${row.section} ${row.item.value}`,
+	);
+}
+
+test('pinned and hidden entries move out of their groups into their own sections', () => {
+	expect(sectionPaths({ '/Arm/Angle': 'pinned', '/Time': 'hidden' }, ['pinned', '/Arm'])).toEqual([
+		'pinned pinned',
+		'pinned /Arm/Angle',
+		'main /Arm',
+		'main /Arm/Velocity',
+		'main /Drive',
+		'hidden /Time',
+	]);
+});
+
+test('empty groups and an empty Pinned section are left out', () => {
+	expect(sectionPaths({ '/Drive/Module2': 'hidden', '/Drive/Module10': 'hidden' }, [])).toEqual([
+		'main /Arm',
+		'main /Time',
+		'hidden /Drive/Module2',
+		'hidden /Drive/Module10',
+	]);
+	expect(sectionEntryTree(tree, {}, true).items.map((node) => node.value)).toEqual([
+		'pinned',
+		'/Arm',
+		'/Drive',
+		'/Time',
+	]);
+});
+
+test('groups keep their entries when pinned or hidden, unless they are moved out on their own', () => {
+	expect(sectionPaths({ '/Arm': 'hidden', '/Arm/Angle': 'pinned' }, ['pinned', '/Arm'])).toEqual([
+		'pinned pinned',
+		'pinned /Arm/Angle',
+		'main /Drive',
+		'main /Time',
+		'hidden /Arm',
+		'hidden /Arm/Velocity',
+	]);
+});
+
+test('search shows hidden matches and highlights full paths', () => {
+	const { hidden } = sectionEntryTree(tree, { '/Arm/Velocity': 'hidden' }, false);
+	const view = entryTreeView(hidden, [], 'arm vel', 'hidden');
+	expect(view.rows.map((row) => row.item.value)).toEqual(['/Arm/Velocity']);
+	expect(view.highlights?.get('/Arm/Velocity')).toEqual([1, 4, 5, 8]);
 });

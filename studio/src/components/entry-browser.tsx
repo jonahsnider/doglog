@@ -1,17 +1,23 @@
+import type { Draggable, Droppable } from '@dnd-kit/dom';
+import { useDragDropMonitor, useDragOperation, useDroppable } from '@dnd-kit/react';
 import { useHotkey } from '@tanstack/react-hotkeys';
 import { useSelector } from '@tanstack/react-store';
-import { PanelRightCloseIcon, PanelRightOpenIcon, SearchIcon } from 'lucide-react';
+import { ChevronRightIcon, PanelRightCloseIcon, PanelRightOpenIcon, SearchIcon } from 'lucide-react';
 import { useDeferredValue, useMemo, useState } from 'react';
 import { Panel, Separator, usePanelRef } from 'react-resizable-panels';
-import { EntryRows } from '@/components/entry-browser-rows';
+import { EntryRows, EntryRowsTooltip, SectionHeaderLabel } from '@/components/entry-browser-rows';
 import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
+import { Separator as Divider } from '@/components/ui/separator';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { shortcuts } from '@/commands';
 import { useEntries } from '@/data/data-store';
 import { useSource } from '@/data/source';
-import { buildEntryTree, entryTreeView } from '@/entry-tree';
+import type { EntryDragData, EntrySectionDropData } from '@/entry-drag';
+import { entryPlacementsStore, moveToSection } from '@/entry-sections';
+import { buildEntryTree, type EntryTreeNode, entryTreeView, sectionEntryTree } from '@/entry-tree';
+import { cn } from '@/lib/utils';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { dragRegion } from '@/title-bar';
 import * as z from 'zod';
@@ -92,17 +98,44 @@ function EntryTree() {
 	const [query, setQuery] = useState('');
 	// Keep typing responsive while searching thousands of entries
 	const deferredQuery = useDeferredValue(query);
-	const [expanded, setExpanded] = useState<string[]>([]);
+	const [expanded, setExpanded] = useState<string[]>(['pinned']);
+	const placements = useSelector(entryPlacementsStore);
+	const drag = useDragOperation<
+		EntryDragData | EntrySectionDropData,
+		Draggable<EntryDragData>,
+		Droppable<EntrySectionDropData>
+	>();
+	// Only set while dragging a row of the entry browser
+	const draggedFrom = drag.source?.data.section;
+	const dropSection = draggedFrom === undefined ? undefined : drag.target?.data.section;
+
+	useDragDropMonitor<EntryDragData | EntrySectionDropData, Draggable<EntryDragData>, Droppable<EntrySectionDropData>>({
+		onDragEnd: ({ operation, canceled }) => {
+			const from = operation.source?.data.section;
+			const to = operation.target?.data.section;
+			if (!canceled && from !== undefined && to !== undefined && to !== from) {
+				moveToSection(operation.source!.data.name, to);
+			}
+		},
+	});
 
 	const tree = useMemo(() => buildEntryTree(entries), [entries]);
-	const view = useMemo(() => entryTreeView(tree, expanded, deferredQuery), [tree, expanded, deferredQuery]);
+	// Empty sections are shown while dragging so rows can be dropped in them
+	const dragging = draggedFrom !== undefined;
+	const sectioned = useMemo(() => sectionEntryTree(tree, placements, dragging), [tree, placements, dragging]);
+	const view = useMemo(
+		() => entryTreeView(sectioned.items, expanded, deferredQuery),
+		[sectioned, expanded, deferredQuery],
+	);
+	// Moving a row within its own section does nothing
+	const dropTarget = dropSection === draggedFrom ? undefined : dropSection;
 
 	let message: string | undefined;
 	if (!source) {
 		message = 'Open a log or connect to a robot to browse its entries.';
 	} else if (entries.length === 0) {
 		message = 'No entries yet.';
-	} else if (view.rows.length === 0) {
+	} else if (view.rows.length === 0 && view.highlights !== undefined) {
 		message = 'No matching entries.';
 	}
 
@@ -123,9 +156,13 @@ function EntryTree() {
 					/>
 				</InputGroup>
 			</div>
+			<EntryRowsTooltip />
 			{message === undefined ? (
 				<EntryRows
 					view={view}
+					label="Entries"
+					className="min-h-0 flex-1"
+					dropSection={dropTarget}
 					// Every group stays expanded while searching
 					onExpandedChange={(next) => {
 						if (view.highlights === undefined) {
@@ -134,8 +171,59 @@ function EntryTree() {
 					}}
 				/>
 			) : (
-				<p className="px-3 py-2 text-sm text-muted-foreground">{message}</p>
+				<p className="flex-1 px-3 py-2 text-sm text-muted-foreground">{message}</p>
+			)}
+			{(sectioned.hidden.length > 0 || dragging) && (
+				<HiddenSection nodes={sectioned.hidden} query={deferredQuery} dropTarget={dropTarget === 'hidden'} />
 			)}
 		</>
+	);
+}
+
+/** Hidden entries and groups, collapsed by default and kept at the bottom of the entry browser */
+function HiddenSection({ nodes, query, dropTarget }: { nodes: EntryTreeNode[]; query: string; dropTarget: boolean }) {
+	const [open, setOpen] = useState(false);
+	const [expanded, setExpanded] = useState<string[]>([]);
+	const view = useMemo(() => entryTreeView(nodes, expanded, query, 'hidden'), [nodes, expanded, query]);
+	const { ref } = useDroppable<EntrySectionDropData>({
+		id: 'hidden',
+		accept: (source) => source.data['section'] !== undefined,
+		data: { section: 'hidden' },
+	});
+
+	return (
+		<section
+			ref={ref}
+			aria-label="Hidden entries"
+			className={cn('flex max-h-1/2 min-h-0 shrink-0 flex-col', dropTarget && 'bg-primary/8')}
+		>
+			<Divider />
+			<button
+				type="button"
+				aria-expanded={open}
+				className="flex h-7 shrink-0 items-center gap-1.5 ps-2 pe-3 outline-none hover:bg-accent focus-visible:bg-accent"
+				onClick={() => setOpen(!open)}
+			>
+				<ChevronRightIcon
+					className={cn('size-4 shrink-0 text-muted-foreground transition-transform', open && 'rotate-90')}
+				/>
+				{/* Counts matches while searching */}
+				<SectionHeaderLabel section="hidden" count={view.items.length} />
+			</button>
+			{open && (
+				<EntryRows
+					view={view}
+					label="Hidden entries"
+					className="min-h-0"
+					// The whole section shows where rows will be dropped
+					dropSection={undefined}
+					onExpandedChange={(next) => {
+						if (view.highlights === undefined) {
+							setExpanded(next);
+						}
+					}}
+				/>
+			)}
+		</section>
 	);
 }

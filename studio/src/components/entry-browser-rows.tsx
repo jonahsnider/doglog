@@ -1,17 +1,20 @@
-import { useDraggable } from '@dnd-kit/react';
+import { useDraggable, useDroppable } from '@dnd-kit/react';
 import { useParams } from '@tanstack/react-router';
 import { defaultRangeExtractor, type Range, useVirtualizer } from '@tanstack/react-virtual';
 import { Tree, TreeItem, TreeItemIndicator, TreeItemLabel } from '@ui-sdk/react/tree';
-import { BanIcon, ChevronRightIcon } from 'lucide-react';
-import { memo, useCallback, useRef, useState } from 'react';
+import { BanIcon, ChevronRightIcon, EyeOffIcon, PinIcon } from 'lucide-react';
+import { Fragment, memo, useCallback, useRef, useState } from 'react';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
+import { EntryName } from '@/components/entry-name';
 import { HighlightedText } from '@/components/highlighted-text';
+import { Separator } from '@/components/ui/separator';
 import { TooltipCreateHandle, TooltipTrigger } from '@/components/ui/tooltip';
 import { MarkTooltip, TypeMark } from '@/components/value-marks';
 import { addDashboardWidget } from '@/dashboard-panes';
 import { type Entry, useDataVersion } from '@/data/data-store';
 import { formatValue, formatValueForCopy } from '@/data/format-value';
-import { type EntryDragData, entryDragType } from '@/entry-drag';
+import { type EntryDragData, entryDragType, entryRowDragType, type EntrySectionDropData } from '@/entry-drag';
+import { type EntrySection, entryPlacementsStore, moveToSection } from '@/entry-sections';
 import type { EntryTreeRow, EntryTreeView } from '@/entry-tree';
 import { cn } from '@/lib/utils';
 import { getCursorTime, useCursorTime } from '@/timeline';
@@ -22,12 +25,39 @@ const rowHeight = 28;
 /** Shared by the type, boolean, and unsupported marks of every row */
 const markTooltip = TooltipCreateHandle<string>();
 
+/** Tooltip of the rows' type, boolean, and unsupported marks, rendered once for every `EntryRows` */
+export function EntryRowsTooltip() {
+	return <MarkTooltip handle={markTooltip} />;
+}
+
+/** Text of a section's header, ex. `Pinned` */
+export function SectionHeaderLabel({ section, count }: { section: 'pinned' | 'hidden'; count: number }) {
+	const Icon = section === 'pinned' ? PinIcon : EyeOffIcon;
+	return (
+		<>
+			<Icon className="size-3.5 shrink-0 text-muted-foreground" />
+			<span className="flex-1 truncate text-start text-xs font-semibold">
+				{section === 'pinned' ? 'Pinned' : 'Hidden'}
+			</span>
+			<span className="text-xs text-muted-foreground tabular-nums">{count}</span>
+		</>
+	);
+}
+
 /** Only renders the rows scrolled into view, logs can have thousands of entries */
 export function EntryRows({
 	view,
+	label,
+	className,
+	dropSection,
 	onExpandedChange,
 }: {
 	view: EntryTreeView;
+	label: string;
+	/** Sizes the scrolling container */
+	className: string;
+	/** The section a row dragged from the entry browser would be moved to */
+	dropSection: EntrySection | undefined;
 	onExpandedChange: (expanded: string[]) => void;
 }) {
 	const { rows, highlights } = view;
@@ -58,38 +88,41 @@ export function EntryRows({
 	});
 
 	return (
-		<>
-			<MarkTooltip handle={markTooltip} />
-			<div ref={container} className="min-h-0 flex-1 overflow-y-auto pb-2">
-				<Tree
-					aria-label="Entries"
-					mode="none"
-					items={view.items}
-					expanded={view.expanded}
-					onExpandedChange={onExpandedChange}
-					onHighlight={(_value, { index }) => {
-						if (index >= 0) {
-							setHighlighted(index);
-							virtualizer.scrollToIndex(index);
-						}
-					}}
-					className="relative"
-					style={{ height: virtualizer.getTotalSize() }}
-				>
-					{virtualizer.getVirtualItems().map((item) => {
-						const row = rows[item.index]!;
-						return (
+		<div ref={container} className={cn('overflow-y-auto pb-2', className)}>
+			<Tree
+				aria-label={label}
+				mode="none"
+				items={view.items}
+				expanded={view.expanded}
+				onExpandedChange={onExpandedChange}
+				onHighlight={(_value, { index }) => {
+					if (index >= 0) {
+						setHighlighted(index);
+						virtualizer.scrollToIndex(index);
+					}
+				}}
+				className="relative"
+				style={{ height: virtualizer.getTotalSize() }}
+			>
+				{virtualizer.getVirtualItems().map((item) => {
+					const row = rows[item.index]!;
+					return (
+						<Fragment key={row.item.value}>
+							{/* Separates the Pinned section from the rest of the tree */}
+							{row.section === 'main' && rows[item.index - 1]?.section === 'pinned' && (
+								<Separator aria-hidden className="absolute inset-x-0" style={{ top: item.start }} />
+							)}
 							<EntryRowView
-								key={row.item.value}
 								row={row}
 								top={item.start}
 								highlights={highlights?.get(row.item.value)}
+								dropTarget={row.section === dropSection}
 							/>
-						);
-					})}
-				</Tree>
-			</div>
-		</>
+						</Fragment>
+					);
+				})}
+			</Tree>
+		</div>
 	);
 }
 
@@ -100,68 +133,105 @@ const EntryRowView = memo(function EntryRowView({
 	row,
 	top,
 	highlights,
+	dropTarget,
 }: {
 	row: EntryTreeRow;
 	top: number;
 	highlights: readonly number[] | undefined;
+	dropTarget: boolean;
 }) {
 	const { dashboardId } = useParams({ from: '/dashboards/$dashboardId' });
-	const { item: node, level } = row;
+	const { item: node, level, section } = row;
 	const { entry } = node;
+	const header = node.section !== undefined;
 	const unsupported = entry?.kind === 'unsupported';
-	const draggable = entry !== undefined && !unsupported;
 	const widget = entry && defaultWidget(entry);
 	const add = widget && (() => addDashboardWidget(dashboardId, widget));
-	const { ref } = useDraggable<EntryDragData>({
+	const { ref: dragRef } = useDraggable<EntryDragData>({
 		id: node.value,
-		type: entryDragType,
-		disabled: !draggable,
-		...(entry && { data: { name: entry.name } }),
+		// Groups and unsupported entries can only be moved between sections
+		type: entry && !unsupported ? entryDragType : entryRowDragType,
+		disabled: header,
+		data: { name: node.value, section },
 	});
+	const { ref: dropRef } = useDroppable<EntrySectionDropData>({
+		id: node.value,
+		accept: (source) => source.data['section'] !== undefined,
+		data: { section },
+	});
+	const ref = useCallback(
+		(element: Element | null) => {
+			dragRef(element);
+			dropRef(element);
+		},
+		[dragRef, dropRef],
+	);
+	const className = cn(
+		// Not selectable, so double-clicking doesn't select the label
+		'absolute inset-x-0 flex items-center gap-1.5 pe-3 text-sm outline-none select-none hover:bg-accent focus-visible:bg-accent',
+		dropTarget && 'bg-primary/8',
+	);
+	const style = { top, height: rowHeight, paddingInlineStart: 8 + (level - 1) * 12 };
+	const indicator = node.children && (
+		<TreeItemIndicator className="shrink-0 text-muted-foreground transition-transform data-expanded:rotate-90">
+			<ChevronRightIcon className="size-4" />
+		</TreeItemIndicator>
+	);
+
+	if (header) {
+		return (
+			// Without the drag ref, headers don't get dnd-kit's drag handle attributes
+			<TreeItem value={node.value} ref={dropRef} className={className} style={style}>
+				<TreeItemLabel className="flex h-full min-w-0 flex-1 items-center gap-1.5">
+					{indicator}
+					<SectionHeaderLabel section="pinned" count={node.children?.length ?? 0} />
+				</TreeItemLabel>
+			</TreeItem>
+		);
+	}
+
 	const label = (
 		<TooltipTrigger
 			handle={markTooltip}
 			payload={node.value}
 			render={<span className={cn('min-w-24 flex-1 truncate', unsupported && 'text-muted-foreground')} />}
 		>
-			<HighlightedText text={node.label} ranges={highlights} />
+			{/* The tops of pinned and hidden entries and groups are labeled with their full paths */}
+			{node.label === node.value ? (
+				<EntryName name={node.value} ranges={highlights} />
+			) : (
+				<HighlightedText text={node.label} ranges={highlights} />
+			)}
 		</TooltipTrigger>
 	);
 	const typeMark = entry && <TypeMark type={entry.type} tooltip={markTooltip} />;
-	const menuItems: MenuEntry[] = entry
-		? [
-				{ label: 'Add to dashboard', disabled: !add, onSelect: () => add?.() },
-				{ label: 'Copy name', onSelect: () => void navigator.clipboard.writeText(entry.name) },
-				{ label: 'Copy value', disabled: unsupported, onSelect: () => copyValue(entry) },
-			]
-		: [];
+	const menuItems = (): MenuEntry[] => [
+		...(entry
+			? ([
+					{ label: 'Add to dashboard', disabled: !add, onSelect: () => add?.() },
+					{ label: 'Copy name', onSelect: () => void navigator.clipboard.writeText(entry.name) },
+					{ label: 'Copy value', disabled: unsupported, onSelect: () => copyValue(entry) },
+					'separator',
+				] satisfies MenuEntry[])
+			: []),
+		...sectionMenuItems(node.value, section),
+	];
 
 	return (
 		<AppContextMenu
 			items={menuItems}
-			// Groups that aren't entries keep the browser's menu
-			disabled={!entry}
 			render={
 				<TreeItem
 					value={node.value}
-					// Without an element, rows that can't be dragged don't get dnd-kit's drag handle attributes
-					ref={draggable ? ref : undefined}
-					className={cn(
-						// Not selectable, so double-clicking doesn't select the label
-						'absolute inset-x-0 flex items-center gap-1.5 pe-3 text-sm outline-none select-none hover:bg-accent focus-visible:bg-accent',
-						draggable && 'cursor-grab active:cursor-grabbing',
-					)}
-					style={{ top, height: rowHeight, paddingInlineStart: 8 + (level - 1) * 12 }}
+					ref={ref}
+					className={cn(className, 'cursor-grab active:cursor-grabbing')}
+					style={style}
 					onDoubleClick={add}
 				/>
 			}
 		>
 			<TreeItemLabel className="flex h-full min-w-0 flex-1 items-center gap-1.5">
-				{node.children && (
-					<TreeItemIndicator className="shrink-0 text-muted-foreground transition-transform data-expanded:rotate-90">
-						<ChevronRightIcon className="size-4" />
-					</TreeItemIndicator>
-				)}
+				{indicator}
 				{typeMark}
 				{label}
 			</TreeItemLabel>
@@ -180,6 +250,26 @@ const EntryRowView = memo(function EntryRowView({
 		</AppContextMenu>
 	);
 });
+
+/**
+ * Pin and hide actions for a row in `section`. Entries and groups in a pinned or hidden group are moved with it,
+ * so they can only be moved to the other section.
+ */
+function sectionMenuItems(path: string, section: EntrySection): MenuEntry[] {
+	const placement = entryPlacementsStore.get()[path];
+	const items: MenuEntry[] = [];
+	if (placement === 'pinned') {
+		items.push({ label: 'Unpin', onSelect: () => moveToSection(path, 'main') });
+	} else if (section !== 'pinned') {
+		items.push({ label: 'Pin', onSelect: () => moveToSection(path, 'pinned') });
+	}
+	if (placement === 'hidden') {
+		items.push({ label: 'Unhide', onSelect: () => moveToSection(path, 'main') });
+	} else if (section !== 'hidden') {
+		items.push({ label: 'Hide', onSelect: () => moveToSection(path, 'hidden') });
+	}
+	return items;
+}
 
 /** Copies the value at the cursor, read when chosen since rows don't re-render as the cursor moves */
 function copyValue(entry: Entry): void {

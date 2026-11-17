@@ -5,7 +5,7 @@ import { Group, Panel, Separator, useGroupRef } from 'react-resizable-panels';
 import { PaneView, type PaneNodeProps } from '@/components/pane-view';
 import { dropDashboardEntry, getFocusedPane, updateLayout } from '@/dashboard-panes';
 import type { Dashboard } from '@/dashboards';
-import { type EntryDragData, type EntryDropData, entryDragType } from '@/entry-drag';
+import { type EntryDragData, type EntryDropData, type EntrySectionDropData, entryDragType } from '@/entry-drag';
 import { cn } from '@/lib/utils';
 import { type PaneNode, resizeSplit, type Split } from '@/pane-layout';
 
@@ -14,10 +14,15 @@ export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 	const focusedPaneId = getFocusedPane(dashboard).id;
 
 	// Entries dropped on a widget or one of its entries, from the entry browser or another widget
-	useDragDropMonitor<EntryDragData | EntryDropData, Draggable<EntryDragData>, Droppable<EntryDropData>>({
+	useDragDropMonitor<
+		EntryDragData | EntryDropData | EntrySectionDropData,
+		Draggable<EntryDragData>,
+		Droppable<EntryDropData | EntrySectionDropData>
+	>({
 		onDragEnd: ({ operation, canceled }) => {
 			const { source, target } = operation;
-			if (!canceled && source?.type === entryDragType && target) {
+			// Entries dropped in the entry browser are moved between its sections instead
+			if (!canceled && source?.type === entryDragType && target && 'paneId' in target.data) {
 				dropDashboardEntry(dashboard.id, source.data.name, source.data.paneId, target.data);
 			}
 		},
