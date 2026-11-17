@@ -188,17 +188,39 @@ function Settings() {
 
 				<CliField />
 
-				<p className="text-sm text-muted-foreground">
-					DogLog Studio {STUDIO_VERSION}
-					{STUDIO_COMMIT !== null && (
-						<>
-							{' '}
-							(<span className="font-mono">{STUDIO_COMMIT}</span>)
-						</>
-					)}
-				</p>
+				<div className="flex flex-col gap-1 text-sm text-muted-foreground">
+					<p>
+						DogLog Studio {STUDIO_VERSION}
+						{STUDIO_COMMIT !== null && (
+							<>
+								{' '}
+								(<span className="font-mono">{STUDIO_COMMIT}</span>)
+							</>
+						)}
+					</p>
+					<p>
+						<ExternalLink href="https://github.com/jonahsnider/doglog">GitHub</ExternalLink>
+					</p>
+					<p>
+						By <ExternalLink href="https://jonahsnider.com">Jonah Snider</ExternalLink>
+					</p>
+				</div>
 			</div>
 		</div>
+	);
+}
+
+/** Opens in a new tab on the web, and in the default browser on desktop */
+function ExternalLink({ href, children }: { href: string; children: ReactNode }) {
+	return (
+		<a
+			href={href}
+			target="_blank"
+			rel="noreferrer"
+			className="underline-offset-4 hover:text-foreground hover:underline"
+		>
+			{children}
+		</a>
 	);
 }
 

@@ -108,3 +108,13 @@ Settings SHALL show the running Studio version and, when Studio was built from a
 - **GIVEN** Studio version 2026.1.0 was built from commit `9867e24`
 - **WHEN** the user opens Settings
 - **THEN** Settings shows version 2026.1.0 and commit `9867e24`
+
+### Requirement: Project links
+
+Settings SHALL link to the DogLog GitHub repository and to the author's website next to the version info.
+
+#### Scenario: Open a link on desktop
+
+- **GIVEN** the user is using the desktop app
+- **WHEN** the user clicks the GitHub link in Settings
+- **THEN** the repository opens in the system's default browser

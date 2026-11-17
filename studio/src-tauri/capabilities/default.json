@@ -13,6 +13,8 @@
 		"fs:allow-read-dir",
 		"fs:allow-stat",
 		"fs:allow-remove",
-		"opener:allow-reveal-item-in-dir"
+		"opener:allow-reveal-item-in-dir",
+		"opener:allow-open-url",
+		"opener:allow-default-urls"
 	]
 }
