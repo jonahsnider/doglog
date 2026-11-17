@@ -87,15 +87,21 @@ function CursorTime({
 	// Only checked while playing, since that's the only time playback fast-forwards
 	const fastForwarding =
 		playing && getActiveCompressedSpans(range).some((span) => span.start <= time && time < span.end);
+	// Reserves room for the widest time in the log plus the icon (size-3.5 and gap-1), so the label doesn't resize while playing
+	const maxLength = formatTime(range.end, range.start).length;
 	return (
-		<span className="ms-1 flex min-w-20 items-center justify-end gap-1 font-mono text-sm tabular-nums">
+		<span
+			className="ms-1 flex items-center gap-1 font-mono text-sm tabular-nums"
+			style={{ minWidth: `max(5rem, calc(${maxLength}ch + 1.125rem))` }}
+		>
 			{fastForwarding && (
 				<FastForwardIcon
 					className="size-3.5 text-muted-foreground"
 					aria-label="Fast-forwarding through disabled time"
 				/>
 			)}
-			{formatTime(time, range.start)}
+			{/* Right-aligned on its own so the icon stays pinned to the left edge as the time widens */}
+			<span className="ms-auto">{formatTime(time, range.start)}</span>
 		</span>
 	);
 }
