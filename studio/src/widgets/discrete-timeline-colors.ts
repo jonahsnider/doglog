@@ -1,29 +1,38 @@
+import { Hct, TonalPalette, argbFromHex, hexFromArgb } from '@material/material-color-utilities';
 import type { Entry } from '@/data/data-store';
+import { statusPalette } from '@/theme-color';
 
-type BandColor = { fill: string; text: string };
+/** Every band color is light enough for black text, at HCT tone 70 black text has a contrast ratio of about 9:1 */
+export const bandTextColor = '#000000';
 
-/** Mid-tone colors that stand out on both light and dark backgrounds, with readable text on top */
-const palette: readonly BandColor[] = [
-	{ fill: '#3b82f6', text: '#ffffff' },
-	{ fill: '#f59e0b', text: '#000000' },
-	{ fill: '#8b5cf6', text: '#ffffff' },
-	{ fill: '#10b981', text: '#000000' },
-	{ fill: '#f43f5e', text: '#ffffff' },
-	{ fill: '#22d3ee', text: '#000000' },
-	{ fill: '#d946ef', text: '#ffffff' },
-	{ fill: '#a3e635', text: '#000000' },
-	{ fill: '#f97316', text: '#000000' },
-	{ fill: '#0d9488', text: '#ffffff' },
-];
-const trueColor: BandColor = { fill: '#10b981', text: '#000000' };
-const falseColor: BandColor = { fill: '#a1a1aa', text: '#000000' };
+const paletteSize = 10;
+const bandTone = 70;
+
+export type BandPalette = { values: string[]; true: string; false: string };
+
+/**
+ * Band colors derived from `accentColor`, sharing one HCT tone so they stand out equally on light and dark backgrounds.
+ * String values get hues spaced evenly around the hue wheel starting from `accentColor`'s, true is the success color, and
+ * false is a near-gray tinted with `accentColor`.
+ */
+export function bandPalette(accentColor: string): BandPalette {
+	const { hue } = Hct.fromInt(argbFromHex(accentColor));
+	return {
+		// Stepping 3/10 of a turn visits all 10 hues while keeping consecutive colors far apart
+		values: Array.from({ length: paletteSize }, (_, index) =>
+			hexFromArgb(Hct.from((hue + index * 108) % 360, 48, bandTone).toInt()),
+		),
+		true: hexFromArgb(statusPalette('success', accentColor).tone(bandTone)),
+		false: hexFromArgb(TonalPalette.fromHueAndChroma(hue, 6).tone(bandTone)),
+	};
+}
 
 /** String values get palette colors in the order they're first seen, so each distinct value has its own color */
 export type ColorAssignments = Map<Entry, Map<string, number>>;
 
-export function bandColor(assignments: ColorAssignments, entry: Entry, value: unknown): BandColor {
+export function bandColor(assignments: ColorAssignments, palette: BandPalette, entry: Entry, value: unknown): string {
 	if (typeof value === 'boolean') {
-		return value ? trueColor : falseColor;
+		return value ? palette.true : palette.false;
 	}
 
 	let colors = assignments.get(entry);
@@ -37,5 +46,5 @@ export function bandColor(assignments: ColorAssignments, entry: Entry, value: un
 		index = colors.size;
 		colors.set(text, index);
 	}
-	return palette[index % palette.length]!;
+	return palette.values[index % palette.values.length]!;
 }

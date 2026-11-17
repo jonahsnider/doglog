@@ -63,6 +63,7 @@
 	--color-success: var(--success);
 	--color-info-foreground: var(--info-foreground);
 	--color-info: var(--info);
+	--color-test-mode: var(--test-mode);
 	--color-destructive-foreground: var(--destructive-foreground);
 	--radius-sm: calc(var(--radius) * 0.6);
 	--radius-md: calc(var(--radius) * 0.8);
@@ -206,18 +207,21 @@
 	--md-surface-container-high: rgb(249 227 225);
 	--md-surface-container-highest: rgb(246 221 219);
 
-	--info: var(--color-blue-500);
-	--info-foreground: var(--color-blue-700);
-	--success: var(--color-emerald-500);
-	--success-foreground: var(--color-emerald-700);
-	--warning: var(--color-amber-500);
-	--warning-foreground: var(--color-amber-700);
 	--destructive: var(--md-error);
-	--chart-1: var(--color-blue-600);
-	--chart-2: var(--color-emerald-600);
-	--chart-3: var(--color-amber-500);
-	--chart-4: var(--color-purple-600);
-	--chart-5: var(--color-rose-600);
+	/* Chart colors generated from the theme color, see `chartColorVariables()` in src/theme-color.ts */
+	--chart-1: rgb(194 74 71);
+	--chart-2: rgb(137 111 0);
+	--chart-3: rgb(0 130 91);
+	--chart-4: rgb(0 122 170);
+	--chart-5: rgb(143 87 200);
+	/* Status colors generated from the theme color, see `statusColorVariables()` in src/theme-color.ts */
+	--success: rgb(64 164 85);
+	--success-foreground: rgb(0 110 43);
+	--info: rgb(120 133 255);
+	--info-foreground: rgb(66 80 206);
+	--warning: rgb(254 166 25);
+	--warning-foreground: rgb(133 83 0);
+	--test-mode: rgb(191 105 250);
 }
 
 .dark {
@@ -272,19 +276,22 @@
 	--md-surface-container-high: rgb(40 29 28);
 	--md-surface-container-highest: rgb(48 34 33);
 
-	--info: var(--color-blue-500);
-	--info-foreground: var(--color-blue-400);
-	--success: var(--color-emerald-500);
-	--success-foreground: var(--color-emerald-400);
-	--warning: var(--color-amber-500);
-	--warning-foreground: var(--color-amber-400);
 	/* coss puts white text on destructive, so use the darker container color */
 	--destructive: var(--md-error-container);
-	--chart-1: var(--color-blue-500);
-	--chart-2: var(--color-emerald-500);
-	--chart-3: var(--color-amber-500);
-	--chart-4: var(--color-purple-500);
-	--chart-5: var(--color-rose-500);
+	/* Chart colors generated from the theme color, see `chartColorVariables()` in src/theme-color.ts */
+	--chart-1: rgb(255 146 140);
+	--chart-2: rgb(211 173 0);
+	--chart-3: rgb(0 201 143);
+	--chart-4: rgb(45 188 255);
+	--chart-5: rgb(205 155 255);
+	/* Status colors generated from the theme color, see `statusColorVariables()` in src/theme-color.ts */
+	--success: rgb(92 191 109);
+	--success-foreground: rgb(120 220 134);
+	--info: rgb(155 164 255);
+	--info-foreground: rgb(189 194 255);
+	--warning: rgb(254 166 25);
+	--warning-foreground: rgb(255 185 95);
+	--test-mode: rgb(210 144 255);
 }
 
 /* Map coss ui tokens to MD3 roles */
@@ -351,6 +358,18 @@
 	--sidebar-accent-foreground: var(--color-neutral-800);
 	--sidebar-border: --alpha(var(--color-black) / 6%);
 	--sidebar-ring: var(--color-neutral-400);
+	--chart-1: var(--color-blue-600);
+	--chart-2: var(--color-emerald-600);
+	--chart-3: var(--color-amber-500);
+	--chart-4: var(--color-purple-600);
+	--chart-5: var(--color-rose-600);
+	--info: var(--color-blue-500);
+	--info-foreground: var(--color-blue-700);
+	--success: var(--color-emerald-500);
+	--success-foreground: var(--color-emerald-700);
+	--warning: var(--color-amber-500);
+	--warning-foreground: var(--color-amber-700);
+	--test-mode: var(--color-violet-500);
 }
 
 :root.coss-theme.dark {
@@ -381,6 +400,18 @@
 	--sidebar-accent-foreground: var(--color-neutral-100);
 	--sidebar-border: --alpha(var(--color-white) / 5%);
 	--sidebar-ring: var(--color-neutral-400);
+	--chart-1: var(--color-blue-500);
+	--chart-2: var(--color-emerald-500);
+	--chart-3: var(--color-amber-500);
+	--chart-4: var(--color-purple-500);
+	--chart-5: var(--color-rose-500);
+	--info: var(--color-blue-500);
+	--info-foreground: var(--color-blue-400);
+	--success: var(--color-emerald-500);
+	--success-foreground: var(--color-emerald-400);
+	--warning: var(--color-amber-500);
+	--warning-foreground: var(--color-amber-400);
+	--test-mode: var(--color-violet-500);
 }
 
 @layer base {

@@ -1,21 +1,33 @@
 import { afterEach, describe, expect, test, vi } from 'vite-plus/test';
 import css from './index.css?raw';
-import { applyThemeColor, defaultThemeColor, themeColorVariables } from './theme-color.ts';
+import {
+	applyThemeColor,
+	chartColorVariables,
+	defaultThemeColor,
+	statusColorVariables,
+	themeColorVariables,
+} from './theme-color.ts';
 
 afterEach(() => {
 	vi.unstubAllGlobals();
 });
 
-/** Get the `--md-*` declarations in a block of `index.css`, formatted like `themeColorVariables()` */
+/** Get the `rgb()` declarations in a block of `index.css`, formatted like the generated ones */
 function cssVariables(block: string): string[] {
 	return Array.from(
-		block.matchAll(/(--md-[a-z-]+): rgb\((\d+) (\d+) (\d+)\);/gu),
+		block.matchAll(/(--[a-z\d-]+): rgb\((\d+) (\d+) (\d+)\);/gu),
 		([, name, ...rgb]) => `${name}:#${rgb.map((channel) => Number(channel).toString(16).padStart(2, '0')).join('')}`,
 	);
 }
 
 function generatedVariables(dark: boolean): string[] {
-	return themeColorVariables(defaultThemeColor, dark, 'standard').split(';').filter(Boolean);
+	return (
+		themeColorVariables(defaultThemeColor, dark, 'standard') +
+		chartColorVariables(defaultThemeColor, dark) +
+		statusColorVariables(defaultThemeColor, dark)
+	)
+		.split(';')
+		.filter(Boolean);
 }
 
 // The default colors in index.css are used before JS loads, so they must match the generated ones

@@ -1,4 +1,5 @@
 import {
+	Blend,
 	DynamicScheme,
 	Hct,
 	TonalPalette,
@@ -101,6 +102,58 @@ function scheme(themeColor: string, dark: boolean, contrast: Contrast, secondary
 	});
 }
 
+/** Number of `--chart-*` colors, spaced evenly around the hue wheel starting from the theme color's hue */
+const chartCount = 5;
+
+/**
+ * Generate chart colors for a theme color as `--chart-*` CSS variable declarations.
+ * They share one HCT tone so every color contrasts equally with the background, only the hue changes.
+ */
+export function chartColorVariables(themeColor: string, dark: boolean): string {
+	const { hue } = Hct.fromInt(argbFromHex(themeColor));
+	return Array.from(
+		{ length: chartCount },
+		(_, index) =>
+			`--chart-${index + 1}:${hexFromArgb(Hct.from((hue + (index * 360) / chartCount) % 360, 60, dark ? 72 : 48).toInt())};`,
+	).join('');
+}
+
+/**
+ * Status colors keep their meaning, so like MD3 custom colors they start from a fixed hue that's only nudged toward the theme
+ * color's. Warning isn't nudged, like MD3's error: amber turns orange next to red themes, close to the error color, and
+ * chartreuse next to green or blue ones.
+ */
+const statuses = ['success', 'info', 'warning', 'test-mode'] as const;
+export type Status = (typeof statuses)[number];
+const statusColors: Record<Status, string> = {
+	success: '#10b981',
+	info: '#3b82f6',
+	warning: '#f59e0b',
+	'test-mode': '#8b5cf6',
+};
+
+export function statusPalette(status: Status, themeColor: string): TonalPalette {
+	const color = argbFromHex(statusColors[status]);
+	return TonalPalette.fromInt(status === 'warning' ? color : Blend.harmonize(color, argbFromHex(themeColor)));
+}
+
+/**
+ * Generate status colors for a theme color as CSS variable declarations, ex. `--success` for fills and icons and
+ * `--success-foreground` for text. Warning fills are lighter since yellows only look yellow when they're light.
+ */
+export function statusColorVariables(themeColor: string, dark: boolean): string {
+	return statuses
+		.map((status) => {
+			const palette = statusPalette(status, themeColor);
+			const fillTone = status === 'warning' ? 75 : dark ? 70 : 60;
+			const fill = `--${status}:${hexFromArgb(palette.tone(fillTone))};`;
+			return status === 'test-mode'
+				? fill
+				: `${fill}--${status}-foreground:${hexFromArgb(palette.tone(dark ? 80 : 40))};`;
+		})
+		.join('');
+}
+
 /** Generate the MD3 tonal spot scheme (2025 spec) for a theme color as `--md-*` CSS variable declarations */
 export function themeColorVariables(
 	themeColor: string,
@@ -122,7 +175,15 @@ export function themeColorVariables(
  * The doubled selectors win over `:root` and `.dark` in `index.css` regardless of which stylesheet loads last.
  */
 function themeColorCss(themeColor: string, contrast: Contrast, secondaryColor: string | undefined): string {
-	return `:root:root{${themeColorVariables(themeColor, false, contrast, secondaryColor)}}:root.dark{${themeColorVariables(themeColor, true, contrast, secondaryColor)}}`;
+	const light =
+		themeColorVariables(themeColor, false, contrast, secondaryColor) +
+		chartColorVariables(themeColor, false) +
+		statusColorVariables(themeColor, false);
+	const dark =
+		themeColorVariables(themeColor, true, contrast, secondaryColor) +
+		chartColorVariables(themeColor, true) +
+		statusColorVariables(themeColor, true);
+	return `:root:root{${light}}:root.dark{${dark}}`;
 }
 
 /** Colors used to draw a preview of a theme in Settings */
@@ -173,6 +234,11 @@ export function themePreviewColors(
 		primary: hexFromArgb(colors.primary),
 		accent: hexFromArgb(colors.primaryContainer),
 	};
+}
+
+/** Color that theme-tinted widget colors, ex. discrete timeline bands, take their hue from. Neutral uses Tailwind's blue-500 */
+export function accentColor(preset: ThemePreset, themeColor: string): string {
+	return preset === 'coss' ? '#3b82f6' : (presetColors[preset] ?? themeColor);
 }
 
 /** `index.html` applies the cached stylesheet from this key before render to avoid a flash of the default colors, keep them in sync */

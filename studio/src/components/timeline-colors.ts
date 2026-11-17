@@ -5,7 +5,7 @@ export const modeColors: Record<RobotMode, string | undefined> = {
 	disabled: undefined,
 	auto: 'bg-success',
 	teleop: 'bg-info',
-	test: 'bg-violet-500',
+	test: 'bg-test-mode',
 	estop: 'bg-destructive',
 };
 

@@ -36,12 +36,28 @@ The theme SHALL have both light and dark variants derived from the same color sc
 - **THEN** every surface, text, and widget color switches to the light variant
 - **AND** status colors remain distinguishable
 
+### Requirement: Status colors
+
+The theme SHALL provide success, info, warning, and test mode status colors, each with a lighter fill for icons and backgrounds and a text color readable on surfaces. Unless the Neutral preset is selected, they MUST be generated from fixed hues the way MD3 custom colors are: success, info, and test mode are nudged toward the theme color's hue, while warning keeps its amber hue so it never looks like the error color.
+
+#### Scenario: Themed status colors
+
+- **GIVEN** the Team 581 preset is selected
+- **WHEN** the user views a success badge
+- **THEN** it's green, nudged slightly toward the maroon theme color
+
 ### Requirement: Series colors
 
-The theme SHALL provide 5 series colors for widgets that color entries, and every series color MUST be distinguishable from the others in both light and dark variants.
+The theme SHALL provide 5 series colors for widgets that color entries, and every series color MUST be distinguishable from the others in both light and dark variants. Unless the Neutral preset is selected, the series colors MUST be generated from the theme color: the first takes the theme color's hue, the rest are spaced evenly around the hue wheel, and all share one lightness so each contrasts equally with the background.
 
 #### Scenario: Five entries in light theme
 
 - **GIVEN** the light theme is active
 - **WHEN** a widget colors 5 entries
 - **THEN** each entry has a visibly different color
+
+#### Scenario: Themed series colors
+
+- **GIVEN** the match13 preset is selected
+- **WHEN** a widget colors entries
+- **THEN** the first entry is blue, matching match13's theme color

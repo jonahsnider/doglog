@@ -3,7 +3,15 @@ import { type Entry, getTimeRange, subscribeData, type TimeRange } from '@/data/
 import { formatValue } from '@/data/format-value';
 import { useSource } from '@/data/source';
 import { formatTime, getCursorTime, seek, subscribeTimeline } from '@/timeline';
-import { bandColor, type ColorAssignments } from '@/widgets/discrete-timeline-colors';
+import { accentColor } from '@/theme-color';
+import { useSettings } from '@/settings';
+import {
+	bandColor,
+	bandPalette,
+	bandTextColor,
+	type BandPalette,
+	type ColorAssignments,
+} from '@/widgets/discrete-timeline-colors';
 import { NoData } from '@/widgets/no-data';
 import type { WidgetProps } from '@/widgets/widget-type';
 import { EntryName } from '@/components/entry-name';
@@ -55,6 +63,7 @@ function drawBands(
 	bindings: WidgetProps['bindings'],
 	view: TimeRange | undefined,
 	assignments: ColorAssignments,
+	palette: BandPalette,
 ): void {
 	const width = canvas.clientWidth;
 	const height = canvas.clientHeight;
@@ -93,15 +102,14 @@ function drawBands(
 
 			const x = toX(Math.max(timestamps[index]!, view.start));
 			const bandWidth = toX(next < length ? timestamps[next]! : view.end) - x;
-			const color = bandColor(assignments, entry, value);
-			context.fillStyle = color.fill;
+			context.fillStyle = bandColor(assignments, palette, entry, value);
 			// A 1px gap separates neighboring bands, in case two values share a color
 			context.fillRect(x, y, bandWidth > 2 ? bandWidth - 1 : Math.max(bandWidth, 1), bandHeight);
 
 			if (bandWidth > 24) {
 				const text = formatValue(value);
 				if (context.measureText(text).width + 8 <= bandWidth) {
-					context.fillStyle = color.text;
+					context.fillStyle = bandTextColor;
 					context.fillText(text, x + 4, y + bandHeight / 2);
 				}
 			}
@@ -140,6 +148,8 @@ export function DiscreteTimeline({ bindings }: WidgetProps) {
 	const cursorLine = useRef<HTMLDivElement>(null);
 	const assignments = useRef<ColorAssignments>(new Map());
 	const [hover, setHover] = useState<Hover>();
+	const { themePreset, themeColor } = useSettings();
+	const accent = accentColor(themePreset, themeColor);
 
 	useEffect(() => {
 		const updateCursor = () => {
@@ -155,9 +165,10 @@ export function DiscreteTimeline({ bindings }: WidgetProps) {
 			line.style.transform = `translateX(${x}px)`;
 		};
 
-		// Bands only change with data or size, cursor moves just move the line
+		const palette = bandPalette(accent);
+		// Bands only change with data, size, or theme, cursor moves just move the line
 		const scheduleDraw = batched(() => {
-			drawBands(canvas.current!, bindings, visibleWindow(live), assignments.current);
+			drawBands(canvas.current!, bindings, visibleWindow(live), assignments.current, palette);
 			updateCursor();
 		});
 
@@ -171,7 +182,7 @@ export function DiscreteTimeline({ bindings }: WidgetProps) {
 			unsubscribeTimeline();
 			observer.disconnect();
 		};
-	}, [bindings, live]);
+	}, [accent, bindings, live]);
 
 	const handlePointerMove = (event: PointerEvent) => {
 		const rect = canvas.current!.getBoundingClientRect();
