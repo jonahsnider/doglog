@@ -121,6 +121,10 @@ function Scrubber({ range, time }: { range: TimeRange; time: number }) {
 			className="group flex h-full min-w-0 flex-1 cursor-pointer touch-none items-center px-2 outline-none select-none"
 			onPointerDown={(event) => {
 				if (event.button === 0) {
+					// WebKit starts a text selection when dragging out of the slider despite `select-none`.
+					// Preventing that also prevents focusing, so the slider is focused manually.
+					event.preventDefault();
+					event.currentTarget.focus();
 					event.currentTarget.setPointerCapture(event.pointerId);
 					seekToPointer(event);
 				}
