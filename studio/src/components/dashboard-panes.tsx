@@ -7,6 +7,7 @@ import { AddWidgetPrompt } from '@/components/add-widget-prompt';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { WidgetOptions } from '@/components/entry-picker';
 import { PaneButton } from '@/components/pane-button';
+import { Toolbar } from '@/components/ui/toolbar';
 import { WidgetView } from '@/components/widget-view';
 import { shortcuts } from '@/commands';
 import {
@@ -235,9 +236,10 @@ function PaneView({
 					<span className="truncate">{type?.name ?? widget?.type}</span>
 				</span>
 				{/* Pane controls stay out of the way unless the pane is hovered or focused */}
-				<div
+				<Toolbar
+					aria-label="Pane controls"
 					className={cn(
-						'flex items-center gap-0.5 transition-opacity duration-75',
+						'items-center gap-0.5 rounded-none border-0 bg-transparent p-0 transition-opacity duration-75',
 						!focused && 'opacity-0 group-hover/pane:opacity-100',
 					)}
 				>
@@ -271,7 +273,7 @@ function PaneView({
 							<XIcon />
 						</PaneButton>
 					)}
-				</div>
+				</Toolbar>
 			</div>
 			<div className="min-h-0 flex-1">
 				{widget === undefined ? (

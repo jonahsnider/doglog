@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Combobox, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from '@/components/ui/combobox';
 import { Popover, PopoverPopup, PopoverTitle, PopoverTrigger } from '@/components/ui/popover';
+import { ToolbarButton } from '@/components/ui/toolbar';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { useEntries } from '@/data/data-store';
 import { formatEntryType } from '@/data/samples';
@@ -21,7 +22,7 @@ type EntryPickerProps = {
 	onEntryNamesChange: (entryNames: string[]) => void;
 };
 
-/** The widget options button, opens a searchable picker for binding entries of the widget's accepted kinds */
+/** The widget options button for a pane toolbar, opens a searchable picker for binding entries of the widget's accepted kinds */
 export function WidgetOptions({
 	open,
 	onOpenChange,
@@ -31,7 +32,11 @@ export function WidgetOptions({
 		<Popover open={open} onOpenChange={onOpenChange}>
 			<Tooltip>
 				<TooltipTrigger
-					render={<PopoverTrigger render={<Button variant="ghost" size="icon-xs" aria-label="Widget options" />} />}
+					render={
+						<PopoverTrigger
+							render={<ToolbarButton render={<Button variant="ghost" size="icon-xs" />} aria-label="Widget options" />}
+						/>
+					}
 				>
 					<Settings2Icon />
 				</TooltipTrigger>
