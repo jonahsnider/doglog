@@ -4,6 +4,7 @@ import { type HotkeyChord, useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { type MouseEvent, type ReactElement, type ReactNode, useEffect, useState } from 'react';
 import {
 	ContextMenu,
+	ContextMenuCheckboxItem,
 	ContextMenuItem,
 	ContextMenuPopup,
 	ContextMenuSeparator,
@@ -26,6 +27,13 @@ export type MenuAction = {
 	onSelect: () => void;
 };
 
+/** Toggling it keeps the menu open on the web, native menus close */
+export type MenuCheckbox = {
+	label: string;
+	checked: boolean;
+	onCheckedChange: (checked: boolean) => void;
+};
+
 type Submenu = {
 	label: string;
 	disabled?: boolean;
@@ -33,7 +41,7 @@ type Submenu = {
 };
 
 /** An item in a context menu definition */
-export type MenuEntry = MenuAction | Submenu | 'separator';
+export type MenuEntry = MenuAction | MenuCheckbox | Submenu | 'separator';
 
 type AppContextMenuProps = {
 	/** Or a function of the right-clicked element, for menus that depend on what's under the pointer */
@@ -43,6 +51,8 @@ type AppContextMenuProps = {
 	children?: ReactNode;
 	/** Shows the browser's own context menu instead */
 	disabled?: boolean;
+	/** Only called on the web, native menus can't change while they're open */
+	onOpenChange?: (open: boolean) => void;
 };
 
 /** Selects a submenu's items by their access keys, while it's mounted */
@@ -56,7 +66,7 @@ function AccessKeys({ items, close }: { items: readonly MenuEntry[]; close: () =
 			const item = items.find(
 				(other): other is MenuAction =>
 					typeof other === 'object' &&
-					!('items' in other) &&
+					'onSelect' in other &&
 					!(other.disabled ?? false) &&
 					other.accessKey?.toLowerCase() === event.key.toLowerCase(),
 			);
@@ -97,6 +107,14 @@ function WebMenuEntries({ items, close }: { items: readonly MenuEntry[]; close: 
 			);
 		}
 
+		if ('checked' in item) {
+			return (
+				<ContextMenuCheckboxItem key={item.label} checked={item.checked} onCheckedChange={item.onCheckedChange}>
+					{item.label}
+				</ContextMenuCheckboxItem>
+			);
+		}
+
 		return (
 			<ContextMenuItem
 				key={item.label}
@@ -115,13 +133,17 @@ function WebMenuEntries({ items, close }: { items: readonly MenuEntry[]; close: 
 	});
 }
 
-function WebContextMenu({ items, render, children, disabled = false }: AppContextMenuProps) {
+function WebContextMenu({ items, render, children, disabled = false, onOpenChange }: AppContextMenuProps) {
 	const [target, setTarget] = useState<Element>();
 	const [open, setOpen] = useState(false);
-	const close = () => setOpen(false);
+	const changeOpen = (newOpen: boolean) => {
+		setOpen(newOpen);
+		onOpenChange?.(newOpen);
+	};
+	const close = () => changeOpen(false);
 
 	return (
-		<ContextMenu disabled={disabled} open={open} onOpenChange={setOpen}>
+		<ContextMenu disabled={disabled} open={open} onOpenChange={changeOpen}>
 			<ContextMenuTrigger
 				render={render}
 				onContextMenu={(event) => setTarget(event.target instanceof Element ? event.target : event.currentTarget)}

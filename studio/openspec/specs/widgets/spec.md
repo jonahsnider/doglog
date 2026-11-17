@@ -71,7 +71,7 @@ The entry picker SHALL list few enough entries to fit without scrolling, at most
 
 ### Requirement: Edit entries from the context menu
 
-A widget's context menu SHALL offer to add entries, which opens the entry picker, and to remove a bound entry. Right-clicking the part of a widget that shows an entry, such as a values table or discrete timeline row, MUST offer to remove that entry directly; elsewhere, bound entries MUST be listed in a submenu, with their role when it's shown in the legend. Middle-clicking the part of a widget that shows an entry SHALL remove it, and only that binding of an entry bound more than once.
+A widget's context menu SHALL offer to add entries, which opens the entry picker, and to remove a bound entry. Right-clicking the part of a widget that shows an entry, such as a values table row, MUST offer to remove that entry directly; elsewhere, bound entries MUST be listed as checkboxes in an "Entries" submenu, with their role when it's shown in the legend. Middle-clicking the part of a widget that shows an entry SHALL remove it, and only that binding of an entry bound more than once.
 
 #### Scenario: Remove a values table row
 
@@ -88,8 +88,18 @@ A widget's context menu SHALL offer to add entries, which opens the entry picker
 #### Scenario: Remove one of two bindings
 
 - **GIVEN** a field widget showing `/Drive/Pose` as a robot and as a ghost
-- **WHEN** the user opens the context menu outside the drawings and chooses "Remove entry", then "/Drive/Pose (Ghost)"
+- **WHEN** the user opens the context menu outside the drawings and unchecks "Entries", then "/Drive/Pose (Ghost)"
 - **THEN** the widget only shows `/Drive/Pose` as a robot
+
+### Requirement: Toggle several entries in one menu
+
+On the web, the context menu's "Entries" submenu SHALL stay open while entries are toggled. Entries unchecked since the menu opened MUST stay listed, and checking one again MUST restore it in its original position.
+
+#### Scenario: Restore an entry before closing the menu
+
+- **GIVEN** a line chart showing `/Arm/Angle` then `/Arm/Voltage`
+- **WHEN** the user unchecks `/Arm/Angle` in the "Entries" submenu, then checks it again without closing the menu
+- **THEN** the chart shows `/Arm/Angle` then `/Arm/Voltage`
 
 ### Requirement: Bind by drag and drop
 

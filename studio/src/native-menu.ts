@@ -1,5 +1,6 @@
 import type { LogicalPosition } from '@tauri-apps/api/dpi';
 import {
+	type CheckMenuItemOptions,
 	Menu,
 	type MenuItemOptions,
 	type PredefinedMenuItemOptions,
@@ -10,12 +11,16 @@ import type { MenuEntry } from '@/components/app-context-menu';
 import { clearRecentLogs, recentLogLabels, recentLogsStore } from '@/data/recent-logs';
 import { openLogPath } from '@/data/source';
 
-type NativeMenuEntry = MenuItemOptions | SubmenuOptions | PredefinedMenuItemOptions;
+type NativeMenuEntry = MenuItemOptions | CheckMenuItemOptions | SubmenuOptions | PredefinedMenuItemOptions;
 
 function toNativeEntries(items: readonly MenuEntry[]): NativeMenuEntry[] {
 	return items.map((item): NativeMenuEntry => {
 		if (item === 'separator') {
 			return { item: 'Separator' };
+		}
+
+		if ('checked' in item) {
+			return { text: item.label, checked: item.checked, action: () => item.onCheckedChange(!item.checked) };
 		}
 
 		const enabled = !(item.disabled ?? false);

@@ -1,7 +1,7 @@
 import { Columns2Icon, MoveIcon, Rows2Icon, XIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { AddWidgetPrompt } from '@/components/add-widget-prompt';
-import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
+import { AppContextMenu, type MenuCheckbox, type MenuEntry } from '@/components/app-context-menu';
 import { WidgetOptions } from '@/components/entry-picker';
 import { PaneButton } from '@/components/pane-button';
 import { PaneDropIndicator } from '@/components/pane-drop-indicator';
@@ -14,8 +14,10 @@ import { getEntry, useEntries } from '@/data/data-store';
 import {
 	changeWidgetType,
 	createWidget,
+	type Binding,
 	removeBinding,
 	resolveBindings,
+	restoreBinding,
 	setBoundEntries,
 	widgetBindings,
 } from '@/bindings';
@@ -60,6 +62,8 @@ export function PaneView({
 		const byName = new Map(entries.map((entry) => [entry.name, entry]));
 		return type ? resolveBindings(type, widgetBindings(widget), (name) => byName.get(name)) : [];
 	}, [entries, type, widget]);
+	/** The bindings when the context menu opened, so the ones removed from it stay listed and can be restored */
+	const [menuBindings, setMenuBindings] = useState<Binding[]>();
 	const entryNames = useMemo(() => [...new Set(bindings.map((binding) => binding.name))], [bindings]);
 	const { dragRef, isDragging, dropRef, isDropTarget } = usePaneDrag(dashboardId, pane);
 
@@ -78,6 +82,9 @@ export function PaneView({
 	const menuItems = (target: Element): MenuEntry[] => {
 		const targetId = bindingIdAt(target);
 		const targetBinding = bindings.find((binding) => binding.id === targetId);
+		const listed = menuBindings ?? widgetBindings(widget);
+		const listedLabels = type ? resolveBindings(type, listed, getEntry).map((binding) => bindingLabel(binding)) : [];
+		const boundIds = new Set(bindings.map((binding) => binding.id));
 		return [
 			{
 				label: 'Split right',
@@ -105,9 +112,14 @@ export function PaneView({
 			{ label: 'Add entries', disabled: !type || !bindsEntries(type), onSelect: () => setOptionsOpen(true) },
 			targetBinding === undefined
 				? {
-						label: 'Remove entry',
-						disabled: bindings.length === 0,
-						items: bindings.map((binding) => ({ label: bindingLabel(binding), onSelect: () => remove(binding.id) })),
+						label: 'Entries',
+						disabled: listed.length === 0,
+						items: listed.map((binding, index): MenuCheckbox => ({
+							label: listedLabels[index]!,
+							checked: boundIds.has(binding.id),
+							onCheckedChange: (checked) =>
+								checked ? update((layout) => restoreBinding(layout, pane.id, binding, listed)) : remove(binding.id),
+						})),
 					}
 				: { label: `Remove ${bindingLabel(targetBinding)}`, onSelect: () => remove(targetBinding.id) },
 			'separator',
@@ -118,6 +130,7 @@ export function PaneView({
 	return (
 		<AppContextMenu
 			items={menuItems}
+			onOpenChange={(open) => setMenuBindings(open ? widgetBindings(widget) : undefined)}
 			render={
 				<div
 					ref={dropRef}

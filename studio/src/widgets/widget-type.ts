@@ -1,4 +1,4 @@
-import type { Hotkey } from '@tanstack/react-hotkeys';
+import type { HotkeyChord } from '@tanstack/react-hotkeys';
 import type { LucideIcon } from 'lucide-react';
 import type { ComponentType } from 'react';
 import type { Entry } from '@/data/data-store';
@@ -49,7 +49,7 @@ export type WidgetType = {
 	readonly name: string;
 	readonly icon: LucideIcon;
 	/** Picks this widget in a focused empty pane, or in the Change widget menu while it's open */
-	readonly hotkey: Hotkey;
+	readonly hotkey: HotkeyChord;
 	/** Kinds of entries that can be bound, none for widgets that don't show entries (ex. the notepad) */
 	readonly accepts: readonly BindableKind[];
 	/**

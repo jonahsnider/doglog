@@ -73,6 +73,20 @@ export function removeBinding(layout: PaneNode, paneId: string, bindingId: strin
 	return updateBindings(layout, paneId, (bindings) => bindings.filter((binding) => binding.id !== bindingId));
 }
 
+/** Bind `binding` again where it was in `previous`, an earlier copy of the pane's bindings, ex. to undo removing it */
+export function restoreBinding(
+	layout: PaneNode,
+	paneId: string,
+	binding: Binding,
+	previous: readonly Binding[],
+): PaneNode {
+	const position = (id: string) => previous.findIndex((other) => other.id === id);
+	return updateBindings(layout, paneId, (bindings) => {
+		const next = bindings.findIndex((other) => position(other.id) > position(binding.id));
+		return next === -1 ? [...bindings, binding] : bindings.toSpliced(next, 0, binding);
+	});
+}
+
 export function setBindingRole(layout: PaneNode, paneId: string, bindingId: string, role: string): PaneNode {
 	return updateBindings(layout, paneId, (bindings) =>
 		bindings.map((binding) => (binding.id === bindingId ? { ...binding, role } : binding)),
