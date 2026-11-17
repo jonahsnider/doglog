@@ -1,5 +1,5 @@
 import { LayoutDashboardIcon, UserIcon, UsersIcon } from 'lucide-react';
-import { m } from 'motion/react';
+import { m, useIsPresent } from 'motion/react';
 import type { Ref } from 'react';
 import { SidebarMenuItem } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
@@ -30,9 +30,16 @@ export function DropPlaceholder({
 	active: boolean;
 }) {
 	const { Icon, label } = content(dragged, shared);
+	const isPresent = useIsPresent();
 	return (
-		// A motion component so the dashboards' `AnimatePresence` removes it right away instead of waiting for an exit animation
-		<MotionSidebarMenuItem ref={ref} exit={{ opacity: 0 }} transition={{ duration: 0 }}>
+		// A motion component so the dashboards' `AnimatePresence` removes it right away instead of waiting for an exit animation.
+		// Hidden while it's removed, so a dashboard dropped in its spot doesn't push the ones below down for a frame.
+		<MotionSidebarMenuItem
+			ref={ref}
+			className={cn(!isPresent && 'hidden')}
+			exit={{ opacity: 0 }}
+			transition={{ duration: 0 }}
+		>
 			<div
 				className={cn(
 					'flex h-8 items-center gap-2 overflow-hidden rounded-md border border-dashed px-2 text-sm whitespace-nowrap select-none [&>svg]:size-4 [&>svg]:shrink-0',

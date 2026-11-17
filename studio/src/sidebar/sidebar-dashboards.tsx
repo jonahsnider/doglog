@@ -63,7 +63,7 @@ function useSectionItems({ dashboards, selection }: SectionProps, shared: boolea
 	const listRef = useRef<HTMLUListElement>(null);
 	const placeholderRef = useRef<HTMLLIElement>(null);
 	// Panes dropped anywhere on the section move to a new dashboard, dashboards from the other section move here
-	const { ref, dropIndex, dragged } = useNewDashboardDrop(listRef, placeholderRef, shared);
+	const { ref, dropIndex, dragged, dropped } = useNewDashboardDrop(listRef, placeholderRef, shared);
 	const section = dashboards.filter((dashboard) => dashboard.shared === shared);
 	const items = section.map((dashboard, sectionIndex) => (
 		<DashboardItem
@@ -73,6 +73,8 @@ function useSectionItems({ dashboards, selection }: SectionProps, shared: boolea
 			index={dashboards.indexOf(dashboard)}
 			sectionIndex={sectionIndex}
 			selection={selection}
+			// Dashboards dropped here show up in full in the placeholder's spot
+			appear={!dropped}
 		/>
 	));
 	if (dragged && dropIndex !== undefined) {

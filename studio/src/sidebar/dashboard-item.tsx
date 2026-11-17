@@ -14,7 +14,7 @@ import { PreviewCard, PreviewCardPopup, PreviewCardTrigger } from '@/components/
 import { Kbd } from '@/components/ui/kbd';
 import { dashboardShortcut, shortcuts, useShortcutHint } from '@/commands/commands';
 import { moveDashboardToSection } from '@/dashboards/sharing';
-import { dashboardDragType, dashboardSensors } from '@/dashboards/drag';
+import { type DashboardDragData, dashboardDragType, dashboardSensors } from '@/dashboards/drag';
 import { dashboardName, mainWidgetType, suggestDashboardName } from '@/dashboards/label';
 import { type Dashboard, deleteDashboard, deleteDashboards, renameDashboard } from '@/dashboards/dashboards';
 import type { DashboardSelection } from '@/sidebar/selection';
@@ -52,6 +52,40 @@ function ItemEnd({
 				</SidebarMenuBadge>
 			)}
 		</>
+	);
+}
+
+/** How a dashboard slides in and out of the sidebar */
+function useItemTransitions(isDragSource: boolean) {
+	const transition = useMotionTransition({ duration: 0.2, ease: easing.inOut });
+	// Dashboards dragged to the other section are hidden right away, so only the gap they leave closes
+	const exitTransition = isDragSource ? { ...transition, opacity: { duration: 0 } } : transition;
+	return { transition, exitTransition };
+}
+
+/** Renames a dashboard on blur or Enter, or keeps its name on Escape */
+function RenameInput({ dashboard, onDone }: { dashboard: Dashboard; onDone: () => void }) {
+	return (
+		<SidebarInput
+			aria-label="Dashboard name"
+			// Starts blank for a suggested name, so it keeps following the dashboard's contents unless a name is typed
+			defaultValue={dashboard.name ?? ''}
+			placeholder={suggestDashboardName(dashboard.layout)}
+			autoFocus
+			onFocus={(event) => event.currentTarget.select()}
+			onBlur={(event) => {
+				renameDashboard(dashboard.id, event.currentTarget.value);
+				onDone();
+			}}
+			onKeyDown={(event) => {
+				if (event.key === 'Enter') {
+					event.currentTarget.blur();
+				} else if (event.key === 'Escape') {
+					event.currentTarget.value = dashboard.name ?? '';
+					event.currentTarget.blur();
+				}
+			}}
+		/>
 	);
 }
 
@@ -100,6 +134,7 @@ export function DashboardItem({
 	index,
 	sectionIndex,
 	selection,
+	appear,
 }: {
 	dashboard: Dashboard;
 	dashboards: Dashboard[];
@@ -108,6 +143,8 @@ export function DashboardItem({
 	/** Position among the shared dashboards or the others */
 	sectionIndex: number;
 	selection: DashboardSelection;
+	/** Whether it slides in when added, instead of showing up in full in place of the drop placeholder */
+	appear: boolean;
 }) {
 	const router = useRouter();
 	// Closed dashboards stay rendered while they slide away, but can't be selected or dragged
@@ -117,13 +154,14 @@ export function DashboardItem({
 	const active = present && pathname === `/dashboards/${dashboard.id}`;
 	const [renaming, setRenaming] = useState(false);
 	const { ref, handleRef, isDragSource } = useSortable({
-		id: dashboard.id,
+		// Sharing a dashboard keeps its ID, so the one that shows up in the shared section would take over the drop otherwise
+		id: `${dashboard.shared ? 'shared' : 'local'}-${dashboard.id}`,
 		index: sectionIndex,
 		group: dashboard.shared ? 'shared' : 'local',
 		type: dashboardDragType,
 		// Dropping a dashboard in the other section shares or unshares it, see `useNewDashboardDrop()`
 		accept: (source) => source.type === dashboardDragType && source.data['shared'] === dashboard.shared,
-		data: { shared: dashboard.shared },
+		data: { dashboardId: dashboard.id, shared: dashboard.shared } satisfies DashboardDragData,
 		sensors: dashboardSensors,
 		disabled: renaming || !present,
 	});
@@ -132,7 +170,7 @@ export function DashboardItem({
 	if (isDragSource && previewOpen) {
 		setPreviewOpen(false);
 	}
-	const transition = useMotionTransition({ duration: 0.2, ease: easing.inOut });
+	const { transition, exitTransition } = useItemTransitions(isDragSource);
 	const shortcut = dashboardShortcut(index);
 	const name = dashboardName(dashboard);
 	const Icon = mainWidgetType(dashboard.layout)?.icon ?? LayoutDashboardIcon;
@@ -153,12 +191,12 @@ export function DashboardItem({
 					// The negative margin cancels the menu's gap-1, so a collapsed dashboard takes up no space.
 					// The height and margin animate so the dashboards below move with it, a short reflow of one short list
 					// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Moves the dashboards below
-					initial={{ height: 0, marginBottom: '-0.25rem', zIndex: 1 }}
+					initial={appear && { height: 0, marginBottom: '-0.25rem', zIndex: 1 }}
 					// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Moves the dashboards below
 					animate={{ height: 'auto', marginBottom: '0rem', opacity: 1, transitionEnd: { zIndex: 'auto' } }}
 					// Closed dashboards fade and slide up, clipped so they don't cover the one above
 					// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Moves the dashboards below
-					exit={{ height: 0, marginBottom: '-0.25rem', opacity: 0, overflow: 'hidden' }}
+					exit={{ height: 0, marginBottom: '-0.25rem', opacity: 0, overflow: 'hidden', transition: exitTransition }}
 					transition={transition}
 				/>
 			}
@@ -173,26 +211,7 @@ export function DashboardItem({
 				transition={transition}
 			>
 				{renaming ? (
-					<SidebarInput
-						aria-label="Dashboard name"
-						// Starts blank for a suggested name, so it keeps following the dashboard's contents unless a name is typed
-						defaultValue={dashboard.name ?? ''}
-						placeholder={suggestDashboardName(dashboard.layout)}
-						autoFocus
-						onFocus={(event) => event.currentTarget.select()}
-						onBlur={(event) => {
-							renameDashboard(dashboard.id, event.currentTarget.value);
-							setRenaming(false);
-						}}
-						onKeyDown={(event) => {
-							if (event.key === 'Enter') {
-								event.currentTarget.blur();
-							} else if (event.key === 'Escape') {
-								event.currentTarget.value = dashboard.name ?? '';
-								event.currentTarget.blur();
-							}
-						}}
-					/>
+					<RenameInput dashboard={dashboard} onDone={() => setRenaming(false)} />
 				) : (
 					<>
 						<PreviewCard open={previewOpen} onOpenChange={(open) => setPreviewOpen(open && !isDragSource)}>

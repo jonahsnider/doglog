@@ -1,4 +1,4 @@
-import { PointerActivationConstraints } from '@dnd-kit/dom';
+import { Feedback, PointerActivationConstraints } from '@dnd-kit/dom';
 import { DragDropProvider, DragOverlay, KeyboardSensor, PointerSensor } from '@dnd-kit/react';
 import { isSortable } from '@dnd-kit/react/sortable';
 import { LayoutDashboardIcon } from 'lucide-react';
@@ -34,7 +34,14 @@ export function DragProvider({ children }: { children: ReactNode }) {
 	return (
 		<DragDropProvider
 			sensors={sensors}
-			onDragEnd={({ operation, canceled }) => {
+			onDragStart={(_event, manager) => {
+				// Undoes skipping the drop animation below
+				const feedback = manager.registry.plugins.get(Feedback);
+				if (feedback) {
+					feedback.dropAnimation = undefined;
+				}
+			}}
+			onDragEnd={({ operation, canceled }, manager) => {
 				const { source, target } = operation;
 				if (canceled || !source) {
 					return;
@@ -50,12 +57,18 @@ export function DragProvider({ children }: { children: ReactNode }) {
 						movePaneToNewDashboard(dashboardId, paneId, drop.shared, drop.index);
 					}
 				} else if (isDashboardDrag(source)) {
+					const { dashboardId } = source.data;
 					if (isSplitZone(drop)) {
-						combineDashboards(drop.dashboardId, String(source.id), drop.side);
+						combineDashboards(drop.dashboardId, dashboardId, drop.side);
 					} else if (isNewDashboardDrop(drop)) {
-						moveDashboardToSection(router, String(source.id), drop.shared, drop.index);
+						moveDashboardToSection(router, dashboardId, drop.shared, drop.index);
+						// It shows up in the other section right away, instead of flying back to its old spot as it's removed
+						const feedback = manager.registry.plugins.get(Feedback);
+						if (feedback) {
+							feedback.dropAnimation = null;
+						}
 					} else if (isSortable(source)) {
-						moveDashboard(String(source.id), source.index);
+						moveDashboard(dashboardId, source.index);
 					}
 				}
 			}}

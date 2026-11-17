@@ -14,7 +14,7 @@ export function DashboardSplitZones() {
 	const { source } = useDragOperation();
 	// Subscribes to dashboard changes, so the zones are disabled as soon as the layouts can't be combined
 	useDashboards();
-	const draggedId = isDashboardDrag(source) ? String(source.id) : undefined;
+	const draggedId = isDashboardDrag(source) ? source.data.dashboardId : undefined;
 	const current = dashboardId === undefined ? undefined : getDashboard(dashboardId);
 	const dragged = draggedId === undefined || draggedId === dashboardId ? undefined : getDashboard(draggedId);
 	const transition = useMotionTransition({ duration: 0.15, ease: easing.out });

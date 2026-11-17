@@ -20,7 +20,8 @@ export function useDragging(): boolean {
  * Lets panes be dropped on the sidebar's shared dashboards or the others to move them to a new dashboard, and dashboards
  * from the other section to move them over, added where the pointer is. Attach `ref` to the drop area, and render a
  * placeholder at `dropIndex` (`undefined` when nothing is over it) in `list`, whose dashboards are marked with
- * `data-dashboard-index`. `dragged` is what's being dragged, if it could be dropped here.
+ * `data-dashboard-index`. `dragged` is what's being dragged, if it could be dropped here. `dropped` is on while what was
+ * dropped here shows up in the placeholder's spot.
  */
 export function useNewDashboardDrop(
 	list: RefObject<HTMLElement | null>,
@@ -38,7 +39,17 @@ export function useNewDashboardDrop(
 		accept,
 		data: { kind: 'new-dashboard', shared, index },
 	});
+	// Set along with the drop moving its dashboard here, while it stays the drop target until dnd-kit finishes the drop
+	const [dropped, setDropped] = useState(false);
+	if (dropped && !isDropTarget) {
+		setDropped(false);
+	}
 	useDragDropMonitor({
+		onDragEnd: ({ operation, canceled }) => {
+			if (!canceled && operation.target?.id === newDashboardId) {
+				setDropped(true);
+			}
+		},
 		onDragMove: ({ operation }) => {
 			if (operation.target?.id !== newDashboardId || !list.current) {
 				return;
@@ -63,5 +74,5 @@ export function useNewDashboardDrop(
 	});
 	const dragged: DraggedKind | undefined =
 		source && accept(source) ? (source.type === paneDragType ? 'pane' : 'dashboard') : undefined;
-	return { ref, dropIndex: isDropTarget ? index : undefined, dragged };
+	return { ref, dropIndex: isDropTarget && !dropped ? index : undefined, dragged, dropped };
 }
