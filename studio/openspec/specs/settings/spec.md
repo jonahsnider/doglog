@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the Settings page, where users choose the color theme and contrast, the robot connection target, and whether media controls control playback, with all settings persisted locally on the device. The page also shows which version of Studio is running.
+Define the Settings page, where users choose the color theme and contrast, their name, the robot connection target, and whether media controls control playback, with all settings persisted locally on the device. The page also shows which version of Studio is running.
 
 ## Requirements
 
@@ -15,6 +15,15 @@ Settings SHALL let users choose a light, dark, or system color theme, and each o
 - **GIVEN** the theme is set to system
 - **WHEN** the operating system switches to dark mode
 - **THEN** Studio switches to the dark theme
+
+### Requirement: Name setting
+
+Settings SHALL let users set the name others see in shared dashboards. While it's blank, it MUST show the anonymous name others see instead.
+
+#### Scenario: Set a name
+
+- **WHEN** the user sets their name to Jonah
+- **THEN** others in shared dashboards see them as Jonah
 
 ### Requirement: Robot connection setting
 

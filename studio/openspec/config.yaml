@@ -22,7 +22,10 @@ context: |
     supports real-time streaming, as long as it stays behind the widget contract so it can be swapped later.
   - Core logic: TypeScript. Avoid other languages for core logic unless there's a strong reason.
   - WPILOG parsing: wpilog-parser. NT4 client: @ntcore-ts/client, patched with `pnpm patch` so topic properties
-    (ex. `unit`) pass through its schema instead of being stripped, until that's fixed upstream.
+    (ex. `unit`) pass through its schema instead of being stripped, and so prefix subscribers hear when topics are
+    unannounced, until that's fixed upstream.
+  - Shared dashboards: each dashboard is a Loro CRDT document. Without internet, peers exchange snapshots and presence
+    through the robot's NT4 server under `/DogLogStudio/`; peers are the source of truth, the server only relays.
   - Drawn widgets: plain SVG in React when the element count is small (ex. the swerve widget). Pick drawing
     libraries per widget when it's specced (ex. canvas for dense time series, three.js for 3D).
   - Field images: the season's community top-down CAD render from Chief Delphi (AdvantageScope uses the same ones), the

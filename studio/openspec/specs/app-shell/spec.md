@@ -81,7 +81,7 @@ The pages section SHALL list the auxiliary pages Logs and Settings, and selectin
 
 ### Requirement: Dashboards section
 
-The dashboards section SHALL always list the user's dashboards, regardless of which page or dashboard is currently shown.
+The dashboards section SHALL always list the user's dashboards, regardless of which page or dashboard is currently shown. Shared dashboards are listed first, in their own Shared section (see the shared-dashboards spec).
 
 #### Scenario: Open a dashboard from a page
 

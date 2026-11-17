@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { dragRegion } from '@/desktop/title-bar';
 import { getRobotHost } from '@/robot-target';
+import { useAnonymousName } from '@/sharing/identity';
 import { type Theme, themes, updateSettings, useSettings } from '@/settings';
 import {
 	type Contrast,
@@ -46,7 +47,8 @@ const contrastLabels: Record<Contrast, string> = {
 };
 
 function Settings() {
-	const { theme, themeColor, themePreset, contrast, robotTarget, mediaControls } = useSettings();
+	const { theme, themeColor, themePreset, contrast, name, robotTarget, mediaControls } = useSettings();
+	const anonymousName = useAnonymousName();
 	const robotHost = getRobotHost(robotTarget);
 	const robotTargetInvalid = robotTarget.trim() !== '' && robotHost === undefined;
 
@@ -158,6 +160,17 @@ function Settings() {
 						</SegmentedControl>
 					</Fieldset>
 					{themePreset === 'coss' && <FieldDescription>Neutral colors have a fixed contrast</FieldDescription>}
+				</Field>
+
+				<Field name="name">
+					<FieldLabel>Name</FieldLabel>
+					<Input
+						value={name}
+						onValueChange={(value) => updateSettings({ name: value })}
+						placeholder={anonymousName}
+						autoComplete="name"
+					/>
+					<FieldDescription>Shown to others in shared dashboards</FieldDescription>
 				</Field>
 
 				<Field name="robotTarget" invalid={robotTargetInvalid}>

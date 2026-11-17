@@ -155,6 +155,16 @@ Studio SHALL read each entry's JSON metadata from WPILOG entry metadata and from
 - **GIVEN** a log entry's metadata is set to `{"unit": "rad"}` and later to `{"unit": "deg"}`
 - **THEN** Studio uses `{"unit": "deg"}`
 
+### Requirement: Studio's own topics
+
+Entries under `/DogLogStudio/`, which Studio uses to share dashboards, SHALL NOT be shown, whether they come from a live NT4 server or from a log that recorded NetworkTables (ex. `NT:/DogLogStudio/`).
+
+#### Scenario: Robot log with shared dashboards
+
+- **GIVEN** a robot log recorded NetworkTables while dashboards were shared
+- **WHEN** the user opens it
+- **THEN** no `/DogLogStudio/` entries are shown
+
 ### Requirement: Connect target selection
 
 Connect SHALL try the robot connection target and the simulator at the same time, connect to the robot if it is reachable and otherwise to the simulator, and MUST keep trying both until one is reachable without showing an error.

@@ -1,7 +1,7 @@
 import { LogLevel, NetworkTables, type NetworkTablesTypes } from '@ntcore-ts/client';
 import { StructRegistry } from 'wpilib-struct';
 import { addEntry, addSample, type Entry, getEntry, parseMetadata, setMetadata, setStartTime } from '@/data/data-store';
-import { isSchemaEntry, normalizeEntryName, type Value } from '@/data/samples';
+import { isSchemaEntry, isStudioEntry, normalizeEntryName, type Value } from '@/data/samples';
 
 export type LiveStatus = 'connecting' | 'connected' | 'disconnected';
 
@@ -108,7 +108,7 @@ export function connectLive(host: string, onStatus: (status: LiveStatus) => void
 	topic.announce = (params) => {
 		announce(params);
 		const name = normalizeEntryName(params.name);
-		if (!closed && !isSchemaEntry(name)) {
+		if (!closed && !isSchemaEntry(name) && !isStudioEntry(name)) {
 			addEntry(name, params.type, undefined, parseMetadata(params.properties));
 		}
 	};
@@ -133,6 +133,9 @@ export function connectLive(host: string, onStatus: (status: LiveStatus) => void
 			}
 
 			const name = normalizeEntryName(params.name);
+			if (isStudioEntry(name)) {
+				return;
+			}
 			if (isSchemaEntry(name)) {
 				if (params.type === 'structschema' && name.startsWith(structSchemaPrefix)) {
 					registerStructSchema(name, value instanceof Uint8Array ? textDecoder.decode(value) : String(value));

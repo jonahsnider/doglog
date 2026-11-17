@@ -5,16 +5,24 @@ import * as z from 'zod';
 import {
 	type DashboardContents,
 	type DashboardDoc,
+	type DashboardSharing,
 	deleteDashboardDoc,
 	loadDashboardDoc,
 	readDashboardDoc,
+	readSharing,
 	writeDashboardDoc,
+	writeSharing,
 } from '@/dashboards/doc';
 import { createPersistedAtom } from '@/lib/persisted-store';
+import { focusedPanesStore, focusPane, zoomedPanesStore, zoomPane } from '@/dashboards/pane-state';
 import { copyLayout, type PaneNode, paneIds } from '@/panes/layout';
+import { getRobotHost, simulatorHost } from '@/robot-target';
+import { settingsStore } from '@/settings';
 
 export type Dashboard = DashboardContents & {
 	id: string;
+	/** Whether it's shared with everyone connected to the robot, see `shareDashboards()` */
+	shared: boolean;
 	/** The pane the user last interacted with, use `getFocusedPane()` since it can be outdated */
 	focusedPaneId?: string | undefined;
 	/** The pane filling the dashboard while the others are hidden, use `getZoomedPane()` since it can be outdated */
@@ -22,35 +30,13 @@ export type Dashboard = DashboardContents & {
 };
 
 /** Short enough for shareable URLs, random enough (~95 bits) to be unguessable. No `-` or `_`, which break links in chat apps. */
-const createDashboardId = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 16);
+export const createDashboardId = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 16);
 
-/** Dashboard IDs in sidebar order, first launch starts with one empty dashboard */
-const idsStore = createPersistedAtom('dashboard-ids', z.array(z.string()), [createDashboardId()]);
-
-/** Each dashboard's focused pane, kept outside its document since it isn't part of the dashboard */
-const focusedPanesStore = createPersistedAtom(
-	'focused-panes',
-	z.record(z.string(), z.string().optional()).catch({}),
-	{},
-);
-
-/** Focusing a pane isn't a change to the dashboard, so it isn't undone */
-export function focusPane(id: string, paneId: string | undefined): void {
-	// Called on every click in a pane, so skip updates that wouldn't change anything
-	if (focusedPanesStore.get()[id] !== paneId) {
-		focusedPanesStore.set((focusedPanes) => ({ ...focusedPanes, [id]: paneId }));
-	}
-}
-
-/** Each dashboard's zoomed pane, which like the focus isn't part of the dashboard */
-const zoomedPanesStore = createPersistedAtom('zoomed-panes', z.record(z.string(), z.string().optional()).catch({}), {});
-
-/** Zoom a pane, or restore the dashboard's other panes with `undefined`. Not undone, like focusing a pane. */
-export function zoomPane(id: string, paneId: string | undefined): void {
-	if (zoomedPanesStore.get()[id] !== paneId) {
-		zoomedPanesStore.set((zoomedPanes) => ({ ...zoomedPanes, [id]: paneId }));
-	}
-}
+/**
+ * Dashboard IDs in sidebar order, first launch starts with one empty dashboard. Includes shared dashboards that aren't
+ * shown: ones shared on another robot, and ones deleted by someone, which this device keeps sending to others for a while.
+ */
+export const idsStore = createPersistedAtom('dashboard-ids', z.array(z.string()), [createDashboardId()]);
 
 /** Splitting, closing, or moving panes restores the zoomed pane's dashboard */
 function restoreIfPanesChanged(id: string, before: PaneNode, after: PaneNode): void {
@@ -62,19 +48,21 @@ function restoreIfPanesChanged(id: string, before: PaneNode, after: PaneNode): v
 type LoadedDashboard = DashboardDoc & {
 	/** Read from its document, cleared when it changes */
 	dashboard?: Dashboard | undefined;
+	sharing?: DashboardSharing | undefined;
 };
 
 /** Every dashboard loaded by this window, closed ones are kept for their undo history */
-const docs = new Map<string, LoadedDashboard>();
+export const docs = new Map<string, LoadedDashboard>();
 
 /** `initial` is the contents of a dashboard that was never saved */
-function getDoc(id: string, initial?: DashboardContents): LoadedDashboard {
+export function getDoc(id: string, initial?: DashboardContents): LoadedDashboard {
 	let entry = docs.get(id);
 	if (!entry) {
 		// Undo steps are committed before the focus changes, so they save the pane that was focused before them
 		const loaded: LoadedDashboard = loadDashboardDoc(id, () => focusedPanesStore.get()[id], initial);
 		loaded.doc.subscribe(() => {
 			loaded.dashboard = undefined;
+			loaded.sharing = undefined;
 			refresh();
 		});
 		docs.set(id, loaded);
@@ -94,20 +82,42 @@ function readDashboard(id: string): Dashboard {
 	) {
 		// Keeps the same layout when only the focus or zoom changed
 		const { name, layout } = entry.dashboard ?? readDashboardDoc(entry.doc);
-		entry.dashboard = { id, name, layout, focusedPaneId, zoomedPaneId };
+		const shared = getSharing(id).scope !== undefined;
+		entry.dashboard = { id, name, layout, shared, focusedPaneId, zoomedPaneId };
 	}
 	return entry.dashboard;
 }
 
-/** Dashboards in sidebar order */
+export function getSharing(id: string): DashboardSharing {
+	const entry = getDoc(id);
+	entry.sharing ??= readSharing(entry.doc);
+	return entry.sharing;
+}
+
+/** The robot host that shared dashboards are scoped to, from the robot connection setting. The simulator counts as the robot. */
+export function sharingScope(): string {
+	return getRobotHost(settingsStore.get().robotTarget) ?? simulatorHost;
+}
+
+/** Dashboards on this device, and dashboards shared on the current robot unless someone deleted them */
+function isShown({ scope, deletedAt }: DashboardSharing): boolean {
+	return scope === undefined || (scope === sharingScope() && deletedAt === undefined);
+}
+
+/** Dashboards in sidebar order, shared ones first */
 const store = createAtom<Dashboard[]>([]);
 
 function refresh(): void {
-	store.set(idsStore.get().map((id) => readDashboard(id)));
+	const shown = idsStore
+		.get()
+		.filter((id) => isShown(getSharing(id)))
+		.map((id) => readDashboard(id));
+	store.set([...shown.filter((dashboard) => dashboard.shared), ...shown.filter((dashboard) => !dashboard.shared)]);
 }
 
 refresh();
 idsStore.subscribe(refresh);
+settingsStore.subscribe(refresh);
 focusedPanesStore.subscribe(refresh);
 zoomedPanesStore.subscribe(refresh);
 
@@ -121,6 +131,12 @@ export function getDashboards(): Dashboard[] {
 
 export function getDashboard(id: string): Dashboard | undefined {
 	return store.get().find((dashboard) => dashboard.id === id);
+}
+
+/** Called whenever a dashboard or the list changes, including dashboards that aren't shown */
+export function subscribeDashboards(listener: () => void): () => void {
+	const subscription = store.subscribe(listener);
+	return () => subscription.unsubscribe();
 }
 
 /** Create an empty dashboard at the top or bottom of the list */
@@ -193,29 +209,42 @@ export function renameDashboard(id: string, name: string): void {
 	updateDashboard(id, (dashboard) => ({ ...dashboard, name: trimmed === '' ? undefined : trimmed }));
 }
 
-/** Move a dashboard so it ends up at `index` */
+/** Move a dashboard so it ends up at `index` among the shared dashboards, or the others */
 export function moveDashboard(id: string, index: number): void {
-	idsStore.set((ids) => {
-		if (!ids.includes(id)) {
-			return ids;
-		}
+	const dashboard = getDashboard(id);
+	if (!dashboard) {
+		return;
+	}
 
-		const rest = ids.filter((other) => other !== id);
-		return [...rest.slice(0, index), id, ...rest.slice(index)];
-	});
+	const section = store
+		.get()
+		.filter((other) => other.shared === dashboard.shared && other.id !== id)
+		.map((other) => other.id);
+	const order = [...section.slice(0, index), id, ...section.slice(index)];
+	const ordered = new Set(order);
+	idsStore.set((ids) => [...order, ...ids.filter((other) => !ordered.has(other))]);
 }
 
-const closedDashboardSchema = z.object({ id: z.string(), index: z.number() });
+const closedSchema = z.array(z.array(z.object({ id: z.string(), index: z.number() }))).catch([]);
 
 /** Groups of dashboards that were closed together, oldest first, for reopening them like closed browser tabs */
-const closedStore = createPersistedAtom('closed-dashboard-ids', z.array(z.array(closedDashboardSchema)).catch([]), []);
+export const closedStore = createPersistedAtom('closed-dashboard-ids', closedSchema, []);
 const closedLimit = 25;
 
 export function deleteDashboard(id: string): void {
 	deleteDashboards([id]);
 }
 
-/** Close dashboards, they can be brought back with `reopenClosedDashboards()` */
+function setDeletedAt(id: string, deletedAt: number | undefined): void {
+	const { doc } = getDoc(id);
+	writeSharing(doc, { ...getSharing(id), deletedAt });
+	doc.commit();
+}
+
+/**
+ * Close dashboards, they can be brought back with `reopenClosedDashboards()`.
+ * Shared dashboards are deleted for everyone, and stay in the list hidden so this device keeps telling others.
+ */
 export function deleteDashboards(ids: readonly string[]): void {
 	const removed = new Set(ids);
 	const openIds = idsStore.get();
@@ -225,13 +254,19 @@ export function deleteDashboards(ids: readonly string[]): void {
 	}
 
 	const groups = [...closedStore.get(), closed];
-	// Dashboards too old to reopen are deleted
+	// Dashboards too old to reopen are deleted, shared ones once others had time to find out, see `removeExpired()`
 	for (const { id } of groups.slice(0, -closedLimit).flat()) {
-		deleteDashboardDoc(id);
-		focusPane(id, undefined);
+		if (getSharing(id).scope === undefined) {
+			deleteDashboardDoc(id);
+			focusPane(id, undefined);
+		}
 	}
 	closedStore.set(groups.slice(-closedLimit));
-	idsStore.set(openIds.filter((id) => !removed.has(id)));
+	const shared = closed.filter(({ id }) => getSharing(id).scope !== undefined);
+	for (const { id } of shared) {
+		setDeletedAt(id, Date.now());
+	}
+	idsStore.set(openIds.filter((id) => !removed.has(id) || shared.some((other) => other.id === id)));
 }
 
 /** Put the most recently closed dashboards back where they were, returns the first of them */
@@ -244,11 +279,21 @@ export function reopenClosedDashboards(): Dashboard | undefined {
 	closedStore.set((groups) => groups.slice(0, -1));
 	idsStore.set((ids) => {
 		const reopened = [...ids];
+		// Shared dashboards stayed in the list
+		const open = new Set(ids);
 		// In their original order, so each index lines up with the dashboards before it
 		for (const { id, index } of closed) {
-			reopened.splice(index, 0, id);
+			if (!open.has(id)) {
+				reopened.splice(index, 0, id);
+			}
 		}
 		return reopened;
 	});
+	// Brings them back for everyone
+	for (const { id } of closed) {
+		if (getSharing(id).deletedAt !== undefined) {
+			setDeletedAt(id, undefined);
+		}
+	}
 	return closed[0] && getDashboard(closed[0].id);
 }

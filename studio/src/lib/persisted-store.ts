@@ -94,7 +94,7 @@ export function createPersistedDoc(key: string): LoroDoc {
 	const doc = new LoroDoc();
 	readDoc(doc, key);
 
-	const save = () => writeStorage(key, doc.export({ mode: 'snapshot' }).toBase64());
+	const save = () => saveDoc(key, doc);
 	doc.subscribeLocalUpdates(save);
 
 	// Tests run without a DOM
@@ -113,6 +113,11 @@ export function createPersistedDoc(key: string): LoroDoc {
 	}
 
 	return doc;
+}
+
+/** Save a document created by `createPersistedDoc()`, ex. after importing changes from another device */
+export function saveDoc(key: string, doc: LoroDoc): void {
+	writeStorage(key, doc.export({ mode: 'snapshot' }).toBase64());
 }
 
 /** Remove a value saved by `createPersistedAtom()` or `createPersistedDoc()` */

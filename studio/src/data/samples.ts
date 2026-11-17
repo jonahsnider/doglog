@@ -57,6 +57,14 @@ export function isSchemaEntry(name: string): boolean {
 	return name.startsWith('/.schema/');
 }
 
+/** Topics Studio uses to share dashboards, see `@/sharing/nt-sync` */
+export const studioTopicPrefix = '/DogLogStudio/';
+
+/** Studio's own topics, and robot logs' copies of them, aren't data to show */
+export function isStudioEntry(name: string): boolean {
+	return name.startsWith(studioTopicPrefix) || name.startsWith(`/NT:${studioTopicPrefix}`);
+}
+
 /** Entry names always start with `/`, matching how WPILOG and NT4 names are usually written */
 export function normalizeEntryName(name: string): string {
 	return name.startsWith('/') ? name : `/${name}`;

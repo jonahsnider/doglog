@@ -1,6 +1,6 @@
 import { type LoroDoc, LoroMap, type LoroTree, type LoroTreeNode, UndoManager, type Value } from 'loro-crdt';
 import { setEntries, writeList } from '@/lib/loro';
-import { createPersistedDoc, removeStorage } from '@/lib/persisted-store';
+import { createPersistedDoc, removeStorage, saveDoc } from '@/lib/persisted-store';
 import { createPane, type PaneNode, paneNodeSchema, type Widget } from '@/panes/layout';
 
 /** The parts of a dashboard stored in its Loro document */
@@ -166,6 +166,33 @@ export function writeDashboardDoc(doc: LoroDoc, { name, layout }: DashboardConte
 	}
 }
 
+/** Whether a dashboard is shared with everyone connected to a robot, kept apart from its contents */
+export type DashboardSharing = {
+	/** The robot host it's shared on, see `sharingScope()`. `undefined` for a dashboard only on this device. */
+	scope?: string | undefined;
+	/** When someone deleted it for everyone, in milliseconds since the epoch */
+	deletedAt?: number | undefined;
+};
+
+function getSharing(doc: LoroDoc): LoroMap {
+	return doc.getMap('sharing');
+}
+
+export function readSharing(doc: LoroDoc): DashboardSharing {
+	const sharing = getSharing(doc);
+	const scope = sharing.get('scope');
+	const deletedAt = sharing.get('deletedAt');
+	return {
+		scope: typeof scope === 'string' ? scope : undefined,
+		deletedAt: typeof deletedAt === 'number' ? deletedAt : undefined,
+	};
+}
+
+/** Change how a dashboard is shared. Doesn't commit. */
+export function writeSharing(doc: LoroDoc, sharing: DashboardSharing): void {
+	setEntries(getSharing(doc), sharing);
+}
+
 export type DashboardDoc = {
 	readonly doc: LoroDoc;
 	/**
@@ -214,6 +241,11 @@ export function loadDashboardDoc(
 		travel: (direction) =>
 			undoManager[direction]() && { focusedPaneId: typeof poppedFocus === 'string' ? poppedFocus : undefined },
 	};
+}
+
+/** Save a document that received changes from other devices, since only local changes are saved automatically */
+export function saveDashboardDoc(id: string, doc: LoroDoc): void {
+	saveDoc(storageKey(id), doc);
 }
 
 /** Delete a dashboard's saved document */

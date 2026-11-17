@@ -8,9 +8,9 @@ import {
 	getDashboards,
 	moveDashboard,
 	updateDashboard,
-	focusPane,
-	zoomPane,
 } from '@/dashboards/dashboards';
+import { focusPane, zoomPane } from '@/dashboards/pane-state';
+import { placeDashboard, shareDashboards } from '@/dashboards/sharing';
 import { getEntry } from '@/data/data-store';
 import {
 	canJoinLayouts,
@@ -171,10 +171,10 @@ export function moveDashboardPane(id: string, paneId: string, targetId: string, 
 }
 
 /**
- * Move a pane out of a dashboard into a new dashboard at `index` in the sidebar.
- * The only pane moves its whole dashboard to `index` instead.
+ * Move a pane out of a dashboard into a new dashboard at `index` among the shared dashboards or the others.
+ * The only pane moves its whole dashboard there instead.
  */
-export function movePaneToNewDashboard(id: string, paneId: string, index: number): void {
+export function movePaneToNewDashboard(id: string, paneId: string, shared: boolean, index: number): void {
 	const dashboard = getDashboard(id);
 	const pane = dashboard && findPane(dashboard.layout, paneId);
 	if (!dashboard || !pane) {
@@ -182,13 +182,18 @@ export function movePaneToNewDashboard(id: string, paneId: string, index: number
 	}
 
 	if (dashboard.layout.kind === 'pane') {
-		// `index` counts the dashboard itself, which is taken out of the list before it's moved
-		const from = getDashboards().findIndex((other) => other.id === id);
-		moveDashboard(id, index > from ? index - 1 : index);
+		// `index` counts the dashboard itself when it's already there, it's taken out of the list before it's moved
+		const from = getDashboards()
+			.filter((other) => other.shared === shared)
+			.findIndex((other) => other.id === id);
+		placeDashboard(id, shared, from !== -1 && index > from ? index - 1 : index);
 		return;
 	}
 
 	const created = createDashboard();
+	if (shared) {
+		shareDashboards([created.id]);
+	}
 	moveDashboard(created.id, index);
 	updateDashboard(created.id, (other) => ({ ...other, layout: pane, focusedPaneId: pane.id }));
 	closeDashboardPane(id, paneId);

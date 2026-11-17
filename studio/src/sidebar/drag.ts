@@ -1,8 +1,7 @@
 import { useDragDropMonitor, useDroppable } from '@dnd-kit/react';
 import { type RefObject, useState } from 'react';
+import { dashboardDragType } from '@/dashboards/drag';
 import { type NewDashboardDropData, paneDragType } from '@/panes/drag';
-
-const newDashboardId = 'new-dashboard';
 
 /** Whether anything is being dragged, so the sidebar's dashboards don't show tooltips and previews while they're passed over */
 export function useDragging(): boolean {
@@ -15,16 +14,24 @@ export function useDragging(): boolean {
 }
 
 /**
- * Lets panes be dropped on the sidebar's dashboards to move them to a new dashboard, added where the pointer is.
- * Attach `ref` to the drop area, and render a placeholder at `dropIndex` (`undefined` when no pane is over it) in `list`,
- * whose dashboards are marked with `data-dashboard-index`.
+ * Lets panes be dropped on the sidebar's shared dashboards or the others to move them to a new dashboard, and dashboards
+ * from the other section to move them over, added where the pointer is. Attach `ref` to the drop area, and render a
+ * placeholder at `dropIndex` (`undefined` when nothing is over it) in `list`, whose dashboards are marked with
+ * `data-dashboard-index`.
  */
-export function useNewDashboardDrop(list: RefObject<HTMLElement | null>, placeholder: RefObject<HTMLElement | null>) {
+export function useNewDashboardDrop(
+	list: RefObject<HTMLElement | null>,
+	placeholder: RefObject<HTMLElement | null>,
+	shared: boolean,
+) {
 	const [index, setIndex] = useState(0);
+	const newDashboardId = shared ? 'new-shared-dashboard' : 'new-dashboard';
 	const { ref, isDropTarget } = useDroppable<NewDashboardDropData>({
 		id: newDashboardId,
-		accept: paneDragType,
-		data: { kind: 'new-dashboard', index },
+		// Dashboards are reordered within their own section by sorting them
+		accept: (source) =>
+			source.type === paneDragType || (source.type === dashboardDragType && source.data['shared'] !== shared),
+		data: { kind: 'new-dashboard', shared, index },
 	});
 	useDragDropMonitor({
 		onDragMove: ({ operation }) => {

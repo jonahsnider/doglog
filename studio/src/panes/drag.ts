@@ -11,8 +11,11 @@ export type PaneDragData = { dashboardId: string; paneId: string; widgetType: st
 /** Data of a pane that other panes can be dropped beside */
 export type PaneDropData = { kind: 'pane'; paneId: string };
 
-/** Data of the sidebar's dashboards, dropping a pane there moves it to a new dashboard at `index` */
-export type NewDashboardDropData = { kind: 'new-dashboard'; index: number };
+/**
+ * Data of the sidebar's shared dashboards or the others. Dropping a pane there moves it to a new dashboard at `index`,
+ * dropping a dashboard from the other section moves it there, sharing or unsharing it.
+ */
+export type NewDashboardDropData = { kind: 'new-dashboard'; shared: boolean; index: number };
 
 export function isPaneDrag(source: Draggable | null | undefined): source is Draggable<PaneDragData> {
 	return source?.type === paneDragType;

@@ -1,6 +1,6 @@
 import { useDragDropMonitor } from '@dnd-kit/react';
 import { Navigate, createFileRoute } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Group, Panel } from 'react-resizable-panels';
 import { DashboardPanes } from '@/dashboards/dashboard-panes';
 import { EntryBrowser } from '@/entries/entry-browser';
@@ -8,6 +8,8 @@ import { TimelineBar } from '@/timeline/timeline-bar';
 import { useDashboards } from '@/dashboards/dashboards';
 import { cn } from '@/lib/utils';
 import { isPaneDrag } from '@/panes/drag';
+import { setViewedDashboard } from '@/sharing/presence';
+import { useNamePrompt } from '@/sharing/name-prompt';
 
 export const Route = createFileRoute('/dashboards/$dashboardId')({
 	component: DashboardView,
@@ -27,6 +29,12 @@ function DashboardView() {
 		onDragStart: ({ operation }) => setMovingPane(isPaneDrag(operation.source)),
 		onDragEnd: () => setMovingPane(false),
 	});
+	// Others in a shared dashboard see this window in it
+	useEffect(() => {
+		setViewedDashboard(dashboardId);
+		return () => setViewedDashboard(undefined);
+	}, [dashboardId]);
+	useNamePrompt(dashboard?.shared === true);
 	if (index !== -1 && index !== lastIndex) {
 		setLastIndex(index);
 	}

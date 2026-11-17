@@ -6,7 +6,7 @@ import {
 	isDataRecord,
 	parseDataLog,
 } from 'wpilog-parser';
-import { isSchemaEntry, normalizeEntryName, Samples, type Value } from '@/data/samples';
+import { isSchemaEntry, isStudioEntry, normalizeEntryName, Samples, type Value } from '@/data/samples';
 
 /** Messages posted by the worker, in order: `progress` while parsing, one `entry` per entry, then `done` or `error` */
 export type LogWorkerMessage =
@@ -71,7 +71,7 @@ function handleControlRecord(
 
 	const name = normalizeEntryName(payload.entryName);
 	// The parser reads schemas itself
-	if (isSchemaEntry(name)) {
+	if (isSchemaEntry(name) || isStudioEntry(name)) {
 		return;
 	}
 	names.set(payload.entryId, name);

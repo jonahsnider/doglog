@@ -9,10 +9,12 @@ import { reopenDevLog } from './data/source.ts';
 import { syncMediaSession } from './timeline/media-session.ts';
 import { routeTree } from './routeTree.gen.ts';
 import { syncTheme } from './settings.ts';
+import { startSharing } from './sharing/sharing.ts';
 import { runLogSync } from './sync/sync.ts';
 
 syncTheme();
 syncMediaSession();
+startSharing();
 handleLogFileDrops();
 if (isTauri()) {
 	void handleOpenedLogFiles();

@@ -10,7 +10,7 @@ import { Toolbar } from '@/components/ui/toolbar';
 import { WidgetView } from '@/panes/widget-view';
 import { shortcuts } from '@/commands/commands';
 import { closeDashboardPane, splitDashboardPane, toggleZoom, updateLayout } from '@/dashboards/panes';
-import { focusPane } from '@/dashboards/dashboards';
+import { focusPane } from '@/dashboards/pane-state';
 import { getEntry, useEntries } from '@/data/data-store';
 import {
 	bindingLabel,
@@ -29,6 +29,7 @@ import { usePaneDrag } from '@/panes/drag';
 import { canSplitPane, type Pane, type PaneNode, setPaneWidget, type SplitDirection } from '@/panes/layout';
 import { useTrafficLightsOverlap } from '@/desktop/title-bar';
 import { getWidgetType, widgetTypes } from '@/widgets/registry';
+import { PanePresence } from '@/sharing/presence-avatars';
 import { bindsEntries, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
 
 export type PaneNodeProps = {
@@ -199,6 +200,7 @@ export function PaneView({
 				<span className="flex min-w-0 flex-1">
 					<PaneTitle dragRef={dragRef} isDragging={isDragging} icon={type?.icon} name={type?.name ?? widget?.type} />
 				</span>
+				<PanePresence dashboardId={dashboardId} paneId={pane.id} />
 				{/* Pane controls stay out of the way unless the pane is hovered or focused */}
 				<Toolbar
 					aria-label="Pane controls"

@@ -18,6 +18,8 @@ const settingsSchema = z
 			.optional()
 			.catch(undefined),
 		contrast: z.enum(contrasts).catch('standard'),
+		/** Shown to others in shared dashboards, see `getDisplayName()` */
+		name: z.string().catch(''),
 		/** Team number or IP address, use `getRobotHost()` to get the NT server host */
 		robotTarget: z.string().catch(''),
 		/** Whether media keys and the OS's media controls control log playback */

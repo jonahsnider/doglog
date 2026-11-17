@@ -2,11 +2,13 @@ import { PointerActivationConstraints } from '@dnd-kit/dom';
 import { DragDropProvider, DragOverlay, KeyboardSensor, PointerSensor } from '@dnd-kit/react';
 import { isSortable } from '@dnd-kit/react/sortable';
 import { LayoutDashboardIcon } from 'lucide-react';
+import { useRouter } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { EntryName } from '@/entries/entry-name';
 import { combineDashboards, moveDashboardPane, movePaneToNewDashboard } from '@/dashboards/panes';
 import { isDashboardDrag, isSplitZone } from '@/dashboards/drag';
 import { moveDashboard } from '@/dashboards/dashboards';
+import { moveDashboardToSection } from '@/dashboards/sharing';
 import { isEntryDrag, isEntryRowDrag } from '@/entries/drag';
 import { isNewDashboardDrop, isPaneDrag, isPaneDrop, nearestSide, type PaneDragData } from '@/panes/drag';
 import { getWidgetType } from '@/widgets/registry';
@@ -28,6 +30,7 @@ const sensors = [
  * entries onto widgets (handled by `DashboardPanes`), and entry browser rows between its sections (handled by `EntryBrowser`).
  */
 export function DragProvider({ children }: { children: ReactNode }) {
+	const router = useRouter();
 	return (
 		<DragDropProvider
 			sensors={sensors}
@@ -44,11 +47,13 @@ export function DragProvider({ children }: { children: ReactNode }) {
 						const side = nearestSide(target.element.getBoundingClientRect(), operation.position.current);
 						moveDashboardPane(dashboardId, paneId, drop.paneId, side);
 					} else if (isNewDashboardDrop(drop)) {
-						movePaneToNewDashboard(dashboardId, paneId, drop.index);
+						movePaneToNewDashboard(dashboardId, paneId, drop.shared, drop.index);
 					}
 				} else if (isDashboardDrag(source)) {
 					if (isSplitZone(drop)) {
 						combineDashboards(drop.dashboardId, String(source.id), drop.side);
+					} else if (isNewDashboardDrop(drop)) {
+						moveDashboardToSection(router, String(source.id), drop.shared, drop.index);
 					} else if (isSortable(source)) {
 						moveDashboard(String(source.id), source.index);
 					}
