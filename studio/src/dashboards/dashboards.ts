@@ -104,7 +104,7 @@ function isShown({ scope, deletedAt }: DashboardSharing): boolean {
 	return scope === undefined || (scope === sharingScope() && deletedAt === undefined);
 }
 
-/** Dashboards in sidebar order, shared ones first */
+/** Dashboards in sidebar order, shared ones last */
 const store = createAtom<Dashboard[]>([]);
 
 function refresh(): void {
@@ -112,7 +112,7 @@ function refresh(): void {
 		.get()
 		.filter((id) => isShown(getSharing(id)))
 		.map((id) => readDashboard(id));
-	store.set([...shown.filter((dashboard) => dashboard.shared), ...shown.filter((dashboard) => !dashboard.shared)]);
+	store.set([...shown.filter((dashboard) => !dashboard.shared), ...shown.filter((dashboard) => dashboard.shared)]);
 }
 
 refresh();
