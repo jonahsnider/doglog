@@ -3,7 +3,7 @@ import { angleOf, arcRadius, type Measurement, strokeWidth } from '@/widgets/fie
 
 /** A white line with a dark outline, readable on every part of the field */
 function OutlinedPath({ d, dashed = false }: { d: string; dashed?: boolean }) {
-	const dash = dashed ? '4 4' : undefined;
+	const dash = dashed ? '0.2 0.2' : undefined;
 	return (
 		<>
 			<path
@@ -11,20 +11,11 @@ function OutlinedPath({ d, dashed = false }: { d: string; dashed?: boolean }) {
 				fill="none"
 				stroke="black"
 				strokeOpacity={0.6}
-				strokeWidth={strokeWidth + 2}
+				strokeWidth={strokeWidth * 2}
 				strokeLinecap="round"
 				strokeDasharray={dash}
-				vectorEffect="non-scaling-stroke"
 			/>
-			<path
-				d={d}
-				fill="none"
-				stroke="white"
-				strokeWidth={strokeWidth}
-				strokeLinecap="round"
-				strokeDasharray={dash}
-				vectorEffect="non-scaling-stroke"
-			/>
+			<path d={d} fill="none" stroke="white" strokeWidth={strokeWidth} strokeLinecap="round" strokeDasharray={dash} />
 		</>
 	);
 }

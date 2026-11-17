@@ -60,7 +60,7 @@ The field widget SHALL draw the 2026 FRC field from a top-down render, fit to th
 
 ### Requirement: Zoom and pan
 
-Scrolling or pinching over the field SHALL zoom in and out around the pointer, from the whole view up to 8×. Dragging the zoomed field MUST pan it, and the field MUST NOT pan or zoom out past the edges of the view. Double-clicking SHALL reset the view. Drawings MUST zoom with the field. Robots MUST keep their look at every zoom, while point, path, and shape lines keep their on-screen width.
+Scrolling or pinching over the field SHALL zoom in and out around the pointer, from the whole view up to 8×. Dragging the zoomed field MUST pan it, and the field MUST NOT pan or zoom out past the edges of the view. Double-clicking SHALL reset the view. Drawings MUST zoom with the field, including the width of their lines, so they keep their look at every zoom.
 
 #### Scenario: Zoom to a robot
 

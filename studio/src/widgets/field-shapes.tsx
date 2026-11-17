@@ -52,13 +52,7 @@ export function Markers({ poses, color }: { poses: Pose[]; color: string }) {
 		.join(' ');
 	return (
 		<>
-			<path
-				d={headings}
-				stroke={color}
-				strokeWidth={strokeWidth}
-				strokeLinecap="round"
-				vectorEffect="non-scaling-stroke"
-			/>
+			<path d={headings} stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
 			<path d={dots} fill={color} />
 		</>
 	);
@@ -75,7 +69,6 @@ export function Shapes({ values, color }: { values: readonly unknown[]; color: s
 					fillOpacity: 0.2,
 					stroke: color,
 					strokeWidth,
-					vectorEffect: 'non-scaling-stroke',
 				} as const;
 				return (
 					// oxlint-disable-next-line react/no-array-index-key -- Shapes have no identity besides their position
@@ -102,7 +95,6 @@ export function Path({ poses, color }: { poses: Pose[]; color: string }) {
 			strokeWidth={strokeWidth}
 			strokeLinejoin="round"
 			strokeLinecap="round"
-			vectorEffect="non-scaling-stroke"
 		/>
 	);
 }
@@ -115,7 +107,6 @@ export function Connections({ from, poses, color }: { from: Pose; poses: Pose[];
 			stroke={color}
 			strokeWidth={strokeWidth}
 			strokeLinecap="round"
-			vectorEffect="non-scaling-stroke"
 		/>
 	);
 }

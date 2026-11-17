@@ -27,8 +27,8 @@ export const view = {
 
 export const aspectRatio = view.width / view.height;
 
-/** Stroke width in screen pixels, so lines stay readable at any widget size */
-export const strokeWidth = 2;
+/** Stroke width of lines on the field in meters, so they zoom with the field like robots do */
+export const strokeWidth = 0.08;
 
 export function toDegrees(radians: number): number {
 	return (radians * 180) / Math.PI;
