@@ -1,0 +1,150 @@
+# Temporary: publishes every push to main as a desktop build for alpha/beta testers until Studio has real releases
+# Delete this workflow once release-please starts releasing Studio, or it will overwrite the release's update manifest
+
+name: Studio preview
+
+on:
+  push:
+    branches:
+      - main
+
+# Only the newest build matters, so a new push cancels the one in progress
+concurrency:
+  group: studio-preview
+  cancel-in-progress: true
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GH_REPO: ${{ github.repository }}
+  # A rolling prerelease release-please ignores, since it isn't a version
+  TAG_NAME: studio-preview
+  # Always increasing so the updater sees each build as newer, and below the first real release so testers update to it
+  VERSION: 0.0.${{ github.run_number }}
+
+jobs:
+  release:
+    name: Create preview release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    outputs:
+      id: ${{ steps.release.outputs.id }}
+    steps:
+      - name: Replace preview release
+        id: release
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG_NAME" > /dev/null 2>&1; then
+            gh release delete "$TAG_NAME" --cleanup-tag --yes
+          fi
+          gh release create "$TAG_NAME" --target "$GITHUB_SHA" --prerelease --title "Studio preview $VERSION" \
+            --notes "Automatic preview build of $GITHUB_SHA for testers. Not a stable release."
+          echo "id=$(gh release view "$TAG_NAME" --json databaseId --jq .databaseId)" >> "$GITHUB_OUTPUT"
+
+  desktop:
+    name: Studio desktop (${{ matrix.name }})
+    needs: release
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS
+            runner: macos-latest
+            args: --target universal-apple-darwin
+          - name: Windows
+            runner: windows-latest
+          - name: Linux
+            # The oldest supported Ubuntu, so the AppImage runs on distros with an older glibc
+            runner: ubuntu-22.04
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    steps:
+      - name: Checkout Git repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Set version
+        shell: bash
+        working-directory: studio
+        run: |
+          set -euo pipefail
+          for file in package.json src-tauri/tauri.conf.json; do
+            jq --arg version "$VERSION" '.version = $version' "$file" > "$file.tmp"
+            mv "$file.tmp" "$file"
+          done
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc # master
+        with:
+          toolchain: stable
+          targets: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+      - name: Setup pnpm
+        uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3
+        with:
+          cache: true
+      - name: Build and upload to release
+        uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # action-v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        with:
+          projectPath: studio
+          releaseId: ${{ needs.release.outputs.id }}
+          updaterJsonPreferNsis: true
+          args: ${{ matrix.args }} --config '{"bundle":{"createUpdaterArtifacts":true}}'
+
+  publish:
+    name: Publish to testers
+    needs: desktop
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Git repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Setup pnpm
+        uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3
+        with:
+          cache: true
+      - name: Download manifest from release
+        run: gh release download "$TAG_NAME" --pattern latest.json
+      # Each build job merges its platform into the release's manifest, so make sure none were lost before publishing
+      - name: Check every platform is in the manifest
+        run: jq -e '.platforms | has("darwin-aarch64") and has("darwin-x86_64") and has("windows-x86_64") and has("linux-x86_64")' latest.json
+      # Same fixed names as release-please.yml, so the download button in Studio gets the preview builds
+      - name: Publish installers
+        run: |
+          set -euo pipefail
+          publish() {
+            local pattern="$1" key="$2"
+            local dir
+            dir="$(mktemp -d)"
+            gh release download "$TAG_NAME" --pattern "$pattern" --dir "$dir"
+            local files=("$dir"/*)
+            if [ "${#files[@]}" -ne 1 ]; then
+              echo "Expected 1 asset matching $pattern, found ${#files[@]}" >&2
+              exit 1
+            fi
+            pnpm --dir studio exec wrangler r2 object put "doglog-updates/studio/$key" --file "${files[0]}" --content-type application/octet-stream --cache-control 'public, max-age=300' --remote
+          }
+          publish '*.dmg' DogLog-Studio-macos.dmg
+          publish '*-setup.exe' DogLog-Studio-windows-setup.exe
+          publish '*.AppImage' DogLog-Studio-linux.AppImage
+          publish '*.deb' DogLog-Studio-linux.deb
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Publish manifest
+        run: pnpm --dir studio exec wrangler r2 object put doglog-updates/studio/latest.json --file ../latest.json --content-type application/json --cache-control 'public, max-age=300' --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
