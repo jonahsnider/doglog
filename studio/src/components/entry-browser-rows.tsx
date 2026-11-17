@@ -167,8 +167,7 @@ const EntryRowView = memo(function EntryRowView({
 		[dragRef, dropRef],
 	);
 	const className = cn(
-		// Not selectable, so double-clicking doesn't select the label
-		'absolute inset-x-0 flex items-center gap-1.5 pe-3 text-sm outline-none select-none hover:bg-accent focus-visible:bg-accent',
+		'absolute inset-x-0 flex items-center gap-1.5 pe-3 text-sm outline-none hover:bg-accent focus-visible:bg-accent',
 		dropTarget && 'bg-primary/8',
 	);
 	const style = { top, height: rowHeight, paddingInlineStart: 8 + (level - 1) * 12 };

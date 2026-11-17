@@ -221,7 +221,7 @@ function PaneTitle({
 			ref={dragRef}
 			data-dragging={isDragging || undefined}
 			className={cn(
-				'group/title -ms-1 flex min-w-0 items-center gap-1.5 rounded-md px-1 py-0.5 text-xs font-medium text-muted-foreground outline-none transition-colors duration-100 focus-visible:ring-2 focus-visible:ring-ring',
+				'group/title -ms-1 flex min-w-0 items-center gap-1.5 rounded-md px-1 py-0.5 text-xs font-medium text-muted-foreground outline-none select-none transition-colors duration-100 focus-visible:ring-2 focus-visible:ring-ring',
 				'hover:bg-accent hover:text-accent-foreground data-dragging:bg-accent data-dragging:text-accent-foreground',
 			)}
 		>

@@ -64,7 +64,8 @@ export function EntryBrowser() {
 				// Skip the initial mount, which may be clamped to fit a small window
 				onResize={(size, _id, prevSize) => prevSize && widthPxStore.set(size.inPixels)}
 			>
-				<aside aria-label="Entry browser" className="flex h-full flex-col">
+				{/* Not selectable, so double-clicking or dragging rows doesn't select their labels */}
+				<aside aria-label="Entry browser" className="flex h-full flex-col select-none">
 					<div {...dragRegion} className="flex h-9 shrink-0 items-center border-b ps-3 pe-1.5">
 						<h2 className="flex-1 text-xs font-medium text-muted-foreground">Entries</h2>
 						<ToggleButton open />
@@ -141,7 +142,7 @@ function EntryTree() {
 
 	return (
 		<>
-			<div className="shrink-0 p-2">
+			<div className="shrink-0 p-2 select-text">
 				<InputGroup>
 					<InputGroupAddon>
 						<SearchIcon />

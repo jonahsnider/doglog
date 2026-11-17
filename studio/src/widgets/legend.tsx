@@ -30,7 +30,7 @@ function LegendEntry({ item, vertical }: { item: LegendItem; vertical: boolean }
 	return (
 		<li
 			ref={ref}
-			className={cn('flex min-w-0 cursor-grab items-center gap-1.5', item.dimmed && 'opacity-50')}
+			className={cn('flex min-w-0 cursor-grab items-center gap-1.5 select-none', item.dimmed && 'opacity-50')}
 			// Right-clicking the item offers to remove its entry, middle-clicking removes it
 			data-entry-name={item.name}
 		>
