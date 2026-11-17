@@ -205,6 +205,29 @@ jobs:
       # Each build job merges its platform into the release's manifest, so make sure none were lost before publishing
       - name: Check every platform is in the manifest
         run: jq -e '.platforms | has("darwin-aarch64") and has("darwin-x86_64") and has("windows-x86_64") and has("linux-x86_64")' latest.json
+      # Release asset names include the version, so the website links to copies with fixed names instead
+      # Published before the manifest so the website never offers a version the updater doesn't know about yet
+      - name: Publish installers
+        run: |
+          set -euo pipefail
+          publish() {
+            local pattern="$1" key="$2"
+            local dir
+            dir="$(mktemp -d)"
+            gh release download "$TAG_NAME" --pattern "$pattern" --dir "$dir"
+            local files=("$dir"/*)
+            if [ "${#files[@]}" -ne 1 ]; then
+              echo "Expected 1 asset matching $pattern, found ${#files[@]}" >&2
+              exit 1
+            fi
+            pnpm --dir studio exec wrangler r2 object put "doglog-updates/studio/$key" --file "${files[0]}" --content-type application/octet-stream --cache-control 'public, max-age=300' --remote
+          }
+          publish '*.dmg' DogLog-Studio-macos.dmg
+          publish '*-setup.exe' DogLog-Studio-windows-setup.exe
+          publish '*.AppImage' DogLog-Studio-linux.AppImage
+          publish '*.deb' DogLog-Studio-linux.deb
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       - name: Publish manifest
         run: pnpm --dir studio exec wrangler r2 object put doglog-updates/studio/latest.json --file ../latest.json --content-type application/json --cache-control 'public, max-age=300' --remote
         env:
