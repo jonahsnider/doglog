@@ -84,6 +84,7 @@ export function connectLive(host: string, onStatus: (status: LiveStatus) => void
 		});
 	};
 
+	// Notified right away, since shared dashboards might have connected to the same server already
 	const removeConnectionListener = nt.addRobotConnectionListener((connected) => {
 		if (closed) {
 			return;
@@ -99,7 +100,7 @@ export function connectLive(host: string, onStatus: (status: LiveStatus) => void
 		}
 
 		onStatus(connected ? 'connected' : everConnected ? 'disconnected' : 'connecting');
-	});
+	}, true);
 
 	const topic = nt.getPrefixTopic('/');
 
@@ -160,8 +161,6 @@ export function connectLive(host: string, onStatus: (status: LiveStatus) => void
 		},
 		{ all: true, periodic: 0.02 },
 	);
-
-	onStatus('connecting');
 
 	return () => {
 		closed = true;
