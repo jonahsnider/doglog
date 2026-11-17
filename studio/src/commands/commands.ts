@@ -221,7 +221,17 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 			{
 				text: 'DogLog Studio',
 				items: [
-					{ item: { About: null } },
+					{
+						item: {
+							About: {
+								version: STUDIO_VERSION,
+								// Shown in parentheses after the version
+								...(STUDIO_COMMIT !== null && { shortVersion: STUDIO_COMMIT }),
+								// The copyright comes from `bundle.copyright` in `tauri.conf.json`
+								credits: 'Review FRC robot logs and debug robots live',
+							},
+						},
+					},
 					{ text: 'Check for Updates…', action: () => void checkForUpdateManually() },
 					separator,
 					{ text: 'Settings…', accelerator: 'CmdOrCtrl+,', action: () => openSettings(router) },

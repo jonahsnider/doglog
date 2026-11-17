@@ -1,9 +1,11 @@
 [package]
 name = "doglog-studio"
 version = "0.0.0"
-description = "DogLog Studio desktop app"
+description = "Review FRC robot logs and debug robots live"
+authors = ["Jonah Snider"]
 license = "MIT"
 repository = "https://github.com/jonahsnider/doglog"
+homepage = "https://studio.doglog.dev"
 edition = "2024"
 rust-version = "1.90"
 
