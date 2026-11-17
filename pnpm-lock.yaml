@@ -184,6 +184,7 @@ packageExtensionsChecksum: sha256-ZBlcMkg/8R6qUnIB3P6q4UKVMPoD13JOK6HZ+Ukaa14=
 
 patchedDependencies:
   '@ntcore-ts/client': 0c91347868335766b0b4309d8dada68827326eb6ddb0f56b63ba7cf27370a6ee
+  '@tanstack/store': 64cb2afef9922ab9d26a86b6f2d286c58682094f87d219b442a01fe7f92dc1b7
 
 importers:
 
@@ -251,7 +252,7 @@ importers:
         version: 3.14.26(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@tanstack/store':
         specifier: 0.11.2
-        version: 0.11.2
+        version: 0.11.2(patch_hash=64cb2afef9922ab9d26a86b6f2d286c58682094f87d219b442a01fe7f92dc1b7)
       '@tauri-apps/api':
         specifier: 2.12.5
         version: 2.12.5
@@ -9693,7 +9694,7 @@ snapshots:
 
   '@tanstack/react-store@0.11.2(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
-      '@tanstack/store': 0.11.2
+      '@tanstack/store': 0.11.2(patch_hash=64cb2afef9922ab9d26a86b6f2d286c58682094f87d219b442a01fe7f92dc1b7)
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
       use-sync-external-store: 1.7.0(react@19.3.1)
@@ -9761,7 +9762,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@tanstack/store@0.11.2': {}
+  '@tanstack/store@0.11.2(patch_hash=64cb2afef9922ab9d26a86b6f2d286c58682094f87d219b442a01fe7f92dc1b7)': {}
 
   '@tanstack/virtual-core@3.19.11': {}
 

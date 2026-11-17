@@ -1,0 +1,28 @@
+diff --git a/dist/atom.cjs b/dist/atom.cjs
+index 31a7a243c6540455509c9755a30fe6c448ea41cf..ecd053026505311cc6ab402b8b002559474cb94a 100644
+--- a/dist/atom.cjs
++++ b/dist/atom.cjs
+@@ -157,7 +157,8 @@ function createAtom(valueOrFn, options) {
+ 			return atom._snapshot;
+ 		};
+ 	} else atom.set = function(valueOrFn) {
+-		if (atom._update(valueOrFn)) {
++		// `_update()` without a value means recompute, so setting `undefined` would be ignored
++		if (atom._update(valueOrFn === void 0 ? () => void 0 : valueOrFn)) {
+ 			const subs = atom.subs;
+ 			if (subs !== void 0) {
+ 				propagate(subs);
+diff --git a/dist/atom.js b/dist/atom.js
+index e23d23936976a1f5aada0810a97c6371d7a33b15..4abd1e664a5648406b651bdd2fc954b566008fd5 100644
+--- a/dist/atom.js
++++ b/dist/atom.js
+@@ -157,7 +157,8 @@ function createAtom(valueOrFn, options) {
+ 			return atom._snapshot;
+ 		};
+ 	} else atom.set = function(valueOrFn) {
+-		if (atom._update(valueOrFn)) {
++		// `_update()` without a value means recompute, so setting `undefined` would be ignored
++		if (atom._update(valueOrFn === void 0 ? () => void 0 : valueOrFn)) {
+ 			const subs = atom.subs;
+ 			if (subs !== void 0) {
+ 				propagate(subs);

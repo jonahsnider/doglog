@@ -6,10 +6,7 @@ import { getRobotHost, simulatorHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
 import { trackActivity } from '@/sharing/presence';
 
-/**
- * The NT server shared dashboards are synced through, `undefined` while disconnected.
- * Clear it with `set(() => undefined)`, since atoms ignore `set(undefined)`.
- */
+/** The NT server shared dashboards are synced through, `undefined` while disconnected */
 const hostStore = createAtom<string | undefined>(undefined);
 
 export function useSharingHost(): string | undefined {
@@ -36,7 +33,7 @@ export function startSharing(): void {
 		clearTimeout(retryTimer);
 		disconnect?.();
 		disconnect = undefined;
-		hostStore.set(() => undefined);
+		hostStore.set(undefined);
 		void attempt(generation);
 	};
 
@@ -84,7 +81,7 @@ export function startSharing(): void {
 			// Look for the robot and simulator again, since the other one might be reachable now
 			disconnect?.();
 			disconnect = undefined;
-			hostStore.set(() => undefined);
+			hostStore.set(undefined);
 			retry(attemptGeneration);
 		});
 	}

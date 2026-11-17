@@ -39,6 +39,7 @@ minimumReleaseAgeExclude:
   - '@ui-sdk/react@0.1.0-beta.5'
 patchedDependencies:
   '@ntcore-ts/client': patches/@ntcore-ts__client.patch
+  '@tanstack/store': patches/@tanstack__store.patch
 permissions:
   '@tanstack/react-hotkeys':
     skills: false
