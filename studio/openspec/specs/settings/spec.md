@@ -101,7 +101,7 @@ Settings SHALL let users choose standard, medium, or high contrast for generated
 
 ### Requirement: Version info
 
-Settings SHALL show the running Studio version and, when Studio was built from a Git repository, the short hash of the commit it was built from.
+Settings SHALL show the running Studio version and, when Studio was built from a Git repository, the short hash of the commit it was built from. The version info SHALL sit at the bottom of the page, below the settings, even when the settings are shorter than the window.
 
 #### Scenario: Built from Git
 

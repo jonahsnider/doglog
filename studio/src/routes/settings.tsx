@@ -51,8 +51,8 @@ function Settings() {
 	const robotTargetInvalid = robotTarget.trim() !== '' && robotHost === undefined;
 
 	return (
-		<div className="flex-1 overflow-y-auto">
-			<div className="flex max-w-xl flex-col gap-8 p-6">
+		<div className="flex flex-1 flex-col overflow-y-auto">
+			<div className="flex max-w-xl grow flex-col gap-8 p-6">
 				{/* Reaches the top of the window, where the title bar would be */}
 				<h1 {...dragRegion} className="-mt-6 pt-6 font-heading text-2xl font-semibold">
 					Settings
@@ -188,7 +188,7 @@ function Settings() {
 
 				<CliField />
 
-				<div className="flex flex-col gap-1 text-sm text-muted-foreground">
+				<div className="mt-auto flex flex-col gap-1 text-sm text-muted-foreground">
 					<p>
 						DogLog Studio {STUDIO_VERSION}
 						{STUDIO_COMMIT !== null && (
