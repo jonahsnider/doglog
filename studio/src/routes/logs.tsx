@@ -9,6 +9,7 @@ import { SyncSettingsSheet } from '@/sync/sync-settings-sheet';
 import { SyncStatusPanel } from '@/sync/sync-status';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+import { DownloadButton } from '@/desktop/download-button';
 import { openLogPath } from '@/data/source';
 import { dragRegion } from '@/desktop/title-bar';
 import { dateTimeFormat, logLabel, formatSize } from '@/sync/format';
@@ -38,6 +39,9 @@ function Logs() {
 						Browsers can’t copy logs from your robot, use the DogLog Studio desktop app instead.
 					</EmptyDescription>
 				</EmptyHeader>
+				<EmptyContent>
+					<DownloadButton />
+				</EmptyContent>
 			</Empty>
 		);
 	}
