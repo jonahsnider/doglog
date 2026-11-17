@@ -93,6 +93,9 @@ export function Console({ bindings }: WidgetProps) {
 		estimateSize: () => rowHeight,
 		overscan: 10,
 		useFlushSync: false,
+		// Start at the bottom, where the list is scrolled to on mount (ex. when the pane is split), so the first frame isn't blank
+		initialRect: { width: 0, height: window.innerHeight },
+		initialOffset: () => Math.max(count * rowHeight - window.innerHeight, 0),
 	});
 
 	// Keep the newest message in view while scrolled to the bottom, and always while following live data
