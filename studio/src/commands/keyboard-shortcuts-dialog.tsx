@@ -38,6 +38,8 @@ const sections: {
 			{ label: 'Close dashboard', keys: [shortcuts.closeDashboard] },
 			{ label: 'Reopen closed dashboard', keys: [shortcuts.reopenDashboard] },
 			{ label: 'Switch to dashboard 1-9', keys: [dashboardShortcut(0)!, dashboardShortcut(8)!], separator: '–' },
+			{ label: 'Back', keys: [shortcuts.back] },
+			{ label: 'Forward', keys: [shortcuts.forward] },
 			{ label: 'Undo', keys: [shortcuts.undo] },
 			{ label: 'Redo', keys: [shortcuts.redo] },
 			{ label: 'Logs', keys: [shortcuts.logs] },

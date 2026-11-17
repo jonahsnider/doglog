@@ -141,20 +141,51 @@ Users SHALL be able to collapse the sidebar to a narrow icon-only rail and expan
 - **THEN** it collapses or expands without animating
 - **AND** toggling it by clicking still animates
 
+### Requirement: Navigation history
+
+Like a browser, Back and Forward SHALL move through the pages the user visited in the window. They MUST always change the page, skipping dashboards that have since been closed and visits to the page already shown, and be disabled when there's nowhere to go.
+
+#### Scenario: Go back
+
+- **GIVEN** the user opened Settings, then a dashboard
+- **WHEN** the user presses Back
+- **THEN** Settings is shown
+- **AND** pressing Forward shows the dashboard again
+
+#### Scenario: Skip a closed dashboard
+
+- **GIVEN** the user opened dashboard A, then dashboard B, then dashboard C
+- **AND** B has been closed
+- **WHEN** the user presses Back
+- **THEN** A is shown
+
+#### Scenario: Skip the page already shown
+
+- **GIVEN** the user opened Settings, then dashboard A
+- **AND** opened a new dashboard and closed it, which showed A again
+- **WHEN** the user presses Back
+- **THEN** Settings is shown
+
+#### Scenario: Nowhere to go
+
+- **GIVEN** the user hasn't gone back
+- **THEN** Forward is disabled
+
 ### Requirement: macOS title bar
 
-The macOS desktop app SHALL draw the window controls over the top of the sidebar instead of showing a title bar, so the main area reaches the top of the window. The top of the sidebar MUST show "DogLog Studio" beside the window controls and MUST be draggable like a title bar.
+The macOS desktop app SHALL draw the window controls over the top of the sidebar instead of showing a title bar, so the main area reaches the top of the window. The top of the sidebar MUST show "DogLog Studio" beside the window controls, followed by Back and Forward buttons, and MUST be draggable like a title bar.
 
 #### Scenario: Sidebar expanded
 
 - **GIVEN** the user is using the desktop app on macOS
 - **THEN** the window controls are shown at the top of the sidebar, followed by "DogLog Studio"
+- **AND** Back and Forward buttons are shown at the end of the bar
 
 #### Scenario: Sidebar collapsed
 
 - **GIVEN** the user is using the desktop app on macOS
 - **WHEN** the user collapses the sidebar
-- **THEN** "DogLog Studio" is hidden
+- **THEN** "DogLog Studio" and the Back and Forward buttons are hidden
 - **AND** the top left pane's header makes room for the window controls, which are wider than the rail
 
 #### Scenario: Fullscreen

@@ -1,5 +1,4 @@
 import { isTauri } from '@tauri-apps/api/core';
-import { Menu } from '@tauri-apps/api/menu';
 import {
 	detectPlatform,
 	getKeyStateTracker,
@@ -21,17 +20,16 @@ import {
 	reopenClosedDashboards,
 	undoDashboard,
 } from '@/dashboards/dashboards';
+import { goInHistory } from '@/commands/history';
 import { chooseLog } from '@/data/open-log';
 import { connect } from '@/data/source';
-import { createOpenRecentMenu } from '@/desktop/native-menu';
-import { checkForUpdateManually } from '@/desktop/updater';
 import { canSplitPane, type SplitDirection } from '@/panes/layout';
 import { getRobotHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
 
 const desktop = isTauri();
 /** macOS already uses ⌘W for its default Close Window menu item, so the desktop-only shortcuts are menu items there */
-const nativeMenu = desktop && detectPlatform() === 'mac';
+export const nativeMenu = desktop && detectPlatform() === 'mac';
 
 /** Options for shortcuts that the native menu handles on macOS */
 const desktopOnly = { enabled: desktop && !nativeMenu };
@@ -46,6 +44,8 @@ export const shortcuts = {
 	reopenDashboard: desktop ? 'Mod+Shift+T' : 'Alt+Shift+T',
 	settings: desktop ? 'Mod+,' : 'Alt+,',
 	logs: desktop ? 'Mod+L' : 'Alt+L',
+	back: desktop ? 'Mod+[' : 'Alt+[',
+	forward: desktop ? 'Mod+]' : 'Alt+]',
 	connect: 'Mod+K',
 	splitRight: 'Mod+D',
 	splitDown: 'Mod+Shift+D',
@@ -89,21 +89,21 @@ function currentDashboard(router: RegisteredRouter): Dashboard | undefined {
 	return match && getDashboard(match.params.dashboardId);
 }
 
-function closeFocused(router: RegisteredRouter): void {
+export function closeFocused(router: RegisteredRouter): void {
 	const dashboard = currentDashboard(router);
 	if (dashboard) {
 		closeFocusedPane(dashboard.id);
 	}
 }
 
-function closeCurrentDashboard(router: RegisteredRouter): void {
+export function closeCurrentDashboard(router: RegisteredRouter): void {
 	const dashboard = currentDashboard(router);
 	if (dashboard) {
 		deleteDashboard(dashboard.id);
 	}
 }
 
-function reopenDashboard(router: RegisteredRouter): void {
+export function reopenDashboard(router: RegisteredRouter): void {
 	const dashboard = reopenClosedDashboards();
 	if (dashboard) {
 		void router.navigate({ to: '/dashboards/$dashboardId', params: { dashboardId: dashboard.id } });
@@ -120,7 +120,7 @@ function isEditingText(): boolean {
 	);
 }
 
-function undoOrRedo(router: RegisteredRouter, direction: 'undo' | 'redo'): void {
+export function undoOrRedo(router: RegisteredRouter, direction: 'undo' | 'redo'): void {
 	if (isEditingText()) {
 		// The native menu's Undo and Redo replace the predefined items that would do this for text fields
 		// oxlint-disable-next-line typescript/no-deprecated -- It's the only way to trigger a text field's undo
@@ -160,7 +160,7 @@ function openDashboardAt(router: RegisteredRouter, index: number): void {
 	}
 }
 
-function openSettings(router: RegisteredRouter): void {
+export function openSettings(router: RegisteredRouter): void {
 	void router.navigate({ to: '/settings' });
 }
 
@@ -185,12 +185,16 @@ export function useGlobalShortcuts(): void {
 			{ hotkey: 'Alt+Shift+T', callback: () => reopenDashboard(router) },
 			{ hotkey: 'Alt+,', callback: () => openSettings(router) },
 			{ hotkey: 'Alt+L', callback: () => openLogs(router) },
+			{ hotkey: 'Alt+[', callback: () => goInHistory(router, -1) },
+			{ hotkey: 'Alt+]', callback: () => goInHistory(router, 1) },
 			{ hotkey: 'Mod+T', callback: () => newDashboard(router), options: desktopOnly },
 			{ hotkey: 'Mod+W', callback: () => closeFocused(router), options: desktopOnly },
 			{ hotkey: 'Mod+Shift+W', callback: () => closeCurrentDashboard(router), options: desktopOnly },
 			{ hotkey: 'Mod+Shift+T', callback: () => reopenDashboard(router), options: desktopOnly },
 			{ hotkey: 'Mod+,', callback: () => openSettings(router), options: desktopOnly },
 			{ hotkey: 'Mod+L', callback: () => openLogs(router), options: { enabled: desktop } },
+			{ hotkey: 'Mod+[', callback: () => goInHistory(router, -1), options: desktopOnly },
+			{ hotkey: 'Mod+]', callback: () => goInHistory(router, 1), options: desktopOnly },
 			{ hotkey: shortcuts.connect, callback: startConnect },
 			{ hotkey: shortcuts.splitRight, callback: () => splitFocused(router, 'row') },
 			{ hotkey: shortcuts.splitDown, callback: () => splitFocused(router, 'column') },
@@ -218,80 +222,4 @@ export function useGlobalShortcuts(): void {
 		],
 		{ requireReset: true },
 	);
-}
-
-/** Replace the default macOS app menu with one whose shortcuts run Studio's commands */
-export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
-	if (!nativeMenu) {
-		return;
-	}
-
-	const separator = { item: 'Separator' } as const;
-	const menu = await Menu.new({
-		items: [
-			{
-				text: 'DogLog Studio',
-				items: [
-					{
-						item: {
-							About: {
-								version: STUDIO_VERSION,
-								// Shown in parentheses after the version
-								...(STUDIO_COMMIT !== null && { shortVersion: STUDIO_COMMIT }),
-								// The copyright comes from `bundle.copyright` in `tauri.conf.json`
-								credits: 'Review FRC robot logs and debug robots live',
-							},
-						},
-					},
-					{ text: 'Check for Updates…', action: () => void checkForUpdateManually() },
-					separator,
-					{ text: 'Settings…', accelerator: 'CmdOrCtrl+,', action: () => openSettings(router) },
-					separator,
-					{ item: 'Services' },
-					separator,
-					{ item: 'Hide' },
-					{ item: 'HideOthers' },
-					{ item: 'ShowAll' },
-					separator,
-					{ item: 'Quit' },
-				],
-			},
-			{
-				text: 'File',
-				items: [
-					{ text: 'New Dashboard', accelerator: 'CmdOrCtrl+T', action: () => newDashboard(router) },
-					{
-						text: 'Reopen Closed Dashboard',
-						accelerator: 'CmdOrCtrl+Shift+T',
-						action: () => reopenDashboard(router),
-					},
-					{ text: 'Open Log…', accelerator: 'CmdOrCtrl+O', action: chooseLog },
-					await createOpenRecentMenu(),
-					separator,
-					{ text: 'Close Pane', accelerator: 'CmdOrCtrl+W', action: () => closeFocused(router) },
-					{
-						text: 'Close Dashboard',
-						accelerator: 'CmdOrCtrl+Shift+W',
-						action: () => closeCurrentDashboard(router),
-					},
-				],
-			},
-			{
-				text: 'Edit',
-				items: [
-					{ text: 'Undo', accelerator: 'CmdOrCtrl+Z', action: () => undoOrRedo(router, 'undo') },
-					{ text: 'Redo', accelerator: 'CmdOrCtrl+Shift+Z', action: () => undoOrRedo(router, 'redo') },
-					separator,
-					{ item: 'Cut' },
-					{ item: 'Copy' },
-					{ item: 'Paste' },
-					{ item: 'SelectAll' },
-				],
-			},
-			{ text: 'View', items: [{ item: 'Fullscreen' }] },
-			// Leaves out Close Window, which also uses ⌘W
-			{ text: 'Window', items: [{ item: 'Minimize' }, { item: 'Maximize' }, separator, { item: 'BringAllToFront' }] },
-		],
-	});
-	await menu.setAsAppMenu();
 }

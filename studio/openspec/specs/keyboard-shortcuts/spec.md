@@ -8,7 +8,7 @@ Define Studio's app-wide keyboard shortcuts and how they differ between the desk
 
 ### Requirement: Global shortcuts
 
-Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Reopen closed dashboard (⇧⌘T, or Alt+Shift+T), Undo (⌘Z), Redo (⇧⌘Z), Toggle sidebar (⌘B), Toggle entry browser (⌥⌘B), Connect (⌘K), Split right (⌘D), Split down (⇧⌘D), Zoom or restore pane (⇧⌘↩), Open log (⌘O), and Keyboard shortcuts (⌘/).
+Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Reopen closed dashboard (⇧⌘T, or Alt+Shift+T), Back (⌘[, or Alt+[), Forward (⌘], or Alt+]), Undo (⌘Z), Redo (⇧⌘Z), Toggle sidebar (⌘B), Toggle entry browser (⌥⌘B), Connect (⌘K), Split right (⌘D), Split down (⇧⌘D), Zoom or restore pane (⇧⌘↩), Open log (⌘O), and Keyboard shortcuts (⌘/).
 
 #### Scenario: New dashboard
 
@@ -142,7 +142,7 @@ While the user holds the modifier for switching dashboards (⌘ in the desktop a
 
 ### Requirement: App menu
 
-On macOS, the desktop app SHALL list New dashboard, Reopen closed dashboard, Open log, Close pane, and Close dashboard in its File menu, Undo and Redo in its Edit menu, and Settings in its app menu, each with its shortcut. Undo and Redo MUST act on the focused text field while one is focused.
+On macOS, the desktop app SHALL list New dashboard, Reopen closed dashboard, Open log, Close pane, and Close dashboard in its File menu, Undo and Redo in its Edit menu, Back and Forward in its Go menu, and Settings in its app menu, each with its shortcut. Undo and Redo MUST act on the focused text field while one is focused.
 
 #### Scenario: Open a log from the menu
 

@@ -26,7 +26,7 @@ import { shortcuts, useShortcutHint } from '@/commands/commands';
 import { deleteDashboards, useDashboards } from '@/dashboards/dashboards';
 import { cn } from '@/lib/utils';
 import { sidebarCollapsedStore } from '@/sidebar/sidebar';
-import { dragRegion, useTrafficLights } from '@/desktop/title-bar';
+import { TitleBar } from '@/sidebar/title-bar';
 import { installUpdate, useUpdate } from '@/desktop/updater';
 import { useWindowColor } from '@/theme/window-color';
 import { WhatsNewCard } from '@/changelog/whats-new-card';
@@ -47,22 +47,6 @@ function ShortcutHint({ shortcut }: { shortcut: Hotkey }) {
 			<SidebarMenuBadge>
 				<Kbd>{formatForDisplay(shortcut)}</Kbd>
 			</SidebarMenuBadge>
-		)
-	);
-}
-
-/** Takes the title bar's place on macOS, the traffic lights are drawn over its start */
-function TitleBar() {
-	return (
-		useTrafficLights() && (
-			<div
-				{...dragRegion}
-				data-slot="title-bar"
-				// The traffic lights are wider than the rail, so it matches the top left pane's header to make one bar under them
-				className="-mx-2 -mt-2 -mb-2 flex h-9 shrink-0 items-center ps-21 font-heading text-sm font-semibold select-none group-data-[collapsible=icon]:border-b group-data-[collapsible=icon]:bg-background"
-			>
-				<span className="truncate group-data-[collapsible=icon]:hidden">DogLog Studio</span>
-			</div>
 		)
 	);
 }
