@@ -1,6 +1,14 @@
-import { type Dashboard, deleteDashboard, getDashboard, updateDashboard } from '@/dashboards';
+import {
+	createDashboard,
+	type Dashboard,
+	deleteDashboard,
+	getDashboard,
+	moveDashboard,
+	updateDashboard,
+} from '@/dashboards';
 import { getEntry } from '@/data/data-store';
 import {
+	canJoinLayouts,
 	canSplitPane,
 	closePane,
 	createPane,
@@ -10,8 +18,11 @@ import {
 	findSibling,
 	findWidgetPane,
 	firstPane,
+	joinLayouts,
+	movePane,
 	type Pane,
 	type PaneNode,
+	type PaneSide,
 	setPaneEntryNames,
 	setPaneWidget,
 	type SplitDirection,
@@ -104,6 +115,48 @@ export function addDashboardWidget(id: string, widget: Widget): void {
 		const layout = splitPane(dashboard.layout, focused.id, direction, newPane);
 		return { ...dashboard, layout, focusedPaneId: newPane.id };
 	});
+}
+
+/**
+ * Move another dashboard's panes into a dashboard, beside its own panes on `side`, and close the other dashboard.
+ * Does nothing if the panes wouldn't fit, see `canJoinLayouts()`.
+ */
+export function combineDashboards(id: string, otherId: string, side: 'left' | 'right'): void {
+	const other = getDashboard(otherId);
+	const dashboard = getDashboard(id);
+	if (!other || !dashboard || id === otherId || !canJoinLayouts(dashboard.layout, other.layout)) {
+		return;
+	}
+
+	updateDashboard(id, (current) => ({
+		...current,
+		layout: side === 'left' ? joinLayouts(other.layout, current.layout) : joinLayouts(current.layout, other.layout),
+		focusedPaneId: getFocusedPane(other).id,
+	}));
+	deleteDashboard(otherId);
+}
+
+/** Move a pane beside another pane and focus it, see `movePane()` */
+export function moveDashboardPane(id: string, paneId: string, targetId: string, side: PaneSide): void {
+	updateDashboard(id, (dashboard) => ({
+		...dashboard,
+		layout: movePane(dashboard.layout, paneId, targetId, side),
+		focusedPaneId: paneId,
+	}));
+}
+
+/** Move a pane out of a dashboard into a new dashboard at `index` in the sidebar. The only pane can't be moved. */
+export function movePaneToNewDashboard(id: string, paneId: string, index: number): void {
+	const dashboard = getDashboard(id);
+	const pane = dashboard && findPane(dashboard.layout, paneId);
+	if (!dashboard || !pane || dashboard.layout.kind === 'pane') {
+		return;
+	}
+
+	const created = createDashboard();
+	moveDashboard(created.id, index);
+	updateDashboard(created.id, (other) => ({ ...other, layout: pane, focusedPaneId: pane.id }));
+	closeDashboardPane(id, paneId);
 }
 
 /** Close a pane and focus the pane that takes its place */

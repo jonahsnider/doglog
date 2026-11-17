@@ -111,12 +111,66 @@ Hovering a dashboard in the sidebar SHALL show a miniature of its pane layout, w
 
 ### Requirement: Reorder dashboards
 
-Users SHALL be able to reorder dashboards in the sidebar by dragging them.
+Users SHALL be able to reorder dashboards in the sidebar by dragging them. Dashboards MUST NOT show tooltips or previews while anything is being dragged.
 
 #### Scenario: Drag to reorder
 
 - **WHEN** the user drags a dashboard above another
 - **THEN** the list order updates and is persisted
+
+### Requirement: Combine dashboards
+
+Like Dia's split view, dragging a dashboard from the sidebar over the open dashboard SHALL show Add left split and Add right split zones. Dropping it on a zone MUST put its panes beside the open dashboard's panes on that side, each taking half the width, and close the dragged dashboard. The zones MUST be disabled when the combined dashboard would have panes narrower than a quarter of it. Dragging the open dashboard MUST NOT show the zones.
+
+#### Scenario: Add a right split
+
+- **GIVEN** dashboard A is open
+- **WHEN** the user drags dashboard B from the sidebar onto Add right split
+- **THEN** A shows its panes on the left and B's panes on the right
+- **AND** B is closed
+
+#### Scenario: Too many side by side panes
+
+- **GIVEN** the open dashboard already has three panes side by side
+- **WHEN** the user drags another dashboard over it
+- **THEN** the zones are shown disabled, and dropping on them does nothing
+
+### Requirement: Move panes
+
+Like Rex, users SHALL be able to drag a pane by its title, which shows a move icon and a background while hovered, and drop it on the half of another pane nearest the pointer. That half MUST be highlighted, moving between sides without animating. The dragged pane MUST go on that side, each taking half the space, and its sibling MUST take its old space. Sides where panes would end up too small MUST be shown as unavailable. A dashboard's only pane MUST NOT be draggable.
+
+#### Scenario: Not enough room
+
+- **GIVEN** a dashboard with four panes side by side
+- **WHEN** the user drags one onto the left half of another
+- **THEN** the half is shown as unavailable, and dropping there does nothing
+
+#### Scenario: Move a pane beside another
+
+- **GIVEN** a dashboard with a values table on the left and a console above a swerve on the right
+- **WHEN** the user drags the swerve's title onto the top half of the values table
+- **THEN** the swerve is above the values table, and the console fills the right side
+
+### Requirement: Other panes stay still while moving a pane
+
+Other panes MUST NOT scroll or react to hovering while a pane is moved.
+
+#### Scenario: Drag past a scrollable pane
+
+- **GIVEN** a dashboard with two consoles
+- **WHEN** the user drags one console near the bottom edge of the other
+- **THEN** the other console doesn't scroll
+
+### Requirement: Move a pane to a new dashboard
+
+Dropping a pane on the sidebar's dashboards SHALL move it into a new dashboard. A placeholder MUST show where the new dashboard will be added, following the pointer between dashboards.
+
+#### Scenario: Split a pane into a new dashboard
+
+- **GIVEN** a dashboard with two panes
+- **WHEN** the user drags one pane's title between the first and second dashboards in the sidebar
+- **THEN** a new dashboard with that pane is added between them
+- **AND** the other pane fills the original dashboard
 
 ### Requirement: Close a dashboard
 

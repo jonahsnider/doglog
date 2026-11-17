@@ -1,11 +1,15 @@
 import { expect, test } from 'vite-plus/test';
 import {
+	canJoinLayouts,
+	canMovePane,
 	canSplitPane,
 	closePane,
 	createPane,
 	dropEntry,
 	findPane,
 	findSibling,
+	joinLayouts,
+	movePane,
 	type PaneNode,
 	paneNodeSchema,
 	resizeSplit,
@@ -120,6 +124,51 @@ test('splitting stops at panes a quarter of the dashboard wide or tall', () => {
 	// Splitting the half makes 4 equal columns
 	expect(canSplitPane(layout, left.id, 'row')).toBe(true);
 	expect(canSplitPane(layout, quarter.id, 'column')).toBe(true);
+});
+
+test('layouts can be joined side by side unless either would end up with panes narrower than a quarter', () => {
+	const single = createPane();
+	const left = createPane();
+	const columns = splitPane(left, left.id, 'row');
+	const quarters = splitPane(columns, left.id, 'row');
+	const top = createPane();
+	const rows = splitPane(splitPane(top, top.id, 'column'), top.id, 'column');
+
+	expect(canJoinLayouts(single, columns)).toBe(true);
+	expect(canJoinLayouts(single, quarters)).toBe(false);
+	expect(canJoinLayouts(quarters, single)).toBe(false);
+	// Stacked panes don't make the joined panes narrower
+	expect(canJoinLayouts(rows, single)).toBe(true);
+	expect(joinLayouts(columns, single)).toMatchObject({ direction: 'row', ratio: 0.5, first: columns, second: single });
+});
+
+test('moving a pane puts it on that side of the target and its sibling takes its old space', () => {
+	const [a, b, c] = [createPane(), createPane(), createPane()];
+	// a | (b / c)
+	const layout = splitPane(splitPane(a, a.id, 'row', b), b.id, 'column', c);
+
+	// (c / a) | b
+	expect(movePane(layout, c.id, a.id, 'top')).toMatchObject({
+		direction: 'row',
+		first: { direction: 'column', first: c, second: a },
+		second: b,
+	});
+});
+
+test("panes can't be moved onto themselves, out of a single pane layout, or where they'd be too narrow", () => {
+	const [a, b, c, d] = [createPane(), createPane(), createPane(), createPane()];
+	const halves = splitPane(a, a.id, 'row', b);
+	// a | c | b | d
+	const quarters = splitPane(splitPane(halves, a.id, 'row', c), b.id, 'row', d);
+
+	expect(canMovePane(halves, a.id, a.id, 'left')).toBe(false);
+	expect(canMovePane(a, a.id, a.id, 'left')).toBe(false);
+	expect(canMovePane(halves, a.id, b.id, 'right')).toBe(true);
+	// Taking d out leaves room beside b, but a's half is still full
+	expect(canMovePane(quarters, d.id, b.id, 'left')).toBe(true);
+	expect(canMovePane(quarters, d.id, a.id, 'left')).toBe(false);
+	expect(canMovePane(quarters, d.id, a.id, 'top')).toBe(true);
+	expect(movePane(quarters, d.id, a.id, 'left')).toBe(quarters);
 });
 
 const table = (...entryNames: string[]) => ({ type: 'values-table', config: { entryNames, extra: true } });

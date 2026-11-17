@@ -93,6 +93,61 @@ export function canSplitPane(layout: PaneNode, paneId: string, direction: SplitD
 	return depth !== undefined && depth < maxSplitDepth;
 }
 
+/** Most splits in `direction` above any one pane */
+function deepestSplit(node: PaneNode, direction: SplitDirection): number {
+	if (node.kind === 'pane') {
+		return 0;
+	}
+
+	const depth = Math.max(deepestSplit(node.first, direction), deepestSplit(node.second, direction));
+	return node.direction === direction ? depth + 1 : depth;
+}
+
+/** Whether two layouts can be put side by side without making panes too small to use */
+export function canJoinLayouts(first: PaneNode, second: PaneNode): boolean {
+	return deepestSplit(first, 'row') < maxSplitDepth && deepestSplit(second, 'row') < maxSplitDepth;
+}
+
+/** Put two layouts side by side, each taking half the space */
+export function joinLayouts(first: PaneNode, second: PaneNode): PaneNode {
+	return { kind: 'split', id: crypto.randomUUID(), direction: 'row', ratio: 0.5, first, second };
+}
+
+/** Which side of another pane a moved pane goes on */
+export type PaneSide = 'left' | 'right' | 'top' | 'bottom';
+
+function sideDirection(side: PaneSide): SplitDirection {
+	return side === 'left' || side === 'right' ? 'row' : 'column';
+}
+
+/** Whether a pane can be moved beside another without making panes too small to use */
+export function canMovePane(layout: PaneNode, paneId: string, targetId: string, side: PaneSide): boolean {
+	return (
+		layout.id !== paneId &&
+		paneId !== targetId &&
+		findPane(layout, paneId) !== undefined &&
+		canSplitPane(closePane(layout, paneId), targetId, sideDirection(side))
+	);
+}
+
+/** Move a pane to `side` of another pane, its sibling takes its old space. Does nothing if `canMovePane()` is false. */
+export function movePane(layout: PaneNode, paneId: string, targetId: string, side: PaneSide): PaneNode {
+	const pane = findPane(layout, paneId);
+	if (!pane || !canMovePane(layout, paneId, targetId, side)) {
+		return layout;
+	}
+
+	const before = side === 'left' || side === 'top';
+	return replaceNode(closePane(layout, paneId), targetId, (target) => ({
+		kind: 'split',
+		id: crypto.randomUUID(),
+		direction: sideDirection(side),
+		ratio: 0.5,
+		first: before ? pane : target,
+		second: before ? target : pane,
+	}));
+}
+
 /** Remove a pane so its sibling takes its space. Closing the only pane leaves an empty pane. */
 export function closePane(layout: PaneNode, paneId: string): PaneNode {
 	if (layout.id === paneId) {

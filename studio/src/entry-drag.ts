@@ -1,3 +1,4 @@
+import type { Draggable } from '@dnd-kit/dom';
 import { useDraggable, useDroppable } from '@dnd-kit/react';
 import { createContext, use, useCallback, useId } from 'react';
 import type { EntryDrop } from '@/pane-layout';
@@ -19,6 +20,10 @@ export type EntryDropData = EntryDrop & {
 
 /** Drag type of entries, accepted by widgets */
 export const entryDragType = 'entry';
+
+export function isEntryDrag(source: Draggable | null | undefined): source is Draggable<EntryDragData> {
+	return source?.type === entryDragType;
+}
 
 /** The pane and bound entries of the widget being rendered */
 export const WidgetEntriesContext = createContext<{ paneId: string; entryNames: readonly string[] } | undefined>(

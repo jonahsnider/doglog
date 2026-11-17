@@ -1,3 +1,4 @@
+import { useDragDropMonitor } from '@dnd-kit/react';
 import { Navigate, createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { Group, Panel } from 'react-resizable-panels';
@@ -5,7 +6,8 @@ import { DashboardPanes } from '@/components/dashboard-panes';
 import { EntryBrowser } from '@/components/entry-browser';
 import { TimelineBar } from '@/components/timeline-bar';
 import { useDashboards } from '@/dashboards';
-import { EntryDragProvider } from '@/components/entry-drag-provider';
+import { cn } from '@/lib/utils';
+import { isPaneDrag } from '@/pane-drag';
 
 export const Route = createFileRoute('/dashboards/$dashboardId')({
 	component: DashboardView,
@@ -18,6 +20,13 @@ function DashboardView() {
 	const dashboard = dashboards[index];
 	// Remembered so closing this dashboard can select the one that took its place in the sidebar
 	const [lastIndex, setLastIndex] = useState(index);
+	// While a pane is moved, other panes are only drop targets. Without pointer events they can't be hovered, and dnd-kit
+	// doesn't auto-scroll them when the pointer nears their edges, since it scrolls the element under the pointer.
+	const [movingPane, setMovingPane] = useState(false);
+	useDragDropMonitor({
+		onDragStart: ({ operation }) => setMovingPane(isPaneDrag(operation.source)),
+		onDragEnd: () => setMovingPane(false),
+	});
 	if (index !== -1 && index !== lastIndex) {
 		setLastIndex(index);
 	}
@@ -34,16 +43,14 @@ function DashboardView() {
 	}
 
 	return (
-		<div className="flex h-full flex-col">
+		<div className={cn('flex h-full flex-col', movingPane && 'pointer-events-none')}>
 			<Group orientation="horizontal" className="min-h-0 flex-1">
-				<EntryDragProvider>
-					<Panel minSize="7rem" style={{ overflow: 'hidden' }}>
-						<section aria-label="Panes" className="h-full min-w-0">
-							<DashboardPanes dashboard={dashboard} />
-						</section>
-					</Panel>
-					<EntryBrowser />
-				</EntryDragProvider>
+				<Panel minSize="7rem" style={{ overflow: 'hidden' }}>
+					<section aria-label="Panes" className="h-full min-w-0">
+						<DashboardPanes dashboard={dashboard} />
+					</section>
+				</Panel>
+				<EntryBrowser />
 			</Group>
 			<TimelineBar />
 		</div>

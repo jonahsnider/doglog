@@ -3,11 +3,9 @@ import { isTauri } from '@tauri-apps/api/core';
 import { LogicalPosition } from '@tauri-apps/api/dpi';
 import { Link, useLocation, useRouter } from '@tanstack/react-router';
 import { EllipsisIcon, LayoutDashboardIcon, PlusIcon } from 'lucide-react';
-import { PointerActivationConstraints } from '@dnd-kit/dom';
-import { DragDropProvider, KeyboardSensor, PointerSensor } from '@dnd-kit/react';
-import { isSortable, useSortable } from '@dnd-kit/react/sortable';
+import { useSortable } from '@dnd-kit/react/sortable';
 import { AnimatePresence, domAnimation, LazyMotion, m, useIsPresent, useReducedMotion } from 'motion/react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { AppContextMenu, type MenuAction } from '@/components/app-context-menu';
 import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuShortcut, MenuTrigger } from '@/components/ui/menu';
 import {
@@ -21,36 +19,38 @@ import {
 } from '@/components/ui/sidebar';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { DashboardPreview } from '@/components/dashboard-preview';
+import { NewDashboardPlaceholder } from '@/components/new-dashboard-placeholder';
 import { PreviewCard, PreviewCardPopup, PreviewCardTrigger } from '@/components/ui/preview-card';
 import { Kbd } from '@/components/ui/kbd';
 import { dashboardShortcut, newDashboard, shortcuts, useShortcutHint } from '@/commands';
+import { dashboardDragType, dashboardSensors } from '@/dashboard-drag';
 import { dashboardName, mainWidgetType, suggestDashboardName } from '@/dashboard-label';
-import {
-	type Dashboard,
-	deleteDashboard,
-	deleteDashboards,
-	moveDashboard,
-	renameDashboard,
-	useDashboards,
-} from '@/dashboards';
+import { type Dashboard, deleteDashboard, deleteDashboards, renameDashboard, useDashboards } from '@/dashboards';
 import { popUpNativeMenu } from '@/native-menu';
+import { useDragging, useNewDashboardDrop } from '@/sidebar-drag';
+import { cn } from '@/lib/utils';
 
 const MotionSidebarMenuItem = m.create(SidebarMenuItem);
-
-const sensors = [
-	// Only start dragging once the pointer moves, so clicking a dashboard still opens it
-	PointerSensor.configure({ activationConstraints: [new PointerActivationConstraints.Distance({ value: 5 })] }),
-	// Enter opens the focused dashboard, so only Space picks it up
-	KeyboardSensor.configure({ keyboardCodes: { ...KeyboardSensor.defaults.keyboardCodes, start: ['Space'] } }),
-];
 
 export function SidebarDashboards() {
 	const dashboards = useDashboards();
 	const router = useRouter();
+	const listRef = useRef<HTMLUListElement>(null);
+	const placeholderRef = useRef<HTMLLIElement>(null);
+	// Panes dropped anywhere on the dashboards move to a new dashboard
+	const { ref, dropIndex } = useNewDashboardDrop(listRef, placeholderRef);
+	const dragging = useDragging();
+	const items = dashboards.map((dashboard, index) => (
+		<DashboardItem key={dashboard.id} dashboard={dashboard} dashboards={dashboards} index={index} />
+	));
+	if (dropIndex !== undefined) {
+		items.splice(dropIndex, 0, <NewDashboardPlaceholder key="new-dashboard" ref={placeholderRef} />);
+	}
 
 	return (
 		// Fills the rest of the sidebar so the empty space below the list can be double-clicked
 		<SidebarGroup
+			ref={ref}
 			className="flex-1"
 			onDoubleClick={(event) => {
 				// Dashboards and the new dashboard button handle their own clicks
@@ -59,37 +59,25 @@ export function SidebarDashboards() {
 				}
 			}}
 		>
-			<DragDropProvider
-				sensors={sensors}
-				onDragEnd={(event) => {
-					const { source } = event.operation;
-					if (!event.canceled && isSortable(source)) {
-						moveDashboard(String(source.id), source.index);
-					}
-				}}
-			>
-				<SidebarMenu>
-					<SidebarMenuItem>
-						<SidebarMenuButton
-							// Muted to set it apart from the dashboards below it
-							className="text-sidebar-foreground/70 hover:text-sidebar-foreground/70 active:text-sidebar-foreground/70"
-							tooltip={{ children: <TooltipLabel label="New dashboard" shortcut={shortcuts.newDashboard} /> }}
-							onClick={() => newDashboard(router)}
-						>
-							<PlusIcon />
-							<span>New dashboard</span>
-						</SidebarMenuButton>
-					</SidebarMenuItem>
-					{/* Like Dia, opened dashboards slide down out of the new dashboard button and closed ones slide back up */}
-					<LazyMotion features={domAnimation} strict>
-						<AnimatePresence initial={false}>
-							{dashboards.map((dashboard, index) => (
-								<DashboardItem key={dashboard.id} dashboard={dashboard} dashboards={dashboards} index={index} />
-							))}
-						</AnimatePresence>
-					</LazyMotion>
-				</SidebarMenu>
-			</DragDropProvider>
+			{/* Dragged dashboards and panes are dropped by `DragProvider` */}
+			{/* Tooltips and previews would open on the dashboards the pointer passes over */}
+			<SidebarMenu ref={listRef} className={cn(dragging && 'pointer-events-none')}>
+				<SidebarMenuItem>
+					<SidebarMenuButton
+						// Muted to set it apart from the dashboards below it
+						className="text-sidebar-foreground/70 hover:text-sidebar-foreground/70 active:text-sidebar-foreground/70"
+						tooltip={{ children: <TooltipLabel label="New dashboard" shortcut={shortcuts.newDashboard} /> }}
+						onClick={() => newDashboard(router)}
+					>
+						<PlusIcon />
+						<span>New dashboard</span>
+					</SidebarMenuButton>
+				</SidebarMenuItem>
+				{/* Like Dia, opened dashboards slide down out of the new dashboard button and closed ones slide back up */}
+				<LazyMotion features={domAnimation} strict>
+					<AnimatePresence initial={false}>{items}</AnimatePresence>
+				</LazyMotion>
+			</SidebarMenu>
 		</SidebarGroup>
 	);
 }
@@ -109,7 +97,14 @@ function DashboardItem({
 	const pathname = useLocation({ select: (location) => location.pathname });
 	const active = present && pathname === `/dashboards/${dashboard.id}`;
 	const [renaming, setRenaming] = useState(false);
-	const { ref, handleRef } = useSortable({ id: dashboard.id, index, disabled: renaming || !present });
+	const { ref, handleRef } = useSortable({
+		id: dashboard.id,
+		index,
+		type: dashboardDragType,
+		accept: dashboardDragType,
+		sensors: dashboardSensors,
+		disabled: renaming || !present,
+	});
 	const transition = (useReducedMotion() ?? false) ? { duration: 0 } : { duration: 0.2, ease: 'easeInOut' as const };
 	const shortcut = dashboardShortcut(index);
 	// Holding the shortcut's modifier shows every dashboard's shortcut in place of its options button
@@ -143,6 +138,8 @@ function DashboardItem({
 			render={
 				<MotionSidebarMenuItem
 					ref={ref}
+					// Lets `useNewDashboardDrop()` find where a dropped pane goes
+					data-dashboard-index={index}
 					// Opened dashboards show up in full on top of the one in their spot, which slides down from under them.
 					// The negative margin cancels the menu's gap-1, so a collapsed dashboard takes up no space.
 					// The height and margin animate so the dashboards below move with it, a short reflow of one short list

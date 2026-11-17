@@ -6,7 +6,7 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/
 import { getEntry, useEntries } from '@/data/data-store';
 import { formatEntryType } from '@/data/samples';
 import { useSource } from '@/data/source';
-import { type EntryDragData, type EntryDropData, entryDragType, WidgetEntriesContext } from '@/entry-drag';
+import { type EntryDragData, type EntryDropData, entryDragType, isEntryDrag, WidgetEntriesContext } from '@/entry-drag';
 import { cn } from '@/lib/utils';
 import { acceptsEntry, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
 
@@ -91,7 +91,8 @@ function DropFeedback({
 		Droppable<EntryDropData>
 	>();
 	const drop = target?.data;
-	const dragged = drop?.paneId === paneId ? source?.data : undefined;
+	// Panes dragged over the widget show their own feedback
+	const dragged = drop?.paneId === paneId && isEntryDrag(source) ? source.data : undefined;
 	if (!dragged) {
 		return undefined;
 	}
