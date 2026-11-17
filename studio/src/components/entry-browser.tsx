@@ -13,6 +13,7 @@ import { useEntries } from '@/data/data-store';
 import { useSource } from '@/data/source';
 import { buildEntryTree, entryTreeView } from '@/entry-tree';
 import { createPersistedAtom } from '@/lib/persisted-store';
+import { dragRegion } from '@/title-bar';
 import * as z from 'zod';
 
 const openStore = createPersistedAtom('entry-browser-open', z.boolean(), true, { perWindow: true });
@@ -58,7 +59,7 @@ export function EntryBrowser() {
 				onResize={(size, _id, prevSize) => prevSize && widthPxStore.set(size.inPixels)}
 			>
 				<aside aria-label="Entry browser" className="flex h-full flex-col">
-					<div className="flex h-9 shrink-0 items-center border-b ps-3 pe-1.5">
+					<div {...dragRegion} className="flex h-9 shrink-0 items-center border-b ps-3 pe-1.5">
 						<h2 className="flex-1 text-xs font-medium text-muted-foreground">Entries</h2>
 						<ToggleButton open />
 					</div>

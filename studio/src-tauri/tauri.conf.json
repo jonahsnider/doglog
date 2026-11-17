@@ -13,6 +13,9 @@
 		"windows": [
 			{
 				"title": "DogLog Studio",
+				"titleBarStyle": "Overlay",
+				"hiddenTitle": true,
+				"trafficLightPosition": { "x": 14, "y": 20 },
 				"dragDropEnabled": false,
 				"width": 1280,
 				"height": 800,

@@ -111,6 +111,28 @@ Users SHALL be able to collapse the sidebar to a narrow icon-only rail and expan
 - **THEN** it collapses or expands without animating
 - **AND** toggling it by clicking still animates
 
+### Requirement: macOS title bar
+
+The macOS desktop app SHALL draw the window controls over the top of the sidebar instead of showing a title bar, so the main area reaches the top of the window. The top of the sidebar MUST show "DogLog Studio" beside the window controls and MUST be draggable like a title bar.
+
+#### Scenario: Sidebar expanded
+
+- **GIVEN** the user is using the desktop app on macOS
+- **THEN** the window controls are shown at the top of the sidebar, followed by "DogLog Studio"
+
+#### Scenario: Sidebar collapsed
+
+- **GIVEN** the user is using the desktop app on macOS
+- **WHEN** the user collapses the sidebar
+- **THEN** "DogLog Studio" is hidden
+- **AND** the top left pane's header makes room for the window controls, which are wider than the rail
+
+#### Scenario: Fullscreen
+
+- **GIVEN** the user is using the desktop app on macOS
+- **WHEN** the window is fullscreen
+- **THEN** the space for the window controls is removed
+
 ### Requirement: Context menus
 
 Context menus SHALL be shown as native operating system menus in the desktop app and as in-app menus on the web, with the same items on both.

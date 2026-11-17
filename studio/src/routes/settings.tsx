@@ -9,6 +9,7 @@ import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
+import { dragRegion } from '@/title-bar';
 import { getRobotHost } from '@/robot-target';
 import { type Theme, themes, updateSettings, useSettings } from '@/settings';
 import {
@@ -52,7 +53,10 @@ function Settings() {
 	return (
 		<div className="flex-1 overflow-y-auto">
 			<div className="flex max-w-xl flex-col gap-8 p-6">
-				<h1 className="font-heading text-2xl font-semibold">Settings</h1>
+				{/* Reaches the top of the window, where the title bar would be */}
+				<h1 {...dragRegion} className="-mt-6 pt-6 font-heading text-2xl font-semibold">
+					Settings
+				</h1>
 
 				<Field name="theme">
 					<Fieldset

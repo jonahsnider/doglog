@@ -31,6 +31,7 @@ import {
 	type Split,
 	type SplitDirection,
 } from '@/pane-layout';
+import { useTrafficLightsOverlap } from '@/title-bar';
 import { getWidgetType, widgetTypes } from '@/widgets/registry';
 import { acceptsEntry, type WidgetType, widgetConfigSchema } from '@/widgets/widget-type';
 
@@ -38,6 +39,8 @@ type PaneNodeProps = {
 	dashboardId: string;
 	dashboardLayout: PaneNode;
 	focusedPaneId: string;
+	/** Whether the node is in the top left corner of the dashboard, under the traffic lights when the sidebar is collapsed */
+	topLeft: boolean;
 };
 
 export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
@@ -61,6 +64,7 @@ export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 			focusedPaneId={focusedPaneId}
 			node={layout}
 			root
+			topLeft
 		/>
 	);
 }
@@ -118,7 +122,7 @@ function SplitView({ split, ...props }: PaneNodeProps & { split: Split }) {
 				}}
 			/>
 			<Panel id={secondId} minSize="7rem" style={{ overflow: 'hidden' }}>
-				<PaneNodeView {...props} node={split.second} />
+				<PaneNodeView {...props} topLeft={false} node={split.second} />
 			</Panel>
 		</Group>
 	);
@@ -132,9 +136,11 @@ function PaneView({
 	dashboardId,
 	dashboardLayout,
 	focusedPaneId,
+	topLeft,
 	pane,
 	closable,
 }: PaneNodeProps & { pane: Pane; closable: boolean }) {
+	const trafficLightsOverlap = useTrafficLightsOverlap();
 	const [optionsOpen, setOptionsOpen] = useState(false);
 	const update = (operation: (layout: PaneNode) => PaneNode) => updateLayout(dashboardId, operation);
 	const { widget } = pane;
@@ -223,7 +229,10 @@ function PaneView({
 			}
 		>
 			<div
-				className="flex h-9 shrink-0 items-center gap-0.5 border-b px-2"
+				className={cn(
+					'flex h-9 shrink-0 items-center gap-0.5 border-b px-2',
+					topLeft && trafficLightsOverlap && 'ps-10',
+				)}
 				// Middle-clicking the header closes the pane, like a browser tab
 				onAuxClick={(event) => {
 					if (event.button === 1 && closable) {

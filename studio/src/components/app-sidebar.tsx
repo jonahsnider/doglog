@@ -3,7 +3,6 @@ import { Link, useMatchRoute } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import { CircleArrowUpIcon, FolderSyncIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, SettingsIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import * as z from 'zod';
 import {
 	Sidebar,
 	SidebarContent,
@@ -25,12 +24,11 @@ import { Kbd } from '@/components/ui/kbd';
 import { Spinner } from '@/components/ui/spinner';
 import { shortcuts, useShortcutHint } from '@/commands';
 import { deleteDashboards, useDashboards } from '@/dashboards';
-import { createPersistedAtom } from '@/lib/persisted-store';
 import { cn } from '@/lib/utils';
+import { sidebarCollapsedStore } from '@/sidebar';
+import { dragRegion, useTrafficLights } from '@/title-bar';
 import { installUpdate, useUpdate } from '@/updater';
 import { useWindowColor } from '@/window-color';
-
-const collapsedStore = createPersistedAtom('sidebar-collapsed', z.boolean(), false, { perWindow: true });
 
 /** How long the pointer has to stay on or away from the collapsed sidebar before it's shown or hidden */
 const peekDelay = 300;
@@ -52,10 +50,26 @@ function ShortcutHint({ shortcut }: { shortcut: Hotkey }) {
 	);
 }
 
+/** Takes the title bar's place on macOS, the traffic lights are drawn over its start */
+function TitleBar() {
+	return (
+		useTrafficLights() && (
+			<div
+				{...dragRegion}
+				data-slot="title-bar"
+				// The traffic lights are wider than the rail, so it matches the top left pane's header to make one bar under them
+				className="-mx-2 -mt-2 -mb-2 flex h-9 shrink-0 items-center ps-21 font-heading text-sm font-semibold select-none group-data-[collapsible=icon]:border-b group-data-[collapsible=icon]:bg-background"
+			>
+				<span className="truncate group-data-[collapsible=icon]:hidden">DogLog Studio</span>
+			</div>
+		)
+	);
+}
+
 export function AppSidebar() {
 	const matchRoute = useMatchRoute();
 	const formatForDisplay = useFormatForDisplay();
-	const collapsed = useSelector(collapsedStore);
+	const collapsed = useSelector(sidebarCollapsedStore);
 	const dashboards = useDashboards();
 	const windowColor = useWindowColor();
 	const update = useUpdate();
@@ -71,7 +85,7 @@ export function AppSidebar() {
 		clearTimeout(showTimer.current);
 		setPeeking(false);
 		setAnimated(animate);
-		collapsedStore.set((value) => !value);
+		sidebarCollapsedStore.set((value) => !value);
 	};
 	useHotkey(shortcuts.toggleSidebar, () => toggle(false), { requireReset: true });
 
@@ -110,7 +124,7 @@ export function AppSidebar() {
 	const context: SidebarContextProps = {
 		state: iconOnly ? 'collapsed' : 'expanded',
 		open: !collapsed,
-		setOpen: (open) => collapsedStore.set(!open),
+		setOpen: (open) => sidebarCollapsedStore.set(!open),
 		openMobile: false,
 		setOpenMobile: noop,
 		isMobile: false,
@@ -131,7 +145,10 @@ export function AppSidebar() {
 					collapsible="none"
 					data-collapsible={iconOnly ? 'icon' : undefined}
 					className={cn(
-						'group absolute inset-y-0 start-0 z-20 overflow-hidden border-r transition-[width,box-shadow] duration-200 ease-linear motion-reduce:transition-none',
+						'group absolute inset-y-0 start-0 z-20 overflow-hidden transition-[width,box-shadow] duration-200 ease-linear motion-reduce:transition-none',
+						// A line instead of a border, so it can stop short of the traffic lights
+						'after:pointer-events-none after:absolute after:inset-y-0 after:end-0 after:w-px after:bg-border',
+						'data-[collapsible=icon]:has-data-[slot=title-bar]:after:top-9',
 						iconOnly && 'w-(--sidebar-width-icon)',
 						collapsed && peeking && 'shadow-lg',
 						!animated && 'transition-none [&_[data-sidebar=menu-button]]:transition-none',
@@ -150,6 +167,7 @@ export function AppSidebar() {
 						// Tints the top of the sidebar, see `index.css`
 						data-window-color={windowColor}
 					>
+						<TitleBar />
 						<SidebarMenu>
 							<SourceControl />
 						</SidebarMenu>
