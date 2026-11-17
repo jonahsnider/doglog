@@ -55,7 +55,7 @@ Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and
 
 ### Requirement: Keyboard shortcuts list
 
-The keyboard shortcuts shortcut SHALL open a dialog listing every keyboard shortcut, grouped by area and formatted for the user's platform. Pressing the shortcut again MUST close it.
+The keyboard shortcuts shortcut SHALL open a dialog listing every keyboard shortcut, grouped by area and formatted for the user's platform. While the media controls setting is on, it SHALL also list the media keys. Pressing the shortcut again MUST close it.
 
 #### Scenario: Open the list
 
@@ -67,6 +67,12 @@ The keyboard shortcuts shortcut SHALL open a dialog listing every keyboard short
 - **GIVEN** the user is using the web app
 - **WHEN** the user opens the keyboard shortcuts list
 - **THEN** New dashboard shows Alt+T
+
+#### Scenario: Media controls on
+
+- **GIVEN** media controls are on
+- **WHEN** the user opens the keyboard shortcuts list
+- **THEN** it lists the play/pause, previous track, and next track media keys
 
 ### Requirement: Shortcuts in tooltips
 

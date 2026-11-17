@@ -1,19 +1,35 @@
-import { type Hotkey, useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
-import { useState } from 'react';
 import { dashboardShortcut, shortcuts } from '@/commands/commands';
 import { Dialog, DialogHeader, DialogPanel, DialogPopup, DialogTitle } from '@/components/ui/dialog';
 import { Kbd } from '@/components/ui/kbd';
-import { widgetTypes } from '@/widgets/registry';
+import { useSettings } from '@/settings';
+import { type Hotkey, useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
+import { PauseIcon, PlayIcon, SkipBackIcon, SkipForwardIcon } from 'lucide-react';
+import { type ReactNode, useState } from 'react';
+
+/** A key without a hotkey, like a media key, shown with icons */
+interface IconKey {
+	name: string;
+	icon: ReactNode;
+}
+
+function isIconKey(key: Hotkey | IconKey): key is IconKey {
+	return typeof key === 'object' && 'icon' in key;
+}
 
 interface Shortcut {
 	label: string;
 	/** Alternative shortcuts, or the first and last of a range */
-	keys: readonly Hotkey[];
+	keys: readonly (Hotkey | IconKey)[];
 	/** Shown between the keys, `or` by default */
 	separator?: string;
 }
 
-const sections: { title: string; shortcuts: Shortcut[] }[] = [
+const sections: {
+	title: string;
+	shortcuts: Shortcut[];
+	/** Only shown while the media controls setting is on */
+	mediaControls?: boolean;
+}[] = [
 	{
 		title: 'General',
 		shortcuts: [
@@ -37,10 +53,6 @@ const sections: { title: string; shortcuts: Shortcut[] }[] = [
 			{ label: 'Split right', keys: [shortcuts.splitRight] },
 			{ label: 'Split down', keys: [shortcuts.splitDown] },
 		],
-	},
-	{
-		title: 'Empty pane',
-		shortcuts: widgetTypes.map((type) => ({ label: `Add ${type.name.toLowerCase()}`, keys: [type.hotkey] })),
 	},
 	{
 		title: 'Data',
@@ -68,7 +80,29 @@ const sections: { title: string; shortcuts: Shortcut[] }[] = [
 		],
 	},
 	{
-		title: 'Field, while hovered',
+		title: 'Media keys',
+		mediaControls: true,
+		shortcuts: [
+			{
+				label: 'Play or pause',
+				keys: [
+					{
+						name: 'Play/pause',
+						icon: (
+							<>
+								<PlayIcon />
+								<PauseIcon />
+							</>
+						),
+					},
+				],
+			},
+			{ label: 'Previous section', keys: [{ name: 'Previous track', icon: <SkipBackIcon /> }] },
+			{ label: 'Next section', keys: [{ name: 'Next track', icon: <SkipForwardIcon /> }] },
+		],
+	},
+	{
+		title: 'Field',
 		shortcuts: [
 			{ label: 'Measure distance', keys: ['M'] },
 			{ label: 'Measure angle', keys: ['A'] },
@@ -82,6 +116,7 @@ const sections: { title: string; shortcuts: Shortcut[] }[] = [
 export function KeyboardShortcutsDialog() {
 	const [open, setOpen] = useState(false);
 	const formatForDisplay = useFormatForDisplay();
+	const { mediaControls } = useSettings();
 	useHotkey(shortcuts.keyboardShortcuts, () => setOpen((value) => !value), { requireReset: true });
 
 	return (
@@ -91,34 +126,41 @@ export function KeyboardShortcutsDialog() {
 					<DialogTitle>Keyboard shortcuts</DialogTitle>
 				</DialogHeader>
 				<DialogPanel className="gap-x-10 sm:columns-2">
-					{sections.map((section) => (
-						<section
-							key={section.title}
-							className="mb-6 break-inside-avoid last:mb-0"
-							aria-labelledby={`shortcuts-${section.title}`}
-						>
-							<h3 id={`shortcuts-${section.title}`} className="mb-2 font-medium text-muted-foreground text-xs">
-								{section.title}
-							</h3>
-							<dl className="flex flex-col gap-2 text-sm">
-								{section.shortcuts.map((shortcut) => (
-									<div key={shortcut.label} className="flex items-center justify-between gap-4">
-										<dt>{shortcut.label}</dt>
-										<dd className="flex items-center gap-1 text-muted-foreground text-xs">
-											{shortcut.keys
-												.map((hotkey) => formatForDisplay(hotkey))
-												.map((key, index) => (
-													<span key={key} className="flex items-center gap-1">
+					{sections
+						.filter((section) => mediaControls || section.mediaControls !== true)
+						.map((section) => (
+							<section
+								key={section.title}
+								className="mb-6 break-inside-avoid last:mb-0"
+								aria-labelledby={`shortcuts-${section.title}`}
+							>
+								<h3 id={`shortcuts-${section.title}`} className="mb-2 font-medium text-muted-foreground text-xs">
+									{section.title}
+								</h3>
+								<dl className="flex flex-col gap-2 text-sm">
+									{section.shortcuts.map((shortcut) => (
+										<div key={shortcut.label} className="flex items-center justify-between gap-4">
+											<dt>{shortcut.label}</dt>
+											<dd className="flex items-center gap-1 text-muted-foreground text-xs">
+												{shortcut.keys.map((key, index) => (
+													<span
+														key={isIconKey(key) ? key.name : formatForDisplay(key)}
+														className="flex items-center gap-1"
+													>
 														{index > 0 && (shortcut.separator ?? 'or')}
-														<Kbd>{key}</Kbd>
+														{isIconKey(key) ? (
+															<Kbd aria-label={key.name}>{key.icon}</Kbd>
+														) : (
+															<Kbd>{formatForDisplay(key)}</Kbd>
+														)}
 													</span>
 												))}
-										</dd>
-									</div>
-								))}
-							</dl>
-						</section>
-					))}
+											</dd>
+										</div>
+									))}
+								</dl>
+							</section>
+						))}
 				</DialogPanel>
 			</DialogPopup>
 		</Dialog>
