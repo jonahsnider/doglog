@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { simulatorHost } from '@/robot-target';
 import { useSettings } from '@/settings';
 import { useRecentlyConnected, useSharingHost } from '@/sharing/sharing';
+import { type Source, useSource } from '@/data/source';
 
 /** Dashboards and the new dashboard button handle their own clicks */
 function isEmptySpace(event: MouseEvent): boolean {
@@ -87,6 +88,23 @@ function useSectionItems({ dashboards, selection }: SectionProps, shared: boolea
 	return { ref, listRef, items };
 }
 
+/** Where shared dashboards are synced, `undefined` when there's nothing worth showing */
+function sharingStatus(
+	host: string | undefined,
+	recentlyConnected: boolean,
+	source: Source | undefined,
+	robotTarget: string,
+): string | undefined {
+	if (host === undefined) {
+		return recentlyConnected ? 'Disconnected' : undefined;
+	}
+	// The data source above already shows where it's connected
+	if (source?.type === 'live' && source.host === host) {
+		return 'Synced';
+	}
+	return host === simulatorHost ? 'Synced with simulator' : `Synced with ${robotTarget.trim()}`;
+}
+
 /**
  * Below the other dashboards, set apart by a line so it doesn't move when the sidebar is collapsed like a group label would.
  * It fills the empty space below it, so the pointer stays in this section when the other's drop placeholder moves it down.
@@ -97,14 +115,8 @@ function SharedDashboards(props: SectionProps) {
 	const host = useSharingHost();
 	const recentlyConnected = useRecentlyConnected();
 	const { robotTarget } = useSettings();
-	const status =
-		host === undefined
-			? recentlyConnected
-				? 'Disconnected'
-				: undefined
-			: host === simulatorHost
-				? 'Synced with simulator'
-				: `Synced with ${robotTarget.trim()}`;
+	const source = useSource();
+	const status = sharingStatus(host, recentlyConnected, source, robotTarget);
 
 	return (
 		<SidebarGroup

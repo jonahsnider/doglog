@@ -16,6 +16,11 @@ The sidebar SHALL list shared dashboards in a Shared section, below the dashboar
 - **WHEN** a user drags a dashboard or pane
 - **THEN** the Shared section explains that dropping it there shares it
 
+#### Scenario: Data source on the same robot
+
+- **GIVEN** the data source is connected to the robot shared dashboards are synced with
+- **THEN** the Shared section shows "Synced"
+
 #### Scenario: Not connected
 
 - **GIVEN** shared dashboards were synced with the robot
