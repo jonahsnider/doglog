@@ -262,8 +262,10 @@ export function Console({ bindings }: WidgetProps) {
 									<div
 										ref={virtualizer.measureElement}
 										data-index={item.index}
+										// Briefly highlights the messages at the cursor after stepping to them with the previous/next message buttons
+										data-current={messages.times[item.index] === time || undefined}
 										className={cn(
-											'absolute inset-x-0 top-0 flex gap-3 px-2 py-0.5 leading-4',
+											'absolute inset-x-0 top-0 flex gap-3 px-2 py-0.5 leading-4 data-current:animate-highlight-fade hover:animate-none',
 											levelClassNames[messages.levels[item.index]!],
 										)}
 										style={{ transform: `translateY(${item.start}px)` }}

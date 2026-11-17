@@ -20,6 +20,7 @@
 	--animate-toast-error-odd: toast-error-odd 0.28s cubic-bezier(0.5, 1, 0.89, 1);
 	--animate-toast-error-even: toast-error-even 0.28s cubic-bezier(0.5, 1, 0.89, 1);
 	--animate-caret-blink: 1s ease-out infinite caret-blink;
+	--animate-highlight-fade: highlight-fade 1.5s ease-in;
 	--font-heading: 'Source Sans 3 Variable', sans-serif;
 	--font-mono: 'IBM Plex Mono', monospace;
 	--font-sans: 'IBM Plex Sans Variable', sans-serif;
@@ -72,6 +73,12 @@
 	--radius-2xl: calc(var(--radius) * 1.8);
 	--radius-3xl: calc(var(--radius) * 2.2);
 	--radius-4xl: calc(var(--radius) * 2.6);
+	/* Briefly tints an element's background to draw attention to it, then fades back to its own background */
+	@keyframes highlight-fade {
+		from {
+			background-color: color-mix(in oklab, var(--primary) 20%, transparent);
+		}
+	}
 	@keyframes skeleton {
 		to {
 			background-position: -200% 0;
