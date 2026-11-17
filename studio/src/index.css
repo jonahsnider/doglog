@@ -13,6 +13,22 @@
 @custom-variant add-widget-compact (@container add-widget ((height < 23rem) or (width < 18rem)));
 @custom-variant add-widget-tiny (@container add-widget (height < 11rem));
 
+/*
+ * Material 3 motion, see DESIGN.md. Tailwind's easing names are redefined so `ease-*` classes, plain `transition-*`
+ * classes, and coss ui components all use the same curves. `src/lib/motion.ts` mirrors these for the motion library.
+ * https://m3.material.io/styles/motion/easing-and-duration/tokens-specs
+ */
+@theme static {
+	/* Standard, for things that move within the screen */
+	--ease-in-out: cubic-bezier(0.2, 0, 0, 1);
+	/* Standard decelerate, for things entering the screen */
+	--ease-out: cubic-bezier(0, 0, 0, 1);
+	/* Standard accelerate, for things leaving the screen */
+	--ease-in: cubic-bezier(0.3, 0, 1, 1);
+	--default-transition-duration: 150ms;
+	--default-transition-timing-function: var(--ease-in-out);
+}
+
 @theme inline {
 	--animate-skeleton: skeleton 2s -1s infinite linear;
 	--animate-toast-success-odd: toast-success-odd 0.32s cubic-bezier(0.5, 1, 0.89, 1);
@@ -493,13 +509,13 @@
 
 /* Panes growing in from nothing when they're split or restored, and shrinking away when they're closed or another pane is zoomed, see `SplitView` */
 [data-split-animation] {
-	animation: 0.25s cubic-bezier(0.2, 0, 0, 1);
+	animation: 250ms var(--ease-in-out);
 }
-/* Panes leaving use Material's shorter standard accelerate timing, both sides need the same timing to add up to the split */
+/* Panes leaving are quicker and accelerate, both sides need the same timing to add up to the split */
 [data-split-animation='close'],
 [data-split-animation='fill'] {
-	animation-duration: 0.2s;
-	animation-timing-function: cubic-bezier(0.3, 0, 1, 1);
+	animation-duration: 200ms;
+	animation-timing-function: var(--ease-in);
 }
 /* A zoomed pane's dashboard that's opened, and splits when the system is set to reduce motion */
 [data-split-instant] {

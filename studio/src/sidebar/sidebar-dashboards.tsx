@@ -2,7 +2,8 @@ import { useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { Link, useLocation, useRouter } from '@tanstack/react-router';
 import { LayoutDashboardIcon, PlusIcon } from 'lucide-react';
 import { useSortable } from '@dnd-kit/react/sortable';
-import { AnimatePresence, domAnimation, LazyMotion, m, useIsPresent, useReducedMotion } from 'motion/react';
+import { AnimatePresence, domAnimation, LazyMotion, m, useIsPresent } from 'motion/react';
+import { easing, useMotionTransition } from '@/lib/motion';
 import { type MouseEvent, useRef, useState } from 'react';
 import { AppContextMenu, type MenuAction } from '@/components/app-context-menu';
 import { DashboardOptions } from '@/sidebar/dashboard-options';
@@ -126,7 +127,7 @@ function DashboardItem({
 		sensors: dashboardSensors,
 		disabled: renaming || !present,
 	});
-	const transition = (useReducedMotion() ?? false) ? { duration: 0 } : { duration: 0.2, ease: 'easeInOut' as const };
+	const transition = useMotionTransition({ duration: 0.2, ease: easing.inOut });
 	const shortcut = dashboardShortcut(index);
 	// Holding the shortcut's modifier shows every dashboard's shortcut in place of its options button
 	const showShortcut = useShortcutHint(shortcut);

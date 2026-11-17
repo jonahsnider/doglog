@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define Studio's visual identity: a Material Design 3 color scheme generated from a theme color (Team 581 maroon by default) or a neutral gray scheme, available in both light and dark variants.
+Define Studio's visual identity: a Material Design 3 color scheme generated from a theme color (Team 581 maroon by default) or a neutral gray scheme, available in both light and dark variants, and consistent motion.
 
 ## Requirements
 
@@ -61,3 +61,18 @@ The theme SHALL provide 5 series colors for widgets that color entries, and ever
 - **GIVEN** the match13 preset is selected
 - **WHEN** a widget colors entries
 - **THEN** the first entry is blue, matching match13's theme color
+
+### Requirement: Motion
+
+Studio SHALL animate with one set of Material Design 3 easing curves and durations, so similar changes move the same way everywhere. Things moving within the screen MUST use the standard curve, things entering MUST decelerate, and things leaving MUST accelerate and finish sooner. When the system is set to reduce motion, layout changes like splitting, closing, and zooming panes, opening and closing dashboards in the sidebar, and collapsing the sidebar MUST happen instantly.
+
+#### Scenario: Close a pane
+
+- **WHEN** the user closes one of two panes
+- **THEN** the closed pane speeds up as it shrinks away, faster than a new pane grows in when splitting
+
+#### Scenario: Reduced motion
+
+- **GIVEN** the system is set to reduce motion
+- **WHEN** the user splits a pane
+- **THEN** the new pane appears at its full size without animating

@@ -1,7 +1,8 @@
 import { useDragOperation, useDroppable } from '@dnd-kit/react';
 import { useParams } from '@tanstack/react-router';
 import { PanelLeftIcon, PanelRightIcon } from 'lucide-react';
-import { AnimatePresence, domAnimation, LazyMotion, m, useReducedMotion } from 'motion/react';
+import { AnimatePresence, domAnimation, LazyMotion, m } from 'motion/react';
+import { easing, useMotionTransition } from '@/lib/motion';
 import { dashboardDragType, isDashboardDrag, type SplitZoneData } from '@/dashboards/drag';
 import { getDashboard, useDashboards } from '@/dashboards/dashboards';
 import { cn } from '@/lib/utils';
@@ -16,7 +17,7 @@ export function DashboardSplitZones() {
 	const draggedId = isDashboardDrag(source) ? String(source.id) : undefined;
 	const current = dashboardId === undefined ? undefined : getDashboard(dashboardId);
 	const dragged = draggedId === undefined || draggedId === dashboardId ? undefined : getDashboard(draggedId);
-	const reducedMotion = useReducedMotion() ?? false;
+	const transition = useMotionTransition({ duration: 0.15, ease: easing.out });
 
 	const show = current !== undefined && dragged !== undefined;
 	const disabled = show && !canJoinLayouts([current.layout, dragged.layout]);
@@ -32,10 +33,10 @@ export function DashboardSplitZones() {
 								'pointer-events-none absolute inset-y-0 z-50 flex items-center p-4',
 								side === 'left' ? 'left-0' : 'right-0',
 							)}
-							initial={{ opacity: 0, x: reducedMotion ? 0 : side === 'left' ? -16 : 16 }}
+							initial={{ opacity: 0, x: side === 'left' ? -16 : 16 }}
 							animate={{ opacity: 1, x: 0 }}
-							exit={{ opacity: 0, x: reducedMotion ? 0 : side === 'left' ? -16 : 16 }}
-							transition={{ duration: reducedMotion ? 0 : 0.15, ease: 'easeOut' }}
+							exit={{ opacity: 0, x: side === 'left' ? -16 : 16 }}
+							transition={transition}
 						>
 							<SplitZone dashboardId={current.id} side={side} disabled={disabled} />
 						</m.div>

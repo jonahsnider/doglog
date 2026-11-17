@@ -145,7 +145,7 @@ export function AppSidebar() {
 					collapsible="none"
 					data-collapsible={iconOnly ? 'icon' : undefined}
 					className={cn(
-						'group absolute inset-y-0 start-0 z-20 overflow-hidden transition-[width,box-shadow] duration-200 ease-linear motion-reduce:transition-none',
+						'group absolute inset-y-0 start-0 z-20 overflow-hidden transition-[width,box-shadow] duration-200 motion-reduce:transition-none',
 						// A line instead of a border, so it can stop short of the traffic lights
 						'after:pointer-events-none after:absolute after:inset-y-0 after:end-0 after:w-px after:bg-border',
 						'data-[collapsible=icon]:has-data-[slot=title-bar]:after:top-9',

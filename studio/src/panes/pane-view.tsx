@@ -203,7 +203,7 @@ export function PaneView({
 				<Toolbar
 					aria-label="Pane controls"
 					className={cn(
-						'items-center gap-0.5 rounded-none border-0 bg-transparent p-0 transition-opacity duration-75',
+						'items-center gap-0.5 rounded-none border-0 bg-transparent p-0 transition-opacity duration-100',
 						!focused && 'opacity-0 group-hover/pane:opacity-100',
 					)}
 				>

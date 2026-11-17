@@ -2,6 +2,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { execFileSync } from 'node:child_process';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
+import colors from 'tailwindcss/colors';
 import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig, lazyPlugins } from 'vite-plus';
 import packageJson from './package.json' with { type: 'json' };
@@ -26,6 +27,12 @@ function getCommitHash(): string | null {
 		return null;
 	}
 }
+
+/** Tailwind's color palettes with shades (not `black` or `white`), which ignore the theme color and the light and dark variants */
+const paletteColors = Object.entries(colors)
+	.filter(([, value]) => typeof value === 'object')
+	.map(([name]) => name)
+	.join('|');
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -130,12 +137,54 @@ export default defineConfig({
 			'vitest/no-identical-title': 'error',
 			'vitest/prefer-to-be': 'error',
 			'vitest/prefer-to-have-length': 'error',
+
+			// Conventions from DESIGN.md
+			'better-tailwindcss/no-restricted-classes': [
+				'error',
+				{
+					restrict: [
+						{
+							// Built from the palette names, so it can't be a literal
+							pattern: String.raw`-(?:${paletteColors})-\d+`,
+							message: 'Use a semantic theme color instead of the Tailwind palette, see DESIGN.md.',
+						},
+						{
+							pattern: /\[#[\da-fA-F]+\]/u.source,
+							message: 'Use a semantic theme color instead of a hex value, see DESIGN.md.',
+						},
+						{
+							pattern: /^(?:.*:)?duration-(?!(?:0|100|150|200|250|300)$)/u.source,
+							message: 'Use a duration from the scale in DESIGN.md.',
+						},
+						{
+							pattern: /^(?:.*:)?ease-\[/u.source,
+							message: 'Use an ease-* class for a Material curve instead of a custom one, see DESIGN.md.',
+						},
+					],
+				},
+			],
+			'eslint/no-restricted-imports': [
+				'error',
+				{
+					paths: [
+						{
+							name: 'motion/react',
+							importNames: ['useReducedMotion'],
+							message: 'Use useMotionTransition() from @/lib/motion, see DESIGN.md.',
+						},
+					],
+				},
+			],
 		},
 		overrides: [
 			{
 				// TanStack Router splits route components into their own chunks, so Fast Refresh still works
 				files: ['src/routes/**'],
 				rules: { 'react/only-export-components': 'off' },
+			},
+			{
+				files: ['src/lib/motion.ts'],
+				rules: { 'eslint/no-restricted-imports': 'off' },
 			},
 		],
 		ignorePatterns,
@@ -149,6 +198,10 @@ export default defineConfig({
 			{
 				name: 'vite-plus',
 				specifier: 'vite-plus/oxlint-plugin',
+			},
+			{
+				name: 'better-tailwindcss',
+				specifier: 'eslint-plugin-better-tailwindcss',
 			},
 		],
 	},
