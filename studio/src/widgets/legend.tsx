@@ -1,6 +1,7 @@
 import { ChevronDownIcon } from 'lucide-react';
-import { type PointerEvent, type ReactNode, use, useRef, useState } from 'react';
+import { type PointerEvent, type ReactNode, use, useEffect, useRef, useState } from 'react';
 import { EntryName } from '@/components/entry-name';
+import { MarqueeText } from '@/components/marquee-text';
 import { Menu, MenuPopup, MenuRadioGroup, MenuRadioItem, MenuTrigger } from '@/components/ui/menu';
 import { useBindingDrag, WidgetBindingsContext } from '@/entry-drag';
 import { cn } from '@/lib/utils';
@@ -194,9 +195,9 @@ function LegendEntry({
 			{/* Dragged by the name to reorder it, so its handle can be dragged to connect it */}
 			<span
 				ref={handleRef}
-				className={cn('cursor-grab truncate py-0.5 font-mono', binding.hidden && 'text-muted-foreground')}
+				className={cn('min-w-0 cursor-grab py-0.5 font-mono', binding.hidden && 'text-muted-foreground')}
 			>
-				<EntryName name={binding.name} />
+				<LegendName name={binding.name} />
 			</span>
 			{/* Rows of a vertical legend line up their roles and handles on the right */}
 			{vertical && <span className="flex-1" />}
@@ -207,6 +208,31 @@ function LegendEntry({
 			{item.error !== undefined && <span className="text-destructive-foreground">{item.error}</span>}
 			{handle}
 		</li>
+	);
+}
+
+/** The entry's name, which collapses its first segment after common prefixes when it doesn't fit, and scrolls on hover when it still doesn't */
+function LegendName({ name }: { name: string }) {
+	const full = useRef<HTMLSpanElement>(null);
+	const [collapsed, setCollapsed] = useState(false);
+
+	useEffect(() => {
+		const element = full.current!;
+		const observer = new ResizeObserver(() => setCollapsed(element.scrollWidth > element.clientWidth));
+		observer.observe(element);
+		return () => observer.disconnect();
+	}, []);
+
+	return (
+		<span className="grid grid-cols-[minmax(0,auto)]">
+			{/* Never shown, so the legend stays as wide as the full name, and it's expanded again once there's room */}
+			<span ref={full} className="invisible h-0 overflow-hidden whitespace-nowrap [grid-area:1/1]">
+				<EntryName name={name} />
+			</span>
+			<MarqueeText className="[grid-area:1/1]">
+				<EntryName name={name} collapsed={collapsed} />
+			</MarqueeText>
+		</span>
 	);
 }
 

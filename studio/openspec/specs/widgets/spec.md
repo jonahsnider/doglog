@@ -237,6 +237,21 @@ Widgets and the entry picker SHALL shorten the `/Robot`, `/RealOutputs`, `/Advan
 - **WHEN** the user hovers `/Arm/Angle` in `/R/Arm/Angle`
 - **THEN** the prefix stays shortened
 
+### Requirement: Long names in legends
+
+When a legend has no room for an entry's full name, it SHALL also shorten the first segment after any shortened prefix the same way, unless that segment is the last one, and MUST NOT dim its letters. Names that still don't fit MUST be cut off, and MUST scroll to show the rest while hovered. The name SHALL go back to its full form once there's room for it.
+
+#### Scenario: Collapsed segment
+
+- **GIVEN** a narrow field legend bound to `/Robot/Localization/EstimatedPose`
+- **THEN** the legend shows `/R/L/EstimatedPose` with `/R` and the slashes dimmed, but not `L`
+
+#### Scenario: Scroll the rest of the name
+
+- **GIVEN** a legend too narrow for `/R/L/EstimatedPose`
+- **WHEN** the user hovers the name
+- **THEN** it scrolls back and forth to show the rest of the name
+
 ### Requirement: Dimmed slashes in entry names
 
 Widgets, the entry picker, and the entry browser SHALL show the slashes in full entry names dimmed, so the name's segments stand out.
