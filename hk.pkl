@@ -19,6 +19,16 @@ local studio = new Mapping<String, Step> {
     // Its rules are per-file, so only staged files are scanned to keep commits fast. CI runs the full scan
     check = "pnpm exec react-doctor --no-telemetry --staged"
   }
+  ["studio:rustfmt"] {
+    dir = "studio/src-tauri"
+    glob = List("**/*.rs", "rustfmt.toml")
+    check = "cargo fmt --all --check"
+  }
+  ["studio:clippy"] {
+    dir = "studio/src-tauri"
+    glob = List("**/*.rs", "**/Cargo.toml", "Cargo.lock")
+    check = "cargo clippy --workspace --all-targets -- -D warnings"
+  }
   ["studio:openspec"] {
     dir = "studio"
     glob = "openspec/**/*"

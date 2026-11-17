@@ -16,3 +16,7 @@ indent_style = space
 
 [*.yml]
 indent_style = space
+
+[*.rs]
+indent_style = space
+indent_size = 4

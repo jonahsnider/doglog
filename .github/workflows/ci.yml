@@ -245,6 +245,37 @@ jobs:
           cache-workspaces: studio/src-tauri -> target
       - name: Test
         run: cargo test -p robot-sftp -- --include-ignored
+  studio-rust:
+    name: Studio Rust
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 15
+
+    defaults:
+      run:
+        working-directory: studio/src-tauri
+
+    steps:
+      - name: Checkout Git repository
+        uses: actions/checkout@v7.0.1
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v2.0.1
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+          cache-workspaces: studio/src-tauri -> target
+      - name: Check formatting
+        run: cargo fmt --all --check
+      - name: Create placeholder frontend build
+        # Tauri embeds the frontend at compile time, but linting doesn't need a real build
+        run: mkdir -p ../dist
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
   studio:
     name: Studio
 

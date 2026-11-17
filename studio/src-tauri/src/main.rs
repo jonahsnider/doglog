@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-  doglog_studio_lib::run();
+    doglog_studio_lib::run();
 }

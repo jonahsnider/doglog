@@ -52,6 +52,17 @@ jobs:
         run: pnpm knip --fix
         continue-on-error: true
 
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v2.0.1
+        with:
+          toolchain: stable
+          components: rustfmt
+          cache: false
+
+      - name: Format Studio Rust code
+        run: cargo fmt --all
+        working-directory: studio/src-tauri
+
       - name: Run autofix.ci
         uses: autofix-ci/action@v1.3.4
         with:

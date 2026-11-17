@@ -4,6 +4,7 @@
 version: 'v0.0.3'
 workflows:
     '.github/workflows/autofix.yml':
+        - 'actions-rust-lang/setup-rust-toolchain@v2.0.1'
         - 'actions/checkout@v7.0.1'
         - 'actions/setup-java@v6.3.0'
         - 'autofix-ci/action@v1.3.4'
