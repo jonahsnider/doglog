@@ -77,14 +77,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@master
+        uses: actions-rust-lang/setup-rust-toolchain@v2.0.1
         with:
           toolchain: stable
-          targets: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
-      - name: Cache Rust build
-        uses: Swatinem/rust-cache@v2.9.3
-        with:
-          workspaces: studio/src-tauri -> target
+          target: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          # A new lint in stable Rust shouldn't block shipping a build
+          build-warnings: warn
+          cache-workspaces: studio/src-tauri -> target
       - name: Setup pnpm
         uses: pnpm/setup@v3.2.0
         with:

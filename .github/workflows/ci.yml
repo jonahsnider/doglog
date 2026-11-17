@@ -239,9 +239,10 @@ jobs:
       - name: Checkout Git repository
         uses: actions/checkout@v7.0.1
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@master
+        uses: actions-rust-lang/setup-rust-toolchain@v2.0.1
         with:
           toolchain: stable
+          cache-workspaces: studio/src-tauri -> target
       - name: Test
         run: cargo test -p robot-sftp -- --include-ignored
   studio:
