@@ -1,5 +1,6 @@
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
+import { customAlphabet } from 'nanoid';
 import * as z from 'zod';
 import {
 	type DashboardContents,
@@ -17,8 +18,11 @@ export type Dashboard = DashboardContents & {
 	focusedPaneId?: string | undefined;
 };
 
+/** Short enough for shareable URLs, random enough (~95 bits) to be unguessable. No `-` or `_`, which break links in chat apps. */
+const createDashboardId = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 16);
+
 /** Dashboard IDs in sidebar order, first launch starts with one empty dashboard */
-const idsStore = createPersistedAtom('dashboard-ids', z.array(z.string()), [crypto.randomUUID()]);
+const idsStore = createPersistedAtom('dashboard-ids', z.array(z.string()), [createDashboardId()]);
 
 /** Each dashboard's focused pane, kept outside its document since it isn't part of the dashboard */
 const focusedPanesStore = createPersistedAtom(
@@ -94,7 +98,7 @@ export function getDashboard(id: string): Dashboard | undefined {
 
 /** Create an empty dashboard at the top or bottom of the list */
 export function createDashboard(position: 'top' | 'bottom' = 'top'): Dashboard {
-	const id = crypto.randomUUID();
+	const id = createDashboardId();
 	// Saves its document before its ID, so other windows find it
 	const dashboard = readDashboard(id);
 	idsStore.set((ids) => (position === 'top' ? [id, ...ids] : [...ids, id]));
