@@ -1,6 +1,6 @@
 // SVG shapes for the field widget, drawn in field meters with +Y up
 import type { Value } from '@/data/samples';
-import { type FieldRole, type Pose, readPose } from '@/widgets/field-data';
+import { type FieldRole, type Pose, readPose, readShape } from '@/widgets/field-data';
 import { strokeWidth, toDegrees } from '@/widgets/field-geometry';
 
 /** Bumper footprint of a typical robot */
@@ -17,7 +17,7 @@ const markerHeadingLength = 0.3;
 function Robot({ pose, color }: { pose: Pose; color: string }) {
 	const bodyHalf = robotHalf - bumperWidth;
 	return (
-		<g transform={`translate(${pose.x} ${pose.y}) rotate(${toDegrees(pose.heading)})`}>
+		<g transform={`translate(${pose.x} ${pose.y}) rotate(${toDegrees(pose.heading ?? 0)})`}>
 			<rect x={-robotHalf} y={-robotHalf} width={robotHalf * 2} height={robotHalf * 2} rx={0.06} fill={color} />
 			<rect x={-bodyHalf} y={-bodyHalf} width={bodyHalf * 2} height={bodyHalf * 2} fill="#222" />
 			<path
@@ -32,7 +32,7 @@ function Robot({ pose, color }: { pose: Pose; color: string }) {
 	);
 }
 
-/** Every pose of a markers entry as a dot with a line toward its heading, drawn as one path each */
+/** Every pose of a markers entry as a dot with a line toward its heading if it has one, drawn as one path each */
 function Markers({ poses, color }: { poses: Pose[]; color: string }) {
 	const dots = poses
 		.map(
@@ -41,9 +41,10 @@ function Markers({ poses, color }: { poses: Pose[]; color: string }) {
 		)
 		.join(' ');
 	const headings = poses
-		.map(
-			({ x, y, heading }) =>
-				`M ${x} ${y} L ${x + Math.cos(heading) * markerHeadingLength} ${y + Math.sin(heading) * markerHeadingLength}`,
+		.map(({ x, y, heading }) =>
+			heading === undefined
+				? ''
+				: `M ${x} ${y} L ${x + Math.cos(heading) * markerHeadingLength} ${y + Math.sin(heading) * markerHeadingLength}`,
 		)
 		.join(' ');
 	return (
@@ -60,13 +61,42 @@ function Markers({ poses, color }: { poses: Pose[]; color: string }) {
 	);
 }
 
+/** Each Rectangle2d or Ellipse2d outlined over a light fill, rotated with its center */
+function Shapes({ values, color }: { values: readonly unknown[]; color: string }) {
+	return values.map((value, index) => {
+		const { kind, center, xRadius, yRadius } = readShape(value);
+		const props = {
+			fill: color,
+			fillOpacity: 0.2,
+			stroke: color,
+			strokeWidth,
+			vectorEffect: 'non-scaling-stroke',
+		} as const;
+		return (
+			// oxlint-disable-next-line react/no-array-index-key -- Shapes have no identity besides their position
+			<g key={index} transform={`translate(${center.x} ${center.y}) rotate(${toDegrees(center.heading ?? 0)})`}>
+				{kind === 'rectangle' ? (
+					<rect x={-xRadius} y={-yRadius} width={xRadius * 2} height={yRadius * 2} {...props} />
+				) : (
+					<ellipse rx={xRadius} ry={yRadius} {...props} />
+				)}
+			</g>
+		);
+	});
+}
+
 /** An entry's value at the cursor, drawn as its role */
 export function Drawing({ role, value, color }: { role: FieldRole; value: Value; color: string }) {
 	if (role === 'robot') {
 		return <Robot pose={readPose(value)} color={color} />;
 	}
 
-	const poses = Array.isArray(value) ? value.map((item) => readPose(item)) : [];
+	if (role === 'shapes') {
+		return <Shapes values={Array.isArray(value) ? value : [value]} color={color} />;
+	}
+
+	// A single translation is drawn as one marker
+	const poses = (Array.isArray(value) ? value : [value]).map((item) => readPose(item));
 	if (role === 'markers') {
 		return <Markers poses={poses} color={color} />;
 	}

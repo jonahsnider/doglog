@@ -15,6 +15,11 @@ test.each([
 	// Only the last part of the name counts
 	['/Trajectory/Targets', 'struct:Pose2d[]', 'markers'],
 	['/Auto/Waypoints', 'struct:Translation2d[]', 'path'],
+	['/Auto/Target', 'struct:Translation2d', 'markers'],
+	['/Vision/NotePosition', 'struct:Translation3d', 'markers'],
+	['/Auto/Waypoints3d', 'struct:Translation3d[]', 'path'],
+	['/Auto/ShootingZone', 'struct:Rectangle2d', 'shapes'],
+	['/Vision/Obstacles', 'struct:Ellipse2d[]', 'shapes'],
 	['/Drive/Speeds', 'struct:ChassisSpeeds', undefined],
 ])('%s (%s) is drawn as %s', (name, type, role) => {
 	expect(fieldRole(entry(name, type))).toBe(role);

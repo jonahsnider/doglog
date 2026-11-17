@@ -8,7 +8,16 @@ Define the field widget, which draws robots and other field-relative poses on a 
 
 ### Requirement: Field inputs
 
-The field widget SHALL accept `Pose2d`, `Pose3d`, `Pose2d[]`, `Pose3d[]`, and `Translation2d[]` entries, and any number of them MAY be bound. Each bound entry's drawing MUST be inferred from its type and name: `Pose2d` and `Pose3d` entries are robots, `Translation2d[]` entries are paths, and `Pose2d[]` and `Pose3d[]` entries are paths when the last part of their name contains "path" or "trajectory" (ignoring case) and markers otherwise.
+The field widget SHALL accept `Pose2d`, `Pose3d`, `Translation2d`, `Translation3d`, `Rectangle2d`, and `Ellipse2d` entries and arrays of them, and any number of them MAY be bound.
+
+#### Scenario: Several entries
+
+- **WHEN** the user binds `/Drive/Pose`, a `Pose2d` entry, and `/Auto/ShootingZone`, a `Rectangle2d` entry
+- **THEN** both are drawn on the field
+
+### Requirement: Inferred drawing
+
+Each bound entry's drawing MUST be inferred from its type and name: single poses are robots, single translations are markers, translation arrays are paths, and rectangles and ellipses are shapes. Pose arrays MUST be paths when the last part of their name contains "path" or "trajectory" (ignoring case) and markers otherwise.
 
 #### Scenario: Robot pose
 
@@ -24,6 +33,16 @@ The field widget SHALL accept `Pose2d`, `Pose3d`, `Pose2d[]`, `Pose3d[]`, and `T
 
 - **WHEN** the user binds `/Vision/TagPoses`, a `Pose3d[]` entry
 - **THEN** each pose is drawn as a marker
+
+#### Scenario: Game piece position
+
+- **WHEN** the user binds `/Vision/NotePosition`, a `Translation3d` entry
+- **THEN** it is drawn as a dot without a heading line
+
+#### Scenario: Zone
+
+- **WHEN** the user binds `/Auto/ShootingZone`, a `Rectangle2d` entry
+- **THEN** it is drawn as a shape
 
 ### Requirement: Field view
 
@@ -41,7 +60,7 @@ The field widget SHALL draw the 2026 FRC field from a top-down render, fit to th
 
 ### Requirement: Zoom and pan
 
-Scrolling or pinching over the field SHALL zoom in and out around the pointer, from the whole view up to 8×. Dragging the zoomed field MUST pan it, and the field MUST NOT pan or zoom out past the edges of the view. Double-clicking SHALL reset the view. Robots, markers, and paths MUST zoom with the field. Robots MUST keep their look at every zoom, while marker and path lines keep their on-screen width.
+Scrolling or pinching over the field SHALL zoom in and out around the pointer, from the whole view up to 8×. Dragging the zoomed field MUST pan it, and the field MUST NOT pan or zoom out past the edges of the view. Double-clicking SHALL reset the view. Robots, markers, paths, and shapes MUST zoom with the field. Robots MUST keep their look at every zoom, while marker, path, and shape lines keep their on-screen width.
 
 #### Scenario: Zoom to a robot
 
@@ -87,7 +106,7 @@ Each robot SHALL be drawn as a 0.9 m square centered on its pose, rotated by its
 
 ### Requirement: Markers and paths
 
-Each pose in a marker entry SHALL be drawn as a dot with a short line toward its heading. A path entry MUST be drawn as a line through its points in order. Lines SHALL keep the same on-screen width at any widget size.
+Each pose in a marker entry SHALL be drawn as a dot with a short line toward its heading, and each translation as a dot alone. `Translation3d` entries MUST be drawn at their X and Y position, ignoring height. A path entry MUST be drawn as a line through its points in order. Lines SHALL keep the same on-screen width at any widget size.
 
 #### Scenario: Empty array
 
@@ -95,9 +114,18 @@ Each pose in a marker entry SHALL be drawn as a dot with a short line toward its
 - **THEN** nothing is drawn for it
 - **AND** it isn't dimmed in the legend
 
+### Requirement: Shapes
+
+Each `Rectangle2d` or `Ellipse2d` SHALL be drawn at its size as an outline over a light fill in the entry's color, centered on its center pose and rotated by its heading. Array entries MUST draw every shape in the array.
+
+#### Scenario: Rotated rectangle
+
+- **GIVEN** a `Rectangle2d` entry centered at (4, 2) with a 90° rotation, 2 m along its X and 1 m along its Y
+- **THEN** a rectangle 1 m wide and 2 m tall is drawn centered on (4, 2)
+
 ### Requirement: Colors and legend
 
-The field widget SHALL color each entry from the shared chart colors in binding order, and MUST show a legend listing each bound entry, one per line, with its color. The legend SHALL be above the field, unless the widget is wider than the field's shape, where it MUST be beside the field so the field isn't shrunk. Paths SHALL be drawn under markers, and markers under robots. Entries with no value at or before the cursor MUST be dimmed in the legend and not drawn.
+The field widget SHALL color each entry from the shared chart colors in binding order, and MUST show a legend listing each bound entry, one per line, with its color. The legend SHALL be above the field, unless the widget is wider than the field's shape, where it MUST be beside the field so the field isn't shrunk. Shapes SHALL be drawn under paths, paths under markers, and markers under robots. Entries with no value at or before the cursor MUST be dimmed in the legend and not drawn.
 
 #### Scenario: Wide widget
 

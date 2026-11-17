@@ -30,7 +30,7 @@ const readoutHeight = '1.5rem';
 /** Shorter measurements are dropped as accidental clicks */
 const minMeasurePixels = 8;
 
-const drawOrder: readonly FieldRole[] = ['path', 'markers', 'robot'];
+const drawOrder: readonly FieldRole[] = ['shapes', 'path', 'markers', 'robot'];
 
 const tools: readonly { tool: MeasureTool; key: 'M' | 'A'; label: string; hint: string }[] = [
 	{ tool: 'distance', key: 'M', label: 'Distance', hint: 'Drag to measure distance, hold Shift to snap to 45°' },
