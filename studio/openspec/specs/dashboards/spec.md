@@ -235,6 +235,13 @@ Closing a dashboard SHALL remove it from the sidebar without asking for confirma
 - **WHEN** the user closes it
 - **THEN** the dashboard below it in the sidebar is selected, or the one above it if it was last
 
+#### Scenario: Close a new dashboard right away
+
+- **GIVEN** the user opened a new dashboard from Settings
+- **WHEN** the user closes it without selecting anything else first
+- **THEN** Settings is shown again, like closing a browser tab returns to the tab that opened it
+- **AND** if the user came from a dashboard that's since been closed, the neighboring dashboard is selected instead
+
 ### Requirement: Close several dashboards
 
 Like browser tabs, a dashboard's menus SHALL offer to close every other dashboard, or every dashboard below it in the sidebar. Each option MUST be disabled when there's nothing for it to close. Like Dia, hovering the separator above the dashboards in the sidebar SHALL reveal a button to close every dashboard, hidden when there are none.

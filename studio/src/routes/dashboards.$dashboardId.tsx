@@ -1,5 +1,5 @@
 import { useDragDropMonitor } from '@dnd-kit/react';
-import { Navigate, createFileRoute } from '@tanstack/react-router';
+import { Navigate, createFileRoute, useLocation } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { Group, Panel } from 'react-resizable-panels';
 import { DashboardPanes } from '@/dashboards/dashboard-panes';
@@ -11,6 +11,13 @@ import { isPaneDrag } from '@/panes/drag';
 import { setViewedDashboard } from '@/sharing/presence';
 import { useNamePrompt } from '@/sharing/name-prompt';
 
+declare module '@tanstack/react-router' {
+	interface HistoryState {
+		/** The page a new dashboard was opened from, which closing it returns to */
+		opener?: { pathname: string; dashboardId?: string };
+	}
+}
+
 export const Route = createFileRoute('/dashboards/$dashboardId')({
 	component: DashboardView,
 });
@@ -20,8 +27,11 @@ function DashboardView() {
 	const dashboards = useDashboards();
 	const index = dashboards.findIndex((other) => other.id === dashboardId);
 	const dashboard = dashboards[index];
-	// Remembered so closing this dashboard can select the one that took its place in the sidebar
+	// Remembered so closing this dashboard can select the one that took its place in the sidebar, or the page it was
+	// opened from, since the location changes while navigating there
 	const [lastIndex, setLastIndex] = useState(index);
+	const currentOpener = useLocation({ select: (location) => location.state.opener });
+	const [opener, setOpener] = useState(currentOpener);
 	// While a pane is moved, other panes are only drop targets. Without pointer events they can't be hovered, and dnd-kit
 	// doesn't auto-scroll them when the pointer nears their edges, since it scrolls the element under the pointer.
 	const [movingPane, setMovingPane] = useState(false);
@@ -38,8 +48,16 @@ function DashboardView() {
 	if (index !== -1 && index !== lastIndex) {
 		setLastIndex(index);
 	}
+	if (dashboard && currentOpener !== opener) {
+		setOpener(currentOpener);
+	}
 
 	if (!dashboard) {
+		// Like closing a browser tab before going anywhere else, return to the page it was opened from
+		if (opener && (opener.dashboardId === undefined || dashboards.some((other) => other.id === opener.dashboardId))) {
+			return <Navigate to={opener.pathname} replace />;
+		}
+
 		// Like closing a browser tab, select the next dashboard, or the previous one if this was the last
 		const neighbor = lastIndex === -1 ? undefined : dashboards[Math.min(lastIndex, dashboards.length - 1)];
 		if (neighbor) {

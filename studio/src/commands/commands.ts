@@ -79,8 +79,9 @@ export function useShortcutHint(shortcut: Hotkey | undefined): boolean {
 }
 
 export function newDashboard(router: RegisteredRouter, position?: 'top' | 'bottom'): void {
+	const opener = { pathname: router.state.location.pathname, dashboardId: currentDashboard(router)?.id };
 	const { id } = createDashboard(position);
-	void router.navigate({ to: '/dashboards/$dashboardId', params: { dashboardId: id } });
+	void router.navigate({ to: '/dashboards/$dashboardId', params: { dashboardId: id }, state: { opener } });
 }
 
 function currentDashboard(router: RegisteredRouter): Dashboard | undefined {
