@@ -279,6 +279,8 @@ export function Console({ bindings }: WidgetProps) {
 									<HighlightedText
 										text={messages.texts[item.index]!}
 										ranges={pattern ? matchRanges(messages.texts[item.index]!, pattern) : undefined}
+										// Like VS Code's find, matches get a background instead of a text color
+										className="rounded-xs bg-info/55 text-inherit"
 									/>
 								</span>
 							</AppContextMenu>

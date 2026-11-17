@@ -49,7 +49,7 @@ The console SHALL only show messages at or before the global cursor.
 
 ### Requirement: Text filter
 
-The console SHALL provide a text filter that hides messages not matching the filter and highlights the matching text in the messages shown. The filter SHALL ignore case and match its text literally by default, with toggles to match case, match whole words, and use a regular expression, like VS Code's find options. An invalid regular expression SHALL mark the filter as invalid and show no messages.
+The console SHALL provide a text filter that hides messages not matching the filter and highlights the background of the matching text in the messages shown, like VS Code's find. The filter SHALL ignore case and match its text literally by default, with toggles to match case, match whole words, and use a regular expression, like VS Code's find options. An invalid regular expression SHALL mark the filter as invalid and show no messages.
 
 #### Scenario: Filter messages
 
