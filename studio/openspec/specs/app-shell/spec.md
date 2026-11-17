@@ -17,6 +17,36 @@ The app SHALL show a vertical sidebar on the left containing, from top to bottom
 - **AND** the pages section below it
 - **AND** the dashboards section below the pages section
 
+### Requirement: What's new
+
+Like Linear, the bottom of the sidebar SHALL show a card announcing the newest product update until the user dismisses it. Dismissing it MUST hide the update, and it MUST stay hidden in other windows and after Studio is reopened. Users opening Studio for the first time MUST NOT see updates released before then.
+
+#### Scenario: New update
+
+- **GIVEN** an update was released since the user last dismissed the card
+- **WHEN** the user opens Studio
+- **THEN** the bottom of the sidebar shows the update's title and description
+
+#### Scenario: Dismiss an update
+
+- **GIVEN** the sidebar shows an update
+- **WHEN** the user dismisses it
+- **THEN** the card is hidden
+- **AND** it isn't shown again until a newer update is released
+
+#### Scenario: First launch
+
+- **WHEN** the user opens Studio for the first time
+- **THEN** no update is shown
+
+#### Scenario: Collapsed sidebar
+
+- **GIVEN** the sidebar is collapsed
+- **AND** there's an update the user hasn't dismissed
+- **THEN** the rail shows a What's new icon instead of the card
+- **WHEN** the user selects the icon
+- **THEN** the full sidebar is shown over the dashboard with the card
+
 ### Requirement: Window colors
 
 Like VS Code's Peacock extension, the top of the sidebar SHALL be tinted to tell open Studio tabs and windows apart. The first window MUST keep the default color, and each additional window MUST take the next chart color in order, repeating after the last. A window MUST keep its color while it's open, and a newly opened window MUST take the first color no open window is using.

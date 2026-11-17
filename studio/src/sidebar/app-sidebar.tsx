@@ -29,6 +29,7 @@ import { sidebarCollapsedStore } from '@/sidebar/sidebar';
 import { dragRegion, useTrafficLights } from '@/desktop/title-bar';
 import { installUpdate, useUpdate } from '@/desktop/updater';
 import { useWindowColor } from '@/theme/window-color';
+import { WhatsNewCard } from '@/changelog/whats-new-card';
 
 /** How long the pointer has to stay on or away from the collapsed sidebar before it's shown or hidden */
 const peekDelay = 300;
@@ -86,6 +87,12 @@ export function AppSidebar() {
 		setPeeking(false);
 		setAnimated(animate);
 		sidebarCollapsedStore.set((value) => !value);
+	};
+
+	const peek = () => {
+		clearTimeout(showTimer.current);
+		setAnimated(true);
+		setPeeking(true);
 	};
 	useHotkey(shortcuts.toggleSidebar, () => toggle(false), { requireReset: true });
 
@@ -155,10 +162,7 @@ export function AppSidebar() {
 					)}
 					onPointerEnter={(event) => {
 						if (collapsed && !peeking && event.pointerType !== 'touch') {
-							showTimer.current = setTimeout(() => {
-								setAnimated(true);
-								setPeeking(true);
-							}, peekDelay);
+							showTimer.current = setTimeout(peek, peekDelay);
 						}
 					}}
 					onPointerLeave={() => clearTimeout(showTimer.current)}
@@ -215,6 +219,7 @@ export function AppSidebar() {
 						<SidebarDashboards />
 					</SidebarContent>
 					<SidebarFooter>
+						<WhatsNewCard onShow={peek} />
 						<SidebarMenu>
 							{update && (
 								<SidebarMenuItem>
