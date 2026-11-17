@@ -121,6 +121,12 @@ Context menus SHALL be shown as native operating system menus in the desktop app
 - **WHEN** the user right-clicks a dashboard in the sidebar
 - **THEN** a native menu is shown
 
+#### Scenario: Desktop dashboard options menu
+
+- **GIVEN** the user is using the desktop app
+- **WHEN** the user clicks a dashboard's options button in the sidebar
+- **THEN** the same native menu is shown beside the button
+
 #### Scenario: Web context menu
 
 - **GIVEN** the user is using the web app

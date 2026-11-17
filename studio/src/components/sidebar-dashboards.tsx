@@ -1,4 +1,6 @@
 import { useFormatForDisplay } from '@tanstack/react-hotkeys';
+import { isTauri } from '@tauri-apps/api/core';
+import { LogicalPosition } from '@tauri-apps/api/dpi';
 import { Link, useLocation, useRouter } from '@tanstack/react-router';
 import { EllipsisIcon, LayoutDashboardIcon, PlusIcon } from 'lucide-react';
 import { PointerActivationConstraints } from '@dnd-kit/dom';
@@ -6,7 +8,7 @@ import { DragDropProvider, KeyboardSensor, PointerSensor } from '@dnd-kit/react'
 import { isSortable, useSortable } from '@dnd-kit/react/sortable';
 import { AnimatePresence, domAnimation, LazyMotion, m, useIsPresent, useReducedMotion } from 'motion/react';
 import { useState } from 'react';
-import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
+import { AppContextMenu, type MenuAction } from '@/components/app-context-menu';
 import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuShortcut, MenuTrigger } from '@/components/ui/menu';
 import {
 	SidebarGroup,
@@ -31,6 +33,7 @@ import {
 	renameDashboard,
 	useDashboards,
 } from '@/dashboards';
+import { popUpNativeMenu } from '@/native-menu';
 
 const MotionSidebarMenuItem = m.create(SidebarMenuItem);
 
@@ -106,7 +109,6 @@ function DashboardItem({
 	const pathname = useLocation({ select: (location) => location.pathname });
 	const active = present && pathname === `/dashboards/${dashboard.id}`;
 	const [renaming, setRenaming] = useState(false);
-	const [optionsOpen, setOptionsOpen] = useState(false);
 	const { ref, handleRef } = useSortable({ id: dashboard.id, index, disabled: renaming || !present });
 	const transition = (useReducedMotion() ?? false) ? { duration: 0 } : { duration: 0.2, ease: 'easeInOut' as const };
 	const shortcut = dashboardShortcut(index);
@@ -121,7 +123,7 @@ function DashboardItem({
 	const closeOthers = () =>
 		deleteDashboards(dashboards.filter((other) => other !== dashboard).map((other) => other.id));
 	const closeBelow = () => deleteDashboards(dashboards.slice(index + 1).map((other) => other.id));
-	const menuItems: MenuEntry[] = [
+	const menuItems: (MenuAction | 'separator')[] = [
 		{ label: 'Rename', onSelect: () => setRenaming(true) },
 		'separator',
 		{
@@ -218,30 +220,7 @@ function DashboardItem({
 								</PreviewCardPopup>
 							)}
 						</PreviewCard>
-						<Menu open={optionsOpen} onOpenChange={setOptionsOpen}>
-							<MenuTrigger
-								render={<SidebarMenuAction showOnHover className={showShortcut ? 'invisible' : undefined} />}
-								// The open menu doesn't cover its own button, so right-clicking it would open the context menu on top
-								onContextMenu={() => setOptionsOpen(false)}
-							>
-								<EllipsisIcon />
-								<span className="sr-only">Dashboard options</span>
-							</MenuTrigger>
-							<MenuPopup align="start" side="right">
-								<MenuItem onClick={() => setRenaming(true)}>Rename</MenuItem>
-								<MenuSeparator />
-								<MenuItem variant="destructive" onClick={() => deleteDashboard(dashboard.id)}>
-									Close dashboard
-									<MenuShortcut>{formatForDisplay(shortcuts.closeDashboard)}</MenuShortcut>
-								</MenuItem>
-								<MenuItem disabled={isOnly} onClick={closeOthers}>
-									Close other dashboards
-								</MenuItem>
-								<MenuItem disabled={isLast} onClick={closeBelow}>
-									Close dashboards below
-								</MenuItem>
-							</MenuPopup>
-						</Menu>
+						<DashboardOptions items={menuItems} hidden={showShortcut} />
 						{showShortcut && shortcut !== undefined && (
 							<SidebarMenuBadge>
 								<Kbd>{formatForDisplay(shortcut)}</Kbd>
@@ -253,3 +232,67 @@ function DashboardItem({
 		</AppContextMenu>
 	);
 }
+
+type DashboardOptionsProps = {
+	items: readonly (MenuAction | 'separator')[];
+	/** Hidden while the dashboard's shortcut is shown in its place */
+	hidden: boolean;
+};
+
+/** Opens beside the button, like the web menu */
+function NativeDashboardOptions({ items, hidden }: DashboardOptionsProps) {
+	return (
+		<SidebarMenuAction
+			showOnHover
+			className={hidden ? 'invisible' : undefined}
+			onClick={(event) => {
+				const rect = event.currentTarget.getBoundingClientRect();
+				void popUpNativeMenu(items, new LogicalPosition(rect.right, rect.top));
+			}}
+		>
+			<EllipsisIcon />
+			<span className="sr-only">Dashboard options</span>
+		</SidebarMenuAction>
+	);
+}
+
+function WebDashboardOptions({ items, hidden }: DashboardOptionsProps) {
+	const [open, setOpen] = useState(false);
+	const formatForDisplay = useFormatForDisplay();
+
+	return (
+		<Menu open={open} onOpenChange={setOpen}>
+			<MenuTrigger
+				render={<SidebarMenuAction showOnHover className={hidden ? 'invisible' : undefined} />}
+				// The open menu doesn't cover its own button, so right-clicking it would open the context menu on top
+				onContextMenu={() => setOpen(false)}
+			>
+				<EllipsisIcon />
+				<span className="sr-only">Dashboard options</span>
+			</MenuTrigger>
+			<MenuPopup align="start" side="right">
+				{items.map((item, index, all) => {
+					if (item === 'separator') {
+						const previous = all[index - 1];
+						return <MenuSeparator key={`after ${typeof previous === 'object' ? previous.label : ''}`} />;
+					}
+
+					return (
+						<MenuItem
+							key={item.label}
+							disabled={item.disabled ?? false}
+							variant={item.destructive === true ? 'destructive' : 'default'}
+							onClick={item.onSelect}
+						>
+							{item.label}
+							{item.shortcut !== undefined && <MenuShortcut>{formatForDisplay(item.shortcut)}</MenuShortcut>}
+						</MenuItem>
+					);
+				})}
+			</MenuPopup>
+		</Menu>
+	);
+}
+
+/** The dashboard's context menu, as a native menu in the desktop app */
+const DashboardOptions = isTauri() ? NativeDashboardOptions : WebDashboardOptions;
