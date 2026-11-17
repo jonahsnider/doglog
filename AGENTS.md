@@ -13,3 +13,4 @@ DogLog Studio is a web and desktop app for reviewing and analyzing logs.
 - Our workflow is fairly standard, but we don't use their change tracking feature
 - When making changes to the app, consider if spec documents should be added or updated
 - The dev server (`pnpm dev` in `studio`) runs at https://studio.doglog.dev.localhost, https://studio.doglog.dev is production
+- Run `pnpm check:dev` in `studio` to check your changes, it adds a React Doctor scan of changed files to `pnpm check`
