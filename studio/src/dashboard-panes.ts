@@ -3,6 +3,7 @@ import {
 	type Dashboard,
 	deleteDashboard,
 	getDashboard,
+	getDashboards,
 	moveDashboard,
 	updateDashboard,
 } from '@/dashboards';
@@ -145,11 +146,21 @@ export function moveDashboardPane(id: string, paneId: string, targetId: string, 
 	}));
 }
 
-/** Move a pane out of a dashboard into a new dashboard at `index` in the sidebar. The only pane can't be moved. */
+/**
+ * Move a pane out of a dashboard into a new dashboard at `index` in the sidebar.
+ * The only pane moves its whole dashboard to `index` instead.
+ */
 export function movePaneToNewDashboard(id: string, paneId: string, index: number): void {
 	const dashboard = getDashboard(id);
 	const pane = dashboard && findPane(dashboard.layout, paneId);
-	if (!dashboard || !pane || dashboard.layout.kind === 'pane') {
+	if (!dashboard || !pane) {
+		return;
+	}
+
+	if (dashboard.layout.kind === 'pane') {
+		// `index` counts the dashboard itself, which is taken out of the list before it's moved
+		const from = getDashboards().findIndex((other) => other.id === id);
+		moveDashboard(id, index > from ? index - 1 : index);
 		return;
 	}
 

@@ -137,7 +137,7 @@ Like Dia's split view, dragging a dashboard from the sidebar over the open dashb
 
 ### Requirement: Move panes
 
-Like Rex, users SHALL be able to drag a pane by its title, which shows a move icon and a background while hovered, and drop it on the half of another pane nearest the pointer. That half MUST be highlighted, moving between sides without animating. The dragged pane MUST go on that side, each taking half the space, and its sibling MUST take its old space. Sides where panes would end up too small MUST be shown as unavailable. A dashboard's only pane MUST NOT be draggable.
+Like Rex, users SHALL be able to drag a pane by its title, which shows a move icon and a background while hovered, and drop it on the half of another pane nearest the pointer. That half MUST be highlighted, moving between sides without animating. The dragged pane MUST go on that side, each taking half the space, and its sibling MUST take its old space. Sides where panes would end up too small MUST be shown as unavailable.
 
 #### Scenario: Not enough room
 
@@ -163,7 +163,7 @@ Other panes MUST NOT scroll or react to hovering while a pane is moved.
 
 ### Requirement: Move a pane to a new dashboard
 
-Dropping a pane on the sidebar's dashboards SHALL move it into a new dashboard. A placeholder MUST show where the new dashboard will be added, following the pointer between dashboards.
+Dropping a pane on the sidebar's dashboards SHALL move it into a new dashboard. Dropping a dashboard's only pane there SHALL move the dashboard instead. A placeholder MUST show where the new dashboard will be added, following the pointer between dashboards.
 
 #### Scenario: Split a pane into a new dashboard
 
@@ -171,6 +171,12 @@ Dropping a pane on the sidebar's dashboards SHALL move it into a new dashboard. 
 - **WHEN** the user drags one pane's title between the first and second dashboards in the sidebar
 - **THEN** a new dashboard with that pane is added between them
 - **AND** the other pane fills the original dashboard
+
+#### Scenario: Move a dashboard by its only pane
+
+- **GIVEN** a dashboard with a single pane
+- **WHEN** the user drags the pane's title between two other dashboards in the sidebar
+- **THEN** the dashboard moves there
 
 ### Requirement: Close a dashboard
 

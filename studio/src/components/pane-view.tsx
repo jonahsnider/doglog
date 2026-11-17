@@ -51,7 +51,7 @@ export function PaneView({
 	const { widget } = pane;
 	const type = widget && getWidgetType(widget.type);
 	const config = useMemo(() => widgetConfigSchema.parse(widget?.config), [widget?.config]);
-	const { draggable, dragRef, isDragging, dropRef, isDropTarget } = usePaneDrag(dashboardId, dashboardLayout, pane);
+	const { dragRef, isDragging, dropRef, isDropTarget } = usePaneDrag(dashboardId, pane);
 
 	const setWidget = (newType: WidgetType, entryNames: readonly string[] = newType.defaultConfig.entryNames) => {
 		const newConfig = { ...newType.defaultConfig, entryNames: [...entryNames] };
@@ -148,13 +148,7 @@ export function PaneView({
 				}}
 			>
 				<span className="flex min-w-0 flex-1">
-					<PaneTitle
-						dragRef={dragRef}
-						draggable={draggable}
-						isDragging={isDragging}
-						icon={type?.icon}
-						name={type?.name ?? widget?.type}
-					/>
+					<PaneTitle dragRef={dragRef} isDragging={isDragging} icon={type?.icon} name={type?.name ?? widget?.type} />
 				</span>
 				{/* Pane controls stay out of the way unless the pane is hovered or focused */}
 				<Toolbar
@@ -213,13 +207,11 @@ export function PaneView({
 /** Like Rex, panes are dragged by their title, which shows a move icon and a background while hovered or dragged */
 function PaneTitle({
 	dragRef,
-	draggable,
 	isDragging,
 	icon: Icon,
 	name,
 }: {
 	dragRef: (element: Element | null) => void;
-	draggable: boolean;
 	isDragging: boolean;
 	icon: WidgetType['icon'] | undefined;
 	name: string | undefined;
@@ -230,18 +222,11 @@ function PaneTitle({
 			data-dragging={isDragging || undefined}
 			className={cn(
 				'group/title -ms-1 flex min-w-0 items-center gap-1.5 rounded-md px-1 py-0.5 text-xs font-medium text-muted-foreground outline-none transition-colors duration-100 focus-visible:ring-2 focus-visible:ring-ring',
-				draggable &&
-					'hover:bg-accent hover:text-accent-foreground data-dragging:bg-accent data-dragging:text-accent-foreground',
+				'hover:bg-accent hover:text-accent-foreground data-dragging:bg-accent data-dragging:text-accent-foreground',
 			)}
 		>
-			{Icon && (
-				<Icon
-					className={cn('size-3.5 shrink-0', draggable && 'group-hover/title:hidden group-data-dragging/title:hidden')}
-				/>
-			)}
-			{draggable && (
-				<MoveIcon className="hidden size-3.5 shrink-0 group-hover/title:block group-data-dragging/title:block" />
-			)}
+			{Icon && <Icon className="size-3.5 shrink-0 group-hover/title:hidden group-data-dragging/title:hidden" />}
+			<MoveIcon className="hidden size-3.5 shrink-0 group-hover/title:block group-data-dragging/title:block" />
 			<span className="truncate">{name}</span>
 		</span>
 	);

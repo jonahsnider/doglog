@@ -1,6 +1,6 @@
 import { type Draggable, PointerActivationConstraints } from '@dnd-kit/dom';
 import { KeyboardSensor, PointerSensor, useDraggable, useDroppable } from '@dnd-kit/react';
-import type { Pane, PaneNode, PaneSide } from '@/pane-layout';
+import type { Pane, PaneSide } from '@/pane-layout';
 
 /** Drag type of panes, dragged by their header */
 export const paneDragType = 'pane';
@@ -35,16 +35,14 @@ const sensors = [
 
 /**
  * Like Rex, lets a pane be dragged by its title to move it beside another pane or into a new dashboard.
+ * The only pane can still be dropped on the sidebar to move its dashboard.
  * Attach `dragRef` to the title and `dropRef` to the pane.
  */
-export function usePaneDrag(dashboardId: string, layout: PaneNode, pane: Pane) {
-	// The only pane has nowhere to go
-	const draggable = layout.kind !== 'pane';
+export function usePaneDrag(dashboardId: string, pane: Pane) {
 	const { ref: dragRef, isDragging } = useDraggable<PaneDragData>({
 		id: `pane-${pane.id}`,
 		type: paneDragType,
 		sensors,
-		disabled: !draggable,
 		data: { dashboardId, paneId: pane.id, widgetType: pane.widget?.type },
 	});
 	const { ref: dropRef, isDropTarget } = useDroppable<PaneDropData>({
@@ -52,7 +50,7 @@ export function usePaneDrag(dashboardId: string, layout: PaneNode, pane: Pane) {
 		accept: (source) => source.type === paneDragType && source.data['paneId'] !== pane.id,
 		data: { kind: 'pane', paneId: pane.id },
 	});
-	return { draggable, dragRef, isDragging, dropRef, isDropTarget };
+	return { dragRef, isDragging, dropRef, isDropTarget };
 }
 
 /** The side of `rect` nearest to `point`, where a pane dropped there goes */
