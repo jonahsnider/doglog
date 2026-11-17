@@ -166,3 +166,30 @@ export function getAlertSpans(entries: readonly Entry[], range: TimeRange): read
 
 	return spans.toSorted((a, b) => a.start - b.start);
 }
+
+/** Disabled periods longer than this (µs) are compressed on the timeline and fast-forwarded through during playback */
+const minCompressedDuration = 15_000_000;
+/** Time (µs) kept at normal scale after disabling and before enabling, where things like brownouts and startup happen */
+const compressionMargin = 2_000_000;
+
+/** A span of time (µs) shown compressed on the timeline */
+export type CompressedSpan = { readonly start: number; readonly end: number };
+
+/**
+ * The long stretches of a source where the robot was disabled, minus a margin at each end. Empty if the robot was never
+ * enabled, since there's nothing to make room for. A live source's ongoing disabled period isn't compressed, so the
+ * newest data doesn't move around.
+ */
+export function getCompressedSpans(periods: readonly ModePeriod[], range: TimeRange, live: boolean): CompressedSpan[] {
+	if (!periods.some((period) => period.mode !== 'disabled')) {
+		return [];
+	}
+	return periods
+		.filter(
+			(period) =>
+				period.mode === 'disabled' &&
+				period.end - period.start > minCompressedDuration &&
+				!(live && period.end === range.end),
+		)
+		.map((period) => ({ start: period.start + compressionMargin, end: period.end - compressionMargin }));
+}

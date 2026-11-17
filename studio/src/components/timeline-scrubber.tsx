@@ -7,7 +7,8 @@ import { HoverTooltip } from '@/components/timeline-tooltip';
 import { type TimeRange, useEntries } from '@/data/data-store';
 import { cn } from '@/lib/utils';
 import { formatTime, getCursorTime, seek, seekHotkeys } from '@/timeline';
-import { getAlertSpans, getModePeriods } from '@/timeline-events';
+import { getAlertSpans, getCompressedSpans, getModePeriods } from '@/timeline-events';
+import { createTimeScale } from '@/timeline-scale';
 
 /**
  * Live sources are shown at least one FRC match long (2026: 20 s auto, 2 min 20 s teleop),
@@ -30,11 +31,14 @@ export function Scrubber({
 	time,
 	live,
 	showAlerts,
+	compress,
 }: {
 	range: TimeRange;
 	time: number;
 	live: boolean;
 	showAlerts: boolean;
+	/** Whether long disabled spans are compressed */
+	compress: boolean;
 }) {
 	// Non-null so it matches the React 18 `RefObject` that usehooks-ts' `useEventListener` expects
 	const slider = useRef<HTMLDivElement>(null!);
@@ -46,10 +50,18 @@ export function Scrubber({
 	const duration = range.end - range.start;
 	// The time shown across the whole track, longer than the data for short live sessions
 	const shownDuration = live ? Math.max(duration, minLiveDuration) : duration;
-	const toPercent = (value: number) => (shownDuration > 0 ? ((value - range.start) / shownDuration) * 100 : 100);
 
 	// The range changes whenever data does
 	const periods = useMemo(() => getModePeriods(range), [range]);
+	const compressed = useMemo(
+		() => (compress ? getCompressedSpans(periods, range, live) : []),
+		[compress, periods, range, live],
+	);
+	const scale = useMemo(
+		() => createTimeScale(range.start, shownDuration, compressed),
+		[range.start, shownDuration, compressed],
+	);
+	const { toPercent } = scale;
 	// Errors are drawn last so they're on top of warnings
 	const alerts = useMemo(
 		() =>
@@ -65,19 +77,17 @@ export function Scrubber({
 	};
 	/** The time under the pointer, snapped to the start of a section when it's close */
 	const timeAt = ({ x, width }: Hover) => {
-		const pointerTime = range.start + (x / width) * shownDuration;
-		const snapTime = (snapDistance / width) * shownDuration;
+		const pointerPercent = (x / width) * 100;
+		const snapPercent = (snapDistance / width) * 100;
+		const distance = (start: number) => Math.abs(toPercent(start) - pointerPercent);
 		const nearest = periods
 			.map((period) => period.start)
 			.reduce<number | undefined>(
 				(best, start) =>
-					Math.abs(start - pointerTime) <= snapTime &&
-					(best === undefined || Math.abs(start - pointerTime) < Math.abs(best - pointerTime))
-						? start
-						: best,
+					distance(start) <= snapPercent && (best === undefined || distance(start) < distance(best)) ? start : best,
 				undefined,
 			);
-		return nearest ?? pointerTime;
+		return nearest ?? scale.toTime(pointerPercent);
 	};
 	const seekToPointer = (event: PointerEvent) => {
 		seek(timeAt(hoverAt(event)));
@@ -86,14 +96,22 @@ export function Scrubber({
 	/** The tooltip for the pointer `x` px into the track, `undefined` if nothing is known there, ex. before Driver Station data */
 	const tooltipAt = (at: Hover) => {
 		const hoverTime = timeAt(at);
-		const slop = (alertHoverSlop / at.width) * shownDuration;
+		const slopPercent = (alertHoverSlop / at.width) * 100;
+		const from = scale.toTime(toPercent(hoverTime) - slopPercent);
+		const to = scale.toTime(toPercent(hoverTime) + slopPercent);
 		// Sections share their boundaries, the later one starts there
 		const period = periods.findLast((item) => item.start <= hoverTime && hoverTime <= item.end);
 		const hovered = alerts
-			.filter((alert) => alert.start - slop <= hoverTime && hoverTime <= alert.end + slop)
+			.filter((alert) => alert.start <= to && from <= alert.end)
 			.toSorted((a, b) => a.start - b.start);
 		return period !== undefined || hovered.length > 0 ? (
-			<HoverTooltip period={period} alerts={hovered} hoverTime={hoverTime} start={range.start} />
+			<HoverTooltip
+				period={period}
+				compressed={compressed.some((span) => span.start <= hoverTime && hoverTime <= span.end)}
+				alerts={hovered}
+				hoverTime={hoverTime}
+				start={range.start}
+			/>
 		) : undefined;
 	};
 	const tooltip = hover === undefined ? undefined : tooltipAt(hover);
@@ -113,7 +131,7 @@ export function Scrubber({
 				return;
 			}
 			event.preventDefault();
-			seek(cursor + (event.deltaX / track.current!.clientWidth) * shownDuration);
+			seek(scale.toTime(toPercent(cursor) + (event.deltaX / track.current!.clientWidth) * 100));
 		},
 		slider,
 		{ passive: false },
@@ -193,6 +211,14 @@ export function Scrubber({
 								);
 							})
 						)}
+						{/* Compressed spans are hatched so it's clear they aren't to scale */}
+						{compressed.map((span) => (
+							<div
+								key={span.start}
+								className="absolute inset-y-0 bg-background bg-[image:repeating-linear-gradient(-45deg,var(--color-input)_0_2px,transparent_2px_4px)]"
+								style={{ left: `${toPercent(span.start)}%`, width: `${toPercent(span.end) - toPercent(span.start)}%` }}
+							/>
+						))}
 					</div>
 
 					{/* Shows exactly which time the tooltip is about */}

@@ -88,6 +88,32 @@ Hovering the timeline bar's track SHALL show a tooltip of what was happening at 
 - **WHEN** the user hovers it
 - **THEN** its right side only shows "0:00.30"
 
+### Requirement: Skip disabled time
+
+While the skip disabled time option is on, disabled periods longer than 15 seconds SHALL be skipped, except for 2 seconds at each end, so the time around enabling and disabling stays at normal scale. On the timeline bar, each skipped span SHALL take a small fixed width, hatched so it's clear it isn't to scale, and the rest of the time SHALL share the remaining width evenly. Nothing MUST be skipped if the robot was never enabled, or the disabled period a live source is still in.
+
+#### Scenario: Practice log
+
+- **GIVEN** a log where the robot sat disabled for 20 minutes, then ran for 2 minutes
+- **THEN** the 2 minutes take up most of the track
+- **AND** hovering the hatched span shows "Disabled (skipped)" with its real start and end
+
+#### Scenario: Short gap
+
+- **GIVEN** the robot was disabled for 3 seconds between auto and teleop
+- **THEN** that gap is shown at normal scale
+
+### Requirement: Fast-forward skipped time
+
+While playing, the cursor SHALL fast-forward through a skipped span in about 1.5 seconds, then continue at the playback speed from the end of the span. The current time MUST be marked with a fast-forward icon while this happens.
+
+#### Scenario: Play into a skipped span
+
+- **GIVEN** a skipped span from 0:06.25 to 2:14.95
+- **WHEN** the user plays from 0:29.25
+- **THEN** the cursor reaches 2:14.95 about a second later
+- **AND** it continues at normal speed from there
+
 ### Requirement: Live timeline length
 
 For live sources, the timeline bar SHALL span at least one FRC match (2 min 40 s), so it doesn't rescale with every new sample right after connecting. The part of the track past the newest data MUST look distinct from the part with data.
@@ -108,7 +134,7 @@ The timeline bar SHALL have buttons for play/pause and playback speed at its sta
 
 ### Requirement: Timeline options
 
-The timeline options menu SHALL let the user hide or show alerts on the timeline, and MUST remember the choice. Alerts are shown by default.
+The timeline options menu SHALL let the user hide or show alerts on the timeline and turn skipping disabled time on or off, and MUST remember both choices. Both are on by default.
 
 #### Scenario: Hide alerts
 

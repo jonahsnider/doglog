@@ -57,11 +57,14 @@ function TooltipItem({
 /** What was happening at the hovered time: the robot's mode, then any active alerts */
 export function HoverTooltip({
 	period,
+	compressed,
 	alerts,
 	hoverTime,
 	start,
 }: {
 	period: ModePeriod | undefined;
+	/** Whether the hovered time is in a compressed span */
+	compressed: boolean;
 	alerts: readonly AlertSpan[];
 	hoverTime: number;
 	start: number;
@@ -72,7 +75,7 @@ export function HoverTooltip({
 			{period && (
 				<TooltipItem
 					color={modeColors[period.mode] ?? 'bg-input'}
-					label={modeLabels[period.mode]}
+					label={compressed ? `${modeLabels[period.mode]} (skipped)` : modeLabels[period.mode]}
 					from={period.start}
 					to={period.end}
 					hoverTime={hoverTime}

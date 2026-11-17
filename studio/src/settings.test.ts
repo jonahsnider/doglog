@@ -26,6 +26,7 @@ test('new settings keep the Team 581 default', async () => {
 		robotTarget: '',
 		mediaControls: false,
 		timelineAlerts: true,
+		timelineCompress: true,
 	});
 });
 
@@ -44,6 +45,7 @@ test.each([
 			robotTarget: '581',
 			mediaControls: false,
 			timelineAlerts: true,
+			timelineCompress: true,
 			themePreset,
 		};
 		expect(settingsStore.get()).toStrictEqual(expected);
@@ -69,5 +71,6 @@ test('custom colors survive preset changes and a reload', async () => {
 		robotTarget: '',
 		mediaControls: false,
 		timelineAlerts: true,
+		timelineCompress: true,
 	});
 });

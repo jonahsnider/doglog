@@ -24,6 +24,8 @@ const settingsSchema = z
 		mediaControls: z.boolean().catch(false),
 		/** Whether the timeline bar shows when alerts were active */
 		timelineAlerts: z.boolean().catch(true),
+		/** Whether long disabled stretches are compressed on the timeline and fast-forwarded through during playback */
+		timelineCompress: z.boolean().catch(true),
 	})
 	.transform(({ themePreset, themeColor, ...settings }) => {
 		if (themePreset !== undefined) {

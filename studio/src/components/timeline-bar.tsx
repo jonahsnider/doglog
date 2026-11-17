@@ -1,4 +1,4 @@
-import { PauseIcon, PlayIcon, SlidersHorizontalIcon } from 'lucide-react';
+import { FastForwardIcon, PauseIcon, PlayIcon, SlidersHorizontalIcon } from 'lucide-react';
 import { type Hotkey, type UseHotkeyDefinition, useHotkeys } from '@tanstack/react-hotkeys';
 import { type ReactNode, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -8,13 +8,14 @@ import { Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from '@/c
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { Scrubber } from '@/components/timeline-scrubber';
 import { TooltipLabel } from '@/components/tooltip-label';
-import { useTimeRange } from '@/data/data-store';
+import { type TimeRange, useTimeRange } from '@/data/data-store';
 import { useLogProgress, useSource } from '@/data/source';
 import { cn } from '@/lib/utils';
 import { updateSettings, useSettings } from '@/settings';
 import {
 	changeSpeed,
 	formatTime,
+	getActiveCompressedSpans,
 	goLive,
 	playbackSpeeds,
 	seekHotkeys,
@@ -70,10 +71,39 @@ function ControlButton({
 	);
 }
 
+/** The cursor's time, marked while playback fast-forwards through a compressed disabled span */
+function CursorTime({
+	range,
+	time,
+	playing,
+}: {
+	range: TimeRange | undefined;
+	time: number | undefined;
+	playing: boolean;
+}) {
+	if (range === undefined || time === undefined) {
+		return <span className="ms-1 min-w-20 text-right font-mono text-sm">-</span>;
+	}
+	// Only checked while playing, since that's the only time playback fast-forwards
+	const fastForwarding =
+		playing && getActiveCompressedSpans(range).some((span) => span.start <= time && time < span.end);
+	return (
+		<span className="ms-1 flex min-w-20 items-center justify-end gap-1 font-mono text-sm tabular-nums">
+			{fastForwarding && (
+				<FastForwardIcon
+					className="size-3.5 text-muted-foreground"
+					aria-label="Fast-forwarding through disabled time"
+				/>
+			)}
+			{formatTime(time, range.start)}
+		</span>
+	);
+}
+
 function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 	const range = useTimeRange();
 	const { time, playback, speed, live } = useTimeline();
-	const { timelineAlerts } = useSettings();
+	const { timelineAlerts, timelineCompress } = useSettings();
 	const [speedOpen, setSpeedOpen] = useState(false);
 	const [optionsOpen, setOptionsOpen] = useState(false);
 	const speedTrigger = useRef<HTMLButtonElement>(null);
@@ -127,11 +157,9 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 					</SelectPopup>
 				</Select>
 
-				<span className="ms-1 min-w-20 text-right font-mono text-sm tabular-nums">
-					{range && time !== undefined ? formatTime(time, range.start) : '-'}
-				</span>
+				<CursorTime range={range} time={time} playing={playback === 'playing'} />
 				{range && time !== undefined ? (
-					<Scrubber range={range} time={time} live={live} showAlerts={timelineAlerts} />
+					<Scrubber range={range} time={time} live={live} showAlerts={timelineAlerts} compress={timelineCompress} />
 				) : (
 					<div className="mx-2 h-1 flex-1 rounded-full bg-input" />
 				)}
@@ -168,6 +196,12 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 							onCheckedChange={(checked) => updateSettings({ timelineAlerts: checked })}
 						>
 							Show alerts
+						</MenuCheckboxItem>
+						<MenuCheckboxItem
+							checked={timelineCompress}
+							onCheckedChange={(checked) => updateSettings({ timelineCompress: checked })}
+						>
+							Skip disabled time
 						</MenuCheckboxItem>
 					</MenuPopup>
 				</Menu>

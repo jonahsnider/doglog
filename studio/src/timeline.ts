@@ -5,7 +5,8 @@ import * as z from 'zod';
 import { getTimeRange, subscribeData, type TimeRange } from '@/data/data-store';
 import type { Source } from '@/data/source';
 import { createPersistedAtom } from '@/lib/persisted-store';
-import { getModePeriods } from '@/timeline-events';
+import { settingsStore } from '@/settings';
+import { type CompressedSpan, getCompressedSpans, getModePeriods } from '@/timeline-events';
 
 /** `following` keeps the cursor on the newest data, it's only used by live sources */
 type Playback = 'paused' | 'playing' | 'following';
@@ -56,6 +57,14 @@ function update(changes: Partial<Timeline>): void {
 	}
 }
 
+/** About how long (ms) playback takes to fast-forward through a compressed disabled span */
+const compressedPlaybackTime = 1500;
+
+/** Long disabled spans of the active source that are compressed on the timeline, empty when compression is turned off */
+export function getActiveCompressedSpans(range: TimeRange): CompressedSpan[] {
+	return settingsStore.get().timelineCompress ? getCompressedSpans(getModePeriods(range), range, store.get().live) : [];
+}
+
 function tick(now: number): void {
 	frame = undefined;
 	const { time, speed, live } = store.get();
@@ -65,8 +74,15 @@ function tick(now: number): void {
 		return;
 	}
 
-	const next = time + Math.max(0, now - lastFrameTime) * 1000 * speed;
+	const elapsed = Math.max(0, now - lastFrameTime);
 	lastFrameTime = now;
+	let next = time + elapsed * 1000 * speed;
+	// Fast-forward through compressed spans, stopping at their end so the time kept after them isn't skipped too
+	const compressed = getActiveCompressedSpans(range).find((span) => span.start <= time && time < span.end);
+	if (compressed) {
+		const fastForward = time + (elapsed / compressedPlaybackTime) * (compressed.end - compressed.start);
+		next = Math.min(Math.max(next, fastForward), compressed.end);
+	}
 
 	if (next >= range.end) {
 		// Playback caught up with live data, or reached the end of the log
