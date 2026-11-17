@@ -64,7 +64,7 @@ The console SHALL provide a text filter that hides messages not matching the fil
 
 ### Requirement: Message navigation
 
-The console SHALL provide previous and next message buttons, also bound to Shift+Enter and Enter in the filter, that move the global cursor to the previous or next message passing the filters. Messages at the cursor's exact time SHALL briefly flash a tinted background, showing where the message stepped to is. While filtering, the filter SHALL show how many matching messages are at or before the cursor out of all matching messages in the log.
+The console SHALL provide previous and next message buttons, also bound to Shift+Enter and Enter in the filter, that move the global cursor to the previous or next message passing the filters. The message stepped to SHALL briefly flash a tinted background to show where it is, and SHALL NOT flash at other times, such as when the console opens. While filtering, the filter SHALL show how many matching messages are at or before the cursor out of all matching messages in the log.
 
 #### Scenario: Matches after the cursor
 

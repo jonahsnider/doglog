@@ -126,11 +126,15 @@ export function Console({ bindings }: WidgetProps) {
 		lastScrollTop.current = element.scrollTop;
 	};
 
+	/** Time of the messages just stepped to, which briefly flash to show where to look */
+	const [flashTime, setFlashTime] = useState<number>();
+
 	/** Move the cursor to a message, which shows it at the bottom of the list */
 	const seekMessage = (target: number | undefined) => {
 		if (target !== undefined) {
 			stickToBottom.current = true;
 			seek(target);
+			setFlashTime(target);
 		}
 	};
 
@@ -262,10 +266,12 @@ export function Console({ bindings }: WidgetProps) {
 									<div
 										ref={virtualizer.measureElement}
 										data-index={item.index}
-										// Briefly highlights the messages at the cursor after stepping to them with the previous/next message buttons
-										data-current={messages.times[item.index] === time || undefined}
+										data-flash={messages.times[item.index] === flashTime || undefined}
+										// Stop flashing once it's done or the user found the message, so it doesn't replay when the row remounts
+										onAnimationEnd={() => setFlashTime(undefined)}
+										onPointerEnter={() => setFlashTime(undefined)}
 										className={cn(
-											'absolute inset-x-0 top-0 flex gap-3 px-2 py-0.5 leading-4 data-current:animate-highlight-fade hover:animate-none',
+											'absolute inset-x-0 top-0 flex gap-3 px-2 py-0.5 leading-4 data-flash:animate-highlight-fade',
 											levelClassNames[messages.levels[item.index]!],
 										)}
 										style={{ transform: `translateY(${item.start}px)` }}
