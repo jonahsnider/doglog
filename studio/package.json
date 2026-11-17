@@ -75,7 +75,7 @@
 		"portless": "0.17.0",
 		"react-doctor": "0.9.23",
 		"tailwindcss": "4.3.5",
-		"typescript": "7.1.0-dev.20261115.1",
+		"typescript": "7.1.0-dev.20261116.1",
 		"vite": "catalog:",
 		"vite-plugin-pwa": "2.0.0",
 		"vite-plus": "catalog:",
