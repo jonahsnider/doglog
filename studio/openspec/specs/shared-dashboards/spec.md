@@ -8,18 +8,25 @@ Define shared dashboards, which everyone connected to the same robot can see and
 
 ### Requirement: Shared section
 
-The sidebar SHALL list shared dashboards in a Shared section, above and separate from the dashboards that are only on the device. The section MUST show whether shared dashboards are syncing, ex. "Synced with 581" or "Disconnected".
+The sidebar SHALL list shared dashboards in a Shared section, below the dashboards that are only on the device and set apart from them by a divider line. The empty space below the section is part of it, so panes and dashboards dropped there are shared. The section MUST show whether shared dashboards are syncing, ex. "Synced with 581". It MUST show "Disconnected" for 5 minutes after the connection drops, and nothing otherwise, so it doesn't bother users who don't connect to a robot.
 
 #### Scenario: No shared dashboards
 
 - **GIVEN** no dashboards are shared on the robot
-- **THEN** the Shared section explains that dashboards dragged into it are shared
+- **WHEN** a user drags a dashboard or pane
+- **THEN** the Shared section explains that dropping it there shares it
 
 #### Scenario: Not connected
 
-- **GIVEN** neither the robot nor the simulator is reachable
-- **THEN** the Shared section shows "Disconnected"
+- **GIVEN** shared dashboards were synced with the robot
+- **WHEN** the robot stops being reachable
+- **THEN** the Shared section shows "Disconnected" for 5 minutes
 - **AND** shared dashboards can still be edited, and the changes sync once connected
+
+#### Scenario: Never connected
+
+- **GIVEN** neither the robot nor the simulator has been reachable since Studio opened
+- **THEN** the Shared section doesn't show a status
 
 ### Requirement: Share a dashboard
 

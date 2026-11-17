@@ -13,6 +13,30 @@ export function useSharingHost(): string | undefined {
 	return useSelector(hostStore);
 }
 
+/** How long after disconnecting shared dashboards are still shown as disconnected */
+const disconnectedStatusDuration = 5 * 60 * 1000;
+/** Whether shared dashboards were synced recently, so only those using them are told they're disconnected */
+const recentlyConnectedStore = createAtom(false);
+let disconnectedTimer: ReturnType<typeof setTimeout> | undefined;
+
+export function useRecentlyConnected(): boolean {
+	return useSelector(recentlyConnectedStore);
+}
+
+function setHost(host: string | undefined): void {
+	if (host === hostStore.get()) {
+		return;
+	}
+
+	hostStore.set(host);
+	clearTimeout(disconnectedTimer);
+	if (host === undefined) {
+		disconnectedTimer = setTimeout(() => recentlyConnectedStore.set(false), disconnectedStatusDuration);
+	} else {
+		recentlyConnectedStore.set(true);
+	}
+}
+
 /** How long to wait before looking for the robot or simulator again */
 const retryDelay = 5000;
 
@@ -33,7 +57,7 @@ export function startSharing(): void {
 		clearTimeout(retryTimer);
 		disconnect?.();
 		disconnect = undefined;
-		hostStore.set(undefined);
+		setHost(undefined);
 		void attempt(generation);
 	};
 
@@ -74,14 +98,14 @@ export function startSharing(): void {
 				return;
 			}
 			if (connected) {
-				hostStore.set(host);
+				setHost(host);
 				return;
 			}
 
 			// Look for the robot and simulator again, since the other one might be reachable now
 			disconnect?.();
 			disconnect = undefined;
-			hostStore.set(undefined);
+			setHost(undefined);
 			retry(attemptGeneration);
 		});
 	}
