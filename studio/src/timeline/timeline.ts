@@ -280,4 +280,7 @@ export const seekHotkeys: UseHotkeyDefinition[] = [
 	{ hotkey: 'Shift+ArrowRight', callback: () => skipSection(1) },
 	{ hotkey: 'Home', callback: jumpToStart },
 	{ hotkey: 'End', callback: jumpToEnd },
+	// Mac laptops don't have Home and End, text fields keep these for moving to the start or end of a line
+	{ hotkey: 'Mod+ArrowLeft', callback: jumpToStart, options: { ignoreInputs: true } },
+	{ hotkey: 'Mod+ArrowRight', callback: jumpToEnd, options: { ignoreInputs: true } },
 ];

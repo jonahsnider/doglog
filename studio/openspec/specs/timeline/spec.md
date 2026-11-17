@@ -164,11 +164,6 @@ For log sources, Studio SHALL provide play/pause, a playback speed multiplier, s
 - **THEN** the cursor moves to 52.0 s
 - **AND** playback doesn't change
 
-#### Scenario: Jump to ends
-
-- **WHEN** the user presses Home or End
-- **THEN** the cursor moves to the start or end of the log
-
 #### Scenario: Speed keys
 
 - **WHEN** the user presses ] or YouTube's >
@@ -179,6 +174,21 @@ For log sources, Studio SHALL provide play/pause, a playback speed multiplier, s
 
 - **WHEN** the user sets playback speed to 2x and plays
 - **THEN** the cursor advances at twice real time
+
+### Requirement: Jump to ends
+
+Home and End, or ⌘← and ⌘→ (Ctrl on Windows and Linux), SHALL jump to the start and end of the timeline. In text fields, ⌘← and ⌘→ MUST keep moving the text cursor instead.
+
+#### Scenario: Jump to ends
+
+- **WHEN** the user presses Home or End
+- **THEN** the cursor moves to the start or end of the log
+
+#### Scenario: Jump to ends while typing
+
+- **GIVEN** the entry browser search box is focused
+- **WHEN** the user presses ⌘←
+- **THEN** the text cursor moves to the start of the search box and the timeline cursor doesn't move
 
 ### Requirement: Skip sections
 
