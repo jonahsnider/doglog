@@ -65,6 +65,15 @@ const sections: { title: string; shortcuts: Shortcut[] }[] = [
 			{ label: 'Faster playback', keys: [']'] },
 		],
 	},
+	{
+		title: 'Field, while hovered',
+		shortcuts: [
+			{ label: 'Measure distance', keys: ['M'] },
+			{ label: 'Measure angle', keys: ['A'] },
+			{ label: 'Stop measuring', keys: ['Escape'] },
+			{ label: 'Copy cursor position', keys: ['Mod+C'] },
+		],
+	},
 ];
 
 /** Lists every keyboard shortcut, opened with its own shortcut */

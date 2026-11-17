@@ -1,8 +1,10 @@
-import { ChartNoAxesGanttIcon, MoveIcon, TableIcon, TerminalIcon } from 'lucide-react';
+import { ChartNoAxesGanttIcon, MapIcon, MoveIcon, TableIcon, TerminalIcon } from 'lucide-react';
 import type { Entry } from '@/data/data-store';
 import type { Widget } from '@/pane-layout';
 import { Console } from '@/widgets/console';
 import { DiscreteTimeline } from '@/widgets/discrete-timeline';
+import { Field } from '@/widgets/field';
+import { fieldRole } from '@/widgets/field-data';
 import { Swerve } from '@/widgets/swerve';
 import { swerveRole } from '@/widgets/swerve-data';
 import { ValuesTable } from '@/widgets/values-table';
@@ -48,6 +50,17 @@ export const widgetTypes: readonly WidgetType[] = [
 		defaultConfig: { entryNames: [] },
 		component: Swerve,
 	},
+	{
+		id: 'field',
+		name: 'Field',
+		icon: MapIcon,
+		hotkey: 'F',
+		accepts: ['struct', 'struct[]'],
+		matches: (entry) => fieldRole(entry) !== undefined,
+		rendersEmpty: true,
+		defaultConfig: { entryNames: [] },
+		component: Field,
+	},
 ];
 
 export function getWidgetType(id: string): WidgetType | undefined {
@@ -65,6 +78,10 @@ function defaultWidgetTypeId(entry: Entry): string {
 
 	if (entry.type === 'struct:SwerveModuleState[]' || entry.type === 'struct:SwerveModuleVelocity[]') {
 		return 'swerve';
+	}
+
+	if (fieldRole(entry) !== undefined) {
+		return 'field';
 	}
 
 	// Numeric entries (`entry.kind === 'number'`) should use the line graph once it exists, they use the values table until then

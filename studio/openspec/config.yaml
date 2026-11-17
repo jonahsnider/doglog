@@ -25,6 +25,9 @@ context: |
     (ex. `unit`) pass through its schema instead of being stripped, until that's fixed upstream.
   - Drawn widgets: plain SVG in React when the element count is small (ex. the swerve widget). Pick drawing
     libraries per widget when it's specced (ex. canvas for dense time series, three.js for 3D).
+  - Field images: the season's community top-down CAD render from Chief Delphi (AdvantageScope uses the same ones), the
+    variant without background or game pieces, over a fixed neutral gray, compressed as lossless WebP. Cropped with the
+    SVG view, not by editing the image.
   - Avoid per-widget settings where possible; prefer inferring from entry types, metadata, and names.
   - Distribution: a PWA website, plus a Tauri desktop app built from the same frontend.
   - Log sync: desktop only. Rust (the `robot-sftp` crate, russh) does SSH/SFTP listing and offset downloads, TypeScript
@@ -59,8 +62,13 @@ context: |
   - Playback looping and trimming the playback range.
   - FRC match time display (ex. "Teleop 1:32").
   - Recent files.
-  - More FRC-specific widgets (field view, etc.). Double-clicking matching entries should default to these once
-    they exist.
+  - More FRC-specific widgets. Double-clicking matching entries should default to these once they exist.
+  - A 3D field view, likely three.js with a field model per season.
+  - Field widget seasons: WPILib 2027 moves the field origin to the center with +X toward blue. The field widget is
+    hardcoded to the 2026 field and coordinates; switch to 2027 when it ships. Past seasons may not be supported.
+  - Robot trails and per-project robot sizes in the field widget.
+  - Keyboard zoom for the field widget. The desktop app could zoom it with ⌘+/⌘-, but it may be better to support the
+    system's zoom gestures and settings instead.
   - Choosing robot-relative or field-relative for `ChassisSpeeds` in the swerve widget (currently always
     robot-relative).
   - Unit inference beyond angles (ex. distance, velocity).

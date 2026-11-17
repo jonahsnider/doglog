@@ -27,7 +27,8 @@ export type WidgetBinding = {
 
 export type WidgetProps = {
 	/**
-	 * Bound entries in the order they were bound. At least one of them has an entry, the widget isn't rendered otherwise.
+	 * Bound entries in the order they were bound. At least one of them has an entry, the widget isn't rendered otherwise,
+	 * unless its type is `rendersEmpty`.
 	 * Widgets are read-only, and follow the cursor with `useCursorTime()` or `subscribeTimeline()` from `@/timeline`.
 	 */
 	readonly bindings: readonly WidgetBinding[];
@@ -45,6 +46,8 @@ export type WidgetType = {
 	readonly accepts: readonly BindableKind[];
 	/** Narrows `accepts` further, ex. to specific struct types */
 	readonly matches?: (entry: Entry) => boolean;
+	/** Rendered even with no entries or no data instead of the shared empty states, ex. the field shows the field */
+	readonly rendersEmpty?: boolean;
 	/** Config of a newly added widget, ex. default bindings */
 	readonly defaultConfig: WidgetConfig;
 	readonly component: ComponentType<WidgetProps>;

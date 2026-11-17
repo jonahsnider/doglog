@@ -351,7 +351,7 @@ Studio SHALL guide users from empty states to a usable dashboard.
 - **GIVEN** the focused pane has no widget
 - **WHEN** the user presses `S`
 - **THEN** a swerve widget is added to the pane
-- **AND** each widget tile shows its key: `V` for values table, `C` for console, `D` for discrete timeline, and `S` for swerve
+- **AND** each widget tile shows its key: `V` for values table, `C` for console, `D` for discrete timeline, `S` for swerve, and `F` for field
 
 #### Scenario: No dashboards
 

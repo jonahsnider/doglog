@@ -164,7 +164,7 @@ Widgets and the entry picker SHALL shorten the `/Robot`, `/RealOutputs`, `/Advan
 
 ### Requirement: Default widget for an entry
 
-Each bindable entry SHALL have a default widget, used when the entry is added without choosing a widget: numeric entries use the line graph, `/console` and `/messages` use the console, other string and boolean entries use the discrete timeline, `SwerveModuleState[]` and `SwerveModuleVelocity[]` entries use the swerve widget, and all other entries use the values table.
+Each bindable entry SHALL have a default widget, used when the entry is added without choosing a widget: numeric entries use the line graph, `/console` and `/messages` use the console, other string and boolean entries use the discrete timeline, `SwerveModuleState[]` and `SwerveModuleVelocity[]` entries use the swerve widget, entries the field widget accepts use the field widget, and all other entries use the values table.
 
 #### Scenario: Numeric entry
 
@@ -186,7 +186,12 @@ Each bindable entry SHALL have a default widget, used when the entry is added wi
 - **WHEN** a `SwerveModuleState[]` entry is added by double-clicking it
 - **THEN** it is shown in a swerve widget
 
-#### Scenario: Struct entry
+#### Scenario: Pose entry
 
 - **WHEN** a `struct:Pose2d` entry is added by double-clicking it
+- **THEN** it is shown in a field widget
+
+#### Scenario: Struct entry
+
+- **WHEN** a `struct:ChassisSpeeds` entry is added by double-clicking it
 - **THEN** it is shown in a values table

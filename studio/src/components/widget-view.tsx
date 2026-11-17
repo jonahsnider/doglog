@@ -39,7 +39,9 @@ export function WidgetView({
 	}, [entries, entryNames, type]);
 
 	let content: ReactNode;
-	if (entryNames.length === 0) {
+	if (type.rendersEmpty === true) {
+		content = <type.component bindings={bindings} />;
+	} else if (entryNames.length === 0) {
 		content = (
 			<WidgetEmpty
 				icon={<ListPlusIcon />}

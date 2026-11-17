@@ -1,6 +1,7 @@
 // Reads swerve values from entries, shared by the swerve widget's drawing code
 import type { Entry } from '@/data/data-store';
 import type { Value } from '@/data/samples';
+import { numberField, structField } from '@/data/struct-fields';
 
 export type Role = 'states' | 'positions' | 'speeds' | 'heading';
 
@@ -19,20 +20,9 @@ export function swerveRole(entry: Entry): Role | undefined {
 	return entry.kind === 'number' ? 'heading' : structRoles[entry.type];
 }
 
-function field(struct: unknown, name: string): unknown {
-	return typeof struct === 'object' && struct !== null && !Array.isArray(struct)
-		? Reflect.get(struct, name)
-		: undefined;
-}
-
-export function numberField(struct: unknown, name: string): number {
-	const value = field(struct, name);
-	return typeof value === 'number' ? value : 0;
-}
-
 /** A module's speed, `speed` in SwerveModuleState or `velocity` in SwerveModuleVelocity */
 function moduleSpeed(module: unknown): number {
-	const speed = field(module, 'speed');
+	const speed = structField(module, 'speed');
 	return typeof speed === 'number' ? speed : numberField(module, 'velocity');
 }
 
@@ -43,7 +33,7 @@ export function readModules(value: Value | undefined, role: Role): Module[] {
 		return [];
 	}
 	return value.map((module) => ({
-		angle: numberField(field(module, 'angle'), 'value'),
+		angle: numberField(structField(module, 'angle'), 'value'),
 		speed: role === 'states' ? moduleSpeed(module) : 0,
 	}));
 }

@@ -3,14 +3,14 @@ import type { ReactNode } from 'react';
 import type { Value } from '@/data/samples';
 import { type Entry, useDataVersion } from '@/data/data-store';
 import { angleUnitLabels, inferAngleUnit, toRadians } from '@/data/units';
-import { cn } from '@/lib/utils';
 import { useCursorTime } from '@/timeline';
-import { historyMax, type Module, numberField, readModules, swerveRole } from '@/widgets/swerve-data';
+import { numberField } from '@/data/struct-fields';
+import { historyMax, type Module, readModules, swerveRole } from '@/widgets/swerve-data';
 import { chassisHalf, move, type Point, strokeWidth } from '@/widgets/swerve-geometry';
 import { Arrow, Line, ModuleLabel, RotationArc, Wheel } from '@/widgets/swerve-shapes';
 import type { WidgetProps } from '@/widgets/widget-type';
-import { EntryName } from '@/components/entry-name';
-import { useEntryDrag } from '@/entry-drag';
+import { Legend, type LegendItem } from '@/widgets/legend';
+import { seriesColor } from '@/widgets/series-color';
 
 // Sizes in robot-frame meters-like units: the chassis is 1 wide, the view leaves room for arrows when it's rotated
 /** Modules sit inside the chassis, like a real robot's */
@@ -32,45 +32,6 @@ const modulePositions: readonly Point[] = [
 	[-moduleOffset, -moduleOffset],
 ];
 const moduleLabels = ['FL', 'FR', 'BL', 'BR'];
-
-function seriesColor(index: number): string {
-	return `var(--chart-${(index % 5) + 1})`;
-}
-
-type LegendItem = { name: string; color?: string; heading?: string; dimmed: boolean; error?: string };
-
-function Legend({ items }: { items: LegendItem[] }) {
-	return (
-		<ul className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
-			{items.map((item) => (
-				<LegendEntry key={item.name} item={item} />
-			))}
-		</ul>
-	);
-}
-
-function LegendEntry({ item }: { item: LegendItem }) {
-	const { ref } = useEntryDrag(item.name, { orientation: 'horizontal' });
-	return (
-		<li
-			ref={ref}
-			className={cn('flex min-w-0 cursor-grab items-center gap-1.5', item.dimmed && 'opacity-50')}
-			// Right-clicking the item offers to remove its entry, middle-clicking removes it
-			data-entry-name={item.name}
-		>
-			{item.heading === undefined ? (
-				<span className="size-2.5 shrink-0 rounded-full" style={{ background: item.color }} />
-			) : (
-				<CompassIcon className="size-3.5 shrink-0 text-muted-foreground" />
-			)}
-			<span className="truncate font-mono">
-				<EntryName name={item.name} />
-			</span>
-			{item.heading !== undefined && <span className="text-muted-foreground">({item.heading})</span>}
-			{item.error !== undefined && <span className="text-destructive-foreground">{item.error}</span>}
-		</li>
-	);
-}
 
 function ChassisSpeeds({
 	value,
@@ -198,7 +159,8 @@ export function Swerve({ bindings }: WidgetProps) {
 		if (role === 'heading') {
 			legend.push({
 				name,
-				heading: angleUnitLabels[inferAngleUnit(entry!)],
+				icon: <CompassIcon className="size-3.5 shrink-0 text-muted-foreground" />,
+				note: `(${angleUnitLabels[inferAngleUnit(entry!)]})`,
 				dimmed: entry !== headingEntry || value === undefined,
 			});
 			continue;
