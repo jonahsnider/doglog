@@ -116,7 +116,7 @@ export function DashboardItem({
 	const pathname = useLocation({ select: (location) => location.pathname });
 	const active = present && pathname === `/dashboards/${dashboard.id}`;
 	const [renaming, setRenaming] = useState(false);
-	const { ref, handleRef } = useSortable({
+	const { ref, handleRef, isDragSource } = useSortable({
 		id: dashboard.id,
 		index: sectionIndex,
 		group: dashboard.shared ? 'shared' : 'local',
@@ -127,6 +127,11 @@ export function DashboardItem({
 		sensors: dashboardSensors,
 		disabled: renaming || !present,
 	});
+	// Closed while the dashboard is dragged, since the trigger moves with the pointer and the preview would follow it
+	const [previewOpen, setPreviewOpen] = useState(false);
+	if (isDragSource && previewOpen) {
+		setPreviewOpen(false);
+	}
 	const transition = useMotionTransition({ duration: 0.2, ease: easing.inOut });
 	const shortcut = dashboardShortcut(index);
 	const name = dashboardName(dashboard);
@@ -190,7 +195,7 @@ export function DashboardItem({
 					/>
 				) : (
 					<>
-						<PreviewCard>
+						<PreviewCard open={previewOpen} onOpenChange={(open) => setPreviewOpen(open && !isDragSource)}>
 							<PreviewCardTrigger
 								render={
 									<SidebarMenuButton
