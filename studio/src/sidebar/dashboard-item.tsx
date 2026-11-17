@@ -165,8 +165,8 @@ export function DashboardItem({
 			disabled={renaming}
 		>
 			<m.div
-				// Opaque so an opened dashboard hides the one it covers
-				className="bg-sidebar"
+				// Opaque so an opened dashboard hides the one it covers, and rounded like the button so its corners don't show when dragged over other surfaces
+				className="rounded-lg bg-sidebar"
 				initial={false}
 				animate={{ y: '0%' }}
 				exit={{ y: '-100%' }}
