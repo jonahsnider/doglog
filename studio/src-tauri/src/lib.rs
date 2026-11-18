@@ -55,7 +55,16 @@ pub fn run() -> ExitCode {
         ControlFlow::Break(code) => return code,
     };
 
-    tauri::Builder::default()
+    let builder = tauri::Builder::default();
+    // Lets agents inspect and drive the app with the Tauri MCP server, only on this computer
+    #[cfg(debug_assertions)]
+    let builder = builder.plugin(
+        tauri_plugin_mcp_bridge::Builder::new()
+            .bind_address("127.0.0.1")
+            .build(),
+    );
+
+    builder
         .plugin(tauri_plugin_fs::init())
         // After the file system plugin, keeps access to the sync folder the user picked after Studio restarts
         .plugin(tauri_plugin_persisted_scope::init())

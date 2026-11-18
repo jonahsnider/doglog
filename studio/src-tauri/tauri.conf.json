@@ -11,6 +11,7 @@
 		"removeUnusedCommands": true
 	},
 	"app": {
+		"withGlobalTauri": true,
 		"windows": [
 			{
 				"title": "DogLog Studio",

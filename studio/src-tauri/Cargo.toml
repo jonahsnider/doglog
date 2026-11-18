@@ -39,6 +39,7 @@ tauri-plugin-window-state = "2"
 base64 = "0.23"
 rmcp = { version = "3.11", default-features = false, features = ["server", "transport-io"] }
 getrandom = "0.4"
+tauri-plugin-mcp-bridge = "0.13"
 
 [profile.release]
 codegen-units = 1
