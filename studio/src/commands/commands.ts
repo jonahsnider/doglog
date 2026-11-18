@@ -1,4 +1,6 @@
-import { isTauri } from '@tauri-apps/api/core';
+import { invoke, isTauri } from '@tauri-apps/api/core';
+import { getCurrentWindow } from '@tauri-apps/api/window';
+import { confirm } from '@tauri-apps/plugin-dialog';
 import {
 	detectPlatform,
 	getKeyStateTracker,
@@ -39,6 +41,7 @@ const outsideNativeMenu = { enabled: !nativeMenu };
 
 /** Browsers reserve the ⌘ versions of these, so the web app only has the Alt versions */
 export const shortcuts = {
+	newWindow: 'Mod+N',
 	newDashboard: desktop ? 'Mod+T' : 'Alt+T',
 	close: desktop ? 'Mod+W' : 'Alt+W',
 	closeDashboard: desktop ? 'Mod+Shift+W' : 'Alt+Shift+W',
@@ -92,10 +95,24 @@ function currentDashboard(router: RegisteredRouter): Dashboard | undefined {
 	return match && getDashboard(match.params.dashboardId);
 }
 
+/** Open another Studio window, desktop only */
+export function newWindow(): void {
+	void invoke('new_window');
+}
+
+/** On desktop, closes the window once there's no dashboard left to close */
 export function closeFocused(router: RegisteredRouter): void {
 	const dashboard = currentDashboard(router);
 	if (dashboard) {
 		closeFocusedPane(dashboard.id);
+	} else if (desktop) {
+		void closeWindow();
+	}
+}
+
+async function closeWindow(): Promise<void> {
+	if (await confirm('Close this window?', { okLabel: 'Close Window', cancelLabel: 'Cancel' })) {
+		await getCurrentWindow().close();
 	}
 }
 
@@ -190,6 +207,7 @@ export function useGlobalShortcuts(): void {
 			{ hotkey: 'Alt+L', callback: () => openLogs(router) },
 			{ hotkey: 'Alt+[', callback: () => goInHistory(router, -1) },
 			{ hotkey: 'Alt+]', callback: () => goInHistory(router, 1) },
+			{ hotkey: shortcuts.newWindow, callback: newWindow, options: desktopOnly },
 			{ hotkey: 'Mod+T', callback: () => newDashboard(router), options: desktopOnly },
 			{ hotkey: 'Mod+W', callback: () => closeFocused(router), options: desktopOnly },
 			{ hotkey: 'Mod+Shift+W', callback: () => closeCurrentDashboard(router), options: desktopOnly },

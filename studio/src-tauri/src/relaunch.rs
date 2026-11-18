@@ -20,7 +20,7 @@ pub fn relaunch(app: AppHandle) {
 
 /// The `.app` bundle Studio is running from, which development builds don't have
 #[cfg(target_os = "macos")]
-fn app_bundle() -> Option<std::path::PathBuf> {
+pub fn app_bundle() -> Option<std::path::PathBuf> {
     let executable = std::env::current_exe().ok()?;
     // `DogLog Studio.app/Contents/MacOS/DogLog Studio`
     let bundle = executable.parent()?.parent()?.parent()?;

@@ -1,4 +1,5 @@
 mod cli;
+mod new_window;
 mod relaunch;
 mod sync;
 mod window_state;
@@ -60,6 +61,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             take_opened_log,
             read_file,
+            new_window::new_window,
             relaunch::relaunch,
             sync::lock_sync,
             sync::list_robot_logs,

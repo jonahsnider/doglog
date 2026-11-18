@@ -34,8 +34,9 @@ const sections: {
 	{
 		title: 'General',
 		shortcuts: [
+			...(isTauri() ? [{ label: 'New window', keys: [shortcuts.newWindow] }] : []),
 			{ label: 'New dashboard', keys: [shortcuts.newDashboard] },
-			{ label: 'Close pane or dashboard', keys: [shortcuts.close] },
+			{ label: isTauri() ? 'Close pane, dashboard, or window' : 'Close pane or dashboard', keys: [shortcuts.close] },
 			{ label: 'Close dashboard', keys: [shortcuts.closeDashboard] },
 			{ label: 'Reopen closed dashboard', keys: [shortcuts.reopenDashboard] },
 			{ label: 'Switch to dashboard 1-9', keys: [dashboardShortcut(0)!, dashboardShortcut(8)!], separator: '–' },

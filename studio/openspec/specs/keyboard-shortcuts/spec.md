@@ -150,9 +150,19 @@ While the user holds the modifier for switching dashboards (⌘ in the desktop a
 - **WHEN** the user presses ⌘W
 - **THEN** Studio closes the focused pane
 
+### Requirement: Window shortcuts
+
+The desktop app SHALL provide New window (⌘N), which opens another Studio window. The web app doesn't have it, because browsers reserve ⌘N.
+
+#### Scenario: Open a new window
+
+- **GIVEN** the user is using the desktop app
+- **WHEN** the user presses ⌘N
+- **THEN** another Studio window opens
+
 ### Requirement: App menu
 
-On macOS, the desktop app SHALL list New dashboard, Reopen closed dashboard, Open log, Close pane, and Close dashboard in its File menu, Undo and Redo in its Edit menu, Back and Forward in its Go menu, and Settings in its app menu, each with its shortcut. Undo and Redo MUST act on the focused text field while one is focused.
+On macOS, the desktop app SHALL list New window, New dashboard, Reopen closed dashboard, Open log, Close pane, and Close dashboard in its File menu, Undo and Redo in its Edit menu, Back and Forward in its Go menu, and Settings in its app menu, each with its shortcut. Undo and Redo MUST act on the focused text field while one is focused.
 
 #### Scenario: Open a log from the menu
 
@@ -162,7 +172,7 @@ On macOS, the desktop app SHALL list New dashboard, Reopen closed dashboard, Ope
 
 ### Requirement: Close pane or dashboard
 
-The close shortcut SHALL close the focused pane. When the dashboard is down to a single empty pane, it MUST close the dashboard instead.
+The close shortcut SHALL close the focused pane. When the dashboard is down to a single empty pane, it MUST close the dashboard instead. In the desktop app, when no dashboard is open, ex. on Logs or Settings, it MUST ask whether to close the window and close it once the user confirms.
 
 #### Scenario: Close a pane
 
@@ -181,6 +191,13 @@ The close shortcut SHALL close the focused pane. When the dashboard is down to a
 - **GIVEN** a dashboard with a single empty pane
 - **WHEN** the user presses the close shortcut
 - **THEN** the dashboard is closed
+
+#### Scenario: Close the window
+
+- **GIVEN** the user is using the desktop app with no dashboard open
+- **WHEN** the user presses ⌘W
+- **THEN** Studio asks whether to close the window
+- **AND** the window closes only if the user confirms
 
 ### Requirement: Close the current dashboard
 

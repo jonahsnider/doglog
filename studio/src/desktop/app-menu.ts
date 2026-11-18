@@ -5,6 +5,7 @@ import {
 	closeFocused,
 	nativeMenu,
 	newDashboard,
+	newWindow,
 	openSettings,
 	reopenDashboard,
 	undoOrRedo,
@@ -53,6 +54,7 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 			{
 				text: 'File',
 				items: [
+					{ text: 'New Window', accelerator: 'CmdOrCtrl+N', action: newWindow },
 					{ text: 'New Dashboard', accelerator: 'CmdOrCtrl+T', action: () => newDashboard(router) },
 					{
 						text: 'Reopen Closed Dashboard',
