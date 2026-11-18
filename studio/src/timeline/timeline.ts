@@ -274,6 +274,12 @@ export function formatTime(time: number, start: number): string {
 	return `${minutes}:${seconds}`;
 }
 
+/** Format a rough duration (µs) as minutes and whole seconds, ex. `3:49` */
+export function formatRoughDuration(duration: number): string {
+	const seconds = Math.round(duration / 1_000_000);
+	return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+}
+
 /** Shortcuts that move the cursor, also given directly to the timeline slider since a focused slider skips them otherwise */
 export const seekHotkeys: UseHotkeyDefinition[] = [
 	{ hotkey: 'ArrowLeft', callback: () => skip(-5) },

@@ -108,6 +108,16 @@ The timeline bar SHALL show the time a live session was disconnected like the tr
 - **THEN** the timeline bar shows 1:10 to 1:40 as disconnected
 - **AND** graphs leave 1:10 to 1:40 empty
 
+### Requirement: Unreadable end of a log
+
+When the end of a log couldn't be read (see the data sources spec's damaged log tolerance), the timeline bar SHALL show it after the data, red and hatched, for about as long as it would have lasted at the rate the rest of the log was written. Hovering it MUST show "Couldn't be read" with that estimate, how much of the file couldn't be read, and the time the log stops at. Seeking into it MUST go to the end of the data.
+
+#### Scenario: Most of a log is unreadable
+
+- **GIVEN** a log whose readable part is 3.4 MB over 2:00, followed by 6.6 MB that can't be read
+- **THEN** the timeline bar ends with a red hatched section about 3:50 long after 2:00
+- **AND** hovering it shows "Couldn't be read", "estimated 3:50", and "The last 66% of the file, after 2:00.00"
+
 ### Requirement: Skip idle time
 
 While the skip idle time option is on, disabled and disconnected periods over 15 seconds SHALL be skipped, except for 2 seconds at each end. On the timeline bar, each skipped span SHALL take a small fixed width, hatched so it's clear it isn't to scale, and the rest of the time SHALL share the remaining width evenly. Disabled periods MUST NOT be skipped if the robot was never enabled, or while a live source is still in them.

@@ -3,10 +3,11 @@ import { type PointerEvent, useMemo, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { alertColors, modeColors } from '@/timeline/colors';
-import { HoverTooltip } from '@/timeline/timeline-tooltip';
-import { setHoverTime, useHoverTime } from '@/timeline/hover';
-import { useZoomedRange } from '@/widgets/graph/view';
+import { HoverTooltip, UnreadTooltip } from '@/timeline/timeline-tooltip';
+import { setHoverTime } from '@/timeline/hover';
+import { GraphMarks } from '@/timeline/graph-marks';
 import { getGaps, type TimeRange, useEntries } from '@/data/data-store';
+import type { UnreadEnd } from '@/data/log-source';
 import { cn } from '@/lib/utils';
 import { settingsStore } from '@/settings';
 import { formatTime, getCursorTime, seek, seekHotkeys } from '@/timeline/timeline';
@@ -35,6 +36,7 @@ export function Scrubber({
 	live,
 	showAlerts,
 	compress,
+	unread,
 }: {
 	range: TimeRange;
 	time: number;
@@ -42,6 +44,8 @@ export function Scrubber({
 	showAlerts: boolean;
 	/** Whether long disabled spans are compressed */
 	compress: boolean;
+	/** The end of a log's file that couldn't be read, shown after the data for about as long as it would have lasted */
+	unread: UnreadEnd | undefined;
 }) {
 	// Non-null so it matches the React 18 `RefObject` that usehooks-ts' `useEventListener` expects
 	const slider = useRef<HTMLDivElement>(null!);
@@ -51,8 +55,8 @@ export function Scrubber({
 	const [hover, setHover] = useState<Hover>();
 	const entries = useEntries();
 	const duration = range.end - range.start;
-	// The time shown across the whole track, longer than the data for short live sessions
-	const shownDuration = live ? Math.max(duration, minLiveDuration) : duration;
+	// The time shown across the whole track, longer than the data for short live sessions and logs with an unreadable end
+	const shownDuration = live ? Math.max(duration, minLiveDuration) : duration + (unread?.duration ?? 0);
 
 	// The range changes whenever data does
 	const periods = useMemo(() => getModePeriods(range), [range]);
@@ -101,6 +105,9 @@ export function Scrubber({
 	/** The tooltip for the pointer `x` px into the track, `undefined` if nothing is known there, ex. before Driver Station data */
 	const tooltipAt = (at: Hover) => {
 		const hoverTime = timeAt(at);
+		if (unread !== undefined && hoverTime > range.end) {
+			return <UnreadTooltip {...unread} />;
+		}
 		const slopPercent = (alertHoverSlop / at.width) * 100;
 		const from = scale.toTime(toPercent(hoverTime) - slopPercent);
 		const to = scale.toTime(toPercent(hoverTime) + slopPercent);
@@ -237,6 +244,13 @@ export function Scrubber({
 								<div className="size-full bg-input/40" />
 							</div>
 						))}
+						{/* The unreadable end of a log, hatched since its length is an estimate */}
+						{unread !== undefined && (
+							<div
+								className="absolute inset-y-0 right-0 bg-destructive/16 bg-[image:repeating-linear-gradient(-45deg,var(--color-destructive)_0_2px,transparent_2px_4px)]"
+								style={{ left: `${toPercent(range.end)}%` }}
+							/>
+						)}
 						{/* Compressed spans are hatched so it's clear they aren't to scale */}
 						{compressed.map((span) => (
 							<div
@@ -260,31 +274,5 @@ export function Scrubber({
 				<TooltipPopup>{tooltip ?? (shownHover && tooltipAt(shownHover))}</TooltipPopup>
 			</Tooltip>
 		</div>
-	);
-}
-
-/**
- * The time range graphs are zoomed to, so it's clear where they are in the whole source, and the hovered time: the one
- * the tooltip is about, or the one hovered in a graph
- */
-function GraphMarks({ toPercent, hoverTime }: { toPercent: (time: number) => number; hoverTime: number | undefined }) {
-	const zoomed = useZoomedRange();
-	const graphHover = useHoverTime();
-	const hover = hoverTime ?? graphHover;
-	return (
-		<>
-			{zoomed && (
-				<div
-					className="pointer-events-none absolute inset-y-0 rounded-sm bg-foreground/8 ring-1 ring-foreground/24 ring-inset"
-					style={{ left: `${toPercent(zoomed.start)}%`, width: `${toPercent(zoomed.end) - toPercent(zoomed.start)}%` }}
-				/>
-			)}
-			{hover !== undefined && (
-				<div
-					className="absolute inset-y-0 w-px -translate-x-1/2 bg-foreground/48"
-					style={{ left: `${toPercent(hover)}%` }}
-				/>
-			)}
-		</>
 	);
 }

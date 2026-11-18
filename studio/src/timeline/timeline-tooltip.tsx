@@ -1,7 +1,8 @@
 import { alertColors, modeColors, modeLabels } from '@/timeline/colors';
 import { cn } from '@/lib/utils';
-import { formatTime } from '@/timeline/timeline';
+import { formatRoughDuration, formatTime } from '@/timeline/timeline';
 import type { TimeRange } from '@/data/data-store';
+import type { UnreadEnd } from '@/data/log-source';
 import type { AlertSpan, ModePeriod } from '@/timeline/events';
 
 /** Most alerts listed in a tooltip */
@@ -95,6 +96,24 @@ export function HoverTooltip({
 					)}
 				</ul>
 			)}
+		</div>
+	);
+}
+
+/** The unreadable end of a log, which has no times, so it shows about how long it would have lasted and how much of the file it is */
+export function UnreadTooltip({ percent, duration, after }: UnreadEnd) {
+	return (
+		<div className="flex w-max max-w-md flex-col py-0.5">
+			<div className="flex items-baseline gap-4">
+				<div className="flex flex-1 items-baseline gap-1.5 font-medium">
+					<span className="size-2 shrink-0 translate-y-px rounded-full bg-destructive" />
+					Couldn’t be read
+				</div>
+				<span className="text-muted-foreground tabular-nums">estimated {formatRoughDuration(duration)}</span>
+			</div>
+			<div className="ps-3.5 text-muted-foreground tabular-nums">
+				The last {percent}% of the file, after {formatTime(after, 0)}
+			</div>
 		</div>
 	);
 }

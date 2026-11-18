@@ -15,8 +15,11 @@ export type ParsedLog = {
 	/** Timestamp of the first data record */
 	start: number | undefined;
 	end: number | undefined;
-	/** Some records couldn't be read, ex. the log was cut off by a power loss */
-	damaged: boolean;
+	/**
+	 * Bytes at the end of the file that couldn't be read, everything after the first damaged record.
+	 * A robot that loses power can leave a partial last record, or blocks the file system reserved but never wrote.
+	 */
+	unreadBytes: number;
 };
 
 const textDecoder = new TextDecoder();
@@ -67,7 +70,7 @@ function handleControlRecord(
 }
 
 /**
- * Read every entry of a WPILOG file. Throws if it isn't a WPILOG file.
+ * Read every entry of a WPILOG file. Throws if it isn't a WPILOG file, or if it's so damaged that none of its entries could be read.
  * Calls `onProgress` with the fraction of the file parsed, from 0 to 1, only when it changes by a whole percent so a worker doesn't flood the main thread with messages.
  */
 export function parseLog(bytes: Uint8Array, onProgress: (progress: number) => void): ParsedLog {
@@ -75,14 +78,16 @@ export function parseLog(bytes: Uint8Array, onProgress: (progress: number) => vo
 	const names = new Map<number, string>();
 	let start: number | undefined;
 	let end: number | undefined;
-	let damaged = false;
-
-	const records = parseDataLog(bytes);
+	// Unwritten blocks hold leftover data, not zeros, which reads as records for entries that were never started
+	const records = parseDataLog(bytes, { strict: true });
 	let percent = 0;
+	// The end of the last record read, since `records.bytesRead` skips to the end of the file when the last record is cut off
+	let readBytes = records.bytesRead;
 
 	try {
 		for (const record of records) {
-			const nextPercent = Math.floor((records.bytesRead / bytes.byteLength) * 100);
+			readBytes = records.bytesRead;
+			const nextPercent = Math.floor((readBytes / bytes.byteLength) * 100);
 			if (nextPercent !== percent) {
 				percent = nextPercent;
 				onProgress(percent / 100);
@@ -108,13 +113,11 @@ export function parseLog(bytes: Uint8Array, onProgress: (progress: number) => vo
 			end = end === undefined ? timestamp : Math.max(end, timestamp);
 		}
 	} catch (error) {
-		// The header was read (it throws before yielding anything otherwise), keep every record read before the damage
 		if (entries.size === 0) {
-			throw error;
+			throw new Error("It's damaged, and none of it could be read.", { cause: error });
 		}
-		damaged = true;
+		// Keep every record read before the damage
 	}
-	damaged ||= records.truncated;
 
-	return { entries, start, end, damaged };
+	return { entries, start, end, unreadBytes: bytes.byteLength - readBytes };
 }

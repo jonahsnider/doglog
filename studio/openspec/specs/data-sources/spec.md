@@ -182,13 +182,26 @@ The source control menu's live section SHALL offer one action for the live sessi
 
 ### Requirement: Damaged log tolerance
 
-When a log is corrupt or truncated, Studio MUST load every readable record and warn the user instead of failing to open the log. When a log can't be opened at all, Studio MUST go back to showing the live session if there is one.
+When part of a log can't be read, Studio MUST load every record before the damage and tell the user how much is missing instead of failing to open the log. Studio MUST NOT load anything after the first record that can't be read, even if it looks valid. When a log can't be opened at all, Studio MUST go back to showing the live session if there is one.
 
-#### Scenario: Truncated log from a power loss
+#### Scenario: Partial last record
 
-- **WHEN** the user opens a log whose final records are cut off
-- **THEN** all complete records are available
-- **AND** Studio shows a warning that the log is damaged
+- **WHEN** the user opens a log whose last record is cut off
+- **THEN** every other record is available
+- **AND** Studio doesn't warn, since this is normal when the robot is turned off
+
+#### Scenario: Unreadable end of a log
+
+- **GIVEN** a log whose last 66% is blocks the file system reserved but never wrote, which hold leftover data instead of records
+- **AND** its readable part stops at 1:59.42
+- **WHEN** the user opens it
+- **THEN** every record before the damage is available
+- **AND** Studio warns that the last 66% of the file is unreadable, and an estimate of how long that is after 1:59.42, from the rate the rest of the log was written
+
+#### Scenario: Unreadable log
+
+- **WHEN** the user opens a log that's empty, or so damaged that none of its entries can be read
+- **THEN** Studio says it couldn't open the log, and why
 
 ### Requirement: Supported data types
 

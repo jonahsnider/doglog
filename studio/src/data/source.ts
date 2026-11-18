@@ -6,14 +6,20 @@ import type { DataSet } from '@/data/data-set';
 import { createDataSet, type Entry, setActiveData } from '@/data/data-store';
 import { loadDevLog, saveDevLog } from '@/data/dev-log';
 import type { LiveStatus } from '@/data/live-source';
-import { loadLog } from '@/data/log-source';
+import { loadLog, type UnreadEnd } from '@/data/log-source';
 import { simulatorHost } from '@/robot-target';
-import { resetTimeline } from '@/timeline/timeline';
+import { formatRoughDuration, formatTime, resetTimeline } from '@/timeline/timeline';
 import { keepViewWidth, showWholeSource } from '@/widgets/graph/view';
 
 /** A data source. A window has at most one log and one live session, and shows one of them in every dashboard and widget. */
 export type Source =
-	| { type: 'log'; fileName: string; status: 'loading' | 'loaded' }
+	| {
+			type: 'log';
+			fileName: string;
+			status: 'loading' | 'loaded';
+			/** The end of the file that couldn't be read, unset when it's no more than a partial last record */
+			unread?: UnreadEnd;
+	  }
 	| { type: 'live'; host: string; status: LiveStatus };
 
 type LogSource = Extract<Source, { type: 'log' }>;
@@ -141,8 +147,9 @@ async function isWpilog(file: File): Promise<boolean> {
  */
 export async function openLog(file: File, onError?: (message: string) => void): Promise<boolean> {
 	const requestedAt = logGeneration;
-	if (!(await isWpilog(file))) {
-		const message = "It isn't a WPILOG file.";
+	if (file.size === 0 || !(await isWpilog(file))) {
+		// Ex. a log the robot lost power right after creating
+		const message = file.size === 0 ? "It's empty." : "It isn't a WPILOG file.";
 		toastManager.add({ type: 'error', title: `Couldn't open ${file.name}`, description: message });
 		onError?.(message);
 		return false;
@@ -161,16 +168,16 @@ export async function openLog(file: File, onError?: (message: string) => void): 
 	show('log', true);
 	stopLog = loadLog(file, data, {
 		onProgress: (progress) => logProgressStore.set(progress),
-		onLoaded: (damaged) => {
-			updateSources({ log: { type: 'log', fileName: file.name, status: 'loaded' } });
+		onLoaded: (unread) => {
+			updateSources({ log: { type: 'log', fileName: file.name, status: 'loaded', unread } });
 			if (import.meta.env.DEV) {
 				void saveDevLog(file);
 			}
-			if (damaged) {
+			if (unread !== undefined) {
 				toastManager.add({
 					type: 'warning',
-					title: `${file.name} is damaged`,
-					description: "Some records couldn't be read, showing everything that could be.",
+					title: 'Log corrupted',
+					description: `The last ${unread.percent}% of the file is unreadable, an estimated ${formatRoughDuration(unread.duration)} after ${formatTime(unread.after, 0)}.`,
 				});
 			}
 		},

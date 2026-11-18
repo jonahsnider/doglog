@@ -107,6 +107,7 @@ function CursorTime({ range, time }: { range: TimeRange | undefined; time: numbe
 
 function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 	const range = useTimeRange();
+	const source = useSource();
 	const { time, playback, speed, live } = useTimeline();
 	const { timelineAlerts, timelineCompress } = useSettings();
 	const [speedOpen, setSpeedOpen] = useState(false);
@@ -174,7 +175,14 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 
 				<CursorTime range={range} time={time} />
 				{range && time !== undefined ? (
-					<Scrubber range={range} time={time} live={live} showAlerts={timelineAlerts} compress={timelineCompress} />
+					<Scrubber
+						range={range}
+						time={time}
+						live={live}
+						showAlerts={timelineAlerts}
+						compress={timelineCompress}
+						unread={source?.type === 'log' ? source.unread : undefined}
+					/>
 				) : (
 					<div className="mx-2 h-1 flex-1 rounded-full bg-input" />
 				)}

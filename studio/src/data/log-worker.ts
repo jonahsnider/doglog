@@ -23,13 +23,13 @@ export type LogWorkerMessage =
 			/** Timestamp of the first data record */
 			start: number | undefined;
 			end: number | undefined;
-			/** Some records couldn't be read, ex. the log was cut off by a power loss */
-			damaged: boolean;
+			/** Bytes at the end of the file that couldn't be read */
+			unreadBytes: number;
 	  }
 	| { type: 'error'; message: string };
 
 function parse(bytes: Uint8Array): void {
-	const { entries, start, end, damaged } = parseLog(bytes, (progress) => {
+	const { entries, start, end, unreadBytes } = parseLog(bytes, (progress) => {
 		postMessage({ type: 'progress', progress } satisfies LogWorkerMessage);
 	});
 
@@ -45,7 +45,7 @@ function parse(bytes: Uint8Array): void {
 		postMessage(message, { transfer: [samples.timestamps.buffer] });
 	}
 
-	postMessage({ type: 'done', start, end, damaged } satisfies LogWorkerMessage);
+	postMessage({ type: 'done', start, end, unreadBytes } satisfies LogWorkerMessage);
 }
 
 async function parseFile(file: File): Promise<void> {
