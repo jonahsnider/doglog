@@ -34,4 +34,4 @@ Ideally, most changes can be validated through the web app.
 ## General development
 
 - You may see other changes in the main worktree, try to work around them if possible
-  - When committing changes, you can use `--no-verify` to skip pre-commit checks that are failing from other work
+  - When committing changes, you can use `--no-verify` to skip pre-commit checks that are failing from other work after you've verified your own changes are correct
