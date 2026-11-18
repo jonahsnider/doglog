@@ -30,7 +30,8 @@ export function PaneButton({
 							<Button
 								variant="ghost"
 								size="icon-xs"
-								className="aria-pressed:bg-primary/15 aria-pressed:text-primary aria-pressed:hover:bg-primary/25"
+								// Toolbar buttons stay focusable while disabled for their tooltips, so they aren't natively `:disabled`
+								className="aria-pressed:bg-primary/15 aria-pressed:text-primary aria-pressed:hover:bg-primary/25 data-disabled:cursor-default data-disabled:bg-transparent data-disabled:opacity-64"
 							/>
 						}
 						aria-label={label}
