@@ -63,6 +63,27 @@ function useItemTransitions(isDragSource: boolean) {
 	return { transition, exitTransition };
 }
 
+/** Lets a dashboard be dragged by its link to reorder it, or to the other section to share or unshare it */
+function useDashboardSortable(dashboard: Dashboard, sectionIndex: number, renaming: boolean, present: boolean) {
+	const [item, setItem] = useState<HTMLElement | null>(null);
+	const { handleRef, isDragSource } = useSortable({
+		// Left out while renaming, since dnd-kit would make the item its drag handle in place of the unmounted link,
+		// and never remove the tab stop and ARIA attributes it adds
+		element: renaming ? null : item,
+		// Sharing a dashboard keeps its ID, so the one that shows up in the shared section would take over the drop otherwise
+		id: `${dashboard.shared ? 'shared' : 'local'}-${dashboard.id}`,
+		index: sectionIndex,
+		group: dashboard.shared ? 'shared' : 'local',
+		type: dashboardDragType,
+		// Dropping a dashboard in the other section shares or unshares it, see `useNewDashboardDrop()`
+		accept: (source) => source.type === dashboardDragType && source.data['shared'] === dashboard.shared,
+		data: { dashboardId: dashboard.id, shared: dashboard.shared } satisfies DashboardDragData,
+		sensors: dashboardSensors,
+		disabled: renaming || !present,
+	});
+	return { setItem, handleRef, isDragSource };
+}
+
 /** Renames a dashboard on blur or Enter, or keeps its name on Escape */
 function RenameInput({ dashboard, onDone }: { dashboard: Dashboard; onDone: () => void }) {
 	return (
@@ -155,18 +176,7 @@ export function DashboardItem({
 	const pathname = useLocation({ select: (location) => location.pathname });
 	const active = present && pathname === `/dashboards/${dashboard.id}`;
 	const [renaming, setRenaming] = useState(false);
-	const { ref, handleRef, isDragSource } = useSortable({
-		// Sharing a dashboard keeps its ID, so the one that shows up in the shared section would take over the drop otherwise
-		id: `${dashboard.shared ? 'shared' : 'local'}-${dashboard.id}`,
-		index: sectionIndex,
-		group: dashboard.shared ? 'shared' : 'local',
-		type: dashboardDragType,
-		// Dropping a dashboard in the other section shares or unshares it, see `useNewDashboardDrop()`
-		accept: (source) => source.type === dashboardDragType && source.data['shared'] === dashboard.shared,
-		data: { dashboardId: dashboard.id, shared: dashboard.shared } satisfies DashboardDragData,
-		sensors: dashboardSensors,
-		disabled: renaming || !present,
-	});
+	const { setItem, handleRef, isDragSource } = useDashboardSortable(dashboard, sectionIndex, renaming, present);
 	// Closed while the dashboard is dragged, since the trigger moves with the pointer and the preview would follow it
 	const [previewOpen, setPreviewOpen] = useState(false);
 	if (isDragSource && previewOpen) {
@@ -186,7 +196,7 @@ export function DashboardItem({
 			items={menuItems}
 			render={
 				<MotionSidebarMenuItem
-					ref={ref}
+					ref={setItem}
 					// Lets `useNewDashboardDrop()` find where a dropped pane goes
 					data-dashboard-index={sectionIndex}
 					// Opened dashboards show up in full on top of the one in their spot, which slides down from under them.
