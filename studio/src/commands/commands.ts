@@ -216,7 +216,7 @@ export function startConnect(): void {
 }
 
 /** Switch between the log and the live session, when both are open */
-export function switchSource(): void {
+function switchSource(): void {
 	showSource(getSource()?.type === 'log' ? 'live' : 'log');
 }
 
