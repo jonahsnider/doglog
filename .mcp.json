@@ -5,6 +5,12 @@
 			"command": "mcp-server-tauri",
 			"args": [],
 			"env": {}
+		},
+		"safari": {
+			"type": "stdio",
+			"command": "/Applications/Safari.app/Contents/MacOS/safaridriver",
+			"args": ["--mcp"],
+			"env": {}
 		}
 	}
 }
