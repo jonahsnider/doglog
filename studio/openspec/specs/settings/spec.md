@@ -8,7 +8,7 @@ Define the Settings page, where users choose the color theme and contrast, their
 
 ### Requirement: Settings sections
 
-Settings SHALL group related settings under titled sections, in this order: Appearance (theme, theme color, and contrast), Robot (robot connection), Sharing (name), and System (media controls and the terminal command).
+Settings SHALL group related settings under titled sections, in this order: Appearance (theme, theme color, and contrast), Robot (robot connection), Sharing (name), and System (media controls, natural scrolling, and the terminal command).
 
 #### Scenario: Find the theme
 
@@ -56,6 +56,17 @@ Settings SHALL let users turn media controls for log playback on or off, default
 
 - **WHEN** Studio is opened for the first time
 - **THEN** media controls are off
+
+### Requirement: Natural scrolling setting
+
+Where the browser doesn't report whether the system uses natural scrolling, Settings SHALL let users say whether it does, defaulting to on, so scrolling the timeline follows their fingers. Where the browser reports it, like Safari and the desktop app on macOS, the setting MUST be hidden and the reported direction used.
+
+#### Scenario: Natural scrolling off
+
+- **GIVEN** the browser doesn't report the scroll direction
+- **AND** the user turned natural scrolling off
+- **WHEN** the user swipes right over the timeline bar
+- **THEN** the cursor moves right
 
 ### Requirement: Persisted settings
 

@@ -28,6 +28,7 @@ test('new settings keep the Team 581 default', async () => {
 		mediaControls: false,
 		timelineAlerts: true,
 		timelineCompress: true,
+		naturalScrolling: true,
 	});
 });
 
@@ -48,6 +49,7 @@ test.each([
 			mediaControls: false,
 			timelineAlerts: true,
 			timelineCompress: true,
+			naturalScrolling: true,
 			themePreset,
 		};
 		expect(settingsStore.get()).toStrictEqual(expected);
@@ -75,5 +77,6 @@ test('custom colors survive preset changes and a reload', async () => {
 		mediaControls: false,
 		timelineAlerts: true,
 		timelineCompress: true,
+		naturalScrolling: true,
 	});
 });

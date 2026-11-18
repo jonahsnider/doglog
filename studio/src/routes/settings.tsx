@@ -9,7 +9,7 @@ import { dragRegion, useTrafficLights } from '@/desktop/title-bar';
 import { cn } from '@/lib/utils';
 import { getRobotHost } from '@/robot-target';
 import { useAnonymousName } from '@/sharing/identity';
-import { updateSettings, useSettings } from '@/settings';
+import { reportsNaturalScrolling, updateSettings, useSettings } from '@/settings';
 import { AppearanceSettings } from '@/theme/appearance-settings';
 
 export const Route = createFileRoute('/settings')({
@@ -17,7 +17,7 @@ export const Route = createFileRoute('/settings')({
 });
 
 function Settings() {
-	const { name, robotTarget, mediaControls } = useSettings();
+	const { name, robotTarget, mediaControls, naturalScrolling } = useSettings();
 	const anonymousName = useAnonymousName();
 	const robotHost = getRobotHost(robotTarget);
 	const robotTargetInvalid = robotTarget.trim() !== '' && robotHost === undefined;
@@ -94,6 +94,21 @@ function Settings() {
 							</FieldDescription>
 						</Field>
 					</FramePanel>
+
+					{!reportsNaturalScrolling && (
+						<FramePanel>
+							<Field name="naturalScrolling">
+								<FieldLabel>
+									<Switch
+										checked={naturalScrolling}
+										onCheckedChange={(checked) => updateSettings({ naturalScrolling: checked })}
+									/>
+									Natural scrolling
+								</FieldLabel>
+								<FieldDescription>Match your trackpad so scrolling the timeline follows your fingers</FieldDescription>
+							</Field>
+						</FramePanel>
+					)}
 
 					<CliField />
 				</SettingsSection>

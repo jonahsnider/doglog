@@ -8,6 +8,7 @@ import { setHoverTime, useHoverTime } from '@/timeline/hover';
 import { useZoomedRange } from '@/widgets/graph/view';
 import { type TimeRange, useEntries } from '@/data/data-store';
 import { cn } from '@/lib/utils';
+import { settingsStore } from '@/settings';
 import { formatTime, getCursorTime, seek, seekHotkeys } from '@/timeline/timeline';
 import { getAlertSpans, getCompressedSpans, getModePeriods } from '@/timeline/events';
 import { createTimeScale } from '@/timeline/scale';
@@ -123,7 +124,8 @@ export function Scrubber({
 		setShownHover(hover);
 	}
 
-	// Scrolling moves the cursor as far as dragging the same distance would.
+	// Scrolling moves the cursor like dragging it would, following the fingers whichever way the system scrolls.
+	// Natural scrolling inverts the delta, WebKit reports when it does and other browsers rely on the setting.
 	// Not passive so it can stop the browser from treating a horizontal swipe as back or forward.
 	useEventListener(
 		'wheel',
@@ -133,7 +135,11 @@ export function Scrubber({
 				return;
 			}
 			event.preventDefault();
-			seek(scale.toTime(toPercent(cursor) + (event.deltaX / track.current!.clientWidth) * 100));
+			const natural =
+				(event as WheelEvent & { webkitDirectionInvertedFromDevice?: boolean }).webkitDirectionInvertedFromDevice ??
+				settingsStore.get().naturalScrolling;
+			const delta = natural ? -event.deltaX : event.deltaX;
+			seek(scale.toTime(toPercent(cursor) + (delta / track.current!.clientWidth) * 100));
 		},
 		slider,
 		{ passive: false },

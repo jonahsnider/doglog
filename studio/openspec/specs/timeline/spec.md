@@ -30,6 +30,7 @@ When a dashboard is open and a source is active, a timeline bar SHALL be shown a
 
 - **WHEN** the user scrolls horizontally over the timeline bar
 - **THEN** the cursor moves as far as dragging the same distance would
+- **AND** it moves the same way as the fingers, whether or not the system uses natural scrolling
 - **AND** the browser doesn't navigate back or forward
 
 ### Requirement: Snap to sections

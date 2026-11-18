@@ -28,6 +28,8 @@ const settingsSchema = z
 		timelineAlerts: z.boolean().catch(true),
 		/** Whether long disabled stretches are compressed on the timeline and fast-forwarded through during playback */
 		timelineCompress: z.boolean().catch(true),
+		/** Whether the system uses natural scrolling, for browsers that don't report it, see `reportsNaturalScrolling` */
+		naturalScrolling: z.boolean().catch(true),
 	})
 	.transform(({ themePreset, themeColor, ...settings }) => {
 		if (themePreset !== undefined) {
@@ -40,6 +42,10 @@ const settingsSchema = z
 	});
 
 export type Settings = z.infer<typeof settingsSchema>;
+
+/** WebKit reports whether each scroll uses natural scrolling, so the setting is only needed elsewhere */
+export const reportsNaturalScrolling =
+	typeof WheelEvent !== 'undefined' && 'webkitDirectionInvertedFromDevice' in WheelEvent.prototype;
 
 /**
  * Use `settingsStore.get()` to read settings outside React, ex. when connecting to a robot.
