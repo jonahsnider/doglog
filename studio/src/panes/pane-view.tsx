@@ -162,13 +162,12 @@ export function PaneView({
 			},
 			'separator',
 			{
-				label: 'Change widget',
-				disabled: widget === undefined,
+				label: widget === undefined ? 'Add widget' : 'Change widget',
 				items: widgetTypes.map((other) => ({
 					label: other.name,
 					accessKey: other.hotkey,
 					disabled: other === type,
-					onSelect: () => changeWidget(other),
+					onSelect: () => (widget === undefined ? setWidget(other) : changeWidget(other)),
 				})),
 			},
 			{

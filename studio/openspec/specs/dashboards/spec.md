@@ -541,7 +541,7 @@ A pane's header buttons, like Edit entries, split, and close, SHALL only be show
 
 ### Requirement: Pane context menu
 
-Right-clicking a pane SHALL open a context menu with Split right, Split down, Zoom pane (Restore pane while zoomed), Change widget, Edit entries, and Close.
+Right-clicking a pane SHALL open a context menu with Split right, Split down, Zoom pane (Restore pane while zoomed), Change widget (Add widget in an empty pane), Edit entries, and Close.
 
 #### Scenario: Split from the context menu
 
@@ -552,6 +552,11 @@ Right-clicking a pane SHALL open a context menu with Split right, Split down, Zo
 
 - **WHEN** the user right-clicks a pane with a console and chooses Change widget
 - **THEN** the user can pick a different widget type for that pane
+
+#### Scenario: Add widget from the context menu
+
+- **WHEN** the user right-clicks an empty pane and chooses Add widget, then Graph
+- **THEN** the pane shows a graph
 
 #### Scenario: Change widget with its key
 
