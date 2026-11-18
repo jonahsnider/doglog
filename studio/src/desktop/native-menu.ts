@@ -42,6 +42,8 @@ function toNativeEntries(items: readonly MenuEntry[]): NativeMenuEntry[] {
 			...(item.shortcut !== undefined && {
 				accelerator: item.shortcut.replace('Mod', 'CmdOrCtrl').replace('Meta', 'Super'),
 			}),
+			// Shows the access key like the web menu, and selects the item on macOS while the menu is open
+			...(item.shortcut === undefined && item.accessKey !== undefined && { accelerator: item.accessKey }),
 		};
 	});
 }
