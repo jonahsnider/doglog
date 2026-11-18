@@ -129,9 +129,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: macOS
+          # Separate jobs so the architectures build in parallel, both on Apple silicon since cross-compiling takes about as long
+          - name: macOS Apple silicon
             runner: macos-latest
-            args: --target universal-apple-darwin
+            target: aarch64-apple-darwin
+          - name: macOS Intel
+            runner: macos-latest
+            target: x86_64-apple-darwin
           - name: Windows
             runner: windows-latest
           - name: Linux
@@ -167,7 +171,9 @@ jobs:
         uses: actions-rust-lang/setup-rust-toolchain@v2.0.1
         with:
           toolchain: stable
-          target: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          target: ${{ matrix.target }}
+          # The macOS jobs share a runner OS, so keep their caches apart
+          cache-key: ${{ matrix.target }}
           # A new lint in stable Rust shouldn't block shipping a build
           build-warnings: warn
           cache-workspaces: studio/src-tauri -> target
@@ -196,7 +202,7 @@ jobs:
           releaseId: ${{ steps.release.outputs.id }}
           updaterJsonPreferNsis: true
           # Only release builds make updater artifacts, so local builds don't need the signing key
-          args: ${{ matrix.args }} --config '{"bundle":{"createUpdaterArtifacts":true}}'
+          args: ${{ matrix.target && format('--target {0}', matrix.target) }} --config '{"bundle":{"createUpdaterArtifacts":true}}'
 
   studio-desktop-manifest:
     name: Publish Studio update manifest
@@ -239,7 +245,8 @@ jobs:
             fi
             pnpm --dir studio exec wrangler r2 object put "doglog-updates/studio/$key" --file "${files[0]}" --content-type application/octet-stream --cache-control 'public, max-age=300' --remote
           }
-          publish '*.dmg' DogLog-Studio-macos.dmg
+          publish '*_aarch64.dmg' DogLog-Studio-macos-apple-silicon.dmg
+          publish '*_x64.dmg' DogLog-Studio-macos-intel.dmg
           publish '*-setup.exe' DogLog-Studio-windows-setup.exe
           publish '*.AppImage' DogLog-Studio-linux.AppImage
           publish '*.deb' DogLog-Studio-linux.deb

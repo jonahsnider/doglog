@@ -12,7 +12,9 @@ const downloadsUrl = 'https://updates.doglog.dev/studio/';
 
 /** The first download for each platform is the one offered by default */
 const downloads: { platform: Platform; label: string; file: string }[] = [
-	{ platform: 'macos', label: 'macOS', file: 'DogLog-Studio-macos.dmg' },
+	// Browsers can't reliably tell Apple silicon from Intel, so Intel Macs pick theirs from the menu
+	{ platform: 'macos', label: 'macOS (Apple silicon)', file: 'DogLog-Studio-macos-apple-silicon.dmg' },
+	{ platform: 'macos', label: 'macOS (Intel)', file: 'DogLog-Studio-macos-intel.dmg' },
 	{ platform: 'windows', label: 'Windows', file: 'DogLog-Studio-windows-setup.exe' },
 	{ platform: 'linux', label: 'Linux (AppImage)', file: 'DogLog-Studio-linux.AppImage' },
 	{ platform: 'linux', label: 'Linux (.deb)', file: 'DogLog-Studio-linux.deb' },

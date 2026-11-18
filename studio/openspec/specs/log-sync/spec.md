@@ -8,7 +8,7 @@ Define how the desktop app copies logs from a roboRIO to the user's computer in 
 
 ### Requirement: Desktop only
 
-Log sync SHALL only be available in the desktop app. The web app's Logs page MUST explain that log sync needs the desktop app and offer a download of the desktop app for the user's platform, with downloads for every platform in a menu in case the detected platform is wrong.
+Log sync SHALL only be available in the desktop app. The web app's Logs page MUST explain that log sync needs the desktop app and offer a download of the desktop app for the user's platform, with downloads for every platform in a menu in case the detected platform is wrong. On macOS, the download MUST be the Apple silicon build, with the Intel build in the menu.
 
 #### Scenario: Logs page in the browser
 
