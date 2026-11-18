@@ -27,7 +27,7 @@ Each window SHALL have at most one open log and one live session, and MUST show 
 #### Scenario: Back to the log
 
 - **GIVEN** the user opened `qual12.wpilog`, then went back to the live session
-- **WHEN** the user chooses "Back to qual12.wpilog" in the source control menu
+- **WHEN** the user chooses `qual12.wpilog` in the source control menu
 - **THEN** every dashboard shows `qual12.wpilog` right away, without reading the file again
 
 #### Scenario: Open another log
@@ -66,6 +66,22 @@ The source control at the top of the sidebar SHALL show the shown source and its
 - **GIVEN** the user opened `qual12.wpilog` while connected to the robot
 - **THEN** the source control shows `qual12.wpilog` with a dot showing the robot is connected
 - **AND** no toast is shown when the robot disconnects
+
+#### Scenario: Log and live session open
+
+- **GIVEN** the user opened `qual12.wpilog` while connected to the robot
+- **WHEN** the user opens the source control menu
+- **THEN** it lists the live session above `qual12.wpilog`, each with its icon, state, and a button to close it
+- **AND** the shown source is raised on a surface, and the other is muted
+- **WHEN** the user chooses the live session
+- **THEN** the raised surface lifts, slides up to the live session, and settles there
+- **AND** the menu stays open
+
+#### Scenario: Close from the source control menu
+
+- **GIVEN** the user opened `qual12.wpilog` while connected to the robot
+- **WHEN** the user presses the live session's close button
+- **THEN** Studio disconnects, throws away the live data, and shows `qual12.wpilog`
 
 #### Scenario: No source
 
@@ -290,8 +306,8 @@ Connect SHALL try the robot connection target and the simulator at the same time
 #### Scenario: Connect while a log is shown
 
 - **GIVEN** the user opened `qual12.wpilog` while connected to the robot
-- **WHEN** the user opens the source control menu
-- **THEN** the Connect action reads "Back to robot"
+- **WHEN** the user presses the Connect shortcut
+- **THEN** every dashboard shows the live session
 
 ### Requirement: Connect target preview
 

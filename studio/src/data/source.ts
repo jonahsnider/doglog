@@ -3,7 +3,7 @@ import { createAtom } from '@tanstack/store';
 import { toastManager } from '@/components/ui/toast';
 import { findConnectTarget, isReachable, isSourceTarget } from '@/data/connect-target';
 import type { DataSet } from '@/data/data-set';
-import { createDataSet, liveTime, setActiveData } from '@/data/data-store';
+import { createDataSet, type Entry, liveTime, setActiveData } from '@/data/data-store';
 import { loadDevLog, saveDevLog } from '@/data/dev-log';
 import type { LiveStatus } from '@/data/live-source';
 import { loadLog } from '@/data/log-source';
@@ -80,14 +80,21 @@ function show(type: Source['type'] | undefined, newLog = false): void {
 	setActiveData(type === 'log' ? logData : type === 'live' ? liveData : undefined);
 }
 
-/** Switch back to the log after viewing the live session */
-export function showLog(): void {
-	if (sourcesStore.get().log !== undefined) {
-		show('log');
+/** Switch to the log or the live session, if it's open and not already shown */
+export function showSource(type: Source['type']): void {
+	const sources = sourcesStore.get();
+	if (sources[type] !== undefined && sources.shown !== type) {
+		show(type);
 	}
 }
 
-function closeLog(): void {
+/** An entry of the open log, whether or not it's shown */
+export function getLogEntry(name: string): Entry | undefined {
+	return logData?.entries.get(name);
+}
+
+/** Close the log, showing the live session if there is one */
+export function closeLog(): void {
 	logGeneration++;
 	stopLog?.();
 	stopLog = undefined;
@@ -102,8 +109,8 @@ function closeLog(): void {
 	}
 }
 
-/** Throw away the live session's data and stop connecting */
-function closeLive(): void {
+/** Throw away the live session's data and stop connecting, showing the log if there is one */
+export function closeLive(): void {
 	liveGeneration++;
 	stopLive?.();
 	stopLive = undefined;
@@ -118,10 +125,8 @@ function closeLive(): void {
 /** Close the shown source, showing the other one if there is one */
 export function closeSource(): void {
 	const { shown } = sourcesStore.get();
-	if (shown === 'log') {
-		closeLog();
-	} else if (shown === 'live') {
-		closeLive();
+	if (shown !== undefined) {
+		(shown === 'log' ? closeLog : closeLive)();
 	}
 }
 
