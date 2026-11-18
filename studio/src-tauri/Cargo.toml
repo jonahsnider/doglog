@@ -16,7 +16,7 @@ members = ["robot-sftp"]
 
 [lib]
 name = "doglog_studio_lib"
-crate-type = ["staticlib", "cdylib", "rlib"]
+crate-type = ["rlib"]
 
 [build-dependencies]
 tauri-build = { version = "2.7.4", features = [] }
