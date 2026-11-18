@@ -67,6 +67,19 @@ export type WidgetOption = {
 	readonly infer?: (bindings: readonly WidgetBinding[], earlier: OptionValues) => string | undefined;
 	/** The choice a newly added widget starts with in `layout`, as if it was picked, ex. a controller not shown yet */
 	readonly initial?: (layout: PaneNode) => string;
+	/**
+	 * Lists the choices in a menu, with more from the user's own files and commands to change them, ex. the robot
+	 * widget's robot projects. Picked choices that aren't listed are kept, ex. a robot not added on this device, so the
+	 * widget can say so.
+	 */
+	readonly menu?: OptionMenu;
+};
+
+export type OptionMenu = {
+	/** Radio items for the choices listed after `choices`, which can change. Their labels are their IDs. */
+	readonly Choices: ComponentType;
+	/** Items for commands listed after the choices, which can pick a choice, `undefined` goes back to the default */
+	readonly Commands: ComponentType<{ value: string; pick: (value: string | undefined) => void }>;
 };
 
 /** Option values by option ID, every option has one */

@@ -5,8 +5,10 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
 import colors from 'tailwindcss/colors';
 import { VitePWA } from 'vite-plugin-pwa';
-import { defineConfig, lazyPlugins } from 'vite-plus';
+import { defineConfig, lazyPlugins, type Plugin } from 'vite-plus';
+import * as z from 'zod';
 import packageJson from './package.json' with { type: 'json' };
+import { projectSchema } from './src/three/project-schema.ts';
 
 const ignorePatterns = [
 	'src/routeTree.gen.ts',
@@ -19,6 +21,23 @@ const ignorePatterns = [
 	// Edited with Apple's Icon Composer
 	'assets/mac.icon/',
 ];
+
+/** The JSON Schema of robot projects' `doglog.jsonc`, published at /doglog.schema.json for editors to validate it */
+const projectJsonSchema = JSON.stringify(z.toJSONSchema(projectSchema, { io: 'input' }), undefined, '\t');
+
+function projectSchemaPlugin(): Plugin {
+	return {
+		name: 'doglog-project-schema',
+		configureServer: (server) => {
+			server.middlewares.use('/doglog.schema.json', (_request, response) => {
+				response.end(projectJsonSchema);
+			});
+		},
+		generateBundle() {
+			this.emitFile({ type: 'asset', fileName: 'doglog.schema.json', source: projectJsonSchema });
+		},
+	};
+}
 
 /** Short hash of the commit Studio is built from, or `null` outside a Git repository */
 function getCommitHash(): string | null {
@@ -217,6 +236,7 @@ export default defineConfig({
 		tanstackRouter({ target: 'react', autoCodeSplitting: true }),
 		react(),
 		tailwindcss(),
+		projectSchemaPlugin(),
 		VitePWA({
 			// A new version waits until every Studio tab closes, so open tabs keep loading their own version's chunks
 			registerType: 'prompt',

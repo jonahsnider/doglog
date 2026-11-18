@@ -2,6 +2,7 @@
 
 interface FileSystemHandle {
 	requestPermission(descriptor?: { mode?: 'read' | 'readwrite' }): Promise<PermissionState>;
+	queryPermission(descriptor?: { mode?: 'read' | 'readwrite' }): Promise<PermissionState>;
 }
 
 interface DataTransferItem {
@@ -18,5 +19,6 @@ interface LaunchParams {
 
 interface Window {
 	showOpenFilePicker?(options?: OpenFilePickerOptions): Promise<FileSystemFileHandle[]>;
+	showDirectoryPicker?(options?: { mode?: 'read' | 'readwrite' }): Promise<FileSystemDirectoryHandle>;
 	launchQueue?: { setConsumer(consumer: (params: LaunchParams) => void): void };
 }

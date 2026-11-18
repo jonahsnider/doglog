@@ -39,6 +39,7 @@ context: |
     validated with Zod, whose JSON Schema export is the published schema. Only the `robot` key is defined; add keys when
     a feature needs them. Projects are read in place: the desktop app remembers folder paths, the web app keeps
     directory handles in IndexedDB. Robot option choices are robot names, so shared dashboards work across devices.
+    Models load with three.js's GLTFLoader (no Draco), with metalness turned off since scenes have no environment map.
   - Field images: the season's community top-down CAD render from Chief Delphi (AdvantageScope uses the same ones), the
     variant without background or game pieces, over a fixed neutral gray, compressed as lossless WebP. Cropped with the
     SVG view, not by editing the image.

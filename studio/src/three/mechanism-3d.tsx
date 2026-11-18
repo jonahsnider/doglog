@@ -26,7 +26,7 @@ export function Mechanism3d({ mechanism, plane }: { mechanism: Mechanism; plane:
 	return (
 		<group matrix={planes[plane]} matrixAutoUpdate={false}>
 			<group position={[-mechanism.width / 2, 0, 0]}>
-				{mechanism.lines.map((line) => {
+				{mechanism.lines.map((line, index) => {
 					const dx = line.end.x - line.start.x;
 					const dy = line.end.y - line.start.y;
 					const length = Math.hypot(dx, dy);
@@ -40,7 +40,14 @@ export function Mechanism3d({ mechanism, plane }: { mechanism: Mechanism; plane:
 						>
 							<boxGeometry />
 							{/* Colors are drawn as logged, they don't follow the theme */}
-							<meshStandardMaterial color={line.color} />
+							<meshStandardMaterial
+								color={line.color}
+								// Ligaments of the same weight share faces where they meet, children are drawn over their
+								// parents, and mechanisms over models they line up with
+								polygonOffset
+								polygonOffsetFactor={-1}
+								polygonOffsetUnits={-1 - index}
+							/>
 						</mesh>
 					) : null;
 				})}

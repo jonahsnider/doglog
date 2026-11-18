@@ -8,11 +8,12 @@ import { useSource } from '@/data/source';
 import { type Mechanism, mechanismLayout, readMechanism } from '@/data/mechanism';
 import { Mechanism3d } from '@/three/mechanism-3d';
 import { Scene3d, type Scene3dHandle } from '@/three/scene';
-import { SwerveRobot } from '@/three/swerve-robot';
 import { useCursorTime } from '@/timeline/timeline';
 import { Legend, type LegendItem } from '@/widgets/legend/legend';
 import { MechanismCanvas } from '@/widgets/robot/mechanism-2d';
+import { usePickedRobot } from '@/widgets/robot/picked-robot';
 import { mechanismPlane } from '@/widgets/robot/roles';
+import { defaultRobot } from '@/widgets/robot/robot-option';
 import { WidgetEmpty } from '@/widgets/widget-empty';
 import type { WidgetBinding, WidgetProps } from '@/widgets/widget-type';
 
@@ -96,6 +97,7 @@ export function Robot({ bindings, options, setOption }: WidgetProps) {
 	// 2D draws one mechanism, 3D moves the robot's parts with one pose array
 	const shown2d = bindings.find((binding) => isMechanism(binding) && !binding.hidden);
 	const parts = bindings.find((binding) => binding.entry?.kind === 'struct[]' && !binding.hidden);
+	const { robot, note: robotNote } = usePickedRobot(options['robot'] ?? defaultRobot, parts?.entry);
 
 	const note = (binding: WidgetBinding) => {
 		if (binding.entry === undefined || binding.hidden) {
@@ -123,15 +125,17 @@ export function Robot({ bindings, options, setOption }: WidgetProps) {
 		<div className="h-full p-2 [container-type:size]">
 			<div className="flex h-full flex-col gap-2 [@container(min-aspect-ratio:1.5)]:flex-row">
 				{legend.length > 0 && (
-					<div className="max-h-[33%] shrink-0 overflow-y-auto [@container(min-aspect-ratio:1.5)]:max-h-none [@container(min-aspect-ratio:1.5)]:max-w-[33%]">
-						<Legend items={legend} vertical />
+					// As wide as its widest row, so planes stay beside the mechanisms' names
+					<div className="max-h-[33%] w-fit max-w-full shrink-0 overflow-y-auto [@container(min-aspect-ratio:1.5)]:max-h-none [@container(min-aspect-ratio:1.5)]:max-w-[33%]">
+						{/* Planes only matter in 3D */}
+						<Legend items={legend} vertical roles={view === '3d'} />
 					</div>
 				)}
 				<div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
 					<div className="flex min-h-0 min-w-0 flex-1 items-center justify-center [container-type:size]">
 						{view === '3d' ? (
 							<Scene3d ref={scene} label="Robot">
-								<SwerveRobot />
+								{robot}
 								{bindings.map((binding) => {
 									const mechanism = binding.hidden ? undefined : mechanisms.get(binding.name);
 									return mechanism ? (
@@ -147,6 +151,9 @@ export function Robot({ bindings, options, setOption }: WidgetProps) {
 					</div>
 					<div className="flex shrink-0 items-center justify-between gap-2">
 						<ViewToggle view={view} onChange={(next) => setOption('view', next)} />
+						{view === '3d' && robotNote !== undefined && (
+							<span className="flex min-w-0 flex-1 items-center gap-2 text-muted-foreground text-xs">{robotNote}</span>
+						)}
 						{view === '3d' && (
 							<Button variant="ghost" size="xs" onClick={() => scene.current?.reset()}>
 								<HouseIcon />

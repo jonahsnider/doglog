@@ -2,11 +2,11 @@ import type { Entry } from '@/data/data-store';
 import type { MechanismPlane } from '@/three/mechanism-3d';
 import type { RoleOption, WidgetBinding, WidgetOption } from '@/widgets/widget-type';
 
-/** The plane a mechanism is drawn on in 3D, Side first since it's inferred */
+/** The robot plane a mechanism is drawn on in 3D, XZ (seen from its side) first since it's inferred */
 const planes: readonly (RoleOption & { id: MechanismPlane })[] = [
-	{ id: 'side', label: 'Side' },
-	{ id: 'front', label: 'Front' },
-	{ id: 'top', label: 'Top' },
+	{ id: 'side', label: 'XZ plane' },
+	{ id: 'front', label: 'YZ plane' },
+	{ id: 'top', label: 'XY plane' },
 ];
 
 const parts: readonly RoleOption[] = [{ id: 'parts', label: 'Parts' }];

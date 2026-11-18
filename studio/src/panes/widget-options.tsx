@@ -1,7 +1,8 @@
-import { Settings2Icon } from 'lucide-react';
+import { ChevronsUpDownIcon, Settings2Icon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Fieldset, FieldsetLegend } from '@/components/ui/fieldset';
+import { Menu, MenuPopup, MenuRadioGroup, MenuRadioItem, MenuSeparator, MenuTrigger } from '@/components/ui/menu';
 import { Popover, PopoverPopup, PopoverTrigger } from '@/components/ui/popover';
 import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control';
@@ -9,7 +10,7 @@ import { ToolbarButton } from '@/components/ui/toolbar';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import type { Widget } from '@/panes/layout';
 import { inferredOption, optionValues, pickedOption } from '@/widgets/options';
-import type { WidgetBinding, WidgetOption, WidgetType } from '@/widgets/widget-type';
+import type { OptionMenu, WidgetBinding, WidgetOption, WidgetType } from '@/widgets/widget-type';
 
 /** The Auto choice's value in the controls, no choice has an empty ID */
 const auto = '';
@@ -41,15 +42,25 @@ export function WidgetOptions({ type, widget, bindings, onOptionChange }: Widget
 			</Tooltip>
 			<PopoverPopup align="end" className="w-80">
 				<div className="flex flex-col gap-3">
-					{options.map((option) => (
-						<OptionControl
-							key={option.id}
-							option={option}
-							picked={pickedOption(widget, option)}
-							inferred={inferredOption(option, bindings, values)}
-							onChange={(value) => onOptionChange(option.id, value)}
-						/>
-					))}
+					{options.map((option) =>
+						option.menu ? (
+							<MenuOptionControl
+								key={option.id}
+								option={option}
+								menu={option.menu}
+								value={values[option.id] ?? option.default}
+								onChange={(value) => onOptionChange(option.id, value)}
+							/>
+						) : (
+							<OptionControl
+								key={option.id}
+								option={option}
+								picked={pickedOption(widget, option)}
+								inferred={inferredOption(option, bindings, values)}
+								onChange={(value) => onOptionChange(option.id, value)}
+							/>
+						),
+					)}
 				</div>
 			</PopoverPopup>
 		</Popover>
@@ -97,6 +108,48 @@ function OptionControl({
 						</SegmentedControlItem>
 					))}
 				</SegmentedControl>
+			</Fieldset>
+		</Field>
+	);
+}
+
+/** An option whose choices are listed in a menu, with more from the user's files and commands, see `WidgetOption.menu` */
+function MenuOptionControl({
+	option,
+	menu,
+	value,
+	onChange,
+}: {
+	option: WidgetOption;
+	menu: OptionMenu;
+	value: string;
+	onChange: (value: string | undefined) => void;
+}) {
+	return (
+		<Field name={option.id}>
+			<Fieldset>
+				<FieldsetLegend className="mb-1 text-sm">{option.label}</FieldsetLegend>
+				<Menu>
+					<MenuTrigger render={<Button variant="outline" size="sm" className="w-full justify-between" />}>
+						<span className="truncate">{option.choices.find((choice) => choice.id === value)?.label ?? value}</span>
+						<ChevronsUpDownIcon />
+					</MenuTrigger>
+					<MenuPopup align="start">
+						<MenuRadioGroup
+							value={value}
+							onValueChange={(next: string) => onChange(next === option.default ? undefined : next)}
+						>
+							{option.choices.map((choice) => (
+								<MenuRadioItem key={choice.id} value={choice.id} closeOnClick>
+									{choice.label}
+								</MenuRadioItem>
+							))}
+							<menu.Choices />
+						</MenuRadioGroup>
+						<MenuSeparator />
+						<menu.Commands value={value} pick={onChange} />
+					</MenuPopup>
+				</Menu>
 			</Fieldset>
 		</Field>
 	);

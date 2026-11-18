@@ -79,8 +79,13 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 	const [cubeHovered, setCubeHovered] = useState(false);
 
 	const labels = useRef<(HTMLSpanElement | null)[]>([]);
+	// Hidden until the canvas is sized and drawn, it starts at the browser's default size with the labels in the corner
+	const [drawn, setDrawn] = useState(false);
 	/** Moves the floor labels, which are drawn over the canvas, to where their positions are on screen */
 	const positionLabels = ({ camera, size }: RootState) => {
+		if (!drawn && size.width > 0) {
+			setDrawn(true);
+		}
 		for (const [index, { position }] of floorLabels.entries()) {
 			const element = labels.current[index];
 			if (element) {
@@ -140,6 +145,7 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 			className={cn(
 				'relative size-full touch-none overflow-hidden rounded-md outline-none select-none',
 				keyboardFocus && 'ring-2 ring-ring',
+				drawn ? 'opacity-100 motion-safe:transition-opacity motion-safe:duration-150' : 'opacity-0',
 				drag === 'orbit' && 'cursor-grabbing',
 				drag === 'pan' && 'cursor-move',
 				drag === undefined && cubeHovered && 'cursor-pointer',

@@ -139,16 +139,16 @@ In 3D, the robot widget SHALL draw every `Mechanism2d` entry that isn't hidden, 
 
 ### Requirement: Mechanism planes
 
-In 3D, the center of a mechanism canvas's bottom edge SHALL be at the robot's origin, on a plane picked by the entry's role: Side (the XZ plane, seen from the robot's right), the inferred role, Front (the YZ plane, seen from the robot's front), or Top (the floor, seen from above with the robot's front up).
+In 3D, the center of a mechanism canvas's bottom edge SHALL be at the robot's origin, on a plane picked by the entry's role in the legend: XZ plane (seen from the robot's right), the inferred role, YZ plane (seen from the robot's front), or XY plane (the floor, seen from above with the robot's front up). The legend MUST NOT show planes in 2D.
 
-#### Scenario: Side
+#### Scenario: XZ plane
 
 - **GIVEN** a `Mechanism2d` 2 wide, with a root at (1, 0) and a ligament on it 0.5 long at 90°
 - **THEN** the ligament is drawn as a box from the robot's origin straight up to 0.5 m
 
-#### Scenario: Front
+#### Scenario: YZ plane
 
-- **GIVEN** the same mechanism with the Front role, and its ligament at 0°
+- **GIVEN** the same mechanism on the YZ plane, and its ligament at 0°
 - **THEN** the ligament is drawn along the floor from the robot's origin toward its left
 
 ### Requirement: Robot
@@ -180,6 +180,18 @@ A robot project SHALL be a folder with a `doglog.jsonc` or `doglog.json` file in
 - **GIVEN** a robot project with `doglog.jsonc` next to `build.gradle`, and models in a `cad` folder
 - **WHEN** the user adds the project
 - **THEN** its robot is drawn using the models in `cad`
+
+### Requirement: Robot projects on the web
+
+The web app SHALL only add robot projects in browsers that can keep access to folders, and MUST say why "Add project…" is unavailable in others. When the browser asks to allow access to a project's folder again, ex. after it's reopened, the widget MUST offer a button to allow it, then draw the robot.
+
+#### Scenario: Reopened web app
+
+- **GIVEN** a robot widget showing a robot project in the web app
+- **WHEN** the user reopens the web app and the browser hasn't kept access to the project's folder
+- **THEN** the simple swerve robot is drawn, with a note and an "Allow access" button
+- **WHEN** the user presses it and allows access
+- **THEN** the project's robot is drawn
 
 ### Requirement: Invalid robot projects
 
