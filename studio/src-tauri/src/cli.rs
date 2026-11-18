@@ -1,7 +1,7 @@
 //! The `doglog` terminal command
 
 use crate::agent;
-use clap::{Arg, Command, value_parser};
+use clap::{Arg, Command};
 use std::ops::ControlFlow;
 use std::path::PathBuf;
 use std::process::ExitCode;
@@ -19,7 +19,7 @@ pub fn parse_args(version: String) -> ControlFlow<ExitCode, Option<PathBuf>> {
         .arg(
             Arg::new("log")
                 .help("Path to a .wpilog file to open in a new window")
-                .value_parser(value_parser!(PathBuf)),
+                .value_parser(log_path),
         )
         .subcommand(
             Command::new("mcp")
@@ -47,6 +47,16 @@ pub fn parse_args(version: String) -> ControlFlow<ExitCode, Option<PathBuf>> {
                 (resource, _) => agent::cli::run(resource, &matches),
             })
         }
+    }
+}
+
+/// A log to open must be a file, so a mistyped command (ex. `doglog dashbaord`) fails instead of opening Studio
+fn log_path(value: &str) -> Result<PathBuf, String> {
+    let path = PathBuf::from(value);
+    if path.is_file() {
+        Ok(path)
+    } else {
+        Err("not a command or a file".to_owned())
     }
 }
 

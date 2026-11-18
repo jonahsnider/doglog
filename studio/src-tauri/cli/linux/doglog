@@ -1,13 +1,12 @@
 #!/bin/sh
 # Open DogLog Studio from a terminal, ex. `doglog match.wpilog`, or control it, ex. `doglog pane create` or `doglog mcp`
 
-# A log path, or nothing, starts a new window without tying up the terminal
+# A log, or nothing, starts a new window without tying up the terminal
 case $#:$1 in
 0:) exec setsid -f /usr/bin/doglog-studio > /dev/null 2>&1 ;;
 1:-*) ;;
-1:*/* | 1:*.*) exec setsid -f /usr/bin/doglog-studio "$1" > /dev/null 2>&1 ;;
-1:*) [ -e "$1" ] && exec setsid -f /usr/bin/doglog-studio "$1" > /dev/null 2>&1 ;;
+1:*) [ -f "$1" ] && exec setsid -f /usr/bin/doglog-studio "$1" > /dev/null 2>&1 ;;
 esac
 
-# Commands and flags run Studio directly, attached to the terminal or the agent that ran them
+# Commands, flags, and paths that aren't files run Studio directly, attached to the terminal or the agent that ran them
 exec /usr/bin/doglog-studio "$@"

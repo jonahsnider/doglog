@@ -4,14 +4,13 @@
 self=$(readlink "$0") || self=$0
 app=${self%/Contents/Resources/bin/doglog}
 
-# A log path, or nothing, opens a new window through Launch Services without tying up the terminal, but from `/`
+# A log, or nothing, opens a new window through Launch Services without tying up the terminal, but from `/`
 case $#:$1 in
 0:) exec open -n -a "$app" ;;
 1:-*) ;;
-1:/*) exec open -n -a "$app" --args "$1" ;;
-1:*/* | 1:*.*) exec open -n -a "$app" --args "$PWD/$1" ;;
-1:*) [ -e "$1" ] && exec open -n -a "$app" --args "$PWD/$1" ;;
+1:/*) [ -f "$1" ] && exec open -n -a "$app" --args "$1" ;;
+1:*) [ -f "$1" ] && exec open -n -a "$app" --args "$PWD/$1" ;;
 esac
 
-# Commands and flags run Studio directly, attached to the terminal or the agent that ran them
+# Commands, flags, and paths that aren't files run Studio directly, attached to the terminal or the agent that ran them
 exec "$app/Contents/MacOS/doglog-studio" "$@"
