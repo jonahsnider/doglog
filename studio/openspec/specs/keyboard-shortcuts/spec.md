@@ -8,7 +8,7 @@ Define Studio's app-wide keyboard shortcuts and how they differ between the desk
 
 ### Requirement: Global shortcuts
 
-Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Reopen closed dashboard (⇧⌘T, or Alt+Shift+T), Back (⌘[, or Alt+[), Forward (⌘], or Alt+]), Undo (⌘Z), Redo (⇧⌘Z), Toggle sidebar (⌘B), Toggle entry browser (⌥⌘B), Connect (⌘K), Split right (⌘D), Split down (⇧⌘D), Zoom or restore pane (⇧⌘↩), Open log (⌘O), and Keyboard shortcuts (⌘/).
+Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Reopen closed dashboard (⇧⌘T, or Alt+Shift+T), Back (⌘[, or Alt+[), Forward (⌘], or Alt+]), Undo (⌘Z), Redo (⇧⌘Z), Toggle sidebar (⌘B), Toggle entry browser (⌥⌘B), Split right (⌘D), Split down (⇧⌘D), Zoom or restore pane (⇧⌘↩), and Keyboard shortcuts (⌘/).
 
 #### Scenario: New dashboard
 
@@ -48,10 +48,20 @@ Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and
 - **WHEN** the user presses Alt+3
 - **THEN** the third dashboard in the sidebar opens
 
+### Requirement: Data source shortcuts
+
+Studio SHALL provide these data source shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: Open log (⌘O), Connect (⌘K), and Switch between log and live (⇧⌘K). Switch between log and live MUST do nothing unless both a log and a live session are open.
+
 #### Scenario: Connect
 
 - **WHEN** the user presses ⌘K
 - **THEN** Studio starts connecting, the same way as choosing Connect
+
+#### Scenario: Switch sources
+
+- **GIVEN** the user opened a log while connected to the robot
+- **WHEN** the user presses ⇧⌘K
+- **THEN** every dashboard shows the live session
 
 ### Requirement: Search entries shortcut
 

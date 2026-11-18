@@ -30,6 +30,14 @@ Each window SHALL have at most one open log and one live session, and MUST show 
 - **WHEN** the user chooses `qual12.wpilog` in the source control menu
 - **THEN** every dashboard shows `qual12.wpilog` right away, without reading the file again
 
+#### Scenario: Switch with the keyboard
+
+- **GIVEN** the user opened `qual12.wpilog` while connected to the robot
+- **WHEN** the user presses Mod+Shift+K
+- **THEN** every dashboard shows the live session
+- **WHEN** the user presses Mod+Shift+K again
+- **THEN** every dashboard shows `qual12.wpilog`
+
 #### Scenario: Open another log
 
 - **GIVEN** `qual12.wpilog` is open

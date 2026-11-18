@@ -1,8 +1,10 @@
+import { useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { XIcon } from 'lucide-react';
 import { useAnimate } from 'motion/react';
 import { useLayoutEffect, useRef } from 'react';
-import { MenuItem } from '@/components/ui/menu';
+import { MenuItem, MenuShortcut } from '@/components/ui/menu';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
+import { shortcuts } from '@/commands/commands';
 import { closeLive, closeLog, type Source, showSource } from '@/data/source';
 import { easing, useMotionTransition } from '@/lib/motion';
 import { cn } from '@/lib/utils';
@@ -50,6 +52,7 @@ function ShownIndicator({ index }: { index: number }) {
 function SourceRow({ source, shown }: { source: Source; shown: boolean }) {
 	const name = sourceName(source);
 	const closeLabel = source.type === 'log' ? 'Close log' : 'Disconnect and clear live data';
+	const formatForDisplay = useFormatForDisplay();
 	return (
 		<div className="relative flex items-center">
 			<MenuItem
@@ -74,6 +77,7 @@ function SourceRow({ source, shown }: { source: Source; shown: boolean }) {
 						{sourceStatus(source)}
 					</span>
 				</div>
+				{!shown && <MenuShortcut>{formatForDisplay(shortcuts.switchSource)}</MenuShortcut>}
 			</MenuItem>
 			<Tooltip>
 				<TooltipTrigger

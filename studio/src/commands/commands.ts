@@ -25,7 +25,7 @@ import {
 import { goInHistory } from '@/commands/history';
 import { chooseLog } from '@/data/open-log';
 import { checkOrInstallUpdate, updateShortcut } from '@/desktop/updater';
-import { connect } from '@/data/source';
+import { connect, getSource, showSource } from '@/data/source';
 import { canSplitPane, type SplitDirection } from '@/panes/layout';
 import { getRobotHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
@@ -51,6 +51,7 @@ export const shortcuts = {
 	back: desktop ? 'Mod+[' : 'Alt+[',
 	forward: desktop ? 'Mod+]' : 'Alt+]',
 	connect: 'Mod+K',
+	switchSource: 'Mod+Shift+K',
 	splitRight: 'Mod+D',
 	splitDown: 'Mod+Shift+D',
 	zoom: 'Mod+Shift+Enter',
@@ -197,6 +198,11 @@ export function startConnect(): void {
 	void connect(getRobotHost(settingsStore.get().robotTarget));
 }
 
+/** Switch between the log and the live session, when both are open */
+export function switchSource(): void {
+	showSource(getSource()?.type === 'log' ? 'live' : 'log');
+}
+
 /** Register the app-wide keyboard shortcuts */
 export function useGlobalShortcuts(): void {
 	const router = useRouter();
@@ -222,6 +228,7 @@ export function useGlobalShortcuts(): void {
 			{ hotkey: 'Mod+[', callback: () => goInHistory(router, -1), options: desktopOnly },
 			{ hotkey: 'Mod+]', callback: () => goInHistory(router, 1), options: desktopOnly },
 			{ hotkey: shortcuts.connect, callback: startConnect },
+			{ hotkey: shortcuts.switchSource, callback: switchSource },
 			{ hotkey: shortcuts.splitRight, callback: () => splitFocused(router, 'row') },
 			{ hotkey: shortcuts.splitDown, callback: () => splitFocused(router, 'column') },
 			{ hotkey: shortcuts.zoom, callback: () => toggleFocusedZoom(router) },

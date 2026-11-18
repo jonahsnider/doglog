@@ -189,7 +189,9 @@ export function SourceControl() {
 
 	const { log, live, shown } = sources;
 	const menuItems: MenuEntry[] = [
-		...(shown === 'live' && log ? [{ label: `Back to ${log.fileName}`, onSelect: () => showSource('log') }] : []),
+		...(shown === 'live' && log
+			? [{ label: `Back to ${log.fileName}`, shortcut: shortcuts.switchSource, onSelect: () => showSource('log') }]
+			: []),
 		{ label: 'Open log', shortcut: shortcuts.openLog, onSelect: chooseLog },
 		'separator',
 		...liveActions(sources, connectTarget, true),

@@ -66,6 +66,7 @@ const sections: {
 		shortcuts: [
 			{ label: 'Open log', keys: [shortcuts.openLog] },
 			{ label: 'Connect', keys: [shortcuts.connect] },
+			{ label: 'Switch between log and live', keys: [shortcuts.switchSource] },
 		],
 	},
 	{
