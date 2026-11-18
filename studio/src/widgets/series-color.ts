@@ -1,4 +1,4 @@
-import { chartCount } from '@/theme/theme-color';
+import { chartCount } from '@/theme/choices';
 import type { WidgetBinding } from '@/widgets/widget-type';
 
 /** Shared chart color for the entry drawn at `index` */

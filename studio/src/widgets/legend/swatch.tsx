@@ -3,7 +3,7 @@ import { type RefObject, use, useRef, useState } from 'react';
 import { Popover, PopoverPopup } from '@/components/ui/popover';
 import { WidgetBindingsContext } from '@/entries/drag';
 import { cn } from '@/lib/utils';
-import { chartCount } from '@/theme/theme-color';
+import { chartCount } from '@/theme/choices';
 import { seriesColor } from '@/widgets/series-color';
 import type { LegendItem } from '@/widgets/legend/legend';
 import type { WidgetBinding } from '@/widgets/widget-type';

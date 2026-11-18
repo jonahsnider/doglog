@@ -2,9 +2,6 @@
 import type { Entry } from '@/data/data-store';
 import type { Value } from '@/data/samples';
 
-/** The Driver Station's joystick ports */
-export const controllerPorts = [0, 1, 2, 3, 4, 5] as const;
-
 export type ControllerLayout = 'xbox' | 'playstation';
 
 /**

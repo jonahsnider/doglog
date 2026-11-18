@@ -114,7 +114,9 @@ function dashboardMenu({
 		{ label: 'Duplicate', onSelect: () => selection.duplicate([dashboard.id]) },
 		{
 			label: dashboard.shared ? 'Stop sharing' : 'Share',
-			onSelect: () => moveDashboardToSection(router, dashboard.id, !dashboard.shared),
+			onSelect: () => {
+				moveDashboardToSection(router, dashboard.id, !dashboard.shared);
+			},
 		},
 		'separator',
 		{

@@ -14,7 +14,8 @@ import {
 } from 'lucide-react';
 import type { TooltipPrimitive } from '@/components/ui/tooltip';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
-import { type EntryKind, formatEntryType, getEntryKind } from '@/data/samples';
+import type { EntryKind } from '@/data/entry-kind';
+import { formatEntryType, getEntryKind } from '@/data/samples';
 
 /**
  * One tooltip shared by many marks, so long lists don't render a tooltip per row.

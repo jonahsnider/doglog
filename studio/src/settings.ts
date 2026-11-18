@@ -1,10 +1,8 @@
 import { useSelector } from '@tanstack/react-store';
 import * as z from 'zod';
 import { createPersistedAtom } from '@/lib/persisted-store';
-import { applyThemeColor, contrasts, defaultCustomColor, defaultThemeColor, themePresets } from '@/theme/theme-color';
-
-export const themes = ['light', 'dark', 'system'] as const;
-export type Theme = (typeof themes)[number];
+import { contrasts, themePresets, themes } from '@/theme/choices';
+import { applyThemeColor, defaultCustomColor, defaultThemeColor } from '@/theme/theme-color';
 
 // Invalid fields fall back to their defaults
 const settingsSchema = z

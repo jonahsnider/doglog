@@ -9,8 +9,9 @@ const configSchema = z
 	.transform((config) => config.options);
 
 function choiceSchema(option: WidgetOption) {
-	// Menus keep choices they don't list, see `WidgetOption.menu`
-	return option.menu ? z.string().min(1) : z.string().refine((id) => option.choices.some((choice) => choice.id === id));
+	return option.openChoices
+		? z.string().min(1)
+		: z.string().refine((id) => option.choices.some((choice) => choice.id === id));
 }
 
 /** The choice picked for an option, `undefined` when none is, or the saved one isn't valid anymore */

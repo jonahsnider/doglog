@@ -124,8 +124,14 @@ export function placeDashboard(id: string, shared: boolean, index: number): stri
 /**
  * Share a dashboard or stop sharing it, putting it at `index` among the shared dashboards or the others (the end or
  * the top by default). Keeps showing it if it was shown, since stopping sharing replaces it with a copy.
+ * Returns its ID, see `placeDashboard()`.
  */
-export function moveDashboardToSection(router: RegisteredRouter, id: string, shared: boolean, index?: number): void {
+export function moveDashboardToSection(
+	router: RegisteredRouter,
+	id: string,
+	shared: boolean,
+	index?: number,
+): string | undefined {
 	const shown = router.state.matches.some(
 		(match) => match.routeId === '/dashboards/$dashboardId' && match.params.dashboardId === id,
 	);
@@ -133,6 +139,7 @@ export function moveDashboardToSection(router: RegisteredRouter, id: string, sha
 	if (shown && placedId !== undefined && placedId !== id) {
 		void router.navigate({ to: '/dashboards/$dashboardId', params: { dashboardId: placedId }, replace: true });
 	}
+	return placedId;
 }
 
 /** Forget shared dashboards that were deleted long enough ago, call once when the app starts */

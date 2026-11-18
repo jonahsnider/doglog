@@ -1,20 +1,8 @@
 import type { StructPayload } from 'wpilog-parser';
+import type { EntryKind } from '@/data/entry-kind';
 
 /** A decoded value of a supported entry type */
 export type Value = number | boolean | string | number[] | boolean[] | string[] | StructPayload | StructPayload[];
-
-/** How an entry's values are decoded. Entries with the `unsupported` kind have no values and can't be bound to widgets. */
-export type EntryKind =
-	| 'number'
-	| 'boolean'
-	| 'string'
-	| 'number[]'
-	| 'boolean[]'
-	| 'string[]'
-	| 'struct'
-	| 'struct[]'
-	| 'mechanism2d'
-	| 'unsupported';
 
 /** Get the kind of an entry from its WPILOG or NT4 type string, ex. `double`, `int64[]`, or `struct:Pose2d` */
 export function getEntryKind(type: string): EntryKind {

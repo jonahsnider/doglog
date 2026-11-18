@@ -29,6 +29,12 @@ export function getSource(): Source | undefined {
 	return sourceStore.get();
 }
 
+/** Call `listener` when the active source or its status changes */
+export function subscribeSource(listener: () => void): () => void {
+	const { unsubscribe } = sourceStore.subscribe(() => listener());
+	return unsubscribe;
+}
+
 /** Fraction of the loading log parsed so far, from 0 to 1 */
 export function useLogProgress(): number {
 	return useSelector(logProgressStore);
@@ -44,6 +50,11 @@ function replaceSource(source: Source | undefined): void {
 	if (import.meta.env.DEV && source?.type !== 'log') {
 		void saveDevLog(undefined);
 	}
+}
+
+/** Close the active source, leaving none */
+export function closeSource(): void {
+	replaceSource(undefined);
 }
 
 async function isWpilog(file: File): Promise<boolean> {

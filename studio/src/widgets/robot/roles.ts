@@ -1,15 +1,14 @@
 import type { Entry } from '@/data/data-store';
 import type { MechanismPlane } from '@/three/mechanism-3d';
+import { widgetOptions, widgetRoles } from '@/widgets/widget-info';
 import type { RoleOption, WidgetBinding, WidgetOption } from '@/widgets/widget-type';
 
-/** The robot plane a mechanism is drawn on in 3D, XZ (seen from its side) first since it's inferred */
-const planes: readonly (RoleOption & { id: MechanismPlane })[] = [
-	{ id: 'side', label: 'XZ plane' },
-	{ id: 'front', label: 'YZ plane' },
-	{ id: 'top', label: 'XY plane' },
-];
+const { side, front, top, parts: partsRole } = widgetRoles.robot;
 
-const parts: readonly RoleOption[] = [{ id: 'parts', label: 'Parts' }];
+/** The robot plane a mechanism is drawn on in 3D, XZ (seen from its side) first since it's inferred */
+const planes: readonly (RoleOption & { id: MechanismPlane })[] = [side, front, top];
+
+const parts: readonly RoleOption[] = [partsRole];
 
 export function robotRoles(entry: Entry): readonly RoleOption[] {
 	if (entry.kind === 'mechanism2d') {
@@ -24,13 +23,6 @@ export function mechanismPlane(binding: WidgetBinding): MechanismPlane {
 
 /** Whether the robot is drawn in 2D or 3D, 2D when the only entry is a mechanism */
 export const viewOption: WidgetOption = {
-	kind: 'choice',
-	id: 'view',
-	label: 'View',
-	choices: [
-		{ id: '2d', label: '2D' },
-		{ id: '3d', label: '3D' },
-	],
-	default: '3d',
+	...widgetOptions.robot.view,
 	infer: (bindings) => (bindings.length === 1 && bindings[0]?.entry?.kind !== 'struct[]' ? '2d' : '3d'),
 };

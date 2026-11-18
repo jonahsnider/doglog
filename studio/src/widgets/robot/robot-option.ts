@@ -1,15 +1,12 @@
 import { RobotChoices, RobotCommands } from '@/widgets/robot/robot-option-menu';
+import { widgetOptions } from '@/widgets/widget-info';
 import type { WidgetOption } from '@/widgets/widget-type';
 
 /** The robot drawn without a model */
-export const defaultRobot = 'swerve';
+export const defaultRobot = widgetOptions.robot.robot.default;
 
 /** The robot drawn in 3D, the simple swerve robot or the robot of a project the user added */
 export const robotOption: WidgetOption = {
-	kind: 'choice',
-	id: 'robot',
-	label: 'Robot',
-	choices: [{ id: defaultRobot, label: 'Simple swerve' }],
-	default: defaultRobot,
+	...widgetOptions.robot.robot,
 	menu: { Choices: RobotChoices, Commands: RobotCommands },
 };

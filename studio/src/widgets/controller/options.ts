@@ -1,23 +1,14 @@
 import { getEntry, type Entry } from '@/data/data-store';
 import { type PaneNode, panes } from '@/panes/layout';
 import { pickedOption } from '@/widgets/options';
-import {
-	controllerPort,
-	controllerPorts,
-	findController,
-	hasControllerData,
-	inferLayout,
-} from '@/widgets/controller/data';
+import { controllerPort, findController, hasControllerData, inferLayout } from '@/widgets/controller/data';
+import { controllerPorts, type WidgetTypeId, widgetOptions } from '@/widgets/widget-info';
 import type { WidgetOption, WidgetType } from '@/widgets/widget-type';
 
-export const controllerTypeId = 'controller';
+export const controllerTypeId = 'controller' satisfies WidgetTypeId;
 
 const controllerOption: WidgetOption = {
-	kind: 'choice',
-	id: 'controller',
-	label: 'Controller',
-	choices: controllerPorts.map((port) => ({ id: String(port), label: String(port) })),
-	default: '0',
+	...widgetOptions.controller.controller,
 	initial: (layout) => nextController(layout, getEntry),
 };
 
@@ -39,14 +30,7 @@ export function nextController(layout: PaneNode, entryOf: (name: string) => Entr
 export const controllerOptions: readonly WidgetOption[] = [
 	controllerOption,
 	{
-		kind: 'choice',
-		id: 'layout',
-		label: 'Layout',
-		choices: [
-			{ id: 'xbox', label: 'Xbox' },
-			{ id: 'playstation', label: 'PlayStation' },
-		],
-		default: 'xbox',
+		...widgetOptions.controller.layout,
 		infer: (_, earlier) => inferLayout(findController(Number(earlier['controller']), getEntry)),
 	},
 ];

@@ -7,18 +7,13 @@ import {
 	argbFromHex,
 	hexFromArgb,
 } from '@material/material-color-utilities';
+import { chartCount, type Contrast, type ThemePreset } from '@/theme/choices';
 
 /** Team 581 maroon, the hard-coded `--md-*` colors in `index.css` are generated from it */
 export const defaultThemeColor = '#591616';
 
 /** Default for the Custom preset, `hsl(20deg 12% 9.8%)` */
 export const defaultCustomColor = '#1c1816';
-
-export const themePresets = ['team581', 'match13', 'coss', 'custom'] as const;
-export type ThemePreset = (typeof themePresets)[number];
-
-export const contrasts = ['standard', 'medium', 'high'] as const;
-export type Contrast = (typeof contrasts)[number];
 
 /** MD3 contrast levels matching the Material Theme Builder's options */
 const contrastLevels: Record<Contrast, number> = {
@@ -101,9 +96,6 @@ function scheme(themeColor: string, dark: boolean, contrast: Contrast, secondary
 		...(secondaryColor !== undefined && { secondaryPalette: TonalPalette.fromInt(argbFromHex(secondaryColor)) }),
 	});
 }
-
-/** Number of `--chart-*` colors, spaced evenly around the hue wheel starting from the theme color's hue */
-export const chartCount = 5;
 
 /**
  * Generate chart colors for a theme color as `--chart-*` CSS variable declarations.

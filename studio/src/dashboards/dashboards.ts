@@ -139,10 +139,11 @@ export function subscribeDashboards(listener: () => void): () => void {
 	return () => subscription.unsubscribe();
 }
 
-/** Create an empty dashboard at the top or bottom of the list */
-export function createDashboard(position: 'top' | 'bottom' = 'top'): Dashboard {
+/** Create a dashboard at the top or bottom of the list, empty or with `contents` */
+export function createDashboard(position: 'top' | 'bottom' = 'top', contents?: DashboardContents): Dashboard {
 	const id = createDashboardId();
 	// Saves its document before its ID, so other windows find it
+	getDoc(id, contents);
 	const dashboard = readDashboard(id);
 	idsStore.set((ids) => (position === 'top' ? [id, ...ids] : [...ids, id]));
 	return dashboard;

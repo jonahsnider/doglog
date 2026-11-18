@@ -2,11 +2,12 @@
 import type { Entry } from '@/data/data-store';
 import type { Value } from '@/data/samples';
 import { numberField, structField } from '@/data/struct-fields';
+import { widgetRoles } from '@/widgets/widget-info';
 import type { RoleOption, WidgetBinding } from '@/widgets/widget-type';
 
-const roles = ['states', 'positions', 'speeds', 'heading'] as const;
+export type Role = keyof typeof widgetRoles.swerve;
 
-export type Role = (typeof roles)[number];
+const roles = Object.values(widgetRoles.swerve).map((role) => role.id);
 
 // WPILib 2027 renamed SwerveModuleState to SwerveModuleVelocity and ChassisSpeeds to ChassisVelocities
 const structRoles: Partial<Record<string, Role>> = {
@@ -18,17 +19,10 @@ const structRoles: Partial<Record<string, Role>> = {
 	'struct:Rotation2d': 'heading',
 };
 
-const roleLabels: Record<Role, string> = {
-	states: 'Module states',
-	positions: 'Module positions',
-	speeds: 'Chassis speeds',
-	heading: 'Heading',
-};
-
 /** The one role an entry has, none if the swerve widget doesn't accept it */
 export function swerveRoles(entry: Entry): RoleOption[] {
 	const role = entry.kind === 'number' ? 'heading' : structRoles[entry.type];
-	return role === undefined ? [] : [{ id: role, label: roleLabels[role] }];
+	return role === undefined ? [] : [widgetRoles.swerve[role]];
 }
 
 /** What a binding is used for, `undefined` without an entry */

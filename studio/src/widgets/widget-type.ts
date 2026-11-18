@@ -2,11 +2,9 @@ import type { HotkeyChord } from '@tanstack/react-hotkeys';
 import type { LucideIcon } from 'lucide-react';
 import type { ComponentType } from 'react';
 import type { Entry } from '@/data/data-store';
-import type { EntryKind } from '@/data/samples';
+import type { EntryKind } from '@/data/entry-kind';
 import type { PaneNode } from '@/panes/layout';
-
-/** Entry kinds that can be bound to widgets */
-export type BindableKind = Exclude<EntryKind, 'unsupported'>;
+import type { BindableKind, WidgetOptionInfo } from '@/widgets/widget-info';
 
 /** A way a widget can show an entry, ex. the field draws a `Pose2d` as a robot or a ghost */
 export type RoleOption = {
@@ -50,16 +48,7 @@ export type Connects = 'single' | 'many';
  * A setting shown in the widget options, saved in dashboards. Prefer inferring from entries over adding options, and
  * keep them few: they override what can be inferred, or pick what can't be (ex. which way the field faces).
  */
-export type WidgetOption = {
-	readonly kind: 'choice';
-	/** Saved in dashboards, don't change it */
-	readonly id: string;
-	/** Shown in the widget options, ex. `Orientation` */
-	readonly label: string;
-	/** IDs are saved in dashboards, don't change them */
-	readonly choices: readonly { readonly id: string; readonly label: string }[];
-	/** The choice's ID when it isn't picked, or isn't inferred */
-	readonly default: string;
+export type WidgetOption = WidgetOptionInfo & {
 	/**
 	 * Infers a choice from the bindings and the values of the options listed before it, which adds an Auto choice that's
 	 * used until another one is picked. Returns `undefined` to use the default.
@@ -69,8 +58,8 @@ export type WidgetOption = {
 	readonly initial?: (layout: PaneNode) => string;
 	/**
 	 * Lists the choices in a menu, with more from the user's own files and commands to change them, ex. the robot
-	 * widget's robot projects. Picked choices that aren't listed are kept, ex. a robot not added on this device, so the
-	 * widget can say so.
+	 * widget's robot projects. Use it with `openChoices`, so picked choices that aren't listed are kept, ex. a robot not
+	 * added on this device, and the widget can say so.
 	 */
 	readonly menu?: OptionMenu;
 };
@@ -139,17 +128,6 @@ export type WidgetType = {
 	readonly title?: (options: OptionValues) => string;
 	readonly component: ComponentType<WidgetProps>;
 };
-
-export const bindableKinds: readonly BindableKind[] = [
-	'number',
-	'boolean',
-	'string',
-	'number[]',
-	'boolean[]',
-	'string[]',
-	'struct',
-	'struct[]',
-];
 
 /** The widget's name in its pane header and suggested dashboard names, see `WidgetType.title` */
 export function widgetTitle(type: WidgetType, options: OptionValues): string {

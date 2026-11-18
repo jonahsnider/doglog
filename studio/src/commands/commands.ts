@@ -85,12 +85,16 @@ export function useShortcutHint(shortcut: Hotkey | undefined): boolean {
 }
 
 export function newDashboard(router: RegisteredRouter, position?: 'top' | 'bottom'): void {
-	const opener = { pathname: router.state.location.pathname, dashboardId: currentDashboard(router)?.id };
-	const { id } = createDashboard(position);
-	void router.navigate({ to: '/dashboards/$dashboardId', params: { dashboardId: id }, state: { opener } });
+	void showNewDashboard(router, createDashboard(position).id);
 }
 
-function currentDashboard(router: RegisteredRouter): Dashboard | undefined {
+/** Show a dashboard that was just created. Closing it before going anywhere else goes back to the page it was opened from. */
+export async function showNewDashboard(router: RegisteredRouter, id: string): Promise<void> {
+	const opener = { pathname: router.state.location.pathname, dashboardId: currentDashboard(router)?.id };
+	await router.navigate({ to: '/dashboards/$dashboardId', params: { dashboardId: id }, state: { opener } });
+}
+
+export function currentDashboard(router: RegisteredRouter): Dashboard | undefined {
 	const match = router.state.matches.find((other) => other.routeId === '/dashboards/$dashboardId');
 	return match && getDashboard(match.params.dashboardId);
 }

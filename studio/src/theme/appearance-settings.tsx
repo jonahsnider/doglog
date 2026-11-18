@@ -6,16 +6,9 @@ import { FramePanel } from '@/components/ui/frame';
 import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control';
 import { cn } from '@/lib/utils';
-import { type Theme, themes, updateSettings, useSettings } from '@/settings';
-import {
-	type Contrast,
-	contrasts,
-	defaultCustomColor,
-	type ThemePreset,
-	type ThemePreviewColors,
-	themePresets,
-	themePreviewColors,
-} from '@/theme/theme-color';
+import { updateSettings, useSettings } from '@/settings';
+import { type Contrast, contrasts, type Theme, type ThemePreset, themePresets, themes } from '@/theme/choices';
+import { defaultCustomColor, type ThemePreviewColors, themePreviewColors } from '@/theme/theme-color';
 
 const themeLabels: Record<Theme, string> = {
 	light: 'Light',

@@ -96,7 +96,7 @@ export function splitDashboardPane(id: string, paneId: string, direction: SplitD
 }
 
 /** Splits along the longer side of the pane's element, so adding several widgets tiles the dashboard instead of making slivers */
-function splitDirectionFor(paneId: string): SplitDirection {
+export function splitDirectionFor(paneId: string): SplitDirection {
 	const rect = document.querySelector(`[data-pane-id="${CSS.escape(paneId)}"]`)?.getBoundingClientRect();
 	return rect && rect.height > rect.width ? 'column' : 'row';
 }

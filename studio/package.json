@@ -4,9 +4,10 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
+		"agent:schema": "node scripts/agent-schema.ts",
 		"bench": "vp test bench",
 		"build": "vp build",
-		"check": "vp check && tsc -b",
+		"check": "vp check && tsc -b && node scripts/agent-schema.ts --check",
 		"check:dev": "pnpm check && react-doctor --no-telemetry --scope files --include-untracked",
 		"check:fix": "vp check --fix",
 		"deploy": "wrangler deploy",

@@ -41,7 +41,7 @@ export type Split = {
 export type PaneNode = Pane | Split;
 
 /** Most panes lined up in one direction, so they're each at least a quarter of the dashboard's width or height */
-const maxPanesAlong = 4;
+export const maxPanesAlong = 4;
 
 export function createPane(): Pane {
 	return { kind: 'pane', id: crypto.randomUUID() };
@@ -61,7 +61,7 @@ function replaceNode(node: PaneNode, id: string, update: (node: PaneNode) => Pan
 }
 
 /** The split holding the node with ID `id` */
-function findParent(layout: PaneNode, id: string): Split | undefined {
+export function findParent(layout: PaneNode, id: string): Split | undefined {
 	if (layout.kind === 'pane') {
 		return undefined;
 	}

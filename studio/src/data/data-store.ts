@@ -2,7 +2,8 @@ import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import { useSyncExternalStore } from 'react';
 import * as z from 'zod';
-import { type EntryKind, getEntryKind, Samples, trimOldest, type Value } from '@/data/samples';
+import type { EntryKind } from '@/data/entry-kind';
+import { getEntryKind, Samples, trimOldest, type Value } from '@/data/samples';
 
 export type Entry = {
 	/** Full name, ex. `/Robot/Arm/Angle` */
@@ -197,6 +198,18 @@ export function setStartTime(time: number): void {
 	start = time;
 	dataChanged = true;
 	scheduleFlush();
+}
+
+/** Publish entries and samples added since the last frame right away, ex. to read them right after a log loads */
+export function flushData(): void {
+	if (flushScheduled) {
+		flush();
+	}
+}
+
+/** All entries of the active source, sorted by name. Doesn't change when samples are added. */
+export function getEntries(): readonly Entry[] {
+	return entriesStore.get().list;
 }
 
 /** @public */

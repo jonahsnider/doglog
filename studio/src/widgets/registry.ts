@@ -26,103 +26,65 @@ import { robotRoles, viewOption } from '@/widgets/robot/roles';
 import { Swerve } from '@/widgets/swerve/swerve';
 import { swerveRoles } from '@/widgets/swerve/data';
 import { ValuesTable } from '@/widgets/values-table/values-table';
-import { bindableKinds, type WidgetType } from '@/widgets/widget-type';
+import { widgetInfos, type WidgetTypeId } from '@/widgets/widget-info';
+import type { WidgetType } from '@/widgets/widget-type';
+
+/** The parts of a widget type agents know about too, see `@/widgets/widget-info` */
+function info(id: WidgetTypeId): Pick<WidgetType, 'id' | 'name' | 'accepts' | 'options'> {
+	const { name, accepts, options } = widgetInfos.find((other) => other.id === id)!;
+	return { id, name, accepts, options };
+}
 
 /** Every widget type, in the order they're listed in the widget picker */
 export const widgetTypes: readonly WidgetType[] = [
+	{ ...info('values-table'), icon: TableIcon, hotkey: 'V', component: ValuesTable },
 	{
-		id: 'values-table',
-		name: 'Values table',
-		icon: TableIcon,
-		hotkey: 'V',
-		accepts: bindableKinds,
-		component: ValuesTable,
-	},
-	{
-		id: 'console',
-		name: 'Console',
+		...info('console'),
 		icon: TerminalIcon,
 		hotkey: 'C',
-		accepts: ['string'],
 		// WPILib's console output and Driver Station messages
 		defaultEntryNames: ['/console', '/messages'],
 		component: Console,
 	},
 	{
-		id: 'graph',
-		name: 'Graph',
+		...info('graph'),
 		icon: ChartLineIcon,
 		hotkey: 'D',
-		accepts: ['number', 'boolean', 'string'],
 		roles: graphRoles,
 		inferRole: inferGraphRole,
 		component: Graph,
 	},
+	{ ...info('swerve'), icon: MoveIcon, hotkey: 'S', roles: swerveRoles, component: Swerve },
 	{
-		id: 'swerve',
-		name: 'Swerve',
-		icon: MoveIcon,
-		hotkey: 'S',
-		accepts: ['number', 'struct', 'struct[]'],
-		roles: swerveRoles,
-		component: Swerve,
-	},
-	{
-		id: 'field',
-		name: 'Field',
+		...info('field'),
 		icon: MapIcon,
 		hotkey: 'F',
-		accepts: ['struct', 'struct[]'],
 		roles: fieldRoles,
 		inferRole: inferFieldRole,
 		connects: fieldConnects,
 		rendersEmpty: true,
-		options: [
-			{
-				kind: 'choice',
-				id: 'orientation',
-				label: 'Orientation',
-				choices: [
-					{ id: 'blue-left', label: 'Blue left' },
-					{ id: 'red-left', label: 'Red left' },
-				],
-				default: 'blue-left',
-			},
-		],
 		component: Field,
 	},
 	{
-		id: 'robot',
-		name: 'Robot',
+		...info('robot'),
 		icon: BotIcon,
 		hotkey: 'R',
-		accepts: ['mechanism2d', 'struct[]'],
 		roles: robotRoles,
 		rendersEmpty: true,
 		options: [viewOption, robotOption],
 		component: Robot,
 	},
 	{
-		id: controllerTypeId,
-		name: 'Controller',
+		...info(controllerTypeId),
 		icon: Gamepad2Icon,
 		hotkey: 'G',
-		accepts: [],
 		rendersEmpty: true,
 		options: controllerOptions,
 		optionFromEntry: controllerOptionFromEntry,
 		title: (options) => `Controller ${options['controller']}`,
 		component: Controller,
 	},
-	{
-		id: 'notepad',
-		name: 'Notepad',
-		icon: NotebookPenIcon,
-		hotkey: 'N',
-		accepts: [],
-		rendersEmpty: true,
-		component: Notepad,
-	},
+	{ ...info('notepad'), icon: NotebookPenIcon, hotkey: 'N', rendersEmpty: true, component: Notepad },
 ];
 
 export function getWidgetType(id: string): WidgetType | undefined {

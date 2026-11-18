@@ -5,6 +5,7 @@ import type { Value } from '@/data/samples';
 import { readPose } from '@/widgets/field/data';
 import { bindingColor } from '@/widgets/series-color';
 import { Connections, Markers, Path, Robot, Shapes } from '@/widgets/field/shapes';
+import { widgetRoles } from '@/widgets/widget-info';
 import type { Connects, RoleOption, WidgetBinding } from '@/widgets/widget-type';
 
 type Draw = (value: Value, color: string) => ReactNode;
@@ -14,13 +15,14 @@ const items = (value: Value): readonly unknown[] => (Array.isArray(value) ? valu
 const poses = (value: Value) => items(value).map((item) => readPose(item));
 const points: Draw = (value, color) => <Markers poses={poses(value)} color={color} />;
 
+const field = widgetRoles.field;
 const roles = [
-	{ id: 'shape', label: 'Shape', draw: (value, color) => <Shapes values={items(value)} color={color} /> },
-	{ id: 'path', label: 'Path', draw: (value, color) => <Path poses={poses(value)} color={color} /> },
-	{ id: 'points', label: 'Points', draw: points },
-	{ id: 'point', label: 'Point', draw: points },
-	{ id: 'ghost', label: 'Ghost', draw: (value, color) => <Robot pose={readPose(value)} color={color} ghost /> },
-	{ id: 'robot', label: 'Robot', draw: (value, color) => <Robot pose={readPose(value)} color={color} /> },
+	{ ...field.shape, draw: (value, color) => <Shapes values={items(value)} color={color} /> },
+	{ ...field.path, draw: (value, color) => <Path poses={poses(value)} color={color} /> },
+	{ ...field.points, draw: points },
+	{ ...field.point, draw: points },
+	{ ...field.ghost, draw: (value, color) => <Robot pose={readPose(value)} color={color} ghost /> },
+	{ ...field.robot, draw: (value, color) => <Robot pose={readPose(value)} color={color} /> },
 ] as const satisfies readonly (RoleOption & { draw: Draw })[];
 
 type FieldRoleId = (typeof roles)[number]['id'];

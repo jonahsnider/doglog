@@ -1,12 +1,11 @@
 import type { Entry } from '@/data/data-store';
 import { inferUnit } from '@/data/units';
+import { widgetRoles } from '@/widgets/widget-info';
 import type { RoleOption, WidgetBinding } from '@/widgets/widget-type';
 
 export type GraphSection = 'left' | 'right' | 'discrete';
 
-const left: RoleOption = { id: 'left', label: 'Left axis' };
-const right: RoleOption = { id: 'right', label: 'Right axis' };
-const discrete: RoleOption = { id: 'discrete', label: 'Bands' };
+const { left, right, discrete } = widgetRoles.graph;
 
 /** Numbers are plotted on an axis unless moved, booleans and strings can only be bands */
 export function graphRoles(entry: Entry): readonly RoleOption[] {
