@@ -53,6 +53,16 @@ Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and
 - **WHEN** the user presses ⌘K
 - **THEN** Studio starts connecting, the same way as choosing Connect
 
+### Requirement: Search entries shortcut
+
+On a dashboard, pressing `/` SHALL focus the entry browser's search box, opening the entry browser if it's collapsed.
+
+#### Scenario: Search entries
+
+- **GIVEN** a dashboard is open and the entry browser is collapsed
+- **WHEN** the user presses `/`
+- **THEN** the entry browser opens and its search box is focused
+
 ### Requirement: Keyboard shortcuts list
 
 The keyboard shortcuts shortcut SHALL open a dialog listing every keyboard shortcut, grouped by area and formatted for the user's platform. While the media controls setting is on, it SHALL also list the media keys. Pressing the shortcut again MUST close it.

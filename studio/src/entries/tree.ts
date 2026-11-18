@@ -113,6 +113,27 @@ export function sectionEntryTree(
 	};
 }
 
+/** Top-level groups start expanded, ex. `/Robot` that DogLog logs everything under. `toggled` are the groups expanded or collapsed since. */
+export function expandedGroups(items: readonly EntryTreeNode[], toggled: ReadonlySet<string>): string[] {
+	const defaults = topLevelGroups(items);
+	const isDefault = new Set(defaults);
+	return [...defaults.filter((value) => !toggled.has(value)), ...[...toggled].filter((value) => !isDefault.has(value))];
+}
+
+/** The groups whose expanded state differs from their default, the inverse of `expandedGroups()` */
+export function toggledGroups(items: readonly EntryTreeNode[], expanded: readonly string[]): Set<string> {
+	const defaults = new Set(topLevelGroups(items));
+	const now = new Set(expanded);
+	return new Set([
+		...expanded.filter((value) => !defaults.has(value)),
+		...[...defaults].filter((value) => !now.has(value)),
+	]);
+}
+
+function topLevelGroups(items: readonly EntryTreeNode[]): string[] {
+	return items.flatMap((node) => (node.children ? [node.value] : []));
+}
+
 /**
  * The hierarchy and rows to show. Children of expanded groups are shown.
  * With a search query, only entries whose names or struct types fuzzy match it and their parent groups are shown, all expanded.

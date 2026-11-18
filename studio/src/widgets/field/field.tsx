@@ -7,11 +7,14 @@ import { type Entry, useDataVersion } from '@/data/data-store';
 import { cn } from '@/lib/utils';
 import { useCursorTime } from '@/timeline/timeline';
 import {
+	type FieldOrientation,
 	type FieldPoint,
 	type Measurement,
 	type MeasureTool,
 	aspectRatio,
 	measurementLabel,
+	orient,
+	orientationTransform,
 	snapTo45,
 	view,
 } from '@/widgets/field/geometry';
@@ -100,7 +103,8 @@ function ToolButtons({ tool, onToggle }: { tool: MeasureTool | undefined; onTogg
 	);
 }
 
-export function Field({ bindings }: WidgetProps) {
+export function Field({ bindings, options }: WidgetProps) {
+	const orientation: FieldOrientation = options['orientation'] === 'red-left' ? 'red-left' : 'blue-left';
 	const time = useCursorTime();
 	// Values at the cursor change as samples arrive
 	useDataVersion();
@@ -147,13 +151,16 @@ export function Field({ bindings }: WidgetProps) {
 
 	const fieldPointAt = (event: PointerEvent) => {
 		const content = toContent(event.clientX, event.clientY);
-		return { x: content.x, y: -content.y };
+		return orient({ x: content.x, y: -content.y }, orientation);
 	};
 	/** Where a field point is in the field's box, as fractions of its width and height */
-	const toFraction = ({ x, y }: FieldPoint) => ({
-		x: (zoom.scale * x + zoom.x - view.x) / view.width,
-		y: (zoom.scale * -y + zoom.y - view.y) / view.height,
-	});
+	const toFraction = (point: FieldPoint) => {
+		const { x, y } = orient(point, orientation);
+		return {
+			x: (zoom.scale * x + zoom.x - view.x) / view.width,
+			y: (zoom.scale * -y + zoom.y - view.y) / view.height,
+		};
+	};
 	const toPercent = (point: FieldPoint) => {
 		const { x, y } = toFraction(point);
 		return { left: `${x * 100}%`, top: `${y * 100}%` };
@@ -254,10 +261,12 @@ export function Field({ bindings }: WidgetProps) {
 								aria-label="Robot poses on the 2026 field"
 							>
 								<g transform={transform}>
-									<FieldImage />
-									<g transform="scale(1 -1)">
-										{fieldDrawings(bindings, (binding) => valueOf(binding.entry))}
-										{measurement && <MeasurementDrawing measurement={measurement} />}
+									<g transform={orientationTransform(orientation)}>
+										<FieldImage />
+										<g transform="scale(1 -1)">
+											{fieldDrawings(bindings, (binding) => valueOf(binding.entry))}
+											{measurement && <MeasurementDrawing measurement={measurement} />}
+										</g>
 									</g>
 								</g>
 							</svg>
@@ -269,7 +278,7 @@ export function Field({ bindings }: WidgetProps) {
 									{label.text}
 								</div>
 							)}
-							<Minimap zoom={zoom} visible={zoom.scale > 1 && active} left={minimapLeft} />
+							<Minimap zoom={zoom} visible={zoom.scale > 1 && active} left={minimapLeft} orientation={orientation} />
 						</div>
 						<div className="flex h-5 items-center justify-between gap-2 text-muted-foreground text-xs">
 							<CursorPosition pointer={pointer} hovered={hovered} copied={copied} />

@@ -1,41 +1,48 @@
 import type { Draggable, Droppable } from '@dnd-kit/dom';
-import { useDragDropMonitor, useDragOperation, useDroppable } from '@dnd-kit/react';
+import { useDragDropMonitor, useDragOperation } from '@dnd-kit/react';
 import { useHotkey } from '@tanstack/react-hotkeys';
 import { useSelector } from '@tanstack/react-store';
-import { ChevronRightIcon, PanelRightCloseIcon, PanelRightOpenIcon, SearchIcon } from 'lucide-react';
-import { useDeferredValue, useMemo, useState } from 'react';
+import { PanelRightCloseIcon, PanelRightOpenIcon, SearchIcon, XIcon } from 'lucide-react';
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { Panel, Separator, usePanelRef } from 'react-resizable-panels';
-import { EntryRows, EntryRowsTooltip, SectionHeaderLabel } from '@/entries/entry-browser-rows';
+import { EntryRows, EntryRowsTooltip } from '@/entries/entry-browser-rows';
+import { HiddenSection } from '@/entries/hidden-section';
+import { type EditedWidget, hiddenEntriesNote, useEditedWidget } from '@/entries/edited-widget';
 import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
-import { Separator as Divider } from '@/components/ui/separator';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { shortcuts } from '@/commands/commands';
+import type { Dashboard } from '@/dashboards/dashboards';
 import { useEntries } from '@/data/data-store';
 import { useSource } from '@/data/source';
 import type { EntryDragData, EntrySectionDropData } from '@/entries/drag';
 import { entryPlacementsStore, moveToSection } from '@/entries/sections';
-import { buildEntryTree, type EntryTreeNode, entryTreeView, sectionEntryTree } from '@/entries/tree';
-import { cn } from '@/lib/utils';
+import { buildEntryTree, entryTreeView, expandedGroups, sectionEntryTree, toggledGroups } from '@/entries/tree';
+import {
+	entryBrowserOpenStore,
+	focusEntrySearch,
+	searchFocusStore,
+	stopEditing,
+	toggleEntryBrowser,
+} from '@/entries/editing';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { dragRegion } from '@/desktop/title-bar';
+import { acceptsEntry } from '@/widgets/widget-type';
 import * as z from 'zod';
 
-const openStore = createPersistedAtom('entry-browser-open', z.boolean(), true, { perWindow: true });
 const defaultWidthPx = 320;
 const widthPxStore = createPersistedAtom('entry-browser-width', z.number().positive(), defaultWidthPx, {
 	perWindow: true,
 });
 
-function toggleOpen(): void {
-	openStore.set((open) => !open);
-}
-
 /** Collapsible panel listing every entry of the active source as a searchable tree */
-export function EntryBrowser() {
-	const open = useSelector(openStore);
-	useHotkey(shortcuts.toggleEntryBrowser, toggleOpen, { requireReset: true });
+export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
+	const open = useSelector(entryBrowserOpenStore);
+	useHotkey(shortcuts.toggleEntryBrowser, toggleEntryBrowser, { requireReset: true });
+	useHotkey(shortcuts.searchEntries, focusEntrySearch);
+	const edited = useEditedWidget(dashboard);
+	useHotkey('Escape', stopEditing, { enabled: edited !== undefined, ignoreInputs: false, conflictBehavior: 'allow' });
 	const panelRef = usePanelRef();
 
 	if (!open) {
@@ -66,11 +73,29 @@ export function EntryBrowser() {
 			>
 				{/* Not selectable, so double-clicking or dragging rows doesn't select their labels */}
 				<aside aria-label="Entry browser" className="flex h-full flex-col select-none">
-					<div {...dragRegion} className="flex h-9 shrink-0 items-center border-b ps-3 pe-1.5">
-						<h2 className="flex-1 text-xs font-medium text-muted-foreground">Entries</h2>
-						<ToggleButton open />
+					<div {...dragRegion} className="flex h-9 shrink-0 items-center gap-1 border-b ps-3 pe-1.5">
+						{edited ? (
+							<>
+								<h2 className="min-w-0 flex-1 truncate text-xs font-medium">Editing {edited.type.name}</h2>
+								<Tooltip>
+									<TooltipTrigger
+										render={<Button variant="ghost" size="icon-xs" aria-label="Stop editing" onClick={stopEditing} />}
+									>
+										<XIcon />
+									</TooltipTrigger>
+									<TooltipPopup>
+										<TooltipLabel label="Stop editing" shortcut="Escape" />
+									</TooltipPopup>
+								</Tooltip>
+							</>
+						) : (
+							<>
+								<h2 className="flex-1 text-xs font-medium text-muted-foreground">Entries</h2>
+								<ToggleButton open />
+							</>
+						)}
 					</div>
-					<EntryTree />
+					<EntryTree edited={edited} />
 				</aside>
 			</Panel>
 		</>
@@ -82,7 +107,9 @@ function ToggleButton({ open }: { open: boolean }) {
 	return (
 		<Tooltip>
 			<TooltipTrigger
-				render={<Button variant="ghost" size="icon-xs" aria-label={label} aria-expanded={open} onClick={toggleOpen} />}
+				render={
+					<Button variant="ghost" size="icon-xs" aria-label={label} aria-expanded={open} onClick={toggleEntryBrowser} />
+				}
 			>
 				{open ? <PanelRightCloseIcon /> : <PanelRightOpenIcon />}
 			</TooltipTrigger>
@@ -93,13 +120,31 @@ function ToggleButton({ open }: { open: boolean }) {
 	);
 }
 
-function EntryTree() {
+/** Search requests already handled, so a remounted search box doesn't focus itself again */
+let handledSearchFocus = 0;
+
+function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 	const source = useSource();
-	const entries = useEntries();
+	const allEntries = useEntries();
+	const editedType = edited?.type;
+	// While editing, entries the widget can't show are left out
+	const entries = useMemo(
+		() => (editedType ? allEntries.filter((entry) => acceptsEntry(editedType, entry)) : allEntries),
+		[allEntries, editedType],
+	);
 	const [query, setQuery] = useState('');
+	const searchRef = useRef<HTMLInputElement>(null);
+	const searchFocus = useSelector(searchFocusStore);
+	useEffect(() => {
+		if (searchFocus !== handledSearchFocus) {
+			handledSearchFocus = searchFocus;
+			searchRef.current?.focus();
+		}
+	}, [searchFocus]);
 	// Keep typing responsive while searching thousands of entries
 	const deferredQuery = useDeferredValue(query);
-	const [expanded, setExpanded] = useState<string[]>(['pinned']);
+	// Groups expanded or collapsed by the user, top-level groups start expanded
+	const [toggled, setToggled] = useState<ReadonlySet<string>>(new Set());
 	const placements = useSelector(entryPlacementsStore);
 	const drag = useDragOperation<
 		EntryDragData | EntrySectionDropData,
@@ -125,8 +170,8 @@ function EntryTree() {
 	const dragging = draggedFrom !== undefined;
 	const sectioned = useMemo(() => sectionEntryTree(tree, placements, dragging), [tree, placements, dragging]);
 	const view = useMemo(
-		() => entryTreeView(sectioned.items, expanded, deferredQuery),
-		[sectioned, expanded, deferredQuery],
+		() => entryTreeView(sectioned.items, expandedGroups(sectioned.items, toggled), deferredQuery),
+		[sectioned, toggled, deferredQuery],
 	);
 	// Moving a row within its own section does nothing
 	const dropTarget = dropSection === draggedFrom ? undefined : dropSection;
@@ -134,8 +179,10 @@ function EntryTree() {
 	let message: string | undefined;
 	if (!source) {
 		message = 'Open a log or connect to a robot to browse its entries.';
-	} else if (entries.length === 0) {
+	} else if (allEntries.length === 0) {
 		message = 'No entries yet.';
+	} else if (entries.length === 0) {
+		message = `No entries the ${editedType!.name.toLowerCase()} can show.`;
 	} else if (view.rows.length === 0 && view.highlights !== undefined) {
 		message = 'No matching entries.';
 	}
@@ -148,12 +195,20 @@ function EntryTree() {
 						<SearchIcon />
 					</InputGroupAddon>
 					<InputGroupInput
+						ref={searchRef}
 						type="search"
 						aria-label="Search entries"
 						placeholder="Search entries"
 						size="sm"
 						value={query}
 						onChange={(event) => setQuery(event.target.value)}
+						onKeyDown={(event) => {
+							// Binds or unbinds the first match, like picking it
+							const first = view.highlights && view.rows.find((row) => row.item.entry)?.item.entry;
+							if (event.key === 'Enter' && edited && first) {
+								edited.setBound(first.name, !edited.bound.includes(first.name));
+							}
+						}}
 					/>
 				</InputGroup>
 			</div>
@@ -164,10 +219,11 @@ function EntryTree() {
 					label="Entries"
 					className="min-h-0 flex-1"
 					dropSection={dropTarget}
+					edited={edited}
 					// Every group stays expanded while searching
 					onExpandedChange={(next) => {
 						if (view.highlights === undefined) {
-							setExpanded(next);
+							setToggled(toggledGroups(sectioned.items, next));
 						}
 					}}
 				/>
@@ -175,56 +231,18 @@ function EntryTree() {
 				<p className="flex-1 px-3 py-2 text-sm text-muted-foreground">{message}</p>
 			)}
 			{(sectioned.hidden.length > 0 || dragging) && (
-				<HiddenSection nodes={sectioned.hidden} query={deferredQuery} dropTarget={dropTarget === 'hidden'} />
+				<HiddenSection
+					nodes={sectioned.hidden}
+					query={deferredQuery}
+					dropTarget={dropTarget === 'hidden'}
+					edited={edited}
+				/>
+			)}
+			{editedType && entries.length > 0 && entries.length < allEntries.length && (
+				<p className="shrink-0 border-t px-3 py-2 text-xs text-muted-foreground">
+					{hiddenEntriesNote(allEntries, entries, editedType)}
+				</p>
 			)}
 		</>
-	);
-}
-
-/** Hidden entries and groups, collapsed by default and kept at the bottom of the entry browser */
-function HiddenSection({ nodes, query, dropTarget }: { nodes: EntryTreeNode[]; query: string; dropTarget: boolean }) {
-	const [open, setOpen] = useState(false);
-	const [expanded, setExpanded] = useState<string[]>([]);
-	const view = useMemo(() => entryTreeView(nodes, expanded, query, 'hidden'), [nodes, expanded, query]);
-	const { ref } = useDroppable<EntrySectionDropData>({
-		id: 'hidden',
-		accept: (source) => source.data['section'] !== undefined,
-		data: { section: 'hidden' },
-	});
-
-	return (
-		<section
-			ref={ref}
-			aria-label="Hidden entries"
-			className={cn('flex max-h-1/2 min-h-0 shrink-0 flex-col', dropTarget && 'bg-primary/8')}
-		>
-			<Divider />
-			<button
-				type="button"
-				aria-expanded={open}
-				className="flex h-7 shrink-0 items-center gap-1.5 ps-2 pe-3 outline-none hover:bg-accent focus-visible:bg-accent"
-				onClick={() => setOpen(!open)}
-			>
-				<ChevronRightIcon
-					className={cn('size-4 shrink-0 text-muted-foreground transition-transform', open && 'rotate-90')}
-				/>
-				{/* Counts matches while searching */}
-				<SectionHeaderLabel section="hidden" count={view.items.length} />
-			</button>
-			{open && (
-				<EntryRows
-					view={view}
-					label="Hidden entries"
-					className="min-h-0"
-					// The whole section shows where rows will be dropped
-					dropSection={undefined}
-					onExpandedChange={(next) => {
-						if (view.highlights === undefined) {
-							setExpanded(next);
-						}
-					}}
-				/>
-			)}
-		</section>
 	);
 }

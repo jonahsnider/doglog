@@ -8,6 +8,7 @@ How Studio's UI is built. The OpenSpec specs in `openspec/specs` describe what u
 - `src/components/ui` holds those components. Treat them as vendored: compose and wrap them in app code instead of changing them. Change them only to fix something everywhere they're used (ex. pointer cursors on buttons), and keep the change small so it's easy to reapply when updating from upstream.
 - Write a custom component when coss ui has nothing close, or when the component is specific to Studio (ex. panes, widgets, the timeline). Build it from Base UI primitives when it needs accessible behavior like menus, focus management, or keyboard navigation.
 - Context menus go through `AppContextMenu`, which uses native menus on desktop and coss menus on the web.
+- Widget options are declared on the widget type (`WidgetType.options`) and rendered by the widget options popover, so every widget's options look the same. Choices use a small segmented control. Add a new option kind there when a widget needs one, instead of building settings UI in the widget.
 - Icons come from `lucide-react`.
 
 ## Styling

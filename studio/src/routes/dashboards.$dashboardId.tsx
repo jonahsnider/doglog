@@ -76,7 +76,7 @@ function DashboardView() {
 						<DashboardPanes dashboard={dashboard} />
 					</section>
 				</Panel>
-				<EntryBrowser />
+				<EntryBrowser dashboard={dashboard} />
 			</Group>
 			<TimelineBar />
 		</div>

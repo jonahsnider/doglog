@@ -31,7 +31,8 @@ context: |
   - Field images: the season's community top-down CAD render from Chief Delphi (AdvantageScope uses the same ones), the
     variant without background or game pieces, over a fixed neutral gray, compressed as lossless WebP. Cropped with the
     SVG view, not by editing the image.
-  - Avoid per-widget settings where possible; prefer inferring from entry types, metadata, and names.
+  - Infer how widgets show entries from entry types, metadata, and names. Widgets may declare a few options
+    (`WidgetType.options`) to override what's inferred or pick what can't be; keep them rare so users aren't overloaded.
   - Distribution: a PWA website, plus a Tauri desktop app built from the same frontend.
   - Log sync: desktop only. Rust (the `robot-sftp` crate, russh) does SSH/SFTP listing and offset downloads, TypeScript
     decides what to sync and when. Only roboRIOs are supported; SystemCore support is planned for the 2027 release.
@@ -43,6 +44,19 @@ context: |
     (https://coss.com/ui/docs/styling) with no generated scheme.
   - App icon: the DogLog logo (web/public/logo.svg), which is also the Team 581 logo.
   - Context menus: native Tauri popup menus on desktop, coss menus on the web, from one menu definition.
+  - Agent control: one registry of commands defined in TypeScript with Zod, in a schema-only folder with no React or DOM
+    imports (widget metadata like `accepts`, roles, and options lives apart from widget components). A build step exports
+    the schemas with Zod's JSON Schema export, and the Rust binary embeds them, so `doglog --help`, CLI flag parsing, and
+    MCP `tools/list` work without a window. Handlers run in the webview.
+    - Web: WebMCP (`navigator.modelContext`), feature-detected.
+    - Desktop: each app process listens on a per-user local socket (Unix socket with user-only permissions, or a named
+      pipe restricted to the current user on Windows) and speaks MCP JSON-RPC; Rust relays calls to the webview. No
+      network listener. `doglog mcp` is a stdio bridge that discovers every window's socket and launches the app when
+      none is running. CLI subcommands are MCP clients over the same sockets.
+    - Windows report an integer agent API version; the bridge refuses windows whose version differs from its own.
+    - Tools only: no MCP resources, prompts, or change notifications.
+    - `doglog mcp install` uses each agent's own installer (ex. `claude mcp add`, `codex mcp add`, `gemini mcp add`,
+      `code --add-mcp`, Cursor's install deeplink), not add-mcp, so agents own their config formats.
   - Desktop-only shortcuts (⌘T, ⌘W, ⌘,): native app menu items on macOS, where the default menu already uses ⌘W, and
     TanStack Hotkeys on Windows and Linux.
 
@@ -76,6 +90,7 @@ context: |
     robot-relative).
   - Unit inference beyond angles (ex. distance, velocity).
   - A command palette. ⇧⌘P or ⌘P.
+  - Agent screenshots of windows (agents use their harness's tools for now), and agent access to notepad text.
 
   Open questions:
   - Whether the sidebar's dashboard list fits every page long term, or pages need their own secondary content.

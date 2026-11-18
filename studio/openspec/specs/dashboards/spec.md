@@ -425,7 +425,7 @@ Like Rex, users SHALL be able to zoom a pane so it fills the dashboard, hiding t
 - **GIVEN** a dashboard with two panes
 - **WHEN** the user presses Zoom pane in the first pane's header
 - **THEN** the second pane slides away, uncovering the first pane, which already fills the dashboard
-- **AND** its header only shows widget options, a highlighted Restore pane button, and close
+- **AND** its header only shows its widget's buttons, a highlighted Restore pane button, and close
 
 #### Scenario: Restore a zoomed pane
 
@@ -525,7 +525,7 @@ The pane the user last clicked or interacted with SHALL be the focused pane. The
 
 ### Requirement: Pane header controls
 
-A pane's header buttons, like widget options, split, and close, SHALL only be shown while the pane is hovered or focused.
+A pane's header buttons, like Edit entries, split, and close, SHALL only be shown while the pane is hovered or focused.
 
 #### Scenario: Unfocused pane
 
@@ -541,7 +541,7 @@ A pane's header buttons, like widget options, split, and close, SHALL only be sh
 
 ### Requirement: Pane context menu
 
-Right-clicking a pane SHALL open a context menu with Split right, Split down, Zoom pane (Restore pane while zoomed), Change widget, Widget options, and Close.
+Right-clicking a pane SHALL open a context menu with Split right, Split down, Zoom pane (Restore pane while zoomed), Change widget, Edit entries, and Close.
 
 #### Scenario: Split from the context menu
 

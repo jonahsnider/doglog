@@ -59,6 +59,18 @@ export const widgetTypes: readonly WidgetType[] = [
 		inferRole: inferFieldRole,
 		connects: fieldConnects,
 		rendersEmpty: true,
+		options: [
+			{
+				kind: 'choice',
+				id: 'orientation',
+				label: 'Orientation',
+				choices: [
+					{ id: 'blue-left', label: 'Blue left' },
+					{ id: 'red-left', label: 'Red left' },
+				],
+				default: 'blue-left',
+			},
+		],
 		component: Field,
 	},
 	{

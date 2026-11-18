@@ -26,52 +26,24 @@ Each widget type SHALL declare the data types it accepts, which MAY be specific 
 - **THEN** the entry is not bound
 - **AND** the user is shown that the type is not accepted
 
-### Requirement: Entry picker
+### Requirement: Edit entries button
 
-Each widget SHALL have an options button that opens a searchable entry picker, filtered to the widget's accepted types, for binding one or more entries. Its search MUST match entries the same way as the entry browser's search, listing the best matches first and highlighting the matched characters.
+Each widget that accepts entries SHALL have an Edit entries button in its pane header that starts editing its entries in the entry browser, or stops it if it's already being edited. The button MUST show as pressed while its widget is being edited.
 
-#### Scenario: Pick entries by typing
+#### Scenario: Start editing
 
 - **GIVEN** a console widget
-- **WHEN** the user opens its options and types "msg"
-- **THEN** only string entries whose names match "msg" are listed
-- **AND** selecting one binds it to the widget
+- **WHEN** the user presses its Edit entries button
+- **THEN** the entry browser edits the console's entries
 
-#### Scenario: Unbind
+#### Scenario: Notepad
 
-- **WHEN** the user removes a bound entry in the picker
-- **THEN** the widget stops showing that entry
-
-#### Scenario: Unbind an entry bound twice
-
-- **GIVEN** a field widget showing `/Drive/Pose` as a robot and as a ghost
-- **WHEN** the user removes `/Drive/Pose` in the picker
-- **THEN** the widget stops showing both
-
-### Requirement: Entry picker list
-
-The entry picker SHALL list few enough entries to fit without scrolling, at most 10 before searching and 20 while searching, and MUST say how many more entries are hidden. Before searching, bound entries MUST be listed first, in the order the widget shows them, and entries MUST NOT move while they're toggled. Selecting an entry MUST keep the search, and names too long to fit MUST scroll back and forth while hovered.
-
-#### Scenario: Bound entries first
-
-- **GIVEN** a console widget bound to `/messages`
-- **WHEN** the user opens its options
-- **THEN** `/messages` is listed first and checked
-
-#### Scenario: Pick several entries from one search
-
-- **WHEN** the user searches "power" and selects a result
-- **THEN** the search stays "power" so another result can be selected
-
-#### Scenario: Hidden entries
-
-- **GIVEN** a source with 85 entries a widget accepts
-- **WHEN** the user opens the widget's options
-- **THEN** 10 entries are listed, followed by "75 more"
+- **GIVEN** a notepad
+- **THEN** its pane header has no Edit entries button
 
 ### Requirement: Edit entries from the context menu
 
-A widget's context menu SHALL offer to add entries, which opens the entry picker, and to remove a bound entry. Right-clicking the part of a widget that shows an entry, such as a values table row, MUST offer to remove that entry directly; elsewhere, bound entries MUST be listed as checkboxes in an "Entries" submenu, with their role when it's shown in the legend. Middle-clicking the part of a widget that shows an entry SHALL remove it, and only that binding of an entry bound more than once.
+A widget's context menu SHALL offer Edit entries and to remove a bound entry. Right-clicking the part of a widget that shows an entry, such as a values table row, MUST offer to remove that entry directly; elsewhere, bound entries MUST be listed as checkboxes in an "Entries" submenu, with their role when it's shown in the legend. Middle-clicking the part of a widget that shows an entry SHALL remove it, and only that binding of an entry bound more than once.
 
 #### Scenario: Remove a values table row
 
@@ -192,6 +164,33 @@ Clicking a binding's swatch in a widget's legend SHALL hide it, and clicking it 
 - **AND** its legend item has a hollow swatch
 - **AND** `/Drive/Pose` keeps its color
 
+### Requirement: Widget options
+
+A widget MAY declare a few options to override what it infers from its entries or pick what can't be inferred. Options MUST be listed in a Widget options popover, whose pane header button only widgets with options have, and MUST be saved with the dashboard. A widget MAY also show controls for its options inside the widget, which change the same saved value. Changing the widget type MUST reset its options.
+
+#### Scenario: Pick an option
+
+- **GIVEN** a field widget
+- **WHEN** the user opens its options and picks "Red left" for Orientation
+- **THEN** the field is drawn with the red alliance on the left
+- **AND** the choice is kept when the dashboard is reopened
+
+#### Scenario: Invalid saved option
+
+- **GIVEN** a dashboard saved with an option value the widget doesn't have
+- **THEN** the widget uses the option's inferred choice or its default
+
+### Requirement: Auto options
+
+An option the widget can infer SHALL offer an "Auto" choice, labeled with the inferred choice, which is used until another choice is picked.
+
+#### Scenario: Auto
+
+- **GIVEN** a widget with an option it infers from its entries
+- **WHEN** the user opens its options
+- **THEN** the option shows "Auto" with the choice it inferred, ex. "Auto (PS4)"
+- **AND** picking "Auto" after picking another choice goes back to the inferred one
+
 ### Requirement: Pick entry colors
 
 Bindings SHALL be colored automatically by default. Right-clicking a binding's swatch in a widget's legend MUST open a picker with "Auto" and the chart colors, and MUST show the binding's current choice. Picking a color MUST draw the binding in it and save it with the dashboard, and picking "Auto" MUST go back to the automatic color. Picking a binding's color MUST NOT change the other bindings' colors.
@@ -226,7 +225,7 @@ When a bound entry doesn't exist in the active source, or no source is active, t
 
 ### Requirement: Shortened entry names
 
-Widgets and the entry picker SHALL shorten the `/Robot`, `/RealOutputs`, `/AdvantageKit`, `/AdvantageKit/RealOutputs`, and `/AdvantageKit/DriverStation` prefixes of entry names to their slashes and capital letters, shown dimmed, and MUST show the full prefix when the shortened prefix has been hovered for a short delay. `/ReplayOutputs` MUST NOT be shortened, so replayed outputs stand out from real ones.
+Widgets SHALL shorten the `/Robot`, `/RealOutputs`, `/AdvantageKit`, `/AdvantageKit/RealOutputs`, and `/AdvantageKit/DriverStation` prefixes of entry names to their slashes and capital letters, shown dimmed, and MUST show the full prefix when the shortened prefix has been hovered for a short delay. `/ReplayOutputs` MUST NOT be shortened, so replayed outputs stand out from real ones.
 
 #### Scenario: Shortened name
 
@@ -265,7 +264,7 @@ When a legend has no room for an entry's full name, it SHALL also shorten the fi
 
 ### Requirement: Dimmed slashes in entry names
 
-Widgets, the entry picker, and the entry browser SHALL show the slashes in full entry names dimmed, so the name's segments stand out.
+Widgets and the entry browser SHALL show the slashes in full entry names dimmed, so the name's segments stand out.
 
 #### Scenario: Dimmed slashes
 

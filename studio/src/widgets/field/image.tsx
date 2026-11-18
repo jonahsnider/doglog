@@ -1,5 +1,14 @@
 import { cn } from '@/lib/utils';
-import { aspectRatio, fieldBackground, image, pixelsPerMeterX, pixelsPerMeterY, view } from '@/widgets/field/geometry';
+import {
+	aspectRatio,
+	fieldBackground,
+	type FieldOrientation,
+	image,
+	orientationTransform,
+	pixelsPerMeterX,
+	pixelsPerMeterY,
+	view,
+} from '@/widgets/field/geometry';
 import type { Zoom } from '@/widgets/field/zoom';
 // Rendered from the official field CAD by Cameron (Juniormunk) on Chief Delphi, without the background or fuel:
 // https://www.chiefdelphi.com/t/2026-rebuilt-high-resolution-field-image/510611
@@ -29,7 +38,17 @@ function outlineRadius(x: number, y: number): string {
  * The whole field with the zoomed-in part outlined, shown while zooming or panning. It's in the top-right corner, or the
  * top-left one while the pointer is on the right, so it doesn't cover what the user is zooming into.
  */
-export function Minimap({ zoom, visible, left }: { zoom: Zoom; visible: boolean; left: boolean }) {
+export function Minimap({
+	zoom,
+	visible,
+	left,
+	orientation,
+}: {
+	zoom: Zoom;
+	visible: boolean;
+	left: boolean;
+	orientation: FieldOrientation;
+}) {
 	// The outlined part's insets from each edge, as fractions of the minimap
 	const insetLeft = ((view.x - zoom.x) / zoom.scale - view.x) / view.width;
 	const insetTop = ((view.y - zoom.y) / zoom.scale - view.y) / view.height;
@@ -47,7 +66,9 @@ export function Minimap({ zoom, visible, left }: { zoom: Zoom; visible: boolean;
 			aria-hidden
 		>
 			<svg className="block size-full" viewBox={`${view.x} ${view.y} ${view.width} ${view.height}`}>
-				<FieldImage />
+				<g transform={orientationTransform(orientation)}>
+					<FieldImage />
+				</g>
 			</svg>
 			<div
 				className="absolute border-[1.5px] border-white bg-white/20"

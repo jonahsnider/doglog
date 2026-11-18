@@ -46,7 +46,7 @@ The field widget SHALL offer these roles, the inferred one first: single poses a
 
 ### Requirement: Field view
 
-The field widget SHALL draw the 2026 FRC field from a top-down render, fit to the widget, with the blue alliance on the left. The view MUST show the field boundary with the same small margin on every side, cropping the driver station areas. The field SHALL have the same neutral gray background in every theme. Poses MUST use WPILib's 2026 field coordinates: the origin is the bottom-left corner of the field boundary, +X points toward the red alliance, and +Y points up.
+The field widget SHALL draw the 2026 FRC field from a top-down render, fit to the widget, with the blue alliance on the left by default. The view MUST show the field boundary with the same small margin on every side, cropping the driver station areas. The field SHALL have the same neutral gray background in every theme. Poses MUST use WPILib's 2026 field coordinates: the origin is the bottom-left corner of the field boundary, +X points toward the red alliance, and +Y points up.
 
 #### Scenario: Origin
 
@@ -57,6 +57,18 @@ The field widget SHALL draw the 2026 FRC field from a top-down render, fit to th
 
 - **GIVEN** a field widget with no bound entries, or no source
 - **THEN** the field is drawn instead of an empty state
+
+### Requirement: Orientation
+
+The field widget SHALL have an Orientation option with "Blue left", the default, and "Red left", which MUST rotate the field and everything drawn on it a half turn.
+
+#### Scenario: Red left
+
+- **GIVEN** the Orientation option is "Red left"
+- **AND** a `Pose2d` entry at (0, 0) with a 0° rotation
+- **THEN** the red alliance is on the left
+- **AND** the robot is centered on the top-right corner of the field boundary, facing left
+- **AND** the cursor position readout still shows field coordinates
 
 ### Requirement: Zoom and pan
 

@@ -8,7 +8,7 @@ Define the notepad widget, a Markdown notes field for writing things down withou
 
 ### Requirement: No entries
 
-The notepad SHALL NOT accept any entries, and MUST NOT offer the entry picker or show the "no entries" or "no data" states.
+The notepad SHALL NOT accept any entries, and MUST NOT offer Edit entries or show the "no entries" or "no data" states.
 
 #### Scenario: Drop an entry
 

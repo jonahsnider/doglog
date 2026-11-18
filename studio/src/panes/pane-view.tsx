@@ -1,9 +1,10 @@
-import { MoveIcon, XIcon } from 'lucide-react';
+import { XIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { AddWidgetPrompt } from '@/panes/add-widget-prompt';
 import { AppContextMenu, type MenuCheckbox, type MenuEntry } from '@/components/app-context-menu';
-import { WidgetOptions } from '@/entries/entry-picker';
+import { WidgetButtons } from '@/panes/widget-buttons';
 import { PaneButton } from '@/panes/pane-button';
+import { PaneTitle } from '@/panes/pane-title';
 import { PaneLayoutButtons } from '@/panes/pane-layout-buttons';
 import { PaneDropIndicator } from '@/panes/pane-drop-indicator';
 import { Toolbar } from '@/components/ui/toolbar';
@@ -11,6 +12,7 @@ import { WidgetView } from '@/panes/widget-view';
 import { shortcuts } from '@/commands/commands';
 import { closeDashboardPane, splitDashboardPane, toggleZoom, updateLayout } from '@/dashboards/panes';
 import { focusPane } from '@/dashboards/pane-state';
+import { focusEditingPane, startEditing, useEditingPane } from '@/entries/editing';
 import { getEntry, useEntries } from '@/data/data-store';
 import {
 	bindingLabel,
@@ -21,7 +23,6 @@ import {
 	removeBinding,
 	resolveBindings,
 	restoreBinding,
-	setBoundEntries,
 	widgetBindings,
 } from '@/widgets/bindings';
 import { cn } from '@/lib/utils';
@@ -30,6 +31,7 @@ import { canSplitPane, type Pane, type PaneNode, setPaneWidget, type SplitDirect
 import { useTrafficLightsOverlap } from '@/desktop/title-bar';
 import { getWidgetType, widgetTypes } from '@/widgets/registry';
 import { PanePresence } from '@/sharing/presence-avatars';
+import { optionValues } from '@/widgets/options';
 import { bindsEntries, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
 
 export type PaneNodeProps = {
@@ -59,7 +61,6 @@ export function PaneView({
 	closable,
 }: PaneNodeProps & { pane: Pane; closable: boolean }) {
 	const trafficLightsOverlap = useTrafficLightsOverlap();
-	const [optionsOpen, setOptionsOpen] = useState(false);
 	const update = (operation: (layout: PaneNode) => PaneNode) => updateLayout(dashboardId, operation);
 	const { widget } = pane;
 	const type = widget && getWidgetType(widget.type);
@@ -70,13 +71,12 @@ export function PaneView({
 	}, [entries, type, widget]);
 	/** The bindings when the context menu opened, so the ones removed from it stay listed and can be restored */
 	const [menuBindings, setMenuBindings] = useState<Binding[]>();
-	const entryNames = useMemo(() => [...new Set(bindings.map((binding) => binding.name))], [bindings]);
+	const options = useMemo(() => (type ? optionValues(type, widget, bindings) : {}), [type, widget, bindings]);
 	const { dragRef, isDragging, dropRef, isDropTarget } = usePaneDrag(dashboardId, pane);
 
 	const setWidget = (newType: WidgetType) => update((layout) => setPaneWidget(layout, pane.id, createWidget(newType)));
 	const changeWidget = (newType: WidgetType) =>
 		update((layout) => changeWidgetType(layout, pane.id, newType, getEntry));
-	const setEntryNames = (names: string[]) => update((layout) => setBoundEntries(layout, pane.id, names));
 	const split = (direction: SplitDirection) => splitDashboardPane(dashboardId, pane.id, direction);
 	const canSplitRight = canSplitPane(dashboardLayout, pane.id, 'row');
 	const canSplitDown = canSplitPane(dashboardLayout, pane.id, 'column');
@@ -86,6 +86,12 @@ export function PaneView({
 	// The header makes room for the traffic lights and continues the title bar under them, see `TitleBar`
 	const underTrafficLights = trafficLightsOverlap && (topLeft || zoomed);
 	const zoom = () => toggleZoom(dashboardId, pane.id);
+
+	const editing = useEditingPane(dashboardId, pane.id);
+	const focus = (target: EventTarget) => {
+		focusPane(dashboardId, pane.id);
+		focusEditingPane(dashboardId, pane.id, type !== undefined && bindsEntries(type), target);
+	};
 
 	const remove = (bindingId: string) => update((layout) => removeBinding(layout, pane.id, bindingId));
 
@@ -148,7 +154,11 @@ export function PaneView({
 					onSelect: () => changeWidget(other),
 				})),
 			},
-			{ label: 'Add entries', disabled: !type || !bindsEntries(type), onSelect: () => setOptionsOpen(true) },
+			{
+				label: 'Edit entries',
+				disabled: !type || !bindsEntries(type),
+				onSelect: () => startEditing(dashboardId, pane.id),
+			},
 			targetBinding === undefined
 				? {
 						label: 'Entries',
@@ -179,8 +189,8 @@ export function PaneView({
 					data-pane-id={pane.id}
 					data-zoom-filling={pane.id === zoomFillingPaneId || undefined}
 					// Capturing, so clicks that widgets handle themselves still focus the pane, right-clicks included
-					onPointerDownCapture={() => focusPane(dashboardId, pane.id)}
-					onFocusCapture={() => focusPane(dashboardId, pane.id)}
+					onPointerDownCapture={(event) => focus(event.target)}
+					onFocusCapture={(event) => focus(event.target)}
 					// Middle-clicking a binding removes it
 					onAuxClick={(event) => {
 						const bindingId = event.button === 1 ? bindingIdAt(event.target) : undefined;
@@ -194,8 +204,10 @@ export function PaneView({
 			<div
 				data-joins-title-bar={underTrafficLights}
 				className={cn(
-					'flex h-9 shrink-0 items-center gap-0.5 border-b px-2',
+					'flex h-9 shrink-0 items-center gap-0.5 border-b px-2 transition-colors',
 					underTrafficLights && 'ps-[calc(var(--title-bar-overlap)+--spacing(1.5))]',
+					// Marks the widget whose entries the entry browser is editing
+					editing && 'bg-primary/12',
 				)}
 				// Middle-clicking the header closes the pane, like a browser tab
 				onAuxClick={(event) => {
@@ -216,13 +228,14 @@ export function PaneView({
 						!focused && 'opacity-0 group-hover/pane:opacity-100',
 					)}
 				>
-					{type && bindsEntries(type) && (
-						<WidgetOptions
+					{type && (
+						<WidgetButtons
+							dashboardId={dashboardId}
+							paneId={pane.id}
 							type={type}
-							entryNames={entryNames}
-							onEntryNamesChange={setEntryNames}
-							open={optionsOpen}
-							onOpenChange={setOptionsOpen}
+							widget={widget}
+							bindings={bindings}
+							editing={editing}
 						/>
 					)}
 					<PaneLayoutButtons
@@ -244,40 +257,12 @@ export function PaneView({
 				{widget === undefined ? (
 					<AddWidgetPrompt onAdd={setWidget} focused={focused} />
 				) : type ? (
-					<WidgetView dashboardId={dashboardId} paneId={pane.id} type={type} bindings={bindings} />
+					<WidgetView dashboardId={dashboardId} paneId={pane.id} type={type} bindings={bindings} options={options} />
 				) : (
 					<p className="p-3 text-sm text-muted-foreground">Unknown widget type {widget.type}.</p>
 				)}
 			</div>
 			{isDropTarget && <PaneDropIndicator layout={dashboardLayout} paneId={pane.id} />}
 		</AppContextMenu>
-	);
-}
-
-/** Like Rex, panes are dragged by their title, which shows a move icon and a background while hovered or dragged */
-function PaneTitle({
-	dragRef,
-	isDragging,
-	icon: Icon,
-	name,
-}: {
-	dragRef: (element: Element | null) => void;
-	isDragging: boolean;
-	icon: WidgetType['icon'] | undefined;
-	name: string | undefined;
-}) {
-	return (
-		<span
-			ref={dragRef}
-			data-dragging={isDragging || undefined}
-			className={cn(
-				'group/title -ms-1 flex min-w-0 items-center gap-1.5 rounded-md px-1 py-0.5 text-xs font-medium text-muted-foreground outline-none select-none transition-colors duration-100 focus-visible:ring-2 focus-visible:ring-ring',
-				'hover:bg-accent hover:text-accent-foreground data-dragging:bg-accent data-dragging:text-accent-foreground',
-			)}
-		>
-			{Icon && <Icon className="size-3.5 shrink-0 group-hover/title:hidden group-data-dragging/title:hidden" />}
-			<MoveIcon className="hidden size-3.5 shrink-0 group-hover/title:block group-data-dragging/title:block" />
-			<span className="truncate">{name}</span>
-		</span>
 	);
 }

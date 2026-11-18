@@ -1,8 +1,8 @@
 import { useDraggable, useDroppable } from '@dnd-kit/react';
 import { useParams } from '@tanstack/react-router';
 import { defaultRangeExtractor, type Range, useVirtualizer } from '@tanstack/react-virtual';
-import { Tree, TreeItem, TreeItemIndicator, TreeItemLabel } from '@ui-sdk/react/tree';
-import { BanIcon, ChevronRightIcon, EyeOffIcon, PinIcon } from 'lucide-react';
+import { Tree, TreeItem, TreeItemCheckbox, TreeItemIndicator, TreeItemLabel } from '@ui-sdk/react/tree';
+import { CheckIcon, ChevronRightIcon, EyeOffIcon, PinIcon } from 'lucide-react';
 import { Fragment, memo, useCallback, useRef, useState } from 'react';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { EntryName } from '@/entries/entry-name';
@@ -10,14 +10,16 @@ import { HighlightedText } from '@/components/highlighted-text';
 import { Separator } from '@/components/ui/separator';
 import { TooltipCreateHandle, TooltipTrigger } from '@/components/ui/tooltip';
 import { MarkTooltip, TypeMark } from '@/entries/value-marks';
+import { EntryRowValue } from '@/entries/entry-value';
+import type { Entry } from '@/data/data-store';
+import { formatValueForCopy } from '@/data/format-value';
+import { getCursorTime } from '@/timeline/timeline';
 import { addDashboardWidget } from '@/dashboards/panes';
-import { type Entry, useDataVersion } from '@/data/data-store';
-import { formatValue, formatValueForCopy } from '@/data/format-value';
 import { type EntryDragData, entryDragType, entryRowDragType, type EntrySectionDropData } from '@/entries/drag';
-import { type EntrySection, entryPlacementsStore, moveToSection } from '@/entries/sections';
+import { type EntrySection, sectionMenuItems } from '@/entries/sections';
+import { changedCheckbox, type EditedWidget } from '@/entries/edited-widget';
 import type { EntryTreeRow, EntryTreeView } from '@/entries/tree';
 import { cn } from '@/lib/utils';
-import { getCursorTime, useCursorTime } from '@/timeline/timeline';
 import { defaultWidget } from '@/widgets/registry';
 
 /** Rows have a fixed height so only the rows in view need to be rendered */
@@ -50,6 +52,7 @@ export function EntryRows({
 	label,
 	className,
 	dropSection,
+	edited,
 	onExpandedChange,
 }: {
 	view: EntryTreeView;
@@ -58,9 +61,12 @@ export function EntryRows({
 	className: string;
 	/** The section a row dragged from the entry browser would be moved to */
 	dropSection: EntrySection | undefined;
+	/** The widget whose entries are being edited, its entries get checkboxes that bind them */
+	edited: EditedWidget | undefined;
 	onExpandedChange: (expanded: string[]) => void;
 }) {
 	const { rows, highlights } = view;
+	const entryNames = new Set(rows.flatMap((row) => (row.item.entry ? [row.item.value] : [])));
 	const container = useRef<HTMLDivElement>(null);
 	// Index of the row keyboard focus moved to, see `rangeExtractor`
 	const [highlighted, setHighlighted] = useState(0);
@@ -95,6 +101,21 @@ export function EntryRows({
 				items={view.items}
 				expanded={view.expanded}
 				onExpandedChange={onExpandedChange}
+				checkable={edited !== undefined}
+				checkStrategy="independent"
+				checked={edited ? [...edited.bound] : []}
+				onCheckedChange={(checked) => {
+					const change = changedCheckbox(edited!.bound, checked, entryNames);
+					if (change) {
+						edited!.setBound(change.name, change.checked);
+					}
+				}}
+				onAction={(value) => {
+					// Clicking or pressing Enter on an entry toggles it too
+					if (edited && entryNames.has(value)) {
+						edited.setBound(value, !edited.bound.includes(value));
+					}
+				}}
 				onHighlight={(_value, { index }) => {
 					if (index >= 0) {
 						setHighlighted(index);
@@ -117,6 +138,7 @@ export function EntryRows({
 								top={item.start}
 								highlights={highlights?.get(row.item.value)}
 								dropTarget={row.section === dropSection}
+								editing={edited !== undefined}
 							/>
 						</Fragment>
 					);
@@ -126,19 +148,20 @@ export function EntryRows({
 	);
 }
 
-const unsupportedLabel = "Unsupported type, can't be shown in widgets";
-
 // Memoized so rows don't re-render when the cursor moves, only their values do
 const EntryRowView = memo(function EntryRowView({
 	row,
 	top,
 	highlights,
 	dropTarget,
+	editing,
 }: {
 	row: EntryTreeRow;
 	top: number;
 	highlights: readonly number[] | undefined;
 	dropTarget: boolean;
+	/** Entries have checkboxes that bind them to the edited widget, instead of being added to the dashboard by double-clicking */
+	editing: boolean;
 }) {
 	const { dashboardId } = useParams({ from: '/dashboards/$dashboardId' });
 	const { item: node, level, section } = row;
@@ -203,18 +226,7 @@ const EntryRowView = memo(function EntryRowView({
 			)}
 		</TooltipTrigger>
 	);
-	const typeMark = entry && <TypeMark type={entry.type} tooltip={markTooltip} />;
-	const menuItems = (): MenuEntry[] => [
-		...(entry
-			? ([
-					{ label: 'Add to dashboard', disabled: !add, onSelect: () => add?.() },
-					{ label: 'Copy name', onSelect: () => void navigator.clipboard.writeText(entry.name) },
-					{ label: 'Copy value', disabled: unsupported, onSelect: () => copyValue(entry) },
-					'separator',
-				] satisfies MenuEntry[])
-			: []),
-		...sectionMenuItems(node.value, section),
-	];
+	const menuItems = (): MenuEntry[] => [...entryMenuItems(entry, add), ...sectionMenuItems(node.value, section)];
 
 	return (
 		<AppContextMenu
@@ -225,50 +237,19 @@ const EntryRowView = memo(function EntryRowView({
 					ref={ref}
 					className={cn(className, 'cursor-grab active:cursor-grabbing')}
 					style={style}
-					onDoubleClick={add}
+					onDoubleClick={editing ? undefined : add}
 				/>
 			}
 		>
 			<TreeItemLabel className="flex h-full min-w-0 flex-1 items-center gap-1.5">
 				{indicator}
-				{typeMark}
+				{entry && <EntryMarks type={entry.type} editing={editing} />}
 				{label}
 			</TreeItemLabel>
-			{entry &&
-				(unsupported ? (
-					<TooltipTrigger
-						handle={markTooltip}
-						payload={unsupportedLabel}
-						render={
-							<BanIcon role="img" className="size-3.5 shrink-0 text-muted-foreground" aria-label={unsupportedLabel} />
-						}
-					/>
-				) : (
-					<EntryValue entry={entry} />
-				))}
+			{entry && <EntryRowValue entry={entry} tooltip={markTooltip} />}
 		</AppContextMenu>
 	);
 });
-
-/**
- * Pin and hide actions for a row in `section`. Entries and groups in a pinned or hidden group are moved with it,
- * so they can only be moved to the other section.
- */
-function sectionMenuItems(path: string, section: EntrySection): MenuEntry[] {
-	const placement = entryPlacementsStore.get()[path];
-	const items: MenuEntry[] = [];
-	if (placement === 'pinned') {
-		items.push({ label: 'Unpin', onSelect: () => moveToSection(path, 'main') });
-	} else if (section !== 'pinned') {
-		items.push({ label: 'Pin', onSelect: () => moveToSection(path, 'pinned') });
-	}
-	if (placement === 'hidden') {
-		items.push({ label: 'Unhide', onSelect: () => moveToSection(path, 'main') });
-	} else if (section !== 'hidden') {
-		items.push({ label: 'Hide', onSelect: () => moveToSection(path, 'hidden') });
-	}
-	return items;
-}
 
 /** Copies the value at the cursor, read when chosen since rows don't re-render as the cursor moves */
 function copyValue(entry: Entry): void {
@@ -279,15 +260,32 @@ function copyValue(entry: Entry): void {
 	}
 }
 
-function EntryValue({ entry }: { entry: Entry }) {
-	const time = useCursorTime();
-	// Values at the cursor can change as samples arrive, ex. while a log loads
-	useDataVersion();
-	const value = time === undefined ? undefined : entry.samples.valueAt(time);
+/** Actions for an entry's row, none for groups */
+function entryMenuItems(entry: Entry | undefined, add: (() => void) | undefined): MenuEntry[] {
+	return entry
+		? [
+				{ label: 'Add to dashboard', disabled: !add, onSelect: () => add?.() },
+				{ label: 'Copy name', onSelect: () => void navigator.clipboard.writeText(entry.name) },
+				{ label: 'Copy value', disabled: entry.kind === 'unsupported', onSelect: () => copyValue(entry) },
+				'separator',
+			]
+		: [];
+}
 
+/** An entry's type, after a checkbox that's checked while the edited widget shows it, see `EditedWidget` */
+function EntryMarks({ type, editing }: { type: string; editing: boolean }) {
 	return (
-		<span className="min-w-0 max-w-28 shrink truncate text-right font-mono text-xs tabular-nums">
-			{formatValue(value)}
-		</span>
+		<>
+			{editing && <BindCheckbox />}
+			<TypeMark type={type} tooltip={markTooltip} />
+		</>
+	);
+}
+
+function BindCheckbox() {
+	return (
+		<TreeItemCheckbox className="group/checkbox flex size-4 shrink-0 items-center justify-center rounded-[.25rem] border border-input bg-background text-primary-foreground data-checked:border-primary data-checked:bg-primary dark:not-data-checked:bg-input/32">
+			<CheckIcon className="size-3 group-not-data-checked/checkbox:hidden" strokeWidth={3} />
+		</TreeItemCheckbox>
 	);
 }

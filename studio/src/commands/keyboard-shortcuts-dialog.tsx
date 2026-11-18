@@ -54,6 +54,7 @@ const sections: {
 		shortcuts: [
 			{ label: 'Toggle sidebar', keys: [shortcuts.toggleSidebar] },
 			{ label: 'Toggle entry browser', keys: [shortcuts.toggleEntryBrowser] },
+			{ label: 'Search entries', keys: [shortcuts.searchEntries] },
 			{ label: 'Split right', keys: [shortcuts.splitRight] },
 			{ label: 'Split down', keys: [shortcuts.splitDown] },
 			{ label: 'Zoom or restore pane', keys: [shortcuts.zoom] },

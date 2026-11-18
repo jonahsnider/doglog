@@ -1,7 +1,7 @@
 import { expect, test } from 'vite-plus/test';
 import type { Entry } from '../data/data-store.ts';
 import { Samples } from '../data/samples.ts';
-import { buildEntryTree, entryTreeView, sectionEntryTree } from './tree.ts';
+import { buildEntryTree, entryTreeView, expandedGroups, sectionEntryTree, toggledGroups } from './tree.ts';
 
 function entries(...names: string[]): Entry[] {
 	return names.map((name) => ({ name, type: 'double', kind: 'number', samples: new Samples(), metadata: {} }));
@@ -18,6 +18,17 @@ function paths(expanded: string[], query = ''): string[] {
 test('entries are grouped by path segment and collapsed groups hide their children', () => {
 	expect(paths([])).toEqual(['/Arm', '/Drive', '/Time']);
 	expect(paths(['/Arm'])).toEqual(['/Arm', '/Arm/Angle', '/Arm/Velocity', '/Drive', '/Time']);
+});
+
+test('top-level groups start expanded until the user collapses them', () => {
+	expect(expandedGroups(tree, new Set())).toEqual(['/Arm', '/Drive']);
+
+	const collapsed = toggledGroups(tree, ['/Drive']);
+	expect(expandedGroups(tree, collapsed)).toEqual(['/Drive']);
+
+	// A group that appears later, ex. from a live source, starts expanded too
+	const later = buildEntryTree(entries('/Arm/Angle', '/Drive/Module2', '/Vision/Pose'));
+	expect(expandedGroups(later, collapsed)).toEqual(['/Drive', '/Vision']);
 });
 
 test('a name can be both an entry and a group', () => {

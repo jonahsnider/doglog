@@ -8,12 +8,18 @@ Define the entry browser, a collapsible panel listing every entry in the active 
 
 ### Requirement: Entry tree
 
-The entry browser SHALL list every entry in the active source as a tree grouped by path segments, showing each entry's type indicator and value at the cursor.
+The entry browser SHALL list every entry in the active source as a tree grouped by path segments, showing each entry's type indicator and value at the cursor. Top-level groups MUST start expanded.
 
 #### Scenario: Nested entries
 
 - **GIVEN** the source has `/Arm/Angle` and `/Arm/Velocity`
 - **THEN** both appear under an expandable `Arm` group
+
+#### Scenario: Top-level groups start expanded
+
+- **GIVEN** a DogLog log, where every entry is under `/Robot`
+- **WHEN** the user opens it
+- **THEN** the `Robot` group is expanded, showing the groups and entries in it
 
 #### Scenario: Live announcements
 
@@ -167,6 +173,58 @@ Double-clicking a bindable entry SHALL add it to the open dashboard using the en
 
 - **WHEN** the user double-clicks an entry marked as unsupported
 - **THEN** nothing is added
+
+### Requirement: Edit a widget's entries
+
+The entry browser SHALL be able to edit one widget's entries, started from the widget's Edit entries button or context menu. While editing, its header MUST name the widget with a button that stops editing, the widget's pane MUST be marked, and its search box MUST be focused. Entries the widget doesn't accept, and groups left empty, MUST be hidden, with a note saying how many are hidden. A collapsed entry browser MUST open while editing and collapse again after.
+
+#### Scenario: Only accepted entries
+
+- **GIVEN** a source with `/Drive/Pose` of type `struct:Pose2d` and `/Arm/Angle` of type `double`
+- **WHEN** the user starts editing a field widget's entries
+- **THEN** the entry browser shows `/Drive/Pose`
+- **AND** `/Arm` and `/Arm/Angle` are hidden
+
+#### Scenario: Collapsed entry browser
+
+- **GIVEN** the entry browser is collapsed
+- **WHEN** the user starts editing a widget's entries, then stops
+- **THEN** the entry browser opens, then collapses again
+
+### Requirement: Toggle entries while editing
+
+While editing a widget's entries, each entry SHALL show a checkbox that's checked when the widget shows it. Clicking an entry, or pressing Space or Enter on it, MUST bind or unbind it, and unbinding MUST remove every binding of an entry bound more than once. Pressing Enter in the search box MUST toggle the first matching entry, keeping the search. Double-clicking MUST NOT add the entry to the dashboard, and entries MUST still be draggable.
+
+#### Scenario: Bind by clicking
+
+- **GIVEN** the entry browser is editing a values table's entries
+- **WHEN** the user clicks `/Arm/Angle`
+- **THEN** the values table shows `/Arm/Angle` and its checkbox is checked
+- **WHEN** the user clicks `/Arm/Angle` again
+- **THEN** the values table stops showing it
+
+#### Scenario: Bind from search
+
+- **GIVEN** the entry browser is editing a console's entries
+- **WHEN** the user types "msg" and presses Enter
+- **THEN** the console shows the first entry matching "msg"
+- **AND** the search stays "msg"
+
+### Requirement: Stop editing
+
+Editing a widget's entries SHALL stop when the user presses Esc, presses the header's stop button or the widget's Edit entries button, closes the widget's pane, changes it to a widget that doesn't accept entries, or opens another dashboard. Focusing another pane MUST switch to editing its widget's entries, keeping the search, or stop editing if its widget doesn't accept entries.
+
+#### Scenario: Switch widgets
+
+- **GIVEN** the entry browser is editing a values table's entries with the search "arm"
+- **WHEN** the user clicks a field widget in another pane
+- **THEN** the entry browser edits the field's entries, still searching "arm"
+
+#### Scenario: Focus a notepad
+
+- **GIVEN** the entry browser is editing a widget's entries
+- **WHEN** the user clicks a notepad
+- **THEN** editing stops
 
 ### Requirement: Pinned and hidden entries
 

@@ -1,7 +1,7 @@
 import type { Draggable, Droppable } from '@dnd-kit/dom';
 import { useDragOperation, useDroppable } from '@dnd-kit/react';
 import { DatabaseIcon, ListPlusIcon } from 'lucide-react';
-import { type CSSProperties, type ReactNode, useMemo } from 'react';
+import { type CSSProperties, type ReactNode, useCallback, useMemo } from 'react';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import {
 	connectBindings,
@@ -23,7 +23,8 @@ import {
 	WidgetBindingsContext,
 } from '@/entries/drag';
 import { cn } from '@/lib/utils';
-import { acceptsEntry, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
+import { setWidgetOption } from '@/widgets/options';
+import { acceptsEntry, type OptionValues, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
 
 /** Renders a widget with its bindings, handles the shared empty and "no data" states, and shows where dragged entries will be dropped */
 export function WidgetView({
@@ -31,11 +32,13 @@ export function WidgetView({
 	paneId,
 	type,
 	bindings,
+	options,
 }: {
 	dashboardId: string;
 	paneId: string;
 	type: WidgetType;
 	bindings: readonly WidgetBinding[];
+	options: OptionValues;
 }) {
 	const source = useSource();
 	// Accepts every entry so rejected ones can explain why they can't be dropped. Entries from this widget are reordered by dropping them on each other instead.
@@ -61,17 +64,23 @@ export function WidgetView({
 		}),
 		[dashboardId, paneId, bindings],
 	);
+	const setOption = useCallback(
+		(id: string, value: string | undefined) =>
+			updateLayout(dashboardId, (layout) => setWidgetOption(layout, paneId, id, value)),
+		[dashboardId, paneId],
+	);
 	const names = new Set(bindings.map((binding) => binding.name));
+	const widget = <type.component bindings={bindings} options={options} setOption={setOption} />;
 
 	let content: ReactNode;
 	if (type.rendersEmpty === true) {
-		content = <type.component bindings={bindings} />;
+		content = widget;
 	} else if (bindings.length === 0) {
 		content = (
 			<WidgetEmpty
 				icon={<ListPlusIcon />}
 				title="No entries"
-				description="Drag entries here from the entry browser, or choose them in the widget options."
+				description="Drag entries here from the entry browser, or use Edit entries."
 			/>
 		);
 	} else if (!source) {
@@ -89,7 +98,7 @@ export function WidgetView({
 			/>
 		);
 	} else {
-		content = <type.component bindings={bindings} />;
+		content = widget;
 	}
 
 	return (

@@ -27,6 +27,19 @@ export const view = {
 
 export const aspectRatio = view.width / view.height;
 
+/** Which alliance is on the left of the view, the field is rotated a half turn to put red on the left */
+export type FieldOrientation = 'blue-left' | 'red-left';
+
+/** Rotates SVG content a half turn around the field's center for `red-left` */
+export function orientationTransform(orientation: FieldOrientation): string | undefined {
+	return orientation === 'red-left' ? `rotate(180 ${fieldLength / 2} ${-fieldWidth / 2})` : undefined;
+}
+
+/** Converts between a field point and where it's drawn in the blue-left view, the same either way since it's a half turn */
+export function orient(point: FieldPoint, orientation: FieldOrientation): FieldPoint {
+	return orientation === 'red-left' ? { x: fieldLength - point.x, y: fieldWidth - point.y } : point;
+}
+
 /** Stroke width of lines on the field in meters, so they zoom with the field like robots do */
 export const strokeWidth = 0.08;
 

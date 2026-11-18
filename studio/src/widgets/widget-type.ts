@@ -45,6 +45,30 @@ export type WidgetBinding = {
  */
 export type Connects = 'single' | 'many';
 
+/**
+ * A setting shown in the widget options, saved in dashboards. Prefer inferring from entries over adding options, and
+ * keep them few: they override what can be inferred, or pick what can't be (ex. which way the field faces).
+ */
+export type WidgetOption = {
+	readonly kind: 'choice';
+	/** Saved in dashboards, don't change it */
+	readonly id: string;
+	/** Shown in the widget options, ex. `Orientation` */
+	readonly label: string;
+	/** IDs are saved in dashboards, don't change them */
+	readonly choices: readonly { readonly id: string; readonly label: string }[];
+	/** The choice's ID when it isn't picked, or isn't inferred */
+	readonly default: string;
+	/**
+	 * Infers a choice from the bindings, which adds an Auto choice that's used until another one is picked. Returns
+	 * `undefined` to use the default.
+	 */
+	readonly infer?: (bindings: readonly WidgetBinding[]) => string | undefined;
+};
+
+/** Option values by option ID, every option has one */
+export type OptionValues = Readonly<Record<string, string>>;
+
 export type WidgetProps = {
 	/**
 	 * Bound entries in the order they were bound. At least one of them has an entry, the widget isn't rendered otherwise,
@@ -52,6 +76,10 @@ export type WidgetProps = {
 	 * Widgets are read-only, and follow the cursor with `useCursorTime()` or `subscribeTimeline()` from `@/timeline/timeline`.
 	 */
 	readonly bindings: readonly WidgetBinding[];
+	/** The value of each of the type's `options` by option ID, always one of its choices' IDs */
+	readonly options: OptionValues;
+	/** Picks an option's value, ex. from a control in the widget. `undefined` goes back to Auto or the default. */
+	readonly setOption: (id: string, value: string | undefined) => void;
 };
 
 export type WidgetType = {
@@ -80,6 +108,8 @@ export type WidgetType = {
 	readonly rendersEmpty?: boolean;
 	/** Entries bound to a newly added widget, ex. the console's `/console` and `/messages` */
 	readonly defaultEntryNames?: readonly string[];
+	/** Settings shown in the widget options, see `WidgetOption` */
+	readonly options?: readonly WidgetOption[];
 	readonly component: ComponentType<WidgetProps>;
 };
 
