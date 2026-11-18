@@ -1,12 +1,12 @@
-import { MoveIcon } from 'lucide-react';
+import { LayoutDashboardIcon, MoveIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { WidgetType } from '@/widgets/widget-type';
 
-/** Like Rex, panes are dragged by their title, which shows a move icon and a background while hovered or dragged */
+/** Like Rex, panes are dragged by their title, which shows a move icon and a background while hovered or dragged. Empty panes, which have no name, get one too so they can be dragged. */
 export function PaneTitle({
 	dragRef,
 	isDragging,
-	icon: Icon,
+	icon,
 	name,
 }: {
 	dragRef: (element: Element | null) => void;
@@ -14,6 +14,7 @@ export function PaneTitle({
 	icon: WidgetType['icon'] | undefined;
 	name: string | undefined;
 }) {
+	const Icon = name === undefined ? LayoutDashboardIcon : icon;
 	return (
 		<span
 			ref={dragRef}
@@ -25,7 +26,7 @@ export function PaneTitle({
 		>
 			{Icon && <Icon className="size-3.5 shrink-0 group-hover/title:hidden group-data-dragging/title:hidden" />}
 			<MoveIcon className="hidden size-3.5 shrink-0 group-hover/title:block group-data-dragging/title:block" />
-			<span className="truncate">{name}</span>
+			<span className="truncate">{name ?? 'Empty pane'}</span>
 		</span>
 	);
 }
