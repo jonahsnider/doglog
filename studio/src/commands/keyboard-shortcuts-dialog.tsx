@@ -59,6 +59,7 @@ const sections: {
 			{ label: 'Split right', keys: [shortcuts.splitRight] },
 			{ label: 'Split down', keys: [shortcuts.splitDown] },
 			{ label: 'Zoom or restore pane', keys: [shortcuts.zoom] },
+			{ label: 'Edit entries', keys: [shortcuts.editEntries] },
 		],
 	},
 	{

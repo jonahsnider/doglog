@@ -23,12 +23,15 @@ import {
 	undoDashboard,
 } from '@/dashboards/dashboards';
 import { goInHistory } from '@/commands/history';
+import { toggleEditing } from '@/entries/editing';
 import { chooseLog } from '@/data/open-log';
 import { checkOrInstallUpdate, updateShortcut } from '@/desktop/updater';
 import { connect, getSource, showSource } from '@/data/source';
 import { canSplitPane, type SplitDirection } from '@/panes/layout';
 import { getRobotHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
+import { getWidgetType } from '@/widgets/registry';
+import { bindsEntries } from '@/widgets/widget-type';
 
 const desktop = isTauri();
 /** macOS already uses ⌘W for its default Close Window menu item, so the desktop-only shortcuts are menu items there */
@@ -55,6 +58,7 @@ export const shortcuts = {
 	splitRight: 'Mod+D',
 	splitDown: 'Mod+Shift+D',
 	zoom: 'Mod+Shift+Enter',
+	editEntries: 'Mod+E',
 	openLog: 'Mod+O',
 	undo: 'Mod+Z',
 	redo: 'Mod+Shift+Z',
@@ -166,6 +170,19 @@ function toggleFocusedZoom(router: RegisteredRouter): void {
 	}
 }
 
+function toggleFocusedEditing(router: RegisteredRouter): void {
+	const dashboard = currentDashboard(router);
+	if (!dashboard) {
+		return;
+	}
+
+	const pane = getFocusedPane(dashboard);
+	const type = pane.widget && getWidgetType(pane.widget.type);
+	if (type && bindsEntries(type)) {
+		toggleEditing(dashboard.id, pane.id);
+	}
+}
+
 function splitFocused(router: RegisteredRouter, direction: SplitDirection): void {
 	const dashboard = currentDashboard(router);
 	if (!dashboard) {
@@ -232,6 +249,7 @@ export function useGlobalShortcuts(): void {
 			{ hotkey: shortcuts.splitRight, callback: () => splitFocused(router, 'row') },
 			{ hotkey: shortcuts.splitDown, callback: () => splitFocused(router, 'column') },
 			{ hotkey: shortcuts.zoom, callback: () => toggleFocusedZoom(router) },
+			{ hotkey: shortcuts.editEntries, callback: () => toggleFocusedEditing(router) },
 			{ hotkey: shortcuts.openLog, callback: chooseLog, options: outsideNativeMenu },
 			// Text fields handle these themselves
 			{

@@ -8,7 +8,7 @@ Define Studio's app-wide keyboard shortcuts and how they differ between the desk
 
 ### Requirement: Global shortcuts
 
-Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Reopen closed dashboard (⇧⌘T, or Alt+Shift+T), Back (⌘[, or Alt+[), Forward (⌘], or Alt+]), Undo (⌘Z), Redo (⇧⌘Z), Toggle sidebar (⌘B), Toggle entry browser (⌥⌘B), Split right (⌘D), Split down (⇧⌘D), Zoom or restore pane (⇧⌘↩), and Keyboard shortcuts (⌘/).
+Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: New dashboard (⌘T, or Alt+T), Close pane or dashboard (⌘W, or Alt+W), Close dashboard (⇧⌘W, or Alt+Shift+W), Reopen closed dashboard (⇧⌘T, or Alt+Shift+T), Back (⌘[, or Alt+[), Forward (⌘], or Alt+]), Undo (⌘Z), Redo (⇧⌘Z), Toggle sidebar (⌘B), Toggle entry browser (⌥⌘B), Split right (⌘D), Split down (⇧⌘D), Zoom or restore pane (⇧⌘↩), Edit entries of the focused widget (⌘E), and Keyboard shortcuts (⌘/).
 
 #### Scenario: New dashboard
 

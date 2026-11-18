@@ -1,4 +1,5 @@
 import { ListPlusIcon } from 'lucide-react';
+import { shortcuts } from '@/commands/commands';
 import { updateLayout } from '@/dashboards/panes';
 import { toggleEditing } from '@/entries/editing';
 import type { Widget } from '@/panes/layout';
@@ -31,6 +32,7 @@ export function WidgetButtons({
 				<span data-edit-entries className="contents">
 					<PaneButton
 						label={editing ? 'Stop editing entries' : 'Edit entries'}
+						shortcut={shortcuts.editEntries}
 						pressed={editing}
 						onClick={() => toggleEditing(dashboardId, paneId)}
 					>

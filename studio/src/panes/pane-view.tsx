@@ -172,6 +172,7 @@ export function PaneView({
 			},
 			{
 				label: 'Edit entries',
+				shortcut: shortcuts.editEntries,
 				disabled: !type || !bindsEntries(type),
 				onSelect: () => startEditing(dashboardId, pane.id),
 			},
@@ -237,8 +238,9 @@ export function PaneView({
 					<PaneTitle
 						dragRef={dragRef}
 						isDragging={isDragging}
-						icon={type?.icon}
+						type={type}
 						name={type ? widgetTitle(type, options) : widget?.type}
+						onEdit={() => startEditing(dashboardId, pane.id)}
 					/>
 				</span>
 				<PanePresence dashboardId={dashboardId} paneId={pane.id} />
