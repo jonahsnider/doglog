@@ -37,15 +37,6 @@ function info(id: WidgetTypeId): Pick<WidgetType, 'id' | 'name' | 'accepts' | 'o
 
 /** Every widget type, in the order they're listed in the widget picker */
 export const widgetTypes: readonly WidgetType[] = [
-	{ ...info('values-table'), icon: TableIcon, hotkey: 'V', component: ValuesTable },
-	{
-		...info('console'),
-		icon: TerminalIcon,
-		hotkey: 'C',
-		// WPILib's console output and Driver Station messages
-		defaultEntryNames: ['/console', '/messages'],
-		component: Console,
-	},
 	{
 		...info('graph'),
 		icon: ChartLineIcon,
@@ -54,7 +45,6 @@ export const widgetTypes: readonly WidgetType[] = [
 		inferRole: inferGraphRole,
 		component: Graph,
 	},
-	{ ...info('swerve'), icon: MoveIcon, hotkey: 'S', roles: swerveRoles, component: Swerve },
 	{
 		...info('field'),
 		icon: MapIcon,
@@ -74,6 +64,16 @@ export const widgetTypes: readonly WidgetType[] = [
 		options: [viewOption, robotOption],
 		component: Robot,
 	},
+	{ ...info('values-table'), icon: TableIcon, hotkey: 'V', component: ValuesTable },
+	{
+		...info('console'),
+		icon: TerminalIcon,
+		hotkey: 'C',
+		// WPILib's console output and Driver Station messages
+		defaultEntryNames: ['/console', '/messages'],
+		component: Console,
+	},
+	{ ...info('swerve'), icon: MoveIcon, hotkey: 'S', roles: swerveRoles, component: Swerve },
 	{
 		...info(controllerTypeId),
 		icon: Gamepad2Icon,

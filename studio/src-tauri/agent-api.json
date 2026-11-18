@@ -98,90 +98,6 @@
 												"properties": {
 													"type": {
 														"type": "string",
-														"const": "values-table"
-													},
-													"bindings": {
-														"description": "Entries to show, in order. Accepted kinds: number, boolean, string, number[], boolean[], string[], struct, struct[]. Left out, the widget starts like one the user adds.",
-														"type": "array",
-														"items": {
-															"type": "object",
-															"properties": {
-																"entry": {
-																	"type": "string",
-																	"minLength": 1,
-																	"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
-																},
-																"color": {
-																	"type": "integer",
-																	"minimum": 0,
-																	"maximum": 4,
-																	"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
-																},
-																"hidden": {
-																	"type": "boolean",
-																	"description": "Listed in the legend but not drawn"
-																}
-															},
-															"required": [
-																"entry"
-															],
-															"additionalProperties": false
-														}
-													}
-												},
-												"required": [
-													"type"
-												],
-												"additionalProperties": false,
-												"description": "Values table: A table of the bound entries’ values at the timeline cursor. Accepts every kind but Mechanism2d."
-											},
-											{
-												"type": "object",
-												"properties": {
-													"type": {
-														"type": "string",
-														"const": "console"
-													},
-													"bindings": {
-														"description": "Entries to show, in order. Accepted kinds: string. Left out, the widget starts like one the user adds.",
-														"type": "array",
-														"items": {
-															"type": "object",
-															"properties": {
-																"entry": {
-																	"type": "string",
-																	"minLength": 1,
-																	"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
-																},
-																"color": {
-																	"type": "integer",
-																	"minimum": 0,
-																	"maximum": 4,
-																	"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
-																},
-																"hidden": {
-																	"type": "boolean",
-																	"description": "Listed in the legend but not drawn"
-																}
-															},
-															"required": [
-																"entry"
-															],
-															"additionalProperties": false
-														}
-													}
-												},
-												"required": [
-													"type"
-												],
-												"additionalProperties": false,
-												"description": "Console: Text logged over time, like a terminal. Starts with WPILib’s console output (`/console`) and Driver Station messages (`/messages`) bound."
-											},
-											{
-												"type": "object",
-												"properties": {
-													"type": {
-														"type": "string",
 														"const": "graph"
 													},
 													"bindings": {
@@ -227,58 +143,6 @@
 												],
 												"additionalProperties": false,
 												"description": "Graph: Plots entries over time. Numbers go on the left or right axis (`left`, `right`), or are shown as colored bands (`discrete`); booleans and strings can only be bands. A number goes on the right axis when its unit measures something else than the left axis’s."
-											},
-											{
-												"type": "object",
-												"properties": {
-													"type": {
-														"type": "string",
-														"const": "swerve"
-													},
-													"bindings": {
-														"description": "Entries to show, in order. Accepted kinds: number, struct, struct[]. Left out, the widget starts like one the user adds.",
-														"type": "array",
-														"items": {
-															"type": "object",
-															"properties": {
-																"entry": {
-																	"type": "string",
-																	"minLength": 1,
-																	"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
-																},
-																"color": {
-																	"type": "integer",
-																	"minimum": 0,
-																	"maximum": 4,
-																	"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
-																},
-																"hidden": {
-																	"type": "boolean",
-																	"description": "Listed in the legend but not drawn"
-																},
-																"role": {
-																	"description": "How the widget shows the entry. Left out, it’s inferred from the entry and the bindings before it.",
-																	"type": "string",
-																	"enum": [
-																		"states",
-																		"positions",
-																		"speeds",
-																		"heading"
-																	]
-																}
-															},
-															"required": [
-																"entry"
-															],
-															"additionalProperties": false
-														}
-													}
-												},
-												"required": [
-													"type"
-												],
-												"additionalProperties": false,
-												"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are `speeds`, and a Rotation2d or number is the `heading`."
 											},
 											{
 												"type": "object",
@@ -449,6 +313,142 @@
 												],
 												"additionalProperties": false,
 												"description": "Robot: The robot in 2D or 3D. Mechanism2d entries are drawn on a plane of the robot: `side` (XZ, the default), `front` (YZ), or `top` (XY). A Pose3d[] entry places the parts of a robot project’s CAD model (`parts`). The `view` option defaults to 2D when only a mechanism is bound. The `robot` option is `swerve` (a simple swerve robot) or the name of a robot project the user added on their device."
+											},
+											{
+												"type": "object",
+												"properties": {
+													"type": {
+														"type": "string",
+														"const": "values-table"
+													},
+													"bindings": {
+														"description": "Entries to show, in order. Accepted kinds: number, boolean, string, number[], boolean[], string[], struct, struct[]. Left out, the widget starts like one the user adds.",
+														"type": "array",
+														"items": {
+															"type": "object",
+															"properties": {
+																"entry": {
+																	"type": "string",
+																	"minLength": 1,
+																	"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
+																},
+																"color": {
+																	"type": "integer",
+																	"minimum": 0,
+																	"maximum": 4,
+																	"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+																},
+																"hidden": {
+																	"type": "boolean",
+																	"description": "Listed in the legend but not drawn"
+																}
+															},
+															"required": [
+																"entry"
+															],
+															"additionalProperties": false
+														}
+													}
+												},
+												"required": [
+													"type"
+												],
+												"additionalProperties": false,
+												"description": "Values table: A table of the bound entries’ values at the timeline cursor. Accepts every kind but Mechanism2d."
+											},
+											{
+												"type": "object",
+												"properties": {
+													"type": {
+														"type": "string",
+														"const": "console"
+													},
+													"bindings": {
+														"description": "Entries to show, in order. Accepted kinds: string. Left out, the widget starts like one the user adds.",
+														"type": "array",
+														"items": {
+															"type": "object",
+															"properties": {
+																"entry": {
+																	"type": "string",
+																	"minLength": 1,
+																	"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
+																},
+																"color": {
+																	"type": "integer",
+																	"minimum": 0,
+																	"maximum": 4,
+																	"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+																},
+																"hidden": {
+																	"type": "boolean",
+																	"description": "Listed in the legend but not drawn"
+																}
+															},
+															"required": [
+																"entry"
+															],
+															"additionalProperties": false
+														}
+													}
+												},
+												"required": [
+													"type"
+												],
+												"additionalProperties": false,
+												"description": "Console: Text logged over time, like a terminal. Starts with WPILib’s console output (`/console`) and Driver Station messages (`/messages`) bound."
+											},
+											{
+												"type": "object",
+												"properties": {
+													"type": {
+														"type": "string",
+														"const": "swerve"
+													},
+													"bindings": {
+														"description": "Entries to show, in order. Accepted kinds: number, struct, struct[]. Left out, the widget starts like one the user adds.",
+														"type": "array",
+														"items": {
+															"type": "object",
+															"properties": {
+																"entry": {
+																	"type": "string",
+																	"minLength": 1,
+																	"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
+																},
+																"color": {
+																	"type": "integer",
+																	"minimum": 0,
+																	"maximum": 4,
+																	"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+																},
+																"hidden": {
+																	"type": "boolean",
+																	"description": "Listed in the legend but not drawn"
+																},
+																"role": {
+																	"description": "How the widget shows the entry. Left out, it’s inferred from the entry and the bindings before it.",
+																	"type": "string",
+																	"enum": [
+																		"states",
+																		"positions",
+																		"speeds",
+																		"heading"
+																	]
+																}
+															},
+															"required": [
+																"entry"
+															],
+															"additionalProperties": false
+														}
+													}
+												},
+												"required": [
+													"type"
+												],
+												"additionalProperties": false,
+												"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are `speeds`, and a Rotation2d or number is the `heading`."
 											},
 											{
 												"type": "object",
@@ -694,90 +694,6 @@
 								"properties": {
 									"type": {
 										"type": "string",
-										"const": "values-table"
-									},
-									"bindings": {
-										"description": "Entries to show, in order. Accepted kinds: number, boolean, string, number[], boolean[], string[], struct, struct[]. Left out, the widget starts like one the user adds.",
-										"type": "array",
-										"items": {
-											"type": "object",
-											"properties": {
-												"entry": {
-													"type": "string",
-													"minLength": 1,
-													"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
-												},
-												"color": {
-													"type": "integer",
-													"minimum": 0,
-													"maximum": 4,
-													"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
-												},
-												"hidden": {
-													"type": "boolean",
-													"description": "Listed in the legend but not drawn"
-												}
-											},
-											"required": [
-												"entry"
-											],
-											"additionalProperties": false
-										}
-									}
-								},
-								"required": [
-									"type"
-								],
-								"additionalProperties": false,
-								"description": "Values table: A table of the bound entries’ values at the timeline cursor. Accepts every kind but Mechanism2d."
-							},
-							{
-								"type": "object",
-								"properties": {
-									"type": {
-										"type": "string",
-										"const": "console"
-									},
-									"bindings": {
-										"description": "Entries to show, in order. Accepted kinds: string. Left out, the widget starts like one the user adds.",
-										"type": "array",
-										"items": {
-											"type": "object",
-											"properties": {
-												"entry": {
-													"type": "string",
-													"minLength": 1,
-													"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
-												},
-												"color": {
-													"type": "integer",
-													"minimum": 0,
-													"maximum": 4,
-													"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
-												},
-												"hidden": {
-													"type": "boolean",
-													"description": "Listed in the legend but not drawn"
-												}
-											},
-											"required": [
-												"entry"
-											],
-											"additionalProperties": false
-										}
-									}
-								},
-								"required": [
-									"type"
-								],
-								"additionalProperties": false,
-								"description": "Console: Text logged over time, like a terminal. Starts with WPILib’s console output (`/console`) and Driver Station messages (`/messages`) bound."
-							},
-							{
-								"type": "object",
-								"properties": {
-									"type": {
-										"type": "string",
 										"const": "graph"
 									},
 									"bindings": {
@@ -823,58 +739,6 @@
 								],
 								"additionalProperties": false,
 								"description": "Graph: Plots entries over time. Numbers go on the left or right axis (`left`, `right`), or are shown as colored bands (`discrete`); booleans and strings can only be bands. A number goes on the right axis when its unit measures something else than the left axis’s."
-							},
-							{
-								"type": "object",
-								"properties": {
-									"type": {
-										"type": "string",
-										"const": "swerve"
-									},
-									"bindings": {
-										"description": "Entries to show, in order. Accepted kinds: number, struct, struct[]. Left out, the widget starts like one the user adds.",
-										"type": "array",
-										"items": {
-											"type": "object",
-											"properties": {
-												"entry": {
-													"type": "string",
-													"minLength": 1,
-													"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
-												},
-												"color": {
-													"type": "integer",
-													"minimum": 0,
-													"maximum": 4,
-													"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
-												},
-												"hidden": {
-													"type": "boolean",
-													"description": "Listed in the legend but not drawn"
-												},
-												"role": {
-													"description": "How the widget shows the entry. Left out, it’s inferred from the entry and the bindings before it.",
-													"type": "string",
-													"enum": [
-														"states",
-														"positions",
-														"speeds",
-														"heading"
-													]
-												}
-											},
-											"required": [
-												"entry"
-											],
-											"additionalProperties": false
-										}
-									}
-								},
-								"required": [
-									"type"
-								],
-								"additionalProperties": false,
-								"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are `speeds`, and a Rotation2d or number is the `heading`."
 							},
 							{
 								"type": "object",
@@ -1051,6 +915,142 @@
 								"properties": {
 									"type": {
 										"type": "string",
+										"const": "values-table"
+									},
+									"bindings": {
+										"description": "Entries to show, in order. Accepted kinds: number, boolean, string, number[], boolean[], string[], struct, struct[]. Left out, the widget starts like one the user adds.",
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"entry": {
+													"type": "string",
+													"minLength": 1,
+													"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
+												},
+												"color": {
+													"type": "integer",
+													"minimum": 0,
+													"maximum": 4,
+													"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+												},
+												"hidden": {
+													"type": "boolean",
+													"description": "Listed in the legend but not drawn"
+												}
+											},
+											"required": [
+												"entry"
+											],
+											"additionalProperties": false
+										}
+									}
+								},
+								"required": [
+									"type"
+								],
+								"additionalProperties": false,
+								"description": "Values table: A table of the bound entries’ values at the timeline cursor. Accepts every kind but Mechanism2d."
+							},
+							{
+								"type": "object",
+								"properties": {
+									"type": {
+										"type": "string",
+										"const": "console"
+									},
+									"bindings": {
+										"description": "Entries to show, in order. Accepted kinds: string. Left out, the widget starts like one the user adds.",
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"entry": {
+													"type": "string",
+													"minLength": 1,
+													"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
+												},
+												"color": {
+													"type": "integer",
+													"minimum": 0,
+													"maximum": 4,
+													"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+												},
+												"hidden": {
+													"type": "boolean",
+													"description": "Listed in the legend but not drawn"
+												}
+											},
+											"required": [
+												"entry"
+											],
+											"additionalProperties": false
+										}
+									}
+								},
+								"required": [
+									"type"
+								],
+								"additionalProperties": false,
+								"description": "Console: Text logged over time, like a terminal. Starts with WPILib’s console output (`/console`) and Driver Station messages (`/messages`) bound."
+							},
+							{
+								"type": "object",
+								"properties": {
+									"type": {
+										"type": "string",
+										"const": "swerve"
+									},
+									"bindings": {
+										"description": "Entries to show, in order. Accepted kinds: number, struct, struct[]. Left out, the widget starts like one the user adds.",
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"entry": {
+													"type": "string",
+													"minLength": 1,
+													"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
+												},
+												"color": {
+													"type": "integer",
+													"minimum": 0,
+													"maximum": 4,
+													"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+												},
+												"hidden": {
+													"type": "boolean",
+													"description": "Listed in the legend but not drawn"
+												},
+												"role": {
+													"description": "How the widget shows the entry. Left out, it’s inferred from the entry and the bindings before it.",
+													"type": "string",
+													"enum": [
+														"states",
+														"positions",
+														"speeds",
+														"heading"
+													]
+												}
+											},
+											"required": [
+												"entry"
+											],
+											"additionalProperties": false
+										}
+									}
+								},
+								"required": [
+									"type"
+								],
+								"additionalProperties": false,
+								"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are `speeds`, and a Rotation2d or number is the `heading`."
+							},
+							{
+								"type": "object",
+								"properties": {
+									"type": {
+										"type": "string",
 										"const": "controller"
 									},
 									"options": {
@@ -1150,34 +1150,6 @@
 										"properties": {
 											"type": {
 												"type": "string",
-												"const": "values-table"
-											}
-										},
-										"required": [
-											"type"
-										],
-										"additionalProperties": false,
-										"description": "Values table: A table of the bound entries’ values at the timeline cursor. Accepts every kind but Mechanism2d."
-									},
-									{
-										"type": "object",
-										"properties": {
-											"type": {
-												"type": "string",
-												"const": "console"
-											}
-										},
-										"required": [
-											"type"
-										],
-										"additionalProperties": false,
-										"description": "Console: Text logged over time, like a terminal. Starts with WPILib’s console output (`/console`) and Driver Station messages (`/messages`) bound."
-									},
-									{
-										"type": "object",
-										"properties": {
-											"type": {
-												"type": "string",
 												"const": "graph"
 											}
 										},
@@ -1186,20 +1158,6 @@
 										],
 										"additionalProperties": false,
 										"description": "Graph: Plots entries over time. Numbers go on the left or right axis (`left`, `right`), or are shown as colored bands (`discrete`); booleans and strings can only be bands. A number goes on the right axis when its unit measures something else than the left axis’s."
-									},
-									{
-										"type": "object",
-										"properties": {
-											"type": {
-												"type": "string",
-												"const": "swerve"
-											}
-										},
-										"required": [
-											"type"
-										],
-										"additionalProperties": false,
-										"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are `speeds`, and a Rotation2d or number is the `heading`."
 									},
 									{
 										"type": "object",
@@ -1283,6 +1241,48 @@
 										],
 										"additionalProperties": false,
 										"description": "Robot: The robot in 2D or 3D. Mechanism2d entries are drawn on a plane of the robot: `side` (XZ, the default), `front` (YZ), or `top` (XY). A Pose3d[] entry places the parts of a robot project’s CAD model (`parts`). The `view` option defaults to 2D when only a mechanism is bound. The `robot` option is `swerve` (a simple swerve robot) or the name of a robot project the user added on their device."
+									},
+									{
+										"type": "object",
+										"properties": {
+											"type": {
+												"type": "string",
+												"const": "values-table"
+											}
+										},
+										"required": [
+											"type"
+										],
+										"additionalProperties": false,
+										"description": "Values table: A table of the bound entries’ values at the timeline cursor. Accepts every kind but Mechanism2d."
+									},
+									{
+										"type": "object",
+										"properties": {
+											"type": {
+												"type": "string",
+												"const": "console"
+											}
+										},
+										"required": [
+											"type"
+										],
+										"additionalProperties": false,
+										"description": "Console: Text logged over time, like a terminal. Starts with WPILib’s console output (`/console`) and Driver Station messages (`/messages`) bound."
+									},
+									{
+										"type": "object",
+										"properties": {
+											"type": {
+												"type": "string",
+												"const": "swerve"
+											}
+										},
+										"required": [
+											"type"
+										],
+										"additionalProperties": false,
+										"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are `speeds`, and a Rotation2d or number is the `heading`."
 									},
 									{
 										"type": "object",

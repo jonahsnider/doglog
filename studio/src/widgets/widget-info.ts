@@ -138,38 +138,12 @@ export type WidgetInfo = {
 /** Every widget type, in the order they're listed in the widget picker */
 export const widgetInfos = [
 	{
-		id: 'values-table',
-		name: 'Values table',
-		description: 'A table of the bound entries’ values at the timeline cursor. Accepts every kind but Mechanism2d.',
-		accepts: valueKinds,
-		roles: [],
-		options: [],
-	},
-	{
-		id: 'console',
-		name: 'Console',
-		description:
-			'Text logged over time, like a terminal. Starts with WPILib’s console output (`/console`) and Driver Station messages (`/messages`) bound.',
-		accepts: ['string'],
-		roles: [],
-		options: [],
-	},
-	{
 		id: 'graph',
 		name: 'Graph',
 		description:
 			'Plots entries over time. Numbers go on the left or right axis (`left`, `right`), or are shown as colored bands (`discrete`); booleans and strings can only be bands. A number goes on the right axis when its unit measures something else than the left axis’s.',
 		accepts: ['number', 'boolean', 'string'],
 		roles: Object.values(widgetRoles.graph),
-		options: [],
-	},
-	{
-		id: 'swerve',
-		name: 'Swerve',
-		description:
-			'A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are `speeds`, and a Rotation2d or number is the `heading`.',
-		accepts: ['number', 'struct', 'struct[]'],
-		roles: Object.values(widgetRoles.swerve),
 		options: [],
 	},
 	{
@@ -189,6 +163,32 @@ export const widgetInfos = [
 		accepts: ['mechanism2d', 'struct[]'],
 		roles: Object.values(widgetRoles.robot),
 		options: Object.values(widgetOptions.robot),
+	},
+	{
+		id: 'values-table',
+		name: 'Values table',
+		description: 'A table of the bound entries’ values at the timeline cursor. Accepts every kind but Mechanism2d.',
+		accepts: valueKinds,
+		roles: [],
+		options: [],
+	},
+	{
+		id: 'console',
+		name: 'Console',
+		description:
+			'Text logged over time, like a terminal. Starts with WPILib’s console output (`/console`) and Driver Station messages (`/messages`) bound.',
+		accepts: ['string'],
+		roles: [],
+		options: [],
+	},
+	{
+		id: 'swerve',
+		name: 'Swerve',
+		description:
+			'A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are `speeds`, and a Rotation2d or number is the `heading`.',
+		accepts: ['number', 'struct', 'struct[]'],
+		roles: Object.values(widgetRoles.swerve),
+		options: [],
 	},
 	{
 		id: 'controller',
