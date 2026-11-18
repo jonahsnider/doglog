@@ -3,6 +3,7 @@ import type { LucideIcon } from 'lucide-react';
 import type { ComponentType } from 'react';
 import type { Entry } from '@/data/data-store';
 import type { EntryKind } from '@/data/samples';
+import type { PaneNode } from '@/panes/layout';
 
 /** Entry kinds that can be bound to widgets */
 export type BindableKind = Exclude<EntryKind, 'unsupported'>;
@@ -60,10 +61,12 @@ export type WidgetOption = {
 	/** The choice's ID when it isn't picked, or isn't inferred */
 	readonly default: string;
 	/**
-	 * Infers a choice from the bindings, which adds an Auto choice that's used until another one is picked. Returns
-	 * `undefined` to use the default.
+	 * Infers a choice from the bindings and the values of the options listed before it, which adds an Auto choice that's
+	 * used until another one is picked. Returns `undefined` to use the default.
 	 */
-	readonly infer?: (bindings: readonly WidgetBinding[]) => string | undefined;
+	readonly infer?: (bindings: readonly WidgetBinding[], earlier: OptionValues) => string | undefined;
+	/** The choice a newly added widget starts with in `layout`, as if it was picked, ex. a controller not shown yet */
+	readonly initial?: (layout: PaneNode) => string;
 };
 
 /** Option values by option ID, every option has one */
@@ -114,6 +117,13 @@ export type WidgetType = {
 	readonly defaultEntryNames?: readonly string[];
 	/** Settings shown in the widget options, see `WidgetOption` */
 	readonly options?: readonly WidgetOption[];
+	/**
+	 * Picks an option from an entry dropped on the widget instead of binding it, ex. the controller shows the dropped
+	 * entry's controller. Entries it returns `undefined` for can't be dropped.
+	 */
+	readonly optionFromEntry?: (name: string) => { readonly id: string; readonly value: string } | undefined;
+	/** Shown in the pane header and suggested dashboard names instead of `name`, ex. `Controller 2` */
+	readonly title?: (options: OptionValues) => string;
 	readonly component: ComponentType<WidgetProps>;
 };
 
@@ -128,6 +138,11 @@ export const bindableKinds: readonly BindableKind[] = [
 	'struct[]',
 ];
 
+/** The widget's name in its pane header and suggested dashboard names, see `WidgetType.title` */
+export function widgetTitle(type: WidgetType, options: OptionValues): string {
+	return type.title?.(options) ?? type.name;
+}
+
 /** Whether entries can be bound to the widget at all */
 export function bindsEntries(type: WidgetType): boolean {
 	return type.accepts.length > 0;
@@ -135,4 +150,15 @@ export function bindsEntries(type: WidgetType): boolean {
 
 export function acceptsEntry(type: WidgetType, entry: Entry): boolean {
 	return (type.accepts as readonly EntryKind[]).includes(entry.kind) && (type.roles?.(entry).length ?? 1) > 0;
+}
+
+/**
+ * Whether an entry can be dropped on the widget, to bind it or to pick an option from it (see `optionFromEntry`). Entries
+ * missing from the source (`entry` is `undefined`) might be accepted once they're loaded.
+ */
+export function acceptsDrop(type: WidgetType, name: string, entry: Entry | undefined): boolean {
+	if (type.optionFromEntry) {
+		return type.optionFromEntry(name) !== undefined;
+	}
+	return entry === undefined || acceptsEntry(type, entry);
 }

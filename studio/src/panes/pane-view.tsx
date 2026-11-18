@@ -32,8 +32,8 @@ import { canSplitPane, type Pane, type PaneNode, setPaneWidget, type SplitDirect
 import { useTrafficLightsOverlap } from '@/desktop/title-bar';
 import { getWidgetType, widgetTypes } from '@/widgets/registry';
 import { PanePresence } from '@/sharing/presence-avatars';
-import { optionValues } from '@/widgets/options';
-import { bindsEntries, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
+import { initialOptions, optionValues } from '@/widgets/options';
+import { bindsEntries, type WidgetBinding, type WidgetType, widgetTitle } from '@/widgets/widget-type';
 
 export type PaneNodeProps = {
 	dashboardId: string;
@@ -75,7 +75,10 @@ export function PaneView({
 	const options = useMemo(() => (type ? optionValues(type, widget, bindings) : {}), [type, widget, bindings]);
 	const { dragRef, isDragging, dropRef, isDropTarget } = usePaneDrag(dashboardId, pane);
 
-	const setWidget = (newType: WidgetType) => update((layout) => setPaneWidget(layout, pane.id, createWidget(newType)));
+	const setWidget = (newType: WidgetType) =>
+		update((layout) =>
+			setPaneWidget(layout, pane.id, createWidget(newType, undefined, initialOptions(newType, layout))),
+		);
 	const changeWidget = (newType: WidgetType) =>
 		update((layout) => changeWidgetType(layout, pane.id, newType, getEntry));
 	const split = (direction: SplitDirection) => splitDashboardPane(dashboardId, pane.id, direction);
@@ -232,7 +235,12 @@ export function PaneView({
 				}}
 			>
 				<span className="flex min-w-0 flex-1">
-					<PaneTitle dragRef={dragRef} isDragging={isDragging} icon={type?.icon} name={type?.name ?? widget?.type} />
+					<PaneTitle
+						dragRef={dragRef}
+						isDragging={isDragging}
+						icon={type?.icon}
+						name={type ? widgetTitle(type, options) : widget?.type}
+					/>
 				</span>
 				<PanePresence dashboardId={dashboardId} paneId={pane.id} />
 				{/* Pane controls stay out of the way unless the pane is hovered or focused */}

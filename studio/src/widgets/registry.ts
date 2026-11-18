@@ -1,8 +1,11 @@
-import { ChartLineIcon, MapIcon, MoveIcon, NotebookPenIcon, TableIcon, TerminalIcon } from 'lucide-react';
+import { ChartLineIcon, Gamepad2Icon, MapIcon, MoveIcon, NotebookPenIcon, TableIcon, TerminalIcon } from 'lucide-react';
 import { createWidget } from '@/widgets/bindings';
 import type { Entry } from '@/data/data-store';
 import type { Widget } from '@/panes/layout';
 import { Console } from '@/widgets/console/console';
+import { Controller } from '@/widgets/controller/controller';
+import { controllerPort } from '@/widgets/controller/data';
+import { controllerOptionFromEntry, controllerOptions, controllerTypeId } from '@/widgets/controller/options';
 import { Field } from '@/widgets/field/field';
 import { fieldConnects, fieldRoles, inferFieldRole } from '@/widgets/field/roles';
 import { Graph } from '@/widgets/graph/graph';
@@ -77,6 +80,18 @@ export const widgetTypes: readonly WidgetType[] = [
 		component: Field,
 	},
 	{
+		id: controllerTypeId,
+		name: 'Controller',
+		icon: Gamepad2Icon,
+		hotkey: 'G',
+		accepts: [],
+		rendersEmpty: true,
+		options: controllerOptions,
+		optionFromEntry: controllerOptionFromEntry,
+		title: (options) => `Controller ${options['controller']}`,
+		component: Controller,
+	},
+	{
 		id: 'notepad',
 		name: 'Notepad',
 		icon: NotebookPenIcon,
@@ -115,6 +130,11 @@ function defaultWidgetTypeId(entry: Entry): string {
 export function defaultWidget(entry: Entry): Widget | undefined {
 	if (entry.kind === 'unsupported') {
 		return undefined;
+	}
+
+	const port = controllerPort(entry.name);
+	if (port !== undefined) {
+		return createWidget(getWidgetType(controllerTypeId)!, [], { controller: String(port) });
 	}
 
 	return createWidget(getWidgetType(defaultWidgetTypeId(entry))!, [entry.name]);

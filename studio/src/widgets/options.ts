@@ -17,12 +17,16 @@ export function pickedOption(widget: Widget | undefined, option: WidgetOption): 
 	return choiceSchema(option).safeParse(configSchema.parse(widget?.config)[option.id]).data;
 }
 
-/** The choice an option's Auto choice uses, `undefined` for options without one */
-export function inferredOption(option: WidgetOption, bindings: readonly WidgetBinding[]): string | undefined {
+/** The choice an option's Auto choice uses, `undefined` for options without one. `earlier` has the values of the options before it. */
+export function inferredOption(
+	option: WidgetOption,
+	bindings: readonly WidgetBinding[],
+	earlier: OptionValues,
+): string | undefined {
 	if (option.infer === undefined) {
 		return undefined;
 	}
-	const inferred = option.infer(bindings);
+	const inferred = option.infer(bindings, earlier);
 	return inferred !== undefined && choiceSchema(option).safeParse(inferred).success ? inferred : option.default;
 }
 
@@ -32,11 +36,17 @@ export function optionValues(
 	widget: Widget | undefined,
 	bindings: readonly WidgetBinding[],
 ): OptionValues {
+	const values: Record<string, string> = {};
+	for (const option of type.options ?? []) {
+		values[option.id] = pickedOption(widget, option) ?? inferredOption(option, bindings, values) ?? option.default;
+	}
+	return values;
+}
+
+/** The options a newly added widget starts with in `layout`, see `WidgetOption.initial` */
+export function initialOptions(type: WidgetType, layout: PaneNode): Record<string, string> {
 	return Object.fromEntries(
-		(type.options ?? []).map((option) => [
-			option.id,
-			pickedOption(widget, option) ?? inferredOption(option, bindings) ?? option.default,
-		]),
+		(type.options ?? []).flatMap((option) => (option.initial ? [[option.id, option.initial(layout)]] : [])),
 	);
 }
 

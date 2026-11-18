@@ -2,6 +2,7 @@
 import * as z from 'zod';
 import type { Entry } from '@/data/data-store';
 import { findPane, type PaneNode, setPaneWidget, type Widget } from '@/panes/layout';
+import { initialOptions } from '@/widgets/options';
 import { acceptsEntry, type RoleOption, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
 
 const bindingSchema = z.object({
@@ -31,9 +32,14 @@ export function widgetBindings(widget: Widget | undefined): Binding[] {
 	return configSchema.parse(widget?.config).bindings;
 }
 
-/** A new widget of a type, bound to `entryNames` or the type's default entries */
-export function createWidget(type: WidgetType, entryNames: readonly string[] = type.defaultEntryNames ?? []): Widget {
-	return { type: type.id, config: { bindings: entryNames.map((name) => createBinding(name)) } };
+/** A new widget of a type, bound to `entryNames` or the type's default entries, with `options` picked */
+export function createWidget(
+	type: WidgetType,
+	entryNames: readonly string[] = type.defaultEntryNames ?? [],
+	options: Readonly<Record<string, string>> = {},
+): Widget {
+	const bindings = entryNames.map((name) => createBinding(name));
+	return { type: type.id, config: Object.keys(options).length > 0 ? { bindings, options } : { bindings } };
 }
 
 /** Change a pane's bindings, keeping its widget's other config fields */
@@ -215,7 +221,9 @@ export function changeWidgetType(
 	return setPaneWidget(
 		layout,
 		paneId,
-		kept.length > 0 ? { type: type.id, config: { bindings: kept } } : createWidget(type),
+		kept.length > 0
+			? { type: type.id, config: { bindings: kept } }
+			: createWidget(type, undefined, initialOptions(type, layout)),
 	);
 }
 

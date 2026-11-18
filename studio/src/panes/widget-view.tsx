@@ -2,7 +2,6 @@ import type { Draggable, Droppable } from '@dnd-kit/dom';
 import { useDragOperation, useDroppable } from '@dnd-kit/react';
 import { DatabaseIcon, ListPlusIcon } from 'lucide-react';
 import { type CSSProperties, type ReactNode, useCallback, useMemo } from 'react';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import {
 	connectBindings,
 	disconnectBindings,
@@ -23,8 +22,9 @@ import {
 	WidgetBindingsContext,
 } from '@/entries/drag';
 import { cn } from '@/lib/utils';
+import { WidgetEmpty } from '@/widgets/widget-empty';
 import { setWidgetOption } from '@/widgets/options';
-import { acceptsEntry, type OptionValues, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
+import { acceptsDrop, type OptionValues, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
 
 /** Renders a widget with its bindings, handles the shared empty and "no data" states, and shows where dragged entries will be dropped */
 export function WidgetView({
@@ -144,10 +144,12 @@ function DropFeedback({
 
 	// Entries the widget already shows can be bound again, ex. to draw a pose as a robot and a ghost
 	const entry = getEntry(dragged.name);
-	const rejection =
-		entry && !acceptsEntry(type, entry)
+	let rejection: string | undefined;
+	if (!acceptsDrop(type, dragged.name, entry)) {
+		rejection = entry
 			? `${type.name} doesn't accept ${formatEntryType(entry.type)} entries`
-			: undefined;
+			: `${type.name} doesn't accept ${dragged.name}`;
+	}
 	return (
 		<div
 			className={cn(
@@ -186,16 +188,4 @@ function ReorderIndicator({
 			? { left: (after ? rect.right : rect.left) - 1, top: rect.top, width: 2, height: rect.height }
 			: { left: rect.left, top: (after ? rect.bottom : rect.top) - 1, width: rect.width, height: 2 };
 	return <div className="pointer-events-none fixed z-10 rounded-full bg-primary" style={style} />;
-}
-
-function WidgetEmpty({ icon, title, description }: { icon: ReactNode; title: string; description: string }) {
-	return (
-		<Empty className="h-full py-6 md:py-6">
-			<EmptyHeader>
-				<EmptyMedia variant="icon">{icon}</EmptyMedia>
-				<EmptyTitle>{title}</EmptyTitle>
-				<EmptyDescription>{description}</EmptyDescription>
-			</EmptyHeader>
-		</Empty>
-	);
 }

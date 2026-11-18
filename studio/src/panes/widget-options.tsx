@@ -8,7 +8,7 @@ import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmente
 import { ToolbarButton } from '@/components/ui/toolbar';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import type { Widget } from '@/panes/layout';
-import { inferredOption, pickedOption } from '@/widgets/options';
+import { inferredOption, optionValues, pickedOption } from '@/widgets/options';
 import type { WidgetBinding, WidgetOption, WidgetType } from '@/widgets/widget-type';
 
 /** The Auto choice's value in the controls, no choice has an empty ID */
@@ -24,6 +24,7 @@ type WidgetOptionsProps = {
 /** The widget options button for a pane toolbar, for widgets with options */
 export function WidgetOptions({ type, widget, bindings, onOptionChange }: WidgetOptionsProps) {
 	const { options = [] } = type;
+	const values = optionValues(type, widget, bindings);
 	return (
 		<Popover>
 			<Tooltip>
@@ -45,7 +46,7 @@ export function WidgetOptions({ type, widget, bindings, onOptionChange }: Widget
 							key={option.id}
 							option={option}
 							picked={pickedOption(widget, option)}
-							inferred={inferredOption(option, bindings)}
+							inferred={inferredOption(option, bindings, values)}
 							onChange={(value) => onOptionChange(option.id, value)}
 						/>
 					))}

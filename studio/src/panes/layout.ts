@@ -241,13 +241,8 @@ export function paneIds(layout: PaneNode): string[] {
 }
 
 /** The layout's panes, top left first */
-function panes(layout: PaneNode): Pane[] {
+export function panes(layout: PaneNode): Pane[] {
 	return layout.kind === 'pane' ? [layout] : layout.children.flatMap((child) => panes(child));
-}
-
-/** The first pane showing a widget type, in layout order (top left first) */
-export function findWidgetPane(layout: PaneNode, widgetType: string): Pane | undefined {
-	return panes(layout).find((pane) => pane.widget?.type === widgetType);
 }
 
 /** The top left pane */

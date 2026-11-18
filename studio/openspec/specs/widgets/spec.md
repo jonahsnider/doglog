@@ -273,7 +273,7 @@ Widgets and the entry browser SHALL show the slashes in full entry names dimmed,
 
 ### Requirement: Default widget for an entry
 
-Each bindable entry SHALL have a default widget, used when the entry is added without choosing a widget: `/console` and `/messages` use the console, other numeric, string, and boolean entries use the graph, `SwerveModuleState[]` and `SwerveModuleVelocity[]` entries use the swerve widget, entries the field widget accepts use the field widget, and all other entries use the values table.
+Each bindable entry SHALL have a default widget, used when the entry is added without choosing a widget: Driver Station controller entries use the controller widget, `/console` and `/messages` use the console, other numeric, string, and boolean entries use the graph, `SwerveModuleState[]` and `SwerveModuleVelocity[]` entries use the swerve widget, entries the field widget accepts use the field widget, and all other entries use the values table.
 
 #### Scenario: Numeric entry
 
@@ -294,6 +294,11 @@ Each bindable entry SHALL have a default widget, used when the entry is added wi
 
 - **WHEN** a `SwerveModuleState[]` entry is added by double-clicking it
 - **THEN** it is shown in a swerve widget
+
+#### Scenario: Controller entry
+
+- **WHEN** `/DS:joystick1/buttons` is added by double-clicking it
+- **THEN** it is shown in a controller widget showing controller 1
 
 #### Scenario: Pose entry
 

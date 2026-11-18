@@ -19,11 +19,11 @@ import {
 	createPane,
 	findPane,
 	findSibling,
-	findWidgetPane,
 	firstPane,
 	joinLayouts,
 	movePane,
 	type Pane,
+	panes,
 	type PaneNode,
 	type PaneSide,
 	setPaneWidget,
@@ -32,7 +32,8 @@ import {
 	type Widget,
 } from '@/panes/layout';
 import { getWidgetType } from '@/widgets/registry';
-import { acceptsEntry } from '@/widgets/widget-type';
+import { optionValues, setWidgetOption } from '@/widgets/options';
+import { acceptsDrop, bindsEntries } from '@/widgets/widget-type';
 
 /**
  * Change a dashboard's pane layout with one of the `@/panes/layout` operations.
@@ -42,14 +43,20 @@ export function updateLayout(id: string, update: (layout: PaneNode) => PaneNode)
 	updateDashboard(id, (dashboard) => ({ ...dashboard, layout: update(dashboard.layout) }));
 }
 
-/** Bind an entry dropped on a pane's widget if the widget accepts it, see `dropEntry()` */
+/**
+ * Bind an entry dropped on a pane's widget if the widget accepts it (see `dropEntry()`), or pick the option the widget
+ * picks from it, see `WidgetType.optionFromEntry`
+ */
 export function dropDashboardEntry(id: string, dragged: DraggedEntry, to: EntryDrop): void {
 	const entry = getEntry(dragged.name);
 	updateLayout(id, (layout) => {
 		const widget = findPane(layout, to.paneId)?.widget;
 		const type = widget && getWidgetType(widget.type);
-		// Entries missing from the source might be accepted once they're loaded
-		return type && (entry === undefined || acceptsEntry(type, entry)) ? dropEntry(layout, dragged, to) : layout;
+		if (!type || !acceptsDrop(type, dragged.name, entry)) {
+			return layout;
+		}
+		const option = type.optionFromEntry?.(dragged.name);
+		return option ? setWidgetOption(layout, to.paneId, option.id, option.value) : dropEntry(layout, dragged, to);
 	});
 }
 
@@ -102,7 +109,13 @@ function splitDirectionFor(paneId: string): SplitDirection {
 export function addDashboardWidget(id: string, widget: Widget): void {
 	updateDashboard(id, (dashboard) => {
 		const focused = getFocusedPane(dashboard);
-		const matching = focused.widget?.type === widget.type ? focused : findWidgetPane(dashboard.layout, widget.type);
+		const type = getWidgetType(widget.type);
+		// Widgets without entries are only the same when their options are, ex. controllers on the same port
+		const options = (other: Widget) => type && JSON.stringify(optionValues(type, other, []));
+		const same = (pane: Pane) =>
+			pane.widget?.type === widget.type &&
+			(type === undefined || bindsEntries(type) || options(pane.widget) === options(widget));
+		const matching = same(focused) ? focused : panes(dashboard.layout).find((pane) => same(pane));
 		if (matching?.widget !== undefined) {
 			const names = widgetBindings(widget).map((binding) => binding.name);
 			return { ...dashboard, layout: addEntries(dashboard.layout, matching.id, names), focusedPaneId: matching.id };
