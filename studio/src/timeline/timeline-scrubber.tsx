@@ -198,11 +198,11 @@ export function Scrubber({
 						/>
 					))}
 
-					{/* The track, colored by the robot's mode. Past the newest live data it's fainter. Centered without alerts above it. */}
+					{/* The track, colored by the robot's mode. Past the newest live data it's fainter. Centered without alerts above it, otherwise moved down to make room. */}
 					<div
 						className={cn(
-							'absolute inset-x-0 h-2 overflow-hidden rounded-full bg-input/40',
-							showAlerts ? 'bottom-1' : 'top-1/2 -translate-y-1/2',
+							'absolute inset-x-0 top-1/2 h-2 overflow-hidden rounded-full bg-input/40 transition-[translate] motion-reduce:transition-none',
+							showAlerts ? 'translate-y-[calc(-50%+0.25rem)]' : '-translate-y-1/2',
 						)}
 					>
 						<div className="absolute inset-y-0 left-0 bg-input" style={{ width: `${toPercent(range.end)}%` }} />
@@ -238,8 +238,8 @@ export function Scrubber({
 
 					<div
 						className={cn(
-							'absolute size-3.5 -translate-x-1/2 rounded-full border-2 border-primary bg-background group-focus-visible:ring-[3px] group-focus-visible:ring-ring/48',
-							showAlerts ? 'bottom-2 translate-y-1/2' : 'top-1/2 -translate-y-1/2',
+							'absolute top-1/2 size-3.5 -translate-x-1/2 rounded-full border-2 border-primary bg-background transition-[translate] group-focus-visible:ring-[3px] group-focus-visible:ring-ring/48 motion-reduce:transition-none',
+							showAlerts ? 'translate-y-[calc(-50%+0.25rem)]' : '-translate-y-1/2',
 						)}
 						style={{ left: `${cursorPercent}%` }}
 					/>
