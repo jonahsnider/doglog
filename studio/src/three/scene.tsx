@@ -65,6 +65,27 @@ function dragOf(event: PointerEvent): 'orbit' | 'pan' | undefined {
 	return event.button === 0 ? 'orbit' : undefined;
 }
 
+// Whether the last input was a key press, so focus moved by script (ex. a menu returning focus after a click, or the
+// scene focusing itself on pointer down) only shows the focus ring when using the keyboard
+let keyboardInput = false;
+// Tests import this module through the widget registry without a DOM
+if (typeof window !== 'undefined') {
+	addEventListener(
+		'keydown',
+		() => {
+			keyboardInput = true;
+		},
+		{ capture: true },
+	);
+	addEventListener(
+		'pointerdown',
+		() => {
+			keyboardInput = false;
+		},
+		{ capture: true },
+	);
+}
+
 /**
  * A 3D scene that fills its parent, drawn over the pane's background, with a view cube to look from set directions.
  * Drag to orbit, right-drag to pan, scroll to zoom, and double-click to reset. While it's
@@ -131,8 +152,7 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 
 	const [drag, setDrag] = useState<'orbit' | 'pan'>();
 	// The orbit controls keep the browser from focusing the scene on click, so it's focused from script, which the browser
-	// treats like keyboard focus. The focus ring is only shown when it wasn't focused by the pointer.
-	const pointerFocus = useRef(false);
+	// treats like keyboard focus. The focus ring is only shown when the keyboard was used last.
 	const [keyboardFocus, setKeyboardFocus] = useState(false);
 
 	return (
@@ -151,9 +171,7 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 				drag === undefined && cubeHovered && 'cursor-pointer',
 			)}
 			onPointerDown={(event) => {
-				pointerFocus.current = true;
 				event.currentTarget.focus({ preventScroll: true });
-				pointerFocus.current = false;
 				setKeyboardFocus(false);
 				rig.current?.stop();
 				setDrag(dragOf(event.nativeEvent));
@@ -166,7 +184,7 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 			onKeyUp={(event) => {
 				held.current.delete(event.key.toLowerCase());
 			}}
-			onFocus={() => setKeyboardFocus(!pointerFocus.current)}
+			onFocus={() => setKeyboardFocus(keyboardInput)}
 			onBlur={() => {
 				held.current.clear();
 				setKeyboardFocus(false);
