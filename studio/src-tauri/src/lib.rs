@@ -1,5 +1,7 @@
 mod agent;
 mod cli;
+#[cfg(desktop)]
+mod mcp_install;
 mod new_window;
 mod relaunch;
 mod sync;
@@ -86,7 +88,13 @@ pub fn run() -> ExitCode {
             #[cfg(target_os = "macos")]
             cli::cli_status,
             #[cfg(target_os = "macos")]
-            cli::install_cli
+            cli::install_cli,
+            #[cfg(desktop)]
+            mcp_install::mcp_agents,
+            #[cfg(desktop)]
+            mcp_install::install_mcp,
+            #[cfg(desktop)]
+            mcp_install::mcp_config
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {

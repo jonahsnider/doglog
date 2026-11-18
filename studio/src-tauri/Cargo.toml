@@ -36,6 +36,7 @@ tauri-plugin-fs = "2"
 tauri-plugin-persisted-scope = "2"
 tauri-plugin-opener = "2"
 tauri-plugin-window-state = "2"
+base64 = "0.22"
 rmcp = { version = "3.11", default-features = false, features = ["server", "transport-io"] }
 getrandom = "0.4"
 

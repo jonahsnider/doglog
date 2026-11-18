@@ -1,5 +1,6 @@
 import { invoke, isTauri } from '@tauri-apps/api/core';
 import { useEffect, useState } from 'react';
+import { AgentsField } from '@/components/agents-field';
 import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldLabel } from '@/components/ui/field';
 import { FramePanel } from '@/components/ui/frame';
@@ -32,9 +33,12 @@ async function installCli(): Promise<boolean> {
 	return true;
 }
 
-/** Settings panel to install the `doglog` command */
+/** Settings panels to install the `doglog` command and add Studio to coding agents */
 export function CliField() {
-	return canInstallCli ? <CliInstall /> : null;
+	if (canInstallCli) {
+		return <CliInstall />;
+	}
+	return isTauri() ? <AgentsField /> : null;
 }
 
 function CliInstall() {
@@ -49,22 +53,26 @@ function CliInstall() {
 	}
 
 	return (
-		<FramePanel>
-			<Field name="cli">
-				<FieldLabel>Terminal command</FieldLabel>
-				<div>
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => void installCli().then((installed) => installed && setStatus('installed'))}
-					>
-						{status === 'missing' ? 'Install' : 'Reinstall'} doglog command
-					</Button>
-				</div>
-				<FieldDescription>
-					{cliStatusDescriptions[status]} <code className="font-mono">doglog match.wpilog</code>
-				</FieldDescription>
-			</Field>
-		</FramePanel>
+		<>
+			<FramePanel>
+				<Field name="cli">
+					<FieldLabel>Terminal command</FieldLabel>
+					<div>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => void installCli().then((installed) => installed && setStatus('installed'))}
+						>
+							{status === 'missing' ? 'Install' : 'Reinstall'} doglog command
+						</Button>
+					</div>
+					<FieldDescription>
+						{cliStatusDescriptions[status]} <code className="font-mono">doglog match.wpilog</code>
+					</FieldDescription>
+				</Field>
+			</FramePanel>
+			{/* Agents run the command, so it has to open this copy of Studio */}
+			{status === 'installed' && <AgentsField />}
+		</>
 	);
 }

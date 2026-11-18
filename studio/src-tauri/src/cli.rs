@@ -23,7 +23,8 @@ pub fn parse_args(version: String) -> ControlFlow<ExitCode, Option<PathBuf>> {
         )
         .subcommand(
             Command::new("mcp")
-                .about("Run the MCP server for agents over standard input and output"),
+                .about("Run the MCP server for agents over standard input and output")
+                .subcommand(Command::new("install").about("Add the doglog MCP server to your coding agents")),
         )
         .subcommands(agent::cli::subcommands());
 
@@ -40,6 +41,8 @@ pub fn parse_args(version: String) -> ControlFlow<ExitCode, Option<PathBuf>> {
         Some((name, matches)) => {
             attach_console();
             ControlFlow::Break(match (name.as_str(), matches.subcommand_name()) {
+                #[cfg(desktop)]
+                ("mcp", Some("install")) => crate::mcp_install::run_cli(),
                 ("mcp", _) => agent::mcp::run(version),
                 (resource, _) => agent::cli::run(resource, &matches),
             })
