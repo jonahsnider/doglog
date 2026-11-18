@@ -1,4 +1,4 @@
-// A view cube like Onshape's, built in the robot's coordinates (+X front, +Y left, +Z up)
+// A view cube, built in the robot's coordinates (+X front, +Y left, +Z up)
 import { GizmoHelper, Line, RoundedBox } from '@react-three/drei';
 import { type ThreeEvent, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -32,8 +32,7 @@ const faces = [
 	{ label: 'Back', normal: x.clone().negate(), right: y.clone().negate(), up: z },
 	{ label: 'Left', normal: y, right: x.clone().negate(), up: z },
 	{ label: 'Right', normal: y.clone().negate(), right: x, up: z },
-	// Like Onshape's, the top view has the robot's front down and the bottom view has it up, so these read upright from
-	// the front too
+	// The top view has the robot's front down and the bottom view has it up, so these read upright from the front too
 	{ label: 'Top', normal: z, right: y, up: x.clone().negate() },
 	{ label: 'Bottom', normal: z.clone().negate(), right: y, up: x },
 ].map(({ label, normal, right, up }) => ({

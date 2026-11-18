@@ -132,7 +132,7 @@ export function CameraRig({ ref }: { ref: Ref<Rig> }) {
 			const horizontal = Math.hypot(direction.x, direction.y);
 			animateTo({
 				...current(),
-				// Straight above or below has no direction. Like Onshape, the top view has the robot's front down on screen
+				// Straight above or below has no direction. The top view has the robot's front down on screen
 				// and the bottom view has it up.
 				azimuth: horizontal < 1e-6 ? (direction.z > 0 ? 0 : Math.PI) : Math.atan2(direction.y, direction.x),
 				elevation: Math.max(-maxElevation, Math.min(maxElevation, Math.atan2(direction.z, horizontal))),

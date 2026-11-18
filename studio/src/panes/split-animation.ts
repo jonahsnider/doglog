@@ -9,7 +9,7 @@ export type SplitAnimation =
 	| { kind: 'open'; childId: string; split: Split }
 	| { kind: 'close'; childId: string; split: Split };
 
-/** How the layout changed from `previous` to `node` at the same place in it, like Rex animating its splits */
+/** How the layout changed from `previous` to `node` at the same place in it, to animate its splits */
 export function splitAnimation(previous: PaneNode, node: PaneNode, layout: PaneNode): SplitAnimation | undefined {
 	// A pane split in two, as a split with the pane and the new pane
 	if (previous.kind === 'pane' && node.kind === 'split' && node.children.length === 2) {

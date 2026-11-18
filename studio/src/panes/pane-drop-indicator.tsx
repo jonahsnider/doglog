@@ -12,7 +12,7 @@ const sideInsets: Record<PaneSide, string> = {
 	bottom: '50% 0 0 0',
 };
 
-/** Highlights the half of the pane that a pane dragged over it will take, following the pointer to the nearest side. Like Rex, it jumps between sides without animating. */
+/** Highlights the half of the pane that a pane dragged over it will take, following the pointer to the nearest side. It jumps between sides without animating. */
 export function PaneDropIndicator({ layout, paneId }: { layout: PaneNode; paneId: string }) {
 	const [drop, setDrop] = useState<{ side: PaneSide; allowed: boolean }>();
 	useDragDropMonitor({

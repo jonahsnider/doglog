@@ -32,7 +32,7 @@ context: |
     (the scene with its camera, controls, and lighting, robots, 3D mechanisms, WPILib to three.js poses, and loading
     robot projects), so the robot widget and future field widgets share them. Scenes copy the viewer in Team 581's Spot
     (team581/spot, `packages/camera-viewer`): an orthographic Z-up camera in WPILib meters, OrbitControls, a headlight on
-    the camera, and theme colors read from CSS variables. Preset views use drei's view cube, like Onshape's.
+    the camera, and theme colors read from CSS variables. Preset views use drei's view cube.
   - Mechanism2d: groups with a `.type` entry of `Mechanism2d` get a synthesized entry of the `mechanism2d` kind, which
     widgets read the group's entries through (`src/data/mechanism.ts`).
   - Robot projects: `doglog.jsonc` (or `doglog.json`) at the root of a robot code project, parsed with jsonc-parser and

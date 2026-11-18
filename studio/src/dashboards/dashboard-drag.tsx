@@ -8,7 +8,7 @@ import { getDashboard, useDashboards } from '@/dashboards/dashboards';
 import { cn } from '@/lib/utils';
 import { canJoinLayouts } from '@/panes/layout';
 
-/** Like Dia, dragging another dashboard over the open one shows zones to add it as a left or right split */
+/** Dragging another dashboard over the open one shows zones to add it as a left or right split */
 export function DashboardSplitZones() {
 	const { dashboardId } = useParams({ strict: false });
 	const { source } = useDragOperation();

@@ -162,7 +162,7 @@ const EntryRowView = memo(function EntryRowView({
 	editing: boolean;
 	/** The edited widget shows this entry */
 	bound: boolean;
-	/** The edited widget shows entries in this group, marked like VS Code marks folders with changes */
+	/** The edited widget shows entries in this group, marked like a folder with changes in a code editor */
 	containsBound: boolean;
 }) {
 	const { dashboardId } = useParams({ from: '/dashboards/$dashboardId' });

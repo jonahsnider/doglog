@@ -106,12 +106,12 @@ In 3D, the robot widget SHALL use a camera without perspective, starting from th
 
 ### Requirement: View cube
 
-In 3D, the robot widget SHALL show a view cube in its top-right corner, like Onshape's, that turns with the camera and labels the robot's Front, Back, Left, Right, Top, and Bottom, with thin lines between each face's center and its edges and corners. Clicking a face, edge, or corner MUST turn the camera to look from that direction, keeping its zoom and what it's centered on, animating unless the system reduces motion.
+In 3D, the robot widget SHALL show a view cube in its top-right corner that turns with the camera and labels the robot's Front, Back, Left, Right, Top, and Bottom, with thin lines between each face's center and its edges and corners. Clicking a face, edge, or corner MUST turn the camera to look from that direction, keeping its zoom and what it's centered on, animating unless the system reduces motion.
 
 #### Scenario: Top view
 
 - **WHEN** the user clicks the view cube's Top face
-- **THEN** the robot is shown from directly above, with its front pointing down like Onshape's top view
+- **THEN** the robot is shown from directly above, with its front pointing down
 
 #### Scenario: Corner
 

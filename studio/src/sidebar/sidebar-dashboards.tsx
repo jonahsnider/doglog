@@ -173,7 +173,7 @@ function LocalDashboards(props: SectionProps) {
 	return (
 		<SidebarGroup ref={ref} className="pb-0" onClick={props.onClick} onDoubleClick={props.onDoubleClick}>
 			<SectionLabel label="Dashboards">
-				{/* Like Dia, hovering the label reveals a button to close every dashboard */}
+				{/* Hovering the label reveals a button to close every dashboard */}
 				{props.dashboards.length > 0 && (
 					<button
 						type="button"
@@ -197,7 +197,7 @@ function LocalDashboards(props: SectionProps) {
 						<span>New dashboard</span>
 					</SidebarMenuButton>
 				</SidebarMenuItem>
-				{/* Like Dia, opened dashboards slide down out of the new dashboard button and closed ones slide back up */}
+				{/* Opened dashboards slide down out of the new dashboard button and closed ones slide back up */}
 				<LazyMotion features={domAnimation} strict>
 					<AnimatePresence initial={false}>{items}</AnimatePresence>
 				</LazyMotion>

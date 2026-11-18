@@ -126,7 +126,7 @@ Users SHALL be able to reorder dashboards in the sidebar by dragging them. Dashb
 
 ### Requirement: Combine dashboards
 
-Like Dia's split view, dragging a dashboard from the sidebar over the open dashboard SHALL show Add left split and Add right split zones. Dropping it on a zone MUST put its panes beside the open dashboard's panes on that side, each taking half the width, and close the dragged dashboard. The zones MUST be disabled when the combined dashboard would have panes narrower than a quarter of it. Dragging the open dashboard MUST NOT show the zones.
+Dragging a dashboard from the sidebar over the open dashboard SHALL show Add left split and Add right split zones. Dropping it on a zone MUST put its panes beside the open dashboard's panes on that side, each taking half the width, and close the dragged dashboard. The zones MUST be disabled when the combined dashboard would have panes narrower than a quarter of it. Dragging the open dashboard MUST NOT show the zones.
 
 #### Scenario: Add a right split
 
@@ -185,7 +185,7 @@ Users SHALL be able to duplicate a dashboard, or every selected dashboard, from 
 
 ### Requirement: Move panes
 
-Like Rex, users SHALL be able to drag a pane by its title, which shows a move icon and a background while hovered, empty panes included, and drop it on the half of another pane nearest the pointer. That half MUST be highlighted, moving between sides without animating. The dragged pane MUST go on that side, each taking half the space, and its sibling MUST take its old space. Sides where panes would end up too small MUST be shown as unavailable.
+Users SHALL be able to drag a pane by its title, which shows a move icon and a background while hovered, empty panes included, and drop it on the half of another pane nearest the pointer. That half MUST be highlighted, moving between sides without animating. The dragged pane MUST go on that side, each taking half the space, and its sibling MUST take its old space. Sides where panes would end up too small MUST be shown as unavailable.
 
 #### Scenario: Not enough room
 
@@ -250,7 +250,7 @@ Closing a dashboard SHALL remove it from the sidebar without asking for confirma
 
 ### Requirement: Close several dashboards
 
-Like browser tabs, a dashboard's menus SHALL offer to close every other dashboard, or every dashboard below it in the sidebar. Each option MUST be disabled when there's nothing for it to close. Like Dia, hovering the Dashboards label in the sidebar SHALL reveal a button to close every dashboard, hidden when there are none.
+Like browser tabs, a dashboard's menus SHALL offer to close every other dashboard, or every dashboard below it in the sidebar. Each option MUST be disabled when there's nothing for it to close. Hovering the Dashboards label in the sidebar SHALL reveal a button to close every dashboard, hidden when there are none.
 
 #### Scenario: Close other dashboards
 
@@ -403,7 +403,7 @@ A dashboard SHALL be a layout of panes, each holding exactly one widget. Users M
 
 ### Requirement: Pane sizes
 
-Like Rex, splitting a pane in the same direction as the panes beside it SHALL add a pane to that row or column rather than splitting the pane in two. Panes the user hasn't resized MUST share their row or column's space evenly, while resized panes keep their size, and splitting a resized pane MUST share its size with the new pane. Releasing a divider close to where it would be with the panes beside it sharing their space evenly MUST snap it there.
+Splitting a pane in the same direction as the panes beside it SHALL add a pane to that row or column rather than splitting the pane in two. Panes the user hasn't resized MUST share their row or column's space evenly, while resized panes keep their size, and splitting a resized pane MUST share its size with the new pane. Releasing a divider close to where it would be with the panes beside it sharing their space evenly MUST snap it there.
 
 #### Scenario: Split a pane again
 
@@ -430,7 +430,7 @@ Like Rex, splitting a pane in the same direction as the panes beside it SHALL ad
 
 ### Requirement: Zoom pane
 
-Like Rex, users SHALL be able to zoom a pane so it fills the dashboard, hiding the other panes until it's restored. Zooming MUST slide the other panes off the dashboard, away from the zoomed pane, and restoring MUST slide them back. Panes on the same side of the zoomed pane MUST move together, however the dashboard is split. Splitting or closing any pane MUST restore the other panes. Zooming MUST NOT be an undo step, and a dashboard MUST stay zoomed when it's reopened.
+Users SHALL be able to zoom a pane so it fills the dashboard, hiding the other panes until it's restored. Zooming MUST slide the other panes off the dashboard, away from the zoomed pane, and restoring MUST slide them back. Panes on the same side of the zoomed pane MUST move together, however the dashboard is split. Splitting or closing any pane MUST restore the other panes. Zooming MUST NOT be an undo step, and a dashboard MUST stay zoomed when it's reopened.
 
 #### Scenario: Zoom a pane
 

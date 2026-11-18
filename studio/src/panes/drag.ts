@@ -37,7 +37,7 @@ const sensors = [
 ];
 
 /**
- * Like Rex, lets a pane be dragged by its title to move it beside another pane or into a new dashboard.
+ * Lets a pane be dragged by its title to move it beside another pane or into a new dashboard.
  * The only pane can still be dropped on the sidebar to move its dashboard.
  * Attach `dragRef` to the title and `dropRef` to the pane.
  */

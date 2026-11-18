@@ -3,7 +3,7 @@ import { shortcuts } from '@/commands/commands';
 import { PaneButton } from '@/panes/pane-button';
 import type { SplitDirection } from '@/panes/layout';
 
-/** Like Rex, splitting is hidden while zoomed since it would restore the other panes */
+/** Splitting is hidden while zoomed since it would restore the other panes */
 export function PaneLayoutButtons({
 	canSplitRight,
 	canSplitDown,

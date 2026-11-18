@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Let AI agents control a running Studio so they can build dashboards for users, the way they'd help build a Grafana dashboard. Agents see what's in a data source, but never its values: analyzing data is the job of wpilog-parser and its skill, not Studio.
+Let AI agents control a running Studio so they can build dashboards for users. Agents see what's in a data source, but never its values: analyzing data is the job of wpilog-parser and its skill, not Studio.
 
 ## Requirements
 

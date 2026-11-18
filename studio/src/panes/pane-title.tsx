@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import { bindsEntries, type WidgetType } from '@/widgets/widget-type';
 
 /**
- * Like Rex, panes are dragged by their title, which shows a move icon and a background while hovered or dragged. Empty panes, which have no name, get one too so they can be dragged.
+ * Panes are dragged by their title, which shows a move icon and a background while hovered or dragged. Empty panes, which have no name, get one too so they can be dragged.
  * Double-clicking it edits the widget's entries, for widgets that take them.
  */
 export function PaneTitle({
