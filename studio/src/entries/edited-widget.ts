@@ -10,6 +10,7 @@ import { bindsEntries, type WidgetType } from '@/widgets/widget-type';
 
 /** The widget whose entries the entry browser is editing, see `startEditing()` */
 export type EditedWidget = {
+	paneId: string;
 	type: WidgetType;
 	/** Names of the entries the widget shows */
 	bound: readonly string[];
@@ -39,6 +40,7 @@ export function useEditedWidget(dashboard: Dashboard): EditedWidget | undefined 
 		const { dashboardId, paneId } = editing;
 		const bound = [...new Set(widgetBindings(widget).map((binding) => binding.name))];
 		return {
+			paneId,
 			type: edited,
 			bound,
 			setBound: (name, on) =>

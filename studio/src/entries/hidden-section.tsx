@@ -4,7 +4,8 @@ import { useMemo, useState } from 'react';
 import { Separator as Divider } from '@/components/ui/separator';
 import type { EditedWidget } from '@/entries/edited-widget';
 import type { EntrySectionDropData } from '@/entries/drag';
-import { EntryRows, SectionHeaderLabel } from '@/entries/entry-browser-rows';
+import { EntryRows } from '@/entries/entry-browser-rows';
+import { SectionHeaderLabel } from '@/entries/section-header-label';
 import { type EntryTreeNode, entryTreeView } from '@/entries/tree';
 import { cn } from '@/lib/utils';
 

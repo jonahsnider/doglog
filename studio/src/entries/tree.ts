@@ -130,6 +130,17 @@ export function toggledGroups(items: readonly EntryTreeNode[], expanded: readonl
 	]);
 }
 
+/** Paths of the groups the named entries are in, ex. `/Arm` and `/Arm/Wrist` for `/Arm/Wrist/Angle` */
+export function ancestorGroups(names: Iterable<string>): Set<string> {
+	const groups = new Set<string>();
+	for (const name of names) {
+		for (let end = name.indexOf('/', 1); end !== -1; end = name.indexOf('/', end + 1)) {
+			groups.add(name.slice(0, end));
+		}
+	}
+	return groups;
+}
+
 function topLevelGroups(items: readonly EntryTreeNode[]): string[] {
 	return items.flatMap((node) => (node.children ? [node.value] : []));
 }

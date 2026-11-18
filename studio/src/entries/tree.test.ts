@@ -1,7 +1,14 @@
 import { expect, test } from 'vite-plus/test';
 import type { Entry } from '../data/data-store.ts';
 import { Samples } from '../data/samples.ts';
-import { buildEntryTree, entryTreeView, expandedGroups, sectionEntryTree, toggledGroups } from './tree.ts';
+import {
+	ancestorGroups,
+	buildEntryTree,
+	entryTreeView,
+	expandedGroups,
+	sectionEntryTree,
+	toggledGroups,
+} from './tree.ts';
 
 function entries(...names: string[]): Entry[] {
 	return names.map((name) => ({ name, type: 'double', kind: 'number', samples: new Samples(), metadata: {} }));
@@ -146,4 +153,8 @@ test('search shows hidden matches and highlights full paths', () => {
 	const view = entryTreeView(hidden, [], 'arm vel', 'hidden');
 	expect(view.rows.map((row) => row.item.value)).toEqual(['/Arm/Velocity']);
 	expect(view.highlights?.get('/Arm/Velocity')).toEqual([1, 4, 5, 8]);
+});
+
+test('ancestor groups of entries', () => {
+	expect([...ancestorGroups(['/Arm/Wrist/Angle', '/Arm/Velocity', '/Time'])]).toEqual(['/Arm', '/Arm/Wrist']);
 });

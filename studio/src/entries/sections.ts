@@ -2,8 +2,8 @@ import * as z from 'zod';
 import type { MenuEntry } from '@/components/app-context-menu';
 import { createPersistedAtom } from '@/lib/persisted-store';
 
-/** Where an entry or group is shown in the entry browser */
-export type EntrySection = 'pinned' | 'main' | 'hidden';
+/** Where an entry or group is shown in the entry browser. `active` lists the edited widget's entries again, see `ActiveSection`. */
+export type EntrySection = 'active' | 'pinned' | 'main' | 'hidden';
 
 export type EntryPlacements = Readonly<Record<string, 'pinned' | 'hidden'>>;
 
@@ -15,7 +15,7 @@ export const entryPlacementsStore = createPersistedAtom<EntryPlacements>(
 );
 
 /** Pin, hide, or restore an entry or group, `main` restores it */
-export function moveToSection(path: string, section: EntrySection): void {
+export function moveToSection(path: string, section: Exclude<EntrySection, 'active'>): void {
 	entryPlacementsStore.set(({ [path]: _previous, ...others }) =>
 		section === 'main' ? others : { ...others, [path]: section },
 	);

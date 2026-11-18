@@ -2,24 +2,23 @@ import { useDraggable, useDroppable } from '@dnd-kit/react';
 import { useParams } from '@tanstack/react-router';
 import { defaultRangeExtractor, type Range, useVirtualizer } from '@tanstack/react-virtual';
 import { Tree, TreeItem, TreeItemCheckbox, TreeItemIndicator, TreeItemLabel } from '@ui-sdk/react/tree';
-import { CheckIcon, ChevronRightIcon, EyeOffIcon, PinIcon } from 'lucide-react';
+import { CheckIcon, ChevronRightIcon } from 'lucide-react';
 import { Fragment, memo, useCallback, useRef, useState } from 'react';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { EntryName } from '@/entries/entry-name';
+import { SectionHeaderLabel } from '@/entries/section-header-label';
 import { HighlightedText } from '@/components/highlighted-text';
 import { Separator } from '@/components/ui/separator';
 import { TooltipCreateHandle, TooltipTrigger } from '@/components/ui/tooltip';
 import { MarkTooltip, TypeMark } from '@/entries/value-marks';
 import { EntryRowValue } from '@/entries/entry-value';
-import type { Entry } from '@/data/data-store';
-import { formatValueForCopy } from '@/data/format-value';
-import { getCursorTime } from '@/timeline/timeline';
+import { entryMenuItems } from '@/entries/entry-menu';
 import { addDashboardWidget } from '@/dashboards/panes';
 import type { EntryDragData, EntrySectionDropData } from '@/entries/drag';
 import { entryDragType, entryRowDragType, entryRowSensors } from '@/entries/drag';
 import { type EntrySection, sectionMenuItems } from '@/entries/sections';
 import { changedCheckbox, type EditedWidget } from '@/entries/edited-widget';
-import type { EntryTreeRow, EntryTreeView } from '@/entries/tree';
+import { ancestorGroups, type EntryTreeNode, type EntryTreeRow, type EntryTreeView } from '@/entries/tree';
 import { cn } from '@/lib/utils';
 import { defaultWidget } from '@/widgets/registry';
 
@@ -31,20 +30,6 @@ const markTooltip = TooltipCreateHandle<string>();
 /** Tooltip of the rows' type, boolean, and unsupported marks, rendered once for every `EntryRows` */
 export function EntryRowsTooltip() {
 	return <MarkTooltip handle={markTooltip} />;
-}
-
-/** Text of a section's header, ex. `Pinned` */
-export function SectionHeaderLabel({ section, count }: { section: 'pinned' | 'hidden'; count: number }) {
-	const Icon = section === 'pinned' ? PinIcon : EyeOffIcon;
-	return (
-		<>
-			<Icon className="size-3.5 shrink-0 text-muted-foreground" />
-			<span className="flex-1 truncate text-start text-xs font-semibold">
-				{section === 'pinned' ? 'Pinned' : 'Hidden'}
-			</span>
-			<span className="text-xs text-muted-foreground tabular-nums">{count}</span>
-		</>
-	);
 }
 
 /** Only renders the rows scrolled into view, logs can have thousands of entries */
@@ -68,6 +53,8 @@ export function EntryRows({
 }) {
 	const { rows, highlights } = view;
 	const entryNames = new Set(rows.flatMap((row) => (row.item.entry ? [row.item.value] : [])));
+	const bound = new Set(edited?.bound);
+	const boundGroups = ancestorGroups(bound);
 	const container = useRef<HTMLDivElement>(null);
 	// Index of the row keyboard focus moved to, see `rangeExtractor`
 	const [highlighted, setHighlighted] = useState(0);
@@ -146,6 +133,8 @@ export function EntryRows({
 								highlights={highlights?.get(row.item.value)}
 								dropTarget={row.section === dropSection}
 								editing={edited !== undefined}
+								bound={row.item.entry !== undefined && bound.has(row.item.value)}
+								containsBound={boundGroups.has(row.item.value)}
 							/>
 						</Fragment>
 					);
@@ -162,6 +151,8 @@ const EntryRowView = memo(function EntryRowView({
 	highlights,
 	dropTarget,
 	editing,
+	bound,
+	containsBound,
 }: {
 	row: EntryTreeRow;
 	top: number;
@@ -169,6 +160,10 @@ const EntryRowView = memo(function EntryRowView({
 	dropTarget: boolean;
 	/** Entries have checkboxes that bind them to the edited widget, instead of being added to the dashboard by double-clicking */
 	editing: boolean;
+	/** The edited widget shows this entry */
+	bound: boolean;
+	/** The edited widget shows entries in this group, marked like VS Code marks folders with changes */
+	containsBound: boolean;
 }) {
 	const { dashboardId } = useParams({ from: '/dashboards/$dashboardId' });
 	const { item: node, level, section } = row;
@@ -188,6 +183,8 @@ const EntryRowView = memo(function EntryRowView({
 	const { ref: dropRef } = useDroppable<EntrySectionDropData>({
 		id: node.value,
 		accept: (source) => source.data['section'] !== undefined,
+		// The Active section lists entries again, they can't be moved to it
+		disabled: section === 'active',
 		data: { section },
 	});
 	const ref = useCallback(
@@ -220,20 +217,6 @@ const EntryRowView = memo(function EntryRowView({
 		);
 	}
 
-	const label = (
-		<TooltipTrigger
-			handle={markTooltip}
-			payload={node.value}
-			render={<span className={cn('min-w-24 flex-1 truncate', unsupported && 'text-muted-foreground')} />}
-		>
-			{/* The tops of pinned and hidden entries and groups are labeled with their full paths */}
-			{node.label === node.value ? (
-				<EntryName name={node.value} ranges={highlights} />
-			) : (
-				<HighlightedText text={node.label} ranges={highlights} />
-			)}
-		</TooltipTrigger>
-	);
 	const menuItems = (): MenuEntry[] => [...entryMenuItems(entry, add), ...sectionMenuItems(node.value, section)];
 
 	return (
@@ -252,32 +235,38 @@ const EntryRowView = memo(function EntryRowView({
 			<TreeItemLabel className="flex h-full min-w-0 flex-1 items-center gap-1.5">
 				{indicator}
 				{entry && <EntryMarks type={entry.type} editing={editing} />}
-				{label}
+				<RowLabel node={node} highlights={highlights} unsupported={unsupported} bound={bound} />
+				{containsBound && (
+					<span role="img" aria-label="Has active entries" className="size-1.5 shrink-0 rounded-full bg-primary" />
+				)}
 			</TreeItemLabel>
 			{entry && <EntryRowValue entry={entry} tooltip={markTooltip} />}
 		</AppContextMenu>
 	);
 });
 
-/** Copies the value at the cursor, read when chosen since rows don't re-render as the cursor moves */
-function copyValue(entry: Entry): void {
-	const time = getCursorTime();
-	const value = time === undefined ? undefined : entry.samples.valueAt(time);
-	if (value !== undefined) {
-		void navigator.clipboard.writeText(formatValueForCopy(value));
-	}
-}
-
-/** Actions for an entry's row, none for groups */
-function entryMenuItems(entry: Entry | undefined, add: (() => void) | undefined): MenuEntry[] {
-	return entry
-		? [
-				{ label: 'Add to dashboard', disabled: !add, onSelect: () => add?.() },
-				{ label: 'Copy name', onSelect: () => void navigator.clipboard.writeText(entry.name) },
-				{ label: 'Copy value', disabled: entry.kind === 'unsupported', onSelect: () => copyValue(entry) },
-				'separator',
-			]
-		: [];
+function RowLabel({
+	node,
+	highlights,
+	unsupported,
+	bound,
+}: {
+	node: EntryTreeNode;
+	highlights: readonly number[] | undefined;
+	unsupported: boolean;
+	bound: boolean;
+}) {
+	const className = cn('min-w-24 flex-1 truncate', unsupported && 'text-muted-foreground', bound && 'text-primary');
+	return (
+		<TooltipTrigger handle={markTooltip} payload={node.value} render={<span className={className} />}>
+			{/* The tops of pinned and hidden entries and groups are labeled with their full paths */}
+			{node.label === node.value ? (
+				<EntryName name={node.value} ranges={highlights} />
+			) : (
+				<HighlightedText text={node.label} ranges={highlights} />
+			)}
+		</TooltipTrigger>
+	);
 }
 
 /** An entry's type, after a checkbox that's checked while the edited widget shows it, see `EditedWidget` */

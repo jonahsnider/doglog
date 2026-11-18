@@ -216,6 +216,25 @@ While editing a widget's entries, each entry SHALL show a checkbox that's checke
 - **THEN** the console shows the first entry matching "msg"
 - **AND** the search stays "msg"
 
+### Requirement: Active entries while editing
+
+While editing a widget's entries, the entry browser SHALL list the entries the widget showed when editing started in an Active section at the top, labeled with their full paths, and MUST keep them in their places in the tree too. Unbinding an entry MUST keep it in the Active section until editing stops or switches widgets. The groups leading to those entries MUST be expanded when editing starts. Entries the widget shows MUST be colored, and groups containing them MUST be marked with a dot, like VS Code marks folders with changes.
+
+#### Scenario: Active section
+
+- **GIVEN** a graph bound to `/Arm/Angle`
+- **WHEN** the user starts editing the graph's entries
+- **THEN** `/Arm/Angle` is listed in the Active section, checked
+- **AND** the `Arm` group is expanded, showing `Angle` checked
+- **WHEN** the user unbinds `/Arm/Angle`
+- **THEN** it stays in the Active section, unchecked
+
+#### Scenario: Collapsed group with an active entry
+
+- **GIVEN** the entry browser is editing a widget that shows `/Arm/Angle`
+- **WHEN** the user collapses the `Arm` group
+- **THEN** the `Arm` group is marked with a dot
+
 ### Requirement: Stop editing
 
 Editing a widget's entries SHALL stop when the user presses Esc, presses the header's stop button or the widget's Edit entries button, closes the widget's pane, changes it to a widget that doesn't accept entries, or opens another dashboard. Focusing another pane MUST switch to editing its widget's entries, keeping the search, or stop editing if its widget doesn't accept entries.

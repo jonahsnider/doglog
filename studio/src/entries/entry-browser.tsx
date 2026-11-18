@@ -6,6 +6,7 @@ import { PanelRightCloseIcon, PanelRightOpenIcon, SearchIcon, XIcon } from 'luci
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { Panel, Separator, usePanelRef } from 'react-resizable-panels';
 import { EntryRows, EntryRowsTooltip } from '@/entries/entry-browser-rows';
+import { ActiveSection } from '@/entries/active-section';
 import { HiddenSection } from '@/entries/hidden-section';
 import { type EditedWidget, hiddenEntriesNote, useEditedWidget } from '@/entries/edited-widget';
 import { Button } from '@/components/ui/button';
@@ -14,11 +15,20 @@ import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { shortcuts } from '@/commands/commands';
 import type { Dashboard } from '@/dashboards/dashboards';
-import { useEntries } from '@/data/data-store';
+import { type Entry, useEntries } from '@/data/data-store';
 import { useSource } from '@/data/source';
 import type { EntryDragData, EntrySectionDropData } from '@/entries/drag';
 import { entryPlacementsStore, moveToSection } from '@/entries/sections';
-import { buildEntryTree, entryTreeView, expandedGroups, sectionEntryTree, toggledGroups } from '@/entries/tree';
+import {
+	ancestorGroups,
+	buildEntryTree,
+	type EntryTreeNode,
+	type EntryTreeView,
+	entryTreeView,
+	expandedGroups,
+	sectionEntryTree,
+	toggledGroups,
+} from '@/entries/tree';
 import {
 	entryBrowserOpenStore,
 	focusEntrySearch,
@@ -28,7 +38,7 @@ import {
 } from '@/entries/editing';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { dragRegion } from '@/desktop/title-bar';
-import { acceptsEntry } from '@/widgets/widget-type';
+import { acceptsEntry, type WidgetType } from '@/widgets/widget-type';
 import * as z from 'zod';
 
 const defaultWidthPx = 320;
@@ -145,6 +155,8 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 	const deferredQuery = useDeferredValue(query);
 	// Groups expanded or collapsed by the user, top-level groups start expanded
 	const [toggled, setToggled] = useState<ReadonlySet<string>>(new Set());
+	// The entries the edited widget showed when editing it started, see `ActiveSection`
+	const [session, setSession] = useState<{ paneId: string; names: readonly string[] }>();
 	const placements = useSelector(entryPlacementsStore);
 	const drag = useDragOperation<
 		EntryDragData | EntrySectionDropData,
@@ -159,7 +171,7 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 		onDragEnd: ({ operation, canceled }) => {
 			const from = operation.source?.data.section;
 			const to = operation.target?.data.section;
-			if (!canceled && from !== undefined && to !== undefined && to !== from) {
+			if (!canceled && from !== undefined && to !== undefined && to !== 'active' && to !== from) {
 				moveToSection(operation.source!.data.name, to);
 			}
 		},
@@ -169,6 +181,21 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 	// Empty sections are shown while dragging so rows can be dropped in them
 	const dragging = draggedFrom !== undefined;
 	const sectioned = useMemo(() => sectionEntryTree(tree, placements, dragging), [tree, placements, dragging]);
+	if (session?.paneId !== edited?.paneId) {
+		setSession(edited && { paneId: edited.paneId, names: edited.bound });
+		if (edited) {
+			// Reveal the widget's entries in the tree
+			const expanded = [...expandedGroups(sectioned.items, toggled), ...ancestorGroups(edited.bound)];
+			setToggled(toggledGroups(sectioned.items, expanded));
+		}
+	}
+	const activeNodes = useMemo((): EntryTreeNode[] => {
+		const byName = new Map(entries.map((entry) => [entry.name, entry]));
+		return (session?.names ?? []).flatMap((name) => {
+			const entry = byName.get(name);
+			return entry ? [{ value: name, label: name, entry }] : [];
+		});
+	}, [session, entries]);
 	const view = useMemo(
 		() => entryTreeView(sectioned.items, expandedGroups(sectioned.items, toggled), deferredQuery),
 		[sectioned, toggled, deferredQuery],
@@ -176,16 +203,7 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 	// Moving a row within its own section does nothing
 	const dropTarget = dropSection === draggedFrom ? undefined : dropSection;
 
-	let message: string | undefined;
-	if (!source) {
-		message = 'Open a log or connect to a robot to browse its entries.';
-	} else if (allEntries.length === 0) {
-		message = 'No entries yet.';
-	} else if (entries.length === 0) {
-		message = `No entries the ${editedType!.name.toLowerCase()} can show.`;
-	} else if (view.rows.length === 0 && view.highlights !== undefined) {
-		message = 'No matching entries.';
-	}
+	const message = emptyMessage(source !== undefined, allEntries, entries, editedType, view);
 
 	return (
 		<>
@@ -213,6 +231,7 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 				</InputGroup>
 			</div>
 			<EntryRowsTooltip />
+			{edited && <ActiveSection nodes={activeNodes} query={deferredQuery} edited={edited} />}
 			{message === undefined ? (
 				<EntryRows
 					view={view}
@@ -245,4 +264,27 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 			)}
 		</>
 	);
+}
+
+/** Shown instead of the tree when it has no rows */
+function emptyMessage(
+	hasSource: boolean,
+	allEntries: readonly Entry[],
+	entries: readonly Entry[],
+	editedType: WidgetType | undefined,
+	view: EntryTreeView,
+): string | undefined {
+	if (!hasSource) {
+		return 'Open a log or connect to a robot to browse its entries.';
+	}
+	if (allEntries.length === 0) {
+		return 'No entries yet.';
+	}
+	if (entries.length === 0) {
+		return `No entries the ${editedType!.name.toLowerCase()} can show.`;
+	}
+	if (view.rows.length === 0 && view.highlights !== undefined) {
+		return 'No matching entries.';
+	}
+	return undefined;
 }
