@@ -3,7 +3,7 @@ import { useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { ChevronsUpDownIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { TextMorph } from 'torph/react';
-import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
+import { AppContextMenu, type MenuAction, type MenuEntry } from '@/components/app-context-menu';
 import {
 	Menu,
 	MenuItem,
@@ -28,9 +28,9 @@ import {
 import { chooseLog, openLogPath, openRecentLogHandle } from '@/data/open-log';
 import { type ConnectTarget, findConnectTarget, isSourceTarget } from '@/data/connect-target';
 import {
+	closeLive,
 	disconnect,
 	type LiveSource,
-	resetLive,
 	showSource,
 	type Source,
 	type Sources,
@@ -77,23 +77,33 @@ function liveTarget(live: LiveSource): ConnectTarget | undefined {
 
 const connectLabels: Record<ConnectTarget, string> = { robot: 'Connect to robot', simulator: 'Connect to simulator' };
 
-/** The Connect action, which goes back to the live session while a log is shown */
-function connectAction({ live, shown }: Sources, connectTarget: ConnectTarget | undefined) {
-	if (live && shown !== 'live') {
-		return { label: `Back to ${liveTarget(live) ?? 'live'}`, disabled: false };
+const connectAction = (label: string): MenuAction => ({ label, shortcut: shortcuts.connect, onSelect: startConnect });
+
+/**
+ * The live section of the source menu: connecting, disconnecting, or once disconnected, reconnecting or clearing the data.
+ * `backToLive` offers going back to a live session behind the log, for menus without the switcher.
+ */
+function liveActions(
+	{ live, shown }: Sources,
+	connectTarget: ConnectTarget | undefined,
+	backToLive: boolean,
+): MenuAction[] {
+	if (live === undefined) {
+		return [connectAction(connectTarget === undefined ? 'Connect' : connectLabels[connectTarget])];
 	}
-	// Connecting again would connect to the same server, so it's only offered when it reconnects or switches to another one
-	if (live && isSourceTarget(live, connectTarget)) {
-		const target = liveTarget(live);
-		if (live.status === 'disconnected') {
-			return { label: `Reconnect to ${target}`, disabled: false };
-		}
-		return {
-			label: live.status === 'connected' ? `Connected to ${target}` : `Reconnecting to ${target}…`,
-			disabled: true,
-		};
+	const target = liveTarget(live) ?? 'live';
+	if (live.status === 'disconnected') {
+		// Connect switches to the other target when only it's reachable
+		const label =
+			connectTarget === undefined || isSourceTarget(live, connectTarget)
+				? `Reconnect to ${target}`
+				: connectLabels[connectTarget];
+		return [connectAction(label), { label: 'Clear', onSelect: closeLive }];
 	}
-	return { label: connectTarget === undefined ? 'Connect' : connectLabels[connectTarget], disabled: false };
+	return [
+		...(backToLive && shown !== 'live' ? [connectAction(`Back to ${target}`)] : []),
+		{ label: 'Disconnect', onSelect: disconnect },
+	];
 }
 
 /** The shown source's name and status, and the live session's while it runs behind the log */
@@ -129,19 +139,6 @@ function SourceLabel({ sources }: { sources: Sources }) {
 			</div>
 		</>
 	);
-}
-
-/** What the source menu offers for the window's log and live session */
-function sourceActions(sources: Sources, connectTarget: ConnectTarget | undefined) {
-	const { log, live, shown } = sources;
-	return {
-		backToLog: shown === 'live' && log ? `Back to ${log.fileName}` : undefined,
-		connect: connectAction(sources, connectTarget),
-		// The switcher goes back to the live session, so Connect acts as it would while live is shown
-		menuConnect: connectAction({ ...sources, shown: live && log ? 'live' : shown }, connectTarget),
-		canDisconnect: live !== undefined && live.status !== 'disconnected',
-		canReset: live !== undefined && live.status !== 'connecting',
-	};
 }
 
 /** The recent logs, from paths in the desktop app or file handles in the web app */
@@ -190,20 +187,12 @@ export function SourceControl() {
 	};
 	useEffect(checkConnectTarget, []);
 
-	const {
-		backToLog,
-		connect: connectItem,
-		menuConnect,
-		canDisconnect,
-		canReset,
-	} = sourceActions(sources, connectTarget);
+	const { log, live, shown } = sources;
 	const menuItems: MenuEntry[] = [
-		...(backToLog === undefined ? [] : [{ label: backToLog, onSelect: () => showSource('log') }, 'separator' as const]),
+		...(shown === 'live' && log ? [{ label: `Back to ${log.fileName}`, onSelect: () => showSource('log') }] : []),
 		{ label: 'Open log', shortcut: shortcuts.openLog, onSelect: chooseLog },
 		'separator',
-		{ label: connectItem.label, shortcut: shortcuts.connect, disabled: connectItem.disabled, onSelect: startConnect },
-		...(canDisconnect ? [{ label: 'Disconnect', onSelect: disconnect }] : []),
-		...(canReset ? [{ label: 'Reset', onSelect: resetLive }] : []),
+		...liveActions(sources, connectTarget, true),
 	];
 
 	return (
@@ -229,8 +218,11 @@ export function SourceControl() {
 					<ChevronsUpDownIcon className="ms-auto text-muted-foreground" />
 				</MenuTrigger>
 				<MenuPopup align="start" className="w-(--anchor-width) min-w-56">
-					{sources.live && sources.log && (
-						<SourceSwitcher live={sources.live} log={sources.log} shown={sources.shown} />
+					{live && log && (
+						<>
+							<SourceSwitcher live={live} log={log} shown={shown} />
+							<MenuSeparator />
+						</>
 					)}
 					<MenuItem onClick={chooseLog}>
 						Open log
@@ -238,12 +230,13 @@ export function SourceControl() {
 					</MenuItem>
 					{(isTauri() || supportsFileHandles) && <OpenRecentMenu />}
 					<MenuSeparator />
-					<MenuItem disabled={menuConnect.disabled} onClick={startConnect}>
-						{menuConnect.label}
-						<MenuShortcut>{formatForDisplay(shortcuts.connect)}</MenuShortcut>
-					</MenuItem>
-					{canDisconnect && <MenuItem onClick={disconnect}>Disconnect</MenuItem>}
-					{canReset && <MenuItem onClick={resetLive}>Reset</MenuItem>}
+					{/* The switcher goes back to the live session */}
+					{liveActions(sources, connectTarget, false).map((action) => (
+						<MenuItem key={action.label} onClick={action.onSelect}>
+							{action.label}
+							{action.shortcut !== undefined && <MenuShortcut>{formatForDisplay(action.shortcut)}</MenuShortcut>}
+						</MenuItem>
+					))}
 				</MenuPopup>
 			</Menu>
 		</AppContextMenu>

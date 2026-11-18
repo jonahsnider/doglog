@@ -74,13 +74,15 @@ The source control at the top of the sidebar SHALL show the shown source and its
 - **THEN** it lists the live session above `qual12.wpilog`, each with its icon, state, and a button to close it
 - **AND** the shown source is raised on a surface, and the other is muted
 - **WHEN** the user chooses the live session
-- **THEN** the raised surface lifts, slides up to the live session, and settles there
+- **THEN** the raised surface slides up to the live session, casting a deeper shadow while it moves
 - **AND** the menu stays open
 
 #### Scenario: Close from the source control menu
 
 - **GIVEN** the user opened `qual12.wpilog` while connected to the robot
-- **WHEN** the user presses the live session's close button
+- **WHEN** the user hovers the live session's close button
+- **THEN** a tooltip reads "Disconnect and clear live data"
+- **WHEN** the user presses it
 - **THEN** Studio disconnects, throws away the live data, and shows `qual12.wpilog`
 
 #### Scenario: No source
@@ -127,7 +129,7 @@ Users SHALL be able to connect to a robot or simulator over NT4 with a single Co
 
 ### Requirement: Live connection resilience
 
-Studio MUST keep all data received from a live source when the connection drops, and SHALL reconnect automatically. Received data MUST be kept until the window closes, the user resets the live session, or Connect replaces it with another target.
+Studio MUST keep all data received from a live source when the connection drops, and SHALL reconnect automatically. Received data MUST be kept until the window closes, the user clears the live session, or Connect replaces it with another target.
 
 #### Scenario: Robot reboots mid-session
 
@@ -145,9 +147,9 @@ Studio MUST keep all data received from a live source when the connection drops,
 - **AND** new data is added to the same session history
 - **AND** the time it was disconnected is marked on the timeline
 
-### Requirement: Disconnect and reset
+### Requirement: Disconnect and clear
 
-The source control menu SHALL offer Disconnect while the live session is connecting, connected, or reconnecting, and Reset once it has connected, whether it's shown or not. Disconnect MUST stop reconnecting and keep the received data, and choosing Connect afterward MUST continue the same session. Reset MUST throw away the received history and start the session over from now, keeping the latest value of every entry, and after Disconnect it MUST close the live session.
+The source control menu's live section SHALL offer one action for the live session's state: Connect without a session, Disconnect while it's connecting, connected, or reconnecting, and once disconnected, Reconnect and Clear. Disconnect MUST stop reconnecting and keep the received data, and Reconnect MUST continue the same session. Clear MUST close the live session and throw away its data.
 
 #### Scenario: Disconnect
 
@@ -155,19 +157,12 @@ The source control menu SHALL offer Disconnect while the live session is connect
 - **WHEN** the user chooses Disconnect
 - **THEN** the source control shows the disconnected state
 - **AND** the received data remains viewable
-- **AND** the Connect action reads "Reconnect to robot"
+- **AND** the menu offers "Reconnect to robot" and "Clear"
 
-#### Scenario: Reset while connected
-
-- **GIVEN** Studio has been connected to the robot for 10 minutes
-- **WHEN** the user chooses Reset
-- **THEN** the timeline starts at 0:00 again
-- **AND** Studio stays connected
-
-#### Scenario: Reset after disconnecting
+#### Scenario: Clear after disconnecting
 
 - **GIVEN** the user disconnected from the robot and has `qual12.wpilog` open
-- **WHEN** the user chooses Reset
+- **WHEN** the user chooses Clear
 - **THEN** the live session is closed
 - **AND** every dashboard shows `qual12.wpilog`
 
@@ -285,7 +280,7 @@ Connect SHALL try the robot connection target and the simulator at the same time
 
 - **GIVEN** Studio is connected to the robot
 - **WHEN** the user opens the source control menu
-- **THEN** the Connect action reads "Connected to robot" and can't be chosen
+- **THEN** it offers Disconnect instead of Connect
 - **AND** the Connect shortcut does nothing
 
 #### Scenario: Connect while reconnecting
@@ -293,14 +288,14 @@ Connect SHALL try the robot connection target and the simulator at the same time
 - **GIVEN** the connection to the robot dropped
 - **AND** the simulator isn't running
 - **WHEN** the user opens the source control menu
-- **THEN** the Connect action reads "Reconnecting to robot…" and can't be chosen
+- **THEN** it offers Disconnect instead of Connect
 - **AND** the Connect shortcut does nothing
 
 #### Scenario: Switch targets while reconnecting
 
 - **GIVEN** the connection to the robot dropped
 - **AND** a simulator is running
-- **WHEN** the user chooses Connect
+- **WHEN** the user presses the Connect shortcut, or disconnects and chooses "Connect to simulator"
 - **THEN** Studio connects to the simulator, replacing the robot's data
 
 #### Scenario: Connect while a log is shown

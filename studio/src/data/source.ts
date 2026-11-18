@@ -3,7 +3,7 @@ import { createAtom } from '@tanstack/store';
 import { toastManager } from '@/components/ui/toast';
 import { findConnectTarget, isReachable, isSourceTarget } from '@/data/connect-target';
 import type { DataSet } from '@/data/data-set';
-import { createDataSet, type Entry, liveTime, setActiveData } from '@/data/data-store';
+import { createDataSet, type Entry, setActiveData } from '@/data/data-store';
 import { loadDevLog, saveDevLog } from '@/data/dev-log';
 import type { LiveStatus } from '@/data/live-source';
 import { loadLog } from '@/data/log-source';
@@ -221,22 +221,6 @@ export function disconnect(): void {
 	stopLive?.();
 	stopLive = undefined;
 	updateSources({ live: { ...live, status: 'disconnected' } });
-}
-
-/** Throw away the live session's history and start it over from now, or close it if it's disconnected */
-export function resetLive(): void {
-	const { live, shown } = sourcesStore.get();
-	if (live === undefined || liveData === undefined) {
-		return;
-	}
-	if (live.status === 'disconnected') {
-		closeLive();
-		return;
-	}
-	liveData.restart(liveTime());
-	if (shown === 'live') {
-		resetTimeline(live);
-	}
 }
 
 /** How long connecting waits before trying again when nothing was reachable */

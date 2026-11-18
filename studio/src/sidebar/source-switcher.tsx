@@ -2,18 +2,16 @@ import { XIcon } from 'lucide-react';
 import { useAnimate } from 'motion/react';
 import { useLayoutEffect, useRef } from 'react';
 import { MenuItem } from '@/components/ui/menu';
+import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { closeLive, closeLog, type Source, showSource } from '@/data/source';
 import { easing, useMotionTransition } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import { SourceIcon } from '@/sidebar/source-icon';
 import { sourceName, sourceStatus } from '@/sidebar/source-labels';
 
-/** How much the indicator grows while it moves between sources, as though it's lifted off them */
-const liftScale = 1.03;
-
 /**
- * The raised surface behind the shown source. Switching sources lifts it, slides it over the other source, and sets it
- * back down. Sources are the same height, so it moves by its own height.
+ * The raised surface behind the shown source. Switching sources slides it over the other source, its shadow deepening
+ * while it moves as though it's lifted off them. Sources are the same height, so it moves by its own height.
  */
 function ShownIndicator({ index }: { index: number }) {
 	const [scope, animate] = useAnimate<HTMLDivElement>();
@@ -32,7 +30,7 @@ function ShownIndicator({ index }: { index: number }) {
 			return;
 		}
 		shownIndex.current = index;
-		void animate(scope.current, { y: [`${from * 100}%`, `${index * 100}%`], scale: [1, liftScale, 1] }, transition);
+		void animate(scope.current, { y: [`${from * 100}%`, `${index * 100}%`] }, transition);
 		if (shadow.current) {
 			void animate(shadow.current, { opacity: [0, 1, 0] }, transition);
 		}
@@ -51,6 +49,7 @@ function ShownIndicator({ index }: { index: number }) {
 
 function SourceRow({ source, shown }: { source: Source; shown: boolean }) {
 	const name = sourceName(source);
+	const closeLabel = source.type === 'log' ? 'Close log' : 'Disconnect and clear live data';
 	return (
 		<div className="relative flex items-center">
 			<MenuItem
@@ -76,14 +75,20 @@ function SourceRow({ source, shown }: { source: Source; shown: boolean }) {
 					</span>
 				</div>
 			</MenuItem>
-			<MenuItem
-				aria-label={source.type === 'log' ? `Close ${name}` : `Disconnect and clear ${name}`}
-				title={source.type === 'log' ? 'Close log' : 'Disconnect and clear live data'}
-				className="absolute end-1.5 size-6 min-h-6! justify-center p-0 text-muted-foreground sm:min-h-6!"
-				onClick={source.type === 'log' ? closeLog : closeLive}
-			>
-				<XIcon />
-			</MenuItem>
+			<Tooltip>
+				<TooltipTrigger
+					render={
+						<MenuItem
+							aria-label={closeLabel}
+							className="absolute end-1.5 size-6 min-h-6! justify-center p-0 text-muted-foreground sm:min-h-6!"
+							onClick={source.type === 'log' ? closeLog : closeLive}
+						/>
+					}
+				>
+					<XIcon />
+				</TooltipTrigger>
+				<TooltipPopup side="right">{closeLabel}</TooltipPopup>
+			</Tooltip>
 		</div>
 	);
 }

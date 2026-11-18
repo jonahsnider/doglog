@@ -103,21 +103,6 @@ export class DataSet {
 		this.disconnectedAt = undefined;
 	}
 
-	/** Drop the history before `time` and start the source there, keeping the latest value of every entry */
-	restart(time: number): void {
-		this.sampleCount = 0;
-		for (const samples of this.uniqueSamples()) {
-			samples.trimBefore(time);
-			this.sampleCount += samples.length;
-		}
-		this.gaps.length = 0;
-		if (this.disconnectedAt !== undefined) {
-			this.disconnectedAt = Math.max(this.disconnectedAt, time);
-		}
-		this.end = this.end === undefined ? undefined : Math.max(this.end, time);
-		this.setStartTime(time);
-	}
-
 	/** Publish changes made since the last frame. Returns whether the entries and the data changed. */
 	publish(): { entries: boolean; data: boolean } {
 		this.addMechanismEntries();
