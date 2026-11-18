@@ -26,7 +26,7 @@ const resetView = { azimuth: -1.05, elevation: 0.72 };
 /** What the camera looks at, a little above the floor where most of a robot is */
 const center = new Vector3(0, 0, 0.3);
 /** Width and height in meters fit in the view at the default zoom */
-const framedMeters = 3;
+const framedMeters = 2.25;
 export const cameraDistance = 20;
 const maxElevation = Math.PI / 2 - 1e-4;
 
