@@ -28,6 +28,17 @@ context: |
     through the robot's NT4 server under `/DogLogStudio/`; peers are the source of truth, the server only relays.
   - Drawn widgets: plain SVG in React when the element count is small (ex. the swerve widget). Pick drawing
     libraries per widget when it's specced (ex. canvas for dense time series, three.js for 3D).
+  - 3D: three.js through react-three-fiber and drei. Reusable pieces live in `src/three/` and know nothing about widgets
+    (the scene with its camera, controls, and lighting, robots, 3D mechanisms, WPILib to three.js poses, and loading
+    robot projects), so the robot widget and future field widgets share them. Scenes copy the viewer in Team 581's Spot
+    (team581/spot, `packages/camera-viewer`): an orthographic Z-up camera in WPILib meters, OrbitControls kept above the
+    floor, a headlight on the camera, and theme colors read from CSS variables.
+  - Mechanism2d: groups with a `.type` entry of `Mechanism2d` get a synthesized entry of the `mechanism2d` kind, which
+    widgets read the group's entries through (`src/data/mechanism.ts`).
+  - Robot projects: `doglog.jsonc` (or `doglog.json`) at the root of a robot code project, parsed with jsonc-parser and
+    validated with Zod, whose JSON Schema export is the published schema. Only the `robot` key is defined; add keys when
+    a feature needs them. Projects are read in place: the desktop app remembers folder paths, the web app keeps
+    directory handles in IndexedDB. Robot option choices are robot names, so shared dashboards work across devices.
   - Field images: the season's community top-down CAD render from Chief Delphi (AdvantageScope uses the same ones), the
     variant without background or game pieces, over a fixed neutral gray, compressed as lossless WebP. Cropped with the
     SVG view, not by editing the image.
@@ -80,7 +91,12 @@ context: |
   - FRC match time display (ex. "Teleop 1:32").
   - Recent files.
   - More FRC-specific widgets. Double-clicking matching entries should default to these once they exist.
-  - A 3D field view, likely three.js with a field model per season.
+  - A 3D field view with a field model per season, placing robots from `src/three/` at their poses.
+  - A robot editor screen: load one CAD model, pick parts by glTF node and set their pivots visually, and write
+    `doglog.jsonc`. Robot configs would then allow parts from nodes of one model instead of one model file per part.
+  - DogLog integration for robot projects: DogLog could log the project's name or its `doglog.jsonc`, so Studio matches a
+    log to its robot project automatically instead of the user picking it in the Robot option.
+  - More built-in robots, ex. the 2026 KitBot, if FIRST allows redistributing its CAD.
   - Field widget seasons: WPILib 2027 moves the field origin to the center with +X toward blue. The field widget is
     hardcoded to the 2026 field and coordinates; switch to 2027 when it ships. Past seasons may not be supported.
   - Robot trails and per-project robot sizes in the field widget.
@@ -96,7 +112,7 @@ context: |
   - Whether the sidebar's dashboard list fits every page long term, or pages need their own secondary content.
   - The live NT story for Firefox and Safari users of the web app.
   - Per-project defaults for common entries (ex. the robot pose is always /Robot/Localization/EstimatedPose).
-    Possibly declared by robot code (ex. NT topic metadata or DogLog) instead of in Studio.
+    Possibly declared by robot code (ex. NT topic metadata or DogLog) or in `doglog.jsonc` instead of in Studio.
 
 rules:
   specs:

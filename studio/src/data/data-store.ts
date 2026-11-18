@@ -59,14 +59,39 @@ const entriesStore = createAtom<{ list: readonly Entry[]; map: ReadonlyMap<strin
 let timeRange: TimeRange | undefined;
 let dataVersion = 0;
 
+// `.type` entries whose group hasn't been checked for a Mechanism2d yet, see `addMechanismEntries()`
+const uncheckedTypeEntries = new Set<Entry>();
+
 let entriesChanged = false;
 let dataChanged = false;
 let flushScheduled = false;
 
 const dataListeners = new Set<() => void>();
 
+/**
+ * Add a `Mechanism2d` entry for each group of entries with a `.type` entry set to `Mechanism2d`, named after the group,
+ * once the `.type` entry has a value. Widgets read the group's entries through it, see `@/data/mechanism`.
+ */
+function addMechanismEntries(): void {
+	for (const typeEntry of uncheckedTypeEntries) {
+		const type = typeEntry.samples.values[0];
+		if (type === undefined) {
+			continue;
+		}
+		uncheckedTypeEntries.delete(typeEntry);
+
+		const name = typeEntry.name.slice(0, -'/.type'.length);
+		if (type === 'Mechanism2d' && name !== '' && entries.get(typeEntry.name) === typeEntry && !entries.has(name)) {
+			// Shares the `.type` entry's samples, so it has a value from when the mechanism was first logged
+			entries.set(name, { name, type: 'Mechanism2d', kind: 'mechanism2d', samples: typeEntry.samples, metadata: {} });
+			entriesChanged = true;
+		}
+	}
+}
+
 function flush(): void {
 	flushScheduled = false;
+	addMechanismEntries();
 
 	if (entriesChanged) {
 		entriesChanged = false;
@@ -96,6 +121,7 @@ function scheduleFlush(): void {
 /** Remove all entries and samples, ex. when the active source is replaced */
 export function clearData(): void {
 	entries = new Map();
+	uncheckedTypeEntries.clear();
 	start = undefined;
 	end = undefined;
 	sampleCount = 0;
@@ -121,6 +147,9 @@ export function addEntry(
 
 	const entry: Entry = { name, type, kind: getEntryKind(type), samples, metadata: metadata ?? {} };
 	entries.set(name, entry);
+	if (name.endsWith('/.type')) {
+		uncheckedTypeEntries.add(entry);
+	}
 	entriesChanged = true;
 	scheduleFlush();
 	return entry;
@@ -146,7 +175,8 @@ export function addSample(entry: Entry, timestamp: number, value: Value): void {
 }
 
 function trimHistory(): void {
-	const samples = [...entries.values()].map((entry) => entry.samples);
+	// Mechanism2d entries share their `.type` entry's samples, which must only be trimmed once
+	const samples = [...new Set([...entries.values()].map((entry) => entry.samples))];
 	sampleCount = samples.reduce((total, item) => total + item.length, 0);
 	if (sampleCount > maxLiveSamples) {
 		// Drop 10% extra so trimming (which copies every sample) only happens occasionally

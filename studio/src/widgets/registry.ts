@@ -1,4 +1,13 @@
-import { ChartLineIcon, Gamepad2Icon, MapIcon, MoveIcon, NotebookPenIcon, TableIcon, TerminalIcon } from 'lucide-react';
+import {
+	BotIcon,
+	ChartLineIcon,
+	Gamepad2Icon,
+	MapIcon,
+	MoveIcon,
+	NotebookPenIcon,
+	TableIcon,
+	TerminalIcon,
+} from 'lucide-react';
 import { createWidget } from '@/widgets/bindings';
 import type { Entry } from '@/data/data-store';
 import type { Widget } from '@/panes/layout';
@@ -11,6 +20,7 @@ import { fieldConnects, fieldRoles, inferFieldRole } from '@/widgets/field/roles
 import { Graph } from '@/widgets/graph/graph';
 import { graphRoles, inferGraphRole } from '@/widgets/graph/roles';
 import { Notepad } from '@/widgets/notepad/notepad';
+import { Robot } from '@/widgets/robot/robot';
 import { Swerve } from '@/widgets/swerve/swerve';
 import { swerveRoles } from '@/widgets/swerve/data';
 import { ValuesTable } from '@/widgets/values-table/values-table';
@@ -80,6 +90,14 @@ export const widgetTypes: readonly WidgetType[] = [
 		component: Field,
 	},
 	{
+		id: 'robot',
+		name: 'Robot',
+		icon: BotIcon,
+		hotkey: 'R',
+		accepts: ['mechanism2d'],
+		component: Robot,
+	},
+	{
 		id: controllerTypeId,
 		name: 'Controller',
 		icon: Gamepad2Icon,
@@ -117,6 +135,10 @@ function defaultWidgetTypeId(entry: Entry): string {
 
 	if (swerveRoles(entry)[0]?.id === 'states') {
 		return 'swerve';
+	}
+
+	if (entry.kind === 'mechanism2d') {
+		return 'robot';
 	}
 
 	if (fieldRoles(entry).length > 0) {

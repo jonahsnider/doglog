@@ -13,6 +13,7 @@ export type EntryKind =
 	| 'string[]'
 	| 'struct'
 	| 'struct[]'
+	| 'mechanism2d'
 	| 'unsupported';
 
 /** Get the kind of an entry from its WPILOG or NT4 type string, ex. `double`, `int64[]`, or `struct:Pose2d` */
@@ -37,6 +38,11 @@ export function getEntryKind(type: string): EntryKind {
 			return 'number[]';
 		case 'string[]':
 			return 'string[]';
+	}
+
+	// Synthesized for groups of entries logged by a WPILib `Mechanism2d`, see `@/data/mechanism`
+	if (type === 'Mechanism2d') {
+		return 'mechanism2d';
 	}
 
 	if (type.startsWith('struct:')) {

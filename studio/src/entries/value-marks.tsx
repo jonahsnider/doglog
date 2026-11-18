@@ -8,6 +8,7 @@ import {
 	ListIcon,
 	ListOrderedIcon,
 	type LucideIcon,
+	SplineIcon,
 	ToggleRightIcon,
 	TypeIcon,
 } from 'lucide-react';
@@ -34,6 +35,7 @@ const kindIcons: Record<EntryKind, LucideIcon> = {
 	'boolean[]': ListChecksIcon,
 	'string[]': ListIcon,
 	'struct[]': BoxesIcon,
+	mechanism2d: SplineIcon,
 	unsupported: BinaryIcon,
 };
 

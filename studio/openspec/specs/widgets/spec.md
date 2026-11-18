@@ -175,6 +175,12 @@ A widget MAY declare a few options to override what it infers from its entries o
 - **THEN** the field is drawn with the red alliance on the left
 - **AND** the choice is kept when the dashboard is reopened
 
+#### Scenario: Choices from the user's files
+
+- **GIVEN** the user added a robot project
+- **WHEN** the user opens a robot widget's options
+- **THEN** the Robot option lists the project's robot
+
 #### Scenario: Invalid saved option
 
 - **GIVEN** a dashboard saved with an option value the widget doesn't have
@@ -273,7 +279,7 @@ Widgets and the entry browser SHALL show the slashes in full entry names dimmed,
 
 ### Requirement: Default widget for an entry
 
-Each bindable entry SHALL have a default widget, used when the entry is added without choosing a widget: Driver Station controller entries use the controller widget, `/console` and `/messages` use the console, other numeric, string, and boolean entries use the graph, `SwerveModuleState[]` and `SwerveModuleVelocity[]` entries use the swerve widget, entries the field widget accepts use the field widget, and all other entries use the values table.
+Each bindable entry SHALL have a default widget, used when the entry is added without choosing a widget: Driver Station controller entries use the controller widget, `/console` and `/messages` use the console, other numeric, string, and boolean entries use the graph, `SwerveModuleState[]` and `SwerveModuleVelocity[]` entries use the swerve widget, `Mechanism2d` entries use the robot widget, entries the field widget accepts use the field widget, and all other entries use the values table.
 
 #### Scenario: Numeric entry
 
@@ -304,6 +310,11 @@ Each bindable entry SHALL have a default widget, used when the entry is added wi
 
 - **WHEN** a `struct:Pose2d` entry is added by double-clicking it
 - **THEN** it is shown in a field widget
+
+#### Scenario: Mechanism entry
+
+- **WHEN** a `Mechanism2d` entry is added by double-clicking it
+- **THEN** it is shown in a robot widget
 
 #### Scenario: Struct entry
 

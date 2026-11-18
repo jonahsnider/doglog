@@ -20,6 +20,7 @@ test.each([
 	['/Drive/MeasuredStates', 'struct:SwerveModuleState[]', 'swerve'],
 	['/Drive/MeasuredStates', 'struct:SwerveModuleVelocity[]', 'swerve'],
 	['/Arm/Setpoints', 'double[]', 'values-table'],
+	['/Arm/Mechanism', 'Mechanism2d', 'robot'],
 ])('%s (%s) defaults to the %s', (name, type, widgetType) => {
 	const widget = defaultWidget(entry(name, type));
 	expect(widget?.type).toBe(widgetType);

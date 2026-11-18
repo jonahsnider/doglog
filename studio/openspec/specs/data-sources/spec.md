@@ -136,6 +136,20 @@ Studio SHALL decode numeric, boolean, string, array, and WPILib struct entries. 
 - **THEN** the entry appears in the entry browser marked as unsupported
 - **AND** it cannot be bound to widgets
 
+### Requirement: Mechanism2d entries
+
+Studio SHALL add an entry of type `Mechanism2d` for each group of entries with a `.type` entry set to `Mechanism2d`, named after the group, so a WPILib `Mechanism2d` can be bound to widgets as one entry. The group's own entries MUST still be listed. Mechanisms MUST be read whether their roots log a `position` array, as WPILib 2027 does, or `x` and `y` entries, as WPILib 2026 does.
+
+#### Scenario: Mechanism logged with DogLog
+
+- **GIVEN** a log with `/Robot/Arm/Mechanism/.type` set to `Mechanism2d`, `/Robot/Arm/Mechanism/dims`, and the mechanism's roots and ligaments
+- **THEN** the entry browser lists `/Robot/Arm/Mechanism` as a `Mechanism2d` entry, with the group's entries in it
+
+#### Scenario: Mechanism from NetworkTables
+
+- **GIVEN** a robot publishing a `Mechanism2d` on NetworkTables with WPILib 2026, under `/SmartDashboard/Arm`
+- **THEN** `/SmartDashboard/Arm` is a `Mechanism2d` entry, with its roots at their `x` and `y`
+
 ### Requirement: Entry metadata
 
 Studio SHALL read each entry's JSON metadata from WPILOG entry metadata and from NT4 topic properties, and MUST use the most recent metadata when it changes. Metadata that isn't valid JSON SHALL be treated as empty.
