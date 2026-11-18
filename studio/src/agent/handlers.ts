@@ -6,8 +6,8 @@ import { dashboardHandlers, requireDashboard, showDashboard } from '@/agent/dash
 import { paneHandlers } from '@/agent/pane-handlers';
 import { flushData, getEntries, getTimeRange } from '@/data/data-store';
 import { openLogPath } from '@/data/open-log';
-import { closeSource, connect, getSource, type Source, subscribeSource } from '@/data/source';
-import { getRobotHost } from '@/robot-target';
+import { closeSource, connect, getSource, isReachable, type Source, subscribeSource } from '@/data/source';
+import { getRobotHost, simulatorHost } from '@/robot-target';
 import { settingsStore, updateSettings } from '@/settings';
 import { getTimeline, seek } from '@/timeline/timeline';
 
@@ -86,7 +86,13 @@ export const handlers: Handlers = {
 
 	source_update: async ({ path }) => {
 		if (path === undefined) {
-			await connect(getRobotHost(settingsStore.get().robotTarget));
+			const robotHost = getRobotHost(settingsStore.get().robotTarget);
+			const hosts = robotHost === undefined ? [simulatorHost] : [robotHost, simulatorHost];
+			// Connecting retries until a server answers, agents are told right away instead
+			if (!(await Promise.all(hosts.map((host) => isReachable(host)))).includes(true)) {
+				throw new AgentError(`Couldn’t reach ${hosts.join(' or ')}. Check that the robot or simulator is running.`);
+			}
+			await connect(robotHost);
 			const source = await waitForSource((other) => other?.type !== 'live' || other.status !== 'connecting');
 			if (source?.type !== 'live') {
 				throw new AgentError('Another source was opened before the connection was made.');
@@ -94,15 +100,22 @@ export const handlers: Handlers = {
 			return describeSource();
 		}
 
-		if (!(await openLogPath(path))) {
-			throw new AgentError(`Couldn’t open ${path}. Check that it’s a WPILOG file that exists.`);
+		let error = '';
+		if (
+			!(await openLogPath(path, (message) => {
+				error = message;
+			}))
+		) {
+			throw new AgentError(
+				error === '' ? `Another source was opened before ${path} could be.` : `Couldn’t open ${path}: ${error}`,
+			);
 		}
 		const loading = getSource();
 		const source = await waitForSource((other) => other !== loading);
 		if (source?.type !== 'log' || source.status !== 'loaded') {
 			throw new AgentError(
 				source === undefined
-					? `Couldn’t read ${path}, it may be damaged.`
+					? `Couldn’t open ${path}: ${error}`
 					: `Another source was opened before ${path} finished loading.`,
 			);
 		}

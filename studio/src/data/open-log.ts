@@ -94,7 +94,7 @@ async function openTakenLog(): Promise<void> {
 }
 
 /** Open a log from the desktop app's file system, and add it to the recent logs. Returns whether it started loading. */
-export async function openLogPath(path: string): Promise<boolean> {
+export async function openLogPath(path: string, onError?: (message: string) => void): Promise<boolean> {
 	const fileName = path.split(/[/\\]/u).at(-1)!;
 	let contents: ArrayBuffer;
 	try {
@@ -103,9 +103,10 @@ export async function openLogPath(path: string): Promise<boolean> {
 		// Ex. a recent log that was moved or deleted
 		removeRecentLog(path);
 		toastManager.add({ type: 'error', title: `Couldn't open ${fileName}`, description: String(error) });
+		onError?.(String(error));
 		return false;
 	}
-	const opened = await openLog(new File([contents], fileName));
+	const opened = await openLog(new File([contents], fileName), onError);
 	if (opened) {
 		addRecentLog(path);
 	}

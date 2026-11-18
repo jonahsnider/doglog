@@ -63,12 +63,14 @@ async function isWpilog(file: File): Promise<boolean> {
 
 /**
  * Make a WPILOG file the active source. The current source is kept if the file isn't a WPILOG file.
- * Returns whether the file started loading.
+ * Returns whether the file started loading. `onError` gets why it couldn't be opened, which is also shown in a toast.
  */
-export async function openLog(file: File): Promise<boolean> {
+export async function openLog(file: File, onError?: (message: string) => void): Promise<boolean> {
 	const requestedAt = generation;
 	if (!(await isWpilog(file))) {
-		toastManager.add({ type: 'error', title: `Couldn't open ${file.name}`, description: "It isn't a WPILOG file." });
+		const message = "It isn't a WPILOG file.";
+		toastManager.add({ type: 'error', title: `Couldn't open ${file.name}`, description: message });
+		onError?.(message);
 		return false;
 	}
 	if (generation !== requestedAt) {
@@ -96,6 +98,7 @@ export async function openLog(file: File): Promise<boolean> {
 		onError: (message) => {
 			replaceSource(undefined);
 			toastManager.add({ type: 'error', title: `Couldn't open ${file.name}`, description: message });
+			onError?.(message);
 		},
 	});
 	return true;
