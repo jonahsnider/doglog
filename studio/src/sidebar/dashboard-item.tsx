@@ -1,6 +1,6 @@
 import { type Hotkey, useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { Link, type RegisteredRouter, useLocation, useRouter } from '@tanstack/react-router';
-import { LayoutDashboardIcon } from 'lucide-react';
+import { LayoutDashboardIcon, type LucideIcon } from 'lucide-react';
 import { useSortable } from '@dnd-kit/react/sortable';
 import { m, useIsPresent } from 'motion/react';
 import { easing, useMotionTransition } from '@/lib/motion';
@@ -85,28 +85,44 @@ function useDashboardSortable(dashboard: Dashboard, sectionIndex: number, renami
 }
 
 /** Renames a dashboard on blur or Enter, or keeps its name on Escape */
-function RenameInput({ dashboard, onDone }: { dashboard: Dashboard; onDone: () => void }) {
+function RenameInput({
+	dashboard,
+	icon: Icon,
+	onDone,
+}: {
+	dashboard: Dashboard;
+	icon: LucideIcon;
+	onDone: () => void;
+}) {
+	const [initialName] = useState(() => dashboardName(dashboard));
 	return (
-		<SidebarInput
-			aria-label="Dashboard name"
-			// Starts blank for a suggested name, so it keeps following the dashboard's contents unless a name is typed
-			defaultValue={dashboard.name ?? ''}
-			placeholder={suggestDashboardName(dashboard.layout)}
-			autoFocus
-			onFocus={(event) => event.currentTarget.select()}
-			onBlur={(event) => {
-				renameDashboard(dashboard.id, event.currentTarget.value);
-				onDone();
-			}}
-			onKeyDown={(event) => {
-				if (event.key === 'Enter') {
-					event.currentTarget.blur();
-				} else if (event.key === 'Escape') {
-					event.currentTarget.value = dashboard.name ?? '';
-					event.currentTarget.blur();
-				}
-			}}
-		/>
+		<div className="relative">
+			<SidebarInput
+				// Leaves room for the icon, so the name stays where it was in the link (p-2, a size-4 icon, and gap-2, less the border)
+				className="[&>input]:ps-[calc(--spacing(8)-1px)]"
+				aria-label="Dashboard name"
+				defaultValue={initialName}
+				placeholder={suggestDashboardName(dashboard.layout)}
+				autoFocus
+				onFocus={(event) => event.currentTarget.select()}
+				onBlur={(event) => {
+					// An unchanged suggested name isn't saved, so it keeps following the dashboard's contents
+					if (event.currentTarget.value !== initialName) {
+						renameDashboard(dashboard.id, event.currentTarget.value);
+					}
+					onDone();
+				}}
+				onKeyDown={(event) => {
+					if (event.key === 'Enter') {
+						event.currentTarget.blur();
+					} else if (event.key === 'Escape') {
+						event.currentTarget.value = initialName;
+						event.currentTarget.blur();
+					}
+				}}
+			/>
+			<Icon className="pointer-events-none absolute top-2 left-2 size-4" />
+		</div>
 	);
 }
 
@@ -223,7 +239,7 @@ export function DashboardItem({
 				transition={transition}
 			>
 				{renaming ? (
-					<RenameInput dashboard={dashboard} onDone={() => setRenaming(false)} />
+					<RenameInput dashboard={dashboard} icon={Icon} onDone={() => setRenaming(false)} />
 				) : (
 					<>
 						<PreviewCard open={previewOpen} onOpenChange={(open) => setPreviewOpen(open && !isDragSource)}>

@@ -71,7 +71,13 @@ A dashboard's icon in the sidebar SHALL be the icon of the widget in its biggest
 
 ### Requirement: Rename a dashboard
 
-Users SHALL be able to rename a dashboard inline in the sidebar. The name field MUST show the suggested name as a placeholder, and a blank name MUST go back to the suggested name.
+Users SHALL be able to rename a dashboard inline in the sidebar. The name field MUST start with the dashboard's current name selected, and MUST show the suggested name as a placeholder when cleared. A blank name MUST go back to the suggested name, and keeping a suggested name unchanged MUST leave it following the dashboard's contents.
+
+#### Scenario: Current name is prefilled
+
+- **WHEN** the user starts renaming a dashboard
+- **THEN** the name field contains its current name, all selected
+- **AND** the dashboard's icon and name stay where they were
 
 #### Scenario: Inline rename
 
