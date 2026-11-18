@@ -452,6 +452,8 @@
 	}
 	html {
 		@apply font-sans;
+		/* The app fills the window, so stop the page from rubber-banding when scrolling past its edges on macOS */
+		overscroll-behavior: none;
 	}
 	body {
 		font-variant-numeric: tabular-nums;
