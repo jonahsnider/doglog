@@ -75,7 +75,7 @@
 		"@vite-pwa/assets-generator": "2.0.0",
 		"@vitejs/plugin-react": "6.3.0",
 		"eslint-plugin-better-tailwindcss": "4.11.0",
-		"portless": "0.17.0",
+		"portless": "0.18.0",
 		"react-doctor": "0.9.23",
 		"tailwindcss": "4.3.5",
 		"typescript": "7.1.0-dev.20261116.1",
