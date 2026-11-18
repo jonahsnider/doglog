@@ -457,6 +457,12 @@
 	}
 	body {
 		font-variant-numeric: tabular-nums;
+		/* Like a native app, UI text isn't selectable. Content worth copying opts back in with `select-text`. */
+		@apply select-none;
+	}
+	/* WebKit won't let you type in fields inside `user-select: none` */
+	:is(input, textarea, [contenteditable]) {
+		@apply select-text;
 	}
 	/* Tailwind v4 removed the pointer cursor from buttons, see https://ui.shadcn.com/docs/tailwind-v4#buttons-use-the-default-cursor */
 	:is(

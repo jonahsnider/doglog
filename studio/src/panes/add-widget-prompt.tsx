@@ -13,8 +13,7 @@ export function AddWidgetPrompt({ onAdd, focused }: { onAdd: (type: WidgetType) 
 
 	return (
 		<Empty
-			// Without select-none, double-clicking selects text in the new widget
-			className="h-full justify-center-safe gap-4 overflow-auto p-4 select-none [container-type:size] [container-name:add-widget] md:p-4"
+			className="h-full justify-center-safe gap-4 overflow-auto p-4 [container-type:size] [container-name:add-widget] md:p-4"
 			onDoubleClick={(event) => {
 				// Double-clicking a widget tile shouldn't also add the default widget
 				if (!(event.target instanceof Element && event.target.closest('button'))) {

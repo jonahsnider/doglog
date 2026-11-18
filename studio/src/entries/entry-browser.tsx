@@ -72,7 +72,7 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 				onResize={(size, _id, prevSize) => prevSize && widthPxStore.set(size.inPixels)}
 			>
 				{/* Not selectable, so double-clicking or dragging rows doesn't select their labels */}
-				<aside aria-label="Entry browser" className="flex h-full flex-col select-none">
+				<aside aria-label="Entry browser" className="flex h-full flex-col">
 					<div {...dragRegion} className="flex h-9 shrink-0 items-center gap-1 border-b ps-3 pe-1.5">
 						{edited ? (
 							<>
@@ -189,7 +189,7 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 
 	return (
 		<>
-			<div className="shrink-0 p-2 select-text">
+			<div className="shrink-0 p-2">
 				<InputGroup>
 					<InputGroupAddon>
 						<SearchIcon />

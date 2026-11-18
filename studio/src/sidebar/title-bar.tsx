@@ -63,7 +63,7 @@ export function TitleBar({
 			{...dragRegion}
 			className={cn(
 				// The border is always there, so the buttons don't move when it's shown
-				'absolute start-0 top-0 z-30 flex h-9 items-center gap-0.5 border-b border-transparent pe-2 select-none',
+				'absolute start-0 top-0 z-30 flex h-9 items-center gap-0.5 border-b border-transparent pe-2',
 				// The toggle lines up with the rail's icons, `--title-bar-overlap` in `index.css` depends on this layout
 				trafficLights ? 'ps-21' : 'ps-3',
 				iconOnly ? 'w-full' : 'w-(--sidebar-width)',

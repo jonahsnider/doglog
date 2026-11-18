@@ -246,7 +246,7 @@ export function Console({ bindings }: WidgetProps) {
 			<div
 				ref={scrollElement}
 				onScroll={handleScroll}
-				className="min-h-0 flex-1 overflow-auto py-1 font-mono text-xs"
+				className="min-h-0 flex-1 overflow-auto py-1 font-mono text-xs select-text"
 				role="log"
 			>
 				{count === 0 ? (

@@ -17,6 +17,7 @@ How Studio's UI is built. The OpenSpec specs in `openspec/specs` describe what u
 - Global CSS lives in `src/index.css`, only for the theme, base styles, keyframes, and rules that utilities can't express (ex. styling elements by a data attribute a library renders).
 - Set sidebar sections apart with spacing and muted labels instead of divider lines.
 - Fonts: IBM Plex Sans for UI text (`font-sans`), Source Sans 3 for headings (`font-heading`), and IBM Plex Mono for code, entry values, and keyboard shortcuts (`font-mono`). Numbers are tabular everywhere so changing values don't shift.
+- Text isn't selectable by default, like a native app. Add `select-text` to content people would copy, like console messages and table values, not to labels or controls.
 
 ## Color
 

@@ -55,7 +55,7 @@ function Label({ at, pressed, size = 10, children }: { at: Point; pressed: boole
 			textAnchor="middle"
 			dominantBaseline="central"
 			className={cn(
-				'pointer-events-none font-sans font-medium select-none',
+				'pointer-events-none font-sans font-medium',
 				pressed ? 'fill-primary-foreground' : 'fill-muted-foreground',
 			)}
 		>

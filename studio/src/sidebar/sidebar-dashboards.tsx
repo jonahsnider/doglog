@@ -109,7 +109,7 @@ function sharingStatus(
 /** A muted label starting a section. The collapsed sidebar hides its text but keeps its space, so nothing moves. */
 function SectionLabel({ label, children }: { label: string; children?: ReactNode }) {
 	return (
-		<div className="group/label my-1 flex h-8 items-center px-2 text-xs text-muted-foreground select-none">
+		<div className="group/label my-1 flex h-8 items-center px-2 text-xs text-muted-foreground">
 			<span className="me-2 font-medium group-data-[collapsible=icon]:hidden">{label}</span>
 			{children}
 		</div>

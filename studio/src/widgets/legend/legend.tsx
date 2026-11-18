@@ -190,7 +190,7 @@ function LegendEntry({
 		<li
 			ref={ref}
 			className={cn(
-				'group/legend-entry flex min-w-0 items-center gap-1.5 select-none',
+				'group/legend-entry flex min-w-0 items-center gap-1.5',
 				item.dimmed && !binding.hidden && 'opacity-50',
 			)}
 			// Rows are the same height, so connections can be drawn between them

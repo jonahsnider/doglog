@@ -189,7 +189,7 @@ function ValuesTableRow({
 				</div>
 			</TableCell>
 			<TableCell>{row.type !== undefined && <TypeLabel type={row.type} />}</TableCell>
-			<TableCell className="font-mono text-xs whitespace-normal">{valueCell(row, isExpanded)}</TableCell>
+			<TableCell className="font-mono text-xs whitespace-normal select-text">{valueCell(row, isExpanded)}</TableCell>
 		</TableRow>
 	);
 }
