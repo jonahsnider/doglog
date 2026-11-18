@@ -260,13 +260,20 @@ jobs:
       - name: Checkout Git repository
         uses: actions/checkout@v7.0.1
       - name: Install Linux dependencies
-        # apt mirrors occasionally stall, fail fast instead of using up the job's timeout
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: |
           # Rebuilding the man page index after installing is slow and unused in CI
           sudo rm -f /var/lib/man-db/auto-update
           sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 update
-          sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev
+          # Downloading usually takes under a minute, but a slow mirror can drag it out until the job times out
+          # Retrying makes a new connection and keeps the packages already downloaded
+          for attempt in 1 2 3; do
+            sudo timeout 3m apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 install -y --download-only libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev && break
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            echo "::warning::Downloading Linux dependencies took too long, retrying"
+          done
+          # Installed separately so the timeout can't interrupt dpkg partway through
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev
       - name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v2.0.1
         with:
