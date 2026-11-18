@@ -4,6 +4,8 @@ import { useEventListener } from 'usehooks-ts';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { alertColors, modeColors } from '@/timeline/colors';
 import { HoverTooltip } from '@/timeline/timeline-tooltip';
+import { setHoverTime, useHoverTime } from '@/timeline/hover';
+import { useZoomedRange } from '@/widgets/graph/view';
 import { type TimeRange, useEntries } from '@/data/data-store';
 import { cn } from '@/lib/utils';
 import { formatTime, getCursorTime, seek, seekHotkeys } from '@/timeline/timeline';
@@ -161,12 +163,17 @@ export function Scrubber({
 				}
 			}}
 			onPointerMove={(event) => {
-				setHover(hoverAt(event));
+				const at = hoverAt(event);
+				setHover(at);
+				setHoverTime(timeAt(at));
 				if (event.currentTarget.hasPointerCapture(event.pointerId)) {
 					seekToPointer(event);
 				}
 			}}
-			onPointerLeave={() => setHover(undefined)}
+			onPointerLeave={() => {
+				setHover(undefined);
+				setHoverTime(undefined);
+			}}
 		>
 			<Tooltip open={tooltip !== undefined} trackCursorAxis="x" disableHoverablePopup>
 				<TooltipTrigger
@@ -221,13 +228,7 @@ export function Scrubber({
 						))}
 					</div>
 
-					{/* Shows exactly which time the tooltip is about */}
-					{hover !== undefined && (
-						<div
-							className="absolute inset-y-0 w-px -translate-x-1/2 bg-foreground/48"
-							style={{ left: `${toPercent(timeAt(hover))}%` }}
-						/>
-					)}
+					<GraphMarks toPercent={toPercent} hoverTime={hover === undefined ? undefined : timeAt(hover)} />
 
 					<div
 						className={cn(
@@ -240,5 +241,31 @@ export function Scrubber({
 				<TooltipPopup>{tooltip ?? (shownHover && tooltipAt(shownHover))}</TooltipPopup>
 			</Tooltip>
 		</div>
+	);
+}
+
+/**
+ * The time range graphs are zoomed to, so it's clear where they are in the whole source, and the hovered time: the one
+ * the tooltip is about, or the one hovered in a graph
+ */
+function GraphMarks({ toPercent, hoverTime }: { toPercent: (time: number) => number; hoverTime: number | undefined }) {
+	const zoomed = useZoomedRange();
+	const graphHover = useHoverTime();
+	const hover = hoverTime ?? graphHover;
+	return (
+		<>
+			{zoomed && (
+				<div
+					className="pointer-events-none absolute inset-y-0 rounded-sm bg-foreground/8 ring-1 ring-foreground/24 ring-inset"
+					style={{ left: `${toPercent(zoomed.start)}%`, width: `${toPercent(zoomed.end) - toPercent(zoomed.start)}%` }}
+				/>
+			)}
+			{hover !== undefined && (
+				<div
+					className="absolute inset-y-0 w-px -translate-x-1/2 bg-foreground/48"
+					style={{ left: `${toPercent(hover)}%` }}
+				/>
+			)}
+		</>
 	);
 }

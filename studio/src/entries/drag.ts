@@ -61,7 +61,16 @@ export const WidgetBindingsContext = createContext<WidgetBindings | undefined>(u
  */
 export function useBindingDrag(
 	binding: Pick<WidgetBinding, 'id' | 'name'>,
-	{ orientation = 'vertical', disabled = false }: { orientation?: EntryOrientation; disabled?: boolean } = {},
+	{
+		orientation = 'vertical',
+		disabled = false,
+		dropRole,
+	}: {
+		orientation?: EntryOrientation;
+		disabled?: boolean;
+		/** The role an entry dropped on this one takes, ex. the section of a graph it's in */
+		dropRole?: string;
+	} = {},
 ) {
 	const widget = use(WidgetBindingsContext);
 	const paneId = widget?.paneId ?? '';
@@ -80,7 +89,12 @@ export function useBindingDrag(
 		// dnd-kit's `CollisionPriority.High`, above the widget's own drop target that contains it
 		collisionPriority: 3,
 		disabled: !enabled,
-		data: { paneId, index: widget?.bindings.findIndex((other) => other.id === binding.id) ?? -1, orientation },
+		data: {
+			paneId,
+			index: widget?.bindings.findIndex((other) => other.id === binding.id) ?? -1,
+			orientation,
+			role: dropRole,
+		},
 	});
 	const ref = useCallback(
 		(element: Element | null) => {

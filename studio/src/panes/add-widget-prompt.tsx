@@ -18,7 +18,7 @@ export function AddWidgetPrompt({ onAdd, focused }: { onAdd: (type: WidgetType) 
 			onDoubleClick={(event) => {
 				// Double-clicking a widget tile shouldn't also add the default widget
 				if (!(event.target instanceof Element && event.target.closest('button'))) {
-					onAdd(getWidgetType('discrete-timeline')!);
+					onAdd(getWidgetType('graph')!);
 				}
 			}}
 		>

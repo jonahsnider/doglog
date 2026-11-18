@@ -69,7 +69,7 @@ On the web, the context menu's "Entries" submenu SHALL stay open while entries a
 
 #### Scenario: Restore an entry before closing the menu
 
-- **GIVEN** a line chart showing `/Arm/Angle` then `/Arm/Voltage`
+- **GIVEN** a graph showing `/Arm/Angle` then `/Arm/Voltage`
 - **WHEN** the user unchecks `/Arm/Angle` in the "Entries" submenu, then checks it again without closing the menu
 - **THEN** the chart shows `/Arm/Angle` then `/Arm/Voltage`
 
@@ -101,9 +101,9 @@ The part of a widget that shows an entry, such as a values table row or swerve l
 
 #### Scenario: Move to another widget
 
-- **GIVEN** a values table and a discrete timeline showing `/Intake/HasPiece`
+- **GIVEN** a values table and a graph showing `/Intake/HasPiece`
 - **WHEN** the user drags the `/Intake/HasPiece` timeline row onto the values table
-- **THEN** the values table shows `/Intake/HasPiece` and the discrete timeline doesn't
+- **THEN** the values table shows `/Intake/HasPiece` and the graph doesn't
 
 #### Scenario: Dropped outside a widget
 
@@ -139,7 +139,7 @@ A widget MAY let bindings be connected to each other, such as the field drawing 
 
 ### Requirement: Pick a role
 
-The legend SHALL show a binding's role after its name when the entry can take more than one role, or is bound more than once, and clicking the role MUST open a menu of the entry's roles to pick from. The role MUST take up the width of the entry's widest role, so picking another doesn't resize the legend or move what's beside it.
+The legend SHALL show a binding's role after its name when the entry can take more than one role, or is bound more than once, and clicking the role MUST open a menu of the entry's roles to pick from. Right-clicking the entry MUST also list its roles to pick from, including in widgets that don't show roles, such as the graph. The role MUST take up the width of the entry's widest role, so picking another doesn't resize the legend or move what's beside it.
 
 #### Scenario: Pick a role
 
@@ -225,7 +225,7 @@ When a bound entry doesn't exist in the active source, or no source is active, t
 
 ### Requirement: Shortened entry names
 
-Widgets SHALL shorten the `/Robot`, `/RealOutputs`, `/AdvantageKit`, `/AdvantageKit/RealOutputs`, and `/AdvantageKit/DriverStation` prefixes of entry names to their slashes and capital letters, shown dimmed, and MUST show the full prefix when the shortened prefix has been hovered for a short delay. `/ReplayOutputs` MUST NOT be shortened, so replayed outputs stand out from real ones.
+Widgets SHALL shorten the `/Robot`, `/RealOutputs`, `/AdvantageKit`, `/AdvantageKit/RealOutputs`, and `/AdvantageKit/DriverStation` prefixes of entry names to their slashes and capital letters, shown dimmed, and MUST show the whole name in full when the shortened prefix has been hovered for a short delay. `/ReplayOutputs` MUST NOT be shortened, so replayed outputs stand out from real ones.
 
 #### Scenario: Shortened name
 
@@ -249,7 +249,7 @@ Widgets SHALL shorten the `/Robot`, `/RealOutputs`, `/AdvantageKit`, `/Advantage
 
 ### Requirement: Long names in legends
 
-When a legend has no room for an entry's full name, it SHALL also shorten the first segment after any shortened prefix the same way, unless that segment is the last one, and MUST NOT dim its letters. Names that still don't fit MUST be cut off, and MUST scroll to show the rest while hovered. The name SHALL go back to its full form once there's room for it.
+When a legend has no room for an entry's full name, it SHALL also shorten the first segment after any shortened prefix the same way, unless that segment is the last one, and MUST NOT dim its letters. Hovering a shortened segment MUST only show that segment in full. Names that still don't fit MUST be cut off, and MUST scroll to show the rest while hovered. The name SHALL go back to its full form once there's room for it.
 
 #### Scenario: Collapsed segment
 
@@ -273,12 +273,12 @@ Widgets and the entry browser SHALL show the slashes in full entry names dimmed,
 
 ### Requirement: Default widget for an entry
 
-Each bindable entry SHALL have a default widget, used when the entry is added without choosing a widget: numeric entries use the line graph, `/console` and `/messages` use the console, other string and boolean entries use the discrete timeline, `SwerveModuleState[]` and `SwerveModuleVelocity[]` entries use the swerve widget, entries the field widget accepts use the field widget, and all other entries use the values table.
+Each bindable entry SHALL have a default widget, used when the entry is added without choosing a widget: `/console` and `/messages` use the console, other numeric, string, and boolean entries use the graph, `SwerveModuleState[]` and `SwerveModuleVelocity[]` entries use the swerve widget, entries the field widget accepts use the field widget, and all other entries use the values table.
 
 #### Scenario: Numeric entry
 
 - **WHEN** a `double` entry is added by double-clicking it
-- **THEN** it is shown in a line graph
+- **THEN** it is shown in a graph
 
 #### Scenario: Console entry
 
@@ -288,7 +288,7 @@ Each bindable entry SHALL have a default widget, used when the entry is added wi
 #### Scenario: Boolean entry
 
 - **WHEN** a boolean entry is added by double-clicking it
-- **THEN** it is shown in a discrete timeline
+- **THEN** it is shown in a graph
 
 #### Scenario: Swerve module states
 

@@ -20,13 +20,29 @@ export type LegendItem = {
 	/** Has no value at the cursor */
 	dimmed: boolean;
 	error?: string;
+	/** Names to tell the item's name apart from, shortening the rest of it, see `EntryName` */
+	distinctFrom?: readonly string[];
 };
 
 /**
  * Names each binding of a drawn widget with its color, in wrapping rows or with one `vertical` item per row. Vertical
  * legends of bindings that can be connected get a handle on each row to drag connections between them.
  */
-export function Legend({ items, vertical = false }: { items: LegendItem[]; vertical?: boolean }) {
+export function Legend({
+	items,
+	vertical = false,
+	dropRole,
+	roles = true,
+	className,
+}: {
+	items: LegendItem[];
+	vertical?: boolean;
+	/** The role entries dropped on the legend's items take, ex. the graph axis the legend is for */
+	dropRole?: string;
+	/** Shows each item's role, which can be picked there. Roles can also be picked from the item's context menu. */
+	roles?: boolean;
+	className?: string;
+}) {
 	const widget = use(WidgetBindingsContext);
 	const list = useRef<HTMLUListElement>(null);
 	const gutter = useRef<HTMLDivElement>(null);
@@ -72,12 +88,17 @@ export function Legend({ items, vertical = false }: { items: LegendItem[]; verti
 	const highlighted = drag?.over ?? hovered;
 
 	const legend = (
-		<ul ref={list} className={cn('flex text-sm', vertical ? 'min-w-0 flex-1 flex-col' : 'flex-wrap gap-x-3 gap-y-1')}>
+		<ul
+			ref={list}
+			className={cn('flex text-sm', vertical ? 'min-w-0 flex-1 flex-col' : 'flex-wrap gap-x-3 gap-y-1', className)}
+		>
 			{items.map((item) => (
 				<LegendEntry
 					key={item.binding.id}
 					item={item}
 					vertical={vertical}
+					dropRole={dropRole}
+					roles={roles}
 					handle={
 						connectable && item.binding.connects !== undefined ? (
 							// Grabbed anywhere in the row's height, around the small dot it shows
@@ -151,16 +172,20 @@ export function Legend({ items, vertical = false }: { items: LegendItem[]; verti
 function LegendEntry({
 	item,
 	vertical,
+	dropRole,
+	roles,
 	handle,
 }: {
 	item: LegendItem;
 	vertical: boolean;
+	dropRole: string | undefined;
+	roles: boolean;
 	/** Dragged to connect the binding to another */
 	handle: ReactNode;
 }) {
 	const { binding } = item;
 	const widget = use(WidgetBindingsContext);
-	const { ref, handleRef } = useBindingDrag(binding, { orientation: vertical ? 'vertical' : 'horizontal' });
+	const { ref, handleRef } = useBindingDrag(binding, { orientation: vertical ? 'vertical' : 'horizontal', dropRole });
 	return (
 		<li
 			ref={ref}
@@ -179,11 +204,11 @@ function LegendEntry({
 				ref={handleRef}
 				className={cn('min-w-0 cursor-grab py-0.5 font-mono', binding.hidden && 'text-muted-foreground')}
 			>
-				<LegendName name={binding.name} />
+				<LegendName name={binding.name} distinctFrom={item.distinctFrom} />
 			</span>
 			{/* Rows of a vertical legend line up their roles and handles on the right */}
 			{vertical && <span className="flex-1" />}
-			{binding.roleLabel !== undefined && (
+			{roles && binding.roleLabel !== undefined && (
 				<RoleLabel binding={binding} onPick={(role) => widget?.setRole(binding.id, role)} />
 			)}
 			{item.note !== undefined && <span className="text-muted-foreground">{item.note}</span>}
@@ -194,7 +219,7 @@ function LegendEntry({
 }
 
 /** The entry's name, which collapses its first segment after common prefixes when it doesn't fit, and scrolls on hover when it still doesn't */
-function LegendName({ name }: { name: string }) {
+function LegendName({ name, distinctFrom }: { name: string; distinctFrom: readonly string[] | undefined }) {
 	const full = useRef<HTMLSpanElement>(null);
 	const [collapsed, setCollapsed] = useState(false);
 
@@ -209,10 +234,10 @@ function LegendName({ name }: { name: string }) {
 		<span className="grid grid-cols-[minmax(0,auto)]">
 			{/* Never shown, so the legend stays as wide as the full name, and it's expanded again once there's room */}
 			<span ref={full} className="invisible h-0 overflow-hidden whitespace-nowrap [grid-area:1/1]">
-				<EntryName name={name} />
+				<EntryName name={name} distinctFrom={distinctFrom} />
 			</span>
 			<MarqueeText className="[grid-area:1/1]">
-				<EntryName name={name} collapsed={collapsed} />
+				<EntryName name={name} collapsed={collapsed} distinctFrom={distinctFrom} />
 			</MarqueeText>
 		</span>
 	);

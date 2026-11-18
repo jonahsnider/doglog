@@ -23,6 +23,7 @@ import {
 	removeBinding,
 	resolveBindings,
 	restoreBinding,
+	setBindingRole,
 	widgetBindings,
 } from '@/widgets/bindings';
 import { cn } from '@/lib/utils';
@@ -118,6 +119,19 @@ export function PaneView({
 				];
 	};
 
+	/** Picks what the binding is drawn as, ex. on a graph's right axis */
+	const roleItems = (binding: WidgetBinding | undefined): MenuEntry[] =>
+		binding === undefined || binding.roles.length < 2
+			? []
+			: [
+					'separator',
+					...binding.roles.map((role): MenuCheckbox => ({
+						label: role.label,
+						checked: role.id === binding.role?.id,
+						onCheckedChange: () => update((layout) => setBindingRole(layout, pane.id, binding.id, role.id)),
+					})),
+				];
+
 	const menuItems = (target: Element): MenuEntry[] => {
 		const targetId = bindingIdAt(target);
 		const targetBinding = bindings.find((binding) => binding.id === targetId);
@@ -172,6 +186,7 @@ export function PaneView({
 					}
 				: { label: `Remove ${bindingLabel(targetBinding)}`, onSelect: () => remove(targetBinding.id) },
 			...disconnectItems(targetBinding),
+			...roleItems(targetBinding),
 			'separator',
 			{ label: 'Close', shortcut: shortcuts.close, disabled: !closable, onSelect: close },
 		];

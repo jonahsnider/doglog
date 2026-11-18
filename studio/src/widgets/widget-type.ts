@@ -101,7 +101,11 @@ export type WidgetType = {
 	 * Infers a binding's role from the bindings before it, ex. the field draws the first pose as a robot and later ones as
 	 * ghosts. Without it, or when it returns `undefined`, a binding takes the first role no other binding of its entry has.
 	 */
-	readonly inferRole?: (roles: readonly RoleOption[], earlier: readonly WidgetBinding[]) => RoleOption | undefined;
+	readonly inferRole?: (
+		roles: readonly RoleOption[],
+		earlier: readonly WidgetBinding[],
+		entry: Entry,
+	) => RoleOption | undefined;
 	/** How a binding can be connected to others from the legend, `undefined` for bindings that can't be connected */
 	readonly connects?: (binding: WidgetBinding) => Connects | undefined;
 	/** Rendered even with no entries or no data instead of the shared empty states, ex. the field shows the field */

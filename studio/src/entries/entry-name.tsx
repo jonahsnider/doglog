@@ -1,5 +1,6 @@
 import { HighlightedText } from '@/components/highlighted-text';
 import { cn } from '@/lib/utils';
+import { ambiguousSegments, distinctSegments, lastSegmentsStart } from '@/entries/short-names';
 
 /**
  * Prefixes shortened to their slashes and capital letters, like fish shortens paths, ex. `/Robot/Arm/Angle` is shown
@@ -13,55 +14,56 @@ const shortenedPrefixes = [
 	'/Robot',
 ];
 
+type Ranges = readonly number[] | undefined;
+
 /**
- * An entry's name with dimmed slashes and common prefixes shortened, hovering the prefix shows it in full. `ranges` of the
- * name are highlighted, ex. the parts matching a search. `collapsed` also shortens the first segment after the common
- * prefix when it isn't the last, ex. `/Robot/Drive/Pose` is shown as `/R/D/Pose`.
+ * An entry's name with dimmed slashes and common prefixes shortened. Hovering a shortened segment shows it in full, and
+ * hovering the dimmed common prefix shows the whole name. `ranges` of the name are highlighted, ex. the parts matching a
+ * search. `collapsed` also shortens the first segment after the common prefix when it isn't the last, ex.
+ * `/Robot/Drive/Pose` is shown as `/R/D/Pose`. `distinctFrom` shortens every segment instead, but the last ones that
+ * tell the name apart from those names and the ones that would shorten the same as theirs, ex. `/Robot/Drive/Pose` is
+ * shown as `/R/D/Pose` beside `/Robot/Arm/Angle`, and `/R/Drive/Pose` beside `/Robot/Dashboard/Mode`.
  */
 export function EntryName({
 	name,
 	ranges,
 	collapsed = false,
+	distinctFrom,
 }: {
 	name: string;
-	ranges?: readonly number[] | undefined;
+	ranges?: Ranges;
 	collapsed?: boolean | undefined;
+	distinctFrom?: readonly string[] | undefined;
 }) {
 	const common = shortenedPrefixes.find((candidate) => name.startsWith(`${candidate}/`)) ?? '';
-	const prefix = collapsed ? common + (/^\/?[^/]+(?=\/)/u.exec(name.slice(common.length))?.[0] ?? '') : common;
+	let shortened = common;
+	if (distinctFrom) {
+		shortened = name.slice(0, lastSegmentsStart(name, distinctSegments(name, distinctFrom)));
+	} else if (collapsed) {
+		shortened = common + (/^\/?[^/]+(?=\/)/u.exec(name.slice(common.length))?.[0] ?? '');
+	}
+	const prefix = shortened.length > common.length ? shortened : common;
 	if (prefix === '') {
 		return <DimmedSlashes text={name} ranges={ranges} offset={0} />;
 	}
+	const full = distinctFrom ? ambiguousSegments(name, distinctFrom) : new Set<number>();
 
-	// Runs of lowercase letters are hidden, except a segment's first letter, ex. `/RealOutputs` is split into `/R`, `eal`, `O`, `utputs`
-	const parts = prefix.matchAll(/(?<hidden>(?<!^|\/)[a-z]+)|(?:[^a-z]|(?<=^|\/)[a-z])+/gu);
 	return (
 		<span>
 			<span className="group/entry-name">
-				{Array.from(parts, ({ 0: part, index: start, groups }) => {
-					// The common prefix is dimmed, but a collapsed segment is as important as the rest of the name
-					const dimmed = start < common.length;
-					if (groups?.['hidden'] === undefined) {
-						return dimmed ? (
-							<span key={start} className="text-muted-foreground">
-								<HighlightedText text={part} ranges={ranges} offset={start} />
-							</span>
-						) : (
-							<DimmedSlashes key={start} text={part} ranges={ranges} offset={start} />
-						);
-					}
-					return (
-						// Animating the column from 0fr to 1fr grows the text to its own width
-						<span
-							key={start}
-							className={cn(
-								'inline-grid grid-cols-[0fr] align-bottom transition-[grid-template-columns] group-hover/entry-name:grid-cols-[1fr] group-hover/entry-name:delay-300 motion-reduce:transition-none',
-								dimmed && 'text-muted-foreground',
-							)}
-						>
-							<span className="overflow-hidden">
-								<HighlightedText text={part} ranges={ranges} offset={start} />
-							</span>
+				{common !== '' && (
+					// Dimmed, a collapsed segment is as important as the rest of the name
+					<span data-common-prefix className="group/common text-muted-foreground">
+						<Shortened text={common} ranges={ranges} offset={0} common />
+					</span>
+				)}
+				{Array.from(prefix.slice(common.length).matchAll(/\/?[^/]+/gu), ({ 0: segment, index }) => {
+					const start = common.length + index;
+					return full.has(start) ? (
+						<DimmedSlashes key={start} text={segment} ranges={ranges} offset={start} />
+					) : (
+						<span key={start} className="group/segment">
+							<Shortened text={segment} ranges={ranges} offset={start} common={false} />
 						</span>
 					);
 				})}
@@ -71,16 +73,53 @@ export function EntryName({
 	);
 }
 
-/** Text with its slashes dimmed, so the path's segments stand out */
-function DimmedSlashes({
+/**
+ * Part of a name shortened to its slashes, first letters, and capitals, shown in full while hovered. Segments after the
+ * common prefix are also shown in full while it's hovered.
+ */
+function Shortened({
 	text,
 	ranges,
 	offset,
+	common,
 }: {
 	text: string;
-	ranges: readonly number[] | undefined;
+	ranges: Ranges;
 	offset: number;
+	common: boolean;
 }) {
+	// Runs of lowercase letters are hidden, except a segment's first letter, ex. `/RealOutputs` is split into `/R`, `eal`, `O`, `utputs`
+	const parts = text.matchAll(/(?<hidden>(?<!^|\/)[a-z]+)|(?:[^a-z]|(?<=^|\/)[a-z])+/gu);
+	return Array.from(parts, ({ 0: part, index, groups }) => {
+		const start = offset + index;
+		if (groups?.['hidden'] === undefined) {
+			return common ? (
+				<HighlightedText key={start} text={part} ranges={ranges} offset={start} />
+			) : (
+				<DimmedSlashes key={start} text={part} ranges={ranges} offset={start} />
+			);
+		}
+		return (
+			// Animating the column from 0fr to 1fr grows the text to its own width
+			<span
+				key={start}
+				className={cn(
+					'inline-grid grid-cols-[0fr] align-bottom transition-[grid-template-columns] motion-reduce:transition-none',
+					common
+						? 'group-hover/common:grid-cols-[1fr] group-hover/common:delay-300'
+						: 'group-hover/segment:grid-cols-[1fr] group-hover/segment:delay-300 group-has-[[data-common-prefix]:hover]/entry-name:grid-cols-[1fr] group-has-[[data-common-prefix]:hover]/entry-name:delay-300',
+				)}
+			>
+				<span className="overflow-hidden">
+					<HighlightedText text={part} ranges={ranges} offset={start} />
+				</span>
+			</span>
+		);
+	});
+}
+
+/** Text with its slashes dimmed, so the path's segments stand out */
+function DimmedSlashes({ text, ranges, offset }: { text: string; ranges: Ranges; offset: number }) {
 	return Array.from(text.matchAll(/\/+|[^/]+/gu), ({ 0: part, index: start }) => {
 		const highlighted = <HighlightedText key={start} text={part} ranges={ranges} offset={offset + start} />;
 		return part.startsWith('/') ? (

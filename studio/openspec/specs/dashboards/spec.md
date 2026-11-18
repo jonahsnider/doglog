@@ -470,7 +470,7 @@ Studio SHALL guide users from empty states to a usable dashboard.
 
 - **GIVEN** a pane with no widget
 - **WHEN** the user double-clicks the pane outside the widget tiles
-- **THEN** an empty discrete timeline is added to the pane
+- **THEN** an empty graph is added to the pane
 
 #### Scenario: Add a widget with its key
 

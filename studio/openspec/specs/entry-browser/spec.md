@@ -139,23 +139,23 @@ Double-clicking a bindable entry SHALL add it to the open dashboard using the en
 
 #### Scenario: Add to a matching widget
 
-- **GIVEN** the focused pane shows a discrete timeline bound to `/Intake/HasGamePiece`
+- **GIVEN** the focused pane shows a graph bound to `/Intake/HasGamePiece`
 - **WHEN** the user double-clicks the boolean entry `/Arm/AtSetpoint`
-- **THEN** the same discrete timeline shows both entries
+- **THEN** the same graph shows both entries
 - **AND** no new pane is created
 
 #### Scenario: Already shown
 
-- **GIVEN** the focused pane shows a discrete timeline bound to `/Arm/AtSetpoint`
+- **GIVEN** the focused pane shows a graph bound to `/Arm/AtSetpoint`
 - **WHEN** the user double-clicks `/Arm/AtSetpoint`
-- **THEN** the discrete timeline still shows it once
+- **THEN** the graph still shows it once
 
 #### Scenario: Add to a matching widget that isn't focused
 
-- **GIVEN** the dashboard has a discrete timeline and a console, and the console's pane is focused
+- **GIVEN** the dashboard has a graph and a console, and the console's pane is focused
 - **WHEN** the user double-clicks a boolean entry
-- **THEN** the entry is added to the discrete timeline
-- **AND** the discrete timeline's pane becomes focused
+- **THEN** the entry is added to the graph
+- **AND** the graph's pane becomes focused
 
 #### Scenario: Add to a dashboard without a matching widget
 

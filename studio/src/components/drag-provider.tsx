@@ -34,11 +34,12 @@ export function DragProvider({ children }: { children: ReactNode }) {
 	return (
 		<DragDropProvider
 			sensors={sensors}
-			onDragStart={(_event, manager) => {
-				// Undoes skipping the drop animation below
+			onDragStart={({ operation }, manager) => {
+				// Undoes skipping the drop animation below. Previews never animate back, their source may be gone by then,
+				// ex. an entry moved to another axis's legend, and they'd fly to the corner of the window.
 				const feedback = manager.registry.plugins.get(Feedback);
 				if (feedback) {
-					feedback.dropAnimation = undefined;
+					feedback.dropAnimation = hasPreview(operation.source) ? null : undefined;
 				}
 			}}
 			onDragEnd={({ operation, canceled }, manager) => {
@@ -75,10 +76,7 @@ export function DragProvider({ children }: { children: ReactNode }) {
 		>
 			{children}
 			{/* Entry browser rows are virtualized and can unmount mid-drag, and panes are too big to drag around, so a preview follows the pointer instead. Dashboards move in the sidebar. */}
-			<DragOverlay
-				dropAnimation={null}
-				disabled={(source) => !isEntryDrag(source) && !isEntryRowDrag(source) && !isPaneDrag(source)}
-			>
+			<DragOverlay dropAnimation={null} disabled={(source) => !hasPreview(source)}>
 				{(source) =>
 					isPaneDrag(source) ? (
 						<PanePreview data={source.data} />
@@ -93,6 +91,11 @@ export function DragProvider({ children }: { children: ReactNode }) {
 			</DragOverlay>
 		</DragDropProvider>
 	);
+}
+
+/** Whether a preview follows the pointer while dragging `source`, instead of the source itself moving */
+function hasPreview(source: Parameters<typeof isPaneDrag>[0]): boolean {
+	return isEntryDrag(source) || isEntryRowDrag(source) || isPaneDrag(source);
 }
 
 function PanePreview({ data }: { data: PaneDragData }) {

@@ -1,11 +1,12 @@
-import { ChartNoAxesGanttIcon, MapIcon, MoveIcon, NotebookPenIcon, TableIcon, TerminalIcon } from 'lucide-react';
+import { ChartLineIcon, MapIcon, MoveIcon, NotebookPenIcon, TableIcon, TerminalIcon } from 'lucide-react';
 import { createWidget } from '@/widgets/bindings';
 import type { Entry } from '@/data/data-store';
 import type { Widget } from '@/panes/layout';
 import { Console } from '@/widgets/console/console';
-import { DiscreteTimeline } from '@/widgets/discrete-timeline/discrete-timeline';
 import { Field } from '@/widgets/field/field';
 import { fieldConnects, fieldRoles, inferFieldRole } from '@/widgets/field/roles';
+import { Graph } from '@/widgets/graph/graph';
+import { graphRoles, inferGraphRole } from '@/widgets/graph/roles';
 import { Notepad } from '@/widgets/notepad/notepad';
 import { Swerve } from '@/widgets/swerve/swerve';
 import { swerveRoles } from '@/widgets/swerve/data';
@@ -33,12 +34,14 @@ export const widgetTypes: readonly WidgetType[] = [
 		component: Console,
 	},
 	{
-		id: 'discrete-timeline',
-		name: 'Discrete timeline',
-		icon: ChartNoAxesGanttIcon,
+		id: 'graph',
+		name: 'Graph',
+		icon: ChartLineIcon,
 		hotkey: 'D',
-		accepts: ['boolean', 'string'],
-		component: DiscreteTimeline,
+		accepts: ['number', 'boolean', 'string'],
+		roles: graphRoles,
+		inferRole: inferGraphRole,
+		component: Graph,
 	},
 	{
 		id: 'swerve',
@@ -93,8 +96,8 @@ function defaultWidgetTypeId(entry: Entry): string {
 		return 'console';
 	}
 
-	if (entry.kind === 'string' || entry.kind === 'boolean') {
-		return 'discrete-timeline';
+	if (entry.kind === 'number' || entry.kind === 'string' || entry.kind === 'boolean') {
+		return 'graph';
 	}
 
 	if (swerveRoles(entry)[0]?.id === 'states') {
@@ -105,7 +108,6 @@ function defaultWidgetTypeId(entry: Entry): string {
 		return 'field';
 	}
 
-	// Numeric entries (`entry.kind === 'number'`) should use the line graph once it exists, they use the values table until then
 	return 'values-table';
 }
 

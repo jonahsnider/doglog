@@ -137,6 +137,10 @@ function DropFeedback({
 		const from = bindings.findIndex((binding) => binding.id === dragged.bindingId);
 		return <ReorderIndicator from={from} drop={drop} element={target?.element} />;
 	}
+	// Parts of a widget that set the dropped entry's role, ex. a graph's right axis, highlight themselves
+	if (drop?.role !== undefined) {
+		return undefined;
+	}
 
 	// Entries the widget already shows can be bound again, ex. to draw a pose as a robot and a ghost
 	const entry = getEntry(dragged.name);

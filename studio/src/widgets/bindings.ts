@@ -169,7 +169,12 @@ export function toggleBindingHidden(layout: PaneNode, paneId: string, bindingId:
 }
 
 /** Where a dragged entry is dropped: a pane's widget, optionally onto one of its bindings to take that binding's position */
-export type EntryDrop = { paneId: string; index?: number };
+export type EntryDrop = {
+	paneId: string;
+	index?: number;
+	/** The role the entry takes, ex. when it's dropped on a graph's right axis */
+	role?: string;
+};
 
 /** A dragged entry, `from` is the binding it was dragged out of when it's from a widget */
 export type DraggedEntry = { name: string; from?: { paneId: string; bindingId: string } };
@@ -183,9 +188,10 @@ export function dropEntry(layout: PaneNode, dragged: DraggedEntry, to: EntryDrop
 	const binding =
 		(from && widgetBindings(findPane(layout, from.paneId)?.widget).find((other) => other.id === from.bindingId)) ??
 		createBinding(dragged.name);
+	const placed = to.role === undefined ? binding : { ...binding, role: to.role };
 	const dropped = updateBindings(layout, to.paneId, (bindings) => {
 		const others = bindings.filter((other) => other.id !== binding.id);
-		return others.toSpliced(to.index ?? others.length, 0, binding);
+		return others.toSpliced(to.index ?? others.length, 0, placed);
 	});
 	return dropped === layout || from === undefined || from.paneId === to.paneId
 		? dropped
@@ -246,7 +252,8 @@ export function resolveBindings(
 	// Connections are added once every binding has its role, since what can be connected depends on it
 	const withRoles: Mutable<WidgetBinding>[] = [];
 	for (const { binding, entry, roles, picked } of resolved) {
-		let role: RoleOption | undefined = picked ?? (roles.length > 0 ? type.inferRole?.(roles, withRoles) : undefined);
+		let role: RoleOption | undefined =
+			picked ?? (entry && roles.length > 0 ? type.inferRole?.(roles, withRoles, entry) : undefined);
 		const others = taken.get(binding.name)!;
 		if (role === undefined && roles.length > 0) {
 			role = roles.find((option) => !others.has(option.id)) ?? roles[0]!;

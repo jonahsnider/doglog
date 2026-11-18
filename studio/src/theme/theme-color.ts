@@ -236,7 +236,7 @@ export function themePreviewColors(
 	};
 }
 
-/** Color that theme-tinted widget colors, ex. discrete timeline bands, take their hue from. Neutral uses Tailwind's blue-500 */
+/** Color that theme-tinted widget colors, ex. graph bands, take their hue from. Neutral uses Tailwind's blue-500 */
 export function accentColor(preset: ThemePreset, themeColor: string): string {
 	return preset === 'coss' ? '#3b82f6' : (presetColors[preset] ?? themeColor);
 }

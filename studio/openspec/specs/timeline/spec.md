@@ -88,6 +88,15 @@ Hovering the timeline bar's track SHALL show a tooltip of what was happening at 
 - **WHEN** the user hovers it
 - **THEN** its right side only shows "0:00.30"
 
+### Requirement: Graphs on the timeline
+
+The timeline bar SHALL mark the time hovered in a graph, and while graphs are zoomed in it SHALL mark the time range they show, so it's clear where they are in the whole source.
+
+#### Scenario: Zoomed graph
+
+- **GIVEN** a graph zoomed to 1:10 through 1:20
+- **THEN** the timeline bar marks 1:10 through 1:20
+
 ### Requirement: Skip disabled time
 
 While the skip disabled time option is on, disabled periods longer than 15 seconds SHALL be skipped, except for 2 seconds at each end, so the time around enabling and disabling stays at normal scale. On the timeline bar, each skipped span SHALL take a small fixed width, hatched so it's clear it isn't to scale, and the rest of the time SHALL share the remaining width evenly. Nothing MUST be skipped if the robot was never enabled, or the disabled period a live source is still in.

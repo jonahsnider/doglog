@@ -11,8 +11,9 @@ function entry(name: string, type: string): Entry {
 test.each([
 	['/console', 'string', 'console'],
 	['/messages', 'string', 'console'],
-	['/Arm/State', 'string', 'discrete-timeline'],
-	['/Arm/Enabled', 'boolean', 'discrete-timeline'],
+	['/Arm/State', 'string', 'graph'],
+	['/Arm/Enabled', 'boolean', 'graph'],
+	['/Arm/Angle', 'double', 'graph'],
 	['/Drive/Pose', 'struct:Pose2d', 'field'],
 	['/Vision/Targets', 'struct:Pose3d[]', 'field'],
 	['/Drive/Speeds', 'struct:ChassisSpeeds', 'values-table'],

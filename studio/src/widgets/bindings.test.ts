@@ -60,6 +60,20 @@ test('dropping a binding from another pane moves it with its role', () => {
 	expect(widgetBindings(findPane(moved, right)?.widget)).toEqual([ghost, c]);
 });
 
+test('dropping on a part of a widget with a role gives the entry that role', () => {
+	const { layout, left } = twoPanes([a, b], []);
+
+	const moved = dropEntry(
+		layout,
+		{ name: '/b', from: { paneId: left, bindingId: 'b' } },
+		{ paneId: left, role: 'right' },
+	);
+	expect(widgetBindings(findPane(moved, left)?.widget)).toEqual([a, { ...b, role: 'right' }]);
+
+	const added = dropEntry(layout, { name: '/c' }, { paneId: left, index: 0, role: 'discrete' });
+	expect(widgetBindings(findPane(added, left)?.widget)[0]).toMatchObject({ name: '/c', role: 'discrete' });
+});
+
 test('an entry the widget already shows can be dropped again', () => {
 	const { layout, left, right } = twoPanes([a], [a]);
 

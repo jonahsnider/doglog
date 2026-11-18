@@ -1,15 +1,7 @@
-import { alertColors, modeColors } from '@/timeline/colors';
+import { alertColors, modeColors, modeLabels } from '@/timeline/colors';
 import { cn } from '@/lib/utils';
 import { formatTime } from '@/timeline/timeline';
-import type { AlertSpan, ModePeriod, RobotMode } from '@/timeline/events';
-
-const modeLabels: Record<RobotMode, string> = {
-	disabled: 'Disabled',
-	auto: 'Autonomous',
-	teleop: 'Teleop',
-	test: 'Test',
-	estop: 'E-stopped',
-};
+import type { AlertSpan, ModePeriod } from '@/timeline/events';
 
 /** Most alerts listed in a tooltip */
 const maxListedAlerts = 5;

@@ -1,7 +1,7 @@
 import { expect, test } from 'vite-plus/test';
 import type { Entry } from '@/data/data-store';
 import { getEntryKind, Samples } from '@/data/samples';
-import { inferAngleUnit } from '@/data/units';
+import { convertUnit, inferAngleUnit, inferUnit, parseUnit } from '@/data/units';
 
 function entry(name: string, type: string, metadata: Record<string, unknown> = {}): Entry {
 	return { name, type, kind: getEntryKind(type), samples: new Samples(), metadata };
@@ -23,4 +23,27 @@ test.each([
 	['/Drive/R', 'double', {}, 'radians'],
 ])('%s (%s, %o) is in %s', (name, type, metadata, unit) => {
 	expect(inferAngleUnit(entry(name, type, metadata))).toBe(unit);
+});
+
+test.each([
+	['/Drive/VelocityMetersPerSec', {}, 'm/s'],
+	['/Drive/LeftVelocityRPM', {}, 'rpm'],
+	['/Elevator/AccelMetersPerSecSquared', {}, 'm/s²'],
+	['/Drive/CurrentAmps', {}, 'A'],
+	['/Drive/AppliedVolts', {}, 'V'],
+	['/Drive/TempCelsius', {}, '°C'],
+	['/Arm/PositionRotations', {}, 'rot'],
+	['/Intake/In', {}, undefined],
+	['/Arm/MinPosition', {}, undefined],
+	['/Drive/Speed', { unit: 'ft/s' }, 'ft/s'],
+	['/Drive/Accel', { unit: 'm/s^2' }, 'm/s²'],
+	['/Drive/Speed', { unit: 'furlongs' }, undefined],
+])('%s (%o) is in %s', (name, metadata, label) => {
+	expect(inferUnit(entry(name, 'double', metadata))?.label).toBe(label);
+});
+
+test('units of the same measure convert between each other', () => {
+	expect(convertUnit(1, parseUnit('ft')!, parseUnit('in')!)).toBeCloseTo(12);
+	expect(convertUnit(60, parseUnit('rpm')!, parseUnit('rot/s')!)).toBeCloseTo(1);
+	expect(convertUnit(212, parseUnit('°F')!, parseUnit('°C')!)).toBeCloseTo(100);
 });
