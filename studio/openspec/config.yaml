@@ -60,7 +60,8 @@ context: |
     imports (widget metadata like `accepts`, roles, and options lives apart from widget components). A build step exports
     the schemas with Zod's JSON Schema export, and the Rust binary embeds them, so `doglog --help`, CLI flag parsing, and
     MCP `tools/list` work without a window. Handlers run in the webview.
-    - Web: WebMCP (`navigator.modelContext`), feature-detected.
+    - Web: WebMCP (`document.modelContext.registerTool`, per the current W3C draft), feature-detected. WebMCP has no
+      server instructions, so web agents only get command descriptions.
     - Desktop: each app process listens on a per-user local socket (Unix socket with user-only permissions, or a named
       pipe restricted to the current user on Windows) speaking a small private JSON-RPC protocol (`info` for the API
       version and window details, `call` to run a command); Rust relays calls to the webview. No network listener.

@@ -151,7 +151,7 @@ Agents SHALL be able to bind entries to a widget by entry name, and set each bin
 
 ### Requirement: Source and timeline
 
-Agents SHALL be able to read the active source, connect to a robot, and close the source. On desktop they MUST also be able to open a log by its file path. Agents SHALL be able to read and move the timeline cursor, but not control playback.
+Agents SHALL be able to read the active source, connect to a robot, and close the source. On desktop they MUST also be able to open a log by its file path. Agents SHALL be able to read and move the timeline cursor, but not control playback. Times MUST be in seconds on the source's own clock, the same timestamps wpilog-parser reads.
 
 #### Scenario: Show the user a moment
 
