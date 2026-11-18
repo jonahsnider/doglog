@@ -154,8 +154,15 @@ The desktop app SHALL update itself automatically.
 
 - **GIVEN** the desktop app is running on macOS
 - **WHEN** the user chooses DogLog Studio > Check for Updates…
-- **THEN** if a newer version is released, the sidebar shows the button to update to it
-- **AND** otherwise a toast says Studio is on the latest version
+- **THEN** a toast says whether a newer version is released
+- **AND** if one is, the sidebar shows the button to update to it
+
+#### Scenario: Update with the keyboard
+
+- **GIVEN** the desktop app is running
+- **WHEN** the user presses ⇧⌘U
+- **THEN** a toast shows Studio checking for updates, then says whether a newer version is available
+- **AND** if one is, pressing ⇧⌘U again shows a toast that Studio is updating, then installs the update and restarts Studio
 
 #### Scenario: No internet at an event
 

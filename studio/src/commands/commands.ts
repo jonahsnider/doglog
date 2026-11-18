@@ -22,6 +22,7 @@ import {
 } from '@/dashboards/dashboards';
 import { goInHistory } from '@/commands/history';
 import { chooseLog } from '@/data/open-log';
+import { checkOrInstallUpdate, updateShortcut } from '@/desktop/updater';
 import { connect } from '@/data/source';
 import { canSplitPane, type SplitDirection } from '@/panes/layout';
 import { getRobotHost } from '@/robot-target';
@@ -56,6 +57,7 @@ export const shortcuts = {
 	toggleSidebar: 'Mod+B',
 	toggleEntryBrowser: 'Mod+Alt+B',
 	keyboardShortcuts: 'Mod+/',
+	update: updateShortcut,
 } as const satisfies Record<string, Hotkey>;
 
 const dashboardNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
@@ -193,6 +195,7 @@ export function useGlobalShortcuts(): void {
 			{ hotkey: 'Mod+Shift+T', callback: () => reopenDashboard(router), options: desktopOnly },
 			{ hotkey: 'Mod+,', callback: () => openSettings(router), options: desktopOnly },
 			{ hotkey: 'Mod+L', callback: () => openLogs(router), options: { enabled: desktop } },
+			{ hotkey: shortcuts.update, callback: () => void checkOrInstallUpdate(), options: { enabled: desktop } },
 			{ hotkey: 'Mod+[', callback: () => goInHistory(router, -1), options: desktopOnly },
 			{ hotkey: 'Mod+]', callback: () => goInHistory(router, 1), options: desktopOnly },
 			{ hotkey: shortcuts.connect, callback: startConnect },
