@@ -187,9 +187,8 @@ The macOS desktop app SHALL draw the window controls over the top of the sidebar
 
 - **GIVEN** the user is using the desktop app on macOS
 - **WHEN** the user collapses the sidebar
-- **THEN** the Back and Forward buttons are hidden
-- **AND** the sidebar toggle stays beside the window controls
-- **AND** the top left pane's header and the page titles make room for the window controls and the toggle, which are wider than the rail
+- **THEN** the sidebar toggle, Back, and Forward buttons stay beside the window controls
+- **AND** the top left pane's header and the page titles make room for the window controls and the buttons, which are wider than the rail
 
 #### Scenario: Fullscreen
 

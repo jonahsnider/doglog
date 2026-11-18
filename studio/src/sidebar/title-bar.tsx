@@ -66,8 +66,8 @@ export function TitleBar({
 				// The toggle lines up with the rail's icons
 				trafficLights ? 'ps-21' : 'ps-3',
 				iconOnly ? 'w-full' : 'w-(--sidebar-width)',
-				// Matches the top left pane's header to make one bar under the traffic lights
-				iconOnly && trafficLights && 'border-border bg-background',
+				// Covers the rail under the traffic lights, and joins the top left pane's header to make one bar when there is one
+				iconOnly && trafficLights && 'bg-background group-has-data-[joins-title-bar=true]/app:border-border',
 			)}
 		>
 			<TitleBarButton
@@ -79,7 +79,7 @@ export function TitleBar({
 			>
 				<PanelLeftIcon />
 			</TitleBarButton>
-			{trafficLights && !iconOnly && (
+			{trafficLights && (
 				<>
 					<HistoryButton step={-1} />
 					<HistoryButton step={1} />

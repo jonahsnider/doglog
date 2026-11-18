@@ -19,7 +19,7 @@ function RootLayout() {
 		<ToastProvider>
 			{/* Wraps the whole app, so dashboards and panes can be dragged between the sidebar and the main area */}
 			<DragProvider>
-				<div className="flex h-svh">
+				<div className="group/app flex h-svh">
 					<AppSidebar />
 					<SidebarInset className="relative overflow-hidden">
 						<Outlet />

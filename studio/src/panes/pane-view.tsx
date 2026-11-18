@@ -40,7 +40,7 @@ export type PaneNodeProps = {
 	zoomedPaneId: string | undefined;
 	/** The pane zooming in, which fills the dashboard beneath the others as they slide away, see `useZoomAnimation()` */
 	zoomFillingPaneId: string | undefined;
-	/** Whether the node is in the top left corner of the dashboard, under the traffic lights and sidebar toggle when the sidebar is collapsed */
+	/** Whether the node is in the top left corner of the dashboard, under the traffic lights and the buttons after them when the sidebar is collapsed */
 	topLeft: boolean;
 };
 
@@ -83,6 +83,8 @@ export function PaneView({
 	const close = () => closeDashboardPane(dashboardId, pane.id);
 	const focused = pane.id === focusedPaneId;
 	const zoomed = pane.id === zoomedPaneId;
+	// The header makes room for the traffic lights and continues the title bar under them, see `TitleBar`
+	const underTrafficLights = trafficLightsOverlap && (topLeft || zoomed);
 	const zoom = () => toggleZoom(dashboardId, pane.id);
 
 	const remove = (bindingId: string) => update((layout) => removeBinding(layout, pane.id, bindingId));
@@ -190,10 +192,8 @@ export function PaneView({
 			}
 		>
 			<div
-				className={cn(
-					'flex h-9 shrink-0 items-center gap-0.5 border-b px-2',
-					(topLeft || zoomed) && trafficLightsOverlap && 'ps-16',
-				)}
+				data-joins-title-bar={underTrafficLights}
+				className={cn('flex h-9 shrink-0 items-center gap-0.5 border-b px-2', underTrafficLights && 'ps-29')}
 				// Middle-clicking the header closes the pane, like a browser tab
 				onAuxClick={(event) => {
 					if (event.button === 1 && closable) {

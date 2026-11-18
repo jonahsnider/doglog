@@ -147,10 +147,10 @@ function SyncOverview() {
 	return (
 		<div className="flex-1 overflow-y-auto">
 			<div className="flex flex-col gap-8 p-6">
-				{/* Reaches the top of the window, where the title bar would be, and makes room for the sidebar toggle when it's over the page */}
+				{/* Reaches the top of the window, where the title bar would be, and makes room for the title bar's buttons when they're over the page */}
 				<header
 					{...dragRegion}
-					className={cn('-mt-6 flex items-center justify-between gap-2 pt-6', trafficLightsOverlap && 'ps-10')}
+					className={cn('-mt-6 flex items-center justify-between gap-2 pt-6', trafficLightsOverlap && 'ps-23')}
 				>
 					<h1 className="font-heading text-2xl font-semibold">Logs</h1>
 					<div className="flex gap-2">

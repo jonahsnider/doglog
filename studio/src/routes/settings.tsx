@@ -26,10 +26,10 @@ function Settings() {
 	return (
 		<div className="flex flex-1 flex-col overflow-y-auto">
 			<div className="flex max-w-2xl grow flex-col gap-6 p-6">
-				{/* Reaches the top of the window, where the title bar would be, and makes room for the sidebar toggle when it's over the page */}
+				{/* Reaches the top of the window, where the title bar would be, and makes room for the title bar's buttons when they're over the page */}
 				<h1
 					{...dragRegion}
-					className={cn('-mt-6 pt-6 font-heading text-2xl leading-none font-semibold', trafficLightsOverlap && 'ps-10')}
+					className={cn('-mt-6 pt-6 font-heading text-2xl leading-none font-semibold', trafficLightsOverlap && 'ps-23')}
 				>
 					Settings
 				</h1>
