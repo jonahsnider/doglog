@@ -8,7 +8,7 @@ Define the Settings page, where users choose the color theme and contrast, their
 
 ### Requirement: Settings sections
 
-Settings SHALL group related settings under titled sections, in this order: Appearance (theme, theme color, and contrast), Robot (robot connection), Sharing (name), and System (media controls, natural scrolling, and the terminal command).
+Settings SHALL group related settings under titled sections, in this order: Appearance (theme, theme color, and contrast), Robot (robot connection), Sharing (name), and System (media controls, natural scrolling, the terminal command, and coding agents).
 
 #### Scenario: Find the theme
 

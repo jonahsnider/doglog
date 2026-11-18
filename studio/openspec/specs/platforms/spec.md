@@ -113,7 +113,7 @@ The web app SHALL keep the same recent logs list in browsers that support the Fi
 
 ### Requirement: Open logs from a terminal
 
-The desktop app SHALL provide a `doglog` terminal command that opens Studio in a new window, showing the log at the path it's given. Installing the desktop app SHALL add the command to the PATH where the installer allows it, and macOS SHALL have a button in settings to install it.
+The desktop app SHALL provide a `doglog` terminal command that opens Studio in a new window, showing the log at the path it's given. The same command also controls open windows and runs the MCP server for agents, see agent-control. Installing the desktop app SHALL add the command to the PATH where the installer allows it, and macOS SHALL have a button in settings to install it.
 
 #### Scenario: Open a log from a terminal
 
