@@ -26,13 +26,13 @@ const breeds = [
 	'Labrador',
 	'Malamute',
 	'Newfoundland',
+	'Pitbull',
 	'Poodle',
 	'Pug',
 	'Samoyed',
 	'Schnauzer',
 	'Shiba Inu',
 	'Terrier',
-	'Whippet',
 ] as const;
 
 /** Shown to others until the user sets a name in Settings */
