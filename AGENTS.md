@@ -27,9 +27,12 @@ Ideally, most changes can be validated through the web app.
 
 ### Testing desktop app
 
+Testing the desktop app is necessary for some features, but should only be used when you can't run the regular dev server.
+
 1. Check if a Tauri dev app window is already open
-2. Start a dev server for it if not
+2. Start a `tauri dev` session for it if not
 3. Use the Tauri MCP to interact, falling back to `agent-desktop` if necessary
+4. Once finished, end the `tauri dev` session
 
 ## General development
 
