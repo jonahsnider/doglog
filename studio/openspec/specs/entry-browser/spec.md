@@ -240,7 +240,7 @@ While editing a widget's entries, each entry SHALL show a checkbox that's checke
 
 ### Requirement: Active entries while editing
 
-While editing a widget's entries, the entry browser SHALL list the entries the widget showed when editing started in an Active section at the top, labeled with their full paths, and MUST keep them in their places in the tree too. Unbinding an entry MUST keep it in the Active section until editing stops or switches widgets. The groups leading to those entries MUST be expanded when editing starts. Entries the widget shows MUST be colored, and groups containing them MUST be marked with a dot, like VS Code marks folders with changes.
+While editing a widget's entries, the entry browser SHALL list the entries the widget showed when editing started in an Active section at the top, labeled with their full paths, and MUST keep them in their places in the tree too. Unbinding an entry MUST keep it in the Active section until editing stops or switches widgets. The groups leading to those entries MUST be expanded when editing starts. Entries the widget shows MUST be colored, and groups containing them MUST be marked with a dot.
 
 #### Scenario: Active section
 
