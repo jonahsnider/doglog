@@ -1,0 +1,6 @@
+services:
+  studio:
+    command: pnpm exec vp dev --port "$PORT" --strictPort
+    cwd: studio
+    portal:
+      title: DogLog Studio

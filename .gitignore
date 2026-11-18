@@ -290,3 +290,6 @@ gradle-app.setting
 
 # Infer
 infer-out/
+
+# Amp generated portal state
+.amp/portals/
