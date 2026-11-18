@@ -1,29 +1,72 @@
 //! The `doglog` terminal command
 
+use crate::agent;
 use clap::{Arg, Command, value_parser};
+use std::ops::ControlFlow;
 use std::path::PathBuf;
+use std::process::ExitCode;
 #[cfg(target_os = "macos")]
 use tauri::{AppHandle, Manager};
 
-/// Parse the `doglog` command's arguments, which Windows and Linux also use to open files, returning the log to open.
-/// Exits after `--help`, `--version`, or invalid arguments.
-pub fn parse_args(version: String) -> Option<PathBuf> {
-    Command::new("doglog")
+/// Parse the `doglog` command's arguments, which Windows and Linux also use to open files. Continues with the log to
+/// open, or breaks with an exit code after running a terminal command, `--help`, `--version`, or invalid arguments.
+pub fn parse_args(version: String) -> ControlFlow<ExitCode, Option<PathBuf>> {
+    let command = Command::new("doglog")
         .bin_name("doglog")
-        .about("Open logs in DogLog Studio")
-        .version(version)
+        .about(&agent::API.instructions)
+        .version(&version)
+        .args_conflicts_with_subcommands(true)
         .arg(
             Arg::new("log")
-                .help("Path to a .wpilog file")
+                .help("Path to a .wpilog file to open in a new window")
                 .value_parser(value_parser!(PathBuf)),
         )
-        .get_matches()
-        .remove_one("log")
+        .subcommand(
+            Command::new("mcp")
+                .about("Run the MCP server for agents over standard input and output"),
+        )
+        .subcommands(agent::cli::subcommands());
+
+    let mut matches = match command.try_get_matches() {
+        Ok(matches) => matches,
+        Err(error) => {
+            attach_console();
+            let _ = error.print();
+            return ControlFlow::Break(ExitCode::from(error.exit_code() as u8));
+        }
+    };
+    match matches.remove_subcommand() {
+        None => ControlFlow::Continue(matches.remove_one("log")),
+        Some((name, matches)) => {
+            attach_console();
+            ControlFlow::Break(match (name.as_str(), matches.subcommand_name()) {
+                ("mcp", _) => agent::mcp::run(version),
+                (resource, _) => agent::cli::run(resource, &matches),
+            })
+        }
+    }
+}
+
+/// Studio is a GUI app on Windows, which only has standard output when it's redirected, ex. by an MCP client. Otherwise
+/// this writes to the terminal that ran it.
+fn attach_console() {
+    #[cfg(windows)]
+    {
+        use windows_sys::Win32::System::Console::{
+            ATTACH_PARENT_PROCESS, AttachConsole, GetStdHandle, STD_OUTPUT_HANDLE,
+        };
+        // SAFETY: Both only read or set this process's standard handles
+        unsafe {
+            if GetStdHandle(STD_OUTPUT_HANDLE).is_null() {
+                AttachConsole(ATTACH_PARENT_PROCESS);
+            }
+        }
+    }
 }
 
 /// Where the settings page installs the `doglog` command on macOS
 #[cfg(target_os = "macos")]
-const CLI_LINK: &str = "/usr/local/bin/doglog";
+pub(crate) const CLI_LINK: &str = "/usr/local/bin/doglog";
 
 /// The `doglog` script in this copy of Studio's app bundle
 #[cfg(target_os = "macos")]

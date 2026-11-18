@@ -38,6 +38,14 @@ if (typeof navigator !== 'undefined' && 'locks' in navigator) {
  * Set it as `data-window-color` to tint an element, see `index.css`.
  */
 export function useWindowColor(): number | undefined {
-	const slot = useSelector(slotStore);
+	return slotColor(useSelector(slotStore));
+}
+
+/** Like `useWindowColor()`, outside React */
+export function getWindowColor(): number | undefined {
+	return slotColor(slotStore.get());
+}
+
+function slotColor(slot: number | undefined): number | undefined {
 	return slot === undefined || slot === 0 ? undefined : ((slot - 1) % colorCount) + 1;
 }

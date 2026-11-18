@@ -1,17 +1,17 @@
 #!/bin/sh
-# Open DogLog Studio from a terminal, ex. `doglog match.wpilog`
+# Open DogLog Studio from a terminal, ex. `doglog match.wpilog`, or control it, ex. `doglog pane create` or `doglog mcp`
 # Installed as a symlink from the settings page, so follow it to find the app
 self=$(readlink "$0") || self=$0
 app=${self%/Contents/Resources/bin/doglog}
 
-# Flags and extra arguments run Studio directly, so its output, like `--help` or an error, shows in the terminal
-if [ $# -gt 1 ] || [ "${1#-}" != "$1" ]; then
-	exec "$app/Contents/MacOS/doglog-studio" "$@"
-fi
-
-# Opening through Launch Services starts a new window without tying up the terminal, but from `/`
-case $1 in
-"") exec open -n -a "$app" ;;
-/*) exec open -n -a "$app" --args "$1" ;;
-*) exec open -n -a "$app" --args "$PWD/$1" ;;
+# A log path, or nothing, opens a new window through Launch Services without tying up the terminal, but from `/`
+case $#:$1 in
+0:) exec open -n -a "$app" ;;
+1:-*) ;;
+1:/*) exec open -n -a "$app" --args "$1" ;;
+1:*/* | 1:*.*) exec open -n -a "$app" --args "$PWD/$1" ;;
+1:*) [ -e "$1" ] && exec open -n -a "$app" --args "$PWD/$1" ;;
 esac
+
+# Commands and flags run Studio directly, attached to the terminal or the agent that ran them
+exec "$app/Contents/MacOS/doglog-studio" "$@"

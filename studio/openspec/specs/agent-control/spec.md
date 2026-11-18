@@ -83,7 +83,7 @@ A command SHALL return once its effect is complete, ex. once a log is fully open
 
 #### Scenario: Search the catalog in a terminal
 
-- **WHEN** an agent runs `doglog entry list --json`
+- **WHEN** an agent runs `doglog entry list --json-output`
 - **THEN** it gets the whole catalog as JSON it can filter with tools like `jq`
 
 ### Requirement: Read a dashboard
@@ -248,7 +248,7 @@ Studio SHALL track an agent API version that changes only when commands change i
 
 ### Requirement: Terminal commands
 
-The `doglog` command SHALL offer every agent command as `doglog <resource> <action>`, ex. `doglog pane create`. Top-level inputs MUST be flags, and nested inputs MUST be given as JSON inline, from a file with `@path`, or from standard input with `-`. Output MUST be readable text by default and the command's JSON result with `--json`. Commands MUST target windows the same way the MCP server does, and help MUST work without Studio open.
+The `doglog` command SHALL offer every agent command as `doglog <resource> <action>`, ex. `doglog pane create`. Top-level inputs MUST be flags, and nested inputs MUST be given as JSON inline, from a file with `@path`, or from standard input with `-`. Nested inputs MUST be passed with `--json`. Output MUST be readable text by default and the command's JSON result with `--json-output`. Commands MUST target windows the same way the MCP server does, and help MUST work without Studio open.
 
 #### Scenario: Create a dashboard from a file
 

@@ -1,11 +1,12 @@
+mod agent;
 mod cli;
 mod new_window;
 mod relaunch;
 mod sync;
 mod window_state;
 
-use std::{path::PathBuf, sync::Mutex};
-use tauri::{AppHandle, Emitter, Manager, RunEvent, State, ipc::Response};
+use std::{ops::ControlFlow, path::PathBuf, process::ExitCode, sync::Mutex};
+use tauri::{AppHandle, Emitter, Manager, RunEvent, State, WindowEvent, ipc::Response};
 
 /// The last log the OS asked Studio to open, until the frontend takes it
 #[derive(Default)]
@@ -29,8 +30,11 @@ fn read_file(path: PathBuf) -> Result<Response, String> {
         .map_err(|error| error.to_string())
 }
 
-#[cfg_attr(not(target_os = "macos"), expect(unused_variables))]
 fn handle_run_event(app: &AppHandle, event: RunEvent) {
+    if let RunEvent::Exit = event {
+        agent::window::close(app);
+    }
+
     // macOS sends opened files as an event, both on launch and while running
     #[cfg(target_os = "macos")]
     if let RunEvent::Opened { urls } = event
@@ -41,10 +45,13 @@ fn handle_run_event(app: &AppHandle, event: RunEvent) {
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
+pub fn run() -> ExitCode {
     let context = tauri::generate_context!();
-    // Before Tauri starts, so `--help` and `--version` don't open a window
-    let log = cli::parse_args(context.package_info().version.to_string());
+    // Before Tauri starts, so terminal commands like `--help` and `doglog mcp` don't open a window
+    let log = match cli::parse_args(context.package_info().version.to_string()) {
+        ControlFlow::Continue(log) => log,
+        ControlFlow::Break(code) => return code,
+    };
 
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
@@ -58,6 +65,12 @@ pub fn run() {
         .manage(sync::RobotConnection::default())
         .manage(sync::CancelDownload::default())
         .manage(sync::SyncLock::default())
+        .manage(agent::window::AgentWindow::default())
+        .on_window_event(|window, event| {
+            if let WindowEvent::Focused(focused) = event {
+                agent::window::set_focused(window.app_handle(), *focused);
+            }
+        })
         .invoke_handler(tauri::generate_handler![
             take_opened_log,
             read_file,
@@ -68,6 +81,8 @@ pub fn run() {
             sync::download_robot_log,
             sync::cancel_robot_download,
             sync::disconnect_robot,
+            agent::window::agent_listen,
+            agent::window::agent_respond,
             #[cfg(target_os = "macos")]
             cli::cli_status,
             #[cfg(target_os = "macos")]
@@ -93,4 +108,5 @@ pub fn run() {
         .build(context)
         .expect("error while building tauri application")
         .run(handle_run_event);
+    ExitCode::SUCCESS
 }

@@ -4,6 +4,7 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
+import { serveAgents } from './agent/desktop.ts';
 import { setAgentRouter } from './agent/dashboard-handlers.ts';
 import { registerWebMcpTools } from './agent/webmcp.ts';
 import { setUpAppMenu } from './desktop/app-menu.ts';
@@ -41,7 +42,9 @@ declare module '@tanstack/react-router' {
 trackHistory(router);
 void setUpAppMenu(router);
 setAgentRouter(router);
-if (!isTauri()) {
+if (isTauri()) {
+	void serveAgents(router);
+} else {
 	registerWebMcpTools();
 }
 
