@@ -1,5 +1,5 @@
-import { Feedback, PointerActivationConstraints } from '@dnd-kit/dom';
-import { DragDropProvider, DragOverlay, KeyboardSensor, PointerSensor } from '@dnd-kit/react';
+import { Feedback } from '@dnd-kit/dom';
+import { DragDropProvider, DragOverlay, KeyboardSensor } from '@dnd-kit/react';
 import { isSortable } from '@dnd-kit/react/sortable';
 import { LayoutDashboardIcon } from 'lucide-react';
 import { useRouter } from '@tanstack/react-router';
@@ -9,20 +9,12 @@ import { combineDashboards, moveDashboardPane, movePaneToNewDashboard } from '@/
 import { isDashboardDrag, isSplitZone } from '@/dashboards/drag';
 import { moveDashboard } from '@/dashboards/dashboards';
 import { moveDashboardToSection } from '@/dashboards/sharing';
-import { isEntryDrag, isEntryRowDrag } from '@/entries/drag';
+import { entryPointerSensor, isEntryDrag, isEntryRowDrag } from '@/entries/drag';
 import { isNewDashboardDrop, isPaneDrag, isPaneDrop, nearestSide, type PaneDragData } from '@/panes/drag';
 import { getWidgetType } from '@/widgets/registry';
 
 /** Sensors of entries, dashboards and panes use their own */
-const sensors = [
-	PointerSensor.configure({
-		// Start once the pointer moves, so clicking a group still expands it
-		activationConstraints: [new PointerActivationConstraints.Distance({ value: 5 })],
-		// Rows for entries with children are mostly the expand button, allow dragging by it
-		preventActivation: () => false,
-	}),
-	KeyboardSensor,
-];
+const sensors = [entryPointerSensor, KeyboardSensor];
 
 /**
  * Lets dashboards, panes, and entries be dragged anywhere in the app:

@@ -15,7 +15,8 @@ import type { Entry } from '@/data/data-store';
 import { formatValueForCopy } from '@/data/format-value';
 import { getCursorTime } from '@/timeline/timeline';
 import { addDashboardWidget } from '@/dashboards/panes';
-import { type EntryDragData, entryDragType, entryRowDragType, type EntrySectionDropData } from '@/entries/drag';
+import type { EntryDragData, EntrySectionDropData } from '@/entries/drag';
+import { entryDragType, entryRowDragType, entryRowSensors } from '@/entries/drag';
 import { type EntrySection, sectionMenuItems } from '@/entries/sections';
 import { changedCheckbox, type EditedWidget } from '@/entries/edited-widget';
 import type { EntryTreeRow, EntryTreeView } from '@/entries/tree';
@@ -116,6 +117,12 @@ export function EntryRows({
 						edited.setBound(value, !edited.bound.includes(value));
 					}
 				}}
+				onKeyDown={(event) => {
+					// Space only toggles checkboxes while editing, it shouldn't scroll the list a page otherwise
+					if (event.key === ' ' && !edited) {
+						event.preventDefault();
+					}
+				}}
 				onHighlight={(_value, { index }) => {
 					if (index >= 0) {
 						setHighlighted(index);
@@ -175,6 +182,7 @@ const EntryRowView = memo(function EntryRowView({
 		// Groups and unsupported entries can only be moved between sections
 		type: entry && !unsupported ? entryDragType : entryRowDragType,
 		disabled: header,
+		sensors: entryRowSensors,
 		data: { name: node.value, section },
 	});
 	const { ref: dropRef } = useDroppable<EntrySectionDropData>({

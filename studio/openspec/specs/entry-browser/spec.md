@@ -29,7 +29,7 @@ The entry browser SHALL list every entry in the active source as a tree grouped 
 
 ### Requirement: Keyboard navigation
 
-The entry tree SHALL follow the WAI-ARIA tree view pattern: it MUST be a single tab stop, the arrow keys MUST move between rows and expand or collapse groups, and typing MUST focus the next row whose label starts with the typed text. Keyboard navigation MUST reach rows scrolled out of view.
+The entry tree SHALL follow the WAI-ARIA tree view pattern: it MUST be a single tab stop, the arrow keys MUST move between rows and expand or collapse groups, and typing MUST focus the next row whose label starts with the typed text. Keyboard navigation MUST reach rows scrolled out of view. Space MUST NOT pick up a row to drag it or scroll the tree.
 
 #### Scenario: Expand with the keyboard
 
@@ -47,6 +47,12 @@ The entry tree SHALL follow the WAI-ARIA tree view pattern: it MUST be a single 
 
 - **WHEN** the user types "v" while `Arm` is expanded and `Arm/Angle` is focused
 - **THEN** `Velocity` is focused
+
+#### Scenario: Space outside editing
+
+- **GIVEN** no widget's entries are being edited and `Arm/Angle` is focused
+- **WHEN** the user presses Space
+- **THEN** nothing happens, the tree keeps its scroll position and `Arm/Angle` stays focused
 
 ### Requirement: Search
 

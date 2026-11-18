@@ -1,5 +1,5 @@
-import type { Draggable } from '@dnd-kit/dom';
-import { useDraggable, useDroppable } from '@dnd-kit/react';
+import { type Draggable, PointerActivationConstraints } from '@dnd-kit/dom';
+import { PointerSensor, useDraggable, useDroppable } from '@dnd-kit/react';
 import { createContext, use, useCallback, useId } from 'react';
 import type { EntrySection } from '@/entries/sections';
 import type { EntryDrop } from '@/widgets/bindings';
@@ -23,6 +23,16 @@ export type EntryDropData = EntryDrop & {
 	/** How the widget lays out its entries, so the drop indicator is drawn on the side the entry moves to */
 	orientation?: EntryOrientation;
 };
+
+export const entryPointerSensor = PointerSensor.configure({
+	// Start once the pointer moves, so clicking a group still expands it
+	activationConstraints: [new PointerActivationConstraints.Distance({ value: 5 })],
+	// Rows for entries with children are mostly the expand button, allow dragging by it
+	preventActivation: () => false,
+});
+
+/** The entry browser's tree uses Space, Enter, and the arrow keys itself, so its rows can't be picked up from the keyboard */
+export const entryRowSensors = [entryPointerSensor];
 
 /** Drag type of entries, accepted by widgets */
 export const entryDragType = 'entry';
