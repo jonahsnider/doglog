@@ -6,7 +6,7 @@ import { alertColors, modeColors } from '@/timeline/colors';
 import { HoverTooltip } from '@/timeline/timeline-tooltip';
 import { setHoverTime, useHoverTime } from '@/timeline/hover';
 import { useZoomedRange } from '@/widgets/graph/view';
-import { type TimeRange, useEntries } from '@/data/data-store';
+import { getGaps, type TimeRange, useEntries } from '@/data/data-store';
 import { cn } from '@/lib/utils';
 import { settingsStore } from '@/settings';
 import { formatTime, getCursorTime, seek, seekHotkeys } from '@/timeline/timeline';
@@ -56,9 +56,11 @@ export function Scrubber({
 
 	// The range changes whenever data does
 	const periods = useMemo(() => getModePeriods(range), [range]);
+	// Changed in place, gaps are added along with a new range
+	const gaps = getGaps();
 	const compressed = useMemo(
-		() => (compress ? getCompressedSpans(periods, range, live) : []),
-		[compress, periods, range, live],
+		() => (compress ? getCompressedSpans(periods, gaps, range, live) : []),
+		[compress, periods, gaps, range, live],
 	);
 	const scale = useMemo(
 		() => createTimeScale(range.start, shownDuration, compressed),
@@ -102,8 +104,9 @@ export function Scrubber({
 		const slopPercent = (alertHoverSlop / at.width) * 100;
 		const from = scale.toTime(toPercent(hoverTime) - slopPercent);
 		const to = scale.toTime(toPercent(hoverTime) + slopPercent);
+		const gap = gaps.find((item) => item.start < hoverTime && hoverTime < item.end);
 		// Sections share their boundaries, the later one starts there
-		const period = periods.findLast((item) => item.start <= hoverTime && hoverTime <= item.end);
+		const period = gap ?? periods.findLast((item) => item.start <= hoverTime && hoverTime <= item.end);
 		const hovered = alerts
 			.filter((alert) => alert.start <= to && from <= alert.end)
 			.toSorted((a, b) => a.start - b.start);
@@ -224,6 +227,16 @@ export function Scrubber({
 								);
 							})
 						)}
+						{/* Disconnected spans look like the track past the newest data, since nothing was received */}
+						{gaps.map((gap) => (
+							<div
+								key={gap.start}
+								className="absolute inset-y-0 bg-background"
+								style={{ left: `${toPercent(gap.start)}%`, width: `${toPercent(gap.end) - toPercent(gap.start)}%` }}
+							>
+								<div className="size-full bg-input/40" />
+							</div>
+						))}
 						{/* Compressed spans are hatched so it's clear they aren't to scale */}
 						{compressed.map((span) => (
 							<div

@@ -1,7 +1,7 @@
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import { getSharedDocs, removeExpired } from '@/dashboards/sharing';
-import { canConnectWithoutPrompt, isReachable } from '@/data/source';
+import { canConnectWithoutPrompt, isReachable } from '@/data/connect-target';
 import { getRobotHost, simulatorHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
 import { trackActivity } from '@/sharing/presence';

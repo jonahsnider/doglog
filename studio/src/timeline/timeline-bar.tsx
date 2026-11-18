@@ -92,12 +92,12 @@ function CursorTime({ range, time }: { range: TimeRange | undefined; time: numbe
 				<TooltipTrigger
 					render={<span />}
 					className={cn('transition-opacity duration-300', !skipped && 'opacity-0')}
-					aria-label="Skipped disabled time"
+					aria-label="Skipped idle time"
 					aria-hidden={!skipped}
 				>
 					<FastForwardIcon className="size-3.5 text-muted-foreground" />
 				</TooltipTrigger>
-				<TooltipPopup>The robot was disabled, playback fast-forwards through this</TooltipPopup>
+				<TooltipPopup>The robot was disabled or disconnected, playback fast-forwards through this</TooltipPopup>
 			</Tooltip>
 			{/* Right-aligned on its own so the icon stays pinned to the left edge as the time widens */}
 			<span className="ms-auto">{formatTime(time, range.start)}</span>
@@ -217,7 +217,7 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 							checked={timelineCompress}
 							onCheckedChange={(checked) => updateSettings({ timelineCompress: checked })}
 						>
-							Skip disabled time
+							Skip idle time
 						</MenuCheckboxItem>
 					</MenuPopup>
 				</Menu>

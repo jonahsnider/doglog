@@ -1,7 +1,7 @@
 // Draws the plot, bands, and lines over them outside React, so zooming, scrubbing, and streaming don't re-render
 import { type RefObject, useEffect, useRef } from 'react';
 import type uPlot from 'uplot';
-import { type Entry, getTimeRange, subscribeData } from '@/data/data-store';
+import { type Entry, getGaps, getTimeRange, subscribeData } from '@/data/data-store';
 import { settingsStore } from '@/settings';
 import { getCursorTime, subscribeTimeline } from '@/timeline/timeline';
 import { drawBands } from '@/widgets/graph/bands';
@@ -195,14 +195,14 @@ export function useGraphDrawing(
 				const now = performance.now();
 				const fading = fadeLines(now);
 				wasFading = fading;
-				targets = drawPlot(plot, series, view, range.end, dots, fitted(now));
+				targets = drawPlot(plot, series, view, range.end, getGaps(), dots, fitted(now));
 				if (setYRanges(plot, targets, current.manual, animations.current, now) || fading) {
 					animate.schedule();
 				}
 			}
 			const canvas = elements.bands.current;
 			if (canvas) {
-				drawBands(canvas, bandEntries, view, assignments.current, palette);
+				drawBands(canvas, bandEntries, view, getGaps(), assignments.current, palette);
 			}
 			drawOverlays();
 		};

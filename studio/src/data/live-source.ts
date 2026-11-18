@@ -1,9 +1,14 @@
 import { LogLevel, NetworkTables, type NetworkTablesTypes } from '@ntcore-ts/client';
 import { StructRegistry } from 'wpilib-struct';
-import { addEntry, addSample, type Entry, getEntry, parseMetadata, setMetadata, setStartTime } from '@/data/data-store';
+import type { DataSet } from '@/data/data-set';
+import { type Entry, liveTime, parseMetadata } from '@/data/data-store';
 import { isSchemaEntry, isStudioEntry, normalizeEntryName, type Value } from '@/data/samples';
 
-export type LiveStatus = 'connecting' | 'connected' | 'disconnected';
+/**
+ * `connecting` until the first connection is made, `reconnecting` while trying again after it dropped, and `disconnected`
+ * once the user disconnects
+ */
+export type LiveStatus = 'connecting' | 'connected' | 'reconnecting' | 'disconnected';
 
 NetworkTables.setLogLevel(LogLevel.WARN);
 
@@ -13,16 +18,15 @@ const structSchemaPrefix = '/.schema/struct:';
 type PropertiesListener = (params: { name: string; update: Record<string, unknown> }) => void;
 const textDecoder = new TextDecoder();
 
-/** Live sample timestamps use this clock (microseconds), so history stays in order when the robot reboots and its clock resets */
-function nowMicros(): number {
-	return (performance.timeOrigin + performance.now()) * 1000;
-}
-
 /**
- * Connect to an NT4 server and add every topic and value to the data store.
+ * Connect to an NT4 server and add every topic and value to `data`, recording when the connection drops.
  * Reconnects automatically and keeps adding to the same history. Returns a function that disconnects.
  */
-export function connectLive(host: string, onStatus: (status: LiveStatus) => void): () => void {
+export function connectLive(
+	host: string,
+	data: DataSet,
+	onStatus: (status: Exclude<LiveStatus, 'disconnected'>) => void,
+): () => void {
 	// Shared with log sync when it watches the same robot
 	const nt = NetworkTables.getInstanceByURI(host);
 	nt.retain();
@@ -30,7 +34,7 @@ export function connectLive(host: string, onStatus: (status: LiveStatus) => void
 	// Struct values that arrived before their schema
 	let pendingStructs: { entry: Entry; timestamp: number; bytes: Uint8Array }[] = [];
 	let closed = false;
-	let everConnected = false;
+	let connected = false;
 	let connectedAt = 0;
 	// Client clock minus server clock for the current connection. The smallest difference seen is the least delayed value.
 	let clockOffset: number | undefined;
@@ -79,27 +83,31 @@ export function connectLive(host: string, onStatus: (status: LiveStatus) => void
 			if (typeof decoded === 'string') {
 				return true;
 			}
-			addSample(entry, timestamp, decoded);
+			data.addSample(entry, timestamp, decoded);
 			return false;
 		});
 	};
 
 	// Notified right away, since shared dashboards might have connected to the same server already
-	const removeConnectionListener = nt.addRobotConnectionListener((connected) => {
+	const removeConnectionListener = nt.addRobotConnectionListener((isConnected) => {
 		if (closed) {
 			return;
 		}
 
+		connected = isConnected;
 		if (connected) {
-			connectedAt = nowMicros();
+			connectedAt = liveTime();
 			clockOffset = undefined;
-			if (!everConnected) {
-				everConnected = true;
-				setStartTime(connectedAt);
+			if (data.start === undefined) {
+				data.setStartTime(connectedAt);
 			}
+			data.connect(connectedAt);
+		} else if (data.start !== undefined) {
+			data.disconnect(liveTime());
 		}
 
-		onStatus(connected ? 'connected' : everConnected ? 'disconnected' : 'connecting');
+		// Data from an earlier connection means this is reconnecting, ex. after the user disconnected
+		onStatus(connected ? 'connected' : data.start === undefined ? 'connecting' : 'reconnecting');
 	}, true);
 
 	const topic = nt.getPrefixTopic('/');
@@ -110,11 +118,11 @@ export function connectLive(host: string, onStatus: (status: LiveStatus) => void
 		announce(params);
 		const name = normalizeEntryName(params.name);
 		if (!closed && !isSchemaEntry(name) && !isStudioEntry(name)) {
-			addEntry(name, params.type, undefined, parseMetadata(params.properties));
+			data.addEntry(name, params.type, undefined, parseMetadata(params.properties));
 		}
 	};
 	(topic as typeof topic & { onProperties?: PropertiesListener }).onProperties = ({ name, update }) => {
-		const entry = getEntry(normalizeEntryName(name));
+		const entry = data.entries.get(normalizeEntryName(name));
 		if (closed || !entry) {
 			return;
 		}
@@ -124,7 +132,7 @@ export function connectLive(host: string, onStatus: (status: LiveStatus) => void
 				delete metadata[key];
 			}
 		}
-		setMetadata(entry, metadata);
+		data.setMetadata(entry, metadata);
 	};
 
 	const subscription = topic.subscribe(
@@ -146,24 +154,27 @@ export function connectLive(host: string, onStatus: (status: LiveStatus) => void
 
 			// Set right before subscribers are called
 			const serverTime = topic.lastChangedTime ?? 0;
-			const now = nowMicros();
+			const now = liveTime();
 			clockOffset = Math.min(clockOffset ?? Infinity, now - serverTime);
 			// Values that changed before this connection (sent when subscribing) are placed at the connection time
 			const timestamp = Math.max(serverTime + clockOffset, connectedAt);
 
-			const entry = addEntry(name, params.type);
+			const entry = data.addEntry(name, params.type);
 			const decoded = toValue(entry, value, timestamp);
 			if (decoded === undefined) {
 				return;
 			}
 
-			addSample(entry, timestamp, decoded);
+			data.addSample(entry, timestamp, decoded);
 		},
 		{ all: true, periodic: 0.02 },
 	);
 
 	return () => {
 		closed = true;
+		if (connected) {
+			data.disconnect(liveTime());
+		}
 		removeConnectionListener();
 		topic.unsubscribe(subscription, true);
 		nt.release();

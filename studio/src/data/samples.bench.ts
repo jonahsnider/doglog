@@ -1,5 +1,5 @@
 import { expect, test } from 'vite-plus/test';
-import { maxLiveSamples } from '@/data/data-store';
+import { maxLiveSamples } from '@/data/data-set';
 import { Samples, trimOldest } from '@/data/samples';
 
 /** Live history at its limit, spread across entries like a robot's topics */

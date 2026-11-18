@@ -1,37 +1,60 @@
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
-import { isTauri } from '@tauri-apps/api/core';
 import { toastManager } from '@/components/ui/toast';
-import { clearData } from '@/data/data-store';
+import { findConnectTarget, isReachable, isSourceTarget } from '@/data/connect-target';
+import type { DataSet } from '@/data/data-set';
+import { createDataSet, liveTime, setActiveData } from '@/data/data-store';
 import { loadDevLog, saveDevLog } from '@/data/dev-log';
 import type { LiveStatus } from '@/data/live-source';
 import { loadLog } from '@/data/log-source';
 import { simulatorHost } from '@/robot-target';
 import { resetTimeline } from '@/timeline/timeline';
+import { keepViewWidth, showWholeSource } from '@/widgets/graph/view';
 
-/** The active data source, shared by every dashboard and widget */
+/** A data source. A window has at most one log and one live session, and shows one of them in every dashboard and widget. */
 export type Source =
 	| { type: 'log'; fileName: string; status: 'loading' | 'loaded' }
 	| { type: 'live'; host: string; status: LiveStatus };
 
-const sourceStore = createAtom<Source | undefined>(undefined);
-// Kept apart from the source so progress updates don't rerender everything that uses the source
+type LogSource = Extract<Source, { type: 'log' }>;
+export type LiveSource = Extract<Source, { type: 'live' }>;
+
+/** The window's log and live session, and which one is shown */
+export type Sources = { readonly log?: LogSource; readonly live?: LiveSource; readonly shown?: Source['type'] };
+
+const sourcesStore = createAtom<Sources>({});
+// Kept apart from the sources so progress updates don't rerender everything that uses them
 const logProgressStore = createAtom(0);
-let stopSource: (() => void) | undefined;
-// Changes every time the source is replaced, so slow requests can tell they're outdated
-let generation = 0;
+let logData: DataSet | undefined;
+let liveData: DataSet | undefined;
+let stopLog: (() => void) | undefined;
+let stopLive: (() => void) | undefined;
+// Change every time the log or live session is replaced or stopped, so slow requests can tell they're outdated
+let logGeneration = 0;
+let liveGeneration = 0;
 
+function shownSource({ log, live, shown }: Sources): Source | undefined {
+	return shown === 'log' ? log : shown === 'live' ? live : undefined;
+}
+
+/** The source every dashboard and widget shows */
 export function useSource(): Source | undefined {
-	return useSelector(sourceStore);
+	return useSelector(sourcesStore, shownSource);
 }
 
+/** The source every dashboard and widget shows */
 export function getSource(): Source | undefined {
-	return sourceStore.get();
+	return shownSource(sourcesStore.get());
 }
 
-/** Call `listener` when the active source or its status changes */
+/** The window's log and live session, including the one that isn't shown */
+export function useSources(): Sources {
+	return useSelector(sourcesStore);
+}
+
+/** Call `listener` when a source, its status, or which one is shown changes */
 export function subscribeSource(listener: () => void): () => void {
-	const { unsubscribe } = sourceStore.subscribe(() => listener());
+	const { unsubscribe } = sourcesStore.subscribe(() => listener());
 	return unsubscribe;
 }
 
@@ -40,21 +63,66 @@ export function useLogProgress(): number {
 	return useSelector(logProgressStore);
 }
 
-function replaceSource(source: Source | undefined): void {
-	stopSource?.();
-	stopSource = undefined;
-	clearData();
-	resetTimeline(source);
-	generation++;
-	sourceStore.set(source);
-	if (import.meta.env.DEV && source?.type !== 'log') {
+function updateSources(changes: Partial<Sources>): void {
+	sourcesStore.set((sources) => ({ ...sources, ...changes }));
+}
+
+/** Show the log or live session in every dashboard and widget. A new log shows all of itself in graphs. */
+function show(type: Source['type'] | undefined, newLog = false): void {
+	if (newLog) {
+		showWholeSource();
+	} else {
+		keepViewWidth();
+	}
+	const sources = { ...sourcesStore.get(), shown: type };
+	resetTimeline(shownSource(sources));
+	sourcesStore.set(sources);
+	setActiveData(type === 'log' ? logData : type === 'live' ? liveData : undefined);
+}
+
+/** Switch back to the log after viewing the live session */
+export function showLog(): void {
+	if (sourcesStore.get().log !== undefined) {
+		show('log');
+	}
+}
+
+function closeLog(): void {
+	logGeneration++;
+	stopLog?.();
+	stopLog = undefined;
+	logData = undefined;
+	const { shown, live } = sourcesStore.get();
+	updateSources({ log: undefined });
+	if (shown === 'log') {
+		show(live && 'live');
+	}
+	if (import.meta.env.DEV) {
 		void saveDevLog(undefined);
 	}
 }
 
-/** Close the active source, leaving none */
+/** Throw away the live session's data and stop connecting */
+function closeLive(): void {
+	liveGeneration++;
+	stopLive?.();
+	stopLive = undefined;
+	liveData = undefined;
+	const { shown, log } = sourcesStore.get();
+	updateSources({ live: undefined });
+	if (shown === 'live') {
+		show(log && 'log');
+	}
+}
+
+/** Close the shown source, showing the other one if there is one */
 export function closeSource(): void {
-	replaceSource(undefined);
+	const { shown } = sourcesStore.get();
+	if (shown === 'log') {
+		closeLog();
+	} else if (shown === 'live') {
+		closeLive();
+	}
 }
 
 async function isWpilog(file: File): Promise<boolean> {
@@ -62,28 +130,34 @@ async function isWpilog(file: File): Promise<boolean> {
 }
 
 /**
- * Make a WPILOG file the active source. The current source is kept if the file isn't a WPILOG file.
- * Returns whether the file started loading. `onError` gets why it couldn't be opened, which is also shown in a toast.
+ * Open a WPILOG file and show it, replacing the open log. The live session keeps running in the background.
+ * Nothing changes if the file isn't a WPILOG file. Returns whether the file started loading.
+ * `onError` gets why it couldn't be opened, which is also shown in a toast.
  */
 export async function openLog(file: File, onError?: (message: string) => void): Promise<boolean> {
-	const requestedAt = generation;
+	const requestedAt = logGeneration;
 	if (!(await isWpilog(file))) {
 		const message = "It isn't a WPILOG file.";
 		toastManager.add({ type: 'error', title: `Couldn't open ${file.name}`, description: message });
 		onError?.(message);
 		return false;
 	}
-	if (generation !== requestedAt) {
-		// Another source was chosen while the file was being checked
+	if (logGeneration !== requestedAt) {
+		// Another log was chosen while the file was being checked
 		return false;
 	}
 
+	logGeneration++;
+	stopLog?.();
+	const data = createDataSet();
+	logData = data;
 	logProgressStore.set(0);
-	replaceSource({ type: 'log', fileName: file.name, status: 'loading' });
-	stopSource = loadLog(file, {
+	updateSources({ log: { type: 'log', fileName: file.name, status: 'loading' } });
+	show('log', true);
+	stopLog = loadLog(file, data, {
 		onProgress: (progress) => logProgressStore.set(progress),
 		onLoaded: (damaged) => {
-			sourceStore.set({ type: 'log', fileName: file.name, status: 'loaded' });
+			updateSources({ log: { type: 'log', fileName: file.name, status: 'loaded' } });
 			if (import.meta.env.DEV) {
 				void saveDevLog(file);
 			}
@@ -96,7 +170,7 @@ export async function openLog(file: File, onError?: (message: string) => void): 
 			}
 		},
 		onError: (message) => {
-			replaceSource(undefined);
+			closeLog();
 			toastManager.add({ type: 'error', title: `Couldn't open ${file.name}`, description: message });
 			onError?.(message);
 		},
@@ -108,128 +182,104 @@ export async function openLog(file: File, onError?: (message: string) => void): 
 export async function reopenDevLog(): Promise<void> {
 	const file = await loadDevLog();
 	// Keep a source chosen while loading, ex. the log the desktop app was launched with
-	if (file !== undefined && sourceStore.get() === undefined) {
+	if (file !== undefined && getSource() === undefined) {
 		await openLog(file);
 	}
 }
 
-/** Make a live NT4 connection to `host` the active source */
-async function connectToHost(host: string): Promise<void> {
-	const source: Source = { type: 'live', host, status: 'connecting' };
-	replaceSource(source);
-	const requestedAt = generation;
+/** Connect the live session to the NT4 server at `host`, adding to its data */
+async function connectToHost(host: string, status: LiveStatus): Promise<void> {
+	updateSources({ live: { type: 'live', host, status } });
+	const requestedAt = liveGeneration;
 	// The NT4 client is large, only load it when it's needed
 	const { connectLive } = await import('@/data/live-source');
-	if (generation !== requestedAt) {
+	if (liveGeneration !== requestedAt || liveData === undefined) {
 		// Replaced while loading
 		return;
 	}
-	stopSource = connectLive(host, (status) => {
-		sourceStore.set({ type: 'live', host, status });
+	stopLive = connectLive(host, liveData, (liveStatus) => {
+		updateSources({ live: { type: 'live', host, status: liveStatus } });
 	});
 }
 
-/** How long connecting waits for a server to accept a connection */
-const probeTimeout = 1000;
+/** Stop reconnecting the live session, keeping its data. A session that never connected is closed, since it has no data. */
+export function disconnect(): void {
+	const { live } = sourcesStore.get();
+	if (live === undefined || live.status === 'disconnected') {
+		return;
+	}
+	if (live.status === 'connecting') {
+		closeLive();
+		return;
+	}
+	liveGeneration++;
+	stopLive?.();
+	stopLive = undefined;
+	updateSources({ live: { ...live, status: 'disconnected' } });
+}
+
+/** Throw away the live session's history and start it over from now, or close it if it's disconnected */
+export function resetLive(): void {
+	const { live, shown } = sourcesStore.get();
+	if (live === undefined || liveData === undefined) {
+		return;
+	}
+	if (live.status === 'disconnected') {
+		closeLive();
+		return;
+	}
+	liveData.restart(liveTime());
+	if (shown === 'live') {
+		resetTimeline(live);
+	}
+}
+
 /** How long connecting waits before trying again when nothing was reachable */
 const retryDelay = 1000;
 
-/** Whether an NT4 server at `host` accepts a WebSocket connection. The connection is closed right away. */
-export async function isReachable(host: string): Promise<boolean> {
-	let socket: WebSocket;
-	try {
-		socket = new WebSocket(`ws://${host}:5810/nt/doglog-studio`, [
-			'v4.1.networktables.first.wpi.edu',
-			'networktables.first.wpi.edu',
-		]);
-	} catch {
-		// Browsers block insecure connections to some addresses from HTTPS pages
-		return false;
-	}
-
-	let timer: ReturnType<typeof setTimeout> | undefined;
-	const reachable = await new Promise<boolean>((resolve) => {
-		timer = setTimeout(() => resolve(false), probeTimeout);
-		socket.addEventListener('open', () => resolve(true));
-		// Also fires when the connection fails
-		socket.addEventListener('close', () => resolve(false));
-	});
-	clearTimeout(timer);
-	socket.close();
-	return reachable;
-}
-
-/** Whether connecting to an address space won't show Chrome's Local Network Access permission prompt */
-export async function canConnectWithoutPrompt(permission: 'local-network' | 'loopback-network'): Promise<boolean> {
-	// Pages served from this computer, ex. the dev server, are never asked, so the permission stays at "prompt"
-	if (isTauri() || /^(localhost|127\.[\d.]+|\[::1\])$|\.localhost$/u.test(location.hostname)) {
-		return true;
-	}
-	try {
-		// oxlint-disable-next-line typescript/no-unsafe-type-assertion -- TypeScript doesn't know the Local Network Access permissions yet
-		const status = await navigator.permissions.query({ name: permission as PermissionName });
-		return status.state === 'granted';
-	} catch {
-		// Browsers without Local Network Access don't prompt
-		return true;
-	}
-}
-
-/** What Connect would connect to right now */
-export type ConnectTarget = 'robot' | 'simulator';
-
 /**
- * Check what Connect would connect to, without starting a connection.
- * Hosts that would show a permission prompt aren't checked, so this returns `undefined` until the user grants it by connecting.
- */
-export async function findConnectTarget(robotHost: string | undefined): Promise<ConnectTarget | undefined> {
-	const [robot, simulator] = await Promise.all([
-		robotHost !== undefined && (await canConnectWithoutPrompt('local-network')) && isReachable(robotHost),
-		(await canConnectWithoutPrompt('loopback-network')) && isReachable(simulatorHost),
-	]);
-	if (robot) {
-		return 'robot';
-	}
-	return simulator ? 'simulator' : undefined;
-}
-
-/**
- * Whether Connect would only reconnect to the server `source` is connected or reconnecting to, throwing away its data.
- * `target` is what Connect would connect to, `undefined` when nothing is reachable.
- */
-export function isSourceTarget(source: Source | undefined, target: ConnectTarget | undefined): boolean {
-	if (source?.type !== 'live' || source.status === 'connecting') {
-		return false;
-	}
-	const sourceTarget: ConnectTarget = source.host === simulatorHost ? 'simulator' : 'robot';
-	return target === undefined || target === sourceTarget;
-}
-
-/**
- * Connect to the robot at `robotHost` if it's reachable, otherwise to the simulator.
+ * Show the live session, connecting to the robot at `robotHost` if it's reachable, otherwise to the simulator.
  * Keeps trying both until one is reachable, only tries the simulator without a robot host.
- * While a live source is connected or reconnecting, this only switches to another target that's reachable.
+ * A live session is kept, and reconnected if it was disconnected, unless this would connect to another target that's reachable.
  */
 export async function connect(robotHost: string | undefined): Promise<void> {
-	const current = sourceStore.get();
-	if (current?.type === 'live' && current.status !== 'connecting') {
+	const { live, shown } = sourcesStore.get();
+	if (live !== undefined && shown !== 'live') {
+		show('live');
+		if (live.status !== 'disconnected') {
+			return;
+		}
+	}
+	if (live !== undefined && live.status !== 'connecting') {
 		const target = await findConnectTarget(robotHost);
-		// Also skipped when the source changed while checking, ex. it reconnected
-		if (sourceStore.get() !== current || isSourceTarget(current, target)) {
+		// Also skipped when the session changed while checking, ex. it reconnected
+		if (sourcesStore.get().live !== live) {
+			return;
+		}
+		if (isSourceTarget(live, target)) {
+			if (live.status === 'disconnected') {
+				liveGeneration++;
+				void connectToHost(live.host, 'reconnecting');
+			}
 			return;
 		}
 	}
 
+	liveGeneration++;
+	stopLive?.();
+	stopLive = undefined;
+	liveData = createDataSet();
 	const hosts = robotHost === undefined ? [simulatorHost] : [robotHost, simulatorHost];
-	replaceSource({ type: 'live', host: hosts.join(' or '), status: 'connecting' });
-	const requestedAt = generation;
+	updateSources({ live: { type: 'live', host: hosts.join(' or '), status: 'connecting' } });
+	show('live');
+	const requestedAt = liveGeneration;
 	let retryTimer: ReturnType<typeof setTimeout> | undefined;
-	stopSource = () => clearTimeout(retryTimer);
+	stopLive = () => clearTimeout(retryTimer);
 
 	const attempt = async () => {
 		const reachable = await Promise.all(hosts.map((host) => isReachable(host)));
-		if (generation !== requestedAt) {
-			// Another source was chosen while checking
+		if (liveGeneration !== requestedAt) {
+			// The live session was replaced or closed while checking
 			return;
 		}
 
@@ -238,7 +288,7 @@ export async function connect(robotHost: string | undefined): Promise<void> {
 		if (host === undefined) {
 			retryTimer = setTimeout(() => void attempt(), retryDelay);
 		} else {
-			void connectToHost(host);
+			void connectToHost(host, 'connecting');
 		}
 	};
 	void attempt();

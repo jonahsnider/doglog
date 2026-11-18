@@ -2,25 +2,43 @@
 
 ## Purpose
 
-Define how users load data into Studio, either by opening a WPILOG file or connecting to a live NetworkTables 4 server, and how Studio behaves when sources fail or disconnect.
+Define how users load data into Studio, by opening a WPILOG file and connecting to a live NetworkTables 4 server, how they switch between the two, and how Studio behaves when sources fail or disconnect.
 
 ## Requirements
 
-### Requirement: Single active source
+### Requirement: Log and live session
 
-Studio SHALL have at most one active data source at a time, shared by every dashboard and widget.
+Each window SHALL have at most one open log and one live session, and MUST show one of them in every dashboard and widget. The live session SHALL last until the window closes, receiving data whether or not it's shown, and the log MUST stay loaded while the live session is shown, so switching between them is instant.
 
-#### Scenario: Replacing the source
+#### Scenario: Open a log while live
 
-- **GIVEN** a log file is the active source
-- **WHEN** the user connects to a robot
-- **THEN** the robot connection becomes the active source
-- **AND** every dashboard shows data from the robot connection
+- **GIVEN** the user is connected to the robot
+- **WHEN** the user opens `qual12.wpilog`
+- **THEN** every dashboard shows `qual12.wpilog`
+- **AND** the live session keeps receiving data
 - **AND** no dashboard layout or widget binding changes
+
+#### Scenario: Back to live
+
+- **GIVEN** the user opened `qual12.wpilog` while connected to the robot
+- **WHEN** the user chooses Connect
+- **THEN** every dashboard shows the live session, including the data received while the log was shown
+
+#### Scenario: Back to the log
+
+- **GIVEN** the user opened `qual12.wpilog`, then went back to the live session
+- **WHEN** the user chooses "Back to qual12.wpilog" in the source control menu
+- **THEN** every dashboard shows `qual12.wpilog` right away, without reading the file again
+
+#### Scenario: Open another log
+
+- **GIVEN** `qual12.wpilog` is open
+- **WHEN** the user opens `qual13.wpilog`
+- **THEN** `qual13.wpilog` replaces `qual12.wpilog`
 
 ### Requirement: Source control
 
-The source control at the top of the sidebar SHALL show the active source and its state, and MUST offer actions to open a log and to connect.
+The source control at the top of the sidebar SHALL show the shown source and its state, and MUST offer actions to open a log and to connect. While a log is shown, it MUST also show the live session's connection state with a status dot.
 
 #### Scenario: Log source shown
 
@@ -41,7 +59,13 @@ The source control at the top of the sidebar SHALL show the active source and it
 #### Scenario: Live source shown
 
 - **GIVEN** the user is connected to `10.5.81.2`
-- **THEN** the source control shows the address and the connection state (connecting, connected, or disconnected)
+- **THEN** the source control shows the address and the connection state (connecting, connected, reconnecting, or disconnected)
+
+#### Scenario: Live session behind a log
+
+- **GIVEN** the user opened `qual12.wpilog` while connected to the robot
+- **THEN** the source control shows `qual12.wpilog` with a dot showing the robot is connected
+- **AND** no toast is shown when the robot disconnects
 
 #### Scenario: No source
 
@@ -87,13 +111,13 @@ Users SHALL be able to connect to a robot or simulator over NT4 with a single Co
 
 ### Requirement: Live connection resilience
 
-Studio MUST keep all data received from a live source when the connection drops, and SHALL reconnect automatically.
+Studio MUST keep all data received from a live source when the connection drops, and SHALL reconnect automatically. Received data MUST be kept until the window closes, the user resets the live session, or Connect replaces it with another target.
 
 #### Scenario: Robot reboots mid-session
 
 - **GIVEN** Studio is connected and has received data
 - **WHEN** the connection drops
-- **THEN** the source control shows the disconnected state
+- **THEN** the source control shows the reconnecting state
 - **AND** all previously received data remains viewable
 - **AND** Studio keeps trying to reconnect
 
@@ -103,10 +127,43 @@ Studio MUST keep all data received from a live source when the connection drops,
 - **WHEN** the server becomes reachable again
 - **THEN** Studio reconnects without user action
 - **AND** new data is added to the same session history
+- **AND** the time it was disconnected is marked on the timeline
+
+### Requirement: Disconnect and reset
+
+The source control menu SHALL offer Disconnect while the live session is connecting, connected, or reconnecting, and Reset once it has connected, whether it's shown or not. Disconnect MUST stop reconnecting and keep the received data, and choosing Connect afterward MUST continue the same session. Reset MUST throw away the received history and start the session over from now, keeping the latest value of every entry, and after Disconnect it MUST close the live session.
+
+#### Scenario: Disconnect
+
+- **GIVEN** Studio is connected to the robot
+- **WHEN** the user chooses Disconnect
+- **THEN** the source control shows the disconnected state
+- **AND** the received data remains viewable
+- **AND** the Connect action reads "Reconnect to robot"
+
+#### Scenario: Reset while connected
+
+- **GIVEN** Studio has been connected to the robot for 10 minutes
+- **WHEN** the user chooses Reset
+- **THEN** the timeline starts at 0:00 again
+- **AND** Studio stays connected
+
+#### Scenario: Reset after disconnecting
+
+- **GIVEN** the user disconnected from the robot and has `qual12.wpilog` open
+- **WHEN** the user chooses Reset
+- **THEN** the live session is closed
+- **AND** every dashboard shows `qual12.wpilog`
+
+#### Scenario: Disconnect before connecting
+
+- **GIVEN** Studio is still looking for the robot or simulator
+- **WHEN** the user chooses Disconnect
+- **THEN** the live session is closed, since it has no data
 
 ### Requirement: Damaged log tolerance
 
-When a log is corrupt or truncated, Studio MUST load every readable record and warn the user instead of failing to open the log.
+When a log is corrupt or truncated, Studio MUST load every readable record and warn the user instead of failing to open the log. When a log can't be opened at all, Studio MUST go back to showing the live session if there is one.
 
 #### Scenario: Truncated log from a power loss
 
@@ -181,7 +238,7 @@ Entries under `/DogLogStudio/`, which Studio uses to share dashboards, SHALL NOT
 
 ### Requirement: Connect target selection
 
-Connect SHALL try the robot connection target and the simulator at the same time, connect to the robot if it is reachable and otherwise to the simulator, and MUST keep trying both until one is reachable without showing an error. While a live source is connected or reconnecting, Connect MUST NOT replace it unless it would connect to a different target, so the received data isn't thrown away.
+Connect SHALL try the robot connection target and the simulator at the same time, connect to the robot if it is reachable and otherwise to the simulator, and MUST keep trying both until one is reachable without showing an error. Connect MUST NOT replace the live session unless it would connect to a different target, so the received data isn't thrown away. While a log is shown, Connect MUST show the live session if there is one, reading "Back to robot" or "Back to simulator".
 
 #### Scenario: Robot available
 
@@ -229,6 +286,12 @@ Connect SHALL try the robot connection target and the simulator at the same time
 - **AND** a simulator is running
 - **WHEN** the user chooses Connect
 - **THEN** Studio connects to the simulator, replacing the robot's data
+
+#### Scenario: Connect while a log is shown
+
+- **GIVEN** the user opened `qual12.wpilog` while connected to the robot
+- **WHEN** the user opens the source control menu
+- **THEN** the Connect action reads "Back to robot"
 
 ### Requirement: Connect target preview
 

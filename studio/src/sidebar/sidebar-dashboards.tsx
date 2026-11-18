@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 import { simulatorHost } from '@/robot-target';
 import { useSettings } from '@/settings';
 import { useRecentlyConnected, useSharingHost } from '@/sharing/sharing';
-import { type Source, useSource } from '@/data/source';
+import { type LiveSource, useSources } from '@/data/source';
 
 /** Dashboards and the new dashboard button handle their own clicks */
 function isEmptySpace(event: MouseEvent): boolean {
@@ -93,14 +93,14 @@ function useSectionItems({ dashboards, selection }: SectionProps, shared: boolea
 function sharingStatus(
 	host: string | undefined,
 	recentlyConnected: boolean,
-	source: Source | undefined,
+	live: LiveSource | undefined,
 	robotTarget: string,
 ): string | undefined {
 	if (host === undefined) {
 		return recentlyConnected ? 'Disconnected' : undefined;
 	}
 	// The data source above already shows where it's connected
-	if (source?.type === 'live' && source.host === host) {
+	if (live?.host === host) {
 		return 'Synced';
 	}
 	return host === simulatorHost ? 'Synced with simulator' : `Synced with ${robotTarget.trim()}`;
@@ -123,8 +123,8 @@ function SharedDashboards(props: SectionProps) {
 	const host = useSharingHost();
 	const recentlyConnected = useRecentlyConnected();
 	const { robotTarget } = useSettings();
-	const source = useSource();
-	const status = sharingStatus(host, recentlyConnected, source, robotTarget);
+	const { live } = useSources();
+	const status = sharingStatus(host, recentlyConnected, live, robotTarget);
 
 	return (
 		<SidebarGroup

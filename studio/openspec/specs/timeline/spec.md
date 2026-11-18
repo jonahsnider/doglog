@@ -98,9 +98,19 @@ The timeline bar SHALL mark the time hovered in a graph, and while graphs are zo
 - **GIVEN** a graph zoomed to 1:10 through 1:20
 - **THEN** the timeline bar marks 1:10 through 1:20
 
-### Requirement: Skip disabled time
+### Requirement: Disconnected time
 
-While the skip disabled time option is on, disabled periods longer than 15 seconds SHALL be skipped, except for 2 seconds at each end, so the time around enabling and disabling stays at normal scale. On the timeline bar, each skipped span SHALL take a small fixed width, hatched so it's clear it isn't to scale, and the rest of the time SHALL share the remaining width evenly. Nothing MUST be skipped if the robot was never enabled, or the disabled period a live source is still in.
+The timeline bar SHALL show the time a live session was disconnected like the track past the newest data, and its tooltip MUST say "Disconnected". Graphs MUST NOT draw lines or bands across it, and widgets SHALL show the last values received before the connection dropped while the cursor is in it.
+
+#### Scenario: Robot rebooted
+
+- **GIVEN** the robot was disconnected from 1:10 to 1:40 during a live session
+- **THEN** the timeline bar shows 1:10 to 1:40 as disconnected
+- **AND** graphs leave 1:10 to 1:40 empty
+
+### Requirement: Skip idle time
+
+While the skip idle time option is on, disabled and disconnected periods over 15 seconds SHALL be skipped, except for 2 seconds at each end. On the timeline bar, each skipped span SHALL take a small fixed width, hatched so it's clear it isn't to scale, and the rest of the time SHALL share the remaining width evenly. Disabled periods MUST NOT be skipped if the robot was never enabled, or while a live source is still in them.
 
 #### Scenario: Practice log
 
@@ -112,6 +122,11 @@ While the skip disabled time option is on, disabled periods longer than 15 secon
 
 - **GIVEN** the robot was disabled for 3 seconds between auto and teleop
 - **THEN** that gap is shown at normal scale
+
+#### Scenario: Pit repairs
+
+- **GIVEN** a live session where the robot was off for 10 minutes for repairs
+- **THEN** the 10 minutes take a small hatched span of the track
 
 ### Requirement: Fast-forward skipped time
 
@@ -144,7 +159,7 @@ The timeline bar SHALL have buttons for play/pause and playback speed at its sta
 
 ### Requirement: Timeline options
 
-The timeline options menu SHALL let the user hide or show alerts on the timeline and turn skipping disabled time on or off, and MUST remember both choices. Both are on by default.
+The timeline options menu SHALL let the user hide or show alerts on the timeline and turn skipping idle time on or off, and MUST remember both choices. Both are on by default.
 
 #### Scenario: Hide alerts
 
@@ -248,7 +263,7 @@ While the media controls setting is on and a log is open, media keys and the ope
 
 ### Requirement: Remember log position
 
-Studio SHALL remember where the cursor was in each log by file name, and MUST move the cursor there when a log with that name is opened again.
+Studio SHALL remember where the cursor was in each log by file name, and MUST move the cursor there when a log with that name is opened or shown again.
 
 #### Scenario: Reopen a log
 
@@ -260,6 +275,16 @@ Studio SHALL remember where the cursor was in each log by file name, and MUST mo
 
 - **WHEN** the user opens a log they haven't opened before
 - **THEN** the cursor starts paused at the beginning of the log
+
+### Requirement: Switching sources
+
+When switching between the log and the live session, the playback speed and timeline options SHALL stay the same. The cursor MUST follow the newest data when switching to the live session, and go to where it was in the log when switching to the log.
+
+#### Scenario: Back to live
+
+- **GIVEN** the cursor was paused at 0:42 in the live session before the user opened a log
+- **WHEN** the user goes back to the live session
+- **THEN** the cursor follows the newest data
 
 ### Requirement: Live follow
 

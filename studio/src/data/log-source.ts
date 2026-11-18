@@ -1,4 +1,5 @@
-import { addEntry, extendTimeRange, parseMetadata, setStartTime } from '@/data/data-store';
+import type { DataSet } from '@/data/data-set';
+import { parseMetadata } from '@/data/data-store';
 import type { LogWorkerMessage } from '@/data/log-worker';
 import { Samples } from '@/data/samples';
 
@@ -9,8 +10,8 @@ type LoadLogCallbacks = {
 	onError: (message: string) => void;
 };
 
-/** Parse a WPILOG file in a worker and add its entries to the data store. Returns a function that cancels loading. */
-export function loadLog(file: File, { onProgress, onLoaded, onError }: LoadLogCallbacks): () => void {
+/** Parse a WPILOG file in a worker and add its entries to `data`. Returns a function that cancels loading. */
+export function loadLog(file: File, data: DataSet, { onProgress, onLoaded, onError }: LoadLogCallbacks): () => void {
 	const worker = new Worker(new URL('./log-worker.ts', import.meta.url), { type: 'module' });
 	let stopped = false;
 
@@ -30,7 +31,7 @@ export function loadLog(file: File, { onProgress, onLoaded, onError }: LoadLogCa
 				onProgress(message.progress);
 				break;
 			case 'entry':
-				addEntry(
+				data.addEntry(
 					message.name,
 					message.entryType,
 					new Samples(message.timestamps, message.values),
@@ -40,8 +41,8 @@ export function loadLog(file: File, { onProgress, onLoaded, onError }: LoadLogCa
 			case 'done':
 				stop();
 				if (message.start !== undefined && message.end !== undefined) {
-					setStartTime(message.start);
-					extendTimeRange(message.start, message.end);
+					data.setStartTime(message.start);
+					data.extendTimeRange(message.start, message.end);
 				}
 				onLoaded(message.damaged);
 				break;

@@ -167,29 +167,42 @@ export function getAlertSpans(entries: readonly Entry[], range: TimeRange): read
 	return spans.toSorted((a, b) => a.start - b.start);
 }
 
-/** Disabled periods longer than this (µs) are compressed on the timeline and fast-forwarded through during playback */
+/** Idle periods longer than this (µs) are compressed on the timeline and fast-forwarded through during playback */
 const minCompressedDuration = 15_000_000;
-/** Time (µs) kept at normal scale after disabling and before enabling, where things like brownouts and startup happen */
+/** Time (µs) kept at normal scale at each end of an idle period, where things like brownouts and startup happen */
 const compressionMargin = 2_000_000;
 
 /** A span of time (µs) shown compressed on the timeline */
 export type CompressedSpan = { readonly start: number; readonly end: number };
 
 /**
- * The long stretches of a source where the robot was disabled, minus a margin at each end. Empty if the robot was never
+ * The long stretches of a source where the robot was disabled or the live session was disconnected (`gaps`), minus a
+ * margin at each end, sorted and merged where they overlap. Disabled periods aren't compressed if the robot was never
  * enabled, since there's nothing to make room for. A live source's ongoing disabled period isn't compressed, so the
  * newest data doesn't move around.
  */
-export function getCompressedSpans(periods: readonly ModePeriod[], range: TimeRange, live: boolean): CompressedSpan[] {
-	if (!periods.some((period) => period.mode !== 'disabled')) {
-		return [];
+export function getCompressedSpans(
+	periods: readonly ModePeriod[],
+	gaps: readonly TimeRange[],
+	range: TimeRange,
+	live: boolean,
+): CompressedSpan[] {
+	const disabled = periods.some((period) => period.mode !== 'disabled')
+		? periods.filter((period) => period.mode === 'disabled' && !(live && period.end === range.end))
+		: [];
+	const idle = [...disabled, ...gaps]
+		.filter((span) => span.end - span.start > minCompressedDuration)
+		.map((span) => ({ start: span.start + compressionMargin, end: span.end - compressionMargin }))
+		.toSorted((a, b) => a.start - b.start);
+
+	const merged: { start: number; end: number }[] = [];
+	for (const span of idle) {
+		const last = merged.at(-1);
+		if (last && span.start <= last.end) {
+			last.end = Math.max(last.end, span.end);
+		} else {
+			merged.push(span);
+		}
 	}
-	return periods
-		.filter(
-			(period) =>
-				period.mode === 'disabled' &&
-				period.end - period.start > minCompressedDuration &&
-				!(live && period.end === range.end),
-		)
-		.map((period) => ({ start: period.start + compressionMargin, end: period.end - compressionMargin }));
+	return merged;
 }

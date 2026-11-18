@@ -6,7 +6,8 @@ import { dashboardHandlers, requireDashboard, showDashboard } from '@/agent/dash
 import { paneHandlers } from '@/agent/pane-handlers';
 import { flushData, getEntries, getTimeRange } from '@/data/data-store';
 import { openLogPath } from '@/data/open-log';
-import { closeSource, connect, getSource, isReachable, type Source, subscribeSource } from '@/data/source';
+import { isReachable } from '@/data/connect-target';
+import { closeSource, connect, getSource, type Source, subscribeSource } from '@/data/source';
 import { getRobotHost, simulatorHost } from '@/robot-target';
 import { settingsStore, updateSettings } from '@/settings';
 import { getTimeline, seek } from '@/timeline/timeline';
@@ -114,9 +115,7 @@ export const handlers: Handlers = {
 		const source = await waitForSource((other) => other !== loading);
 		if (source?.type !== 'log' || source.status !== 'loaded') {
 			throw new AgentError(
-				source === undefined
-					? `Couldn’t open ${path}: ${error}`
-					: `Another source was opened before ${path} finished loading.`,
+				error === '' ? `Another source was opened before ${path} finished loading.` : `Couldn’t open ${path}: ${error}`,
 			);
 		}
 		return describeSource();

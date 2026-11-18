@@ -2,7 +2,7 @@ import type { UseHotkeyDefinition } from '@tanstack/react-hotkeys';
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import * as z from 'zod';
-import { getTimeRange, subscribeData, type TimeRange } from '@/data/data-store';
+import { getGaps, getTimeRange, subscribeData, type TimeRange } from '@/data/data-store';
 import type { Source } from '@/data/source';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { settingsStore } from '@/settings';
@@ -60,9 +60,11 @@ function update(changes: Partial<Timeline>): void {
 /** About how long (ms) playback takes to fast-forward through a compressed disabled span */
 const compressedPlaybackTime = 1500;
 
-/** Long disabled spans of the active source that are compressed on the timeline, empty when compression is turned off */
+/** Long idle spans of the active source that are compressed on the timeline, empty when compression is turned off */
 export function getActiveCompressedSpans(range: TimeRange): CompressedSpan[] {
-	return settingsStore.get().timelineCompress ? getCompressedSpans(getModePeriods(range), range, store.get().live) : [];
+	return settingsStore.get().timelineCompress
+		? getCompressedSpans(getModePeriods(range), getGaps(), range, store.get().live)
+		: [];
 }
 
 function tick(now: number): void {
@@ -123,8 +125,8 @@ store.subscribe(({ time, playback }) => {
 });
 
 /**
- * Reset the cursor for a new source: live sources follow the newest data,
- * logs start paused where the cursor was when the log was last open, or at the beginning
+ * Reset the cursor when switching sources: live sources follow the newest data,
+ * logs start paused where the cursor was when the log was last shown, or at the beginning
  */
 export function resetTimeline(source: Source | undefined): void {
 	const live = source?.type === 'live';

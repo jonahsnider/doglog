@@ -33,16 +33,31 @@ test('dense samples keep each pixel column’s spike', () => {
 	const points: [number, number][] = Array.from({ length: 1000 }, (_, index) => [index, 0]);
 	points[500] = [500, 100];
 	const line = stepLine(samples(points), { start: 0, end: 1000 }, 10, 1000);
-	expect(Math.max(...line.ys)).toBe(100);
+	expect(Math.max(...line.ys.map(Number))).toBe(100);
 	expect(line.samples).toEqual([]);
 	// About four points per column, with up to two columns per pixel, instead of 1000 samples
 	expect(line.xs.length).toBeLessThanOrEqual(85);
 });
 
 /** The points of `line` from `start` until `end` */
-function pointsBetween(line: { xs: number[]; ys: number[] }, start: number, end: number): number[][] {
+function pointsBetween(line: { xs: number[]; ys: (number | null)[] }, start: number, end: number) {
 	return line.xs.map((x, index) => [x, line.ys[index]!]).filter(([x]) => x! >= start && x! < end);
 }
+
+test('lines break where the live session was disconnected, and stop at a gap with nothing after it', () => {
+	const points = samples([
+		[0, 1],
+		[10, 2],
+		[30, 3],
+	]);
+	const gaps = [
+		{ start: 15, end: 30 },
+		{ start: 35, end: 45 },
+	];
+	const line = stepLine(points, { start: 0, end: 50 }, 1000, 50, undefined, gaps);
+	expect(line.xs).toEqual([0, 10, 15, 15, 30, 35, 35]);
+	expect(line.ys).toEqual([1, 2, 2, null, 3, 3, null]);
+});
 
 test('dense samples are thinned the same way after panning, so the line doesn’t wobble', () => {
 	const points: [number, number][] = Array.from({ length: 10_000 }, (_, index) => [index, Math.sin(index)]);

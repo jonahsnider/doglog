@@ -41,7 +41,7 @@ Users SHALL be able to move an entry to another section by dragging it there, or
 
 ### Requirement: Lines
 
-The graph SHALL draw each numeric entry as a step line that holds each value until the next sample, matching the values shown at the cursor, and MUST hold the last value until the end of the source.
+The graph SHALL draw each numeric entry as a step line that holds each value until the next sample, matching the values shown at the cursor, and MUST hold the last value until the end of the source, except across time a live session was disconnected, where the line breaks.
 
 #### Scenario: Value logged on change
 
@@ -168,13 +168,19 @@ Hovering a graph SHALL show a line at the hovered time in every other graph and 
 
 ### Requirement: Shared time range
 
-All graphs SHALL show the same time range. Logs MUST start showing their whole range, and live sources the newest 30 seconds, scrolling as data arrives. The range MUST NOT be saved, so it's reset when Studio is reopened.
+All graphs SHALL show the same time range. Logs MUST start showing their whole range when opened, and live sources the newest 30 seconds, scrolling as data arrives. Switching between the log and the live session MUST keep how much time is shown, around the cursor in the log and ending at the newest data live. The range MUST NOT be saved, so it's reset when Studio is reopened.
 
 #### Scenario: Zoom one graph
 
 - **GIVEN** two graphs
 - **WHEN** the user zooms the first
 - **THEN** the second shows the same time range
+
+#### Scenario: Switch to live
+
+- **GIVEN** graphs show 10 seconds of a log
+- **WHEN** the user goes back to the live session
+- **THEN** graphs show the newest 10 seconds of live data
 
 ### Requirement: Zoom and pan
 

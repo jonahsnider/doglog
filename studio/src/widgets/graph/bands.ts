@@ -65,6 +65,8 @@ export function drawBands(
 	canvas: HTMLCanvasElement,
 	entries: readonly (Entry | undefined)[],
 	view: TimeRange,
+	/** When the live session was disconnected, left empty */
+	gaps: readonly TimeRange[],
 	assignments: ColorAssignments,
 	palette: BandPalette,
 ): void {
@@ -154,5 +156,10 @@ export function drawBands(
 				}
 			}
 		}
+	}
+
+	for (const gap of gaps) {
+		const left = toX(gap.start);
+		context.clearRect(left, 0, toX(gap.end) - left, height);
 	}
 }

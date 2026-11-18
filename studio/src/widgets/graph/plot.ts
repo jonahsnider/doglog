@@ -55,7 +55,7 @@ function drawZeroLine(plot: uPlot, color: string): void {
 }
 
 /** uPlot's types only describe aligned data, faceted series each have their own `[xs, ys]` after a `null` */
-function facetedData(lines: readonly { xs: number[]; ys: number[] }[]): uPlot.AlignedData {
+function facetedData(lines: readonly { xs: number[]; ys: (number | null)[] }[]): uPlot.AlignedData {
 	// oxlint-disable-next-line typescript/no-unsafe-type-assertion -- See above
 	return [null, ...lines.map((line) => [line.xs, line.ys])] as unknown as uPlot.AlignedData;
 }
@@ -162,12 +162,14 @@ export function drawPlot(
 	series: readonly PlotSeries[],
 	view: TimeRange,
 	holdUntil: number,
+	/** When the live session was disconnected, lines break there */
+	gaps: readonly TimeRange[],
 	dots: { current: number[][] },
 	/** Whether the axes fit each line, ex. not hidden ones once they've faded out */
 	fitted: readonly boolean[],
 ): YTargets {
 	const lines = series.map((line) =>
-		stepLine(line.entry.samples, view, plot.bbox.width / devicePixelRatio, holdUntil, line.convert),
+		stepLine(line.entry.samples, view, plot.bbox.width / devicePixelRatio, holdUntil, line.convert, gaps),
 	);
 	dots.current = lines.map((line) => line.samples);
 	plot.batch(() => {
@@ -178,7 +180,7 @@ export function drawPlot(
 	const visible: Partial<Record<'y' | 'y2', Range>> = {};
 	const whole: Partial<Record<'y' | 'y2', Range>> = {};
 	for (const [index, line] of series.entries()) {
-		const { ys } = lines[index]!;
+		const ys = lines[index]!.ys.filter((y) => y !== null);
 		const extent = wholeExtent(line.entry.samples);
 		if (fitted[index] !== true || ys.length === 0) {
 			continue;

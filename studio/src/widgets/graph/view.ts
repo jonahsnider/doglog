@@ -2,8 +2,8 @@
 import { useSelector } from '@tanstack/react-store';
 import { useEffect, useReducer } from 'react';
 import { createAtom } from '@tanstack/store';
-import { getTimeRange, subscribeData, type TimeRange } from '@/data/data-store';
-import { getSource, type Source } from '@/data/source';
+import type { DataSet } from '@/data/data-set';
+import { getActiveData, getTimeRange, subscribeData, type TimeRange } from '@/data/data-store';
 import { subscribeHover } from '@/timeline/hover';
 import { getTimeline, stopFollowing, subscribeTimeline } from '@/timeline/timeline';
 
@@ -17,15 +17,18 @@ type View = {
 	range: TimeRange | undefined;
 	/** How much of a followed live source is shown */
 	liveWidth: number;
-	/** The source the range was picked in, a new source shows its default range */
-	sourceKey: string | undefined;
+	/** The data the range was picked in, other data shows its default range */
+	data: DataSet | undefined;
+	/** How much time was shown before switching to a log, it's shown around the cursor until a range is picked */
+	logWidth: number | undefined;
 };
 
-const viewStore = createAtom<View>({ range: undefined, liveWidth: defaultLiveWidth, sourceKey: undefined });
-
-function sourceKey(source: Source | undefined): string | undefined {
-	return source && (source.type === 'log' ? `log:${source.fileName}` : `live:${source.host}`);
-}
+const viewStore = createAtom<View>({
+	range: undefined,
+	liveWidth: defaultLiveWidth,
+	data: undefined,
+	logWidth: undefined,
+});
 
 function clampRange(start: number, end: number, source: TimeRange): TimeRange {
 	const sourceWidth = Math.max(source.end - source.start, minWidth);
@@ -41,17 +44,37 @@ export function getViewRange(): TimeRange | undefined {
 		return undefined;
 	}
 
-	const { range, liveWidth } = viewStore.get();
-	const picked = viewStore.get().sourceKey === sourceKey(getSource()) ? range : undefined;
-	const { live, playback } = getTimeline();
+	const { range, liveWidth, data, logWidth } = viewStore.get();
+	const picked = data === getActiveData() ? range : undefined;
+	const { live, playback, time } = getTimeline();
 	if (live && (playback === 'following' || picked === undefined)) {
 		return clampRange(source.end - liveWidth, source.end, source);
 	}
-	return picked ? clampRange(picked.start, picked.end, source) : clampRange(source.start, source.end, source);
+	if (picked) {
+		return clampRange(picked.start, picked.end, source);
+	}
+	if (logWidth !== undefined && time !== undefined) {
+		return clampRange(time - logWidth / 2, time + logWidth / 2, source);
+	}
+	return clampRange(source.start, source.end, source);
 }
 
 function setRange(range: TimeRange): void {
-	viewStore.set((view) => ({ ...view, range, sourceKey: sourceKey(getSource()) }));
+	viewStore.set((view) => ({ ...view, range, data: getActiveData() }));
+}
+
+/** Keep showing as much time when switching between the log and live session, call it before switching */
+export function keepViewWidth(): void {
+	const view = getViewRange();
+	if (view !== undefined) {
+		const width = view.end - view.start;
+		viewStore.set((current) => ({ ...current, range: undefined, data: undefined, liveWidth: width, logWidth: width }));
+	}
+}
+
+/** Show all of the next log, ex. a log that was just opened */
+export function showWholeSource(): void {
+	viewStore.set((view) => ({ ...view, range: undefined, data: undefined, logWidth: undefined }));
 }
 
 /** Zoom the time range by `factor` (below 1 zooms in) around `anchor`, a time in the range */
@@ -86,7 +109,7 @@ export function panTime(from: TimeRange, offset: number): void {
 }
 
 export function resetView(): void {
-	viewStore.set({ range: undefined, liveWidth: defaultLiveWidth, sourceKey: undefined });
+	viewStore.set({ range: undefined, liveWidth: defaultLiveWidth, data: undefined, logWidth: undefined });
 }
 
 /** Calls `listener` when the time range or the hovered time change, read them with `getViewRange()` and `getHoverTime()` */

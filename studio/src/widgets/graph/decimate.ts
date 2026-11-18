@@ -9,7 +9,8 @@ const markedPixels = 16;
 /** Points of a step line, in the shape uPlot takes for a faceted series */
 export type StepLine = {
 	xs: number[];
-	ys: number[];
+	/** `null` breaks the line, ex. where the live session was disconnected */
+	ys: (number | null)[];
 	/** Indexes of `xs` and `ys` that are logged samples, empty when they're too dense to mark */
 	samples: number[];
 };
@@ -30,6 +31,7 @@ export function isMarked(count: number, pixels: number): boolean {
  * Dense samples are thinned to each pixel column's first, lowest, highest, and last values, so spikes stay visible.
  * Columns are a power of two wide and line up with time zero, so slowly panning or zooming doesn't reshuffle which
  * samples are kept and make the line wobble. They're up to a pixel wide, so up to two fit in each.
+ * The line holds its value until the start of each gap in `gaps`, then breaks until the next sample.
  */
 export function stepLine(
 	samples: Samples,
@@ -38,6 +40,8 @@ export function stepLine(
 	holdUntil: number,
 	/** Converts values, ex. to another unit, keeping their order */
 	convert: (value: number) => number = (value) => value,
+	/** When nothing was received, sorted */
+	gaps: readonly TimeRange[] = [],
 ): StepLine {
 	const { timestamps, values } = samples;
 	const first = Math.max(0, samples.indexAtOrBefore(view.start));
@@ -66,6 +70,19 @@ export function stepLine(
 		}
 	};
 
+	let gapIndex = 0;
+	/** Hold the line's value until `gap` starts and break it there, if the line has started and hasn't reached it yet */
+	const breakAt = (gap: TimeRange): boolean => {
+		if (line.xs.length === 0 || line.xs.at(-1)! > gap.start || line.ys.at(-1) === null) {
+			return false;
+		}
+		flush();
+		column = Number.NaN;
+		line.xs.push(gap.start, gap.start);
+		line.ys.push(line.ys.at(-1)!, null);
+		return true;
+	};
+
 	for (let index = first; index <= last; index++) {
 		const logged = values[index];
 		if (typeof logged !== 'number' || !Number.isFinite(logged)) {
@@ -73,6 +90,9 @@ export function stepLine(
 		}
 		const value = convert(logged);
 		const time = timestamps[index]!;
+		while (gapIndex < gaps.length && gaps[gapIndex]!.end <= time) {
+			breakAt(gaps[gapIndex++]!);
+		}
 		if (sparse) {
 			if (marked) {
 				line.samples.push(line.xs.length);
@@ -104,8 +124,12 @@ export function stepLine(
 	}
 	flush();
 
-	// Hold the last value to the end of the source, or the edge of the view
+	// Hold the last value to the end of the source, or the edge of the view, unless a gap starts first
 	const end = Math.min(holdUntil, view.end);
+	const gap = gaps.slice(gapIndex).find((other) => other.start < end);
+	if (gap && breakAt(gap)) {
+		return line;
+	}
 	if (line.xs.length > 0 && line.xs.at(-1)! < end) {
 		line.xs.push(end);
 		line.ys.push(line.ys.at(-1)!);

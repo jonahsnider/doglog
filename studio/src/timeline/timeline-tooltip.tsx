@@ -1,6 +1,7 @@
 import { alertColors, modeColors, modeLabels } from '@/timeline/colors';
 import { cn } from '@/lib/utils';
 import { formatTime } from '@/timeline/timeline';
+import type { TimeRange } from '@/data/data-store';
 import type { AlertSpan, ModePeriod } from '@/timeline/events';
 
 /** Most alerts listed in a tooltip */
@@ -54,7 +55,8 @@ export function HoverTooltip({
 	hoverTime,
 	start,
 }: {
-	period: ModePeriod | undefined;
+	/** The robot's mode, or a span the live session was disconnected */
+	period: ModePeriod | TimeRange | undefined;
 	/** Whether the hovered time is in a compressed span */
 	compressed: boolean;
 	alerts: readonly AlertSpan[];
@@ -66,8 +68,8 @@ export function HoverTooltip({
 		<div className="flex w-max max-w-md flex-col gap-2 py-0.5 text-pretty">
 			{period && (
 				<TooltipItem
-					color={modeColors[period.mode] ?? 'bg-input'}
-					label={compressed ? `${modeLabels[period.mode]} (skipped)` : modeLabels[period.mode]}
+					color={('mode' in period ? modeColors[period.mode] : undefined) ?? 'bg-input'}
+					label={`${'mode' in period ? modeLabels[period.mode] : 'Disconnected'}${compressed ? ' (skipped)' : ''}`}
 					from={period.start}
 					to={period.end}
 					hoverTime={hoverTime}
