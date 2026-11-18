@@ -14,7 +14,7 @@ How Studio's UI is built. The OpenSpec specs in `openspec/specs` describe what u
 
 - Style with Tailwind utility classes, joined with `cn()` from `@/lib/utils` when they're conditional.
 - Global CSS lives in `src/index.css`, only for the theme, base styles, keyframes, and rules that utilities can't express (ex. styling elements by a data attribute a library renders).
-- Like Linear, set sidebar sections apart with spacing and muted labels instead of divider lines.
+- Set sidebar sections apart with spacing and muted labels instead of divider lines.
 - Fonts: IBM Plex Sans for UI text (`font-sans`), Source Sans 3 for headings (`font-heading`), and IBM Plex Mono for code, entry values, and keyboard shortcuts (`font-mono`). Numbers are tabular everywhere so changing values don't shift.
 
 ## Color

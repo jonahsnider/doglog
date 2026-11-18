@@ -5,7 +5,7 @@ use std::{
 use tauri::{App, Manager, PhysicalPosition, PhysicalSize, Runtime, WebviewWindow, plugin::TauriPlugin};
 use tauri_plugin_window_state::{AppHandleExt, StateFlags, WindowExt};
 
-/// Fullscreen isn't saved, like VS Code, Studio reopens as a normal window
+/// Fullscreen isn't saved, so Studio reopens as a normal window
 const FLAGS: StateFlags = StateFlags::SIZE
     .union(StateFlags::POSITION)
     .union(StateFlags::MAXIMIZED);

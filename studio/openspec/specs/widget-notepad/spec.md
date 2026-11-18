@@ -17,7 +17,7 @@ The notepad SHALL NOT accept any entries, and MUST NOT offer the entry picker or
 
 ### Requirement: Markdown highlighting
 
-The notepad SHALL style Markdown like VS Code's syntax highlighting instead of rendering it: the Markdown characters stay visible, and the text they mark is styled, ex. bold, italic, strikethrough, code, links, headings, and fenced code blocks. Text MUST keep a monospace font so styling never moves the caret.
+The notepad SHALL style Markdown with syntax highlighting instead of rendering it: the Markdown characters stay visible, and the text they mark is styled, ex. bold, italic, strikethrough, code, links, headings, and fenced code blocks. Text MUST keep a monospace font so styling never moves the caret.
 
 #### Scenario: Bold text
 

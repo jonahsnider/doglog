@@ -43,7 +43,7 @@ function HistoryButton({ step }: { step: HistoryStep }) {
 }
 
 /**
- * Like Linear, the sidebar toggle at the top of the sidebar, beside the macOS traffic lights, then the app's name and Back and Forward when there's room.
+ * The sidebar toggle at the top of the sidebar, beside the macOS traffic lights, then the app's name and Back and Forward when there's room.
  * It's kept outside the sidebar so the toggle isn't clipped by the collapsed rail, since the traffic lights are wider than it.
  */
 export function TitleBar({

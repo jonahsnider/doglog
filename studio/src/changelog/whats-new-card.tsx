@@ -6,7 +6,7 @@ import { dismissUpdate, useUnseenUpdate } from '@/changelog/changelog';
 import { easing, useMotionTransition } from '@/lib/motion';
 
 /**
- * Like Linear, announces the newest product update at the bottom of the sidebar until it's dismissed.
+ * Announces the newest product update at the bottom of the sidebar until it's dismissed.
  * The collapsed sidebar shows an icon instead, which calls `onShow` to show the card.
  */
 export function WhatsNewCard({ onShow }: { onShow: () => void }) {

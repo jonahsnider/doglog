@@ -66,7 +66,7 @@ export function mergeMessages(sources: readonly Samples[]): ConsoleMessages {
 	return { ids: Uint32Array.from(texts.keys()), times: Float64Array.from(times), texts, levels };
 }
 
-/** How to match a search query, like VS Code's find options */
+/** How to match a search query */
 export type SearchOptions = { readonly caseSensitive: boolean; readonly wholeWord: boolean; readonly regex: boolean };
 
 /** Pattern for finding `query` with `options`, throws a `SyntaxError` for an invalid regular expression */

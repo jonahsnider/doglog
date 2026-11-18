@@ -475,7 +475,7 @@
 	}
 }
 
-/* Like VS Code's Peacock, tints the top of the sidebar to tell open windows apart, see `src/theme/window-color.ts` */
+/* Tints the top of the sidebar to tell open windows apart, see `src/theme/window-color.ts` */
 [data-window-color='1'] {
 	--window-color: var(--chart-1);
 }

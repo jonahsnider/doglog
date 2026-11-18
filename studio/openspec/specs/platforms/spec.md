@@ -164,7 +164,7 @@ The desktop app SHALL update itself automatically.
 
 ### Requirement: Desktop window size and position
 
-Like VS Code, the desktop app SHALL open its window with the size, position, and maximized state of the last closed window. Only the first open window MUST go back to the saved position, other windows MUST open centered with the saved size so they don't cover it. Fullscreen MUST NOT be restored.
+The desktop app SHALL open its window with the size, position, and maximized state of the last closed window. Only the first open window MUST go back to the saved position, other windows MUST open centered with the saved size so they don't cover it. Fullscreen MUST NOT be restored.
 
 #### Scenario: Reopen Studio
 

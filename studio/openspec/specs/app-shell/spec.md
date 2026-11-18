@@ -8,7 +8,7 @@ Define the overall layout of DogLog Studio: a vertical sidebar on the left for c
 
 ### Requirement: Sidebar layout
 
-The app SHALL show a vertical sidebar on the left containing, from top to bottom: the sidebar toggle, the source control, a pages section, and a Dashboards section. Like Linear, sections MUST be set apart by spacing and muted labels instead of divider lines.
+The app SHALL show a vertical sidebar on the left containing, from top to bottom: the sidebar toggle, the source control, a pages section, and a Dashboards section. Sections MUST be set apart by spacing and muted labels instead of divider lines.
 
 #### Scenario: Sidebar sections
 
@@ -20,7 +20,7 @@ The app SHALL show a vertical sidebar on the left containing, from top to bottom
 
 ### Requirement: What's new
 
-Like Linear, the bottom of the sidebar SHALL show a card announcing the newest product update until the user dismisses it. Dismissing it MUST hide the update, and it MUST stay hidden in other windows and after Studio is reopened. Users opening Studio for the first time MUST NOT see updates released before then.
+The bottom of the sidebar SHALL show a card announcing the newest product update until the user dismisses it. Dismissing it MUST hide the update, and it MUST stay hidden in other windows and after Studio is reopened. Users opening Studio for the first time MUST NOT see updates released before then.
 
 #### Scenario: New update
 
@@ -50,7 +50,7 @@ Like Linear, the bottom of the sidebar SHALL show a card announcing the newest p
 
 ### Requirement: Window colors
 
-Like VS Code's Peacock extension, the top of the sidebar SHALL be tinted to tell open Studio tabs and windows apart. The first window MUST keep the default color, and each additional window MUST take the next chart color in order, repeating after the last. A window MUST keep its color while it's open, and a newly opened window MUST take the first color no open window is using.
+The top of the sidebar SHALL be tinted to tell open Studio tabs and windows apart. The first window MUST keep the default color, and each additional window MUST take the next chart color in order, repeating after the last. A window MUST keep its color while it's open, and a newly opened window MUST take the first color no open window is using.
 
 #### Scenario: Open a second window
 
@@ -115,7 +115,7 @@ When a dashboard is shown, the main area SHALL show the dashboard's panes, a col
 
 ### Requirement: Collapsible sidebar
 
-Users SHALL be able to collapse the sidebar to a narrow icon-only rail and expand it again. Like Linear, an icon-only toggle button at the top of the sidebar MUST stay in place in both states, named by a tooltip with its keyboard shortcut. Hovering the collapsed rail MUST temporarily expand it over the dashboard without resizing the dashboard, and the collapsed state MUST persist.
+Users SHALL be able to collapse the sidebar to a narrow icon-only rail and expand it again. An icon-only toggle button at the top of the sidebar MUST stay in place in both states, named by a tooltip with its keyboard shortcut. Hovering the collapsed rail MUST temporarily expand it over the dashboard without resizing the dashboard, and the collapsed state MUST persist.
 
 #### Scenario: Collapse for more space
 
@@ -175,7 +175,7 @@ Like a browser, Back and Forward SHALL move through the pages the user visited i
 
 ### Requirement: macOS title bar
 
-The macOS desktop app SHALL draw the window controls over the top of the sidebar instead of showing a title bar, so the main area reaches the top of the window. Like Linear, the sidebar toggle MUST be shown beside the window controls, along with Back and Forward buttons, and the top of the sidebar MUST be draggable like a title bar. The expanded sidebar MUST be wide enough to show the app's name between the toggle and Back.
+The macOS desktop app SHALL draw the window controls over the top of the sidebar instead of showing a title bar, so the main area reaches the top of the window. The sidebar toggle MUST be shown beside the window controls, along with Back and Forward buttons, and the top of the sidebar MUST be draggable like a title bar. The expanded sidebar MUST be wide enough to show the app's name between the toggle and Back.
 
 #### Scenario: Sidebar expanded
 

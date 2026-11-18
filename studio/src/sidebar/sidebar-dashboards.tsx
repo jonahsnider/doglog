@@ -106,7 +106,7 @@ function sharingStatus(
 	return host === simulatorHost ? 'Synced with simulator' : `Synced with ${robotTarget.trim()}`;
 }
 
-/** Like Linear, a muted label starting a section. The collapsed sidebar hides its text but keeps its space, so nothing moves. */
+/** A muted label starting a section. The collapsed sidebar hides its text but keeps its space, so nothing moves. */
 function SectionLabel({ label, children }: { label: string; children?: ReactNode }) {
 	return (
 		<div className="group/label my-1 flex h-8 items-center px-2 text-xs text-muted-foreground select-none">

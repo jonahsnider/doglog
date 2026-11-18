@@ -146,7 +146,7 @@ export function combineDashboards(id: string, otherId: string, side: 'left' | 'r
 }
 
 /**
- * Like Arc's Open as Split, put dashboards' panes side by side in the first of them, in order, and close the others.
+ * Put dashboards' panes side by side in the first of them, in order, and close the others.
  * Does nothing if the panes wouldn't fit, see `canJoinLayouts()`.
  */
 export function splitDashboards(ids: readonly string[]): void {

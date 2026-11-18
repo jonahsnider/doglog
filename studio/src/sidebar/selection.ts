@@ -7,7 +7,7 @@ import { splitDashboards } from '@/dashboards/panes';
 import { canJoinLayouts } from '@/panes/layout';
 
 /**
- * Like Arc, ⌘ or Ctrl-clicking dashboards selects them along with the open one, and Shift-clicking selects every dashboard
+ * ⌘ or Ctrl-clicking dashboards selects them along with the open one, and Shift-clicking selects every dashboard
  * from the last one clicked. Their menus then act on every selected dashboard.
  */
 export function useDashboardSelection(dashboards: Dashboard[]) {

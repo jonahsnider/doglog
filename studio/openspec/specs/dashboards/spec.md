@@ -137,7 +137,7 @@ Like Dia's split view, dragging a dashboard from the sidebar over the open dashb
 
 ### Requirement: Select several dashboards
 
-Like Arc, ⌘ or Ctrl-clicking a dashboard in the sidebar SHALL add it to or remove it from a selection that starts with the open dashboard, and Shift-clicking SHALL select every dashboard between it and the last ⌘ or Ctrl-clicked dashboard, or the open dashboard. Selecting MUST NOT open the dashboard. Clicking a dashboard or the empty space below the dashboards, or pressing Escape, SHALL clear the selection.
+⌘ or Ctrl-clicking a dashboard in the sidebar SHALL add it to or remove it from a selection that starts with the open dashboard, and Shift-clicking SHALL select every dashboard between it and the last ⌘ or Ctrl-clicked dashboard, or the open dashboard. Selecting MUST NOT open the dashboard. Clicking a dashboard or the empty space below the dashboards, or pressing Escape, SHALL clear the selection.
 
 #### Scenario: Shift-click a range
 
