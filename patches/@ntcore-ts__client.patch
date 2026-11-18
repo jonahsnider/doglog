@@ -1,5 +1,5 @@
 diff --git a/dist/index.esm.js b/dist/index.esm.js
-index a31aa17210f2313402559392e5e98c33b75084ec..35ce3507eef1f64733049cbd648aa8d2aa0b4184 100644
+index a31aa17210f2313402559392e5e98c33b75084ec..f509dddc3a96bf1062509568fc741e10eb22c0d5 100644
 --- a/dist/index.esm.js
 +++ b/dist/index.esm.js
 @@ -1439,7 +1439,9 @@ const topicPropertiesSchema = z
@@ -39,3 +39,28 @@ index a31aa17210f2313402559392e5e98c33b75084ec..35ce3507eef1f64733049cbd648aa8d2
              const topic = this.topics.get(params.name);
              if (params.ack) {
                  if (!topic) {
+@@ -4022,6 +4036,24 @@ class PubSubClient {
+             pubsubLogger.debug('Topic already exists check', { topicName: topic.name, exists: false });
+             this.topics.set(topic.name, topic);
+             pubsubLogger.debug('Topic registered', { topicName: topic.name, type: 'regular' });
++            // The server doesn't announce a topic or send its value again when a prefix subscription already covers it,
++            // so use what that subscription received
++            const announced = [...this.knownTopicParams.values()].find((params) => params.name === topic.name);
++            if (announced) {
++                topic.announce(announced);
++                for (const prefixTopic of this.prefixTopics.values()) {
++                    const last = prefixTopic._lastSubtopicValues.get(topic.name);
++                    if (last) {
++                        try {
++                            topic.updateValue(NetworkTablesTypeInfos.validateData(topic.typeInfo, last.value), undefined);
++                        }
++                        catch {
++                            // A different type than this topic expects, wait for a valid update
++                        }
++                        break;
++                    }
++                }
++            }
+         }
+         else if (topic.isPrefix()) {
+             if (this.prefixTopics.has(topic.name)) {

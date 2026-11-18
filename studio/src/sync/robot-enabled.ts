@@ -1,9 +1,6 @@
 import { NetworkTables } from '@ntcore-ts/client';
 import { type RobotEnabledWatcher, trackEnabled } from '@/sync/backend';
 
-/** Bit of the Driver Station control word that's set while the robot is enabled */
-const enabledBit = 0x01;
-
 /**
  * Follow whether the robot at `host` is enabled, from the control word WPILib publishes to NetworkTables.
  * A robot without robot code running can't be enabled, so it counts as disabled while NetworkTables isn't connected.
@@ -15,9 +12,26 @@ export function watchRobotEnabled(host: string, onChange: () => void): RobotEnab
 	nt.retain();
 	const enabled = trackEnabled(onChange);
 
-	const topic = nt.getIntegerTopic('/FMSInfo/FMSControlData');
-	const subscription = topic.subscribe((controlWord) =>
-		enabled.set(controlWord !== null && (controlWord & enabledBit) !== 0),
+	// WPILib 2027 and later, a little-endian 64-bit `ControlWord` struct with the enabled flag in bit 58
+	const controlWordTopic = nt.getRawTopic('/DriverStation/ControlWord');
+	const controlWordSubscription = controlWordTopic.subscribe(
+		(controlWord) => {
+			if (controlWord !== null) {
+				enabled.set(controlWord.length === 8 && (controlWord[7]! & 0x04) !== 0);
+			}
+		},
+		// The value is already known when the live connection to the same robot has it
+		{ immediateNotify: true },
+	);
+	// WPILib 2026 and earlier, published whether or not the robot is on a field, with the enabled flag in bit 0
+	const fmsControlDataTopic = nt.getIntegerTopic('/FMSInfo/FMSControlData');
+	const fmsControlDataSubscription = fmsControlDataTopic.subscribe(
+		(controlWord) => {
+			if (controlWord !== null) {
+				enabled.set((controlWord & 0x01) !== 0);
+			}
+		},
+		{ immediateNotify: true },
 	);
 	const removeConnectionListener = nt.addRobotConnectionListener((connected) => {
 		if (!connected) {
@@ -29,7 +43,8 @@ export function watchRobotEnabled(host: string, onChange: () => void): RobotEnab
 		pausedFor: enabled.pausedFor,
 		stop: () => {
 			removeConnectionListener();
-			topic.unsubscribe(subscription, true);
+			controlWordTopic.unsubscribe(controlWordSubscription, true);
+			fmsControlDataTopic.unsubscribe(fmsControlDataSubscription, true);
 			nt.release();
 		},
 	};
