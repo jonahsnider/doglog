@@ -83,6 +83,7 @@ pub fn run() -> ExitCode {
             sync::download_robot_log,
             sync::cancel_robot_download,
             sync::disconnect_robot,
+            window_state::window_slot,
             agent::window::agent_listen,
             agent::window::agent_respond,
             #[cfg(target_os = "macos")]

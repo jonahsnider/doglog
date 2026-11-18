@@ -2,7 +2,7 @@ use std::{
     collections::HashMap,
     fs::{File, OpenOptions},
 };
-use tauri::{App, Manager, PhysicalPosition, PhysicalSize, Runtime, WebviewWindow, plugin::TauriPlugin};
+use tauri::{App, AppHandle, Manager, PhysicalPosition, PhysicalSize, Runtime, WebviewWindow, plugin::TauriPlugin};
 use tauri_plugin_window_state::{AppHandleExt, StateFlags, WindowExt};
 
 /// Fullscreen isn't saved, so Studio reopens as a normal window
@@ -18,8 +18,36 @@ pub fn plugin<R: Runtime>() -> TauriPlugin<R> {
         .build()
 }
 
-/// Held while the first open Studio window is open, it's freed when that window's process exits
-struct FirstWindowLock(#[expect(dead_code, reason = "Only held so the lock stays locked")] File);
+/// This window's position among open Studio windows, `0` for the first. Each window is its own process, so it's claimed
+/// with a lock file that's freed when the process exits, for the next window to take.
+struct WindowSlot(
+    u32,
+    #[expect(dead_code, reason = "Only held so the lock stays locked")] File,
+);
+
+/// Take the lowest slot no other open window holds
+fn claim_slot(app: &App) -> Option<WindowSlot> {
+    let dir = app.path().app_data_dir().ok()?;
+    std::fs::create_dir_all(&dir).ok()?;
+    for slot in 0.. {
+        let file = OpenOptions::new()
+            .create(true)
+            .write(true)
+            .truncate(false)
+            .open(dir.join(format!("window-{slot}.lock")))
+            .ok()?;
+        if file.try_lock().is_ok() {
+            return Some(WindowSlot(slot, file));
+        }
+    }
+    None
+}
+
+/// This window's slot, `None` if it couldn't be claimed
+#[tauri::command]
+pub fn window_slot(app: AppHandle) -> Option<u32> {
+    app.try_state::<WindowSlot>().map(|slot| slot.0)
+}
 
 /// Restore how the last closed window was set up.
 /// Each window is its own process, so only the first one goes back to the saved position, the others are centered so they don't cover it.
@@ -27,23 +55,14 @@ struct FirstWindowLock(#[expect(dead_code, reason = "Only held so the lock stays
 /// The window starts hidden and the app shows it once it loads, since macOS animates a visible window zooming to fill
 /// the screen when it was maximized. Showing it here would be too early, maximizing is queued on the main thread.
 pub fn restore(app: &App) {
-    let first_window = app
-        .path()
-        .app_data_dir()
-        .and_then(|dir| {
-            std::fs::create_dir_all(&dir)?;
-            Ok(OpenOptions::new()
-                .create(true)
-                .write(true)
-                .truncate(false)
-                .open(dir.join("first-window.lock"))?)
-        })
-        .ok()
-        .filter(|file| file.try_lock().is_ok());
+    let slot = claim_slot(app);
+    let first_window = slot.as_ref().is_some_and(|slot| slot.0 == 0);
+    if let Some(slot) = slot {
+        app.manage(slot);
+    }
 
     let window = app.get_webview_window("main").unwrap();
-    let result = if let Some(file) = first_window {
-        app.manage(FirstWindowLock(file));
+    let result = if first_window {
         window.restore_state(FLAGS)
     } else {
         center_saved_size(app, &window).and_then(|()| window.restore_state(StateFlags::MAXIMIZED))
