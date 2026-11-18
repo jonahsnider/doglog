@@ -81,12 +81,18 @@ In 3D, the robot widget SHALL draw the robot at the origin, in WPILib's robot co
 
 ### Requirement: 3D camera
 
-In 3D, the robot widget SHALL use a camera without perspective, starting from the robot's front right, a little above it. Dragging MUST orbit around the robot, right-dragging MUST pan, and scrolling or pinching MUST zoom, and the camera MUST NOT orbit below the floor. Reset, Top, Front, and Side buttons inside the widget SHALL move the camera to those views, and double-clicking SHALL reset it. The camera MUST NOT be saved with the dashboard.
+In 3D, the robot widget SHALL use a camera without perspective, starting from the robot's front right, a little above it. Dragging MUST orbit around the robot, right-dragging MUST pan, and scrolling or pinching MUST zoom, and the camera MUST NOT orbit below the floor. Reset, Top, Front, and Side buttons inside the widget SHALL move the camera to those views, animating unless the system reduces motion, and double-clicking SHALL reset it. The camera MUST NOT be saved with the dashboard.
 
 #### Scenario: Top view
 
 - **WHEN** the user presses Top
 - **THEN** the robot is shown from directly above, with its front pointing up
+
+#### Scenario: Pan with the right mouse button
+
+- **WHEN** the user right-drags the scene
+- **THEN** the view pans, with a move cursor while dragging
+- **AND** the widget's context menu doesn't open
 
 #### Scenario: Reset by double-clicking
 
@@ -96,7 +102,7 @@ In 3D, the robot widget SHALL use a camera without perspective, starting from th
 
 ### Requirement: 3D keyboard controls
 
-While a robot widget in 3D is focused, the arrow keys SHALL orbit the camera, W and S MUST zoom in and out, A and D MUST pan sideways, and Q and E MUST lower and raise the view.
+While a robot widget in 3D is focused, holding the arrow keys SHALL orbit the camera, W and S MUST zoom in and out, A and D MUST pan sideways, and Q and E MUST lower and raise the view, moving smoothly until the key is released.
 
 #### Scenario: Zoom with the keyboard
 

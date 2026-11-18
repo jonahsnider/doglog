@@ -25,6 +25,19 @@ packageExtensions:
   usehooks-ts:
     peerDependencies:
       '@types/react': '*'
+  # Their types also import from `three`, which has no types of its own
+  '@react-three/fiber':
+    peerDependencies:
+      '@types/react': '*'
+      '@types/three': '*'
+  '@react-three/drei':
+    peerDependencies:
+      '@types/react': '*'
+      '@types/three': '*'
+  # A drei dependency that imports `react` without declaring it
+  tunnel-rat:
+    peerDependencies:
+      react: '*'
   starlight-changelogs@^0.7.0:
     dependencies:
       '@types/mdast': 4.0.4

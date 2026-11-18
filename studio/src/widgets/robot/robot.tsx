@@ -1,99 +1,165 @@
-import { SplineIcon } from 'lucide-react';
-import { useMemo } from 'react';
-import { useDataVersion, useEntries } from '@/data/data-store';
+import { BoxesIcon, DatabaseIcon, ListPlusIcon, SplineIcon } from 'lucide-react';
+import { useMemo, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
+import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control';
+import { type Entry, useDataVersion, useEntries } from '@/data/data-store';
+import { useSource } from '@/data/source';
 import { type Mechanism, mechanismLayout, readMechanism } from '@/data/mechanism';
-import { cn } from '@/lib/utils';
+import { Mechanism3d } from '@/three/mechanism-3d';
+import { type CameraView, Scene3d, type Scene3dHandle } from '@/three/scene';
+import { SwerveRobot } from '@/three/swerve-robot';
 import { useCursorTime } from '@/timeline/timeline';
-import { useFieldZoom } from '@/widgets/field/zoom';
 import { Legend, type LegendItem } from '@/widgets/legend/legend';
-import { NoData } from '@/widgets/no-data';
-import type { WidgetProps } from '@/widgets/widget-type';
+import { MechanismCanvas } from '@/widgets/robot/mechanism-2d';
+import { mechanismPlane } from '@/widgets/robot/roles';
+import { WidgetEmpty } from '@/widgets/widget-empty';
+import type { WidgetBinding, WidgetProps } from '@/widgets/widget-type';
 
-/** A mechanism's canvas fit to the widget, which zooms and pans like the field */
-function MechanismCanvas({ mechanism }: { mechanism: Mechanism }) {
-	const { width, height, backgroundColor, lines } = mechanism;
-	const bounds = useMemo(() => ({ x: 0, y: 0, width, height }), [width, height]);
-	const { svgRef, zoom, transform, startPan, movePan, endPan, reset } = useFieldZoom(bounds);
+type View = '2d' | '3d';
 
-	return (
-		<div
-			className={cn('relative touch-none overflow-hidden', zoom.scale > 1 && 'cursor-grab active:cursor-grabbing')}
-			style={{ width: `min(100cqw, 100cqh * ${width / height})`, aspectRatio: `${width} / ${height}` }}
-			onPointerDown={(event) => {
-				if (event.button === 0) {
-					startPan(event);
-				}
-			}}
-			onPointerMove={(event) => {
-				movePan(event);
-			}}
-			onPointerUp={endPan}
-			onPointerCancel={endPan}
-			onDoubleClick={reset}
-		>
-			<svg
-				ref={svgRef}
-				className="block size-full"
-				viewBox={`0 0 ${width} ${height}`}
-				role="img"
-				aria-label="Mechanism"
-			>
-				<g transform={transform}>
-					{/* Colors are drawn as logged, they don't follow the theme */}
-					<rect width={width} height={height} fill={backgroundColor} />
-					<g transform={`translate(0 ${height}) scale(1 -1)`}>
-						{lines.map((line) => (
-							<line
-								key={line.id}
-								x1={line.start.x}
-								y1={line.start.y}
-								x2={line.end.x}
-								y2={line.end.y}
-								stroke={line.color}
-								// Weights are in pixels, zoomed with the mechanism
-								strokeWidth={line.weight * zoom.scale}
-								strokeLinecap="round"
-								vectorEffect="non-scaling-stroke"
-							/>
-						))}
-					</g>
-				</g>
-			</svg>
-		</div>
-	);
-}
+const cameraViews: readonly { view: CameraView; label: string }[] = [
+	{ view: 'reset', label: 'Reset' },
+	{ view: 'top', label: 'Top' },
+	{ view: 'front', label: 'Front' },
+	{ view: 'side', label: 'Side' },
+];
 
-export function Robot({ bindings }: WidgetProps) {
+/** The mechanisms of the bound entries at the cursor, `undefined` for ones without a value */
+function useMechanisms(bindings: readonly WidgetBinding[]): ReadonlyMap<string, Mechanism | undefined> {
 	const time = useCursorTime();
 	// Values at the cursor change as samples arrive
 	useDataVersion();
 	const entries = useEntries();
-
-	// Only one mechanism is drawn in 2D, the others are for 3D
-	const shown = bindings.find((binding) => binding.entry !== undefined && !binding.hidden);
-	const shownName = shown?.entry?.name;
-	const layout = useMemo(
-		() => (shownName === undefined ? undefined : mechanismLayout(shownName, entries)),
-		[shownName, entries],
+	const names = [
+		...new Set(bindings.flatMap((binding) => (binding.entry?.kind === 'mechanism2d' ? [binding.name] : []))),
+	].join('\n');
+	const layouts = useMemo(
+		() => (names === '' ? [] : names.split('\n').map((name) => [name, mechanismLayout(name, entries)] as const)),
+		[names, entries],
 	);
-	const mechanism = layout && time !== undefined ? readMechanism(layout, time) : undefined;
+	return new Map(
+		layouts.map(([name, layout]) => [name, time === undefined ? undefined : readMechanism(layout, time)] as const),
+	);
+}
 
-	const legend = bindings.map((binding): LegendItem => ({
-		binding,
-		icon: <SplineIcon className="size-3.5" />,
-		dimmed: binding.entry === undefined || (binding === shown && mechanism === undefined),
-		...(binding.entry !== undefined && !binding.hidden && binding !== shown && { note: '3D only' }),
-	}));
+function isMechanism(binding: WidgetBinding): boolean {
+	return binding.entry?.kind === 'mechanism2d';
+}
+
+function hasValue(entry: Entry | undefined, time: number | undefined): boolean {
+	return entry !== undefined && time !== undefined && entry.samples.valueAt(time) !== undefined;
+}
+
+function ViewToggle({ view, onChange }: { view: View; onChange: (view: View) => void }) {
+	return (
+		<SegmentedControl
+			size="sm"
+			render={
+				<RadioGroup
+					aria-label="View"
+					className="flex-row gap-0.5"
+					value={view}
+					onValueChange={(value: string) => onChange(value === '2d' ? '2d' : '3d')}
+				/>
+			}
+		>
+			<SegmentedControlItem render={<RadioPrimitive.Root value="2d" />}>2D</SegmentedControlItem>
+			<SegmentedControlItem render={<RadioPrimitive.Root value="3d" />}>3D</SegmentedControlItem>
+		</SegmentedControl>
+	);
+}
+
+/** Why there's no mechanism to draw in 2D */
+function Empty2d({ mechanism }: { mechanism: WidgetBinding | undefined }) {
+	const source = useSource();
+	if (!source) {
+		return <WidgetEmpty icon={<DatabaseIcon />} title="No data" description="Open a log or connect to a robot." />;
+	}
+	if (!mechanism) {
+		return (
+			<WidgetEmpty
+				icon={<ListPlusIcon />}
+				title="No mechanism"
+				description="Add a Mechanism2d entry to draw it in 2D, or switch to 3D."
+			/>
+		);
+	}
+	return (
+		<WidgetEmpty
+			icon={<DatabaseIcon />}
+			title="No data"
+			description={`${mechanism.name} has no value at the cursor.`}
+		/>
+	);
+}
+
+export function Robot({ bindings, options, setOption }: WidgetProps) {
+	const view: View = options['view'] === '2d' ? '2d' : '3d';
+	const time = useCursorTime();
+	const mechanisms = useMechanisms(bindings);
+	const scene = useRef<Scene3dHandle>(null);
+
+	// 2D draws one mechanism, 3D moves the robot's parts with one pose array
+	const shown2d = bindings.find((binding) => isMechanism(binding) && !binding.hidden);
+	const parts = bindings.find((binding) => binding.entry?.kind === 'struct[]' && !binding.hidden);
+
+	const note = (binding: WidgetBinding) => {
+		if (binding.entry === undefined || binding.hidden) {
+			return undefined;
+		}
+		if (view === '2d') {
+			return binding === shown2d ? undefined : '3D only';
+		}
+		return isMechanism(binding) || binding === parts ? undefined : 'Unused';
+	};
+	const legend = bindings.map((binding): LegendItem => {
+		const text = note(binding);
+		return {
+			binding,
+			icon: isMechanism(binding) ? <SplineIcon className="size-3.5" /> : <BoxesIcon className="size-3.5" />,
+			dimmed: isMechanism(binding) ? mechanisms.get(binding.name) === undefined : !hasValue(binding.entry, time),
+			...(text !== undefined && { note: text }),
+		};
+	});
+
+	const mechanism2d = shown2d && mechanisms.get(shown2d.name);
 
 	return (
-		<div className="h-full p-2 [container-type:size]">
-			<div className="flex h-full flex-col gap-2">
+		<div className="flex h-full flex-col gap-2 p-2">
+			{legend.length > 0 && (
 				<div className="max-h-[33%] shrink-0 overflow-y-auto">
 					<Legend items={legend} />
 				</div>
-				<div className="flex min-h-0 min-w-0 flex-1 items-center justify-center [container-type:size]">
-					{mechanism ? <MechanismCanvas mechanism={mechanism} /> : <NoData />}
-				</div>
+			)}
+			<div className="flex min-h-0 min-w-0 flex-1 items-center justify-center [container-type:size]">
+				{view === '3d' ? (
+					<Scene3d ref={scene} label="Robot">
+						<SwerveRobot />
+						{bindings.map((binding) => {
+							const mechanism = binding.hidden ? undefined : mechanisms.get(binding.name);
+							return mechanism ? (
+								<Mechanism3d key={binding.id} mechanism={mechanism} plane={mechanismPlane(binding)} />
+							) : null;
+						})}
+					</Scene3d>
+				) : mechanism2d ? (
+					<MechanismCanvas mechanism={mechanism2d} />
+				) : (
+					<Empty2d mechanism={shown2d} />
+				)}
+			</div>
+			<div className="flex shrink-0 items-center justify-between gap-2">
+				<ViewToggle view={view} onChange={(next) => setOption('view', next)} />
+				{view === '3d' && (
+					<div className="flex gap-1">
+						{cameraViews.map(({ view: cameraView, label }) => (
+							<Button key={cameraView} variant="ghost" size="xs" onClick={() => scene.current?.setView(cameraView)}>
+								{label}
+							</Button>
+						))}
+					</div>
+				)}
 			</div>
 		</div>
 	);

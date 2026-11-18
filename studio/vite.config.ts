@@ -187,6 +187,11 @@ export default defineConfig({
 				files: ['src/lib/motion.ts'],
 				rules: { 'eslint/no-restricted-imports': 'off' },
 			},
+			{
+				// react-three-fiber elements take three.js properties, which the rule doesn't know
+				files: ['src/three/**'],
+				rules: { 'react/no-unknown-property': 'off' },
+			},
 		],
 		ignorePatterns,
 		options: {

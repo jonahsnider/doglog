@@ -21,6 +21,7 @@ import { Graph } from '@/widgets/graph/graph';
 import { graphRoles, inferGraphRole } from '@/widgets/graph/roles';
 import { Notepad } from '@/widgets/notepad/notepad';
 import { Robot } from '@/widgets/robot/robot';
+import { robotRoles, viewOption } from '@/widgets/robot/roles';
 import { Swerve } from '@/widgets/swerve/swerve';
 import { swerveRoles } from '@/widgets/swerve/data';
 import { ValuesTable } from '@/widgets/values-table/values-table';
@@ -94,7 +95,10 @@ export const widgetTypes: readonly WidgetType[] = [
 		name: 'Robot',
 		icon: BotIcon,
 		hotkey: 'R',
-		accepts: ['mechanism2d'],
+		accepts: ['mechanism2d', 'struct[]'],
+		roles: robotRoles,
+		rendersEmpty: true,
+		options: [viewOption],
 		component: Robot,
 	},
 	{
