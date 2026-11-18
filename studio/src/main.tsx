@@ -1,5 +1,6 @@
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { isTauri } from '@tauri-apps/api/core';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
@@ -43,3 +44,8 @@ createRoot(document.querySelector('#root')!).render(
 		<RouterProvider router={router} />
 	</StrictMode>,
 );
+
+// The window starts hidden and is shown once it's restored, see `window_state.rs`
+if (isTauri()) {
+	void getCurrentWindow().show();
+}

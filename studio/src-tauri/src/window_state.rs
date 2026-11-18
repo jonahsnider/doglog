@@ -23,6 +23,9 @@ struct FirstWindowLock(#[expect(dead_code, reason = "Only held so the lock stays
 
 /// Restore how the last closed window was set up.
 /// Each window is its own process, so only the first one goes back to the saved position, the others are centered so they don't cover it.
+///
+/// The window starts hidden and the app shows it once it loads, since macOS animates a visible window zooming to fill
+/// the screen when it was maximized. Showing it here would be too early, maximizing is queued on the main thread.
 pub fn restore(app: &App) {
     let first_window = app
         .path()
