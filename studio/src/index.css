@@ -564,3 +564,8 @@
 		visibility: hidden;
 	}
 }
+
+:root {
+	/* How far the macOS title bar's buttons reach past the collapsed sidebar, see `TitleBar`: its start padding, the toggle, Back, and Forward with the gaps between them, minus the rail */
+	--title-bar-overlap: calc(--spacing(21) + 3 * --spacing(6) + 2 * --spacing(0.5) - 3rem);
+}

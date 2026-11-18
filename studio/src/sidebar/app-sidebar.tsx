@@ -126,7 +126,7 @@ export function AppSidebar() {
 			<div
 				ref={containerRef}
 				className={cn(
-					'relative shrink-0 [--sidebar-width-icon:3rem] [--sidebar-width:16rem]',
+					'relative shrink-0 [--sidebar-width-icon:3rem] [--sidebar-width:17rem]',
 					collapsed ? 'w-(--sidebar-width-icon)' : 'w-(--sidebar-width)',
 				)}
 			>

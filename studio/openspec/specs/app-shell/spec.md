@@ -175,20 +175,26 @@ Like a browser, Back and Forward SHALL move through the pages the user visited i
 
 ### Requirement: macOS title bar
 
-The macOS desktop app SHALL draw the window controls over the top of the sidebar instead of showing a title bar, so the main area reaches the top of the window. Like Linear, the sidebar toggle MUST be shown beside the window controls, followed by Back and Forward buttons, and the top of the sidebar MUST be draggable like a title bar.
+The macOS desktop app SHALL draw the window controls over the top of the sidebar instead of showing a title bar, so the main area reaches the top of the window. Like Linear, the sidebar toggle MUST be shown beside the window controls, along with Back and Forward buttons, and the top of the sidebar MUST be draggable like a title bar. The expanded sidebar MUST be wide enough to show the app's name between the toggle and Back.
 
 #### Scenario: Sidebar expanded
 
 - **GIVEN** the user is using the desktop app on macOS
 - **THEN** the window controls are shown at the top of the sidebar
-- **AND** the sidebar toggle, Back, and Forward buttons are shown after them
+- **AND** the sidebar toggle is shown after them, followed by the app's name, Back, and Forward
 
 #### Scenario: Sidebar collapsed
 
 - **GIVEN** the user is using the desktop app on macOS
 - **WHEN** the user collapses the sidebar
 - **THEN** the sidebar toggle, Back, and Forward buttons stay beside the window controls
-- **AND** the top left pane's header and the page titles make room for the window controls and the buttons, which are wider than the rail
+- **AND** the top left pane's header makes room for the window controls and the buttons, which are wider than the rail
+
+#### Scenario: Page titles
+
+- **GIVEN** the user is using the desktop app on macOS
+- **WHEN** the user toggles the sidebar on a page like Logs or Settings
+- **THEN** the page title stays below the window controls and doesn't move
 
 #### Scenario: Fullscreen
 

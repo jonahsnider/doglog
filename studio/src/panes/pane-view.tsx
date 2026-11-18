@@ -193,7 +193,10 @@ export function PaneView({
 		>
 			<div
 				data-joins-title-bar={underTrafficLights}
-				className={cn('flex h-9 shrink-0 items-center gap-0.5 border-b px-2', underTrafficLights && 'ps-29')}
+				className={cn(
+					'flex h-9 shrink-0 items-center gap-0.5 border-b px-2',
+					underTrafficLights && 'ps-[calc(var(--title-bar-overlap)+--spacing(1.5))]',
+				)}
 				// Middle-clicking the header closes the pane, like a browser tab
 				onAuxClick={(event) => {
 					if (event.button === 1 && closable) {
