@@ -345,7 +345,7 @@ Dashboards SHALL stay the same in every open Studio tab and window. Changes made
 
 ### Requirement: Pane layout
 
-A dashboard SHALL be a layout of panes, each holding exactly one widget. Users MUST be able to split panes horizontally or vertically, resize them, and close them. Resizing MUST NOT make a pane narrower or shorter than a quarter of the dashboard.
+A dashboard SHALL be a layout of panes, each holding exactly one widget. Users MUST be able to split panes horizontally or vertically, resize them, and close them. Resizing MUST NOT make a pane narrower or shorter than a quarter of the dashboard, or than 200 by 120 pixels unless the dashboard is too small for each pane to be that size.
 
 #### Scenario: First widget fills the dashboard
 
@@ -372,6 +372,12 @@ A dashboard SHALL be a layout of panes, each holding exactly one widget. Users M
 - **GIVEN** a pane split into two columns, beside another pane
 - **WHEN** the user drags the divider to shrink the split pane
 - **THEN** it stops once each column is a quarter of the dashboard's width
+
+#### Scenario: Resize a pane in a narrow dashboard
+
+- **GIVEN** a dashboard 600 pixels wide with two panes side by side
+- **WHEN** the user drags the divider between them
+- **THEN** it stops once a pane is 200 pixels wide
 
 #### Scenario: Divider that can't move
 

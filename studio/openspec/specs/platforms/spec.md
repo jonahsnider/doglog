@@ -191,6 +191,27 @@ The desktop app SHALL open its window with the size, position, and maximized sta
 - **WHEN** the user opens Studio without that monitor connected
 - **THEN** the window opens on a connected screen
 
+### Requirement: Desktop minimum window size
+
+The desktop window SHALL NOT be made smaller than 720 by 480 pixels. On a dashboard, it MUST also stay big enough for every pane to be at least 200 by 120 pixels beside the sidebar, entry browser, and timeline bar at their current sizes, and it MUST grow to fit when a split or a wider entry browser needs more room.
+
+#### Scenario: Shrink the window
+
+- **WHEN** the user drags the window's corner to make it as small as possible on the Settings page
+- **THEN** it stops at 720 by 480 pixels
+
+#### Scenario: Shrink a window with many panes
+
+- **GIVEN** a dashboard with four panes side by side
+- **WHEN** the user makes the window as narrow as possible
+- **THEN** it stops once each pane is 200 pixels wide
+
+#### Scenario: Split a pane in a small window
+
+- **GIVEN** a window that's as narrow as the panes allow
+- **WHEN** the user splits a pane right
+- **THEN** the window widens so each pane is still 200 pixels wide
+
 ### Requirement: App icon
 
 The desktop app icon, the installed web app icon, and the browser tab icon SHALL use the DogLog logo.

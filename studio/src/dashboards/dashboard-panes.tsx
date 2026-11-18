@@ -1,43 +1,22 @@
 import type { Draggable, Droppable } from '@dnd-kit/dom';
 import { useDragDropMonitor } from '@dnd-kit/react';
-import { type RefObject, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Group, type Layout, Separator, useGroupRef } from 'react-resizable-panels';
 import { PaneView, type PaneNodeProps } from '@/panes/pane-view';
 import { dropDashboardEntry, getFocusedPane, getZoomedPane, updateLayout } from '@/dashboards/panes';
 import type { Dashboard } from '@/dashboards/dashboards';
 import { type EntryDragData, type EntryDropData, type EntrySectionDropData, entryDragType } from '@/entries/drag';
+import { useMinWindowSize } from '@/desktop/window-size';
+import { useSize } from '@/hooks/use-size';
 import { cn } from '@/lib/utils';
-import {
-	findPane,
-	type PaneNode,
-	panesAlong,
-	resetDivider,
-	resizeSplit,
-	type Split,
-	type SplitDirection,
-} from '@/panes/layout';
+import { findPane, type PaneNode, resetDivider, resizeSplit, type Split, type SplitDirection } from '@/panes/layout';
+import { minNodeSize, minPaneSizeIn } from '@/panes/pane-size';
 import { SplitPanel, type SplitPanelAnimation } from '@/panes/split-panel';
 import { closingSplit, percentages, type SplitAnimation, splitAnimation } from '@/panes/split-animation';
 import { useZoomAnimation } from '@/panes/zoom-animation';
 
 /** How close a divider is dropped to an even split for it to snap there, in pixels */
 const snapDistance = 8;
-
-type Size = { width: number; height: number };
-
-/** An element's size in pixels, `undefined` until it's measured */
-function useSize(ref: RefObject<HTMLElement | null>) {
-	const [size, setSize] = useState<Size>();
-
-	useEffect(() => {
-		const element = ref.current!;
-		const observer = new ResizeObserver(() => setSize({ width: element.clientWidth, height: element.clientHeight }));
-		observer.observe(element);
-		return () => observer.disconnect();
-	}, [ref]);
-
-	return size;
-}
 
 export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 	const { layout } = dashboard;
@@ -47,6 +26,12 @@ export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 	const size = useSize(container);
 	const zoom = useZoomAnimation(container, layout, zoomedPaneId);
 	const zooming = zoom !== undefined;
+
+	useMinWindowSize(layout, size);
+	const minPaneSizes = size && {
+		row: minPaneSizeIn(layout, 'row', size.width),
+		column: minPaneSizeIn(layout, 'column', size.height),
+	};
 
 	// Entries dropped on a widget or one of its entries, from the entry browser or another widget
 	useDragDropMonitor<
@@ -75,7 +60,7 @@ export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 				hiddenBy={zooming ? undefined : zoomedPaneId}
 				zooming={zooming}
 				zoomFillingPaneId={zoom?.zoomingIn === true ? zoom.paneId : undefined}
-				dashboardSize={size}
+				minPaneSizes={minPaneSizes}
 				node={layout}
 				root
 				topLeft
@@ -89,8 +74,8 @@ type NodeProps = PaneNodeProps & {
 	hiddenBy: string | undefined;
 	/** Whether a zoom is animating, which lets the panes move outside their splits */
 	zooming: boolean;
-	/** In pixels, `undefined` until it's measured */
-	dashboardSize: Size | undefined;
+	/** In pixels, the smallest each pane can be along each direction, `undefined` until the dashboard's measured */
+	minPaneSizes: Record<SplitDirection, number> | undefined;
 };
 
 function PaneNodeView({ node, root = false, ...props }: NodeProps & { node: PaneNode; root?: boolean }) {
@@ -135,26 +120,25 @@ function PaneNodeView({ node, root = false, ...props }: NodeProps & { node: Pane
 
 /** In pixels, the smallest a child of a split can be for each of its panes to be at least `paneSize` along it */
 function minSize(child: PaneNode, direction: SplitDirection, paneSize: number | undefined): number {
-	const panes = panesAlong(child, direction);
-	return paneSize === undefined ? 0 : paneSize * panes + panes - 1;
+	return paneSize === undefined ? 0 : minNodeSize(child, direction, paneSize);
 }
 
 function SplitView({
 	split,
 	animation,
 	onAnimationEnd,
+	minPaneSizes,
 	...props
 }: NodeProps & { split: Split; animation: SplitAnimation | undefined; onAnimationEnd: () => void }) {
-	const { dashboardId, dashboardSize, hiddenBy, zooming } = props;
+	const { dashboardId, hiddenBy, zooming } = props;
 	const row = split.direction === 'row';
 	const groupRef = useGroupRef();
 	const group = useRef<HTMLDivElement>(null);
 	const groupSize = useSize(group);
 	const extent = row ? groupSize?.width : groupSize?.height;
 	const dividers = split.children.length - 1;
-	// Keep every pane at least a quarter of the dashboard, so a child with a split inside needs room for its panes and the 1px dividers between them
-	const dashboardExtent = row ? dashboardSize?.width : dashboardSize?.height;
-	const paneSize = dashboardExtent === undefined ? undefined : (dashboardExtent - 3) / 4;
+	// A child with a split inside needs room for its panes and the 1px dividers between them
+	const paneSize = minPaneSizes?.[split.direction];
 	const minSizes = split.children.map((child) => minSize(child, split.direction, paneSize));
 	// Every child is as small as it can be, so the dividers can't move (within a pixel of rounding)
 	const locked = extent !== undefined && extent - minSizes.reduce((sum, size) => sum + size, 0) - dividers < 1;
@@ -292,7 +276,7 @@ function SplitView({
 						}
 					}}
 				>
-					<PaneNodeView {...props} topLeft={index === 0 && props.topLeft} node={child} />
+					<PaneNodeView {...props} minPaneSizes={minPaneSizes} topLeft={index === 0 && props.topLeft} node={child} />
 				</SplitPanel>,
 			])}
 		</Group>

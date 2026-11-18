@@ -1,4 +1,5 @@
 import { useDragDropMonitor } from '@dnd-kit/react';
+import { isTauri } from '@tauri-apps/api/core';
 import { Navigate, createFileRoute, useLocation } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { Group, Panel } from 'react-resizable-panels';
@@ -8,6 +9,7 @@ import { TimelineBar } from '@/timeline/timeline-bar';
 import { useDashboards } from '@/dashboards/dashboards';
 import { cn } from '@/lib/utils';
 import { isPaneDrag } from '@/panes/drag';
+import { minNodeSize } from '@/panes/pane-size';
 import { setViewedDashboard } from '@/sharing/presence';
 import { useNamePrompt } from '@/sharing/name-prompt';
 
@@ -71,7 +73,9 @@ function DashboardView() {
 	return (
 		<div className={cn('flex h-full flex-col', movingPane && 'pointer-events-none')}>
 			<Group orientation="horizontal" className="min-h-0 flex-1">
-				<Panel minSize="7rem" style={{ overflow: 'hidden' }}>
+				{/* Widening the entry browser stops at the panes' minimum size on desktop, where the window is kept big enough for
+				    it. A smaller browser window shrinks the panes before the entry browser. */}
+				<Panel minSize={isTauri() ? minNodeSize(dashboard.layout, 'row') : '7rem'} style={{ overflow: 'hidden' }}>
 					<section aria-label="Panes" className="h-full min-w-0">
 						<DashboardPanes dashboard={dashboard} />
 					</section>

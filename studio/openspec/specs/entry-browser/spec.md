@@ -114,6 +114,12 @@ The entry browser SHALL be a collapsible panel on the right side of the dashboar
 - **WHEN** the user resizes the window
 - **THEN** the entry browser keeps its width and the panes absorb the change
 
+#### Scenario: Widen past the panes' minimum width
+
+- **GIVEN** the desktop app
+- **WHEN** the user drags the entry browser's divider toward the panes
+- **THEN** it stops once the panes are at their minimum width (see the dashboards spec)
+
 ### Requirement: Drag to bind
 
 Users SHALL be able to drag entries from the entry browser onto widgets to bind them.
