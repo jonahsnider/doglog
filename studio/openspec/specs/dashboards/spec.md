@@ -179,7 +179,7 @@ Users SHALL be able to duplicate a dashboard, or every selected dashboard, from 
 
 ### Requirement: Move panes
 
-Like Rex, users SHALL be able to drag a pane by its title, which shows a move icon and a background while hovered, and drop it on the half of another pane nearest the pointer. That half MUST be highlighted, moving between sides without animating. The dragged pane MUST go on that side, each taking half the space, and its sibling MUST take its old space. Sides where panes would end up too small MUST be shown as unavailable.
+Like Rex, users SHALL be able to drag a pane by its title, which shows a move icon and a background while hovered, empty panes included, and drop it on the half of another pane nearest the pointer. That half MUST be highlighted, moving between sides without animating. The dragged pane MUST go on that side, each taking half the space, and its sibling MUST take its old space. Sides where panes would end up too small MUST be shown as unavailable.
 
 #### Scenario: Not enough room
 
