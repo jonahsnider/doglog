@@ -179,7 +179,22 @@ function SplitView({
 				: percentages(split, minimum),
 		[split, animation, minimum],
 	);
-	const from = animation && percentages(animation.split, minimum);
+	const from = useMemo(() => animation && percentages(animation.split, minimum), [animation, minimum]);
+	// The group's layout. A closing pane keeps its share there while CSS shrinks it away, since lowering its `minSize` so it
+	// could reach nothing only reaches the group after this layout is fitted to the old one. The others end in the
+	// proportions they have without it, which is all that shows once it's gone.
+	const groupLayout = useMemo(() => {
+		if (animation?.kind !== 'close') {
+			return targets;
+		}
+		const kept = from?.[animation.childId] ?? 0;
+		return Object.fromEntries(
+			Object.entries(targets).map(([id, share]) => [
+				id,
+				id === animation.childId ? kept : (share * (100 - kept)) / 100,
+			]),
+		);
+	}, [animation, from, targets]);
 	const moving = animation ? split.children.findIndex((child) => child.id === animation.childId) : -1;
 
 	const panelAnimation = (childId: string, index: number): SplitPanelAnimation | undefined => {
@@ -212,9 +227,9 @@ function SplitView({
 		}
 	}, [groupRef]);
 	useLayoutEffect(() => {
-		pendingLayout.current = targets;
+		pendingLayout.current = groupLayout;
 		applyLayout();
-	}, [applyLayout, targets]);
+	}, [applyLayout, groupLayout]);
 
 	// While a zoomed pane fills the dashboard, its splits only show the child it's in
 	const zoomedHere = hiddenBy !== undefined && findPane(split, hiddenBy) !== undefined;
@@ -224,7 +239,7 @@ function SplitView({
 			groupRef={groupRef}
 			elementRef={group}
 			orientation={row ? 'horizontal' : 'vertical'}
-			defaultLayout={targets}
+			defaultLayout={groupLayout}
 			onLayoutChange={applyLayout}
 			// Container units size the animating children, and panes move outside their splits while a zoom animates
 			style={{ containerType: animation ? 'size' : undefined, overflow: zooming ? 'visible' : undefined }}
@@ -265,7 +280,7 @@ function SplitView({
 				<SplitPanel
 					key={child.id}
 					id={child.id}
-					minSize={index === moving && animation?.kind === 'close' ? 0 : minSizes[index]}
+					minSize={minSizes[index]}
 					direction={split.direction}
 					animation={panelAnimation(child.id, index)}
 					hidden={zoomedHere && findPane(child, hiddenBy) === undefined}
