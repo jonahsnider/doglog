@@ -35,6 +35,15 @@ The robot widget SHALL have a View option with "2D" and "3D", which it MUST infe
 - **GIVEN** a robot widget with no bound entries, or no source
 - **THEN** the robot is drawn in 3D instead of an empty state
 
+### Requirement: Robot legend
+
+The robot widget's legend SHALL list one entry per row above the robot, and MUST move beside it when the widget is at least one and a half times as wide as it is tall. A legend too long for its space MUST scroll.
+
+#### Scenario: Wide widget
+
+- **GIVEN** a robot widget twice as wide as it is tall, with several mechanisms
+- **THEN** the legend is a column on the left of the robot
+
 ### Requirement: 2D mechanism
 
 In 2D, the robot widget SHALL draw the first `Mechanism2d` entry that isn't hidden, as WPILib's simulation GUI does: a canvas sized to the mechanism's dimensions, fit to the widget and filled with its background color. The legend MUST mark the widget's other entries "3D only".
@@ -81,12 +90,7 @@ In 3D, the robot widget SHALL draw the robot at the origin, in WPILib's robot co
 
 ### Requirement: 3D camera
 
-In 3D, the robot widget SHALL use a camera without perspective, starting from the robot's front right, a little above it. Dragging MUST orbit around the robot, right-dragging MUST pan, and scrolling or pinching MUST zoom, and the camera MUST NOT orbit below the floor. Reset, Top, Front, and Side buttons inside the widget SHALL move the camera to those views, animating unless the system reduces motion, and double-clicking SHALL reset it. The camera MUST NOT be saved with the dashboard.
-
-#### Scenario: Top view
-
-- **WHEN** the user presses Top
-- **THEN** the robot is shown from directly above, with its front pointing up
+In 3D, the robot widget SHALL use a camera without perspective, starting from the robot's front right, a little above it. Dragging MUST orbit around the robot, including below the floor, right-dragging MUST pan, and scrolling or pinching MUST zoom, from 4× farther out to 16× closer than the default view. A Reset view button beside the View control and double-clicking SHALL reset the camera, animating unless the system reduces motion. The camera MUST NOT be saved with the dashboard.
 
 #### Scenario: Pan with the right mouse button
 
@@ -99,6 +103,20 @@ In 3D, the robot widget SHALL use a camera without perspective, starting from th
 - **GIVEN** the user has orbited the camera
 - **WHEN** the user double-clicks the widget
 - **THEN** the camera goes back to the robot's front right
+
+### Requirement: View cube
+
+In 3D, the robot widget SHALL show a view cube in its top-right corner, like Onshape's, that turns with the camera and labels the robot's Front, Back, Left, Right, Top, and Bottom, with thin lines between each face's center and its edges and corners. Clicking a face, edge, or corner MUST turn the camera to look from that direction, keeping its zoom and what it's centered on, animating unless the system reduces motion.
+
+#### Scenario: Top view
+
+- **WHEN** the user clicks the view cube's Top face
+- **THEN** the robot is shown from directly above, with its front pointing down like Onshape's top view
+
+#### Scenario: Corner
+
+- **WHEN** the user clicks the view cube's corner between Front, Left, and Top
+- **THEN** the robot is shown from its front left, above it
 
 ### Requirement: 3D keyboard controls
 

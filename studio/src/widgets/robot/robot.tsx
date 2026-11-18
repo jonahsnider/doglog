@@ -1,4 +1,4 @@
-import { BoxesIcon, DatabaseIcon, ListPlusIcon, SplineIcon } from 'lucide-react';
+import { BoxesIcon, DatabaseIcon, HouseIcon, ListPlusIcon, SplineIcon } from 'lucide-react';
 import { useMemo, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
@@ -7,7 +7,7 @@ import { type Entry, useDataVersion, useEntries } from '@/data/data-store';
 import { useSource } from '@/data/source';
 import { type Mechanism, mechanismLayout, readMechanism } from '@/data/mechanism';
 import { Mechanism3d } from '@/three/mechanism-3d';
-import { type CameraView, Scene3d, type Scene3dHandle } from '@/three/scene';
+import { Scene3d, type Scene3dHandle } from '@/three/scene';
 import { SwerveRobot } from '@/three/swerve-robot';
 import { useCursorTime } from '@/timeline/timeline';
 import { Legend, type LegendItem } from '@/widgets/legend/legend';
@@ -17,13 +17,6 @@ import { WidgetEmpty } from '@/widgets/widget-empty';
 import type { WidgetBinding, WidgetProps } from '@/widgets/widget-type';
 
 type View = '2d' | '3d';
-
-const cameraViews: readonly { view: CameraView; label: string }[] = [
-	{ view: 'reset', label: 'Reset' },
-	{ view: 'top', label: 'Top' },
-	{ view: 'front', label: 'Front' },
-	{ view: 'side', label: 'Side' },
-];
 
 /** The mechanisms of the bound entries at the cursor, `undefined` for ones without a value */
 function useMechanisms(bindings: readonly WidgetBinding[]): ReadonlyMap<string, Mechanism | undefined> {
@@ -126,40 +119,42 @@ export function Robot({ bindings, options, setOption }: WidgetProps) {
 	const mechanism2d = shown2d && mechanisms.get(shown2d.name);
 
 	return (
-		<div className="flex h-full flex-col gap-2 p-2">
-			{legend.length > 0 && (
-				<div className="max-h-[33%] shrink-0 overflow-y-auto">
-					<Legend items={legend} />
-				</div>
-			)}
-			<div className="flex min-h-0 min-w-0 flex-1 items-center justify-center [container-type:size]">
-				{view === '3d' ? (
-					<Scene3d ref={scene} label="Robot">
-						<SwerveRobot />
-						{bindings.map((binding) => {
-							const mechanism = binding.hidden ? undefined : mechanisms.get(binding.name);
-							return mechanism ? (
-								<Mechanism3d key={binding.id} mechanism={mechanism} plane={mechanismPlane(binding)} />
-							) : null;
-						})}
-					</Scene3d>
-				) : mechanism2d ? (
-					<MechanismCanvas mechanism={mechanism2d} />
-				) : (
-					<Empty2d mechanism={shown2d} />
-				)}
-			</div>
-			<div className="flex shrink-0 items-center justify-between gap-2">
-				<ViewToggle view={view} onChange={(next) => setOption('view', next)} />
-				{view === '3d' && (
-					<div className="flex gap-1">
-						{cameraViews.map(({ view: cameraView, label }) => (
-							<Button key={cameraView} variant="ghost" size="xs" onClick={() => scene.current?.setView(cameraView)}>
-								{label}
-							</Button>
-						))}
+		// The legend goes above the robot, unless the widget is wide enough to fit it beside the robot
+		<div className="h-full p-2 [container-type:size]">
+			<div className="flex h-full flex-col gap-2 [@container(min-aspect-ratio:1.5)]:flex-row">
+				{legend.length > 0 && (
+					<div className="max-h-[33%] shrink-0 overflow-y-auto [@container(min-aspect-ratio:1.5)]:max-h-none [@container(min-aspect-ratio:1.5)]:max-w-[33%]">
+						<Legend items={legend} vertical />
 					</div>
 				)}
+				<div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
+					<div className="flex min-h-0 min-w-0 flex-1 items-center justify-center [container-type:size]">
+						{view === '3d' ? (
+							<Scene3d ref={scene} label="Robot">
+								<SwerveRobot />
+								{bindings.map((binding) => {
+									const mechanism = binding.hidden ? undefined : mechanisms.get(binding.name);
+									return mechanism ? (
+										<Mechanism3d key={binding.id} mechanism={mechanism} plane={mechanismPlane(binding)} />
+									) : null;
+								})}
+							</Scene3d>
+						) : mechanism2d ? (
+							<MechanismCanvas mechanism={mechanism2d} />
+						) : (
+							<Empty2d mechanism={shown2d} />
+						)}
+					</div>
+					<div className="flex shrink-0 items-center justify-between gap-2">
+						<ViewToggle view={view} onChange={(next) => setOption('view', next)} />
+						{view === '3d' && (
+							<Button variant="ghost" size="xs" onClick={() => scene.current?.reset()}>
+								<HouseIcon />
+								Reset view
+							</Button>
+						)}
+					</div>
+				</div>
 			</div>
 		</div>
 	);

@@ -1,16 +1,16 @@
+import { OrbitControls } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { type AnimationPlaybackControls, animate } from 'motion/react';
 import { type Ref, useEffect, useImperativeHandle, useRef } from 'react';
 import { Vector3 } from 'three';
 import { easing, useMotionTransition } from '@/lib/motion';
 
-export type CameraView = 'reset' | 'top' | 'front' | 'side';
-
-/** Moves the camera of a `Scene3d` */
-export type Scene3dHandle = { setView: (view: CameraView) => void };
-
 /** Moves the camera of the scene it's in, see `CameraRig` */
-export type Rig = Scene3dHandle & {
+export type Rig = {
+	/** Go back to the default view, framing the robot from its front right */
+	reset: () => void;
+	/** Look at what the camera orbits around from a direction, ex. +Z for a top view, keeping the zoom */
+	lookFrom: (direction: Vector3) => void;
 	/** Orbit by radians, counterclockwise around the robot and up */
 	orbit: (azimuth: number, elevation: number) => void;
 	zoom: (factor: number) => void;
@@ -20,15 +20,8 @@ export type Rig = Scene3dHandle & {
 	stop: () => void;
 };
 
-/** Directions to look from, as radians counterclockwise from the robot's front and above the floor */
-const views: Record<CameraView, { azimuth: number; elevation: number }> = {
-	// The robot's front right, a little above it
-	reset: { azimuth: -1.05, elevation: 0.72 },
-	// From behind, so the robot's front is up on screen. Not quite overhead, which has no "up".
-	top: { azimuth: Math.PI, elevation: Math.PI / 2 - 1e-4 },
-	front: { azimuth: 0, elevation: 0 },
-	side: { azimuth: -Math.PI / 2, elevation: 0 },
-};
+/** The default view's direction, as radians counterclockwise from the robot's front and above the floor: its front right, a little above it */
+const resetView = { azimuth: -1.05, elevation: 0.72 };
 
 /** What the camera looks at, a little above the floor where most of a robot is */
 const center = new Vector3(0, 0, 0.3);
@@ -47,9 +40,25 @@ function isControls(value: unknown): value is Controls {
 	return typeof value === 'object' && value !== null && 'target' in value && 'update' in value;
 }
 
+/** How far the camera can zoom out and in, relative to the default view */
+const zoomOut = 4;
+const zoomIn = 16;
+
+/** The camera's zoom limits in a canvas of `size`, in pixels per meter */
+function zoomLimits(size: { width: number; height: number }): { minZoom: number; maxZoom: number } {
+	const fit = Math.min(size.width, size.height) / framedMeters;
+	return { minZoom: fit / zoomOut, maxZoom: fit * zoomIn };
+}
+
 /** The angle from `from` to `to` the short way around */
 function turn(from: number, to: number): number {
 	return ((((to - from + Math.PI) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) - Math.PI;
+}
+
+/** Orbit controls the camera rig moves, which can't zoom too far out or in for the canvas's size */
+export function CameraControls() {
+	const size = useThree((state) => state.size);
+	return <OrbitControls makeDefault enableDamping={false} {...zoomLimits(size)} />;
 }
 
 /** Moves the camera around the robot, and to views of it. Render it inside the scene's canvas. */
@@ -95,14 +104,13 @@ export function CameraRig({ ref }: { ref: Ref<Rig> }) {
 		moving.current = undefined;
 	};
 
-	const orbitOf = (view: CameraView): Orbit => {
+	const resetOrbit = (): Orbit => {
 		const { size } = get();
-		return { target: center.clone(), ...views[view], zoom: Math.min(size.width, size.height) / framedMeters };
+		return { target: center.clone(), ...resetView, zoom: Math.min(size.width, size.height) / framedMeters };
 	};
 
-	const setView = (view: CameraView) => {
+	const animateTo = (to: Orbit) => {
 		stop();
-		const to = orbitOf(view);
 		const from = current();
 		const azimuth = turn(from.azimuth, to.azimuth);
 		moving.current = animate(0, 1, {
@@ -119,19 +127,30 @@ export function CameraRig({ ref }: { ref: Ref<Rig> }) {
 	};
 
 	useImperativeHandle(ref, () => ({
-		setView,
+		reset: () => animateTo(resetOrbit()),
+		lookFrom: (direction) => {
+			const horizontal = Math.hypot(direction.x, direction.y);
+			animateTo({
+				...current(),
+				// Straight above or below has no direction. Like Onshape, the top view has the robot's front down on screen
+				// and the bottom view has it up.
+				azimuth: horizontal < 1e-6 ? (direction.z > 0 ? 0 : Math.PI) : Math.atan2(direction.y, direction.x),
+				elevation: Math.max(-maxElevation, Math.min(maxElevation, Math.atan2(direction.z, horizontal))),
+			});
+		},
 		stop,
 		orbit: (azimuth, elevation) => {
 			const orbit = current();
 			place({
 				...orbit,
 				azimuth: orbit.azimuth + azimuth,
-				elevation: Math.min(maxElevation, Math.max(0, orbit.elevation + elevation)),
+				elevation: Math.min(maxElevation, Math.max(-maxElevation, orbit.elevation + elevation)),
 			});
 		},
 		zoom: (factor) => {
 			const orbit = current();
-			place({ ...orbit, zoom: orbit.zoom * factor });
+			const { minZoom, maxZoom } = zoomLimits(get().size);
+			place({ ...orbit, zoom: Math.min(maxZoom, Math.max(minZoom, orbit.zoom * factor)) });
 		},
 		pan: (right, up) => {
 			const { camera } = get();
@@ -150,10 +169,24 @@ export function CameraRig({ ref }: { ref: Ref<Rig> }) {
 	useEffect(() => {
 		if (controls && !framed.current) {
 			framed.current = true;
-			place(orbitOf('reset'));
+			place(resetOrbit());
 		}
 	});
 	useEffect(() => () => moving.current?.stop(), []);
+
+	// Keep showing the same part of the scene when the widget is resized
+	const size = useThree((state) => state.size);
+	const lastSize = useRef<number>(undefined);
+	useEffect(() => {
+		const shortest = Math.min(size.width, size.height);
+		if (lastSize.current !== undefined && lastSize.current > 0 && shortest > 0) {
+			const { camera, invalidate } = get();
+			camera.zoom *= shortest / lastSize.current;
+			camera.updateProjectionMatrix();
+			invalidate();
+		}
+		lastSize.current = shortest;
+	}, [size, get]);
 
 	return null;
 }

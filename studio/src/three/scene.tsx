@@ -1,14 +1,12 @@
 // A 3D scene in WPILib's robot coordinates (meters, +X forward, +Y left, +Z up), viewed like Team 581's Spot viewer:
-// an orthographic camera orbiting the robot, kept above the floor, with a light on the camera.
-import { OrbitControls } from '@react-three/drei';
+// an orthographic camera orbiting the robot, with a light on the camera.
 import { Canvas, type RootState, useFrame } from '@react-three/fiber';
 import { type KeyboardEvent, type ReactNode, type Ref, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { type DirectionalLight, Vector3 } from 'three';
 import { cn } from '@/lib/utils';
-import { CameraRig, cameraDistance, type Rig, type Scene3dHandle } from '@/three/camera';
+import { CameraControls, CameraRig, cameraDistance, type Rig } from '@/three/camera';
 import { useThemeColor } from '@/three/theme';
-
-export type { CameraView, Scene3dHandle } from '@/three/camera';
+import { ViewCube } from '@/three/view-cube';
 
 const gridSize = 2.4;
 const gridDivisions = 6;
@@ -68,12 +66,17 @@ function dragOf(event: PointerEvent): 'orbit' | 'pan' | undefined {
 }
 
 /**
- * A 3D scene that fills its parent, drawn over the pane's background. Drag to orbit, right-drag to pan, scroll to zoom,
- * double-click to reset, and while it's focused hold the arrow keys to orbit, W and S to zoom, and A, D, Q, and E to pan.
+ * A 3D scene that fills its parent, drawn over the pane's background, with a view cube to look from set directions.
+ * Drag to orbit, right-drag to pan, scroll to zoom, and double-click to reset. While it's
+ * focused, hold the arrow keys to orbit, W and S to zoom, and A, D, Q, and E to pan.
  */
+/** Moves the camera of a `Scene3d` from outside it, ex. a reset button in the widget's toolbar */
+export type Scene3dHandle = { reset: () => void };
+
 export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; label: string; children: ReactNode }) {
 	const rig = useRef<Rig>(null);
-	useImperativeHandle(ref, () => ({ setView: (view) => rig.current?.setView(view) }));
+	useImperativeHandle(ref, () => ({ reset: () => rig.current?.reset() }));
+	const [cubeHovered, setCubeHovered] = useState(false);
 
 	const labels = useRef<(HTMLSpanElement | null)[]>([]);
 	/** Moves the floor labels, which are drawn over the canvas, to where their positions are on screen */
@@ -139,6 +142,7 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 				keyboardFocus && 'ring-2 ring-ring',
 				drag === 'orbit' && 'cursor-grabbing',
 				drag === 'pan' && 'cursor-move',
+				drag === undefined && cubeHovered && 'cursor-pointer',
 			)}
 			onPointerDown={(event) => {
 				pointerFocus.current = true;
@@ -161,7 +165,7 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 				held.current.clear();
 				setKeyboardFocus(false);
 			}}
-			onDoubleClick={() => rig.current?.setView('reset')}
+			onDoubleClick={() => rig.current?.reset()}
 			// Right-dragging pans, so it doesn't open the widget's menu
 			onContextMenu={(event) => {
 				event.preventDefault();
@@ -169,13 +173,14 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 			}}
 		>
 			<Canvas orthographic frameloop="demand" camera={{ up: [0, 0, 1], near: 0.1, far: cameraDistance * 4 }}>
-				<OrbitControls makeDefault enableDamping={false} minPolarAngle={0} maxPolarAngle={Math.PI / 2} />
+				<CameraControls />
 				<CameraRig ref={rig} />
 				<ambientLight intensity={1.5} />
 				<Headlight />
 				<Floor />
 				<OnFrame callback={positionLabels} />
 				{children}
+				<ViewCube onLookFrom={(direction) => rig.current?.lookFrom(direction)} onHoverChange={setCubeHovered} />
 			</Canvas>
 			{floorLabels.map(({ text }, index) => (
 				<span

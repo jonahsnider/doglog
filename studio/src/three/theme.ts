@@ -17,7 +17,9 @@ function resolveColor(css: string): string {
 	if (!probe) {
 		return '#808080';
 	}
-	probe.clearRect(0, 0, 1, 1);
+	// Translucent colors are blended over the page's background, like they'd be drawn
+	probe.fillStyle = getComputedStyle(document.body).backgroundColor;
+	probe.fillRect(0, 0, 1, 1);
 	probe.fillStyle = computed;
 	probe.fillRect(0, 0, 1, 1);
 	const [red = 0, green = 0, blue = 0] = probe.getImageData(0, 0, 1, 1).data;
