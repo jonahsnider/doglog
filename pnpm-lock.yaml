@@ -275,11 +275,11 @@ importers:
         specifier: 2.14.1
         version: 2.14.1
       '@ui-sdk/core':
-        specifier: 0.1.0-beta.6
-        version: 0.1.0-beta.6
+        specifier: 0.1.0-beta.7
+        version: 0.1.0-beta.7
       '@ui-sdk/react':
         specifier: 0.1.0-beta.7
-        version: 0.1.0-beta.7(@types/react@19.3.0)(@ui-sdk/core@0.1.0-beta.6)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        version: 0.1.0-beta.7(@types/react@19.3.0)(@ui-sdk/core@0.1.0-beta.7)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       class-variance-authority:
         specifier: 0.7.1
         version: 0.7.1
@@ -4035,8 +4035,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@ui-sdk/core@0.1.0-beta.6':
-    resolution: {integrity: sha512-4JDArOSaTDRArUs+XXojXVNS1kf1D/aOMan6GIp8J9+cwAdijCypbClApS2jBc4SxgZbJCIDHsMlFOIPyEv8+g==}
+  '@ui-sdk/core@0.1.0-beta.7':
+    resolution: {integrity: sha512-f6Dotk5kwwiH2BRT6THRrn/Lv7eoG6Y+TWboCl9rQ4fHw4h3OliOSHF4kl4PzJEgaLyWSQFczRMvGm+YCpn77Q==}
 
   '@ui-sdk/react@0.1.0-beta.7':
     resolution: {integrity: sha512-zC+0EvV4wj0VpowK56yqGJqZzKa4PbHogTlmsnzbsl19FTRovhLstuJEN2/RCUZwC/vpkDvTGOmFAych+wD5NA==}
@@ -10510,11 +10510,11 @@ snapshots:
   '@typescript/typescript-win32-x64@7.1.0-dev.20261117.1':
     optional: true
 
-  '@ui-sdk/core@0.1.0-beta.6': {}
+  '@ui-sdk/core@0.1.0-beta.7': {}
 
-  '@ui-sdk/react@0.1.0-beta.7(@types/react@19.3.0)(@ui-sdk/core@0.1.0-beta.6)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@ui-sdk/react@0.1.0-beta.7(@types/react@19.3.0)(@ui-sdk/core@0.1.0-beta.7)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
-      '@ui-sdk/core': 0.1.0-beta.6
+      '@ui-sdk/core': 0.1.0-beta.7
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
     optionalDependencies:
