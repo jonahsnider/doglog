@@ -9,7 +9,7 @@ mod sync;
 mod window_state;
 
 use std::{ops::ControlFlow, path::PathBuf, process::ExitCode, sync::Mutex};
-use tauri::{AppHandle, Emitter, Manager, RunEvent, State, WindowEvent, ipc::Response};
+use tauri::{AppHandle, Emitter, Manager, RunEvent, State, WindowEvent, ipc::Response, window::Effect};
 
 /// The last log the OS asked Studio to open, until the frontend takes it
 #[derive(Default)]
@@ -49,7 +49,31 @@ fn handle_run_event(app: &AppHandle, event: RunEvent) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() -> ExitCode {
-    let context = tauri::generate_context!();
+    let mut context = tauri::generate_context!();
+
+    #[cfg(target_os = "macos")]
+    let effects = vec![Effect::LiquidGlassRegular, Effect::Sidebar];
+    #[cfg(windows)]
+    // Windows 11 22H2 introduced system backdrops. Legacy Acrylic can lag when moving or resizing.
+    let effects = if windows_version::OsVersion::current().build >= 22621 {
+        vec![Effect::Acrylic]
+    } else {
+        Vec::new()
+    };
+    #[cfg(not(any(target_os = "macos", windows)))]
+    let effects: Vec<Effect> = Vec::new();
+
+    let frosted_frame = !effects.is_empty();
+    if frosted_frame {
+        // The opaque webview panes cover the native material, leaving it visible through the frame.
+        for window in &mut context.config_mut().app.windows {
+            window.transparent = true;
+            window.window_effects = Some(tauri::utils::config::WindowEffectsConfig {
+                effects: effects.clone(),
+                ..Default::default()
+            });
+        }
+    }
     // Reports panics from release builds, the frontend reports its own errors
     let _sentry = (!cfg!(debug_assertions)).then(|| {
         // Sentry's HTTP client needs a TLS provider, the same one the updater installs
@@ -72,6 +96,11 @@ pub fn run() -> ExitCode {
     };
 
     let builder = tauri::Builder::default();
+    let builder = if frosted_frame {
+        builder.append_invoke_initialization_script("\nwindow.__DOGLOG_FROSTED_FRAME__ = true;")
+    } else {
+        builder
+    };
     // Lets agents inspect and drive the app with the Tauri MCP server, only on this computer
     #[cfg(debug_assertions)]
     let builder = builder.plugin(

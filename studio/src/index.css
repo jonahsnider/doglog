@@ -510,6 +510,22 @@
 	}
 }
 
+/* The native backdrop is behind the webview. */
+[data-frosted-frame] body {
+	background-color: transparent;
+}
+[data-frosted-frame] .bg-frame {
+	background-color: color-mix(in srgb, var(--frame) 75%, transparent);
+}
+
+/* Older webviews don't report reduced transparency; their native backdrop handles it. */
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+	[data-frosted-frame] body,
+	[data-frosted-frame] .bg-frame {
+		background-color: revert-layer;
+	}
+}
+
 /*
  * MD3 colors for coss ui components, set by the slots they render so the components stay as they are upstream.
  * Utilities with the same specificity as the ones they replace, coming after them so they win, while more specific

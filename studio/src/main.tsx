@@ -31,6 +31,9 @@ syncMediaSession();
 startSharing();
 handleLogFileDrops();
 if (isTauri()) {
+	if ('__DOGLOG_FROSTED_FRAME__' in window) {
+		document.documentElement.dataset['frostedFrame'] = '';
+	}
 	void handleOpenedLogFiles();
 	void runLogSync();
 } else {

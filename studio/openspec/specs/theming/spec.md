@@ -37,6 +37,21 @@ The theme SHALL have both light and dark variants derived from the same color sc
 - **THEN** every surface, text, and widget color switches to the light variant
 - **AND** status colors remain distinguishable
 
+### Requirement: Window frame backdrop
+
+Studio SHALL tint a native backdrop with the theme's frame color on macOS (Liquid Glass on macOS 26 and later, sidebar vibrancy on macOS 15) and Windows 11 22H2 and later (Desktop Acrylic). Only gaps and outer edges SHALL reveal the backdrop; panes, sidebars, and the timeline SHALL stay opaque. Studio SHALL use a solid frame when a native backdrop is unavailable or the system requests reduced transparency or forced colors.
+
+#### Scenario: Native backdrop is available
+
+- **GIVEN** Studio is running on macOS or Windows 11 22H2 or later with transparency enabled
+- **WHEN** the user views a dashboard
+- **THEN** the native backdrop is visible between panes and at their outer edges, not through the content surfaces
+
+#### Scenario: Native backdrop is unavailable or disabled
+
+- **WHEN** Studio runs without a supported native backdrop or the system disables transparency
+- **THEN** the frame is solid in the current theme
+
 ### Requirement: Status colors
 
 The theme SHALL provide success, info, warning, and test mode status colors, each with a lighter fill for icons and backgrounds and a text color readable on surfaces. Unless the Neutral preset is selected, they MUST be generated from fixed hues the way MD3 custom colors are: success, info, and test mode are nudged toward the theme color's hue, while warning keeps its amber hue so it never looks like the error color.
