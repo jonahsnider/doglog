@@ -25,6 +25,7 @@ import { Kbd } from '@/components/ui/kbd';
 import { Spinner } from '@/components/ui/spinner';
 import { shortcuts, useShortcutHint } from '@/commands/commands';
 import { cn } from '@/lib/utils';
+import { useTitleBarStrip } from '@/desktop/title-bar';
 import { sidebarCollapsedStore } from '@/sidebar/sidebar';
 import { TitleBar } from '@/sidebar/title-bar';
 import { installUpdate, updateTitle, useUpdate } from '@/updater';
@@ -61,6 +62,7 @@ export function AppSidebar() {
 	const sidebarRef = useRef<HTMLDivElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const iconOnly = collapsed && !peeking;
+	const strip = useTitleBarStrip();
 
 	const toggle = (animate: boolean) => {
 		clearTimeout(showTimer.current);
@@ -134,7 +136,9 @@ export function AppSidebar() {
 					collapsible="none"
 					data-collapsible={iconOnly ? 'icon' : undefined}
 					className={cn(
-						'group absolute inset-y-0 start-0 z-20 overflow-hidden transition-[width,box-shadow] duration-200 motion-reduce:transition-none',
+						'group absolute start-0 bottom-0 z-20 overflow-hidden transition-[width,box-shadow] duration-200 motion-reduce:transition-none',
+						// Below the title bar's strip, like the main area
+						strip ? 'top-9' : 'top-0',
 						// Rounded where it meets the rest of the app, and flush with the window's edges
 						'rounded-e-lg',
 						iconOnly && 'w-(--sidebar-width-icon)',
@@ -153,8 +157,8 @@ export function AppSidebar() {
 					{/* Like sliding panes, the content keeps the width it ends at and is clipped, so it isn't laid out again every frame while the sidebar's width animates */}
 					<div className="flex h-full w-(--sidebar-width) shrink-0 flex-col contain-strict group-data-[collapsible=icon]:w-(--sidebar-width-icon)">
 						<SidebarHeader
-							// Leaves room for the title bar
-							className="pt-10.5"
+							// Leaves room for the title bar, which is above the sidebar when it has its own strip
+							className={strip ? undefined : 'pt-10.5'}
 							// Tints the top of the sidebar, see `index.css`
 							data-window-color={windowColor}
 						>

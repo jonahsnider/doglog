@@ -8,7 +8,7 @@ import { goInHistory, type HistoryStep, useCanGoInHistory } from '@/commands/his
 import { TooltipLabel } from '@/components/tooltip-label';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
-import { dragRegion, useTrafficLights } from '@/desktop/title-bar';
+import { dragRegion, useTitleBarStrip, useTrafficLights } from '@/desktop/title-bar';
 import { cn } from '@/lib/utils';
 
 function TitleBarButton({
@@ -46,6 +46,7 @@ function HistoryButton({ step }: { step: HistoryStep }) {
 /**
  * The sidebar toggle at the top of the sidebar, beside the macOS traffic lights, then the app's name and Back and Forward when there's room.
  * It's kept outside the sidebar so the toggle isn't clipped by the collapsed rail, since the traffic lights are wider than it.
+ * Then it spans the window in a strip above the rail and the main area, see `useTitleBarStrip()`.
  */
 export function TitleBar({
 	collapsed,
@@ -58,6 +59,7 @@ export function TitleBar({
 	onToggle: () => void;
 }) {
 	const trafficLights = useTrafficLights();
+	const strip = useTitleBarStrip();
 	const label = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
 	return (
 		<div
@@ -65,9 +67,9 @@ export function TitleBar({
 			className={cn(
 				// The top padding lines the buttons up with the pane headers, which are below the dashboard's gap, and keeps the window draggable from its top edge
 				'absolute start-0 top-0 z-30 flex h-10.5 items-center gap-0.5 pt-1.5 pe-2',
-				// The toggle lines up with the rail's icons, `--title-bar-overlap` in `index.css` depends on this layout
+				// The toggle lines up with the rail's icons, unless it's after the traffic lights
 				trafficLights ? 'ps-22.25' : 'ps-3',
-				iconOnly ? 'w-full' : 'w-(--sidebar-width)',
+				strip ? 'w-screen' : iconOnly ? 'w-full' : 'w-(--sidebar-width)',
 			)}
 		>
 			<TitleBarButton
@@ -79,9 +81,9 @@ export function TitleBar({
 			>
 				<PanelLeftIcon />
 			</TitleBarButton>
-			{!iconOnly && (
+			{(!iconOnly || strip) && (
 				// The margin makes it as far from the icons as they are from each other, since they have padding around them
-				// The sidebar is wide enough for it beside the traffic lights and buttons
+				// The sidebar and the strip are wide enough for it beside the traffic lights and buttons
 				<span className="mx-1.5 min-w-0 truncate font-heading text-sm font-semibold">DogLog Studio</span>
 			)}
 			{trafficLights && (

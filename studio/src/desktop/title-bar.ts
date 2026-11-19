@@ -25,8 +25,8 @@ export function useTrafficLights(): boolean {
 	return overlayTitleBar && !fullscreen;
 }
 
-/** Whether the traffic lights and the buttons after them overlap the top left of the main area, they're wider than the collapsed sidebar */
-export function useTrafficLightsOverlap(): boolean {
+/** Whether the traffic lights and the buttons after them get a strip across the top of the window, since they're wider than the collapsed sidebar */
+export function useTitleBarStrip(): boolean {
 	const sidebarCollapsed = useSelector(sidebarCollapsedStore);
 	return useTrafficLights() && sidebarCollapsed;
 }

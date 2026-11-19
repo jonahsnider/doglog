@@ -63,7 +63,6 @@ export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 				minPaneSizes={minPaneSizes}
 				node={layout}
 				root
-				topLeft
 			/>
 		</div>
 	);
@@ -279,7 +278,7 @@ function SplitView({
 						}
 					}}
 				>
-					<PaneNodeView {...props} minPaneSizes={minPaneSizes} topLeft={index === 0 && props.topLeft} node={child} />
+					<PaneNodeView {...props} minPaneSizes={minPaneSizes} node={child} />
 				</SplitPanel>,
 			])}
 		</Group>

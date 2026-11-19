@@ -5,8 +5,7 @@ import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui
 import { Frame, FrameHeader, FramePanel, FrameTitle } from '@/components/ui/frame';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { dragRegion, useTrafficLights } from '@/desktop/title-bar';
-import { cn } from '@/lib/utils';
+import { dragRegion } from '@/desktop/title-bar';
 import { getRobotHost } from '@/robot-target';
 import { useAnonymousName } from '@/sharing/identity';
 import { reportsNaturalScrolling, updateSettings, useSettings } from '@/settings';
@@ -21,19 +20,14 @@ function Settings() {
 	const anonymousName = useAnonymousName();
 	const robotHost = getRobotHost(robotTarget);
 	const robotTargetInvalid = robotTarget.trim() !== '' && robotHost === undefined;
-	const trafficLights = useTrafficLights();
 
 	return (
 		<div className="flex flex-1 flex-col overflow-y-auto">
 			<div className="flex max-w-2xl grow flex-col gap-6 p-6">
-				{/* Reaches the top of the window, where the title bar would be, and goes below the title bar's buttons, even when the sidebar is expanded so it doesn't move when it's toggled */}
-				{/* Sticks so the page doesn't scroll under those buttons, its bottom padding replaces some of the gap so there's room between it and the content scrolling under it */}
+				{/* Reaches the top of the page and sticks there, its bottom padding replaces some of the gap so there's room between it and the content scrolling under it */}
 				<h1
 					{...dragRegion}
-					className={cn(
-						'sticky top-0 z-10 -mt-6 -mb-3 bg-background pt-6 pb-3 font-heading text-2xl font-semibold',
-						trafficLights && 'pt-11',
-					)}
+					className="sticky top-0 z-10 -mt-6 -mb-3 bg-background pt-6 pb-3 font-heading text-2xl font-semibold"
 				>
 					Settings
 				</h1>

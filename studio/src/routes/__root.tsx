@@ -8,6 +8,7 @@ import { LogDropOverlay } from '@/components/log-drop-overlay';
 import { SidebarInset } from '@/components/ui/sidebar';
 import { ToastProvider } from '@/components/ui/toast';
 import { cn } from '@/lib/utils';
+import { useTitleBarStrip } from '@/desktop/title-bar';
 
 export const Route = createRootRoute({
 	component: RootLayout,
@@ -18,6 +19,7 @@ function RootLayout() {
 	const matchRoute = useMatchRoute();
 	// Dashboards lay out their own panes, entry browser, and timeline on the frame, other pages are one container
 	const dashboard = Boolean(matchRoute({ to: '/dashboards/$dashboardId' }));
+	const strip = useTitleBarStrip();
 
 	return (
 		<ToastProvider>
@@ -25,7 +27,14 @@ function RootLayout() {
 			<DragProvider>
 				<div className="group/app flex h-svh bg-frame">
 					<AppSidebar />
-					<SidebarInset className={cn('relative overflow-hidden', dashboard ? 'bg-transparent' : 'm-1.5 rounded-lg')}>
+					<SidebarInset
+						className={cn(
+							'relative overflow-hidden',
+							dashboard ? 'bg-transparent' : 'm-1.5 rounded-lg',
+							// Below the title bar's strip, keeping the gap pages have around them
+							strip && (dashboard ? 'mt-9' : 'mt-10.5'),
+						)}
+					>
 						<Outlet />
 						<DashboardSplitZones />
 					</SidebarInset>

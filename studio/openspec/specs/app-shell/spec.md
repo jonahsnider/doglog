@@ -175,7 +175,7 @@ Like a browser, Back and Forward SHALL move through the pages the user visited i
 
 ### Requirement: macOS title bar
 
-The macOS desktop app SHALL draw the window controls over the top of the sidebar instead of showing a title bar, so the main area reaches the top of the window. The sidebar toggle MUST be shown beside the window controls, along with Back and Forward buttons, and the top of the sidebar MUST be draggable like a title bar. The expanded sidebar MUST be wide enough to show the app's name between the toggle and Back.
+The macOS desktop app SHALL draw the window controls over the top of the sidebar instead of showing a title bar. The sidebar toggle MUST be shown beside the window controls, along with Back and Forward buttons, and the top of the sidebar MUST be draggable like a title bar. The expanded sidebar MUST be wide enough to show the app's name between the toggle and Back. While the sidebar is collapsed, they MUST be in a strip across the top of the window, since they're wider than the rail.
 
 #### Scenario: Sidebar expanded
 
@@ -187,20 +187,14 @@ The macOS desktop app SHALL draw the window controls over the top of the sidebar
 
 - **GIVEN** the user is using the desktop app on macOS
 - **WHEN** the user collapses the sidebar
-- **THEN** the sidebar toggle, Back, and Forward buttons stay beside the window controls
-- **AND** the top left pane's header makes room for the window controls and the buttons, which are wider than the rail
-
-#### Scenario: Page titles
-
-- **GIVEN** the user is using the desktop app on macOS
-- **WHEN** the user toggles the sidebar on a page like Logs or Settings
-- **THEN** the page title stays below the window controls and doesn't move
+- **THEN** the window controls, the sidebar toggle, the app's name, Back, and Forward are shown in a strip across the top of the window
+- **AND** the rail and the main area start below the strip
 
 #### Scenario: Fullscreen
 
 - **GIVEN** the user is using the desktop app on macOS
 - **WHEN** the window is fullscreen
-- **THEN** the space for the window controls is removed
+- **THEN** the space for the window controls is removed, including the strip while the sidebar is collapsed
 
 ### Requirement: Context menus
 

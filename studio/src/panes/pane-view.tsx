@@ -29,7 +29,6 @@ import {
 import { cn } from '@/lib/utils';
 import { usePaneDrag } from '@/panes/drag';
 import { canSplitPane, type Pane, type PaneNode, setPaneWidget, type SplitDirection } from '@/panes/layout';
-import { useTrafficLightsOverlap } from '@/desktop/title-bar';
 import { getWidgetType, widgetTypes } from '@/widgets/registry';
 import { PanePresence } from '@/sharing/presence-avatars';
 import { initialOptions, optionValues } from '@/widgets/options';
@@ -43,8 +42,6 @@ export type PaneNodeProps = {
 	zoomedPaneId: string | undefined;
 	/** The pane zooming in, which fills the dashboard beneath the others as they slide away, see `useZoomAnimation()` */
 	zoomFillingPaneId: string | undefined;
-	/** Whether the node is in the top left corner of the dashboard, under the traffic lights and the buttons after them when the sidebar is collapsed */
-	topLeft: boolean;
 };
 
 // Widgets mark the elements that show a binding, ex. a table row
@@ -57,11 +54,9 @@ export function PaneView({
 	focusedPaneId,
 	zoomedPaneId,
 	zoomFillingPaneId,
-	topLeft,
 	pane,
 	closable,
 }: PaneNodeProps & { pane: Pane; closable: boolean }) {
-	const trafficLightsOverlap = useTrafficLightsOverlap();
 	const update = (operation: (layout: PaneNode) => PaneNode) => updateLayout(dashboardId, operation);
 	const { widget } = pane;
 	const type = widget && getWidgetType(widget.type);
@@ -87,8 +82,6 @@ export function PaneView({
 	const close = () => closeDashboardPane(dashboardId, pane.id);
 	const focused = pane.id === focusedPaneId;
 	const zoomed = pane.id === zoomedPaneId;
-	// The header makes room for the traffic lights and the buttons after them, see `TitleBar`
-	const underTrafficLights = trafficLightsOverlap && (topLeft || zoomed);
 	const zoom = () => toggleZoom(dashboardId, pane.id);
 
 	const editing = useEditingPane(dashboardId, pane.id);
@@ -225,7 +218,6 @@ export function PaneView({
 			<div
 				className={cn(
 					'flex h-9 shrink-0 items-center gap-0.5 px-2 transition-colors',
-					underTrafficLights && 'ps-[calc(var(--title-bar-overlap)+--spacing(1.5))]',
 					// Marks the widget whose entries the entry browser is editing
 					editing && 'bg-primary/12',
 				)}
