@@ -19,6 +19,7 @@ import { type DashboardDragData, dashboardDragType, dashboardSensors } from '@/d
 import { dashboardName, mainWidgetType, suggestDashboardName } from '@/dashboards/label';
 import { type Dashboard, deleteDashboard, deleteDashboards, renameDashboard } from '@/dashboards/dashboards';
 import type { DashboardSelection } from '@/sidebar/selection';
+import { isEnterKey } from '@/lib/keyboard';
 import { cn } from '@/lib/utils';
 import { DashboardPresence } from '@/sharing/presence-avatars';
 
@@ -108,7 +109,7 @@ function RenameInput({
 					onDone();
 				}}
 				onKeyDown={(event) => {
-					if (event.key === 'Enter') {
+					if (isEnterKey(event)) {
 						event.currentTarget.blur();
 					} else if (event.key === 'Escape') {
 						event.currentTarget.value = initialName;

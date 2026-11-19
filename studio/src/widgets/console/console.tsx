@@ -14,6 +14,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/
 import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control';
 import { Toggle } from '@/components/ui/toggle';
+import { isEnterKey } from '@/lib/keyboard';
 import { cn } from '@/lib/utils';
 import { useDataVersion, useTimeRange } from '@/data/data-store';
 import { formatTime, seek, stopFollowing, useCursorTime, useTimeline } from '@/timeline/timeline';
@@ -166,7 +167,7 @@ export function Console({ bindings }: WidgetProps) {
 						value={filter}
 						onChange={(event) => setFilter(event.target.value)}
 						onKeyDown={(event) => {
-							if (event.key === 'Enter') {
+							if (isEnterKey(event)) {
 								event.preventDefault();
 								seekMessage(event.shiftKey ? previousTime : nextTime);
 							}

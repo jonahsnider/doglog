@@ -17,6 +17,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/in
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { shortcuts } from '@/commands/commands';
+import { isEnterKey } from '@/lib/keyboard';
 import type { Dashboard } from '@/dashboards/dashboards';
 import { type Entry, useEntries } from '@/data/data-store';
 import { useSource } from '@/data/source';
@@ -221,7 +222,7 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 						onKeyDown={(event) => {
 							// Binds or unbinds the first match, like picking it
 							const first = view.highlights && view.rows.find((row) => row.item.entry)?.item.entry;
-							if (event.key === 'Enter' && edited && first) {
+							if (isEnterKey(event) && edited && first) {
 								edited.setBound(first.name, !edited.bound.includes(first.name));
 							}
 						}}
