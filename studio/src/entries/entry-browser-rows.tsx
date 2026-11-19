@@ -134,7 +134,6 @@ export function EntryRows({
 								dropTarget={row.section === dropSection}
 								editing={edited !== undefined}
 								bound={isBound(row.item, bound)}
-								// A row showing a struct's only field is marked bound instead
 								containsBound={row.item.field === undefined && boundGroups.has(row.item.value)}
 							/>
 						</Fragment>
@@ -206,18 +205,13 @@ const EntryRowView = memo(function EntryRowView({
 		dropTarget && 'bg-primary/8',
 	);
 	const style = { top, height: rowHeight, paddingInlineStart: 8 + (level - 1) * 12 };
-	const indicator = node.children && (
-		<TreeItemIndicator className="shrink-0 text-muted-foreground transition-transform data-expanded:rotate-90">
-			<ChevronRightIcon className="size-4" />
-		</TreeItemIndicator>
-	);
 
 	if (header) {
 		return (
 			// Without the drag ref, headers don't get dnd-kit's drag handle attributes
 			<TreeItem value={node.value} ref={dropRef} className={className} style={style}>
 				<TreeItemLabel className="flex h-full min-w-0 flex-1 items-center gap-1.5">
-					{indicator}
+					<RowIndicator expandable={node.children !== undefined} section={section} />
 					<SectionHeaderLabel section="pinned" count={node.children?.length ?? 0} />
 				</TreeItemLabel>
 			</TreeItem>
@@ -240,7 +234,7 @@ const EntryRowView = memo(function EntryRowView({
 			}
 		>
 			<TreeItemLabel className="flex h-full min-w-0 flex-1 items-center gap-1.5">
-				{indicator}
+				<RowIndicator expandable={node.children !== undefined} section={section} />
 				{entry && <EntryMarks type={entry.type} editing={editing} />}
 				<RowLabel node={node} highlights={highlights} unsupported={unsupported} bound={bound} />
 				{containsBound && (
@@ -252,6 +246,17 @@ const EntryRowView = memo(function EntryRowView({
 		</AppContextMenu>
 	);
 });
+
+/** Chevron of rows with children. Leaves keep its space to indent past their parent, except in the flat Active section. */
+function RowIndicator({ expandable, section }: { expandable: boolean; section: EntrySection }) {
+	return expandable ? (
+		<TreeItemIndicator className="shrink-0 text-muted-foreground transition-transform data-expanded:rotate-90">
+			<ChevronRightIcon className="size-4" />
+		</TreeItemIndicator>
+	) : (
+		section !== 'active' && <span aria-hidden className="size-4 shrink-0" />
+	);
+}
 
 function RowLabel({
 	node,
