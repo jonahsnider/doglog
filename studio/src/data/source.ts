@@ -190,7 +190,7 @@ export async function openLog(file: File, onError?: (message: string) => void): 
 	return true;
 }
 
-/** Reopen the log that was open before the page reloaded. Only call this in dev. */
+/** Open the log from the `log` search parameter, or reopen the one that was open before the page reloaded. Only call this in dev. */
 export async function reopenDevLog(): Promise<void> {
 	const file = await loadDevLog();
 	// Keep a source chosen while loading, ex. the log the desktop app was launched with

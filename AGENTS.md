@@ -21,7 +21,8 @@ Ideally, most changes can be validated through the web app.
 
 1. Check if a dev server is already running at `https://studio.doglog.dev.localhost` or `http://localhost:5173`
 2. If not, start one with `pnpm dev` in the `studio` directory
-3. Interact with the dev server using built-in browser tools
+3. Open a log by adding `?log=<url>` to the page URL, ex. `?log=/@fs/<absolute path to a .wpilog in this repository>`, since the file picker can't be automated (dev server only, errors are logged to the console)
+4. Interact with the dev server using built-in browser tools
    - T3 Code browser tools can be buggy or missing features at times, use `agent-browser` as a fallback if necessary
    - Safari WebDriver MCP is available for WebKit specific testing
 
