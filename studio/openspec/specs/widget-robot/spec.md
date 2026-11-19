@@ -90,7 +90,7 @@ In 3D, the robot widget SHALL draw the robot at the origin, in WPILib's robot co
 
 ### Requirement: 3D camera
 
-In 3D, the robot widget SHALL use a camera without perspective, starting from the robot's front right, a little above it. Dragging MUST orbit around the robot, including below the floor, right-dragging MUST pan, and scrolling or pinching MUST zoom, from 4× farther out to 16× closer than the default view. Holding Shift MUST zoom and pan twice as fast, including scrolling a mouse wheel that the browser scrolls sideways while Shift is held. A Reset view button beside the View control and double-clicking SHALL reset the camera, animating unless the system reduces motion. The camera MUST NOT be saved with the dashboard.
+In 3D, the robot widget SHALL use a camera without perspective, starting from the robot's front right, a little above it. Dragging MUST orbit around the robot, including below the floor, right-dragging MUST pan, and scrolling or pinching MUST zoom, from 4× farther out to 16× closer than the default view. A Reset view button beside the View control and double-clicking SHALL reset the camera, animating unless the system reduces motion. The camera MUST NOT be saved with the dashboard.
 
 #### Scenario: Pan with the right mouse button
 
@@ -98,16 +98,20 @@ In 3D, the robot widget SHALL use a camera without perspective, starting from th
 - **THEN** the view pans, with a move cursor while dragging
 - **AND** the widget's context menu doesn't open
 
-#### Scenario: Zoom faster with Shift
-
-- **WHEN** the user holds Shift and scrolls over the scene
-- **THEN** the camera zooms twice as fast as scrolling without Shift
-
 #### Scenario: Reset by double-clicking
 
 - **GIVEN** the user has orbited the camera
 - **WHEN** the user double-clicks the widget
 - **THEN** the camera goes back to the robot's front right
+
+### Requirement: Faster 3D camera with Shift
+
+Holding Shift SHALL make the robot widget's 3D camera zoom and pan twice as fast, including when scrolling a mouse wheel that the browser scrolls sideways while Shift is held.
+
+#### Scenario: Zoom faster with Shift
+
+- **WHEN** the user holds Shift and scrolls over the scene
+- **THEN** the camera zooms twice as fast as scrolling without Shift
 
 ### Requirement: View cube
 
