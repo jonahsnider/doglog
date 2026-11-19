@@ -5,6 +5,7 @@ import { formatValue } from '@/data/format-value';
 import { EntryName } from '@/entries/entry-name';
 import { modeLabels } from '@/timeline/colors';
 import { getModePeriods } from '@/timeline/events';
+import { useHoverTime } from '@/timeline/hover';
 import { formatTime, useCursorTime } from '@/timeline/timeline';
 import type { SeriesUnit } from '@/widgets/graph/axis-units';
 import { bandAt, bandHeight, bandTop, changesIn, rowHeight } from '@/widgets/graph/bands';
@@ -97,11 +98,13 @@ export function GraphTooltip({
 	) : undefined;
 }
 
-// Only a pinned tooltip that's following the cursor needs to subscribe to playback.
+// Only a pinned tooltip that's following the cursor needs to subscribe to playback. It steps aside while another graph
+// or the timeline is hovered, since that graph shows its own.
 function PinnedTooltip({ width, ...props }: Omit<LineTooltipProps, 'at' | 'time'> & { width: number }) {
 	const cursor = useCursorTime();
 	const view = useViewRange();
-	if (!view || cursor === undefined || cursor < view.start || cursor > view.end) {
+	const hoveringElsewhere = useHoverTime() !== undefined;
+	if (hoveringElsewhere || !view || cursor === undefined || cursor < view.start || cursor > view.end) {
 		return undefined;
 	}
 	const x = ((cursor - view.start) / (view.end - view.start)) * width;

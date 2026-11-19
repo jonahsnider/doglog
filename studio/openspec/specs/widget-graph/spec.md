@@ -168,13 +168,19 @@ The graph SHALL show the robot's mode along the top of its time axis, in the tim
 
 ### Requirement: Cursor and seeking
 
-The graph SHALL draw the global cursor as a vertical line across the plot and bands. Clicking without dragging MUST move the cursor there and keep the tooltip shown at the cursor, and clicking again MUST stop showing it. Hovering or clicking within a few pixels of the cursor MUST snap to it.
+The graph SHALL draw the global cursor as a vertical line across the plot and bands. Clicking without dragging MUST move the cursor there and keep the tooltip shown at the cursor, and clicking again MUST stop showing it. The kept tooltip MUST be hidden while another graph or the timeline is hovered. Hovering or clicking within a few pixels of the cursor MUST snap to it.
 
 #### Scenario: Click to seek
 
 - **WHEN** the user clicks the graph at 12 s, then moves the pointer away
 - **THEN** the global cursor moves to 12 s
 - **AND** the tooltip stays shown at 12 s
+
+#### Scenario: Hover another graph
+
+- **GIVEN** the user clicked the first of two graphs at 12 s
+- **WHEN** the user hovers the second graph
+- **THEN** only the second graph's tooltip shows
 
 ### Requirement: Shared hover
 
