@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { type Entry, getTimeRange } from '@/data/data-store';
 import { formatValue } from '@/data/format-value';
 import { EntryName } from '@/entries/entry-name';
@@ -14,21 +15,30 @@ import { useViewRange } from '@/widgets/graph/view';
 import { bindingColor } from '@/widgets/series-color';
 import type { WidgetBinding } from '@/widgets/widget-type';
 
-type Insets = { left: number; right: number };
+/** Where the area between the y-axes and the top of the graph are in the window */
+type Offset = { left: number; top: number };
 
-/** Beside the pointer, on whichever side has more room, as wide as its content even when close to the edge */
-function Popup({ at, top, insets, children }: { at: PointerAt; top: number; insets: Insets; children: ReactNode }) {
-	return (
+/** Space kept between the tooltip and the window's edges */
+const windowMargin = 4;
+
+/**
+ * Beside the pointer, on whichever side of the graph has more room, as wide as its content. Drawn over the whole window
+ * so other panes don't cut it off, and moved over the pointer only when it would go past the window's edge.
+ */
+function Popup({ at, top, offset, children }: { at: PointerAt; top: number; offset: Offset; children: ReactNode }) {
+	const left = offset.left + at.x + (at.flip ? -12 : 12);
+	return createPortal(
 		<div
-			className="pointer-events-none absolute z-10 w-max rounded-md border bg-popover px-2 py-1.5 text-xs whitespace-nowrap text-popover-foreground shadow-md"
+			className="pointer-events-none fixed z-50 w-max rounded-md border bg-popover px-2 py-1.5 text-xs whitespace-nowrap text-popover-foreground shadow-md"
 			style={{
-				left: insets.left + at.x + (at.flip ? -12 : 12),
-				top,
-				transform: at.flip ? 'translateX(-100%)' : undefined,
+				left,
+				top: offset.top + top,
+				translate: `clamp(${windowMargin - left}px, ${at.flip ? '-100%' : '0px'}, calc(100vw - ${left + windowMargin}px - 100%))`,
 			}}
 		>
 			{children}
-		</div>
+		</div>,
+		document.body,
 	);
 }
 
@@ -56,6 +66,7 @@ export function GraphTooltip({
 	bandEntry,
 	at,
 	pinned,
+	origin,
 	plotted,
 	units,
 	insets,
@@ -63,36 +74,37 @@ export function GraphTooltip({
 	bandHover: BandHover | undefined;
 	bandEntry: Entry | undefined;
 	at: PointerAt | undefined;
-	/** The area's width when the tooltip was pinned, `undefined` when it isn't */
-	pinned: { width: number } | undefined;
+	pinned: boolean;
+	/** Where the graph is in the window */
+	origin: { left: number; top: number; width: number } | undefined;
 	plotted: readonly WidgetBinding[];
 	units: ReadonlyMap<string, SeriesUnit>;
-	insets: Insets;
+	insets: { left: number; right: number };
 }) {
 	const hover = useHoverTime();
 	const cursor = useCursorTime();
 	const view = useViewRange();
+	if (!origin) {
+		return undefined;
+	}
+	const offset = { left: origin.left + insets.left, top: origin.top };
 	if (bandHover) {
-		return <BandTooltip hover={bandHover} entry={bandEntry} insets={insets} />;
+		return <BandTooltip hover={bandHover} entry={bandEntry} offset={offset} />;
 	}
 	if (plotted.length === 0) {
 		return undefined;
 	}
 	if (at && hover !== undefined) {
-		return <LineTooltip at={at} time={hover} plotted={plotted} units={units} insets={insets} />;
+		return <LineTooltip at={at} time={hover} plotted={plotted} units={units} offset={offset} />;
 	}
 	if (!pinned || !view || cursor === undefined || cursor < view.start || cursor > view.end) {
 		return undefined;
 	}
-	const x = ((cursor - view.start) / (view.end - view.start)) * pinned.width;
+	// The area between the y-axes
+	const width = origin.width - insets.left - insets.right;
+	const x = ((cursor - view.start) / (view.end - view.start)) * width;
 	return (
-		<LineTooltip
-			at={{ x, width: pinned.width, flip: x > pinned.width / 2 }}
-			time={cursor}
-			plotted={plotted}
-			units={units}
-			insets={insets}
-		/>
+		<LineTooltip at={{ x, width, flip: x > width / 2 }} time={cursor} plotted={plotted} units={units} offset={offset} />
 	);
 }
 
@@ -102,16 +114,16 @@ function LineTooltip({
 	time,
 	plotted,
 	units,
-	insets,
+	offset,
 }: {
 	at: PointerAt;
 	time: number;
 	plotted: readonly WidgetBinding[];
 	units: ReadonlyMap<string, SeriesUnit>;
-	insets: Insets;
+	offset: Offset;
 }) {
 	return (
-		<Popup at={at} top={8} insets={insets}>
+		<Popup at={at} top={8} offset={offset}>
 			<TimeHeader time={time} />
 			<div className="grid grid-cols-[auto_minmax(0,auto)_auto] items-center gap-x-2 gap-y-0.5">
 				{plotted.map((binding, index) => {
@@ -135,7 +147,7 @@ function LineTooltip({
 }
 
 /** The hovered band's value and time range, or how many times the value changes within the hovered pixel */
-function BandTooltip({ hover, entry, insets }: { hover: BandHover; entry: Entry | undefined; insets: Insets }) {
+function BandTooltip({ hover, entry, offset }: { hover: BandHover; entry: Entry | undefined; offset: Offset }) {
 	const range = getTimeRange();
 	const band = entry && range && bandAt(entry, hover.time, range.end);
 	if (!entry || !range || !band) {
@@ -145,7 +157,7 @@ function BandTooltip({ hover, entry, insets }: { hover: BandHover; entry: Entry 
 	const to = hover.time + hover.pixel / 2;
 	const changes = changesIn(entry, from, to);
 	return (
-		<Popup at={hover} top={hover.top + hover.row * rowHeight + bandTop + bandHeight + 4} insets={insets}>
+		<Popup at={hover} top={hover.top + hover.row * rowHeight + bandTop + bandHeight + 4} offset={offset}>
 			<div className="font-mono font-medium">{changes > 1 ? `${changes} changes` : formatValue(band.value)}</div>
 			<div className="text-muted-foreground tabular-nums">
 				{changes > 1

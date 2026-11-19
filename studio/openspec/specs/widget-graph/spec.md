@@ -137,6 +137,16 @@ Hovering the graph SHALL show a tooltip beside the pointer with the hovered time
 - **THEN** a tooltip shows `0:12.00 · Teleop` and each plotted entry's value at 12 s
 - **AND** each line is marked where it crosses 12 s
 
+### Requirement: Tooltip placement
+
+The graph's tooltip SHALL be drawn over other panes rather than cut off at the graph's pane, and MUST stay within the window, covering the pointer if it has to.
+
+#### Scenario: Narrow pane
+
+- **GIVEN** a graph in a pane narrower than its tooltip
+- **WHEN** the user hovers it
+- **THEN** the whole tooltip shows, over the panes beside it
+
 ### Requirement: Robot mode
 
 The graph SHALL show the robot's mode along the top of its time axis, in the timeline's colors, with the spans the timeline compresses hatched like on the timeline.

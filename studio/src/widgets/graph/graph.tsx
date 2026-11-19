@@ -1,5 +1,5 @@
 import 'uplot/dist/uPlot.min.css';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSettings } from '@/settings';
 import { accentColor } from '@/theme/theme-color';
 import { seriesUnits } from '@/widgets/graph/axis-units';
@@ -83,11 +83,32 @@ export function Graph({ bindings }: WidgetProps) {
 		graph,
 		rowHeight,
 	);
+	/**
+	 * Where the graph is in the window when hovered, clicked, or resized while the tooltip is pinned, since the tooltip is
+	 * drawn over the whole window
+	 */
+	const [origin, setOrigin] = useState<DOMRect>();
+	const measureOrigin = () => setOrigin(body.current!.getBoundingClientRect());
+	useEffect(() => {
+		if (!pinned) {
+			return undefined;
+		}
+		const element = body.current!;
+		const observer = new ResizeObserver(() => setOrigin(element.getBoundingClientRect()));
+		observer.observe(element);
+		return () => observer.disconnect();
+	}, [pinned]);
 
 	return (
 		<div className="flex h-full flex-col">
 			<GraphLegend plotted={plotted} />
-			<div ref={body} className="relative flex min-h-0 flex-1 cursor-crosshair touch-none flex-col" {...handlers}>
+			<div
+				ref={body}
+				className="relative flex min-h-0 flex-1 cursor-crosshair touch-none flex-col"
+				{...handlers}
+				onPointerDownCapture={measureOrigin}
+				onPointerMoveCapture={measureOrigin}
+			>
 				{hasPlot && <div ref={plotRef} className="min-h-24 flex-1 overflow-hidden" />}
 				{hasPlot && <AxisUnit label={units.axes.y} side="left" />}
 				{hasRight && <AxisUnit label={units.axes.y2} side="right" />}
@@ -131,6 +152,7 @@ export function Graph({ bindings }: WidgetProps) {
 					bandEntry={bandHover && discrete[bandHover.row]?.entry}
 					at={pointerAt}
 					pinned={pinned}
+					origin={origin}
 					plotted={plotted}
 					units={units.units}
 					insets={insets}

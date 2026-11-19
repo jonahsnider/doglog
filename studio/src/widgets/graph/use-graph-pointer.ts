@@ -72,15 +72,15 @@ export function useGraphPointer(
 	const [pointerAt, setPointerAt] = useState<PointerAt>();
 	/** The time range selected by dragging, to measure it */
 	const [selection, setSelection] = useState<TimeRange>();
-	/** Clicking keeps the tooltip shown at the cursor, the area between the y-axes was `width` px wide then */
-	const [pinned, setPinned] = useState<{ width: number }>();
+	/** Clicking keeps the tooltip shown at the cursor */
+	const [pinned, setPinned] = useState(false);
 	useHotkey(
 		'Escape',
 		() => {
 			setSelection(undefined);
-			setPinned(undefined);
+			setPinned(false);
 		},
-		{ enabled: selection !== undefined || pinned !== undefined, ignoreInputs: false, conflictBehavior: 'allow' },
+		{ enabled: selection !== undefined || pinned, ignoreInputs: false, conflictBehavior: 'allow' },
 	);
 
 	const reset = () => {
@@ -215,10 +215,10 @@ export function useGraphPointer(
 		if (selection) {
 			setSelection(undefined);
 		} else if (pinned) {
-			setPinned(undefined);
+			setPinned(false);
 		} else {
 			seek(time);
-			setPinned({ width: area.current!.getBoundingClientRect().width });
+			setPinned(true);
 		}
 	};
 
