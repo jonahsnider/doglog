@@ -291,6 +291,8 @@ export default defineConfig({
 			// Same as the desktop app's Rust side, Sentry links the commits through its GitHub integration
 			release: { name: `doglog-studio@${packageJson.version}` },
 			telemetry: false,
+			// Sentry's logger code only runs with `debug: true`, which Studio never sets
+			bundleSizeOptimizations: { excludeDebugStatements: true },
 		}),
 	]),
 	devtools: {
