@@ -8,7 +8,7 @@ Define Studio's visual identity: a Material Design 3 color scheme generated from
 
 ### Requirement: Generated color scheme
 
-Except for the Neutral preset, Studio SHALL generate a Material Design 3 Tonal Spot scheme using the 2025 spec. The default Team 581 preset MUST use seed `#591616` and HCT chroma 2 and 3.5 for the neutral and neutral variant palettes, respectively, in both appearance modes. The MD3 contrast level MUST be 0 for Standard, 0.5 for Medium, and 1 for High.
+Except for the Neutral preset, Studio SHALL generate a Material Design 3 Tonal Spot scheme using the 2025 spec. The default Team 581 preset MUST use seed `#591616` and HCT chroma 1 and 2 in light mode and 2 and 3.5 in dark mode for the neutral and neutral variant palettes, respectively. The MD3 contrast level MUST be 0 for Standard, 0.5 for Medium, and 1 for High.
 
 #### Scenario: Default color
 

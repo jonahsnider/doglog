@@ -96,8 +96,9 @@ function schemeColors(
 		isDark: dark,
 		specVersion: '2025',
 		...(preset === 'team581' && {
-			neutralPalette: TonalPalette.fromHueAndChroma(sourceColorHct.hue, 2),
-			neutralVariantPalette: TonalPalette.fromHueAndChroma(sourceColorHct.hue, 3.5),
+			// Lower in light mode, where the 2025 spec boosts container chroma, so both modes look about as tinted
+			neutralPalette: TonalPalette.fromHueAndChroma(sourceColorHct.hue, dark ? 2 : 1),
+			neutralVariantPalette: TonalPalette.fromHueAndChroma(sourceColorHct.hue, dark ? 3.5 : 2),
 		}),
 		...(preset === 'match13' && {
 			// Match match13.com's blue accents, icy light panels, and the black overlays on its dark data pages.
