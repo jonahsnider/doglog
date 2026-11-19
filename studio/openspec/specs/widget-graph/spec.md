@@ -129,13 +129,19 @@ The legend SHALL name each entry by the fewest last segments that tell it apart 
 
 ### Requirement: Hover tooltip
 
-Hovering the graph SHALL show a tooltip beside the pointer with the hovered time, the robot's mode then, and each plotted entry's value at that time with its unit, and SHALL mark where each line crosses the hovered time. The legend MUST only name the entries. The tooltip MUST only switch sides of the pointer once it's well past the middle of the graph, so it doesn't flip back and forth there.
+Hovering the graph SHALL show a tooltip diagonally off the pointer, toward the middle of the graph, with the hovered time, the robot's mode then, and each plotted entry's value at that time with its unit, and SHALL mark where each line crosses the hovered time. The legend MUST only name the entries. The tooltip MUST only switch sides of the pointer once it's well past the middle of the graph, so it doesn't flip back and forth there.
 
 #### Scenario: Hover
 
 - **WHEN** the user hovers the graph at 12 s during teleop
 - **THEN** a tooltip shows `0:12.00 · Teleop` and each plotted entry's value at 12 s
 - **AND** each line is marked where it crosses 12 s
+
+#### Scenario: Move the tooltip off a line
+
+- **GIVEN** the tooltip covers part of a line
+- **WHEN** the user moves the pointer down
+- **THEN** the tooltip moves down with the pointer
 
 ### Requirement: Time offset from the cursor
 

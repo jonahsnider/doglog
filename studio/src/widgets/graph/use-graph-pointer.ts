@@ -5,6 +5,7 @@ import type { GraphPlot } from '@/widgets/graph/use-graph-drawing';
 import { setHoverTime } from '@/timeline/hover';
 import { getViewRange, panTime, resetView, zoomTime } from '@/widgets/graph/view';
 import type { TimeRange } from '@/data/data-store';
+import { type BandHover, flipsAt, type LineHover } from '@/widgets/graph/tooltip-side';
 
 const gesturePauseMs = 200;
 /** How much of a scroll gesture's earlier movement counts toward its direction with each event, ex. 0.7 keeps about the last 100 ms */
@@ -34,26 +35,8 @@ function isInGraph(event: PointerEvent): boolean {
 	return event.target instanceof Node && event.currentTarget.contains(event.target);
 }
 
-/** Where the pointer is, `x` px into the area between the y-axes that's `width` px wide */
-/** `flip` puts the tooltip left of the pointer */
-export type PointerAt = { x: number; width: number; flip: boolean };
-
-/**
- * Where the pointer is over the bands, for their tooltip. `pixel` is the time (µs) a pixel spans, and `top` is where the
- * bands start in the graph.
- */
-export type BandHover = PointerAt & { row: number; time: number; pixel: number; top: number };
-
 /** Hovering or clicking this close to the cursor snaps to it, so its values are easy to keep in view */
 const snapPixels = 6;
-/** The tooltip only switches sides of the pointer once it's this far past the middle, so it doesn't flip back and forth */
-const flipDeadband = 40;
-
-/** Whether the tooltip goes left of the pointer, `x` px into `width`, staying on the side it was on near the middle */
-function flipsAt(x: number, width: number, flipped: boolean | undefined): boolean {
-	const deadband = flipped === undefined ? 0 : Math.min(flipDeadband, width / 8);
-	return x > width / 2 + (flipped === true ? -deadband : deadband);
-}
 
 export function useGraphPointer(
 	body: RefObject<HTMLDivElement | null>,
@@ -66,7 +49,7 @@ export function useGraphPointer(
 	const gesture = useRef<{ x: number; y: number; at: number }>(undefined);
 	const [hovered, setHovered] = useState(false);
 	const [bandHover, setBandHover] = useState<BandHover>();
-	const [pointerAt, setPointerAt] = useState<PointerAt & { time: number }>();
+	const [pointerAt, setPointerAt] = useState<LineHover>();
 	const [selection, setSelection] = useState<TimeRange>();
 	/** Clicking keeps the tooltip shown at the cursor */
 	const [pinned, setPinned] = useState(false);
@@ -179,11 +162,20 @@ export function useGraphPointer(
 		const snapped = time === undefined ? undefined : snapToCursor(time);
 		setHoverTime(snapped);
 		const areaRect = area.current!.getBoundingClientRect();
+		const bodyRect = body.current!.getBoundingClientRect();
 		const x = event.clientX - areaRect.left;
+		const y = event.clientY - bodyRect.top;
 		setPointerAt((previous) =>
 			snapped === undefined
 				? undefined
-				: { x, width: areaRect.width, flip: flipsAt(x, areaRect.width, previous?.flip), time: snapped },
+				: {
+						x,
+						width: areaRect.width,
+						flip: flipsAt(x, areaRect.width, previous?.flip),
+						time: snapped,
+						y,
+						above: flipsAt(y, bodyRect.height, previous?.above),
+					},
 		);
 		const canvas = bands.current?.getBoundingClientRect();
 		const view = getViewRange();

@@ -10,7 +10,7 @@ import { formatTime, useCursorTime } from '@/timeline/timeline';
 import type { SeriesUnit } from '@/widgets/graph/axis-units';
 import { bandAt, bandHeight, bandTop, changesIn, rowHeight } from '@/widgets/graph/bands';
 import { formatInUnit } from '@/widgets/graph/format';
-import type { BandHover, PointerAt } from '@/widgets/graph/use-graph-pointer';
+import type { BandHover, LineHover, PointerAt } from '@/widgets/graph/tooltip-side';
 import { useViewRange } from '@/widgets/graph/view';
 import { bindingColor } from '@/widgets/series-color';
 import type { WidgetBinding } from '@/widgets/widget-type';
@@ -21,18 +21,32 @@ type Offset = { left: number; top: number };
 const windowMargin = 4;
 
 /**
- * Beside the pointer, on whichever side of the graph has more room, as wide as its content. Drawn over the whole window
- * so other panes don't cut it off, and moved over the pointer only when it would go past the window's edge.
+ * Beside the pointer, on whichever side of the graph has more room, as wide as its content, with its top at `top`, or
+ * its bottom when `above`. Drawn over the whole window so other panes don't cut it off, and moved over the pointer only
+ * when it would go past the window's edge.
  */
-function Popup({ at, top, offset, children }: { at: PointerAt; top: number; offset: Offset; children: ReactNode }) {
+function Popup({
+	at,
+	top,
+	above = false,
+	offset,
+	children,
+}: {
+	at: PointerAt;
+	top: number;
+	above?: boolean;
+	offset: Offset;
+	children: ReactNode;
+}) {
 	const left = offset.left + at.x + (at.flip ? -12 : 12);
+	const y = offset.top + top;
 	return createPortal(
 		<div
 			className="pointer-events-none fixed z-50 w-max rounded-md border bg-popover px-2 py-1.5 text-xs whitespace-nowrap text-popover-foreground shadow-md"
 			style={{
 				left,
-				top: offset.top + top,
-				translate: `clamp(${windowMargin - left}px, ${at.flip ? '-100%' : '0px'}, calc(100vw - ${left + windowMargin}px - 100%))`,
+				top: y,
+				translate: `clamp(${windowMargin - left}px, ${at.flip ? '-100%' : '0px'}, calc(100vw - ${left + windowMargin}px - 100%)) clamp(${windowMargin - y}px, ${above ? '-100%' : '0px'}, calc(100vh - ${y + windowMargin}px - 100%))`,
 			}}
 		>
 			{children}
@@ -72,7 +86,7 @@ export function GraphTooltip({
 }: {
 	bandHover: BandHover | undefined;
 	bandEntry: Entry | undefined;
-	at: (PointerAt & { time: number }) | undefined;
+	at: LineHover | undefined;
 	pinned: boolean;
 	/** Where the graph is in the window */
 	origin: { left: number; top: number; width: number } | undefined;
@@ -91,7 +105,18 @@ export function GraphTooltip({
 		return undefined;
 	}
 	if (at) {
-		return <LineTooltip at={at} time={at.time} plotted={plotted} units={units} offset={offset} />;
+		// Diagonally off the pointer, toward the middle of the graph, so it moves out of the way of what's hovered
+		return (
+			<LineTooltip
+				at={at}
+				time={at.time}
+				top={at.y + (at.above ? -12 : 12)}
+				above={at.above}
+				plotted={plotted}
+				units={units}
+				offset={offset}
+			/>
+		);
 	}
 	return pinned ? (
 		<PinnedTooltip width={origin.width - insets.left - insets.right} plotted={plotted} units={units} offset={offset} />
@@ -100,7 +125,7 @@ export function GraphTooltip({
 
 // Only a pinned tooltip that's following the cursor needs to subscribe to playback. It steps aside while another graph
 // or the timeline is hovered, since that graph shows its own.
-function PinnedTooltip({ width, ...props }: Omit<LineTooltipProps, 'at' | 'time'> & { width: number }) {
+function PinnedTooltip({ width, ...props }: Omit<LineTooltipProps, 'at' | 'time' | 'top'> & { width: number }) {
 	const cursor = useCursorTime();
 	const view = useViewRange();
 	const hoveringElsewhere = useHoverTime() !== undefined;
@@ -108,20 +133,22 @@ function PinnedTooltip({ width, ...props }: Omit<LineTooltipProps, 'at' | 'time'
 		return undefined;
 	}
 	const x = ((cursor - view.start) / (view.end - view.start)) * width;
-	return <LineTooltip {...props} at={{ x, width, flip: x > width / 2 }} time={cursor} />;
+	return <LineTooltip {...props} at={{ x, width, flip: x > width / 2 }} time={cursor} top={8} />;
 }
 
 type LineTooltipProps = {
 	at: PointerAt;
 	time: number;
+	top: number;
+	above?: boolean;
 	plotted: readonly WidgetBinding[];
 	units: ReadonlyMap<string, SeriesUnit>;
 	offset: Offset;
 };
 
-function LineTooltip({ at, time, plotted, units, offset }: LineTooltipProps) {
+function LineTooltip({ at, time, top, above, plotted, units, offset }: LineTooltipProps) {
 	return (
-		<Popup at={at} top={8} offset={offset}>
+		<Popup at={at} top={top} above={above} offset={offset}>
 			<TimeHeader time={time} />
 			<div className="grid grid-cols-[auto_minmax(0,auto)_auto] items-center gap-x-2 gap-y-0.5">
 				{plotted.map((binding, index) => {
