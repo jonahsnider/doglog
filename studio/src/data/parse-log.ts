@@ -83,6 +83,8 @@ export function parseLog(bytes: Uint8Array, onProgress: (progress: number) => vo
 	let percent = 0;
 	// The end of the last record read, since `records.bytesRead` skips to the end of the file when the last record is cut off
 	let readBytes = records.bytesRead;
+	// The latest value each entry was set to before the log started, see below
+	const beforeStart = new Map<Samples, { timestamp: number; value: Value }>();
 
 	try {
 		for (const record of records) {
@@ -108,6 +110,14 @@ export function parseLog(bytes: Uint8Array, onProgress: (progress: number) => vo
 			}
 
 			const { timestamp } = record;
+			// NetworkTables values set before the log started, ex. by a coprocessor, are logged with negative timestamps.
+			// Placed at their real time, they'd make the log start up to hours before the robot did.
+			if (timestamp < 0) {
+				if (timestamp >= (beforeStart.get(entry.samples)?.timestamp ?? -Infinity)) {
+					beforeStart.set(entry.samples, { timestamp, value });
+				}
+				continue;
+			}
 			entry.samples.push(timestamp, value);
 			start = start === undefined ? timestamp : Math.min(start, timestamp);
 			end = end === undefined ? timestamp : Math.max(end, timestamp);
@@ -117,6 +127,14 @@ export function parseLog(bytes: Uint8Array, onProgress: (progress: number) => vo
 			throw new Error("It's damaged, and none of it could be read.", { cause: error });
 		}
 		// Keep every record read before the damage
+	}
+
+	// They're the values at the start of the log, unless the entry was logged again right as it started
+	const first = start ?? 0;
+	for (const [samples, { value }] of beforeStart) {
+		if (samples.length === 0 || samples.timestamps[0]! > first) {
+			samples.push(first, value);
+		}
 	}
 
 	return { entries, start, end, unreadBytes: bytes.byteLength - readBytes };

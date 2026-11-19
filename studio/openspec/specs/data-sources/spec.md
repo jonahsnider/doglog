@@ -118,6 +118,13 @@ Users SHALL be able to open a WPILOG file with a file picker or by dropping it a
 - **THEN** an overlay shows that dropping it opens the log
 - **AND** the overlay hides when the file is dropped or dragged out of the window
 
+#### Scenario: Values set before logging started
+
+- **GIVEN** a log with NetworkTables values a coprocessor set before the robot started logging, which are logged with negative timestamps
+- **WHEN** the user opens it
+- **THEN** each of those entries has the latest of those values at the start of the log, unless it was also logged right at the start
+- **AND** the log ends at its last record
+
 ### Requirement: Connect to a live NT4 server
 
 Users SHALL be able to connect to a robot or simulator over NT4 with a single Connect action, using the connection target from Settings. The source control MUST NOT offer separate actions for the robot and the simulator.
