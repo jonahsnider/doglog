@@ -2,7 +2,6 @@ import BotIcon from 'lucide-react/icons/bot';
 import ChartLineIcon from 'lucide-react/icons/chart-line';
 import Gamepad2Icon from 'lucide-react/icons/gamepad-2';
 import MapIcon from 'lucide-react/icons/map';
-import MoveIcon from 'lucide-react/icons/move';
 import NotebookPenIcon from 'lucide-react/icons/notebook-pen';
 import TableIcon from 'lucide-react/icons/table';
 import TerminalIcon from 'lucide-react/icons/terminal';
@@ -22,6 +21,7 @@ import { graphRoles, inferGraphRole } from '@/widgets/graph/roles';
 import { robotOption } from '@/widgets/robot/robot-option';
 import { robotRoles, viewOption } from '@/widgets/robot/roles';
 import { Swerve } from '@/widgets/swerve/swerve';
+import SwerveDriveIcon from '@/widgets/swerve/swerve-drive.svg?react';
 import { swerveRoles } from '@/widgets/swerve/data';
 import { TableWidget } from '@/widgets/table/table';
 import { widgetInfos, type WidgetTypeId } from '@/widgets/widget-info';
@@ -76,7 +76,7 @@ export const widgetTypes: readonly WidgetType[] = [
 		defaultEntryNames: ['/console', '/messages'],
 		component: Console,
 	},
-	{ ...info('swerve'), icon: MoveIcon, hotkey: 'S', roles: swerveRoles, component: Swerve },
+	{ ...info('swerve'), icon: SwerveDriveIcon, hotkey: 'S', roles: swerveRoles, component: Swerve },
 	{
 		...info(controllerTypeId),
 		icon: Gamepad2Icon,

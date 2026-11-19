@@ -1,6 +1,5 @@
 import type { HotkeyChord } from '@tanstack/react-hotkeys';
-import type { LucideIcon } from 'lucide-react/types';
-import type { ComponentType } from 'react';
+import type { ComponentType, SVGProps } from 'react';
 import type { Entry } from '@/data/data-store';
 import type { EntryKind } from '@/data/entry-kind';
 import type { PaneNode } from '@/panes/layout';
@@ -92,7 +91,8 @@ export type WidgetType = {
 	readonly id: string;
 	/** Shown in the pane header and widget picker, ex. `Swerve` */
 	readonly name: string;
-	readonly icon: LucideIcon;
+	/** A Lucide icon, or a single color SVG imported with `?react` */
+	readonly icon: ComponentType<SVGProps<SVGSVGElement>>;
 	/** Picks this widget in a focused empty pane, or in the Change widget menu while it's open */
 	readonly hotkey?: HotkeyChord;
 	/** Kinds of entries that can be bound, none for widgets that don't show entries (ex. the notepad) */

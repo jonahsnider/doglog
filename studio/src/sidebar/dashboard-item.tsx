@@ -1,11 +1,10 @@
 import { type Hotkey, useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { Link, type RegisteredRouter, useLocation, useRouter } from '@tanstack/react-router';
 import LayoutDashboardIcon from 'lucide-react/icons/layout-dashboard';
-import type { LucideIcon } from 'lucide-react/types';
 import { useSortable } from '@dnd-kit/react/sortable';
 import { m, useIsPresent } from 'motion/react';
 import { easing, useMotionTransition } from '@/lib/motion';
-import { useState } from 'react';
+import { type ComponentType, type SVGProps, useState } from 'react';
 import { AppContextMenu, type MenuAction } from '@/components/app-context-menu';
 import { DashboardOptions } from '@/sidebar/dashboard-options';
 import { SidebarInput, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
@@ -87,7 +86,7 @@ function RenameInput({
 	onDone,
 }: {
 	dashboard: Dashboard;
-	icon: LucideIcon;
+	icon: ComponentType<SVGProps<SVGSVGElement>>;
 	onDone: () => void;
 }) {
 	const [initialName] = useState(() => dashboardName(dashboard));
