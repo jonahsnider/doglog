@@ -57,7 +57,6 @@ context: |
   - A robot editor that writes `doglog.jsonc` from one CAD model.
   - DogLog logging the robot project, so Studio matches a log to its project without the user picking it.
   - More built-in robots, ex. the 2026 KitBot, if FIRST allows redistributing its CAD.
-  - Field-relative `ChassisSpeeds` in the swerve widget.
   - Unit inference beyond angles (ex. distance, velocity).
   - Log sync from Systemcore, planned for the 2027 release.
 
