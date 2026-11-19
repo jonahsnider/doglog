@@ -6,7 +6,7 @@ import { createAtom } from '@tanstack/store';
 import { invoke, isTauri } from '@tauri-apps/api/core';
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
 import { get, set } from 'idb-keyval';
-import { type ReadProjectFile, readRobotConfig } from '@/three/robot-config';
+import type { ReadProjectFile } from '@/three/robot-config';
 
 export type RobotProject = {
 	/** The robot's name from its config, robots are picked by name so shared dashboards work on other devices */
@@ -140,6 +140,7 @@ export async function addRobotProject(): Promise<string | undefined> {
 		}
 	}
 
+	const { readRobotConfig } = await import('@/three/robot-config');
 	const { name } = await readRobotConfig(projectFileReader({ name: '', ...project }));
 	const others = ((await get<RobotProject[]>(storageKey)) ?? []).filter((other) => other.name !== name);
 	// Removed first so a project added again is a new object, and its models load again with any changes

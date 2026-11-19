@@ -1,11 +1,17 @@
-import { Navigate, createFileRoute, useRouter } from '@tanstack/react-router';
+import { Navigate, createFileRoute, redirect, useRouter } from '@tanstack/react-router';
 import { LayoutDashboardIcon, PlusIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { newDashboard } from '@/commands/commands';
-import { useDashboards } from '@/dashboards/dashboards';
+import { getDashboards, useDashboards } from '@/dashboards/dashboards';
 
 export const Route = createFileRoute('/')({
+	beforeLoad: () => {
+		const [dashboard] = getDashboards();
+		return dashboard
+			? redirect({ to: '/dashboards/$dashboardId', params: { dashboardId: dashboard.id }, replace: true })
+			: undefined;
+	},
 	component: Index,
 });
 
@@ -13,6 +19,7 @@ function Index() {
 	const [dashboard] = useDashboards();
 	const router = useRouter();
 
+	// Another window can add a dashboard while this one is on the empty page.
 	if (dashboard) {
 		return <Navigate to="/dashboards/$dashboardId" params={{ dashboardId: dashboard.id }} replace />;
 	}

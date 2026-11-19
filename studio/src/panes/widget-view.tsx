@@ -1,7 +1,8 @@
 import type { Draggable, Droppable } from '@dnd-kit/dom';
 import { useDragOperation, useDroppable } from '@dnd-kit/react';
 import { DatabaseIcon, ListPlusIcon } from 'lucide-react';
-import { type CSSProperties, type ReactNode, useCallback, useMemo } from 'react';
+import { type CSSProperties, type ReactNode, Suspense, useCallback, useMemo } from 'react';
+import { Spinner } from '@/components/ui/spinner';
 import {
 	connectBindings,
 	disconnectBindings,
@@ -104,7 +105,17 @@ export function WidgetView({
 	return (
 		<div ref={ref} className="relative h-full">
 			<WidgetBindingsContext value={widgetBindings}>
-				<div className="h-full overflow-auto">{content}</div>
+				<div className="h-full overflow-auto">
+					<Suspense
+						fallback={
+							<div className="grid h-full place-items-center">
+								<Spinner aria-label={`Loading ${type.name}`} className="size-4 text-muted-foreground" />
+							</div>
+						}
+					>
+						{content}
+					</Suspense>
+				</div>
 			</WidgetBindingsContext>
 			<DropFeedback paneId={paneId} type={type} bindings={bindings} />
 		</div>

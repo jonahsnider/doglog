@@ -126,6 +126,8 @@ export type WidgetType = {
 	readonly optionFromEntry?: (name: string) => { readonly id: string; readonly value: string } | undefined;
 	/** Shown in the pane header and suggested dashboard names instead of `name`, ex. `Controller 2` */
 	readonly title?: (options: OptionValues) => string;
+	/** Loads a lazy renderer alongside the dashboard route, so the saved pane doesn't start out with a spinner. */
+	readonly preload?: () => Promise<unknown>;
 	readonly component: ComponentType<WidgetProps>;
 };
 

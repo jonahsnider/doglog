@@ -6,12 +6,14 @@ import { Group, Panel } from 'react-resizable-panels';
 import { DashboardPanes } from '@/dashboards/dashboard-panes';
 import { EntryBrowser } from '@/entries/entry-browser';
 import { TimelineBar } from '@/timeline/timeline-bar';
-import { useDashboards } from '@/dashboards/dashboards';
+import { getDashboard, useDashboards } from '@/dashboards/dashboards';
 import { cn } from '@/lib/utils';
 import { isPaneDrag } from '@/panes/drag';
+import { panes } from '@/panes/layout';
 import { minNodeSize } from '@/panes/pane-size';
 import { setViewedDashboard } from '@/sharing/presence';
 import { useNamePrompt } from '@/sharing/name-prompt';
+import { getWidgetType } from '@/widgets/registry';
 
 declare module '@tanstack/react-router' {
 	interface HistoryState {
@@ -21,6 +23,15 @@ declare module '@tanstack/react-router' {
 }
 
 export const Route = createFileRoute('/dashboards/$dashboardId')({
+	loader: async ({ params }) => {
+		const dashboard = getDashboard(params.dashboardId);
+		if (dashboard) {
+			const loaders = new Set(
+				panes(dashboard.layout).map(({ widget }) => widget && getWidgetType(widget.type)?.preload),
+			);
+			await Promise.all([...loaders].flatMap((load) => (load ? [load()] : [])));
+		}
+	},
 	component: DashboardView,
 });
 

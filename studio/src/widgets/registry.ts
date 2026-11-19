@@ -8,6 +8,7 @@ import {
 	TableIcon,
 	TerminalIcon,
 } from 'lucide-react';
+import { lazy } from 'react';
 import { createWidget } from '@/widgets/bindings';
 import type { Entry } from '@/data/data-store';
 import type { Widget } from '@/panes/layout';
@@ -20,8 +21,6 @@ import { fieldOptions } from '@/widgets/field/options';
 import { fieldConnects, fieldRoles, inferFieldRole } from '@/widgets/field/roles';
 import { Graph } from '@/widgets/graph/graph';
 import { graphRoles, inferGraphRole } from '@/widgets/graph/roles';
-import { Notepad } from '@/widgets/notepad/notepad';
-import { Robot } from '@/widgets/robot/robot';
 import { robotOption } from '@/widgets/robot/robot-option';
 import { robotRoles, viewOption } from '@/widgets/robot/roles';
 import { Swerve } from '@/widgets/swerve/swerve';
@@ -35,6 +34,9 @@ function info(id: WidgetTypeId): Pick<WidgetType, 'id' | 'name' | 'accepts' | 'o
 	const { name, accepts, options } = widgetInfos.find((other) => other.id === id)!;
 	return { id, name, accepts, options };
 }
+
+const loadRobot = async () => ({ default: (await import('@/widgets/robot/robot')).Robot });
+const loadNotepad = async () => ({ default: (await import('@/widgets/notepad/notepad')).Notepad });
 
 /** Every widget type, in the order they're listed in the widget picker */
 export const widgetTypes: readonly WidgetType[] = [
@@ -64,7 +66,8 @@ export const widgetTypes: readonly WidgetType[] = [
 		roles: robotRoles,
 		rendersEmpty: true,
 		options: [viewOption, robotOption],
-		component: Robot,
+		preload: loadRobot,
+		component: lazy(loadRobot),
 	},
 	{ ...info('table'), icon: TableIcon, hotkey: 'T', component: TableWidget },
 	{
@@ -85,7 +88,14 @@ export const widgetTypes: readonly WidgetType[] = [
 		title: (options) => `Controller ${options['controller']}`,
 		component: Controller,
 	},
-	{ ...info('notepad'), icon: NotebookPenIcon, hotkey: 'N', rendersEmpty: true, component: Notepad },
+	{
+		...info('notepad'),
+		icon: NotebookPenIcon,
+		hotkey: 'N',
+		rendersEmpty: true,
+		preload: loadNotepad,
+		component: lazy(loadNotepad),
+	},
 ];
 
 export function getWidgetType(id: string): WidgetType | undefined {
