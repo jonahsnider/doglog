@@ -71,6 +71,8 @@ export function normalizeEntryName(name: string): string {
 export class Samples {
 	timestamps: Float64Array<ArrayBuffer>;
 	values: Value[];
+	/** Changes when samples are removed or inserted before the latest one, so copies made from them know to start over */
+	rewrites = 0;
 
 	constructor(timestamps: Float64Array<ArrayBuffer> = new Float64Array(16), values: Value[] = []) {
 		this.timestamps = timestamps;
@@ -102,6 +104,7 @@ export class Samples {
 		this.timestamps.copyWithin(index + 1, index, length);
 		this.timestamps[index] = timestamp;
 		this.values.splice(index, 0, value);
+		this.rewrites++;
 	}
 
 	/** Index of the latest sample at or before `time`, or -1 if there is none */
@@ -150,6 +153,7 @@ export class Samples {
 		}
 		this.timestamps.copyWithin(0, count, this.length);
 		this.values.splice(0, count);
+		this.rewrites++;
 		return count;
 	}
 }

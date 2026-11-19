@@ -16,6 +16,7 @@ import { getEntry } from '@/data/data-store';
 import { formatEntryType } from '@/data/samples';
 import { useSource } from '@/data/source';
 import {
+	droppedEntryName,
 	type EntryDragData,
 	type EntryDropData,
 	entryDragType,
@@ -154,12 +155,13 @@ function DropFeedback({
 	}
 
 	// Entries the widget already shows can be bound again, ex. to draw a pose as a robot and a ghost
-	const entry = getEntry(dragged.name);
+	const name = droppedEntryName(type, dragged);
+	const entry = getEntry(name);
 	let rejection: string | undefined;
-	if (!acceptsDrop(type, dragged.name, entry)) {
+	if (!acceptsDrop(type, name, entry)) {
 		rejection = entry
 			? `${type.name} doesn't accept ${formatEntryType(entry.type)} entries`
-			: `${type.name} doesn't accept ${dragged.name}`;
+			: `${type.name} doesn't accept ${name}`;
 	}
 	return (
 		<div
@@ -170,7 +172,7 @@ function DropFeedback({
 					: 'border-destructive bg-destructive/8 text-destructive-foreground',
 			)}
 		>
-			{rejection ?? `Drop to show ${dragged.name}`}
+			{rejection ?? `Drop to show ${name}`}
 		</div>
 	);
 }

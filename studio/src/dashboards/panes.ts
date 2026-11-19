@@ -33,6 +33,7 @@ import {
 } from '@/panes/layout';
 import { getWidgetType } from '@/widgets/registry';
 import { optionValues, setWidgetOption } from '@/widgets/options';
+import { droppedEntryName } from '@/entries/drag';
 import { acceptsDrop, bindsEntries } from '@/widgets/widget-type';
 
 /**
@@ -48,15 +49,17 @@ export function updateLayout(id: string, update: (layout: PaneNode) => PaneNode)
  * picks from it, see `WidgetType.optionFromEntry`
  */
 export function dropDashboardEntry(id: string, dragged: DraggedEntry, to: EntryDrop): void {
-	const entry = getEntry(dragged.name);
 	updateLayout(id, (layout) => {
 		const widget = findPane(layout, to.paneId)?.widget;
 		const type = widget && getWidgetType(widget.type);
-		if (!type || !acceptsDrop(type, dragged.name, entry)) {
+		const name = type && droppedEntryName(type, dragged);
+		if (!type || name === undefined || !acceptsDrop(type, name, getEntry(name))) {
 			return layout;
 		}
-		const option = type.optionFromEntry?.(dragged.name);
-		return option ? setWidgetOption(layout, to.paneId, option.id, option.value) : dropEntry(layout, dragged, to);
+		const option = type.optionFromEntry?.(name);
+		return option
+			? setWidgetOption(layout, to.paneId, option.id, option.value)
+			: dropEntry(layout, { ...dragged, name }, to);
 	});
 }
 

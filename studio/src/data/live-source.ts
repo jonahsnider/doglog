@@ -71,12 +71,14 @@ export function connectLive(
 	};
 
 	const registerStructSchema = (name: string, schema: string): void => {
+		const structName = name.slice(structSchemaPrefix.length);
 		try {
-			structs.register(name.slice(structSchemaPrefix.length), schema);
+			structs.register(structName, schema);
 		} catch {
 			// Invalid schema, values using it stay pending
 			return;
 		}
+		data.addStructSchema(structName, structs.getDefinition(structName));
 
 		pendingStructs = pendingStructs.filter(({ entry, timestamp, bytes }) => {
 			const decoded = decodeStruct(entry, bytes);

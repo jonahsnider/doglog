@@ -1,4 +1,6 @@
+import type { StructDeclaration } from 'wpilib-struct';
 import type { Entry, TimeRange } from '@/data/data-store';
+import { type FieldKey, FieldEntry, structFieldType } from '@/data/field-entry';
 import { getEntryKind, Samples, trimOldest, type Value } from '@/data/samples';
 
 /**
@@ -28,6 +30,12 @@ export class DataSet {
 	private sampleCount = 0;
 	// `.type` entries whose group hasn't been checked for a Mechanism2d yet, see `addMechanismEntries()`
 	private readonly uncheckedTypeEntries = new Set<Entry>();
+	// Struct schemas by struct name, ex. `Pose2d`, see `addFieldEntries()`
+	private readonly structSchemas = new Map<string, readonly StructDeclaration[]>();
+	// Logged arrays, how many of their samples were checked, and the longest value in them
+	private readonly arrays = new Map<Entry, { checked: number; length: number }>();
+	// Struct entries whose fields haven't been added yet, until their schema arrives
+	private readonly unexpandedStructs = new Set<Entry>();
 	private entriesChanged = false;
 	private dataChanged = false;
 
@@ -41,15 +49,24 @@ export class DataSet {
 	/** Add an entry, or replace it with an empty entry if its type changed. Updates the entry's metadata when `metadata` is given. */
 	addEntry(name: string, type: string, samples = new Samples(), metadata?: Record<string, unknown>): Entry {
 		const existing = this.entries.get(name);
-		if (existing?.type === type) {
+		// A logged entry replaces a field entry with the same name
+		if (existing?.type === type && !(existing instanceof FieldEntry)) {
 			if (metadata !== undefined) {
 				this.setMetadata(existing, metadata);
 			}
 			return existing;
 		}
+		if (existing) {
+			this.removeFields(existing);
+		}
 
 		const entry: Entry = { name, type, kind: getEntryKind(type), samples, metadata: metadata ?? {} };
 		this.entries.set(name, entry);
+		if (entry.kind === 'struct') {
+			this.unexpandedStructs.add(entry);
+		} else if (entry.kind.endsWith('[]')) {
+			this.arrays.set(entry, { checked: 0, length: 0 });
+		}
 		if (name.endsWith('/.type')) {
 			this.uncheckedTypeEntries.add(entry);
 		}
@@ -63,6 +80,12 @@ export class DataSet {
 		entry.metadata = metadata;
 		// Widgets re-render on data changes, metadata can change how they show values
 		this.changed();
+	}
+
+	/** Add a struct schema, so entries of that struct get an entry for each field */
+	addStructSchema(name: string, fields: readonly StructDeclaration[]): void {
+		this.structSchemas.set(name, fields);
+		this.scheduleFlush(this);
 	}
 
 	/** Add a sample to an entry's history, dropping the oldest history once it gets too large */
@@ -106,6 +129,7 @@ export class DataSet {
 	/** Publish changes made since the last frame. Returns whether the entries and the data changed. */
 	publish(): { entries: boolean; data: boolean } {
 		this.addMechanismEntries();
+		this.addFieldEntries();
 		const changes = { entries: this.entriesChanged, data: this.dataChanged };
 		if (this.entriesChanged) {
 			this.entriesChanged = false;
@@ -129,9 +153,11 @@ export class DataSet {
 		this.scheduleFlush(this);
 	}
 
-	// Mechanism2d entries share their `.type` entry's samples, which must only be counted and trimmed once
+	// Mechanism2d entries share their `.type` entry's samples, which must only be counted and trimmed once.
+	// Field entries copy their samples from logged entries as they're read, and start over when those are trimmed.
 	private uniqueSamples(): Samples[] {
-		return [...new Set([...this.entries.values()].map((entry) => entry.samples))];
+		const logged = [...this.entries.values()].filter((entry) => !(entry instanceof FieldEntry));
+		return [...new Set(logged.map((entry) => entry.samples))];
 	}
 
 	private trimHistory(): void {
@@ -171,6 +197,74 @@ export class DataSet {
 					metadata: {},
 				});
 				this.entriesChanged = true;
+			}
+		}
+	}
+
+	/**
+	 * Add an entry for each element of logged arrays, up to the longest value logged so far, and each field of structs
+	 * whose schema is known, nested as deep as they go. See `FieldEntry`.
+	 */
+	private addFieldEntries(): void {
+		for (const [entry, array] of this.arrays) {
+			const { values, length } = entry.samples;
+			// Trimmed live history, check what's left
+			if (array.checked > length) {
+				array.checked = 0;
+			}
+			let longest = array.length;
+			for (let index = array.checked; index < length; index++) {
+				const value = values[index];
+				if (Array.isArray(value) && value.length > longest) {
+					longest = value.length;
+				}
+			}
+			for (let index = array.length; index < longest; index++) {
+				this.addField(entry, index, entry.type.slice(0, -'[]'.length));
+			}
+			array.checked = length;
+			array.length = longest;
+		}
+
+		// Nested structs added while expanding one are expanded in the same loop
+		for (const entry of this.unexpandedStructs) {
+			const fields = this.structSchemas.get(entry.type.slice('struct:'.length));
+			if (fields === undefined) {
+				continue;
+			}
+			this.unexpandedStructs.delete(entry);
+			for (const field of fields) {
+				const type = structFieldType(field);
+				this.addField(entry, field.name, type, type.endsWith('[]') ? field.arraySize : undefined);
+			}
+		}
+	}
+
+	/** Add a field entry, and the elements of struct array fields, which have a fixed `length` */
+	private addField(parent: Entry, key: FieldKey, type: string, length?: number): void {
+		const field = new FieldEntry(parent, key, type);
+		if (this.entries.has(field.name)) {
+			return;
+		}
+		this.entries.set(field.name, field);
+		this.entriesChanged = true;
+		if (field.kind === 'struct') {
+			this.unexpandedStructs.add(field);
+		}
+		for (let index = 0; index < (length ?? 0); index++) {
+			this.addField(field, index, type.slice(0, -'[]'.length));
+		}
+	}
+
+	/** Remove the field entries of an entry that's being replaced */
+	private removeFields(entry: Entry): void {
+		this.arrays.delete(entry);
+		this.unexpandedStructs.delete(entry);
+		const prefix = `${entry.name}/`;
+		for (const [name, other] of this.entries) {
+			if (other instanceof FieldEntry && name.startsWith(prefix)) {
+				this.entries.delete(name);
+				this.unexpandedStructs.delete(other);
 			}
 		}
 	}

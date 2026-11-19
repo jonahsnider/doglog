@@ -182,7 +182,8 @@ export type EntryDrop = {
 };
 
 /** A dragged entry, `from` is the binding it was dragged out of when it's from a widget */
-export type DraggedEntry = { name: string; from?: { paneId: string; bindingId: string } };
+/** `field` is the only field of the struct `name`, bound instead when the widget can't show the struct */
+export type DraggedEntry = { name: string; field?: string | undefined; from?: { paneId: string; bindingId: string } };
 
 /**
  * Bind a dropped entry to a pane's widget, at `to.index` or after its other bindings, even if the widget already shows it.

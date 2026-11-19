@@ -133,8 +133,9 @@ export function EntryRows({
 								highlights={highlights?.get(row.item.value)}
 								dropTarget={row.section === dropSection}
 								editing={edited !== undefined}
-								bound={row.item.entry !== undefined && bound.has(row.item.value)}
-								containsBound={boundGroups.has(row.item.value)}
+								bound={isBound(row.item, bound)}
+								// A row showing a struct's only field is marked bound instead
+								containsBound={row.item.field === undefined && boundGroups.has(row.item.value)}
 							/>
 						</Fragment>
 					);
@@ -142,6 +143,11 @@ export function EntryRows({
 			</Tree>
 		</div>
 	);
+}
+
+/** Whether the edited widget shows a row's entry, or the struct field it shows */
+function isBound({ entry, field, value }: EntryTreeNode, bound: ReadonlySet<string>): boolean {
+	return entry !== undefined && (bound.has(value) || (field !== undefined && bound.has(field.name)));
 }
 
 // Memoized so rows don't re-render when the cursor moves, only their values do
@@ -166,10 +172,12 @@ const EntryRowView = memo(function EntryRowView({
 }) {
 	const { dashboardId } = useParams({ from: '/dashboards/$dashboardId' });
 	const { item: node, level, section } = row;
-	const { entry } = node;
+	const { entry, field } = node;
 	const header = node.section !== undefined;
 	const unsupported = entry?.kind === 'unsupported';
-	const widget = entry && defaultWidget(entry);
+	// Rows showing a struct's only field are added as the value they show
+	const shown = field ?? entry;
+	const widget = shown && defaultWidget(shown);
 	const add = widget && (() => addDashboardWidget(dashboardId, widget));
 	const { ref: dragRef } = useDraggable<EntryDragData>({
 		id: node.value,
@@ -177,7 +185,7 @@ const EntryRowView = memo(function EntryRowView({
 		type: entry && !unsupported ? entryDragType : entryRowDragType,
 		disabled: header,
 		sensors: entryRowSensors,
-		data: { name: node.value, section },
+		data: { name: node.value, field: field?.name, section },
 	});
 	const { ref: dropRef } = useDroppable<EntrySectionDropData>({
 		id: node.value,
@@ -240,7 +248,7 @@ const EntryRowView = memo(function EntryRowView({
 				)}
 			</TreeItemLabel>
 			{node.children && <GroupMark path={node.value} tooltip={markTooltip} />}
-			{entry && <EntryRowValue entry={entry} tooltip={markTooltip} />}
+			{shown && <EntryRowValue entry={shown} tooltip={markTooltip} />}
 		</AppContextMenu>
 	);
 });

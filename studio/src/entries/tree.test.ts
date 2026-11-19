@@ -1,4 +1,6 @@
 import { expect, test } from 'vite-plus/test';
+import { parseStructSpecification } from 'wpilog-parser';
+import { DataSet } from '../data/data-set.ts';
 import type { Entry } from '../data/data-store.ts';
 import { Samples } from '../data/samples.ts';
 import {
@@ -156,4 +158,51 @@ test('search shows hidden matches and highlights full paths', () => {
 
 test('ancestor groups of entries', () => {
 	expect([...ancestorGroups(['/Arm/Wrist/Angle', '/Arm/Velocity', '/Time'])]).toEqual(['/Arm', '/Arm/Wrist']);
+});
+
+/** Logged structs and arrays with their field entries */
+function fieldEntries(): readonly Entry[] {
+	const data = new DataSet(() => {});
+	data.addEntry('/Arm/State', 'struct:ArmState');
+	data.addEntry('/Drive/Pose', 'struct:Pose2d');
+	const speeds = data.addEntry('/Drive/Speeds', 'double[]');
+	data.addSample(speeds, 0, [1, 2]);
+	data.addStructSchema('ArmState', parseStructSpecification('enum {STOWED=0, SCORING=1} int8 variant'));
+	data.addStructSchema('Pose2d', parseStructSpecification('Translation2d translation; Rotation2d rotation'));
+	data.addStructSchema('Translation2d', parseStructSpecification('double x; double y'));
+	data.addStructSchema('Rotation2d', parseStructSpecification('double value'));
+	data.publish();
+	return data.snapshot.list;
+}
+
+test('structs with one field are one row showing the field, nested as deep as they go', () => {
+	const fields = buildEntryTree(fieldEntries());
+	const rows = entryTreeView(fields, ['/Arm', '/Drive', '/Drive/Pose'], '').rows.map(({ item }) => [
+		item.value,
+		item.field?.name,
+	]);
+	expect(rows).toEqual([
+		['/Arm', undefined],
+		['/Arm/State', '/Arm/State/variant'],
+		['/Drive', undefined],
+		['/Drive/Pose', undefined],
+		['/Drive/Pose/rotation', '/Drive/Pose/rotation/value'],
+		['/Drive/Pose/translation', undefined],
+		['/Drive/Speeds', undefined],
+	]);
+
+	// Ex. editing a graph, which shows the enum's field but not its struct
+	const numbers = buildEntryTree(fieldEntries().filter((entry) => entry.kind === 'number'));
+	const state = numbers[0]!.children![0]!;
+	expect(state).toMatchObject({ value: '/Arm/State/variant', label: 'State', entry: { name: '/Arm/State/variant' } });
+	expect(state.children).toBeUndefined();
+});
+
+test("search doesn't list every field of a matching struct or array", () => {
+	const fields = buildEntryTree(fieldEntries());
+	const search = (query: string) => entryTreeView(fields, [], query).rows.map((row) => row.item.value);
+	expect(search('speeds')).toEqual(['/Drive', '/Drive/Speeds']);
+	expect(search('pose')).toEqual(['/Drive', '/Drive/Pose']);
+	expect(search('speeds 1')).toEqual(['/Drive', '/Drive/Speeds', '/Drive/Speeds/1']);
+	expect(search('pose x')).toEqual(['/Drive', '/Drive/Pose', '/Drive/Pose/translation', '/Drive/Pose/translation/x']);
 });

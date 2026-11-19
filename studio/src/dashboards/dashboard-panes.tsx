@@ -43,9 +43,9 @@ export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 			const { source, target } = operation;
 			// Entries dropped in the entry browser are moved between its sections instead
 			if (!canceled && source?.type === entryDragType && target && 'paneId' in target.data) {
-				const { name, paneId, bindingId } = source.data;
+				const { name, field, paneId, bindingId } = source.data;
 				const from = paneId !== undefined && bindingId !== undefined ? { paneId, bindingId } : undefined;
-				dropDashboardEntry(dashboard.id, { name, from }, target.data);
+				dropDashboardEntry(dashboard.id, { name, field, from }, target.data);
 			}
 		},
 	});

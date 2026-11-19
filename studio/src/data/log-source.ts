@@ -41,6 +41,11 @@ export function loadLog(file: File, data: DataSet, { onProgress, onLoaded, onErr
 			case 'progress':
 				onProgress(message.progress);
 				break;
+			case 'schemas':
+				for (const [name, fields] of message.structSchemas) {
+					data.addStructSchema(name, fields);
+				}
+				break;
 			case 'entry':
 				data.addEntry(
 					message.name,

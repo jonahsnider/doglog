@@ -4,6 +4,8 @@ import {
 	type DataRecord,
 	isDataRecord,
 	parseDataLog,
+	parseStructSpecification,
+	type StructDeclaration,
 } from 'wpilog-parser';
 import { isSchemaEntry, isStudioEntry, normalizeEntryName, Samples, type Value } from '@/data/samples';
 
@@ -12,6 +14,8 @@ type ParsedEntry = { type: string; metadata: string; samples: Samples };
 export type ParsedLog = {
 	/** Entries by normalized name */
 	entries: Map<string, ParsedEntry>;
+	/** Fields of the log's struct schemas by struct name, ex. `Pose2d` */
+	structSchemas: Map<string, StructDeclaration[]>;
 	/** Timestamp of the first data record */
 	start: number | undefined;
 	end: number | undefined;
@@ -23,6 +27,7 @@ export type ParsedLog = {
 };
 
 const textDecoder = new TextDecoder();
+const structSchemaPrefix = '/.schema/struct:';
 
 function toValue(record: DataRecord, entryType: string): Value | undefined {
 	switch (record.type) {
@@ -69,12 +74,21 @@ function handleControlRecord(
 	}
 }
 
+function addStructSchema(structSchemas: Map<string, StructDeclaration[]>, name: string, schema: string): void {
+	try {
+		structSchemas.set(name, parseStructSpecification(schema));
+	} catch {
+		// Invalid schema, its entries are shown without fields
+	}
+}
+
 /**
  * Read every entry of a WPILOG file. Throws if it isn't a WPILOG file, or if it's so damaged that none of its entries could be read.
  * Calls `onProgress` with the fraction of the file parsed, from 0 to 1, only when it changes by a whole percent so a worker doesn't flood the main thread with messages.
  */
 export function parseLog(bytes: Uint8Array, onProgress: (progress: number) => void): ParsedLog {
 	const entries = new Map<string, ParsedEntry>();
+	const structSchemas = new Map<string, StructDeclaration[]>();
 	const names = new Map<number, string>();
 	let start: number | undefined;
 	let end: number | undefined;
@@ -100,7 +114,14 @@ export function parseLog(bytes: Uint8Array, onProgress: (progress: number) => vo
 				continue;
 			}
 
-			const entry = entries.get(normalizeEntryName(record.entry.name));
+			const name = normalizeEntryName(record.entry.name);
+			if (record.entry.type === 'structschema') {
+				if (name.startsWith(structSchemaPrefix) && typeof record.payload === 'string') {
+					addStructSchema(structSchemas, name.slice(structSchemaPrefix.length), record.payload);
+				}
+				continue;
+			}
+			const entry = entries.get(name);
 			if (!entry) {
 				continue;
 			}
@@ -137,5 +158,5 @@ export function parseLog(bytes: Uint8Array, onProgress: (progress: number) => vo
 		}
 	}
 
-	return { entries, start, end, unreadBytes: bytes.byteLength - readBytes };
+	return { entries, structSchemas, start, end, unreadBytes: bytes.byteLength - readBytes };
 }

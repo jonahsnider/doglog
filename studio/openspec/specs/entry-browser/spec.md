@@ -27,6 +27,60 @@ The entry browser SHALL list every entry in the active source as a tree grouped 
 - **WHEN** a new topic is announced
 - **THEN** it appears in the tree
 
+### Requirement: Array elements and struct fields
+
+Each element of an array entry and each field of a struct entry SHALL be listed under it as an entry of its own, named by its index or field name, so it can be found, dragged, and bound as if it was logged on its own. Elements of struct arrays and fields of nested structs MUST be listed the same way, as deep as they go.
+
+#### Scenario: One swerve module's speed
+
+- **GIVEN** the source has `/Drive/ModuleStates` of type `struct:SwerveModuleState[]` with four modules
+- **THEN** `/Drive/ModuleStates` has rows `0` through `3`, each with `speed` and `angle` rows
+- **WHEN** the user drags `/Drive/ModuleStates/1/speed` onto a graph
+- **THEN** the graph plots the second module's speed
+
+#### Scenario: One element of a number array
+
+- **GIVEN** the source has `/Shooter/Velocities` of type `double[]`
+- **WHEN** the user double-clicks `/Shooter/Velocities/0`
+- **THEN** the first element is added to the dashboard like a `double` entry
+
+### Requirement: Array elements over time
+
+An array SHALL list as many elements as the longest value logged so far, and an element MUST only have values from when the array was long enough to include it. Elements MUST have their array's unit.
+
+#### Scenario: Live arrays get longer
+
+- **GIVEN** a live source where `/Vision/TargetIds` has only had one element
+- **WHEN** a value with three elements arrives
+- **THEN** `/Vision/TargetIds/1` and `/Vision/TargetIds/2` appear in the tree
+
+### Requirement: Structs with one field
+
+A struct with one field, like a Java enum logged as a struct or a `Rotation2d`, SHALL be shown as one row with the field's value instead of listing the field under it, nested as deep as single fields go. The row MUST still be the struct entry, except that dropping it on a widget that can't show the struct but can show the field, double-clicking it, and adding it from its context menu MUST use the field.
+
+#### Scenario: Enum logged as a struct
+
+- **GIVEN** the source has `/Arm/State` of type `struct:ArmState`, whose only field is `enum {STOWED=0, SCORING=1} int8 variant`
+- **THEN** the `State` row shows the variant's value, with no `variant` row under it
+- **WHEN** the user drags `State` onto a graph
+- **THEN** the graph shows `/Arm/State/variant`
+
+#### Scenario: Struct widgets still get the struct
+
+- **GIVEN** the source has `/Drive/Heading` of type `struct:Rotation2d`
+- **WHEN** the user drags `Heading` onto a table
+- **THEN** the table shows `/Drive/Heading`
+
+### Requirement: Edit with structs with one field
+
+While editing a widget that accepts a struct's only field but not the struct, the field SHALL be shown in the struct's place, labeled with the struct's name.
+
+#### Scenario: Edit a graph's entries
+
+- **GIVEN** the source has `/Arm/State` of type `struct:ArmState`, whose only field is `variant`
+- **WHEN** the user starts editing a graph's entries
+- **THEN** a `State` row is shown, and checking it binds `/Arm/State/variant`
+
 ### Requirement: Keyboard navigation
 
 The entry tree SHALL follow the WAI-ARIA tree view pattern: it MUST be a single tab stop, the arrow keys MUST move between rows and expand or collapse groups, and typing MUST focus the next row whose label starts with the typed text. Keyboard navigation MUST reach rows scrolled out of view. Space MUST NOT pick up a row to drag it or scroll the tree.
@@ -83,6 +137,18 @@ The entry browser SHALL provide a search box that filters the tree to entries wh
 - **GIVEN** the source has `/Drive/Pose` of type `struct:Pose2d`
 - **WHEN** the user types "Pose2d"
 - **THEN** `/Drive/Pose` is shown
+
+### Requirement: Search arrays and structs
+
+Array elements and struct fields SHALL NOT match a search when the query only matched the part of their name that's their array's or struct's name, and that array or struct matched too, so searching for an array doesn't list every element.
+
+#### Scenario: Search for an array
+
+- **GIVEN** the source has `/Drive/ModuleStates` of type `struct:SwerveModuleState[]`
+- **WHEN** the user types "modulestates"
+- **THEN** `/Drive/ModuleStates` is shown without its modules
+- **WHEN** the user types "modulestates 1 speed"
+- **THEN** `/Drive/ModuleStates/1/speed` is shown
 
 ### Requirement: Collapsible panel
 

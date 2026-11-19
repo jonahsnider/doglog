@@ -1,4 +1,5 @@
 import { go, type KeysResult } from 'fuzzysort';
+import { FieldEntry } from '@/data/field-entry';
 import { formatEntryType } from '@/data/samples';
 
 type SearchableEntry = {
@@ -27,7 +28,26 @@ export function searchEntries<T extends SearchableEntry>(
 	const results = go(terms, entries, { keys: ['name', structType], limit: 0, threshold: 0 });
 	// A fixed cutoff drops reasonable matches that score low, like `mod1` for `Module1`, so cut relative to the best match
 	const cutoff = (results[0]?.score ?? 0) / 2;
-	return results.filter((result) => result.score >= cutoff);
+	const matches = results.filter((result) => result.score >= cutoff);
+	const names = new Set(matches.map((result) => result.obj.name));
+	return matches.filter((result) => !matchedInParent(result.obj, result[0]!.indexes, names));
+}
+
+/**
+ * Whether a field entry only matched in the name of its struct or array, or of a struct it's in, that matched too.
+ * Searching for an array would list every element of it otherwise.
+ */
+function matchedInParent(entry: SearchableEntry, indexes: readonly number[], matched: ReadonlySet<string>): boolean {
+	if (!(entry instanceof FieldEntry)) {
+		return false;
+	}
+	const last = Math.max(...indexes);
+	for (let end = entry.root.name.length; end !== -1; end = entry.name.indexOf('/', end + 1)) {
+		if (end > last && matched.has(entry.name.slice(0, end))) {
+			return true;
+		}
+	}
+	return false;
 }
 
 /** Turn matched character positions into ranges, as `[start, end, start, end, ...]` */

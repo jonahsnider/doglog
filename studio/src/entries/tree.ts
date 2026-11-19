@@ -1,5 +1,6 @@
 import { type TreeRow, visibleTreeRows } from '@ui-sdk/core/tree';
 import type { Entry } from '@/data/data-store';
+import { FieldEntry } from '@/data/field-entry';
 import { matchRanges, searchEntries } from '@/entries/search';
 import type { EntryPlacements, EntrySection } from '@/entries/sections';
 
@@ -10,6 +11,11 @@ export type EntryTreeNode = {
 	/** Last path segment, ex. `Angle`, or the full path for the top of a pinned or hidden entry or group */
 	readonly label: string;
 	entry?: Entry;
+	/**
+	 * The only field of the struct `entry`, nested as deep as it goes, ex. the `variant` of an enum logged as a struct.
+	 * The row shows its value instead of listing it, and widgets that can't show the struct bind it instead.
+	 */
+	field?: Entry;
 	/** Only set on the Pinned section's header */
 	section?: 'pinned';
 	/** Only set on groups, the tree treats any item with children as a branch */
@@ -69,7 +75,34 @@ export function buildEntryTree(entries: readonly Entry[]): EntryTreeNode[] {
 	}
 
 	sortNodes(root);
-	return root;
+	return mergeSingleFields(root);
+}
+
+/**
+ * Show structs with one field as one row, see `EntryTreeNode.field`. Groups left with only a struct's field, ex. when
+ * editing a widget that accepts the field but not the struct, show the field in the group's place.
+ */
+function mergeSingleFields(nodes: EntryTreeNode[]): EntryTreeNode[] {
+	return nodes.map((node) => {
+		if (!node.children) {
+			return node;
+		}
+		node.children = mergeSingleFields(node.children);
+		const [child] = node.children;
+		// A field of this struct, not an array's element or a field of a struct already shown in its place
+		const { entry: field } = child!;
+		if (
+			node.children.length !== 1 ||
+			child!.children ||
+			!(field instanceof FieldEntry) ||
+			typeof field.path.at(-1) !== 'string' ||
+			field.name !== `${node.value}/${field.path.at(-1)}`
+		) {
+			return node;
+		}
+		const { children: _children, ...struct } = node;
+		return struct.entry ? { ...struct, field: child!.field ?? child!.entry } : { ...child!, label: node.label };
+	});
 }
 
 /**

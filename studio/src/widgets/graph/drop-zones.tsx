@@ -12,10 +12,19 @@ import {
 import { cn } from '@/lib/utils';
 import { type GraphSection, graphRoles, graphSection } from '@/widgets/graph/roles';
 
-/** The sections an entry can be shown in, ex. strings can only be bands */
-function sectionsOf(name: string): GraphSection[] {
-	const entry = getEntry(name);
-	return entry ? graphRoles(entry).map((role) => graphSection(role)) : [];
+/**
+ * The sections a dragged entry can be shown in, ex. strings can only be bands. Rows showing a struct's only field go
+ * where the field can, see `droppedEntryName()`.
+ */
+function sectionsOf({ name, field }: Pick<EntryDragData, 'name' | 'field'>): GraphSection[] {
+	for (const candidate of [name, field]) {
+		const entry = candidate === undefined ? undefined : getEntry(candidate);
+		const roles = entry ? graphRoles(entry) : [];
+		if (roles.length > 0) {
+			return roles.map((role) => graphSection(role));
+		}
+	}
+	return [];
 }
 
 /**
@@ -35,7 +44,7 @@ export function DropZones({ bandsHeight }: { bandsHeight: number }) {
 	if (!shown) {
 		return undefined;
 	}
-	const sections = sectionsOf(source.data.name);
+	const sections = sectionsOf(source.data);
 	// Dropping on the graph's entries also moves the dragged entry to their section
 	const over = drop?.paneId === paneId ? drop.role : undefined;
 	const zone = (section: GraphSection, label: string) =>
@@ -71,7 +80,13 @@ function Zone({
 }) {
 	const { ref } = useDroppable<EntryDropData>({
 		id: `${paneId}:${section}`,
-		accept: (source) => source.type === entryDragType && sectionsOf(String(source.data['name'])).includes(section),
+		accept: (source) => {
+			const { name, field } = source.data;
+			return (
+				source.type === entryDragType &&
+				sectionsOf({ name: String(name), field: typeof field === 'string' ? field : undefined }).includes(section)
+			);
+		},
 		// Above the widget's own drop target, below its entries, which take the dropped entry's place among them
 		collisionPriority: 2,
 		data: { paneId, role: section },
