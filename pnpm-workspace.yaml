@@ -36,6 +36,9 @@ packageExtensions:
     peerDependencies:
       '@types/react': '*'
       '@types/three': '*'
+  three-stdlib:
+    peerDependencies:
+      '@types/three': '*'
   # A drei dependency that imports `react` without declaring it
   tunnel-rat:
     peerDependencies:

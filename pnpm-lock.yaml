@@ -183,7 +183,7 @@ catalogs:
 overrides:
   '@sentry/bundler-plugins>sentry': 0.50.0
 
-packageExtensionsChecksum: sha256-tmDMdw/mj2MJX/IiGqLQTx+xwKY/VwzTKlaTJOXIyPg=
+packageExtensionsChecksum: sha256-n0twtbXCVDsL5rqLxzvZVd71d/rrPxjq9gqnVmhW3A4=
 
 patchedDependencies:
   '@ntcore-ts/client': b58b6e21e39b58a48823a2262f0138c98e35cab1f383c86bcc9a1e1e7859fcd8
@@ -7291,6 +7291,7 @@ packages:
   three-stdlib@2.36.1:
     resolution: {integrity: sha512-XyGQrFmNQ5O/IoKm556ftwKsBg11TIb301MB5dWNicziQBEs2g3gtOYIf7pFiLa0zI2gUwhtCjv9fmjnxKZ1Cg==}
     peerDependencies:
+      '@types/three': '*'
       three: '>=0.128.0'
 
   three@0.187.0:
@@ -10588,7 +10589,7 @@ snapshots:
       suspend-react: 0.1.3(react@19.3.1)
       three: 0.187.0
       three-mesh-bvh: 0.8.3(three@0.187.0)
-      three-stdlib: 2.36.1(three@0.187.0)
+      three-stdlib: 2.36.1(@types/three@0.187.0)(three@0.187.0)
       troika-three-text: 0.52.5(three@0.187.0)
       tunnel-rat: 0.1.2(@types/react@19.3.0)(react@19.3.1)
       use-sync-external-store: 1.7.0(react@19.3.1)
@@ -15325,10 +15326,11 @@ snapshots:
     dependencies:
       three: 0.187.0
 
-  three-stdlib@2.36.1(three@0.187.0):
+  three-stdlib@2.36.1(@types/three@0.187.0)(three@0.187.0):
     dependencies:
       '@types/draco3d': 1.4.10
       '@types/offscreencanvas': 2019.7.3
+      '@types/three': 0.187.0
       '@types/webxr': 0.5.24
       draco3d: 1.5.9
       fflate: 0.6.11
