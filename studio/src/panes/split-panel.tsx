@@ -1,6 +1,7 @@
 import { type CSSProperties, useLayoutEffect, useRef } from 'react';
 import { Panel, type PanelProps } from 'react-resizable-panels';
 import type { SplitDirection } from '@/panes/layout';
+import { dividerSize } from '@/panes/pane-size';
 
 /** How a child of a split takes part in its animation, see `SplitView` */
 export type SplitPanelAnimation = {
@@ -36,7 +37,7 @@ export function SplitPanel({
 }) {
 	const row = direction === 'row';
 	// Its content keeps one size while the split animates, measured against the split with container units
-	const size = `calc((${row ? '100cqw' : '100cqh'} - ${animation?.dividers ?? 0}px) * ${animation?.size ?? 1})`;
+	const size = `calc((${row ? '100cqw' : '100cqh'} - ${(animation?.dividers ?? 0) * dividerSize}px) * ${animation?.size ?? 1})`;
 	const contentStyle: CSSProperties | undefined = animation && {
 		flex: 'none',
 		// Its size doesn't depend on its content, so the browser can skip laying it out while the split animates

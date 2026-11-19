@@ -135,8 +135,8 @@ export function AppSidebar() {
 					data-collapsible={iconOnly ? 'icon' : undefined}
 					className={cn(
 						'group absolute inset-y-0 start-0 z-20 overflow-hidden transition-[width,box-shadow] duration-200 motion-reduce:transition-none',
-						// A line instead of a border, so the title bar can cover it under the traffic lights
-						'after:pointer-events-none after:absolute after:inset-y-0 after:end-0 after:w-px after:bg-border',
+						// Rounded where it meets the rest of the app, and flush with the window's edges
+						'rounded-e-lg',
 						iconOnly && 'w-(--sidebar-width-icon)',
 						collapsed && peeking && 'shadow-lg',
 						// The content is already at its final size, see below

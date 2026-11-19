@@ -3,10 +3,13 @@ import { type PaneNode, panesAlong, type SplitDirection } from '@/panes/layout';
 /** In pixels, the smallest a pane can be made by resizing it, or the desktop window around it, along each direction */
 const minPaneSize: Record<SplitDirection, number> = { row: 200, column: 120 };
 
-/** In pixels, the smallest `node` can be along `direction` for each of its panes to be at least `paneSize`, with 1px dividers between them */
+/** In pixels, the gap between panes, which their dividers fill */
+export const dividerSize = 6;
+
+/** In pixels, the smallest `node` can be along `direction` for each of its panes to be at least `paneSize`, with dividers between them */
 export function minNodeSize(node: PaneNode, direction: SplitDirection, paneSize = minPaneSize[direction]): number {
 	const count = panesAlong(node, direction);
-	return paneSize * count + count - 1;
+	return paneSize * count + (count - 1) * dividerSize;
 }
 
 /**
@@ -15,5 +18,8 @@ export function minNodeSize(node: PaneNode, direction: SplitDirection, paneSize 
  */
 export function minPaneSizeIn(layout: PaneNode, direction: SplitDirection, extent: number): number {
 	const count = panesAlong(layout, direction);
-	return Math.max((extent - 3) / 4, Math.min(minPaneSize[direction], (extent - count + 1) / count));
+	return Math.max(
+		(extent - 3 * dividerSize) / 4,
+		Math.min(minPaneSize[direction], (extent - (count - 1) * dividerSize) / count),
+	);
 }

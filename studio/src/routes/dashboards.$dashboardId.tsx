@@ -81,18 +81,21 @@ function DashboardView() {
 	}
 
 	return (
-		<div className={cn('flex h-full flex-col', movingPane && 'pointer-events-none')}>
-			<Group orientation="horizontal" className="min-h-0 flex-1">
+		<div className={cn('h-full', movingPane && 'pointer-events-none')}>
+			<Group orientation="horizontal" className="h-full">
 				{/* Widening the entry browser stops at the panes' minimum size on desktop, where the window is kept big enough for
 				    it. A smaller browser window shrinks the panes before the entry browser. */}
 				<Panel minSize={isTauri() ? minNodeSize(dashboard.layout, 'row') : '7rem'} style={{ overflow: 'hidden' }}>
-					<section aria-label="Panes" className="h-full min-w-0">
-						<DashboardPanes dashboard={dashboard} />
-					</section>
+					{/* Under the panes rather than the entry browser too, so the entry browser reaches the bottom of the window like the sidebar */}
+					<div className="flex h-full flex-col gap-1.5 py-1.5 ps-1.5">
+						<section aria-label="Panes" className="min-h-0 min-w-0 flex-1">
+							<DashboardPanes dashboard={dashboard} />
+						</section>
+						<TimelineBar />
+					</div>
 				</Panel>
 				<EntryBrowser dashboard={dashboard} />
 			</Group>
-			<TimelineBar />
 		</div>
 	);
 }

@@ -60,7 +60,7 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 
 	if (!open) {
 		return (
-			<aside aria-label="Entry browser" className="shrink-0 border-l px-1.5 py-1.5">
+			<aside aria-label="Entry browser" className="ms-1.5 shrink-0 rounded-s-lg bg-sidebar px-1.5 py-1.5">
 				<ToggleButton open={false} />
 			</aside>
 		);
@@ -71,7 +71,7 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 			<Separator
 				aria-label="Resize entry browser"
 				// Covers the library's 10px hit area so double-clicks land on the separator
-				className="relative z-10 w-px bg-border after:absolute after:inset-y-0 after:-inset-x-[4.5px] outline-none transition-colors focus-visible:bg-ring data-[separator=active]:bg-ring data-[separator=hover]:bg-ring"
+				className="relative z-10 w-1.5 outline-none before:absolute before:inset-x-0.5 before:inset-y-1 before:rounded-full before:transition-colors after:absolute after:inset-y-0 after:-inset-x-0.5 focus-visible:before:bg-ring data-[separator=active]:before:bg-ring data-[separator=hover]:before:bg-ring"
 				// The built-in reset would use the saved width
 				disableDoubleClick
 				onDoubleClick={() => panelRef.current?.resize(defaultWidthPx)}
@@ -85,8 +85,9 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 				onResize={(size, _id, prevSize) => prevSize && widthPxStore.set(size.inPixels)}
 			>
 				{/* Not selectable, so double-clicking or dragging rows doesn't select their labels */}
-				<aside aria-label="Entry browser" className="flex h-full flex-col">
-					<div {...dragRegion} className="flex h-9 shrink-0 items-center gap-1 border-b ps-3 pe-1.5">
+				{/* A sidebar like the one on the left, rounded where it meets the rest of the app */}
+				<aside aria-label="Entry browser" className="flex h-full flex-col overflow-hidden rounded-s-lg bg-sidebar">
+					<div {...dragRegion} className="flex h-9 shrink-0 items-center gap-1 ps-3 pe-1.5">
 						{edited ? (
 							<>
 								<h2 className="min-w-0 flex-1 truncate text-xs font-medium">Editing {edited.type.name}</h2>

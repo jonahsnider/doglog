@@ -48,6 +48,7 @@
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
 	--color-sidebar-accent: var(--sidebar-accent);
 	--color-sidebar: var(--sidebar);
+	--color-frame: var(--frame);
 	--color-code-highlight: var(--code-highlight);
 	--code-foreground: var(--code-foreground);
 	--color-code: var(--code);
@@ -66,6 +67,7 @@
 	--color-muted-foreground: var(--muted-foreground);
 	--color-muted: var(--muted);
 	--color-input: var(--input);
+	--color-outline: var(--outline);
 	--color-foreground: var(--foreground);
 	--color-destructive: var(--destructive);
 	--color-card-foreground: var(--card-foreground);
@@ -233,6 +235,8 @@
 	--md-surface-container-highest: rgb(246 221 219);
 
 	--destructive: var(--md-error);
+	/* Behind the sidebars, panes, and timeline, darker than each of them. MD3's role for the dimmest surface. */
+	--frame: var(--md-surface-dim);
 	/* Chart colors generated from the theme color, see `chartColorVariables()` in src/theme/theme-color.ts */
 	--chart-1: rgb(194 74 71);
 	--chart-2: rgb(137 111 0);
@@ -303,6 +307,8 @@
 
 	/* coss puts white text on destructive, so use the darker container color */
 	--destructive: var(--md-error-container);
+	/* Surface dim is the same as surface in dark themes, so the frame uses the only darker role */
+	--frame: var(--md-surface-container-lowest);
 	/* Chart colors generated from the theme color, see `chartColorVariables()` in src/theme/theme-color.ts */
 	--chart-1: rgb(255 146 140);
 	--chart-2: rgb(211 173 0);
@@ -339,6 +345,8 @@
 	--destructive-foreground: var(--md-error);
 	--border: var(--md-outline-variant);
 	--input: var(--md-outline-variant);
+	/* MD3 bounds controls with nothing inside to see them by, like text fields and checkboxes, with outline, see below */
+	--outline: var(--md-outline);
 	--ring: var(--md-primary);
 	--code: var(--md-surface-container-low);
 	--code-foreground: var(--md-on-surface);
@@ -387,6 +395,7 @@
 	--destructive-foreground: var(--color-red-700);
 	--border: --alpha(var(--color-black) / 8%);
 	--input: --alpha(var(--color-black) / 10%);
+	--outline: var(--input);
 	--ring: var(--color-neutral-400);
 	--sidebar: var(--color-neutral-50);
 	--sidebar-foreground: color-mix(in srgb, var(--color-neutral-800) 64%, var(--sidebar));
@@ -396,6 +405,7 @@
 	--sidebar-accent-foreground: var(--color-neutral-800);
 	--sidebar-border: --alpha(var(--color-black) / 6%);
 	--sidebar-ring: var(--color-neutral-400);
+	--frame: var(--color-neutral-100);
 	--chart-1: var(--color-blue-600);
 	--chart-2: var(--color-emerald-600);
 	--chart-3: var(--color-amber-500);
@@ -429,6 +439,7 @@
 	--destructive-foreground: var(--color-red-400);
 	--border: --alpha(var(--color-white) / 6%);
 	--input: --alpha(var(--color-white) / 8%);
+	--outline: var(--input);
 	--ring: var(--color-neutral-500);
 	--sidebar: color-mix(in srgb, var(--color-neutral-950) 97%, var(--color-white));
 	--sidebar-foreground: color-mix(in srgb, var(--color-neutral-100) 64%, var(--sidebar));
@@ -438,6 +449,7 @@
 	--sidebar-accent-foreground: var(--color-neutral-100);
 	--sidebar-border: --alpha(var(--color-white) / 5%);
 	--sidebar-ring: var(--color-neutral-400);
+	--frame: var(--color-neutral-950);
 	--chart-1: var(--color-blue-500);
 	--chart-2: var(--color-emerald-500);
 	--chart-3: var(--color-amber-500);
@@ -496,6 +508,39 @@
 	):not(:disabled, [aria-disabled='true'], [data-disabled]) {
 		cursor: pointer;
 	}
+}
+
+/*
+ * MD3 colors for coss ui components, set by the slots they render so the components stay as they are upstream.
+ * Utilities with the same specificity as the ones they replace, coming after them so they win, while more specific
+ * state variants like `focus-visible:border-ring` still win over them.
+ */
+@layer utilities {
+	/* Text fields, selects, checkboxes, and radios are bounded with outline, `outline-variant` is too faint for targets with nothing inside them */
+	.border-input:where(
+		[data-slot='input-control'],
+		[data-slot='textarea-control'],
+		[data-slot='input-group'],
+		[data-slot='combobox-input-group'],
+		[data-slot='number-field-group'],
+		[data-slot='otp-field-input'],
+		[data-slot='select-trigger'],
+		[data-slot='checkbox'],
+		[data-slot='radio']
+	) {
+		border-color: var(--outline);
+	}
+
+	/* The open page or dashboard is secondary container, like the selected item in MD3's navigation drawer, including while it's hovered */
+	[data-sidebar='menu-button'][data-active='true'] {
+		background-color: var(--secondary);
+		color: var(--secondary-foreground);
+	}
+}
+
+/* MD3 dialogs are surface container high, a step above menus. Neutral keeps coss ui's colors. */
+:root:not(.coss-theme) :is([data-slot='dialog-popup'], [data-slot='alert-dialog-popup']) {
+	--popover: var(--md-surface-container-high);
 }
 
 /* Tints the top of the sidebar to tell open windows apart, see `src/theme/window-color.ts` */
@@ -589,6 +634,6 @@
 }
 
 :root {
-	/* How far the macOS title bar's buttons reach past the collapsed sidebar, see `TitleBar`: its start padding, the toggle, Back, and Forward with the gaps between them, minus the rail */
-	--title-bar-overlap: calc(--spacing(21) + 3 * --spacing(6) + 2 * --spacing(0.5) - 3rem);
+	/* How far the macOS title bar's buttons reach into the top left pane, see `TitleBar`: its start padding, the toggle, Back, and Forward with the gaps between them, minus the rail and the gap after it */
+	--title-bar-overlap: calc(--spacing(21) + 3 * --spacing(6) + 2 * --spacing(0.5) - 3rem - --spacing(1.5));
 }

@@ -280,7 +280,7 @@ function EntryMarks({ type, editing }: { type: string; editing: boolean }) {
 
 function BindCheckbox() {
 	return (
-		<TreeItemCheckbox className="group/checkbox flex size-4 shrink-0 items-center justify-center rounded-[.25rem] border border-input bg-background text-primary-foreground data-checked:border-primary data-checked:bg-primary dark:not-data-checked:bg-input/32">
+		<TreeItemCheckbox className="group/checkbox flex size-4 shrink-0 items-center justify-center rounded-[.25rem] border border-outline bg-background text-primary-foreground data-checked:border-primary data-checked:bg-primary dark:not-data-checked:bg-input/32">
 			<CheckIcon className="size-3 group-not-data-checked/checkbox:hidden" strokeWidth={3} />
 		</TreeItemCheckbox>
 	);

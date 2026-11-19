@@ -10,7 +10,7 @@ import { useMinWindowSize } from '@/desktop/window-size';
 import { useSize } from '@/hooks/use-size';
 import { cn } from '@/lib/utils';
 import { findPane, type PaneNode, resetDivider, resizeSplit, type Split, type SplitDirection } from '@/panes/layout';
-import { minNodeSize, minPaneSizeIn } from '@/panes/pane-size';
+import { dividerSize, minNodeSize, minPaneSizeIn } from '@/panes/pane-size';
 import { SplitPanel, type SplitPanelAnimation } from '@/panes/split-panel';
 import { closingSplit, percentages, type SplitAnimation, splitAnimation } from '@/panes/split-animation';
 import { useZoomAnimation } from '@/panes/zoom-animation';
@@ -137,15 +137,16 @@ function SplitView({
 	const groupSize = useSize(group);
 	const extent = row ? groupSize?.width : groupSize?.height;
 	const dividers = split.children.length - 1;
-	// A child with a split inside needs room for its panes and the 1px dividers between them
+	const dividersSize = dividers * dividerSize;
+	// A child with a split inside needs room for its panes and the dividers between them
 	const paneSize = minPaneSizes?.[split.direction];
 	const minSizes = split.children.map((child) => minSize(child, split.direction, paneSize));
 	// Every child is as small as it can be, so the dividers can't move (within a pixel of rounding)
-	const locked = extent !== undefined && extent - minSizes.reduce((sum, size) => sum + size, 0) - dividers < 1;
+	const locked = extent !== undefined && extent - minSizes.reduce((sum, size) => sum + size, 0) - dividersSize < 1;
 	const minimum = useCallback(
 		(child: PaneNode) =>
-			extent === undefined ? 0 : minSize(child, split.direction, paneSize) / Math.max(extent - dividers, 1),
-		[extent, dividers, split.direction, paneSize],
+			extent === undefined ? 0 : minSize(child, split.direction, paneSize) / Math.max(extent - dividersSize, 1),
+		[extent, dividersSize, split.direction, paneSize],
 	);
 
 	// The shares the children end at, a closing pane ends at nothing
@@ -234,7 +235,7 @@ function SplitView({
 
 				const sizes = split.children.map((child) => (requestedLayout[child.id] ?? 0) / 100);
 				updateLayout(dashboardId, (layout) =>
-					resizeSplit(layout, split.id, sizes, snapDistance / Math.max(extent - dividers, 1)),
+					resizeSplit(layout, split.id, sizes, snapDistance / Math.max(extent - dividersSize, 1)),
 				);
 			}}
 		>
@@ -246,12 +247,15 @@ function SplitView({
 						// Disabled dividers don't get the hover and active highlights, and the not-allowed cursor is replaced so they don't look interactive
 						disabled={locked}
 						style={locked ? { cursor: 'auto' } : undefined}
-						// The library's 10px hit area is mostly outside the line, so the pseudo-element catches double-clicks there
+						// The gap between panes, with a line in the middle while it's hovered or dragged. The `after` pseudo-element
+						// widens it to the library's 10px hit area so double-clicks land on it.
 						className={cn(
-							'bg-border outline-none transition-colors focus-visible:bg-ring data-[separator=active]:bg-ring data-[separator=hover]:bg-ring',
-							'relative z-10 after:absolute',
+							'relative z-10 outline-none before:absolute before:rounded-full before:transition-colors focus-visible:before:bg-ring data-[separator=active]:before:bg-ring data-[separator=hover]:before:bg-ring',
+							'after:absolute',
 							zoomedHere && 'hidden',
-							row ? 'w-px after:inset-y-0 after:-inset-x-[4.5px]' : 'h-px after:inset-x-0 after:-inset-y-[4.5px]',
+							row
+								? 'w-1.5 before:inset-y-1 before:inset-x-0.5 after:inset-y-0 after:-inset-x-0.5'
+								: 'h-1.5 before:inset-x-1 before:inset-y-0.5 after:inset-x-0 after:-inset-y-0.5',
 						)}
 						onDoubleClick={() => {
 							if (!locked) {

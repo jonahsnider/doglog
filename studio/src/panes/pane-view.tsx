@@ -87,7 +87,7 @@ export function PaneView({
 	const close = () => closeDashboardPane(dashboardId, pane.id);
 	const focused = pane.id === focusedPaneId;
 	const zoomed = pane.id === zoomedPaneId;
-	// The header makes room for the traffic lights and continues the title bar under them, see `TitleBar`
+	// The header makes room for the traffic lights and the buttons after them, see `TitleBar`
 	const underTrafficLights = trafficLightsOverlap && (topLeft || zoomed);
 	const zoom = () => toggleZoom(dashboardId, pane.id);
 
@@ -202,7 +202,10 @@ export function PaneView({
 			render={
 				<div
 					ref={dropRef}
-					className={cn('group/pane relative flex size-full flex-col transition-opacity', isDragging && 'opacity-40')}
+					className={cn(
+						'group/pane relative flex size-full flex-col overflow-hidden rounded-lg bg-background transition-opacity',
+						isDragging && 'opacity-40',
+					)}
 					// Lets `addDashboardWidget()` pick a split direction from the pane's size
 					data-pane-id={pane.id}
 					data-zoom-filling={pane.id === zoomFillingPaneId || undefined}
@@ -220,9 +223,8 @@ export function PaneView({
 			}
 		>
 			<div
-				data-joins-title-bar={underTrafficLights}
 				className={cn(
-					'flex h-9 shrink-0 items-center gap-0.5 border-b px-2 transition-colors',
+					'flex h-9 shrink-0 items-center gap-0.5 px-2 transition-colors',
 					underTrafficLights && 'ps-[calc(var(--title-bar-overlap)+--spacing(1.5))]',
 					// Marks the widget whose entries the entry browser is editing
 					editing && 'bg-primary/12',

@@ -125,8 +125,8 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 	useHotkeys(speedHotkeys, { target: speedTrigger, enabled: !speedOpen });
 
 	return (
-		<footer aria-label="Timeline" className="flex h-14 shrink-0 border-t">
-			{/* Fades the contents so the border stays put */}
+		<footer aria-label="Timeline" className="flex h-14 shrink-0 rounded-lg bg-background">
+			{/* Fades the contents so the container stays put */}
 			<div
 				className={cn(
 					'flex min-w-0 flex-1 items-center gap-1 px-2',
@@ -249,7 +249,7 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 function LogProgress({ fileName }: { fileName: string }) {
 	const progress = useLogProgress();
 	return (
-		<footer aria-label="Timeline" className="flex h-14 shrink-0 items-center border-t px-4">
+		<footer aria-label="Timeline" className="flex h-14 shrink-0 items-center rounded-lg bg-background px-4">
 			{/* Fades in after a moment so small logs that load instantly don't flash it */}
 			<Progress
 				value={progress * 100}
