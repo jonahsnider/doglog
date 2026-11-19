@@ -1,5 +1,4 @@
 import {
-	Blend,
 	Contrast as MaterialContrast,
 	DynamicScheme,
 	Hct,
@@ -9,6 +8,7 @@ import {
 	hexFromArgb,
 } from '@material/material-color-utilities';
 import { chartCount, type Contrast, type ThemePreset } from '@/theme/choices';
+import { statusColorVariables } from '@/theme/status-color';
 
 /** Team 581 maroon, the hard-coded `--md-*` colors in `index.css` are generated from it */
 export const defaultThemeColor = '#591616';
@@ -82,44 +82,76 @@ const roles = [
 	'surfaceContainerHighest',
 ] as const;
 
+type Role = (typeof roles)[number];
+type Palettes = Pick<
+	ConstructorParameters<typeof DynamicScheme>[0],
+	'primaryPalette' | 'secondaryPalette' | 'neutralPalette' | 'neutralVariantPalette'
+>;
+
+const fromHex = (hex: string) => TonalPalette.fromInt(argbFromHex(hex));
+const maroonHue = Hct.fromInt(argbFromHex(defaultThemeColor)).hue;
+
+/** Palettes that presets use instead of Tonal Spot's in each appearance */
+const presetPalettes: Partial<Record<ThemePreset, Record<'light' | 'dark', Palettes>>> = {
+	// Muted neutrals so the team color stands out, lower in light mode where the 2025 spec boosts container chroma
+	team581: {
+		light: {
+			neutralPalette: TonalPalette.fromHueAndChroma(maroonHue, 1),
+			neutralVariantPalette: TonalPalette.fromHueAndChroma(maroonHue, 2),
+		},
+		dark: {
+			neutralPalette: TonalPalette.fromHueAndChroma(maroonHue, 2),
+			neutralVariantPalette: TonalPalette.fromHueAndChroma(maroonHue, 3.5),
+		},
+	},
+	// match13.com's blue accents, icy light panels, and the black overlays on its dark data pages
+	match13: {
+		light: {
+			primaryPalette: fromHex('#135ab0'),
+			secondaryPalette: fromHex('#cddff8'),
+			neutralPalette: fromHex('#e2efff'),
+		},
+		dark: {
+			primaryPalette: fromHex('#6ab0fd'),
+			secondaryPalette: fromHex('#273e55'),
+			neutralPalette: fromHex('#000000'),
+		},
+	},
+};
+
+/** match13.com's sky-400 for dark mode actions and focus instead of Tonal Spot's pastel tone 80 */
+const sky = fromHex('#29a3f6');
+/** The sky tone for primary and its contrast ratio with on-primary at each contrast level */
+const skyPrimary: Record<Contrast, { tone: number; onPrimaryRatio: number }> = {
+	standard: { tone: sky.keyColor.tone, onPrimaryRatio: 6 },
+	medium: { tone: 75, onPrimaryRatio: 7 },
+	high: { tone: 90, onPrimaryRatio: 11 },
+};
+
 function schemeColors(
 	themeColor: string,
 	dark: boolean,
 	contrast: Contrast,
 	preset: ThemePreset,
-): (role: (typeof roles)[number]) => number {
-	const sourceColorHct = Hct.fromInt(argbFromHex(presetColors[preset] ?? themeColor));
+): (role: Role) => number {
 	const colors = new DynamicScheme({
-		sourceColorHct,
+		sourceColorHct: Hct.fromInt(argbFromHex(presetColors[preset] ?? themeColor)),
 		variant: Variant.TONAL_SPOT,
 		contrastLevel: contrastLevels[contrast],
 		isDark: dark,
 		specVersion: '2025',
-		...(preset === 'team581' && {
-			// Lower in light mode, where the 2025 spec boosts container chroma, so both modes look about as tinted
-			neutralPalette: TonalPalette.fromHueAndChroma(sourceColorHct.hue, dark ? 2 : 1),
-			neutralVariantPalette: TonalPalette.fromHueAndChroma(sourceColorHct.hue, dark ? 3.5 : 2),
-		}),
-		...(preset === 'match13' && {
-			// Match match13.com's blue accents, icy light panels, and the black overlays on its dark data pages.
-			primaryPalette: TonalPalette.fromInt(argbFromHex(dark ? '#6ab0fd' : '#135ab0')),
-			secondaryPalette: TonalPalette.fromInt(argbFromHex(dark ? '#273e55' : '#cddff8')),
-			neutralPalette: TonalPalette.fromInt(argbFromHex(dark ? '#000000' : '#e2efff')),
-		}),
+		...presetPalettes[preset]?.[dark ? 'dark' : 'light'],
 	});
 	if (preset !== 'match13' || !dark) {
 		return (role) => colors[role];
 	}
 
-	// Keep match13.com's sky-400 for actions and focus instead of Tonal Spot's pastel tone 80.
-	const sky = TonalPalette.fromInt(argbFromHex('#29a3f6'));
-	const tone = contrast === 'standard' ? sky.keyColor.tone : contrast === 'medium' ? 75 : 90;
-	const ratio = contrast === 'standard' ? 6 : contrast === 'medium' ? 7 : 11;
+	const { tone, onPrimaryRatio } = skyPrimary[contrast];
 	const primary = sky.tone(tone);
-	const overrides: Partial<Record<(typeof roles)[number], number>> = {
+	const overrides: Partial<Record<Role, number>> = {
 		primary,
 		surfaceTint: primary,
-		onPrimary: sky.tone(MaterialContrast.darkerUnsafe(tone, ratio)),
+		onPrimary: sky.tone(MaterialContrast.darkerUnsafe(tone, onPrimaryRatio)),
 	};
 	return (role) => overrides[role] ?? colors[role];
 }
@@ -135,42 +167,6 @@ export function chartColorVariables(themeColor: string, dark: boolean): string {
 		(_, index) =>
 			`--chart-${index + 1}:${hexFromArgb(Hct.from((hue + (index * 360) / chartCount) % 360, 60, dark ? 72 : 48).toInt())};`,
 	).join('');
-}
-
-/**
- * Status colors keep their meaning, so like MD3 custom colors they start from a fixed hue that's only nudged toward the theme
- * color's. Warning isn't nudged, like MD3's error: amber turns orange next to red themes, close to the error color, and
- * chartreuse next to green or blue ones.
- */
-const statuses = ['success', 'info', 'warning', 'test-mode'] as const;
-export type Status = (typeof statuses)[number];
-const statusColors: Record<Status, string> = {
-	success: '#10b981',
-	info: '#3b82f6',
-	warning: '#f59e0b',
-	'test-mode': '#8b5cf6',
-};
-
-export function statusPalette(status: Status, themeColor: string): TonalPalette {
-	const color = argbFromHex(statusColors[status]);
-	return TonalPalette.fromInt(status === 'warning' ? color : Blend.harmonize(color, argbFromHex(themeColor)));
-}
-
-/**
- * Generate status colors for a theme color as CSS variable declarations, ex. `--success` for fills and icons and
- * `--success-foreground` for text. Warning fills are lighter since yellows only look yellow when they're light.
- */
-export function statusColorVariables(themeColor: string, dark: boolean): string {
-	return statuses
-		.map((status) => {
-			const palette = statusPalette(status, themeColor);
-			const fillTone = status === 'warning' ? 75 : dark ? 70 : 60;
-			const fill = `--${status}:${hexFromArgb(palette.tone(fillTone))};`;
-			return status === 'test-mode'
-				? fill
-				: `${fill}--${status}-foreground:${hexFromArgb(palette.tone(dark ? 80 : 40))};`;
-		})
-		.join('');
 }
 
 /** Generate the preset's MD3 tonal spot scheme (2025 spec) as `--md-*` CSS variable declarations */
@@ -195,15 +191,11 @@ export function themeColorVariables(
  */
 function themeColorCss(themeColor: string, contrast: Contrast, preset: ThemePreset): string {
 	const seed = presetColors[preset] ?? themeColor;
-	const light =
-		themeColorVariables(themeColor, false, contrast, preset) +
-		chartColorVariables(seed, false) +
-		statusColorVariables(seed, false);
-	const dark =
-		themeColorVariables(themeColor, true, contrast, preset) +
-		chartColorVariables(seed, true) +
-		statusColorVariables(seed, true);
-	return `:root:root{${light}}:root.dark{${dark}}`;
+	const variables = (dark: boolean) =>
+		themeColorVariables(themeColor, dark, contrast, preset) +
+		chartColorVariables(seed, dark) +
+		statusColorVariables(seed, dark);
+	return `:root:root{${variables(false)}}:root.dark{${variables(true)}}`;
 }
 
 /** Colors used to draw a preview of a theme in Settings */

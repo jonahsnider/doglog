@@ -243,7 +243,7 @@
 	--chart-3: rgb(0 130 91);
 	--chart-4: rgb(0 122 170);
 	--chart-5: rgb(143 87 200);
-	/* Status colors generated from the theme color, see `statusColorVariables()` in src/theme/theme-color.ts */
+	/* Status colors generated from the theme color, see `statusColorVariables()` in src/theme/status-color.ts */
 	--success: rgb(64 164 85);
 	--success-foreground: rgb(0 110 43);
 	--info: rgb(120 133 255);
@@ -315,7 +315,7 @@
 	--chart-3: rgb(0 201 143);
 	--chart-4: rgb(45 188 255);
 	--chart-5: rgb(205 155 255);
-	/* Status colors generated from the theme color, see `statusColorVariables()` in src/theme/theme-color.ts */
+	/* Status colors generated from the theme color, see `statusColorVariables()` in src/theme/status-color.ts */
 	--success: rgb(92 191 109);
 	--success-foreground: rgb(120 220 134);
 	--info: rgb(155 164 255);

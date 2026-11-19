@@ -1,6 +1,6 @@
 import { Hct, TonalPalette, argbFromHex, hexFromArgb } from '@material/material-color-utilities';
 import type { Entry } from '@/data/data-store';
-import { statusPalette } from '@/theme/theme-color';
+import { statusPalette } from '@/theme/status-color';
 
 /** Every band color is light enough for black text, at HCT tone 70 black text has a contrast ratio of about 9:1 */
 export const bandTextColor = '#000000';

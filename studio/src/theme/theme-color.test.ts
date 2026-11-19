@@ -5,10 +5,10 @@ import {
 	applyThemeColor,
 	chartColorVariables,
 	defaultThemeColor,
-	statusColorVariables,
 	themeColorVariables,
 	themePreviewColors,
 } from './theme-color.ts';
+import { statusColorVariables } from './status-color.ts';
 
 afterEach(() => {
 	vi.unstubAllGlobals();
