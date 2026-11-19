@@ -20,6 +20,7 @@ jobs:
       version: ${{ steps.release.outputs['lib--version'] }}
       studio_release_created: ${{ steps.release.outputs['studio--release_created'] }}
       studio_tag_name: ${{ steps.release.outputs['studio--tag_name'] }}
+      studio_version: ${{ steps.release.outputs['studio--version'] }}
     steps:
       - name: Run release-please
         uses: googleapis/release-please-action@v5.0.0
@@ -273,3 +274,10 @@ jobs:
         run: pnpm --dir studio exec wrangler r2 object put doglog-updates/studio/latest.json --file ../latest.json --content-type application/json --cache-control 'public, max-age=300' --remote
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      # Once the updater offers the release to users
+      - name: Finalize Sentry release
+        run: pnpm exec sentry release finalize "jonah-snider/doglog-studio@$STUDIO_VERSION"
+        working-directory: studio
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          STUDIO_VERSION: ${{ needs.release-please.outputs.studio_version }}

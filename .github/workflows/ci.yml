@@ -326,6 +326,14 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           command: deploy
           workingDirectory: studio
+      - name: Finalize Sentry release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          version="$(jq -r .version package.json)"
+          pnpm exec sentry release finalize "jonah-snider/doglog-studio@$version"
+        working-directory: studio
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
   studio-benchmarks:
     name: Studio benchmarks
 

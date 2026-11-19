@@ -191,6 +191,12 @@ jobs:
         run: pnpm --dir studio exec wrangler r2 object put doglog-updates/studio/latest.json --file ../latest.json --content-type application/json --cache-control 'public, max-age=300' --remote
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      # Once the updater offers the build to testers
+      - name: Finalize Sentry release
+        run: pnpm exec sentry release finalize "jonah-snider/doglog-studio@$VERSION"
+        working-directory: studio
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       # Testers only need the newest build, this also removes drafts left by cancelled runs
       - name: Delete older previews
         run: |
