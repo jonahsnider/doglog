@@ -5,8 +5,9 @@ import { bindingColor } from '@/widgets/series-color';
 import type { WidgetBinding } from '@/widgets/widget-type';
 
 /**
- * Left axis entries on the left and right axis entries on the right, named by the last segments that tell them apart.
- * Values are shown in the hover tooltip, and entries are moved between axes by dragging them or from their context menu.
+ * Left axis entries on the left and right axis entries on the right, named by the last segments that tell them apart
+ * when their full names don't fit. Values are shown in the hover tooltip, and entries are moved between axes by dragging
+ * them or from their context menu.
  */
 export function GraphLegend({ plotted }: { plotted: readonly WidgetBinding[] }) {
 	const names = plotted.map((binding) => binding.name);

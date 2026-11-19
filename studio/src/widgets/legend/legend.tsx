@@ -20,7 +20,7 @@ export type LegendItem = {
 	/** Has no value at the cursor */
 	dimmed: boolean;
 	error?: string;
-	/** Names to tell the item's name apart from, shortening the rest of it, see `EntryName` */
+	/** Names to tell the item's name apart from, shortening the rest of it when it doesn't fit, see `EntryName` */
 	distinctFrom?: readonly string[];
 };
 
@@ -215,7 +215,10 @@ function LegendEntry({
 	);
 }
 
-/** The entry's name, which collapses its first segment after common prefixes when it doesn't fit, and scrolls on hover when it still doesn't */
+/**
+ * The entry's name, which collapses its first segment after common prefixes when it doesn't fit, or the segments that
+ * don't tell it apart from `distinctFrom`, and scrolls on hover when it still doesn't
+ */
 function LegendName({ name, distinctFrom }: { name: string; distinctFrom: readonly string[] | undefined }) {
 	const full = useRef<HTMLSpanElement>(null);
 	const [collapsed, setCollapsed] = useState(false);
@@ -231,10 +234,10 @@ function LegendName({ name, distinctFrom }: { name: string; distinctFrom: readon
 		<span className="grid grid-cols-[minmax(0,auto)]">
 			{/* Never shown, so the legend stays as wide as the full name, and it's expanded again once there's room */}
 			<span ref={full} className="invisible h-0 overflow-hidden whitespace-nowrap [grid-area:1/1]">
-				<EntryName name={name} distinctFrom={distinctFrom} />
+				<EntryName name={name} />
 			</span>
 			<MarqueeText className="[grid-area:1/1]">
-				<EntryName name={name} collapsed={collapsed} distinctFrom={distinctFrom} />
+				<EntryName name={name} collapsed={collapsed} distinctFrom={collapsed ? distinctFrom : undefined} />
 			</MarqueeText>
 		</span>
 	);

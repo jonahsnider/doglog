@@ -115,16 +115,21 @@ A legend with many entries SHALL scroll instead of taking up more than about a t
 
 ### Requirement: Short legend names
 
-The legend SHALL name each entry by the fewest last segments that tell it apart from the graph's other plotted entries, shortening the segments before them like long names in other legends, and MUST NOT show roles. A segment that would shorten the same as another entry's segment under the same parent MUST stay in full.
+The legend SHALL show each entry's full name when there's room for it. When there isn't, it SHALL name the entry by the fewest last segments that tell it apart from the graph's other plotted entries, shortening the segments before them like long names in other legends. A segment that would shorten the same as another entry's segment under the same parent MUST stay in full. The legend MUST NOT show roles.
+
+#### Scenario: Room for full names
+
+- **GIVEN** a wide graph plotting `/Robot/Drive/LeftVelocity` and `/Robot/Arm/Velocity`
+- **THEN** the legend shows `/R/Drive/LeftVelocity` and `/R/Arm/Velocity`
 
 #### Scenario: Siblings
 
-- **GIVEN** the graph plots `/Robot/Drive/LeftVelocity` and `/Robot/Arm/Velocity`
+- **GIVEN** a narrow graph plotting `/Robot/Drive/LeftVelocity` and `/Robot/Arm/Velocity`
 - **THEN** the legend shows `/R/D/LeftVelocity` and `/R/A/Velocity`
 
 #### Scenario: Segments that shorten the same
 
-- **GIVEN** the graph plots `/Robot/Swerve/Speed` and `/Robot/Shooter/Angle`
+- **GIVEN** a narrow graph plotting `/Robot/Swerve/Speed` and `/Robot/Shooter/Angle`
 - **THEN** the legend shows `/R/Swerve/Speed` and `/R/Shooter/Angle`
 
 ### Requirement: Hover tooltip
