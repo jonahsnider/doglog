@@ -5,7 +5,7 @@ import { type Entry, useDataVersion } from '@/data/data-store';
 import { angleUnitLabels, inferAngleUnit, toRadians } from '@/data/units';
 import { useCursorTime } from '@/timeline/timeline';
 import { numberField } from '@/data/struct-fields';
-import { historyMax, type Module, readModules, swerveRole } from '@/widgets/swerve/data';
+import { historyMax, isSpeeds, type Module, readModules, swerveRole } from '@/widgets/swerve/data';
 import { chassisHalf, move, type Point, strokeWidth } from '@/widgets/swerve/geometry';
 import { Arrow, Line, ModuleLabel, RotationArc, Wheel } from '@/widgets/swerve/shapes';
 import type { WidgetProps } from '@/widgets/widget-type';
@@ -35,12 +35,17 @@ const moduleLabels = ['FL', 'FR', 'BL', 'BR'];
 
 function ChassisSpeeds({
 	value,
+	fieldRelative,
+	heading,
 	maxOmega,
 	arrowLength,
 	arcRadius,
 	color,
 }: {
 	value: Value;
+	fieldRelative: boolean;
+	/** Robot heading, turns field-relative speeds into the robot frame */
+	heading: number;
 	maxOmega: number;
 	arrowLength: (speed: number) => number;
 	arcRadius: number;
@@ -49,9 +54,11 @@ function ChassisSpeeds({
 	const vx = numberField(value, 'vx');
 	const vy = numberField(value, 'vy');
 	const speed = Math.hypot(vx, vy);
+	// Without a heading entry the heading is 0, so field +X points up like the robot's front
+	const angle = Math.atan2(vy, vx) - (fieldRelative ? heading : 0);
 	return (
 		<g>
-			{speed > 0 && <Arrow from={[0, 0]} angle={Math.atan2(vy, vx)} length={arrowLength(speed)} color={color} />}
+			{speed > 0 && <Arrow from={[0, 0]} angle={angle} length={arrowLength(speed)} color={color} />}
 			<RotationArc
 				radius={arcRadius}
 				sweep={maxOmega > 0 ? (numberField(value, 'omega') / maxOmega) * maxSweep : 0}
@@ -114,7 +121,7 @@ function maxBoundSpeed(bindings: WidgetProps['bindings']): number {
 	let maxSpeed = 0;
 	for (const binding of bindings) {
 		const role = swerveRole(binding);
-		if (binding.entry && !binding.hidden && (role === 'states' || role === 'speeds')) {
+		if (binding.entry && !binding.hidden && (role === 'states' || isSpeeds(role))) {
 			maxSpeed = Math.max(maxSpeed, historyMax(binding.entry, role).speed);
 		}
 	}
@@ -177,11 +184,13 @@ export function Swerve({ bindings }: WidgetProps) {
 			continue;
 		}
 
-		if (role === 'speeds') {
+		if (isSpeeds(role)) {
 			speedDrawings.push(
 				<ChassisSpeeds
 					key={id}
 					value={value}
+					fieldRelative={role === 'fieldSpeeds'}
+					heading={heading}
 					maxOmega={historyMax(entry, role).omega}
 					arrowLength={arrowLength}
 					// Separate the arcs of multiple chassis speeds entries

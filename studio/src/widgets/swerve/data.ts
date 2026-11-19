@@ -18,10 +18,23 @@ const structRoles: Partial<Record<string, Role>> = {
 	'struct:Rotation2d': 'heading',
 };
 
-/** The one role an entry has, none if the swerve widget doesn't accept it */
+/** Roles an entry can take, the inferred one first. None if the swerve widget doesn't accept it. */
 export function swerveRoles(entry: Entry): RoleOption[] {
 	const role = entry.kind === 'number' ? 'heading' : structRoles[entry.type];
-	return role === undefined ? [] : [widgetRoles.swerve[role]];
+	if (role === undefined) {
+		return [];
+	}
+	if (role !== 'speeds') {
+		return [widgetRoles.swerve[role]];
+	}
+	// ChassisSpeeds doesn't say which frame it's in, names like `FieldRelativeSpeeds` are field-relative
+	const speeds = [widgetRoles.swerve.speeds, widgetRoles.swerve.fieldSpeeds];
+	return /field/iu.test(entry.name.slice(entry.name.lastIndexOf('/') + 1)) ? speeds.toReversed() : speeds;
+}
+
+/** Whether a role draws chassis speeds, robot-relative or field-relative */
+export function isSpeeds(role: Role | undefined): role is 'speeds' | 'fieldSpeeds' {
+	return role === 'speeds' || role === 'fieldSpeeds';
 }
 
 /** What a binding is used for, `undefined` without an entry */
@@ -70,7 +83,7 @@ export function historyMax(entry: Entry, role: Role): HistoryMax {
 			for (const module of value) {
 				max.speed = Math.max(max.speed, Math.abs(moduleSpeed(module)));
 			}
-		} else if (role === 'speeds') {
+		} else if (isSpeeds(role)) {
 			max.speed = Math.max(max.speed, Math.hypot(numberField(value, 'vx'), numberField(value, 'vy')));
 			max.omega = Math.max(max.omega, Math.abs(numberField(value, 'omega')));
 		}

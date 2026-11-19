@@ -29,7 +29,8 @@ export const widgetRoles = {
 	swerve: {
 		states: { id: 'states', label: 'Module states' },
 		positions: { id: 'positions', label: 'Module positions' },
-		speeds: { id: 'speeds', label: 'Chassis speeds' },
+		speeds: { id: 'speeds', label: 'Robot-relative speeds' },
+		fieldSpeeds: { id: 'fieldSpeeds', label: 'Field-relative speeds' },
 		heading: { id: 'heading', label: 'Heading' },
 	},
 	field: {
@@ -185,7 +186,7 @@ export const widgetInfos = [
 		id: 'swerve',
 		name: 'Swerve',
 		description:
-			'A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are `speeds`, and a Rotation2d or number is the `heading`.',
+			'A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d or number is the `heading`.',
 		accepts: ['number', 'struct', 'struct[]'],
 		roles: Object.values(widgetRoles.swerve),
 		options: [],

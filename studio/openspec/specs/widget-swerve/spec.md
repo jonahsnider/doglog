@@ -89,7 +89,7 @@ The swerve widget SHALL draw a wheel at each module, rotated to that module's an
 
 ### Requirement: Chassis speeds
 
-For each bound `ChassisSpeeds` or `ChassisVelocities` entry, the swerve widget SHALL draw an arrow from the chassis center for its translational velocity, on the same scale as module arrows, and an arc arrow around the center for its rotational velocity. Counterclockwise rotation MUST draw a counterclockwise arc. Arc length SHALL be proportional to rotational speed, scaled to the fastest rotation in the entry's history. Chassis speeds are treated as robot-relative.
+For each bound `ChassisSpeeds` or `ChassisVelocities` entry, the swerve widget SHALL draw an arrow from the chassis center for its translational velocity, on the same scale as module arrows, and an arc arrow around the center for its rotational velocity. Counterclockwise rotation MUST draw a counterclockwise arc. Arc length SHALL be proportional to rotational speed, scaled to the fastest rotation in the entry's history.
 
 #### Scenario: Driving forward while turning left
 
@@ -101,6 +101,22 @@ For each bound `ChassisSpeeds` or `ChassisVelocities` entry, the swerve widget S
 
 - **GIVEN** a `ChassisSpeeds` entry reaches 5 m/s and no module exceeds 4 m/s
 - **THEN** 5 m/s is the full arrow length for both chassis and module arrows
+
+### Requirement: Chassis speeds frame
+
+Chassis speeds entries SHALL be robot-relative unless the last part of their name contains "field", case-insensitively, and the user MAY switch each one between robot-relative and field-relative. Field-relative chassis speeds MUST be rotated by the robot heading, so their arrow points the direction the robot moves on the field. Without a heading sample, they SHALL be drawn as if the heading is 0.
+
+#### Scenario: Field-relative by name
+
+- **WHEN** the user binds `/Drive/FieldRelativeSpeeds`, a `ChassisSpeeds` entry
+- **THEN** it is drawn as field-relative speeds
+
+#### Scenario: Field-relative speeds
+
+- **GIVEN** the heading entry is 90°
+- **AND** a field-relative `ChassisSpeeds` entry with a positive X velocity and zero Y velocity
+- **THEN** the arrow points up, toward field +X
+- **AND** it points toward the robot's right side
 
 ### Requirement: Field-relative heading
 
