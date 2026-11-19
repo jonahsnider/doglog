@@ -8,6 +8,8 @@ import react from '@vitejs/plugin-react';
 import colors from 'tailwindcss/colors';
 import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig, lazyPlugins, type Plugin } from 'vite-plus';
+import type { OxlintConfig } from 'vite-plus/lint';
+import landmines from '@interfere/landmines/configs/recommended.json' with { type: 'json' };
 import * as z from 'zod';
 import packageJson from './package.json' with { type: 'json' };
 import { projectSchema } from './src/three/project-schema.ts';
@@ -69,6 +71,8 @@ export default defineConfig({
 	lint: {
 		// react-perf is left out: without React Compiler, its rules ask for useCallback/useMemo around every inline prop
 		plugins: ['eslint', 'typescript', 'unicorn', 'oxc', 'react', 'jsx-a11y', 'import', 'promise', 'vitest'],
+		// oxlint-disable-next-line typescript/no-unsafe-type-assertion -- JSON imports widen severities like 'error' to string
+		extends: [landmines as OxlintConfig],
 		categories: {
 			correctness: 'error',
 			suspicious: 'error',
@@ -101,6 +105,10 @@ export default defineConfig({
 			'jsx-a11y/prefer-tag-over-role': 'off',
 			// Only used to focus inputs opened by a user action, ex. renaming a dashboard
 			'jsx-a11y/no-autofocus': 'off',
+			// Rationale belongs next to the code it explains
+			'landmines-style/no-comments': 'off',
+			// Return types document functions and catch mistakes at the definition
+			'landmines-types/no-explicit-return-types': 'off',
 
 			// Rule options
 			'typescript/no-confusing-void-expression': ['error', { ignoreArrowShorthand: true }],
@@ -161,6 +169,11 @@ export default defineConfig({
 			'vitest/no-identical-title': 'error',
 			'vitest/prefer-to-be': 'error',
 			'vitest/prefer-to-have-length': 'error',
+			'landmines-testing/no-flake-masking': [
+				'error',
+				// CodSpeed runs benchmarks under Valgrind, which is far slower than the default timeout allows
+				{ allow: { 'src/data/parse-log.bench.ts': 1, 'src/data/samples.bench.ts': 1 } },
+			],
 
 			// Conventions from DESIGN.md
 			'better-tailwindcss/no-restricted-classes': [
