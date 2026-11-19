@@ -15,7 +15,7 @@
 	},
 	"devDependencies": {
 		"@astrojs/compiler-rs": "0.5.3",
-		"knip": "6.46.0",
+		"knip": "6.46.1",
 		"oxfmt": "0.79.0"
 	},
 	"devEngines": {
