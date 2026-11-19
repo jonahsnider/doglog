@@ -11,7 +11,7 @@ import { SectionHeaderLabel } from '@/entries/section-header-label';
 import { HighlightedText } from '@/components/highlighted-text';
 import { Separator } from '@/components/ui/separator';
 import { TooltipCreateHandle, TooltipTrigger } from '@/components/ui/tooltip';
-import { MarkTooltip, TypeMark } from '@/entries/value-marks';
+import { GroupMark, MarkTooltip, TypeMark } from '@/entries/value-marks';
 import { EntryRowValue } from '@/entries/entry-value';
 import { entryMenuItems } from '@/entries/entry-menu';
 import { addDashboardWidget } from '@/dashboards/panes';
@@ -239,6 +239,7 @@ const EntryRowView = memo(function EntryRowView({
 					<span role="img" aria-label="Has active entries" className="size-1.5 shrink-0 rounded-full bg-primary" />
 				)}
 			</TreeItemLabel>
+			{node.children && <GroupMark path={node.value} tooltip={markTooltip} />}
 			{entry && <EntryRowValue entry={entry} tooltip={markTooltip} />}
 		</AppContextMenu>
 	);

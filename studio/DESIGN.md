@@ -9,7 +9,7 @@ How Studio's UI is built. The OpenSpec specs in `openspec/specs` describe what u
 - Write a custom component when coss ui has nothing close, or when the component is specific to Studio (ex. panes, widgets, the timeline). Build it from Base UI primitives when it needs accessible behavior like menus, focus management, or keyboard navigation.
 - Context menus go through `AppContextMenu`, which uses native menus on desktop and coss menus on the web.
 - Widget options are declared on the widget type (`WidgetType.options`) and rendered by the widget options popover, so every widget's options look the same. Choices use a small segmented control. Add a new option kind there when a widget needs one, instead of building settings UI in the widget.
-- Icons come from `lucide-react`.
+- Icons come from `lucide-react`. Brand logos, which Lucide doesn't have, are single color SVG files with `fill="currentColor"`, imported as components with `?react` (ex. `src/entries/logos`).
 
 ## Styling
 

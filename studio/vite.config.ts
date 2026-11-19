@@ -7,6 +7,7 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
 import colors from 'tailwindcss/colors';
 import { VitePWA } from 'vite-plugin-pwa';
+import svgr from 'vite-plugin-svgr';
 import { defineConfig, lazyPlugins, type Plugin } from 'vite-plus';
 import type { OxlintConfig } from 'vite-plus/lint';
 import landmines from '@interfere/landmines/configs/recommended.json' with { type: 'json' };
@@ -255,6 +256,8 @@ export default defineConfig({
 		tanstackRouter({ target: 'react', autoCodeSplitting: true }),
 		react(),
 		tailwindcss(),
+		// Imports SVGs as React components with `?react`, ex. brand logos drawn in the text color like Lucide's icons
+		svgr(),
 		projectSchemaPlugin(),
 		VitePWA({
 			// A new version waits until every Studio tab closes or the user updates from the sidebar, so open tabs keep

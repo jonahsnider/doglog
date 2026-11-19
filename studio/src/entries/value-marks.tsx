@@ -14,6 +14,7 @@ import type { TooltipPrimitive } from '@/components/ui/tooltip';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import type { EntryKind } from '@/data/entry-kind';
 import { formatEntryType, getEntryKind } from '@/data/samples';
+import { knownGroup } from '@/entries/known-groups';
 
 /**
  * One tooltip shared by many marks, so long lists don't render a tooltip per row.
@@ -59,6 +60,34 @@ export function TypeMark({ type, tooltip }: { type: string; tooltip: MarkTooltip
 			}
 		>
 			<EntryTypeIcon type={type} className="size-3.5" />
+		</TooltipTrigger>
+	);
+}
+
+/**
+ * What the group at `path` is when it's a known group (see `knownGroup()`), at the end of its row where entries show
+ * their values, with its name in a tooltip. Renders nothing for other groups.
+ */
+export function GroupMark({ path, tooltip }: { path: string; tooltip: MarkTooltipHandle }) {
+	const group = knownGroup(path);
+	if (!group) {
+		return null;
+	}
+
+	const { name, icon: Icon } = group;
+	return (
+		<TooltipTrigger
+			handle={tooltip}
+			payload={name}
+			render={
+				<span
+					role="img"
+					aria-label={name}
+					className="flex size-4 shrink-0 items-center justify-center text-muted-foreground"
+				/>
+			}
+		>
+			<Icon aria-hidden className="size-3.5" />
 		</TooltipTrigger>
 	);
 }

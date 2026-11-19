@@ -186,6 +186,31 @@ Double-clicking a bindable entry SHALL add it to the open dashboard using the en
 - **WHEN** the user double-clicks an entry marked as unsupported
 - **THEN** nothing is added
 
+### Requirement: Known groups
+
+The entry browser SHALL mark groups that a known device or library logs (controllers, Limelights, PhotonVision, Team 581's Spot and Trailblazer, and DogLog's tunable values) with an icon at the end of the group's row, where entries show their values, and MUST show what the group is in a tooltip. Brand logos MUST be drawn in a single color like the other icons.
+
+#### Scenario: Limelight group
+
+- **GIVEN** the source has entries in `/NT:/limelight-front`
+- **THEN** the `limelight-front` row shows Limelight's logo at its end
+- **AND** hovering the logo shows `Limelight`
+
+#### Scenario: Controller groups
+
+- **GIVEN** the source has WPILib's `/DS:joystick2` or AdvantageKit's `/AdvantageKit/DriverStation/Joystick2` entries
+- **THEN** the group's row shows a controller icon, and hovering it shows `Controller 2`
+
+#### Scenario: Team 581's libraries
+
+- **GIVEN** the source has Spot's `/NT:/Spot` entries and Trailblazer's `/Robot/Trailblazer` entries
+- **THEN** the `Spot` row shows Spot's logo, and the `Trailblazer` row shows a flame icon
+
+#### Scenario: Tunable values
+
+- **GIVEN** the source has DogLog's tunable values in `/Tunables`, `/NT:/Tunables`, or `/Robot/Tunable` (DogLog releases before 2027)
+- **THEN** the group's row shows a sliders icon
+
 ### Requirement: Edit a widget's entries
 
 The entry browser SHALL be able to edit one widget's entries, started from the widget's Edit entries button or context menu. While editing, its header MUST name the widget with a button that stops editing, the widget's pane MUST be marked, and its search box MUST be focused. Entries the widget doesn't accept, and groups left empty, MUST be hidden, with a note saying how many are hidden. A collapsed entry browser MUST open while editing and collapse again after.
