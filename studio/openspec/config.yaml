@@ -46,6 +46,8 @@ context: |
   - Infer how widgets show entries from entry types, metadata, and names. Widgets may declare a few options
     (`WidgetType.options`) to override what's inferred or pick what can't be; keep them rare so users aren't overloaded.
   - Distribution: a PWA website, plus a Tauri desktop app built from the same frontend.
+  - Error reporting: Sentry, in production builds only. The React SDK reports frontend errors on the web and desktop, and
+    the Rust SDK reports desktop panics. No usage analytics, and no log contents or personal info (ex. hostnames).
   - Log sync: desktop only. Rust (the `robot-sftp` crate, russh) does SSH/SFTP listing and offset downloads, TypeScript
     decides what to sync and when. Only roboRIOs are supported; SystemCore support is planned for the 2027 release.
   - State: TanStack Store, with Zod validating all persisted and external data.
@@ -84,7 +86,7 @@ context: |
 
   Future needs (not specced yet):
   - Mobile layouts.
-  - Accounts, cloud sync, analytics, or telemetry.
+  - Accounts, cloud sync, or usage analytics.
   - Writing or editing NT values.
   - Comparing multiple logs at once, and multiple simultaneous data sources.
   - Protobuf-encoded entries.

@@ -1,4 +1,6 @@
+// oxlint-disable max-lines -- Most of this is lint config, which is easier to follow in one place
 import codspeedPlugin from '@codspeed/vitest-plugin';
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import { execFileSync } from 'node:child_process';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
@@ -244,7 +246,8 @@ export default defineConfig({
 			registerType: 'prompt',
 			workbox: {
 				globPatterns: ['**/*'],
-				globIgnores: ['**/_headers'],
+				// The Sentry plugin turns on source maps for workers too, but only removes the main bundle's
+				globIgnores: ['**/_headers', '**/*.map'],
 				// Loro's WASM is about 3.6 MB, and dashboards need it to load offline
 				maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
 				cleanupOutdatedCaches: true,
@@ -263,6 +266,14 @@ export default defineConfig({
 			pwaAssets: {
 				config: true,
 			},
+		}),
+		// Uploads source maps when `SENTRY_AUTH_TOKEN` is set, without writing them to `dist`
+		sentryVitePlugin({
+			org: 'jonah-snider',
+			project: 'doglog-studio',
+			// Same as the desktop app's Rust side, Sentry links the commits through its GitHub integration
+			release: { name: `doglog-studio@${packageJson.version}` },
+			telemetry: false,
 		}),
 	]),
 	define: {

@@ -1,0 +1,6 @@
+{
+	"$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+	"build": {
+		"beforeBundleCommand": "cd src-tauri/target/release && objcopy --only-keep-debug --compress-debug-sections=zlib doglog-studio doglog-studio.debug && objcopy --strip-debug --strip-unneeded doglog-studio && objcopy --add-gnu-debuglink=doglog-studio.debug doglog-studio"
+	}
+}

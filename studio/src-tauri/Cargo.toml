@@ -40,10 +40,24 @@ base64 = "0.23"
 rmcp = { version = "3.11", default-features = false, features = ["server", "transport-io"] }
 getrandom = "0.4"
 tauri-plugin-mcp-bridge = "0.13"
+sentry = { version = "0.49", default-features = false, features = [
+	"backtrace",
+	"contexts",
+	# Lets Sentry match panics to the uploaded debug files
+	"debug-images",
+	"panic",
+	"reqwest",
+	"rustls-no-provider",
+] }
+rustls = { version = "0.23", default-features = false, features = ["ring"] }
 
 [profile.release]
 codegen-units = 1
 lto = true
+# Line numbers for Sentry, kept out of the shipped binary: a dSYM on macOS, a PDB on Windows, and on Linux
+# `tauri.linux.conf.json` splits them out before bundling
+debug = "line-tables-only"
+split-debuginfo = "packed"
 strip = true
 
 [target.'cfg(target_os = "macos")'.dependencies]

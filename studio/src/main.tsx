@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { isTauri } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
@@ -16,6 +17,13 @@ import { routeTree } from './routeTree.gen.ts';
 import { syncTheme } from './settings.ts';
 import { startSharing } from './sharing/sharing.ts';
 import { runLogSync } from './sync/sync.ts';
+
+// Reports uncaught errors from production builds, the release (`doglog-studio@<version>`) comes from the Sentry Vite plugin
+Sentry.init({
+	dsn: 'https://cc0e3a691d3ee00a449b2ee4ea3d55f3@o141130.ingest.us.sentry.io/4512455446495232',
+	enabled: import.meta.env.PROD,
+	initialScope: { tags: { platform: isTauri() ? 'desktop' : 'web' } },
+});
 
 syncTheme();
 syncMediaSession();
@@ -48,7 +56,10 @@ if (isTauri()) {
 	registerWebMcpTools();
 }
 
-createRoot(document.querySelector('#root')!).render(
+createRoot(document.querySelector('#root')!, {
+	// Uncaught errors already reach Sentry's global handler, but errors caught by an error boundary (ex. the router's) don't
+	onCaughtError: import.meta.env.PROD ? Sentry.reactErrorHandler() : undefined,
+}).render(
 	<StrictMode>
 		<RouterProvider router={router} />
 	</StrictMode>,

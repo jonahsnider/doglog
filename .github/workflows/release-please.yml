@@ -185,6 +185,12 @@ jobs:
         id: release
         shell: bash
         run: echo "id=$(gh release view "$TAG_NAME" --json databaseId --jq .databaseId)" >> "$GITHUB_OUTPUT"
+      # `tauri.linux.conf.json` splits the debug info into its own file before bundling, so cargo has to leave it in
+      - name: Keep Linux debug info for Sentry
+        if: runner.os == 'Linux'
+        run: |
+          echo CARGO_PROFILE_RELEASE_STRIP=none >> "$GITHUB_ENV"
+          echo CARGO_PROFILE_RELEASE_SPLIT_DEBUGINFO=off >> "$GITHUB_ENV"
       - name: Build and upload to release
         uses: tauri-apps/tauri-action@v1.0.0
         env:
@@ -196,6 +202,7 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         with:
           projectPath: studio
           # Using the ID instead of the tag keeps the release notes from release-please
@@ -203,6 +210,16 @@ jobs:
           updaterJsonPreferNsis: true
           # Only release builds make updater artifacts, so local builds don't need the signing key
           args: ${{ matrix.target && format('--target {0}', matrix.target) }} --config '{"bundle":{"createUpdaterArtifacts":true}}'
+      # Lets Sentry show function names and source lines for panics, a missing upload shouldn't block the release
+      - name: Upload debug symbols to Sentry
+        continue-on-error: true
+        shell: bash
+        working-directory: studio
+        run: pnpm exec sentry debug-files upload --include-sources src-tauri/target/${{ matrix.target }}/release/doglog[-_]studio*
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: jonah-snider
+          SENTRY_PROJECT: doglog-studio
 
   studio-desktop-manifest:
     name: Publish Studio update manifest
