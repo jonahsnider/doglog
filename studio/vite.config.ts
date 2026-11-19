@@ -304,6 +304,12 @@ export default defineConfig({
 	resolve: {
 		tsconfigPaths: true,
 	},
+	build: {
+		modulePreload: { polyfill: false },
+	},
+	worker: {
+		format: 'es',
+	},
 	test: {
 		benchmark: {
 			// Calls between modules in `src` go through the module runner's export getters, which makes benchmarks a bit
