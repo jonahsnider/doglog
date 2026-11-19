@@ -81,6 +81,10 @@ export function drawBands(
 	const context = canvas.getContext('2d')!;
 	context.setTransform(scale, 0, 0, scale, 0, 0);
 	context.clearRect(0, 0, width, height);
+	// Ex. a graph without bands. Chromium can't make the hatch pattern for an empty canvas.
+	if (width === 0 || height === 0) {
+		return;
+	}
 	context.font = `500 11px ${getComputedStyle(canvas).fontFamily}`;
 	context.textBaseline = 'middle';
 	const busy = hatch(context, palette.false);
