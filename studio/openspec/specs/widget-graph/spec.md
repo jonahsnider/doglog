@@ -149,13 +149,19 @@ The hovered graph SHALL draw a bracket between the global cursor and the hover l
 
 ### Requirement: Tooltip placement
 
-The graph's tooltip SHALL be drawn over other panes rather than cut off at the graph's pane, and MUST stay within the window, covering the pointer if it has to.
+The graph's tooltip SHALL be drawn over other panes rather than cut off at the graph's pane, and MUST stay within the window, covering the pointer if it has to. It MUST NOT show while the graph's pane is hidden by another zoomed pane.
 
 #### Scenario: Narrow pane
 
 - **GIVEN** a graph in a pane narrower than its tooltip
 - **WHEN** the user hovers it
 - **THEN** the whole tooltip shows, over the panes beside it
+
+#### Scenario: Zoom another pane
+
+- **GIVEN** the graph's tooltip is kept shown at the cursor
+- **WHEN** the user zooms another pane
+- **THEN** no tooltip shows until the graph's pane is restored
 
 ### Requirement: Robot mode
 

@@ -88,10 +88,14 @@ export function Graph({ bindings }: WidgetProps) {
 	);
 	/**
 	 * Where the graph is in the window when hovered, clicked, or resized while the tooltip is pinned, since the tooltip is
-	 * drawn over the whole window
+	 * drawn over the whole window. `undefined` while hidden, ex. by another pane that's zoomed.
 	 */
 	const [origin, setOrigin] = useState<{ left: number; top: number; width: number }>();
 	const measureOrigin = useCallback(() => {
+		if (!body.current!.checkVisibility()) {
+			setOrigin(undefined);
+			return;
+		}
 		const { left, top, width } = body.current!.getBoundingClientRect();
 		setOrigin((previous) =>
 			previous?.left === left && previous.top === top && previous.width === width ? previous : { left, top, width },
@@ -101,9 +105,32 @@ export function Graph({ bindings }: WidgetProps) {
 		if (!pinned) {
 			return undefined;
 		}
-		const observer = new ResizeObserver(measureOrigin);
+		let stopped = false;
+		const observer = new ResizeObserver(() => {
+			// Panes slide back in when a zoomed pane is restored, moving the graph without resizing it, so it's measured
+			// once it lands
+			const moving = document
+				.getAnimations()
+				.filter(
+					(animation) =>
+						animation.effect instanceof KeyframeEffect && animation.effect.target?.contains(body.current) === true,
+				);
+			if (moving.length === 0) {
+				measureOrigin();
+				return;
+			}
+			setOrigin(undefined);
+			void Promise.all(moving.map((animation) => animation.finished)).then(
+				() => !stopped && measureOrigin(),
+				// Canceled by another layout change, which the observer sees
+				() => undefined,
+			);
+		});
 		observer.observe(body.current!);
-		return () => observer.disconnect();
+		return () => {
+			stopped = true;
+			observer.disconnect();
+		};
 	}, [measureOrigin, pinned]);
 
 	return (
