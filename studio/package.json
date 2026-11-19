@@ -5,6 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"agent:schema": "node scripts/agent-schema.ts",
+		"analyze": "rm -rf node_modules/.rolldown && VITE_DEVTOOLS_ROLLDOWN=true vp build && vite-devtools",
 		"bench": "vp test bench",
 		"build": "vp build",
 		"check": "vp check && tsc -b && node scripts/agent-schema.ts --check",
@@ -84,6 +85,8 @@
 		"@types/react-dom": "19.3.0",
 		"@types/three": "0.187.0",
 		"@vite-pwa/assets-generator": "2.0.0",
+		"@vitejs/devtools": "0.8.3",
+		"@vitejs/devtools-rolldown": "0.8.3",
 		"@vitejs/plugin-react": "6.3.0",
 		"eslint-plugin-better-tailwindcss": "4.11.0",
 		"portless": "0.18.0",

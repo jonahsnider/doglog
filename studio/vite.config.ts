@@ -291,6 +291,10 @@ export default defineConfig({
 			telemetry: false,
 		}),
 	]),
+	devtools: {
+		apply: 'serve',
+		embeddedVisibility: 'passive',
+	},
 	define: {
 		STUDIO_VERSION: JSON.stringify(packageJson.version),
 		STUDIO_COMMIT: JSON.stringify(getCommitHash()),
