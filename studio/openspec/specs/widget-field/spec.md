@@ -46,25 +46,55 @@ The field widget SHALL offer these roles, the inferred one first: single poses a
 
 ### Requirement: Field view
 
-The field widget SHALL draw the 2026 FRC field from a top-down render, fit to the widget, with the blue alliance on the left by default. The view MUST show the field boundary with the same small margin on every side, cropping the driver station areas. The field SHALL have the same neutral gray background in every theme. Poses MUST use WPILib's 2026 field coordinates: the origin is the bottom-left corner of the field boundary, +X points toward the red alliance, and +Y points up.
-
-#### Scenario: Origin
-
-- **GIVEN** a `Pose2d` entry at (0, 0) with a 0° rotation
-- **THEN** the robot is centered on the bottom-left corner of the field boundary, facing right
+The field widget SHALL draw the 2026 FRC field from a top-down render, fit to the widget. The view MUST show the field boundary with the same small margin on every side, cropping the driver station areas. The field SHALL have the same neutral gray background in every theme.
 
 #### Scenario: No entries
 
 - **GIVEN** a field widget with no bound entries, or no source
 - **THEN** the field is drawn instead of an empty state
 
+### Requirement: WPILib coordinates
+
+The field widget SHALL have a WPILib coordinates option for the convention poses are logged in. "2026" MUST put the origin at the blue alliance wall's corner on the scoring table side, with +X toward the red alliance. "2027" MUST put the origin at the center of the field, with +X toward the blue alliance. Measurements and the cursor position readout MUST use the same coordinates as poses.
+
+#### Scenario: 2026 origin
+
+- **GIVEN** the WPILib coordinates option is "2026" and the Orientation option is "Blue left"
+- **AND** a `Pose2d` entry at (0, 0) with a 0° rotation
+- **THEN** the robot is centered on the bottom-left corner of the field boundary, facing right
+
+#### Scenario: 2027 origin
+
+- **GIVEN** the WPILib coordinates option is "2027" and the Orientation option is "Red left"
+- **AND** a `Pose2d` entry at (0, 0) with a 0° rotation
+- **THEN** the robot is centered on the center of the field, facing right toward the blue alliance
+
+### Requirement: Inferred coordinates
+
+The WPILib coordinates option SHALL be inferred from the WPILib version the robot published, to NetworkTables by WPILib or in its system stats by AdvantageKit: "2027" from WPILib 2027's first beta onward, since its alphas still used 2026's coordinates, and "2026" otherwise.
+
+#### Scenario: Inferred from a 2027 log
+
+- **GIVEN** a log where `/Robot/WPILibVersion` is `2027.0.0-beta-1`
+- **THEN** the WPILib coordinates option is "Auto (2027)"
+
+#### Scenario: Inferred from an AdvantageKit log
+
+- **GIVEN** an AdvantageKit log where `/SystemStats/Versions/WPILib` is `2027.0.0-beta-1`
+- **THEN** the WPILib coordinates option is "Auto (2027)"
+
+#### Scenario: Inferred from an alpha log
+
+- **GIVEN** a log where `/Robot/WPILibVersion` is `2027.0.0-alpha-8`
+- **THEN** the WPILib coordinates option is "Auto (2026)"
+
 ### Requirement: Orientation
 
-The field widget SHALL have an Orientation option with "Blue left", the default, and "Red left", which MUST rotate the field and everything drawn on it a half turn.
+The field widget SHALL have an Orientation option with "Blue left" and "Red left", which MUST rotate the field and everything drawn on it a half turn. It SHALL be inferred to put +X on the right, like WPILib's field images: "Blue left" with 2026 coordinates and "Red left" with 2027 coordinates.
 
 #### Scenario: Red left
 
-- **GIVEN** the Orientation option is "Red left"
+- **GIVEN** the WPILib coordinates option is "2026" and the Orientation option is "Red left"
 - **AND** a `Pose2d` entry at (0, 0) with a 0° rotation
 - **THEN** the red alliance is on the left
 - **AND** the robot is centered on the top-right corner of the field boundary, facing left

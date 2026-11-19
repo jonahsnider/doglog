@@ -154,6 +154,21 @@
 													"options": {
 														"type": "object",
 														"properties": {
+															"coordinates": {
+																"description": "WPILib coordinates, `blue-wall` by default. `null` goes back to inferring it or the default.",
+																"anyOf": [
+																	{
+																		"type": "string",
+																		"enum": [
+																			"blue-wall",
+																			"center"
+																		]
+																	},
+																	{
+																		"type": "null"
+																	}
+																]
+															},
 															"orientation": {
 																"description": "Orientation, `blue-left` by default. `null` goes back to inferring it or the default.",
 																"anyOf": [
@@ -226,7 +241,7 @@
 													"type"
 												],
 												"additionalProperties": false,
-												"description": "Field: The FRC field seen from above. Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees."
+												"description": "Field: The FRC field seen from above. Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees. The `coordinates` option is `blue-wall` (WPILib 2026, origin at the blue alliance wall) or `center` (WPILib 2027, origin at the center with +X toward blue), inferred from the WPILib version the robot published. The `orientation` option defaults to putting +X on the right."
 											},
 											{
 												"type": "object",
@@ -751,6 +766,21 @@
 									"options": {
 										"type": "object",
 										"properties": {
+											"coordinates": {
+												"description": "WPILib coordinates, `blue-wall` by default. `null` goes back to inferring it or the default.",
+												"anyOf": [
+													{
+														"type": "string",
+														"enum": [
+															"blue-wall",
+															"center"
+														]
+													},
+													{
+														"type": "null"
+													}
+												]
+											},
 											"orientation": {
 												"description": "Orientation, `blue-left` by default. `null` goes back to inferring it or the default.",
 												"anyOf": [
@@ -823,7 +853,7 @@
 									"type"
 								],
 								"additionalProperties": false,
-								"description": "Field: The FRC field seen from above. Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees."
+								"description": "Field: The FRC field seen from above. Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees. The `coordinates` option is `blue-wall` (WPILib 2026, origin at the blue alliance wall) or `center` (WPILib 2027, origin at the center with +X toward blue), inferred from the WPILib version the robot published. The `orientation` option defaults to putting +X on the right."
 							},
 							{
 								"type": "object",
@@ -1171,6 +1201,21 @@
 											"options": {
 												"type": "object",
 												"properties": {
+													"coordinates": {
+														"description": "WPILib coordinates, `blue-wall` by default. `null` goes back to inferring it or the default.",
+														"anyOf": [
+															{
+																"type": "string",
+																"enum": [
+																	"blue-wall",
+																	"center"
+																]
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
 													"orientation": {
 														"description": "Orientation, `blue-left` by default. `null` goes back to inferring it or the default.",
 														"anyOf": [
@@ -1194,7 +1239,7 @@
 											"type"
 										],
 										"additionalProperties": false,
-										"description": "Field: The FRC field seen from above. Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees."
+										"description": "Field: The FRC field seen from above. Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees. The `coordinates` option is `blue-wall` (WPILib 2026, origin at the blue alliance wall) or `center` (WPILib 2027, origin at the center with +X toward blue), inferred from the WPILib version the robot published. The `orientation` option defaults to putting +X on the right."
 									},
 									{
 										"type": "object",

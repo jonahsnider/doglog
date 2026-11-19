@@ -70,6 +70,16 @@ export const controllerPorts = [0, 1, 2, 3, 4, 5] as const;
 /** The options of each widget that has them, see `WidgetType.options` */
 export const widgetOptions = {
 	field: {
+		coordinates: {
+			kind: 'choice',
+			id: 'coordinates',
+			label: 'WPILib coordinates',
+			choices: [
+				{ id: 'blue-wall', label: '2026' },
+				{ id: 'center', label: '2027' },
+			],
+			default: 'blue-wall',
+		},
 		orientation: {
 			kind: 'choice',
 			id: 'orientation',
@@ -151,7 +161,7 @@ export const widgetInfos = [
 		id: 'field',
 		name: 'Field',
 		description:
-			'The FRC field seen from above. Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees.',
+			'The FRC field seen from above. Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees. The `coordinates` option is `blue-wall` (WPILib 2026, origin at the blue alliance wall) or `center` (WPILib 2027, origin at the center with +X toward blue), inferred from the WPILib version the robot published. The `orientation` option defaults to putting +X on the right.',
 		accepts: ['struct', 'struct[]'],
 		roles: Object.values(widgetRoles.field),
 		options: Object.values(widgetOptions.field),

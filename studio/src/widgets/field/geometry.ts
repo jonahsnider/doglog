@@ -1,7 +1,7 @@
 // Field widget math, in field meters with +Y up
 
-// 2026 field, in meters. Poses use WPILib's 2026 convention: the origin is the blue alliance wall's right corner, as seen
-// from the blue driver stations, +X points toward red, and +Y points left from the blue driver stations.
+// 2026 field, in meters. Drawings use WPILib's 2026 convention: the origin is the blue alliance wall's right corner, as
+// seen from the blue driver stations, +X points toward red, and +Y points left from the blue driver stations.
 const fieldLength = 16.541;
 const fieldWidth = 8.069;
 /**
@@ -38,6 +38,34 @@ export function orientationTransform(orientation: FieldOrientation): string | un
 /** Converts between a field point and where it's drawn in the blue-left view, the same either way since it's a half turn */
 export function orient(point: FieldPoint, orientation: FieldOrientation): FieldPoint {
 	return orientation === 'red-left' ? { x: fieldLength - point.x, y: fieldWidth - point.y } : point;
+}
+
+/**
+ * The convention poses are logged in. `blue-wall` is WPILib 2026's, which drawings use. `center` is WPILib 2027's: the
+ * origin is the field's center, and the axes are turned a half turn, so +X points toward blue.
+ */
+export type FieldCoordinates = 'blue-wall' | 'center';
+
+/** Rotates SVG content in `center` coordinates into `blue-wall` ones, inside the flip that makes +Y point up */
+export function coordinatesTransform(coordinates: FieldCoordinates): string | undefined {
+	return coordinates === 'center' ? `translate(${fieldLength / 2} ${fieldWidth / 2}) rotate(180)` : undefined;
+}
+
+/** Converts between a point in `coordinates` and a `blue-wall` one, the same either way since it's a half turn */
+export function toBlueWall(point: FieldPoint, coordinates: FieldCoordinates): FieldPoint {
+	return coordinates === 'center' ? { x: fieldLength / 2 - point.x, y: fieldWidth / 2 - point.y } : point;
+}
+
+/**
+ * The coordinates a robot running `version` of WPILib logs poses in, from its `/Robot/WPILibVersion`. WPILib switched
+ * to `center` after 2027's alpha releases, and older versions don't publish theirs.
+ */
+export function wpilibCoordinates(version: unknown): FieldCoordinates {
+	if (typeof version !== 'string') {
+		return 'blue-wall';
+	}
+	const year = Number(version.split('.')[0]);
+	return year > 2027 || (year === 2027 && !version.includes('alpha')) ? 'center' : 'blue-wall';
 }
 
 /** Stroke width of lines on the field in meters, so they zoom with the field like robots do */

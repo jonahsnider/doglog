@@ -16,6 +16,7 @@ import { Controller } from '@/widgets/controller/controller';
 import { controllerPort } from '@/widgets/controller/data';
 import { controllerOptionFromEntry, controllerOptions, controllerTypeId } from '@/widgets/controller/options';
 import { Field } from '@/widgets/field/field';
+import { fieldOptions } from '@/widgets/field/options';
 import { fieldConnects, fieldRoles, inferFieldRole } from '@/widgets/field/roles';
 import { Graph } from '@/widgets/graph/graph';
 import { graphRoles, inferGraphRole } from '@/widgets/graph/roles';
@@ -53,6 +54,7 @@ export const widgetTypes: readonly WidgetType[] = [
 		inferRole: inferFieldRole,
 		connects: fieldConnects,
 		rendersEmpty: true,
+		options: fieldOptions,
 		component: Field,
 	},
 	{

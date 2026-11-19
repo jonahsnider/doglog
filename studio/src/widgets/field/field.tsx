@@ -7,15 +7,18 @@ import { type Entry, useDataVersion } from '@/data/data-store';
 import { cn } from '@/lib/utils';
 import { useCursorTime } from '@/timeline/timeline';
 import {
+	type FieldCoordinates,
 	type FieldOrientation,
 	type FieldPoint,
 	type Measurement,
 	type MeasureTool,
 	aspectRatio,
+	coordinatesTransform,
 	measurementLabel,
 	orient,
 	orientationTransform,
 	snapTo45,
+	toBlueWall,
 	view,
 } from '@/widgets/field/geometry';
 import { FieldImage, Minimap } from '@/widgets/field/image';
@@ -102,6 +105,7 @@ function ToolButtons({ tool, onToggle }: { tool: MeasureTool | undefined; onTogg
 }
 
 export function Field({ bindings, options }: WidgetProps) {
+	const coordinates: FieldCoordinates = options['coordinates'] === 'center' ? 'center' : 'blue-wall';
 	const orientation: FieldOrientation = options['orientation'] === 'red-left' ? 'red-left' : 'blue-left';
 	const time = useCursorTime();
 	// Values at the cursor change as samples arrive
@@ -148,11 +152,11 @@ export function Field({ bindings, options }: WidgetProps) {
 
 	const fieldPointAt = (event: PointerEvent) => {
 		const content = toContent(event.clientX, event.clientY);
-		return orient({ x: content.x, y: -content.y }, orientation);
+		return toBlueWall(orient({ x: content.x, y: -content.y }, orientation), coordinates);
 	};
 	/** Where a field point is in the field's box, as fractions of its width and height */
 	const toFraction = (point: FieldPoint) => {
-		const { x, y } = orient(point, orientation);
+		const { x, y } = orient(toBlueWall(point, coordinates), orientation);
 		return {
 			x: (zoom.scale * x + zoom.x - view.x) / view.width,
 			y: (zoom.scale * -y + zoom.y - view.y) / view.height,
@@ -261,8 +265,10 @@ export function Field({ bindings, options }: WidgetProps) {
 									<g transform={orientationTransform(orientation)}>
 										<FieldImage />
 										<g transform="scale(1 -1)">
-											{fieldDrawings(bindings, (binding) => valueOf(binding.entry))}
-											{measurement && <MeasurementDrawing measurement={measurement} />}
+											<g transform={coordinatesTransform(coordinates)}>
+												{fieldDrawings(bindings, (binding) => valueOf(binding.entry))}
+												{measurement && <MeasurementDrawing measurement={measurement} />}
+											</g>
 										</g>
 									</g>
 								</g>
