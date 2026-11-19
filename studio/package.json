@@ -78,7 +78,7 @@
 		"@sentry/vite-plugin": "11.14.0",
 		"@tailwindcss/vite": "4.3.5",
 		"@tanstack/router-plugin": "1.169.0",
-		"@tauri-apps/cli": "2.12.5",
+		"@tauri-apps/cli": "2.12.6",
 		"@tsconfig/strictest": "2.0.9",
 		"@types/node": "26.6.6",
 		"@types/react": "19.3.0",
