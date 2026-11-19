@@ -3,9 +3,10 @@ schema: spec-driven
 context: |
   Product: DogLog Studio is an all-in-one app for FRC teams to review robot logs and debug robots live.
   It works with any WPILOG file or NetworkTables 4 (NT4) source, not only DogLog. Where it costs nothing,
-  defaults favor DogLog conventions (ex. the console widget binding WPILib's `console` and `messages` entries).
+  defaults favor DogLog conventions.
 
-  Update this context as needed, when information becomes outdated or new details emerge.
+  Update this context when it becomes outdated. Keep it to decisions and constraints that the code, package.json,
+  `DESIGN.md`, and the specs don't already make clear.
 
   Spec conventions:
   - Specs describe the target product, not a release phase. MVP/release scoping is tracked outside OpenSpec.
@@ -16,65 +17,20 @@ context: |
   - An entry is a whole logged item (name, type, metadata, and values), from a WPILOG entry or an NT4 topic.
   - An entry name is the `/`-separated string identifying an entry, ex. `/Robot/Arm/Angle`. Don't call it a key.
 
-  Tech stack:
-  - Frontend: React in the web ecosystem only. UI components from coss ui (https://coss.com/ui, Base UI + Tailwind CSS v4).
-  - Charts: Base UI charts once released. It has not shipped yet; a temporary chart library is acceptable if it
-    supports real-time streaming, as long as it stays behind the widget contract so it can be swapped later.
-  - Core logic: TypeScript. Avoid other languages for core logic unless there's a strong reason.
-  - WPILOG parsing: wpilog-parser. NT4 client: @ntcore-ts/client, patched with `pnpm patch` so topic properties
-    (ex. `unit`) pass through its schema instead of being stripped, and so prefix subscribers hear when topics are
-    unannounced, until that's fixed upstream.
-  - Shared dashboards: each dashboard is a Loro CRDT document. Without internet, peers exchange snapshots and presence
-    through the robot's NT4 server under `/DogLogStudio/`; peers are the source of truth, the server only relays.
-  - Drawn widgets: plain SVG in React when the element count is small (ex. the swerve widget). Pick drawing
-    libraries per widget when it's specced (ex. canvas for dense time series, three.js for 3D).
-  - 3D: three.js through react-three-fiber and drei. Reusable pieces live in `src/three/` and know nothing about widgets
-    (the scene with its camera, controls, and lighting, robots, 3D mechanisms, WPILib to three.js poses, and loading
-    robot projects), so the robot widget and future field widgets share them. Scenes copy the viewer in Team 581's Spot
-    (team581/spot, `packages/camera-viewer`): an orthographic Z-up camera in WPILib meters, OrbitControls, a headlight on
-    the camera, and theme colors read from CSS variables. Preset views use drei's view cube.
-  - Mechanism2d: groups with a `.type` entry of `Mechanism2d` get a synthesized entry of the `mechanism2d` kind, which
-    widgets read the group's entries through (`src/data/mechanism.ts`).
-  - Robot projects: `doglog.jsonc` (or `doglog.json`) at the root of a robot code project, parsed with jsonc-parser and
-    validated with Zod, whose JSON Schema export is the published schema. Only the `robot` key is defined; add keys when
-    a feature needs them. Projects are read in place: the desktop app remembers folder paths, the web app keeps
-    directory handles in IndexedDB. Robot option choices are robot names, so shared dashboards work across devices.
-    Models load with three.js's GLTFLoader (no Draco), with metalness turned off since scenes have no environment map.
-  - Field images: the season's community top-down CAD render from Chief Delphi (AdvantageScope uses the same ones), the
-    variant without background or game pieces, over a fixed neutral gray, compressed as lossless WebP. Cropped with the
-    SVG view, not by editing the image.
-  - Infer how widgets show entries from entry types, metadata, and names. Widgets may declare a few options
-    (`WidgetType.options`) to override what's inferred or pick what can't be; keep them rare so users aren't overloaded.
-  - Distribution: a PWA website, plus a Tauri desktop app built from the same frontend.
-  - Error reporting: Sentry, in production builds only. The React SDK reports frontend errors on the web and desktop, and
-    the Rust SDK reports desktop panics. No usage analytics, and no log contents or personal info (ex. hostnames).
-  - Log sync: desktop only. Rust (the `robot-sftp` crate, russh) does SSH/SFTP listing and offset downloads, TypeScript
-    decides what to sync and when. Only roboRIOs are supported; SystemCore support is planned for the 2027 release.
-  - State: TanStack Store, with Zod validating all persisted and external data.
-  - Interactions: dnd-kit for drag and drop, react-resizable-panels for pane splits, TanStack Hotkeys for shortcuts.
-  - Theming: Material Design 3 "tonal spot" scheme (2025 spec) generated with @material/material-color-utilities from a seed
-    color. The default seed is Team 581 maroon #591616, which matches jonahsnider/dashshund.
-    Presets: Team 581 maroon, a custom seed, or Neutral, which uses coss ui's stock neutral tokens
-    (https://coss.com/ui/docs/styling) with no generated scheme.
-  - App icon: the DogLog logo (web/public/logo.svg), which is also the Team 581 logo.
-  - Context menus: native Tauri popup menus on desktop, coss menus on the web, from one menu definition.
-  - Agent control: one registry of commands defined in TypeScript with Zod, in a schema-only folder with no React or DOM
-    imports (widget metadata like `accepts`, roles, and options lives apart from widget components). A build step exports
-    the schemas with Zod's JSON Schema export, and the Rust binary embeds them, so `doglog --help`, CLI flag parsing, and
-    MCP `tools/list` work without a window. Handlers run in the webview.
-    - Web: WebMCP (`document.modelContext.registerTool`, per the current W3C draft), feature-detected. WebMCP has no
-      server instructions, so web agents only get command descriptions.
-    - Desktop: each app process listens on a per-user local socket (Unix socket with user-only permissions, or a named
-      pipe restricted to the current user on Windows) speaking a small private JSON-RPC protocol (`info` for the API
-      version and window details, `call` to run a command); Rust relays calls to the webview. No network listener.
-      `doglog mcp` is the only MCP speaker: a stdio server that discovers every window's socket and launches the app
-      when none is running. CLI subcommands are clients of the same sockets.
-    - Windows report an integer agent API version; the bridge refuses windows whose version differs from its own.
-    - Tools only: no MCP resources, prompts, or change notifications.
-    - `doglog mcp install` uses each agent's own installer (ex. `claude mcp add`, `codex mcp add`, `gemini mcp add`,
-      `code --add-mcp`, Cursor's install deeplink), not add-mcp, so agents own their config formats.
-  - Desktop-only shortcuts (⌘T, ⌘W, ⌘,): native app menu items on macOS, where the default menu already uses ⌘W, and
-    TanStack Hotkeys on Windows and Linux.
+  Architecture:
+  - A PWA website, plus a Tauri desktop app built from the same React frontend.
+  - Core logic is TypeScript. Rust only where the desktop app needs it (ex. SSH for log sync, the `doglog` CLI).
+  - Charts use a temporary library until Base UI charts ship, kept behind the widget contract so it can be swapped.
+  - Zod validates all persisted and external data.
+  - Shared dashboards are Loro CRDT documents. Peers are the source of truth; the robot's NT4 server only relays, so
+    sharing works without internet.
+  - Widgets infer how to show entries from entry types, metadata, and names. Widget options override what's inferred
+    or pick what can't be; keep them rare so users aren't overloaded.
+  - Agent commands live in one Zod registry with no React or DOM imports, so the Rust binary can embed their schemas
+    and answer `doglog --help` and MCP `tools/list` without a window. The web app exposes them over WebMCP; desktop
+    windows over a per-user local socket that `doglog mcp` relays to. No network listener.
+  - Error reporting: Sentry, in production builds only. No usage analytics, and never log contents or personal info
+    (ex. hostnames).
 
   Platform constraints:
   - Browsers only allow live NT connections from an HTTPS page via Chrome's Local Network Access (Chrome 147+),
@@ -94,30 +50,21 @@ context: |
   - Saving a live session to a log file.
   - Playback looping and trimming the playback range.
   - FRC match time display (ex. "Teleop 1:32").
-  - Recent files.
-  - More FRC-specific widgets. Double-clicking matching entries should default to these once they exist.
-  - A 3D field view with a field model per season, placing robots from `src/three/` at their poses.
-  - A robot editor screen: load one CAD model, pick parts by glTF node and set their pivots visually, and write
-    `doglog.jsonc`. Robot configs would then allow parts from nodes of one model instead of one model file per part.
-  - DogLog integration for robot projects: DogLog could log the project's name or its `doglog.jsonc`, so Studio matches a
-    log to its robot project automatically instead of the user picking it in the Robot option.
+  - A command palette.
+  - More FRC-specific widgets, which double-clicking matching entries should default to.
+  - A 3D field view, and field widget robot trails and per-project robot sizes.
+  - WPILib 2027 field coordinates (origin at the center, +X toward blue). The field widget is hardcoded to 2026.
+  - A robot editor that writes `doglog.jsonc` from one CAD model.
+  - DogLog logging the robot project, so Studio matches a log to its project without the user picking it.
   - More built-in robots, ex. the 2026 KitBot, if FIRST allows redistributing its CAD.
-  - Field widget seasons: WPILib 2027 moves the field origin to the center with +X toward blue. The field widget is
-    hardcoded to the 2026 field and coordinates; switch to 2027 when it ships. Past seasons may not be supported.
-  - Robot trails and per-project robot sizes in the field widget.
-  - Keyboard zoom for the field widget. The desktop app could zoom it with ⌘+/⌘-, but it may be better to support the
-    system's zoom gestures and settings instead.
-  - Choosing robot-relative or field-relative for `ChassisSpeeds` in the swerve widget (currently always
-    robot-relative).
+  - Field-relative `ChassisSpeeds` in the swerve widget.
   - Unit inference beyond angles (ex. distance, velocity).
-  - A command palette. ⇧⌘P or ⌘P.
-  - Agent screenshots of windows (agents use their harness's tools for now), and agent access to notepad text.
+  - Log sync from SystemCore, planned for the 2027 release.
 
   Open questions:
   - Whether the sidebar's dashboard list fits every page long term, or pages need their own secondary content.
   - The live NT story for Firefox and Safari users of the web app.
-  - Per-project defaults for common entries (ex. the robot pose is always /Robot/Localization/EstimatedPose).
-    Possibly declared by robot code (ex. NT topic metadata or DogLog) or in `doglog.jsonc` instead of in Studio.
+  - Per-project defaults for common entries (ex. the robot pose), possibly declared by robot code or `doglog.jsonc`.
 
 rules:
   specs:

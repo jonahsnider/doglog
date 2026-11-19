@@ -1,6 +1,6 @@
 # Studio design guide
 
-How Studio's UI is built. The OpenSpec specs in `openspec/specs` describe what users see, and `openspec/config.yaml` lists the tech stack. This guide covers the patterns in between: which components to reach for, how to style them, and how things should look and move.
+How Studio's UI is built. The OpenSpec specs in `openspec/specs` describe what users see, and `openspec/config.yaml` records tech decisions. This guide covers the patterns in between: which components to reach for, how to style them, and how things should look and move.
 
 ## Components
 
