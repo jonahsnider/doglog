@@ -1,5 +1,6 @@
 import {
 	Blend,
+	Contrast as MaterialContrast,
 	DynamicScheme,
 	Hct,
 	TonalPalette,
@@ -26,11 +27,6 @@ const contrastLevels: Record<Contrast, number> = {
 const presetColors: Partial<Record<ThemePreset, string>> = {
 	team581: defaultThemeColor,
 	match13: '#1a7ccd',
-};
-
-/** Colors that presets generate their secondary palette from instead of deriving it from the theme color */
-const presetSecondaryColors: Partial<Record<ThemePreset, string>> = {
-	match13: '#ffffff',
 };
 
 /** MD3 color roles applied as `--md-*` CSS variables, ex. `surfaceContainerLow` is `--md-surface-container-low` */
@@ -86,21 +82,45 @@ const roles = [
 	'surfaceContainerHighest',
 ] as const;
 
-function scheme(themeColor: string, dark: boolean, contrast: Contrast, preset: ThemePreset): DynamicScheme {
+function schemeColors(
+	themeColor: string,
+	dark: boolean,
+	contrast: Contrast,
+	preset: ThemePreset,
+): (role: (typeof roles)[number]) => number {
 	const sourceColorHct = Hct.fromInt(argbFromHex(presetColors[preset] ?? themeColor));
-	const secondaryColor = presetSecondaryColors[preset];
-	return new DynamicScheme({
+	const colors = new DynamicScheme({
 		sourceColorHct,
 		variant: Variant.TONAL_SPOT,
 		contrastLevel: contrastLevels[contrast],
 		isDark: dark,
 		specVersion: '2025',
-		...(secondaryColor !== undefined && { secondaryPalette: TonalPalette.fromInt(argbFromHex(secondaryColor)) }),
 		...(preset === 'team581' && {
 			neutralPalette: TonalPalette.fromHueAndChroma(sourceColorHct.hue, 2),
 			neutralVariantPalette: TonalPalette.fromHueAndChroma(sourceColorHct.hue, 3.5),
 		}),
+		...(preset === 'match13' && {
+			// Match match13.com's blue accents, icy light panels, and the black overlays on its dark data pages.
+			primaryPalette: TonalPalette.fromInt(argbFromHex(dark ? '#6ab0fd' : '#135ab0')),
+			secondaryPalette: TonalPalette.fromInt(argbFromHex(dark ? '#273e55' : '#cddff8')),
+			neutralPalette: TonalPalette.fromInt(argbFromHex(dark ? '#000000' : '#e2efff')),
+		}),
 	});
+	if (preset !== 'match13' || !dark) {
+		return (role) => colors[role];
+	}
+
+	// Keep match13.com's sky-400 for actions and focus instead of Tonal Spot's pastel tone 80.
+	const sky = TonalPalette.fromInt(argbFromHex('#29a3f6'));
+	const tone = contrast === 'standard' ? sky.keyColor.tone : contrast === 'medium' ? 75 : 90;
+	const ratio = contrast === 'standard' ? 6 : contrast === 'medium' ? 7 : 11;
+	const primary = sky.tone(tone);
+	const overrides: Partial<Record<(typeof roles)[number], number>> = {
+		primary,
+		surfaceTint: primary,
+		onPrimary: sky.tone(MaterialContrast.darkerUnsafe(tone, ratio)),
+	};
+	return (role) => overrides[role] ?? colors[role];
 }
 
 /**
@@ -159,11 +179,11 @@ export function themeColorVariables(
 	contrast: Contrast,
 	preset: ThemePreset,
 ): string {
-	const colors = scheme(themeColor, dark, contrast, preset);
+	const color = schemeColors(themeColor, dark, contrast, preset);
 	return roles
 		.map(
 			(role) =>
-				`--md-${role.replaceAll(/[A-Z]/gu, (letter) => `-${letter.toLowerCase()}`)}:${hexFromArgb(colors[role])};`,
+				`--md-${role.replaceAll(/[A-Z]/gu, (letter) => `-${letter.toLowerCase()}`)}:${hexFromArgb(color(role))};`,
 		)
 		.join('');
 }
@@ -224,14 +244,14 @@ export function themePreviewColors(
 	if (preset === 'coss') {
 		return neutralPreviewColors[dark ? 'dark' : 'light'];
 	}
-	const colors = scheme(themeColor, dark, contrast, preset);
+	const color = schemeColors(themeColor, dark, contrast, preset);
 	return {
-		surface: hexFromArgb(colors.surface),
-		sidebar: hexFromArgb(colors.surfaceContainerLow),
-		bar: hexFromArgb(colors.surfaceContainerHighest),
-		border: hexFromArgb(colors.outlineVariant),
-		primary: hexFromArgb(colors.primary),
-		accent: hexFromArgb(colors.primaryContainer),
+		surface: hexFromArgb(color('surface')),
+		sidebar: hexFromArgb(color('surfaceContainerLow')),
+		bar: hexFromArgb(color('surfaceContainerHighest')),
+		border: hexFromArgb(color('outlineVariant')),
+		primary: hexFromArgb(color('primary')),
+		accent: hexFromArgb(color('primaryContainer')),
 	};
 }
 

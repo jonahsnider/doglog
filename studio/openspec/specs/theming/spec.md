@@ -8,7 +8,7 @@ Define Studio's visual identity: a Material Design 3 color scheme generated from
 
 ### Requirement: Generated color scheme
 
-Except for the Neutral preset, Studio SHALL generate a Material Design 3 Tonal Spot scheme using the 2025 spec. The default Team 581 preset MUST use seed `#591616` and HCT chroma 2 and 3.5 for the neutral and neutral variant palettes, respectively, in both appearance modes. The match13 preset MUST use seed `#1a7ccd` and a secondary palette from white (`#ffffff`). The MD3 contrast level MUST be 0 for Standard, 0.5 for Medium, and 1 for High.
+Except for the Neutral preset, Studio SHALL generate a Material Design 3 Tonal Spot scheme using the 2025 spec. The default Team 581 preset MUST use seed `#591616` and HCT chroma 2 and 3.5 for the neutral and neutral variant palettes, respectively, in both appearance modes. The MD3 contrast level MUST be 0 for Standard, 0.5 for Medium, and 1 for High.
 
 #### Scenario: Default color
 
@@ -16,6 +16,18 @@ Except for the Neutral preset, Studio SHALL generate a Material Design 3 Tonal S
 - **WHEN** the user views Studio in light or dark mode
 - **THEN** neutral surfaces have a subtler maroon tint than stock Tonal Spot
 - **AND** primary actions keep the stock maroon-derived accent
+
+### Requirement: match13 palette
+
+The match13 preset MUST retain its `#1a7ccd` seed. Its primary, secondary, and neutral palette inputs MUST be `#135ab0`, `#cddff8`, and `#e2efff` in light mode and `#6ab0fd`, `#273e55`, and `#000000` in dark mode. Dark primary actions and focus rings MUST use the site's `sky-400` (`#29a3f6`) at Standard contrast and lighter tones at Medium and High. Primary labels MUST retain MD3's contrast targets.
+
+#### Scenario: match13 colors
+
+- **GIVEN** the match13 preset is selected
+- **WHEN** the user switches from light to dark mode
+- **THEN** the surfaces switch from pale blue to near-black charcoal
+- **AND** primary actions switch from deep blue to bright blue
+- **AND** selected sidebar items stay blue-tinted in both modes
 
 ### Requirement: Neutral colors
 

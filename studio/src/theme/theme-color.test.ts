@@ -1,4 +1,5 @@
-import { afterEach, describe, expect, test, vi } from 'vite-plus/test';
+import { Contrast, argbFromHex, lstarFromArgb } from '@material/material-color-utilities';
+import { afterEach, assert, describe, expect, test, vi } from 'vite-plus/test';
 import css from '../index.css?raw';
 import {
 	applyThemeColor,
@@ -41,6 +42,26 @@ describe('themeColorVariables()', () => {
 
 	test('default dark colors match index.css', () => {
 		expect(generatedVariables(true)).toStrictEqual(cssVariables(dark));
+	});
+
+	test('match13 standard dark actions and their preview use the site blue', () => {
+		expect(themeColorVariables(defaultThemeColor, true, 'standard', 'match13')).toContain('--md-primary:#29a3f6;');
+		expect(themePreviewColors('match13', defaultThemeColor, true, 'standard').primary).toBe('#29a3f6');
+	});
+
+	test.each([
+		['standard', 6],
+		['medium', 7],
+		['high', 11],
+	] as const)('match13 dark primary labels retain %s contrast', (contrast, ratio) => {
+		const variables = themeColorVariables(defaultThemeColor, true, contrast, 'match13');
+		const primary = variables.match(/--md-primary:(#[\da-f]{6});/u)?.[1];
+		const onPrimary = variables.match(/--md-on-primary:(#[\da-f]{6});/u)?.[1];
+		assert.isDefined(primary);
+		assert.isDefined(onPrimary);
+		expect(
+			Contrast.ratioOfTones(lstarFromArgb(argbFromHex(primary)), lstarFromArgb(argbFromHex(onPrimary))),
+		).toBeGreaterThanOrEqual(ratio);
 	});
 });
 
