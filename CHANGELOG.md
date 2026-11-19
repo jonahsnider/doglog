@@ -7,7 +7,7 @@
 
 * add updated Alert logging ([1bbe4da](https://github.com/jonahsnider/doglog/commit/1bbe4da47ff3cf2808f7e491b13fc05e34e51b7b))
 * allow logging TelemetryLoggable ([3012f6b](https://github.com/jonahsnider/doglog/commit/3012f6ba141138bc08ce3fef3b31d5aae5acb476))
-* capture all SystemCore stats to logs ([dbaab2f](https://github.com/jonahsnider/doglog/commit/dbaab2f1ad9b0b5690613a3031681b2c58d15927))
+* capture all Systemcore stats to logs ([dbaab2f](https://github.com/jonahsnider/doglog/commit/dbaab2f1ad9b0b5690613a3031681b2c58d15927))
 * mark logged values as immutable ([1c64a4b](https://github.com/jonahsnider/doglog/commit/1c64a4b2a70bea83c397103e7384fe54743b95f2))
 
 

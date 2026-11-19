@@ -59,7 +59,7 @@ context: |
   - More built-in robots, ex. the 2026 KitBot, if FIRST allows redistributing its CAD.
   - Field-relative `ChassisSpeeds` in the swerve widget.
   - Unit inference beyond angles (ex. distance, velocity).
-  - Log sync from SystemCore, planned for the 2027 release.
+  - Log sync from Systemcore, planned for the 2027 release.
 
   Open questions:
   - Whether the sidebar's dashboard list fits every page long term, or pages need their own secondary content.
