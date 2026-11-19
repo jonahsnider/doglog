@@ -264,7 +264,8 @@ export default defineConfig({
 			workbox: {
 				globPatterns: ['**/*'],
 				// The Sentry plugin turns on source maps for workers too, but only removes the main bundle's
-				globIgnores: ['**/_headers', '**/*.map'],
+				// Fontsource lists WOFF only as a fallback after WOFF2, so browsers never request it
+				globIgnores: ['**/_headers', '**/*.map', '**/*.woff'],
 				// Loro's WASM is about 3.6 MB, and dashboards need it to load offline
 				maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
 				cleanupOutdatedCaches: true,
