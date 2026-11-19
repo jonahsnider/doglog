@@ -27,6 +27,7 @@ How Studio's UI is built. The OpenSpec specs in `openspec/specs` describe what u
   - Semantic colors (ex. success) harmonize a fixed hue toward the theme color. Don't harmonize hue-sensitive colors like warning.
   - Use mid tones (about 60 in light and 70 in dark) for fills, and 40 or 80 for text.
 - Colors that come from robot data are drawn as logged, since teams pick them on purpose: Mechanism2d ligament and background colors. Like the field image, they don't follow the theme.
+- Official game colors are fixed too, since teams know them from the field (ex. `bg-fuel` for REBUILT's fuel). Define them in `src/index.css`, and outline light ones with a darker tone of their hue where they'd barely show on light backgrounds.
 - Per-user colors (ex. presence avatars) pick a chart color by hashing the user's ID, with `text-primary-foreground` on it. Inactive users are grayed out rather than given another color.
 - Check new colors with several theme colors in both light and dark. Muddy yellows and hues drifting toward the error color are the usual problems.
 

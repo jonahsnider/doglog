@@ -25,6 +25,8 @@ const settingsSchema = z
 		timelineAlerts: z.boolean().catch(true),
 		/** Whether long disabled stretches are compressed on the timeline and fast-forwarded through during playback */
 		timelineCompress: z.boolean().catch(true),
+		/** Whether the timeline bar shows when the robot's alliance hub was active in 2026 matches */
+		timelineShifts: z.boolean().catch(true),
 		/** Whether the system uses natural scrolling, for browsers that don't report it, see `reportsNaturalScrolling` */
 		naturalScrolling: z.boolean().catch(true),
 	})

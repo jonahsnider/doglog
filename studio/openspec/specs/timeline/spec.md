@@ -66,9 +66,42 @@ The timeline bar SHALL show when WPILib error and warning alerts were active, fr
 - **GIVEN** a warning alert that turns on and off every second for a minute
 - **THEN** it's shown as one bar spanning that minute
 
+### Requirement: Active hub shifts on the timeline
+
+For 2026 matches, the timeline bar SHALL show when the robot's alliance hub was active in teleop as bars below the track in REBUILT's fuel color (#FACB43, outlined in light mode), one per shift with a gap between each: the 10 second transition shift, the robot's two 25 second alliance shifts, and the 30 second end game. Inactive shifts MUST NOT be shown. Shifts SHALL start with teleop and end where it does. The track SHALL move up to make room only when shifts are shown.
+
+#### Scenario: Blue alliance, red scored more in auto
+
+- **GIVEN** a 2026 match log from a blue alliance robot where the game data is `R`, and teleop ran from 5:32.33 to 7:52.30
+- **THEN** shift bars span 5:32.33 to 5:42.33 (transition shift), 5:42.33 to 6:07.33 (shift 1), 6:32.33 to 6:57.33 (shift 3), and 7:22.33 to 7:52.30 (end game)
+- **AND** hovering shift 3 shows "Hub active (shift 3)"
+
+### Requirement: Active hub shifts from FMSInfo
+
+Which shifts were active MUST come from NetworkTables' FMSInfo (`/NT:/FMSInfo/` in logs, `/FMSInfo/` live): the game data (`GameSpecificMessage`) is the alliance whose hub is inactive first, and `IsRedAlliance` is the robot's alliance. Unless the game data during that match's teleop is exactly `R` or `B` and the alliance is known, the match MUST NOT show shifts.
+
+#### Scenario: No FMSInfo
+
+- **GIVEN** a 2026 match log without FMSInfo
+- **THEN** no shifts are shown
+
+### Requirement: Recognizing 2026 matches
+
+A match MUST be recognized by its timing, 20 seconds of auto followed within 5 seconds by at most 2 minutes 20 seconds of teleop, which real matches and the Driver Station's practice mode follow. A source's year MUST come from the wall clock WPILib's `DataLogManager` records (`/systemTime`), then the log's file name, and live sessions are from the current year. Shifts MUST NOT be shown for other years or for logs whose year isn't known.
+
+#### Scenario: 2025 match
+
+- **GIVEN** a 2025 match log with 15 seconds of auto and 2 minutes 15 seconds of teleop
+- **THEN** no shifts are shown
+
+#### Scenario: Practice without match timing
+
+- **GIVEN** a 2026 log where the robot was enabled in teleop for 3 minutes from the Driver Station
+- **THEN** no shifts are shown
+
 ### Requirement: Timeline tooltip
 
-Hovering the timeline bar's track SHALL show a tooltip of what was happening at that time, stacked vertically: the robot's mode, then each alert active there, and a thin vertical line MUST mark the hovered time on the track. Each item MUST show its name with its length on the right, and when it started and ended below. For items at least 2 seconds long, the right side MUST also show how far into the item the hovered time is.
+Hovering the timeline bar's track SHALL show a tooltip of what was happening at that time, stacked vertically: the robot's mode, the shift its hub is active in, then each alert active there, and a thin vertical line MUST mark the hovered time on the track. Each item MUST show its name with its length on the right, and when it started and ended below. For items at least 2 seconds long, the right side MUST also show how far into the item the hovered time is.
 
 #### Scenario: Hover during teleop with an alert
 
@@ -169,7 +202,7 @@ The timeline bar SHALL have buttons for play/pause and playback speed at its sta
 
 ### Requirement: Timeline options
 
-The timeline options menu SHALL let the user hide or show alerts on the timeline and turn skipping idle time on or off, and MUST remember both choices. Both are on by default.
+The timeline options menu SHALL let the user hide or show alerts and active hub shifts on the timeline and turn skipping idle time on or off, and MUST remember these choices. All are on by default.
 
 #### Scenario: Hide alerts
 
@@ -177,6 +210,12 @@ The timeline options menu SHALL let the user hide or show alerts on the timeline
 - **THEN** alerts disappear from the track and its tooltip
 - **AND** the track moves to the vertical center of the timeline bar
 - **AND** they stay hidden after Studio restarts
+
+#### Scenario: Hide active hub shifts
+
+- **GIVEN** a 2026 match log with FMSInfo
+- **WHEN** the user turns off Show active hub shifts in the timeline options
+- **THEN** shifts disappear from the track and its tooltip
 
 ### Requirement: Log playback controls
 

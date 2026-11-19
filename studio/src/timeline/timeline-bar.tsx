@@ -9,6 +9,7 @@ import { Progress, ProgressIndicator, ProgressLabel, ProgressTrack, ProgressValu
 import { Select, SelectItem, SelectPopup } from '@/components/ui/select';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { Scrubber } from '@/timeline/timeline-scrubber';
+import { getSourceYear } from '@/timeline/shifts';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { type TimeRange, useTimeRange } from '@/data/data-store';
 import { useLogProgress, useSource } from '@/data/source';
@@ -108,7 +109,7 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 	const range = useTimeRange();
 	const source = useSource();
 	const { time, playback, speed, live } = useTimeline();
-	const { timelineAlerts, timelineCompress } = useSettings();
+	const { timelineAlerts, timelineCompress, timelineShifts } = useSettings();
 	const [speedOpen, setSpeedOpen] = useState(false);
 	const [optionsOpen, setOptionsOpen] = useState(false);
 	const speedTrigger = useRef<HTMLButtonElement>(null);
@@ -179,7 +180,9 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 						time={time}
 						live={live}
 						showAlerts={timelineAlerts}
+						showShifts={timelineShifts}
 						compress={timelineCompress}
+						year={source && getSourceYear(source)}
 						unread={source?.type === 'log' ? source.unread : undefined}
 					/>
 				) : (
@@ -219,6 +222,12 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 							onCheckedChange={(checked) => updateSettings({ timelineAlerts: checked })}
 						>
 							Show alerts
+						</MenuCheckboxItem>
+						<MenuCheckboxItem
+							checked={timelineShifts}
+							onCheckedChange={(checked) => updateSettings({ timelineShifts: checked })}
+						>
+							Show active hub shifts
 						</MenuCheckboxItem>
 						<MenuCheckboxItem
 							checked={timelineCompress}

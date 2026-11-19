@@ -17,3 +17,5 @@ export const modeLabels: Record<RobotMode, string> = {
 };
 
 export const alertColors: Record<AlertLevel, string> = { error: 'bg-destructive', warning: 'bg-warning' };
+
+export const shiftColor = 'bg-fuel ring-1 ring-fuel-outline ring-inset';

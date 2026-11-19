@@ -81,6 +81,8 @@
 	--color-info-foreground: var(--info-foreground);
 	--color-info: var(--info);
 	--color-test-mode: var(--test-mode);
+	--color-fuel: var(--fuel);
+	--color-fuel-outline: var(--fuel-outline);
 	--color-destructive-foreground: var(--destructive-foreground);
 	--radius-sm: calc(var(--radius) * 0.6);
 	--radius-md: calc(var(--radius) * 0.8);
@@ -350,6 +352,19 @@
 	--sidebar-primary: var(--md-primary);
 	--sidebar-primary-foreground: var(--md-on-primary);
 	--sidebar-ring: var(--md-primary);
+}
+
+/*
+ * REBUILT's official fuel color, the same in every theme like the field image. Light backgrounds barely contrast with it,
+ * so it's outlined there with a darker tone of its hue (HCT tone 60).
+ */
+:root {
+	--fuel: rgb(250 203 67);
+	--fuel-outline: rgb(178 140 0);
+}
+
+.dark {
+	--fuel-outline: var(--fuel);
 }
 
 /* Stock neutral color tokens from https://coss.com/ui/docs/styling */

@@ -1,9 +1,10 @@
-import { alertColors, modeColors, modeLabels } from '@/timeline/colors';
+import { alertColors, modeColors, modeLabels, shiftColor } from '@/timeline/colors';
 import { cn } from '@/lib/utils';
 import { formatRoughDuration, formatTime } from '@/timeline/timeline';
 import type { TimeRange } from '@/data/data-store';
 import type { UnreadEnd } from '@/data/log-source';
 import type { AlertSpan, ModePeriod } from '@/timeline/events';
+import type { MatchShift } from '@/timeline/shifts';
 
 const maxListedAlerts = 5;
 
@@ -46,9 +47,10 @@ function TooltipItem({
 	);
 }
 
-/** What was happening at the hovered time: the robot's mode, then any active alerts */
+/** What was happening at the hovered time: the robot's mode, the shift the hub is active in, then any active alerts */
 export function HoverTooltip({
 	period,
+	shift,
 	compressed,
 	alerts,
 	hoverTime,
@@ -56,6 +58,7 @@ export function HoverTooltip({
 }: {
 	/** The robot's mode, or a span the live session was disconnected */
 	period: ModePeriod | TimeRange | undefined;
+	shift: MatchShift | undefined;
 	/** Whether the hovered time is in a compressed span */
 	compressed: boolean;
 	alerts: readonly AlertSpan[];
@@ -75,8 +78,18 @@ export function HoverTooltip({
 					start={start}
 				/>
 			)}
+			{shift && (
+				<TooltipItem
+					color={shiftColor}
+					label={`Hub active (${shift.name.toLowerCase()})`}
+					from={shift.start}
+					to={shift.end}
+					hoverTime={hoverTime}
+					start={start}
+				/>
+			)}
 			{alerts.length > 0 && (
-				<ul className={cn('flex flex-col gap-1.5', period && 'border-t pt-2')}>
+				<ul className={cn('flex flex-col gap-1.5', (period ?? shift) && 'border-t pt-2')}>
 					{alerts.slice(0, maxListedAlerts).map((alert) => (
 						<li key={`${alert.start}:${alert.level}:${alert.text}`}>
 							<TooltipItem

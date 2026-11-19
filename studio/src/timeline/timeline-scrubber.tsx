@@ -2,7 +2,7 @@ import { useHotkeys } from '@tanstack/react-hotkeys';
 import { type PointerEvent, useMemo, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
-import { alertColors, modeColors } from '@/timeline/colors';
+import { alertColors, modeColors, shiftColor } from '@/timeline/colors';
 import { HoverTooltip, UnreadTooltip } from '@/timeline/timeline-tooltip';
 import { setHoverTime } from '@/timeline/hover';
 import { GraphMarks } from '@/timeline/graph-marks';
@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { settingsStore } from '@/settings';
 import { formatTime, getCursorTime, seek, seekHotkeys } from '@/timeline/timeline';
 import { getAlertSpans, getCompressedSpans, getModePeriods } from '@/timeline/events';
+import { getActiveShifts } from '@/timeline/shifts';
 import { createTimeScale } from '@/timeline/scale';
 
 /**
@@ -34,14 +35,19 @@ export function Scrubber({
 	time,
 	live,
 	showAlerts,
+	showShifts,
 	compress,
+	year,
 	unread,
 }: {
 	range: TimeRange;
 	time: number;
 	live: boolean;
 	showAlerts: boolean;
+	showShifts: boolean;
 	compress: boolean;
+	/** The year the source is from, hub shifts are only known for 2026 */
+	year: number | undefined;
 	/** The end of a log's file that couldn't be read, shown after the data for about as long as it would have lasted */
 	unread: UnreadEnd | undefined;
 }) {
@@ -77,6 +83,15 @@ export function Scrubber({
 		[entries, range, showAlerts],
 	);
 
+	const shifts = useMemo(() => (showShifts ? getActiveShifts(periods, year) : []), [showShifts, periods, year]);
+	// The track moves away from the alerts above it and the shifts below it, the shifts only make room in matches
+	const trackOffset =
+		showAlerts === shifts.length > 0
+			? '-translate-y-1/2'
+			: showAlerts
+				? 'translate-y-[calc(-50%+0.25rem)]'
+				: 'translate-y-[calc(-50%-0.25rem)]';
+
 	const hoverAt = (event: PointerEvent): Hover => {
 		const rect = track.current!.getBoundingClientRect();
 		return { x: Math.min(Math.max(event.clientX - rect.left, 0), rect.width), width: rect.width };
@@ -110,12 +125,14 @@ export function Scrubber({
 		const gap = gaps.find((item) => item.start < hoverTime && hoverTime < item.end);
 		// Sections share their boundaries, the later one starts there
 		const period = gap ?? periods.findLast((item) => item.start <= hoverTime && hoverTime <= item.end);
+		const shift = shifts.findLast((item) => item.start <= hoverTime && hoverTime <= item.end);
 		const hovered = alerts
 			.filter((alert) => alert.start <= to && from <= alert.end)
 			.toSorted((a, b) => a.start - b.start);
-		return period !== undefined || hovered.length > 0 ? (
+		return period !== undefined || shift !== undefined || hovered.length > 0 ? (
 			<HoverTooltip
 				period={period}
+				shift={shift}
 				compressed={compressed.some((span) => span.start <= hoverTime && hoverTime <= span.end)}
 				alerts={hovered}
 				hoverTime={hoverTime}
@@ -206,7 +223,7 @@ export function Scrubber({
 					<div
 						className={cn(
 							'absolute inset-x-0 top-1/2 h-2 overflow-hidden rounded-full bg-input/40 transition-[translate] motion-reduce:transition-none',
-							showAlerts ? 'translate-y-[calc(-50%+0.25rem)]' : '-translate-y-1/2',
+							trackOffset,
 						)}
 					>
 						<div className="absolute inset-y-0 left-0 bg-input" style={{ width: `${toPercent(range.end)}%` }} />
@@ -254,12 +271,23 @@ export function Scrubber({
 						))}
 					</div>
 
+					{/* Gaps between shifts mark where they change, ex. the transition shift and shift 1 */}
+					{shifts.map((shift) => (
+						<div
+							key={shift.start}
+							className="absolute bottom-0 h-1.5 px-px"
+							style={{ left: `${toPercent(shift.start)}%`, width: `${toPercent(shift.end) - toPercent(shift.start)}%` }}
+						>
+							<div className={cn('size-full rounded-full', shiftColor)} />
+						</div>
+					))}
+
 					<GraphMarks toPercent={toPercent} hoverTime={hover === undefined ? undefined : timeAt(hover)} />
 
 					<div
 						className={cn(
 							'absolute top-1/2 size-3.5 -translate-x-1/2 rounded-full border-2 border-primary bg-background transition-[translate] group-focus-visible:ring-[3px] group-focus-visible:ring-ring/48 motion-reduce:transition-none',
-							showAlerts ? 'translate-y-[calc(-50%+0.25rem)]' : '-translate-y-1/2',
+							trackOffset,
 						)}
 						style={{ left: `${cursorPercent}%` }}
 					/>
