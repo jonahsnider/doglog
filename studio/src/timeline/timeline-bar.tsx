@@ -1,4 +1,8 @@
-import { ChevronsUpDownIcon, FastForwardIcon, PauseIcon, PlayIcon, SlidersHorizontalIcon } from 'lucide-react';
+import ChevronsUpDownIcon from 'lucide-react/icons/chevrons-up-down';
+import FastForwardIcon from 'lucide-react/icons/fast-forward';
+import PauseIcon from 'lucide-react/icons/pause';
+import PlayIcon from 'lucide-react/icons/play';
+import SlidersHorizontalIcon from 'lucide-react/icons/sliders-horizontal';
 import { type Hotkey, type UseHotkeyDefinition, useHotkeys } from '@tanstack/react-hotkeys';
 import { Select as SelectPrimitive } from '@base-ui/react/select';
 import { type ReactNode, useRef, useState } from 'react';

@@ -16,6 +16,8 @@ const config: KnipConfig = {
 			entry: [
 				// Knip has no React Doctor plugin
 				'doctor.config.ts',
+				// Passed to `vp lint -c` in `pnpm check`
+				'vendored-lint.config.ts',
 				// coss ui components are copied in from a registry, and are available even if unused
 				'src/components/ui/**/*.tsx',
 				'src/hooks/use-media-query.ts',

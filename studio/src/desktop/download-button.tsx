@@ -1,4 +1,5 @@
-import { ChevronDownIcon, DownloadIcon } from 'lucide-react';
+import ChevronDownIcon from 'lucide-react/icons/chevron-down';
+import DownloadIcon from 'lucide-react/icons/download';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Group, GroupSeparator } from '@/components/ui/group';
 import { Menu, MenuLinkItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';

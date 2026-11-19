@@ -1,13 +1,11 @@
-import {
-	BotIcon,
-	ChartLineIcon,
-	Gamepad2Icon,
-	MapIcon,
-	MoveIcon,
-	NotebookPenIcon,
-	TableIcon,
-	TerminalIcon,
-} from 'lucide-react';
+import BotIcon from 'lucide-react/icons/bot';
+import ChartLineIcon from 'lucide-react/icons/chart-line';
+import Gamepad2Icon from 'lucide-react/icons/gamepad-2';
+import MapIcon from 'lucide-react/icons/map';
+import MoveIcon from 'lucide-react/icons/move';
+import NotebookPenIcon from 'lucide-react/icons/notebook-pen';
+import TableIcon from 'lucide-react/icons/table';
+import TerminalIcon from 'lucide-react/icons/terminal';
 import { lazy } from 'react';
 import { createWidget } from '@/widgets/bindings';
 import type { Entry } from '@/data/data-store';

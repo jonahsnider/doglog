@@ -13,6 +13,7 @@ import landmines from '@interfere/landmines/configs/recommended.json' with { typ
 import * as z from 'zod';
 import packageJson from './package.json' with { type: 'json' };
 import { projectSchema } from './src/three/project-schema.ts';
+import { lucideBarrelRestriction } from './vendored-lint.config.ts';
 
 const ignorePatterns = [
 	'src/routeTree.gen.ts',
@@ -209,6 +210,7 @@ export default defineConfig({
 							importNames: ['useReducedMotion'],
 							message: 'Use useMotionTransition() from @/lib/motion, see DESIGN.md.',
 						},
+						lucideBarrelRestriction,
 					],
 				},
 			],

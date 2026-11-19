@@ -1,4 +1,4 @@
-import { NotebookPenIcon } from 'lucide-react';
+import NotebookPenIcon from 'lucide-react/icons/notebook-pen';
 import { expect, test } from 'vite-plus/test';
 import { createPane, findPane } from '@/panes/layout';
 import { resolveBindings } from '@/widgets/bindings';

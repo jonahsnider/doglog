@@ -1,4 +1,4 @@
-import { DatabaseIcon } from 'lucide-react';
+import DatabaseIcon from 'lucide-react/icons/database';
 import { getEntry, useDataVersion, useEntries } from '@/data/data-store';
 import { useSource } from '@/data/source';
 import { useCursorTime } from '@/timeline/timeline';

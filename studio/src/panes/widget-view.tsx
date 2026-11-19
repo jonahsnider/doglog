@@ -1,6 +1,7 @@
 import type { Draggable, Droppable } from '@dnd-kit/dom';
 import { useDragOperation, useDroppable } from '@dnd-kit/react';
-import { DatabaseIcon, ListPlusIcon } from 'lucide-react';
+import DatabaseIcon from 'lucide-react/icons/database';
+import ListPlusIcon from 'lucide-react/icons/list-plus';
 import { type CSSProperties, type ReactNode, Suspense, useCallback, useMemo } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import {

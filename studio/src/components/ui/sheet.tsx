@@ -3,7 +3,7 @@
 import { Dialog as SheetPrimitive } from "@base-ui/react/dialog";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
-import { XIcon } from "lucide-react";
+import XIcon from "lucide-react/icons/x";
 import type React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";

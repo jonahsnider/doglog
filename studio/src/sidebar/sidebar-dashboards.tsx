@@ -1,5 +1,5 @@
 import { useRouter } from '@tanstack/react-router';
-import { PlusIcon } from 'lucide-react';
+import PlusIcon from 'lucide-react/icons/plus';
 import { AnimatePresence, domAnimation, LazyMotion } from 'motion/react';
 import { TextMorph } from 'torph/react';
 import { type MouseEvent, type ReactNode, useRef } from 'react';

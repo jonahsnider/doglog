@@ -1,16 +1,14 @@
 import { Link } from '@tanstack/react-router';
-import {
-	AppWindowIcon,
-	CheckIcon,
-	HourglassIcon,
-	LoaderCircleIcon,
-	type LucideIcon,
-	PauseIcon,
-	PlayIcon,
-	RefreshCwIcon,
-	SettingsIcon,
-	TriangleAlertIcon,
-} from 'lucide-react';
+import AppWindowIcon from 'lucide-react/icons/app-window';
+import CheckIcon from 'lucide-react/icons/check';
+import HourglassIcon from 'lucide-react/icons/hourglass';
+import LoaderCircleIcon from 'lucide-react/icons/loader-circle';
+import PauseIcon from 'lucide-react/icons/pause';
+import PlayIcon from 'lucide-react/icons/play';
+import RefreshCwIcon from 'lucide-react/icons/refresh-cw';
+import SettingsIcon from 'lucide-react/icons/settings';
+import TriangleAlertIcon from 'lucide-react/icons/triangle-exclamation-point';
+import type { LucideIcon } from 'lucide-react/types';
 import { type ReactNode, useState } from 'react';
 import { TextMorph } from 'torph/react';
 import type { BoardLog } from '@/sync/sync-board';

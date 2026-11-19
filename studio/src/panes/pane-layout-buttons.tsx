@@ -1,4 +1,7 @@
-import { Columns2Icon, Maximize2Icon, Minimize2Icon, Rows2Icon } from 'lucide-react';
+import Columns2Icon from 'lucide-react/icons/columns-2';
+import Maximize2Icon from 'lucide-react/icons/maximize-2';
+import Minimize2Icon from 'lucide-react/icons/minimize-2';
+import Rows2Icon from 'lucide-react/icons/rows-2';
 import { shortcuts } from '@/commands/commands';
 import { PaneButton } from '@/panes/pane-button';
 import type { SplitDirection } from '@/panes/layout';

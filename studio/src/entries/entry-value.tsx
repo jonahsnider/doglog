@@ -1,4 +1,4 @@
-import { BanIcon } from 'lucide-react';
+import BanIcon from 'lucide-react/icons/ban';
 import { TooltipTrigger } from '@/components/ui/tooltip';
 import type { MarkTooltipHandle } from '@/entries/value-marks';
 import { type Entry, useDataVersion } from '@/data/data-store';

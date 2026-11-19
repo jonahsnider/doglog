@@ -1,4 +1,4 @@
-import { MapIcon } from 'lucide-react';
+import MapIcon from 'lucide-react/icons/map';
 import { expect, test } from 'vite-plus/test';
 import {
 	addEntries,

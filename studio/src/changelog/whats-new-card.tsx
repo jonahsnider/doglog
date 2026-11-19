@@ -1,4 +1,5 @@
-import { SparklesIcon, XIcon } from 'lucide-react';
+import SparklesIcon from 'lucide-react/icons/sparkles';
+import XIcon from 'lucide-react/icons/x';
 import { AnimatePresence, domAnimation, LazyMotion, m } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';

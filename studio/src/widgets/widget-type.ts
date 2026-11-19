@@ -1,5 +1,5 @@
 import type { HotkeyChord } from '@tanstack/react-hotkeys';
-import type { LucideIcon } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react/types';
 import type { ComponentType } from 'react';
 import type { Entry } from '@/data/data-store';
 import type { EntryKind } from '@/data/entry-kind';

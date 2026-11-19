@@ -1,4 +1,4 @@
-import { XIcon } from 'lucide-react';
+import XIcon from 'lucide-react/icons/x';
 import { useMemo, useState } from 'react';
 import { AddWidgetPrompt } from '@/panes/add-widget-prompt';
 import { AppContextMenu, type MenuCheckbox, type MenuEntry } from '@/components/app-context-menu';

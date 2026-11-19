@@ -1,7 +1,7 @@
 import { Feedback } from '@dnd-kit/dom';
 import { DragDropProvider, DragOverlay, KeyboardSensor } from '@dnd-kit/react';
 import { isSortable } from '@dnd-kit/react/sortable';
-import { LayoutDashboardIcon } from 'lucide-react';
+import LayoutDashboardIcon from 'lucide-react/icons/layout-dashboard';
 import { useRouter } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { EntryName } from '@/entries/entry-name';

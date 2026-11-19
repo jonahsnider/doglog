@@ -1,17 +1,15 @@
-import {
-	BinaryIcon,
-	BoxIcon,
-	BoxesIcon,
-	BracesIcon,
-	HashIcon,
-	ListChecksIcon,
-	ListIcon,
-	ListOrderedIcon,
-	type LucideIcon,
-	SplineIcon,
-	ToggleRightIcon,
-	TypeIcon,
-} from 'lucide-react';
+import BinaryIcon from 'lucide-react/icons/binary';
+import BoxIcon from 'lucide-react/icons/box';
+import BoxesIcon from 'lucide-react/icons/boxes';
+import BracesIcon from 'lucide-react/icons/braces';
+import HashIcon from 'lucide-react/icons/hash';
+import ListChecksIcon from 'lucide-react/icons/list-checks';
+import ListIcon from 'lucide-react/icons/list';
+import ListOrderedIcon from 'lucide-react/icons/list-ordered';
+import SplineIcon from 'lucide-react/icons/spline';
+import ToggleRightIcon from 'lucide-react/icons/toggle-right';
+import TypeIcon from 'lucide-react/icons/type';
+import type { LucideIcon } from 'lucide-react/types';
 import type { TooltipPrimitive } from '@/components/ui/tooltip';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import type { EntryKind } from '@/data/entry-kind';

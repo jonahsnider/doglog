@@ -1,4 +1,7 @@
-import { DumbbellIcon, type LucideIcon, SwordsIcon, TrophyIcon } from 'lucide-react';
+import DumbbellIcon from 'lucide-react/icons/dumbbell';
+import SwordsIcon from 'lucide-react/icons/swords';
+import TrophyIcon from 'lucide-react/icons/trophy';
+import type { LucideIcon } from 'lucide-react/types';
 import type { MatchType } from '@/sync/log-names';
 
 /** How each kind of match is shown */

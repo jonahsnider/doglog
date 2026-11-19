@@ -8,7 +8,7 @@
 		"analyze": "rm -rf node_modules/.rolldown && VITE_DEVTOOLS_ROLLDOWN=true vp build && vite-devtools",
 		"bench": "vp test bench",
 		"build": "vp build",
-		"check": "vp check && tsc -b && node scripts/agent-schema.ts --check",
+		"check": "vp check && vp lint -c vendored-lint.config.ts src/components/ui && tsc -b && node scripts/agent-schema.ts --check",
 		"check:dev": "pnpm check && react-doctor --no-telemetry --scope files --include-untracked",
 		"check:fix": "vp check --fix",
 		"deploy": "wrangler deploy",

@@ -1,4 +1,4 @@
-import { FileUpIcon } from 'lucide-react';
+import FileUpIcon from 'lucide-react/icons/file-up';
 import { useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 import { hasFiles } from '@/data/open-log';

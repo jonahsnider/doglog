@@ -1,6 +1,7 @@
 import { type Hotkey, useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { Link, type RegisteredRouter, useLocation, useRouter } from '@tanstack/react-router';
-import { LayoutDashboardIcon, type LucideIcon } from 'lucide-react';
+import LayoutDashboardIcon from 'lucide-react/icons/layout-dashboard';
+import type { LucideIcon } from 'lucide-react/types';
 import { useSortable } from '@dnd-kit/react/sortable';
 import { m, useIsPresent } from 'motion/react';
 import { easing, useMotionTransition } from '@/lib/motion';

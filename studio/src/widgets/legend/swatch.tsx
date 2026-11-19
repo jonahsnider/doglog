@@ -1,4 +1,4 @@
-import { CheckIcon } from 'lucide-react';
+import CheckIcon from 'lucide-react/icons/check';
 import { type RefObject, use, useRef, useState } from 'react';
 import { Popover, PopoverPopup } from '@/components/ui/popover';
 import { WidgetBindingsContext } from '@/entries/drag';

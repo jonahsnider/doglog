@@ -4,7 +4,10 @@ import { Dialog, DialogHeader, DialogPanel, DialogPopup, DialogTitle } from '@/c
 import { Kbd } from '@/components/ui/kbd';
 import { useSettings } from '@/settings';
 import { type Hotkey, useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
-import { PauseIcon, PlayIcon, SkipBackIcon, SkipForwardIcon } from 'lucide-react';
+import PauseIcon from 'lucide-react/icons/pause';
+import PlayIcon from 'lucide-react/icons/play';
+import SkipBackIcon from 'lucide-react/icons/skip-back';
+import SkipForwardIcon from 'lucide-react/icons/skip-forward';
 import { type ReactNode, useState } from 'react';
 
 /** A key without a hotkey, like a media key, shown with icons */

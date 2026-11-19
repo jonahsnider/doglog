@@ -1,4 +1,4 @@
-import { CompassIcon } from 'lucide-react';
+import CompassIcon from 'lucide-react/icons/compass';
 import type { ReactNode } from 'react';
 import type { Value } from '@/data/samples';
 import { type Entry, useDataVersion } from '@/data/data-store';

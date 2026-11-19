@@ -1,4 +1,5 @@
-import { ChevronsUpDownIcon, Settings2Icon } from 'lucide-react';
+import ChevronsUpDownIcon from 'lucide-react/icons/chevrons-up-down';
+import Settings2Icon from 'lucide-react/icons/settings-2';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Fieldset, FieldsetLegend } from '@/components/ui/fieldset';

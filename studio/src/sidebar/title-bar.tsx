@@ -1,5 +1,7 @@
 import { useRouter } from '@tanstack/react-router';
-import { ArrowLeftIcon, ArrowRightIcon, PanelLeftIcon } from 'lucide-react';
+import ArrowLeftIcon from 'lucide-react/icons/arrow-left';
+import ArrowRightIcon from 'lucide-react/icons/arrow-right';
+import PanelLeftIcon from 'lucide-react/icons/panel-left';
 import type { ComponentProps, ReactNode } from 'react';
 import { shortcuts } from '@/commands/commands';
 import { goInHistory, type HistoryStep, useCanGoInHistory } from '@/commands/history';

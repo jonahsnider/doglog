@@ -1,7 +1,7 @@
 import { useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { isTauri } from '@tauri-apps/api/core';
 import { LogicalPosition } from '@tauri-apps/api/dpi';
-import { EllipsisIcon } from 'lucide-react';
+import EllipsisIcon from 'lucide-react/icons/ellipsis';
 import { useState } from 'react';
 import type { MenuAction } from '@/components/app-context-menu';
 import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuShortcut, MenuTrigger } from '@/components/ui/menu';

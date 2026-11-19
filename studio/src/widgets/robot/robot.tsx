@@ -1,4 +1,8 @@
-import { BoxesIcon, DatabaseIcon, HouseIcon, ListPlusIcon, SplineIcon } from 'lucide-react';
+import BoxesIcon from 'lucide-react/icons/boxes';
+import DatabaseIcon from 'lucide-react/icons/database';
+import HouseIcon from 'lucide-react/icons/house';
+import ListPlusIcon from 'lucide-react/icons/list-plus';
+import SplineIcon from 'lucide-react/icons/spline';
 import { useMemo, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';

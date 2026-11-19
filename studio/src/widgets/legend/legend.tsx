@@ -1,4 +1,4 @@
-import { ChevronDownIcon } from 'lucide-react';
+import ChevronDownIcon from 'lucide-react/icons/chevron-down';
 import { type PointerEvent, type ReactNode, use, useEffect, useRef, useState } from 'react';
 import { EntryName } from '@/entries/entry-name';
 import { MarqueeText } from '@/components/marquee-text';

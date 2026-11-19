@@ -1,4 +1,5 @@
-import { LayoutDashboardIcon, MoveIcon } from 'lucide-react';
+import LayoutDashboardIcon from 'lucide-react/icons/layout-dashboard';
+import MoveIcon from 'lucide-react/icons/move';
 import { cn } from '@/lib/utils';
 import { bindsEntries, type WidgetType } from '@/widgets/widget-type';
 

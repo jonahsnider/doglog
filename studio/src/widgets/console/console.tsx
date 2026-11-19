@@ -1,5 +1,10 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { CaseSensitiveIcon, ChevronDownIcon, ChevronUpIcon, RegexIcon, SearchIcon, WholeWordIcon } from 'lucide-react';
+import CaseSensitiveIcon from 'lucide-react/icons/case-sensitive';
+import ChevronDownIcon from 'lucide-react/icons/chevron-down';
+import ChevronUpIcon from 'lucide-react/icons/chevron-up';
+import RegexIcon from 'lucide-react/icons/regex';
+import SearchIcon from 'lucide-react/icons/search';
+import WholeWordIcon from 'lucide-react/icons/whole-word';
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { AppContextMenu } from '@/components/app-context-menu';
 import { HighlightedText } from '@/components/highlighted-text';
@@ -192,36 +197,29 @@ export function Console({ bindings }: WidgetProps) {
 					</InputGroupAddon>
 				</InputGroup>
 				<div className="flex shrink-0 items-center">
-					<ControlTooltip
-						label="Previous message"
-						shortcut="Shift+Enter"
-						render={
-							<Button
-								variant="ghost"
-								size="icon-xs"
-								aria-label="Previous message"
-								disabled={previousTime === undefined}
-								onClick={() => seekMessage(previousTime)}
-							/>
-						}
-					>
-						<ChevronUpIcon />
-					</ControlTooltip>
-					<ControlTooltip
-						label="Next message"
-						shortcut="Enter"
-						render={
-							<Button
-								variant="ghost"
-								size="icon-xs"
-								aria-label="Next message"
-								disabled={nextTime === undefined}
-								onClick={() => seekMessage(nextTime)}
-							/>
-						}
-					>
-						<ChevronDownIcon />
-					</ControlTooltip>
+					{(
+						[
+							{ label: 'Previous message', shortcut: 'Shift+Enter', target: previousTime, icon: <ChevronUpIcon /> },
+							{ label: 'Next message', shortcut: 'Enter', target: nextTime, icon: <ChevronDownIcon /> },
+						] as const
+					).map(({ label, shortcut, target, icon }) => (
+						<ControlTooltip
+							key={label}
+							label={label}
+							shortcut={shortcut}
+							render={
+								<Button
+									variant="ghost"
+									size="icon-xs"
+									aria-label={label}
+									disabled={target === undefined}
+									onClick={() => seekMessage(target)}
+								/>
+							}
+						>
+							{icon}
+						</ControlTooltip>
+					))}
 				</div>
 				<SegmentedControl
 					size="sm"

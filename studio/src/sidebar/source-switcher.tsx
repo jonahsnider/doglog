@@ -1,5 +1,5 @@
 import { useFormatForDisplay } from '@tanstack/react-hotkeys';
-import { XIcon } from 'lucide-react';
+import XIcon from 'lucide-react/icons/x';
 import { useAnimate } from 'motion/react';
 import { useLayoutEffect, useRef } from 'react';
 import { MenuItem, MenuShortcut } from '@/components/ui/menu';

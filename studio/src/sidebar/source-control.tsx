@@ -1,6 +1,6 @@
 import { isTauri } from '@tauri-apps/api/core';
 import { useFormatForDisplay } from '@tanstack/react-hotkeys';
-import { ChevronsUpDownIcon } from 'lucide-react';
+import ChevronsUpDownIcon from 'lucide-react/icons/chevrons-up-down';
 import { useEffect, useState } from 'react';
 import { TextMorph } from 'torph/react';
 import { AppContextMenu, type MenuAction, type MenuEntry } from '@/components/app-context-menu';

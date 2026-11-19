@@ -1,5 +1,6 @@
 import { Navigate, createFileRoute, redirect, useRouter } from '@tanstack/react-router';
-import { LayoutDashboardIcon, PlusIcon } from 'lucide-react';
+import LayoutDashboardIcon from 'lucide-react/icons/layout-dashboard';
+import PlusIcon from 'lucide-react/icons/plus';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { newDashboard } from '@/commands/commands';

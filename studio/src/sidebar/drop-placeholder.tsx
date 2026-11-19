@@ -1,4 +1,6 @@
-import { LayoutDashboardIcon, UserIcon, UsersIcon } from 'lucide-react';
+import LayoutDashboardIcon from 'lucide-react/icons/layout-dashboard';
+import UserIcon from 'lucide-react/icons/user';
+import UsersIcon from 'lucide-react/icons/users';
 import { m, useIsPresent } from 'motion/react';
 import type { Ref } from 'react';
 import { SidebarMenuItem } from '@/components/ui/sidebar';

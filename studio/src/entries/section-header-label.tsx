@@ -1,4 +1,6 @@
-import { EyeOffIcon, ListChecksIcon, PinIcon } from 'lucide-react';
+import EyeOffIcon from 'lucide-react/icons/eye-off';
+import ListChecksIcon from 'lucide-react/icons/list-checks';
+import PinIcon from 'lucide-react/icons/pin';
 
 const sectionHeaders = {
 	active: { icon: ListChecksIcon, label: 'Active' },

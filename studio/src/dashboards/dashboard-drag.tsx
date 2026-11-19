@@ -1,6 +1,7 @@
 import { useDragOperation, useDroppable } from '@dnd-kit/react';
 import { useParams } from '@tanstack/react-router';
-import { PanelLeftIcon, PanelRightIcon } from 'lucide-react';
+import PanelLeftIcon from 'lucide-react/icons/panel-left';
+import PanelRightIcon from 'lucide-react/icons/panel-right';
 import { AnimatePresence, domAnimation, LazyMotion, m } from 'motion/react';
 import { easing, useMotionTransition } from '@/lib/motion';
 import { dashboardDragType, isDashboardDrag, type SplitZoneData } from '@/dashboards/drag';

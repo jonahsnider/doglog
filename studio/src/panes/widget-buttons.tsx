@@ -1,4 +1,4 @@
-import { ListPlusIcon } from 'lucide-react';
+import ListPlusIcon from 'lucide-react/icons/list-plus';
 import { shortcuts } from '@/commands/commands';
 import { updateLayout } from '@/dashboards/panes';
 import { toggleEditing } from '@/entries/editing';

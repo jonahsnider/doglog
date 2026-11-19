@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import { CopyIcon } from 'lucide-react';
+import CopyIcon from 'lucide-react/icons/copy';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldLabel } from '@/components/ui/field';

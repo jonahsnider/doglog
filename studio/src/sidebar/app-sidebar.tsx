@@ -1,7 +1,9 @@
 import { type Hotkey, useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
 import { Link, useMatchRoute } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
-import { CircleArrowUpIcon, FolderSyncIcon, SettingsIcon } from 'lucide-react';
+import CircleArrowUpIcon from 'lucide-react/icons/circle-arrow-up';
+import FolderSyncIcon from 'lucide-react/icons/folder-sync';
+import SettingsIcon from 'lucide-react/icons/settings';
 import { useEffect, useRef, useState } from 'react';
 import {
 	Sidebar,

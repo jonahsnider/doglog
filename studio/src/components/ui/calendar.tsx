@@ -1,11 +1,9 @@
 "use client";
 
 import { type DateLib, DayPicker } from "@daypicker/react";
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronsUpDownIcon,
-} from "lucide-react";
+import ChevronLeftIcon from "lucide-react/icons/chevron-left";
+import ChevronRightIcon from "lucide-react/icons/chevron-right";
+import ChevronsUpDownIcon from "lucide-react/icons/chevrons-up-down";
 import type * as React from "react";
 import { cn } from "@/lib/utils";
 
