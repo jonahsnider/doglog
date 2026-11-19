@@ -35,7 +35,6 @@ function lineOf(text: string, offset: number): number {
 	return text.slice(0, offset).split('\n').length;
 }
 
-/** The first problem with a config, ex. `robot.colour in doglog.jsonc isn't a known key` */
 function describeIssue(issue: z.core.$ZodIssue, file: string): string {
 	const path = issue.path.join('.');
 	if (issue.code === 'unrecognized_keys') {

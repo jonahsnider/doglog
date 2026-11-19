@@ -46,7 +46,6 @@ const widthPxStore = createPersistedAtom('entry-browser-width', z.number().posit
 	perWindow: true,
 });
 
-/** Collapsible panel listing every entry of the active source as a searchable tree */
 export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 	const open = useSelector(entryBrowserOpenStore);
 	useHotkey(shortcuts.toggleEntryBrowser, toggleEntryBrowser, { requireReset: true });
@@ -137,7 +136,6 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 	const source = useSource();
 	const allEntries = useEntries();
 	const editedType = edited?.type;
-	// While editing, entries the widget can't show are left out
 	const entries = useMemo(
 		() => (editedType ? allEntries.filter((entry) => acceptsEntry(editedType, entry)) : allEntries),
 		[allEntries, editedType],
@@ -163,7 +161,6 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 		Draggable<EntryDragData>,
 		Droppable<EntrySectionDropData>
 	>();
-	// Only set while dragging a row of the entry browser
 	const draggedFrom = drag.source?.data.section;
 	const dropSection = draggedFrom === undefined ? undefined : drag.target?.data.section;
 
@@ -184,7 +181,6 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 	if (session?.paneId !== edited?.paneId) {
 		setSession(edited && { paneId: edited.paneId, names: edited.bound });
 		if (edited) {
-			// Reveal the widget's entries in the tree
 			const expanded = [...expandedGroups(sectioned.items, toggled), ...ancestorGroups(edited.bound)];
 			setToggled(toggledGroups(sectioned.items, expanded));
 		}
@@ -200,7 +196,6 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 		() => entryTreeView(sectioned.items, expandedGroups(sectioned.items, toggled), deferredQuery),
 		[sectioned, toggled, deferredQuery],
 	);
-	// Moving a row within its own section does nothing
 	const dropTarget = dropSection === draggedFrom ? undefined : dropSection;
 
 	const message = emptyMessage(source !== undefined, allEntries, entries, editedType, view);
@@ -266,7 +261,6 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 	);
 }
 
-/** Shown instead of the tree when it has no rows */
 function emptyMessage(
 	hasSource: boolean,
 	allEntries: readonly Entry[],

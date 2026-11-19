@@ -1,6 +1,5 @@
 import type { AlertLevel, RobotMode } from '@/timeline/events';
 
-// Disabled is left as the empty track
 export const modeColors: Record<RobotMode, string | undefined> = {
 	disabled: undefined,
 	auto: 'bg-success',

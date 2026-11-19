@@ -123,7 +123,6 @@ export function EntryRows({
 					const row = rows[item.index]!;
 					return (
 						<Fragment key={row.item.value}>
-							{/* Separates the Pinned section from the rest of the tree */}
 							{row.section === 'main' && rows[item.index - 1]?.section === 'pinned' && (
 								<Separator aria-hidden className="absolute inset-x-0" style={{ top: item.start }} />
 							)}
@@ -160,7 +159,6 @@ const EntryRowView = memo(function EntryRowView({
 	dropTarget: boolean;
 	/** Entries have checkboxes that bind them to the edited widget, instead of being added to the dashboard by double-clicking */
 	editing: boolean;
-	/** The edited widget shows this entry */
 	bound: boolean;
 	/** The edited widget shows entries in this group, marked like a folder with changes in a code editor */
 	containsBound: boolean;
@@ -269,7 +267,6 @@ function RowLabel({
 	);
 }
 
-/** An entry's type, after a checkbox that's checked while the edited widget shows it, see `EditedWidget` */
 function EntryMarks({ type, editing }: { type: string; editing: boolean }) {
 	return (
 		<>

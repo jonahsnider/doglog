@@ -73,7 +73,6 @@ function ControlButton({
 	);
 }
 
-/** The cursor's time, marked while it's in a compressed disabled span, which playback fast-forwards through */
 function CursorTime({ range, time }: { range: TimeRange | undefined; time: number | undefined }) {
 	if (range === undefined || time === undefined) {
 		return <span className="ms-1.5 min-w-20 text-right font-mono text-sm">-</span>;
@@ -234,7 +233,6 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 	);
 }
 
-/** Takes the timeline's place while a log loads, so the controls appear where the progress was */
 function LogProgress({ fileName }: { fileName: string }) {
 	const progress = useLogProgress();
 	return (

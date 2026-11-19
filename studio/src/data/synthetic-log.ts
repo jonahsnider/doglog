@@ -62,7 +62,6 @@ class LogWriter {
 		this.writeUint(timestamp, timestampLength);
 	}
 
-	/** Start an entry, returns its ID */
 	start(name: string, type: string, timestamp: number): number {
 		const id = this.nextEntryId++;
 		const nameSize = textEncoder.encode(name).length;

@@ -20,7 +20,6 @@ function Headlight() {
 	return <directionalLight ref={light} intensity={2} />;
 }
 
-/** The floor grid */
 function Floor() {
 	const line = useThemeColor('var(--border)');
 	// Grid helpers are drawn in the XZ plane, turned onto the floor
@@ -28,13 +27,11 @@ function Floor() {
 }
 
 const labelEdge = gridSize / 2 + 0.25;
-/** Labels beside the grid for which way the robot's front and left are */
 const floorLabels = [
 	{ text: '+X front', position: new Vector3(labelEdge, 0, 0) },
 	{ text: '+Y left', position: new Vector3(0, labelEdge, 0) },
 ];
 
-/** Calls `callback` on every frame the scene is drawn */
 function OnFrame({ callback }: { callback: (state: RootState) => void }) {
 	useFrame(callback);
 	return null;
@@ -57,7 +54,6 @@ const keys: Partial<Record<string, (rig: Rig, seconds: number, speed: number) =>
 	e: (rig, seconds, speed) => rig.pan(0, panSpeed * seconds * speed),
 };
 
-/** How a pointer drag moves the camera, following drei's orbit controls */
 function dragOf(event: PointerEvent): 'orbit' | 'pan' | undefined {
 	if (event.button === 2 || (event.button === 0 && (event.ctrlKey || event.metaKey || event.shiftKey))) {
 		return 'pan';
@@ -116,7 +112,6 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 		}
 	};
 
-	// Held keys move the camera every frame until they're released
 	const held = useRef(new Set<string>());
 	const shift = useRef(false);
 	const frame = useRef<number>(undefined);

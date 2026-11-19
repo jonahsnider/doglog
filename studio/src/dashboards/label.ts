@@ -55,7 +55,6 @@ function knownName(words: readonly string[]): string | undefined {
 	return knownNames.get(words.join('').toLowerCase());
 }
 
-/** How many topics are listed by name before the rest are counted */
 const maxTopics = 3;
 
 /** Joins topics like `A, B, & C` */

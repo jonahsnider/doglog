@@ -118,7 +118,6 @@ function Shortened({
 	});
 }
 
-/** Text with its slashes dimmed, so the path's segments stand out */
 function DimmedSlashes({ text, ranges, offset }: { text: string; ranges: Ranges; offset: number }) {
 	return Array.from(text.matchAll(/\/+|[^/]+/gu), ({ 0: part, index: start }) => {
 		const highlighted = <HighlightedText key={start} text={part} ranges={ranges} offset={offset + start} />;

@@ -1,5 +1,3 @@
-// Shortening entry names while keeping them told apart from the others shown beside them, ex. in a graph's legend
-
 /** A segment shortened to its first letter and capitals, like fish shortens paths, ex. `RealOutputs` to `RO` */
 function abbreviate(segment: string): string {
 	return segment.replaceAll(/(?<!^)[a-z]+/gu, '');

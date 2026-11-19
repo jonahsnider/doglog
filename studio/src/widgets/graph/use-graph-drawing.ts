@@ -148,7 +148,6 @@ export function useGraphDrawing(
 
 		const lineFades = fades.current;
 		updateFades(lineFades, series, performance.now());
-		/** Sets each line's opacity, returns whether one is still fading */
 		const fadeLines = (now: number): boolean => {
 			let fading = false;
 			for (const [index, line] of series.entries()) {

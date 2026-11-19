@@ -3,7 +3,6 @@ import { type RefObject, useState } from 'react';
 import { dashboardDragType } from '@/dashboards/drag';
 import { type NewDashboardDropData, paneDragType } from '@/panes/drag';
 
-/** What's being dragged over a section of the sidebar */
 export type DraggedKind = 'pane' | 'dashboard';
 
 /** Whether anything is being dragged, so the sidebar's dashboards don't show tooltips and previews while they're passed over */

@@ -29,7 +29,6 @@ import type { WidgetProps } from '@/widgets/widget-type';
 /** Height of a one line message (px), messages are never shorter so measuring them only moves later rows down */
 const rowHeight = 20;
 
-/** Labels for the minimum level to show */
 const minimumLevelLabels: Record<MessageLevel, string> = { info: 'All', warning: 'Warnings', error: 'Errors' };
 
 const levelClassNames: Record<MessageLevel, string> = {
@@ -129,7 +128,6 @@ export function Console({ bindings }: WidgetProps) {
 	/** Time of the messages just stepped to, which briefly flash to show where to look */
 	const [flashTime, setFlashTime] = useState<number>();
 
-	/** Move the cursor to a message, which shows it at the bottom of the list */
 	const seekMessage = (target: number | undefined) => {
 		if (target !== undefined) {
 			stickToBottom.current = true;
@@ -285,7 +283,6 @@ export function Console({ bindings }: WidgetProps) {
 									<HighlightedText
 										text={messages.texts[item.index]!}
 										ranges={pattern ? matchRanges(messages.texts[item.index]!, pattern) : undefined}
-										// Matches get a background instead of a text color
 										className="rounded-xs bg-info/55 text-inherit"
 									/>
 								</span>

@@ -84,7 +84,6 @@ export function dashboardShortcut(index: number): Hotkey | undefined {
 export function useShortcutHint(shortcut: Hotkey | undefined): boolean {
 	// Unlike `useHotkeyHint`, this includes shortcuts that the native menu handles
 	const held = useSelector(getKeyStateTracker().store, (state) => matchesHeldModifiers(shortcut, state.heldKeys));
-	// Waits a moment so quickly pressing a shortcut doesn't flash the hints
 	const [delayed] = useDebounceValue(held, 300);
 	return held && delayed;
 }

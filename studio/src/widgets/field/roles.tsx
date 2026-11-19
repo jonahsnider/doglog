@@ -1,4 +1,3 @@
-// The ways the field widget can draw an entry, and which entries can be drawn each way
 import type { ReactNode } from 'react';
 import type { Entry } from '@/data/data-store';
 import type { Value } from '@/data/samples';
@@ -10,7 +9,6 @@ import type { Connects, RoleOption, WidgetBinding } from '@/widgets/widget-type'
 
 type Draw = (value: Value, color: string) => ReactNode;
 
-/** A single value is drawn like a one-item array */
 const items = (value: Value): readonly unknown[] => (Array.isArray(value) ? value : [value]);
 const poses = (value: Value) => items(value).map((item) => readPose(item));
 const points: Draw = (value, color) => <Markers poses={poses(value)} color={color} />;
@@ -111,7 +109,6 @@ export function fieldDrawings(
 				{role.draw(value, color)}
 			</g>,
 		);
-		// Hidden sources hide the lines drawn from them
 		for (const source of binding.sources) {
 			const sourceValue = source.hidden ? undefined : valueOf(source);
 			if (sourceValue !== undefined) {

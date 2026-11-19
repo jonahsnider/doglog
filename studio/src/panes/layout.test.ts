@@ -30,7 +30,6 @@ function expectSplit(node: PaneNode | undefined): Split {
 
 const parse = (stored: unknown) => paneNodeSchema.safeParse(stored).data;
 
-/** Each child's share, within rounding */
 const sizesOf = (node: PaneNode) => childSizes(expectSplit(node));
 const shares = (...sizes: number[]) => sizes.map((size): unknown => expect.closeTo(size) as unknown);
 
@@ -83,7 +82,6 @@ test('closing a pane lets the panes beside it take its space', () => {
 
 	expect(sizesOf(closePane(thirds, b.id))).toEqual(shares(0.5, 0.5));
 
-	// A split left with one pane is replaced by it
 	const nested = splitPane(splitPane(a, a.id, 'row', b), b.id, 'column', c);
 	expect(closePane(nested, c.id)).toMatchObject({ direction: 'row', children: [a, b] });
 	expect(closePane(closePane(nested, c.id), b.id)).toEqual(a);

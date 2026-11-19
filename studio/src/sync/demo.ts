@@ -17,7 +17,6 @@ export interface DemoState {
 const hourMs = 60 * 60 * 1000;
 const dayMs = 24 * hourMs;
 const mb = 1_000_000;
-/** How often a demo copy makes progress */
 const tickMs = 100;
 /** Copies go at 25 MB/s */
 const bytesPerTick = 2.5 * mb;

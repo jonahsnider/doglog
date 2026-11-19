@@ -17,7 +17,6 @@ test('WPILib logs', () => {
 		label: '2026CMPTX E14',
 		type: 'elimination',
 	});
-	// Without an event name
 	expect(parseLogName('FRC_20241110_165657__Q68.wpilog')?.match?.label).toBe('Q68');
 	// Ex. a practice match on a practice field
 	expect(parseLogName('FRC_20260422_015845__P0.wpilog')?.match).toEqual({ label: 'P0', type: 'practice' });

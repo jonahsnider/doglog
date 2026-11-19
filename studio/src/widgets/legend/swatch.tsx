@@ -8,7 +8,6 @@ import { seriesColor } from '@/widgets/series-color';
 import type { LegendItem } from '@/widgets/legend/legend';
 import type { WidgetBinding } from '@/widgets/widget-type';
 
-/** Picks one of the chart colors for the binding, or lets the widget pick one */
 function ColorPicker({
 	binding,
 	anchor,

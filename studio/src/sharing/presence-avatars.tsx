@@ -7,7 +7,6 @@ import { type PresentSession, usePresence } from '@/sharing/presence';
 /** Chart colors, so each user's color follows the theme and contrasts equally with the background */
 const userColors = ['bg-chart-1', 'bg-chart-2', 'bg-chart-3', 'bg-chart-4', 'bg-chart-5'] as const;
 
-/** Most avatars shown before the rest are counted */
 const maxShown = 3;
 
 function userColor(userId: string): string {

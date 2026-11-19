@@ -10,7 +10,6 @@ const platformNames: Record<Platform, string> = { macos: 'macOS', windows: 'Wind
 /** Copies of the latest release's installers with fixed names, published by the release workflow */
 const downloadsUrl = 'https://updates.doglog.dev/studio/';
 
-/** The first download for each platform is the one offered by default */
 const downloads: { platform: Platform; label: string; file: string }[] = [
 	// Browsers can't reliably tell Apple silicon from Intel, so Intel Macs pick theirs from the menu
 	{ platform: 'macos', label: 'macOS (Apple silicon)', file: 'DogLog-Studio-macos-apple-silicon.dmg' },

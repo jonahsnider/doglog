@@ -10,11 +10,9 @@ import { popUpNativeMenu } from '@/desktop/native-menu';
 
 type DashboardOptionsProps = {
 	items: readonly (MenuAction | 'separator')[];
-	/** Hidden while the dashboard's shortcut is shown in its place */
 	hidden: boolean;
 };
 
-/** Opens beside the button, like the web menu */
 function NativeDashboardOptions({ items, hidden }: DashboardOptionsProps) {
 	return (
 		<SidebarMenuAction
@@ -69,6 +67,5 @@ function WebDashboardOptions({ items, hidden }: DashboardOptionsProps) {
 	);
 }
 
-/** The dashboard's context menu, as a native menu in the desktop app */
 /** The dashboard's context menu, as a native menu in the desktop app */
 export const DashboardOptions = isTauri() ? NativeDashboardOptions : WebDashboardOptions;

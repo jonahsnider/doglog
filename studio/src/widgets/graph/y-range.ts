@@ -43,7 +43,6 @@ export function fitRange(visible: Range, whole: Range | undefined): Range {
 	const minSpan = whole ? (whole[1] - whole[0]) * minShare : 0;
 	const center = (low + high) / 2;
 	const [min, max] = high - low < minSpan ? [center - minSpan / 2, center + minSpan / 2] : visible;
-	// A flat line still gets some height
 	const pad = max === min ? Math.abs(min) * 0.1 || 1 : (max - min) * padShare;
 	return [min - pad, max + pad];
 }

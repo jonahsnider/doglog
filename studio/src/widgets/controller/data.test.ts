@@ -11,7 +11,6 @@ import {
 } from '@/widgets/controller/data';
 import { nextController } from '@/widgets/controller/options';
 
-/** An entry with one sample at time 0 */
 function entry(name: string, type: string, value: Value): Entry {
 	const samples = new Samples();
 	samples.push(0, value);

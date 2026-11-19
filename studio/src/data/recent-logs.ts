@@ -67,7 +67,6 @@ export function useRecentLogHandles(): readonly RecentLogHandle[] {
 	return useSelector(recentLogHandlesStore);
 }
 
-/** The saved logs that aren't the same file as `handle` */
 async function otherHandles(handle: FileSystemFileHandle): Promise<RecentLogHandle[]> {
 	const handles = (await get<RecentLogHandle[]>(handlesKey)) ?? [];
 	const same = await Promise.all(handles.map((other) => other.handle.isSameEntry(handle)));

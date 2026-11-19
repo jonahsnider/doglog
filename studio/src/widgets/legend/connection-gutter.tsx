@@ -105,7 +105,6 @@ function DragPreview({ drag, lane }: { drag: ConnectionDrag; lane: number }) {
 	return createPortal(
 		// Doesn't block finding the row under the pointer when it's dropped
 		<svg className="pointer-events-none fixed inset-0 z-50 size-full" aria-hidden>
-			{/* In the color of the connection it would make once it snaps to a row */}
 			<path
 				d={d}
 				fill="none"

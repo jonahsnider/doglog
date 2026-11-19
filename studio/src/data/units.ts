@@ -117,7 +117,6 @@ function simpleUnit(text: string): SimpleUnit | undefined {
 	);
 }
 
-/** A unit divided by time once or twice, ex. `m/s` or `m/s²` */
 function perTime(numerator: SimpleUnit, denominator: SimpleUnit, squared: boolean): Unit | undefined {
 	if (denominator.measure !== 'time' || numerator.offset !== undefined) {
 		return undefined;

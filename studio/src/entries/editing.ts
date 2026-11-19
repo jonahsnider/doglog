@@ -1,4 +1,3 @@
-// The entry browser's open state, and which widget's entries it's editing, if any
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import * as z from 'zod';
@@ -26,7 +25,6 @@ export function focusEntrySearch(): void {
 
 export function toggleEntryBrowser(): void {
 	if (entryBrowserOpenStore.get()) {
-		// Editing needs the entry browser
 		editingStore.set(undefined);
 	}
 	entryBrowserOpenStore.set((open) => !open);

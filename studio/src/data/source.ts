@@ -230,7 +230,6 @@ export function disconnect(): void {
 	updateSources({ live: { ...live, status: 'disconnected' } });
 }
 
-/** How long connecting waits before trying again when nothing was reachable */
 const retryDelay = 1000;
 
 /**

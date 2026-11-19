@@ -17,7 +17,6 @@ import { useSettings } from '@/settings';
 import { useRecentlyConnected, useSharingHost } from '@/sharing/sharing';
 import { type LiveSource, useSources } from '@/data/source';
 
-/** Dashboards and the new dashboard button handle their own clicks */
 function isEmptySpace(event: MouseEvent): boolean {
 	return event.target instanceof Element && !event.target.closest('[data-sidebar="menu-item"]');
 }
@@ -26,7 +25,6 @@ export function SidebarDashboards() {
 	const router = useRouter();
 	const dashboards = useDashboards();
 	const selection = useDashboardSelection(dashboards);
-	// Clicking empty space clears the selection, double-clicking it adds a dashboard
 	const props: SectionProps = {
 		dashboards,
 		selection,
@@ -57,7 +55,6 @@ type SectionProps = {
 	onDoubleClick: (event: MouseEvent) => void;
 };
 
-/** A section's dashboards, with a placeholder where a dropped pane or dashboard would go */
 function useSectionItems({ dashboards, selection }: SectionProps, shared: boolean) {
 	const listRef = useRef<HTMLUListElement>(null);
 	const placeholderRef = useRef<HTMLLIElement>(null);
@@ -83,13 +80,11 @@ function useSectionItems({ dashboards, selection }: SectionProps, shared: boolea
 			<DropPlaceholder key="drop-placeholder" ref={placeholderRef} dragged={dragged} shared={shared} active />,
 		);
 	} else if (dragged && shared && section.length === 0) {
-		// Shows that the empty shared section can be dropped on
 		items.push(<DropPlaceholder key="drop-placeholder" dragged={dragged} shared={shared} active={false} />);
 	}
 	return { ref, listRef, items };
 }
 
-/** Where shared dashboards are synced, `undefined` when there's nothing worth showing */
 function sharingStatus(
 	host: string | undefined,
 	recentlyConnected: boolean,
@@ -173,7 +168,6 @@ function LocalDashboards(props: SectionProps) {
 	return (
 		<SidebarGroup ref={ref} className="pb-0" onClick={props.onClick} onDoubleClick={props.onDoubleClick}>
 			<SectionLabel label="Dashboards">
-				{/* Hovering the label reveals a button to close every dashboard */}
 				{props.dashboards.length > 0 && (
 					<button
 						type="button"
@@ -188,7 +182,6 @@ function LocalDashboards(props: SectionProps) {
 			<SidebarMenu ref={listRef} className={cn(dragging && 'pointer-events-none')}>
 				<SidebarMenuItem>
 					<SidebarMenuButton
-						// Muted to set it apart from the dashboards below it
 						className="text-sidebar-foreground/70 hover:text-sidebar-foreground/70 active:text-sidebar-foreground/70"
 						tooltip={{ children: <TooltipLabel label="New dashboard" shortcut={shortcuts.newDashboard} /> }}
 						onClick={() => newDashboard(router)}
@@ -197,7 +190,6 @@ function LocalDashboards(props: SectionProps) {
 						<span>New dashboard</span>
 					</SidebarMenuButton>
 				</SidebarMenuItem>
-				{/* Opened dashboards slide down out of the new dashboard button and closed ones slide back up */}
 				<LazyMotion features={domAnimation} strict>
 					<AnimatePresence initial={false}>{items}</AnimatePresence>
 				</LazyMotion>

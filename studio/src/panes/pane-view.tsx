@@ -244,7 +244,6 @@ export function PaneView({
 					/>
 				</span>
 				<PanePresence dashboardId={dashboardId} paneId={pane.id} />
-				{/* Pane controls stay out of the way unless the pane is hovered or focused */}
 				<Toolbar
 					aria-label="Pane controls"
 					className={cn(

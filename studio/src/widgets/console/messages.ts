@@ -33,7 +33,6 @@ export function mergeMessages(sources: readonly Samples[]): ConsoleMessages {
 	const texts: string[] = [];
 	const levels: MessageLevel[] = [];
 	const next = sources.map(() => 0);
-	/** Index of each source's latest message */
 	const latest = sources.map(() => -1);
 
 	for (let i = 0; i < total; i++) {

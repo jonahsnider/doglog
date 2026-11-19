@@ -58,7 +58,6 @@ export function Legend({
 		item.binding.sources.map((source) => ({ sourceId: source.id, targetId: item.binding.id, color: item.color })),
 	);
 
-	/** Where a dragged connection would go if dropped at the pointer */
 	const dragAt = (from: WidgetBinding, event: PointerEvent) => {
 		const rect = gutter.current!.getBoundingClientRect();
 		const element = document.elementFromPoint(event.clientX, event.clientY);
@@ -123,7 +122,6 @@ export function Legend({
 								}}
 								onPointerCancel={() => setDrag(undefined)}
 							>
-								{/* Filled with the color of the connection being hovered or dragged, at both of its ends */}
 								<span
 									className={cn(
 										'size-3 rounded-full border-2 border-muted-foreground/40 transition-colors group-hover/legend-entry:border-foreground',
@@ -206,7 +204,6 @@ function LegendEntry({
 			>
 				<LegendName name={binding.name} distinctFrom={item.distinctFrom} />
 			</span>
-			{/* Rows of a vertical legend line up their roles and handles on the right */}
 			{vertical && <span className="flex-1" />}
 			{roles && binding.roleLabel !== undefined && (
 				<RoleLabel binding={binding} onPick={(role) => widget?.setRole(binding.id, role)} />
@@ -261,7 +258,6 @@ function RoleLabel({ binding, onPick }: { binding: WidgetBinding; onPick: (role:
 	);
 }
 
-/** The binding's role, which opens a menu of the entry's roles */
 function RolePicker({ binding, onPick }: { binding: WidgetBinding; onPick: (role: string) => void }) {
 	return (
 		<Menu>

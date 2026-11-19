@@ -39,7 +39,6 @@ test('dense samples keep each pixel column’s spike', () => {
 	expect(line.xs.length).toBeLessThanOrEqual(85);
 });
 
-/** The points of `line` from `start` until `end` */
 function pointsBetween(line: { xs: number[]; ys: (number | null)[] }, start: number, end: number) {
 	return line.xs.map((x, index) => [x, line.ys[index]!]).filter(([x]) => x! >= start && x! < end);
 }

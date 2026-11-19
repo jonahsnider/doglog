@@ -16,7 +16,6 @@ const markerHeadingLength = 0.3;
 export function Robot({ pose, color, ghost = false }: { pose: Pose; color: string; ghost?: boolean }) {
 	const bodyHalf = robotHalf - bumperWidth;
 	return (
-		// Ghosts are see-through robots, ex. where the robot is trying to go
 		<g
 			transform={`translate(${pose.x} ${pose.y}) rotate(${toDegrees(pose.heading ?? 0)})`}
 			opacity={ghost ? 0.35 : undefined}

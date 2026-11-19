@@ -42,7 +42,6 @@ export function createWidget(
 	return { type: type.id, config: Object.keys(options).length > 0 ? { bindings, options } : { bindings } };
 }
 
-/** Change a pane's bindings, keeping its widget's other config fields */
 function updateBindings(
 	layout: PaneNode,
 	paneId: string,

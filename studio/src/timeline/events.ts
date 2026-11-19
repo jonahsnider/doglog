@@ -34,7 +34,6 @@ function modeOf(enabled: unknown, autonomous: unknown, test: unknown, estop: unk
 	return autonomous === true ? 'auto' : 'teleop';
 }
 
-/** Combine the times every source entry changed into one list of periods, merging neighbors with the same mode */
 function toPeriods(
 	sources: readonly Entry[],
 	modeAt: (time: number) => RobotMode,

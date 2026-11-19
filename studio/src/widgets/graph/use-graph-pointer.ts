@@ -1,4 +1,3 @@
-// Zooming, panning, hovering, and seeking with the mouse, trackpad, or touch
 import { useHotkey } from '@tanstack/react-hotkeys';
 import { type PointerEvent, type RefObject, useEffect, useRef, useState } from 'react';
 import { getCursorTime, seek } from '@/timeline/timeline';
@@ -7,7 +6,6 @@ import { setHoverTime } from '@/timeline/hover';
 import { getViewRange, panTime, resetView, zoomTime } from '@/widgets/graph/view';
 import type { TimeRange } from '@/data/data-store';
 
-/** Wheel events further apart than this start a new gesture */
 const gesturePauseMs = 200;
 /** How much of a scroll gesture's earlier movement counts toward its direction with each event, ex. 0.7 keeps about the last 100 ms */
 const directionMemory = 0.7;
@@ -65,12 +63,10 @@ export function useGraphPointer(
 	bandRowHeight: number,
 ) {
 	const drag = useRef<Drag>(undefined);
-	/** How far the current scroll gesture has recently moved sideways and vertically, and when its last event came */
 	const gesture = useRef<{ x: number; y: number; at: number }>(undefined);
 	const [hovered, setHovered] = useState(false);
 	const [bandHover, setBandHover] = useState<BandHover>();
 	const [pointerAt, setPointerAt] = useState<PointerAt>();
-	/** The time range selected by dragging, to measure it */
 	const [selection, setSelection] = useState<TimeRange>();
 	/** Clicking keeps the tooltip shown at the cursor */
 	const [pinned, setPinned] = useState(false);
@@ -168,7 +164,6 @@ export function useGraphPointer(
 		return () => element.removeEventListener('wheel', onWheel);
 	});
 
-	/** `time`, or the cursor's when it's within a few pixels */
 	const snapToCursor = (time: number): number => {
 		const cursor = getCursorTime();
 		const view = getViewRange();

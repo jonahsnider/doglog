@@ -111,7 +111,6 @@ export function WidgetView({
 	);
 }
 
-/** Where an entry dragged over the widget will go, or why it can't be dropped */
 function DropFeedback({
 	paneId,
 	type,
@@ -164,7 +163,6 @@ function DropFeedback({
 	);
 }
 
-/** A line on the side of the hovered entry that the dragged entry moves to */
 function ReorderIndicator({
 	from,
 	drop,

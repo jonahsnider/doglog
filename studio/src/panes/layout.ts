@@ -47,7 +47,6 @@ export function createPane(): Pane {
 	return { kind: 'pane', id: crypto.randomUUID() };
 }
 
-/** Replace the node with ID `id` using `update` */
 function replaceNode(node: PaneNode, id: string, update: (node: PaneNode) => PaneNode): PaneNode {
 	if (node.id === id) {
 		return update(node);
@@ -180,7 +179,6 @@ function sideDirection(side: PaneSide): SplitDirection {
 	return side === 'left' || side === 'right' ? 'row' : 'column';
 }
 
-/** The layout after moving a pane, `undefined` if it can't be moved there */
 function moveResult(layout: PaneNode, paneId: string, targetId: string, side: PaneSide): PaneNode | undefined {
 	const pane = findPane(layout, paneId);
 	if (!pane || layout.id === paneId || paneId === targetId) {

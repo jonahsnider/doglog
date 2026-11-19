@@ -5,13 +5,11 @@ import type { TimeRange } from '@/data/data-store';
 import type { UnreadEnd } from '@/data/log-source';
 import type { AlertSpan, ModePeriod } from '@/timeline/events';
 
-/** Most alerts listed in a tooltip */
 const maxListedAlerts = 5;
 
 /** Spans at least this long (µs) show how far into them the hovered time is, shorter ones only show their length */
 const minProgressDuration = 2_000_000;
 
-/** One thing in the tooltip: a colored dot and label, its length (and progress) on the right, and when it started and ended below */
 function TooltipItem({
 	color,
 	label,

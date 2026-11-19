@@ -23,8 +23,6 @@ import { DashboardPresence } from '@/sharing/presence-avatars';
 
 const MotionSidebarMenuItem = m.create(SidebarMenuItem);
 
-/** A dashboard in the sidebar, which opens it and can be dragged to reorder it */
-/** The options button, who's in a shared dashboard, or the dashboard's shortcut */
 function ItemEnd({
 	dashboard,
 	shortcut,
@@ -34,13 +32,11 @@ function ItemEnd({
 	shortcut: Hotkey | undefined;
 	menuItems: readonly (MenuAction | 'separator')[];
 }) {
-	// Holding the shortcut's modifier shows every dashboard's shortcut in place of its options button
 	const showShortcut = useShortcutHint(shortcut);
 	const formatForDisplay = useFormatForDisplay();
 	return (
 		<>
 			{dashboard.shared && !showShortcut && (
-				// Makes room for the options button
 				<SidebarMenuBadge className="group-focus-within/menu-item:invisible group-hover/menu-item:invisible">
 					<DashboardPresence dashboardId={dashboard.id} />
 				</SidebarMenuBadge>
@@ -55,7 +51,6 @@ function ItemEnd({
 	);
 }
 
-/** How a dashboard slides in and out of the sidebar */
 function useItemTransitions(isDragSource: boolean) {
 	const transition = useMotionTransition({ duration: 0.2, ease: easing.inOut });
 	// Dashboards dragged to the other section are hidden right away, so only the gap they leave closes
@@ -84,7 +79,6 @@ function useDashboardSortable(dashboard: Dashboard, sectionIndex: number, renami
 	return { setItem, handleRef, isDragSource };
 }
 
-/** Renames a dashboard on blur or Enter, or keeps its name on Escape */
 function RenameInput({
 	dashboard,
 	icon: Icon,
@@ -126,7 +120,6 @@ function RenameInput({
 	);
 }
 
-/** The menu of a dashboard that isn't selected along with others */
 function dashboardMenu({
 	dashboard,
 	dashboards,

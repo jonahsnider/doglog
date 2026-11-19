@@ -280,7 +280,6 @@ export function reopenClosedDashboards(): Dashboard | undefined {
 	closedStore.set((groups) => groups.slice(0, -1));
 	idsStore.set((ids) => {
 		const reopened = [...ids];
-		// Shared dashboards stayed in the list
 		const open = new Set(ids);
 		// In their original order, so each index lines up with the dashboards before it
 		for (const { id, index } of closed) {

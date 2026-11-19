@@ -9,7 +9,6 @@ import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { dragRegion, useTrafficLights } from '@/desktop/title-bar';
 import { cn } from '@/lib/utils';
 
-/** An icon-only button, named by its tooltip */
 function TitleBarButton({
 	label,
 	tooltip,

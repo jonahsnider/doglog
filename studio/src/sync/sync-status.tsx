@@ -37,7 +37,6 @@ const toneIcon: Record<Tone, string> = {
 	idle: 'bg-muted text-muted-foreground',
 };
 
-/** Color of the timeline up to and including the current step */
 const toneLine: Record<Tone, string> = {
 	active: 'bg-primary',
 	success: 'bg-success',
@@ -56,7 +55,6 @@ const toneRing: Record<Tone, string> = {
 
 interface StatusView {
 	icon: LucideIcon;
-	/** Animate the icon to show sync is working on something */
 	spin?: boolean;
 	tone: Tone;
 	/** Index in `steps` sync is on */
@@ -232,7 +230,6 @@ export function SyncStatusPanel({
 								view.spin === true && 'motion-safe:animate-spin motion-safe:[animation-duration:3s]',
 							)}
 						/>
-						{/* Shows what clicking does */}
 						<ToggleIcon className="hidden size-9 group-hover:block group-focus-visible:block" />
 					</TooltipTrigger>
 					<TooltipPopup>{toggleLabel}</TooltipPopup>

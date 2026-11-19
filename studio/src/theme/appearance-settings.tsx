@@ -146,7 +146,6 @@ export function AppearanceSettings() {
 	);
 }
 
-/** A large radio option showing a preview above its label */
 function OptionCard({ value, label, children }: { value: string; label: string; children: ReactNode }) {
 	return (
 		<RadioPrimitive.Root
@@ -159,7 +158,6 @@ function OptionCard({ value, label, children }: { value: string; label: string; 
 	);
 }
 
-/** Miniature Studio window drawn in a theme's colors */
 function ThemePreview({ colors, className }: { colors: ThemePreviewColors; className?: string }) {
 	const bar = <div className="h-1.5 rounded-full" style={{ backgroundColor: colors.bar }} />;
 	return (
@@ -185,7 +183,6 @@ function ThemePreview({ colors, className }: { colors: ThemePreviewColors; class
 	);
 }
 
-/** Round gradient between a theme's surface and primary colors */
 function ThemeSwatch({ colors }: { colors: ThemePreviewColors }) {
 	return (
 		<div

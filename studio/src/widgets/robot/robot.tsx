@@ -64,7 +64,6 @@ function ViewToggle({ view, onChange }: { view: View; onChange: (view: View) => 
 	);
 }
 
-/** Why there's no mechanism to draw in 2D */
 function Empty2d({ mechanism }: { mechanism: WidgetBinding | undefined }) {
 	const source = useSource();
 	if (!source) {
@@ -127,7 +126,6 @@ export function Robot({ bindings, options, setOption }: WidgetProps) {
 				{legend.length > 0 && (
 					// As wide as its widest row, so planes stay beside the mechanisms' names
 					<div className="max-h-[33%] w-fit max-w-full shrink-0 overflow-y-auto [@container(min-aspect-ratio:1.5)]:max-h-none [@container(min-aspect-ratio:1.5)]:max-w-[33%]">
-						{/* Planes only matter in 3D */}
 						<Legend items={legend} vertical roles={view === '3d'} />
 					</div>
 				)}

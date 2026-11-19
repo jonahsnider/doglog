@@ -15,7 +15,6 @@ const minWidth = 1000;
 type View = {
 	/** The range picked by zooming or panning, the default range when `undefined` */
 	range: TimeRange | undefined;
-	/** How much of a followed live source is shown */
 	liveWidth: number;
 	/** The data the range was picked in, other data shows its default range */
 	data: DataSet | undefined;

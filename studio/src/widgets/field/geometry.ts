@@ -62,7 +62,6 @@ export function snapTo45(from: FieldPoint, to: FieldPoint): FieldPoint {
 	return { x: from.x + Math.cos(angle) * length, y: from.y + Math.sin(angle) * length };
 }
 
-/** Largest radius of the angle tool's arc */
 const maxArcRadius = 1.5;
 
 export function arcRadius({ from, to }: Measurement): number {

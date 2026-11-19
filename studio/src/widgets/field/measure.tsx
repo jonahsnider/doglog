@@ -33,7 +33,6 @@ export function MeasurementDrawing({ measurement }: { measurement: Measurement }
 	const arc = `M ${from.x + radius} ${from.y} A ${radius} ${radius} 0 0 ${angle > 0 ? 1 : 0} ${from.x + Math.cos(angle) * radius} ${from.y + Math.sin(angle) * radius}`;
 	return (
 		<>
-			{/* Field +X from the vertex, where the angle is measured from */}
 			<OutlinedPath d={`M ${from.x} ${from.y} l ${radius * 1.4} 0`} dashed />
 			<OutlinedPath d={arc} />
 			<OutlinedPath d={line} />

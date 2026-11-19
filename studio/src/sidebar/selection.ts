@@ -15,7 +15,6 @@ export function useDashboardSelection(dashboards: Dashboard[]) {
 	const { dashboardId: openId } = useParams({ strict: false });
 	const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(new Set());
 	const [anchorId, setAnchorId] = useState<string>();
-	// In sidebar order, without closed dashboards
 	const selected = dashboards.filter((dashboard) => selectedIds.has(dashboard.id));
 	const ids = selected.map((dashboard) => dashboard.id);
 	const clear = () => {
@@ -76,13 +75,10 @@ export function useDashboardSelection(dashboards: Dashboard[]) {
 	];
 
 	return {
-		/** Whether a dashboard is selected along with others, so its menus act on the selection */
 		isSelected: (dashboard: Dashboard) => selected.length > 1 && selectedIds.has(dashboard.id),
 		click,
 		clear,
-		/** The menu of a selected dashboard */
 		menuItems,
-		/** Copy dashboards and open the first copy */
 		duplicate: (duplicated: readonly string[]) => void open(duplicateDashboards(duplicated)[0]),
 	};
 }

@@ -21,7 +21,6 @@ function describeSource() {
 	return { ...source, entries: getEntries().length };
 }
 
-/** Resolves with the active source once `done` is true for it */
 function waitForSource(done: (source: Source | undefined) => boolean): Promise<Source | undefined> {
 	return new Promise((resolve) => {
 		const check = () => {

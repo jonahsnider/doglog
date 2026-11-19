@@ -135,7 +135,6 @@ function Settings() {
 	);
 }
 
-/** A titled group of related settings, each in its own panel */
 function SettingsSection({ title, children }: { title: string; children: ReactNode }) {
 	return (
 		<Frame>

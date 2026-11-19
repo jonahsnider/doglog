@@ -1,4 +1,3 @@
-// What can be connected in a legend, and where connections are drawn, shared by the legend and its gutter
 import type { WidgetBinding } from '@/widgets/widget-type';
 
 /** Height of each row of a vertical legend, so connections can be drawn between rows without measuring them */

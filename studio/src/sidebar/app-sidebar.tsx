@@ -29,7 +29,6 @@ import { installUpdate, useUpdate } from '@/desktop/updater';
 import { useWindowColor } from '@/theme/window-color';
 import { WhatsNewCard } from '@/changelog/whats-new-card';
 
-/** How long the pointer has to stay on or away from the collapsed sidebar before it's shown or hidden */
 const peekDelay = 300;
 /** Keeps the peeking sidebar open while the pointer is elsewhere: an open menu, renaming a dashboard, or dragging one */
 const keepPeekingSelector =
@@ -37,7 +36,6 @@ const keepPeekingSelector =
 
 function noop(): void {}
 
-/** Shows `shortcut` like the dashboards' shortcuts while its modifier is held */
 function ShortcutHint({ shortcut }: { shortcut: Hotkey }) {
 	const formatForDisplay = useFormatForDisplay();
 	return (
@@ -54,13 +52,11 @@ export function AppSidebar() {
 	const collapsed = useSelector(sidebarCollapsedStore);
 	const windowColor = useWindowColor();
 	const update = useUpdate();
-	// Showing the collapsed sidebar over the dashboard while it's hovered
 	const [peeking, setPeeking] = useState(false);
 	// Toggling with the keyboard skips the animation, clicking and peeking keep it
 	const [animated, setAnimated] = useState(true);
 	const showTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 	const sidebarRef = useRef<HTMLDivElement>(null);
-	// Holds the sidebar and its title bar
 	const containerRef = useRef<HTMLDivElement>(null);
 	const iconOnly = collapsed && !peeking;
 

@@ -12,7 +12,6 @@ afterEach(() => {
 	vi.unstubAllGlobals();
 });
 
-/** Get the `rgb()` declarations in a block of `index.css`, formatted like the generated ones */
 function cssVariables(block: string): string[] {
 	return Array.from(
 		block.matchAll(/(--[a-z\d-]+): rgb\((\d+) (\d+) (\d+)\);/gu),

@@ -14,10 +14,6 @@ function content(dragged: DraggedKind, shared: boolean) {
 	return shared ? { Icon: UsersIcon, label: 'Share dashboard' } : { Icon: UserIcon, label: 'Stop sharing dashboard' };
 }
 
-/**
- * Where a pane or dashboard dropped on one of the sidebar's sections will go, or with `active` off, a hint that it can be
- * dropped there
- */
 export function DropPlaceholder({
 	ref,
 	dragged,

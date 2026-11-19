@@ -35,7 +35,6 @@ async function chooseLogWithPicker(): Promise<void> {
 	await openLogHandle(handles[0]!);
 }
 
-/** Open a log the web app has a handle to, and add it to the recent logs */
 async function openLogHandle(handle: FileSystemFileHandle): Promise<void> {
 	let file: File;
 	try {

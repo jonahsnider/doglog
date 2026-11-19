@@ -1,7 +1,6 @@
 import type { TimeRange } from '@/data/data-store';
 import type { Samples } from '@/data/samples';
 
-/** Samples closer than this many pixels are thinned to each pixel column's range */
 const sparsePixels = 6;
 /** Samples at least this many pixels apart are marked, only when zoomed far in so they don't clutter the graph */
 const markedPixels = 16;
@@ -15,7 +14,6 @@ export type StepLine = {
 	samples: number[];
 };
 
-/** Whether samples are far enough apart to draw each one, `count` samples across `pixels` */
 function isSparse(count: number, pixels: number): boolean {
 	return count * sparsePixels <= pixels;
 }

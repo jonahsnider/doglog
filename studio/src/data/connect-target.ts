@@ -2,7 +2,6 @@ import { isTauri } from '@tauri-apps/api/core';
 import type { Source } from '@/data/source';
 import { simulatorHost } from '@/robot-target';
 
-/** How long connecting waits for a server to accept a connection */
 const probeTimeout = 1000;
 
 /** Whether an NT4 server at `host` accepts a WebSocket connection. The connection is closed right away. */

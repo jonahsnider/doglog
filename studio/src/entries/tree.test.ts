@@ -103,7 +103,6 @@ test('search highlights the matching parts of each label, including groups', () 
 	expect(highlights?.get('/Arm/Velocity')).toEqual([0, 3]);
 });
 
-/** Rows of the tree and then the Hidden section, with the section each is in */
 function sectionPaths(placements: Record<string, 'pinned' | 'hidden'>, expanded: string[], query = ''): string[] {
 	const { items, hidden } = sectionEntryTree(tree, placements, false);
 	return [...entryTreeView(items, expanded, query).rows, ...entryTreeView(hidden, expanded, query, 'hidden').rows].map(

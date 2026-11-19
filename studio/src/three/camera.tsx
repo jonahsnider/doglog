@@ -30,7 +30,6 @@ const framedMeters = 2.25;
 export const cameraDistance = 20;
 const maxElevation = Math.PI / 2 - 1e-4;
 
-/** Where the camera is, as what it orbits around, its direction from there, and its zoom */
 type Orbit = { target: Vector3; azimuth: number; elevation: number; zoom: number };
 
 /** The parts of drei's orbit controls the camera rig moves */
@@ -40,7 +39,6 @@ function isControls(value: unknown): value is Controls {
 	return typeof value === 'object' && value !== null && 'target' in value && 'update' in value;
 }
 
-/** How far the camera can zoom out and in, relative to the default view */
 const zoomOut = 4;
 const zoomIn = 16;
 
@@ -55,7 +53,6 @@ function turn(from: number, to: number): number {
 	return ((((to - from + Math.PI) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) - Math.PI;
 }
 
-/** The parts of drei's orbit controls that set how fast they zoom and pan, what the right button does, and zoom one wheel step */
 type SpeedControls = {
 	zoomSpeed: number;
 	panSpeed: number;

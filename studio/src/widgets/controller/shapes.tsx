@@ -3,7 +3,6 @@ import { cn } from '@/lib/utils';
 import type { ControllerButton, ControllerState } from '@/widgets/controller/data';
 import { type LayoutShape, type Point, width } from '@/widgets/controller/layouts';
 
-/** Shoulder shapes on the left side, partly hidden behind the body */
 /** A trigger's front, wider at its rounded top, leaning outward from its pivot behind the bumper */
 const trigger = {
 	path: 'M 90 58 L 84 18 C 83 9 90 4 101 4 L 109 4 C 120 4 126 9 125 18 L 118 58 Z',
@@ -26,13 +25,11 @@ const stickWell = 24;
 const stickCap = 13;
 /** How far a stick's cap moves from its center when the stick is pushed all the way */
 const stickTravel = stickWell - stickCap;
-/** D-pad arms are this wide and reach this far from its center */
 const dpadArm = { width: 15, reach: 23 };
 
 const releasedFill = 'fill-background stroke-border';
 const pressedFill = 'fill-primary stroke-primary';
 
-/** Directions from a cluster's center to its top, right, bottom, and left controls */
 const faceButtons: readonly (readonly [ControllerButton, Point])[] = [
 	['faceUp', [0, -1]],
 	['faceRight', [1, 0]],

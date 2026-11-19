@@ -108,7 +108,6 @@ export class Samples {
 	indexAtOrBefore(time: number): number {
 		let low = 0;
 		let high = this.length;
-		// Find the first sample after `time`
 		while (low < high) {
 			const middle = (low + high) >>> 1;
 			if (this.timestamps[middle]! <= time) {

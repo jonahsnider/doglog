@@ -18,7 +18,6 @@ export type RobotProject = {
 };
 
 const storageKey = 'doglog-studio:robot-projects';
-/** `undefined` until they're loaded */
 const projectsStore = createAtom<readonly RobotProject[] | undefined>(undefined);
 
 function isSameProject(a: RobotProject, b: RobotProject): Promise<boolean> {
@@ -141,7 +140,6 @@ export async function addRobotProject(): Promise<string | undefined> {
 		}
 	}
 
-	// Throws when the folder isn't a robot project
 	const { name } = await readRobotConfig(projectFileReader({ name: '', ...project }));
 	const others = ((await get<RobotProject[]>(storageKey)) ?? []).filter((other) => other.name !== name);
 	// Removed first so a project added again is a new object, and its models load again with any changes

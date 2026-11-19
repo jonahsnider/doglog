@@ -1,4 +1,3 @@
-// Discrete entries drawn as a row of bands, one per period of unchanged value
 import type { Entry, TimeRange } from '@/data/data-store';
 import { formatValue } from '@/data/format-value';
 import { bandColor, type BandPalette, bandTextColor, type ColorAssignments } from '@/widgets/graph/colors';

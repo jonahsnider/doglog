@@ -18,7 +18,6 @@ import type { WidgetBinding } from '@/widgets/widget-type';
 /** Where the area between the y-axes and the top of the graph are in the window */
 type Offset = { left: number; top: number };
 
-/** Space kept between the tooltip and the window's edges */
 const windowMargin = 4;
 
 /**
@@ -100,7 +99,6 @@ export function GraphTooltip({
 	if (!pinned || !view || cursor === undefined || cursor < view.start || cursor > view.end) {
 		return undefined;
 	}
-	// The area between the y-axes
 	const width = origin.width - insets.left - insets.right;
 	const x = ((cursor - view.start) / (view.end - view.start)) * width;
 	return (
@@ -108,7 +106,6 @@ export function GraphTooltip({
 	);
 }
 
-/** Each plotted entry's value at the hovered time */
 function LineTooltip({
 	at,
 	time,

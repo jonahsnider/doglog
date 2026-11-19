@@ -6,14 +6,12 @@ import { getRobotHost, simulatorHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
 import { trackActivity } from '@/sharing/presence';
 
-/** The NT server shared dashboards are synced through, `undefined` while disconnected */
 const hostStore = createAtom<string | undefined>(undefined);
 
 export function useSharingHost(): string | undefined {
 	return useSelector(hostStore);
 }
 
-/** How long after disconnecting shared dashboards are still shown as disconnected */
 const disconnectedStatusDuration = 5 * 60 * 1000;
 /** Whether shared dashboards were synced recently, so only those using them are told they're disconnected */
 const recentlyConnectedStore = createAtom(false);
@@ -37,7 +35,6 @@ function setHost(host: string | undefined): void {
 	}
 }
 
-/** How long to wait before looking for the robot or simulator again */
 const retryDelay = 5000;
 
 /**

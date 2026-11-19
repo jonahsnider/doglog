@@ -20,7 +20,6 @@ const margin = 76;
 const labelFont = "600 44px 'IBM Plex Sans Variable', sans-serif";
 /** Width of the faces' labels, a little less than the cube so they stay on its flat part */
 const labelSize = 0.9;
-/** Pixels in each face's texture */
 const textureSize = 256;
 
 const x = new Vector3(1, 0, 0);
@@ -43,7 +42,6 @@ const faces = [
 
 const cornerRadius = 0.16;
 
-/** Points around a rounded square centered on the origin */
 function roundedSquare(half: number, radius: number): [number, number][] {
 	const straight = half - radius;
 	const steps = 8;
@@ -71,7 +69,6 @@ const dividers = [0, 1, 2].flatMap((axis) =>
 			point.splice(axis, 0, offset);
 			return new Vector3(...point);
 		});
-		// Closed, back to where it started
 		loop.push(loop[0]!);
 		return { key: `${axis}:${offset}`, points: loop };
 	}),
@@ -162,7 +159,6 @@ function FaceLabel({ label, color, ...transform }: (typeof faces)[number] & { co
  * A rounded cube in the scene's top-right corner that turns with the camera. Clicking a face, edge, or corner looks
  * from that direction.
  */
-/** Shader inputs that tint the hovered part of the cube's surface */
 type HoverUniforms = {
 	hoverDirection: { value: Vector3 };
 	hovered: { value: number };

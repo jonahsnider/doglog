@@ -29,7 +29,6 @@ type Hover = { x: number; width: number };
 /** How close (px) the pointer has to be to the start of a section, ex. the start of auto, to snap to it */
 const snapDistance = 6;
 
-/** Drag, click, or scroll horizontally to move the cursor. Shows the robot's mode and alerts along the track. */
 export function Scrubber({
 	range,
 	time,
@@ -42,7 +41,6 @@ export function Scrubber({
 	time: number;
 	live: boolean;
 	showAlerts: boolean;
-	/** Whether long disabled spans are compressed */
 	compress: boolean;
 	/** The end of a log's file that couldn't be read, shown after the data for about as long as it would have lasted */
 	unread: UnreadEnd | undefined;
@@ -71,7 +69,6 @@ export function Scrubber({
 		[range.start, shownDuration, compressed],
 	);
 	const { toPercent } = scale;
-	// Errors are drawn last so they're on top of warnings
 	const alerts = useMemo(
 		() =>
 			showAlerts
@@ -84,7 +81,6 @@ export function Scrubber({
 		const rect = track.current!.getBoundingClientRect();
 		return { x: Math.min(Math.max(event.clientX - rect.left, 0), rect.width), width: rect.width };
 	};
-	/** The time under the pointer, snapped to the start of a section when it's close */
 	const timeAt = ({ x, width }: Hover) => {
 		const pointerPercent = (x / width) * 100;
 		const snapPercent = (snapDistance / width) * 100;
@@ -196,7 +192,6 @@ export function Scrubber({
 					// The slider handles focus and keyboard input, the tooltip is only for pointers
 					render={<div ref={track} tabIndex={-1} className="relative h-6 w-full" />}
 				>
-					{/* When alerts were active, above the track. Short alerts are drawn as dots. */}
 					{alerts.map((alert) => (
 						<div
 							key={`${alert.start}:${alert.level}:${alert.text}`}
@@ -208,7 +203,6 @@ export function Scrubber({
 						/>
 					))}
 
-					{/* The track, colored by the robot's mode. Past the newest live data it's fainter. Centered without alerts above it, otherwise moved down to make room. */}
 					<div
 						className={cn(
 							'absolute inset-x-0 top-1/2 h-2 overflow-hidden rounded-full bg-input/40 transition-[translate] motion-reduce:transition-none',
@@ -217,7 +211,6 @@ export function Scrubber({
 					>
 						<div className="absolute inset-y-0 left-0 bg-input" style={{ width: `${toPercent(range.end)}%` }} />
 						{periods.length === 0 ? (
-							// Without mode data, show how much has played
 							<div className="absolute inset-y-0 left-0 bg-primary" style={{ width: `${cursorPercent}%` }} />
 						) : (
 							periods.map((period) => {

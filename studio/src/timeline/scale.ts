@@ -11,7 +11,6 @@ export type TimeScale = {
 	toTime: (percent: number) => number;
 };
 
-/** Linear interpolation of `value` between the points `from` and `to` */
 function interpolate(value: number, from: readonly number[], to: readonly number[]): number {
 	let index = 1;
 	while (index < from.length - 1 && value > from[index]!) {
@@ -35,7 +34,6 @@ export function createTimeScale(start: number, duration: number, compressed: rea
 	// Percent per µs of the time that isn't compressed
 	const rate = (100 - spanWidth * compressed.length) / (duration - compressedTime);
 
-	// Matching points in time and percent, linear between them
 	const times = [start];
 	const percents = [0];
 	let position = 0;

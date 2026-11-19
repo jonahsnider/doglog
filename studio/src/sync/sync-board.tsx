@@ -33,7 +33,6 @@ const stateText: Record<BoardLog['state'], string> = {
 	'over-limit': 'Doesn’t fit under the storage limit',
 };
 
-/** Group logs by the day they started on, oldest first */
 function byDay(logs: BoardLog[]): { day: Date; logs: BoardLog[] }[] {
 	const days = new Map<string, { day: Date; logs: BoardLog[] }>();
 	for (const log of logs.toSorted((a, b) => a.date - b.date || a.name.localeCompare(b.name))) {
@@ -110,7 +109,6 @@ const squareClasses: Record<BoardLog['state'], string> = {
 	'over-limit': 'border border-dashed border-muted-foreground/50',
 };
 
-/** How many of a log's cells are filled in */
 function filledCells(log: BoardLog): number {
 	if (log.state === 'synced') {
 		return cellCount;
@@ -168,7 +166,6 @@ function LogSquare({ log, onOpen }: { log: BoardLog; onOpen: (name: string) => v
 					/>
 				}
 			>
-				{/* Synced logs are a solid square */}
 				{(log.state === 'copying' || log.state === 'queued') && <Cells log={log} />}
 				{MatchIcon && (
 					<MatchIcon

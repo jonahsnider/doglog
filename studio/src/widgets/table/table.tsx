@@ -16,7 +16,6 @@ import { useBindingDrag } from '@/entries/drag';
 type FieldValue = Parameters<typeof formatValue>[0];
 
 type Row = {
-	/** The binding the row belongs to */
 	binding: { id: string; name: string };
 	/** Identifies the row for expansion, the binding's ID followed by the field, ex. `<id>.translation` */
 	path: string;
@@ -27,7 +26,6 @@ type Row = {
 	missing: boolean;
 };
 
-/** Fields of a struct or elements of an array, `undefined` for values that can't be expanded */
 function childrenOf(value: FieldValue): [label: string, value: FieldValue][] | undefined {
 	if (Array.isArray(value)) {
 		return value.length === 0 ? undefined : value.map((element, index) => [`[${index}]`, element]);

@@ -51,7 +51,6 @@ function requireWidgetType(pane: Pane): WidgetType {
 	return type;
 }
 
-/** The pane showing a binding, and the binding */
 function requireBinding(layout: PaneNode, bindingId: string) {
 	for (const pane of panes(layout)) {
 		const binding = widgetBindings(pane.widget).find((other) => other.id === bindingId);

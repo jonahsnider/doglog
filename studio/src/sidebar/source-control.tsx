@@ -43,7 +43,6 @@ import { SourceIcon } from '@/sidebar/source-icon';
 import { liveColors, sourceName, sourceStatus, statusLabels } from '@/sidebar/source-labels';
 import { SourceSwitcher } from '@/sidebar/source-switcher';
 
-/** The shown source's icon, with a dot for the live session's status while it runs behind the log */
 function ShownSourceIcon({
 	source,
 	backgroundLive,
@@ -106,7 +105,6 @@ function liveActions(
 	];
 }
 
-/** The shown source's name and status, and the live session's while it runs behind the log */
 function sourceSummary({ log, live, shown }: Sources) {
 	const source = shown === 'log' ? log : shown === 'live' ? live : undefined;
 	const name = source === undefined ? 'No data source' : sourceName(source);
@@ -141,7 +139,6 @@ function SourceLabel({ sources }: { sources: Sources }) {
 	);
 }
 
-/** The recent logs, from paths in the desktop app or file handles in the web app */
 function OpenRecentMenu() {
 	const savedPaths = useRecentLogs();
 	// Only the desktop app can open paths, ignore any saved on the web
@@ -172,7 +169,6 @@ function OpenRecentMenu() {
 	);
 }
 
-/** Shows the active data source and lets the user open a log or connect live */
 export function SourceControl() {
 	const sources = useSources();
 	// Re-render when the log's entries load, so its match is read

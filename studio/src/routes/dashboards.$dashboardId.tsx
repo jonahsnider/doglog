@@ -66,7 +66,6 @@ function DashboardView() {
 			return <Navigate to="/dashboards/$dashboardId" params={{ dashboardId: neighbor.id }} replace />;
 		}
 
-		// The dashboard never existed, or every dashboard was deleted
 		return <Navigate to="/" replace />;
 	}
 

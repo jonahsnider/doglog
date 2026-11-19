@@ -142,7 +142,6 @@ function SplitView({
 	const minSizes = split.children.map((child) => minSize(child, split.direction, paneSize));
 	// Every child is as small as it can be, so the dividers can't move (within a pixel of rounding)
 	const locked = extent !== undefined && extent - minSizes.reduce((sum, size) => sum + size, 0) - dividers < 1;
-	// A child's smallest share of the split
 	const minimum = useCallback(
 		(child: PaneNode) =>
 			extent === undefined ? 0 : minSize(child, split.direction, paneSize) / Math.max(extent - dividers, 1),

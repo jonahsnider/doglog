@@ -8,7 +8,6 @@ export type Zoom = { scale: number; x: number; y: number };
 
 const noZoom: Zoom = { scale: 1, x: 0, y: 0 };
 const maxScale = 8;
-/** How long the zoom counts as active after the last wheel or drag, ex. to show the minimap */
 const activeMs = 800;
 
 function clamp(value: number, min: number, max: number): number {
@@ -26,7 +25,6 @@ function clampZoom(bounds: Bounds, { scale, x, y }: Zoom): Zoom {
 	};
 }
 
-/** Counts the zoom as active until `activeMs` after the last call */
 function markActive(timer: RefObject<ReturnType<typeof setTimeout> | undefined>, setActive: (active: boolean) => void) {
 	setActive(true);
 	clearTimeout(timer.current);
@@ -81,7 +79,6 @@ export function useFieldZoom(bounds: Bounds) {
 	return {
 		svgRef,
 		zoom,
-		/** Whether the user zoomed or panned in the last moment */
 		active,
 		transform: `translate(${zoom.x} ${zoom.y}) scale(${zoom.scale})`,
 		/** The zoomed content's point under a client position, in SVG user units */
@@ -93,7 +90,6 @@ export function useFieldZoom(bounds: Bounds) {
 			event.currentTarget.setPointerCapture(event.pointerId);
 			dragFrom.current = { x: event.clientX, y: event.clientY };
 		},
-		/** Pans while a pan started, returns whether it did */
 		movePan: (event: PointerEvent): boolean => {
 			if (dragFrom.current === undefined) {
 				return false;

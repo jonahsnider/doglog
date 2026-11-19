@@ -2,7 +2,6 @@ import { useSelector } from '@tanstack/react-store';
 import * as z from 'zod';
 import { createPersistedAtom } from '@/lib/persisted-store';
 
-// Invalid fields fall back to their defaults
 const syncSettingsSchema = z.object({
 	enabled: z.boolean().catch(false),
 	/** Whether the user ever started sync. Until then the sync folder isn't read, since that asks for access to Documents. */

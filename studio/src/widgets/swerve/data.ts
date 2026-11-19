@@ -1,4 +1,3 @@
-// Reads swerve values from entries, shared by the swerve widget's drawing code
 import type { Entry } from '@/data/data-store';
 import type { Value } from '@/data/samples';
 import { numberField, structField } from '@/data/struct-fields';

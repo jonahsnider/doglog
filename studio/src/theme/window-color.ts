@@ -8,7 +8,6 @@ const colorCount = 5;
 /** Position of this window among open Studio tabs and windows, `0` for the first */
 const slotStore = createAtom<number | undefined>(undefined);
 
-/** Try to hold the lock for `slot` until this window closes, resolves whether it was free */
 function claimSlot(slot: number): Promise<boolean> {
 	return new Promise((resolve) => {
 		void navigator.locks.request(`doglog-studio:window-${slot}`, { ifAvailable: true }, (lock) => {

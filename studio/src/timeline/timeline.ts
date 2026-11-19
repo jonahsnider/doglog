@@ -87,7 +87,6 @@ function tick(now: number): void {
 	}
 
 	if (next >= range.end) {
-		// Playback caught up with live data, or reached the end of the log
 		update({ time: range.end, playback: live ? 'following' : 'paused' });
 	} else {
 		frame = requestAnimationFrame(tick);
@@ -243,7 +242,6 @@ function jumpToStart(): void {
 	}
 }
 
-/** Jump to the end of a log, or go live */
 function jumpToEnd(): void {
 	const range = getTimeRange();
 	if (store.get().live) {

@@ -4,7 +4,6 @@ import { createPersistedAtom } from '@/lib/persisted-store';
 import { contrasts, themePresets, themes } from '@/theme/choices';
 import { applyThemeColor, defaultCustomColor, defaultThemeColor } from '@/theme/theme-color';
 
-// Invalid fields fall back to their defaults
 const settingsSchema = z
 	.object({
 		theme: z.enum(themes).catch('system'),

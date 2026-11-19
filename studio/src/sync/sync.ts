@@ -13,7 +13,6 @@ import { syncSettingsStore } from '@/sync/sync-settings';
 export type SyncStatus =
 	/** The user paused sync, or hasn't started it yet */
 	| { type: 'paused' }
-	/** No robot connection setting */
 	| { type: 'no-robot' }
 	/** Another Studio window is syncing */
 	| { type: 'other-window' }
@@ -42,14 +41,11 @@ export interface SyncFolder {
 	logs: LocalLog[];
 }
 
-/** How long to wait before trying to reach the robot again */
 const reconnectDelay = 5000;
-/** How long to wait between checks for new logs once synced */
 const checkDelay = 10_000;
 const bytesPerGb = 1_000_000_000;
 /** How often to show copying progress, slower than the numbers' animation so it settles between updates */
 const progressInterval = 500;
-/** How long to copy for before estimating how long is left */
 const estimateAfter = 2000;
 
 const statusStore = createAtom<SyncStatus>({ type: 'paused' });
@@ -65,7 +61,6 @@ const plannedStore = createAtom<PlannedLogs>({ logs: [], at: 0 });
 let wake: () => void = () => {};
 let robotEnabled: { host: string; backend: SyncBackend; watcher: RobotEnabledWatcher } | undefined;
 
-/** The robot sync copies from, or the pretend one in demo mode */
 const currentBackend = (): SyncBackend => (syncSettingsStore.get().demo ? demoBackend : robotBackend);
 
 export function useSyncStatus(): SyncStatus {
@@ -97,7 +92,6 @@ async function sleep(ms: number): Promise<void> {
 	wake = () => {};
 }
 
-/** Read the sync folder again after it changed */
 async function refreshFolder(): Promise<SyncFolder> {
 	const { folder: picked, enabled, started } = syncSettingsStore.get();
 	const path = picked ?? (await join(await documentDir(), 'DogLog', 'Logs'));
@@ -149,7 +143,6 @@ async function syncOnce(host: string): Promise<number> {
 	// Stop when sync is paused, or switches to or from demo mode
 	const stopped = () => isPaused() || currentBackend() !== backend;
 	if (!['syncing', 'up-to-date', 'error'].includes(statusStore.get().type)) {
-		// Connecting can take a few seconds
 		statusStore.set({ type: 'waiting', host, error: undefined });
 	}
 
@@ -253,7 +246,6 @@ export async function runLogSync(): Promise<void> {
 	while (!(await invoke<boolean>('lock_sync'))) {
 		statusStore.set({ type: 'other-window' });
 		await sleep(reconnectDelay);
-		// Show logs the other window syncs
 		await refreshFolder();
 	}
 

@@ -14,7 +14,6 @@ const bumperHeight = 0.127;
 const bumperBottom = 0.03;
 /** Radius of the bumper's rounded edges, like its pool noodles */
 const bumperRound = 0.03;
-/** Outside of the frame, inside the bumpers */
 const frameHalf = half - bumperThickness;
 /** 2x1 box tube, standing on its narrow side */
 const tubeWidth = 0.0254;
@@ -34,7 +33,6 @@ const steerMotor = { radius: 0.021, height: 0.05, offset: 0.038 };
 const colors = { frame: '#9b9b9b', bellypan: '#c8c8c8', module: '#7c7c7c', motor: '#505050', wheel: '#3a3a3a' };
 const edgeColor = '#151515';
 
-/** Traces a square with rounded corners centered on the origin */
 function roundedSquare<T extends Path>(path: T, size: number, radius: number): T {
 	const straight = size - radius;
 	for (const [corner, [x, y]] of [
@@ -48,7 +46,6 @@ function roundedSquare<T extends Path>(path: T, size: number, radius: number): T
 	return path;
 }
 
-/** A ring around the frame, rounded on every edge */
 function bumperGeometry(): BufferGeometry {
 	const shape = roundedSquare(new Shape(), half, 0.07);
 	shape.holes.push(roundedSquare(new Path(), frameHalf, 0.005));
@@ -116,7 +113,6 @@ const rails = [
 	{ position: [0, -frameHalf + tubeWidth / 2], size: [frameHalf * 2 - tubeWidth * 2, tubeWidth] },
 ] as const;
 
-/** Each module's corner, as the signs of its X and Y */
 const corners = [
 	[1, 1],
 	[1, -1],
@@ -124,7 +120,6 @@ const corners = [
 	[-1, -1],
 ] as const;
 
-/** A solid part with its edges outlined, like a CAD model */
 function Part({
 	color,
 	geometry,

@@ -11,7 +11,6 @@ export type SplitAnimation =
 
 /** How the layout changed from `previous` to `node` at the same place in it, to animate its splits */
 export function splitAnimation(previous: PaneNode, node: PaneNode, layout: PaneNode): SplitAnimation | undefined {
-	// A pane split in two, as a split with the pane and the new pane
 	if (previous.kind === 'pane' && node.kind === 'split' && node.children.length === 2) {
 		const added = node.children.find((child) => child.id !== previous.id);
 		return added && node.children.some((child) => child.id === previous.id)

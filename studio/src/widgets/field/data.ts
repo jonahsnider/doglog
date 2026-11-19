@@ -1,4 +1,3 @@
-// Reads field-relative poses and shapes from entry values, shared by the field widget's drawing code
 import { numberField, structField } from '@/data/struct-fields';
 
 /** Field-relative position in meters, with `heading` in radians counterclockwise from +X, `undefined` for translations */

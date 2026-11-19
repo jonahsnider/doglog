@@ -18,7 +18,6 @@ const cliStatusDescriptions: Record<CliStatus, string> = {
 	other: "doglog doesn't open this copy of Studio, reinstall to fix it. Open logs from a terminal with",
 };
 
-/** Install the `doglog` command, returning whether it was installed */
 async function installCli(): Promise<boolean> {
 	try {
 		await invoke('install_cli');

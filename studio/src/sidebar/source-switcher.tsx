@@ -97,7 +97,6 @@ function SourceRow({ source, shown }: { source: Source; shown: boolean }) {
 	);
 }
 
-/** Switches between the live session (on top) and the log, shown in the source menu while both are open */
 export function SourceSwitcher({ live, log, shown }: { live: Source; log: Source; shown: Source['type'] | undefined }) {
 	return (
 		<div className="mb-1 rounded-lg bg-muted p-0.5">

@@ -36,7 +36,6 @@ function formatAxisValue(value: number, spacing: number): string {
 	return decimals === 0 ? value.toFixed(0) : value.toFixed(decimals).replace(/\.?0+$/u, '');
 }
 
-/** A line where the left axis crosses zero, stronger than the other gridlines */
 function drawZeroLine(plot: uPlot, color: string): void {
 	const y = plot.valToPos(0, 'y', true);
 	const { left, top, width, height } = plot.bbox;

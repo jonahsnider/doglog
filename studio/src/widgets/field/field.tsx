@@ -41,7 +41,6 @@ function formatPosition({ x, y }: FieldPoint): string {
 	return `${x.toFixed(2)}, ${y.toFixed(2)}`;
 }
 
-/** The field position under the pointer. Like a hovered pane title, it gets a background while it says it was copied. */
 function CursorPosition({
 	pointer,
 	hovered,
@@ -77,7 +76,6 @@ function CursorPosition({
 	);
 }
 
-/** Toggles the measuring tools, showing their keys */
 function ToolButtons({ tool, onToggle }: { tool: MeasureTool | undefined; onToggle: (tool: MeasureTool) => void }) {
 	return (
 		<div className="flex gap-1">
@@ -114,7 +112,6 @@ export function Field({ bindings, options }: WidgetProps) {
 	const [pointer, setPointer] = useState<FieldPoint>();
 	const [hovered, setHovered] = useState(false);
 	const [minimapLeft, setMinimapLeft] = useState(false);
-	/** Shown in place of the cursor position for a moment after it's copied */
 	const [copied, setCopied] = useState(false);
 	const copiedTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 	useEffect(() => () => clearTimeout(copiedTimer.current), []);

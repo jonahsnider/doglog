@@ -18,7 +18,6 @@ export function usePickedRobot(name: string, parts: Entry | undefined): { robot:
 	const project = useRobotProject(name === defaultRobot ? '' : name);
 	const { state, retry } = useLoadedRobot(name === defaultRobot ? undefined : (project ?? undefined));
 	const value = parts && time !== undefined ? parts.samples.valueAt(time) : undefined;
-	// Only recomputed when the poses change
 	const poses = useMemo(() => (Array.isArray(value) ? value.map((pose) => poseMatrix(pose)) : []), [value]);
 
 	if (name === defaultRobot) {

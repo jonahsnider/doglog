@@ -24,7 +24,6 @@ export const Route = createFileRoute('/logs')({
 });
 
 const dayMs = 24 * 60 * 60 * 1000;
-/** How many of the newest logs to list */
 const recentCount = 5;
 
 function Logs() {
@@ -50,7 +49,6 @@ function Logs() {
 	return <SyncOverview />;
 }
 
-/** Synced logs in the folder, newest first */
 function syncedLogs(folder: SyncFolder | undefined) {
 	return (folder?.logs ?? [])
 		.flatMap((log) => {
@@ -105,7 +103,6 @@ function SyncOverview() {
 		}
 		const newest = synced[0];
 		if (newest) {
-			// Opens the folder with the newest log selected
 			await revealItemInDir(await join(folder.path, newest.name));
 		} else {
 			await mkdir(folder.path, { recursive: true });
@@ -166,7 +163,6 @@ function SyncOverview() {
 					</div>
 				</header>
 
-				{/* Centered in wide windows, under the full width header */}
 				<div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
 					<section className="flex flex-col gap-8">
 						<SyncStatusPanel status={status} enabled={enabled} boardLogs={boardLogs} days={days} />
