@@ -3,6 +3,12 @@ import { formatValue } from '@/data/format-value';
 import type { Value } from '@/data/samples';
 import type { SeriesUnit } from '@/widgets/graph/axis-units';
 
+/** A duration in seconds, ex. `1.50 s`, with more decimals for short ones */
+export function formatDuration(microseconds: number): string {
+	const seconds = microseconds / 1_000_000;
+	return `${seconds.toFixed(seconds < 0.1 ? 3 : 2)} s`;
+}
+
 function withUnit(text: string, unit: SeriesUnit): string {
 	return unit.label === undefined ? text : `${text} ${unit.label}`;
 }

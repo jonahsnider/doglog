@@ -20,6 +20,7 @@ How Studio's UI is built. The OpenSpec specs in `openspec/specs` describe what u
 - Set sidebar sections apart with spacing and muted labels instead of divider lines.
 - Fonts: IBM Plex Sans for UI text (`font-sans`), Source Sans 3 for headings (`font-heading`), and IBM Plex Mono for code, entry values, and keyboard shortcuts (`font-mono`). Numbers are tabular everywhere so changing values don't shift.
 - Text isn't selectable by default, like a native app. Add `select-text` to content people would copy, like console messages and table values, not to labels or controls.
+- Label the cursor-to-hover time difference on a bracket between the graph's two time markers. Keep the value tooltip separate so the measurement reads on the time axis without repeating either timestamp.
 
 ## Color
 

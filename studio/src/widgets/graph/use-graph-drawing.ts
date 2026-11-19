@@ -7,6 +7,7 @@ import { settingsStore } from '@/settings';
 import { getCursorTime, subscribeTimeline } from '@/timeline/timeline';
 import { drawBands } from '@/widgets/graph/bands';
 import type { BandPalette, ColorAssignments } from '@/widgets/graph/colors';
+import { formatDuration } from '@/widgets/graph/format';
 import {
 	createPlot,
 	drawPlot,
@@ -29,6 +30,7 @@ export type GraphElements = {
 	area: RefObject<HTMLDivElement | null>;
 	cursorLine: RefObject<HTMLDivElement | null>;
 	hoverLine: RefObject<HTMLDivElement | null>;
+	hoverDelta: RefObject<HTMLDivElement | null>;
 	/** One dot per plotted series where it crosses the hovered time */
 	hoverDots: RefObject<HTMLDivElement | null>;
 };
@@ -56,12 +58,15 @@ function placeLine(
 	time: number | undefined,
 	view: { start: number; end: number },
 	width: number,
-) {
+): number | undefined {
 	const visible = time !== undefined && time >= view.start && time <= view.end;
 	line.hidden = !visible;
-	if (visible) {
-		line.style.transform = `translateX(${((time - view.start) / (view.end - view.start)) * width}px)`;
+	if (!visible) {
+		return undefined;
 	}
+	const x = ((time - view.start) / (view.end - view.start)) * width;
+	line.style.transform = `translateX(${x}px)`;
+	return x;
 }
 
 /** The uPlot instance, for reading positions, and the y-axis ranges the user zoomed */
@@ -121,12 +126,31 @@ export function useGraphDrawing(
 		const drawOverlays = () => {
 			const view = getViewRange();
 			const width = area.clientWidth;
+			const ruler = elements.hoverDelta.current!;
 			if (view === undefined) {
+				ruler.hidden = true;
 				return;
 			}
-			placeLine(elements.cursorLine.current!, getCursorTime(), view, width);
+			const cursor = getCursorTime();
 			const hover = getHoverTime();
-			placeLine(elements.hoverLine.current!, hover, view, width);
+			const cursorX = placeLine(elements.cursorLine.current!, cursor, view, width);
+			const hoverX = placeLine(elements.hoverLine.current!, hover, view, width);
+			if (cursorX === undefined || hoverX === undefined || cursorX === hoverX) {
+				ruler.hidden = true;
+			} else {
+				const center = (cursorX + hoverX) / 2;
+				const delta = hover! - cursor!;
+				ruler.hidden = false;
+				ruler.style.left = `${Math.min(cursorX, hoverX)}px`;
+				ruler.style.width = `${Math.abs(hoverX - cursorX)}px`;
+				// Keep a gap from the y-axis at either edge, even when the interval is narrower than its label.
+				const inset = 4;
+				ruler.style.setProperty(
+					'--delta-label-shift',
+					`clamp(${inset - center}px, -50%, calc(${width - inset - center}px - 100%))`,
+				);
+				ruler.firstElementChild!.textContent = `${delta < 0 ? '−' : '+'}${formatDuration(Math.abs(delta))}`;
+			}
 
 			const dotsElement = elements.hoverDots.current;
 			if (dotsElement && plot) {

@@ -1,5 +1,6 @@
 import 'uplot/dist/uPlot.min.css';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { cn } from '@/lib/utils';
 import { useSettings } from '@/settings';
 import { accentColor } from '@/theme/theme-color';
 import { seriesUnits } from '@/widgets/graph/axis-units';
@@ -57,6 +58,7 @@ export function Graph({ bindings }: WidgetProps) {
 	const areaRef = useRef<HTMLDivElement>(null);
 	const cursorLineRef = useRef<HTMLDivElement>(null);
 	const hoverLineRef = useRef<HTMLDivElement>(null);
+	const hoverDeltaRef = useRef<HTMLDivElement>(null);
 	const hoverDotsRef = useRef<HTMLDivElement>(null);
 	// Refs never change, so drawing only starts over when the entries or palette do
 	const elements = useMemo(
@@ -66,6 +68,7 @@ export function Graph({ bindings }: WidgetProps) {
 			area: areaRef,
 			cursorLine: cursorLineRef,
 			hoverLine: hoverLineRef,
+			hoverDelta: hoverDeltaRef,
 			hoverDots: hoverDotsRef,
 		}),
 		[],
@@ -138,8 +141,8 @@ export function Graph({ bindings }: WidgetProps) {
 					style={{ left: insets.left, right: insets.right }}
 				>
 					{selection && <RangeSelection selection={selection} plotted={plotted} units={units.units} />}
-					<div ref={hoverLineRef} hidden className="absolute inset-y-0 w-px bg-muted-foreground/60" />
-					<div ref={cursorLineRef} hidden className="absolute inset-y-0 w-px bg-foreground" />
+					<div ref={hoverLineRef} hidden className="absolute inset-y-0 w-px -translate-x-1/2 bg-muted-foreground/60" />
+					<div ref={cursorLineRef} hidden className="absolute inset-y-0 w-px -translate-x-1/2 bg-foreground" />
 					<div ref={hoverDotsRef} className="absolute top-0 left-0">
 						{series.map((line) => (
 							<div
@@ -149,6 +152,18 @@ export function Graph({ bindings }: WidgetProps) {
 								style={{ background: line.color }}
 							/>
 						))}
+					</div>
+					{/* The 2px end strokes extend 1px to either side of each time marker. */}
+					<div
+						ref={hoverDeltaRef}
+						hidden
+						className={cn(
+							'absolute h-2 before:absolute before:inset-y-0 before:-inset-x-px before:border-x-2 before:border-b-2 before:border-primary',
+							(!pointerAt || selection) && 'hidden',
+						)}
+						style={{ bottom: (hasPlot ? discrete.length * rowHeight : 0) + 8 }}
+					>
+						<span className="absolute bottom-full left-1/2 w-max translate-x-(--delta-label-shift) rounded-sm border border-primary/40 bg-background px-1.5 text-xs font-medium text-foreground tabular-nums" />
 					</div>
 				</div>
 				<GraphTooltip

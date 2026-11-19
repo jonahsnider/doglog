@@ -2,16 +2,10 @@ import { useSyncExternalStore } from 'react';
 import { type Entry, subscribeData, type TimeRange } from '@/data/data-store';
 import { EntryName } from '@/entries/entry-name';
 import type { SeriesUnit } from '@/widgets/graph/axis-units';
-import { changeAcross } from '@/widgets/graph/format';
+import { changeAcross, formatDuration } from '@/widgets/graph/format';
 import { useViewRange } from '@/widgets/graph/view';
 import { bindingColor } from '@/widgets/series-color';
 import type { WidgetBinding } from '@/widgets/widget-type';
-
-/** A duration in seconds, ex. `1.50 s`, with more decimals for short ones */
-function formatDuration(microseconds: number): string {
-	const seconds = microseconds / 1_000_000;
-	return `${seconds.toFixed(seconds < 0.1 ? 3 : 2)} s`;
-}
 
 /** The range selected to measure, labeled with its duration and each plotted entry's change across it */
 export function RangeSelection({

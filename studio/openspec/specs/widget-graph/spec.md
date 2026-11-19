@@ -137,6 +137,16 @@ Hovering the graph SHALL show a tooltip beside the pointer with the hovered time
 - **THEN** a tooltip shows `0:12.00 · Teleop` and each plotted entry's value at 12 s
 - **AND** each line is marked where it crosses 12 s
 
+### Requirement: Time offset from the cursor
+
+The hovered graph SHALL draw a bracket between the global cursor and the hover line with the signed time offset in seconds. The bracket MUST only appear when both marks are visible and separate, and MUST be hidden when a drag measurement is shown. The tooltip MUST NOT repeat the offset.
+
+#### Scenario: Compare a hovered time with the cursor
+
+- **GIVEN** the global cursor is at 10.5 s
+- **WHEN** the user hovers the graph at 12 s
+- **THEN** a bracket between the two lines in the graph is labeled `+1.50 s`
+
 ### Requirement: Tooltip placement
 
 The graph's tooltip SHALL be drawn over other panes rather than cut off at the graph's pane, and MUST stay within the window, covering the pointer if it has to.
