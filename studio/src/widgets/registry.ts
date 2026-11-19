@@ -1,7 +1,6 @@
 import BotIcon from 'lucide-react/icons/bot';
 import ChartLineIcon from 'lucide-react/icons/chart-line';
 import Gamepad2Icon from 'lucide-react/icons/gamepad-2';
-import MapIcon from 'lucide-react/icons/map';
 import NotebookPenIcon from 'lucide-react/icons/notebook-pen';
 import TableIcon from 'lucide-react/icons/table';
 import TerminalIcon from 'lucide-react/icons/terminal';
@@ -13,6 +12,7 @@ import { Console } from '@/widgets/console/console';
 import { Controller } from '@/widgets/controller/controller';
 import { controllerPort } from '@/widgets/controller/data';
 import { controllerOptionFromEntry, controllerOptions, controllerTypeId } from '@/widgets/controller/options';
+import CompetitionFieldIcon from '@/widgets/field/competition-field.svg?react';
 import { Field } from '@/widgets/field/field';
 import { fieldOptions } from '@/widgets/field/options';
 import { fieldConnects, fieldRoles, inferFieldRole } from '@/widgets/field/roles';
@@ -48,7 +48,7 @@ export const widgetTypes: readonly WidgetType[] = [
 	},
 	{
 		...info('field'),
-		icon: MapIcon,
+		icon: CompetitionFieldIcon,
 		hotkey: 'F',
 		roles: fieldRoles,
 		inferRole: inferFieldRole,
