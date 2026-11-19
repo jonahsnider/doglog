@@ -153,8 +153,8 @@ export function createPlot(
 export type YTargets = Partial<Record<'y' | 'y2', Range>>;
 
 /**
- * Draw `series` across `view`, and mark their samples with dots when they're far enough apart. Returns the range each
- * y-axis should show to fit the `fitted` lines, set them with `setYRanges()`.
+ * Set the plotted data and sample dots across `view`. Returns the range each y-axis should show to fit the `fitted`
+ * lines. Call inside the same uPlot batch as `setYRanges()` to draw the new data and scales together.
  */
 export function drawPlot(
 	plot: uPlot,
@@ -171,10 +171,8 @@ export function drawPlot(
 		stepLine(line.entry.samples, view, plot.bbox.width / devicePixelRatio, holdUntil, line.convert, gaps),
 	);
 	dots.current = lines.map((line) => line.samples);
-	plot.batch(() => {
-		plot.setData(facetedData(lines), false);
-		plot.setScale('x', { min: view.start, max: view.end });
-	});
+	plot.setData(facetedData(lines), false);
+	plot.setScale('x', { min: view.start, max: view.end });
 
 	const visible: Partial<Record<'y' | 'y2', Range>> = {};
 	const whole: Partial<Record<'y' | 'y2', Range>> = {};
@@ -210,15 +208,13 @@ export function setYRanges(
 	now: number,
 ): boolean {
 	let animating = false;
-	plot.batch(() => {
-		for (const axis of ['y', 'y2'] as const) {
-			const target = targets[axis];
-			const range = manual[axis] ?? (target && animations[axis].update(target, now));
-			animating ||= manual[axis] === undefined && animations[axis].isAnimating(now);
-			// An axis without entries still needs a range to be drawn and keep its space
-			const [min, max] = range ?? [0, 1];
-			plot.setScale(axis, { min, max });
-		}
-	});
+	for (const axis of ['y', 'y2'] as const) {
+		const target = targets[axis];
+		const range = manual[axis] ?? (target && animations[axis].update(target, now));
+		animating ||= manual[axis] === undefined && animations[axis].isAnimating(now);
+		// An axis without entries still needs a range to be drawn and keep its space
+		const [min, max] = range ?? [0, 1];
+		plot.setScale(axis, { min, max });
+	}
 	return animating;
 }

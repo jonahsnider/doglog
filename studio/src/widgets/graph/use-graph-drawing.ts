@@ -2,6 +2,7 @@
 import { type RefObject, useEffect, useRef } from 'react';
 import type uPlot from 'uplot';
 import { type Entry, getGaps, getTimeRange, subscribeData } from '@/data/data-store';
+import type { Size } from '@/hooks/use-size';
 import { settingsStore } from '@/settings';
 import { getCursorTime, subscribeTimeline } from '@/timeline/timeline';
 import { drawBands } from '@/widgets/graph/bands';
@@ -168,10 +169,11 @@ export function useGraphDrawing(
 			if (plot) {
 				const now = performance.now();
 				const fading = fadeLines(now);
-				const easing = setYRanges(plot, targets, current.manual, animations.current, now);
-				if (fading) {
-					plot.redraw(false, false);
-				} else if (wasFading) {
+				let easing = false;
+				plot.batch(() => {
+					easing = setYRanges(plot, targets, current.manual, animations.current, now);
+				});
+				if (!fading && wasFading) {
 					// Lines that faded out stop being fitted
 					full.schedule();
 				}
@@ -183,25 +185,34 @@ export function useGraphDrawing(
 			drawOverlays();
 		});
 
-		const draw = () => {
+		const draw = (size?: Size) => {
 			const view = getViewRange();
 			const range = getTimeRange();
 			if (view === undefined || range === undefined) {
+				if (size) {
+					plot?.setSize(size);
+				}
 				return;
 			}
 			drawnView = `${view.start}:${view.end}`;
+			const gaps = getGaps();
 			if (plot) {
 				const now = performance.now();
 				const fading = fadeLines(now);
 				wasFading = fading;
-				targets = drawPlot(plot, series, view, range.end, getGaps(), dots, fitted(now));
-				if (setYRanges(plot, targets, current.manual, animations.current, now) || fading) {
-					animate.schedule();
-				}
+				plot.batch(() => {
+					if (size) {
+						plot.setSize(size);
+					}
+					targets = drawPlot(plot, series, view, range.end, gaps, dots, fitted(now));
+					if (setYRanges(plot, targets, current.manual, animations.current, now) || fading) {
+						animate.schedule();
+					}
+				});
 			}
 			const canvas = elements.bands.current;
-			if (canvas) {
-				drawBands(canvas, bandEntries, view, getGaps(), assignments.current, palette);
+			if (canvas && bandEntries.length > 0) {
+				drawBands(canvas, bandEntries, view, gaps, assignments.current, palette);
 			}
 			drawOverlays();
 		};
@@ -223,11 +234,20 @@ export function useGraphDrawing(
 		const unsubscribeView = subscribeView(overlays.schedule);
 		// Colors are read from CSS each time the plot is drawn, so theme changes only need a redraw
 		const settings = settingsStore.subscribe(full.schedule);
+		let width = area.clientWidth;
 		const observer = new ResizeObserver(() => {
-			if (plot && plotTarget) {
-				plot.setSize({ width: plotTarget.clientWidth, height: plotTarget.clientHeight });
+			const size = plotTarget && { width: plotTarget.clientWidth, height: plotTarget.clientHeight };
+			const resized = size && plot && (size.width !== plot.width || size.height !== plot.height) ? size : undefined;
+			const nextWidth = area.clientWidth;
+			if (nextWidth !== width || (resized && resized.width !== plot?.width)) {
+				width = nextWidth;
+				// Update size and re-sample at that width before the browser paints, not on the next frame.
+				draw(resized);
+			} else if (plot && resized) {
+				// A height change doesn't affect which samples are drawn or where the bands change.
+				plot.batch(() => plot.setSize(resized));
+				drawOverlays();
 			}
-			full.schedule();
 		});
 		observer.observe(area);
 		if (plotTarget) {
