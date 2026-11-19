@@ -3,6 +3,7 @@ mod cli;
 #[cfg(desktop)]
 mod mcp_install;
 mod new_window;
+mod recent_logs;
 mod relaunch;
 mod sync;
 mod window_state;
@@ -101,6 +102,8 @@ pub fn run() -> ExitCode {
             take_opened_log,
             read_file,
             new_window::new_window,
+            recent_logs::note_recent_log,
+            recent_logs::clear_recent_logs,
             relaunch::relaunch,
             sync::lock_sync,
             sync::list_robot_logs,

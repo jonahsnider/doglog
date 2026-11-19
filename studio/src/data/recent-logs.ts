@@ -1,6 +1,6 @@
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
-import { isTauri } from '@tauri-apps/api/core';
+import { invoke, isTauri } from '@tauri-apps/api/core';
 import { get, set } from 'idb-keyval';
 import * as z from 'zod';
 import { createPersistedAtom } from '@/lib/persisted-store';
@@ -25,6 +25,8 @@ export function recentLogLabels(paths: readonly string[]): string[] {
 
 export function addRecentLog(path: string): void {
 	recentLogsStore.set((paths) => [path, ...paths.filter((other) => other !== path)].slice(0, maxRecentLogs));
+	// Also lists it in the Dock icon's menu on macOS and the jump list on Windows
+	void invoke('note_recent_log', { path });
 }
 
 export function removeRecentLog(path: string): void {
@@ -33,6 +35,9 @@ export function removeRecentLog(path: string): void {
 
 export function clearRecentLogs(): void {
 	recentLogsStore.set([]);
+	if (isTauri()) {
+		void invoke('clear_recent_logs');
+	}
 	if (supportsFileHandles) {
 		void saveRecentLogHandles([]);
 	}

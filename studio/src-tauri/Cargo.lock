@@ -1475,6 +1475,9 @@ dependencies = [
  "getrandom 0.4.3",
  "libc",
  "log",
+ "objc2 0.6.5",
+ "objc2-app-kit 0.3.2",
+ "objc2-foundation 0.3.2",
  "rmcp",
  "robot-sftp",
  "rustls",
@@ -1492,6 +1495,7 @@ dependencies = [
  "tauri-plugin-updater",
  "tauri-plugin-window-state",
  "tokio",
+ "windows",
  "windows-sys 0.61.2",
 ]
 

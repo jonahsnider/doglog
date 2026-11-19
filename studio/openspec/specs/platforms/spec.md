@@ -93,6 +93,16 @@ The desktop app SHALL keep a list of the 10 logs it opened most recently, newest
 - **THEN** Studio shows that it couldn't open the log
 - **AND** it's removed from the recent logs
 
+### Requirement: Recent logs in the Dock and jump list
+
+The desktop app SHALL add the logs it opens to the OS's recent documents, which macOS lists in the Dock icon's menu and Windows in the taskbar icon's jump list. Clearing the recent logs MUST clear them there too. The OS sorts that list. Linux and the installed web app have no equivalent, since web app manifest shortcuts are fixed when it's installed.
+
+#### Scenario: Reopen a recent log from the Dock
+
+- **GIVEN** the user opened `match.wpilog` in the desktop app on macOS
+- **WHEN** the user chooses match.wpilog in the Dock icon's menu
+- **THEN** Studio shows that log
+
 ### Requirement: Open recent logs in the web app
 
 The web app SHALL keep the same recent logs list in browsers that support the File System Access API, ex. Chrome and Edge, with logs opened with the file picker, by dropping them on the window, or from the OS. Reopening a recent log MUST ask for permission to read it when the browser needs it, and declining MUST keep it in the list. Other browsers don't keep access to opened files, so the web app doesn't list recent logs in them.
