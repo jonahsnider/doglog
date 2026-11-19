@@ -89,6 +89,7 @@
 		"@vitejs/devtools-rolldown": "0.8.3",
 		"@vitejs/plugin-react": "6.3.0",
 		"eslint-plugin-better-tailwindcss": "4.11.0",
+		"oxc-transform-react": "0.156.0",
 		"portless": "0.18.1",
 		"react-doctor": "0.9.23",
 		"sentry": "0.50.0",

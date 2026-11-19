@@ -71,7 +71,7 @@ export default defineConfig({
 		ignorePatterns,
 	},
 	lint: {
-		// react-perf is left out: without React Compiler, its rules ask for useCallback/useMemo around every inline prop
+		// React Compiler handles safe memoization; don't require it manually around every inline prop.
 		plugins: ['eslint', 'typescript', 'unicorn', 'oxc', 'react', 'jsx-a11y', 'import', 'promise', 'vitest'],
 		// oxlint-disable-next-line typescript/no-unsafe-type-assertion -- JSON imports widen severities like 'error' to string
 		extends: [landmines as OxlintConfig],
@@ -254,7 +254,15 @@ export default defineConfig({
 		// Only active when CodSpeed runs the benchmarks in CI
 		codspeedPlugin(),
 		tanstackRouter({ target: 'react', autoCodeSplitting: true }),
-		react(),
+		react({
+			compiler: true,
+			// Leave the registry UI and generated routes alone. Compile both TSX components and TS hooks.
+			include: /\/src\/.*\.[jt]sx?$/u,
+			exclude: [
+				/\/node_modules\//u,
+				/\/src\/(?:components\/ui\/|(?:hooks\/use-media-query|lib\/utils|routeTree\.gen)\.ts$)/u,
+			],
+		}),
 		tailwindcss(),
 		// Imports SVGs as React components with `?react`, ex. brand logos drawn in the text color like Lucide's icons
 		svgr(),

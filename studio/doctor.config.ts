@@ -16,7 +16,12 @@ export default defineConfig({
 	blocking: 'warning',
 	surfaces: {
 		// Design rules and test files are left out of the CI gate by default
-		ciFailure: { includeTags: ['design'], includeFileContexts: ['test'] },
+		ciFailure: {
+			includeTags: ['design'],
+			includeFileContexts: ['test'],
+			// Unsupported syntax and mutable library APIs are reported, but safely skip compilation.
+			excludeRules: ['react-hooks-js/todo', 'react-hooks-js/incompatible-library'],
+		},
 	},
 	// Opt-in rules worth enforcing. Unused code is left to Knip, and import cycles and style rules to Oxlint
 	rules: {
