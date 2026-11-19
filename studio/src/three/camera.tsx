@@ -1,7 +1,7 @@
 import { OrbitControls } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { type AnimationPlaybackControls, animate } from 'motion/react';
-import { type Ref, useEffect, useImperativeHandle, useRef } from 'react';
+import { type ComponentRef, type Ref, useEffect, useImperativeHandle, useRef } from 'react';
 import { MOUSE, Vector3 } from 'three';
 import { easing, useMotionTransition } from '@/lib/motion';
 
@@ -53,14 +53,6 @@ function turn(from: number, to: number): number {
 	return ((((to - from + Math.PI) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) - Math.PI;
 }
 
-type SpeedControls = {
-	zoomSpeed: number;
-	panSpeed: number;
-	mouseButtons: { RIGHT?: MOUSE };
-	dollyIn: () => void;
-	dollyOut: () => void;
-};
-
 /** How many times as fast the camera zooms and pans while Shift is held */
 export const shiftSpeedup = 2;
 
@@ -75,7 +67,7 @@ export function CameraControls() {
 		const connected: unknown = state.events.connected;
 		return connected instanceof HTMLElement ? connected : state.gl.domElement;
 	});
-	const controls = useRef<SpeedControls>(null);
+	const controls = useRef<ComponentRef<typeof OrbitControls>>(null);
 
 	useEffect(() => {
 		// Runs before the controls handle the event, which they listen for without capturing
