@@ -5,18 +5,20 @@ import PlayIcon from 'lucide-react/icons/play';
 import SlidersHorizontalIcon from 'lucide-react/icons/sliders-horizontal';
 import { type Hotkey, type UseHotkeyDefinition, useHotkeys } from '@tanstack/react-hotkeys';
 import { Select as SelectPrimitive } from '@base-ui/react/select';
+import { AnimatePresence, domAnimation, LazyMotion, m, useIsPresent } from 'motion/react';
 import { type ReactNode, useRef, useState } from 'react';
 import { TextMorph } from 'torph/react';
 import { Button } from '@/components/ui/button';
 import { Menu, MenuCheckboxItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
-import { Progress, ProgressIndicator, ProgressLabel, ProgressTrack, ProgressValue } from '@/components/ui/progress';
 import { Select, SelectItem, SelectPopup } from '@/components/ui/select';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
+import { LogProgress } from '@/timeline/log-progress';
 import { Scrubber } from '@/timeline/timeline-scrubber';
 import { getSourceYear } from '@/timeline/shifts';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { type TimeRange, useTimeRange } from '@/data/data-store';
-import { useLogProgress, useSource } from '@/data/source';
+import { type Source, useSource } from '@/data/source';
+import { easing, useMotionTransition } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import { updateSettings, useSettings } from '@/settings';
 import {
@@ -29,6 +31,7 @@ import {
 	setSpeed,
 	skip,
 	step,
+	type Timeline,
 	togglePlayback,
 	useTimeline,
 } from '@/timeline/timeline';
@@ -109,24 +112,33 @@ function CursorTime({ range, time }: { range: TimeRange | undefined; time: numbe
 	);
 }
 
-function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
-	const range = useTimeRange();
-	const source = useSource();
-	const { time, playback, speed, live } = useTimeline();
+function TimelineControls({
+	fadeIn,
+	range,
+	source,
+	timeline,
+}: {
+	fadeIn: boolean;
+	range: TimeRange | undefined;
+	source: Source;
+	timeline: Timeline;
+}) {
+	const present = useIsPresent();
+	const { time, playback, speed, live } = timeline;
 	const { timelineAlerts, timelineCompress, timelineShifts } = useSettings();
 	const [speedOpen, setSpeedOpen] = useState(false);
 	const [optionsOpen, setOptionsOpen] = useState(false);
 	const speedTrigger = useRef<HTMLButtonElement>(null);
+	const shortcutsEnabled = present && !speedOpen;
 
 	// Skips keys used by a focused text field, button, or menu, and keys already handled, ex. by a pane divider.
 	// The speed list and options menu use keys like the arrows and Space themselves, so the shortcuts are off while they're open.
-	useHotkeys(hotkeys, { ignoreDefaultPrevented: true, enabled: !speedOpen && !optionsOpen });
+	useHotkeys(hotkeys, { ignoreDefaultPrevented: true, enabled: shortcutsEnabled && !optionsOpen });
 	// The focused speed button skips printable keys as typeahead, so its own shortcuts are given to it directly
-	useHotkeys(speedHotkeys, { target: speedTrigger, enabled: !speedOpen });
+	useHotkeys(speedHotkeys, { target: speedTrigger, enabled: shortcutsEnabled });
 
 	return (
-		<footer aria-label="Timeline" className="flex h-14 shrink-0 rounded-lg bg-background">
-			{/* Fades the contents so the container stays put */}
+		<footer aria-label="Timeline" inert={!present} className="flex h-14 rounded-t-lg bg-background contain-strict">
 			<div
 				className={cn(
 					'flex min-w-0 flex-1 items-center gap-1 px-2',
@@ -186,8 +198,8 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 						showAlerts={timelineAlerts}
 						showShifts={timelineShifts}
 						compress={timelineCompress}
-						year={source && getSourceYear(source)}
-						unread={source?.type === 'log' ? source.unread : undefined}
+						year={getSourceYear(source)}
+						unread={source.type === 'log' ? source.unread : undefined}
 					/>
 				) : (
 					<div className="mx-2 h-1 flex-1 rounded-full bg-input" />
@@ -246,39 +258,43 @@ function TimelineControls({ fadeIn }: { fadeIn: boolean }) {
 	);
 }
 
-function LogProgress({ fileName }: { fileName: string }) {
-	const progress = useLogProgress();
-	return (
-		<footer aria-label="Timeline" className="flex h-14 shrink-0 items-center rounded-lg bg-background px-4">
-			{/* Fades in after a moment so small logs that load instantly don't flash it */}
-			<Progress
-				value={progress * 100}
-				className="flex-row items-center gap-3 transition-opacity delay-200 duration-300 starting:opacity-0"
-			>
-				<ProgressLabel className="max-w-1/3 truncate font-normal text-muted-foreground">
-					Loading {fileName}
-				</ProgressLabel>
-				<ProgressTrack className="h-1 flex-1">
-					<ProgressIndicator />
-				</ProgressTrack>
-				<ProgressValue className="min-w-10 text-right font-mono text-muted-foreground" />
-			</Progress>
-		</footer>
-	);
-}
-
 /** Playback controls and scrubber for the global time cursor, shown while a source is active */
 export function TimelineBar() {
 	const source = useSource();
+	// Pass these in so the exiting controls still show the last cursor and range after the source clears them.
+	const range = useTimeRange();
+	const timeline = useTimeline();
 	const loading = source?.type === 'log' && source.status === 'loading';
+	const enter = useMotionTransition({ duration: 0.3, ease: easing.out });
+	const exit = useMotionTransition({ duration: 0.2, ease: easing.in });
 	// Only fade the controls in when they replace the progress, not every time a dashboard is opened
 	const [showedProgress, setShowedProgress] = useState(false);
 	if (loading && !showedProgress) {
 		setShowedProgress(true);
 	}
 
-	if (loading) {
-		return <LogProgress fileName={source.fileName} />;
-	}
-	return source ? <TimelineControls fadeIn={showedProgress} /> : null;
+	return (
+		<LazyMotion features={domAnimation} strict>
+			<AnimatePresence initial={false}>
+				{source && (
+					<m.div
+						className="shrink-0 overflow-clip"
+						// The panes resize with the bar while its fixed-height contents slide past the bottom edge.
+						// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Makes room for the bar as it slides in
+						initial={{ height: 0 }}
+						// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Makes room for the bar as it slides in
+						animate={{ height: 'auto', transition: enter }}
+						// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Returns space to the panes as the bar slides out
+						exit={{ height: 0, transition: exit }}
+					>
+						{loading ? (
+							<LogProgress fileName={source.fileName} />
+						) : (
+							<TimelineControls fadeIn={showedProgress} range={range} source={source} timeline={timeline} />
+						)}
+					</m.div>
+				)}
+			</AnimatePresence>
+		</LazyMotion>
+	);
 }

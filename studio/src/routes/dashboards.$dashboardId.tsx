@@ -87,8 +87,8 @@ function DashboardView() {
 				    it. A smaller browser window shrinks the panes before the entry browser. */}
 				<Panel minSize={isTauri() ? minNodeSize(dashboard.layout, 'row') : '7rem'} style={{ overflow: 'hidden' }}>
 					{/* Under the panes rather than the entry browser too, so the entry browser reaches the bottom of the window like the sidebar */}
-					<div className="flex h-full flex-col gap-1.5 py-1.5 ps-1.5">
-						<section aria-label="Panes" className="min-h-0 min-w-0 flex-1">
+					<div className="flex h-full flex-col ps-1.5 pt-1.5">
+						<section aria-label="Panes" className="mb-1.5 min-h-0 min-w-0 flex-1">
 							<DashboardPanes dashboard={dashboard} />
 						</section>
 						<TimelineBar />

@@ -15,7 +15,7 @@ How Studio's UI is built. The OpenSpec specs in `openspec/specs` describe what u
 
 - Style with Tailwind utility classes, joined with `cn()` from `@/lib/utils` when they're conditional.
 - Global CSS lives in `src/index.css`, only for the theme, base styles, keyframes, and rules that utilities can't express (ex. styling elements by a data attribute a library renders).
-- The app's regions sit in rounded containers on a darker frame (`bg-frame`), set apart by gaps instead of divider lines. Panes, the timeline, and pages other than dashboards are `rounded-lg bg-background` cards. Sidebars (the app sidebar and the entry browser) are `bg-sidebar`, flush with the window's edges and rounded only on the corners facing the rest of the app. Resizable gaps show a line in their middle when hovered or dragged.
+- The app's regions sit in rounded containers on a darker frame (`bg-frame`), set apart by gaps instead of divider lines. Panes and pages other than dashboards are `rounded-lg bg-background` cards. The timeline is `rounded-t-lg bg-background`, flush with the bottom edge of the window. Sidebars (the app sidebar and the entry browser) are `bg-sidebar`, flush with the window's edges and rounded only on the corners facing the rest of the app. Resizable gaps show a line in their middle when hovered or dragged.
 - The frame tints a native window backdrop where available: regular Liquid Glass on macOS 26 and later, sidebar vibrancy on macOS 15, and Desktop Acrylic on Windows 11 22H2 and later. Only the gaps and outer edges reveal it; panes, sidebars, and the timeline stay opaque. Use the solid frame on other platforms or when the system requests reduced transparency or forced colors. Don't use CSS blur to imitate the desktop backdrop.
 - Set sidebar sections apart with spacing and muted labels instead of divider lines.
 - Fonts: IBM Plex Sans for UI text (`font-sans`), Source Sans 3 for headings (`font-heading`), and IBM Plex Mono for code, entry values, and keyboard shortcuts (`font-mono`). Numbers are tabular everywhere so changing values don't shift.
@@ -56,7 +56,7 @@ Durations come from Material's scale. Pick by how far something moves or how muc
 | 150ms (the default for `transition-*`) | Color changes and small fades                   |
 | 200ms                                  | Menus, the sidebar, things leaving              |
 | 250ms                                  | Pane layout changes, like splitting and zooming |
-| 300ms                                  | Larger fades, like the timeline appearing       |
+| 300ms                                  | Larger entrances, like the timeline sliding up  |
 
 - Looping and feedback animations (ex. skeletons, blinking carets, toast nudges) can use their own timing, since they don't move things around the screen.
 - With the motion library, use `easing` and `useMotionTransition()` from `@/lib/motion`, which mirror the CSS curves and skip animating when the system reduces motion.
