@@ -124,7 +124,7 @@ export function AppSidebar() {
 			<div
 				ref={containerRef}
 				className={cn(
-					'relative shrink-0 [--sidebar-width-icon:3rem] [--sidebar-width:17rem]',
+					'relative shrink-0 [--sidebar-width-icon:3rem] [--sidebar-width:17.25rem]',
 					collapsed ? 'w-(--sidebar-width-icon)' : 'w-(--sidebar-width)',
 				)}
 			>
@@ -154,7 +154,7 @@ export function AppSidebar() {
 					<div className="flex h-full w-(--sidebar-width) shrink-0 flex-col contain-strict group-data-[collapsible=icon]:w-(--sidebar-width-icon)">
 						<SidebarHeader
 							// Leaves room for the title bar
-							className="pt-9"
+							className="pt-10.5"
 							// Tints the top of the sidebar, see `index.css`
 							data-window-color={windowColor}
 						>

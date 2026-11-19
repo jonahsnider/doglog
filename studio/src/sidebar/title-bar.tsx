@@ -63,9 +63,10 @@ export function TitleBar({
 		<div
 			{...dragRegion}
 			className={cn(
-				'absolute start-0 top-0 z-30 flex h-9 items-center gap-0.5 pe-2',
+				// The top padding lines the buttons up with the pane headers, which are below the dashboard's gap, and keeps the window draggable from its top edge
+				'absolute start-0 top-0 z-30 flex h-10.5 items-center gap-0.5 pt-1.5 pe-2',
 				// The toggle lines up with the rail's icons, `--title-bar-overlap` in `index.css` depends on this layout
-				trafficLights ? 'ps-21' : 'ps-3',
+				trafficLights ? 'ps-22.25' : 'ps-3',
 				iconOnly ? 'w-full' : 'w-(--sidebar-width)',
 			)}
 		>

@@ -651,5 +651,5 @@
 
 :root {
 	/* How far the macOS title bar's buttons reach into the top left pane, see `TitleBar`: its start padding, the toggle, Back, and Forward with the gaps between them, minus the rail and the gap after it */
-	--title-bar-overlap: calc(--spacing(21) + 3 * --spacing(6) + 2 * --spacing(0.5) - 3rem - --spacing(1.5));
+	--title-bar-overlap: calc(--spacing(22.25) + 3 * --spacing(6) + 2 * --spacing(0.5) - 3rem - --spacing(1.5));
 }

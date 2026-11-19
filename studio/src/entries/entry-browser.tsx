@@ -60,7 +60,7 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 
 	if (!open) {
 		return (
-			<aside aria-label="Entry browser" className="ms-1.5 shrink-0 rounded-s-lg bg-sidebar px-1.5 py-1.5">
+			<aside aria-label="Entry browser" className="ms-1.5 shrink-0 rounded-s-lg bg-sidebar px-1.5 pt-3 pb-1.5">
 				<ToggleButton open={false} />
 			</aside>
 		);
@@ -87,7 +87,7 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 				{/* Not selectable, so double-clicking or dragging rows doesn't select their labels */}
 				{/* A sidebar like the one on the left, rounded where it meets the rest of the app */}
 				<aside aria-label="Entry browser" className="flex h-full flex-col overflow-hidden rounded-s-lg bg-sidebar">
-					<div {...dragRegion} className="flex h-9 shrink-0 items-center gap-1 ps-3 pe-1.5">
+					<div {...dragRegion} className="flex h-10.5 shrink-0 items-center gap-1 pt-1.5 ps-3 pe-1.5">
 						{edited ? (
 							<>
 								<h2 className="min-w-0 flex-1 truncate text-xs font-medium">Editing {edited.type.name}</h2>
