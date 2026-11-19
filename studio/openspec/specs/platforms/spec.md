@@ -2,9 +2,24 @@
 
 ## Purpose
 
-Define how Studio is distributed: as an installable, offline-capable website, and as a desktop app for Windows, macOS, and Linux that removes browser networking limits.
+Define how Studio is distributed: as an installable, offline-capable website, and as a desktop app for Windows, macOS, and Linux that removes browser networking limits, and which browsers and OS versions it supports.
 
 ## Requirements
+
+### Requirement: Supported browsers and operating systems
+
+The web app SHALL support browsers that have every Baseline Widely Available feature, and MAY use newer features only when Studio still works without them. The desktop app SHALL support macOS 15 Sequoia, Windows 10, Ubuntu 22.04, and later versions of each.
+
+#### Scenario: Older supported browser
+
+- **GIVEN** a browser that supports Baseline Widely Available features but nothing newer
+- **WHEN** the user opens a log in the web app
+- **THEN** the log is viewable and Studio works the same as in the newest browsers
+
+#### Scenario: Unsupported macOS version
+
+- **WHEN** a user on macOS 14 tries to open the desktop app
+- **THEN** macOS says the app needs a newer version of macOS
 
 ### Requirement: Web app
 
