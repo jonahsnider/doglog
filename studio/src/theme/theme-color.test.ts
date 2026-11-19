@@ -6,6 +6,7 @@ import {
 	defaultThemeColor,
 	statusColorVariables,
 	themeColorVariables,
+	themePreviewColors,
 } from './theme-color.ts';
 
 afterEach(() => {
@@ -21,7 +22,7 @@ function cssVariables(block: string): string[] {
 
 function generatedVariables(dark: boolean): string[] {
 	return (
-		themeColorVariables(defaultThemeColor, dark, 'standard') +
+		themeColorVariables(defaultThemeColor, dark, 'standard', 'team581') +
 		chartColorVariables(defaultThemeColor, dark) +
 		statusColorVariables(defaultThemeColor, dark)
 	)
@@ -55,8 +56,8 @@ test('switching presets clears stale generated colors and restores the chosen sc
 
 	applyThemeColor('#123456', 'custom', 'standard');
 	const customCss = style.textContent;
-	expect(customCss).toContain(themeColorVariables('#123456', false, 'standard'));
-	expect(customCss).toContain(themeColorVariables('#123456', true, 'standard'));
+	expect(customCss).toContain(themeColorVariables('#123456', false, 'standard', 'custom'));
+	expect(customCss).toContain(themeColorVariables('#123456', true, 'standard', 'custom'));
 
 	applyThemeColor('#123456', 'coss', 'standard');
 	expect(toggle).toHaveBeenLastCalledWith('coss-theme', true);
@@ -65,9 +66,20 @@ test('switching presets clears stale generated colors and restores the chosen sc
 
 	applyThemeColor('#123456', 'team581', 'standard');
 	expect(toggle).toHaveBeenLastCalledWith('coss-theme', false);
-	expect(style.textContent).toContain(themeColorVariables(defaultThemeColor, false, 'standard'));
-	expect(style.textContent).toContain(themeColorVariables(defaultThemeColor, true, 'standard'));
+	expect(style.textContent).toContain(themeColorVariables(defaultThemeColor, false, 'standard', 'team581'));
+	expect(style.textContent).toContain(themeColorVariables(defaultThemeColor, true, 'standard', 'team581'));
 
 	applyThemeColor('#123456', 'custom', 'standard');
 	expect(style.textContent).toBe(customCss);
+});
+
+test('only the Team 581 preset previews muted surfaces for the maroon seed', () => {
+	expect(themePreviewColors('team581', defaultThemeColor, true, 'standard')).toMatchObject({
+		sidebar: '#161212',
+		primary: '#f9b6b1',
+	});
+	expect(themePreviewColors('custom', defaultThemeColor, true, 'standard')).toMatchObject({
+		sidebar: '#1a1110',
+		primary: '#f9b6b1',
+	});
 });

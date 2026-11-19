@@ -182,7 +182,7 @@
 :root {
 	color-scheme: light;
 	/* Team 581 Material Design 3 colors, generated with @material/material-color-utilities */
-	/* SchemeTonalSpot with the 2025 spec and the Team 581 maroon #591616 as the seed */
+	/* Tonal Spot (2025) with seed #591616 and muted neutral palettes (chroma 2 and 3.5) */
 	/* These are the defaults before JS loads, src/theme/theme-color.ts overrides them with colors from the theme color setting */
 	--md-primary: rgb(140 77 74);
 	--md-surface-tint: rgb(140 77 74);
@@ -202,17 +202,17 @@
 	--md-error-container: rgb(253 121 90);
 	--md-on-error-container: rgb(110 20 0);
 	--md-background: rgb(255 248 247);
-	--md-on-background: rgb(62 47 46);
+	--md-on-background: rgb(55 49 48);
 	--md-surface: rgb(255 248 247);
-	--md-on-surface: rgb(62 47 46);
-	--md-surface-variant: rgb(246 221 219);
-	--md-on-surface-variant: rgb(109 91 89);
-	--md-outline: rgb(138 118 117);
-	--md-outline-variant: rgb(195 173 171);
+	--md-on-surface: rgb(55 49 48);
+	--md-surface-variant: rgb(235 224 223);
+	--md-on-surface-variant: rgb(101 93 92);
+	--md-outline: rgb(129 121 120);
+	--md-outline-variant: rgb(186 176 175);
 	--md-shadow: rgb(0 0 0);
 	--md-scrim: rgb(0 0 0);
-	--md-inverse-surface: rgb(19 12 12);
-	--md-inverse-on-surface: rgb(167 154 153);
+	--md-inverse-surface: rgb(16 13 13);
+	--md-inverse-on-surface: rgb(162 155 155);
 	--md-inverse-primary: rgb(253 172 167);
 	--md-primary-fixed: rgb(253 172 167);
 	--md-on-primary-fixed: rgb(72 24 22);
@@ -226,13 +226,13 @@
 	--md-on-tertiary-fixed: rgb(76 46 2);
 	--md-tertiary-fixed-dim: rgb(236 187 131);
 	--md-on-tertiary-fixed-variant: rgb(108 74 28);
-	--md-surface-dim: rgb(237 213 210);
+	--md-surface-dim: rgb(227 215 214);
 	--md-surface-bright: rgb(255 248 247);
 	--md-surface-container-lowest: rgb(255 255 255);
-	--md-surface-container-low: rgb(255 240 239);
-	--md-surface-container: rgb(254 233 231);
-	--md-surface-container-high: rgb(249 227 225);
-	--md-surface-container-highest: rgb(246 221 219);
+	--md-surface-container-low: rgb(251 241 240);
+	--md-surface-container: rgb(246 236 234);
+	--md-surface-container-high: rgb(240 230 229);
+	--md-surface-container-highest: rgb(235 224 223);
 
 	--destructive: var(--md-error);
 	/* Behind the sidebars, panes, and timeline, darker than each of them. MD3's role for the dimmest surface. */
@@ -272,18 +272,18 @@
 	--md-on-error: rgb(69 9 0);
 	--md-error-container: rgb(133 35 10);
 	--md-on-error-container: rgb(255 155 130);
-	--md-background: rgb(19 12 12);
-	--md-on-background: rgb(249 224 222);
-	--md-surface: rgb(19 12 12);
-	--md-on-surface: rgb(249 224 222);
-	--md-surface-variant: rgb(48 34 33);
-	--md-on-surface-variant: rgb(188 166 164);
-	--md-outline: rgb(132 113 111);
-	--md-outline-variant: rgb(84 68 67);
+	--md-background: rgb(16 13 13);
+	--md-on-background: rgb(238 227 226);
+	--md-surface: rgb(16 13 13);
+	--md-on-surface: rgb(238 227 226);
+	--md-surface-variant: rgb(42 36 36);
+	--md-on-surface-variant: rgb(179 169 168);
+	--md-outline: rgb(124 115 115);
+	--md-outline-variant: rgb(77 70 70);
 	--md-shadow: rgb(0 0 0);
 	--md-scrim: rgb(0 0 0);
 	--md-inverse-surface: rgb(255 248 247);
-	--md-inverse-on-surface: rgb(93 83 82);
+	--md-inverse-on-surface: rgb(89 84 83);
 	--md-inverse-primary: rgb(133 81 78);
 	--md-primary-fixed: rgb(255 187 183);
 	--md-on-primary-fixed: rgb(78 36 34);
@@ -297,13 +297,13 @@
 	--md-on-tertiary-fixed: rgb(76 46 2);
 	--md-tertiary-fixed-dim: rgb(236 187 131);
 	--md-on-tertiary-fixed-variant: rgb(108 74 28);
-	--md-surface-dim: rgb(19 12 12);
-	--md-surface-bright: rgb(55 41 39);
+	--md-surface-dim: rgb(16 13 13);
+	--md-surface-bright: rgb(49 43 42);
 	--md-surface-container-lowest: rgb(0 0 0);
-	--md-surface-container-low: rgb(26 17 16);
-	--md-surface-container: rgb(34 23 22);
-	--md-surface-container-high: rgb(40 29 28);
-	--md-surface-container-highest: rgb(48 34 33);
+	--md-surface-container-low: rgb(22 18 18);
+	--md-surface-container: rgb(29 25 24);
+	--md-surface-container-high: rgb(35 30 30);
+	--md-surface-container-highest: rgb(42 36 36);
 
 	/* coss puts white text on destructive, so use the darker container color */
 	--destructive: var(--md-error-container);

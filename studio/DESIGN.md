@@ -23,6 +23,7 @@ How Studio's UI is built. The OpenSpec specs in `openspec/specs` describe what u
 ## Color
 
 - Use semantic color classes, like `bg-primary`, `text-muted-foreground`, `border-border`, or the status and series colors. Don't use Tailwind's palette (ex. `bg-red-500`) or hex values, since they ignore the theme color and the light and dark variants.
+- Team 581 uses muted neutral palettes (HCT chroma 2 and 3.5) in both light and dark mode. Keep the Tonal Spot accent palettes so buttons and selected rows still carry the team color.
 - Colors are generated from the theme color as a Material Design 3 scheme (`src/theme/theme-color.ts`). When a new color is needed, derive it there too:
   - Categorical colors (ex. series) rotate the hue in HCT and share one tone, so each contrasts equally with the background.
   - Semantic colors (ex. success) harmonize a fixed hue toward the theme color. Don't harmonize hue-sensitive colors like warning.

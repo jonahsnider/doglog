@@ -86,14 +86,20 @@ const roles = [
 	'surfaceContainerHighest',
 ] as const;
 
-function scheme(themeColor: string, dark: boolean, contrast: Contrast, secondaryColor?: string): DynamicScheme {
+function scheme(themeColor: string, dark: boolean, contrast: Contrast, preset: ThemePreset): DynamicScheme {
+	const sourceColorHct = Hct.fromInt(argbFromHex(presetColors[preset] ?? themeColor));
+	const secondaryColor = presetSecondaryColors[preset];
 	return new DynamicScheme({
-		sourceColorHct: Hct.fromInt(argbFromHex(themeColor)),
+		sourceColorHct,
 		variant: Variant.TONAL_SPOT,
 		contrastLevel: contrastLevels[contrast],
 		isDark: dark,
 		specVersion: '2025',
 		...(secondaryColor !== undefined && { secondaryPalette: TonalPalette.fromInt(argbFromHex(secondaryColor)) }),
+		...(preset === 'team581' && {
+			neutralPalette: TonalPalette.fromHueAndChroma(sourceColorHct.hue, 2),
+			neutralVariantPalette: TonalPalette.fromHueAndChroma(sourceColorHct.hue, 3.5),
+		}),
 	});
 }
 
@@ -146,14 +152,14 @@ export function statusColorVariables(themeColor: string, dark: boolean): string 
 		.join('');
 }
 
-/** Generate the MD3 tonal spot scheme (2025 spec) for a theme color as `--md-*` CSS variable declarations */
+/** Generate the preset's MD3 tonal spot scheme (2025 spec) as `--md-*` CSS variable declarations */
 export function themeColorVariables(
 	themeColor: string,
 	dark: boolean,
 	contrast: Contrast,
-	secondaryColor?: string,
+	preset: ThemePreset,
 ): string {
-	const colors = scheme(themeColor, dark, contrast, secondaryColor);
+	const colors = scheme(themeColor, dark, contrast, preset);
 	return roles
 		.map(
 			(role) =>
@@ -166,15 +172,16 @@ export function themeColorVariables(
  * Stylesheet that overrides the default colors in `index.css` with ones generated from the theme color.
  * The doubled selectors win over `:root` and `.dark` in `index.css` regardless of which stylesheet loads last.
  */
-function themeColorCss(themeColor: string, contrast: Contrast, secondaryColor: string | undefined): string {
+function themeColorCss(themeColor: string, contrast: Contrast, preset: ThemePreset): string {
+	const seed = presetColors[preset] ?? themeColor;
 	const light =
-		themeColorVariables(themeColor, false, contrast, secondaryColor) +
-		chartColorVariables(themeColor, false) +
-		statusColorVariables(themeColor, false);
+		themeColorVariables(themeColor, false, contrast, preset) +
+		chartColorVariables(seed, false) +
+		statusColorVariables(seed, false);
 	const dark =
-		themeColorVariables(themeColor, true, contrast, secondaryColor) +
-		chartColorVariables(themeColor, true) +
-		statusColorVariables(themeColor, true);
+		themeColorVariables(themeColor, true, contrast, preset) +
+		chartColorVariables(seed, true) +
+		statusColorVariables(seed, true);
 	return `:root:root{${light}}:root.dark{${dark}}`;
 }
 
@@ -217,7 +224,7 @@ export function themePreviewColors(
 	if (preset === 'coss') {
 		return neutralPreviewColors[dark ? 'dark' : 'light'];
 	}
-	const colors = scheme(presetColors[preset] ?? themeColor, dark, contrast);
+	const colors = scheme(themeColor, dark, contrast, preset);
 	return {
 		surface: hexFromArgb(colors.surface),
 		sidebar: hexFromArgb(colors.surfaceContainerLow),
@@ -239,8 +246,7 @@ const cssStorageKey = 'doglog-studio:theme-color-css';
 /** Apply a preset and cache generated colors for `index.html` to use on the next load, Neutral ignores the contrast */
 export function applyThemeColor(themeColor: string, preset: ThemePreset, contrast: Contrast): void {
 	document.documentElement.classList.toggle('coss-theme', preset === 'coss');
-	const css =
-		preset === 'coss' ? '' : themeColorCss(presetColors[preset] ?? themeColor, contrast, presetSecondaryColors[preset]);
+	const css = preset === 'coss' ? '' : themeColorCss(themeColor, contrast, preset);
 
 	// `index.html` may have added this element already
 	let style = document.querySelector<HTMLStyleElement>('#theme-color');
