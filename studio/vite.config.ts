@@ -334,6 +334,9 @@ export default defineConfig({
 		},
 	},
 	optimizeDeps: {
+		// Only the log worker imports it, which the dependency scan doesn't crawl. Finding it on the first log open reloads
+		// the page, which can lose a log being opened from the `log` search parameter.
+		include: ['wpilog-parser'],
 		// Pre-bundling loads Loro's WASM glue code twice, leaving the copy it uses uninitialized
 		exclude: ['loro-crdt'],
 	},
