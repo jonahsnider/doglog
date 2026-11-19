@@ -16,23 +16,49 @@ function table(...entryNames: string[]): Widget {
 	return createWidget(getWidgetType('values-table')!, entryNames);
 }
 
-test('names a dashboard after the groups of its entries, in layout order', () => {
+test('names a dashboard after the groups of its entries, most entries first', () => {
 	const layout = layoutOf(
-		table('/Robot/Localization/Pose', '/Robot/Localization/Heading'),
 		table('/Robot/Intake/Speed'),
+		table('/Robot/Localization/Pose', '/Robot/Localization/Heading'),
 	);
 	expect(suggestDashboardName(layout)).toBe('Localization & Intake');
+	expect(suggestDashboardName(layoutOf(table('/Robot/Arm/Angle'), table('/Robot/Intake/Speed')))).toBe('Arm & Intake');
 });
 
-test('skips AdvantageKit prefixes', () => {
+test('skips segments that group entries', () => {
 	expect(suggestDashboardName(layoutOf(table('/RealOutputs/Arm/Angle')))).toBe('Arm');
 	expect(suggestDashboardName(layoutOf(table('/AdvantageKit/RealOutputs/Arm/Angle')))).toBe('Arm');
-	expect(suggestDashboardName(layoutOf(table('/AdvantageKit/DriverStation/Enabled')))).toBe('DriverStation');
+	expect(suggestDashboardName(layoutOf(table('/NT:/AdvantageKit/RealOutputs/Arm/Angle')))).toBe('Arm');
+	expect(suggestDashboardName(layoutOf(table('/NT:/limelight-right/tx')))).toBe('Limelight right');
+	expect(suggestDashboardName(layoutOf(table('/Robot/Tunable/Shooter/kP', '/Robot/Shooter/Velocity')))).toBe('Shooter');
+});
+
+test('writes topics in sentence case, keeping acronyms', () => {
+	expect(suggestDashboardName(layoutOf(table('/Robot/HopperManager/State')))).toBe('Hopper manager');
+	expect(suggestDashboardName(layoutOf(table('/Robot/shooter_hood/Angle')))).toBe('Shooter hood');
+	expect(suggestDashboardName(layoutOf(table('/Robot/Swerve Module/Speed')))).toBe('Swerve module');
+	expect(suggestDashboardName(layoutOf(table('/Robot/systemStats/Voltage')))).toBe('System stats');
+	expect(suggestDashboardName(layoutOf(table('/NT:/FMSInfo/IsRedAlliance')))).toBe('FMS info');
+	expect(suggestDashboardName(layoutOf(table('/AdvantageKit/DriverStation/Enabled')))).toBe('Driver Station');
+	expect(suggestDashboardName(layoutOf(table('/DS:enabled', '/DS:autonomous')))).toBe('Driver Station');
+});
+
+test('keeps the spelling of known names', () => {
+	expect(suggestDashboardName(layoutOf(table('/Robot/CANcoder/Position')))).toBe('CANcoder');
+	expect(suggestDashboardName(layoutOf(table('/Robot/TopLeds/Color')))).toBe('Top LEDs');
+	expect(suggestDashboardName(layoutOf(table('/NT:/photonvision/front/hasTarget')))).toBe('PhotonVision');
+	expect(suggestDashboardName(layoutOf(table('/Robot/navX/Yaw')))).toBe('navX');
+	expect(suggestDashboardName(layoutOf(table('/Robot/SystemCore/Temperature')))).toBe('Systemcore');
+	expect(suggestDashboardName(layoutOf(table('/Robot/Candles/Color')))).toBe('Candles');
+});
+
+test('combines topics that only differ in case', () => {
+	expect(suggestDashboardName(layoutOf(table('/Robot/Debug/Speed', '/Robot/DEBUG/Zone')))).toBe('Debug');
 });
 
 test('lists three groups, then counts the rest', () => {
 	expect(suggestDashboardName(layoutOf(table('/A/x', '/B/x', '/C/x')))).toBe('A, B, & C');
-	expect(suggestDashboardName(layoutOf(table('/A/x', '/B/x', '/C/x', '/D/x')))).toBe('A, B, & 2 more');
+	expect(suggestDashboardName(layoutOf(table('/A/x', '/B/x', '/B/y', '/C/x', '/D/x', '/D/y')))).toBe('B, D, & 2 more');
 });
 
 test('capitalizes top level entries', () => {

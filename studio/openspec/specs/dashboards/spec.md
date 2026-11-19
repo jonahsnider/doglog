@@ -28,7 +28,7 @@ Users SHALL be able to create a new, empty dashboard from the sidebar. New dashb
 
 ### Requirement: Suggested names
 
-A dashboard the user hasn't named SHALL be named after its contents, updating as they change. Each widget MUST contribute the first path segment of its entries, skipping the `/Robot`, `/RealOutputs`, `/AdvantageKit`, and `/AdvantageKit/RealOutputs` prefixes and capitalizing the first letter. A widget without entries, or with only its widget type's default entries, MUST contribute its pane header's name instead, ex. "Console" or "Controller 1". Past three names, the rest MUST be counted.
+A dashboard the user hasn't named SHALL be named after the topics of its entries, updating as they change. A widget without entries, or with only its widget type's default entries, MUST contribute its pane header's name as a topic instead, ex. "Console" or "Controller 1". Topics that only differ in case MUST be combined. Topics MUST be listed with the ones from the most entries first, then in layout order, and past three topics, the rest MUST be counted.
 
 #### Scenario: Name from entries
 
@@ -41,6 +41,12 @@ A dashboard the user hasn't named SHALL be named after its contents, updating as
 - **GIVEN** a dashboard the user hasn't named
 - **WHEN** it shows entries from Swerve, Drive, Shooter, and Vision
 - **THEN** it's named "Swerve, Drive, & 2 more"
+
+#### Scenario: Most shown topic first
+
+- **GIVEN** a dashboard the user hasn't named
+- **WHEN** it shows `/DS:enabled` and then three `/Robot/Shooter` entries
+- **THEN** it's named "Shooter & Driver Station"
 
 #### Scenario: Empty dashboard name
 
@@ -59,6 +65,26 @@ A dashboard the user hasn't named SHALL be named after its contents, updating as
 - **GIVEN** a dashboard the user renamed to "Arm tuning"
 - **WHEN** a widget is added to it
 - **THEN** it's still named "Arm tuning"
+
+### Requirement: Entry topics
+
+An entry's topic SHALL be the first segment of its name that isn't `Robot`, `RealOutputs`, `AdvantageKit`, `NT:`, `SmartDashboard`, `Shuffleboard`, or `Tunable`, in sentence case. Segments MUST be split into words at spaces, underscores, hyphens, and camel case, and words in all caps MUST be kept as acronyms. Common FRC product and library names MUST keep their own spelling. WPILib's Driver Station entries, ex. `/DS:enabled`, MUST have the topic "Driver Station".
+
+#### Scenario: Tunables and NetworkTables entries
+
+- **GIVEN** a dashboard the user hasn't named
+- **WHEN** it shows `/Robot/Tunable/Shooter/kP` and `/NT:/limelight-right/tx`
+- **THEN** it's named "Shooter & Limelight right"
+
+#### Scenario: Words and acronyms
+
+- **WHEN** a dashboard shows `/Robot/HopperManager/State`, `/Robot/shooter_hood/Angle`, or `/NT:/FMSInfo/IsRedAlliance`
+- **THEN** their topics are "Hopper manager", "Shooter hood", and "FMS info"
+
+#### Scenario: Known names
+
+- **WHEN** a dashboard shows `/Robot/CANcoder/Position` or `/Robot/TopLeds/Color`
+- **THEN** their topics are "CANcoder" and "Top LEDs"
 
 ### Requirement: Dashboard icons
 

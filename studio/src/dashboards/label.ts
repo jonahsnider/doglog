@@ -1,3 +1,4 @@
+import { split } from 'change-case';
 import { widgetBindings } from '@/widgets/bindings';
 import type { Dashboard } from '@/dashboards/dashboards';
 import type { PaneNode, Widget } from '@/panes/layout';
@@ -7,10 +8,52 @@ import { getWidgetType } from '@/widgets/registry';
 import { type WidgetType, widgetTitle } from '@/widgets/widget-type';
 
 /**
- * Prefixes skipped when naming a dashboard after its entries, since nearly every DogLog or AdvantageKit entry starts
- * with them. Longer prefixes come first.
+ * Path segments skipped when naming a dashboard after its entries, since they group entries without saying what
+ * they're about, ex. DogLog's `/Robot`, AdvantageKit's `/AdvantageKit/RealOutputs`, NetworkTables entries logged
+ * under `/NT:`, and DogLog's tunables under `/Robot/Tunable`
  */
-const skippedPrefixes = ['/AdvantageKit/RealOutputs/', '/AdvantageKit/', '/RealOutputs/', '/Robot/'];
+const skippedSegments = new Set([
+	'NT:',
+	'AdvantageKit',
+	'RealOutputs',
+	'Robot',
+	'SmartDashboard',
+	'Shuffleboard',
+	'Tunable',
+]);
+
+/**
+ * Names with their own spelling, kept as written instead of in sentence case, keyed by their letters in lowercase. Many
+ * can't be split into words by their capitals, ex. `CANcoder` would be `CA ncoder`.
+ */
+const knownNames = new Map(
+	[
+		'AprilTag',
+		'AprilTags',
+		'CANcoder',
+		'CANdle',
+		'CANivore',
+		'CANrange',
+		'DogLog',
+		'Driver Station',
+		'LEDs',
+		'navX',
+		'PathPlanner',
+		'PhotonVision',
+		'QuestNav',
+		'roboRIO',
+		'SPARK Flex',
+		'SPARK MAX',
+		'SysId',
+		'Systemcore',
+		'WPILib',
+	].map((name) => [name.replaceAll(' ', '').toLowerCase(), name]),
+);
+
+/** The known name some words spell, ex. `CA` and `Ncoder` spell `CANcoder` */
+function knownName(words: readonly string[]): string | undefined {
+	return knownNames.get(words.join('').toLowerCase());
+}
 
 /** How many topics are listed by name before the rest are counted */
 const maxTopics = 3;
@@ -18,35 +61,74 @@ const maxTopics = 3;
 /** Joins topics like `A, B, & C` */
 const topicList = new Intl.ListFormat('en', { style: 'short', type: 'conjunction' });
 
-/** An entry's topic is its first path segment, ex. `/Robot/Intake/Speed` is about `Intake` */
+/**
+ * An entry's topic is its first path segment after skipped ones in sentence case, ex. `/Robot/HopperManager/State` is
+ * about `Hopper manager`. Words in all caps are kept as acronyms, ex. `FMSInfo` gives `FMS info`, and known names keep
+ * their spelling, ex. `TopLeds` gives `Top LEDs`. WPILib's Driver Station entries, ex. `/DS:enabled`, are about the
+ * `Driver Station`.
+ */
 function entryTopic(name: string): string {
-	const prefix = skippedPrefixes.find((candidate) => name.startsWith(candidate));
-	const [topic = name] = (prefix === undefined ? name.replace(/^\//u, '') : name.slice(prefix.length)).split('/');
-	return topic.charAt(0).toUpperCase() + topic.slice(1);
+	const segments = name.split('/').filter((segment) => segment !== '');
+	const segment = segments.find((candidate) => !skippedSegments.has(candidate)) ?? segments.at(-1) ?? name;
+	if (segment.startsWith('DS:')) {
+		return 'Driver Station';
+	}
+
+	const words = split(segment);
+	const topic: string[] = [];
+	let start = 0;
+	while (start < words.length) {
+		// The longest run of words that spells a known name
+		let end = words.length;
+		while (end > start && knownName(words.slice(start, end)) === undefined) {
+			end--;
+		}
+		const known = knownName(words.slice(start, end));
+		if (known === undefined) {
+			const word = words[start]!;
+			const cased = word === word.toUpperCase() ? word : word.toLowerCase();
+			topic.push(topic.length === 0 ? cased.charAt(0).toUpperCase() + cased.slice(1) : cased);
+			start++;
+		} else {
+			topic.push(known);
+			start = end;
+		}
+	}
+	return topic.length === 0 ? segment : topic.join(' ');
 }
 
 /**
  * A name for a dashboard based on the entries it shows, ex. `/Robot/Localization/Pose` and `/Robot/Intake/Speed` give
- * `Localization & Intake`. Widgets without entries, or with only their type's default entries (ex. a console showing
- * `/console` and `/messages`), are named after their type.
+ * `Localization & Intake`. Topics with the most entries come first, then in layout order. Widgets without entries, or
+ * with only their type's default entries (ex. a console showing `/console` and `/messages`), are named after their type.
  */
 export function suggestDashboardName(layout: PaneNode): string {
-	const topics = new Set<string>();
+	// Keyed by lowercase name so `Debug` and `DEBUG` are one topic
+	const topics = new Map<string, { name: string; entries: number }>();
+	const addTopic = (name: string) => {
+		const topic = topics.get(name.toLowerCase());
+		if (topic) {
+			topic.entries++;
+		} else {
+			topics.set(name.toLowerCase(), { name, entries: 1 });
+		}
+	};
 	for (const { widget } of widgetAreas(layout)) {
 		const type = getWidgetType(widget.type);
 		const entryNames = new Set(widgetBindings(widget).map((binding) => binding.name));
 		const defaults = new Set(type?.defaultEntryNames);
 		const isDefault = entryNames.size === defaults.size && [...entryNames].every((name) => defaults.has(name));
 		if (isDefault) {
-			topics.add(type ? widgetTitle(type, optionValues(type, widget, [])) : 'Unknown widget');
+			addTopic(type ? widgetTitle(type, optionValues(type, widget, [])) : 'Unknown widget');
 			continue;
 		}
 		for (const name of entryNames) {
-			topics.add(entryTopic(name));
+			addTopic(entryTopic(name));
 		}
 	}
 
-	const names = [...topics];
+	// Sorting is stable, so topics with as many entries stay in layout order
+	const names = [...topics.values()].toSorted((a, b) => b.entries - a.entries).map((topic) => topic.name);
 	if (names.length === 0) {
 		return 'Empty dashboard';
 	}
