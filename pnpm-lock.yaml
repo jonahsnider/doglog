@@ -408,8 +408,8 @@ importers:
         specifier: 4.11.0
         version: 4.11.0(eslint@10.15.0(jiti@2.7.0)(supports-color@10.2.2))(oxlint@1.93.0(oxlint-tsgolint@7.0.2006)(vite-plus@1.6.0(@astrojs/compiler-rs@0.5.3)(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.0)(@vitest/ui@5.1.0)(@voidzero-dev/vite-plus-core@1.6.0)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(typescript@7.1.0-dev.20261117.1)(vitest@5.1.0)(yaml@2.9.1)))(tailwindcss@4.3.5)(typescript@7.1.0-dev.20261117.1)
       portless:
-        specifier: 0.18.0
-        version: 0.18.0
+        specifier: 0.18.1
+        version: 0.18.1
       react-doctor:
         specifier: 0.9.23
         version: 0.9.23(@opentelemetry/core@2.12.1(@opentelemetry/api@1.9.1))(eslint@10.15.0(jiti@2.7.0)(supports-color@10.2.2))(oxlint-tsgolint@7.0.2006)(react@19.3.1)(supports-color@10.2.2)(vite-plus@1.6.0(@astrojs/compiler-rs@0.5.3)(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.0)(@vitest/ui@5.1.0)(@voidzero-dev/vite-plus-core@1.6.0)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(typescript@7.1.0-dev.20261117.1)(vitest@5.1.0)(yaml@2.9.1))
@@ -6750,8 +6750,8 @@ packages:
     resolution: {integrity: sha512-LKWqWJRhstyYo9pGvgor/ivk2w94eSjE3RGVuzLGlr3NmD8bf7RcYGze1mNdEHRP6TRP6rMuDHk5t44hnTRyow==}
     engines: {node: '>=14.19.0'}
 
-  portless@0.18.0:
-    resolution: {integrity: sha512-SHUBQsapPFReC01RQ2cn0tUXgO/IT1PucpsRv4P1aFhQGMKWo5Pc7poUgCa5gh09Z7aeNNqEoozVSBW7uee58A==}
+  portless@0.18.1:
+    resolution: {integrity: sha512-3gfeicAvS5kwFUbZrsZpt1oU1MUBvfiy2S0MT/n8mwWEp/ZjQsWI0mC353GEi/q8JUVgdx7lBGDzCcMI9O1MXg==}
     engines: {node: '>=24'}
     os: [darwin, linux, win32]
     hasBin: true
@@ -14588,7 +14588,7 @@ snapshots:
 
   pngjs@7.0.0: {}
 
-  portless@0.18.0: {}
+  portless@0.18.1: {}
 
   possible-typed-array-names@1.1.0: {}
 
