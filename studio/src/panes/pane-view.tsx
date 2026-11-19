@@ -47,7 +47,7 @@ export type PaneNodeProps = {
 	topLeft: boolean;
 };
 
-// Widgets mark the elements that show a binding, ex. a values table row
+// Widgets mark the elements that show a binding, ex. a table row
 const bindingIdAt = (target: EventTarget) =>
 	target instanceof Element ? target.closest<HTMLElement>('[data-binding-id]')?.dataset['bindingId'] : undefined;
 

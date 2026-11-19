@@ -124,7 +124,7 @@ export const widgetOptions = {
 export type WidgetInfo = {
 	/** Saved in dashboards, don't change it */
 	readonly id: string;
-	/** Shown in the pane header and widget picker, ex. `Values table` */
+	/** Shown in the pane header and widget picker, ex. `Swerve` */
 	readonly name: string;
 	/** What the widget shows and how, for agents */
 	readonly description: string;
@@ -165,8 +165,8 @@ export const widgetInfos = [
 		options: Object.values(widgetOptions.robot),
 	},
 	{
-		id: 'values-table',
-		name: 'Values table',
+		id: 'table',
+		name: 'Table',
 		description: 'A table of the bound entries’ values at the timeline cursor. Accepts every kind but Mechanism2d.',
 		accepts: valueKinds,
 		roles: [],

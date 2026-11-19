@@ -17,7 +17,7 @@ import { createPane, findPane, type PaneNode } from '@/panes/layout';
 import { getWidgetType } from '@/widgets/registry';
 import type { WidgetType } from '@/widgets/widget-type';
 
-const table = (...bindings: Binding[]) => ({ type: 'values-table', config: { bindings } });
+const table = (...bindings: Binding[]) => ({ type: 'table', config: { bindings } });
 
 const names = (layout: PaneNode, paneId: string) =>
 	widgetBindings(findPane(layout, paneId)?.widget).map((binding) => binding.name);

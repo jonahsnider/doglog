@@ -92,7 +92,7 @@ A dashboard's icon in the sidebar SHALL be the icon of the widget in its biggest
 
 #### Scenario: Icon follows contents
 
-- **GIVEN** a dashboard with a console taking up most of it and two smaller values tables
+- **GIVEN** a dashboard with a console taking up most of it and two smaller tables
 - **THEN** its sidebar icon is the console's icon
 
 ### Requirement: Rename a dashboard
@@ -221,9 +221,9 @@ Users SHALL be able to drag a pane by its title, which shows a move icon and a b
 
 #### Scenario: Move a pane beside another
 
-- **GIVEN** a dashboard with a values table on the left and a console above a swerve on the right
-- **WHEN** the user drags the swerve's title onto the top half of the values table
-- **THEN** the swerve is above the values table, and the console fills the right side
+- **GIVEN** a dashboard with a table on the left and a console above a swerve on the right
+- **WHEN** the user drags the swerve's title onto the top half of the table
+- **THEN** the swerve is above the table, and the console fills the right side
 
 ### Requirement: Other panes stay still while moving a pane
 
@@ -515,7 +515,7 @@ Studio SHALL guide users from empty states to a usable dashboard.
 - **GIVEN** the focused pane has no widget
 - **WHEN** the user presses `S`
 - **THEN** a swerve widget is added to the pane
-- **AND** each widget tile shows its key: `V` for values table, `C` for console, `D` for discrete timeline, `S` for swerve, and `F` for field
+- **AND** each widget tile shows its key, ex. `G` for graph, `T` for table, and `S` for swerve, except the controller, which has none
 
 #### Scenario: No dashboards
 

@@ -13,7 +13,7 @@ function layoutOf(...widgets: Widget[]): PaneNode {
 }
 
 function table(...entryNames: string[]): Widget {
-	return createWidget(getWidgetType('values-table')!, entryNames);
+	return createWidget(getWidgetType('table')!, entryNames);
 }
 
 test('names a dashboard after the groups of its entries, most entries first', () => {
@@ -68,7 +68,7 @@ test('capitalizes top level entries', () => {
 
 test("names widgets with no entries or only their type's default entries after their type", () => {
 	const console = createWidget(getWidgetType('console')!, ['/messages', '/console']);
-	expect(suggestDashboardName(layoutOf(console, table()))).toBe('Console & Values table');
+	expect(suggestDashboardName(layoutOf(console, table()))).toBe('Console & Table');
 });
 
 test('names an empty dashboard', () => {
@@ -79,6 +79,6 @@ test('picks the widget type in the biggest pane, the first one on ties', () => {
 	const console = { type: 'console', config: {} };
 	const layout = layoutOf(console, table());
 	expect(mainWidgetType(layout)?.id).toBe('console');
-	expect(mainWidgetType(resizeSplit(layout, layout.id, [0.3, 0.7]))?.id).toBe('values-table');
+	expect(mainWidgetType(resizeSplit(layout, layout.id, [0.3, 0.7]))?.id).toBe('table');
 	expect(mainWidgetType(createPane())).toBeUndefined();
 });

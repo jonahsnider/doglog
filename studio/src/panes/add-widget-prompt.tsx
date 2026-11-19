@@ -7,7 +7,7 @@ import type { WidgetType } from '@/widgets/widget-type';
 /** Shown in empty panes, its hotkeys only work while the pane is focused */
 export function AddWidgetPrompt({ onAdd, focused }: { onAdd: (type: WidgetType) => void; focused: boolean }) {
 	useHotkeys(
-		widgetTypes.map((type) => ({ hotkey: type.hotkey, callback: () => onAdd(type) })),
+		widgetTypes.flatMap((type) => (type.hotkey ? [{ hotkey: type.hotkey, callback: () => onAdd(type) }] : [])),
 		{ enabled: focused },
 	);
 
@@ -36,7 +36,7 @@ export function AddWidgetPrompt({ onAdd, focused }: { onAdd: (type: WidgetType) 
 						</div>
 						<div className="flex items-center justify-between gap-2 px-1 pb-0.5 add-widget-compact:flex-1 add-widget-compact:px-0 add-widget-compact:pb-0">
 							<span>{type.name}</span>
-							<Kbd>{type.hotkey}</Kbd>
+							{type.hotkey && <Kbd>{type.hotkey}</Kbd>}
 						</div>
 					</button>
 				))}

@@ -25,7 +25,7 @@ import { robotOption } from '@/widgets/robot/robot-option';
 import { robotRoles, viewOption } from '@/widgets/robot/roles';
 import { Swerve } from '@/widgets/swerve/swerve';
 import { swerveRoles } from '@/widgets/swerve/data';
-import { ValuesTable } from '@/widgets/values-table/values-table';
+import { TableWidget } from '@/widgets/table/table';
 import { widgetInfos, type WidgetTypeId } from '@/widgets/widget-info';
 import type { WidgetType } from '@/widgets/widget-type';
 
@@ -40,7 +40,7 @@ export const widgetTypes: readonly WidgetType[] = [
 	{
 		...info('graph'),
 		icon: ChartLineIcon,
-		hotkey: 'D',
+		hotkey: 'G',
 		roles: graphRoles,
 		inferRole: inferGraphRole,
 		component: Graph,
@@ -64,7 +64,7 @@ export const widgetTypes: readonly WidgetType[] = [
 		options: [viewOption, robotOption],
 		component: Robot,
 	},
-	{ ...info('values-table'), icon: TableIcon, hotkey: 'V', component: ValuesTable },
+	{ ...info('table'), icon: TableIcon, hotkey: 'T', component: TableWidget },
 	{
 		...info('console'),
 		icon: TerminalIcon,
@@ -77,7 +77,6 @@ export const widgetTypes: readonly WidgetType[] = [
 	{
 		...info(controllerTypeId),
 		icon: Gamepad2Icon,
-		hotkey: 'G',
 		rendersEmpty: true,
 		options: controllerOptions,
 		optionFromEntry: controllerOptionFromEntry,
@@ -112,7 +111,7 @@ function defaultWidgetTypeId(entry: Entry): string {
 		return 'field';
 	}
 
-	return 'values-table';
+	return 'table';
 }
 
 /** The widget an entry is shown in when it's added without choosing a widget, bound to only that entry. `undefined` for unsupported entries. */

@@ -43,17 +43,17 @@ Each widget that accepts entries SHALL have an Edit entries button in its pane h
 
 ### Requirement: Edit entries from the context menu
 
-A widget's context menu SHALL offer Edit entries and to remove a bound entry. Right-clicking the part of a widget that shows an entry, such as a values table row, MUST offer to remove that entry directly; elsewhere, bound entries MUST be listed as checkboxes in an "Entries" submenu, with their role when it's shown in the legend. Middle-clicking the part of a widget that shows an entry SHALL remove it, and only that binding of an entry bound more than once.
+A widget's context menu SHALL offer Edit entries and to remove a bound entry. Right-clicking the part of a widget that shows an entry, such as a table row, MUST offer to remove that entry directly; elsewhere, bound entries MUST be listed as checkboxes in an "Entries" submenu, with their role when it's shown in the legend. Middle-clicking the part of a widget that shows an entry SHALL remove it, and only that binding of an entry bound more than once.
 
-#### Scenario: Remove a values table row
+#### Scenario: Remove a table row
 
-- **GIVEN** a values table showing `/Arm/Angle`
+- **GIVEN** a table showing `/Arm/Angle`
 - **WHEN** the user right-clicks the `/Arm/Angle` row and chooses "Remove /Arm/Angle"
 - **THEN** the table stops showing `/Arm/Angle`
 
 #### Scenario: Middle-click to remove
 
-- **GIVEN** a values table showing `/Arm/Angle`
+- **GIVEN** a table showing `/Arm/Angle`
 - **WHEN** the user middle-clicks the `/Arm/Angle` row
 - **THEN** the table stops showing `/Arm/Angle`
 
@@ -90,24 +90,24 @@ Users SHALL be able to bind an entry by dragging it from the entry browser onto 
 
 ### Requirement: Drag entries out of widgets
 
-The part of a widget that shows an entry, such as a values table row or swerve legend item, SHALL be draggable. Dropping it on another entry of the same widget MUST move it to that entry's position, and dropping it on another widget MUST move it after that widget's entries. Rows whose other parts have their own interactions, such as selecting values, MUST be dragged by the entry name. Widgets that don't show entries individually, such as the console, are exempt.
+The part of a widget that shows an entry, such as a table row or swerve legend item, SHALL be draggable. Dropping it on another entry of the same widget MUST move it to that entry's position, and dropping it on another widget MUST move it after that widget's entries. Rows whose other parts have their own interactions, such as selecting values, MUST be dragged by the entry name. Widgets that don't show entries individually, such as the console, are exempt.
 
 #### Scenario: Reorder
 
-- **GIVEN** a values table showing `/Arm/Angle` then `/Arm/Voltage`
+- **GIVEN** a table showing `/Arm/Angle` then `/Arm/Voltage`
 - **WHEN** the user drags the `/Arm/Voltage` row onto the `/Arm/Angle` row
 - **THEN** the table shows `/Arm/Voltage` then `/Arm/Angle`
 - **AND** while dragging, a line marks where it will go
 
 #### Scenario: Move to another widget
 
-- **GIVEN** a values table and a graph showing `/Intake/HasPiece`
-- **WHEN** the user drags the `/Intake/HasPiece` timeline row onto the values table
-- **THEN** the values table shows `/Intake/HasPiece` and the graph doesn't
+- **GIVEN** a table and a graph showing `/Intake/HasPiece`
+- **WHEN** the user drags the `/Intake/HasPiece` timeline row onto the table
+- **THEN** the table shows `/Intake/HasPiece` and the graph doesn't
 
 #### Scenario: Dropped outside a widget
 
-- **WHEN** the user drags a values table row and drops it outside any widget
+- **WHEN** the user drags a table row and drops it outside any widget
 - **THEN** the table is unchanged
 
 ### Requirement: Roles
@@ -279,7 +279,7 @@ Widgets and the entry browser SHALL show the slashes in full entry names dimmed,
 
 ### Requirement: Default widget for an entry
 
-Each bindable entry SHALL have a default widget, used when the entry is added without choosing a widget: Driver Station controller entries use the controller widget, `/console` and `/messages` use the console, other numeric, string, and boolean entries use the graph, `SwerveModuleState[]` and `SwerveModuleVelocity[]` entries use the swerve widget, `Mechanism2d` entries use the robot widget, entries the field widget accepts use the field widget, and all other entries use the values table.
+Each bindable entry SHALL have a default widget, used when the entry is added without choosing a widget: Driver Station controller entries use the controller widget, `/console` and `/messages` use the console, other numeric, string, and boolean entries use the graph, `SwerveModuleState[]` and `SwerveModuleVelocity[]` entries use the swerve widget, `Mechanism2d` entries use the robot widget, entries the field widget accepts use the field widget, and all other entries use the table.
 
 #### Scenario: Numeric entry
 
@@ -319,4 +319,4 @@ Each bindable entry SHALL have a default widget, used when the entry is added wi
 #### Scenario: Struct entry
 
 - **WHEN** a `struct:ChassisSpeeds` entry is added by double-clicking it
-- **THEN** it is shown in a values table
+- **THEN** it is shown in a table

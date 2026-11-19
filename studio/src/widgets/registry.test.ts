@@ -16,10 +16,10 @@ test.each([
 	['/Arm/Angle', 'double', 'graph'],
 	['/Drive/Pose', 'struct:Pose2d', 'field'],
 	['/Vision/Targets', 'struct:Pose3d[]', 'field'],
-	['/Drive/Speeds', 'struct:ChassisSpeeds', 'values-table'],
+	['/Drive/Speeds', 'struct:ChassisSpeeds', 'table'],
 	['/Drive/MeasuredStates', 'struct:SwerveModuleState[]', 'swerve'],
 	['/Drive/MeasuredStates', 'struct:SwerveModuleVelocity[]', 'swerve'],
-	['/Arm/Setpoints', 'double[]', 'values-table'],
+	['/Arm/Setpoints', 'double[]', 'table'],
 	['/Arm/Mechanism', 'Mechanism2d', 'robot'],
 ])('%s (%s) defaults to the %s', (name, type, widgetType) => {
 	const widget = defaultWidget(entry(name, type));

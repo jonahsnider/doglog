@@ -1,14 +1,14 @@
-# widget-values-table Specification
+# widget-table Specification
 
 ## Purpose
 
-Define the values table widget, which shows the name, type, and value at the cursor for any bound entries, including expandable struct fields.
+Define the table widget, which shows the name, type, and value at the cursor for any bound entries, including expandable struct fields.
 
 ## Requirements
 
 ### Requirement: Values at cursor
 
-The values table SHALL accept entries of any supported type and show each bound entry's name, type, and latest value at or before the cursor.
+The table SHALL accept entries of any supported type and show each bound entry's name, type, and latest value at or before the cursor.
 
 #### Scenario: Mixed types
 

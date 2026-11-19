@@ -66,7 +66,7 @@ export type WidgetBindings = {
 export const WidgetBindingsContext = createContext<WidgetBindings | undefined>(undefined);
 
 /**
- * Lets the element showing a binding, ex. a values table row, be dragged to reorder it or move it to another widget.
+ * Lets the element showing a binding, ex. a table row, be dragged to reorder it or move it to another widget.
  * Attach `ref` to the element, and `handleRef` to the part it's dragged by if the whole element shouldn't be (ex. so values stay selectable).
  */
 export function useBindingDrag(

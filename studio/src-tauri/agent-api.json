@@ -319,7 +319,7 @@
 												"properties": {
 													"type": {
 														"type": "string",
-														"const": "values-table"
+														"const": "table"
 													},
 													"bindings": {
 														"description": "Entries to show, in order. Accepted kinds: number, boolean, string, number[], boolean[], string[], struct, struct[]. Left out, the widget starts like one the user adds.",
@@ -354,7 +354,7 @@
 													"type"
 												],
 												"additionalProperties": false,
-												"description": "Values table: A table of the bound entries’ values at the timeline cursor. Accepts every kind but Mechanism2d."
+												"description": "Table: A table of the bound entries’ values at the timeline cursor. Accepts every kind but Mechanism2d."
 											},
 											{
 												"type": "object",
@@ -915,7 +915,7 @@
 								"properties": {
 									"type": {
 										"type": "string",
-										"const": "values-table"
+										"const": "table"
 									},
 									"bindings": {
 										"description": "Entries to show, in order. Accepted kinds: number, boolean, string, number[], boolean[], string[], struct, struct[]. Left out, the widget starts like one the user adds.",
@@ -950,7 +950,7 @@
 									"type"
 								],
 								"additionalProperties": false,
-								"description": "Values table: A table of the bound entries’ values at the timeline cursor. Accepts every kind but Mechanism2d."
+								"description": "Table: A table of the bound entries’ values at the timeline cursor. Accepts every kind but Mechanism2d."
 							},
 							{
 								"type": "object",
@@ -1247,14 +1247,14 @@
 										"properties": {
 											"type": {
 												"type": "string",
-												"const": "values-table"
+												"const": "table"
 											}
 										},
 										"required": [
 											"type"
 										],
 										"additionalProperties": false,
-										"description": "Values table: A table of the bound entries’ values at the timeline cursor. Accepts every kind but Mechanism2d."
+										"description": "Table: A table of the bound entries’ values at the timeline cursor. Accepts every kind but Mechanism2d."
 									},
 									{
 										"type": "object",

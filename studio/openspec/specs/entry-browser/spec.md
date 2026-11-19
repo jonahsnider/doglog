@@ -126,8 +126,8 @@ Users SHALL be able to drag entries from the entry browser onto widgets to bind 
 
 #### Scenario: Drag an entry
 
-- **WHEN** the user drags `/Arm/Angle` onto a values table
-- **THEN** the values table binds `/Arm/Angle`
+- **WHEN** the user drags `/Arm/Angle` onto a table
+- **THEN** the table binds `/Arm/Angle`
 
 ### Requirement: Type indicators
 
@@ -214,9 +214,9 @@ Users SHALL also be able to edit a widget's entries by double-clicking its title
 
 #### Scenario: Focused widget shortcut
 
-- **GIVEN** the focused pane has a values table
+- **GIVEN** the focused pane has a table
 - **WHEN** the user presses ⌘E
-- **THEN** the entry browser edits the values table's entries
+- **THEN** the entry browser edits the table's entries
 - **AND** pressing ⌘E again stops editing
 
 ### Requirement: Toggle entries while editing
@@ -225,11 +225,11 @@ While editing a widget's entries, each entry SHALL show a checkbox that's checke
 
 #### Scenario: Bind by clicking
 
-- **GIVEN** the entry browser is editing a values table's entries
+- **GIVEN** the entry browser is editing a table's entries
 - **WHEN** the user clicks `/Arm/Angle`
-- **THEN** the values table shows `/Arm/Angle` and its checkbox is checked
+- **THEN** the table shows `/Arm/Angle` and its checkbox is checked
 - **WHEN** the user clicks `/Arm/Angle` again
-- **THEN** the values table stops showing it
+- **THEN** the table stops showing it
 
 #### Scenario: Bind from search
 
@@ -263,7 +263,7 @@ Editing a widget's entries SHALL stop when the user presses Esc, presses the hea
 
 #### Scenario: Switch widgets
 
-- **GIVEN** the entry browser is editing a values table's entries with the search "arm"
+- **GIVEN** the entry browser is editing a table's entries with the search "arm"
 - **WHEN** the user clicks a field widget in another pane
 - **THEN** the entry browser edits the field's entries, still searching "arm"
 

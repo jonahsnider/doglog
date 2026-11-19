@@ -57,7 +57,7 @@ function valueCell(row: Row, isExpanded: boolean) {
 	return formatValue(row.value);
 }
 
-export function ValuesTable({ bindings }: WidgetProps) {
+export function TableWidget({ bindings }: WidgetProps) {
 	const time = useCursorTime();
 	// Values at the cursor can change as samples arrive, ex. while a log loads
 	useDataVersion();
@@ -117,7 +117,7 @@ export function ValuesTable({ bindings }: WidgetProps) {
 			</TableHeader>
 			<TableBody>
 				{rows.map((row) => (
-					<ValuesTableRow
+					<ValueRow
 						key={row.path}
 						row={row}
 						expanded={expanded.has(row.path)}
@@ -130,7 +130,7 @@ export function ValuesTable({ bindings }: WidgetProps) {
 	);
 }
 
-function ValuesTableRow({
+function ValueRow({
 	row,
 	expanded,
 	anyExpandable,

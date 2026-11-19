@@ -90,11 +90,11 @@ export type WidgetProps = {
 export type WidgetType = {
 	/** Saved in dashboards, don't change it */
 	readonly id: string;
-	/** Shown in the pane header and widget picker, ex. `Values table` */
+	/** Shown in the pane header and widget picker, ex. `Swerve` */
 	readonly name: string;
 	readonly icon: LucideIcon;
 	/** Picks this widget in a focused empty pane, or in the Change widget menu while it's open */
-	readonly hotkey: HotkeyChord;
+	readonly hotkey?: HotkeyChord;
 	/** Kinds of entries that can be bound, none for widgets that don't show entries (ex. the notepad) */
 	readonly accepts: readonly BindableKind[];
 	/**
