@@ -1,5 +1,5 @@
 import { useHotkey } from '@tanstack/react-hotkeys';
-import { type PointerEvent, type RefObject, useEffect, useRef, useState } from 'react';
+import { type PointerEvent, type RefObject, useEffect, useEffectEvent, useRef, useState } from 'react';
 import { getCursorTime, seek } from '@/timeline/timeline';
 import type { GraphPlot } from '@/widgets/graph/use-graph-drawing';
 import { setHoverTime } from '@/timeline/hover';
@@ -125,44 +125,45 @@ export function useGraphPointer(
 		}
 	};
 
+	const onWheel = useEffectEvent((event: WheelEvent) => {
+		event.preventDefault();
+		const delta = event.deltaY === 0 ? event.deltaX : event.deltaY;
+		const axes = yAxisAt(event.clientX, event.clientY, event.shiftKey);
+		// Pinches arrive as wheel events with Ctrl held and much smaller deltas
+		const factor = Math.exp(delta * (event.ctrlKey ? 0.01 : 0.002));
+		if (axes.length > 0) {
+			zoomY(axes, event.clientY, factor);
+			return;
+		}
+		const view = getViewRange();
+		const time = timeAt(event.clientX);
+		if (!view) {
+			return;
+		}
+		// Sideways scrolling pans and vertical scrolling zooms, going by the direction of the last few events. Trackpad
+		// swipes are rarely exactly sideways or vertical, so one stray event doesn't switch, but turning the swipe does.
+		const previous = gesture.current;
+		const fresh = !previous || event.timeStamp - previous.at > gesturePauseMs;
+		const x = (fresh ? 0 : previous.x * directionMemory) + Math.abs(event.deltaX);
+		const y = (fresh ? 0 : previous.y * directionMemory) + Math.abs(event.deltaY);
+		gesture.current = { x, y, at: event.timeStamp };
+		const rect = area.current!.getBoundingClientRect();
+		const unit = wheelUnit(event, rect.height);
+		if (x > y && !event.ctrlKey) {
+			panTime(view, ((event.deltaX * unit) / rect.width) * (view.end - view.start));
+		} else if (time !== undefined && event.deltaY !== 0) {
+			// Capped like UI SDK's canvas viewport, so a mouse wheel's big steps don't jump
+			const zoomDelta = Math.min(Math.max(event.deltaY * unit, -50), 50);
+			zoomTime(time, Math.exp(zoomDelta * (event.ctrlKey ? 0.01 : 0.002)));
+		}
+	});
 	useEffect(() => {
 		const element = body.current!;
+		const listener = (event: WheelEvent) => onWheel(event);
 		// React's wheel listeners are passive, so they can't stop the pane from scrolling or the page from zooming
-		const onWheel = (event: WheelEvent) => {
-			event.preventDefault();
-			const delta = event.deltaY === 0 ? event.deltaX : event.deltaY;
-			const axes = yAxisAt(event.clientX, event.clientY, event.shiftKey);
-			// Pinches arrive as wheel events with Ctrl held and much smaller deltas
-			const factor = Math.exp(delta * (event.ctrlKey ? 0.01 : 0.002));
-			if (axes.length > 0) {
-				zoomY(axes, event.clientY, factor);
-				return;
-			}
-			const view = getViewRange();
-			const time = timeAt(event.clientX);
-			if (!view) {
-				return;
-			}
-			// Sideways scrolling pans and vertical scrolling zooms, going by the direction of the last few events. Trackpad
-			// swipes are rarely exactly sideways or vertical, so one stray event doesn't switch, but turning the swipe does.
-			const previous = gesture.current;
-			const fresh = !previous || event.timeStamp - previous.at > gesturePauseMs;
-			const x = (fresh ? 0 : previous.x * directionMemory) + Math.abs(event.deltaX);
-			const y = (fresh ? 0 : previous.y * directionMemory) + Math.abs(event.deltaY);
-			gesture.current = { x, y, at: event.timeStamp };
-			const rect = area.current!.getBoundingClientRect();
-			const unit = wheelUnit(event, rect.height);
-			if (x > y && !event.ctrlKey) {
-				panTime(view, ((event.deltaX * unit) / rect.width) * (view.end - view.start));
-			} else if (time !== undefined && event.deltaY !== 0) {
-				// Capped like UI SDK's canvas viewport, so a mouse wheel's big steps don't jump
-				const zoomDelta = Math.min(Math.max(event.deltaY * unit, -50), 50);
-				zoomTime(time, Math.exp(zoomDelta * (event.ctrlKey ? 0.01 : 0.002)));
-			}
-		};
-		element.addEventListener('wheel', onWheel, { passive: false });
-		return () => element.removeEventListener('wheel', onWheel);
-	});
+		element.addEventListener('wheel', listener, { passive: false });
+		return () => element.removeEventListener('wheel', listener);
+	}, [body]);
 
 	const snapToCursor = (time: number): number => {
 		const cursor = getCursorTime();
