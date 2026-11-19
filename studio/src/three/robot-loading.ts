@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Mesh, MeshStandardMaterial, type Object3D } from 'three';
+import { Box3, FrontSide, type Material, Mesh, MeshStandardMaterial, type Object3D, Vector3 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { RobotConfigError, type RobotConfig, readRobotConfig } from '@/three/robot-config';
 import { ProjectAccessError, projectFileReader, type RobotProject } from '@/three/robot-projects';
@@ -18,15 +18,52 @@ export type RobotState =
 
 const loader = new GLTFLoader();
 
-/** Without an environment map metallic CAD materials draw black, so models are lit like plastic */
+/** `instanceof Mesh` types a mesh's material as `any` */
+function isMesh(object: Object3D): object is Mesh {
+	return object instanceof Mesh;
+}
+
+/** How many sizes of meshes are drawn in front of the next bigger size, halving from 1 m */
+const sizeSteps = 6;
+
+/**
+ * Without an environment map metallic CAD materials draw black, so models are lit like plastic. CAD parts often have
+ * faces in the same plane as a bigger part's, ex. an insert in a plate, which flicker between the two as the camera
+ * moves. Smaller meshes are drawn slightly in front, so they always win.
+ */
 function prepare(model: Object3D): Object3D {
-	model.traverse((object) => {
-		if (object instanceof Mesh) {
-			for (const material of [object.material].flat()) {
-				if (material instanceof MeshStandardMaterial) {
-					material.metalness = 0;
-				}
+	model.updateMatrixWorld(true);
+	const box = new Box3();
+	// Meshes share materials, so each material is copied once for each size it's used at
+	const copies = new Map<string, Material>();
+	const prepareMaterial = (material: Material, step: number): Material => {
+		const key = `${material.uuid} ${step}`;
+		let copy = copies.get(key);
+		if (copy === undefined) {
+			copy = material.clone();
+			if (copy instanceof MeshStandardMaterial) {
+				copy.metalness = 0;
 			}
+			// CAD exports are double-sided, which shows a see-through part's far side, ex. the back of a polycarbonate panel
+			// flickering against the plate it's mounted to
+			if (copy.transparent) {
+				copy.side = FrontSide;
+			}
+			// Two depth buffer steps, a few micrometers, for each size. Offsetting by the face's slope too would move parts
+			// a pixel or more forward, letting hardware behind plates show through.
+			copy.polygonOffset = step > 0;
+			copy.polygonOffsetUnits = -2 * step;
+			copies.set(key, copy);
+		}
+		return copy;
+	};
+
+	model.traverse((object) => {
+		// glTF meshes have one material each, a mesh with several is loaded as a group of meshes
+		if (isMesh(object) && !Array.isArray(object.material)) {
+			const size = box.setFromObject(object).getSize(new Vector3()).length();
+			const step = Math.min(sizeSteps, Math.max(0, Math.floor(-Math.log2(size))));
+			object.material = prepareMaterial(object.material, step);
 		}
 	});
 	return model;

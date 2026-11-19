@@ -195,7 +195,7 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 				event.stopPropagation();
 			}}
 		>
-			<Canvas orthographic frameloop="demand" camera={{ up: [0, 0, 1], near: 0.1, far: cameraDistance * 4 }}>
+			<Canvas orthographic frameloop="demand" camera={{ up: [0, 0, 1], near: 0, far: cameraDistance * 2 }}>
 				<CameraControls />
 				<CameraRig ref={rig} />
 				<ambientLight intensity={1.5} />

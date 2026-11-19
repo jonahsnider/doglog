@@ -27,7 +27,12 @@ const resetView = { azimuth: -1.05, elevation: 0.72 };
 const center = new Vector3(0, 0, 0.3);
 /** Width and height in meters fit in the view at the default zoom */
 const framedMeters = 2.25;
-export const cameraDistance = 20;
+/**
+ * How far the camera is from what it orbits around. The view has no perspective, so this only sets which depths are
+ * drawn: the scene draws `cameraDistance` in front of and behind it. A short range keeps depth steps about a
+ * micrometer, which robot models are offset by to draw flush CAD faces, see `prepare()`.
+ */
+export const cameraDistance = 10;
 const maxElevation = Math.PI / 2 - 1e-4;
 
 type Orbit = { target: Vector3; azimuth: number; elevation: number; zoom: number };

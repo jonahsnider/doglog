@@ -236,6 +236,21 @@ A project's robot SHALL have a `name`, the glTF binary `model` of the robot's bo
 - **GIVEN** a robot with an arm part, and no `Pose3d[]` entry bound
 - **THEN** the arm is drawn where the CAD placed it
 
+### Requirement: Flush CAD faces
+
+Where faces of a robot's models overlap in the same plane, the robot widget SHALL draw the smaller part's face, and it MUST NOT flicker between them as the camera moves. Faces behind others MUST NOT show through.
+
+#### Scenario: Insert in a plate
+
+- **GIVEN** a robot whose CAD has an insert flush with the face of a plate
+- **WHEN** the user orbits the camera
+- **THEN** the insert's face is drawn over the plate's without flickering
+
+#### Scenario: See-through panel
+
+- **GIVEN** a robot whose CAD has a translucent polycarbonate panel mounted flush to a plate
+- **THEN** the plate is drawn through the panel without streaks
+
 ### Requirement: Transforms in robot configs
 
 Transforms in robot configs (`mount` and `origin`) SHALL be written as `x`, `y`, and `z` in meters and `roll`, `pitch`, and `yaw` in degrees, each 0 when left out. Rotations MUST mean the same as WPILib's `Rotation3d` with the same roll, pitch, and yaw.
