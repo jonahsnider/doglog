@@ -244,6 +244,8 @@ export default defineConfig({
 		VitePWA({
 			// A new version waits until every Studio tab closes, so open tabs keep loading their own version's chunks
 			registerType: 'prompt',
+			// `main.tsx` registers it on the web only, the macOS desktop app serves pages from `tauri://`, which can't have one
+			injectRegister: false,
 			workbox: {
 				globPatterns: ['**/*'],
 				// The Sentry plugin turns on source maps for workers too, but only removes the main bundle's

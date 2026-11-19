@@ -34,6 +34,11 @@ if (isTauri()) {
 	void runLogSync();
 } else {
 	handleLaunchedLogFiles();
+	// Waits for the page to load so precaching doesn't compete with it. HTTP pages other than localhost, ex. Studio
+	// served on a LAN IP, have no `navigator.serviceWorker`.
+	if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+		addEventListener('load', () => void navigator.serviceWorker.register('/sw.js'));
+	}
 }
 if (import.meta.env.DEV) {
 	void reopenDevLog();
