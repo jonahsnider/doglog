@@ -4,7 +4,7 @@ import { Canvas, type RootState, useFrame } from '@react-three/fiber';
 import { type KeyboardEvent, type ReactNode, type Ref, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { type DirectionalLight, Vector3 } from 'three';
 import { cn } from '@/lib/utils';
-import { CameraControls, CameraRig, cameraDistance, type Rig } from '@/three/camera';
+import { CameraControls, CameraRig, cameraDistance, type Rig, shiftSpeedup } from '@/three/camera';
 import { useThemeColor } from '@/three/theme';
 import { ViewCube } from '@/three/view-cube';
 
@@ -40,21 +40,21 @@ function OnFrame({ callback }: { callback: (state: RootState) => void }) {
 	return null;
 }
 
-/** What held keys do each second: radians to orbit, factor to zoom, and pixels to pan */
+/** What held keys do each second: radians to orbit, factor to zoom, and pixels to pan. Zooming and panning go `speed` times as fast. */
 const orbitSpeed = 1.5;
 const zoomSpeed = 3;
 const panSpeed = 500;
-const keys: Partial<Record<string, (rig: Rig, seconds: number) => void>> = {
+const keys: Partial<Record<string, (rig: Rig, seconds: number, speed: number) => void>> = {
 	arrowleft: (rig, seconds) => rig.orbit(-orbitSpeed * seconds, 0),
 	arrowright: (rig, seconds) => rig.orbit(orbitSpeed * seconds, 0),
 	arrowup: (rig, seconds) => rig.orbit(0, orbitSpeed * seconds),
 	arrowdown: (rig, seconds) => rig.orbit(0, -orbitSpeed * seconds),
-	w: (rig, seconds) => rig.zoom(zoomSpeed ** seconds),
-	s: (rig, seconds) => rig.zoom(zoomSpeed ** -seconds),
-	a: (rig, seconds) => rig.pan(-panSpeed * seconds, 0),
-	d: (rig, seconds) => rig.pan(panSpeed * seconds, 0),
-	q: (rig, seconds) => rig.pan(0, -panSpeed * seconds),
-	e: (rig, seconds) => rig.pan(0, panSpeed * seconds),
+	w: (rig, seconds, speed) => rig.zoom(zoomSpeed ** (seconds * speed)),
+	s: (rig, seconds, speed) => rig.zoom(zoomSpeed ** (-seconds * speed)),
+	a: (rig, seconds, speed) => rig.pan(-panSpeed * seconds * speed, 0),
+	d: (rig, seconds, speed) => rig.pan(panSpeed * seconds * speed, 0),
+	q: (rig, seconds, speed) => rig.pan(0, -panSpeed * seconds * speed),
+	e: (rig, seconds, speed) => rig.pan(0, panSpeed * seconds * speed),
 };
 
 /** How a pointer drag moves the camera, following drei's orbit controls */
@@ -89,7 +89,7 @@ if (typeof window !== 'undefined') {
 /**
  * A 3D scene that fills its parent, drawn over the pane's background, with a view cube to look from set directions.
  * Drag to orbit, right-drag to pan, scroll to zoom, and double-click to reset. While it's
- * focused, hold the arrow keys to orbit, W and S to zoom, and A, D, Q, and E to pan.
+ * focused, hold the arrow keys to orbit, W and S to zoom, and A, D, Q, and E to pan. Hold Shift to zoom and pan faster.
  */
 /** Moves the camera of a `Scene3d` from outside it, ex. a reset button in the widget's toolbar */
 export type Scene3dHandle = { reset: () => void };
@@ -118,11 +118,12 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 
 	// Held keys move the camera every frame until they're released
 	const held = useRef(new Set<string>());
+	const shift = useRef(false);
 	const frame = useRef<number>(undefined);
 	const move = (last: number) => (now: number) => {
 		for (const key of held.current) {
 			if (rig.current) {
-				keys[key]?.(rig.current, (now - last) / 1000);
+				keys[key]?.(rig.current, (now - last) / 1000, shift.current ? shiftSpeedup : 1);
 			}
 		}
 		frame.current = held.current.size > 0 ? requestAnimationFrame(move(now)) : undefined;
@@ -137,6 +138,7 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 	);
 
 	const onKeyDown = (event: KeyboardEvent) => {
+		shift.current = event.shiftKey;
 		const key = event.key.toLowerCase();
 		if (event.metaKey || event.ctrlKey || event.altKey || keys[key] === undefined) {
 			return;
@@ -161,7 +163,7 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 			role="application"
 			// oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Focused for its keyboard controls
 			tabIndex={0}
-			aria-label={`${label}. Drag to orbit, scroll or W and S to zoom, A, D, Q, and E to pan.`}
+			aria-label={`${label}. Drag to orbit, scroll or W and S to zoom, A, D, Q, and E to pan, hold Shift to go faster.`}
 			className={cn(
 				'relative size-full touch-none overflow-hidden rounded-md outline-none select-none',
 				keyboardFocus && 'ring-2 ring-ring',
@@ -182,11 +184,13 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 			onWheel={() => rig.current?.stop()}
 			onKeyDown={onKeyDown}
 			onKeyUp={(event) => {
+				shift.current = event.shiftKey;
 				held.current.delete(event.key.toLowerCase());
 			}}
 			onFocus={() => setKeyboardFocus(keyboardInput)}
 			onBlur={() => {
 				held.current.clear();
+				shift.current = false;
 				setKeyboardFocus(false);
 			}}
 			onDoubleClick={() => rig.current?.reset()}

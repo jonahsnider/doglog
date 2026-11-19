@@ -90,13 +90,18 @@ In 3D, the robot widget SHALL draw the robot at the origin, in WPILib's robot co
 
 ### Requirement: 3D camera
 
-In 3D, the robot widget SHALL use a camera without perspective, starting from the robot's front right, a little above it. Dragging MUST orbit around the robot, including below the floor, right-dragging MUST pan, and scrolling or pinching MUST zoom, from 4× farther out to 16× closer than the default view. A Reset view button beside the View control and double-clicking SHALL reset the camera, animating unless the system reduces motion. The camera MUST NOT be saved with the dashboard.
+In 3D, the robot widget SHALL use a camera without perspective, starting from the robot's front right, a little above it. Dragging MUST orbit around the robot, including below the floor, right-dragging MUST pan, and scrolling or pinching MUST zoom, from 4× farther out to 16× closer than the default view. Holding Shift MUST zoom and pan twice as fast, including scrolling a mouse wheel that the browser scrolls sideways while Shift is held. A Reset view button beside the View control and double-clicking SHALL reset the camera, animating unless the system reduces motion. The camera MUST NOT be saved with the dashboard.
 
 #### Scenario: Pan with the right mouse button
 
 - **WHEN** the user right-drags the scene
 - **THEN** the view pans, with a move cursor while dragging
 - **AND** the widget's context menu doesn't open
+
+#### Scenario: Zoom faster with Shift
+
+- **WHEN** the user holds Shift and scrolls over the scene
+- **THEN** the camera zooms twice as fast as scrolling without Shift
 
 #### Scenario: Reset by double-clicking
 
@@ -120,7 +125,7 @@ In 3D, the robot widget SHALL show a view cube in its top-right corner that turn
 
 ### Requirement: 3D keyboard controls
 
-While a robot widget in 3D is focused, holding the arrow keys SHALL orbit the camera, W and S MUST zoom in and out, A and D MUST pan sideways, and Q and E MUST lower and raise the view, moving smoothly until the key is released.
+While a robot widget in 3D is focused, holding the arrow keys SHALL orbit the camera, W and S MUST zoom in and out, A and D MUST pan sideways, and Q and E MUST lower and raise the view, moving smoothly until the key is released. Holding Shift MUST zoom and pan twice as fast, without changing how fast the arrow keys orbit.
 
 #### Scenario: Zoom with the keyboard
 
