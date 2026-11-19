@@ -17,6 +17,7 @@ import { routeTree } from './routeTree.gen.ts';
 import { syncTheme } from './settings.ts';
 import { startSharing } from './sharing/sharing.ts';
 import { runLogSync } from './sync/sync.ts';
+import { registerServiceWorker } from './updater.ts';
 
 // Reports uncaught errors from production builds, the release (`doglog-studio@<version>`) comes from the Sentry Vite plugin
 Sentry.init({
@@ -35,9 +36,9 @@ if (isTauri()) {
 } else {
 	handleLaunchedLogFiles();
 	// Waits for the page to load so precaching doesn't compete with it. HTTP pages other than localhost, ex. Studio
-	// served on a LAN IP, have no `navigator.serviceWorker`.
+	// served on a LAN IP, have no `navigator.serviceWorker`. Registering also checks for a newer version.
 	if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-		addEventListener('load', () => void navigator.serviceWorker.register('/sw.js'));
+		addEventListener('load', () => void registerServiceWorker());
 	}
 }
 if (import.meta.env.DEV) {

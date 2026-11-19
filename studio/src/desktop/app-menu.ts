@@ -13,7 +13,7 @@ import {
 import { goInHistory } from '@/commands/history';
 import { chooseLog } from '@/data/open-log';
 import { createOpenRecentMenu } from '@/desktop/native-menu';
-import { checkForUpdateManually } from '@/desktop/updater';
+import { checkForUpdateManually } from '@/updater';
 
 /** Replace the default macOS app menu with one whose shortcuts run Studio's commands */
 export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {

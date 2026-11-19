@@ -257,7 +257,8 @@ export default defineConfig({
 		tailwindcss(),
 		projectSchemaPlugin(),
 		VitePWA({
-			// A new version waits until every Studio tab closes, so open tabs keep loading their own version's chunks
+			// A new version waits until every Studio tab closes or the user updates from the sidebar, so open tabs keep
+			// loading their own version's chunks
 			registerType: 'prompt',
 			// `main.tsx` registers it on the web only, the macOS desktop app serves pages from `tauri://`, which can't have one
 			injectRegister: false,

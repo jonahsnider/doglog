@@ -27,7 +27,7 @@ import { shortcuts, useShortcutHint } from '@/commands/commands';
 import { cn } from '@/lib/utils';
 import { sidebarCollapsedStore } from '@/sidebar/sidebar';
 import { TitleBar } from '@/sidebar/title-bar';
-import { installUpdate, useUpdate } from '@/desktop/updater';
+import { installUpdate, updateTitle, useUpdate } from '@/updater';
 import { useWindowColor } from '@/theme/window-color';
 import { WhatsNewCard } from '@/changelog/whats-new-card';
 
@@ -199,10 +199,10 @@ export function AppSidebar() {
 										<SidebarMenuButton
 											disabled={update.installing}
 											onClick={() => void installUpdate(update.update)}
-											tooltip={`Update to ${update.update.version}`}
+											tooltip={updateTitle(update.update)}
 										>
 											{update.installing ? <Spinner /> : <CircleArrowUpIcon className="text-sidebar-primary" />}
-											<span>{update.installing ? 'Updating…' : `Update to ${update.update.version}`}</span>
+											<span>{update.installing ? 'Updating…' : updateTitle(update.update)}</span>
 										</SidebarMenuButton>
 									</SidebarMenuItem>
 								</SidebarMenu>

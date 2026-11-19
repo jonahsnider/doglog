@@ -49,7 +49,7 @@ const sections: {
 			{ label: 'Redo', keys: [shortcuts.redo] },
 			{ label: 'Logs', keys: [shortcuts.logs] },
 			{ label: 'Settings', keys: [shortcuts.settings] },
-			...(isTauri() ? [{ label: 'Check for updates or update', keys: [shortcuts.update] }] : []),
+			{ label: 'Check for updates or update', keys: [shortcuts.update] },
 			{ label: 'Keyboard shortcuts', keys: [shortcuts.keyboardShortcuts] },
 		],
 	},

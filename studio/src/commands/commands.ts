@@ -25,7 +25,7 @@ import {
 import { goInHistory } from '@/commands/history';
 import { toggleEditing } from '@/entries/editing';
 import { chooseLog } from '@/data/open-log';
-import { checkOrInstallUpdate, updateShortcut } from '@/desktop/updater';
+import { checkOrInstallUpdate, updateShortcut } from '@/updater';
 import { connect, getSource, showSource } from '@/data/source';
 import { canSplitPane, type SplitDirection } from '@/panes/layout';
 import { getRobotHost } from '@/robot-target';
@@ -240,7 +240,7 @@ export function useGlobalShortcuts(): void {
 			{ hotkey: 'Mod+Shift+T', callback: () => reopenDashboard(router), options: desktopOnly },
 			{ hotkey: 'Mod+,', callback: () => openSettings(router), options: desktopOnly },
 			{ hotkey: 'Mod+L', callback: () => openLogs(router), options: { enabled: desktop } },
-			{ hotkey: shortcuts.update, callback: () => void checkOrInstallUpdate(), options: { enabled: desktop } },
+			{ hotkey: shortcuts.update, callback: () => void checkOrInstallUpdate() },
 			{ hotkey: 'Mod+[', callback: () => goInHistory(router, -1), options: desktopOnly },
 			{ hotkey: 'Mod+]', callback: () => goInHistory(router, 1), options: desktopOnly },
 			{ hotkey: shortcuts.connect, callback: startConnect },

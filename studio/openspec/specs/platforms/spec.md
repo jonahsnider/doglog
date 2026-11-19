@@ -194,6 +194,28 @@ The desktop app SHALL update itself automatically.
 - **WHEN** the user opens the desktop app with no internet connection
 - **THEN** Studio opens normally without showing an update error
 
+### Requirement: Web app updates
+
+The web app SHALL offer to update to a newer deployed version, the same way the desktop app does. It MUST NOT switch to the new version on its own while Studio is open, and since the web app can't know the new version's number, it MUST NOT show one.
+
+#### Scenario: New version deployed
+
+- **GIVEN** a newer version of the web app is deployed
+- **WHEN** the user opens Studio in a browser with internet access
+- **THEN** once the new version finishes downloading, the bottom of the sidebar shows an Update Studio button
+- **AND** clicking it reloads every open Studio tab into the new version
+
+#### Scenario: Update with the keyboard on the web
+
+- **WHEN** the user presses ⌥⇧U in the web app
+- **THEN** a toast shows Studio checking for updates, then says whether a newer version is available
+- **AND** if one is, pressing ⌥⇧U again shows a toast that Studio is updating, then reloads every open Studio tab into it
+
+#### Scenario: Open the web app offline
+
+- **WHEN** the user opens the web app with no internet connection
+- **THEN** Studio opens normally without showing an update error
+
 ### Requirement: Desktop window size and position
 
 The desktop app SHALL open its window with the size, position, and maximized state of the last closed window. Only the first open window MUST go back to the saved position, other windows MUST open centered with the saved size so they don't cover it. Fullscreen MUST NOT be restored.
