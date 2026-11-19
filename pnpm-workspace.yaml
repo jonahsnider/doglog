@@ -1,6 +1,8 @@
 trustPolicyExclude:
   - '@trickfilm400/rollup-plugin-off-main-thread'
 
+saveExact: true
+
 packages:
   - 'lib'
   - 'studio'
@@ -15,8 +17,8 @@ peerDependencyRules:
     vite: '*'
 allowBuilds:
   esbuild: true
-  sharp: false
-  workerd: false
+  sharp: true
+  workerd: true
 packageExtensions:
   # Its types import from `react`, which only resolves to types if @types/react is linked beside it
   '@dnd-kit/react':
