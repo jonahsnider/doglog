@@ -1,10 +1,9 @@
-// The time range every graph shows, and the time hovered in any of them. Not saved: zooming is part of looking at data.
+// The time range every graph shows. Not saved: zooming is part of looking at data.
 import { useSelector } from '@tanstack/react-store';
-import { useEffect, useReducer } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { createAtom } from '@tanstack/store';
 import type { DataSet } from '@/data/data-set';
-import { getActiveData, getTimeRange, subscribeData, type TimeRange } from '@/data/data-store';
-import { subscribeHover } from '@/timeline/hover';
+import { getActiveData, getTimeRange, subscribeData, type TimeRange, useTimeRange } from '@/data/data-store';
 import { getTimeline, stopFollowing, subscribeTimeline } from '@/timeline/timeline';
 
 /** Live sources show the newest 30 s until zoomed */
@@ -111,14 +110,32 @@ export function resetView(): void {
 	viewStore.set({ range: undefined, liveWidth: defaultLiveWidth, data: undefined, logWidth: undefined });
 }
 
-/** Calls `listener` when the time range or the hovered time change, read them with `getViewRange()` and `getHoverTime()` */
+/** Calls `listener` when the user changes the view, ex. by zooming or panning */
 export function subscribeView(listener: () => void): () => void {
-	const view = viewStore.subscribe(() => listener());
-	const unsubscribeHover = subscribeHover(listener);
+	const { unsubscribe } = viewStore.subscribe(() => listener());
+	return unsubscribe;
+}
+
+function subscribeViewRange(listener: () => void): () => void {
+	const unsubscribeView = subscribeView(listener);
+	const unsubscribeData = subscribeData(listener);
+	const unsubscribeTimeline = subscribeTimeline(listener);
 	return () => {
-		view.unsubscribe();
-		unsubscribeHover();
+		unsubscribeView();
+		unsubscribeData();
+		unsubscribeTimeline();
 	};
+}
+
+// React compares snapshots by identity, while getViewRange() computes a fresh range on every read.
+let viewSnapshot: TimeRange | undefined;
+
+function getViewSnapshot(): TimeRange | undefined {
+	const view = getViewRange();
+	if (view?.start !== viewSnapshot?.start || view?.end !== viewSnapshot?.end) {
+		viewSnapshot = view;
+	}
+	return viewSnapshot;
 }
 
 /** How many graphs are shown, the timeline bar marks their time range while there are any */
@@ -133,24 +150,13 @@ export function useGraphShown(): void {
 
 /** The time range graphs show, `undefined` without any graphs or when they show the whole source */
 export function useZoomedRange(): TimeRange | undefined {
-	const shown = useSelector(shownGraphsStore) > 0;
+	const shown = useSelector(shownGraphsStore, (count) => count > 0);
 	const view = useViewRange();
-	const source = getTimeRange();
+	const source = useTimeRange();
 	return shown && view && source && (view.start > source.start || view.end < source.end) ? view : undefined;
 }
 
 /** The time range graphs show, re-rendering when it changes, including as it follows live data */
 export function useViewRange(): TimeRange | undefined {
-	const [, update] = useReducer((count: number) => count + 1, 0);
-	useEffect(() => {
-		const unsubscribeView = subscribeView(update);
-		const unsubscribeData = subscribeData(update);
-		const unsubscribeTimeline = subscribeTimeline(update);
-		return () => {
-			unsubscribeView();
-			unsubscribeData();
-			unsubscribeTimeline();
-		};
-	}, []);
-	return getViewRange();
+	return useSyncExternalStore(subscribeViewRange, getViewSnapshot);
 }

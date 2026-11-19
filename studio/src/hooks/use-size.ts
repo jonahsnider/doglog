@@ -8,7 +8,10 @@ export function useSize(ref: RefObject<HTMLElement | null>): Size | undefined {
 
 	useEffect(() => {
 		const element = ref.current!;
-		const observer = new ResizeObserver(() => setSize({ width: element.clientWidth, height: element.clientHeight }));
+		const observer = new ResizeObserver(() => {
+			const { clientWidth: width, clientHeight: height } = element;
+			setSize((previous) => (previous?.width === width && previous.height === height ? previous : { width, height }));
+		});
 		observer.observe(element);
 		return () => observer.disconnect();
 	}, [ref]);

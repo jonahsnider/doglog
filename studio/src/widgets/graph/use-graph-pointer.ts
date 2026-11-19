@@ -66,7 +66,7 @@ export function useGraphPointer(
 	const gesture = useRef<{ x: number; y: number; at: number }>(undefined);
 	const [hovered, setHovered] = useState(false);
 	const [bandHover, setBandHover] = useState<BandHover>();
-	const [pointerAt, setPointerAt] = useState<PointerAt>();
+	const [pointerAt, setPointerAt] = useState<PointerAt & { time: number }>();
 	const [selection, setSelection] = useState<TimeRange>();
 	/** Clicking keeps the tooltip shown at the cursor */
 	const [pinned, setPinned] = useState(false);
@@ -176,11 +176,14 @@ export function useGraphPointer(
 
 	const hoverAt = (event: PointerEvent) => {
 		const time = timeAt(event.clientX);
-		setHoverTime(time === undefined ? undefined : snapToCursor(time));
+		const snapped = time === undefined ? undefined : snapToCursor(time);
+		setHoverTime(snapped);
 		const areaRect = area.current!.getBoundingClientRect();
 		const x = event.clientX - areaRect.left;
 		setPointerAt((previous) =>
-			time === undefined ? undefined : { x, width: areaRect.width, flip: flipsAt(x, areaRect.width, previous?.flip) },
+			snapped === undefined
+				? undefined
+				: { x, width: areaRect.width, flip: flipsAt(x, areaRect.width, previous?.flip), time: snapped },
 		);
 		const canvas = bands.current?.getBoundingClientRect();
 		const view = getViewRange();

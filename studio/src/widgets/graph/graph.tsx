@@ -1,5 +1,5 @@
 import 'uplot/dist/uPlot.min.css';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSettings } from '@/settings';
 import { accentColor } from '@/theme/theme-color';
 import { seriesUnits } from '@/widgets/graph/axis-units';
@@ -87,17 +87,21 @@ export function Graph({ bindings }: WidgetProps) {
 	 * Where the graph is in the window when hovered, clicked, or resized while the tooltip is pinned, since the tooltip is
 	 * drawn over the whole window
 	 */
-	const [origin, setOrigin] = useState<DOMRect>();
-	const measureOrigin = () => setOrigin(body.current!.getBoundingClientRect());
+	const [origin, setOrigin] = useState<{ left: number; top: number; width: number }>();
+	const measureOrigin = useCallback(() => {
+		const { left, top, width } = body.current!.getBoundingClientRect();
+		setOrigin((previous) =>
+			previous?.left === left && previous.top === top && previous.width === width ? previous : { left, top, width },
+		);
+	}, []);
 	useEffect(() => {
 		if (!pinned) {
 			return undefined;
 		}
-		const element = body.current!;
-		const observer = new ResizeObserver(() => setOrigin(element.getBoundingClientRect()));
-		observer.observe(element);
+		const observer = new ResizeObserver(measureOrigin);
+		observer.observe(body.current!);
 		return () => observer.disconnect();
-	}, [pinned]);
+	}, [measureOrigin, pinned]);
 
 	return (
 		<div className="flex h-full flex-col">
@@ -159,7 +163,7 @@ export function Graph({ bindings }: WidgetProps) {
 				/>
 				<DropZones bandsHeight={discrete.length * rowHeight} />
 			</div>
-			<TimeAxis insets={insets} />
+			<TimeAxis leftInset={insets.left} rightInset={insets.right} />
 		</div>
 	);
 }

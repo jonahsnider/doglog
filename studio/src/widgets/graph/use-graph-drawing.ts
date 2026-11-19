@@ -18,7 +18,7 @@ import {
 import { createRangeAnimation } from '@/widgets/graph/y-range';
 import { type Fade, isFading, opacityAt, updateFades } from '@/widgets/graph/fade';
 import { timeTicks } from '@/widgets/graph/ticks';
-import { getHoverTime } from '@/timeline/hover';
+import { getHoverTime, subscribeHover } from '@/timeline/hover';
 import { getViewRange, subscribeView } from '@/widgets/graph/view';
 
 export type GraphElements = {
@@ -232,6 +232,7 @@ export function useGraphDrawing(
 		const unsubscribeData = subscribeData(full.schedule);
 		const unsubscribeTimeline = subscribeTimeline(overlays.schedule);
 		const unsubscribeView = subscribeView(overlays.schedule);
+		const unsubscribeHover = subscribeHover(overlays.schedule);
 		// Colors are read from CSS each time the plot is drawn, so theme changes only need a redraw
 		const settings = settingsStore.subscribe(full.schedule);
 		let width = area.clientWidth;
@@ -261,6 +262,7 @@ export function useGraphDrawing(
 			unsubscribeData();
 			unsubscribeTimeline();
 			unsubscribeView();
+			unsubscribeHover();
 			settings.unsubscribe();
 			observer.disconnect();
 			plot?.destroy();

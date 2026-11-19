@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { getTimeRange } from '@/data/data-store';
+import { memo, useEffect, useRef, useState } from 'react';
+import { useTimeRange } from '@/data/data-store';
 import { cn } from '@/lib/utils';
 import { modeColors } from '@/timeline/colors';
 import { getModePeriods } from '@/timeline/events';
@@ -12,10 +12,11 @@ import { useViewRange } from '@/widgets/graph/view';
 const edgeLabelPixels = 24;
 
 /** The robot's mode in the timeline's colors, with the spans it compresses hatched, then times labeled like the timeline */
-export function TimeAxis({ insets }: { insets: { left: number; right: number } }) {
+export const TimeAxis = memo(function TimeAxis({ leftInset, rightInset }: { leftInset: number; rightInset: number }) {
 	const element = useRef<HTMLDivElement>(null);
 	const [width, setWidth] = useState(0);
 	const view = useViewRange();
+	const range = useTimeRange();
 	const { timelineCompress } = useSettings();
 
 	useEffect(() => {
@@ -24,7 +25,6 @@ export function TimeAxis({ insets }: { insets: { left: number; right: number } }
 		return () => observer.disconnect();
 	}, []);
 
-	const range = getTimeRange();
 	const ticks = view && range && width > 0 ? timeTicks(view, range.start, width) : undefined;
 	const periods = view && range ? getModePeriods(range) : [];
 	const compressed = view && range && timelineCompress ? getActiveCompressedSpans(range) : [];
@@ -36,7 +36,7 @@ export function TimeAxis({ insets }: { insets: { left: number; right: number } }
 		return right <= left ? undefined : { left: `${left}%`, width: `${right - left}%` };
 	};
 	return (
-		<div className="relative h-6 shrink-0" style={{ marginLeft: insets.left, marginRight: insets.right }}>
+		<div className="relative h-6 shrink-0" style={{ marginLeft: leftInset, marginRight: rightInset }}>
 			<div ref={element} className="absolute inset-0">
 				<div className="absolute inset-x-0 top-0 h-1 overflow-hidden rounded-full bg-input/40">
 					{periods.map((period) => {
@@ -80,4 +80,4 @@ export function TimeAxis({ insets }: { insets: { left: number; right: number } }
 			</div>
 		</div>
 	);
-}
+});

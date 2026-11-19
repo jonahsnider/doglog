@@ -1,10 +1,9 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
-import { type Entry, getTimeRange } from '@/data/data-store';
+import { type Entry, subscribeData, useTimeRange } from '@/data/data-store';
 import { formatValue } from '@/data/format-value';
 import { EntryName } from '@/entries/entry-name';
 import { modeLabels } from '@/timeline/colors';
-import { useHoverTime } from '@/timeline/hover';
 import { getModePeriods } from '@/timeline/events';
 import { formatTime, useCursorTime } from '@/timeline/timeline';
 import type { SeriesUnit } from '@/widgets/graph/axis-units';
@@ -43,7 +42,7 @@ function Popup({ at, top, offset, children }: { at: PointerAt; top: number; offs
 
 /** The hovered time and the robot's mode then, ex. `0:12.34 · Teleop` */
 function TimeHeader({ time }: { time: number }) {
-	const range = getTimeRange();
+	const range = useTimeRange();
 	if (!range) {
 		return undefined;
 	}
@@ -72,7 +71,7 @@ export function GraphTooltip({
 }: {
 	bandHover: BandHover | undefined;
 	bandEntry: Entry | undefined;
-	at: PointerAt | undefined;
+	at: (PointerAt & { time: number }) | undefined;
 	pinned: boolean;
 	/** Where the graph is in the window */
 	origin: { left: number; top: number; width: number } | undefined;
@@ -80,9 +79,6 @@ export function GraphTooltip({
 	units: ReadonlyMap<string, SeriesUnit>;
 	insets: { left: number; right: number };
 }) {
-	const hover = useHoverTime();
-	const cursor = useCursorTime();
-	const view = useViewRange();
 	if (!origin) {
 		return undefined;
 	}
@@ -93,48 +89,46 @@ export function GraphTooltip({
 	if (plotted.length === 0) {
 		return undefined;
 	}
-	if (at && hover !== undefined) {
-		return <LineTooltip at={at} time={hover} plotted={plotted} units={units} offset={offset} />;
+	if (at) {
+		return <LineTooltip at={at} time={at.time} plotted={plotted} units={units} offset={offset} />;
 	}
-	if (!pinned || !view || cursor === undefined || cursor < view.start || cursor > view.end) {
-		return undefined;
-	}
-	const width = origin.width - insets.left - insets.right;
-	const x = ((cursor - view.start) / (view.end - view.start)) * width;
-	return (
-		<LineTooltip at={{ x, width, flip: x > width / 2 }} time={cursor} plotted={plotted} units={units} offset={offset} />
-	);
+	return pinned ? (
+		<PinnedTooltip width={origin.width - insets.left - insets.right} plotted={plotted} units={units} offset={offset} />
+	) : undefined;
 }
 
-function LineTooltip({
-	at,
-	time,
-	plotted,
-	units,
-	offset,
-}: {
+// Only a pinned tooltip that's following the cursor needs to subscribe to playback.
+function PinnedTooltip({ width, ...props }: Omit<LineTooltipProps, 'at' | 'time'> & { width: number }) {
+	const cursor = useCursorTime();
+	const view = useViewRange();
+	if (!view || cursor === undefined || cursor < view.start || cursor > view.end) {
+		return undefined;
+	}
+	const x = ((cursor - view.start) / (view.end - view.start)) * width;
+	return <LineTooltip {...props} at={{ x, width, flip: x > width / 2 }} time={cursor} />;
+}
+
+type LineTooltipProps = {
 	at: PointerAt;
 	time: number;
 	plotted: readonly WidgetBinding[];
 	units: ReadonlyMap<string, SeriesUnit>;
 	offset: Offset;
-}) {
+};
+
+function LineTooltip({ at, time, plotted, units, offset }: LineTooltipProps) {
 	return (
 		<Popup at={at} top={8} offset={offset}>
 			<TimeHeader time={time} />
 			<div className="grid grid-cols-[auto_minmax(0,auto)_auto] items-center gap-x-2 gap-y-0.5">
 				{plotted.map((binding, index) => {
-					const value = binding.entry?.samples.valueAt(time);
 					return binding.hidden ? null : (
 						<div key={binding.id} className="contents">
 							<span className="size-2 rounded-full" style={{ background: bindingColor(binding, index) }} />
 							<span className="max-w-64 truncate font-mono">
 								<EntryName name={binding.name} />
 							</span>
-							{/* Wide enough for most values, so the tooltip rarely resizes as they change */}
-							<span className="min-w-[10ch] text-end font-mono tabular-nums">
-								{value === undefined ? '—' : formatInUnit(value, units.get(binding.id)!)}
-							</span>
+							<LineValue entry={binding.entry} time={time} unit={units.get(binding.id)!} />
 						</div>
 					);
 				})}
@@ -143,9 +137,19 @@ function LineTooltip({
 	);
 }
 
+function LineValue({ entry, time, unit }: { entry: Entry | undefined; time: number; unit: SeriesUnit }) {
+	const value = useSyncExternalStore(subscribeData, () => entry?.samples.valueAt(time));
+	return (
+		// Wide enough for most values, so the tooltip rarely resizes as they change
+		<span className="min-w-[10ch] text-end font-mono tabular-nums">
+			{value === undefined ? '—' : formatInUnit(value, unit)}
+		</span>
+	);
+}
+
 /** The hovered band's value and time range, or how many times the value changes within the hovered pixel */
 function BandTooltip({ hover, entry, offset }: { hover: BandHover; entry: Entry | undefined; offset: Offset }) {
-	const range = getTimeRange();
+	const range = useTimeRange();
 	const band = entry && range && bandAt(entry, hover.time, range.end);
 	if (!entry || !range || !band) {
 		return undefined;
