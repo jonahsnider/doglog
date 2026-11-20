@@ -55,14 +55,30 @@ A dashboard link's preview SHALL show the dashboard's name as its title, or the 
 
 ### Requirement: Pane contents
 
-Each pane in a dashboard link's image SHALL show, in its middle, a name for the entries its widget shows, named the way dashboards are. Widgets without entries, or with only their type's default entries, MUST show their icon there instead, since their header already describes them.
+Each pane in a dashboard link's image SHALL show a name for the entries its widget shows, named the way dashboards are, centered vertically and lined up with its header on the left. Widgets without entries, or with only their type's default entries, MUST show their icon in the pane's middle instead, since their header already describes them.
 
 #### Scenario: Pane contents
 
 - **GIVEN** a graph of `/Robot/Drive/Speed` and `/Robot/Elevator/Height` beside a notepad
 - **WHEN** someone shares the dashboard's link
-- **THEN** the image's Graph pane shows "Drive & Elevator" in its middle
+- **THEN** the image's Graph pane shows "Drive & Elevator" halfway down, lined up with its header
 - **AND** the Notepad pane shows the notepad icon in its middle
+
+### Requirement: Fitting pane contents
+
+A pane's entries name SHALL shrink to fit below its header without touching it or being cut off. Panes with room MAY show it larger, but MUST NOT wrap it onto more lines to do so. When it doesn't fit even at its smallest size, the pane MUST leave out its header to make room, and show its widget's icon if that's still not enough. Panes too short to show that icon at a recognizable size MUST leave it out.
+
+#### Scenario: Short pane
+
+- **GIVEN** a dashboard with a short pane whose entries' name wraps onto two lines at the usual size
+- **WHEN** someone shares its link
+- **THEN** the image shows the name smaller, below the pane's header and inside the pane
+
+#### Scenario: Large pane
+
+- **GIVEN** a dashboard with a large pane whose entries' name fits on one line at the usual size
+- **WHEN** someone shares its link
+- **THEN** the image shows the name larger, still on one line
 
 ### Requirement: Preview appearance
 

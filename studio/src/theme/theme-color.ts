@@ -141,7 +141,7 @@ const skyPrimary: Record<Contrast, { tone: number; onPrimaryRatio: number }> = {
 	high: { tone: 90, onPrimaryRatio: 11 },
 };
 
-/** A preset's MD3 colors by role, as ARGB. Also draws link preview images, see `@/link-previews/preview-image`. */
+/** A preset's MD3 colors by role, as ARGB. Also draws link preview images, see `@/link-previews/preview-style`. */
 export function schemeColors(
 	themeColor: string,
 	dark: boolean,
