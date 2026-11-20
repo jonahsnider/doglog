@@ -1,5 +1,4 @@
 // Runs agent commands in this window, for WebMCP in the web app and the `doglog` command on desktop
-import { isTauri } from '@tauri-apps/api/core';
 import * as z from 'zod';
 import { AgentError } from '@/agent/agent-error';
 import { platformCommands } from '@/agent/commands';
@@ -9,7 +8,7 @@ export { AgentError } from '@/agent/agent-error';
 export { agentApiVersion } from '@/agent/commands';
 
 /** The commands offered in this window */
-export const availableCommands = platformCommands(isTauri() ? 'desktop' : 'web');
+export const availableCommands = platformCommands(STUDIO_DESKTOP ? 'desktop' : 'web');
 
 function isHandled(name: string): name is keyof typeof handlers {
 	return Object.hasOwn(handlers, name);

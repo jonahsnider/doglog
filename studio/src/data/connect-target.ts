@@ -1,4 +1,3 @@
-import { isTauri } from '@tauri-apps/api/core';
 import type { Source } from '@/data/source';
 import { simulatorHost } from '@/robot-target';
 
@@ -32,7 +31,7 @@ export async function isReachable(host: string): Promise<boolean> {
 /** Whether connecting to an address space won't show Chrome's Local Network Access permission prompt */
 export async function canConnectWithoutPrompt(permission: 'local-network' | 'loopback-network'): Promise<boolean> {
 	// Pages served from this computer, ex. the dev server, are never asked, so the permission stays at "prompt"
-	if (isTauri() || /^(localhost|127\.[\d.]+|\[::1\])$|\.localhost$/u.test(location.hostname)) {
+	if (STUDIO_DESKTOP || /^(localhost|127\.[\d.]+|\[::1\])$|\.localhost$/u.test(location.hostname)) {
 		return true;
 	}
 	try {

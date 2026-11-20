@@ -3,7 +3,7 @@
 import { useSelector } from '@tanstack/react-store';
 import { useEffect } from 'react';
 import { createAtom } from '@tanstack/store';
-import { invoke, isTauri } from '@tauri-apps/api/core';
+import { invoke } from '@tauri-apps/api/core';
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
 import { get, set } from 'idb-keyval';
 import type { ReadProjectFile } from '@/three/robot-config';
@@ -73,7 +73,7 @@ export function useRobotProject(name: string): RobotProject | null | undefined {
 }
 
 /** Whether projects can be added, the web app needs a Chromium browser to keep access to folders */
-export const canAddRobotProjects = isTauri() || 'showDirectoryPicker' in globalThis;
+export const canAddRobotProjects = STUDIO_DESKTOP || 'showDirectoryPicker' in globalThis;
 
 /** The web app lost access to a project's folder, ex. after reloading, and needs the user to allow it again */
 export class ProjectAccessError extends Error {}
@@ -81,7 +81,7 @@ export class ProjectAccessError extends Error {}
 /** Reads files in a project's folder */
 export function projectFileReader(project: RobotProject): ReadProjectFile {
 	const { path, handle } = project;
-	if (path !== undefined) {
+	if (STUDIO_DESKTOP && path !== undefined) {
 		return async (file) => {
 			try {
 				return await invoke<ArrayBuffer>('read_file', { path: `${path}/${file}` });
@@ -123,7 +123,7 @@ export async function allowProjectAccess(project: RobotProject): Promise<boolean
 /** Pick a project folder and add its robot, replacing a project with the same robot. Returns the robot's name. */
 export async function addRobotProject(): Promise<string | undefined> {
 	let project: Omit<RobotProject, 'name'>;
-	if (isTauri()) {
+	if (STUDIO_DESKTOP) {
 		const path = await openDialog({ directory: true, title: 'Add a robot project' });
 		if (path === null) {
 			return undefined;

@@ -142,7 +142,7 @@ function dashboardMenu({
 			shortcut: shortcuts.copyDashboardLink,
 			onSelect: () => void copyDashboardLink(dashboard),
 		});
-		if (canCapture) {
+		if (STUDIO_DESKTOP && canCapture) {
 			const onSelect = () => void copyDashboardImage(router, dashboard.id);
 			const showShortcut =
 				detectPlatform() === 'mac' || router.state.location.pathname === `/dashboards/${dashboard.id}`;

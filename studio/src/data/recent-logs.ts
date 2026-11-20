@@ -1,6 +1,6 @@
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
-import { invoke, isTauri } from '@tauri-apps/api/core';
+import { invoke } from '@tauri-apps/api/core';
 import { get, set } from 'idb-keyval';
 import * as z from 'zod';
 import { createPersistedAtom } from '@/lib/persisted-store';
@@ -35,7 +35,7 @@ export function removeRecentLog(path: string): void {
 
 export function clearRecentLogs(): void {
 	recentLogsStore.set([]);
-	if (isTauri()) {
+	if (STUDIO_DESKTOP) {
 		void invoke('clear_recent_logs');
 	}
 	if (supportsFileHandles) {
@@ -44,7 +44,7 @@ export function clearRecentLogs(): void {
 }
 
 /** Whether the web app can keep access to opened files, so it can list recent logs. Only Chromium browsers can. */
-export const supportsFileHandles = !isTauri() && 'showOpenFilePicker' in globalThis;
+export const supportsFileHandles = !STUDIO_DESKTOP && 'showOpenFilePicker' in globalThis;
 
 // Handles can't be saved to localStorage, but IndexedDB can store them
 const handlesKey = 'doglog-studio:recent-log-handles';

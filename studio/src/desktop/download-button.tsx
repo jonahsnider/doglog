@@ -1,4 +1,4 @@
-import { invoke, isTauri } from '@tauri-apps/api/core';
+import { invoke } from '@tauri-apps/api/core';
 import ChevronDownIcon from 'lucide-react/icons/chevron-down';
 import DownloadIcon from 'lucide-react/icons/download';
 import type { ReactElement } from 'react';
@@ -89,7 +89,7 @@ export function DownloadButton() {
 async function copyDownloadLink(file: string): Promise<void> {
 	const text = downloadsUrl + file;
 	try {
-		if (isTauri()) {
+		if (STUDIO_DESKTOP) {
 			await invoke('plugin:clipboard-manager|write_text', { text });
 		} else {
 			await navigator.clipboard.writeText(text);

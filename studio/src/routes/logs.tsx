@@ -1,5 +1,4 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { isTauri } from '@tauri-apps/api/core';
 import { join } from '@tauri-apps/api/path';
 import { mkdir } from '@tauri-apps/plugin-fs';
 import { revealItemInDir } from '@tauri-apps/plugin-opener';
@@ -29,7 +28,7 @@ const dayMs = 24 * 60 * 60 * 1000;
 const recentCount = 5;
 
 function Logs() {
-	if (!isTauri()) {
+	if (!STUDIO_DESKTOP) {
 		return (
 			<Empty className="h-full">
 				<EmptyHeader>

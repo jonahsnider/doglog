@@ -1,5 +1,4 @@
 import { dashboardShortcut, shortcuts } from '@/commands/commands';
-import { isTauri } from '@tauri-apps/api/core';
 import { Dialog, DialogHeader, DialogPanel, DialogPopup, DialogTitle } from '@/components/ui/dialog';
 import { Kbd } from '@/components/ui/kbd';
 import { canCapture } from '@/desktop/capture';
@@ -38,9 +37,12 @@ const sections: {
 	{
 		title: 'General',
 		shortcuts: [
-			...(isTauri() ? [{ label: 'New window', keys: [shortcuts.newWindow] }] : []),
+			...(STUDIO_DESKTOP ? [{ label: 'New window', keys: [shortcuts.newWindow] }] : []),
 			{ label: 'New dashboard', keys: [shortcuts.newDashboard] },
-			{ label: isTauri() ? 'Close pane, dashboard, or window' : 'Close pane or dashboard', keys: [shortcuts.close] },
+			{
+				label: STUDIO_DESKTOP ? 'Close pane, dashboard, or window' : 'Close pane or dashboard',
+				keys: [shortcuts.close],
+			},
 			{ label: 'Close dashboard', keys: [shortcuts.closeDashboard] },
 			{ label: 'Reopen closed dashboard', keys: [shortcuts.reopenDashboard] },
 			{ label: 'Copy dashboard link', keys: [shortcuts.copyDashboardLink] },

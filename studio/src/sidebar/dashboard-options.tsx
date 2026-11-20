@@ -1,5 +1,4 @@
 import { useFormatForDisplay } from '@tanstack/react-hotkeys';
-import { isTauri } from '@tauri-apps/api/core';
 import { LogicalPosition } from '@tauri-apps/api/dpi';
 import EllipsisIcon from 'lucide-react/icons/ellipsis';
 import { useState } from 'react';
@@ -68,4 +67,4 @@ function WebDashboardOptions({ items, hidden }: DashboardOptionsProps) {
 }
 
 /** The dashboard's context menu, as a native menu in the desktop app */
-export const DashboardOptions = isTauri() ? NativeDashboardOptions : WebDashboardOptions;
+export const DashboardOptions = STUDIO_DESKTOP ? NativeDashboardOptions : WebDashboardOptions;

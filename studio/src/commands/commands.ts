@@ -1,4 +1,4 @@
-import { invoke, isTauri } from '@tauri-apps/api/core';
+import { invoke } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { confirm } from '@tauri-apps/plugin-dialog';
 import {
@@ -34,7 +34,7 @@ import { settingsStore } from '@/settings';
 import { getWidgetType } from '@/widgets/registry';
 import { bindsEntries } from '@/widgets/widget-type';
 
-const desktop = isTauri();
+const desktop = STUDIO_DESKTOP;
 /** macOS already uses ⌘W for its default Close Window menu item, so the desktop-only shortcuts are menu items there */
 export const nativeMenu = desktop && detectPlatform() === 'mac';
 
@@ -236,7 +236,7 @@ export function useGlobalShortcuts(): void {
 			{ hotkey: 'Alt+L', callback: () => openLogs(router) },
 			{ hotkey: 'Alt+[', callback: () => goInHistory(router, -1) },
 			{ hotkey: 'Alt+]', callback: () => goInHistory(router, 1) },
-			{ hotkey: shortcuts.newWindow, callback: newWindow, options: desktopOnly },
+			...(STUDIO_DESKTOP ? [{ hotkey: shortcuts.newWindow, callback: newWindow, options: desktopOnly }] : []),
 			{ hotkey: 'Mod+T', callback: () => newDashboard(router), options: desktopOnly },
 			{ hotkey: 'Mod+W', callback: () => closeFocused(router), options: desktopOnly },
 			{ hotkey: 'Mod+Shift+W', callback: () => closeCurrentDashboard(router), options: desktopOnly },

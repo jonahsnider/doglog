@@ -1,4 +1,3 @@
-import { isTauri } from '@tauri-apps/api/core';
 import { useFormatForDisplay } from '@tanstack/react-hotkeys';
 import ChevronsUpDownIcon from 'lucide-react/icons/chevrons-up-down';
 import { useEffect, useId, useState } from 'react';
@@ -178,7 +177,7 @@ function SourceTrigger(sources: Sources) {
 function OpenRecentMenu() {
 	const savedPaths = useRecentLogs();
 	// Only the desktop app can open paths, ignore any saved on the web
-	const paths = isTauri() ? savedPaths : [];
+	const paths = STUDIO_DESKTOP ? savedPaths : [];
 	const handles = useRecentLogHandles();
 	const labels = recentLogLabels(paths);
 	const empty = paths.length === 0 && handles.length === 0;
@@ -186,11 +185,12 @@ function OpenRecentMenu() {
 		<MenuSub>
 			<MenuSubTrigger>Open recent</MenuSubTrigger>
 			<MenuSubPopup className="max-w-80">
-				{paths.map((path, index) => (
-					<MenuItem key={path} title={path} onClick={() => void openLogPath(path)}>
-						<span className="truncate">{labels[index]}</span>
-					</MenuItem>
-				))}
+				{STUDIO_DESKTOP &&
+					paths.map((path, index) => (
+						<MenuItem key={path} title={path} onClick={() => void openLogPath(path)}>
+							<span className="truncate">{labels[index]}</span>
+						</MenuItem>
+					))}
 				{handles.map((recent) => (
 					<MenuItem key={recent.id} onClick={() => void openRecentLogHandle(recent.handle)}>
 						<span className="truncate">{recent.handle.name}</span>
@@ -256,7 +256,7 @@ export function SourceControl() {
 						Open log
 						<MenuShortcut>{formatForDisplay(shortcuts.openLog)}</MenuShortcut>
 					</MenuItem>
-					{(isTauri() || supportsFileHandles) && <OpenRecentMenu />}
+					{(STUDIO_DESKTOP || supportsFileHandles) && <OpenRecentMenu />}
 					<MenuSeparator />
 					{/* The switcher goes back to the live session */}
 					{liveActions(sources, connectTarget, false).map((action) => (

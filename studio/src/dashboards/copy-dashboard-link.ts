@@ -1,4 +1,4 @@
-import { invoke, isTauri } from '@tauri-apps/api/core';
+import { invoke } from '@tauri-apps/api/core';
 import { toastManager } from '@/components/ui/toast';
 import { DashboardLinkTooLarge, encodeDashboardLink } from '@/dashboards/dashboard-link';
 import type { DashboardContents } from '@/dashboards/doc';
@@ -10,9 +10,8 @@ export function canCopyDashboardLink({ layout }: DashboardContents): boolean {
 
 export async function copyDashboardLink(dashboard: DashboardContents): Promise<void> {
 	try {
-		const desktop = isTauri();
-		const origin = import.meta.env.DEV && !desktop ? window.location.origin : 'https://studio.doglog.dev';
-		if (desktop) {
+		const origin = import.meta.env.DEV && !STUDIO_DESKTOP ? window.location.origin : 'https://studio.doglog.dev';
+		if (STUDIO_DESKTOP) {
 			const link = await encodeDashboardLink(dashboard);
 			await invoke('plugin:clipboard-manager|write_text', { text: `${origin}/import/${link}` });
 		} else {

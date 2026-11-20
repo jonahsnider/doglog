@@ -1,5 +1,5 @@
 import { useSelector } from '@tanstack/react-store';
-import { invoke, isTauri } from '@tauri-apps/api/core';
+import { invoke } from '@tauri-apps/api/core';
 import { createAtom } from '@tanstack/store';
 
 /** How many chart colors there are for the 2nd, 3rd, … open window, repeating after the last */
@@ -30,7 +30,7 @@ async function claimLowestSlot(): Promise<void> {
 
 // Not awaited so the app can start rendering first. Desktop windows are separate processes that don't share Web Locks, so
 // the app claims their slot. Tests run without Web Locks.
-if (isTauri()) {
+if (STUDIO_DESKTOP) {
 	void invoke<number | null>('window_slot').then((slot) => slotStore.set(slot ?? undefined));
 } else if (typeof navigator !== 'undefined' && 'locks' in navigator) {
 	void claimLowestSlot();

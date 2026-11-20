@@ -185,7 +185,9 @@ export function PaneView({
 				: { label: `Remove ${bindingLabel(targetBinding)}`, onSelect: () => remove(targetBinding.id) },
 			...disconnectItems(targetBinding),
 			...roleItems(targetBinding),
-			...(captureTarget ? [{ label: 'Copy image', onSelect: () => void copyImage(captureTarget) }] : []),
+			...(STUDIO_DESKTOP && captureTarget
+				? [{ label: 'Copy image', onSelect: () => void copyImage(captureTarget) }]
+				: []),
 			'separator',
 			{ label: 'Close', shortcut: shortcuts.close, disabled: !closable, onSelect: close },
 		];

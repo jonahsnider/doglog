@@ -1,11 +1,10 @@
-import { isTauri } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import { sidebarAnimationStore, sidebarCollapsedStore } from '@/sidebar/sidebar';
 
 /** Whether the macOS window controls are drawn over the app instead of a title bar, see `titleBarStyle` in `tauri.conf.json` */
-const overlayTitleBar = isTauri() && navigator.userAgent.includes('Mac');
+const overlayTitleBar = STUDIO_DESKTOP && navigator.userAgent.includes('Mac');
 
 /** Lets the window be dragged from an element, like a title bar. Buttons and other controls inside it still get clicks. */
 export const dragRegion = overlayTitleBar ? { 'data-tauri-drag-region': 'deep' } : {};

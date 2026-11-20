@@ -59,7 +59,7 @@ export const handlers: Handlers = {
 			requireDashboard(dashboardId);
 			await showDashboard(dashboardId);
 		}
-		if (focus === true) {
+		if (STUDIO_DESKTOP && focus === true) {
 			const window = getCurrentWindow();
 			await window.unminimize();
 			await window.show();
@@ -85,7 +85,7 @@ export const handlers: Handlers = {
 	source_get: () => describeSource(),
 
 	source_update: async ({ path }) => {
-		if (path === undefined) {
+		if (!STUDIO_DESKTOP || path === undefined) {
 			const robotHost = getRobotHost(settingsStore.get().robotTarget);
 			const hosts = robotHost === undefined ? [simulatorHost] : [robotHost, simulatorHost];
 			// Connecting retries until a server answers, agents are told right away instead

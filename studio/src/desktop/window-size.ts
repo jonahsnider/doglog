@@ -1,4 +1,3 @@
-import { isTauri } from '@tauri-apps/api/core';
 import { LogicalSize } from '@tauri-apps/api/dpi';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useEffect } from 'react';
@@ -13,7 +12,7 @@ let applied: string | undefined;
 
 /** Keep the desktop window at least `size` in pixels, or the base size when `undefined`. A smaller window is grown to fit. */
 function setMinWindowSize(size: Size | undefined): void {
-	if (!isTauri()) {
+	if (!STUDIO_DESKTOP) {
 		return;
 	}
 

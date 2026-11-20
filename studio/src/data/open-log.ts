@@ -1,4 +1,4 @@
-import { invoke, isTauri } from '@tauri-apps/api/core';
+import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
 import { toastManager } from '@/components/ui/toast';
@@ -60,7 +60,7 @@ export async function openRecentLogHandle(handle: FileSystemFileHandle): Promise
 /** Let the user pick a WPILOG file to open */
 export function chooseLog(): void {
 	// The desktop app's menu can't open the web file picker, since it only opens during a click or key press in the page
-	if (isTauri()) {
+	if (STUDIO_DESKTOP) {
 		void chooseLogWithDialog();
 		return;
 	}

@@ -1,4 +1,5 @@
 import { useSelector } from '@tanstack/react-store';
+// oxlint-disable-next-line eslint/no-restricted-imports -- This module implements useMotionTransition().
 import { type Transition, useReducedMotion } from 'motion/react';
 import { settingsStore } from '@/settings';
 

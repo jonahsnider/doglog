@@ -1,5 +1,4 @@
 import { useRender } from '@base-ui/react/use-render';
-import { isTauri } from '@tauri-apps/api/core';
 import { type HotkeyChord, useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { type MouseEvent, type ReactElement, type ReactNode, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
@@ -181,4 +180,4 @@ function NativeContextMenu({ items, render, children, disabled = false }: AppCon
 }
 
 /** A right-click menu for `render`, a native menu in the desktop app and a coss menu on the web */
-export const AppContextMenu = isTauri() ? NativeContextMenu : WebContextMenu;
+export const AppContextMenu = STUDIO_DESKTOP ? NativeContextMenu : WebContextMenu;

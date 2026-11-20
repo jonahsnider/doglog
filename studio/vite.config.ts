@@ -257,6 +257,11 @@ export default defineConfig({
 							importNames: ['useReducedMotion'],
 							message: 'Use useMotionTransition() from @/lib/motion, see DESIGN.md.',
 						},
+						{
+							name: '@tauri-apps/api/core',
+							importNames: ['isTauri'],
+							message: 'Use STUDIO_DESKTOP so browser builds can drop desktop-only code.',
+						},
 						lucideBarrelRestriction,
 					],
 				},
@@ -272,10 +277,6 @@ export default defineConfig({
 				// Drawn into images once, not mounted by React, so Fast Refresh and component identity don't matter
 				files: ['src/link-previews/**'],
 				rules: { 'react/only-export-components': 'off', 'react/static-components': 'off' },
-			},
-			{
-				files: ['src/lib/motion.ts'],
-				rules: { 'eslint/no-restricted-imports': 'off' },
 			},
 			{
 				// react-three-fiber elements take three.js properties, which the rule doesn't know
@@ -369,6 +370,9 @@ export default defineConfig({
 	define: {
 		STUDIO_VERSION: JSON.stringify(packageJson.version),
 		STUDIO_COMMIT: JSON.stringify(getCommitHash()),
+		// Tauri sets this for its frontend dev and build hooks. Use the constant directly in platform-only branches so
+		// Rolldown can drop their imports before splitting chunks.
+		STUDIO_DESKTOP: process.env['TAURI_ENV_PLATFORM'] !== undefined,
 	},
 	resolve: {
 		tsconfigPaths: true,

@@ -1,4 +1,4 @@
-import { invoke, isTauri } from '@tauri-apps/api/core';
+import { invoke } from '@tauri-apps/api/core';
 import { useEffect, useState } from 'react';
 import { AgentsField } from '@/components/agents-field';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,7 @@ import { FramePanel } from '@/components/ui/frame';
 import { toastManager } from '@/components/ui/toast';
 
 /** Other platforms install the `doglog` command with the app */
-const canInstallCli = isTauri() && navigator.userAgent.includes('Mac');
+const canInstallCli = STUDIO_DESKTOP && navigator.userAgent.includes('Mac');
 
 /** Whether the `doglog` command is installed for this copy of Studio, or is something else, ex. a copy that was moved */
 type CliStatus = 'missing' | 'installed' | 'other';
@@ -37,7 +37,7 @@ export function CliField() {
 	if (canInstallCli) {
 		return <CliInstall />;
 	}
-	return isTauri() ? <AgentsField /> : null;
+	return STUDIO_DESKTOP ? <AgentsField /> : null;
 }
 
 function CliInstall() {

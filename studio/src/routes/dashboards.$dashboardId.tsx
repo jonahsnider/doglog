@@ -1,6 +1,5 @@
 import { useDragDropMonitor } from '@dnd-kit/react';
 import { useHotkey } from '@tanstack/react-hotkeys';
-import { isTauri } from '@tauri-apps/api/core';
 import { Navigate, createFileRoute, useLocation } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { Group, Panel } from 'react-resizable-panels';
@@ -90,7 +89,7 @@ function DashboardView() {
 			<Group orientation="horizontal" className="h-full">
 				{/* Widening the entry browser stops at the panes' minimum size on desktop, where the window is kept big enough for
 				    it. A smaller browser window shrinks the panes before the entry browser. */}
-				<Panel minSize={isTauri() ? minNodeSize(dashboard.layout, 'row') : '7rem'} style={{ overflow: 'hidden' }}>
+				<Panel minSize={STUDIO_DESKTOP ? minNodeSize(dashboard.layout, 'row') : '7rem'} style={{ overflow: 'hidden' }}>
 					<PanesColumn dashboard={dashboard} />
 				</Panel>
 				<EntryBrowser dashboard={dashboard} />
@@ -104,7 +103,7 @@ function PanesColumn({ dashboard }: { dashboard: Dashboard }) {
 	useHotkey(
 		shortcuts.copyDashboardImage,
 		(event) => {
-			if (event.defaultPrevented || window.getSelection()?.isCollapsed === false) {
+			if (!STUDIO_DESKTOP || event.defaultPrevented || window.getSelection()?.isCollapsed === false) {
 				return;
 			}
 			const target = dashboardCaptureTarget(dashboard.id);

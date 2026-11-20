@@ -135,10 +135,13 @@ export const dashboardHandlers: Pick<
 	},
 
 	dashboard_capture: async (input) => {
-		const dashboard = requireDashboard(input.dashboardId);
-		if (input.paneId !== undefined && !findPane(dashboard.layout, input.paneId)) {
-			throw new AgentError(`The dashboard has no pane \`${input.paneId}\`, see \`dashboard_get\`.`);
+		if (STUDIO_DESKTOP) {
+			const dashboard = requireDashboard(input.dashboardId);
+			if (input.paneId !== undefined && !findPane(dashboard.layout, input.paneId)) {
+				throw new AgentError(`The dashboard has no pane \`${input.paneId}\`, see \`dashboard_get\`.`);
+			}
+			return { path: await saveCaptureImage(getRouter(), input) };
 		}
-		return { path: await saveCaptureImage(getRouter(), input) };
+		return undefined;
 	},
 };

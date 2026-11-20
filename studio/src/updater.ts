@@ -1,7 +1,7 @@
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import { formatForDisplay, type Hotkey } from '@tanstack/react-hotkeys';
-import { invoke, isTauri } from '@tauri-apps/api/core';
+import { invoke } from '@tauri-apps/api/core';
 import { check } from '@tauri-apps/plugin-updater';
 import { toastManager } from '@/components/ui/toast';
 
@@ -16,7 +16,7 @@ type Update = {
 /** A newer version, and whether it's being installed */
 type UpdateState = { update: Update; installing: boolean };
 
-const desktop = isTauri();
+const desktop = STUDIO_DESKTOP;
 
 const updateStore = createAtom<UpdateState | undefined>(undefined);
 

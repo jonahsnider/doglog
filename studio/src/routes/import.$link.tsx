@@ -1,5 +1,4 @@
 import { Link, createFileRoute, redirect } from '@tanstack/react-router';
-import { isTauri } from '@tauri-apps/api/core';
 import LinkIcon from 'lucide-react/icons/link';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
@@ -18,7 +17,7 @@ export const Route = createFileRoute('/import/$link')({
 			return undefined;
 		}
 		// Also imported here, so the dashboard opens in the browser if the user doesn't open the desktop app
-		if (!isTauri()) {
+		if (!STUDIO_DESKTOP) {
 			openDashboardLinkInDesktop(params.link);
 		}
 		const key = snapshotKey(snapshot);

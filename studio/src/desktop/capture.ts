@@ -1,11 +1,11 @@
 import type { RegisteredRouter } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
-import { invoke, isTauri } from '@tauri-apps/api/core';
+import { invoke } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { toastManager } from '@/components/ui/toast';
 
-export const canCapture = isTauri() && '__DOGLOG_CAPTURE__' in window;
+export const canCapture = STUDIO_DESKTOP && '__DOGLOG_CAPTURE__' in window;
 
 const frame = createAtom<{ bounds: DOMRect; paneIds: Set<string | undefined> } | undefined>(undefined);
 let capturing = false;
