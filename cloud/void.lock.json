@@ -8,7 +8,20 @@
         "custom_domain": true
       }
     ],
-    "workers_dev": false
+    "workers_dev": false,
+    "upload_source_maps": true,
+    "observability": {
+      "enabled": false,
+      "issues": {
+        "enabled": false
+      },
+      "logs": {
+        "enabled": false
+      },
+      "traces": {
+        "enabled": false
+      }
+    }
   },
   "resolved": {
     "name": "doglog-cloud",
@@ -20,7 +33,20 @@
     ],
     "workers_dev": false,
     "account_id": "f68b36deba20f32b6c5c27172b7d5803",
-    "compatibility_date": "2026-02-24"
+    "compatibility_date": "2026-02-24",
+    "upload_source_maps": true,
+    "observability": {
+      "enabled": false,
+      "issues": {
+        "enabled": false
+      },
+      "logs": {
+        "enabled": false
+      },
+      "traces": {
+        "enabled": false
+      }
+    }
   },
-  "text": "{\n  \"name\": \"doglog-cloud\",\n  \"routes\": [\n    {\n      \"pattern\": \"cloud.doglog.dev\",\n      \"custom_domain\": true\n    }\n  ],\n  \"workers_dev\": false,\n  \"account_id\": \"f68b36deba20f32b6c5c27172b7d5803\",\n  \"compatibility_date\": \"2026-02-24\"\n}\n"
+  "text": "{\n  \"name\": \"doglog-cloud\",\n  \"routes\": [\n    {\n      \"pattern\": \"cloud.doglog.dev\",\n      \"custom_domain\": true\n    }\n  ],\n  \"workers_dev\": false,\n  \"account_id\": \"f68b36deba20f32b6c5c27172b7d5803\",\n  \"compatibility_date\": \"2026-02-24\",\n  \"upload_source_maps\": true,\n  \"observability\": {\n    \"enabled\": false,\n    \"issues\": {\n      \"enabled\": false\n    },\n    \"logs\": {\n      \"enabled\": false\n    },\n    \"traces\": {\n      \"enabled\": false\n    }\n  }\n}\n"
 }

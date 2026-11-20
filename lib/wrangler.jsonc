@@ -6,6 +6,13 @@
   },
   "compatibility_date": "2025-07-17",
   "name": "doglog-javadoc",
+  "upload_source_maps": true,
+  "observability": {
+    "enabled": true,
+    "issues": { "enabled": true },
+    "logs": { "enabled": true },
+    "traces": { "enabled": true, "head_sampling_rate": 0.1 },
+  },
   "route": {
     "custom_domain": true,
     "pattern": "javadoc.doglog.dev",

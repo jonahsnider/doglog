@@ -9,6 +9,14 @@
 	},
 	"compatibility_date": "2026-11-15",
 	"name": "doglog-studio",
+	"upload_source_maps": true,
+	// Request telemetry can capture dashboard snapshots carried in link URLs.
+	"observability": {
+		"enabled": false,
+		"issues": { "enabled": false },
+		"logs": { "enabled": false },
+		"traces": { "enabled": false },
+	},
 	"route": {
 		"custom_domain": true,
 		"pattern": "studio.doglog.dev",

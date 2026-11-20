@@ -10,7 +10,7 @@ export default defineConfig({
 		singleQuote: true,
 		useTabs: true,
 		printWidth: 120,
-		ignorePatterns: generated,
+		ignorePatterns: [...generated, 'void.lock.json'],
 	},
 	lint: {
 		ignorePatterns: generated,
