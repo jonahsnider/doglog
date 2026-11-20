@@ -56,6 +56,7 @@ function ViewToggle({ view, onChange }: { view: View; onChange: (view: View) => 
 	return (
 		<SegmentedControl
 			size="sm"
+			className="capture:invisible"
 			render={
 				<RadioGroup
 					aria-label="View"
@@ -159,7 +160,12 @@ export function Robot({ bindings, options, setOption }: WidgetProps) {
 						</span>
 					)}
 					{view === '3d' && (
-						<Button variant="ghost" size="xs" className="ms-auto bg-background" onClick={() => scene.current?.reset()}>
+						<Button
+							variant="ghost"
+							size="xs"
+							className="ms-auto bg-background capture:invisible"
+							onClick={() => scene.current?.reset()}
+						>
 							<HouseIcon />
 							Reset view
 						</Button>

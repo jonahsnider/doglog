@@ -75,7 +75,7 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 			<Separator
 				aria-label="Resize entry browser"
 				// Covers the library's 10px hit area so double-clicks land on the separator
-				className="relative z-10 w-1.5 outline-none before:absolute before:inset-x-0.5 before:inset-y-1 before:rounded-full before:transition-colors after:absolute after:inset-y-0 after:-inset-x-0.5 focus-visible:before:bg-ring data-[separator=active]:before:bg-ring data-[separator=hover]:before:bg-ring"
+				className="relative z-10 w-1.5 outline-none before:absolute before:inset-x-0.5 before:inset-y-1 before:rounded-full before:transition-colors after:absolute after:inset-y-0 after:-inset-x-0.5 focus-visible:before:bg-ring data-[separator=active]:before:bg-ring data-[separator=hover]:before:bg-ring capture:before:hidden"
 				// The built-in reset would use the saved width
 				disableDoubleClick
 				onDoubleClick={() => panelRef.current?.resize(defaultWidthPx)}

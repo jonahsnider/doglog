@@ -9,6 +9,7 @@ import { AppContextMenu, type MenuAction } from '@/components/app-context-menu';
 import { DashboardOptions } from '@/sidebar/dashboard-options';
 import { SidebarInput, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { canCopyDashboardLink, copyDashboardLink } from '@/dashboards/copy-dashboard-link';
+import { canCapture, copyImage, dashboardCaptureTarget } from '@/desktop/capture';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { DashboardPreview } from '@/dashboards/dashboard-preview';
 import { PreviewCard, PreviewCardPopup, PreviewCardTrigger } from '@/components/ui/preview-card';
@@ -140,6 +141,18 @@ function dashboardMenu({
 	const closeOthers = () =>
 		deleteDashboards(dashboards.filter((other) => other !== dashboard).map((other) => other.id));
 	const closeBelow = () => deleteDashboards(dashboards.slice(index + 1).map((other) => other.id));
+	const copy: MenuAction[] = [];
+	if (canCopyDashboardLink(dashboard)) {
+		copy.push({
+			label: 'Copy link',
+			shortcut: shortcuts.copyDashboardLink,
+			onSelect: () => void copyDashboardLink(dashboard),
+		});
+		if (canCapture && router.state.location.pathname === `/dashboards/${dashboard.id}`) {
+			const onSelect = () => void copyImage(dashboardCaptureTarget(dashboard.id));
+			copy.push({ label: 'Copy image', shortcut: shortcuts.copyDashboardImage, onSelect });
+		}
+	}
 	return [
 		{ label: 'Rename', onSelect: rename },
 		{ label: 'Duplicate', onSelect: () => selection.duplicate([dashboard.id]) },
@@ -149,15 +162,7 @@ function dashboardMenu({
 				moveDashboardToSection(router, dashboard.id, !dashboard.shared);
 			},
 		},
-		...(canCopyDashboardLink(dashboard)
-			? [
-					{
-						label: 'Copy link',
-						shortcut: shortcuts.copyDashboardLink,
-						onSelect: () => void copyDashboardLink(dashboard),
-					},
-				]
-			: []),
+		...copy,
 		'separator',
 		{
 			label: 'Close',

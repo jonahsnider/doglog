@@ -173,9 +173,13 @@ export function Graph({ bindings }: WidgetProps) {
 					style={{ left: insets.left, right: insets.right }}
 				>
 					{selection && <RangeSelection selection={selection} plotted={plotted} units={units.units} />}
-					<div ref={hoverLineRef} hidden className="absolute inset-y-0 w-px -translate-x-1/2 bg-muted-foreground" />
+					<div
+						ref={hoverLineRef}
+						hidden
+						className="absolute inset-y-0 w-px -translate-x-1/2 bg-muted-foreground capture:invisible"
+					/>
 					<div ref={cursorLineRef} hidden className="absolute inset-y-0 w-px -translate-x-1/2 bg-foreground" />
-					<div ref={hoverDotsRef} className="absolute top-0 left-0">
+					<div ref={hoverDotsRef} className="absolute top-0 left-0 capture:invisible">
 						{series.map((line) => (
 							<div
 								key={line.id}
@@ -190,7 +194,7 @@ export function Graph({ bindings }: WidgetProps) {
 						ref={hoverDeltaRef}
 						hidden
 						className={cn(
-							'absolute h-2 before:absolute before:inset-y-0 before:-inset-x-px before:border-x-2 before:border-b-2 before:border-primary',
+							'absolute h-2 before:absolute before:inset-y-0 before:-inset-x-px before:border-x-2 before:border-b-2 before:border-primary capture:invisible',
 							(!pointerAt || selection) && 'hidden',
 						)}
 						style={{ bottom: (hasPlot ? discrete.length * rowHeight : 0) + 8 }}

@@ -56,7 +56,7 @@ function PresenceAvatars({ sessions, className }: { sessions: readonly PresentSe
 /** Other users whose last interaction in a shared dashboard was with this pane */
 export function PanePresence({ dashboardId, paneId }: { dashboardId: string; paneId: string }) {
 	const sessions = usePresence(dashboardId).filter((session) => session.paneId === paneId);
-	return <PresenceAvatars sessions={sessions} className="me-1" />;
+	return <PresenceAvatars sessions={sessions} className="me-1 capture:invisible" />;
 }
 
 /** Other users in a shared dashboard, once each, active if any of their sessions in it is */

@@ -51,6 +51,7 @@ export const shortcuts = {
 	closeDashboard: desktop ? 'Mod+Shift+W' : 'Alt+Shift+W',
 	reopenDashboard: desktop ? 'Mod+Shift+T' : 'Alt+Shift+T',
 	copyDashboardLink: 'Mod+Shift+C',
+	copyDashboardImage: 'Mod+C',
 	settings: desktop ? 'Mod+,' : 'Alt+,',
 	logs: desktop ? 'Mod+L' : 'Alt+L',
 	back: desktop ? 'Mod+[' : 'Alt+[',

@@ -9,6 +9,7 @@
 @import '@fontsource/ibm-plex-mono/600-italic.css';
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant capture (&:where([data-capturing] *));
 /* Motion is reduced when the system asks to or the reduce motion setting adds `reduce-motion` to the root element */
 @custom-variant motion-reduce {
 	@media (prefers-reduced-motion: reduce) {
@@ -458,8 +459,22 @@
 [data-frosted-frame] body {
 	background-color: transparent;
 }
-[data-frosted-frame] .bg-frame {
+[data-frosted-frame]:not([data-capturing]) .bg-frame {
 	background-color: color-mix(in srgb, var(--frame) 75%, transparent);
+}
+/* Keep overlays that live outside the captured panes out of the image without moving the dashboard. */
+[data-capturing]
+	:is(
+		[data-slot='sidebar'],
+		[data-slot='sidebar-container'],
+		[data-slot='preview-card-content'],
+		[data-slot='menu-popup'],
+		[data-slot='popover-popup'],
+		[data-slot='tooltip-popup'],
+		[data-slot='toast-viewport'],
+		[data-slot='toast-viewport-anchored']
+	) {
+	visibility: hidden;
 }
 /* Sidebars show the backdrop through the frame they sit on, unless the collapsed sidebar is peeking over the panes */
 [data-frosted-frame] [data-slot='sidebar']:not([data-peeking]) {

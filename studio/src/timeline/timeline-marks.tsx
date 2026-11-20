@@ -41,7 +41,7 @@ export function GraphMarks({
 			)}
 			{hover !== undefined && (
 				<div
-					className="absolute inset-y-0 w-px -translate-x-1/2 bg-muted-foreground"
+					className="absolute inset-y-0 w-px -translate-x-1/2 bg-muted-foreground capture:invisible"
 					style={{ left: `${toPercent(hover)}%` }}
 				/>
 			)}

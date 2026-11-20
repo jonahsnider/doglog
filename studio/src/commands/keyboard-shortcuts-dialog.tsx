@@ -2,6 +2,7 @@ import { dashboardShortcut, shortcuts } from '@/commands/commands';
 import { isTauri } from '@tauri-apps/api/core';
 import { Dialog, DialogHeader, DialogPanel, DialogPopup, DialogTitle } from '@/components/ui/dialog';
 import { Kbd } from '@/components/ui/kbd';
+import { canCapture } from '@/desktop/capture';
 import { useSettings } from '@/settings';
 import { type Hotkey, useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
 import PauseIcon from 'lucide-react/icons/pause';
@@ -43,6 +44,7 @@ const sections: {
 			{ label: 'Close dashboard', keys: [shortcuts.closeDashboard] },
 			{ label: 'Reopen closed dashboard', keys: [shortcuts.reopenDashboard] },
 			{ label: 'Copy dashboard link', keys: [shortcuts.copyDashboardLink] },
+			...(canCapture ? [{ label: 'Copy dashboard image', keys: [shortcuts.copyDashboardImage] }] : []),
 			{ label: 'Switch to dashboard 1-9', keys: [dashboardShortcut(0)!, dashboardShortcut(8)!], separator: '–' },
 			{ label: 'Back', keys: [shortcuts.back] },
 			{ label: 'Forward', keys: [shortcuts.forward] },

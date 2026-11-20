@@ -80,7 +80,16 @@ export function Field({ bindings, options }: WidgetProps) {
 		clearTimeout(copiedTimer.current);
 		copiedTimer.current = setTimeout(() => setCopied(false), 1200);
 	};
-	useHotkey('Mod+C', () => void copyPosition(), whileHovered);
+	useHotkey(
+		'Mod+C',
+		(event) => {
+			if (!event.defaultPrevented && window.getSelection()?.isCollapsed !== false) {
+				event.preventDefault();
+				void copyPosition();
+			}
+		},
+		{ ...whileHovered, ignoreInputs: true, preventDefault: false, stopPropagation: false },
+	);
 
 	const fieldPointAt = (event: PointerEvent) => {
 		const content = toContent(event.clientX, event.clientY);
@@ -222,7 +231,7 @@ export function Field({ bindings, options }: WidgetProps) {
 							)}
 							<Minimap zoom={zoom} visible={zoom.scale > 1 && active} left={minimapLeft} field={field} />
 						</div>
-						<div className="flex h-5 items-center justify-between gap-2 text-muted-foreground text-xs">
+						<div className="flex h-5 items-center justify-between gap-2 text-muted-foreground text-xs capture:invisible">
 							<CursorPosition pointer={pointer} hovered={hovered} copied={copied} />
 							<ToolButtons tool={tool} onToggle={toggleTool} />
 						</div>

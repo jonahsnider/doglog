@@ -27,7 +27,7 @@ function TimeInput({ initialText, start, onDone }: { initialText: string; start:
 		<Input
 			size="sm"
 			// Insets the text as far as the time button does (a 1px border plus padding, past the edge by as much), so it doesn't shift when focused
-			className="-me-1 w-[calc(100%+--spacing(1))] shrink-0 [&>input]:px-[calc(--spacing(1)-1px)] [&>input]:text-right"
+			className="-me-1 w-[calc(100%+--spacing(1))] shrink-0 capture:opacity-0 [&>input]:px-[calc(--spacing(1)-1px)] [&>input]:text-right"
 			aria-label="Go to time"
 			aria-invalid={invalid || undefined}
 			defaultValue={initialText}
@@ -73,7 +73,7 @@ function CursorTimeButton({
 			{...props}
 			type="button"
 			// Right-aligned so the icon stays pinned as the time widens. The negative margin offsets the padding.
-			className="-me-1 ms-auto cursor-pointer rounded-md px-1 outline-none transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
+			className="-me-1 ms-auto cursor-pointer rounded-md px-1 outline-none transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring capture:invisible"
 			aria-label={`Current time ${text}, go to time`}
 			onClick={(event) => {
 				onClick?.(event);
@@ -100,16 +100,17 @@ export function CursorTime({ range }: { range: TimeRange | undefined }) {
 	return (
 		<span
 			// The end margin makes room for the button's background and the field's border, which reach past the time
-			className="ms-1.5 me-1 flex shrink-0 items-center gap-1 font-mono text-sm tabular-nums"
+			className="relative ms-1.5 me-1 flex shrink-0 items-center gap-1 font-mono text-sm tabular-nums"
 			style={{ width: `max(5rem, calc(${maxLength}ch + 1.125rem))` }}
 		>
+			<span className="absolute end-0 hidden capture:inline">{formatTime(time, range.start)}</span>
 			{editText === undefined ? (
 				<>
 					{/* Always rendered so it can fade in and out, its tooltip only works while it's shown */}
 					<Tooltip disabled={!skipped}>
 						<TooltipTrigger
 							render={<span />}
-							className={cn('transition-opacity duration-300', !skipped && 'opacity-0')}
+							className={cn('transition-opacity duration-300 capture:invisible', !skipped && 'opacity-0')}
 							aria-label="Skipped idle time"
 							aria-hidden={!skipped}
 						>

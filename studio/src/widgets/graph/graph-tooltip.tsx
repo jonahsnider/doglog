@@ -1,7 +1,9 @@
-import { type ReactNode, useSyncExternalStore } from 'react';
+import { type ReactNode, use, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { type Entry, subscribeData, useTimeRange } from '@/data/data-store';
 import { formatValue } from '@/data/format-value';
+import { useCaptureFrame } from '@/desktop/capture';
+import { WidgetBindingsContext } from '@/entries/drag';
 import { EntryName } from '@/entries/entry-name';
 import { modeLabels } from '@/timeline/colors';
 import { getModePeriods } from '@/timeline/events';
@@ -31,23 +33,34 @@ function Popup({
 	top,
 	above = false,
 	offset,
+	bounds,
 	children,
 }: {
 	at: PointerAt;
 	top: number;
 	above?: boolean;
 	offset: Offset;
+	bounds?: DOMRect | undefined;
 	children: ReactNode;
 }) {
 	const left = offset.left + at.x + (at.flip ? -12 : 12);
 	const y = offset.top + top;
+	const rightEdge = bounds ? `${bounds.right}px` : '100vw';
+	const bottomEdge = bounds ? `${bounds.bottom}px` : '100vh';
+	const minX = (bounds?.left ?? 0) + windowMargin - left;
+	const minY = (bounds?.top ?? 0) + windowMargin - y;
 	return createPortal(
 		<div
 			className="pointer-events-none fixed z-50 w-max rounded-md border bg-popover px-2 py-1.5 text-xs whitespace-nowrap text-popover-foreground shadow-md"
 			style={{
 				left,
 				top: y,
-				translate: `clamp(${windowMargin - left}px, ${at.flip ? '-100%' : '0px'}, calc(100vw - ${left + windowMargin}px - 100%)) clamp(${windowMargin - y}px, ${above ? '-100%' : '0px'}, calc(100vh - ${y + windowMargin}px - 100%))`,
+				translate: `clamp(${minX}px, ${at.flip ? '-100%' : '0px'}, calc(${rightEdge} - ${left + windowMargin}px - 100%)) clamp(${minY}px, ${above ? '-100%' : '0px'}, calc(${bottomEdge} - ${y + windowMargin}px - 100%))`,
+				...(bounds && {
+					maxWidth: bounds.width - windowMargin * 2,
+					maxHeight: bounds.height - windowMargin * 2,
+					overflow: 'hidden',
+				}),
 			}}
 		>
 			{children}
@@ -99,11 +112,13 @@ export function GraphTooltip({
 	units: ReadonlyMap<string, SeriesUnit>;
 	insets: { left: number; right: number };
 }) {
-	if (!origin) {
+	const frame = useCaptureFrame();
+	const paneId = use(WidgetBindingsContext)?.paneId;
+	if (!origin || (frame && !frame.paneIds.has(paneId))) {
 		return undefined;
 	}
 	const offset = { left: origin.left + insets.left, top: origin.top };
-	if (bandHover) {
+	if (bandHover && !frame) {
 		return (
 			<BandTooltip hover={bandHover} entry={bandEntry} palette={palette} assignments={assignments} offset={offset} />
 		);
@@ -111,7 +126,7 @@ export function GraphTooltip({
 	if (plotted.length === 0) {
 		return undefined;
 	}
-	if (at) {
+	if (at && !frame) {
 		// Diagonally off the pointer, toward the middle of the graph, so it moves out of the way of what's hovered
 		return (
 			<LineTooltip
@@ -126,7 +141,13 @@ export function GraphTooltip({
 		);
 	}
 	return pinned ? (
-		<PinnedTooltip width={origin.width - insets.left - insets.right} plotted={plotted} units={units} offset={offset} />
+		<PinnedTooltip
+			width={origin.width - insets.left - insets.right}
+			plotted={plotted}
+			units={units}
+			offset={offset}
+			bounds={frame?.bounds}
+		/>
 	) : undefined;
 }
 
@@ -136,7 +157,13 @@ function PinnedTooltip({ width, ...props }: Omit<LineTooltipProps, 'at' | 'time'
 	const cursor = useCursorTime();
 	const view = useViewRange();
 	const hoveringElsewhere = useHoverTime() !== undefined;
-	if (hoveringElsewhere || !view || cursor === undefined || cursor < view.start || cursor > view.end) {
+	if (
+		(hoveringElsewhere && !props.bounds) ||
+		!view ||
+		cursor === undefined ||
+		cursor < view.start ||
+		cursor > view.end
+	) {
 		return undefined;
 	}
 	const x = ((cursor - view.start) / (view.end - view.start)) * width;
@@ -151,11 +178,12 @@ type LineTooltipProps = {
 	plotted: readonly WidgetBinding[];
 	units: ReadonlyMap<string, SeriesUnit>;
 	offset: Offset;
+	bounds?: DOMRect | undefined;
 };
 
-function LineTooltip({ at, time, top, above, plotted, units, offset }: LineTooltipProps) {
+function LineTooltip({ at, time, top, above, plotted, units, offset, bounds }: LineTooltipProps) {
 	return (
-		<Popup at={at} top={top} above={above} offset={offset}>
+		<Popup at={at} top={top} above={above} offset={offset} bounds={bounds}>
 			<TimeHeader time={time} />
 			<div className="grid grid-cols-[auto_minmax(0,auto)_auto] items-center gap-x-2 gap-y-0.5">
 				{plotted.map((binding, index) => {

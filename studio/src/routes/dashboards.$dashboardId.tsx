@@ -1,10 +1,14 @@
 import { useDragDropMonitor } from '@dnd-kit/react';
+import { useHotkey } from '@tanstack/react-hotkeys';
 import { isTauri } from '@tauri-apps/api/core';
 import { Navigate, createFileRoute, useLocation } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { Group, Panel } from 'react-resizable-panels';
+import { shortcuts } from '@/commands/commands';
+import { canCopyDashboardLink } from '@/dashboards/copy-dashboard-link';
 import { DashboardSplitZones } from '@/dashboards/dashboard-drag';
 import { DashboardPanes } from '@/dashboards/dashboard-panes';
+import { canCapture, copyImage, dashboardCaptureTarget } from '@/desktop/capture';
 import { EntryBrowser } from '@/entries/entry-browser';
 import { TimelineBar } from '@/timeline/timeline-bar';
 import { type Dashboard, getDashboard, useDashboards } from '@/dashboards/dashboards';
@@ -97,9 +101,32 @@ function DashboardView() {
 
 /** The panes with the timeline under them */
 function PanesColumn({ dashboard }: { dashboard: Dashboard }) {
+	useHotkey(
+		shortcuts.copyDashboardImage,
+		(event) => {
+			if (event.defaultPrevented || window.getSelection()?.isCollapsed === false) {
+				return;
+			}
+			const target = dashboardCaptureTarget(dashboard.id);
+			if (target) {
+				event.preventDefault();
+				void copyImage(target);
+			}
+		},
+		// Run after widgets' document shortcuts, such as copying a field position.
+		{
+			enabled: canCapture && canCopyDashboardLink(dashboard),
+			target: window,
+			ignoreInputs: true,
+			preventDefault: false,
+			stopPropagation: false,
+			requireReset: true,
+		},
+	);
+
 	return (
 		// Under the panes rather than the entry browser too, so the entry browser reaches the bottom of the window like the sidebar
-		<div className="flex h-full flex-col ps-1.5 pt-1.5">
+		<div data-capture-dashboard={dashboard.id} className="flex h-full flex-col ps-1.5 pt-1.5 capture:bg-frame">
 			<section aria-label="Panes" className="relative isolate mb-1.5 min-h-0 min-w-0 flex-1">
 				<DashboardPanes dashboard={dashboard} />
 				<DashboardSplitZones dashboard={dashboard} />

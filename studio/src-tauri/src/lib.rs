@@ -1,4 +1,6 @@
 mod agent;
+#[cfg(any(target_os = "macos", windows))]
+mod capture;
 mod cli;
 #[cfg(desktop)]
 mod mcp_install;
@@ -103,6 +105,10 @@ pub fn run() -> ExitCode {
     let builder = tauri::Builder::default();
     #[cfg(target_os = "macos")]
     let builder = builder.plugin(tauri_plugin_macos_fps::init());
+    #[cfg(any(target_os = "macos", windows))]
+    let builder = builder.append_invoke_initialization_script("\nwindow.__DOGLOG_CAPTURE__ = true;");
+    #[cfg(target_os = "macos")]
+    let builder = builder.append_invoke_initialization_script("\nwindow.__DOGLOG_CAPTURE_COVER__ = true;");
     let builder = if frosted_frame {
         builder.append_invoke_initialization_script("\nwindow.__DOGLOG_FROSTED_FRAME__ = true;")
     } else {
@@ -138,6 +144,10 @@ pub fn run() -> ExitCode {
         .invoke_handler(tauri::generate_handler![
             take_opened_log,
             read_file,
+            #[cfg(any(target_os = "macos", windows))]
+            capture::copy_capture,
+            #[cfg(target_os = "macos")]
+            capture::set_capture_cover,
             new_window::new_window,
             recent_logs::note_recent_log,
             recent_logs::clear_recent_logs,

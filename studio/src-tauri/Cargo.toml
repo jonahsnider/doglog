@@ -61,11 +61,33 @@ debug = "line-tables-only"
 split-debuginfo = "packed"
 strip = true
 
+[target.'cfg(any(target_os = "macos", windows))'.dependencies]
+image = { version = "0.25", default-features = false, features = ["png"] }
+
 [target.'cfg(target_os = "macos")'.dependencies]
 libc = "0.2"
+block2 = "0.6"
+dispatch2 = "0.3"
 objc2 = "0.6"
-objc2-app-kit = { version = "0.3", default-features = false, features = ["std", "NSDocumentController"] }
+objc2-app-kit = { version = "0.3", default-features = false, features = [
+	"std",
+	"NSBitmapImageRep",
+	"NSCell",
+	"NSControl",
+	"NSDocumentController",
+	"NSGraphics",
+	"NSImage",
+	"NSImageRep",
+	"NSImageView",
+	"NSView",
+] }
 objc2-foundation = { version = "0.3", default-features = false, features = ["std", "NSString", "NSURL"] }
+objc2-web-kit = { version = "0.3", default-features = false, features = [
+	"WKSnapshotConfiguration",
+	"WKWebView",
+	"block2",
+	"objc2-core-foundation",
+] }
 tauri-plugin-macos-fps = "0.1.0"
 
 [target.'cfg(windows)'.dependencies]
@@ -77,3 +99,4 @@ windows-sys = { version = "0.61", features = [
 ] }
 windows = { version = "0.62", features = ["Win32_System_Com", "Win32_UI_Shell"] }
 windows-version = "0.100"
+webview2-com = "0.39"

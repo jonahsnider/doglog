@@ -12,6 +12,7 @@ import { WidgetView } from '@/panes/widget-view';
 import { shortcuts } from '@/commands/commands';
 import { closeDashboardPane, splitDashboardPane, toggleZoom, updateLayout } from '@/dashboards/panes';
 import { focusPane } from '@/dashboards/pane-state';
+import { canCapture, copyImage } from '@/desktop/capture';
 import { focusEditingPane, startEditing, useEditingPane } from '@/entries/editing';
 import { getEntry, useEntries } from '@/data/data-store';
 import {
@@ -131,6 +132,7 @@ export function PaneView({
 	const menuItems = (target: Element): MenuEntry[] => {
 		const targetId = bindingIdAt(target);
 		const targetBinding = bindings.find((binding) => binding.id === targetId);
+		const captureTarget = canCapture && widget !== undefined ? target.closest('[data-pane-id]') : null;
 		const listed = menuBindings ?? widgetBindings(widget);
 		const listedLabels = type ? resolveBindings(type, listed, getEntry).map((binding) => bindingLabel(binding)) : [];
 		const boundIds = new Set(bindings.map((binding) => binding.id));
@@ -183,6 +185,7 @@ export function PaneView({
 				: { label: `Remove ${bindingLabel(targetBinding)}`, onSelect: () => remove(targetBinding.id) },
 			...disconnectItems(targetBinding),
 			...roleItems(targetBinding),
+			...(captureTarget ? [{ label: 'Copy image', onSelect: () => void copyImage(captureTarget) }] : []),
 			'separator',
 			{ label: 'Close', shortcut: shortcuts.close, disabled: !closable, onSelect: close },
 		];
@@ -219,7 +222,7 @@ export function PaneView({
 				className={cn(
 					'flex h-9 shrink-0 items-center gap-0.5 px-2 transition-colors',
 					// Marks the widget whose entries the entry browser is editing
-					editing && 'bg-primary/12',
+					editing && 'bg-primary/12 capture:bg-transparent capture:transition-none',
 				)}
 				// Middle-clicking the header closes the pane, like a browser tab
 				onAuxClick={(event) => {
@@ -241,7 +244,7 @@ export function PaneView({
 				<Toolbar
 					aria-label="Pane controls"
 					className={cn(
-						'items-center gap-0.5 rounded-none border-0 bg-transparent p-0 transition-opacity duration-100',
+						'items-center gap-0.5 rounded-none border-0 bg-transparent p-0 transition-opacity duration-100 capture:invisible',
 						!focused && 'opacity-0 group-hover/pane:opacity-100',
 					)}
 				>

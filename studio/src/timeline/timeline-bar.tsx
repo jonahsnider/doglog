@@ -71,7 +71,11 @@ function ControlButton({
 }) {
 	return (
 		<Tooltip>
-			<TooltipTrigger render={<Button variant="ghost" size="icon-sm" aria-label={label} onClick={onClick} />}>
+			<TooltipTrigger
+				render={
+					<Button variant="ghost" size="icon-sm" className="capture:hidden" aria-label={label} onClick={onClick} />
+				}
+			>
 				{children}
 			</TooltipTrigger>
 			<TooltipPopup>
@@ -135,7 +139,7 @@ function TimelineControls({
 									ref={speedTrigger}
 									aria-label="Playback speed"
 									// Same inset as the icon buttons, so the gaps between controls look even
-									render={<Button variant="ghost" size="sm" className="px-1.5 tabular-nums" />}
+									render={<Button variant="ghost" size="sm" className="px-1.5 tabular-nums capture:hidden" />}
 								/>
 							}
 						>
@@ -183,6 +187,7 @@ function TimelineControls({
 					<Button
 						variant={playback === 'following' ? 'ghost' : 'outline'}
 						size="sm"
+						className="capture:hidden"
 						disabled={playback === 'following'}
 						onClick={goLive}
 					>
@@ -196,7 +201,13 @@ function TimelineControls({
 				<Menu onOpenChange={setOptionsOpen}>
 					<Tooltip>
 						<TooltipTrigger
-							render={<MenuTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Timeline options" />} />}
+							render={
+								<MenuTrigger
+									render={
+										<Button variant="ghost" size="icon-sm" className="capture:hidden" aria-label="Timeline options" />
+									}
+								/>
+							}
 						>
 							<SlidersHorizontalIcon />
 						</TooltipTrigger>

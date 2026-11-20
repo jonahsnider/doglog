@@ -153,7 +153,7 @@ export function Console({ bindings }: WidgetProps) {
 
 	return (
 		<div className="flex h-full flex-col">
-			<div className="flex shrink-0 flex-wrap gap-2 p-2">
+			<div className="flex shrink-0 flex-wrap gap-2 p-2 capture:invisible">
 				<InputGroup className="min-w-56 flex-1">
 					<InputGroupAddon>
 						<SearchIcon />
