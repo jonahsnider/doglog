@@ -96,6 +96,8 @@ pub fn run() -> ExitCode {
     };
 
     let builder = tauri::Builder::default();
+    #[cfg(target_os = "macos")]
+    let builder = builder.plugin(tauri_plugin_macos_fps::init());
     let builder = if frosted_frame {
         builder.append_invoke_initialization_script("\nwindow.__DOGLOG_FROSTED_FRAME__ = true;")
     } else {

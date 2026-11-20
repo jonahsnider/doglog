@@ -71,6 +71,7 @@
 		}
 	},
 	"plugins": {
+		"macos-fps": { "enabled": true },
 		"updater": {
 			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDAzM0I1RkVGNEM3QTRBRkUKUldUK1NucE03MTg3QS9mWjZZRGdaZWVHQWYxb0hnRzNYOXl0OWg1QW1KWGV3QWFEczhYZHIxcGgK",
 			"endpoints": ["https://updates.doglog.dev/studio/latest.json"]
