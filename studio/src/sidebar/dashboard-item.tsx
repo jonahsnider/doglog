@@ -54,13 +54,6 @@ function ItemEnd({
 	);
 }
 
-function useItemTransitions(isDragSource: boolean) {
-	const transition = useMotionTransition({ duration: 0.2, ease: easing.inOut });
-	// Dashboards dragged to the other section are hidden right away, so only the gap they leave closes
-	const exitTransition = isDragSource ? { ...transition, opacity: { duration: 0 } } : transition;
-	return { transition, exitTransition };
-}
-
 /** Lets a dashboard be dragged by its link to reorder it, or to the other section to share or unshare it */
 function useDashboardSortable(dashboard: Dashboard, sectionIndex: number, renaming: boolean, present: boolean) {
 	const [item, setItem] = useState<HTMLElement | null>(null);
@@ -207,7 +200,10 @@ export function DashboardItem({
 	if (isDragSource && previewOpen) {
 		setPreviewOpen(false);
 	}
-	const { transition, exitTransition } = useItemTransitions(isDragSource);
+	const transition = useMotionTransition({ duration: 0.2, ease: easing.inOut });
+	const afterEntry = { type: false as const, delay: transition.duration ?? 0 };
+	// Dashboards dragged to the other section are hidden right away, so only the gap they leave closes
+	const exitTransition = isDragSource ? { ...transition, opacity: { duration: 0 } } : transition;
 	const shortcut = dashboardShortcut(index);
 	const name = dashboardName(dashboard);
 	const Icon = mainWidgetType(dashboard.layout)?.icon ?? LayoutDashboardIcon;
@@ -224,24 +220,21 @@ export function DashboardItem({
 					ref={setItem}
 					// Lets `useNewDashboardDrop()` find where a dropped pane goes
 					data-dashboard-index={sectionIndex}
-					// Opened dashboards show up in full on top of the one in their spot, which slides down from under them.
-					// The negative margin cancels the menu's gap-1, so a collapsed dashboard takes up no space.
-					// The height and margin animate so the dashboards below move with it, a short reflow of one short list
+					// The new row covers its neighbor while it slides down. The negative margin cancels the gap at zero height.
 					// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Moves the dashboards below
-					initial={appear && { height: 0, marginBottom: '-0.25rem', zIndex: 1 }}
+					initial={appear && { height: 0, marginBottom: '-0.25rem', zIndex: 1, '--row-cover': 'var(--frame)' }}
 					// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Moves the dashboards below
-					animate={{ height: 'auto', marginBottom: '0rem', opacity: 1, transitionEnd: { zIndex: 'auto' } }}
-					// Closed dashboards fade and slide up, clipped so they don't cover the one above
+					animate={{ height: 'auto', marginBottom: '0rem', opacity: 1, zIndex: 'auto', '--row-cover': 'transparent' }}
 					// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Moves the dashboards below
 					exit={{ height: 0, marginBottom: '-0.25rem', opacity: 0, overflow: 'hidden', transition: exitTransition }}
-					transition={transition}
+					transition={{ ...transition, zIndex: afterEntry, '--row-cover': afterEntry }}
 				/>
 			}
 			disabled={renaming}
 		>
 			<m.div
-				// Opaque so an opened dashboard hides the one it covers, and rounded like the button so its corners don't show when dragged over other surfaces
-				className="rounded-lg bg-sidebar"
+				// Only fill the wrapper while it covers another row or is dragged. Otherwise the sidebar paints the surface.
+				className={cn('rounded-lg', isDragSource ? 'bg-frame' : 'bg-(--row-cover)')}
 				initial={false}
 				animate={{ y: '0%' }}
 				exit={{ y: '-100%' }}
