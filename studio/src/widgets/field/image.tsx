@@ -1,14 +1,5 @@
 import { cn } from '@/lib/utils';
-import {
-	aspectRatio,
-	fieldBackground,
-	type FieldOrientation,
-	image,
-	orientationTransform,
-	pixelsPerMeterX,
-	pixelsPerMeterY,
-	view,
-} from '@/widgets/field/geometry';
+import { fieldBackground, type FieldView, image, pixelsPerMeterX, pixelsPerMeterY } from '@/widgets/field/geometry';
 import type { Zoom } from '@/widgets/field/zoom';
 // Rendered from the official field CAD by Cameron (Juniormunk) on Chief Delphi, without the background or fuel:
 // https://www.chiefdelphi.com/t/2026-rebuilt-high-resolution-field-image/510611
@@ -42,16 +33,17 @@ export function Minimap({
 	zoom,
 	visible,
 	left,
-	orientation,
+	field,
 }: {
 	zoom: Zoom;
 	visible: boolean;
 	left: boolean;
-	orientation: FieldOrientation;
+	field: FieldView;
 }) {
+	const { bounds, aspectRatio, viewBox, transform } = field;
 	// The outlined part's insets from each edge, as fractions of the minimap
-	const insetLeft = ((view.x - zoom.x) / zoom.scale - view.x) / view.width;
-	const insetTop = ((view.y - zoom.y) / zoom.scale - view.y) / view.height;
+	const insetLeft = ((bounds.x - zoom.x) / zoom.scale - bounds.x) / bounds.width;
+	const insetTop = ((bounds.y - zoom.y) / zoom.scale - bounds.y) / bounds.height;
 	const insetRight = 1 - insetLeft - 1 / zoom.scale;
 	const insetBottom = 1 - insetTop - 1 / zoom.scale;
 
@@ -65,8 +57,8 @@ export function Minimap({
 			style={{ aspectRatio }}
 			aria-hidden
 		>
-			<svg className="block size-full" viewBox={`${view.x} ${view.y} ${view.width} ${view.height}`}>
-				<g transform={orientationTransform(orientation)}>
+			<svg className="block size-full" viewBox={viewBox}>
+				<g transform={transform}>
 					<FieldImage />
 				</g>
 			</svg>

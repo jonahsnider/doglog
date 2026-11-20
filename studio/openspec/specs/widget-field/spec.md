@@ -90,7 +90,7 @@ The WPILib coordinates option SHALL be inferred from the WPILib version the robo
 
 ### Requirement: Orientation
 
-The field widget SHALL have an Orientation option with "Blue left" and "Red left", which MUST rotate the field and everything drawn on it a half turn. It SHALL be inferred to put +X on the right, like WPILib's field images: "Blue left" with 2026 coordinates and "Red left" with 2027 coordinates.
+The field widget SHALL have an Orientation dropdown with **Blue left**, **Red left**, **Blue top**, and **Red top**. The chosen alliance MUST appear at the named edge, with the field, its drawings, and the minimap rotated together. The cursor readout and measurements MUST still use the selected WPILib coordinates. Auto SHALL put +X on the right, like WPILib's field images: "Blue left" with 2026 coordinates and "Red left" with 2027 coordinates.
 
 #### Scenario: Red left
 
@@ -99,6 +99,13 @@ The field widget SHALL have an Orientation option with "Blue left" and "Red left
 - **THEN** the red alliance is on the left
 - **AND** the robot is centered on the top-right corner of the field boundary, facing left
 - **AND** the cursor position readout still shows field coordinates
+
+#### Scenario: Blue top
+
+- **GIVEN** the WPILib coordinates option is "2026" and the Orientation option is "Blue top"
+- **AND** a `Pose2d` entry at (0, 0) with a 0° rotation
+- **THEN** the blue alliance is at the top of the portrait field
+- **AND** the robot is centered on the top-left corner of the field boundary, facing down
 
 ### Requirement: Zoom and pan
 

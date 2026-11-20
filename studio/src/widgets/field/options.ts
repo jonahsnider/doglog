@@ -28,6 +28,7 @@ export const fieldOptions: readonly WidgetOption[] = [
 	// WPILib 2027 draws the field with red on the left, so +X points right in either coordinates
 	{
 		...widgetOptions.field.orientation,
+		dropdown: true,
 		infer: (_, earlier) => (earlier['coordinates'] === 'center' ? 'red-left' : 'blue-left'),
 	},
 ];

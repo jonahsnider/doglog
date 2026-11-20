@@ -55,6 +55,8 @@ export type WidgetOption = WidgetOptionInfo & {
 	readonly infer?: (bindings: readonly WidgetBinding[], earlier: OptionValues) => string | undefined;
 	/** The choice a newly added widget starts with in `layout`, as if it was picked, ex. a controller not shown yet */
 	readonly initial?: (layout: PaneNode) => string;
+	/** Show fixed choices in a dropdown when they don't fit in a single segmented row. */
+	readonly dropdown?: true;
 	/**
 	 * Lists the choices in a menu, with more from the user's own files and commands to change them, ex. the robot
 	 * widget's robot projects. Use it with `openChoices`, so picked choices that aren't listed are kept, ex. a robot not

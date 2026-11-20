@@ -1,12 +1,13 @@
 import ChevronsUpDownIcon from 'lucide-react/icons/chevrons-up-down';
 import Settings2Icon from 'lucide-react/icons/settings-2';
 import { Button } from '@/components/ui/button';
-import { Field } from '@/components/ui/field';
+import { Field, FieldLabel } from '@/components/ui/field';
 import { Fieldset, FieldsetLegend } from '@/components/ui/fieldset';
 import { Menu, MenuPopup, MenuRadioGroup, MenuRadioItem, MenuSeparator, MenuTrigger } from '@/components/ui/menu';
 import { Popover, PopoverPopup, PopoverTrigger } from '@/components/ui/popover';
 import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control';
+import { Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ToolbarButton } from '@/components/ui/toolbar';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import type { Widget } from '@/panes/layout';
@@ -89,19 +90,40 @@ function OptionControl({
 					},
 					...option.choices,
 				];
+	const value = picked ?? (inferred === undefined ? option.default : auto);
+	const change = (next: string | null) => {
+		if (next !== null) {
+			onChange(next === auto ? undefined : next);
+		}
+	};
+	if (option.dropdown) {
+		const items = choices.map(({ id, label }) => ({ value: id, label }));
+		return (
+			<Field name={option.id} className="items-stretch gap-1">
+				<FieldLabel className="font-semibold">{option.label}</FieldLabel>
+				<Select items={items} value={value} onValueChange={change}>
+					<SelectTrigger size="sm">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectPopup alignItemWithTrigger={false}>
+						{items.map((item) => (
+							<SelectItem key={item.value} value={item.value}>
+								{item.label}
+							</SelectItem>
+						))}
+					</SelectPopup>
+				</Select>
+			</Field>
+		);
+	}
+
 	return (
 		<Field name={option.id}>
 			<Fieldset>
 				<FieldsetLegend className="mb-1 text-sm">{option.label}</FieldsetLegend>
 				<SegmentedControl
 					size="sm"
-					render={
-						<RadioGroup
-							className="flex-row gap-0.5"
-							value={picked ?? (inferred === undefined ? option.default : auto)}
-							onValueChange={(value: string) => onChange(value === auto ? undefined : value)}
-						/>
-					}
+					render={<RadioGroup className="flex-row gap-0.5" value={value} onValueChange={change} />}
 				>
 					{choices.map((choice) => (
 						<SegmentedControlItem key={choice.id} render={<RadioPrimitive.Root value={choice.id} />}>

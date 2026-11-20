@@ -40,9 +40,16 @@ function toUser(svg: SVGSVGElement, clientX: number, clientY: number): DOMPoint 
 export function useFieldZoom(bounds: Bounds) {
 	const svgRef = useRef<SVGSVGElement>(null);
 	const [zoom, setZoom] = useState(noZoom);
+	const [zoomBounds, setZoomBounds] = useState(bounds);
 	const [active, setActive] = useState(false);
 	const activeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 	const dragFrom = useRef<{ x: number; y: number } | undefined>(undefined);
+
+	// Offsets from a landscape view don't describe the same region in portrait, or vice versa.
+	if (zoomBounds !== bounds) {
+		setZoomBounds(bounds);
+		setZoom(noZoom);
+	}
 
 	const update = (next: (current: Zoom) => Zoom) => {
 		setZoom((current) => clampZoom(bounds, next(current)));

@@ -13,6 +13,16 @@
 @custom-variant add-widget-compact (@container add-widget ((height < 23rem) or (width < 18rem)));
 @custom-variant add-widget-tiny (@container add-widget (height < 11rem));
 
+/* Place the field legend beside the image when the pane is wider than the viewed field. */
+@custom-variant field-aside {
+	@container field-landscape (min-aspect-ratio: 1.925) {
+		@slot;
+	}
+	@container field-portrait (min-aspect-ratio: 0.52) {
+		@slot;
+	}
+}
+
 /*
  * Material 3 motion, see DESIGN.md. Tailwind's easing names are redefined so `ease-*` classes, plain `transition-*`
  * classes, and coss ui components all use the same curves. `src/lib/motion.ts` mirrors these for the motion library.

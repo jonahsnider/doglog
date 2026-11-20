@@ -87,6 +87,8 @@ export const widgetOptions = {
 			choices: [
 				{ id: 'blue-left', label: 'Blue left' },
 				{ id: 'red-left', label: 'Red left' },
+				{ id: 'blue-top', label: 'Blue top' },
+				{ id: 'red-top', label: 'Red top' },
 			],
 			default: 'blue-left',
 		},
@@ -161,7 +163,7 @@ export const widgetInfos = [
 		id: 'field',
 		name: 'Field',
 		description:
-			'The FRC field seen from above. Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees. The `coordinates` option is `blue-wall` (WPILib 2026, origin at the blue alliance wall) or `center` (WPILib 2027, origin at the center with +X toward blue), inferred from the WPILib version the robot published. The `orientation` option defaults to putting +X on the right.',
+			'The FRC field seen from above. Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees. The `coordinates` option is `blue-wall` (WPILib 2026, origin at the blue alliance wall) or `center` (WPILib 2027, origin at the center with +X toward blue), inferred from the WPILib version the robot published. The `orientation` option supports landscape (`blue-left`, `red-left`) and portrait (`blue-top`, `red-top`), and defaults to putting +X on the right.',
 		accepts: ['struct', 'struct[]'],
 		roles: Object.values(widgetRoles.field),
 		options: Object.values(widgetOptions.field),

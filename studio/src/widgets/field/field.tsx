@@ -8,18 +8,14 @@ import { cn } from '@/lib/utils';
 import { useCursorTime } from '@/timeline/timeline';
 import {
 	type FieldCoordinates,
-	type FieldOrientation,
 	type FieldPoint,
 	type Measurement,
 	type MeasureTool,
-	aspectRatio,
 	coordinatesTransform,
 	measurementLabel,
-	orient,
-	orientationTransform,
+	orientedField,
 	snapTo45,
 	toBlueWall,
-	view,
 } from '@/widgets/field/geometry';
 import { FieldImage, Minimap } from '@/widgets/field/image';
 import { MeasurementDrawing } from '@/widgets/field/measure';
@@ -106,12 +102,13 @@ function ToolButtons({ tool, onToggle }: { tool: MeasureTool | undefined; onTogg
 
 export function Field({ bindings, options }: WidgetProps) {
 	const coordinates: FieldCoordinates = options['coordinates'] === 'center' ? 'center' : 'blue-wall';
-	const orientation: FieldOrientation = options['orientation'] === 'red-left' ? 'red-left' : 'blue-left';
+	const field = orientedField(options['orientation']);
+	const { aspectRatio, bounds, vertical } = field;
 	const time = useCursorTime();
 	// Values at the cursor change as samples arrive
 	useDataVersion();
 
-	const { svgRef, zoom, active, transform, toContent, startPan, movePan, endPan, reset } = useFieldZoom(view);
+	const { svgRef, zoom, active, transform, toContent, startPan, movePan, endPan, reset } = useFieldZoom(bounds);
 	/** Field position under the pointer, the last one while it's not over the field so the readout can fade out */
 	const [pointer, setPointer] = useState<FieldPoint>();
 	const [hovered, setHovered] = useState(false);
@@ -152,14 +149,14 @@ export function Field({ bindings, options }: WidgetProps) {
 
 	const fieldPointAt = (event: PointerEvent) => {
 		const content = toContent(event.clientX, event.clientY);
-		return toBlueWall(orient({ x: content.x, y: -content.y }, orientation), coordinates);
+		return toBlueWall(field.fromSvg(content), coordinates);
 	};
 	/** Where a field point is in the field's box, as fractions of its width and height */
 	const toFraction = (point: FieldPoint) => {
-		const { x, y } = orient(toBlueWall(point, coordinates), orientation);
+		const { x, y } = field.toSvg(toBlueWall(point, coordinates));
 		return {
-			x: (zoom.scale * x + zoom.x - view.x) / view.width,
-			y: (zoom.scale * -y + zoom.y - view.y) / view.height,
+			x: (zoom.scale * x + zoom.x - bounds.x) / bounds.width,
+			y: (zoom.scale * y + zoom.y - bounds.y) / bounds.height,
 		};
 	};
 	const toPercent = (point: FieldPoint) => {
@@ -175,30 +172,35 @@ export function Field({ bindings, options }: WidgetProps) {
 	}));
 
 	const label = measurement && measurementLabel(measurement);
+	const fieldWidth = `(100cqh - ${readoutHeight}) * ${aspectRatio}`;
 
 	return (
 		// The legend goes above the field, unless the widget is wider than the field and has room beside it. There, the
 		// field is centered between equal columns, and only moves right as far as the legend needs.
-		<div className="h-full p-2 [container-type:size]">
-			<div className="flex h-full flex-col gap-2 [@container(min-aspect-ratio:1.925)]:grid [@container(min-aspect-ratio:1.925)]:grid-cols-[1fr_minmax(0,max-content)_1fr] [@container(min-aspect-ratio:1.925)]:gap-x-0">
+		<div
+			className={cn(
+				'h-full p-2 [container-type:size]',
+				vertical ? '[container-name:field-portrait]' : '[container-name:field-landscape]',
+			)}
+		>
+			<div className="flex h-full flex-col gap-2 field-aside:grid field-aside:grid-cols-[1fr_minmax(0,max-content)_1fr] field-aside:gap-x-0">
 				{legend.length > 0 && (
-					<div className="max-h-[33%] shrink-0 overflow-y-auto [@container(min-aspect-ratio:1.925)]:max-h-none [@container(min-aspect-ratio:1.925)]:me-2 [@container(min-aspect-ratio:1.925)]:w-max [@container(min-aspect-ratio:1.925)]:max-w-[33cqw]">
+					<div className="max-h-[33%] shrink-0 overflow-y-auto field-aside:me-2 field-aside:max-h-none field-aside:w-max field-aside:max-w-[33cqw]">
 						<Legend items={legend} vertical />
 					</div>
 				)}
-				{/* Sized to the view's aspect ratio, so the image outside the view is cropped instead of filling the widget.
-				Beside the legend it's sized to the whole widget instead, so its column is as wide as the field. */}
-				<div className="flex min-h-0 min-w-0 flex-1 items-center justify-center [container-type:size] [@container(min-aspect-ratio:1.925)]:col-start-2 [@container(min-aspect-ratio:1.925)]:[container-type:normal]">
+				<div className="flex min-h-0 min-w-0 flex-1 items-center justify-center [container-type:size] field-aside:col-start-2 field-aside:[container-type:normal]">
 					<div
 						className="flex max-w-full flex-col gap-1"
-						style={{ width: `min(100cqw, (100cqh - ${readoutHeight}) * ${aspectRatio})` }}
+						// In short panes the portrait image can be narrower than the controls below it.
+						style={{ width: `min(100cqw, ${vertical ? `max(18rem, ${fieldWidth})` : fieldWidth})` }}
 					>
 						<div
 							className={cn(
-								'relative touch-none overflow-hidden',
+								'relative self-center touch-none overflow-hidden',
 								tool === undefined ? zoom.scale > 1 && 'cursor-grab active:cursor-grabbing' : 'cursor-crosshair',
 							)}
-							style={{ aspectRatio }}
+							style={{ aspectRatio, width: `min(100%, ${fieldWidth})` }}
 							onPointerDown={(event) => {
 								if (event.button !== 0) {
 									return;
@@ -259,12 +261,12 @@ export function Field({ bindings, options }: WidgetProps) {
 							<svg
 								ref={svgRef}
 								className="block size-full"
-								viewBox={`${view.x} ${view.y} ${view.width} ${view.height}`}
+								viewBox={field.viewBox}
 								role="img"
 								aria-label="Robot poses on the 2026 field"
 							>
 								<g transform={transform}>
-									<g transform={orientationTransform(orientation)}>
+									<g transform={field.transform}>
 										<FieldImage />
 										<g transform="scale(1 -1)">
 											<g transform={coordinatesTransform(coordinates)}>
@@ -283,7 +285,7 @@ export function Field({ bindings, options }: WidgetProps) {
 									{label.text}
 								</div>
 							)}
-							<Minimap zoom={zoom} visible={zoom.scale > 1 && active} left={minimapLeft} orientation={orientation} />
+							<Minimap zoom={zoom} visible={zoom.scale > 1 && active} left={minimapLeft} field={field} />
 						</div>
 						<div className="flex h-5 items-center justify-between gap-2 text-muted-foreground text-xs">
 							<CursorPosition pointer={pointer} hovered={hovered} copied={copied} />

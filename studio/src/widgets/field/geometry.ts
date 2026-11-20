@@ -18,26 +18,47 @@ export const fieldBackground = '#6f6f6f';
 // SVG coordinates are field meters with Y flipped, the image is rotated a half turn to put blue on the left.
 /** Shown around the field boundary on every side, the guardrails' margin in the image, so the driver stations are cropped */
 const margin = image.top / pixelsPerMeterY;
-export const view = {
-	x: -margin,
-	y: -(fieldWidth + margin),
-	width: fieldLength + margin * 2,
-	height: fieldWidth + margin * 2,
-};
 
-export const aspectRatio = view.width / view.height;
-
-/** Which alliance is on the left of the view, the field is rotated a half turn to put red on the left */
-export type FieldOrientation = 'blue-left' | 'red-left';
-
-/** Rotates SVG content a half turn around the field's center for `red-left` */
-export function orientationTransform(orientation: FieldOrientation): string | undefined {
-	return orientation === 'red-left' ? `rotate(180 ${fieldLength / 2} ${-fieldWidth / 2})` : undefined;
+function viewBounds(width: number, height: number) {
+	return { x: -margin, y: -height - margin, width: width + margin * 2, height: height + margin * 2 };
 }
 
-/** Converts between a field point and where it's drawn in the blue-left view, the same either way since it's a half turn */
-export function orient(point: FieldPoint, orientation: FieldOrientation): FieldPoint {
-	return orientation === 'red-left' ? { x: fieldLength - point.x, y: fieldWidth - point.y } : point;
+const landscape = viewBounds(fieldLength, fieldWidth);
+const portrait = viewBounds(fieldWidth, fieldLength);
+
+/** A quarter-turn matrix shared by the SVG, pointer positions, and measurement labels. Points in blue-wall coordinates
+ * have +Y up, while SVG points have +Y down. */
+function fieldView(cos: number, sin: number, offsetX: number, offsetY: number) {
+	const vertical = sin !== 0;
+	const bounds = vertical ? portrait : landscape;
+	return {
+		bounds,
+		vertical,
+		aspectRatio: bounds.width / bounds.height,
+		viewBox: `${bounds.x} ${bounds.y} ${bounds.width} ${bounds.height}`,
+		transform: `matrix(${cos} ${sin} ${-sin} ${cos} ${offsetX} ${offsetY})`,
+		toSvg: ({ x, y }: FieldPoint): FieldPoint => ({
+			x: cos * x + sin * y + offsetX,
+			y: sin * x - cos * y + offsetY,
+		}),
+		fromSvg: ({ x, y }: FieldPoint): FieldPoint => ({
+			x: cos * (x - offsetX) + sin * (y - offsetY),
+			y: sin * (x - offsetX) - cos * (y - offsetY),
+		}),
+	};
+}
+
+export type FieldView = ReturnType<typeof fieldView>;
+
+const blueLeft = fieldView(1, 0, 0, 0);
+const fieldViews = new Map([
+	['red-left', fieldView(-1, 0, fieldLength, -fieldWidth)],
+	['blue-top', fieldView(0, 1, 0, -fieldLength)],
+	['red-top', fieldView(0, -1, fieldWidth, 0)],
+]);
+
+export function orientedField(orientation: string | undefined): FieldView {
+	return fieldViews.get(orientation ?? '') ?? blueLeft;
 }
 
 /**
