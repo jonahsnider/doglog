@@ -56,14 +56,14 @@ export function checkBinding(type: WidgetType, name: string, role: string | unde
 	if (!bindsEntries(type)) {
 		throw new AgentError(
 			type.optionFromEntry
-				? `${type.name} widgets don’t show entries, pick what they show with their options instead.`
-				: `${type.name} widgets don’t show entries.`,
+				? `${type.name} widgets don't show entries, pick what they show with their options instead.`
+				: `${type.name} widgets don't show entries.`,
 		);
 	}
 	const entry = entryOf(name);
 	if (entry && !acceptsEntry(type, entry)) {
 		throw new AgentError(
-			`${type.name} widgets can’t show \`${name}\` (${entry.type}). See \`dashboard_create\` for what they accept.`,
+			`${type.name} widgets can't show \`${name}\` (${entry.type}). See \`dashboard_create\` for what they accept.`,
 		);
 	}
 	if (role === undefined) {
@@ -74,13 +74,13 @@ export function checkBinding(type: WidgetType, name: string, role: string | unde
 	if (!roles.includes(role)) {
 		throw new AgentError(
 			roles.length === 0
-				? `${type.name} widgets don’t have roles.`
-				: `\`${role}\` isn’t a role of ${type.name} widgets, which has \`${roles.join('`, `')}\`.`,
+				? `${type.name} widgets don't have roles.`
+				: `\`${role}\` isn't a role of ${type.name} widgets, which has \`${roles.join('`, `')}\`.`,
 		);
 	}
 	const fits = entry && type.roles ? type.roles(entry).map((option) => option.id) : roles;
 	if (!fits.includes(role)) {
-		throw new AgentError(`\`${name}\` (${entry?.type}) can’t be \`${role}\`, it can be \`${fits.join('`, `')}\`.`);
+		throw new AgentError(`\`${name}\` (${entry?.type}) can't be \`${role}\`, it can be \`${fits.join('`, `')}\`.`);
 	}
 }
 
@@ -100,7 +100,7 @@ export function checkConnections(type: WidgetType, bindings: readonly Binding[],
 				(source.connects !== 'single' || target.connects === undefined || source.sources.includes(target))
 			) {
 				throw new AgentError(
-					`\`${target.name}\` can’t be connected from \`${source.name}\`. Lines are drawn from a single robot, ghost, or point to another robot, ghost, point, points, or path, one way.`,
+					`\`${target.name}\` can't be connected from \`${source.name}\`. Lines are drawn from a single robot, ghost, or point to another robot, ghost, point, points, or path, one way.`,
 				);
 			}
 		}
@@ -170,7 +170,7 @@ export function showInputWidget(layout: PaneNode, paneId: string, input: WidgetI
 			const source = created[sourceIndex];
 			if (!source || sourceIndex === index) {
 				throw new AgentError(
-					`Binding ${index} can’t be connected from binding ${sourceIndex}, there’s no other binding there.`,
+					`Binding ${index} can't be connected from binding ${sourceIndex}, there's no other binding there.`,
 				);
 			}
 			next = connectBindings(next, paneId, source.id, target.id);
@@ -218,15 +218,15 @@ function describeBindings(type: WidgetType, widget: Widget, entryOf: EntryOf, so
 		const entry = entryOf(binding.name);
 		const problems: string[] = [];
 		if (sourceOpen && entry === undefined) {
-			problems.push('The entry isn’t in the active source.');
+			problems.push("The entry isn't in the active source.");
 		} else if (entry && binding.entry === undefined) {
-			problems.push(`${type.name} widgets can’t show ${entry.type} entries.`);
+			problems.push(`${type.name} widgets can't show ${entry.type} entries.`);
 		} else if (binding.entry && role !== undefined && binding.role?.id !== role) {
-			problems.push(`\`${role}\` doesn’t fit ${binding.entry.type} entries, so it’s shown as \`${binding.role?.id}\`.`);
+			problems.push(`\`${role}\` doesn't fit ${binding.entry.type} entries, so it's shown as \`${binding.role?.id}\`.`);
 		}
 		const unused = (sources ?? []).filter((id) => !binding.sources.some((source) => source.id === id));
 		if (binding.entry && unused.length > 0) {
-			problems.push(`Lines from ${unused.join(', ')} aren’t drawn, they aren’t a single robot, ghost, or point.`);
+			problems.push(`Lines from ${unused.join(', ')} aren't drawn, they aren't a single robot, ghost, or point.`);
 		}
 		return {
 			id: binding.id,

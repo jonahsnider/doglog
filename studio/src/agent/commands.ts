@@ -47,7 +47,7 @@ const dashboardReturns = 'Returns the dashboard like `dashboard_get`.';
 const commands = {
 	window_list: {
 		description:
-			'List open Studio windows: each one’s ID, window color, when it was last focused, the dashboard it shows, its source, and whether it’s focused. Use a window’s ID as the `window` input of other commands to target it, otherwise they act on the most recently focused window.',
+			"List open Studio windows: each one's ID, window color, when it was last focused, the dashboard it shows, its source, and whether it's focused. Use a window's ID as the `window` input of other commands to target it, otherwise they act on the most recently focused window.",
 		input: empty,
 		platforms: ['desktop'],
 		bridge: true,
@@ -67,13 +67,13 @@ const commands = {
 	},
 	dashboard_get: {
 		description:
-			'Get a dashboard: its name, layout, and each pane’s widget, options, and bindings, with the IDs other commands take. `problems` point out what keeps a widget from showing what was meant, ex. an entry missing from the source, an entry type the widget doesn’t accept, or a role that doesn’t fit. Sizes are each pane or split’s share of its parent split.',
+			"Get a dashboard: its name, layout, and each pane's widget, options, and bindings, with the IDs other commands take. `problems` point out what keeps a widget from showing what was meant, ex. an entry missing from the source, an entry type the widget doesn't accept, or a role that doesn't fit. Sizes are each pane or split's share of its parent split.",
 		input: z.strictObject({ dashboardId }),
 	},
 	dashboard_create: {
 		description: `Create a dashboard at the top of the list and show it, optionally with a whole layout of panes, widgets, and bindings. An invalid layout creates nothing. At most 4 panes fit side by side, or stacked. ${dashboardReturns}`,
 		input: z.strictObject({
-			name: z.string().optional().describe('Left out, a name is suggested from the dashboard’s contents'),
+			name: z.string().optional().describe("Left out, a name is suggested from the dashboard's contents"),
 			layout: layoutSchema.optional().describe('Left out, the dashboard has one empty pane'),
 		}),
 	},
@@ -95,26 +95,26 @@ const commands = {
 		input: z.strictObject({ dashboardId }),
 	},
 	dashboard_combine: {
-		description: `Put dashboards’ panes side by side in the first of them, in order, close the others, and show it. Fails when more than 4 panes would be side by side. ${dashboardReturns}`,
+		description: `Put dashboards' panes side by side in the first of them, in order, close the others, and show it. Fails when more than 4 panes would be side by side. ${dashboardReturns}`,
 		input: z.strictObject({
 			dashboardIds: z.array(z.string()).min(2).describe('Dashboard IDs, from `dashboard_list`'),
 		}),
 	},
 	pane_create: {
-		description: `Split a pane to add one after it (to its right, or below it), optionally showing a widget. At most 4 panes fit side by side, or stacked. Returns the new pane’s ID and the dashboard like \`dashboard_get\`.`,
+		description: `Split a pane to add one after it (to its right, or below it), optionally showing a widget. At most 4 panes fit side by side, or stacked. Returns the new pane's ID and the dashboard like \`dashboard_get\`.`,
 		input: z.strictObject({
 			dashboardId,
 			paneId: paneId.describe('The pane to split, from `dashboard_get`'),
 			direction: direction
 				.optional()
 				.describe(
-					'`row` adds the pane to the right, `column` below. Left out, it splits along the pane’s longer side, as when the user adds a widget.',
+					"`row` adds the pane to the right, `column` below. Left out, it splits along the pane's longer side, as when the user adds a widget.",
 				),
 			widget: widgetWithBindings.optional().describe('Left out, the new pane is empty'),
 		}),
 	},
 	pane_update: {
-		description: `Change a pane’s widget, its options, or the pane’s size. Changing the widget type keeps the bindings the new type accepts, like the user changing it. ${dashboardReturns}`,
+		description: `Change a pane's widget, its options, or the pane's size. Changing the widget type keeps the bindings the new type accepts, like the user changing it. ${dashboardReturns}`,
 		input: z.strictObject({
 			dashboardId,
 			paneId,
@@ -141,7 +141,7 @@ const commands = {
 		input: z.strictObject({ dashboardId, paneId }),
 	},
 	binding_create: {
-		description: `Bind entries to a pane’s widget by name, after its other bindings. An entry can be bound more than once, ex. to show it two ways. Returns the new bindings’ IDs and the dashboard like \`dashboard_get\`.`,
+		description: `Bind entries to a pane's widget by name, after its other bindings. An entry can be bound more than once, ex. to show it two ways. Returns the new bindings' IDs and the dashboard like \`dashboard_get\`.`,
 		input: z.strictObject({
 			dashboardId,
 			paneId,
@@ -153,7 +153,7 @@ const commands = {
 							.string()
 							.optional()
 							.describe(
-								'How the widget shows the entry, one of the widget type’s roles (see `dashboard_create`). Left out, it’s inferred as when the user drops the entry on the widget.',
+								"How the widget shows the entry, one of the widget type's roles (see `dashboard_create`). Left out, it's inferred as when the user drops the entry on the widget.",
 							),
 						color: color.optional(),
 						hidden: hidden.optional(),
@@ -163,11 +163,11 @@ const commands = {
 		}),
 	},
 	binding_update: {
-		description: `Change a binding’s role, color, hidden state, or connections. ${dashboardReturns}`,
+		description: `Change a binding's role, color, hidden state, or connections. ${dashboardReturns}`,
 		input: z.strictObject({
 			dashboardId,
 			bindingId,
-			role: z.string().optional().describe('One of the widget type’s roles that fits the entry'),
+			role: z.string().optional().describe("One of the widget type's roles that fits the entry"),
 			color: color.nullable().optional().describe(`${color.description} \`null\` lets the widget pick again.`),
 			hidden: hidden.optional(),
 			connectedFrom: z
@@ -184,23 +184,23 @@ const commands = {
 	},
 	entry_list: {
 		description:
-			'List the active source’s entries, with each one’s name, type, kind, and metadata (ex. its unit). Never returns values.',
+			"List the active source's entries, with each one's name, type, kind, and metadata (ex. its unit). Never returns values.",
 		input: z.strictObject({
 			name: z.string().optional().describe('Only entries whose name contains this, ignoring case'),
 			kind: z
 				.enum(entryKinds)
 				.optional()
-				.describe('Only entries of this kind. `unsupported` entries can’t be shown by widgets.'),
+				.describe("Only entries of this kind. `unsupported` entries can't be shown by widgets."),
 		}),
 	},
 	source_get: {
 		description:
-			'Get the active source: a log file, or a live connection to the robot or simulator, with its status and how many entries it has. `null` when there’s none.',
+			"Get the active source: a log file, or a live connection to the robot or simulator, with its status and how many entries it has. `null` when there's none.",
 		input: empty,
 	},
 	source_update: {
 		description:
-			'Open a WPILOG file, or connect to the robot from the `robotTarget` setting (or the simulator when the robot isn’t reachable). Returns once the log is loaded or the connection is made, like `source_get`.',
+			"Open a WPILOG file, or connect to the robot from the `robotTarget` setting (or the simulator when the robot isn't reachable). Returns once the log is loaded or the connection is made, like `source_get`.",
 		input: z.strictObject({
 			path: z
 				.string()
@@ -216,26 +216,26 @@ const commands = {
 	},
 	timeline_get: {
 		description:
-			'Get the timeline cursor and the source’s time range, in seconds on the source’s clock: a log’s timestamps (microseconds, as wpilog-parser reads them) divided by 1,000,000. Studio shows times relative to `start`.',
+			"Get the timeline cursor and the source's time range, in seconds on the source's clock: a log's timestamps (microseconds, as wpilog-parser reads them) divided by 1,000,000. Studio shows times relative to `start`.",
 		input: empty,
 	},
 	timeline_update: {
 		description:
-			'Move the timeline cursor so the user’s dashboards show that moment. Stops following live data. Returns the timeline like `timeline_get`.',
+			"Move the timeline cursor so the user's dashboards show that moment. Stops following live data. Returns the timeline like `timeline_get`.",
 		input: z.strictObject({
 			time: z
 				.number()
 				.describe(
-					'Seconds on the source’s clock, see `timeline_get`. Times outside the source’s range go to its start or end.',
+					"Seconds on the source's clock, see `timeline_get`. Times outside the source's range go to its start or end.",
 				),
 		}),
 	},
 	settings_get: {
-		description: 'Get the settings from Studio’s Settings page.',
+		description: "Get the settings from Studio's Settings page.",
 		input: empty,
 	},
 	settings_update: {
-		description: 'Change settings from Studio’s Settings page. Returns every setting like `settings_get`.',
+		description: "Change settings from Studio's Settings page. Returns every setting like `settings_get`.",
 		input: settingsSchema,
 	},
 } as const satisfies Record<string, CommandDefinition>;

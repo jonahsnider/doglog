@@ -68,13 +68,13 @@ test('layouts with too many panes side by side are rejected', () => {
 	expect(() => createInputLayout(split([pane, pane, pane, pane]), entryOf)).not.toThrow();
 });
 
-test('bindings the user couldn’t make are rejected', () => {
+test("bindings the user couldn't make are rejected", () => {
 	const graph = getWidgetType('graph')!;
 	const field = getWidgetType('field')!;
-	expect(() => checkBinding(graph, '/Drive/Pose', undefined, entryOf)).toThrow('can’t show `/Drive/Pose`');
+	expect(() => checkBinding(graph, '/Drive/Pose', undefined, entryOf)).toThrow("can't show `/Drive/Pose`");
 	expect(() => checkBinding(field, '/Drive/Pose', 'path', entryOf)).toThrow('can be `robot`, `ghost`, `point`');
-	expect(() => checkBinding(field, '/Drive/Pose', 'left', entryOf)).toThrow('isn’t a role of Field widgets');
-	expect(() => checkBinding(getWidgetType('notepad')!, '/Arm/Angle', undefined, entryOf)).toThrow('don’t show entries');
+	expect(() => checkBinding(field, '/Drive/Pose', 'left', entryOf)).toThrow("isn't a role of Field widgets");
+	expect(() => checkBinding(getWidgetType('notepad')!, '/Arm/Angle', undefined, entryOf)).toThrow("don't show entries");
 	// Entries missing from the source might fit once they're loaded
 	expect(() => checkBinding(field, '/Missing/Path', 'path', entryOf)).not.toThrow();
 	expect(() =>
@@ -85,7 +85,7 @@ test('bindings the user couldn’t make are rejected', () => {
 			},
 			entryOf,
 		),
-	).toThrow('can’t be connected from `/Vision/Tags`');
+	).toThrow("can't be connected from `/Vision/Tags`");
 });
 
 function bindingProblems(layout: PaneNode, sourceOpen = true): (string[] | undefined)[] {
@@ -95,7 +95,7 @@ function bindingProblems(layout: PaneNode, sourceOpen = true): (string[] | undef
 		: [];
 }
 
-test('dashboards point out bindings that won’t show what was meant', () => {
+test("dashboards point out bindings that won't show what was meant", () => {
 	const layout: PaneNode = {
 		kind: 'pane',
 		id: 'pane',
@@ -113,9 +113,9 @@ test('dashboards point out bindings that won’t show what was meant', () => {
 	};
 
 	expect(bindingProblems(layout)).toEqual([
-		['The entry isn’t in the active source.'],
-		['Field widgets can’t show double entries.'],
-		['`path` doesn’t fit struct:Pose2d entries, so it’s shown as `robot`.'],
+		["The entry isn't in the active source."],
+		["Field widgets can't show double entries."],
+		["`path` doesn't fit struct:Pose2d entries, so it's shown as `robot`."],
 		undefined,
 	]);
 	// Without a source, every entry would be missing

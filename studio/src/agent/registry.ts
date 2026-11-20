@@ -20,7 +20,7 @@ export async function runAgentCommand(name: string, args: unknown): Promise<unkn
 	const command = availableCommands.find((other) => other.name === name);
 	if (!command || !isHandled(name)) {
 		throw new AgentError(
-			command ? `\`${name}\` is handled by the doglog MCP server, not a window.` : `There’s no \`${name}\` command.`,
+			command ? `\`${name}\` is handled by the doglog MCP server, not a window.` : `There's no \`${name}\` command.`,
 			{ invalidInput: true },
 		);
 	}

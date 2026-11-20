@@ -25,7 +25,7 @@ Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and
 
 - **GIVEN** a dashboard with at least one widget is open
 - **WHEN** Studio receives ⇧⌘C (Ctrl+Shift+C on Windows and Linux)
-- **THEN** Studio copies the current dashboard's URL and shows a checkmark toast reading “Copied dashboard URL” if the copy succeeds
+- **THEN** Studio copies the current dashboard's URL and shows a checkmark toast reading "Copied dashboard URL" if the copy succeeds
 
 #### Scenario: Copy shortcut on a dashboard with only empty panes
 

@@ -38,5 +38,6 @@ Testing the desktop app is necessary for some features, but should only be used 
 
 ## General development
 
+- Use straight quotes and apostrophes in comments, specs, and agent-facing text such as CLI output and MCP descriptions. Leave Studio UI copy unchanged when applying this rule.
 - You may see other changes in the main worktree, try to work around them if possible
   - When committing changes, you can use `--no-verify` to skip pre-commit checks that are failing from other work after you've verified your own changes are correct

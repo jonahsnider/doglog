@@ -41,7 +41,7 @@ export async function showDashboard(id: string): Promise<void> {
 export function requireDashboard(id: string): Dashboard {
 	const dashboard = getDashboard(id);
 	if (!dashboard) {
-		throw new AgentError(`There’s no dashboard \`${id}\`, see \`dashboard_list\`.`);
+		throw new AgentError(`There's no dashboard \`${id}\`, see \`dashboard_list\`.`);
 	}
 	return dashboard;
 }
@@ -55,7 +55,7 @@ export function describeDashboard(id: string) {
 		id,
 		name: dashboardName(dashboard),
 		shared: dashboard.shared,
-		problems: sourceOpen ? undefined : ['No source is open, so bindings can’t be checked against its entries.'],
+		problems: sourceOpen ? undefined : ["No source is open, so bindings can't be checked against its entries."],
 		layout: describeLayout(dashboard.layout, getEntry, sourceOpen),
 	};
 }

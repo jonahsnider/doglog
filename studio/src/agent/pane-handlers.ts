@@ -76,7 +76,7 @@ function addDirection(layout: PaneNode, paneId: string): SplitDirection {
 function resizePane(layout: PaneNode, paneId: string, size: number): PaneNode {
 	const parent = findParent(layout, paneId);
 	if (!parent) {
-		throw new AgentError('The only pane fills the dashboard, so it can’t be resized.');
+		throw new AgentError("The only pane fills the dashboard, so it can't be resized.");
 	}
 	const sizes = childSizes(parent);
 	const index = parent.children.findIndex((child) => child.id === paneId);
@@ -142,7 +142,7 @@ export const paneHandlers: Pick<
 		requirePane(layout, paneId);
 		requirePane(layout, targetPaneId);
 		if (paneId === targetPaneId) {
-			throw new AgentError('A pane can’t be moved beside itself.');
+			throw new AgentError("A pane can't be moved beside itself.");
 		}
 		if (!canMovePane(layout, paneId, targetPaneId, side)) {
 			throw tooManyPanes(side === 'left' || side === 'right' ? 'row' : 'column');
@@ -188,7 +188,7 @@ export const paneHandlers: Pick<
 			let next = applyBindingInput(layout, pane.id, binding, { role, color, hidden });
 			if (connectedFrom !== undefined) {
 				if (!type.connects) {
-					throw new AgentError(`${type.name} widgets don’t connect bindings.`);
+					throw new AgentError(`${type.name} widgets don't connect bindings.`);
 				}
 				const current = new Set(binding.sources);
 				const wanted = new Set(connectedFrom);
@@ -203,7 +203,7 @@ export const paneHandlers: Pick<
 				const skipped = [...wanted].filter((id) => !connected.has(id));
 				if (skipped.length > 0) {
 					throw new AgentError(
-						`\`${skipped.join('`, `')}\` can’t be connected, since this binding is connected from it.`,
+						`\`${skipped.join('`, `')}\` can't be connected, since this binding is connected from it.`,
 					);
 				}
 				checkConnections(type, widgetBindings(findPane(next, pane.id)?.widget), getEntry);

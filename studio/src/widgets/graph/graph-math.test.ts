@@ -29,7 +29,7 @@ test('sparse samples are kept as is, starting from the held value before the vie
 	expect(line.samples).toEqual([0, 1, 2]);
 });
 
-test('dense samples keep each pixel column’s spike', () => {
+test("dense samples keep each pixel column's spike", () => {
 	const points: [number, number][] = Array.from({ length: 1000 }, (_, index) => [index, 0]);
 	points[500] = [500, 100];
 	const line = stepLine(samples(points), { start: 0, end: 1000 }, 10, 1000);
@@ -58,7 +58,7 @@ test('lines break where the live session was disconnected, and stop at a gap wit
 	expect(line.ys).toEqual([1, 2, 2, null, 3, 3, null]);
 });
 
-test('dense samples are thinned the same way after panning, so the line doesn’t wobble', () => {
+test("dense samples are thinned the same way after panning, so the line doesn't wobble", () => {
 	const points: [number, number][] = Array.from({ length: 10_000 }, (_, index) => [index, Math.sin(index)]);
 	const before = stepLine(samples(points), { start: 1000, end: 6000 }, 100, 10_000);
 	const after = stepLine(samples(points), { start: 1010, end: 6010 }, 100, 10_000);

@@ -4,8 +4,8 @@ import * as z from 'zod';
 
 const transform = z
 	.strictObject({
-		x: z.number().optional().describe('Meters toward the robot’s front'),
-		y: z.number().optional().describe('Meters toward the robot’s left'),
+		x: z.number().optional().describe("Meters toward the robot's front"),
+		y: z.number().optional().describe("Meters toward the robot's left"),
 		z: z.number().optional().describe('Meters up'),
 		roll: z.number().optional().describe('Degrees about the X axis'),
 		pitch: z.number().optional().describe('Degrees about the Y axis, positive points the front down'),
@@ -30,12 +30,12 @@ export const projectSchema = z.strictObject({
 			name: z
 				.string()
 				.min(1)
-				.describe('Shown in DogLog Studio’s Robot option, and used to find the robot on other devices'),
-			model: modelPath.describe('The robot’s body, a glTF binary (.glb) file relative to the project folder'),
+				.describe("Shown in DogLog Studio's Robot option, and used to find the robot on other devices"),
+			model: modelPath.describe("The robot's body, a glTF binary (.glb) file relative to the project folder"),
 			mount: transform
 				.optional()
 				.describe(
-					'Moves every model from the CAD’s coordinates to the robot’s, whose origin is its center on the floor',
+					"Moves every model from the CAD's coordinates to the robot's, whose origin is its center on the floor",
 				),
 			parts: z
 				.array(
@@ -43,7 +43,7 @@ export const projectSchema = z.strictObject({
 						model: modelPath,
 						origin: transform
 							.optional()
-							.describe('The pose of the part’s pivot in robot coordinates, where the CAD placed it'),
+							.describe("The pose of the part's pivot in robot coordinates, where the CAD placed it"),
 					}),
 				)
 				.optional()

@@ -90,7 +90,7 @@ export const handlers: Handlers = {
 			const hosts = robotHost === undefined ? [simulatorHost] : [robotHost, simulatorHost];
 			// Connecting retries until a server answers, agents are told right away instead
 			if (!(await Promise.all(hosts.map((host) => isReachable(host)))).includes(true)) {
-				throw new AgentError(`Couldn’t reach ${hosts.join(' or ')}. Check that the robot or simulator is running.`);
+				throw new AgentError(`Couldn't reach ${hosts.join(' or ')}. Check that the robot or simulator is running.`);
 			}
 			await connect(robotHost);
 			const source = await waitForSource((other) => other?.type !== 'live' || other.status !== 'connecting');
@@ -107,14 +107,14 @@ export const handlers: Handlers = {
 			}))
 		) {
 			throw new AgentError(
-				error === '' ? `Another source was opened before ${path} could be.` : `Couldn’t open ${path}: ${error}`,
+				error === '' ? `Another source was opened before ${path} could be.` : `Couldn't open ${path}: ${error}`,
 			);
 		}
 		const loading = getSource();
 		const source = await waitForSource((other) => other !== loading);
 		if (source?.type !== 'log' || source.status !== 'loaded') {
 			throw new AgentError(
-				error === '' ? `Another source was opened before ${path} finished loading.` : `Couldn’t open ${path}: ${error}`,
+				error === '' ? `Another source was opened before ${path} finished loading.` : `Couldn't open ${path}: ${error}`,
 			);
 		}
 		return describeSource();

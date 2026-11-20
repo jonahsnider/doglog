@@ -4,7 +4,7 @@
 	"commands": [
 		{
 			"name": "window_list",
-			"description": "List open Studio windows: each one’s ID, window color, when it was last focused, the dashboard it shows, its source, and whether it’s focused. Use a window’s ID as the `window` input of other commands to target it, otherwise they act on the most recently focused window.",
+			"description": "List open Studio windows: each one's ID, window color, when it was last focused, the dashboard it shows, its source, and whether it's focused. Use a window's ID as the `window` input of other commands to target it, otherwise they act on the most recently focused window.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
@@ -46,14 +46,14 @@
 		},
 		{
 			"name": "dashboard_get",
-			"description": "Get a dashboard: its name, layout, and each pane’s widget, options, and bindings, with the IDs other commands take. `problems` point out what keeps a widget from showing what was meant, ex. an entry missing from the source, an entry type the widget doesn’t accept, or a role that doesn’t fit. Sizes are each pane or split’s share of its parent split.",
+			"description": "Get a dashboard: its name, layout, and each pane's widget, options, and bindings, with the IDs other commands take. `problems` point out what keeps a widget from showing what was meant, ex. an entry missing from the source, an entry type the widget doesn't accept, or a role that doesn't fit. Sizes are each pane or split's share of its parent split.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
 				"properties": {
 					"dashboardId": {
 						"type": "string",
-						"description": "The dashboard’s ID, from `dashboard_list`"
+						"description": "The dashboard's ID, from `dashboard_list`"
 					}
 				},
 				"required": [
@@ -71,7 +71,7 @@
 				"type": "object",
 				"properties": {
 					"name": {
-						"description": "Left out, a name is suggested from the dashboard’s contents",
+						"description": "Left out, a name is suggested from the dashboard's contents",
 						"type": "string"
 					},
 					"layout": {
@@ -115,14 +115,14 @@
 																	"type": "integer",
 																	"minimum": 0,
 																	"maximum": 4,
-																	"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+																	"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
 																},
 																"hidden": {
 																	"type": "boolean",
 																	"description": "Listed in the legend but not drawn"
 																},
 																"role": {
-																	"description": "How the widget shows the entry. Left out, it’s inferred from the entry and the bindings before it.",
+																	"description": "How the widget shows the entry. Left out, it's inferred from the entry and the bindings before it.",
 																	"type": "string",
 																	"enum": [
 																		"left",
@@ -142,7 +142,7 @@
 													"type"
 												],
 												"additionalProperties": false,
-												"description": "Graph: Plots entries over time. Numbers go on the left or right axis (`left`, `right`), or are shown as colored bands (`discrete`); booleans and strings can only be bands. A number goes on the right axis when its unit measures something else than the left axis’s."
+												"description": "Graph: Plots entries over time. Numbers go on the left or right axis (`left`, `right`), or are shown as colored bands (`discrete`); booleans and strings can only be bands. A number goes on the right axis when its unit measures something else than the left axis's."
 											},
 											{
 												"type": "object",
@@ -204,14 +204,14 @@
 																	"type": "integer",
 																	"minimum": 0,
 																	"maximum": 4,
-																	"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+																	"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
 																},
 																"hidden": {
 																	"type": "boolean",
 																	"description": "Listed in the legend but not drawn"
 																},
 																"role": {
-																	"description": "How the widget shows the entry. Left out, it’s inferred from the entry and the bindings before it.",
+																	"description": "How the widget shows the entry. Left out, it's inferred from the entry and the bindings before it.",
 																	"type": "string",
 																	"enum": [
 																		"shape",
@@ -223,7 +223,7 @@
 																	]
 																},
 																"connectedFrom": {
-																	"description": "Indexes of this widget’s bindings (from 0) to draw lines from, ex. from the robot to seen AprilTags. Each must be a single robot, ghost, or point.",
+																	"description": "Indexes of this widget's bindings (from 0) to draw lines from, ex. from the robot to seen AprilTags. Each must be a single robot, ghost, or point.",
 																	"type": "array",
 																	"items": {
 																		"type": "integer",
@@ -276,7 +276,7 @@
 																	{
 																		"type": "string",
 																		"minLength": 1,
-																		"description": "`swerve`, or another choice from the user’s device"
+																		"description": "`swerve`, or another choice from the user's device"
 																	},
 																	{
 																		"type": "null"
@@ -301,14 +301,14 @@
 																	"type": "integer",
 																	"minimum": 0,
 																	"maximum": 4,
-																	"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+																	"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
 																},
 																"hidden": {
 																	"type": "boolean",
 																	"description": "Listed in the legend but not drawn"
 																},
 																"role": {
-																	"description": "How the widget shows the entry. Left out, it’s inferred from the entry and the bindings before it.",
+																	"description": "How the widget shows the entry. Left out, it's inferred from the entry and the bindings before it.",
 																	"type": "string",
 																	"enum": [
 																		"side",
@@ -329,7 +329,7 @@
 													"type"
 												],
 												"additionalProperties": false,
-												"description": "Robot: The robot in 2D or 3D. Mechanism2d entries are drawn on a plane of the robot: `side` (XZ, the default), `front` (YZ), or `top` (XY). A Pose3d[] entry places the parts of a robot project’s CAD model (`parts`). The `view` option defaults to 2D when only a mechanism is bound. The `robot` option is `swerve` (a simple swerve robot) or the name of a robot project the user added on their device."
+												"description": "Robot: The robot in 2D or 3D. Mechanism2d entries are drawn on a plane of the robot: `side` (XZ, the default), `front` (YZ), or `top` (XY). A Pose3d[] entry places the parts of a robot project's CAD model (`parts`). The `view` option defaults to 2D when only a mechanism is bound. The `robot` option is `swerve` (a simple swerve robot) or the name of a robot project the user added on their device."
 											},
 											{
 												"type": "object",
@@ -353,7 +353,7 @@
 																	"type": "integer",
 																	"minimum": 0,
 																	"maximum": 4,
-																	"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+																	"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
 																},
 																"hidden": {
 																	"type": "boolean",
@@ -371,7 +371,7 @@
 													"type"
 												],
 												"additionalProperties": false,
-												"description": "Table: A table of the bound entries’ values at the timeline cursor. Accepts every kind but Mechanism2d."
+												"description": "Table: A table of the bound entries' values at the timeline cursor. Accepts every kind but Mechanism2d."
 											},
 											{
 												"type": "object",
@@ -395,7 +395,7 @@
 																	"type": "integer",
 																	"minimum": 0,
 																	"maximum": 4,
-																	"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+																	"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
 																},
 																"hidden": {
 																	"type": "boolean",
@@ -413,7 +413,7 @@
 													"type"
 												],
 												"additionalProperties": false,
-												"description": "Console: Text logged over time, like a terminal. Starts with WPILib’s console output (`/console`) and Driver Station messages (`/messages`) bound."
+												"description": "Console: Text logged over time, like a terminal. Starts with WPILib's console output (`/console`) and Driver Station messages (`/messages`) bound."
 											},
 											{
 												"type": "object",
@@ -437,14 +437,14 @@
 																	"type": "integer",
 																	"minimum": 0,
 																	"maximum": 4,
-																	"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+																	"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
 																},
 																"hidden": {
 																	"type": "boolean",
 																	"description": "Listed in the legend but not drawn"
 																},
 																"role": {
-																	"description": "How the widget shows the entry. Left out, it’s inferred from the entry and the bindings before it.",
+																	"description": "How the widget shows the entry. Left out, it's inferred from the entry and the bindings before it.",
 																	"type": "string",
 																	"enum": [
 																		"states",
@@ -520,7 +520,7 @@
 													"type"
 												],
 												"additionalProperties": false,
-												"description": "Controller: A Driver Station controller’s buttons and sticks. Doesn’t take entries: pick the joystick port with the `controller` option. The `layout` option is inferred from the controller’s name."
+												"description": "Controller: A Driver Station controller's buttons and sticks. Doesn't take entries: pick the joystick port with the `controller` option. The `layout` option is inferred from the controller's name."
 											},
 											{
 												"type": "object",
@@ -534,7 +534,7 @@
 													"type"
 												],
 												"additionalProperties": false,
-												"description": "Notepad: Notes the user types, the same notes in every notepad. Doesn’t take entries."
+												"description": "Notepad: Notes the user types, the same notes in every notepad. Doesn't take entries."
 											}
 										]
 									},
@@ -542,7 +542,7 @@
 										"type": "number",
 										"exclusiveMinimum": 0,
 										"exclusiveMaximum": 1,
-										"description": "Share of its split’s width (in a row) or height (in a column), from 0 to 1. Left out, panes share what’s left evenly."
+										"description": "Share of its split's width (in a row) or height (in a column), from 0 to 1. Left out, panes share what's left evenly."
 									}
 								},
 								"required": [
@@ -569,7 +569,7 @@
 										"type": "number",
 										"exclusiveMinimum": 0,
 										"exclusiveMaximum": 1,
-										"description": "Share of its split’s width (in a row) or height (in a column), from 0 to 1. Left out, panes share what’s left evenly."
+										"description": "Share of its split's width (in a row) or height (in a column), from 0 to 1. Left out, panes share what's left evenly."
 									},
 									"children": {
 										"minItems": 2,
@@ -603,7 +603,7 @@
 				"properties": {
 					"dashboardId": {
 						"type": "string",
-						"description": "The dashboard’s ID, from `dashboard_list`"
+						"description": "The dashboard's ID, from `dashboard_list`"
 					},
 					"name": {
 						"description": "A blank name goes back to suggesting one from its contents",
@@ -629,7 +629,7 @@
 				"properties": {
 					"dashboardId": {
 						"type": "string",
-						"description": "The dashboard’s ID, from `dashboard_list`"
+						"description": "The dashboard's ID, from `dashboard_list`"
 					}
 				},
 				"required": [
@@ -648,7 +648,7 @@
 				"properties": {
 					"dashboardId": {
 						"type": "string",
-						"description": "The dashboard’s ID, from `dashboard_list`"
+						"description": "The dashboard's ID, from `dashboard_list`"
 					}
 				},
 				"required": [
@@ -660,7 +660,7 @@
 		},
 		{
 			"name": "dashboard_combine",
-			"description": "Put dashboards’ panes side by side in the first of them, in order, close the others, and show it. Fails when more than 4 panes would be side by side. Returns the dashboard like `dashboard_get`.",
+			"description": "Put dashboards' panes side by side in the first of them, in order, close the others, and show it. Fails when more than 4 panes would be side by side. Returns the dashboard like `dashboard_get`.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
@@ -683,21 +683,21 @@
 		},
 		{
 			"name": "pane_create",
-			"description": "Split a pane to add one after it (to its right, or below it), optionally showing a widget. At most 4 panes fit side by side, or stacked. Returns the new pane’s ID and the dashboard like `dashboard_get`.",
+			"description": "Split a pane to add one after it (to its right, or below it), optionally showing a widget. At most 4 panes fit side by side, or stacked. Returns the new pane's ID and the dashboard like `dashboard_get`.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
 				"properties": {
 					"dashboardId": {
 						"type": "string",
-						"description": "The dashboard’s ID, from `dashboard_list`"
+						"description": "The dashboard's ID, from `dashboard_list`"
 					},
 					"paneId": {
 						"type": "string",
 						"description": "The pane to split, from `dashboard_get`"
 					},
 					"direction": {
-						"description": "`row` adds the pane to the right, `column` below. Left out, it splits along the pane’s longer side, as when the user adds a widget.",
+						"description": "`row` adds the pane to the right, `column` below. Left out, it splits along the pane's longer side, as when the user adds a widget.",
 						"type": "string",
 						"enum": [
 							"row",
@@ -729,14 +729,14 @@
 													"type": "integer",
 													"minimum": 0,
 													"maximum": 4,
-													"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+													"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
 												},
 												"hidden": {
 													"type": "boolean",
 													"description": "Listed in the legend but not drawn"
 												},
 												"role": {
-													"description": "How the widget shows the entry. Left out, it’s inferred from the entry and the bindings before it.",
+													"description": "How the widget shows the entry. Left out, it's inferred from the entry and the bindings before it.",
 													"type": "string",
 													"enum": [
 														"left",
@@ -756,7 +756,7 @@
 									"type"
 								],
 								"additionalProperties": false,
-								"description": "Graph: Plots entries over time. Numbers go on the left or right axis (`left`, `right`), or are shown as colored bands (`discrete`); booleans and strings can only be bands. A number goes on the right axis when its unit measures something else than the left axis’s."
+								"description": "Graph: Plots entries over time. Numbers go on the left or right axis (`left`, `right`), or are shown as colored bands (`discrete`); booleans and strings can only be bands. A number goes on the right axis when its unit measures something else than the left axis's."
 							},
 							{
 								"type": "object",
@@ -818,14 +818,14 @@
 													"type": "integer",
 													"minimum": 0,
 													"maximum": 4,
-													"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+													"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
 												},
 												"hidden": {
 													"type": "boolean",
 													"description": "Listed in the legend but not drawn"
 												},
 												"role": {
-													"description": "How the widget shows the entry. Left out, it’s inferred from the entry and the bindings before it.",
+													"description": "How the widget shows the entry. Left out, it's inferred from the entry and the bindings before it.",
 													"type": "string",
 													"enum": [
 														"shape",
@@ -837,7 +837,7 @@
 													]
 												},
 												"connectedFrom": {
-													"description": "Indexes of this widget’s bindings (from 0) to draw lines from, ex. from the robot to seen AprilTags. Each must be a single robot, ghost, or point.",
+													"description": "Indexes of this widget's bindings (from 0) to draw lines from, ex. from the robot to seen AprilTags. Each must be a single robot, ghost, or point.",
 													"type": "array",
 													"items": {
 														"type": "integer",
@@ -890,7 +890,7 @@
 													{
 														"type": "string",
 														"minLength": 1,
-														"description": "`swerve`, or another choice from the user’s device"
+														"description": "`swerve`, or another choice from the user's device"
 													},
 													{
 														"type": "null"
@@ -915,14 +915,14 @@
 													"type": "integer",
 													"minimum": 0,
 													"maximum": 4,
-													"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+													"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
 												},
 												"hidden": {
 													"type": "boolean",
 													"description": "Listed in the legend but not drawn"
 												},
 												"role": {
-													"description": "How the widget shows the entry. Left out, it’s inferred from the entry and the bindings before it.",
+													"description": "How the widget shows the entry. Left out, it's inferred from the entry and the bindings before it.",
 													"type": "string",
 													"enum": [
 														"side",
@@ -943,7 +943,7 @@
 									"type"
 								],
 								"additionalProperties": false,
-								"description": "Robot: The robot in 2D or 3D. Mechanism2d entries are drawn on a plane of the robot: `side` (XZ, the default), `front` (YZ), or `top` (XY). A Pose3d[] entry places the parts of a robot project’s CAD model (`parts`). The `view` option defaults to 2D when only a mechanism is bound. The `robot` option is `swerve` (a simple swerve robot) or the name of a robot project the user added on their device."
+								"description": "Robot: The robot in 2D or 3D. Mechanism2d entries are drawn on a plane of the robot: `side` (XZ, the default), `front` (YZ), or `top` (XY). A Pose3d[] entry places the parts of a robot project's CAD model (`parts`). The `view` option defaults to 2D when only a mechanism is bound. The `robot` option is `swerve` (a simple swerve robot) or the name of a robot project the user added on their device."
 							},
 							{
 								"type": "object",
@@ -967,7 +967,7 @@
 													"type": "integer",
 													"minimum": 0,
 													"maximum": 4,
-													"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+													"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
 												},
 												"hidden": {
 													"type": "boolean",
@@ -985,7 +985,7 @@
 									"type"
 								],
 								"additionalProperties": false,
-								"description": "Table: A table of the bound entries’ values at the timeline cursor. Accepts every kind but Mechanism2d."
+								"description": "Table: A table of the bound entries' values at the timeline cursor. Accepts every kind but Mechanism2d."
 							},
 							{
 								"type": "object",
@@ -1009,7 +1009,7 @@
 													"type": "integer",
 													"minimum": 0,
 													"maximum": 4,
-													"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+													"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
 												},
 												"hidden": {
 													"type": "boolean",
@@ -1027,7 +1027,7 @@
 									"type"
 								],
 								"additionalProperties": false,
-								"description": "Console: Text logged over time, like a terminal. Starts with WPILib’s console output (`/console`) and Driver Station messages (`/messages`) bound."
+								"description": "Console: Text logged over time, like a terminal. Starts with WPILib's console output (`/console`) and Driver Station messages (`/messages`) bound."
 							},
 							{
 								"type": "object",
@@ -1051,14 +1051,14 @@
 													"type": "integer",
 													"minimum": 0,
 													"maximum": 4,
-													"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+													"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
 												},
 												"hidden": {
 													"type": "boolean",
 													"description": "Listed in the legend but not drawn"
 												},
 												"role": {
-													"description": "How the widget shows the entry. Left out, it’s inferred from the entry and the bindings before it.",
+													"description": "How the widget shows the entry. Left out, it's inferred from the entry and the bindings before it.",
 													"type": "string",
 													"enum": [
 														"states",
@@ -1134,7 +1134,7 @@
 									"type"
 								],
 								"additionalProperties": false,
-								"description": "Controller: A Driver Station controller’s buttons and sticks. Doesn’t take entries: pick the joystick port with the `controller` option. The `layout` option is inferred from the controller’s name."
+								"description": "Controller: A Driver Station controller's buttons and sticks. Doesn't take entries: pick the joystick port with the `controller` option. The `layout` option is inferred from the controller's name."
 							},
 							{
 								"type": "object",
@@ -1148,7 +1148,7 @@
 									"type"
 								],
 								"additionalProperties": false,
-								"description": "Notepad: Notes the user types, the same notes in every notepad. Doesn’t take entries."
+								"description": "Notepad: Notes the user types, the same notes in every notepad. Doesn't take entries."
 							}
 						]
 					}
@@ -1163,18 +1163,18 @@
 		},
 		{
 			"name": "pane_update",
-			"description": "Change a pane’s widget, its options, or the pane’s size. Changing the widget type keeps the bindings the new type accepts, like the user changing it. Returns the dashboard like `dashboard_get`.",
+			"description": "Change a pane's widget, its options, or the pane's size. Changing the widget type keeps the bindings the new type accepts, like the user changing it. Returns the dashboard like `dashboard_get`.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
 				"properties": {
 					"dashboardId": {
 						"type": "string",
-						"description": "The dashboard’s ID, from `dashboard_list`"
+						"description": "The dashboard's ID, from `dashboard_list`"
 					},
 					"paneId": {
 						"type": "string",
-						"description": "The pane’s ID, from `dashboard_get`"
+						"description": "The pane's ID, from `dashboard_get`"
 					},
 					"widget": {
 						"description": "The widget type and options to pick. `null` empties the pane. Bindings are changed with `binding_*`.",
@@ -1193,7 +1193,7 @@
 											"type"
 										],
 										"additionalProperties": false,
-										"description": "Graph: Plots entries over time. Numbers go on the left or right axis (`left`, `right`), or are shown as colored bands (`discrete`); booleans and strings can only be bands. A number goes on the right axis when its unit measures something else than the left axis’s."
+										"description": "Graph: Plots entries over time. Numbers go on the left or right axis (`left`, `right`), or are shown as colored bands (`discrete`); booleans and strings can only be bands. A number goes on the right axis when its unit measures something else than the left axis's."
 									},
 									{
 										"type": "object",
@@ -1278,7 +1278,7 @@
 															{
 																"type": "string",
 																"minLength": 1,
-																"description": "`swerve`, or another choice from the user’s device"
+																"description": "`swerve`, or another choice from the user's device"
 															},
 															{
 																"type": "null"
@@ -1293,7 +1293,7 @@
 											"type"
 										],
 										"additionalProperties": false,
-										"description": "Robot: The robot in 2D or 3D. Mechanism2d entries are drawn on a plane of the robot: `side` (XZ, the default), `front` (YZ), or `top` (XY). A Pose3d[] entry places the parts of a robot project’s CAD model (`parts`). The `view` option defaults to 2D when only a mechanism is bound. The `robot` option is `swerve` (a simple swerve robot) or the name of a robot project the user added on their device."
+										"description": "Robot: The robot in 2D or 3D. Mechanism2d entries are drawn on a plane of the robot: `side` (XZ, the default), `front` (YZ), or `top` (XY). A Pose3d[] entry places the parts of a robot project's CAD model (`parts`). The `view` option defaults to 2D when only a mechanism is bound. The `robot` option is `swerve` (a simple swerve robot) or the name of a robot project the user added on their device."
 									},
 									{
 										"type": "object",
@@ -1307,7 +1307,7 @@
 											"type"
 										],
 										"additionalProperties": false,
-										"description": "Table: A table of the bound entries’ values at the timeline cursor. Accepts every kind but Mechanism2d."
+										"description": "Table: A table of the bound entries' values at the timeline cursor. Accepts every kind but Mechanism2d."
 									},
 									{
 										"type": "object",
@@ -1321,7 +1321,7 @@
 											"type"
 										],
 										"additionalProperties": false,
-										"description": "Console: Text logged over time, like a terminal. Starts with WPILib’s console output (`/console`) and Driver Station messages (`/messages`) bound."
+										"description": "Console: Text logged over time, like a terminal. Starts with WPILib's console output (`/console`) and Driver Station messages (`/messages`) bound."
 									},
 									{
 										"type": "object",
@@ -1389,7 +1389,7 @@
 											"type"
 										],
 										"additionalProperties": false,
-										"description": "Controller: A Driver Station controller’s buttons and sticks. Doesn’t take entries: pick the joystick port with the `controller` option. The `layout` option is inferred from the controller’s name."
+										"description": "Controller: A Driver Station controller's buttons and sticks. Doesn't take entries: pick the joystick port with the `controller` option. The `layout` option is inferred from the controller's name."
 									},
 									{
 										"type": "object",
@@ -1403,7 +1403,7 @@
 											"type"
 										],
 										"additionalProperties": false,
-										"description": "Notepad: Notes the user types, the same notes in every notepad. Doesn’t take entries."
+										"description": "Notepad: Notes the user types, the same notes in every notepad. Doesn't take entries."
 									}
 								]
 							},
@@ -1416,7 +1416,7 @@
 						"type": "number",
 						"exclusiveMinimum": 0,
 						"exclusiveMaximum": 1,
-						"description": "Share of its split’s width (in a row) or height (in a column), from 0 to 1. Left out, panes share what’s left evenly."
+						"description": "Share of its split's width (in a row) or height (in a column), from 0 to 1. Left out, panes share what's left evenly."
 					}
 				},
 				"required": [
@@ -1436,11 +1436,11 @@
 				"properties": {
 					"dashboardId": {
 						"type": "string",
-						"description": "The dashboard’s ID, from `dashboard_list`"
+						"description": "The dashboard's ID, from `dashboard_list`"
 					},
 					"paneId": {
 						"type": "string",
-						"description": "The pane’s ID, from `dashboard_get`"
+						"description": "The pane's ID, from `dashboard_get`"
 					},
 					"targetPaneId": {
 						"type": "string",
@@ -1476,11 +1476,11 @@
 				"properties": {
 					"dashboardId": {
 						"type": "string",
-						"description": "The dashboard’s ID, from `dashboard_list`"
+						"description": "The dashboard's ID, from `dashboard_list`"
 					},
 					"paneId": {
 						"type": "string",
-						"description": "The pane’s ID, from `dashboard_get`"
+						"description": "The pane's ID, from `dashboard_get`"
 					}
 				},
 				"required": [
@@ -1493,18 +1493,18 @@
 		},
 		{
 			"name": "binding_create",
-			"description": "Bind entries to a pane’s widget by name, after its other bindings. An entry can be bound more than once, ex. to show it two ways. Returns the new bindings’ IDs and the dashboard like `dashboard_get`.",
+			"description": "Bind entries to a pane's widget by name, after its other bindings. An entry can be bound more than once, ex. to show it two ways. Returns the new bindings' IDs and the dashboard like `dashboard_get`.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
 				"properties": {
 					"dashboardId": {
 						"type": "string",
-						"description": "The dashboard’s ID, from `dashboard_list`"
+						"description": "The dashboard's ID, from `dashboard_list`"
 					},
 					"paneId": {
 						"type": "string",
-						"description": "The pane’s ID, from `dashboard_get`"
+						"description": "The pane's ID, from `dashboard_get`"
 					},
 					"bindings": {
 						"minItems": 1,
@@ -1518,14 +1518,14 @@
 									"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
 								},
 								"role": {
-									"description": "How the widget shows the entry, one of the widget type’s roles (see `dashboard_create`). Left out, it’s inferred as when the user drops the entry on the widget.",
+									"description": "How the widget shows the entry, one of the widget type's roles (see `dashboard_create`). Left out, it's inferred as when the user drops the entry on the widget.",
 									"type": "string"
 								},
 								"color": {
 									"type": "integer",
 									"minimum": 0,
 									"maximum": 4,
-									"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+									"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
 								},
 								"hidden": {
 									"type": "boolean",
@@ -1550,31 +1550,31 @@
 		},
 		{
 			"name": "binding_update",
-			"description": "Change a binding’s role, color, hidden state, or connections. Returns the dashboard like `dashboard_get`.",
+			"description": "Change a binding's role, color, hidden state, or connections. Returns the dashboard like `dashboard_get`.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
 				"properties": {
 					"dashboardId": {
 						"type": "string",
-						"description": "The dashboard’s ID, from `dashboard_list`"
+						"description": "The dashboard's ID, from `dashboard_list`"
 					},
 					"bindingId": {
 						"type": "string",
-						"description": "The binding’s ID, from `dashboard_get`"
+						"description": "The binding's ID, from `dashboard_get`"
 					},
 					"role": {
-						"description": "One of the widget type’s roles that fits the entry",
+						"description": "One of the widget type's roles that fits the entry",
 						"type": "string"
 					},
 					"color": {
-						"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one. `null` lets the widget pick again.",
+						"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one. `null` lets the widget pick again.",
 						"anyOf": [
 							{
 								"type": "integer",
 								"minimum": 0,
 								"maximum": 4,
-								"description": "One of the theme’s 5 chart colors, by index. Left out, the widget picks one."
+								"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
 							},
 							{
 								"type": "null"
@@ -1610,11 +1610,11 @@
 				"properties": {
 					"dashboardId": {
 						"type": "string",
-						"description": "The dashboard’s ID, from `dashboard_list`"
+						"description": "The dashboard's ID, from `dashboard_list`"
 					},
 					"bindingId": {
 						"type": "string",
-						"description": "The binding’s ID, from `dashboard_get`"
+						"description": "The binding's ID, from `dashboard_get`"
 					}
 				},
 				"required": [
@@ -1627,7 +1627,7 @@
 		},
 		{
 			"name": "entry_list",
-			"description": "List the active source’s entries, with each one’s name, type, kind, and metadata (ex. its unit). Never returns values.",
+			"description": "List the active source's entries, with each one's name, type, kind, and metadata (ex. its unit). Never returns values.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
@@ -1637,7 +1637,7 @@
 						"type": "string"
 					},
 					"kind": {
-						"description": "Only entries of this kind. `unsupported` entries can’t be shown by widgets.",
+						"description": "Only entries of this kind. `unsupported` entries can't be shown by widgets.",
 						"type": "string",
 						"enum": [
 							"number",
@@ -1659,7 +1659,7 @@
 		},
 		{
 			"name": "source_get",
-			"description": "Get the active source: a log file, or a live connection to the robot or simulator, with its status and how many entries it has. `null` when there’s none.",
+			"description": "Get the active source: a log file, or a live connection to the robot or simulator, with its status and how many entries it has. `null` when there's none.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
@@ -1670,7 +1670,7 @@
 		},
 		{
 			"name": "source_update",
-			"description": "Open a WPILOG file, or connect to the robot from the `robotTarget` setting (or the simulator when the robot isn’t reachable). Returns once the log is loaded or the connection is made, like `source_get`.",
+			"description": "Open a WPILOG file, or connect to the robot from the `robotTarget` setting (or the simulator when the robot isn't reachable). Returns once the log is loaded or the connection is made, like `source_get`.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
@@ -1698,7 +1698,7 @@
 		},
 		{
 			"name": "timeline_get",
-			"description": "Get the timeline cursor and the source’s time range, in seconds on the source’s clock: a log’s timestamps (microseconds, as wpilog-parser reads them) divided by 1,000,000. Studio shows times relative to `start`.",
+			"description": "Get the timeline cursor and the source's time range, in seconds on the source's clock: a log's timestamps (microseconds, as wpilog-parser reads them) divided by 1,000,000. Studio shows times relative to `start`.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
@@ -1709,14 +1709,14 @@
 		},
 		{
 			"name": "timeline_update",
-			"description": "Move the timeline cursor so the user’s dashboards show that moment. Stops following live data. Returns the timeline like `timeline_get`.",
+			"description": "Move the timeline cursor so the user's dashboards show that moment. Stops following live data. Returns the timeline like `timeline_get`.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
 				"properties": {
 					"time": {
 						"type": "number",
-						"description": "Seconds on the source’s clock, see `timeline_get`. Times outside the source’s range go to its start or end."
+						"description": "Seconds on the source's clock, see `timeline_get`. Times outside the source's range go to its start or end."
 					}
 				},
 				"required": [
@@ -1728,7 +1728,7 @@
 		},
 		{
 			"name": "settings_get",
-			"description": "Get the settings from Studio’s Settings page.",
+			"description": "Get the settings from Studio's Settings page.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
@@ -1739,7 +1739,7 @@
 		},
 		{
 			"name": "settings_update",
-			"description": "Change settings from Studio’s Settings page. Returns every setting like `settings_get`.",
+			"description": "Change settings from Studio's Settings page. Returns every setting like `settings_get`.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
@@ -1776,11 +1776,11 @@
 						]
 					},
 					"reduceMotion": {
-						"description": "Whether to skip animations even when the system doesn’t ask to reduce motion",
+						"description": "Whether to skip animations even when the system doesn't ask to reduce motion",
 						"type": "boolean"
 					},
 					"name": {
-						"description": "The user’s name, shown to others in shared dashboards. Blank shows an anonymous name.",
+						"description": "The user's name, shown to others in shared dashboards. Blank shows an anonymous name.",
 						"type": "string"
 					},
 					"robotTarget": {
@@ -1792,7 +1792,7 @@
 						"type": "boolean"
 					},
 					"naturalScrolling": {
-						"description": "Whether scrolling the timeline follows natural scrolling, in browsers that don’t report it",
+						"description": "Whether scrolling the timeline follows natural scrolling, in browsers that don't report it",
 						"type": "boolean"
 					}
 				},

@@ -3,9 +3,9 @@ import * as z from 'zod';
 import { chartCount, contrasts, themePresets, themes } from '../theme/choices.ts';
 import { type WidgetInfo, type WidgetOptionInfo, widgetInfos, type WidgetTypeId } from '../widgets/widget-info.ts';
 
-export const dashboardId = z.string().describe('The dashboard’s ID, from `dashboard_list`');
-export const paneId = z.string().describe('The pane’s ID, from `dashboard_get`');
-export const bindingId = z.string().describe('The binding’s ID, from `dashboard_get`');
+export const dashboardId = z.string().describe("The dashboard's ID, from `dashboard_list`");
+export const paneId = z.string().describe("The pane's ID, from `dashboard_get`");
+export const bindingId = z.string().describe("The binding's ID, from `dashboard_get`");
 
 export const direction = z
 	.enum(['row', 'column'])
@@ -16,7 +16,7 @@ export const size = z
 	.gt(0)
 	.lt(1)
 	.describe(
-		'Share of its split’s width (in a row) or height (in a column), from 0 to 1. Left out, panes share what’s left evenly.',
+		"Share of its split's width (in a row) or height (in a column), from 0 to 1. Left out, panes share what's left evenly.",
 	);
 
 export const entryName = z
@@ -28,7 +28,7 @@ export const color = z
 	.int()
 	.min(0)
 	.max(chartCount - 1)
-	.describe(`One of the theme’s ${chartCount} chart colors, by index. Left out, the widget picks one.`);
+	.describe(`One of the theme's ${chartCount} chart colors, by index. Left out, the widget picks one.`);
 
 export const hidden = z.boolean().describe('Listed in the legend but not drawn');
 
@@ -38,7 +38,7 @@ function optionSchema(option: WidgetOptionInfo) {
 		? z
 				.string()
 				.min(1)
-				.describe(`\`${ids.join('`, `')}\`, or another choice from the user’s device`)
+				.describe(`\`${ids.join('`, `')}\`, or another choice from the user's device`)
 		: z.enum(ids);
 	return choice
 		.nullable()
@@ -57,7 +57,7 @@ function bindingSchema(info: WidgetInfo) {
 						.enum([first, ...others])
 						.optional()
 						.describe(
-							'How the widget shows the entry. Left out, it’s inferred from the entry and the bindings before it.',
+							"How the widget shows the entry. Left out, it's inferred from the entry and the bindings before it.",
 						),
 				});
 	return info.id === 'field'
@@ -66,7 +66,7 @@ function bindingSchema(info: WidgetInfo) {
 					.array(z.int().nonnegative())
 					.optional()
 					.describe(
-						'Indexes of this widget’s bindings (from 0) to draw lines from, ex. from the robot to seen AprilTags. Each must be a single robot, ghost, or point.',
+						"Indexes of this widget's bindings (from 0) to draw lines from, ex. from the robot to seen AprilTags. Each must be a single robot, ghost, or point.",
 					),
 			})
 		: withRole;
@@ -147,11 +147,11 @@ export const settingsSchema = z.strictObject({
 	reduceMotion: z
 		.boolean()
 		.optional()
-		.describe('Whether to skip animations even when the system doesn’t ask to reduce motion'),
+		.describe("Whether to skip animations even when the system doesn't ask to reduce motion"),
 	name: z
 		.string()
 		.optional()
-		.describe('The user’s name, shown to others in shared dashboards. Blank shows an anonymous name.'),
+		.describe("The user's name, shown to others in shared dashboards. Blank shows an anonymous name."),
 	robotTarget: z
 		.string()
 		.optional()
@@ -163,7 +163,7 @@ export const settingsSchema = z.strictObject({
 	naturalScrolling: z
 		.boolean()
 		.optional()
-		.describe('Whether scrolling the timeline follows natural scrolling, in browsers that don’t report it'),
+		.describe("Whether scrolling the timeline follows natural scrolling, in browsers that don't report it"),
 });
 
 export const empty = z.strictObject({});

@@ -154,7 +154,7 @@ export const widgetInfos = [
 		id: 'graph',
 		name: 'Graph',
 		description:
-			'Plots entries over time. Numbers go on the left or right axis (`left`, `right`), or are shown as colored bands (`discrete`); booleans and strings can only be bands. A number goes on the right axis when its unit measures something else than the left axis’s.',
+			"Plots entries over time. Numbers go on the left or right axis (`left`, `right`), or are shown as colored bands (`discrete`); booleans and strings can only be bands. A number goes on the right axis when its unit measures something else than the left axis's.",
 		accepts: ['number', 'boolean', 'string'],
 		roles: Object.values(widgetRoles.graph),
 		options: [],
@@ -172,7 +172,7 @@ export const widgetInfos = [
 		id: 'robot',
 		name: 'Robot',
 		description:
-			'The robot in 2D or 3D. Mechanism2d entries are drawn on a plane of the robot: `side` (XZ, the default), `front` (YZ), or `top` (XY). A Pose3d[] entry places the parts of a robot project’s CAD model (`parts`). The `view` option defaults to 2D when only a mechanism is bound. The `robot` option is `swerve` (a simple swerve robot) or the name of a robot project the user added on their device.',
+			"The robot in 2D or 3D. Mechanism2d entries are drawn on a plane of the robot: `side` (XZ, the default), `front` (YZ), or `top` (XY). A Pose3d[] entry places the parts of a robot project's CAD model (`parts`). The `view` option defaults to 2D when only a mechanism is bound. The `robot` option is `swerve` (a simple swerve robot) or the name of a robot project the user added on their device.",
 		accepts: ['mechanism2d', 'struct[]'],
 		roles: Object.values(widgetRoles.robot),
 		options: Object.values(widgetOptions.robot),
@@ -180,7 +180,7 @@ export const widgetInfos = [
 	{
 		id: 'table',
 		name: 'Table',
-		description: 'A table of the bound entries’ values at the timeline cursor. Accepts every kind but Mechanism2d.',
+		description: "A table of the bound entries' values at the timeline cursor. Accepts every kind but Mechanism2d.",
 		accepts: valueKinds,
 		roles: [],
 		options: [],
@@ -189,7 +189,7 @@ export const widgetInfos = [
 		id: 'console',
 		name: 'Console',
 		description:
-			'Text logged over time, like a terminal. Starts with WPILib’s console output (`/console`) and Driver Station messages (`/messages`) bound.',
+			"Text logged over time, like a terminal. Starts with WPILib's console output (`/console`) and Driver Station messages (`/messages`) bound.",
 		accepts: ['string'],
 		roles: [],
 		options: [],
@@ -207,7 +207,7 @@ export const widgetInfos = [
 		id: 'controller',
 		name: 'Controller',
 		description:
-			'A Driver Station controller’s buttons and sticks. Doesn’t take entries: pick the joystick port with the `controller` option. The `layout` option is inferred from the controller’s name.',
+			"A Driver Station controller's buttons and sticks. Doesn't take entries: pick the joystick port with the `controller` option. The `layout` option is inferred from the controller's name.",
 		accepts: [],
 		roles: [],
 		options: Object.values(widgetOptions.controller),
@@ -215,7 +215,7 @@ export const widgetInfos = [
 	{
 		id: 'notepad',
 		name: 'Notepad',
-		description: 'Notes the user types, the same notes in every notepad. Doesn’t take entries.',
+		description: "Notes the user types, the same notes in every notepad. Doesn't take entries.",
 		accepts: [],
 		roles: [],
 		options: [],

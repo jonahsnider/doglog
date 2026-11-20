@@ -42,7 +42,7 @@ test('prefers doglog.jsonc to doglog.json', async () => {
 	expect((await readRobotConfig(folder({ 'doglog.json': json }))).name).toBe('Old');
 });
 
-test('a pose at a part’s origin draws it where the CAD placed it', async () => {
+test("a pose at a part's origin draws it where the CAD placed it", async () => {
 	const [arm] = (await readRobotConfig(folder({ 'doglog.jsonc': doglog }))).parts;
 	const atOrigin = transformMatrix({ x: 0.1, z: 0.9 }).multiply(arm!.zero);
 	const point = new Vector3(0.5, 0.2, 0.3);
