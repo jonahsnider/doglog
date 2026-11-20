@@ -79,7 +79,7 @@ export function Graph({ bindings }: WidgetProps) {
 	// The timeline bar marks the time graphs show
 	useGraphShown();
 	const graph = useGraphDrawing(elements, series, bandEntries, palette, assignments, plotTop);
-	const body = useRef<HTMLDivElement>(null);
+	const body = useRef<HTMLDivElement>(null!);
 	const { bandHover, pointerAt, selection, pinned, handlers } = useGraphPointer(
 		body,
 		areaRef,
@@ -93,11 +93,11 @@ export function Graph({ bindings }: WidgetProps) {
 	 */
 	const [origin, setOrigin] = useState<{ left: number; top: number; width: number }>();
 	const measureOrigin = useCallback(() => {
-		if (!body.current!.checkVisibility()) {
+		if (!body.current.checkVisibility()) {
 			setOrigin(undefined);
 			return;
 		}
-		const { left, top, width } = body.current!.getBoundingClientRect();
+		const { left, top, width } = body.current.getBoundingClientRect();
 		setOrigin((previous) =>
 			previous?.left === left && previous.top === top && previous.width === width ? previous : { left, top, width },
 		);
@@ -127,7 +127,7 @@ export function Graph({ bindings }: WidgetProps) {
 				() => undefined,
 			);
 		});
-		observer.observe(body.current!);
+		observer.observe(body.current);
 		return () => {
 			stopped = true;
 			observer.disconnect();

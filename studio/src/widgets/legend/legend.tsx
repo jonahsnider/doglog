@@ -1,5 +1,6 @@
 import { shallow } from '@tanstack/store';
-import { memo, type PointerEvent, type ReactNode, use, useEffect, useRef, useState } from 'react';
+import { memo, type PointerEvent, type ReactNode, use, useRef, useState } from 'react';
+import { useResizeObserver } from 'usehooks-ts';
 import { EntryName } from '@/entries/entry-name';
 import { MarqueeText } from '@/components/marquee-text';
 import { useBindingDrag, WidgetBindingsContext } from '@/entries/drag';
@@ -229,15 +230,13 @@ function LegendEntry({
  * don't tell it apart from `distinctFrom`, and scrolls on hover when it still doesn't
  */
 function LegendName({ name, distinctFrom }: { name: string; distinctFrom: readonly string[] | undefined }) {
-	const full = useRef<HTMLSpanElement>(null);
+	const full = useRef<HTMLSpanElement>(null!);
 	const [collapsed, setCollapsed] = useState(false);
 
-	useEffect(() => {
-		const element = full.current!;
-		const observer = new ResizeObserver(() => setCollapsed(element.scrollWidth > element.clientWidth));
-		observer.observe(element);
-		return () => observer.disconnect();
-	}, []);
+	useResizeObserver({
+		ref: full,
+		onResize: () => setCollapsed(full.current.scrollWidth > full.current.clientWidth),
+	});
 
 	return (
 		<span className="grid grid-cols-[minmax(0,auto)]">

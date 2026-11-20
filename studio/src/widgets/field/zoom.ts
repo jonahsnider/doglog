@@ -1,4 +1,5 @@
 import { type PointerEvent, type RefObject, useEffect, useRef, useState } from 'react';
+import { useEventListener } from 'usehooks-ts';
 
 /** SVG user-space rectangle, the view of the whole field */
 export type Bounds = { x: number; y: number; width: number; height: number };
@@ -9,6 +10,7 @@ export type Zoom = { scale: number; x: number; y: number };
 const noZoom: Zoom = { scale: 1, x: 0, y: 0 };
 const maxScale = 8;
 const activeMs = 800;
+const wheelListenerOptions = { passive: false };
 
 function clamp(value: number, min: number, max: number): number {
 	return Math.min(Math.max(value, min), max);
@@ -38,7 +40,7 @@ function toUser(svg: SVGSVGElement, clientX: number, clientY: number): DOMPoint 
 
 /** Zoom to the pointer with the scroll wheel or a pinch, pan by dragging, and reset by double-clicking */
 export function useFieldZoom(bounds: Bounds) {
-	const svgRef = useRef<SVGSVGElement>(null);
+	const svgRef = useRef<SVGSVGElement>(null!);
 	const [zoom, setZoom] = useState(noZoom);
 	const [zoomBounds, setZoomBounds] = useState(bounds);
 	const [active, setActive] = useState(false);
@@ -58,12 +60,12 @@ export function useFieldZoom(bounds: Bounds) {
 
 	useEffect(() => () => clearTimeout(activeTimer.current), []);
 
-	useEffect(() => {
-		const svg = svgRef.current!;
-		// React's wheel listeners are passive, so they can't stop the pane from scrolling or the page from zooming
-		const onWheel = (event: WheelEvent) => {
+	// React's wheel listeners are passive, so they can't stop the pane from scrolling or the page from zooming
+	useEventListener(
+		'wheel',
+		(event) => {
 			event.preventDefault();
-			const anchor = toUser(svg, event.clientX, event.clientY);
+			const anchor = toUser(svgRef.current, event.clientX, event.clientY);
 			// Pinches send small deltas with `ctrlKey`, mouse wheels send large deltas, sometimes in lines
 			const sensitivity = (event.deltaMode === WheelEvent.DOM_DELTA_LINE ? 0.05 : 0.002) * (event.ctrlKey ? 5 : 1);
 			const factor = Math.exp(-event.deltaY * sensitivity);
@@ -78,10 +80,10 @@ export function useFieldZoom(bounds: Bounds) {
 				});
 			});
 			markActive(activeTimer, setActive);
-		};
-		svg.addEventListener('wheel', onWheel, { passive: false });
-		return () => svg.removeEventListener('wheel', onWheel);
-	}, [bounds]);
+		},
+		svgRef,
+		wheelListenerOptions,
+	);
 
 	return {
 		svgRef,
@@ -90,7 +92,7 @@ export function useFieldZoom(bounds: Bounds) {
 		transform: `translate(${zoom.x} ${zoom.y}) scale(${zoom.scale})`,
 		/** The zoomed content's point under a client position, in SVG user units */
 		toContent: (clientX: number, clientY: number) => {
-			const point = toUser(svgRef.current!, clientX, clientY);
+			const point = toUser(svgRef.current, clientX, clientY);
 			return { x: (point.x - zoom.x) / zoom.scale, y: (point.y - zoom.y) / zoom.scale };
 		},
 		startPan: (event: PointerEvent) => {
@@ -101,7 +103,7 @@ export function useFieldZoom(bounds: Bounds) {
 			if (dragFrom.current === undefined) {
 				return false;
 			}
-			const unitsPerPixel = 1 / svgRef.current!.getScreenCTM()!.a;
+			const unitsPerPixel = 1 / svgRef.current.getScreenCTM()!.a;
 			const dx = (event.clientX - dragFrom.current.x) * unitsPerPixel;
 			const dy = (event.clientY - dragFrom.current.y) * unitsPerPixel;
 			dragFrom.current = { x: event.clientX, y: event.clientY };

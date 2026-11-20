@@ -1,7 +1,8 @@
 import { useRender } from '@base-ui/react/use-render';
 import { isTauri } from '@tauri-apps/api/core';
 import { type HotkeyChord, useFormatForDisplay } from '@tanstack/react-hotkeys';
-import { type MouseEvent, type ReactElement, type ReactNode, useEffect, useState } from 'react';
+import { type MouseEvent, type ReactElement, type ReactNode, useState } from 'react';
+import { useEventListener } from 'usehooks-ts';
 import {
 	ContextMenu,
 	ContextMenuCheckboxItem,
@@ -57,8 +58,10 @@ type AppContextMenuProps = {
 
 /** Selects a submenu's items by their access keys, while it's mounted */
 function AccessKeys({ items, close }: { items: readonly MenuEntry[]; close: () => void }) {
-	useEffect(() => {
-		const onKeyDown = (event: KeyboardEvent) => {
+	// Capture so the menu's typeahead and the app's shortcuts don't also handle the key.
+	useEventListener(
+		'keydown',
+		(event) => {
 			if (event.metaKey || event.ctrlKey || event.altKey) {
 				return;
 			}
@@ -71,17 +74,15 @@ function AccessKeys({ items, close }: { items: readonly MenuEntry[]; close: () =
 					other.accessKey?.toLowerCase() === event.key.toLowerCase(),
 			);
 			if (item) {
-				// Captured, so the menu's typeahead and the app's shortcuts don't also handle it
 				event.preventDefault();
 				event.stopPropagation();
 				close();
 				item.onSelect();
 			}
-		};
-
-		window.addEventListener('keydown', onKeyDown, { capture: true });
-		return () => window.removeEventListener('keydown', onKeyDown, { capture: true });
-	}, [items, close]);
+		},
+		undefined,
+		true,
+	);
 
 	return null;
 }

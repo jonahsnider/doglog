@@ -1,5 +1,6 @@
 import { useHotkey } from '@tanstack/react-hotkeys';
-import { type PointerEvent, type RefObject, useEffect, useEffectEvent, useRef, useState } from 'react';
+import { type PointerEvent, type RefObject, useRef, useState } from 'react';
+import { useEventListener } from 'usehooks-ts';
 import { getCursorTime, seek } from '@/timeline/timeline';
 import type { GraphPlot } from '@/widgets/graph/use-graph-drawing';
 import { setHoverTime } from '@/timeline/hover';
@@ -10,6 +11,7 @@ import { type BandHover, flipsAt, type LineHover } from '@/widgets/graph/tooltip
 const gesturePauseMs = 200;
 /** How much of a scroll gesture's earlier movement counts toward its direction with each event, ex. 0.7 keeps about the last 100 ms */
 const directionMemory = 0.7;
+const wheelListenerOptions = { passive: false };
 
 /** Pixels per wheel delta, which some browsers and mice send in lines or pages */
 function wheelUnit(event: WheelEvent, pageHeight: number): number {
@@ -39,7 +41,7 @@ function isInGraph(event: PointerEvent): boolean {
 const snapPixels = 6;
 
 export function useGraphPointer(
-	body: RefObject<HTMLDivElement | null>,
+	body: RefObject<HTMLDivElement>,
 	area: RefObject<HTMLDivElement | null>,
 	bands: RefObject<HTMLCanvasElement | null>,
 	graph: RefObject<GraphPlot>,
@@ -101,7 +103,7 @@ export function useGraphPointer(
 		}
 	};
 
-	const onWheel = useEffectEvent((event: WheelEvent) => {
+	const onWheel = (event: WheelEvent) => {
 		event.preventDefault();
 		const delta = event.deltaY === 0 ? event.deltaX : event.deltaY;
 		const axes = yAxisAt(event.clientX, event.clientY, event.shiftKey);
@@ -132,14 +134,9 @@ export function useGraphPointer(
 			const zoomDelta = Math.min(Math.max(event.deltaY * unit, -50), 50);
 			zoomTime(time, Math.exp(zoomDelta * (event.ctrlKey ? 0.01 : 0.002)));
 		}
-	});
-	useEffect(() => {
-		const element = body.current!;
-		const listener = (event: WheelEvent) => onWheel(event);
-		// React's wheel listeners are passive, so they can't stop the pane from scrolling or the page from zooming
-		element.addEventListener('wheel', listener, { passive: false });
-		return () => element.removeEventListener('wheel', listener);
-	}, [body]);
+	};
+	// React's wheel listeners are passive, so they can't stop the pane from scrolling or the page from zooming
+	useEventListener('wheel', onWheel, body, wheelListenerOptions);
 
 	const snapToCursor = (time: number): number => {
 		const cursor = getCursorTime();
@@ -155,7 +152,7 @@ export function useGraphPointer(
 		const snapped = time === undefined ? undefined : snapToCursor(time);
 		setHoverTime(snapped);
 		const areaRect = area.current!.getBoundingClientRect();
-		const bodyRect = body.current!.getBoundingClientRect();
+		const bodyRect = body.current.getBoundingClientRect();
 		const x = event.clientX - areaRect.left;
 		const y = event.clientY - bodyRect.top;
 		setPointerAt((previous) =>
@@ -185,7 +182,7 @@ export function useGraphPointer(
 						flip: flipsAt(event.clientX - canvas.left, canvas.width, bandHover?.flip),
 						time,
 						pixel: (view.end - view.start) / canvas.width,
-						top: canvas.top - body.current!.getBoundingClientRect().top,
+						top: canvas.top - body.current.getBoundingClientRect().top,
 					}
 				: undefined,
 		);

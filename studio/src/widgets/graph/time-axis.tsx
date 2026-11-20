@@ -1,4 +1,5 @@
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useRef, useState } from 'react';
+import { useResizeObserver } from 'usehooks-ts';
 import { useTimeRange } from '@/data/data-store';
 import { cn } from '@/lib/utils';
 import { modeColors } from '@/timeline/colors';
@@ -13,17 +14,13 @@ const edgeLabelPixels = 24;
 
 /** The robot's mode in the timeline's colors, with the spans it compresses hatched, then times labeled like the timeline */
 export const TimeAxis = memo(function TimeAxis({ leftInset, rightInset }: { leftInset: number; rightInset: number }) {
-	const element = useRef<HTMLDivElement>(null);
+	const element = useRef<HTMLDivElement>(null!);
 	const [width, setWidth] = useState(0);
 	const view = useViewRange();
 	const range = useTimeRange();
 	const { timelineCompress } = useSettings();
 
-	useEffect(() => {
-		const observer = new ResizeObserver(() => setWidth(element.current!.clientWidth));
-		observer.observe(element.current!);
-		return () => observer.disconnect();
-	}, []);
+	useResizeObserver({ ref: element, onResize: () => setWidth(element.current.clientWidth) });
 
 	const ticks = view && range && width > 0 ? timeTicks(view, range.start, width) : undefined;
 	const periods = view && range ? getModePeriods(range) : [];

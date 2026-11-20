@@ -250,7 +250,7 @@ The field widget SHALL color each entry from the shared chart colors in binding 
 
 ### Requirement: Cursor position
 
-The field widget SHALL show the field position under the pointer, in meters, below the bottom-left corner of the field, fading in and out quickly as the pointer enters and leaves the field, followed by the copy shortcut. Pressing ⌘C (Ctrl+C on Windows and Linux) while the pointer is over the field MUST copy that position as `x, y`, and the position SHALL briefly fade to a "Copied" label.
+The field widget SHALL show the field position under the pointer, in meters, below the bottom-left corner of the field, fading in and out quickly as the pointer enters and leaves the field, followed by the copy shortcut. Pressing ⌘C (Ctrl+C on Windows and Linux) while the pointer is over the field MUST copy that position as `x, y`. The position SHALL briefly fade to a "Copied" label only if the copy succeeds.
 
 #### Scenario: Copy a position
 

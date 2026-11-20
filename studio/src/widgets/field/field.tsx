@@ -1,5 +1,6 @@
 import { useHotkey } from '@tanstack/react-hotkeys';
 import { type PointerEvent, useEffect, useRef, useState } from 'react';
+import { useCopyToClipboard, useIsMounted } from 'usehooks-ts';
 import { type Entry, useDataVersion } from '@/data/data-store';
 import { cn } from '@/lib/utils';
 import { useCursorTime } from '@/timeline/timeline';
@@ -46,6 +47,8 @@ export function Field({ bindings, options }: WidgetProps) {
 	const [pointer, setPointer] = useState<FieldPoint>();
 	const [hovered, setHovered] = useState(false);
 	const [minimapLeft, setMinimapLeft] = useState(false);
+	const [, copy] = useCopyToClipboard();
+	const isMounted = useIsMounted();
 	const [copied, setCopied] = useState(false);
 	const copiedTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 	useEffect(() => () => clearTimeout(copiedTimer.current), []);
@@ -69,16 +72,15 @@ export function Field({ bindings, options }: WidgetProps) {
 		},
 		{ ...whileHovered, enabled: hovered && (tool !== undefined || measurement !== undefined) },
 	);
-	useHotkey(
-		'Mod+C',
-		() => {
-			void navigator.clipboard.writeText(formatPosition(pointer!));
-			setCopied(true);
-			clearTimeout(copiedTimer.current);
-			copiedTimer.current = setTimeout(() => setCopied(false), 1200);
-		},
-		whileHovered,
-	);
+	const copyPosition = async () => {
+		if (!pointer || !(await copy(formatPosition(pointer))) || !isMounted()) {
+			return;
+		}
+		setCopied(true);
+		clearTimeout(copiedTimer.current);
+		copiedTimer.current = setTimeout(() => setCopied(false), 1200);
+	};
+	useHotkey('Mod+C', () => void copyPosition(), whileHovered);
 
 	const fieldPointAt = (event: PointerEvent) => {
 		const content = toContent(event.clientX, event.clientY);
@@ -167,7 +169,7 @@ export function Field({ bindings, options }: WidgetProps) {
 								if (measuring.current) {
 									measuring.current = false;
 									// A click, or a drag too short to see, measures nothing
-									const pixelsPerMeter = zoom.scale * svgRef.current!.getScreenCTM()!.a;
+									const pixelsPerMeter = zoom.scale * svgRef.current.getScreenCTM()!.a;
 									setMeasurement((current) =>
 										current &&
 										Math.hypot(current.to.x - current.from.x, current.to.y - current.from.y) * pixelsPerMeter >=
