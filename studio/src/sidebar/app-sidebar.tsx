@@ -135,7 +135,7 @@ export function AppSidebar() {
 			<div
 				ref={containerRef}
 				className={cn(
-					'relative shrink-0 [--sidebar-width-icon:3rem] [--sidebar-width:17.25rem]',
+					'relative shrink-0',
 					collapsed ? 'w-(--sidebar-width-icon)' : 'w-(--sidebar-width)',
 					// Resizes the main area along with the sidebar, like the timeline sliding up resizes the panes
 					'transition-[width] duration-200 motion-reduce:transition-none',

@@ -161,6 +161,12 @@ Dragging a dashboard from the sidebar over the open dashboard SHALL show Add lef
 - **THEN** A shows its panes on the left and B's panes on the right
 - **AND** B is closed
 
+#### Scenario: Split zones beside open sidebars
+
+- **GIVEN** the entry browser is open and the collapsed sidebar is peeking over the panes
+- **WHEN** the user drags a different dashboard
+- **THEN** both split zones stay within the visible pane area, clear of both sidebars
+
 #### Scenario: Too many side by side panes
 
 - **GIVEN** the open dashboard already has three panes side by side

@@ -2,7 +2,6 @@ import { Outlet, createRootRoute, useMatchRoute } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import { useGlobalShortcuts } from '@/commands/commands';
 import { AppSidebar } from '@/sidebar/app-sidebar';
-import { DashboardSplitZones } from '@/dashboards/dashboard-drag';
 import { DragProvider } from '@/components/drag-provider';
 import { KeyboardShortcutsDialog } from '@/commands/keyboard-shortcuts-dialog';
 import { LogDropOverlay } from '@/components/log-drop-overlay';
@@ -28,7 +27,7 @@ function RootLayout() {
 		<ToastProvider>
 			{/* Wraps the whole app, so dashboards and panes can be dragged between the sidebar and the main area */}
 			<DragProvider>
-				<div className="group/app flex h-svh bg-frame">
+				<div className="group/app flex h-svh bg-frame [--sidebar-width-icon:3rem] [--sidebar-width:17.25rem]">
 					<AppSidebar />
 					<SidebarInset
 						className={cn(
@@ -41,7 +40,6 @@ function RootLayout() {
 						)}
 					>
 						<Outlet />
-						<DashboardSplitZones />
 					</SidebarInset>
 				</div>
 			</DragProvider>

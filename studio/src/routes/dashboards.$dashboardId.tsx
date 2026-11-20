@@ -3,6 +3,7 @@ import { isTauri } from '@tauri-apps/api/core';
 import { Navigate, createFileRoute, useLocation } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { Group, Panel } from 'react-resizable-panels';
+import { DashboardSplitZones } from '@/dashboards/dashboard-drag';
 import { DashboardPanes } from '@/dashboards/dashboard-panes';
 import { EntryBrowser } from '@/entries/entry-browser';
 import { TimelineBar } from '@/timeline/timeline-bar';
@@ -99,8 +100,9 @@ function PanesColumn({ dashboard }: { dashboard: Dashboard }) {
 	return (
 		// Under the panes rather than the entry browser too, so the entry browser reaches the bottom of the window like the sidebar
 		<div className="flex h-full flex-col ps-1.5 pt-1.5">
-			<section aria-label="Panes" className="mb-1.5 min-h-0 min-w-0 flex-1">
+			<section aria-label="Panes" className="relative isolate mb-1.5 min-h-0 min-w-0 flex-1">
 				<DashboardPanes dashboard={dashboard} />
+				<DashboardSplitZones dashboard={dashboard} />
 			</section>
 			<TimelineBar />
 		</div>
