@@ -72,17 +72,13 @@ export function AppearanceSettings() {
 
 			<FramePanel className="flex flex-col gap-6">
 				<Field name="themePreset">
-					<Fieldset
-						render={
-							<RadioGroup
-								className="w-full"
-								value={themePreset}
-								onValueChange={(value: ThemePreset) => updateSettings({ themePreset: value })}
-							/>
-						}
-					>
-						<FieldsetLegend className="mb-1 text-sm">Theme color</FieldsetLegend>
-						<div className="grid grid-cols-4 gap-3">
+					<Fieldset className="min-w-0 self-stretch">
+						<FieldsetLegend className="mb-4 text-sm">Theme color</FieldsetLegend>
+						<RadioGroup
+							className="relative -m-1 -mb-3 grid auto-cols-[minmax(max-content,1fr)] grid-flow-col overflow-x-auto p-1 pb-3 scroll-p-1"
+							value={themePreset}
+							onValueChange={(value: ThemePreset) => updateSettings({ themePreset: value })}
+						>
 							{themePresets.map((value) => (
 								<OptionCard key={value} value={value} label={themePresetLabels[value]}>
 									<div className="flex justify-center gap-2 py-2">
@@ -91,7 +87,7 @@ export function AppearanceSettings() {
 									</div>
 								</OptionCard>
 							))}
-						</div>
+						</RadioGroup>
 					</Fieldset>
 				</Field>
 
@@ -194,7 +190,7 @@ function ThemeSwatch({ colors }: { colors: ThemePreviewColors }) {
 	return (
 		<div
 			aria-hidden
-			className="size-12 rounded-full border shadow-sm"
+			className="aspect-square w-12 rounded-full border shadow-sm"
 			style={{
 				borderColor: colors.border,
 				background: `linear-gradient(45deg, ${colors.surface}, ${colors.primary})`,

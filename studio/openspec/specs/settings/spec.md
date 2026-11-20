@@ -94,7 +94,7 @@ Settings and UI state MUST be saved on the device and restored when Studio reope
 
 ### Requirement: Theme color setting
 
-Settings SHALL let users choose a theme color preset of Team 581 maroon, match13, Neutral, or Custom, defaulting to Team 581 maroon. Each preset MUST show a preview of its light and dark colors. Custom MUST let users pick any color, defaulting to `#1c1816`, and reset it to the default, and MUST keep the picked color while another preset is selected.
+Settings SHALL let users choose a theme color preset of Team 581 maroon, match13, Neutral, or Custom, defaulting to Team 581 maroon. Each preset MUST show circular previews of its light and dark colors. When the presets don't fit, the row MUST scroll horizontally rather than shrinking the previews. Custom MUST let users pick any color, defaulting to `#1c1816`, and reset it to the default, and MUST keep the picked color while another preset is selected.
 
 #### Scenario: Custom color
 
