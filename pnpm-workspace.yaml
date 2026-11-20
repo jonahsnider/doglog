@@ -67,14 +67,14 @@ patchedDependencies:
   '@tanstack/store': patches/@tanstack__store.patch
 permissions:
   '@tanstack/react-hotkeys':
-    skills: false
+    skills: true
   '@tanstack/react-router':
-    skills: false
+    skills: true
   '@tanstack/router-plugin':
-    skills: false
+    skills: true
   '@ui-sdk/core':
-    skills: false
+    skills: true
   void:
-    skills: false
+    skills: true
   wpilog-parser:
     skills: false
