@@ -37,12 +37,12 @@ The robot widget SHALL have a View option with "2D" and "3D", which it MUST infe
 
 ### Requirement: Robot legend
 
-The robot widget's legend SHALL list one entry per row above the robot, and MUST move beside it when the widget is at least one and a half times as wide as it is tall. A legend too long for its space MUST scroll.
+The robot widget's legend SHALL list one entry per row in the top-left corner over the robot, only as large as its entries, so the robot MUST stay centered in the widget. A legend taller or wider than about half the widget MUST scroll or shorten its names.
 
 #### Scenario: Wide widget
 
-- **GIVEN** a robot widget twice as wide as it is tall, with several mechanisms
-- **THEN** the legend is a column on the left of the robot
+- **GIVEN** a robot widget twice as wide as it is tall, with one mechanism
+- **THEN** the mechanism is centered in the widget, with the legend in its top-left corner
 
 ### Requirement: 2D mechanism
 

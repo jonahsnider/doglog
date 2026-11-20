@@ -127,45 +127,48 @@ export function Robot({ bindings, options, setOption }: WidgetProps) {
 	const mechanism2d = shown2d && mechanisms.get(shown2d.name);
 
 	return (
-		// The legend goes above the robot, unless the widget is wide enough to fit it beside the robot
-		<div className="h-full p-2 [container-type:size]">
-			<div className="flex h-full flex-col gap-2 [@container(min-aspect-ratio:1.5)]:flex-row">
+		<div className="h-full p-2">
+			<div className="relative flex size-full items-center justify-center [container-type:size]">
+				{view === '3d' ? (
+					<Scene3d ref={scene} label="Robot">
+						{robot}
+						{bindings.map((binding) => {
+							const mechanism = binding.hidden ? undefined : mechanisms.get(binding.name);
+							return mechanism ? (
+								<Mechanism3d key={binding.id} mechanism={mechanism} plane={mechanismPlane(binding)} />
+							) : null;
+						})}
+					</Scene3d>
+				) : mechanism2d ? (
+					<MechanismCanvas mechanism={mechanism2d} />
+				) : (
+					<Empty2d mechanism={shown2d} />
+				)}
 				{legend.length > 0 && (
-					// As wide as its widest row, so planes stay beside the mechanisms' names
-					<div className="max-h-[33%] w-fit max-w-full shrink-0 overflow-y-auto [@container(min-aspect-ratio:1.5)]:max-h-none [@container(min-aspect-ratio:1.5)]:max-w-[33%]">
+					// Over the robot's top-left corner, so the robot is centered and the legend only covers its rows
+					<div className="absolute top-1.5 left-1.5 max-h-1/2 w-fit max-w-1/2 overflow-y-auto rounded-md bg-background/80 px-1.5">
 						<Legend items={legend} vertical roles={view === '3d'} />
 					</div>
 				)}
-				<div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
-					<div className="flex min-h-0 min-w-0 flex-1 items-center justify-center [container-type:size]">
-						{view === '3d' ? (
-							<Scene3d ref={scene} label="Robot">
-								{robot}
-								{bindings.map((binding) => {
-									const mechanism = binding.hidden ? undefined : mechanisms.get(binding.name);
-									return mechanism ? (
-										<Mechanism3d key={binding.id} mechanism={mechanism} plane={mechanismPlane(binding)} />
-									) : null;
-								})}
-							</Scene3d>
-						) : mechanism2d ? (
-							<MechanismCanvas mechanism={mechanism2d} />
-						) : (
-							<Empty2d mechanism={shown2d} />
-						)}
-					</div>
-					<div className="flex shrink-0 items-center justify-between gap-2">
-						<ViewToggle view={view} onChange={(next) => setOption('view', next)} />
-						{view === '3d' && robotNote !== undefined && (
-							<span className="flex min-w-0 flex-1 items-center gap-2 text-muted-foreground text-xs">{robotNote}</span>
-						)}
-						{view === '3d' && (
-							<Button variant="ghost" size="xs" onClick={() => scene.current?.reset()}>
-								<HouseIcon />
-								Reset view
-							</Button>
-						)}
-					</div>
+				{/* Along the bottom, letting drags between the controls through to the 3D view */}
+				<div className="pointer-events-none absolute inset-x-1.5 bottom-1.5 flex items-end gap-2 *:pointer-events-auto">
+					<ViewToggle view={view} onChange={(next) => setOption('view', next)} />
+					{view === '3d' && robotNote !== undefined && (
+						<span className="flex min-w-0 items-center gap-2 rounded-md bg-background/80 px-1.5 text-muted-foreground text-xs">
+							{robotNote}
+						</span>
+					)}
+					{view === '3d' && (
+						<Button
+							variant="ghost"
+							size="xs"
+							className="ms-auto bg-background/80"
+							onClick={() => scene.current?.reset()}
+						>
+							<HouseIcon />
+							Reset view
+						</Button>
+					)}
 				</div>
 			</div>
 		</div>
