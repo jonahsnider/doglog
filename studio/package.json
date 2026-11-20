@@ -34,6 +34,7 @@
 		"@ntcore-ts/client": "1.1.1",
 		"@react-three/drei": "10.7.9",
 		"@react-three/fiber": "9.8.2",
+		"@ridemountainpig/svgl-react": "1.0.19",
 		"@sentry/react": "11.14.0",
 		"@sindresorhus/fnv1a": "3.1.0",
 		"@tanstack/react-hotkeys": "0.27.1",

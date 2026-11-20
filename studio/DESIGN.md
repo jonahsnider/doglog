@@ -12,7 +12,7 @@ How Studio's UI is built. The OpenSpec specs in `openspec/specs` describe what u
 - Context menus go through `AppContextMenu`, which uses native menus on desktop and coss menus on the web. The dashboard's `…` button offers the same commands as right-click and follows the same platform split.
 - Widget options are declared on the widget type (`WidgetType.options`) and rendered by the widget options popover, so every widget's options look the same. Use a small segmented control when choices fit in one row, or a dropdown when they don't. Add a new option kind there when a widget needs one, instead of building settings UI in the widget.
 - The keyboard shortcuts dialog lists app-wide shortcuts only. A widget's own shortcuts are shown in the widget, as a `Kbd` on the control or readout they act on (ex. the field's measuring tools), never added to the dialog. Leave out only keys that act the same everywhere, like Escape to cancel.
-- Use `lucide-react` for icons. Custom icons are used for FRC-specific cases or brand logos. Custom icons should match Lucide's 24×24 viewBox, 2-unit `currentColor` outline, and rounded caps and joins. Logos should fit the viewbox but otherwise not really be modified.
+- Use `lucide-react` for UI icons and `@ridemountainpig/svgl-react` for product logos. Custom UI icons should match Lucide's 24×24 viewBox, 2-unit `currentColor` outline, and rounded caps and joins.
 
 ## Styling
 

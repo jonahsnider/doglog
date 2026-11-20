@@ -18,7 +18,7 @@ const SERVER_NAME: &str = "doglog";
 pub enum Agent {
     ClaudeCode,
     Codex,
-    GeminiCli,
+    AntigravityCli,
     VsCode,
     Cursor,
 }
@@ -36,7 +36,7 @@ impl Agent {
     const ALL: [Self; 5] = [
         Self::ClaudeCode,
         Self::Codex,
-        Self::GeminiCli,
+        Self::AntigravityCli,
         Self::VsCode,
         Self::Cursor,
     ];
@@ -45,7 +45,7 @@ impl Agent {
         match self {
             Self::ClaudeCode => "Claude Code",
             Self::Codex => "Codex",
-            Self::GeminiCli => "Gemini CLI",
+            Self::AntigravityCli => "Antigravity CLI",
             Self::VsCode => "VS Code",
             Self::Cursor => "Cursor",
         }
@@ -56,7 +56,7 @@ impl Agent {
         match self {
             Self::ClaudeCode => "claude",
             Self::Codex => "codex",
-            Self::GeminiCli => "gemini",
+            Self::AntigravityCli => "agy",
             Self::VsCode => "code",
             Self::Cursor => "cursor",
         }
@@ -70,8 +70,8 @@ impl Agent {
             Self::ClaudeCode => run(&["mcp", "add", "--scope", "user", SERVER_NAME, "--", doglog, "mcp"]),
             // https://developers.openai.com/codex/mcp
             Self::Codex => run(&["mcp", "add", SERVER_NAME, "--", doglog, "mcp"]),
-            // https://geminicli.com/docs/tools/mcp-server/
-            Self::GeminiCli => run(&["mcp", "add", "--scope", "user", SERVER_NAME, doglog, "mcp"]),
+            // `agy mcp add --help`
+            Self::AntigravityCli => run(&["mcp", "add", SERVER_NAME, doglog, "mcp"]),
             // https://code.visualstudio.com/docs/agents/reference/mcp-configuration
             Self::VsCode => {
                 let mut config = server_config(doglog);

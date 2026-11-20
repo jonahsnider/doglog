@@ -1,3 +1,4 @@
+import { ClaudeCode, CodexLight, CursorLight, GoogleAntigravity, VisualStudioCode } from '@ridemountainpig/svgl-react';
 import { invoke } from '@tauri-apps/api/core';
 import CopyIcon from 'lucide-react/icons/copy';
 import { useEffect, useState } from 'react';
@@ -6,9 +7,17 @@ import { Field, FieldDescription, FieldLabel } from '@/components/ui/field';
 import { FramePanel } from '@/components/ui/frame';
 import { toastManager } from '@/components/ui/toast';
 
+const agentIcons = {
+	'antigravity-cli': GoogleAntigravity,
+	'claude-code': ClaudeCode,
+	codex: CodexLight,
+	cursor: CursorLight,
+	'vs-code': VisualStudioCode,
+};
+
 /** A coding agent on this computer that Studio can add its MCP server to */
 interface Agent {
-	id: string;
+	id: keyof typeof agentIcons;
 	name: string;
 }
 
@@ -64,6 +73,7 @@ async function copyConfig(config: string) {
 }
 
 function AddAgentButton({ agent }: { agent: Agent }) {
+	const Icon = agentIcons[agent.id];
 	const [adding, setAdding] = useState(false);
 
 	async function add() {
@@ -83,6 +93,7 @@ function AddAgentButton({ agent }: { agent: Agent }) {
 
 	return (
 		<Button variant="outline" size="sm" loading={adding} onClick={() => void add()}>
+			<Icon aria-hidden="true" className="brightness-0 in-data-loading:invisible dark:invert" />
 			Add to {agent.name}
 		</Button>
 	);

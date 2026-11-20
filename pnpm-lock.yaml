@@ -247,6 +247,9 @@ importers:
       '@react-three/fiber':
         specifier: 9.8.2
         version: 9.8.2(@types/react@19.3.0)(@types/three@0.187.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(three@0.187.0)
+      '@ridemountainpig/svgl-react':
+        specifier: 1.0.19
+        version: 1.0.19(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@sentry/react':
         specifier: 11.14.0
         version: 11.14.0(react@19.3.1)
@@ -3387,6 +3390,12 @@ packages:
         optional: true
       react-native:
         optional: true
+
+  '@ridemountainpig/svgl-react@1.0.19':
+    resolution: {integrity: sha512-Q1pGltuxZFbgEjYJ2GMK3/nwFCMscO7IwgoX2INV+jMXlH003LhzlN79g2fR+tPuzaZuumc580B97uC+CByv7A==}
+    peerDependencies:
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0
 
   '@rolldown/binding-android-arm-eabi@1.2.16':
     resolution: {integrity: sha512-ia3DwAs0OsMGS7+IConptSiyk9pEXkOx/AbJ2n/lAGxH3QkWQus1t8d7gnAT38FCU2sQu8lUbeR6AiZFv4JxaA==}
@@ -10987,6 +10996,11 @@ snapshots:
       react-dom: 19.3.1(react@19.3.1)
     transitivePeerDependencies:
       - immer
+
+  '@ridemountainpig/svgl-react@1.0.19(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+    dependencies:
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
 
   '@rolldown/binding-android-arm-eabi@1.2.16':
     optional: true
