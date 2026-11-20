@@ -9,7 +9,7 @@ import { closeLive, closeLog, type Source, showSource } from '@/data/source';
 import { easing, useMotionTransition } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import { SourceIcon } from '@/sidebar/source-icon';
-import { sourceName, sourceStatus } from '@/sidebar/source-labels';
+import { sourceLabels } from '@/sidebar/source-labels';
 
 /**
  * The raised surface behind the shown source. Switching sources slides it over the other source, its shadow deepening
@@ -50,7 +50,7 @@ function ShownIndicator({ index }: { index: number }) {
 }
 
 function SourceRow({ source, shown }: { source: Source; shown: boolean }) {
-	const name = sourceName(source);
+	const { name, detail } = sourceLabels(source);
 	const closeLabel = source.type === 'log' ? 'Close log' : 'Disconnect and clear live data';
 	const formatForDisplay = useFormatForDisplay();
 	return (
@@ -74,7 +74,7 @@ function SourceRow({ source, shown }: { source: Source; shown: boolean }) {
 							source.status === 'reconnecting' && 'text-destructive-foreground',
 						)}
 					>
-						{sourceStatus(source)}
+						{detail}
 					</span>
 				</div>
 				{!shown && <MenuShortcut>{formatForDisplay(shortcuts.switchSource)}</MenuShortcut>}

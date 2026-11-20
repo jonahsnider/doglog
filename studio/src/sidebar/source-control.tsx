@@ -1,7 +1,7 @@
 import { isTauri } from '@tauri-apps/api/core';
 import { useFormatForDisplay } from '@tanstack/react-hotkeys';
 import ChevronsUpDownIcon from 'lucide-react/icons/chevrons-up-down';
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { TextMorph } from 'torph/react';
 import { AppContextMenu, type MenuAction, type MenuEntry } from '@/components/app-context-menu';
 import {
@@ -15,7 +15,8 @@ import {
 	MenuSubTrigger,
 	MenuTrigger,
 } from '@/components/ui/menu';
-import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar';
+import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { shortcuts, startConnect } from '@/commands/commands';
 import { useEntries } from '@/data/data-store';
 import {
@@ -40,8 +41,9 @@ import { cn } from '@/lib/utils';
 import { getRobotHost, simulatorHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
 import { SourceIcon } from '@/sidebar/source-icon';
-import { liveColors, sourceName, sourceStatus, statusLabels } from '@/sidebar/source-labels';
+import { liveColors, sourceLabels, statusLabels } from '@/sidebar/source-labels';
 import { SourceSwitcher } from '@/sidebar/source-switcher';
+import { matchIcons } from '@/sync/match-icons';
 
 function ShownSourceIcon({
 	source,
@@ -74,9 +76,16 @@ function liveTarget(live: LiveSource): ConnectTarget | undefined {
 	return live.host === simulatorHost ? 'simulator' : 'robot';
 }
 
-const connectLabels: Record<ConnectTarget, string> = { robot: 'Connect to robot', simulator: 'Connect to simulator' };
+const connectLabels: Record<ConnectTarget, string> = {
+	robot: 'Connect to robot',
+	simulator: 'Connect to simulator',
+};
 
-const connectAction = (label: string): MenuAction => ({ label, shortcut: shortcuts.connect, onSelect: startConnect });
+const connectAction = (label: string): MenuAction => ({
+	label,
+	shortcut: shortcuts.connect,
+	onSelect: startConnect,
+});
 
 /**
  * The live section of the source menu: connecting, disconnecting, or once disconnected, reconnecting or clearing the data.
@@ -105,37 +114,64 @@ function liveActions(
 	];
 }
 
-function sourceSummary({ log, live, shown }: Sources) {
-	const source = shown === 'log' ? log : shown === 'live' ? live : undefined;
-	const name = source === undefined ? 'No data source' : sourceName(source);
-	const status = source === undefined ? 'Open a log or connect' : sourceStatus(source);
+function SourceTrigger(sources: Sources) {
+	const { state } = useSidebar();
+	const descriptionId = useId();
+	const { live, shown } = sources;
+	const source = shown === undefined ? undefined : sources[shown];
+	const { name, detail, matchType } = sourceLabels(source);
 	const backgroundLive = shown === 'log' ? live : undefined;
-	const tooltip = `${name}: ${status}${backgroundLive ? `, live: ${statusLabels[backgroundLive.status]}` : ''}`;
-	return { source, name, status, backgroundLive, tooltip };
-}
+	const liveDetail = backgroundLive && `Live: ${statusLabels[backgroundLive.status]}`;
+	const fileName = source?.type === 'log' && source.fileName !== name ? source.fileName : undefined;
+	const matchDetail = matchType && matchIcons[matchType].label;
+	const description = [matchDetail, fileName, liveDetail].filter(Boolean).join('\n');
+	const collapsed = state === 'collapsed';
 
-function SourceLabel({ sources }: { sources: Sources }) {
-	const { source, name, status, backgroundLive } = sourceSummary(sources);
 	return (
-		<>
-			<ShownSourceIcon source={source} backgroundLive={backgroundLive} />
-			<div className="grid flex-1 text-left leading-tight">
-				{/* Numbers are off so addresses aren't morphed like decimals */}
-				<TextMorph as="span" className="truncate font-medium" numbers={false}>
-					{name}
-				</TextMorph>
-				<TextMorph
-					as="span"
-					numbers={false}
-					className={cn(
-						'truncate text-xs text-muted-foreground',
-						source?.status === 'reconnecting' && 'text-destructive-foreground',
-					)}
-				>
-					{status}
-				</TextMorph>
-			</div>
-		</>
+		<Tooltip disabled={!collapsed && fileName === undefined}>
+			<MenuTrigger
+				aria-describedby={description ? descriptionId : undefined}
+				render={
+					<TooltipTrigger
+						render={
+							<SidebarMenuButton
+								size="lg"
+								// Keep the icon aligned and the height the same when only icons are shown
+								className="group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:p-2!"
+							/>
+						}
+					/>
+				}
+			>
+				<ShownSourceIcon source={source} backgroundLive={backgroundLive} />
+				<div className="grid min-w-0 flex-1 text-left leading-tight">
+					{/* Numbers are off so addresses aren't morphed like decimals */}
+					<TextMorph as="span" className="truncate font-medium" numbers={false}>
+						{name}
+					</TextMorph>
+					<TextMorph
+						as="span"
+						numbers={false}
+						className={cn(
+							'truncate text-xs text-muted-foreground',
+							source?.status === 'reconnecting' && 'text-destructive-foreground',
+						)}
+					>
+						{detail}
+					</TextMorph>
+				</div>
+				<ChevronsUpDownIcon className="ms-auto text-muted-foreground" />
+			</MenuTrigger>
+			{description && (
+				<span hidden id={descriptionId}>
+					{description}
+				</span>
+			)}
+			<TooltipPopup aria-hidden side="right" className="max-w-80 wrap-anywhere whitespace-pre-line">
+				{collapsed && <div>{`${name}: ${detail}`}</div>}
+				{description}
+			</TooltipPopup>
+		</Tooltip>
 	);
 }
 
@@ -186,7 +222,13 @@ export function SourceControl() {
 	const { log, live, shown } = sources;
 	const menuItems: MenuEntry[] = [
 		...(shown === 'live' && log
-			? [{ label: `Back to ${log.fileName}`, shortcut: shortcuts.switchSource, onSelect: () => showSource('log') }]
+			? [
+					{
+						label: `Back to ${sourceLabels(log).name}`,
+						shortcut: shortcuts.switchSource,
+						onSelect: () => showSource('log'),
+					},
+				]
 			: []),
 		{ label: 'Open log', shortcut: shortcuts.openLog, onSelect: chooseLog },
 		'separator',
@@ -202,19 +244,7 @@ export function SourceControl() {
 					}
 				}}
 			>
-				<MenuTrigger
-					render={
-						<SidebarMenuButton
-							size="lg"
-							// Keep the icon aligned and the height the same when only icons are shown
-							className="group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:p-2!"
-							tooltip={sourceSummary(sources).tooltip}
-						/>
-					}
-				>
-					<SourceLabel sources={sources} />
-					<ChevronsUpDownIcon className="ms-auto text-muted-foreground" />
-				</MenuTrigger>
+				<SourceTrigger {...sources} />
 				<MenuPopup align="start" className="w-(--anchor-width) min-w-56">
 					{live && log && (
 						<>

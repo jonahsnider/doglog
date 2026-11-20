@@ -56,13 +56,20 @@ The source control at the top of the sidebar SHALL show the shown source and its
 #### Scenario: Match log source shown
 
 - **GIVEN** the user opened `FRC_20260315_143000_CAPH_Q12.wpilog`
-- **THEN** the source control shows that the log file is for `CAPH Q12`
+- **THEN** the source control and source switcher show `CAPH Q12` with a file icon and the local date and time
+- **AND** hovering or focusing the source control reveals the match type and original filename
+
+#### Scenario: Dated log outside a match
+
+- **GIVEN** the user opened `WPILIB_20261118_003735.wpilog`
+- **THEN** the source control shows the local date and time instead of the filename
+- **AND** if the filename names an event but no match, the event appears above the date and time
 
 #### Scenario: Renamed match log source shown
 
-- **GIVEN** the user opened `qual12.wpilog`, a renamed log with the Driver Station's match info for qualification 12 at `CAPH` (FMSInfo from NetworkTables or AdvantageKit's `DriverStation` inputs)
-- **THEN** the source control shows that the log file is for `CAPH Q12`
-- **AND** the log's match info is used over a match in its file name
+- **GIVEN** the user opened `qual12.wpilog`, a renamed log with the Driver Station's match info for qualification 12 at `CAPH`
+- **THEN** the source control keeps `qual12.wpilog` and shows that it is for `CAPH Q12`
+- **AND** if a recognized filename names a different match, the match from the log data takes precedence
 
 #### Scenario: Live source shown
 
