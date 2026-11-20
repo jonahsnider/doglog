@@ -224,6 +224,25 @@ The timeline options menu SHALL let the user hide or show alerts and active hub 
 - **WHEN** the user turns off Show active hub shifts in the timeline options
 - **THEN** shifts disappear from the track and its tooltip
 
+### Requirement: Go to a time
+
+Clicking the current time in the timeline bar SHALL replace it with a text field for typing a time to move the cursor to, either as it's shown (`m:ss.cc`, with fewer decimal places allowed) or in seconds. Pressing Enter or leaving the field MUST move the cursor there without changing playback, and pressing Escape MUST close the field without moving it. Pressing Enter with something that isn't a time MUST mark the field invalid and keep it open.
+
+#### Scenario: Type a time
+
+- **WHEN** the user clicks the current time, types `1:05.5`, and presses Enter
+- **THEN** the cursor moves to 1:05.50
+
+#### Scenario: Type seconds
+
+- **WHEN** the user clicks the current time, types `90`, and presses Enter
+- **THEN** the cursor moves to 1:30.00
+
+#### Scenario: Cancel
+
+- **WHEN** the user clicks the current time, types `2:00`, and presses Escape
+- **THEN** the cursor doesn't move
+
 ### Requirement: Log playback controls
 
 For log sources, Studio SHALL provide play/pause, a playback speed multiplier, step forward and back, skip forward and back, and jump to start and end, each with a keyboard shortcut. The shortcuts SHALL match YouTube's: Space or K plays and pauses, comma and period step back and forward, the left and right arrow keys skip 5 seconds, and J and L skip 10 seconds. Shift with the left and right arrow keys goes to the previous and next section. Skipping MUST NOT change playback.

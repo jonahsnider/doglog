@@ -1,5 +1,4 @@
 import ChevronsUpDownIcon from 'lucide-react/icons/chevrons-up-down';
-import FastForwardIcon from 'lucide-react/icons/fast-forward';
 import PauseIcon from 'lucide-react/icons/pause';
 import PlayIcon from 'lucide-react/icons/play';
 import SlidersHorizontalIcon from 'lucide-react/icons/sliders-horizontal';
@@ -12,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Menu, MenuCheckboxItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
 import { Select, SelectItem, SelectPopup } from '@/components/ui/select';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
+import { CursorTime } from '@/timeline/cursor-time';
 import { LogProgress } from '@/timeline/log-progress';
 import { Scrubber } from '@/timeline/timeline-scrubber';
 import { getSourceYear } from '@/timeline/shifts';
@@ -24,7 +24,6 @@ import { updateSettings, useSettings } from '@/settings';
 import {
 	changeSpeed,
 	formatTime,
-	getActiveCompressedSpans,
 	goLive,
 	playbackSpeeds,
 	seekHotkeys,
@@ -78,37 +77,6 @@ function ControlButton({
 				<TooltipLabel label={label} shortcut={shortcut} />
 			</TooltipPopup>
 		</Tooltip>
-	);
-}
-
-function CursorTime({ range, time }: { range: TimeRange | undefined; time: number | undefined }) {
-	if (range === undefined || time === undefined) {
-		return <span className="ms-1.5 min-w-20 text-right font-mono text-sm">-</span>;
-	}
-	// Also shown while paused, so there's time to hover it for the tooltip
-	const skipped = getActiveCompressedSpans(range).some((span) => span.start <= time && time < span.end);
-	// Reserves room for the widest time in the log plus the icon (size-3.5 and gap-1), so the label doesn't resize while playing
-	const maxLength = formatTime(range.end, range.start).length;
-	return (
-		<span
-			className="ms-1.5 flex items-center gap-1 font-mono text-sm tabular-nums"
-			style={{ minWidth: `max(5rem, calc(${maxLength}ch + 1.125rem))` }}
-		>
-			{/* Always rendered so it can fade in and out, its tooltip only works while it's shown */}
-			<Tooltip disabled={!skipped}>
-				<TooltipTrigger
-					render={<span />}
-					className={cn('transition-opacity duration-300', !skipped && 'opacity-0')}
-					aria-label="Skipped idle time"
-					aria-hidden={!skipped}
-				>
-					<FastForwardIcon className="size-3.5 text-muted-foreground" />
-				</TooltipTrigger>
-				<TooltipPopup>The robot was disabled or disconnected, playback fast-forwards through this</TooltipPopup>
-			</Tooltip>
-			{/* Right-aligned on its own so the icon stays pinned to the left edge as the time widens */}
-			<span className="ms-auto">{formatTime(time, range.start)}</span>
-		</span>
 	);
 }
 
