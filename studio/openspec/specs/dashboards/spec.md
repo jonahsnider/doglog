@@ -561,12 +561,33 @@ Dashboards and closed dashboards MUST be shared by every open Studio tab or wind
 
 ### Requirement: Dashboard context menu
 
-Right-clicking a dashboard in the sidebar SHALL open a context menu with Rename, Duplicate, Close dashboard, Close other dashboards, and Close dashboards below. A dashboard selected along with others SHALL show the selection's menu instead.
+Right-clicking a dashboard in the sidebar SHALL open a context menu with Rename, Duplicate, Close dashboard, Close other dashboards, and Close dashboards below. The menu SHALL show Copy link only if at least one pane contains a widget. A dashboard selected along with others SHALL show the selection's menu instead.
 
 #### Scenario: Close from the context menu
 
 - **WHEN** the user right-clicks a dashboard and chooses Close dashboard
 - **THEN** it is closed the same way as any other dashboard close
+
+### Requirement: Dashboard links
+
+Copy link SHALL copy a Studio URL containing a snapshot of the dashboard's saved name, pane layout, widget settings, and bindings by entry name. The URL MUST NOT include log data or turn on robot sharing. Opening the link SHALL open an editable local dashboard without requiring confirmation.
+
+#### Scenario: Open a link to a dashboard already saved locally
+
+- **GIVEN** a local dashboard has the same saved name and layout as the link, including widget settings and bindings
+- **WHEN** the recipient opens the link
+- **THEN** Studio opens the existing dashboard instead of adding a copy, even if its internal IDs differ
+
+#### Scenario: Open a link after editing the imported dashboard
+
+- **GIVEN** the recipient edited the dashboard they imported from a link and no identical local dashboard remains
+- **WHEN** the recipient opens the same link again
+- **THEN** Studio adds the original snapshot as a new local dashboard without changing the edited one
+
+#### Scenario: Open an invalid or unsupported link
+
+- **WHEN** someone opens an invalid or unsupported dashboard link
+- **THEN** Studio explains that the link could not be opened and offers a way back to the dashboards without adding one
 
 ### Requirement: Focused pane
 

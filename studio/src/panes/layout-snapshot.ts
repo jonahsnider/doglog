@@ -9,7 +9,7 @@ type WidgetSnapshot =
 	| (Widget & { bindings?: undefined })
 	| { type: string; config: Record<string, unknown>; bindings: BindingSnapshot[] };
 
-type LayoutSnapshot =
+export type LayoutSnapshot =
 	| (Omit<Pane, 'id' | 'widget'> & { widget?: WidgetSnapshot })
 	| (Omit<Split, 'id' | 'children'> & { children: LayoutSnapshot[] });
 

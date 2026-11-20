@@ -116,6 +116,7 @@ pub fn run() -> ExitCode {
         // After the file system plugin, keeps access to the sync folder the user picked after Studio restarts
         .plugin(tauri_plugin_persisted_scope::init())
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(window_state::plugin())

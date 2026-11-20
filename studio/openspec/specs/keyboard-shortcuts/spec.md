@@ -21,6 +21,18 @@ Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and
 - **WHEN** the user presses Alt+Shift+T
 - **THEN** the dashboard is reopened
 
+#### Scenario: Copy the current dashboard link
+
+- **GIVEN** a dashboard with at least one widget is open
+- **WHEN** Studio receives ⇧⌘C (Ctrl+Shift+C on Windows and Linux)
+- **THEN** Studio copies the current dashboard's URL and shows a checkmark toast reading “Copied dashboard URL” if the copy succeeds
+
+#### Scenario: Copy shortcut on a dashboard with only empty panes
+
+- **GIVEN** none of the current dashboard's panes contains a widget
+- **WHEN** Studio receives the copy dashboard link shortcut
+- **THEN** Studio does not copy a URL or show a toast
+
 #### Scenario: Undo in a text field
 
 - **GIVEN** the user is renaming a dashboard

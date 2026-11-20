@@ -11,6 +11,7 @@ import {
 import { type RegisteredRouter, useRouter } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import { useDebounceValue } from 'usehooks-ts';
+import { canCopyDashboardLink, copyDashboardLink } from '@/dashboards/copy-dashboard-link';
 import { closeFocusedPane, getFocusedPane, splitDashboardPane, toggleZoom } from '@/dashboards/panes';
 import {
 	createDashboard,
@@ -49,6 +50,7 @@ export const shortcuts = {
 	close: desktop ? 'Mod+W' : 'Alt+W',
 	closeDashboard: desktop ? 'Mod+Shift+W' : 'Alt+Shift+W',
 	reopenDashboard: desktop ? 'Mod+Shift+T' : 'Alt+Shift+T',
+	copyDashboardLink: 'Mod+Shift+C',
 	settings: desktop ? 'Mod+,' : 'Alt+,',
 	logs: desktop ? 'Mod+L' : 'Alt+L',
 	back: desktop ? 'Mod+[' : 'Alt+[',
@@ -238,6 +240,17 @@ export function useGlobalShortcuts(): void {
 			{ hotkey: 'Mod+W', callback: () => closeFocused(router), options: desktopOnly },
 			{ hotkey: 'Mod+Shift+W', callback: () => closeCurrentDashboard(router), options: desktopOnly },
 			{ hotkey: 'Mod+Shift+T', callback: () => reopenDashboard(router), options: desktopOnly },
+			{
+				hotkey: shortcuts.copyDashboardLink,
+				callback: (event) => {
+					const dashboard = currentDashboard(router);
+					if (dashboard && canCopyDashboardLink(dashboard)) {
+						event.preventDefault();
+						void copyDashboardLink(dashboard);
+					}
+				},
+				options: { preventDefault: false, stopPropagation: false },
+			},
 			{ hotkey: 'Mod+,', callback: () => openSettings(router), options: desktopOnly },
 			{ hotkey: 'Mod+L', callback: () => openLogs(router), options: { enabled: desktop } },
 			{ hotkey: shortcuts.update, callback: () => void checkOrInstallUpdate() },

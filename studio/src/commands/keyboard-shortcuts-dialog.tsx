@@ -42,6 +42,7 @@ const sections: {
 			{ label: isTauri() ? 'Close pane, dashboard, or window' : 'Close pane or dashboard', keys: [shortcuts.close] },
 			{ label: 'Close dashboard', keys: [shortcuts.closeDashboard] },
 			{ label: 'Reopen closed dashboard', keys: [shortcuts.reopenDashboard] },
+			{ label: 'Copy dashboard link', keys: [shortcuts.copyDashboardLink] },
 			{ label: 'Switch to dashboard 1-9', keys: [dashboardShortcut(0)!, dashboardShortcut(8)!], separator: '–' },
 			{ label: 'Back', keys: [shortcuts.back] },
 			{ label: 'Forward', keys: [shortcuts.forward] },

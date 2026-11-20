@@ -8,6 +8,7 @@ import { type ComponentType, type SVGProps, useState } from 'react';
 import { AppContextMenu, type MenuAction } from '@/components/app-context-menu';
 import { DashboardOptions } from '@/sidebar/dashboard-options';
 import { SidebarInput, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { canCopyDashboardLink, copyDashboardLink } from '@/dashboards/copy-dashboard-link';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { DashboardPreview } from '@/dashboards/dashboard-preview';
 import { PreviewCard, PreviewCardPopup, PreviewCardTrigger } from '@/components/ui/preview-card';
@@ -139,7 +140,6 @@ function dashboardMenu({
 	const closeOthers = () =>
 		deleteDashboards(dashboards.filter((other) => other !== dashboard).map((other) => other.id));
 	const closeBelow = () => deleteDashboards(dashboards.slice(index + 1).map((other) => other.id));
-	// Disabled rather than hidden like in a browser's tab menu, so the menu's layout doesn't shift
 	return [
 		{ label: 'Rename', onSelect: rename },
 		{ label: 'Duplicate', onSelect: () => selection.duplicate([dashboard.id]) },
@@ -149,6 +149,15 @@ function dashboardMenu({
 				moveDashboardToSection(router, dashboard.id, !dashboard.shared);
 			},
 		},
+		...(canCopyDashboardLink(dashboard)
+			? [
+					{
+						label: 'Copy link',
+						shortcut: shortcuts.copyDashboardLink,
+						onSelect: () => void copyDashboardLink(dashboard),
+					},
+				]
+			: []),
 		'separator',
 		{
 			label: 'Close',
@@ -156,6 +165,7 @@ function dashboardMenu({
 			destructive: true,
 			onSelect: () => deleteDashboard(dashboard.id),
 		},
+		// Disabled rather than hidden like in a browser's tab menu, so the close actions don't shift
 		{ label: 'Close other dashboards', disabled: dashboards.length === 1, onSelect: closeOthers },
 		{ label: 'Close dashboards below', disabled: index === dashboards.length - 1, onSelect: closeBelow },
 	];
