@@ -589,6 +589,29 @@ Copy link SHALL copy a Studio URL containing a snapshot of the dashboard's saved
 - **WHEN** someone opens an invalid or unsupported dashboard link
 - **THEN** Studio explains that the link could not be opened and offers a way back to the dashboards without adding one
 
+### Requirement: Open dashboard links in the desktop app
+
+The desktop app SHALL register itself as the handler for `doglog://import/<link>` URLs, which open the dashboard the same way as its Studio URL. Opening a dashboard link in a desktop browser SHALL also offer to open it in the desktop app. Browsers that do nothing when no app handles the URL SHALL ask right away. Other browsers show an error to users without the desktop app, so they MUST only ask after the user chooses Open in a toast. Mobile browsers MUST NOT offer it.
+
+#### Scenario: Open a link in the browser with the desktop app installed
+
+- **GIVEN** the desktop app is installed
+- **WHEN** the recipient opens a dashboard link in a desktop Chromium browser
+- **THEN** the browser offers to open it in the desktop app, which opens the dashboard
+- **AND** the dashboard also opens in the browser, in case they decline
+
+#### Scenario: Open a link in Safari or Firefox
+
+- **WHEN** the recipient opens a dashboard link in desktop Safari or Firefox
+- **THEN** the dashboard opens in the browser
+- **AND** a toast offers to open it in the desktop app, which asks the browser to open it there only if they choose Open
+
+#### Scenario: Open a link in the browser without the desktop app
+
+- **GIVEN** the desktop app isn't installed
+- **WHEN** the recipient opens a dashboard link in the browser
+- **THEN** the dashboard opens in the browser without any error
+
 ### Requirement: Focused pane
 
 The pane the user last clicked or interacted with SHALL be the focused pane. The focused pane MUST NOT be outlined; showing its header controls is the only indication.

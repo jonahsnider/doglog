@@ -10,6 +10,7 @@ import { setAgentRouter } from './agent/dashboard-handlers.ts';
 import { registerWebMcpTools } from './agent/webmcp.ts';
 import { setUpAppMenu } from './desktop/app-menu.ts';
 import { trackHistory } from './commands/history.ts';
+import { handleOpenedDashboardLinks } from './dashboards/open-dashboard-link.ts';
 import { handleLaunchedLogFiles, handleLogFileDrops, handleOpenedLogFiles } from './data/open-log.ts';
 import { reopenDevLog } from './data/source.ts';
 import { syncMediaSession } from './timeline/media-session.ts';
@@ -68,6 +69,7 @@ void setUpAppMenu(router);
 setAgentRouter(router);
 if (isTauri()) {
 	void serveAgents(router);
+	void handleOpenedDashboardLinks(router);
 } else {
 	registerWebMcpTools();
 }

@@ -11,6 +11,15 @@ use tauri::{AppHandle, Manager};
 /// Parse the `doglog` command's arguments, which Windows and Linux also use to open files. Continues with the log to
 /// open, or breaks with an exit code after running a terminal command, `--help`, `--version`, or invalid arguments.
 pub fn parse_args(version: String) -> ControlFlow<ExitCode, Option<PathBuf>> {
+    // Windows and Linux open `doglog://` links by starting Studio with the link as its only argument, which the deep
+    // link plugin reads
+    if std::env::args_os()
+        .nth(1)
+        .is_some_and(|arg| arg.to_string_lossy().starts_with("doglog://"))
+    {
+        return ControlFlow::Continue(None);
+    }
+
     let command = Command::new("doglog")
         .bin_name("doglog")
         .about(&agent::API.instructions)

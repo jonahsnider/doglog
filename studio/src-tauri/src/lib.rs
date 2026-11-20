@@ -12,6 +12,7 @@ mod window_state;
 
 use std::{ops::ControlFlow, path::PathBuf, process::ExitCode, sync::Mutex};
 use tauri::{AppHandle, Emitter, Manager, RunEvent, State, WindowEvent, ipc::Response, window::Effect};
+use tauri_plugin_deep_link::DeepLinkExt;
 
 /// The last log the OS asked Studio to open, until the frontend takes it
 #[derive(Default)]
@@ -26,6 +27,26 @@ fn set_opened_log(app: &AppHandle, path: PathBuf) {
 #[tauri::command]
 fn take_opened_log(opened_log: State<OpenedLog>) -> Option<PathBuf> {
     opened_log.0.lock().unwrap().take()
+}
+
+/// The last dashboard link the OS asked Studio to open, ex. `v1.<payload>` from `doglog://import/v1.<payload>`, until
+/// the frontend takes it
+#[derive(Default)]
+struct OpenedDashboardLink(Mutex<Option<String>>);
+
+fn set_opened_dashboard_link(app: &AppHandle, url: &tauri::Url) {
+    if url.scheme() != "doglog" || url.host_str() != Some("import") {
+        return;
+    }
+    let link = url.path().trim_start_matches('/').to_owned();
+    *app.state::<OpenedDashboardLink>().0.lock().unwrap() = Some(link);
+    // Before the frontend is listening this is dropped, it takes the link when it starts instead
+    let _ = app.emit("dashboard-link-opened", ());
+}
+
+#[tauri::command]
+fn take_opened_dashboard_link(opened_link: State<OpenedDashboardLink>) -> Option<String> {
+    opened_link.0.lock().unwrap().take()
 }
 
 #[tauri::command]
@@ -130,8 +151,10 @@ pub fn run() -> ExitCode {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_deep_link::init())
         .plugin(window_state::plugin())
         .manage(OpenedLog::default())
+        .manage(OpenedDashboardLink::default())
         .manage(sync::RobotConnection::default())
         .manage(sync::CancelDownload::default())
         .manage(sync::SyncLock::default())
@@ -143,6 +166,7 @@ pub fn run() -> ExitCode {
         })
         .invoke_handler(tauri::generate_handler![
             take_opened_log,
+            take_opened_dashboard_link,
             read_file,
             #[cfg(any(target_os = "macos", windows))]
             capture::copy_capture,
@@ -187,6 +211,21 @@ pub fn run() -> ExitCode {
             if let Some(log) = log {
                 set_opened_log(app.handle(), log);
             }
+
+            // Windows and Linux start a new process with a `doglog://` link as its argument, macOS sends it as an
+            // event, both on launch and while running
+            let handle = app.handle().clone();
+            app.deep_link().on_open_url(move |event| {
+                if let Some(url) = event.urls().last() {
+                    set_opened_dashboard_link(&handle, url);
+                }
+            });
+            if let Some(url) = app.deep_link().get_current()?.and_then(|urls| urls.into_iter().last()) {
+                set_opened_dashboard_link(app.handle(), &url);
+            }
+            // AppImages aren't installed, so they register `doglog://` links each time they start
+            #[cfg(all(target_os = "linux", not(debug_assertions)))]
+            app.deep_link().register_all()?;
 
             Ok(())
         })

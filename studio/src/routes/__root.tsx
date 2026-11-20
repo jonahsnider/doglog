@@ -3,6 +3,7 @@ import { useSelector } from '@tanstack/react-store';
 import { useGlobalShortcuts } from '@/commands/commands';
 import { AppSidebar } from '@/sidebar/app-sidebar';
 import { DragProvider } from '@/components/drag-provider';
+import { useDesktopLinkOffer } from '@/dashboards/open-dashboard-link';
 import { LogDropOverlay } from '@/components/log-drop-overlay';
 import { SidebarInset } from '@/components/ui/sidebar';
 import { ToastProvider } from '@/components/ui/toast';
@@ -16,6 +17,8 @@ export const Route = createRootRoute({
 
 function RootLayout() {
 	useGlobalShortcuts();
+	// After ToastProvider's effect subscribes it, since child effects run first
+	useDesktopLinkOffer();
 	const matchRoute = useMatchRoute();
 	// Dashboards lay out their own panes, entry browser, and timeline on the frame, other pages are one container
 	const dashboard = Boolean(matchRoute({ to: '/dashboards/$dashboardId' }));
