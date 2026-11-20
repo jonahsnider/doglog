@@ -93,39 +93,31 @@ export function AppSidebar() {
 	};
 	useHotkey(shortcuts.toggleSidebar, () => toggle(false), { requireReset: true });
 
-	// Hide the peeking sidebar once the pointer leaves it, checked on pointer moves since menus are rendered outside of it
-	// react-doctor-disable-next-line react-doctor/effect-needs-cleanup -- The cleanup clears `hide.timer`
+	// Check pointer moves since menus are rendered outside the sidebar, and pointerleave for exits from the window
 	useEffect(() => {
 		if (!peeking) {
 			return undefined;
 		}
 
-		const hide: { timer: ReturnType<typeof setTimeout> | undefined } = { timer: undefined };
-		const onPointerMove = (event: PointerEvent) => {
+		const hideOnPointerExit = (event: PointerEvent) => {
 			const container = containerRef.current;
-			if (!container || (event.target instanceof Node && container.contains(event.target))) {
-				clearTimeout(hide.timer);
-				hide.timer = undefined;
+			if (
+				!container ||
+				(event.target instanceof Node && container.contains(event.target)) ||
+				container.querySelector(keepPeekingSelector)
+			) {
 				return;
 			}
 
-			if (hide.timer !== undefined) {
-				return;
-			}
-
-			hide.timer = setTimeout(() => {
-				hide.timer = undefined;
-				if (!container.querySelector(keepPeekingSelector)) {
-					setPeeking(false);
-					animateSidebarPeek(false);
-				}
-			}, peekDelay);
+			setPeeking(false);
+			animateSidebarPeek(false);
 		};
 
-		document.addEventListener('pointermove', onPointerMove);
+		document.addEventListener('pointermove', hideOnPointerExit);
+		document.documentElement.addEventListener('pointerleave', hideOnPointerExit);
 		return () => {
-			document.removeEventListener('pointermove', onPointerMove);
-			clearTimeout(hide.timer);
+			document.removeEventListener('pointermove', hideOnPointerExit);
+			document.documentElement.removeEventListener('pointerleave', hideOnPointerExit);
 		};
 	}, [peeking]);
 
