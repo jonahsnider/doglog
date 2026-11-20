@@ -12,6 +12,7 @@ DogLog Studio is a web and desktop app for reviewing and analyzing logs.
 - We use OpenSpec to describe features and expectations for the app
 - Our workflow is fairly standard, but we don't use their change tracking feature
 - When making changes to the app, consider if spec documents should be added or updated
+- Do not mention specific products when writing comments/specs, only exception is if it's explicitly necessary (ex. "support AdvantageScope JSON")
 - Follow `studio/DESIGN.md` for UI patterns (components, styling, color, motion), and update it when a pattern changes
 - Run `pnpm check:dev` in `studio` to check your changes, it adds a React Doctor scan of changed files to `pnpm check`
 
