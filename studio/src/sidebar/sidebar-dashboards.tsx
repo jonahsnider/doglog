@@ -105,7 +105,10 @@ function sharingStatus(
 function SectionLabel({ label, children }: { label: string; children?: ReactNode }) {
 	return (
 		<div className="group/label my-1 flex h-8 items-center px-2 text-xs text-muted-foreground">
-			<span className="me-2 font-medium group-data-[collapsible=icon]:hidden" data-sidebar-label="">
+			<span
+				className="me-2 font-heading text-sm font-medium group-data-[collapsible=icon]:hidden"
+				data-sidebar-label=""
+			>
 				{label}
 			</span>
 			{children}

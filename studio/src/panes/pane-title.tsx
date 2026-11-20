@@ -34,7 +34,8 @@ export function PaneTitle({
 		>
 			{Icon && <Icon className="size-3.5 shrink-0 group-hover/title:hidden group-data-dragging/title:hidden" />}
 			<MoveIcon className="hidden size-3.5 shrink-0 group-hover/title:block group-data-dragging/title:block" />
-			<span className="truncate">{name ?? 'Empty pane'}</span>
+			{/* Source Sans 3 is smaller than IBM Plex Sans, so it's a size up, keeping the line height so the header doesn't grow */}
+			<span className="truncate font-heading text-sm/4">{name ?? 'Empty pane'}</span>
 		</span>
 	);
 }

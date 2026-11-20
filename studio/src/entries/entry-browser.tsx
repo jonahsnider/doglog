@@ -95,7 +95,7 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 					<div {...dragRegion} className="flex h-10.5 shrink-0 items-center gap-1 ps-3 pe-1.5 pt-1.5">
 						{edited ? (
 							<>
-								<h2 className="min-w-0 flex-1 truncate text-xs font-medium">Editing {edited.type.name}</h2>
+								<h2 className="min-w-0 flex-1 truncate font-heading text-sm font-medium">Editing {edited.type.name}</h2>
 								<Tooltip>
 									<TooltipTrigger
 										render={<Button variant="ghost" size="icon-xs" aria-label="Stop editing" onClick={stopEditing} />}
@@ -109,7 +109,7 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 							</>
 						) : (
 							<>
-								<h2 className="flex-1 text-xs font-medium text-muted-foreground">Entries</h2>
+								<h2 className="flex-1 font-heading text-sm font-medium text-muted-foreground">Entries</h2>
 								<ToggleButton open />
 							</>
 						)}
