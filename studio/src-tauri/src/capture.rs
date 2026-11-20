@@ -5,8 +5,12 @@ mod platform;
 #[path = "capture_windows.rs"]
 mod platform;
 
-use std::time::Duration;
+use std::{
+    path::PathBuf,
+    time::{Duration, SystemTime, UNIX_EPOCH},
+};
 
+use image::RgbaImage;
 use serde::Deserialize;
 use tauri::{WebviewWindow, image::Image};
 use tauri_plugin_clipboard_manager::ClipboardExt;
@@ -36,6 +40,34 @@ pub async fn set_capture_cover(window: WebviewWindow, show: bool) -> Result<(), 
 
 #[tauri::command]
 pub async fn copy_capture(window: WebviewWindow, rect: CaptureRect) -> Result<(), String> {
+    let image = snapshot(&window, rect).await?;
+    window
+        .clipboard()
+        .write_image(&Image::new(image.as_raw(), image.width(), image.height()))
+        .map_err(|error| error.to_string())
+}
+
+/// Save a PNG to `path`, or a new file in the temporary folder, for agents. Returns where it was saved.
+#[tauri::command]
+pub async fn save_capture(window: WebviewWindow, rect: CaptureRect, path: Option<PathBuf>) -> Result<PathBuf, String> {
+    if path.as_ref().is_some_and(|path| !path.is_absolute()) {
+        return Err("The path must be absolute".into());
+    }
+    let image = snapshot(&window, rect).await?;
+    let path = path.unwrap_or_else(|| {
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_millis();
+        std::env::temp_dir().join(format!("doglog-capture-{now}.png"))
+    });
+    image
+        .save_with_format(&path, image::ImageFormat::Png)
+        .map_err(|error| format!("Couldn't save {}: {error}", path.display()))?;
+    Ok(path)
+}
+
+async fn snapshot(window: &WebviewWindow, rect: CaptureRect) -> Result<RgbaImage, String> {
     if !(0.0 <= rect.left
         && rect.left < rect.right
         && rect.right <= 1.0
@@ -72,8 +104,5 @@ pub async fn copy_capture(window: WebviewWindow, rect: CaptureRect) -> Result<()
         image::imageops::crop_imm(&image, left, top, right - left, bottom - top).to_image()
     };
 
-    window
-        .clipboard()
-        .write_image(&Image::new(image.as_raw(), image.width(), image.height()))
-        .map_err(|error| error.to_string())
+    Ok(image)
 }

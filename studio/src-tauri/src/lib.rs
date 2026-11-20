@@ -146,6 +146,8 @@ pub fn run() -> ExitCode {
             read_file,
             #[cfg(any(target_os = "macos", windows))]
             capture::copy_capture,
+            #[cfg(any(target_os = "macos", windows))]
+            capture::save_capture,
             #[cfg(target_os = "macos")]
             capture::set_capture_cover,
             new_window::new_window,

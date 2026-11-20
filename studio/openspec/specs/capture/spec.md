@@ -8,7 +8,7 @@ Let users share what they see in Studio as an image or a short log clip without 
 
 ### Requirement: Available capture actions
 
-Studio SHALL offer capture on macOS and Windows. It MAY offer capture on other platforms if it can capture the current Studio view without a screen or tab picker. Capture MUST run locally and MUST NOT upload the output or expose capture actions to agents.
+Studio SHALL offer capture on macOS and Windows. It MAY offer capture on other platforms if it can capture the current Studio view without a screen or tab picker. Capture MUST run locally and MUST NOT upload the output. Agents MAY save the same images to files, see agent-control.
 
 #### Scenario: View the dashboard menu on an unsupported platform
 

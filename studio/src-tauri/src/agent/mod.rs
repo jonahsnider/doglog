@@ -34,10 +34,16 @@ pub struct Command {
     pub input_schema: Map<String, Value>,
     /// Answered by the `doglog` command itself instead of a window, ex. `window_list`
     pub bridge: bool,
+    /// Captures images, so it's only offered where Studio supports capture
+    pub capture: bool,
 }
 
-pub static API: LazyLock<Api> =
-    LazyLock::new(|| serde_json::from_str(include_str!("../../agent-api.json")).expect("agent-api.json is invalid"));
+pub static API: LazyLock<Api> = LazyLock::new(|| {
+    let mut api: Api = serde_json::from_str(include_str!("../../agent-api.json")).expect("agent-api.json is invalid");
+    api.commands
+        .retain(|command| cfg!(any(target_os = "macos", windows)) || !command.capture);
+    api
+});
 
 /// A command that runs in a window, rather than in the `doglog` command
 fn window_command(name: &str) -> Option<&'static Command> {

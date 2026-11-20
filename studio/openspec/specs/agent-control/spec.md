@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Let AI agents control a running Studio so they can build dashboards for users. Agents see what's in a data source, but never its values: analyzing data is the job of wpilog-parser and its skill, not Studio.
+Let AI agents control a running Studio so they can build dashboards for users. Agents see what's in a data source and how dashboards look, but never get its values as data: analyzing data is the job of wpilog-parser and its skill, not Studio.
 
 ## Requirements
 
@@ -21,7 +21,7 @@ Studio SHALL offer agents one set of commands, named `<resource>_<action>`, thro
 The agent commands SHALL be:
 
 - `window_list`, `window_update`
-- `dashboard_list`, `dashboard_get`, `dashboard_create`, `dashboard_update`, `dashboard_delete`, `dashboard_duplicate`, `dashboard_combine`
+- `dashboard_list`, `dashboard_get`, `dashboard_create`, `dashboard_update`, `dashboard_delete`, `dashboard_duplicate`, `dashboard_combine`, `dashboard_capture`
 - `pane_create`, `pane_update`, `pane_move`, `pane_delete`
 - `binding_create`, `binding_update`, `binding_delete`
 - `entry_list`
@@ -123,6 +123,27 @@ Agents SHALL be able to rename, share or stop sharing, duplicate, combine, and d
 - **WHEN** the user reopens closed dashboards
 - **THEN** "Arm tuning" comes back
 
+### Requirement: Capture dashboard images
+
+`dashboard_capture` SHALL save a PNG of a dashboard, or one of its panes, that matches what Copy image puts on the clipboard. It MUST save to the absolute path it's given, or to a new file in the temporary folder, and return the file's path rather than the image itself. Like Copy image, it MUST show the dashboard and wait for its visible widgets to finish loading. It MUST restore a minimized window rather than wait for the user to.
+
+#### Scenario: Check a dashboard the agent built
+
+- **GIVEN** an agent created a dashboard with a graph beside a field widget
+- **WHEN** it calls `dashboard_capture` without a path
+- **THEN** it gets the path of a PNG in the temporary folder showing both widgets and the timeline
+
+#### Scenario: Capture one widget
+
+- **WHEN** an agent runs `doglog dashboard capture --dashboard-id <id> --pane-id <id> --path /tmp/graph.png`
+- **THEN** `/tmp/graph.png` shows only that pane, as Copy image in its pane menu would
+
+#### Scenario: Window is minimized
+
+- **GIVEN** the Studio window is minimized
+- **WHEN** an agent calls `dashboard_capture`
+- **THEN** the window is restored and the image is saved
+
 ### Requirement: Edit panes and widgets
 
 Agents SHALL be able to split a pane to add one, move and delete panes, and set a pane's widget type, widget options, and size. When `pane_create` isn't given a direction, it MUST pick the same direction Studio picks when the user adds a widget to that pane. Edits Studio wouldn't allow the user to make MUST be rejected with an explanation.
@@ -170,7 +191,7 @@ Agents SHALL be able to read and change every setting on the Settings page.
 
 ### Requirement: Out of scope for agents
 
-Agents SHALL NOT be able to read or write notepad text, control playback, or take screenshots. Agents can add notepad panes, which then show the shared notepad.
+Agents SHALL NOT be able to read or write notepad text or control playback. Agents can add notepad panes, which then show the shared notepad.
 
 #### Scenario: Add a notepad
 
@@ -179,13 +200,13 @@ Agents SHALL NOT be able to read or write notepad text, control playback, or tak
 
 ### Requirement: Platform-specific commands
 
-A command that can't work on the current platform SHALL NOT be offered there, rather than being offered and failing. In the web app this means no window commands or `window` input, and no opening logs by file path.
+A command that can't work on the current platform SHALL NOT be offered there, rather than being offered and failing. In the web app this means no window commands or `window` input, no `dashboard_capture`, and no opening logs by file path. On desktop platforms without capture support, it means no `dashboard_capture`.
 
 #### Scenario: Web app
 
 - **GIVEN** an agent is connected to the web app through WebMCP
 - **WHEN** it lists the available commands
-- **THEN** there are no window commands
+- **THEN** there are no window commands or `dashboard_capture`
 - **AND** `source_update` can connect to a robot but not open a file path
 
 ### Requirement: WebMCP in the web app

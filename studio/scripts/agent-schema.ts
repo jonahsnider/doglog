@@ -9,11 +9,12 @@ const path = new URL('../src-tauri/agent-api.json', import.meta.url);
 const api = {
 	apiVersion: agentApiVersion,
 	instructions: agentInstructions,
-	commands: platformCommands('desktop').map(({ name, description, input, bridge }) => ({
+	commands: platformCommands('desktop').map(({ name, description, input, bridge, capture }) => ({
 		name,
 		description,
 		inputSchema: z.toJSONSchema(input, { io: 'input' }),
 		bridge,
+		capture,
 	})),
 };
 const json = `${JSON.stringify(api, undefined, '\t')}\n`;

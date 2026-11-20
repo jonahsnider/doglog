@@ -22,7 +22,7 @@ import {
 /** Changes only when commands change incompatibly, the desktop MCP server refuses windows with another version */
 export const agentApiVersion = 1;
 
-export const agentInstructions = `DogLog Studio shows FRC robot logs (WPILOG files) and live robot data on dashboards. With these commands you can build and arrange dashboards for the user, open a log or connect to the robot, move the timeline cursor to a moment, and change settings.
+export const agentInstructions = `DogLog Studio shows FRC robot logs (WPILOG files) and live robot data on dashboards. With these commands you can build and arrange dashboards for the user, save images of them to check how they look, open a log or connect to the robot, move the timeline cursor to a moment, and change settings.
 
 Each dashboard's layout is a tree: a split puts its children side by side (\`row\`) or stacks them (\`column\`), and each leaf is a pane. A pane shows one widget, or nothing. A widget's bindings are the entries it shows, bound by entry name. \`dashboard_get\` returns the IDs other commands take, and points out bindings that won't show what you meant.
 
@@ -39,6 +39,8 @@ type CommandDefinition = {
 	platforms?: readonly AgentPlatform[];
 	/** Handled by the desktop MCP server instead of a window */
 	bridge?: true;
+	/** Captures images, only offered where Studio supports capture */
+	capture?: true;
 };
 
 const dashboardReturns = 'Returns the dashboard like `dashboard_get`.';
@@ -69,6 +71,21 @@ const commands = {
 		description:
 			"Get a dashboard: its name, layout, and each pane's widget, options, and bindings, with the IDs other commands take. `problems` point out what keeps a widget from showing what was meant, ex. an entry missing from the source, an entry type the widget doesn't accept, or a role that doesn't fit. Sizes are each pane or split's share of its parent split.",
 		input: z.strictObject({ dashboardId }),
+	},
+	dashboard_capture: {
+		description:
+			"Save a PNG image of a dashboard, or one of its panes, as the user would copy it: with the window's theme, sizes, and timeline cursor, and the timeline below a whole dashboard. Shows the dashboard, restoring the window if it's minimized, and waits for its widgets to load first. Returns the image's path, open it to check that widgets look as meant.",
+		input: z.strictObject({
+			dashboardId,
+			paneId: paneId.optional().describe('Only this pane. Left out, the whole dashboard.'),
+			path: z
+				.string()
+				.min(1)
+				.optional()
+				.describe('Absolute path to save the PNG to. Left out, it goes in a new file in the temporary folder.'),
+		}),
+		platforms: ['desktop'],
+		capture: true,
 	},
 	dashboard_create: {
 		description: `Create a dashboard at the top of the list and show it, optionally with a whole layout of panes, widgets, and bindings. An invalid layout creates nothing. At most 4 panes fit side by side, or stacked. ${dashboardReturns}`,
@@ -259,6 +276,7 @@ export function platformCommands(platform: AgentPlatform) {
 						description: command.description,
 						input: (platform === 'web' ? command.webInput : undefined) ?? command.input,
 						bridge: command.bridge === true,
+						capture: command.capture === true,
 					},
 				]
 			: [],

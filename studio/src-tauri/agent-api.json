@@ -1,6 +1,6 @@
 {
 	"apiVersion": 1,
-	"instructions": "DogLog Studio shows FRC robot logs (WPILOG files) and live robot data on dashboards. With these commands you can build and arrange dashboards for the user, open a log or connect to the robot, move the timeline cursor to a moment, and change settings.\n\nEach dashboard's layout is a tree: a split puts its children side by side (`row`) or stacks them (`column`), and each leaf is a pane. A pane shows one widget, or nothing. A widget's bindings are the entries it shows, bound by entry name. `dashboard_get` returns the IDs other commands take, and points out bindings that won't show what you meant.\n\nCommands never return entry values. To analyze data, ex. to find when something happened, read the log with the wpilog-parser library (and its skill, if you have it), then show the user that moment with `timeline_update`.",
+	"instructions": "DogLog Studio shows FRC robot logs (WPILOG files) and live robot data on dashboards. With these commands you can build and arrange dashboards for the user, save images of them to check how they look, open a log or connect to the robot, move the timeline cursor to a moment, and change settings.\n\nEach dashboard's layout is a tree: a split puts its children side by side (`row`) or stacks them (`column`), and each leaf is a pane. A pane shows one widget, or nothing. A widget's bindings are the entries it shows, bound by entry name. `dashboard_get` returns the IDs other commands take, and points out bindings that won't show what you meant.\n\nCommands never return entry values. To analyze data, ex. to find when something happened, read the log with the wpilog-parser library (and its skill, if you have it), then show the user that moment with `timeline_update`.",
 	"commands": [
 		{
 			"name": "window_list",
@@ -11,7 +11,8 @@
 				"properties": {},
 				"additionalProperties": false
 			},
-			"bridge": true
+			"bridge": true,
+			"capture": false
 		},
 		{
 			"name": "window_update",
@@ -31,7 +32,8 @@
 				},
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "dashboard_list",
@@ -42,7 +44,8 @@
 				"properties": {},
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "dashboard_get",
@@ -61,7 +64,37 @@
 				],
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
+		},
+		{
+			"name": "dashboard_capture",
+			"description": "Save a PNG image of a dashboard, or one of its panes, as the user would copy it: with the window's theme, sizes, and timeline cursor, and the timeline below a whole dashboard. Shows the dashboard, restoring the window if it's minimized, and waits for its widgets to load first. Returns the image's path, open it to check that widgets look as meant.",
+			"inputSchema": {
+				"$schema": "https://json-schema.org/draft/2020-12/schema",
+				"type": "object",
+				"properties": {
+					"dashboardId": {
+						"type": "string",
+						"description": "The dashboard's ID, from `dashboard_list`"
+					},
+					"paneId": {
+						"description": "Only this pane. Left out, the whole dashboard.",
+						"type": "string"
+					},
+					"path": {
+						"description": "Absolute path to save the PNG to. Left out, it goes in a new file in the temporary folder.",
+						"type": "string",
+						"minLength": 1
+					}
+				},
+				"required": [
+					"dashboardId"
+				],
+				"additionalProperties": false
+			},
+			"bridge": false,
+			"capture": true
 		},
 		{
 			"name": "dashboard_create",
@@ -592,7 +625,8 @@
 					}
 				}
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "dashboard_update",
@@ -618,7 +652,8 @@
 				],
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "dashboard_delete",
@@ -637,7 +672,8 @@
 				],
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "dashboard_duplicate",
@@ -656,7 +692,8 @@
 				],
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "dashboard_combine",
@@ -679,7 +716,8 @@
 				],
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "pane_create",
@@ -1159,7 +1197,8 @@
 				],
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "pane_update",
@@ -1425,7 +1464,8 @@
 				],
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "pane_move",
@@ -1465,7 +1505,8 @@
 				],
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "pane_delete",
@@ -1489,7 +1530,8 @@
 				],
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "binding_create",
@@ -1546,7 +1588,8 @@
 				],
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "binding_update",
@@ -1599,7 +1642,8 @@
 				],
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "binding_delete",
@@ -1623,7 +1667,8 @@
 				],
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "entry_list",
@@ -1655,7 +1700,8 @@
 				},
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "source_get",
@@ -1666,7 +1712,8 @@
 				"properties": {},
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "source_update",
@@ -1683,7 +1730,8 @@
 				},
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "source_delete",
@@ -1694,7 +1742,8 @@
 				"properties": {},
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "timeline_get",
@@ -1705,7 +1754,8 @@
 				"properties": {},
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "timeline_update",
@@ -1724,7 +1774,8 @@
 				],
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "settings_get",
@@ -1735,7 +1786,8 @@
 				"properties": {},
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		},
 		{
 			"name": "settings_update",
@@ -1798,7 +1850,8 @@
 				},
 				"additionalProperties": false
 			},
-			"bridge": false
+			"bridge": false,
+			"capture": false
 		}
 	]
 }

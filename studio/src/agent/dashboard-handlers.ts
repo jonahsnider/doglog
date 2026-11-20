@@ -18,7 +18,8 @@ import { splitDashboards } from '@/dashboards/panes';
 import { moveDashboardToSection } from '@/dashboards/sharing';
 import { flushData, getEntry } from '@/data/data-store';
 import { getSource } from '@/data/source';
-import { canJoinLayouts, createPane } from '@/panes/layout';
+import { canJoinLayouts, createPane, findPane } from '@/panes/layout';
+import { saveCaptureImage } from '@/desktop/capture';
 
 let router: RegisteredRouter | undefined;
 
@@ -69,6 +70,7 @@ export const dashboardHandlers: Pick<
 	| 'dashboard_delete'
 	| 'dashboard_duplicate'
 	| 'dashboard_combine'
+	| 'dashboard_capture'
 > = {
 	dashboard_list: () => {
 		const shown = currentDashboard(getRouter())?.id;
@@ -130,5 +132,13 @@ export const dashboardHandlers: Pick<
 		await showDashboard(first!);
 		splitDashboards(dashboardIds);
 		return describeDashboard(first!);
+	},
+
+	dashboard_capture: async (input) => {
+		const dashboard = requireDashboard(input.dashboardId);
+		if (input.paneId !== undefined && !findPane(dashboard.layout, input.paneId)) {
+			throw new AgentError(`The dashboard has no pane \`${input.paneId}\`, see \`dashboard_get\`.`);
+		}
+		return { path: await saveCaptureImage(getRouter(), input) };
 	},
 };
