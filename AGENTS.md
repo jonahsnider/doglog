@@ -16,6 +16,7 @@ DogLog Studio is a web and desktop app for reviewing and analyzing logs.
 - Follow `studio/DESIGN.md` for UI patterns (components, styling, color, motion), and update it when a pattern changes
 - Run `pnpm check:dev` in `studio` to check your changes, it adds a React Doctor scan of changed files to `pnpm check`
   - If React Doctor fails from unstaged changes run a plain `pnpm check`
+- When finishing a particularly impressive feature, ask if `studio/src/changelog/changelog.ts` should be updated to mention it
 
 ### Testing web app
 
