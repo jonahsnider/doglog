@@ -1,11 +1,11 @@
-// The entries bound to a pane's widget. Every change to them goes through here.
 import * as z from 'zod';
 import type { Entry } from '@/data/data-store';
+import { createId } from '@/lib/random-id';
 import { findPane, type PaneNode, setPaneWidget, type Widget } from '@/panes/layout';
 import { initialOptions } from '@/widgets/options';
 import { acceptsEntry, type RoleOption, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
 
-const bindingSchema = z.object({
+export const bindingSchema = z.object({
 	/** Tells apart bindings of the same entry, which can be bound more than once */
 	id: z.string(),
 	/** Entries are bound by name so dashboards work with any source */
@@ -25,7 +25,7 @@ export type Binding = z.infer<typeof bindingSchema>;
 const configSchema = z.object({ bindings: z.array(bindingSchema).catch([]) }).catch({ bindings: [] });
 
 function createBinding(name: string): Binding {
-	return { id: crypto.randomUUID(), name };
+	return { id: createId(), name };
 }
 
 export function widgetBindings(widget: Widget | undefined): Binding[] {

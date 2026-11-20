@@ -1,6 +1,5 @@
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
-import { customAlphabet } from 'nanoid';
 import * as z from 'zod';
 import {
 	type DashboardContents,
@@ -14,8 +13,10 @@ import {
 	writeSharing,
 } from '@/dashboards/doc';
 import { createPersistedAtom } from '@/lib/persisted-store';
+import { createId } from '@/lib/random-id';
 import { focusedPanesStore, focusPane, zoomedPanesStore, zoomPane } from '@/dashboards/pane-state';
-import { copyLayout, type PaneNode, paneIds } from '@/panes/layout';
+import { type PaneNode, paneIds } from '@/panes/layout';
+import { restoreLayout, snapshotLayout } from '@/panes/layout-snapshot';
 import { getRobotHost, simulatorHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
 
@@ -29,14 +30,11 @@ export type Dashboard = DashboardContents & {
 	zoomedPaneId?: string | undefined;
 };
 
-/** Short enough for shareable URLs, random enough (~95 bits) to be unguessable. No `-` or `_`, which break links in chat apps. */
-export const createDashboardId = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 16);
-
 /**
  * Dashboard IDs in sidebar order, first launch starts with one empty dashboard. Includes shared dashboards that aren't
  * shown: ones shared on another robot, and ones deleted by someone, which this device keeps sending to others for a while.
  */
-export const idsStore = createPersistedAtom('dashboard-ids', z.array(z.string()), [createDashboardId()]);
+export const idsStore = createPersistedAtom('dashboard-ids', z.array(z.string()), [createId()]);
 
 /** Splitting, closing, or moving panes restores the zoomed pane's dashboard */
 function restoreIfPanesChanged(id: string, before: PaneNode, after: PaneNode): void {
@@ -141,7 +139,7 @@ export function subscribeDashboards(listener: () => void): () => void {
 
 /** Create a dashboard at the top or bottom of the list, empty or with `contents` */
 export function createDashboard(position: 'top' | 'bottom' = 'top', contents?: DashboardContents): Dashboard {
-	const id = createDashboardId();
+	const id = createId();
 	// Saves its document before its ID, so other windows find it
 	getDoc(id, contents);
 	const dashboard = readDashboard(id);
@@ -155,9 +153,9 @@ export function duplicateDashboards(ids: readonly string[]): string[] {
 	for (const id of ids) {
 		const dashboard = getDashboard(id);
 		if (dashboard) {
-			const copyId = createDashboardId();
+			const copyId = createId();
 			// Saves its document before its ID, so other windows find it
-			getDoc(copyId, { name: dashboard.name, layout: copyLayout(dashboard.layout) });
+			getDoc(copyId, { name: dashboard.name, layout: restoreLayout(snapshotLayout(dashboard.layout)) });
 			copies.set(id, copyId);
 		}
 	}

@@ -3,7 +3,6 @@ import type { RegisteredRouter } from '@tanstack/react-router';
 import { LoroDoc } from 'loro-crdt';
 import {
 	closedStore,
-	createDashboardId,
 	deleteDashboards,
 	docs,
 	getDashboard,
@@ -22,6 +21,7 @@ import {
 	writeSharing,
 } from '@/dashboards/doc';
 import { focusPane, zoomPane } from '@/dashboards/pane-state';
+import { createId } from '@/lib/random-id';
 
 /** How long a deleted shared dashboard is kept, so devices that weren't connected when it was deleted find out */
 const deletedLifetime = 30 * 24 * 60 * 60 * 1000;
@@ -91,7 +91,7 @@ function unshareDashboard(id: string): string | undefined {
 		return undefined;
 	}
 
-	const copyId = createDashboardId();
+	const copyId = createId();
 	// Same pane IDs, so the focused and zoomed panes carry over
 	getDoc(copyId, { name: dashboard.name, layout: dashboard.layout });
 	focusPane(copyId, dashboard.focusedPaneId);

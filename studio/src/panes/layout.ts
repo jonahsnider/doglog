@@ -1,4 +1,5 @@
 import * as z from 'zod';
+import { createId } from '@/lib/random-id';
 import { normalize, resetChildren, resizeChildren } from '@/panes/split-sizes';
 
 /** The widget shown in a pane, `config` holds its bindings (see `@/widgets/bindings`) */
@@ -44,7 +45,7 @@ export type PaneNode = Pane | Split;
 export const maxPanesAlong = 4;
 
 export function createPane(): Pane {
-	return { kind: 'pane', id: crypto.randomUUID() };
+	return { kind: 'pane', id: createId() };
 }
 
 function replaceNode(node: PaneNode, id: string, update: (node: PaneNode) => PaneNode): PaneNode {
@@ -108,7 +109,7 @@ function insertBeside(
 		const moved = { ...target, size: undefined };
 		return {
 			kind: 'split',
-			id: crypto.randomUUID(),
+			id: createId(),
 			direction,
 			size: target.size,
 			children: before ? [inserted, moved] : [moved, inserted],
@@ -153,7 +154,7 @@ export function joinLayouts(layouts: readonly PaneNode[]): PaneNode {
 
 	return normalize({
 		kind: 'split',
-		id: crypto.randomUUID(),
+		id: createId(),
 		direction: 'row',
 		children: layouts.map((layout) => ({ ...layout, size: undefined })),
 	});
@@ -162,14 +163,6 @@ export function joinLayouts(layouts: readonly PaneNode[]): PaneNode {
 /** Whether layouts can be put side by side without making panes too small to use */
 export function canJoinLayouts(layouts: readonly PaneNode[]): boolean {
 	return panesAlong(joinLayouts(layouts), 'row') <= maxPanesAlong;
-}
-
-/** A copy of a layout with new pane and split IDs, so it can be combined with the original */
-export function copyLayout(node: PaneNode): PaneNode {
-	const id = crypto.randomUUID();
-	return node.kind === 'pane'
-		? { ...node, id }
-		: { ...node, id, children: node.children.map((child) => copyLayout(child)) };
 }
 
 /** Which side of another pane a moved pane goes on */

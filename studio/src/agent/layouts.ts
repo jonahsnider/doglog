@@ -3,6 +3,7 @@
 import { AgentError } from '@/agent/agent-error';
 import type { LayoutInput, WidgetInput } from '@/agent/schemas';
 import type { Entry } from '@/data/data-store';
+import { createId } from '@/lib/random-id';
 import {
 	type Binding,
 	connectBindings,
@@ -192,7 +193,7 @@ export function createInputLayout(input: LayoutInput, entryOf: EntryOf): PaneNod
 		}
 		return {
 			kind: 'split',
-			id: crypto.randomUUID(),
+			id: createId(),
 			direction: node.direction,
 			size: node.size,
 			children: node.children.map((child) => build(child)),

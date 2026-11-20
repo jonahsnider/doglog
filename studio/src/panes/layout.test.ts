@@ -1,4 +1,5 @@
 import { expect, test } from 'vite-plus/test';
+import { widgetBindings } from '@/widgets/bindings';
 import {
 	canJoinLayouts,
 	canMovePane,
@@ -8,6 +9,7 @@ import {
 	findSibling,
 	joinLayouts,
 	movePane,
+	panes,
 	panesAlong,
 	type PaneNode,
 	paneNodeSchema,
@@ -17,6 +19,7 @@ import {
 	type Split,
 	splitPane,
 } from './layout.ts';
+import { restoreLayout, snapshotLayout } from './layout-snapshot.ts';
 import { childSizes } from './split-sizes.ts';
 
 const graph = { type: 'line-graph', config: { bindings: [{ id: 'arm', name: '/Arm/Angle' }] } };
@@ -173,6 +176,54 @@ test('parsing round-trips valid layouts and fixes or rejects invalid ones', () =
 	expect(parse({ kind: 'split', id: 'a', direction: 'row', children: [pane] })).toEqual(pane);
 	expect(parse({ kind: 'pane', id: 'a', widget: { config: {} } })).toEqual({ kind: 'pane', id: 'a' });
 	expect(parse({ kind: 'pane', id: 'a', size: 2 })).toEqual({ kind: 'pane', id: 'a' });
+});
+
+test('layout snapshots omit IDs and restore binding connections to fresh IDs', () => {
+	const options = { orientation: 'red-left' };
+	const widget = {
+		type: 'field',
+		config: {
+			options,
+			bindings: [
+				{ id: 'robot', name: '/Drive/Pose' },
+				{ id: 'ghost', name: '/Drive/Pose', role: 'ghost', color: 2 },
+				{ id: 'tags', name: '/Vision/Tags', hidden: true, sources: ['ghost'] },
+			],
+		},
+	};
+	const row = splitPane({ kind: 'pane', id: 'empty' }, 'empty', 'row', { kind: 'pane', id: 'field', widget });
+	const layout = resizeSplit(row, row.id, [0.3, 0.7]);
+
+	const snapshot = snapshotLayout(layout);
+	expect(snapshot).toEqual({
+		kind: 'split',
+		direction: 'row',
+		children: [
+			{ kind: 'pane', size: 0.3 },
+			{
+				kind: 'pane',
+				size: 0.7,
+				widget: {
+					type: 'field',
+					config: { options },
+					bindings: [
+						{ name: '/Drive/Pose' },
+						{ name: '/Drive/Pose', role: 'ghost', color: 2 },
+						{ name: '/Vision/Tags', hidden: true, connectedFrom: [1] },
+					],
+				},
+			},
+		],
+	});
+
+	const restored = restoreLayout(snapshot);
+	const [empty, field] = panes(restored);
+	const [robot, ghost, tags] = widgetBindings(field?.widget);
+	const ids = [restored.id, empty?.id, field?.id, robot?.id, ghost?.id, tags?.id];
+	expect(ids).not.toContain(undefined);
+	expect(new Set([...ids, layout.id, 'empty', 'field', 'robot', 'ghost', 'tags']).size).toBe(12);
+	expect(tags?.sources).toEqual([ghost?.id]);
+	expect(snapshotLayout(restored)).toEqual(snapshot);
 });
 
 test('splitting stops at 4 panes in a row or column', () => {
