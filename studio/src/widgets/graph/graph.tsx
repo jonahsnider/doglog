@@ -143,7 +143,11 @@ export function Graph({ bindings }: WidgetProps) {
 				onPointerDownCapture={measureOrigin}
 				onPointerMoveCapture={measureOrigin}
 			>
-				{hasPlot && <div ref={plotRef} className="min-h-24 flex-1 overflow-hidden" />}
+				{hasPlot && (
+					// Contained so uPlot resizing its elements, then measuring, doesn't lay out the whole page again every frame
+					// while panes resize
+					<div ref={plotRef} className="min-h-24 flex-1 overflow-hidden contain-strict" />
+				)}
 				{hasPlot && <AxisUnit label={units.axes.y} side="left" />}
 				{hasRight && <AxisUnit label={units.axes.y2} side="right" />}
 				<div className="relative shrink-0" style={{ height: discrete.length * rowHeight }}>
