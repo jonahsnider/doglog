@@ -8,7 +8,7 @@ import PauseIcon from 'lucide-react/icons/pause';
 import PlayIcon from 'lucide-react/icons/play';
 import SkipBackIcon from 'lucide-react/icons/skip-back';
 import SkipForwardIcon from 'lucide-react/icons/skip-forward';
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useId, useState } from 'react';
 
 /** A key without a hotkey, like a media key, shown with icons */
 interface IconKey {
@@ -45,18 +45,20 @@ const sections: {
 			},
 			{ label: 'Close dashboard', keys: [shortcuts.closeDashboard] },
 			{ label: 'Reopen closed dashboard', keys: [shortcuts.reopenDashboard] },
-			{ label: 'Copy dashboard link', keys: [shortcuts.copyDashboardLink] },
-			...(canCapture ? [{ label: 'Copy dashboard image', keys: [shortcuts.copyDashboardImage] }] : []),
-			...(canCapture ? [{ label: 'Export dashboard clip', keys: [shortcuts.exportClip] }] : []),
-			{ label: 'Switch to dashboard 1-9', keys: [dashboardShortcut(0)!, dashboardShortcut(8)!], separator: '–' },
-			{ label: 'Back', keys: [shortcuts.back] },
-			{ label: 'Forward', keys: [shortcuts.forward] },
 			{ label: 'Undo', keys: [shortcuts.undo] },
 			{ label: 'Redo', keys: [shortcuts.redo] },
-			{ label: 'Logs', keys: [shortcuts.logs] },
-			{ label: 'Settings', keys: [shortcuts.settings] },
 			{ label: 'Check for updates or update', keys: [shortcuts.update] },
 			{ label: 'Keyboard shortcuts', keys: [shortcuts.keyboardShortcuts] },
+		],
+	},
+	{
+		title: 'Navigation',
+		shortcuts: [
+			{ label: 'Back', keys: [shortcuts.back] },
+			{ label: 'Forward', keys: [shortcuts.forward] },
+			{ label: 'Switch to dashboard 1-9', keys: [dashboardShortcut(0)!, dashboardShortcut(8)!], separator: '–' },
+			{ label: 'Logs', keys: [shortcuts.logs] },
+			{ label: 'Settings', keys: [shortcuts.settings] },
 		],
 	},
 	{
@@ -77,6 +79,14 @@ const sections: {
 			{ label: 'Open log', keys: [shortcuts.openLog] },
 			{ label: 'Connect', keys: [shortcuts.connect] },
 			{ label: 'Switch between log and live', keys: [shortcuts.switchSource] },
+		],
+	},
+	{
+		title: 'Collaboration and sharing',
+		shortcuts: [
+			{ label: 'Copy dashboard link', keys: [shortcuts.copyDashboardLink] },
+			...(canCapture ? [{ label: 'Copy dashboard image', keys: [shortcuts.copyDashboardImage] }] : []),
+			...(canCapture ? [{ label: 'Export dashboard clip', keys: [shortcuts.exportClip] }] : []),
 		],
 	},
 	{
@@ -124,6 +134,7 @@ const sections: {
 /** Lists app-wide keyboard shortcuts, opened from the sidebar or with its own shortcut. Widgets show their own. */
 export function KeyboardShortcutsDialog({ children }: { children: ReactNode }) {
 	const [open, setOpen] = useState(false);
+	const sectionId = useId();
 	const formatForDisplay = useFormatForDisplay();
 	const { mediaControls } = useSettings();
 	useHotkey(shortcuts.keyboardShortcuts, () => setOpen((value) => !value), { requireReset: true });
@@ -138,13 +149,13 @@ export function KeyboardShortcutsDialog({ children }: { children: ReactNode }) {
 				<DialogPanel className="gap-x-10 sm:columns-2">
 					{sections
 						.filter((section) => mediaControls || section.mediaControls !== true)
-						.map((section) => (
+						.map((section, sectionIndex) => (
 							<section
 								key={section.title}
 								className="mb-6 break-inside-avoid last:mb-0"
-								aria-labelledby={`shortcuts-${section.title}`}
+								aria-labelledby={`${sectionId}-${sectionIndex}`}
 							>
-								<h3 id={`shortcuts-${section.title}`} className="mb-2 font-medium text-muted-foreground text-xs">
+								<h3 id={`${sectionId}-${sectionIndex}`} className="mb-2 font-medium text-muted-foreground text-xs">
 									{section.title}
 								</h3>
 								<dl className="flex flex-col gap-2 text-sm">
