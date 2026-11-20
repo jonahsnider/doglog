@@ -55,7 +55,7 @@ hooks {
   ["commit-msg"] {
     steps {
       ["check-conventional-commit"] = (Builtins.check_conventional_commit) {
-        allowed_scopes = List("logger", "docs", "studio", "deps")
+        allowed_scopes = List("logger", "docs", "studio", "deps", "cloud")
       }
     }
   }

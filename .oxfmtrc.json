@@ -15,6 +15,7 @@
 		".claude/",
 		"pnpm-lock.yaml",
 		"CHANGELOG.md",
-		"web/src/content/docs/reference/changelog.md"
+		"web/src/content/docs/reference/changelog.md",
+		"void.lock.json"
 	]
 }
