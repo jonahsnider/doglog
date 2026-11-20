@@ -46,6 +46,17 @@ The sidebar footer SHALL offer Keyboard shortcuts, Download app, and Check for u
 - **THEN** the expanded-only actions fade out without moving the card
 - **AND** the actions stop taking up space once the sidebar reaches the rail layout
 
+### Requirement: Footer actions on hover
+
+On devices with hover, the sidebar footer actions SHALL stay hidden until the sidebar is hovered, has keyboard focus, or has one of its menus or dialogs open, and MUST keep their space while hidden so the sidebar's other items don't move. An install action for a ready update MUST stay visible.
+
+#### Scenario: Reveal the footer actions
+
+- **GIVEN** the sidebar is expanded and no update is ready
+- **WHEN** the pointer moves over the sidebar
+- **THEN** Keyboard shortcuts, Download app, and Check for updates fade in
+- **AND** they fade out once the pointer leaves, unless one of their menus or dialogs is open
+
 ### Requirement: What's new
 
 The bottom of the sidebar SHALL show a card announcing the newest product update until the user dismisses it. Dismissing it MUST hide the update, and it MUST stay hidden in other windows and after Studio is reopened. Users opening Studio for the first time MUST NOT see updates released before then.

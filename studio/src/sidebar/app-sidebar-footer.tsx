@@ -15,9 +15,13 @@ import { CopyDownloadMenu } from '@/desktop/download-button';
 import { cn } from '@/lib/utils';
 import { checkForUpdateManually, installUpdate, updateTitle, useUpdate } from '@/updater';
 
-// Fade the expanded-only rows without removing their space until the sidebar switches to the rail layout.
-const expandedRow =
-	'transition-opacity duration-150 ease-in in-data-[animation=collapse]:opacity-0 motion-reduce:transition-none';
+const expandedRow = cn(
+	'transition-opacity duration-150 ease-in motion-reduce:transition-none',
+	// Hidden until the sidebar is hovered or in use, keeping their space so the dashboards don't move. Always shown without hover.
+	'[@media(hover:hover)]:opacity-0 group-hover:opacity-100 group-has-focus-visible:opacity-100 group-has-data-popup-open:opacity-100',
+	// Fade without removing their space until the sidebar switches to the rail layout
+	'in-data-[animation=collapse]:opacity-0!',
+);
 
 export function AppSidebarFooter({
 	expanded,
