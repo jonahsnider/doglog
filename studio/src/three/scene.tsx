@@ -1,8 +1,8 @@
-// A 3D scene in WPILib's robot coordinates (meters, +X forward, +Y left, +Z up), viewed like Team 581's Spot viewer:
-// an orthographic camera orbiting the robot, with a light on the camera.
-import { Canvas, type RootState, useFrame } from '@react-three/fiber';
+// A 3D scene in WPILib's robot coordinates (meters, +X forward, +Y left, +Z up), with an orbiting orthographic camera.
+import { Canvas, type RootState, useFrame, useThree } from '@react-three/fiber';
 import { type KeyboardEvent, type ReactNode, type Ref, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { type DirectionalLight, Vector3 } from 'three';
+import { PMREMGenerator, Vector3 } from 'three';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { cn } from '@/lib/utils';
 import { CameraControls, CameraRig, cameraDistance, type Rig, shiftSpeedup } from '@/three/camera';
 import { useThemeColor } from '@/three/theme';
@@ -11,13 +11,27 @@ import { ViewCube } from '@/three/view-cube';
 const gridSize = 2.4;
 const gridDivisions = 6;
 
-/** A light that follows the camera, so models show their shape from any angle */
-function Headlight() {
-	const light = useRef<DirectionalLight>(null);
-	useFrame(({ camera }) => {
-		light.current?.position.copy(camera.position);
-	});
-	return <directionalLight ref={light} intensity={2} />;
+function StudioLighting() {
+	const get = useThree((state) => state.get);
+	useEffect(() => {
+		const { gl, scene, invalidate } = get();
+		const room = new RoomEnvironment();
+		const generator = new PMREMGenerator(gl);
+		// Soften the room's bright light panels even in the reflections of smooth CAD surfaces.
+		const environment = generator.fromScene(room, 0.35);
+		generator.dispose();
+		room.dispose();
+		scene.environment = environment.texture;
+		scene.environmentIntensity = 0.65;
+		// The room is Y-up; the robot is Z-up.
+		scene.environmentRotation.x = Math.PI / 2;
+		invalidate();
+		return () => {
+			scene.environment = null;
+			environment.dispose();
+		};
+	}, [get]);
+	return null;
 }
 
 function Floor() {
@@ -198,8 +212,7 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 			<Canvas orthographic frameloop="demand" camera={{ up: [0, 0, 1], near: 0, far: cameraDistance * 2 }}>
 				<CameraControls />
 				<CameraRig ref={rig} />
-				<ambientLight intensity={1.5} />
-				<Headlight />
+				<StudioLighting />
 				<Floor />
 				<OnFrame callback={positionLabels} />
 				{children}

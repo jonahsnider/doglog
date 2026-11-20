@@ -27,9 +27,8 @@ function isMesh(object: Object3D): object is Mesh {
 const sizeSteps = 6;
 
 /**
- * Without an environment map metallic CAD materials draw black, so models are lit like plastic. CAD parts often have
- * faces in the same plane as a bigger part's, ex. an insert in a plate, which flicker between the two as the camera
- * moves. Smaller meshes are drawn slightly in front, so they always win.
+ * CAD parts often have faces in the same plane as a bigger part's, ex. an insert in a plate, which flicker between
+ * the two as the camera moves. Smaller meshes are drawn slightly in front, so they always win.
  */
 function prepare(model: Object3D): Object3D {
 	model.updateMatrixWorld(true);
@@ -42,7 +41,9 @@ function prepare(model: Object3D): Object3D {
 		if (copy === undefined) {
 			copy = material.clone();
 			if (copy instanceof MeshStandardMaterial) {
-				copy.metalness = 0;
+				// Keep glossy exports readable. A roughness map can still make parts shiny even with roughness set to 1.
+				copy.roughness = 1;
+				copy.roughnessMap = null;
 			}
 			// CAD exports are double-sided, which shows a see-through part's far side, ex. the back of a polycarbonate panel
 			// flickering against the plate it's mounted to

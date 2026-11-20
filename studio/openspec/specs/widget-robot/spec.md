@@ -88,6 +88,16 @@ In 3D, the robot widget SHALL draw the robot at the origin, in WPILib's robot co
 - **GIVEN** a robot widget in 3D
 - **THEN** the grid's labels show which way the robot's front and left are
 
+### Requirement: 3D lighting
+
+The scene SHALL use soft lighting that stays fixed as the camera moves. Imported robot models SHALL use low-gloss shading while keeping their exported base colors, opacity, and metalness.
+
+#### Scenario: Orbit around a glossy robot
+
+- **GIVEN** an imported robot whose CAD export uses glossy materials
+- **WHEN** the user orbits the camera around it
+- **THEN** the lighting stays fixed and the imported surfaces don't show sharp reflections that obscure detail
+
 ### Requirement: 3D camera
 
 In 3D, the robot widget SHALL use a camera without perspective, starting from the robot's front right, a little above it. Dragging MUST orbit around the robot, including below the floor, right-dragging MUST pan, and scrolling or pinching MUST zoom, from 4× farther out to 16× closer than the default view. A Reset view button beside the View control and double-clicking SHALL reset the camera, animating unless the system reduces motion. The camera MUST NOT be saved with the dashboard.
