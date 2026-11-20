@@ -165,15 +165,16 @@ Users SHALL be able to collapse the sidebar to a narrow icon-only rail and expan
 
 - **GIVEN** the sidebar is collapsed
 - **WHEN** the user hovers the rail
-- **THEN** the full sidebar is shown over the dashboard
+- **THEN** the full sidebar slides in over the rail and the dashboard from the window's edge, as an opaque drawer
 - **AND** the dashboard layout does not change
-- **AND** it animates in, with its labels fading into view
+- **AND** the rail stays where it is under the drawer
+- **AND** the rail also peeks when the pointer moves over it after the sidebar collapsed under the pointer
 
 #### Scenario: Stop peeking on pointer exit
 
 - **GIVEN** the sidebar is peeking and the user has no sidebar popup open, isn't renaming a dashboard, and isn't dragging one
 - **WHEN** the pointer leaves the sidebar
-- **THEN** it immediately starts collapsing back into the rail, with its labels fading as they're cut off by its edge
+- **THEN** it immediately starts sliding back out past the window's edge, uncovering the rail
 
 #### Scenario: Remember collapsed state
 

@@ -62,14 +62,15 @@ export function AppSidebar() {
 	// Toggling with the keyboard skips the animation, clicking and peeking keep it
 	const [animated, setAnimated] = useState(true);
 	const showTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-	const sidebarRef = useRef<HTMLDivElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
+	const contentRef = useRef<HTMLDivElement>(null);
+	const railCopyRef = useRef<HTMLDivElement>(null);
 	const iconOnly = collapsed && !peeking;
 	const strip = useTitleBarStrip();
 	const trafficLights = useTrafficLights();
 	const animation = useSelector(sidebarAnimationStore);
 	// Collapsing is expanding in reverse: the sidebar keeps its full layout while it shrinks, clipped like when it expands,
-	// and only shows icons once it's done
+	// and only shows icons once it's done. Peeking ends the same way, but slides out at its full width instead of shrinking.
 	const iconLayout = iconOnly && !isCollapsing(animation);
 	// Only read to skip the animation's steps when the system reduces motion
 	const reduceMotion = useMotionTransition({ duration: 0.2 }).duration === 0;
@@ -79,13 +80,13 @@ export function AppSidebar() {
 			return undefined;
 		}
 
-		// Keep the rows clipped to the moving edge until resizing finishes. A timer can expire before the browser
-		// finishes the transition, especially if layout starts late after moving below the macOS title bar.
-		const resizing = [sidebarRef.current!, containerRef.current!]
-			.flatMap((element) => element.getAnimations())
-			.filter((transition) => transition instanceof CSSTransition && transition.transitionProperty === 'width');
+		// Keep the full layout until the sidebar finishes resizing or sliding. A timer can expire before the browser
+		// finishes the transitions, especially if layout starts late after moving below the macOS title bar.
+		const transitions = containerRef
+			.current!.getAnimations({ subtree: true })
+			.filter((transition) => transition instanceof CSSTransition);
 		let stopped = false;
-		void Promise.allSettled(resizing.map((transition) => transition.finished)).then(() => {
+		void Promise.allSettled(transitions.map((transition) => transition.finished)).then(() => {
 			if (!stopped && sidebarAnimationStore.get() === animation) {
 				sidebarAnimationStore.set(undefined);
 			}
@@ -96,15 +97,30 @@ export function AppSidebar() {
 		};
 	}, [animation]);
 
-	const toggle = (animate: boolean) => {
+	const cancelPeek = () => {
 		clearTimeout(showTimer.current);
+		showTimer.current = undefined;
+	};
+
+	const toggle = (animate: boolean) => {
+		cancelPeek();
 		setPeeking(false);
 		setAnimated(animate);
 		toggleSidebarCollapsed(animate, trafficLights);
 	};
 
 	const peek = () => {
-		clearTimeout(showTimer.current);
+		cancelPeek();
+		// The rail stays put while the sidebar slides over it from the window's edge, so it's copied as it is before the
+		// sidebar switches to its full layout. A peek starting again while the last one slides out keeps the copy it has.
+		const content = contentRef.current!;
+		if (content.parentElement!.dataset['collapsible'] === 'icon') {
+			const railCopy = railCopyRef.current!;
+			railCopy.replaceChildren(content.cloneNode(true));
+			for (const element of railCopy.querySelectorAll('[id]')) {
+				element.removeAttribute('id');
+			}
+		}
 		setAnimated(true);
 		setPeeking(true);
 		animateSidebarPeek(true);
@@ -167,21 +183,26 @@ export function AppSidebar() {
 			>
 				<TitleBar collapsed={collapsed} iconOnly={iconOnly} onToggle={() => toggle(!reduceMotion)} />
 				<Sidebar
-					ref={sidebarRef}
 					collapsible="none"
 					data-collapsible={iconLayout ? 'icon' : undefined}
-					// Opaque while it's over the panes, otherwise it can show the window's backdrop through the frame, see `index.css`
 					data-peeking={collapsed && peeking ? '' : undefined}
 					className={cn(
-						'group absolute start-0 bottom-0 z-20 overflow-hidden transition-[width,box-shadow,background-color] duration-200 motion-reduce:transition-none',
+						// Transparent on the frame, so it shows the window's backdrop through it when the frame is frosted. Its surface for peeking is below.
+						'group peer absolute start-0 bottom-0 z-20 overflow-hidden bg-transparent duration-200 motion-reduce:transition-none',
+						// Only expanding and collapsing resize it, peeking slides it at its full width by `--peek`, set here since WebKit
+						// doesn't resize the container while it changes there
+						'[--peek:0] data-peeking:[--peek:1]',
+						'transition-[box-shadow,--peek] in-data-[animation=collapse]:transition-[width,box-shadow,--peek] in-data-[animation=expand]:transition-[width,box-shadow,--peek]',
 						// Below the title bar's strip, lined up with the main area's panes and pages, which have a gap above them
 						strip ? 'top-10.5' : 'top-0',
 						// Sized by its top and bottom instead of `Sidebar`'s full height, which would push it past the bottom of the window below the strip
 						'h-auto',
 						// On the frame like the rest of the app's base, rounded for when it peeks over the panes
 						'rounded-e-lg',
-						iconOnly && 'w-(--sidebar-width-icon)',
+						iconOnly && 'w-(--sidebar-width-icon) in-data-[animation=unpeek]:w-(--sidebar-width)',
+						// Floats over the rail and the panes while it peeks, sliding in from the window's edge. Its shadow fades as it leaves.
 						'data-peeking:shadow-lg',
+						'data-peeking:translate-x-[calc((var(--peek)-1)*100%)] in-data-[animation=unpeek]:translate-x-[calc((var(--peek)-1)*100%)]',
 						// The content is already at its full size, see below
 						'[&_[data-sidebar=menu-button]]:transition-none',
 						// Its width as it animates, for the menu buttons' corners, see `index.css`. The content is already contained.
@@ -190,15 +211,27 @@ export function AppSidebar() {
 						'in-data-[animation=enter-strip]:top-0 in-data-[animation=enter-strip]:w-(--sidebar-width)',
 						!animated && 'transition-none',
 					)}
-					onPointerEnter={(event) => {
-						if (collapsed && !peeking && event.pointerType !== 'touch') {
+					// On moves instead of entering, so it also peeks after collapsing under the pointer, once it's the rail
+					onPointerMove={(event) => {
+						if (iconLayout && showTimer.current === undefined && event.pointerType !== 'touch') {
 							showTimer.current = setTimeout(peek, peekDelay);
 						}
 					}}
-					onPointerLeave={() => clearTimeout(showTimer.current)}
+					onPointerLeave={cancelPeek}
 				>
+					{/* Its surface while it floats over the rail and the panes, wiped away behind the panes as it expands from there */}
+					<div
+						className={cn(
+							'pointer-events-none absolute inset-0 -z-10 bg-(--frame) opacity-0',
+							'group-data-peeking:opacity-100 in-data-[animation=unpeek]:opacity-100 in-data-[animation=expand]:opacity-100',
+							'in-data-[animation=expand]:[clip-path:inset(0_0_0_calc((1-var(--peek))*(var(--sidebar-width)+0.375rem)))]',
+						)}
+					/>
 					{/* Like sliding panes, the content keeps its full width and is clipped, so it isn't laid out again every frame while the sidebar's width animates */}
-					<div className="flex h-full w-(--sidebar-width) shrink-0 flex-col contain-strict group-data-[collapsible=icon]:w-(--sidebar-width-icon)">
+					<div
+						ref={contentRef}
+						className="flex h-full w-(--sidebar-width) shrink-0 flex-col contain-strict group-data-[collapsible=icon]:w-(--sidebar-width-icon)"
+					>
 						<SidebarHeader
 							// Leaves room for the title bar, which is above the sidebar when it has its own strip
 							// The items stay where they are in the rail below the strip, so they don't move when the sidebar expands
@@ -248,6 +281,19 @@ export function AppSidebar() {
 						<AppSidebarFooter expanded={!iconLayout} closing={iconOnly && !iconLayout} onShow={peek} />
 					</div>
 				</Sidebar>
+				{/* The rail as it was when peeking started, under the sidebar while it's out, see `peek()` */}
+				<div
+					ref={railCopyRef}
+					aria-hidden
+					inert
+					data-slot="sidebar-rail-copy"
+					data-collapsible="icon"
+					className={cn(
+						'group pointer-events-none invisible absolute start-0 bottom-0 z-10 w-(--sidebar-width-icon) overflow-hidden',
+						'peer-data-peeking:visible in-data-[animation=unpeek]:visible',
+						strip ? 'top-10.5' : 'top-0',
+					)}
+				/>
 			</div>
 		</SidebarContext>
 	);

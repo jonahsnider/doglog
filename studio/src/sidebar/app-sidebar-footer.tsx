@@ -12,11 +12,12 @@ import { SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '
 import { Spinner } from '@/components/ui/spinner';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { CopyDownloadMenu } from '@/desktop/download-button';
+import { cn } from '@/lib/utils';
 import { checkForUpdateManually, installUpdate, updateTitle, useUpdate } from '@/updater';
 
 // Fade the expanded-only rows without removing their space until the sidebar switches to the rail layout.
 const expandedRow =
-	'transition-opacity duration-150 ease-in in-data-[animation=collapse]:opacity-0 in-data-[animation=unpeek]:opacity-0 motion-reduce:transition-none';
+	'transition-opacity duration-150 ease-in in-data-[animation=collapse]:opacity-0 motion-reduce:transition-none';
 
 export function AppSidebarFooter({
 	expanded,
@@ -72,7 +73,11 @@ export function AppSidebarFooter({
 										<SidebarMenuButton
 											size="sm"
 											disabled={installing}
-											className={update ? 'text-sidebar-foreground' : undefined}
+											className={cn(
+												// The rail's 32px square overhangs the row's 28px, so its icon stays put when the sidebar peeks
+												'group-data-[collapsible=icon]:-my-0.5',
+												update && 'text-sidebar-foreground',
+											)}
 											onClick={() => void (update ? installUpdate(update.update) : checkForUpdateManually())}
 										/>
 									}

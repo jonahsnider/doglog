@@ -68,6 +68,8 @@ export function TitleBar({
 	return (
 		<div
 			{...dragRegion}
+			// Uncovered by the peeking sidebar's edge as it slides, like the rest of it, see `index.css`
+			data-peek-clip={strip ? undefined : ''}
 			className={cn(
 				// The top padding lines the buttons up with the pane headers, which are below the dashboard's gap, and keeps the window draggable from its top edge
 				'absolute start-0 top-0 z-30 flex h-10.5 items-center gap-0.5 pt-1.5 pe-2',
@@ -75,8 +77,15 @@ export function TitleBar({
 				trafficLights ? 'ps-22.25' : 'ps-3',
 				// Clipped to the sidebar as it animates, so the name doesn't cover the main area, sized and animated like it
 				'overflow-hidden',
-				strip ? 'w-screen' : iconOnly ? 'w-(--sidebar-width-icon)' : 'w-(--sidebar-width)',
-				animating && 'transition-[width] duration-200 motion-reduce:transition-none',
+				// Stays at the sidebar's full width while peeking fades out, see `AppSidebar`
+				strip
+					? 'w-screen'
+					: iconOnly
+						? 'w-(--sidebar-width-icon) in-data-[animation=unpeek]:w-(--sidebar-width)'
+						: 'w-(--sidebar-width)',
+				// Peeking slides the sidebar in and out at its full width, with `--peek` like it, see `index.css`
+				collapsed && !iconOnly ? '[--peek:1]' : '[--peek:0]',
+				'transition-[--peek] duration-200 motion-reduce:transition-none in-data-[animation=collapse]:transition-[width] in-data-[animation=expand]:transition-[width]',
 			)}
 		>
 			<TitleBarButton

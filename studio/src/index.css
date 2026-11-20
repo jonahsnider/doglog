@@ -467,6 +467,7 @@
 	:is(
 		[data-slot='sidebar'],
 		[data-slot='sidebar-container'],
+		[data-slot='sidebar-rail-copy'],
 		[data-slot='preview-card-content'],
 		[data-slot='menu-popup'],
 		[data-slot='popover-popup'],
@@ -476,28 +477,19 @@
 	) {
 	visibility: hidden;
 }
-/* Sidebars show the backdrop through the frame they sit on, unless the collapsed sidebar is peeking over the panes */
-[data-frosted-frame] [data-slot='sidebar']:not([data-peeking]) {
-	--sidebar: transparent;
+/*
+ * The collapsed sidebar peeks as an opaque panel sliding over the rail and the panes from the window's edge, by
+ * `--peek`, instead of growing out of the rail, see `AppSidebar`. The rail can show the window's backdrop and the panes
+ * can't, so a surface that's partly over each shows where they meet.
+ */
+@property --peek {
+	syntax: '<number>';
+	inherits: true;
+	initial-value: 0;
 }
-/* Keep the overhang opaque so pane contents don't show through while the sidebar's surface fades over the rail. */
-[data-frosted-frame] :is([data-slot='sidebar'][data-peeking], [data-animation='unpeek'] [data-slot='sidebar'])::before {
-	position: absolute;
-	z-index: -1;
-	inset-block: 0;
-	inset-inline: var(--sidebar-width-icon) 0;
-	background-color: var(--frame);
-	content: '';
-}
-/* Fade the rail's surface out with the labels as it shrinks, instead of changing it after it stops. */
-[data-frosted-frame] [data-animation='unpeek'] [data-slot='sidebar'] {
-	/* Unlayered, so it would otherwise beat the sidebar's `motion-reduce:transition-none` */
-	@variant motion-safe {
-		transition:
-			width 200ms var(--ease-in-out),
-			box-shadow 200ms var(--ease-in-out),
-			background-color 150ms var(--ease-in);
-	}
+/* The title bar above it, without its own strip, is clipped to its edge, past the sidebar toggle. It has its own `--peek`. */
+:is([data-animation='peek'], [data-animation='unpeek']) > [data-peek-clip] {
+	clip-path: inset(0 calc(100% - max(var(--sidebar-width-icon), var(--peek) * var(--sidebar-width))) 0 0);
 }
 
 /* Older webviews don't report reduced transparency; their native backdrop handles it. */
@@ -505,9 +497,6 @@
 	[data-frosted-frame] body,
 	[data-frosted-frame] .bg-frame {
 		background-color: revert-layer;
-	}
-	[data-frosted-frame] [data-slot='sidebar'] {
-		--sidebar: revert-layer;
 	}
 }
 
@@ -613,22 +602,20 @@
 	clip-path: inset(0 max(0px, 100% + 1rem - 100cqw) 0 0 round var(--radius-lg));
 }
 /*
- * Labels fade out as the sidebar collapses or stops peeking, and back in as it expands or peeks, instead of what's left of
- * them in the rail disappearing or appearing at once when it switches between labels and icons, see
- * `sidebarAnimationStore`. Only while a step plays, so labels that are already shown, like when expanding the peeking
- * sidebar, stay put. Fading out is a step shorter and holds the labels until the sidebar is nearly closed, since its width
- * moves the most at the start.
+ * Labels fade out as the sidebar collapses, and back in as it expands, instead of what's left of them in the rail
+ * disappearing or appearing at once when it switches between labels and icons, see `sidebarAnimationStore`. Only while a
+ * step plays, so labels that are already shown, like when expanding the peeking sidebar, stay put. Fading out is a step
+ * shorter and holds the labels until the sidebar is nearly closed, since its width moves the most at the start. Peeking
+ * fades them with the sidebar's surface instead, see above.
  */
-:is([data-collapsible='icon'], [data-animation='collapse'], [data-animation='unpeek'])
+:is([data-collapsible='icon'], [data-animation='collapse'])
 	:is([data-sidebar='menu-button'] > :not(svg, :has(svg)), [data-sidebar-label]) {
 	opacity: 0;
 }
-:is([data-animation='collapse'], [data-animation='unpeek'])
-	:is([data-sidebar='menu-button'] > :not(svg, :has(svg)), [data-sidebar-label]) {
+[data-animation='collapse'] :is([data-sidebar='menu-button'] > :not(svg, :has(svg)), [data-sidebar-label]) {
 	transition: opacity 150ms var(--ease-in);
 }
-:is([data-animation='expand'], [data-animation='peek'])
-	:is([data-sidebar='menu-button'] > :not(svg, :has(svg)), [data-sidebar-label]) {
+[data-animation='expand'] :is([data-sidebar='menu-button'] > :not(svg, :has(svg)), [data-sidebar-label]) {
 	transition: opacity 200ms var(--ease-out);
 
 	/* Labels the rail hides, and the app's name, are shown again as it starts */
