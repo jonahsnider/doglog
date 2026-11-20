@@ -65,12 +65,10 @@ describe('themeColorVariables()', () => {
 	});
 });
 
-test('switching presets clears stale generated colors and restores the chosen scheme', () => {
+test('switching presets restores the chosen scheme', () => {
 	const style = { textContent: '' };
-	const toggle = vi.fn<(name: string, force: boolean) => void>();
 	const setItem = vi.fn<(key: string, value: string) => void>();
 	vi.stubGlobal('document', {
-		documentElement: { classList: { toggle } },
 		querySelector: () => style,
 	});
 	vi.stubGlobal('localStorage', { setItem });
@@ -80,18 +78,27 @@ test('switching presets clears stale generated colors and restores the chosen sc
 	expect(customCss).toContain(themeColorVariables('#123456', false, 'standard', 'custom'));
 	expect(customCss).toContain(themeColorVariables('#123456', true, 'standard', 'custom'));
 
-	applyThemeColor('#123456', 'coss', 'standard');
-	expect(toggle).toHaveBeenLastCalledWith('coss-theme', true);
-	expect(style.textContent).toBe('');
-	expect(setItem).toHaveBeenLastCalledWith('doglog-studio:theme-color-css', '');
-
 	applyThemeColor('#123456', 'team581', 'standard');
-	expect(toggle).toHaveBeenLastCalledWith('coss-theme', false);
 	expect(style.textContent).toContain(themeColorVariables(defaultThemeColor, false, 'standard', 'team581'));
 	expect(style.textContent).toContain(themeColorVariables(defaultThemeColor, true, 'standard', 'team581'));
 
 	applyThemeColor('#123456', 'custom', 'standard');
 	expect(style.textContent).toBe(customCss);
+});
+
+test.each(
+	[false, true].flatMap((dark) =>
+		(['standard', 'high'] as const).flatMap((contrast) =>
+			['primary', 'secondary-container', 'surface', 'surface-container', 'outline-variant'].map(
+				(role) => [dark, contrast, role] as const,
+			),
+		),
+	),
+)('neutral %s %s %s is untinted', (dark, contrast, role) => {
+	// Equal red, green, and blue
+	expect(themeColorVariables(defaultThemeColor, dark, contrast, 'neutral')).toMatch(
+		new RegExp(`--md-${role}:#(\\w\\w)\\1\\1;`, 'u'),
+	);
 });
 
 test('only the Team 581 preset previews muted surfaces for the maroon seed', () => {

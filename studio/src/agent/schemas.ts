@@ -137,7 +137,7 @@ export const settingsSchema = z.strictObject({
 	themePreset: z
 		.enum(themePresets)
 		.optional()
-		.describe('Theme color: Team 581 maroon (`team581`), match13 blue, neutral (`coss`), or `custom` for `themeColor`'),
+		.describe('Theme color: Team 581 maroon (`team581`), match13 blue, `neutral` gray, or `custom` for `themeColor`'),
 	themeColor: z
 		.string()
 		.regex(/^#[\da-f]{6}$/iu)

@@ -3,7 +3,7 @@
 export const themes = ['light', 'dark', 'system'] as const;
 export type Theme = (typeof themes)[number];
 
-export const themePresets = ['team581', 'match13', 'coss', 'custom'] as const;
+export const themePresets = ['team581', 'match13', 'neutral', 'custom'] as const;
 export type ThemePreset = (typeof themePresets)[number];
 
 export const contrasts = ['standard', 'medium', 'high'] as const;

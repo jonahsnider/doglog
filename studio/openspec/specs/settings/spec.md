@@ -108,6 +108,12 @@ Settings SHALL let users choose a theme color preset of Team 581 maroon, match13
 - **WHEN** the user selects Neutral and then Custom again
 - **THEN** the custom color is still blue
 
+#### Scenario: Removed preset
+
+- **GIVEN** a preset that no longer exists is saved
+- **WHEN** Studio loads the settings
+- **THEN** Team 581 maroon is selected and the custom color is kept
+
 #### Scenario: Reset
 
 - **GIVEN** the user picked a custom color
@@ -116,18 +122,13 @@ Settings SHALL let users choose a theme color preset of Team 581 maroon, match13
 
 ### Requirement: Contrast setting
 
-Settings SHALL let users choose standard, medium, or high contrast for generated color schemes, defaulting to standard. The setting MUST be disabled while the Neutral preset is selected.
+Settings SHALL let users choose standard, medium, or high contrast for generated color schemes, defaulting to standard.
 
 #### Scenario: High contrast
 
 - **GIVEN** the Team 581 maroon preset is selected
 - **WHEN** the user selects high contrast
 - **THEN** Studio's light and dark themes are regenerated at high contrast
-
-#### Scenario: Neutral preset
-
-- **WHEN** the user selects the Neutral preset
-- **THEN** the contrast setting is disabled
 
 ### Requirement: Reduce motion setting
 

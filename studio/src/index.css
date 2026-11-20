@@ -408,95 +408,6 @@
 	--fuel-outline: var(--fuel);
 }
 
-/* Stock neutral color tokens from https://coss.com/ui/docs/styling */
-:root.coss-theme {
-	--background: var(--color-white);
-	--foreground: var(--color-neutral-800);
-	--card: var(--color-white);
-	--card-foreground: var(--color-neutral-800);
-	--popover: var(--color-white);
-	--popover-foreground: var(--color-neutral-800);
-	--primary: var(--color-neutral-800);
-	--primary-foreground: var(--color-neutral-50);
-	--secondary: --alpha(var(--color-black) / 4%);
-	--secondary-foreground: var(--color-neutral-800);
-	--muted: --alpha(var(--color-black) / 4%);
-	--muted-foreground: color-mix(in srgb, var(--color-neutral-500) 90%, var(--color-black));
-	--accent: --alpha(var(--color-black) / 4%);
-	--accent-foreground: var(--color-neutral-800);
-	--destructive: var(--color-red-500);
-	--destructive-foreground: var(--color-red-700);
-	--border: --alpha(var(--color-black) / 8%);
-	--input: --alpha(var(--color-black) / 10%);
-	--outline: var(--input);
-	--ring: var(--color-neutral-400);
-	--sidebar: var(--frame);
-	--sidebar-foreground: color-mix(in srgb, var(--color-neutral-800) 64%, var(--sidebar));
-	--sidebar-primary: var(--color-neutral-800);
-	--sidebar-primary-foreground: var(--color-neutral-50);
-	--sidebar-accent: --alpha(var(--color-black) / 4%);
-	--sidebar-accent-foreground: var(--color-neutral-800);
-	--sidebar-border: --alpha(var(--color-black) / 6%);
-	--sidebar-ring: var(--color-neutral-400);
-	--frame: var(--color-neutral-100);
-	--chart-1: var(--color-blue-600);
-	--chart-2: var(--color-emerald-600);
-	--chart-3: var(--color-amber-500);
-	--chart-4: var(--color-purple-600);
-	--chart-5: var(--color-rose-600);
-	--info: var(--color-blue-500);
-	--info-foreground: var(--color-blue-700);
-	--success: var(--color-emerald-500);
-	--success-foreground: var(--color-emerald-700);
-	--warning: var(--color-amber-500);
-	--warning-foreground: var(--color-amber-700);
-	--test-mode: var(--color-violet-500);
-}
-
-:root.coss-theme.dark {
-	--background: color-mix(in srgb, var(--color-neutral-950) 95%, var(--color-white));
-	--foreground: var(--color-neutral-100);
-	--card: color-mix(in srgb, var(--background) 98%, var(--color-white));
-	--card-foreground: var(--color-neutral-100);
-	--popover: color-mix(in srgb, var(--background) 98%, var(--color-white));
-	--popover-foreground: var(--color-neutral-100);
-	--primary: var(--color-neutral-100);
-	--primary-foreground: var(--color-neutral-800);
-	--secondary: --alpha(var(--color-white) / 4%);
-	--secondary-foreground: var(--color-neutral-100);
-	--muted: --alpha(var(--color-white) / 4%);
-	--muted-foreground: color-mix(in srgb, var(--color-neutral-500) 90%, var(--color-white));
-	--accent: --alpha(var(--color-white) / 4%);
-	--accent-foreground: var(--color-neutral-100);
-	--destructive: color-mix(in srgb, var(--color-red-500) 90%, var(--color-white));
-	--destructive-foreground: var(--color-red-400);
-	--border: --alpha(var(--color-white) / 6%);
-	--input: --alpha(var(--color-white) / 8%);
-	--outline: var(--input);
-	--ring: var(--color-neutral-500);
-	--sidebar: var(--frame);
-	--sidebar-foreground: color-mix(in srgb, var(--color-neutral-100) 64%, var(--sidebar));
-	--sidebar-primary: var(--color-neutral-100);
-	--sidebar-primary-foreground: var(--color-neutral-800);
-	--sidebar-accent: --alpha(var(--color-white) / 4%);
-	--sidebar-accent-foreground: var(--color-neutral-100);
-	--sidebar-border: --alpha(var(--color-white) / 5%);
-	--sidebar-ring: var(--color-neutral-400);
-	--frame: var(--color-neutral-950);
-	--chart-1: var(--color-blue-500);
-	--chart-2: var(--color-emerald-500);
-	--chart-3: var(--color-amber-500);
-	--chart-4: var(--color-purple-500);
-	--chart-5: var(--color-rose-500);
-	--info: var(--color-blue-500);
-	--info-foreground: var(--color-blue-400);
-	--success: var(--color-emerald-500);
-	--success-foreground: var(--color-emerald-400);
-	--warning: var(--color-amber-500);
-	--warning-foreground: var(--color-amber-400);
-	--test-mode: var(--color-violet-500);
-}
-
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
@@ -604,8 +515,9 @@
 	}
 }
 
-/* MD3 dialogs are surface container high, a step above menus. Neutral keeps coss ui's colors. */
-:root:not(.coss-theme) :is([data-slot='dialog-popup'], [data-slot='alert-dialog-popup']) {
+/* MD3 dialogs are surface container high, a step above menus */
+[data-slot='dialog-popup'],
+[data-slot='alert-dialog-popup'] {
 	--popover: var(--md-surface-container-high);
 }
 

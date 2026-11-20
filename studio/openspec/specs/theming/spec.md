@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Define Studio's visual identity: a Material Design 3 color scheme generated from a theme color (Team 581 maroon by default) or a neutral gray scheme, available in both light and dark variants, and consistent motion.
+Define Studio's visual identity: a Material Design 3 color scheme generated from a theme color (Team 581 maroon by default) or from untinted grays, available in both light and dark variants, and consistent motion.
 
 ## Requirements
 
 ### Requirement: Generated color scheme
 
-Except for the Neutral preset, Studio SHALL generate a Material Design 3 Tonal Spot scheme using the 2025 spec. The default Team 581 preset MUST use seed `#591616` and HCT chroma 1 and 2 in light mode and 2 and 3.5 in dark mode for the neutral and neutral variant palettes, respectively. The MD3 contrast level MUST be 0 for Standard, 0.5 for Medium, and 1 for High.
+Studio SHALL generate a Material Design 3 Tonal Spot scheme using the 2025 spec. The default Team 581 preset MUST use seed `#591616` and HCT chroma 1 and 2 in light mode and 2 and 3.5 in dark mode for the neutral and neutral variant palettes, respectively. The MD3 contrast level MUST be 0 for Standard, 0.5 for Medium, and 1 for High.
 
 #### Scenario: Default color
 
@@ -31,7 +31,7 @@ The match13 preset MUST retain its `#1a7ccd` seed. Its primary, secondary, and n
 
 ### Requirement: Neutral colors
 
-When the Neutral preset is selected, Studio SHALL use untinted gray colors instead of a generated scheme.
+The Neutral preset SHALL generate its scheme from untinted gray palettes in place of the primary, secondary, neutral, and neutral variant palettes, so surfaces, borders, and primary actions have no hue. Its series, status, and band colors MUST be generated from Tailwind's blue, since gray has no hue to start from.
 
 #### Scenario: Neutral primary actions
 
@@ -66,7 +66,7 @@ Studio SHALL tint a native backdrop with the theme's frame color on macOS (Liqui
 
 ### Requirement: Status colors
 
-The theme SHALL provide success, info, warning, and test mode status colors, each with a lighter fill for icons and backgrounds and a text color readable on surfaces. Unless the Neutral preset is selected, they MUST be generated from fixed hues the way MD3 custom colors are: success, info, and test mode are nudged toward the theme color's hue, while warning keeps its amber hue so it never looks like the error color.
+The theme SHALL provide success, info, warning, and test mode status colors, each with a lighter fill for icons and backgrounds and a text color readable on surfaces. They MUST be generated from fixed hues the way MD3 custom colors are: success, info, and test mode are nudged toward the theme color's hue, while warning keeps its amber hue so it never looks like the error color.
 
 #### Scenario: Themed status colors
 
@@ -76,7 +76,7 @@ The theme SHALL provide success, info, warning, and test mode status colors, eac
 
 ### Requirement: Series colors
 
-The theme SHALL provide 5 series colors for widgets that color entries, and every series color MUST be distinguishable from the others in both light and dark variants. Unless the Neutral preset is selected, the series colors MUST be generated from the theme color: the first takes the theme color's hue, the rest are spaced evenly around the hue wheel, and all share one lightness so each contrasts equally with the background.
+The theme SHALL provide 5 series colors for widgets that color entries, and every series color MUST be distinguishable from the others in both light and dark variants. The series colors MUST be generated from the theme color: the first takes the theme color's hue, the rest are spaced evenly around the hue wheel, and all share one lightness so each contrasts equally with the background.
 
 #### Scenario: Five entries in light theme
 

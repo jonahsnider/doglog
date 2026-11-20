@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
-import { Field, FieldControl, FieldDescription, FieldLabel } from '@/components/ui/field';
+import { Field, FieldControl, FieldLabel } from '@/components/ui/field';
 import { Fieldset, FieldsetLegend } from '@/components/ui/fieldset';
 import { FramePanel } from '@/components/ui/frame';
 import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
@@ -19,7 +19,7 @@ const themeLabels: Record<Theme, string> = {
 const themePresetLabels: Record<ThemePreset, string> = {
 	team581: 'Team 581 maroon',
 	match13: 'match13',
-	coss: 'Neutral',
+	neutral: 'Neutral',
 	custom: 'Custom',
 };
 
@@ -120,11 +120,11 @@ export function AppearanceSettings() {
 
 /** Settings panel for the color scheme's contrast */
 export function ContrastSetting() {
-	const { themePreset, contrast } = useSettings();
+	const { contrast } = useSettings();
 
 	return (
 		<FramePanel>
-			<Field name="contrast" disabled={themePreset === 'coss'}>
+			<Field name="contrast">
 				<Fieldset>
 					<FieldsetLegend className="mb-1 text-sm">Contrast</FieldsetLegend>
 					<SegmentedControl
@@ -143,7 +143,6 @@ export function ContrastSetting() {
 						))}
 					</SegmentedControl>
 				</Fieldset>
-				{themePreset === 'coss' && <FieldDescription>Neutral colors have a fixed contrast</FieldDescription>}
 			</Field>
 		</FramePanel>
 	);

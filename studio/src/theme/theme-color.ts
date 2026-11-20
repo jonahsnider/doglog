@@ -23,10 +23,14 @@ const contrastLevels: Record<Contrast, number> = {
 	high: 1,
 };
 
-/** Colors that presets generate their color scheme from, match13's is the `theme-color` from match13.com */
+/**
+ * Colors that presets generate their color scheme from, match13's is the `theme-color` from match13.com. Neutral's
+ * palettes are gray, so its blue only gives the series, status, and band colors a hue.
+ */
 const presetColors: Partial<Record<ThemePreset, string>> = {
 	team581: defaultThemeColor,
 	match13: '#1a7ccd',
+	neutral: '#3b82f6',
 };
 
 /** MD3 color roles applied as `--md-*` CSS variables, ex. `surfaceContainerLow` is `--md-surface-container-low` */
@@ -90,6 +94,13 @@ type Palettes = Pick<
 
 const fromHex = (hex: string) => TonalPalette.fromInt(argbFromHex(hex));
 const maroonHue = Hct.fromInt(argbFromHex(defaultThemeColor)).hue;
+const gray = TonalPalette.fromHueAndChroma(0, 0);
+const grayPalettes: Palettes = {
+	primaryPalette: gray,
+	secondaryPalette: gray,
+	neutralPalette: gray,
+	neutralVariantPalette: gray,
+};
 
 /** Palettes that presets use instead of Tonal Spot's in each appearance */
 const presetPalettes: Partial<Record<ThemePreset, Record<'light' | 'dark', Palettes>>> = {
@@ -117,6 +128,8 @@ const presetPalettes: Partial<Record<ThemePreset, Record<'light' | 'dark', Palet
 			neutralPalette: fromHex('#000000'),
 		},
 	},
+	// Untinted grays, so only status, series, and error colors have a hue
+	neutral: { light: grayPalettes, dark: grayPalettes },
 };
 
 /** match13.com's sky-400 for dark mode actions and focus instead of Tonal Spot's pastel tone 80 */
@@ -208,35 +221,12 @@ export interface ThemePreviewColors {
 	accent: string;
 }
 
-/** Approximations of the `.coss-theme` tokens in `index.css` */
-const neutralPreviewColors: Record<'light' | 'dark', ThemePreviewColors> = {
-	light: {
-		surface: '#ffffff',
-		sidebar: '#fafafa',
-		bar: '#f0f0f0',
-		border: '#ebebeb',
-		primary: '#262626',
-		accent: '#e5e5e5',
-	},
-	dark: {
-		surface: '#161616',
-		sidebar: '#111111',
-		bar: '#262626',
-		border: '#222222',
-		primary: '#f5f5f5',
-		accent: '#404040',
-	},
-};
-
 export function themePreviewColors(
 	preset: ThemePreset,
 	themeColor: string,
 	dark: boolean,
 	contrast: Contrast,
 ): ThemePreviewColors {
-	if (preset === 'coss') {
-		return neutralPreviewColors[dark ? 'dark' : 'light'];
-	}
 	const color = schemeColors(themeColor, dark, contrast, preset);
 	return {
 		surface: hexFromArgb(color('surface')),
@@ -248,18 +238,17 @@ export function themePreviewColors(
 	};
 }
 
-/** Color that theme-tinted widget colors, ex. graph bands, take their hue from. Neutral uses Tailwind's blue-500 */
+/** Color that theme-tinted widget colors, ex. graph bands, take their hue from */
 export function accentColor(preset: ThemePreset, themeColor: string): string {
-	return preset === 'coss' ? '#3b82f6' : (presetColors[preset] ?? themeColor);
+	return presetColors[preset] ?? themeColor;
 }
 
 /** `index.html` applies the cached stylesheet from this key before render to avoid a flash of the default colors, keep them in sync */
 const cssStorageKey = 'doglog-studio:theme-color-css';
 
-/** Apply a preset and cache generated colors for `index.html` to use on the next load, Neutral ignores the contrast */
+/** Apply a preset and cache generated colors for `index.html` to use on the next load */
 export function applyThemeColor(themeColor: string, preset: ThemePreset, contrast: Contrast): void {
-	document.documentElement.classList.toggle('coss-theme', preset === 'coss');
-	const css = preset === 'coss' ? '' : themeColorCss(themeColor, contrast, preset);
+	const css = themeColorCss(themeColor, contrast, preset);
 
 	// `index.html` may have added this element already
 	let style = document.querySelector<HTMLStyleElement>('#theme-color');

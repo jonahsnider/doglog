@@ -1753,12 +1753,12 @@
 						]
 					},
 					"themePreset": {
-						"description": "Theme color: Team 581 maroon (`team581`), match13 blue, neutral (`coss`), or `custom` for `themeColor`",
+						"description": "Theme color: Team 581 maroon (`team581`), match13 blue, `neutral` gray, or `custom` for `themeColor`",
 						"type": "string",
 						"enum": [
 							"team581",
 							"match13",
-							"coss",
+							"neutral",
 							"custom"
 						]
 					},

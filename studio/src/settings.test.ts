@@ -64,16 +64,16 @@ test.each([
 test('custom colors survive preset changes and a reload', async () => {
 	storage.set(storageKey, JSON.stringify({ theme: 'dark', themeColor: '#123456' }));
 	const { settingsStore, updateSettings } = await import('./settings.ts');
-	for (const themePreset of ['team581', 'coss', 'custom'] as const) {
+	for (const themePreset of ['team581', 'match13', 'custom'] as const) {
 		updateSettings({ themePreset });
 		expect(settingsStore.get().themeColor).toBe('#123456');
 	}
-	updateSettings({ themePreset: 'coss' });
+	updateSettings({ themePreset: 'match13' });
 	vi.resetModules();
 	const reloaded = await import('./settings.ts');
 	expect(reloaded.settingsStore.get()).toStrictEqual({
 		theme: 'dark',
-		themePreset: 'coss',
+		themePreset: 'match13',
 		themeColor: '#123456',
 		contrast: 'standard',
 		reduceMotion: false,
@@ -85,4 +85,10 @@ test('custom colors survive preset changes and a reload', async () => {
 		timelineShifts: true,
 		naturalScrolling: true,
 	});
+});
+
+test('the removed Neutral preset falls back to Team 581 and keeps the custom color', async () => {
+	storage.set(storageKey, JSON.stringify({ themePreset: 'coss', themeColor: '#123456' }));
+	const { settingsStore } = await import('./settings.ts');
+	expect(settingsStore.get()).toMatchObject({ themePreset: 'team581', themeColor: '#123456' });
 });
