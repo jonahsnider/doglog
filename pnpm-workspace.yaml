@@ -4,6 +4,7 @@ trustPolicyExclude:
 saveExact: true
 
 packages:
+  - 'cloud'
   - 'lib'
   - 'studio'
   - 'web'
@@ -72,6 +73,8 @@ permissions:
   '@tanstack/router-plugin':
     skills: false
   '@ui-sdk/core':
+    skills: false
+  void:
     skills: false
   wpilog-parser:
     skills: false

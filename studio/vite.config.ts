@@ -9,7 +9,7 @@ import react from '@vitejs/plugin-react';
 import colors from 'tailwindcss/colors';
 import { VitePWA } from 'vite-plugin-pwa';
 import svgr from 'vite-plugin-svgr';
-import { defineConfig, lazyPlugins, type Plugin } from 'vite-plus';
+import { defineConfig, lazyPlugins, type Plugin, runnerImport } from 'vite-plus';
 import type { OxlintConfig } from 'vite-plus/lint';
 import landmines from '@interfere/landmines/configs/recommended.json' with { type: 'json' };
 import * as z from 'zod';
@@ -44,6 +44,29 @@ function projectSchemaPlugin(): Plugin {
 		},
 		generateBundle() {
 			this.emitFile({ type: 'asset', fileName: 'doglog.schema.json', source: projectJsonSchema });
+		},
+	};
+}
+
+/**
+ * Draws `og.png`, the Open Graph image `index.html` points link previews to. Dashboard links get their own from the
+ * cloud server, drawn with the same code.
+ */
+function linkPreviewPlugin(): Plugin {
+	return {
+		name: 'doglog-link-preview',
+		apply: 'build',
+		async generateBundle() {
+			const { module } = await runnerImport<{ renderGenericPreviewImage: () => Promise<Uint8Array> }>(
+				'./src/link-previews/preview-image.tsx',
+				{
+					plugins: [svgr()],
+					resolve: { tsconfigPaths: true },
+					// Its ESM imports leave off file extensions, which Node can't resolve
+					environments: { inline: { resolve: { noExternal: ['@material/material-color-utilities'] } } },
+				},
+			);
+			this.emitFile({ type: 'asset', fileName: 'og.png', source: await module.renderGenericPreviewImage() });
 		},
 	};
 }
@@ -246,6 +269,11 @@ export default defineConfig({
 				rules: { 'react/only-export-components': 'off' },
 			},
 			{
+				// Drawn into images once, not mounted by React, so Fast Refresh and component identity don't matter
+				files: ['src/link-previews/**'],
+				rules: { 'react/only-export-components': 'off', 'react/static-components': 'off' },
+			},
+			{
 				files: ['src/lib/motion.ts'],
 				rules: { 'eslint/no-restricted-imports': 'off' },
 			},
@@ -290,6 +318,7 @@ export default defineConfig({
 		// Imports SVGs as React components with `?react`, ex. brand logos drawn in the text color like Lucide's icons
 		svgr(),
 		projectSchemaPlugin(),
+		linkPreviewPlugin(),
 		VitePWA({
 			// A new version waits until every Studio tab closes or the user updates from the sidebar, so open tabs keep
 			// loading their own version's chunks
@@ -300,7 +329,8 @@ export default defineConfig({
 				globPatterns: ['**/*'],
 				// The Sentry plugin turns on source maps for workers too, but only removes the main bundle's
 				// Fontsource lists WOFF only as a fallback after WOFF2, so browsers never request it
-				globIgnores: ['**/_headers', '**/*.map', '**/*.woff'],
+				// Only link previewers fetch the Open Graph image
+				globIgnores: ['**/_headers', '**/*.map', '**/*.woff', 'og.png'],
 				// Loro's WASM is about 3.6 MB, and dashboards need it to load offline
 				maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
 				cleanupOutdatedCaches: true,

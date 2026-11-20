@@ -1,0 +1,11 @@
+{
+	"extends": "./tsconfig.app.json",
+	"compilerOptions": {
+		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.worker.tsbuildinfo",
+		// The Worker imports app code, which uses DOM types, so it gets both. Their overlapping declarations conflict, which
+		// skipLibCheck ignores.
+		"types": ["vite/client", "@cloudflare/workers-types"],
+		"skipLibCheck": true
+	},
+	"include": ["worker"]
+}

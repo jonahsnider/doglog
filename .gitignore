@@ -293,3 +293,6 @@ infer-out/
 
 # Amp generated portal state
 .amp/portals/
+
+# Cloudflare Wrangler
+.wrangler

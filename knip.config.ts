@@ -12,6 +12,12 @@ const config: KnipConfig = {
 		'ditto',
 	],
 	workspaces: {
+		cloud: {
+			// Void loads routes by their file paths
+			entry: ['routes/**/*.ts', 'void.config.ts'],
+			// Loading the Vite config runs Void's plugin, which writes project files relative to the working directory
+			vite: false,
+		},
 		studio: {
 			entry: [
 				// Knip has no React Doctor plugin

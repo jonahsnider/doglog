@@ -1,0 +1,27 @@
+{
+	"name": "@doglog/cloud",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "vp build",
+		"check": "void prepare && vp check && tsc",
+		"deploy": "void deploy --platform cloudflare",
+		"dev": "vp dev"
+	},
+	"devDependencies": {
+		"@doglog/studio": "workspace:*",
+		"typescript": "7.1.0-dev.20261118.1",
+		"vite": "catalog:",
+		"vite-plugin-svgr": "5.2.0",
+		"vite-plus": "catalog:",
+		"void": "1.11.0"
+	},
+	"devEngines": {
+		"runtime": {
+			"name": "node",
+			"version": "26.x",
+			"onFail": "warn"
+		}
+	}
+}

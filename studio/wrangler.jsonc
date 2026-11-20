@@ -1,7 +1,11 @@
 {
+	"main": "./worker/index.ts",
 	"assets": {
 		"directory": "./dist",
+		"binding": "ASSETS",
 		"not_found_handling": "single-page-application",
+		// Only dashboard links need the Worker, every other request is a static asset
+		"run_worker_first": ["/import/*"],
 	},
 	"compatibility_date": "2026-11-15",
 	"name": "doglog-studio",

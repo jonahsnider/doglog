@@ -334,6 +334,33 @@ jobs:
         working-directory: studio
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+  cloud:
+    name: Cloud
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Git repository
+        uses: actions/checkout@v7.0.1
+      - name: Setup pnpm
+        uses: pnpm/setup@v3.2.0
+        with:
+          cache: true
+      - name: Lint, format, and type check
+        run: pnpm check
+        working-directory: cloud
+      - name: Build
+        run: pnpm build
+        working-directory: cloud
+      - name: Publish Cloud to Cloudflare Workers
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # `pnpm deploy` is a built-in pnpm command. Void builds again before deploying.
+        run: pnpm run deploy
+        working-directory: cloud
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
   studio-benchmarks:
     name: Studio benchmarks
 

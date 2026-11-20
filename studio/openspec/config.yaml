@@ -29,6 +29,9 @@ context: |
   - Agent commands live in one Zod registry with no React or DOM imports, so the Rust binary can embed their schemas
     and answer `doglog --help` and MCP `tools/list` without a window. The web app exposes them over WebMCP; desktop
     windows over a per-user local socket that `doglog mcp` relays to. No network listener.
+  - Studio's website is static files. A small Worker in `worker/` runs only for dashboard links (`/import/*`) to give
+    them Open Graph tags; `cloud/`, a Void app at cloud.doglog.dev, draws their preview images and will host the
+    future Cloud backend. Both read the link with Studio's own code from `src/link-previews/`.
   - Error reporting: Sentry, in production builds only. No usage analytics, and never log contents or personal info
     (ex. hostnames).
 
