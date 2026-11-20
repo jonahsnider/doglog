@@ -13,6 +13,7 @@ import { shortcuts } from '@/commands/commands';
 import { closeDashboardPane, splitDashboardPane, toggleZoom, updateLayout } from '@/dashboards/panes';
 import { focusPane } from '@/dashboards/pane-state';
 import { canCapture, copyImage } from '@/desktop/capture';
+import { useRecording } from '@/desktop/clip';
 import { dragRegion } from '@/desktop/title-bar';
 import { focusEditingPane, startEditing, useEditingPane } from '@/entries/editing';
 import { getEntry, useEntries } from '@/data/data-store';
@@ -71,6 +72,8 @@ export function PaneView({
 	const [menuBindings, setMenuBindings] = useState<Binding[]>();
 	const options = useMemo(() => (type ? optionValues(type, widget, bindings) : {}), [type, widget, bindings]);
 	const { dragRef, isDragging, dropRef, isDropTarget } = usePaneDrag(dashboardId, pane);
+	// Record mode keeps the layout it previews, widgets stay usable
+	const recording = useRecording() !== undefined;
 
 	const setWidget = (newType: WidgetType) =>
 		update((layout) =>
@@ -197,6 +200,7 @@ export function PaneView({
 	return (
 		<AppContextMenu
 			items={menuItems}
+			disabled={recording}
 			onOpenChange={(open) => setMenuBindings(open ? widgetBindings(widget) : undefined)}
 			render={
 				<div

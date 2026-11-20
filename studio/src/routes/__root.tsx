@@ -2,6 +2,7 @@ import { Outlet, createRootRoute, useMatchRoute } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import { useGlobalShortcuts } from '@/commands/commands';
 import { AppSidebar } from '@/sidebar/app-sidebar';
+import { useRecording } from '@/desktop/clip';
 import { DragProvider } from '@/components/drag-provider';
 import { useDesktopLinkOffer } from '@/dashboards/open-dashboard-link';
 import { LogDropOverlay } from '@/components/log-drop-overlay';
@@ -24,13 +25,17 @@ function RootLayout() {
 	const dashboard = Boolean(matchRoute({ to: '/dashboards/$dashboardId' }));
 	const strip = useTitleBarStrip();
 	const animation = useSelector(sidebarAnimationStore);
+	const recording = useRecording() !== undefined;
 
 	return (
 		<ToastProvider>
 			{/* Wraps the whole app, so dashboards and panes can be dragged between the sidebar and the main area */}
 			<DragProvider>
 				<div className="group/app flex h-svh bg-frame [--sidebar-width-icon:3rem] [--sidebar-width:17.25rem]">
-					<AppSidebar />
+					{/* Record mode keeps the dashboard it previews open, the sidebar stays in place without taking up space of its own */}
+					<div inert={recording} className="contents">
+						<AppSidebar />
+					</div>
 					<SidebarInset
 						className={cn(
 							'relative overflow-hidden',

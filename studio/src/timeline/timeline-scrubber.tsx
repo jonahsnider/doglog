@@ -10,7 +10,8 @@ import { getGaps, type TimeRange, useEntries } from '@/data/data-store';
 import type { UnreadEnd } from '@/data/log-source';
 import { cn } from '@/lib/utils';
 import { settingsStore } from '@/settings';
-import { formatTime, getCursorTime, seek, seekHotkeys, TimelineCursorContext } from '@/timeline/timeline';
+import { formatTime, getCursorTime, seek, TimelineCursorContext } from '@/timeline/timeline';
+import { seekHotkeys } from '@/timeline/seek';
 import { getAlertSpans, getCompressedSpans, getModePeriods } from '@/timeline/events';
 import { getActiveShifts } from '@/timeline/shifts';
 import { createTimeScale } from '@/timeline/scale';
@@ -281,7 +282,7 @@ export function Scrubber({
 						</div>
 					))}
 
-					<GraphMarks toPercent={toPercent} hoverTime={hover === undefined ? undefined : timeAt(hover)} />
+					<GraphMarks scale={scale} hoverTime={hover && timeAt(hover)} trackOffset={trackOffset} />
 
 					<ScrubberPosition
 						toPercent={toPercent}

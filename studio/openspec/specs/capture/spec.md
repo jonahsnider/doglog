@@ -89,22 +89,48 @@ Captures SHALL preserve the current theme, pane proportions, scroll position, gr
 
 ### Requirement: Read-only capture timeline
 
-A captured timeline SHALL show the playhead, elapsed time, and visible event markers without playback or clip controls.
+A captured timeline SHALL show the playhead, elapsed time, and visible event markers without playback or clip controls. A clip's timeline MUST mark its start and end with ticks, unless the clip is the whole log. Record mode MUST NOT show the ticks while the user picks the range.
 
 #### Scenario: Save a clip with a selected range
 
 - **WHEN** the user saves a clip with its start and end handles visible in Record mode
-- **THEN** the video shows the playhead moving, without either handle or any playback controls
+- **THEN** the video shows the playhead moving between ticks at the clip's start and end, without either handle or any playback controls
+
+### Requirement: Open Record mode for a clip
+
+The open dashboard's sidebar menu SHALL offer Export clip when it contains a widget and a log is open, and ⌘R (Ctrl+R on Windows) SHALL do the same. Panes MUST NOT offer it. The action MUST pause playback and open Record mode with the range from the playhead to 10 seconds after it, within the log.
+
+#### Scenario: Open Record mode with the keyboard
+
+- **GIVEN** a dashboard containing a widget is open on a log
+- **WHEN** the user presses ⌘R
+- **THEN** Record mode opens for that dashboard, with a range starting at the playhead
 
 ### Requirement: Set a clip range in Record mode
 
-The open dashboard's sidebar menu SHALL offer Export clip when it contains a widget and a log is open. The action MUST open Record mode with a preview of the dashboard or zoomed pane at its current proportions. The user MUST be able to set the start and end on the timeline with draggable handles or typed timestamps, and scrub the preview. The selected range MUST be within the readable log and its end MUST be after its start. Record mode controls MUST stay outside the video frame.
+The user SHALL be able to set a clip's start and end on the timeline with draggable handles or typed timestamps. The range MUST be within the readable log and at least 1 second long, unless the log is shorter.
 
 #### Scenario: Trim a clip without a graph
 
 - **GIVEN** a dashboard showing only a field widget is open on a log
 - **WHEN** the user enters Record mode, drags the start handle to 0:41, and types 0:49 for the end
 - **THEN** the preview shows the field widget and the user can scrub the selected eight seconds before saving
+
+#### Scenario: Drag the end handle past the start
+
+- **GIVEN** Record mode is open with a range from 0:41 to 0:49
+- **WHEN** the user drags the end handle to 0:40
+- **THEN** the range ends at 0:42, one second after its start
+
+### Requirement: Preview a clip in Record mode
+
+Record mode SHALL preview the dashboard or zoomed pane at its current proportions, styled like a capture. The user MUST be able to scrub or play the preview within the range, at the log's original timing. Its controls MUST stay outside the video frame, in a bar under the timeline. Widgets MUST stay usable, but the sidebar, the entry browser, and the dashboard's layout MUST NOT. Escape MUST leave Record mode.
+
+#### Scenario: Preview a clip with faster playback set
+
+- **GIVEN** playback was set to 2× before entering Record mode
+- **WHEN** the user plays the preview
+- **THEN** it plays at 1× and stops at the end of the range
 
 ### Requirement: Save a clip without changing the analysis
 
@@ -116,3 +142,13 @@ Studio SHALL let the user save the selected range as a silent MP4. The clip MUST
 - **WHEN** the user saves a clip from 0:41 to 0:49
 - **THEN** the saved clip runs for eight seconds and includes any idle time in that range
 - **AND** exiting Record mode returns the user to their previous view and playback state
+
+### Requirement: Show progress while saving a clip
+
+Saving a clip SHALL ask where to save it, suggesting the dashboard's name, then show its progress in the Record mode bar. Clips MUST be H.264 at 30 frames per second, at the frame's size on screen unless that's larger than the encoder supports. Canceling MUST delete the partial file and keep Record mode open with the same range. A saved clip MUST offer to show the file.
+
+#### Scenario: Cancel saving a clip
+
+- **GIVEN** a clip is being saved
+- **WHEN** the user chooses Cancel or presses Escape
+- **THEN** no file is left where the clip was being saved, and Record mode stays open with the same range

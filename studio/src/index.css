@@ -9,7 +9,10 @@
 @import '@fontsource/ibm-plex-mono/600-italic.css';
 
 @custom-variant dark (&:is(.dark *));
-@custom-variant capture (&:where([data-capturing] *));
+/* Copying an image sets `data-capturing` on the root, Record mode sets it on the dashboard it previews */
+@custom-variant capture (&:where([data-capturing], [data-capturing] *));
+/* The frames of a clip being saved, which leave out Record mode's own controls */
+@custom-variant saving-clip (&:where([data-saving-clip] *));
 /* Motion is reduced when the system asks to or the reduce motion setting adds `reduce-motion` to the root element */
 @custom-variant motion-reduce {
 	@media (prefers-reduced-motion: reduce) {
@@ -459,7 +462,9 @@
 [data-frosted-frame] body {
 	background-color: transparent;
 }
-[data-frosted-frame]:not([data-capturing]) .bg-frame {
+/* Opaque in captures, including a clip's edge past the dashboard it records */
+[data-frosted-frame]:not([data-capturing], [data-saving-clip])
+	.bg-frame:not(:where([data-capturing], [data-capturing] *)) {
 	background-color: color-mix(in srgb, var(--frame) 75%, transparent);
 }
 /* Keep overlays that live outside the captured panes out of the image without moving the dashboard. */
@@ -468,6 +473,18 @@
 		[data-slot='sidebar'],
 		[data-slot='sidebar-container'],
 		[data-slot='sidebar-rail-copy'],
+		[data-slot='preview-card-content'],
+		[data-slot='menu-popup'],
+		[data-slot='popover-popup'],
+		[data-slot='tooltip-popup'],
+		[data-slot='toast-viewport'],
+		[data-slot='toast-viewport-anchored']
+	) {
+	visibility: hidden;
+}
+/* The sidebars stay in place while a clip is saved, only overlays that could cover the frame are hidden */
+[data-saving-clip]
+	:is(
 		[data-slot='preview-card-content'],
 		[data-slot='menu-popup'],
 		[data-slot='popover-popup'],

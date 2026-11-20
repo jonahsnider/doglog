@@ -6,19 +6,7 @@ import type { TimeRange } from '@/data/data-store';
 import { isEnterKey } from '@/lib/keyboard';
 import { cn } from '@/lib/utils';
 import { formatTime, getActiveCompressedSpans, seek, TimelineCursorContext } from '@/timeline/timeline';
-
-/**
- * Parse a time typed like `formatTime()` shows it, ex. `1:05.5`, or as seconds, ex. `65.5`,
- * into µs on the clock `start` is on. `undefined` if it isn't a time.
- */
-function parseTime(text: string, start: number): number | undefined {
-	const match = /^(?:(\d+):)?(\d+(?:\.\d*)?|\.\d+)$/u.exec(text.trim());
-	if (!match) {
-		return undefined;
-	}
-	const [, minutes = '0', seconds = '0'] = match;
-	return start + Math.round((Number(minutes) * 60 + Number(seconds)) * 1_000_000);
-}
+import { parseTime } from '@/timeline/parse-time';
 
 /** Field for typing a time to move the cursor to, shown in place of the current time after clicking it */
 function TimeInput({ initialText, start, onDone }: { initialText: string; start: number; onDone: () => void }) {

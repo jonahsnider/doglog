@@ -2,13 +2,12 @@ import type { Draggable, Droppable } from '@dnd-kit/dom';
 import { useDragDropMonitor, useDragOperation } from '@dnd-kit/react';
 import { useHotkey } from '@tanstack/react-hotkeys';
 import { useSelector } from '@tanstack/react-store';
-import PanelRightCloseIcon from 'lucide-react/icons/panel-right-close';
-import PanelRightOpenIcon from 'lucide-react/icons/panel-right-open';
 import SearchIcon from 'lucide-react/icons/search';
 import XIcon from 'lucide-react/icons/x';
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { Panel, Separator, usePanelRef } from 'react-resizable-panels';
 import { EntryRows } from '@/entries/entry-browser-rows';
+import { ToggleButton } from '@/entries/entry-browser-toggle';
 import { EntryRowsTooltip } from '@/entries/entry-row';
 import { ActiveSection } from '@/entries/active-section';
 import { HiddenSection } from '@/entries/hidden-section';
@@ -22,6 +21,7 @@ import { isEnterKey } from '@/lib/keyboard';
 import type { Dashboard } from '@/dashboards/dashboards';
 import { type Entry, useEntries } from '@/data/data-store';
 import { useSource } from '@/data/source';
+import { useRecording } from '@/desktop/clip';
 import type { EntryDragData, EntrySectionDropData } from '@/entries/drag';
 import { useSearchExpansion } from '@/entries/search-expansion';
 import { entryPlacementsStore, moveToSection } from '@/entries/sections';
@@ -60,11 +60,13 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 	const edited = useEditedWidget(dashboard);
 	useHotkey('Escape', stopEditing, { enabled: edited !== undefined, ignoreInputs: false, conflictBehavior: 'allow' });
 	const panelRef = usePanelRef();
+	// Record mode keeps the dashboard it previews as it is
+	const recording = useRecording() !== undefined;
 
 	if (!open) {
 		return (
 			// Padded like the header below
-			<aside aria-label="Entry browser" className="ms-1.5 shrink-0 px-1.5 pt-3 pb-1.5">
+			<aside aria-label="Entry browser" inert={recording} className="ms-1.5 shrink-0 px-1.5 pt-3 pb-1.5">
 				<ToggleButton open={false} />
 			</aside>
 		);
@@ -74,6 +76,7 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 		<>
 			<Separator
 				aria-label="Resize entry browser"
+				disabled={recording}
 				// Covers the library's 10px hit area so double-clicks land on the separator
 				className="relative z-10 w-1.5 outline-none before:absolute before:inset-x-0.5 before:inset-y-1 before:rounded-full before:transition-colors after:absolute after:inset-y-0 after:-inset-x-0.5 focus-visible:before:bg-ring data-[separator=active]:before:bg-ring data-[separator=hover]:before:bg-ring capture:before:hidden"
 				// The built-in reset would use the saved width
@@ -90,7 +93,11 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 			>
 				{/* Not selectable, so double-clicking or dragging rows doesn't select their labels */}
 				{/* A sidebar like the one on the left, on the frame instead of its own surface */}
-				<aside aria-label="Entry browser" className="group/entry-browser flex h-full flex-col overflow-hidden">
+				<aside
+					aria-label="Entry browser"
+					inert={recording}
+					className="group/entry-browser flex h-full flex-col overflow-hidden"
+				>
 					{/* Reaches the top of the main area like the sidebar, so it's padded to line up with the pane headers below the dashboard's gap */}
 					<div {...dragRegion} className="flex h-10.5 shrink-0 items-center gap-1 ps-3 pe-1.5 pt-1.5">
 						{edited ? (
@@ -118,24 +125,6 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 				</aside>
 			</Panel>
 		</>
-	);
-}
-
-function ToggleButton({ open }: { open: boolean }) {
-	const label = open ? 'Hide entry browser' : 'Show entry browser';
-	return (
-		<Tooltip>
-			<TooltipTrigger
-				render={
-					<Button variant="ghost" size="icon-xs" aria-label={label} aria-expanded={open} onClick={toggleEntryBrowser} />
-				}
-			>
-				{open ? <PanelRightCloseIcon /> : <PanelRightOpenIcon />}
-			</TooltipTrigger>
-			<TooltipPopup>
-				<TooltipLabel label={label} shortcut={shortcuts.toggleEntryBrowser} />
-			</TooltipPopup>
-		</Tooltip>
 	);
 }
 

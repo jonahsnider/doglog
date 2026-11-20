@@ -1,7 +1,8 @@
 import { getTimeRange, subscribeData } from '@/data/data-store';
 import { getSource } from '@/data/source';
 import { settingsStore } from '@/settings';
-import { getTimeline, seek, skip, skipSection, subscribeTimeline, togglePlayback } from '@/timeline/timeline';
+import { skip, skipSection } from '@/timeline/seek';
+import { getTimeline, seek, subscribeTimeline, togglePlayback } from '@/timeline/timeline';
 
 /** How far the OS's playback position can drift from the cursor before it's corrected (µs) */
 const maxDrift = 100_000;

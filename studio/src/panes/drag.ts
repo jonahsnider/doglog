@@ -1,5 +1,6 @@
 import { type Draggable, PointerActivationConstraints } from '@dnd-kit/dom';
 import { KeyboardSensor, PointerSensor, useDraggable, useDroppable } from '@dnd-kit/react';
+import { useRecording } from '@/desktop/clip';
 import type { Pane, PaneSide } from '@/panes/layout';
 
 /** Drag type of panes, dragged by their header */
@@ -42,11 +43,14 @@ const sensors = [
  * Attach `dragRef` to the title and `dropRef` to the pane.
  */
 export function usePaneDrag(dashboardId: string, pane: Pane) {
+	const recording = useRecording() !== undefined;
 	const { ref: dragRef, isDragging } = useDraggable<PaneDragData>({
 		id: `pane-${pane.id}`,
 		type: paneDragType,
 		sensors,
 		data: { dashboardId, paneId: pane.id, widgetType: pane.widget?.type },
+		// Record mode keeps the layout it previews
+		disabled: recording,
 	});
 	const { ref: dropRef, isDropTarget } = useDroppable<PaneDropData>({
 		id: `pane-drop-${pane.id}`,

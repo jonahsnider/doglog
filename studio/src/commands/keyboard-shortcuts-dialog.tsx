@@ -47,6 +47,7 @@ const sections: {
 			{ label: 'Reopen closed dashboard', keys: [shortcuts.reopenDashboard] },
 			{ label: 'Copy dashboard link', keys: [shortcuts.copyDashboardLink] },
 			...(canCapture ? [{ label: 'Copy dashboard image', keys: [shortcuts.copyDashboardImage] }] : []),
+			...(canCapture ? [{ label: 'Export dashboard clip', keys: [shortcuts.exportClip] }] : []),
 			{ label: 'Switch to dashboard 1-9', keys: [dashboardShortcut(0)!, dashboardShortcut(8)!], separator: '–' },
 			{ label: 'Back', keys: [shortcuts.back] },
 			{ label: 'Forward', keys: [shortcuts.forward] },

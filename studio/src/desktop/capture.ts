@@ -4,10 +4,13 @@ import { createAtom } from '@tanstack/store';
 import { invoke } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { toastManager } from '@/components/ui/toast';
+import { showClipFrame } from '@/timeline/timeline';
 
 export const canCapture = STUDIO_DESKTOP && '__DOGLOG_CAPTURE__' in window;
 
-const frame = createAtom<{ bounds: DOMRect; paneIds: Set<string | undefined> } | undefined>(undefined);
+type CaptureArea = { bounds: DOMRect; paneIds: Set<string | undefined> };
+
+const frame = createAtom<CaptureArea | undefined>(undefined);
 let capturing = false;
 
 export function useCaptureFrame() {
@@ -122,32 +125,14 @@ async function capture(target: HTMLElement, savePath?: string | null): Promise<s
 			return undefined;
 		}
 
-		const { left, top, right, bottom } = target.getBoundingClientRect();
-		// The gap after a dashboard's panes belongs to the entry browser, so include as much as the dashboard pads its start.
-		const end = target.matches('[data-capture-dashboard]')
-			? // oxlint-disable-next-line unicorn/prefer-number-coercion -- Computed padding has a `px` suffix.
-				right + Number.parseFloat(getComputedStyle(target).paddingLeft)
-			: right;
-		const x = Math.max(0, left);
-		const y = Math.max(0, top);
-		const bounds = new DOMRect(x, y, Math.min(innerWidth, end) - x, Math.min(innerHeight, bottom) - y);
-		const paneIds = new Set(
-			(target.dataset['paneId'] === undefined ? [...target.querySelectorAll<HTMLElement>('[data-pane-id]')] : [target])
-				.filter((pane) => pane.checkVisibility({ visibilityProperty: true }))
-				.map((pane) => pane.dataset['paneId']),
-		);
+		const area = captureArea(target);
 		root.dataset['capturing'] = '';
-		frame.set({ bounds, paneIds });
+		frame.set(area);
 		await afterPaint();
 		if (!stillCurrent()) {
 			return undefined;
 		}
-		const rect = {
-			left: bounds.left / innerWidth,
-			top: bounds.top / innerHeight,
-			right: bounds.right / innerWidth,
-			bottom: bounds.bottom / innerHeight,
-		};
+		const rect = toRect(area.bounds);
 		if (savePath === undefined) {
 			await invoke('copy_capture', { rect });
 			return undefined;
@@ -162,5 +147,105 @@ async function capture(target: HTMLElement, savePath?: string | null): Promise<s
 			await invoke('set_capture_cover', { show: false }).catch(() => undefined);
 		}
 		capturing = false;
+	}
+}
+
+/** The part of the window that a capture of `target` shows, and the panes in it */
+function captureArea(target: HTMLElement): CaptureArea {
+	const { left, top, right, bottom } = target.getBoundingClientRect();
+	// The gap after a dashboard's panes belongs to the entry browser, so include as much as the dashboard pads its start.
+	const end = target.matches('[data-capture-dashboard]')
+		? // oxlint-disable-next-line unicorn/prefer-number-coercion -- Computed padding has a `px` suffix.
+			right + Number.parseFloat(getComputedStyle(target).paddingLeft)
+		: right;
+	const x = Math.max(0, left);
+	const y = Math.max(0, top);
+	const bounds = new DOMRect(x, y, Math.min(innerWidth, end) - x, Math.min(innerHeight, bottom) - y);
+	const paneIds = new Set(
+		(target.dataset['paneId'] === undefined ? [...target.querySelectorAll<HTMLElement>('[data-pane-id]')] : [target])
+			.filter((pane) => pane.checkVisibility({ visibilityProperty: true }))
+			.map((pane) => pane.dataset['paneId']),
+	);
+	return { bounds, paneIds };
+}
+
+/** `bounds` as fractions of the window, how the native capture takes them */
+function toRect(bounds: DOMRect) {
+	return {
+		left: bounds.left / innerWidth,
+		top: bounds.top / innerHeight,
+		right: bounds.right / innerWidth,
+		bottom: bounds.bottom / innerHeight,
+	};
+}
+
+/**
+ * Save a clip of a dashboard's capture `target` as an MP4 at `path`, showing each of `times` (µs) in turn as a frame,
+ * `fps` frames a second. Stops and deletes the file when `signal` aborts. Returns whether it finished.
+ */
+export async function saveClip(
+	target: HTMLElement,
+	{
+		path,
+		times,
+		fps,
+		signal,
+		onProgress,
+	}: { path: string; times: number[]; fps: number; signal: AbortSignal; onProgress: (progress: number) => void },
+): Promise<boolean> {
+	if (capturing) {
+		throw new Error('Another image is being captured.');
+	}
+
+	capturing = true;
+	const root = document.documentElement;
+	let started = false;
+	try {
+		// The clip's own controls and any popups stay out of its frames, see the `saving-clip` variant
+		root.dataset['savingClip'] = '';
+		const area = captureArea(target);
+		frame.set(area);
+		const rect = toRect(area.bounds);
+		await invoke('start_clip', { path, fps });
+		started = true;
+		for (const [index, time] of times.entries()) {
+			if (signal.aborted) {
+				return false;
+			}
+			showClipFrame(time);
+			// oxlint-disable-next-line no-await-in-loop -- Each frame has to be shown before it's captured.
+			await widgetsLoaded(target);
+			// oxlint-disable-next-line no-await-in-loop -- The encoder takes frames in order.
+			await invoke('add_clip_frame', { rect });
+			onProgress((index + 1) / times.length);
+		}
+		await invoke('finish_clip');
+		started = false;
+		return true;
+	} finally {
+		if (started) {
+			await invoke('cancel_clip').catch(() => undefined);
+		}
+		showClipFrame(undefined);
+		delete root.dataset['savingClip'];
+		frame.set(undefined);
+		capturing = false;
+	}
+}
+
+/** Let the webview paint `target`, then wait for its visible widgets to finish loading */
+async function widgetsLoaded(target: Element): Promise<void> {
+	const deadline = performance.now() + 10_000;
+	await afterPaint();
+	while (
+		Array.from(target.querySelectorAll('[data-capture-pending]')).some((pending) =>
+			pending.checkVisibility({ visibilityProperty: true }),
+		)
+	) {
+		if (performance.now() >= deadline) {
+			throw new Error('The dashboard didn’t finish loading in time.');
+		}
+		// oxlint-disable-next-line no-await-in-loop -- Each check needs a fresh paint.
+		await afterPaint();
 	}
 }

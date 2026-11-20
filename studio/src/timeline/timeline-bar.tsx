@@ -26,15 +26,14 @@ import {
 	formatTime,
 	goLive,
 	playbackSpeeds,
-	seekHotkeys,
 	setSpeed,
-	skip,
 	step,
 	type Timeline,
 	TimelineCursorContext,
 	togglePlayback,
 	useTimeline,
 } from '@/timeline/timeline';
+import { seekHotkeys, skip } from '@/timeline/seek';
 
 const speedItems = playbackSpeeds.map((speed) => ({ value: speed, label: `${speed}x` }));
 

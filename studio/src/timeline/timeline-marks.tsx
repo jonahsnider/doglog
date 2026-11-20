@@ -1,5 +1,7 @@
 import { use } from 'react';
+import { ClipRange } from '@/timeline/clip-range';
 import { useHoverTime } from '@/timeline/hover';
+import type { TimeScale } from '@/timeline/scale';
 import { TimelineCursorContext } from '@/timeline/timeline';
 import { useZoomedRange } from '@/widgets/graph/view';
 
@@ -18,16 +20,20 @@ export function ScrubberPosition({
 }
 
 /**
- * The time range graphs are zoomed to, so it's clear where they are in the whole source, and the hovered time: the one
- * the tooltip is about, or the one hovered in a graph
+ * The time range graphs are zoomed to, so it's clear where they are in the whole source, the hovered time: the one
+ * the tooltip is about, or the one hovered in a graph, and the range of a clip being recorded
  */
 export function GraphMarks({
-	toPercent,
+	scale,
 	hoverTime,
+	trackOffset,
 }: {
-	toPercent: (time: number) => number;
+	scale: TimeScale;
 	hoverTime: number | undefined;
+	/** How the track is moved to make room for the marks above and below it */
+	trackOffset: string;
 }) {
+	const { toPercent } = scale;
 	const zoomed = useZoomedRange();
 	const graphHover = useHoverTime();
 	const hover = hoverTime ?? graphHover;
@@ -45,6 +51,7 @@ export function GraphMarks({
 					style={{ left: `${toPercent(hover)}%` }}
 				/>
 			)}
+			<ClipRange scale={scale} trackOffset={trackOffset} />
 		</>
 	);
 }

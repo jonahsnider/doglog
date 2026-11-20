@@ -2,6 +2,8 @@ mod agent;
 #[cfg(any(target_os = "macos", windows))]
 mod capture;
 mod cli;
+#[cfg(any(target_os = "macos", windows))]
+mod clip;
 #[cfg(desktop)]
 mod mcp_install;
 mod new_window;
@@ -130,6 +132,8 @@ pub fn run() -> ExitCode {
     let builder = builder.append_invoke_initialization_script("\nwindow.__DOGLOG_CAPTURE__ = true;");
     #[cfg(target_os = "macos")]
     let builder = builder.append_invoke_initialization_script("\nwindow.__DOGLOG_CAPTURE_COVER__ = true;");
+    #[cfg(any(target_os = "macos", windows))]
+    let builder = builder.manage(clip::ClipRecording::default());
     let builder = if frosted_frame {
         builder.append_invoke_initialization_script("\nwindow.__DOGLOG_FROSTED_FRAME__ = true;")
     } else {
@@ -174,6 +178,14 @@ pub fn run() -> ExitCode {
             capture::save_capture,
             #[cfg(target_os = "macos")]
             capture::set_capture_cover,
+            #[cfg(any(target_os = "macos", windows))]
+            clip::start_clip,
+            #[cfg(any(target_os = "macos", windows))]
+            clip::add_clip_frame,
+            #[cfg(any(target_os = "macos", windows))]
+            clip::finish_clip,
+            #[cfg(any(target_os = "macos", windows))]
+            clip::cancel_clip,
             new_window::new_window,
             recent_logs::note_recent_log,
             recent_logs::clear_recent_logs,

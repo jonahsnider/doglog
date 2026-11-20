@@ -1,4 +1,3 @@
-import type { UseHotkeyDefinition } from '@tanstack/react-hotkeys';
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import { createContext } from 'react';
@@ -20,6 +19,8 @@ export type Timeline = {
 	readonly speed: number;
 	/** Whether the active source is live */
 	readonly live: boolean;
+	/** The range of the clip being recorded, which the cursor stays in. `undefined` outside Record mode. */
+	readonly clip: TimeRange | undefined;
 };
 
 export const playbackSpeeds = [0.25, 0.5, 1, 2, 4, 8];
@@ -28,7 +29,7 @@ export const playbackSpeeds = [0.25, 0.5, 1, 2, 4, 8];
 const stepSize = 20_000;
 
 // The one time cursor shared by every dashboard and widget
-const store = createAtom<Timeline>({ time: undefined, playback: 'paused', speed: 1, live: false });
+const store = createAtom<Timeline>({ time: undefined, playback: 'paused', speed: 1, live: false, clip: undefined });
 
 /** The timeline bar's cursor, frozen at its last time while the bar animates out. */
 export const TimelineCursorContext = createContext<number | undefined>(undefined);
@@ -43,9 +44,16 @@ let logName: string | undefined;
 
 let frame: number | undefined;
 let lastFrameTime = 0;
+// While a clip is saved, only its frames move the cursor
+let savingClip = false;
 
 function clamp(time: number, range: TimeRange): number {
 	return Math.min(Math.max(time, range.start), range.end);
+}
+
+/** Where the cursor can go: the clip being recorded, or the whole source */
+export function getCursorRange(): TimeRange | undefined {
+	return store.get().clip ?? getTimeRange();
 }
 
 function update(changes: Partial<Timeline>): void {
@@ -73,18 +81,22 @@ export function getActiveCompressedSpans(range: TimeRange): CompressedSpan[] {
 
 function tick(now: number): void {
 	frame = undefined;
-	const { time, speed, live } = store.get();
-	const range = getTimeRange();
-	if (time === undefined || range === undefined) {
+	const { time, speed, live, clip } = store.get();
+	const sourceRange = getTimeRange();
+	const range = clip ?? sourceRange;
+	if (time === undefined || range === undefined || sourceRange === undefined) {
 		update({ playback: 'paused' });
 		return;
 	}
 
 	const elapsed = Math.max(0, now - lastFrameTime);
 	lastFrameTime = now;
-	let next = time + elapsed * 1000 * speed;
+	// A clip previews at the log's own timing, like it's saved
+	let next = time + elapsed * 1000 * (clip ? 1 : speed);
 	// Fast-forward through compressed spans, stopping at their end so the time kept after them isn't skipped too
-	const compressed = getActiveCompressedSpans(range).find((span) => span.start <= time && time < span.end);
+	const compressed = clip
+		? undefined
+		: getActiveCompressedSpans(sourceRange).find((span) => span.start <= time && time < span.end);
 	if (compressed) {
 		const fastForward = time + (elapsed / compressedPlaybackTime) * (compressed.end - compressed.start);
 		next = Math.min(Math.max(next, fastForward), compressed.end);
@@ -115,9 +127,15 @@ subscribeData(() => {
 	}
 });
 
-// Save the cursor of the active log when it settles, saving every frame while playing would be wasteful
+// Save the cursor of the active log when it settles, saving every frame while playing or saving a clip would be wasteful
 store.subscribe(({ time, playback }) => {
-	if (logName === undefined || time === undefined || playback === 'playing' || savedTimes.get()[logName] === time) {
+	if (
+		logName === undefined ||
+		time === undefined ||
+		playback === 'playing' ||
+		savingClip ||
+		savedTimes.get()[logName] === time
+	) {
 		return;
 	}
 	const times = { ...savedTimes.get() };
@@ -134,7 +152,7 @@ store.subscribe(({ time, playback }) => {
 export function resetTimeline(source: Source | undefined): void {
 	const live = source?.type === 'live';
 	logName = source?.type === 'log' ? source.fileName : undefined;
-	update({ time: undefined, playback: live ? 'following' : 'paused', live });
+	update({ time: undefined, playback: live ? 'following' : 'paused', live, clip: undefined });
 }
 
 /** The full timeline state, re-renders on every cursor move */
@@ -165,10 +183,38 @@ export function subscribeTimeline(listener: () => void): () => void {
 	return unsubscribe;
 }
 
+/** The clip being recorded, `undefined` outside Record mode */
+export function useClip(): TimeRange | undefined {
+	return useSelector(store, (timeline) => timeline.clip);
+}
+
+/**
+ * Set the clip being recorded, keeping the cursor in it, or `undefined` to stop recording. Moves the cursor to the
+ * `cursor` time and playback, or pauses. Returns the cursor and playback from before.
+ */
+export function setClip(
+	clip: TimeRange | undefined,
+	cursor?: Pick<Timeline, 'time' | 'playback'>,
+): Pick<Timeline, 'time' | 'playback'> {
+	const { time, playback } = store.get();
+	const next: Pick<Timeline, 'time' | 'playback'> = cursor ?? { time, playback: 'paused' };
+	update({ clip, playback: next.playback, time: clip && next.time !== undefined ? clamp(next.time, clip) : next.time });
+	return { time, playback };
+}
+
+/** Show the frame at `time` (µs) of a clip being saved, `undefined` once it's saved or canceled */
+export function showClipFrame(time: number | undefined): void {
+	savingClip = time !== undefined;
+	// Record mode can end before the last frame is shown, ex. when the log is replaced
+	if (time !== undefined && store.get().clip) {
+		update({ time, playback: 'paused' });
+	}
+}
+
 /** Move the cursor to `time` (µs), ex. when the user clicks a graph. Stops following live data. */
 export function seek(time: number): void {
-	const range = getTimeRange();
-	if (range === undefined) {
+	const range = getCursorRange();
+	if (range === undefined || savingClip) {
 		return;
 	}
 	const { playback } = store.get();
@@ -189,9 +235,11 @@ export function goLive(): void {
 
 export function togglePlayback(): void {
 	const { time, playback, live } = store.get();
-	const range = getTimeRange();
+	const range = getCursorRange();
 
-	if (playback !== 'paused') {
+	if (savingClip) {
+		// Saving a clip shows its frames
+	} else if (playback !== 'paused') {
 		update({ playback: 'paused' });
 	} else if (time !== undefined && range !== undefined) {
 		// Play a finished log from the beginning
@@ -202,56 +250,9 @@ export function togglePlayback(): void {
 /** Pause and move the cursor one step forward or back */
 export function step(direction: 1 | -1): void {
 	const { time } = store.get();
-	const range = getTimeRange();
-	if (time !== undefined && range !== undefined) {
+	const range = getCursorRange();
+	if (time !== undefined && range !== undefined && !savingClip) {
 		update({ time: clamp(time + direction * stepSize, range), playback: 'paused' });
-	}
-}
-
-/** Move the cursor `seconds` forward, or back if negative, without changing playback */
-export function skip(seconds: number): void {
-	const { time } = store.get();
-	if (time !== undefined) {
-		seek(time + seconds * 1_000_000);
-	}
-}
-
-/** How far (µs) into a section the cursor has to be for going back to go to its start, instead of the section before */
-const sectionRestartTime = 1_000_000;
-
-/**
- * Move the cursor to the start of the next or previous section of the robot's mode, ex. the start of teleop, without changing playback.
- * Going back goes to the start of the current section first, like a music player. Skips 5 seconds without mode data.
- */
-export function skipSection(direction: 1 | -1): void {
-	const { time } = store.get();
-	const range = getTimeRange();
-	if (time === undefined || range === undefined) {
-		return;
-	}
-	const starts = getModePeriods(range).map((period) => period.start);
-	if (starts.length === 0) {
-		skip(direction * 5);
-	} else if (direction === 1) {
-		seek(starts.find((start) => start > time) ?? range.end);
-	} else {
-		seek(starts.findLast((start) => start < time - sectionRestartTime) ?? range.start);
-	}
-}
-
-function jumpToStart(): void {
-	const range = getTimeRange();
-	if (range !== undefined) {
-		seek(range.start);
-	}
-}
-
-function jumpToEnd(): void {
-	const range = getTimeRange();
-	if (store.get().live) {
-		goLive();
-	} else if (range !== undefined) {
-		seek(range.end);
 	}
 }
 
@@ -259,8 +260,11 @@ export function setSpeed(speed: number): void {
 	update({ speed });
 }
 
-/** Switch to the next faster or slower playback speed */
+/** Switch to the next faster or slower playback speed. Clips always preview at 1×. */
 export function changeSpeed(direction: 1 | -1): void {
+	if (store.get().clip) {
+		return;
+	}
 	const next = playbackSpeeds[playbackSpeeds.indexOf(store.get().speed) + direction];
 	if (next !== undefined) {
 		update({ speed: next });
@@ -281,16 +285,3 @@ export function formatRoughDuration(duration: number): string {
 	const seconds = Math.round(duration / 1_000_000);
 	return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 }
-
-/** Shortcuts that move the cursor, also given directly to the timeline slider since a focused slider skips them otherwise */
-export const seekHotkeys: UseHotkeyDefinition[] = [
-	{ hotkey: 'ArrowLeft', callback: () => skip(-5) },
-	{ hotkey: 'ArrowRight', callback: () => skip(5) },
-	{ hotkey: 'Shift+ArrowLeft', callback: () => skipSection(-1) },
-	{ hotkey: 'Shift+ArrowRight', callback: () => skipSection(1) },
-	{ hotkey: 'Home', callback: jumpToStart },
-	{ hotkey: 'End', callback: jumpToEnd },
-	// Mac laptops don't have Home and End, text fields keep these for moving to the start or end of a line
-	{ hotkey: 'Mod+ArrowLeft', callback: jumpToStart, options: { ignoreInputs: true } },
-	{ hotkey: 'Mod+ArrowRight', callback: jumpToEnd, options: { ignoreInputs: true } },
-];

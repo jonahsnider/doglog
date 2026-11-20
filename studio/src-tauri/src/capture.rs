@@ -1,9 +1,9 @@
 #[cfg(target_os = "macos")]
 #[path = "capture_macos.rs"]
-mod platform;
+pub(crate) mod platform;
 #[cfg(windows)]
 #[path = "capture_windows.rs"]
-mod platform;
+pub(crate) mod platform;
 
 use std::{
     path::PathBuf,
@@ -12,9 +12,12 @@ use std::{
 
 use image::RgbaImage;
 use serde::Deserialize;
-use tauri::{WebviewWindow, image::Image};
+use tauri::{WebviewWindow, image::Image, webview::PlatformWebview};
 use tauri_plugin_clipboard_manager::ClipboardExt;
-use tokio::{sync::oneshot, time::timeout};
+use tokio::{
+    sync::oneshot::{self, Sender},
+    time::timeout,
+};
 
 /// Bounds as fractions of the rendered viewport, independent of the display's pixel density.
 #[derive(Clone, Copy, Deserialize)]
@@ -67,25 +70,8 @@ pub async fn save_capture(window: WebviewWindow, rect: CaptureRect, path: Option
     Ok(path)
 }
 
-async fn snapshot(window: &WebviewWindow, rect: CaptureRect) -> Result<RgbaImage, String> {
-    if !(0.0 <= rect.left
-        && rect.left < rect.right
-        && rect.right <= 1.0
-        && 0.0 <= rect.top
-        && rect.top < rect.bottom
-        && rect.bottom <= 1.0)
-    {
-        return Err("The capture area is outside the window".into());
-    }
-
-    let (send, receive) = oneshot::channel();
-    window
-        .with_webview(move |webview| platform::snapshot(webview, rect, send))
-        .map_err(|error| error.to_string())?;
-    let png = timeout(Duration::from_secs(5), receive)
-        .await
-        .map_err(|_| "The window didn't finish capturing in time")?
-        .map_err(|_| "The window closed before it finished capturing")??;
+pub(crate) async fn snapshot(window: &WebviewWindow, rect: CaptureRect) -> Result<RgbaImage, String> {
+    let png = take_snapshot(window, rect, platform::snapshot).await?;
     let image = image::load_from_memory_with_format(&png, image::ImageFormat::Png)
         .map_err(|error| error.to_string())?
         .into_rgba8();
@@ -105,4 +91,30 @@ async fn snapshot(window: &WebviewWindow, rect: CaptureRect) -> Result<RgbaImage
     };
 
     Ok(image)
+}
+
+/// Run a platform snapshot of `rect` on the webview's thread and wait for its result.
+pub(crate) async fn take_snapshot<T: Send + 'static>(
+    window: &WebviewWindow,
+    rect: CaptureRect,
+    snapshot: fn(PlatformWebview, CaptureRect, Sender<Result<T, String>>),
+) -> Result<T, String> {
+    if !(0.0 <= rect.left
+        && rect.left < rect.right
+        && rect.right <= 1.0
+        && 0.0 <= rect.top
+        && rect.top < rect.bottom
+        && rect.bottom <= 1.0)
+    {
+        return Err("The capture area is outside the window".into());
+    }
+
+    let (send, receive) = oneshot::channel();
+    window
+        .with_webview(move |webview| snapshot(webview, rect, send))
+        .map_err(|error| error.to_string())?;
+    timeout(Duration::from_secs(5), receive)
+        .await
+        .map_err(|_| "The window didn't finish capturing in time")?
+        .map_err(|_| "The window closed before it finished capturing")?
 }

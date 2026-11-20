@@ -24,6 +24,7 @@ import {
 	undoDashboard,
 } from '@/dashboards/dashboards';
 import { goInHistory } from '@/commands/history';
+import { isRecording } from '@/desktop/clip';
 import { toggleEditing } from '@/entries/editing';
 import { chooseLog } from '@/data/open-log';
 import { checkOrInstallUpdate, updateShortcut } from '@/updater';
@@ -52,6 +53,7 @@ export const shortcuts = {
 	reopenDashboard: desktop ? 'Mod+Shift+T' : 'Alt+Shift+T',
 	copyDashboardLink: 'Mod+Shift+C',
 	copyDashboardImage: 'Mod+C',
+	exportClip: 'Mod+R',
 	settings: desktop ? 'Mod+,' : 'Alt+,',
 	logs: desktop ? 'Mod+L' : 'Alt+L',
 	back: desktop ? 'Mod+[' : 'Alt+[',
@@ -115,7 +117,10 @@ export function newWindow(): void {
 export function closeFocused(router: RegisteredRouter): void {
 	const dashboard = currentDashboard(router);
 	if (dashboard) {
-		closeFocusedPane(dashboard.id);
+		// Record mode keeps the layout it previews
+		if (!isRecording()) {
+			closeFocusedPane(dashboard.id);
+		}
 	} else if (desktop) {
 		void closeWindow();
 	}
@@ -160,21 +165,21 @@ export function undoOrRedo(router: RegisteredRouter, direction: 'undo' | 'redo')
 	}
 
 	const dashboard = currentDashboard(router);
-	if (dashboard) {
+	if (dashboard && !isRecording()) {
 		(direction === 'undo' ? undoDashboard : redoDashboard)(dashboard.id);
 	}
 }
 
 function toggleFocusedZoom(router: RegisteredRouter): void {
 	const dashboard = currentDashboard(router);
-	if (dashboard) {
+	if (dashboard && !isRecording()) {
 		toggleZoom(dashboard.id, getFocusedPane(dashboard).id);
 	}
 }
 
 function toggleFocusedEditing(router: RegisteredRouter): void {
 	const dashboard = currentDashboard(router);
-	if (!dashboard) {
+	if (!dashboard || isRecording()) {
 		return;
 	}
 
@@ -187,7 +192,7 @@ function toggleFocusedEditing(router: RegisteredRouter): void {
 
 function splitFocused(router: RegisteredRouter, direction: SplitDirection): void {
 	const dashboard = currentDashboard(router);
-	if (!dashboard) {
+	if (!dashboard || isRecording()) {
 		return;
 	}
 

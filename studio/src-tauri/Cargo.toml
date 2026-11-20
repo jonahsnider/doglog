@@ -77,12 +77,20 @@ objc2-app-kit = { version = "0.3", default-features = false, features = [
 	"NSControl",
 	"NSDocumentController",
 	"NSGraphics",
+	"NSGraphicsContext",
 	"NSImage",
 	"NSImageRep",
 	"NSImageView",
 	"NSView",
+	"objc2-core-graphics",
 ] }
-objc2-foundation = { version = "0.3", default-features = false, features = ["std", "NSString", "NSURL"] }
+objc2-foundation = { version = "0.3", default-features = false, features = [
+	"std",
+	"NSDictionary",
+	"NSString",
+	"NSURL",
+	"NSValue",
+] }
 objc2-web-kit = { version = "0.3", default-features = false, features = [
 	"WKSnapshotConfiguration",
 	"WKWebView",
@@ -90,6 +98,34 @@ objc2-web-kit = { version = "0.3", default-features = false, features = [
 	"objc2-core-foundation",
 ] }
 tauri-plugin-macos-fps = "0.1.0"
+objc2-av-foundation = { version = "0.3", default-features = false, features = [
+	"std",
+	"AVAssetWriter",
+	"AVAssetWriterInput",
+	"AVMediaFormat",
+	"AVVideoSettings",
+	"block2",
+	"objc2-core-media",
+	"objc2-core-video",
+] }
+objc2-core-foundation = { version = "0.3", default-features = false, features = ["std", "CFCGTypes", "CFString"] }
+objc2-core-graphics = { version = "0.3", default-features = false, features = [
+	"std",
+	"CGBitmapContext",
+	"CGColorSpace",
+	"CGContext",
+	"CGImage",
+] }
+objc2-core-media = { version = "0.3", default-features = false, features = ["std", "CMTime"] }
+objc2-core-video = { version = "0.3", default-features = false, features = [
+	"std",
+	"CVBase",
+	"CVBuffer",
+	"CVImageBuffer",
+	"CVPixelBuffer",
+	"CVPixelBufferPool",
+	"CVReturn",
+] }
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.61", features = [
@@ -98,6 +134,6 @@ windows-sys = { version = "0.61", features = [
 	"Win32_Security_Authorization",
 	"Win32_System_Console",
 ] }
-windows = { version = "0.62", features = ["Win32_System_Com", "Win32_UI_Shell"] }
+windows = { version = "0.62", features = ["Win32_Media_MediaFoundation", "Win32_System_Com", "Win32_UI_Shell"] }
 windows-version = "0.100"
 webview2-com = "0.39"

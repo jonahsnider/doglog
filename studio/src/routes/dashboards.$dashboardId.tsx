@@ -1,6 +1,6 @@
 import { useDragDropMonitor } from '@dnd-kit/react';
 import { useHotkey } from '@tanstack/react-hotkeys';
-import { Navigate, createFileRoute, useLocation } from '@tanstack/react-router';
+import { Navigate, createFileRoute, useLocation, useRouter } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { Group, Panel } from 'react-resizable-panels';
 import { shortcuts } from '@/commands/commands';
@@ -8,6 +8,9 @@ import { canCopyDashboardLink } from '@/dashboards/copy-dashboard-link';
 import { DashboardSplitZones } from '@/dashboards/dashboard-drag';
 import { DashboardPanes } from '@/dashboards/dashboard-panes';
 import { canCapture, copyImage, dashboardCaptureTarget } from '@/desktop/capture';
+import { canExportClip, startRecording, useRecording } from '@/desktop/clip';
+import { getSource } from '@/data/source';
+import { RecordBar } from '@/timeline/record-bar';
 import { EntryBrowser } from '@/entries/entry-browser';
 import { TimelineBar } from '@/timeline/timeline-bar';
 import { type Dashboard, getDashboard, useDashboards } from '@/dashboards/dashboards';
@@ -100,6 +103,8 @@ function DashboardView() {
 
 /** The panes with the timeline under them */
 function PanesColumn({ dashboard }: { dashboard: Dashboard }) {
+	const router = useRouter();
+	const recording = useRecording()?.dashboardId === dashboard.id;
 	useHotkey(
 		shortcuts.copyDashboardImage,
 		(event) => {
@@ -123,14 +128,33 @@ function PanesColumn({ dashboard }: { dashboard: Dashboard }) {
 		},
 	);
 
+	// Also stops ⌘R from reloading the window on desktop
+	useHotkey(
+		shortcuts.exportClip,
+		() => {
+			if (canExportClip(dashboard, getSource())) {
+				startRecording(router, dashboard.id);
+			}
+		},
+		{ enabled: STUDIO_DESKTOP && canCapture, requireReset: true },
+	);
+
 	return (
 		// Under the panes rather than the entry browser too, so the entry browser reaches the bottom of the window like the sidebar
-		<div data-capture-dashboard={dashboard.id} className="flex h-full flex-col ps-1.5 pt-1.5 capture:bg-frame">
-			<section aria-label="Panes" className="relative isolate mb-1.5 min-h-0 min-w-0 flex-1">
-				<DashboardPanes dashboard={dashboard} />
-				<DashboardSplitZones dashboard={dashboard} />
-			</section>
-			<TimelineBar />
+		<div className="flex h-full flex-col">
+			{/* Shown with capture styling in Record mode, so the preview looks like the clip */}
+			<div
+				data-capture-dashboard={dashboard.id}
+				data-capturing={recording ? '' : undefined}
+				className="flex min-h-0 flex-1 flex-col ps-1.5 pt-1.5 capture:bg-frame"
+			>
+				<section aria-label="Panes" className="relative isolate mb-1.5 min-h-0 min-w-0 flex-1">
+					<DashboardPanes dashboard={dashboard} />
+					<DashboardSplitZones dashboard={dashboard} />
+				</section>
+				<TimelineBar />
+			</div>
+			{recording && <RecordBar />}
 		</div>
 	);
 }

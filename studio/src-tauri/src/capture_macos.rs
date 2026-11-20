@@ -1,4 +1,4 @@
-use std::{cell::Cell, time::Duration};
+use std::{cell::Cell, ptr, time::Duration};
 
 use block2::RcBlock;
 use dispatch2::{DispatchQueue, DispatchTime, MainThreadBound};
@@ -10,6 +10,7 @@ use objc2_app_kit::{
     NSAutoresizingMaskOptions, NSBitmapImageFileType, NSBitmapImageRep, NSImage, NSImageScaling, NSImageView,
     NSWindowOrderingMode,
 };
+use objc2_core_graphics::CGImage;
 use objc2_foundation::{NSDictionary, NSError, NSPoint, NSRect, NSSize};
 use objc2_web_kit::{WKSnapshotConfiguration, WKWebView};
 use tauri::webview::PlatformWebview;
@@ -86,7 +87,35 @@ pub(super) fn set_cover(webview: PlatformWebview, show: bool, reply: Sender<Resu
     unsafe { snapshot_view.takeSnapshotWithConfiguration_completionHandler(None, &complete) };
 }
 
-pub(super) fn snapshot(webview: PlatformWebview, rect: CaptureRect, reply: Sender<Result<Vec<u8>, String>>) {
+pub(crate) fn snapshot(webview: PlatformWebview, rect: CaptureRect, reply: Sender<Result<Vec<u8>, String>>) {
+    take_snapshot(webview, rect, reply, |image| {
+        image
+            .TIFFRepresentation()
+            .and_then(|data| NSBitmapImageRep::imageRepWithData(&data))
+            .and_then(|bitmap| unsafe {
+                bitmap.representationUsingType_properties(NSBitmapImageFileType::PNG, &NSDictionary::new())
+            })
+            .map(|data| data.to_vec())
+    });
+}
+
+/// Like `snapshot`, but returns the image itself for a clip's encoder rather than a PNG.
+pub(crate) fn snapshot_image(
+    webview: PlatformWebview,
+    rect: CaptureRect,
+    reply: Sender<Result<Retained<CGImage>, String>>,
+) {
+    take_snapshot(webview, rect, reply, |image| unsafe {
+        image.CGImageForProposedRect_context_hints(ptr::null_mut(), None, None)
+    });
+}
+
+fn take_snapshot<T: 'static>(
+    webview: PlatformWebview,
+    rect: CaptureRect,
+    reply: Sender<Result<T, String>>,
+    convert: impl Fn(&NSImage) -> Option<T> + 'static,
+) {
     // Tauri provides its live WKWebView on the main thread in with_webview.
     let view = unsafe { &*webview.inner().cast::<WKWebView>() };
     let size = view.bounds().size;
@@ -105,19 +134,12 @@ pub(super) fn snapshot(webview: PlatformWebview, rect: CaptureRect, reply: Sende
     let complete = RcBlock::new(move |image: *mut NSImage, error: *mut NSError| {
         if let Some(reply) = reply.take() {
             // WebKit owns both pointers for the duration of the callback.
-            let result = unsafe { image.as_ref() }
-                .and_then(|image| image.TIFFRepresentation())
-                .and_then(|data| NSBitmapImageRep::imageRepWithData(&data))
-                .and_then(|bitmap| unsafe {
-                    bitmap.representationUsingType_properties(NSBitmapImageFileType::PNG, &NSDictionary::new())
-                })
-                .map(|data| data.to_vec())
-                .ok_or_else(|| {
-                    unsafe { error.as_ref() }.map_or_else(
-                        || "The window didn't return an image".into(),
-                        |error| error.localizedDescription().to_string(),
-                    )
-                });
+            let result = unsafe { image.as_ref() }.and_then(&convert).ok_or_else(|| {
+                unsafe { error.as_ref() }.map_or_else(
+                    || "The window didn't return an image".into(),
+                    |error| error.localizedDescription().to_string(),
+                )
+            });
             let _ = reply.send(result);
         }
     });

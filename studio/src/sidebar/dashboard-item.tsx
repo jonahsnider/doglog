@@ -1,4 +1,4 @@
-import { detectPlatform, type Hotkey, useFormatForDisplay } from '@tanstack/react-hotkeys';
+import { type Hotkey, useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { Link, type RegisteredRouter, useLocation, useRouter } from '@tanstack/react-router';
 import LayoutDashboardIcon from 'lucide-react/icons/layout-dashboard';
 import { useSortable } from '@dnd-kit/react/sortable';
@@ -8,8 +8,7 @@ import { type ComponentType, type SVGProps, useState } from 'react';
 import { AppContextMenu, type MenuAction } from '@/components/app-context-menu';
 import { DashboardOptions } from '@/sidebar/dashboard-options';
 import { SidebarInput, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { canCopyDashboardLink, copyDashboardLink } from '@/dashboards/copy-dashboard-link';
-import { canCapture, copyDashboardImage } from '@/desktop/capture';
+import { useDashboardCopyItems } from '@/sidebar/dashboard-copy-items';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { DashboardPreview } from '@/dashboards/dashboard-preview';
 import { PreviewCard, PreviewCardPopup, PreviewCardTrigger } from '@/components/ui/preview-card';
@@ -123,6 +122,7 @@ function dashboardMenu({
 	index,
 	selection,
 	router,
+	copy,
 	rename,
 }: {
 	dashboard: Dashboard;
@@ -130,25 +130,12 @@ function dashboardMenu({
 	index: number;
 	selection: DashboardSelection;
 	router: RegisteredRouter;
+	copy: MenuAction[];
 	rename: () => void;
 }): (MenuAction | 'separator')[] {
 	const closeOthers = () =>
 		deleteDashboards(dashboards.filter((other) => other !== dashboard).map((other) => other.id));
 	const closeBelow = () => deleteDashboards(dashboards.slice(index + 1).map((other) => other.id));
-	const copy: MenuAction[] = [];
-	if (canCopyDashboardLink(dashboard)) {
-		copy.push({
-			label: 'Copy link',
-			shortcut: shortcuts.copyDashboardLink,
-			onSelect: () => void copyDashboardLink(dashboard),
-		});
-		if (STUDIO_DESKTOP && canCapture) {
-			const onSelect = () => void copyDashboardImage(router, dashboard.id);
-			const showShortcut =
-				detectPlatform() === 'mac' || router.state.location.pathname === `/dashboards/${dashboard.id}`;
-			copy.push({ label: 'Copy image', onSelect, ...(showShortcut && { shortcut: shortcuts.copyDashboardImage }) });
-		}
-	}
 	return [
 		{ label: 'Rename', onSelect: rename },
 		{ label: 'Duplicate', onSelect: () => selection.duplicate([dashboard.id]) },
@@ -197,6 +184,7 @@ export function DashboardItem({
 	const pathname = useLocation({ select: (location) => location.pathname });
 	const active = present && pathname === `/dashboards/${dashboard.id}`;
 	const [renaming, setRenaming] = useState(false);
+	const copy = useDashboardCopyItems(dashboard, router);
 	const { setItem, handleRef, isDragSource } = useDashboardSortable(dashboard, sectionIndex, renaming, present);
 	// Closed while the dashboard is dragged, since the trigger moves with the pointer and the preview would follow it
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -214,7 +202,7 @@ export function DashboardItem({
 	const Icon = mainType ? widgetIcons[mainType.id] : LayoutDashboardIcon;
 	const menuItems = selection.isSelected(dashboard)
 		? selection.menuItems
-		: dashboardMenu({ dashboard, dashboards, index, selection, router, rename: () => setRenaming(true) });
+		: dashboardMenu({ dashboard, dashboards, index, selection, router, copy, rename: () => setRenaming(true) });
 
 	return (
 		// The input keeps the browser's menu while renaming
