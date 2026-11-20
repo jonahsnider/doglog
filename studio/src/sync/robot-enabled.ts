@@ -1,51 +1,47 @@
-import { NetworkTables } from '@ntcore-ts/client';
+import type { NtClient } from '@/nt/client';
 import { type RobotEnabledWatcher, trackEnabled } from '@/sync/backend';
 
+/** WPILib 2027 and later, a little-endian 64-bit `ControlWord` struct with the enabled flag in bit 58 */
+const controlWordTopic = '/DriverStation/ControlWord';
+/** WPILib 2026 and earlier, published whether or not the robot is on a field, with the enabled flag in bit 0 */
+const fmsControlDataTopic = '/FMSInfo/FMSControlData';
+
 /**
- * Follow whether the robot at `host` is enabled, from the control word WPILib publishes to NetworkTables.
+ * Follow whether the robot is enabled through `nt`, from the control word WPILib publishes to NetworkTables.
  * A robot without robot code running can't be enabled, so it counts as disabled while NetworkTables isn't connected.
- * `onChange` is called whenever `pausedFor()` may have changed.
+ * `onChange` is called whenever `pausedFor()` may have changed. Stopping it closes `nt`.
  */
-export function watchRobotEnabled(host: string, onChange: () => void): RobotEnabledWatcher {
-	// Shared with a live connection to the same robot
-	const nt = NetworkTables.getInstanceByURI(host);
-	nt.retain();
+export function watchRobotEnabled(nt: NtClient, onChange: () => void): RobotEnabledWatcher {
 	const enabled = trackEnabled(onChange);
 
-	// WPILib 2027 and later, a little-endian 64-bit `ControlWord` struct with the enabled flag in bit 58
-	const controlWordTopic = nt.getRawTopic('/DriverStation/ControlWord');
-	const controlWordSubscription = controlWordTopic.subscribe(
-		(controlWord) => {
-			if (controlWord !== null) {
-				enabled.set(controlWord.length === 8 && (controlWord[7]! & 0x04) !== 0);
-			}
+	// The values are already known when another window or the live session is connected to the same robot
+	nt.subscribe(
+		controlWordTopic,
+		{},
+		{
+			value: (name, _type, controlWord) => {
+				if (name === controlWordTopic) {
+					enabled.set(controlWord instanceof Uint8Array && controlWord.length === 8 && (controlWord[7]! & 0x04) !== 0);
+				}
+			},
 		},
-		// The value is already known when the live connection to the same robot has it
-		{ immediateNotify: true },
 	);
-	// WPILib 2026 and earlier, published whether or not the robot is on a field, with the enabled flag in bit 0
-	const fmsControlDataTopic = nt.getIntegerTopic('/FMSInfo/FMSControlData');
-	const fmsControlDataSubscription = fmsControlDataTopic.subscribe(
-		(controlWord) => {
-			if (controlWord !== null) {
-				enabled.set((controlWord & 0x01) !== 0);
-			}
+	nt.subscribe(
+		fmsControlDataTopic,
+		{},
+		{
+			value: (name, _type, controlWord) => {
+				if (name === fmsControlDataTopic && typeof controlWord === 'number') {
+					enabled.set((controlWord & 0x01) !== 0);
+				}
+			},
 		},
-		{ immediateNotify: true },
 	);
-	const removeConnectionListener = nt.addRobotConnectionListener((connected) => {
+	nt.onConnectedChange((connected) => {
 		if (!connected) {
 			enabled.set(false);
 		}
 	});
 
-	return {
-		pausedFor: enabled.pausedFor,
-		stop: () => {
-			removeConnectionListener();
-			controlWordTopic.unsubscribe(controlWordSubscription, true);
-			fmsControlDataTopic.unsubscribe(fmsControlDataSubscription, true);
-			nt.release();
-		},
-	};
+	return { pausedFor: enabled.pausedFor, stop: () => nt.close() };
 }

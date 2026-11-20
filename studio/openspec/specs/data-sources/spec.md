@@ -169,6 +169,23 @@ Studio MUST keep all data received from a live source when the connection drops,
 - **AND** new data is added to the same session history
 - **AND** the time it was disconnected is marked on the timeline
 
+### Requirement: Shared robot connection
+
+Studio tabs and windows SHALL share one NT4 connection to each server, for their live sessions, shared dashboards, and log sync, so a robot isn't sent the same data once for each of them. Each tab or window MUST still connect and disconnect its own live session, and the connection MUST close once no tab or window uses it. Where the platform can't share connections, each tab or window MAY open its own.
+
+#### Scenario: Two windows connected to the robot
+
+- **GIVEN** a Studio window is connected to the robot
+- **WHEN** the user opens another window and connects it to the robot
+- **THEN** the robot has one connection from Studio
+- **AND** both windows receive its data
+
+#### Scenario: Disconnect one window
+
+- **GIVEN** two Studio windows are connected to the robot
+- **WHEN** the user disconnects one of them
+- **THEN** the other window stays connected
+
 ### Requirement: Disconnect and clear
 
 The source control menu's live section SHALL offer one action for the live session's state: Connect without a session, Disconnect while it's connecting, connected, or reconnecting, and once disconnected, Reconnect and Clear. Disconnect MUST stop reconnecting and keep the received data, and Reconnect MUST continue the same session. Clear MUST close the live session and throw away its data.

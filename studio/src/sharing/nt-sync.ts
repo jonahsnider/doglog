@@ -1,9 +1,9 @@
-import type { NetworkTables, NetworkTablesTopic } from '@ntcore-ts/client';
 import * as z from 'zod';
 import { getDashboard, subscribeDashboards } from '@/dashboards/dashboards';
 import { getFocusedPane } from '@/dashboards/panes';
 import { getSharedDocs, receiveSharedDashboard } from '@/dashboards/sharing';
 import { studioTopicPrefix } from '@/data/samples';
+import type { NtClient } from '@/nt/client';
 import { settingsStore } from '@/settings';
 import { getDisplayName, sessionId, userIdStore } from '@/sharing/identity';
 import { localActivityStore, type Session, sessionsStore } from '@/sharing/presence';
@@ -25,28 +25,25 @@ const docDelay = 250;
 const presenceInterval = 500;
 const publishRetryDelay = 1000;
 
-/** Called by our @ntcore-ts/client patch when a topic under a prefix topic is gone */
-type UnannounceListener = (params: { name: string }) => void;
-
-/** A topic this session publishes. Values set before the server accepts it are sent once it does. */
-function createPublisher<T extends string | Uint8Array>(nt: NetworkTables, topic: NetworkTablesTopic<T>) {
+/** The topic `name`, published by this session. Values set before the server accepts it are sent once it does. */
+function createPublisher(nt: NtClient, name: string, kind: 'raw' | 'string') {
 	let published = false;
 	let closed = false;
-	let pending: T | undefined;
+	let pending: string | Uint8Array | undefined;
 	let retryTimer: ReturnType<typeof setTimeout> | undefined;
 	const close = () => {
 		closed = true;
 		clearTimeout(retryTimer);
-		if (published && topic.pubuid !== undefined) {
-			topic.unpublish();
+		if (published) {
+			nt.unpublish(name);
 		}
 	};
 	const publish = async () => {
-		if (!nt.isRobotConnected()) {
+		if (!nt.isConnected()) {
 			return;
 		}
 		try {
-			await topic.publish();
+			await nt.publish(name, kind);
 		} catch {
 			// A missed announcement must not strand the latest value. Disconnect disposes this publisher.
 			if (!closed) {
@@ -58,15 +55,15 @@ function createPublisher<T extends string | Uint8Array>(nt: NetworkTables, topic
 		if (closed) {
 			close();
 		} else if (pending !== undefined) {
-			topic.setValue(pending);
+			nt.setValue(name, pending);
 		}
 	};
 	void publish();
 
 	return {
-		set(value: T) {
+		set(value: string | Uint8Array) {
 			if (published) {
-				topic.setValue(value);
+				nt.setValue(name, value);
 			} else {
 				pending = value;
 			}
@@ -75,7 +72,7 @@ function createPublisher<T extends string | Uint8Array>(nt: NetworkTables, topic
 	};
 }
 
-type Publisher<T extends string | Uint8Array> = ReturnType<typeof createPublisher<T>>;
+type Publisher = ReturnType<typeof createPublisher>;
 
 function parsePresence(value: unknown): z.infer<typeof presenceSchema> | undefined {
 	try {
@@ -95,16 +92,13 @@ function setSessions(update: (sessions: Map<string, Session>) => void): void {
 
 /**
  * Sync shared dashboards and presence through `nt`.
- * `onConnectedChange` is called when the connection opens or drops. Returns a function that disconnects.
+ * `onConnectedChange` is called when the connection opens or drops. Returns a function that disconnects and closes `nt`.
  */
-export function connectSharing(nt: NetworkTables, onConnectedChange: (connected: boolean) => void): () => void {
-	// Shared with the data source when it's connected to the same server
-	nt.retain();
+export function connectSharing(nt: NtClient, onConnectedChange: (connected: boolean) => void): () => void {
 	const userId = userIdStore.get();
 
 	// Every dashboard others share, and where they are in them
-	const prefixTopic = nt.getPrefixTopic(studioTopicPrefix);
-	const subscription = prefixTopic.subscribe((value, { name }) => {
+	const receive = (name: string, value: unknown) => {
 		const doc = docTopicPattern.exec(name);
 		if (doc?.[1] !== undefined && doc[2] !== sessionId && value instanceof Uint8Array) {
 			receiveSharedDashboard(doc[1], value);
@@ -129,23 +123,30 @@ export function connectSharing(nt: NetworkTables, onConnectedChange: (connected:
 				sessions.delete(name);
 			}
 		});
-	});
-	// Sessions are gone once they stop publishing, ex. when their window closes or disconnects
-	(prefixTopic as typeof prefixTopic & { onUnannounce?: UnannounceListener }).onUnannounce = ({ name }) => {
-		if (sessionsStore.get().has(name)) {
-			setSessions((sessions) => {
-				sessions.delete(name);
-			});
-		}
 	};
+	nt.subscribe(
+		studioTopicPrefix,
+		{},
+		{
+			value: (name, _type, value) => receive(name, value),
+			// Sessions are gone once they stop publishing, ex. when their window closes or disconnects
+			unannounce: (name) => {
+				if (sessionsStore.get().has(name)) {
+					setSessions((sessions) => {
+						sessions.delete(name);
+					});
+				}
+			},
+		},
+	);
 
 	// Shared dashboards, by ID, with the version last sent
-	const docPublishers = new Map<string, { publisher: Publisher<Uint8Array>; version: string | undefined }>();
+	const docPublishers = new Map<string, { publisher: Publisher; version: string | undefined }>();
 	let docTimer: ReturnType<typeof setTimeout> | undefined;
 	const sendDocs = () => {
 		clearTimeout(docTimer);
 		docTimer = undefined;
-		if (!nt.isRobotConnected()) {
+		if (!nt.isConnected()) {
 			return;
 		}
 		const docs = getSharedDocs();
@@ -161,7 +162,7 @@ export function connectSharing(nt: NetworkTables, onConnectedChange: (connected:
 			let sent = docPublishers.get(id);
 			if (!sent) {
 				sent = {
-					publisher: createPublisher(nt, nt.getRawTopic(`${studioTopicPrefix}${id}/doc/${sessionId}`)),
+					publisher: createPublisher(nt, `${studioTopicPrefix}${id}/doc/${sessionId}`, 'raw'),
 					version: undefined,
 				};
 				docPublishers.set(id, sent);
@@ -179,13 +180,13 @@ export function connectSharing(nt: NetworkTables, onConnectedChange: (connected:
 	};
 
 	// This session's presence in the shared dashboard it shows
-	let presence: { name: string; publisher: Publisher<string>; value: string | undefined } | undefined;
+	let presence: { name: string; publisher: Publisher; value: string | undefined } | undefined;
 	let presenceTimer: ReturnType<typeof setTimeout> | undefined;
 	let presenceSentAt = 0;
 	const sendPresence = () => {
 		clearTimeout(presenceTimer);
 		presenceTimer = undefined;
-		if (!nt.isRobotConnected()) {
+		if (!nt.isConnected()) {
 			return;
 		}
 		presenceSentAt = Date.now();
@@ -196,9 +197,7 @@ export function connectSharing(nt: NetworkTables, onConnectedChange: (connected:
 		if (presence?.name !== name) {
 			presence?.publisher.close();
 			presence =
-				name === undefined
-					? undefined
-					: { name, publisher: createPublisher(nt, nt.getStringTopic(name)), value: undefined };
+				name === undefined ? undefined : { name, publisher: createPublisher(nt, name, 'string'), value: undefined };
 		}
 		if (!presence || !dashboard) {
 			return;
@@ -227,8 +226,8 @@ export function connectSharing(nt: NetworkTables, onConnectedChange: (connected:
 	const activitySubscription = localActivityStore.subscribe(schedulePresence);
 	const settingsSubscription = settingsStore.subscribe(schedulePresence);
 	let wasConnected = false;
-	// Notified right away, since the data source might have connected already
-	const removeConnectionListener = nt.addRobotConnectionListener((connected) => {
+	// Notified right away, since the data source or another window might have connected already
+	nt.onConnectedChange((connected) => {
 		if (connected) {
 			sendDocs();
 			sendPresence();
@@ -238,7 +237,7 @@ export function connectSharing(nt: NetworkTables, onConnectedChange: (connected:
 		}
 		wasConnected = connected;
 		onConnectedChange(connected);
-	}, true);
+	});
 
 	return () => {
 		clearTimeout(docTimer);
@@ -246,13 +245,11 @@ export function connectSharing(nt: NetworkTables, onConnectedChange: (connected:
 		unsubscribeDashboards();
 		activitySubscription.unsubscribe();
 		settingsSubscription.unsubscribe();
-		removeConnectionListener();
 		for (const { publisher } of docPublishers.values()) {
 			publisher.close();
 		}
 		presence?.publisher.close();
-		prefixTopic.unsubscribe(subscription, true);
+		nt.close();
 		sessionsStore.set(new Map());
-		nt.release();
 	};
 }

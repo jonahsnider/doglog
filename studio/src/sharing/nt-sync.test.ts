@@ -2,7 +2,6 @@
 
 import { once } from 'node:events';
 import { decode, encode } from '@msgpack/msgpack';
-import { NetworkTables } from '@ntcore-ts/client';
 import { LoroDoc } from 'loro-crdt';
 import { expect, test, vi } from 'vite-plus/test';
 import { type WebSocket, WebSocketServer } from 'ws';
@@ -10,6 +9,7 @@ import * as z from 'zod';
 import { createDashboard, updateDashboard } from '@/dashboards/dashboards';
 import { readDashboardDoc } from '@/dashboards/doc';
 import { shareDashboards } from '@/dashboards/sharing';
+import { openLocalNt } from '@/nt/local';
 import { connectSharing } from './nt-sync.ts';
 
 const binaryFrame = z.tuple([z.number(), z.number(), z.number(), z.union([z.number(), z.instanceof(Uint8Array)])]);
@@ -61,11 +61,12 @@ test('shared edits reach peers after reconnect and a missed publish acknowledgme
 	const signal = AbortSignal.timeout(3500);
 
 	vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
-	const nt = NetworkTables.getInstanceByURI('127.0.0.1', port);
-	const removeConnectionListener = nt.addRobotConnectionListener(() => {
+	// Shares the connection with the client given to `connectSharing()`
+	const watcher = openLocalNt('127.0.0.1', port);
+	watcher.onConnectedChange(() => {
 		peer.dispatchEvent(new Event('connection-changed'));
 	});
-	const disconnect = connectSharing(nt, () => {});
+	const disconnect = connectSharing(openLocalNt('127.0.0.1', port), () => {});
 	try {
 		const initialSocket = await bootstrap;
 		const { id } = createDashboard();
@@ -104,7 +105,7 @@ test('shared edits reach peers after reconnect and a missed publish acknowledgme
 		await nextSnapshot;
 		expect(received).toStrictEqual(['Latest edit', 'Next edit']);
 	} finally {
-		removeConnectionListener();
+		watcher.close();
 		disconnect();
 		vi.useRealTimers();
 		for (const socket of server.clients) {

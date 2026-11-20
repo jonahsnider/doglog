@@ -87,8 +87,10 @@ export const robotBackend: SyncBackend = {
 	cancelDownload: () => void invoke('cancel_robot_download'),
 	disconnect: () => invoke('disconnect_robot'),
 	watchRobotEnabled: async (host, onChange) => {
-		// The NT4 client is large, only load it when it's needed
-		const { watchRobotEnabled } = await import('@/sync/robot-enabled');
-		return watchRobotEnabled(host, onChange);
+		const [{ watchRobotEnabled }, { openNt }] = await Promise.all([
+			import('@/sync/robot-enabled'),
+			import('@/nt/client'),
+		]);
+		return watchRobotEnabled(await openNt(host), onChange);
 	},
 };

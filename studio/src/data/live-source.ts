@@ -1,8 +1,8 @@
-import { LogLevel, NetworkTables, type NetworkTablesTypes } from '@ntcore-ts/client';
 import { StructRegistry } from 'wpilib-struct';
 import type { DataSet } from '@/data/data-set';
 import { type Entry, liveTime, parseMetadata } from '@/data/data-store';
 import { isSchemaEntry, isStudioEntry, normalizeEntryName, type Value } from '@/data/samples';
+import type { NtClient, NtValue } from '@/nt/client';
 
 /**
  * `connecting` until the first connection is made, `reconnecting` while trying again after it dropped, and `disconnected`
@@ -10,26 +10,18 @@ import { isSchemaEntry, isStudioEntry, normalizeEntryName, type Value } from '@/
  */
 export type LiveStatus = 'connecting' | 'connected' | 'reconnecting' | 'disconnected';
 
-NetworkTables.setLogLevel(LogLevel.WARN);
-
 const structSchemaPrefix = '/.schema/struct:';
-
-/** Called by our @ntcore-ts/client patch when topic properties change. `null` values remove a property. */
-type PropertiesListener = (params: { name: string; update: Record<string, unknown> }) => void;
 const textDecoder = new TextDecoder();
 
 /**
- * Connect to an NT4 server and add every topic and value to `data`, recording when the connection drops.
- * Reconnects automatically and keeps adding to the same history. Returns a function that disconnects.
+ * Add every topic and value from `nt` to `data`, recording when the connection drops.
+ * Reconnects automatically and keeps adding to the same history. Returns a function that disconnects and closes `nt`.
  */
 export function connectLive(
-	host: string,
+	nt: NtClient,
 	data: DataSet,
 	onStatus: (status: Exclude<LiveStatus, 'disconnected'>) => void,
 ): () => void {
-	// Shared with log sync when it watches the same robot
-	const nt = NetworkTables.getInstanceByURI(host);
-	nt.retain();
 	const structs = new StructRegistry();
 	// Struct values that arrived before their schema
 	let pendingStructs: { entry: Entry; timestamp: number; bytes: Uint8Array }[] = [];
@@ -46,7 +38,7 @@ export function connectLive(
 			: structs.decode(structName, bytes);
 	};
 
-	const toValue = (entry: Entry, value: NetworkTablesTypes, timestamp: number): Value | undefined => {
+	const toValue = (entry: Entry, value: NtValue, timestamp: number): Value | undefined => {
 		switch (entry.kind) {
 			case 'unsupported':
 				return undefined;
@@ -90,8 +82,8 @@ export function connectLive(
 		});
 	};
 
-	// Notified right away, since shared dashboards might have connected to the same server already
-	const removeConnectionListener = nt.addRobotConnectionListener((isConnected) => {
+	// Notified right away, since other windows or shared dashboards might have connected to the same server already
+	nt.onConnectedChange((isConnected) => {
 		if (closed) {
 			return;
 		}
@@ -110,72 +102,64 @@ export function connectLive(
 
 		// Data from an earlier connection means this is reconnecting, ex. after the user disconnected
 		onStatus(connected ? 'connected' : data.start === undefined ? 'connecting' : 'reconnecting');
-	}, true);
+	});
 
-	const topic = nt.getPrefixTopic('/');
-
-	// Prefix subscribers aren't told about announcements, wrap it so topics without values are listed too
-	const announce = topic.announce.bind(topic);
-	topic.announce = (params) => {
-		announce(params);
-		const name = normalizeEntryName(params.name);
-		if (!closed && !isSchemaEntry(name) && !isStudioEntry(name)) {
-			data.addEntry(name, params.type, undefined, parseMetadata(params.properties));
-		}
-	};
-	(topic as typeof topic & { onProperties?: PropertiesListener }).onProperties = ({ name, update }) => {
-		const entry = data.entries.get(normalizeEntryName(name));
-		if (closed || !entry) {
-			return;
-		}
-		const metadata = { ...entry.metadata, ...parseMetadata(update) };
-		for (const [key, value] of Object.entries(update)) {
-			if (value === null) {
-				delete metadata[key];
-			}
-		}
-		data.setMetadata(entry, metadata);
-	};
-
-	const subscription = topic.subscribe(
-		(value, params) => {
-			if (closed || value === null) {
-				return;
-			}
-
-			const name = normalizeEntryName(params.name);
-			if (isStudioEntry(name) || isSchemaEntry(name)) {
-				return;
-			}
-
-			// Set right before subscribers are called
-			const serverTime = topic.lastChangedTime ?? 0;
-			const now = liveTime();
-			clockOffset = Math.min(clockOffset ?? Infinity, now - serverTime);
-			// Values that changed before this connection (sent when subscribing) are placed at the connection time
-			const timestamp = Math.max(serverTime + clockOffset, connectedAt);
-
-			const entry = data.addEntry(name, params.type);
-			const decoded = toValue(entry, value, timestamp);
-			if (decoded === undefined) {
-				return;
-			}
-
-			data.addSample(entry, timestamp, decoded);
-		},
+	nt.subscribe(
+		'/',
 		{ all: true, periodic: 0.02 },
+		{
+			// Topics without values are listed too
+			announce: ({ name: topicName, type, properties }) => {
+				const name = normalizeEntryName(topicName);
+				if (!closed && !isSchemaEntry(name) && !isStudioEntry(name)) {
+					data.addEntry(name, type, undefined, parseMetadata(properties));
+				}
+			},
+			properties: (topicName, update) => {
+				const entry = data.entries.get(normalizeEntryName(topicName));
+				if (closed || !entry) {
+					return;
+				}
+				const metadata = { ...entry.metadata, ...parseMetadata(update) };
+				for (const [key, value] of Object.entries(update)) {
+					if (value === null) {
+						delete metadata[key];
+					}
+				}
+				data.setMetadata(entry, metadata);
+			},
+			value: (topicName, type, value, serverTime) => {
+				const name = normalizeEntryName(topicName);
+				if (closed || isStudioEntry(name) || isSchemaEntry(name)) {
+					return;
+				}
+
+				const now = liveTime();
+				clockOffset = Math.min(clockOffset ?? Infinity, now - serverTime);
+				// Values that changed before this connection (sent when subscribing) are placed at the connection time
+				const timestamp = Math.max(serverTime + clockOffset, connectedAt);
+
+				const entry = data.addEntry(name, type);
+				const decoded = toValue(entry, value, timestamp);
+				if (decoded === undefined) {
+					return;
+				}
+
+				data.addSample(entry, timestamp, decoded);
+			},
+		},
 	);
 
-	// The NT4 client subscribes to struct schemas itself, so the server doesn't send them to subscriptions made after it
-	// connected, ex. when shared dashboards connected first or after reconnecting. Its cached schemas are replayed instead.
-	const schemaTopic = nt.getPrefixTopic(structSchemaPrefix);
-	const schemaSubscription = schemaTopic.subscribe(
-		(value, params) => {
-			if (!closed && value !== null) {
-				registerStructSchema(params.name, value instanceof Uint8Array ? textDecoder.decode(value) : String(value));
-			}
+	nt.subscribe(
+		structSchemaPrefix,
+		{ all: true },
+		{
+			value: (name, _type, value) => {
+				if (!closed) {
+					registerStructSchema(name, value instanceof Uint8Array ? textDecoder.decode(value) : String(value));
+				}
+			},
 		},
-		{ all: true, immediateNotify: true },
 	);
 
 	return () => {
@@ -183,9 +167,6 @@ export function connectLive(
 		if (connected) {
 			data.disconnect(liveTime());
 		}
-		removeConnectionListener();
-		topic.unsubscribe(subscription, true);
-		schemaTopic.unsubscribe(schemaSubscription, true);
-		nt.release();
+		nt.close();
 	};
 }

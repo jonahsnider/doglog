@@ -203,13 +203,14 @@ export async function reopenDevLog(): Promise<void> {
 async function connectToHost(host: string, status: LiveStatus): Promise<void> {
 	updateSources({ live: { type: 'live', host, status } });
 	const requestedAt = liveGeneration;
-	// The NT4 client is large, only load it when it's needed
-	const { connectLive } = await import('@/data/live-source');
+	const [{ connectLive }, { openNt }] = await Promise.all([import('@/data/live-source'), import('@/nt/client')]);
+	const nt = await openNt(host);
 	if (liveGeneration !== requestedAt || liveData === undefined) {
 		// Replaced while loading
+		nt.close();
 		return;
 	}
-	stopLive = connectLive(host, liveData, (liveStatus) => {
+	stopLive = connectLive(nt, liveData, (liveStatus) => {
 		updateSources({ live: { type: 'live', host, status: liveStatus } });
 	});
 }
