@@ -29,7 +29,7 @@ const contrastLabels: Record<Contrast, string> = {
 	high: 'High',
 };
 
-/** Settings panels for the theme, theme color, and contrast */
+/** Settings panels for the theme and theme color */
 export function AppearanceSettings() {
 	const { theme, themeColor, themePreset, contrast } = useSettings();
 
@@ -118,31 +118,38 @@ export function AppearanceSettings() {
 					</Field>
 				)}
 			</FramePanel>
-
-			<FramePanel>
-				<Field name="contrast" disabled={themePreset === 'coss'}>
-					<Fieldset>
-						<FieldsetLegend className="mb-1 text-sm">Contrast</FieldsetLegend>
-						<SegmentedControl
-							render={
-								<RadioGroup
-									className="flex-row gap-0.5"
-									value={contrast}
-									onValueChange={(value: Contrast) => updateSettings({ contrast: value })}
-								/>
-							}
-						>
-							{contrasts.map((value) => (
-								<SegmentedControlItem key={value} render={<RadioPrimitive.Root value={value} />}>
-									{contrastLabels[value]}
-								</SegmentedControlItem>
-							))}
-						</SegmentedControl>
-					</Fieldset>
-					{themePreset === 'coss' && <FieldDescription>Neutral colors have a fixed contrast</FieldDescription>}
-				</Field>
-			</FramePanel>
 		</>
+	);
+}
+
+/** Settings panel for the color scheme's contrast */
+export function ContrastSetting() {
+	const { themePreset, contrast } = useSettings();
+
+	return (
+		<FramePanel>
+			<Field name="contrast" disabled={themePreset === 'coss'}>
+				<Fieldset>
+					<FieldsetLegend className="mb-1 text-sm">Contrast</FieldsetLegend>
+					<SegmentedControl
+						render={
+							<RadioGroup
+								className="flex-row gap-0.5"
+								value={contrast}
+								onValueChange={(value: Contrast) => updateSettings({ contrast: value })}
+							/>
+						}
+					>
+						{contrasts.map((value) => (
+							<SegmentedControlItem key={value} render={<RadioPrimitive.Root value={value} />}>
+								{contrastLabels[value]}
+							</SegmentedControlItem>
+						))}
+					</SegmentedControl>
+				</Fieldset>
+				{themePreset === 'coss' && <FieldDescription>Neutral colors have a fixed contrast</FieldDescription>}
+			</Field>
+		</FramePanel>
 	);
 }
 

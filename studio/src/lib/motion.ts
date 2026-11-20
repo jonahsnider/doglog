@@ -1,4 +1,6 @@
+import { useSelector } from '@tanstack/react-store';
 import { type Transition, useReducedMotion } from 'motion/react';
+import { settingsStore } from '@/settings';
 
 /** The Material 3 curves behind Tailwind's `ease-*` classes in `index.css`, for the motion library */
 export const easing = {
@@ -10,7 +12,14 @@ export const easing = {
 	in: [0.3, 0, 1, 1],
 } as const satisfies Record<string, [number, number, number, number]>;
 
-/** A motion transition that's instant when the system is set to reduce motion */
+/** Whether to skip animations, because the system or the reduce motion setting asks to */
+export function reducesMotion(): boolean {
+	return settingsStore.get().reduceMotion || matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/** A motion transition that's instant when the system or the reduce motion setting asks to reduce motion */
 export function useMotionTransition(transition: Transition): Transition {
-	return (useReducedMotion() ?? false) ? { duration: 0 } : transition;
+	const systemReducesMotion = useReducedMotion() ?? false;
+	const settingReducesMotion = useSelector(settingsStore, (settings) => settings.reduceMotion);
+	return systemReducesMotion || settingReducesMotion ? { duration: 0 } : transition;
 }

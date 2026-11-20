@@ -9,14 +9,14 @@ import { dragRegion } from '@/desktop/title-bar';
 import { getRobotHost } from '@/robot-target';
 import { useAnonymousName } from '@/sharing/identity';
 import { reportsNaturalScrolling, updateSettings, useSettings } from '@/settings';
-import { AppearanceSettings } from '@/theme/appearance-settings';
+import { AppearanceSettings, ContrastSetting } from '@/theme/appearance-settings';
 
 export const Route = createFileRoute('/settings')({
 	component: Settings,
 });
 
 function Settings() {
-	const { name, robotTarget, mediaControls, naturalScrolling } = useSettings();
+	const { name, robotTarget, mediaControls, naturalScrolling, reduceMotion } = useSettings();
 	const anonymousName = useAnonymousName();
 	const robotHost = getRobotHost(robotTarget);
 	const robotTargetInvalid = robotTarget.trim() !== '' && robotHost === undefined;
@@ -34,6 +34,23 @@ function Settings() {
 
 				<SettingsSection title="Appearance">
 					<AppearanceSettings />
+				</SettingsSection>
+
+				<SettingsSection title="Accessibility">
+					<ContrastSetting />
+
+					<FramePanel>
+						<Field name="reduceMotion">
+							<FieldLabel>
+								<Switch
+									checked={reduceMotion}
+									onCheckedChange={(checked) => updateSettings({ reduceMotion: checked })}
+								/>
+								Reduce motion
+							</FieldLabel>
+							<FieldDescription>Skip layout animations, always on when your system reduces motion</FieldDescription>
+						</Field>
+					</FramePanel>
 				</SettingsSection>
 
 				<SettingsSection title="Robot">

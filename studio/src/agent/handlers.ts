@@ -45,9 +45,9 @@ function describeTimeline() {
 }
 
 function describeSettings() {
-	const { theme, themePreset, themeColor, contrast, name, robotTarget, mediaControls, naturalScrolling } =
+	const { theme, themePreset, themeColor, contrast, reduceMotion, name, robotTarget, mediaControls, naturalScrolling } =
 		settingsStore.get();
-	return { theme, themePreset, themeColor, contrast, name, robotTarget, mediaControls, naturalScrolling };
+	return { theme, themePreset, themeColor, contrast, reduceMotion, name, robotTarget, mediaControls, naturalScrolling };
 }
 
 export const handlers: Handlers = {

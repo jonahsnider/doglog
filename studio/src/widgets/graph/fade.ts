@@ -1,6 +1,6 @@
 // Fading lines in and out as they're shown and hidden, so they don't pop
 import { cubicBezier } from 'motion';
-import { easing } from '@/lib/motion';
+import { easing, reducesMotion } from '@/lib/motion';
 
 const fadeMs = 150;
 const ease = cubicBezier(...easing.inOut);
@@ -19,14 +19,14 @@ export function isFading(fade: Fade, now: number): boolean {
 
 /**
  * Starts fading each line toward being shown or hidden when that changed, from wherever its fade is now. New lines start
- * as they are, and lines are shown or hidden right away when the system is set to reduce motion.
+ * as they are, and lines are shown or hidden right away when reducing motion.
  */
 export function updateFades(
 	fades: Map<string, Fade>,
 	lines: readonly { id: string; hidden: boolean }[],
 	now: number,
 ): void {
-	const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+	const reduceMotion = reducesMotion();
 	for (const line of lines) {
 		const to = line.hidden ? 0 : 1;
 		const fade = fades.get(line.id);

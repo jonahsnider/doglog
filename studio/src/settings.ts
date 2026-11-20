@@ -15,6 +15,8 @@ const settingsSchema = z
 			.optional()
 			.catch(undefined),
 		contrast: z.enum(contrasts).catch('standard'),
+		/** Whether to reduce motion even when the system doesn't ask to, see `reducesMotion()` */
+		reduceMotion: z.boolean().catch(false),
 		/** Shown to others in shared dashboards, see `getDisplayName()` */
 		name: z.string().catch(''),
 		/** Team number or IP address, use `getRobotHost()` to get the NT server host */
@@ -62,8 +64,8 @@ export function updateSettings(changes: Partial<Settings>): void {
 }
 
 /**
- * Keep the `dark` class on the root element in sync with the theme setting and the OS color scheme, and the colors in sync
- * with the theme color and contrast settings
+ * Keep the `dark` class on the root element in sync with the theme setting and the OS color scheme, the colors in sync
+ * with the theme color and contrast settings, and the `reduce-motion` class in sync with the reduce motion setting
  */
 export function syncTheme(): void {
 	const darkQuery = matchMedia('(prefers-color-scheme: dark)');
@@ -71,8 +73,9 @@ export function syncTheme(): void {
 	let appliedThemePreset: Settings['themePreset'] | undefined;
 	let appliedContrast: Settings['contrast'] | undefined;
 	const applyTheme = () => {
-		const { theme, themeColor, themePreset, contrast } = settingsStore.get();
+		const { theme, themeColor, themePreset, contrast, reduceMotion } = settingsStore.get();
 		document.documentElement.classList.toggle('dark', theme === 'dark' || (theme === 'system' && darkQuery.matches));
+		document.documentElement.classList.toggle('reduce-motion', reduceMotion);
 		// Other settings changes, ex. typing a robot target, don't need the colors regenerated
 		if (themeColor !== appliedThemeColor || themePreset !== appliedThemePreset || contrast !== appliedContrast) {
 			applyThemeColor(themeColor, themePreset, contrast);

@@ -1775,6 +1775,10 @@
 							"high"
 						]
 					},
+					"reduceMotion": {
+						"description": "Whether to skip animations even when the system doesn’t ask to reduce motion",
+						"type": "boolean"
+					},
 					"name": {
 						"description": "The user’s name, shown to others in shared dashboards. Blank shows an anonymous name.",
 						"type": "string"

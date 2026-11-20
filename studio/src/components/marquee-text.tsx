@@ -1,4 +1,5 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { reducesMotion } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 
 /** Scroll speed in pixels per second */
@@ -13,7 +14,7 @@ export function MarqueeText({ className, children }: { className?: string; child
 
 	useEffect(() => {
 		const element = ref.current;
-		if (!hovered || !element || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+		if (!hovered || !element || reducesMotion()) {
 			return undefined;
 		}
 

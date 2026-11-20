@@ -92,12 +92,16 @@ The theme SHALL provide 5 series colors for widgets that color entries, and ever
 
 ### Requirement: Motion
 
-Studio SHALL animate with one set of Material Design 3 easing curves and durations, so similar changes move the same way everywhere. Things moving within the screen MUST use the standard curve, things entering MUST decelerate, and things leaving MUST accelerate and finish sooner. When the system is set to reduce motion, layout changes like splitting, closing, and zooming panes, opening and closing dashboards in the sidebar, and collapsing the sidebar MUST happen instantly.
+Studio SHALL animate with one set of Material Design 3 easing curves and durations, so similar changes move the same way everywhere. Things moving within the screen MUST use the standard curve, things entering MUST decelerate, and things leaving MUST accelerate and finish sooner.
 
 #### Scenario: Close a pane
 
 - **WHEN** the user closes one of two panes
 - **THEN** the closed pane speeds up as it shrinks away, faster than a new pane grows in when splitting
+
+### Requirement: Reduced motion
+
+Studio SHALL reduce motion when the system is set to reduce motion or the reduce motion setting is on, and wherever a spec says the system reduces motion, the setting MUST have the same effect. Layout changes like splitting, closing, and zooming panes, opening and closing dashboards in the sidebar, and collapsing the sidebar MUST happen instantly.
 
 #### Scenario: Reduced motion
 

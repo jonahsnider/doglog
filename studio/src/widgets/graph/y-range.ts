@@ -1,7 +1,7 @@
 // How each y-axis fits the data: to what's in view, but never zoomed in so far that tiny noise fills the graph
 import { cubicBezier } from 'motion';
 import type { Samples } from '@/data/samples';
-import { easing } from '@/lib/motion';
+import { easing, reducesMotion } from '@/lib/motion';
 
 export type Range = [min: number, max: number];
 
@@ -47,12 +47,11 @@ export function fitRange(visible: Range, whole: Range | undefined): Range {
 	return [min - pad, max + pad];
 }
 
-/** Eases an axis from the range it showed to a new one, instantly when the system is set to reduce motion */
+/** Eases an axis from the range it showed to a new one, instantly when reducing motion */
 export function createRangeAnimation() {
 	let from: Range | undefined;
 	let to: Range | undefined;
 	let start = 0;
-	const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
 	const at = (now: number): Range | undefined => {
 		if (!from || !to) {
@@ -69,7 +68,7 @@ export function createRangeAnimation() {
 			if (to && target[0] === to[0] && target[1] === to[1]) {
 				return at(now)!;
 			}
-			from = reduceMotion.matches ? undefined : at(now);
+			from = reducesMotion() ? undefined : at(now);
 			to = target;
 			start = now;
 			return at(now)!;

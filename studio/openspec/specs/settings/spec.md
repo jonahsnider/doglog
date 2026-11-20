@@ -2,18 +2,19 @@
 
 ## Purpose
 
-Define the Settings page, where users choose the color theme and contrast, their name, the robot connection target, and whether media controls control playback, with all settings persisted locally on the device. The page also shows which version of Studio is running.
+Define the Settings page, where users choose the color theme and contrast, whether to reduce motion, their name, the robot connection target, and whether media controls control playback, with all settings persisted locally on the device. The page also shows which version of Studio is running.
 
 ## Requirements
 
 ### Requirement: Settings sections
 
-Settings SHALL group related settings under titled sections, in this order: Appearance (theme, theme color, and contrast), Robot (robot connection), Sharing (name), and System (media controls, natural scrolling, the terminal command, and coding agents).
+Settings SHALL group related settings under titled sections, in this order: Appearance (theme and theme color), Accessibility (contrast and reduce motion), Robot (robot connection), Sharing (name), and System (media controls, natural scrolling, the terminal command, and coding agents).
 
 #### Scenario: Find the theme
 
 - **WHEN** the user opens Settings
-- **THEN** the theme, theme color, and contrast settings are under Appearance
+- **THEN** the theme and theme color settings are under Appearance
+- **AND** the contrast and reduce motion settings are under Accessibility
 
 ### Requirement: Theme setting
 
@@ -127,6 +128,23 @@ Settings SHALL let users choose standard, medium, or high contrast for generated
 
 - **WHEN** the user selects the Neutral preset
 - **THEN** the contrast setting is disabled
+
+### Requirement: Reduce motion setting
+
+Settings SHALL let users turn reduce motion on or off, defaulting to off. While it's on, Studio MUST reduce motion everywhere it would when the system is set to reduce motion. While it's off, Studio MUST still follow the system.
+
+#### Scenario: Reduce motion without the system setting
+
+- **GIVEN** the system isn't set to reduce motion
+- **WHEN** the user turns reduce motion on and splits a pane
+- **THEN** the new pane appears at its full size without animating
+
+#### Scenario: System reduces motion
+
+- **GIVEN** the system is set to reduce motion
+- **AND** reduce motion is off in Settings
+- **WHEN** the user splits a pane
+- **THEN** the new pane appears at its full size without animating
 
 ### Requirement: Version info
 

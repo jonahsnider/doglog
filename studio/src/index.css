@@ -9,6 +9,22 @@
 @import '@fontsource/ibm-plex-mono/600-italic.css';
 
 @custom-variant dark (&:is(.dark *));
+/* Motion is reduced when the system asks to or the reduce motion setting adds `reduce-motion` to the root element */
+@custom-variant motion-reduce {
+	@media (prefers-reduced-motion: reduce) {
+		@slot;
+	}
+	&:where(.reduce-motion, .reduce-motion *) {
+		@slot;
+	}
+}
+@custom-variant motion-safe {
+	@media (prefers-reduced-motion: no-preference) {
+		&:not(:where(.reduce-motion, .reduce-motion *)) {
+			@slot;
+		}
+	}
+}
 /* Breakpoints for the add widget prompt, based on how much space its content needs */
 @custom-variant add-widget-compact (@container add-widget ((height < 23rem) or (width < 18rem)));
 @custom-variant add-widget-tiny (@container add-widget (height < 11rem));
@@ -38,9 +54,9 @@
 	--default-transition-duration: 150ms;
 	--default-transition-timing-function: var(--ease-in-out);
 }
-/* Spinners slow down instead of stopping when the system reduces motion, so they still show that something is loading */
-@media (prefers-reduced-motion: reduce) {
-	:root {
+/* Spinners slow down instead of stopping when reducing motion, so they still show that something is loading */
+:root {
+	@variant motion-reduce {
 		--animate-spin: spin 3s linear infinite;
 	}
 }
@@ -540,10 +556,13 @@
 }
 /* When peeking ends, the surface fades out with the labels as it shrinks, instead of changing in the rail after it stops */
 [data-frosted-frame] [data-animation='unpeek'] [data-slot='sidebar'] {
-	transition:
-		width 200ms var(--ease-in-out),
-		box-shadow 200ms var(--ease-in-out),
-		background-color 150ms var(--ease-in);
+	/* Unlayered, so it would otherwise beat the sidebar's `motion-reduce:transition-none` */
+	@variant motion-safe {
+		transition:
+			width 200ms var(--ease-in-out),
+			box-shadow 200ms var(--ease-in-out),
+			background-color 150ms var(--ease-in);
+	}
 }
 
 /* Older webviews don't report reduced transparency; their native backdrop handles it. */
@@ -699,8 +718,8 @@
 	animation-name: split-leave;
 	animation-fill-mode: forwards;
 }
-@media (prefers-reduced-motion: reduce) {
-	[data-split-animation] {
+[data-split-animation] {
+	@variant motion-reduce {
 		animation-duration: 0s;
 	}
 }

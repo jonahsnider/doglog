@@ -5,19 +5,22 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>DogLog Studio</title>
 		<script>
-			// Apply the theme and theme color settings before render to avoid a flash of the wrong colors, src/settings.ts takes
-			// over after load
+			// Apply the theme, theme color, and reduce motion settings before render to avoid a flash of the wrong colors or
+			// animations, src/settings.ts takes over after load
 			{
 				let theme;
 				let themePreset;
+				let reduceMotion;
 				try {
 					const settings = JSON.parse(localStorage.getItem('doglog-studio:settings'));
 					theme = settings.theme;
 					themePreset = settings.themePreset;
+					reduceMotion = settings.reduceMotion;
 				} catch {}
 				const dark = theme === 'dark' || (theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
 				document.documentElement.classList.toggle('dark', dark);
 				document.documentElement.classList.toggle('coss-theme', themePreset === 'coss');
+				document.documentElement.classList.toggle('reduce-motion', reduceMotion === true);
 
 				// Colors generated from the theme color, cached by src/theme-color.ts under the same key
 				let css;

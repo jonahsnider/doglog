@@ -144,6 +144,10 @@ export const settingsSchema = z.strictObject({
 		.optional()
 		.describe('Hex color the `custom` theme preset is generated from, ex. `#1c1816`'),
 	contrast: z.enum(contrasts).optional(),
+	reduceMotion: z
+		.boolean()
+		.optional()
+		.describe('Whether to skip animations even when the system doesn’t ask to reduce motion'),
 	name: z
 		.string()
 		.optional()
