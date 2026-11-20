@@ -114,18 +114,9 @@ const sections: {
 			{ label: 'Next section', keys: [{ name: 'Next track', icon: <SkipForwardIcon /> }] },
 		],
 	},
-	{
-		title: 'Field',
-		shortcuts: [
-			{ label: 'Measure distance', keys: ['M'] },
-			{ label: 'Measure angle', keys: ['A'] },
-			{ label: 'Stop measuring', keys: ['Escape'] },
-			{ label: 'Copy cursor position', keys: ['Mod+C'] },
-		],
-	},
 ];
 
-/** Lists every keyboard shortcut, opened from the sidebar or with its own shortcut */
+/** Lists app-wide keyboard shortcuts, opened from the sidebar or with its own shortcut. Widgets show their own. */
 export function KeyboardShortcutsDialog({ children }: { children: ReactNode }) {
 	const [open, setOpen] = useState(false);
 	const formatForDisplay = useFormatForDisplay();

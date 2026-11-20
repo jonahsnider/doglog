@@ -87,12 +87,13 @@ On a dashboard, pressing `/` SHALL focus the entry browser's search box, opening
 
 ### Requirement: Keyboard shortcuts list
 
-The keyboard shortcuts shortcut SHALL open a dialog listing every keyboard shortcut, grouped by area and formatted for the user's platform. While the media controls setting is on, it SHALL also list the media keys. Pressing the shortcut again MUST close it.
+The keyboard shortcuts shortcut SHALL open a dialog listing every app-wide keyboard shortcut, grouped by area and formatted for the user's platform. While the media controls setting is on, it SHALL also list the media keys. Pressing the shortcut again MUST close it. The list MUST NOT include shortcuts that only work in one kind of widget.
 
 #### Scenario: Open the list
 
 - **WHEN** the user presses ⌘/
-- **THEN** a dialog lists every keyboard shortcut, including the timeline's
+- **THEN** a dialog lists every app-wide keyboard shortcut, including the timeline's
+- **AND** it doesn't list the field widget's measuring shortcuts
 
 #### Scenario: Web app
 
@@ -105,6 +106,17 @@ The keyboard shortcuts shortcut SHALL open a dialog listing every keyboard short
 - **GIVEN** media controls are on
 - **WHEN** the user opens the keyboard shortcuts list
 - **THEN** it lists the play/pause, previous track, and next track media keys
+
+### Requirement: Widget shortcuts
+
+A shortcut that only works in one kind of widget SHALL be shown in that widget, next to the control or readout it acts on, formatted for the user's platform. Shortcuts that work the same way across Studio, like Escape to cancel, MAY go unshown.
+
+#### Scenario: Hover the field
+
+- **GIVEN** the user is on macOS
+- **WHEN** the user hovers a field widget
+- **THEN** ⌘C shows next to the cursor position
+- **AND** M and A show on the measuring tool buttons
 
 ### Requirement: Shortcuts in tooltips
 
