@@ -25,8 +25,9 @@ import { Kbd } from '@/components/ui/kbd';
 import { Spinner } from '@/components/ui/spinner';
 import { shortcuts, useShortcutHint } from '@/commands/commands';
 import { cn } from '@/lib/utils';
-import { useTitleBarStrip } from '@/desktop/title-bar';
-import { sidebarCollapsedStore } from '@/sidebar/sidebar';
+import { useTitleBarStrip, useTrafficLights } from '@/desktop/title-bar';
+import { sidebarAnimationStore, sidebarCollapsedStore, toggleSidebarCollapsed } from '@/sidebar/sidebar';
+import { useMotionTransition } from '@/lib/motion';
 import { TitleBar } from '@/sidebar/title-bar';
 import { installUpdate, updateTitle, useUpdate } from '@/updater';
 import { useWindowColor } from '@/theme/window-color';
@@ -63,12 +64,16 @@ export function AppSidebar() {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const iconOnly = collapsed && !peeking;
 	const strip = useTitleBarStrip();
+	const trafficLights = useTrafficLights();
+	const animation = useSelector(sidebarAnimationStore);
+	// Only read to skip the animation's steps when the system reduces motion
+	const reduceMotion = useMotionTransition({ duration: 0.2 }).duration === 0;
 
 	const toggle = (animate: boolean) => {
 		clearTimeout(showTimer.current);
 		setPeeking(false);
 		setAnimated(animate);
-		sidebarCollapsedStore.set((value) => !value);
+		toggleSidebarCollapsed(animate, trafficLights);
 	};
 
 	const peek = () => {
@@ -121,7 +126,7 @@ export function AppSidebar() {
 		openMobile: false,
 		setOpenMobile: noop,
 		isMobile: false,
-		toggleSidebar: () => toggle(true),
+		toggleSidebar: () => toggle(!reduceMotion),
 	};
 
 	return (
@@ -132,9 +137,14 @@ export function AppSidebar() {
 				className={cn(
 					'relative shrink-0 [--sidebar-width-icon:3rem] [--sidebar-width:17.25rem]',
 					collapsed ? 'w-(--sidebar-width-icon)' : 'w-(--sidebar-width)',
+					// Resizes the main area along with the sidebar, like the timeline sliding up resizes the panes
+					'transition-[width] duration-200 motion-reduce:transition-none',
+					// The main area moves below the title bar's strip before the sidebar collapses
+					'data-[animation=enter-strip]:delay-150 not-data-animation:transition-none',
 				)}
+				data-animation={animation}
 			>
-				<TitleBar collapsed={collapsed} iconOnly={iconOnly} onToggle={() => toggle(true)} />
+				<TitleBar collapsed={collapsed} iconOnly={iconOnly} onToggle={() => toggle(!reduceMotion)} />
 				<Sidebar
 					ref={sidebarRef}
 					collapsible="none"
@@ -153,6 +163,7 @@ export function AppSidebar() {
 						'data-peeking:shadow-lg',
 						// The content is already at its final size, see below
 						'[&_[data-sidebar=menu-button]]:transition-none',
+						'in-data-[animation=enter-strip]:delay-150',
 						!animated && 'transition-none',
 					)}
 					onPointerEnter={(event) => {

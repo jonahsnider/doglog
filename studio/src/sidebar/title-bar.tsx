@@ -1,4 +1,5 @@
 import { useRouter } from '@tanstack/react-router';
+import { useSelector } from '@tanstack/react-store';
 import ArrowLeftIcon from 'lucide-react/icons/arrow-left';
 import ArrowRightIcon from 'lucide-react/icons/arrow-right';
 import PanelLeftIcon from 'lucide-react/icons/panel-left';
@@ -10,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { dragRegion, useTitleBarStrip, useTrafficLights } from '@/desktop/title-bar';
 import { cn } from '@/lib/utils';
+import { sidebarAnimationStore } from '@/sidebar/sidebar';
 
 function TitleBarButton({
 	label,
@@ -60,6 +62,8 @@ export function TitleBar({
 }) {
 	const trafficLights = useTrafficLights();
 	const strip = useTitleBarStrip();
+	// Whether the sidebar is animating, see `sidebarAnimationStore`
+	const animating = useSelector(sidebarAnimationStore) !== undefined;
 	const label = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
 	return (
 		<div
@@ -69,7 +73,9 @@ export function TitleBar({
 				'absolute start-0 top-0 z-30 flex h-10.5 items-center gap-0.5 pt-1.5 pe-2',
 				// The toggle lines up with the rail's icons, unless it's after the traffic lights
 				trafficLights ? 'ps-22.25' : 'ps-3',
-				strip ? 'w-screen' : iconOnly ? 'w-full' : 'w-(--sidebar-width)',
+				// Clipped to the sidebar as it animates, so the name doesn't cover the main area, unless it's peeking over the main area
+				'overflow-hidden',
+				strip ? 'w-screen' : collapsed && !iconOnly ? 'w-(--sidebar-width)' : 'w-full',
 			)}
 		>
 			<TitleBarButton
@@ -81,10 +87,13 @@ export function TitleBar({
 			>
 				<PanelLeftIcon />
 			</TitleBarButton>
-			{(!iconOnly || strip) && (
+			{(!iconOnly || strip || animating) && (
 				// The margin makes it as far from the icons as they are from each other, since they have padding around them
 				// The sidebar and the strip are wide enough for it beside the traffic lights and buttons
-				<span className="mx-1.5 min-w-0 truncate font-heading text-sm font-semibold">DogLog Studio</span>
+				// It's clipped instead of truncated while the sidebar animates, so the ellipsis doesn't move every frame
+				<span className={cn('mx-1.5 truncate font-heading text-sm font-semibold', animating ? 'shrink-0' : 'min-w-0')}>
+					DogLog Studio
+				</span>
 			)}
 			{trafficLights && (
 				<>

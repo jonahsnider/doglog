@@ -2,7 +2,7 @@ import { isTauri } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
-import { sidebarCollapsedStore } from '@/sidebar/sidebar';
+import { sidebarAnimationStore, sidebarCollapsedStore } from '@/sidebar/sidebar';
 
 /** Whether the macOS window controls are drawn over the app instead of a title bar, see `titleBarStyle` in `tauri.conf.json` */
 const overlayTitleBar = isTauri() && navigator.userAgent.includes('Mac');
@@ -25,8 +25,12 @@ export function useTrafficLights(): boolean {
 	return overlayTitleBar && !fullscreen;
 }
 
-/** Whether the traffic lights and the buttons after them get a strip across the top of the window, since they're wider than the collapsed sidebar */
+/**
+ * Whether the traffic lights and the buttons after them get a strip across the top of the window, since they're wider than the collapsed sidebar.
+ * It stays while the sidebar expands, so the main area moves up after the sidebar is out of its way instead of under the title bar.
+ */
 export function useTitleBarStrip(): boolean {
 	const sidebarCollapsed = useSelector(sidebarCollapsedStore);
-	return useTrafficLights() && sidebarCollapsed;
+	const sidebarAnimation = useSelector(sidebarAnimationStore);
+	return useTrafficLights() && (sidebarCollapsed || sidebarAnimation === 'expand');
 }
