@@ -139,7 +139,7 @@ A widget MAY let bindings be connected to each other, such as the field drawing 
 
 ### Requirement: Pick a role
 
-The legend SHALL show a binding's role after its name when the entry can take more than one role, or is bound more than once, and clicking the role MUST open a menu of the entry's roles to pick from. Right-clicking the entry MUST also list its roles to pick from, including in widgets that don't show roles, such as the graph. The role MUST take up the width of the entry's widest role, so picking another doesn't resize the legend or move what's beside it.
+The legend SHALL show a binding's role after its name when the entry can take more than one role, or is bound more than once, and clicking the role MUST open a dropdown listing the entry's roles. Right-clicking the entry MUST also list its roles to pick from, including in widgets that don't show roles, such as the graph. The role MUST take up the width of the entry's widest role, so picking another doesn't resize the legend or move what's beside it.
 
 #### Scenario: Pick a role
 

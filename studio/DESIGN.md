@@ -7,7 +7,9 @@ How Studio's UI is built. The OpenSpec specs in `openspec/specs` describe what u
 - Use [coss ui](https://coss.com/ui) components (Base UI and Tailwind CSS) before writing custom ones. Add them with the shadcn CLI from the `@coss` registry in `components.json`, ex. `pnpm dlx shadcn@latest add @coss/popover`.
 - `src/components/ui` holds those components. Treat them as vendored: compose and wrap them in app code instead of changing them. Change them only to fix something everywhere they're used (ex. pointer cursors on buttons), and keep the change small so it's easy to reapply when updating from upstream.
 - Write a custom component when coss ui has nothing close, or when the component is specific to Studio (ex. panes, widgets, the timeline). Build it from Base UI primitives when it needs accessible behavior like menus, focus management, or keyboard navigation.
-- Context menus go through `AppContextMenu`, which uses native menus on desktop and coss menus on the web.
+- Use coss `Select` on desktop and web for dropdowns that only pick a value, such as playback speed or field orientation. The trigger can match its surroundings: a compact toolbar button or a labeled field.
+- Use coss `Menu` on desktop and web for in-app command menus, including menus that mix choices and commands, such as the source switcher.
+- Context menus go through `AppContextMenu`, which uses native menus on desktop and coss menus on the web. The dashboard's `…` button offers the same commands as right-click and follows the same platform split.
 - Widget options are declared on the widget type (`WidgetType.options`) and rendered by the widget options popover, so every widget's options look the same. Use a small segmented control when choices fit in one row, or a dropdown when they don't. Add a new option kind there when a widget needs one, instead of building settings UI in the widget.
 - Use `lucide-react` for icons. Custom icons are used for FRC-specific cases or brand logos. Custom icons should match Lucide's 24×24 viewBox, 2-unit `currentColor` outline, and rounded caps and joins. Logos should fit the viewbox but otherwise not really be modified.
 
