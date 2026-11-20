@@ -217,7 +217,7 @@ export function Scrubber({
 
 					<div
 						className={cn(
-							'absolute inset-x-0 top-1/2 h-2 overflow-hidden rounded-full bg-input/40 transition-[translate] motion-reduce:transition-none',
+							'absolute inset-x-0 top-1/2 h-2 overflow-hidden rounded-full bg-muted transition-[translate] motion-reduce:transition-none',
 							trackOffset,
 						)}
 					>
@@ -250,7 +250,7 @@ export function Scrubber({
 								className="absolute inset-y-0 bg-frame"
 								style={{ left: `${toPercent(gap.start)}%`, width: `${toPercent(gap.end) - toPercent(gap.start)}%` }}
 							>
-								<div className="size-full bg-input/40" />
+								<div className="size-full bg-muted" />
 							</div>
 						))}
 						{/* The unreadable end of a log, hatched since its length is an estimate */}
@@ -287,7 +287,7 @@ export function Scrubber({
 						toPercent={toPercent}
 						property="left"
 						className={cn(
-							'absolute top-1/2 size-3.5 -translate-x-1/2 rounded-full border-2 border-primary bg-background transition-[translate] group-focus-visible:ring-[3px] group-focus-visible:ring-ring/48 motion-reduce:transition-none',
+							'absolute top-1/2 size-3.5 -translate-x-1/2 rounded-full border-2 border-primary bg-background transition-[translate] group-focus-visible:ring-[3px] group-focus-visible:ring-ring motion-reduce:transition-none',
 							trackOffset,
 						)}
 					/>

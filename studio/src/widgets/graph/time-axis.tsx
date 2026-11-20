@@ -38,7 +38,7 @@ export const TimeAxis = memo(function TimeAxis({ leftInset, rightInset }: { left
 	return (
 		<div className="relative h-6 shrink-0" style={{ marginLeft: leftInset, marginRight: rightInset }}>
 			<div ref={element} className="absolute inset-0">
-				<div className="absolute inset-x-0 top-0 h-1 overflow-hidden rounded-full bg-input/40">
+				<div className="absolute inset-x-0 top-0 h-1 overflow-hidden rounded-full bg-muted">
 					{periods.map((period) => {
 						const color = modeColors[period.mode];
 						const style = placed(period.start, period.end);

@@ -176,7 +176,7 @@ function LocalDashboards(props: SectionProps) {
 				{local.length > 0 && (
 					<button
 						type="button"
-						className="-me-1.5 ms-auto rounded-md px-1.5 whitespace-nowrap text-sidebar-foreground/70 opacity-0 outline-hidden ring-sidebar-ring group-hover/label:opacity-100 group-data-[collapsible=icon]:hidden hover:text-sidebar-foreground focus-visible:opacity-100 focus-visible:ring-2"
+						className="-me-1.5 ms-auto rounded-md px-1.5 whitespace-nowrap text-muted-foreground opacity-0 outline-hidden ring-sidebar-ring group-hover/label:opacity-100 group-data-[collapsible=icon]:hidden hover:text-sidebar-foreground focus-visible:opacity-100 focus-visible:ring-2"
 						// Keeps the open dashboard until it's the last one left, so a second click closes it too
 						onClick={() => deleteDashboards((others.length > 0 ? others : local).map((dashboard) => dashboard.id))}
 					>
@@ -188,7 +188,7 @@ function LocalDashboards(props: SectionProps) {
 			<SidebarMenu ref={listRef} className={cn(dragging && 'pointer-events-none')}>
 				<SidebarMenuItem>
 					<SidebarMenuButton
-						className="text-sidebar-foreground/70 hover:text-sidebar-foreground/70 active:text-sidebar-foreground/70"
+						className="text-muted-foreground hover:text-muted-foreground active:text-muted-foreground"
 						tooltip={{ children: <TooltipLabel label="New dashboard" shortcut={shortcuts.newDashboard} /> }}
 						onClick={() => newDashboard(router)}
 					>

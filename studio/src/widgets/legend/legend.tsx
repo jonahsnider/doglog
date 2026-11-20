@@ -133,7 +133,7 @@ function LegendList({ items, vertical = false, dropRole, roles = true, className
 							>
 								<span
 									className={cn(
-										'size-3 rounded-full border-2 border-muted-foreground/40 transition-colors group-hover/legend-entry:border-foreground',
+										'size-3 rounded-full border-2 border-outline transition-colors group-hover/legend-entry:border-foreground',
 										drag?.from.id === item.binding.id && 'border-foreground',
 									)}
 									style={

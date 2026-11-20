@@ -146,7 +146,7 @@ export function Robot({ bindings, options, setOption }: WidgetProps) {
 				)}
 				{legend.length > 0 && (
 					// Over the robot's top-left corner, so the robot is centered and the legend only covers its rows
-					<div className="absolute top-1.5 left-1.5 max-h-1/2 w-fit max-w-1/2 overflow-y-auto rounded-md bg-background/80 px-1.5">
+					<div className="absolute top-1.5 left-1.5 max-h-1/2 w-fit max-w-1/2 overflow-y-auto rounded-md bg-background px-1.5">
 						<Legend items={legend} vertical roles={view === '3d'} />
 					</div>
 				)}
@@ -154,17 +154,12 @@ export function Robot({ bindings, options, setOption }: WidgetProps) {
 				<div className="pointer-events-none absolute inset-x-1.5 bottom-1.5 flex items-end gap-2 *:pointer-events-auto">
 					<ViewToggle view={view} onChange={(next) => setOption('view', next)} />
 					{view === '3d' && robotNote !== undefined && (
-						<span className="flex min-w-0 items-center gap-2 rounded-md bg-background/80 px-1.5 text-muted-foreground text-xs">
+						<span className="flex min-w-0 items-center gap-2 rounded-md bg-background px-1.5 text-muted-foreground text-xs">
 							{robotNote}
 						</span>
 					)}
 					{view === '3d' && (
-						<Button
-							variant="ghost"
-							size="xs"
-							className="ms-auto bg-background/80"
-							onClick={() => scene.current?.reset()}
-						>
+						<Button variant="ghost" size="xs" className="ms-auto bg-background" onClick={() => scene.current?.reset()}>
 							<HouseIcon />
 							Reset view
 						</Button>

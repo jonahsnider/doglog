@@ -173,7 +173,7 @@ export function Graph({ bindings }: WidgetProps) {
 					style={{ left: insets.left, right: insets.right }}
 				>
 					{selection && <RangeSelection selection={selection} plotted={plotted} units={units.units} />}
-					<div ref={hoverLineRef} hidden className="absolute inset-y-0 w-px -translate-x-1/2 bg-muted-foreground/60" />
+					<div ref={hoverLineRef} hidden className="absolute inset-y-0 w-px -translate-x-1/2 bg-muted-foreground" />
 					<div ref={cursorLineRef} hidden className="absolute inset-y-0 w-px -translate-x-1/2 bg-foreground" />
 					<div ref={hoverDotsRef} className="absolute top-0 left-0">
 						{series.map((line) => (
@@ -195,7 +195,7 @@ export function Graph({ bindings }: WidgetProps) {
 						)}
 						style={{ bottom: (hasPlot ? discrete.length * rowHeight : 0) + 8 }}
 					>
-						<span className="absolute bottom-full left-1/2 w-max translate-x-(--delta-label-shift) rounded-sm border border-primary/40 bg-background px-1.5 text-xs font-medium text-foreground tabular-nums" />
+						<span className="absolute bottom-full left-1/2 w-max translate-x-(--delta-label-shift) rounded-sm border border-primary bg-background px-1.5 text-xs font-medium text-foreground tabular-nums" />
 					</div>
 				</div>
 				<GraphTooltip

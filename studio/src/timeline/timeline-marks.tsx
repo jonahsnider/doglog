@@ -35,13 +35,13 @@ export function GraphMarks({
 		<>
 			{zoomed && (
 				<div
-					className="pointer-events-none absolute inset-y-0 rounded-sm bg-foreground/8 ring-1 ring-foreground/24 ring-inset"
+					className="pointer-events-none absolute inset-y-0 rounded-sm bg-foreground/8 ring-1 ring-outline ring-inset"
 					style={{ left: `${toPercent(zoomed.start)}%`, width: `${toPercent(zoomed.end) - toPercent(zoomed.start)}%` }}
 				/>
 			)}
 			{hover !== undefined && (
 				<div
-					className="absolute inset-y-0 w-px -translate-x-1/2 bg-foreground/48"
+					className="absolute inset-y-0 w-px -translate-x-1/2 bg-muted-foreground"
 					style={{ left: `${toPercent(hover)}%` }}
 				/>
 			)}

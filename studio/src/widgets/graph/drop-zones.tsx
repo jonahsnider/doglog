@@ -92,14 +92,15 @@ function Zone({
 		data: { paneId, role: section },
 	});
 	return (
-		<div
-			ref={ref}
-			className={cn(
-				'm-1 flex min-w-0 flex-1 items-center justify-center rounded-md border-2 border-dashed border-muted-foreground/40 bg-background/70 text-sm font-medium text-muted-foreground backdrop-blur-[2px]',
-				active && 'border-solid border-primary bg-primary/10 text-primary',
-			)}
-		>
-			{label}
+		<div ref={ref} className="m-1 flex min-w-0 flex-1 rounded-md bg-background">
+			<div
+				className={cn(
+					'flex flex-1 items-center justify-center rounded-md border-2 border-dashed border-outline text-sm font-medium text-muted-foreground',
+					active && 'border-solid border-primary bg-primary/10 text-primary',
+				)}
+			>
+				{label}
+			</div>
 		</div>
 	);
 }

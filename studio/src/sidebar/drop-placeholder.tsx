@@ -43,7 +43,7 @@ export function DropPlaceholder({
 					'flex h-8 items-center gap-2 overflow-hidden rounded-md border border-dashed px-2 text-sm whitespace-nowrap [&>svg]:size-4 [&>svg]:shrink-0',
 					active
 						? 'border-sidebar-primary bg-sidebar-primary/10 text-sidebar-primary'
-						: 'border-sidebar-foreground/30 text-sidebar-foreground/70',
+						: 'border-outline text-muted-foreground',
 				)}
 			>
 				<Icon />

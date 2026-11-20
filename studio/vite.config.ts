@@ -3,6 +3,7 @@ import codspeedPlugin from '@codspeed/vitest-plugin';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
 import colors from 'tailwindcss/colors';
@@ -60,6 +61,13 @@ function getCommitHash(): string | null {
 const paletteColors = Object.entries(colors)
 	.filter(([, value]) => typeof value === 'object')
 	.map(([name]) => name)
+	.join('|');
+
+/** Only named Studio colors, so slash syntax for font leading and other non-colors is unaffected */
+const themeColors = [
+	...readFileSync(new URL('./src/index.css', import.meta.url), 'utf8').matchAll(/^\s*--color-([\w-]+):/gmu),
+]
+	.map(([, name]) => name)
 	.join('|');
 
 // https://vite.dev/config/
@@ -181,6 +189,16 @@ export default defineConfig({
 			'better-tailwindcss/no-restricted-classes': [
 				'error',
 				{
+					selectors: {
+						extends: [
+							{
+								// Class maps are passed to components by lookup, not as inline strings.
+								kind: 'variable',
+								name: /^(?:\w*[Cc]lass(?:es|Names)|tone(?:Icon|Line|Ring))$/u.source,
+								match: [{ type: 'objectValues' }],
+							},
+						],
+					},
 					restrict: [
 						{
 							// Built from the palette names, so it can't be a literal
@@ -190,6 +208,11 @@ export default defineConfig({
 						{
 							pattern: /\[#[\da-fA-F]+\]/u.source,
 							message: 'Use a semantic theme color instead of a hex value, see DESIGN.md.',
+						},
+						{
+							// Material state and scrim values from DESIGN.md; shadow utilities are exempt.
+							pattern: `(?:^|:)(!?(?:accent|bg|border(?:-[a-z]+)?|caret|decoration|divide|fill|from|inset-ring|outline|ring(?:-offset)?|stroke|text|to|via)-(?:${themeColors})/(?!(?:8|10|12|16|32|38)!?$).+)$`,
+							message: 'Use a semantic theme color or a Material opacity value instead of $1, see DESIGN.md.',
 						},
 						{
 							pattern: /^(?:.*:)?duration-(?!(?:0|100|150|200|250|300)$)/u.source,

@@ -29,8 +29,8 @@ type Tone = 'active' | 'success' | 'warning' | 'error' | 'idle';
 
 const toneIcon: Record<Tone, string> = {
 	active: 'bg-primary text-primary-foreground',
-	success: 'bg-success/15 text-success-foreground',
-	warning: 'bg-warning/15 text-warning-foreground',
+	success: 'bg-success/10 text-success-foreground',
+	warning: 'bg-warning/10 text-warning-foreground',
 	error: 'bg-destructive/10 text-destructive-foreground',
 	idle: 'bg-muted text-muted-foreground',
 };
@@ -44,11 +44,11 @@ const toneLine: Record<Tone, string> = {
 };
 
 const toneRing: Record<Tone, string> = {
-	active: 'ring-primary/25',
-	success: 'ring-success/25',
-	warning: 'ring-warning/25',
-	error: 'ring-destructive/25',
-	idle: 'ring-muted-foreground/25',
+	active: 'ring-primary/16',
+	success: 'ring-success/16',
+	warning: 'ring-warning/16',
+	error: 'ring-destructive/16',
+	idle: 'ring-muted-foreground/16',
 };
 
 interface StatusView {

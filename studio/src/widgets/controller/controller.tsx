@@ -51,7 +51,7 @@ export function Controller({ options }: WidgetProps) {
 			/>
 			<path d={shape.body} strokeLinejoin="round" className="fill-muted stroke-border" />
 			{shape.touchpad && (
-				<rect x={150} y={64} width={100} height={52} rx={8} className="fill-background/60 stroke-border" />
+				<rect x={150} y={64} width={100} height={52} rx={8} className="fill-background stroke-border" />
 			)}
 			<MenuButton
 				center={shape.back}

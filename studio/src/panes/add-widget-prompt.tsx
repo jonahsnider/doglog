@@ -28,10 +28,10 @@ export function AddWidgetPrompt({ onAdd, focused }: { onAdd: (type: WidgetType) 
 						key={type.id}
 						type="button"
 						aria-label={type.name}
-						className="flex cursor-pointer flex-col gap-2 rounded-xl border bg-card p-2 text-sm text-muted-foreground outline-none transition-[border-color,box-shadow,color] hover:border-ring/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background add-widget-compact:flex-row add-widget-compact:items-center add-widget-compact:px-3"
+						className="flex cursor-pointer flex-col gap-2 rounded-xl border bg-card p-2 text-sm text-muted-foreground outline-none transition-[border-color,box-shadow,color] hover:border-outline hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background add-widget-compact:flex-row add-widget-compact:items-center add-widget-compact:px-3"
 						onClick={() => onAdd(type)}
 					>
-						<div className="flex aspect-16/10 items-center justify-center rounded-md border bg-muted/50 add-widget-compact:contents">
+						<div className="flex aspect-16/10 items-center justify-center rounded-md border bg-muted add-widget-compact:contents">
 							<type.icon className="size-8 shrink-0 add-widget-compact:size-4" />
 						</div>
 						<div className="flex items-center justify-between gap-2 px-1 pb-0.5 add-widget-compact:flex-1 add-widget-compact:px-0 add-widget-compact:pb-0">

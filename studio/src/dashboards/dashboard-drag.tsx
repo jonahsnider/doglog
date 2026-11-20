@@ -67,15 +67,14 @@ function SplitZone({
 		<div
 			ref={ref}
 			className={cn(
-				'h-[min(20rem,70%)] w-44 min-w-0 rounded-2xl border bg-background/80 p-2 shadow-lg backdrop-blur-sm transition-colors @max-xs:px-0',
-				isDropTarget && 'border-primary/50 bg-primary/10',
+				'h-[min(20rem,70%)] w-44 min-w-0 rounded-2xl border bg-popover p-2 shadow-lg @max-xs:px-0',
 				disabled && 'opacity-50',
 			)}
 		>
 			<div
 				className={cn(
 					'flex size-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-3 text-center text-sm font-medium text-muted-foreground transition-colors @max-xs:px-0 @max-xs:wrap-anywhere',
-					isDropTarget && 'border-primary text-primary',
+					isDropTarget && 'border-primary bg-primary/10 text-primary',
 				)}
 			>
 				<Icon className="size-5" />

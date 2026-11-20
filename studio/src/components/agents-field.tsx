@@ -50,7 +50,7 @@ export function AgentsField() {
 				<FieldDescription>
 					Let agents build dashboards for you. Add Studio to others with this MCP config:
 				</FieldDescription>
-				<div className="relative w-full rounded-lg border bg-muted/50">
+				<div className="relative w-full rounded-lg border bg-muted">
 					<pre className="overflow-x-auto p-3 font-mono text-xs select-text">{config}</pre>
 					<Button
 						variant="ghost"

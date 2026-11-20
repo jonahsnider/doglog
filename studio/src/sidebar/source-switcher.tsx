@@ -60,7 +60,7 @@ function SourceRow({ source, shown }: { source: Source; shown: boolean }) {
 				closeOnClick={false}
 				aria-current={shown}
 				className={cn(
-					'min-h-11! flex-1 gap-2.5 rounded-md bg-transparent py-1.5 pe-9 text-muted-foreground data-highlighted:bg-foreground/5 data-highlighted:text-muted-foreground sm:min-h-11!',
+					'min-h-11! flex-1 gap-2.5 rounded-md bg-transparent py-1.5 pe-9 text-muted-foreground data-highlighted:bg-foreground/8 data-highlighted:text-muted-foreground sm:min-h-11!',
 					shown && 'text-foreground data-highlighted:text-foreground',
 				)}
 				onClick={() => showSource(source.type)}

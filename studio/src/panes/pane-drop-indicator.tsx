@@ -35,7 +35,7 @@ export function PaneDropIndicator({ layout, paneId }: { layout: PaneNode; paneId
 			<div
 				className={cn(
 					'pointer-events-none absolute z-20 m-1 rounded-md border-2',
-					drop.allowed ? 'border-primary bg-primary/10' : 'border-dashed border-muted-foreground/50 bg-muted/50',
+					drop.allowed ? 'border-primary bg-primary/10' : 'border-dashed border-outline bg-foreground/12',
 				)}
 				style={{ inset: sideInsets[drop.side] }}
 			/>

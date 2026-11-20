@@ -153,7 +153,7 @@ function OptionCard({ value, label, children }: { value: string; label: string; 
 	return (
 		<RadioPrimitive.Root
 			value={value}
-			className="flex cursor-pointer flex-col gap-2 rounded-xl border bg-card p-2 text-sm text-muted-foreground outline-none transition-[border-color,box-shadow] hover:border-ring/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background data-checked:border-primary data-checked:text-foreground data-checked:ring-1 data-checked:ring-primary"
+			className="flex cursor-pointer flex-col gap-2 rounded-xl border bg-card p-2 text-sm text-muted-foreground outline-none transition-[border-color,box-shadow] hover:border-outline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background data-checked:border-primary data-checked:text-foreground data-checked:ring-1 data-checked:ring-primary"
 		>
 			{children}
 			<span className="pb-0.5 text-center">{label}</span>

@@ -136,7 +136,7 @@ export function Stick({ center, x, y, pressed }: { center: Point; x: number; y: 
 				cx={cap[0]}
 				cy={cap[1]}
 				r={stickCap - 4}
-				className={cn('fill-none', pressed ? 'stroke-primary-foreground/40' : 'stroke-border')}
+				className={cn('fill-none', pressed ? 'stroke-primary-foreground' : 'stroke-border')}
 			/>
 		</g>
 	);

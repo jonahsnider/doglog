@@ -81,7 +81,7 @@ export function Notepad() {
 				aria-label="Notes"
 				placeholder="Write notes in Markdown"
 				spellCheck={false}
-				className="min-w-0 resize-none overflow-hidden text-transparent caret-foreground outline-none selection:bg-primary/25 placeholder:text-muted-foreground"
+				className="min-w-0 resize-none overflow-hidden text-transparent caret-foreground outline-none selection:bg-primary/16 placeholder:text-muted-foreground"
 				value={notes}
 				onChange={(event) => setNotes(event.target.value)}
 			/>

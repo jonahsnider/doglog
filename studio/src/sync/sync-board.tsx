@@ -93,7 +93,7 @@ export function SyncBoard({ logs, onOpen }: { logs: BoardLog[]; onOpen: (name: s
 					})}
 				{shows('over-limit') && (
 					<li className="flex items-center gap-1.5">
-						<span className="size-3 rounded-[3px] border border-dashed border-muted-foreground/50" />
+						<span className="size-3 rounded-[3px] border border-dashed border-outline" />
 						Over the storage limit
 					</li>
 				)}
@@ -103,10 +103,10 @@ export function SyncBoard({ logs, onOpen }: { logs: BoardLog[]; onOpen: (name: s
 }
 
 const squareClasses: Record<BoardLog['state'], string> = {
-	synced: 'cursor-pointer bg-primary hover:bg-primary/80',
+	synced: 'cursor-pointer bg-primary before:absolute before:inset-0 hover:before:bg-primary-foreground/8',
 	copying: 'bg-muted ring-1 ring-primary',
 	queued: 'bg-muted',
-	'over-limit': 'border border-dashed border-muted-foreground/50',
+	'over-limit': 'border border-dashed border-outline',
 };
 
 function filledCells(log: BoardLog): number {
@@ -125,7 +125,7 @@ function Cells({ log }: { log: BoardLog }) {
 			key={index}
 			className={cn(
 				order < filled && 'bg-primary',
-				order === filled && log.state === 'copying' && 'bg-primary/40 motion-safe:animate-pulse',
+				order === filled && log.state === 'copying' && 'bg-secondary motion-safe:animate-pulse',
 			)}
 		/>
 	));
