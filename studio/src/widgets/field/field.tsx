@@ -123,7 +123,7 @@ export function Field({ bindings, options }: WidgetProps) {
 		// field is centered between equal columns, and only moves right as far as the legend needs.
 		<div
 			className={cn(
-				'h-full p-2 [container-type:size]',
+				'group/field h-full p-2 [container-type:size]',
 				vertical ? '[container-name:field-portrait]' : '[container-name:field-landscape]',
 			)}
 		>

@@ -24,8 +24,8 @@ export function CursorPosition({
 	return (
 		<span
 			className={cn(
-				'flex items-center gap-1.5 transition-opacity duration-150',
-				hovered || copied ? 'opacity-100' : 'opacity-0',
+				'flex items-center gap-1.5 transition-opacity duration-150 motion-reduce:transition-none',
+				hovered || copied ? 'opacity-100' : 'opacity-0 duration-100',
 			)}
 		>
 			<span
@@ -65,7 +65,13 @@ export function ToolButtons({
 	onToggle: (tool: MeasureTool) => void;
 }) {
 	return (
-		<div className="flex gap-1">
+		<div
+			className={cn(
+				'flex gap-1 transition-opacity duration-150 motion-reduce:transition-none',
+				tool === undefined &&
+					'[@media(hover:hover)]:group-[:not(:hover,:focus-within)]/field:opacity-0 [@media(hover:hover)]:group-[:not(:hover,:focus-within)]/field:duration-100',
+			)}
+		>
 			{tools.map((option) => (
 				<ControlTooltip
 					key={option.tool}

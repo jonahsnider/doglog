@@ -260,7 +260,13 @@ The field widget SHALL show the field position under the pointer, in meters, bel
 
 ### Requirement: Measuring tool buttons
 
-Buttons below the bottom-right corner of the field SHALL show the distance and angle tools with their keys, toggle them when clicked, and show which one is active.
+Buttons below the bottom-right corner of the field SHALL show the distance and angle tools with their keys, toggle them when clicked, and show which one is active. On devices that support hover, the buttons SHALL only be visible while the field widget is hovered, focus is within it, or a measuring tool is selected.
+
+#### Scenario: Leave an idle field
+
+- **GIVEN** no measuring tool is selected and focus is outside the field widget
+- **WHEN** the pointer leaves the widget
+- **THEN** the measuring buttons and their shortcut hints are hidden without resizing the field
 
 #### Scenario: Click to measure
 
