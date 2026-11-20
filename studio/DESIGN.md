@@ -29,6 +29,7 @@ How Studio's UI is built. The OpenSpec specs in `openspec/specs` describe what u
 ## Color
 
 - Use semantic color classes, like `bg-primary`, `text-muted-foreground`, `border-border`, or the status and series colors. Don't use Tailwind's palette (ex. `bg-red-500`) or hex values, since they ignore the theme color and the light and dark variants.
+- Don't change a color's opacity to make a shade between two roles (ex. `bg-muted-foreground/60`), use the MD3 role for it (ex. `outline`, which sits between `outline-variant` and `on-surface-variant`). Opacity is only for MD3's state values: state layers at 8% for hover, 10% for focus and pressed, and 16% for dragged, disabled content at 38% and containers at 12%, and scrims at 32%. Shadows and coss ui components keep coss ui's values (ex. `shadow-xs/5`).
 - Team 581 uses muted neutral palettes so surfaces stay close to neutral and the team color carries emphasis: HCT chroma 1 and 2 in light mode, where MD3 2025 boosts container chroma, and 2 and 3.5 in dark mode. Keep the Tonal Spot accent palettes so buttons and selected rows still carry the team color.
 - match13 uses pale blue or black surfaces and blue accents. Dark primary actions and focus rings use the site's `sky-400` at Standard contrast, with lighter tones for Medium and High and darker labels for contrast.
 - Colors are generated from the theme color as a Material Design 3 scheme (`src/theme/theme-color.ts`). When a new color is needed, derive it there too:
