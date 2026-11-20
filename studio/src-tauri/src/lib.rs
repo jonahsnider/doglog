@@ -82,6 +82,11 @@ pub fn run() -> ExitCode {
             sentry::ClientOptions::new()
                 .dsn("https://cc0e3a691d3ee00a449b2ee4ea3d55f3@o141130.ingest.us.sentry.io/4512455446495232")
                 .release(format!("doglog-studio@{}", context.package_info().version))
+                .environment(if option_env!("VITE_DOGLOG_LOCAL_PREVIEW") == Some("1") {
+                    "development"
+                } else {
+                    "production"
+                })
                 // The computer's hostname often has its owner's name in it
                 .before_send(|mut event| {
                     event.server_name = None;

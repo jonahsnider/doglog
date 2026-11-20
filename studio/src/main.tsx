@@ -19,11 +19,18 @@ import { startSharing } from './sharing/sharing.ts';
 import { runLogSync } from './sync/sync.ts';
 import { registerServiceWorker } from './updater.ts';
 
-// Reports uncaught errors from production builds, the release (`doglog-studio@<version>`) comes from the Sentry Vite plugin
+const desktop = isTauri();
+// Web previews serve the production bundle on loopback; local desktop packages are marked at build time.
+const localPreview =
+	import.meta.env.VITE_DOGLOG_LOCAL_PREVIEW === '1' ||
+	(!desktop && /^(localhost|127\.[\d.]+|\[::1\])$|\.localhost$/u.test(location.hostname));
+
+// Reports uncaught errors from production-mode builds, with the release set by the build plugin.
 Sentry.init({
 	dsn: 'https://cc0e3a691d3ee00a449b2ee4ea3d55f3@o141130.ingest.us.sentry.io/4512455446495232',
 	enabled: import.meta.env.PROD,
-	initialScope: { tags: { platform: isTauri() ? 'desktop' : 'web' } },
+	environment: import.meta.env.DEV || localPreview ? 'development' : 'production',
+	initialScope: { tags: { platform: desktop ? 'desktop' : 'web' } },
 });
 
 syncTheme();
