@@ -94,7 +94,11 @@ export function AppSidebar() {
 				return;
 			}
 
-			hide.timer ??= setTimeout(() => {
+			if (hide.timer !== undefined) {
+				return;
+			}
+
+			hide.timer = setTimeout(() => {
 				hide.timer = undefined;
 				if (!container.querySelector(keepPeekingSelector)) {
 					setPeeking(false);
