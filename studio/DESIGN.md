@@ -64,6 +64,7 @@ Durations come from Material's scale. Pick by how far something moves or how muc
 - Looping and feedback animations (ex. skeletons, blinking carets, toast nudges) can use their own timing, since they don't move things around the screen.
 - With the motion library, use `easing` and `useMotionTransition()` from `@/lib/motion`, which mirror the CSS curves and skip animating when the system reduces motion.
 - In CSS, use `motion-safe:` and `motion-reduce:` so layout changes happen instantly when the system reduces motion.
+- Spinners keep turning, just slower, when the system reduces motion, since they show that something is still loading. `animate-spin` does this on its own.
 - Prefer animating `transform` and `opacity`, which the browser can run without laying out the page again. When a layout property has to animate (ex. pane sizes), keep the content inside at a fixed size with `contain: strict` and clip it, so it isn't laid out again every frame. React Doctor flags layout animations, so explain why one is needed when disabling the rule.
 
 ## Checking changes

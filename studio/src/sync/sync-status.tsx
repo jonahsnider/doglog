@@ -225,7 +225,7 @@ export function SyncStatusPanel({
 						<Icon
 							className={cn(
 								'size-9 group-hover:hidden group-focus-visible:hidden',
-								view.spin === true && 'motion-safe:animate-spin motion-safe:[animation-duration:3s]',
+								view.spin === true && 'animate-spin [animation-duration:3s] motion-reduce:[animation-duration:8s]',
 							)}
 						/>
 						<ToggleIcon className="hidden size-9 group-hover:block group-focus-visible:block" />

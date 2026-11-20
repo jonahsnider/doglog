@@ -38,6 +38,12 @@
 	--default-transition-duration: 150ms;
 	--default-transition-timing-function: var(--ease-in-out);
 }
+/* Spinners slow down instead of stopping when the system reduces motion, so they still show that something is loading */
+@media (prefers-reduced-motion: reduce) {
+	:root {
+		--animate-spin: spin 3s linear infinite;
+	}
+}
 
 @theme inline {
 	--animate-skeleton: skeleton 2s -1s infinite linear;
