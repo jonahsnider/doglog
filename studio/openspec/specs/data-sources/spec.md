@@ -226,6 +226,12 @@ Studio SHALL decode numeric, boolean, string, array, and WPILib struct entries. 
 - **THEN** the schema is used to decode `Pose2d` entries
 - **AND** the schema entry isn't listed anywhere in Studio
 
+#### Scenario: Struct schemas sent before the live session connected
+
+- **GIVEN** Studio is already connected to an NT4 server, ex. to sync shared dashboards or from a live session that was disconnected
+- **WHEN** a live session connects to that server
+- **THEN** struct entries are decoded with the schemas the server already sent
+
 #### Scenario: Protobuf entry
 
 - **GIVEN** a source contains a protobuf-encoded entry

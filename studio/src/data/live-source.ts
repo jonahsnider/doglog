@@ -144,13 +144,7 @@ export function connectLive(
 			}
 
 			const name = normalizeEntryName(params.name);
-			if (isStudioEntry(name)) {
-				return;
-			}
-			if (isSchemaEntry(name)) {
-				if (params.type === 'structschema' && name.startsWith(structSchemaPrefix)) {
-					registerStructSchema(name, value instanceof Uint8Array ? textDecoder.decode(value) : String(value));
-				}
+			if (isStudioEntry(name) || isSchemaEntry(name)) {
 				return;
 			}
 
@@ -172,6 +166,18 @@ export function connectLive(
 		{ all: true, periodic: 0.02 },
 	);
 
+	// The NT4 client subscribes to struct schemas itself, so the server doesn't send them to subscriptions made after it
+	// connected, ex. when shared dashboards connected first or after reconnecting. Its cached schemas are replayed instead.
+	const schemaTopic = nt.getPrefixTopic(structSchemaPrefix);
+	const schemaSubscription = schemaTopic.subscribe(
+		(value, params) => {
+			if (!closed && value !== null) {
+				registerStructSchema(params.name, value instanceof Uint8Array ? textDecoder.decode(value) : String(value));
+			}
+		},
+		{ all: true, immediateNotify: true },
+	);
+
 	return () => {
 		closed = true;
 		if (connected) {
@@ -179,6 +185,7 @@ export function connectLive(
 		}
 		removeConnectionListener();
 		topic.unsubscribe(subscription, true);
+		schemaTopic.unsubscribe(schemaSubscription, true);
 		nt.release();
 	};
 }
