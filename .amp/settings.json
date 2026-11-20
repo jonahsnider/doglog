@@ -1,0 +1,11 @@
+{
+	"amp.mcpServers": {
+		"tauri": {
+			"command": "mcp-server-tauri"
+		},
+		"safari": {
+			"command": "/Applications/Safari.app/Contents/MacOS/safaridriver",
+			"args": ["--mcp"]
+		}
+	}
+}
