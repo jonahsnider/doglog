@@ -1,4 +1,4 @@
-import { useRouter } from '@tanstack/react-router';
+import { useParams, useRouter } from '@tanstack/react-router';
 import PlusIcon from 'lucide-react/icons/plus';
 import { AnimatePresence, domAnimation, LazyMotion } from 'motion/react';
 import { TextMorph } from 'torph/react';
@@ -164,15 +164,19 @@ function LocalDashboards(props: SectionProps) {
 	const router = useRouter();
 	const { ref, listRef, items } = useSectionItems(props, false);
 	const dragging = useDragging();
+	const { dashboardId } = useParams({ strict: false });
+	const local = props.dashboards.filter((dashboard) => !dashboard.shared);
+	const others = local.filter((dashboard) => dashboard.id !== dashboardId);
 
 	return (
 		<SidebarGroup ref={ref} className="pb-0" onClick={props.onClick} onDoubleClick={props.onDoubleClick}>
 			<SectionLabel label="Dashboards">
-				{props.dashboards.length > 0 && (
+				{local.length > 0 && (
 					<button
 						type="button"
 						className="-me-1.5 ms-auto rounded-md px-1.5 whitespace-nowrap text-sidebar-foreground/70 opacity-0 outline-hidden ring-sidebar-ring group-hover/label:opacity-100 group-data-[collapsible=icon]:hidden hover:text-sidebar-foreground focus-visible:opacity-100 focus-visible:ring-2"
-						onClick={() => deleteDashboards(props.dashboards.map((dashboard) => dashboard.id))}
+						// Keeps the open dashboard until it's the last one left, so a second click closes it too
+						onClick={() => deleteDashboards((others.length > 0 ? others : local).map((dashboard) => dashboard.id))}
 					>
 						Close all
 					</button>
