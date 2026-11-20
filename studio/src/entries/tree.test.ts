@@ -63,14 +63,9 @@ test('search can collapse one matching group without hiding other results', () =
 	const results = entryTreeView(arms, [], 'angle');
 	const collapsed = collapseSearchGroups(results, new Set(['/LeftArm/Wrist']));
 	expect(collapsed.expanded).not.toContain('/LeftArm/Wrist');
-	expect(collapsed.rows.map((row) => row.item.value)).toEqual([
-		'/LeftArm',
-		'/LeftArm/Wrist',
-		'/RightArm',
-		'/RightArm/Angle',
-	]);
+	expect(collapsed.rows.map((row) => row.item.value)).toEqual(['/LeftArm/Wrist', '/RightArm', '/RightArm/Angle']);
 	// The matching child is still in the tree, so expanding Wrist can show it again.
-	expect(collapsed.items[0]?.children?.[0]?.children?.map((node) => node.value)).toEqual(['/LeftArm/Wrist/Angle']);
+	expect(collapsed.items[0]?.children?.map((node) => node.value)).toEqual(['/LeftArm/Wrist/Angle']);
 });
 
 test('search matches the full name', () => {
@@ -172,6 +167,36 @@ test('search shows hidden matches and highlights full paths', () => {
 	expect(view.highlights?.get('/Arm/Velocity')).toEqual([1, 4, 5, 8]);
 });
 
+test('chains of groups with one group in them are one row, except the tops of pinned and hidden groups', () => {
+	const modules = buildEntryTree(entries('/Drive/Modules/0', '/Drive/Modules/1', '/Time'));
+	const rows = (placements: Record<string, 'pinned'>, query = '') => {
+		const view = entryTreeView(
+			sectionEntryTree(modules, placements, false).items,
+			['pinned', '/Drive', '/Drive/Modules'],
+			query,
+		);
+		return view.rows.map((row) => `${row.item.value} ${row.item.label}`);
+	};
+
+	expect(rows({})).toEqual(['/Drive/Modules Drive/Modules', '/Drive/Modules/0 0', '/Drive/Modules/1 1', '/Time Time']);
+	expect(rows({ '/Drive': 'pinned' })).toEqual([
+		'pinned Pinned',
+		'/Drive /Drive',
+		'/Drive/Modules Modules',
+		'/Drive/Modules/0 0',
+		'/Drive/Modules/1 1',
+		'/Time Time',
+	]);
+	// Search leaves groups with fewer children, and highlights the segment of the chain that matched
+	const results = buildEntryTree(entries('/Drive/Modules/0', '/Drive/Gyro'));
+	const view = entryTreeView(sectionEntryTree(results, {}, false).items, [], 'modules');
+	expect(view.rows.map((row) => `${row.item.value} ${row.item.label}`)).toEqual([
+		'/Drive/Modules Drive/Modules',
+		'/Drive/Modules/0 0',
+	]);
+	expect(view.highlights?.get('/Drive/Modules')).toEqual([6, 13]);
+});
+
 test('ancestor groups of entries', () => {
 	expect([...ancestorGroups(['/Arm/Wrist/Angle', '/Arm/Velocity', '/Time'])]).toEqual(['/Arm', '/Arm/Wrist']);
 });
@@ -219,6 +244,7 @@ test("search doesn't list every field of a matching struct or array", () => {
 	const search = (query: string) => entryTreeView(fields, [], query).rows.map((row) => row.item.value);
 	expect(search('speeds')).toEqual(['/Drive', '/Drive/Speeds']);
 	expect(search('pose')).toEqual(['/Drive', '/Drive/Pose']);
-	expect(search('speeds 1')).toEqual(['/Drive', '/Drive/Speeds', '/Drive/Speeds/1']);
-	expect(search('pose x')).toEqual(['/Drive', '/Drive/Pose', '/Drive/Pose/translation', '/Drive/Pose/translation/x']);
+	// `/Drive` is left with one group in it
+	expect(search('speeds 1')).toEqual(['/Drive/Speeds', '/Drive/Speeds/1']);
+	expect(search('pose x')).toEqual(['/Drive/Pose', '/Drive/Pose/translation', '/Drive/Pose/translation/x']);
 });

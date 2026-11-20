@@ -2,6 +2,7 @@ import BinaryIcon from 'lucide-react/icons/binary';
 import BoxIcon from 'lucide-react/icons/box';
 import BoxesIcon from 'lucide-react/icons/boxes';
 import BracesIcon from 'lucide-react/icons/braces';
+import CheckIcon from 'lucide-react/icons/check';
 import HashIcon from 'lucide-react/icons/hash';
 import ListChecksIcon from 'lucide-react/icons/list-checks';
 import ListIcon from 'lucide-react/icons/list';
@@ -15,6 +16,7 @@ import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import type { EntryKind } from '@/data/entry-kind';
 import { formatEntryType, getEntryKind } from '@/data/samples';
 import { knownGroup } from '@/entries/known-groups';
+import { cn } from '@/lib/utils';
 
 /**
  * One tooltip shared by many marks, so long lists don't render a tooltip per row.
@@ -45,8 +47,16 @@ export function EntryTypeIcon({ type, className }: { type: string; className?: s
 	return <Icon aria-hidden className={className} />;
 }
 
-/** Compact icon for an entry type, with the full type in a tooltip */
-export function TypeMark({ type, tooltip }: { type: string; tooltip: MarkTooltipHandle }) {
+/** Compact icon for an entry type, with the full type in a tooltip. `checked` shows a checked checkbox in its place. */
+export function TypeMark({
+	type,
+	tooltip,
+	checked = false,
+}: {
+	type: string;
+	tooltip: MarkTooltipHandle;
+	checked?: boolean;
+}) {
 	return (
 		<TooltipTrigger
 			handle={tooltip}
@@ -55,11 +65,18 @@ export function TypeMark({ type, tooltip }: { type: string; tooltip: MarkTooltip
 				<span
 					role="img"
 					aria-label={`Type: ${formatEntryType(type)}`}
-					className="flex size-4 shrink-0 items-center justify-center text-muted-foreground"
+					className={cn(
+						'flex size-4 shrink-0 items-center justify-center',
+						checked ? 'rounded-[.25rem] bg-primary text-primary-foreground' : 'text-muted-foreground',
+					)}
 				/>
 			}
 		>
-			<EntryTypeIcon type={type} className="size-3.5" />
+			{checked ? (
+				<CheckIcon aria-hidden className="size-3" strokeWidth={3} />
+			) : (
+				<EntryTypeIcon type={type} className="size-3.5" />
+			)}
 		</TooltipTrigger>
 	);
 }

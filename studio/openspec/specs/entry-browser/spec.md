@@ -27,6 +27,35 @@ The entry browser SHALL list every entry in the active source as a tree grouped 
 - **WHEN** a new topic is announced
 - **THEN** it appears in the tree
 
+### Requirement: Compact groups
+
+A chain of groups that each only have one group in them SHALL be shown as one row labeled with their names, ex. `Drive/Modules`, including chains left by a search, except for the tops of pinned and hidden groups. Rows without children MUST show their type indicator where the chevron would be.
+
+#### Scenario: Group with one group in it
+
+- **GIVEN** the source has `/Drive/Modules/0/Speed` and `/Drive/Modules/1/Speed`, and nothing else under `/Drive`
+- **THEN** one `Drive/Modules` row holds the `0` and `1` groups
+
+### Requirement: Indent guides
+
+While the entry browser is hovered, each level SHALL show a guide line under its group's chevron. The guide of the group holding the row last clicked or moved to with the keyboard, or of that row when it's an expanded group, MUST always be shown and stand out from the others.
+
+#### Scenario: Active group's guide
+
+- **GIVEN** the user clicked `/Drive/Modules/0/Speed`
+- **WHEN** the pointer leaves the entry browser
+- **THEN** only the guide under `0` is shown
+
+### Requirement: Sticky parent groups
+
+The groups containing the rows at the top of the list SHALL stick there while their rows scroll under them, and clicking a stuck group MUST scroll back to it.
+
+#### Scenario: Scrolling through a large group
+
+- **GIVEN** `/Drive/Modules` is expanded and has more rows than fit in the entry browser
+- **WHEN** the user scrolls past the `Drive/Modules` row
+- **THEN** `Drive/Modules` stays at the top of the list until its last row scrolls by
+
 ### Requirement: Array elements and struct fields
 
 Each element of an array entry and each field of a struct entry SHALL be listed under it as an entry of its own, named by its index or field name, so it can be found, dragged, and bound as if it was logged on its own. Elements of struct arrays and fields of nested structs MUST be listed the same way, as deep as they go.
@@ -330,13 +359,13 @@ Users SHALL also be able to edit a widget's entries by double-clicking its title
 
 ### Requirement: Toggle entries while editing
 
-While editing a widget's entries, each entry SHALL show a checkbox that's checked when the widget shows it. Clicking an entry, or pressing Space or Enter on it, MUST bind or unbind it, and unbinding MUST remove every binding of an entry bound more than once. Pressing Enter in the search box MUST toggle the first matching entry, keeping the search. Double-clicking MUST NOT add the entry to the dashboard, and entries MUST still be draggable.
+While editing a widget's entries, each entry the widget shows SHALL show a checkmark in place of its type indicator, so editing doesn't move the entries' names. Clicking an entry, or pressing Space or Enter on it, MUST bind or unbind it, and unbinding MUST remove every binding of an entry bound more than once. Pressing Enter in the search box MUST toggle the first matching entry, keeping the search. Double-clicking MUST NOT add the entry to the dashboard, and entries MUST still be draggable.
 
 #### Scenario: Bind by clicking
 
 - **GIVEN** the entry browser is editing a table's entries
 - **WHEN** the user clicks `/Arm/Angle`
-- **THEN** the table shows `/Arm/Angle` and its checkbox is checked
+- **THEN** the table shows `/Arm/Angle` and its row shows a checkmark instead of its type
 - **WHEN** the user clicks `/Arm/Angle` again
 - **THEN** the table stops showing it
 

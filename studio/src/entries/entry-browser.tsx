@@ -8,7 +8,8 @@ import SearchIcon from 'lucide-react/icons/search';
 import XIcon from 'lucide-react/icons/x';
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { Panel, Separator, usePanelRef } from 'react-resizable-panels';
-import { EntryRows, EntryRowsTooltip } from '@/entries/entry-browser-rows';
+import { EntryRows } from '@/entries/entry-browser-rows';
+import { EntryRowsTooltip } from '@/entries/entry-row';
 import { ActiveSection } from '@/entries/active-section';
 import { HiddenSection } from '@/entries/hidden-section';
 import { type EditedWidget, hiddenEntriesNote, useEditedWidget } from '@/entries/edited-widget';
@@ -89,7 +90,7 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 			>
 				{/* Not selectable, so double-clicking or dragging rows doesn't select their labels */}
 				{/* A sidebar like the one on the left, on the frame instead of its own surface */}
-				<aside aria-label="Entry browser" className="flex h-full flex-col overflow-hidden">
+				<aside aria-label="Entry browser" className="group/entry-browser flex h-full flex-col overflow-hidden">
 					{/* Reaches the top of the main area like the sidebar, so it's padded to line up with the pane headers below the dashboard's gap */}
 					<div {...dragRegion} className="flex h-10.5 shrink-0 items-center gap-1 ps-3 pe-1.5 pt-1.5">
 						{edited ? (

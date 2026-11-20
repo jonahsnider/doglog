@@ -1,6 +1,6 @@
 import { type TreeRow, visibleTreeRows } from '@ui-sdk/core/tree';
 import type { Entry } from '@/data/data-store';
-import { FieldEntry } from '@/data/field-entry';
+import { compactGroups, mergeSingleFields } from '@/entries/merged-rows';
 import { labelRanges, searchEntries } from '@/entries/search';
 import type { EntryPlacements, EntrySection } from '@/entries/sections';
 
@@ -79,33 +79,6 @@ export function buildEntryTree(entries: readonly Entry[]): EntryTreeNode[] {
 }
 
 /**
- * Show structs with one field as one row, see `EntryTreeNode.field`. Groups left with only a struct's field, ex. when
- * editing a widget that accepts the field but not the struct, show the field in the group's place.
- */
-function mergeSingleFields(nodes: EntryTreeNode[]): EntryTreeNode[] {
-	return nodes.map((node) => {
-		if (!node.children) {
-			return node;
-		}
-		node.children = mergeSingleFields(node.children);
-		const [child] = node.children;
-		// A field of this struct, not an array's element or a field of a struct already shown in its place
-		const { entry: field } = child!;
-		if (
-			node.children.length !== 1 ||
-			child!.children ||
-			!(field instanceof FieldEntry) ||
-			typeof field.path.at(-1) !== 'string' ||
-			field.name !== `${node.value}/${field.path.at(-1)}`
-		) {
-			return node;
-		}
-		const { children: _children, ...struct } = node;
-		return struct.entry ? { ...struct, field: child!.field ?? child!.entry } : { ...child!, label: node.label };
-	});
-}
-
-/**
  * Move pinned and hidden entries and groups out of the tree. Pinned ones are put in a Pinned section before the rest of the tree,
  * which is left out when nothing is pinned unless `showEmptyPinned` is set, ex. so entries can be dragged into it.
  */
@@ -134,8 +107,9 @@ export function sectionEntryTree(
 			return [placed];
 		});
 
-	const main = place(tree);
-	const sorted = (nodes: EntryTreeNode[]) => nodes.toSorted((a, b) => collator.compare(a.value, b.value));
+	const main = compactGroups(place(tree));
+	const sorted = (nodes: EntryTreeNode[]) =>
+		compactGroups(nodes.toSorted((a, b) => collator.compare(a.value, b.value)));
 	const pinned = sorted(sections.pinned);
 	return {
 		items:
@@ -181,6 +155,7 @@ function topLevelGroups(items: readonly EntryTreeNode[]): string[] {
 /**
  * The hierarchy and rows to show. Children of expanded groups are shown.
  * With a search query, only entries whose names or struct types fuzzy match it and their parent groups are shown, all expanded.
+ * `tree` comes from `sectionEntryTree()`, which compacts chains of groups. Search compacts the groups it leaves with one group in them too.
  */
 export function entryTreeView(
 	tree: EntryTreeNode[],
@@ -193,30 +168,37 @@ export function entryTreeView(
 		return { items: tree, expanded, rows: sectionRows(visibleTreeRows(tree, expanded), section) };
 	}
 
-	const groups: string[] = [];
-	const highlights = new Map<string, number[]>();
 	const filter = (nodes: readonly EntryTreeNode[]): EntryTreeNode[] =>
 		nodes.flatMap((node) => {
 			const children = node.children && filter(node.children);
-			let kept: EntryTreeNode;
 			if (children && children.length > 0) {
-				groups.push(node.value);
-				kept = { ...node, children };
-			} else if (node.entry && search.matches.has(node.entry.name)) {
+				return [{ ...node, children }];
+			}
+			if (node.entry && search.matches.has(node.entry.name)) {
 				// Groups without matching children are shown as plain entries
 				const { children: _children, ...leaf } = node;
-				kept = leaf;
-			} else {
-				return [];
+				return [leaf];
 			}
-			const ranges = labelRanges(kept, search.positions);
-			if (ranges) {
-				highlights.set(kept.value, ranges);
-			}
-			return [kept];
+			return [];
 		});
+	// Groups left with one group in them are compacted too
+	const items = compactGroups(filter(tree));
 
-	const items = filter(tree);
+	const groups: string[] = [];
+	const highlights = new Map<string, number[]>();
+	const visit = (nodes: readonly EntryTreeNode[]) => {
+		for (const node of nodes) {
+			if (node.children) {
+				groups.push(node.value);
+				visit(node.children);
+			}
+			const ranges = labelRanges(node, search.positions);
+			if (ranges) {
+				highlights.set(node.value, ranges);
+			}
+		}
+	};
+	visit(items);
 	return { items, expanded: groups, rows: sectionRows(visibleTreeRows(items, groups), section), highlights };
 }
 
