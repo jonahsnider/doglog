@@ -210,9 +210,10 @@ export function AppSidebar() {
 						'in-data-[animation=enter-strip]:top-0 in-data-[animation=enter-strip]:w-(--sidebar-width)',
 						!animated && 'transition-none',
 					)}
-					// On moves instead of entering, so it also peeks after collapsing under the pointer, once it's the rail
+					// On moves instead of entering, so it also peeks after collapsing under the pointer. Not over its portaled popups.
 					onPointerMove={(event) => {
-						if (iconLayout && showTimer.current === undefined && event.pointerType !== 'touch') {
+						const overSidebar = event.target instanceof Node && event.currentTarget.contains(event.target);
+						if (overSidebar && iconLayout && showTimer.current === undefined && event.pointerType !== 'touch') {
 							showTimer.current = setTimeout(peek, peekDelay);
 						}
 					}}
