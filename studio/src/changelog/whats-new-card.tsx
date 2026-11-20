@@ -35,6 +35,7 @@ export function WhatsNewCard({ onShow }: { onShow: () => void }) {
 							exit={{ opacity: 0, scale: 0.95 }}
 							transition={transition}
 							className="relative mb-1 flex flex-col gap-1 rounded-lg border bg-background p-3 text-sm shadow-xs/5 group-data-[collapsible=icon]:hidden"
+							data-sidebar-label=""
 						>
 							<span className="text-xs font-medium text-sidebar-primary">What’s new</span>
 							<h2 className="font-medium">{update.title}</h2>

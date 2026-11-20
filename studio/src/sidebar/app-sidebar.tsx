@@ -26,7 +26,13 @@ import { Spinner } from '@/components/ui/spinner';
 import { shortcuts, useShortcutHint } from '@/commands/commands';
 import { cn } from '@/lib/utils';
 import { useTitleBarStrip, useTrafficLights } from '@/desktop/title-bar';
-import { sidebarAnimationStore, sidebarCollapsedStore, toggleSidebarCollapsed } from '@/sidebar/sidebar';
+import {
+	animateSidebarPeek,
+	isCollapsing,
+	sidebarAnimationStore,
+	sidebarCollapsedStore,
+	toggleSidebarCollapsed,
+} from '@/sidebar/sidebar';
 import { useMotionTransition } from '@/lib/motion';
 import { TitleBar } from '@/sidebar/title-bar';
 import { installUpdate, updateTitle, useUpdate } from '@/updater';
@@ -66,6 +72,9 @@ export function AppSidebar() {
 	const strip = useTitleBarStrip();
 	const trafficLights = useTrafficLights();
 	const animation = useSelector(sidebarAnimationStore);
+	// Collapsing is expanding in reverse: the sidebar keeps its full layout while it shrinks, clipped like when it expands,
+	// and only shows icons once it's done
+	const iconLayout = iconOnly && !isCollapsing(animation);
 	// Only read to skip the animation's steps when the system reduces motion
 	const reduceMotion = useMotionTransition({ duration: 0.2 }).duration === 0;
 
@@ -80,6 +89,7 @@ export function AppSidebar() {
 		clearTimeout(showTimer.current);
 		setAnimated(true);
 		setPeeking(true);
+		animateSidebarPeek(true);
 	};
 	useHotkey(shortcuts.toggleSidebar, () => toggle(false), { requireReset: true });
 
@@ -107,6 +117,7 @@ export function AppSidebar() {
 				hide.timer = undefined;
 				if (!container.querySelector(keepPeekingSelector)) {
 					setPeeking(false);
+					animateSidebarPeek(false);
 				}
 			}, peekDelay);
 		};
@@ -120,7 +131,7 @@ export function AppSidebar() {
 
 	// Provided directly instead of using `SidebarProvider`, its open state is saved with `cookieStore`, which WebKit lacks
 	const context: SidebarContextProps = {
-		state: iconOnly ? 'collapsed' : 'expanded',
+		state: iconLayout ? 'collapsed' : 'expanded',
 		open: !collapsed,
 		setOpen: (open) => sidebarCollapsedStore.set(!open),
 		openMobile: false,
@@ -140,7 +151,7 @@ export function AppSidebar() {
 					// Resizes the main area along with the sidebar, like the timeline sliding up resizes the panes
 					'transition-[width] duration-200 motion-reduce:transition-none',
 					// The main area moves below the title bar's strip before the sidebar collapses
-					'data-[animation=enter-strip]:delay-150 not-data-animation:transition-none',
+					'data-[animation=enter-strip]:w-(--sidebar-width) not-data-animation:transition-none',
 				)}
 				data-animation={animation}
 			>
@@ -148,7 +159,7 @@ export function AppSidebar() {
 				<Sidebar
 					ref={sidebarRef}
 					collapsible="none"
-					data-collapsible={iconOnly ? 'icon' : undefined}
+					data-collapsible={iconLayout ? 'icon' : undefined}
 					// Opaque while it's over the panes, otherwise it can show the window's backdrop through the frame, see `index.css`
 					data-peeking={collapsed && peeking ? '' : undefined}
 					className={cn(
@@ -161,9 +172,12 @@ export function AppSidebar() {
 						'rounded-e-lg',
 						iconOnly && 'w-(--sidebar-width-icon)',
 						'data-peeking:shadow-lg',
-						// The content is already at its final size, see below
+						// The content is already at its full size, see below
 						'[&_[data-sidebar=menu-button]]:transition-none',
-						'in-data-[animation=enter-strip]:delay-150',
+						// Its width as it animates, for the menu buttons' corners, see `index.css`. The content is already contained.
+						'@container',
+						// Stays put until the main area is below the strip, then collapses
+						'in-data-[animation=enter-strip]:top-0 in-data-[animation=enter-strip]:w-(--sidebar-width)',
 						!animated && 'transition-none',
 					)}
 					onPointerEnter={(event) => {
@@ -173,12 +187,12 @@ export function AppSidebar() {
 					}}
 					onPointerLeave={() => clearTimeout(showTimer.current)}
 				>
-					{/* Like sliding panes, the content keeps the width it ends at and is clipped, so it isn't laid out again every frame while the sidebar's width animates */}
+					{/* Like sliding panes, the content keeps its full width and is clipped, so it isn't laid out again every frame while the sidebar's width animates */}
 					<div className="flex h-full w-(--sidebar-width) shrink-0 flex-col contain-strict group-data-[collapsible=icon]:w-(--sidebar-width-icon)">
 						<SidebarHeader
 							// Leaves room for the title bar, which is above the sidebar when it has its own strip
 							// The items stay where they are in the rail below the strip, so they don't move when the sidebar expands
-							className={strip ? undefined : 'pt-12.5'}
+							className={cn(!strip && 'pt-12.5', 'in-data-[animation=enter-strip]:pt-12.5')}
 							// Tints the top of the sidebar, see `index.css`
 							data-window-color={windowColor}
 						>

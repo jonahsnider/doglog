@@ -522,6 +522,13 @@
 [data-frosted-frame] [data-slot='sidebar']:not([data-peeking]) {
 	--sidebar: transparent;
 }
+/* When peeking ends, the surface fades out with the labels as it shrinks, instead of changing in the rail after it stops */
+[data-frosted-frame] [data-animation='unpeek'] [data-slot='sidebar'] {
+	transition:
+		width 200ms var(--ease-in-out),
+		box-shadow 200ms var(--ease-in-out),
+		background-color 150ms var(--ease-in);
+}
 
 /* Older webviews don't report reduced transparency; their native backdrop handles it. */
 @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
@@ -596,6 +603,66 @@
 		background-image:
 			linear-gradient(var(--window-tint), var(--window-tint)),
 			linear-gradient(var(--sidebar-accent), var(--sidebar-accent));
+	}
+}
+/*
+ * Slides up over the title bar as the main area moves back up after the sidebar expands, from below the strip, instead of
+ * appearing there all at once, and back down before it collapses, see `sidebarAnimationStore`
+ */
+[data-animation='leave-strip'] [data-window-color] {
+	animation: window-tint-leave-strip 150ms var(--ease-in-out);
+}
+/* Held below the strip until the sidebar moves there for the next step */
+[data-animation='enter-strip'] [data-window-color] {
+	animation: window-tint-enter-strip 150ms var(--ease-in-out) forwards;
+}
+/* Both ends are set since `clip-path` can't interpolate to or from the default `none` */
+@keyframes window-tint-leave-strip {
+	from {
+		clip-path: inset(2.625rem 0 0 0);
+	}
+	to {
+		clip-path: inset(0);
+	}
+}
+@keyframes window-tint-enter-strip {
+	from {
+		clip-path: inset(0);
+	}
+	to {
+		clip-path: inset(2.625rem 0 0 0);
+	}
+}
+/*
+ * Menu buttons stay rounded as the sidebar's edge passes over them, instead of being cut straight by it, by clipping
+ * them as far from the edge as they are from its start, like they are in the rail. Only while it animates, so it
+ * doesn't clip their focus rings.
+ */
+[data-animation] [data-slot='sidebar'] [data-sidebar='menu-button'] {
+	clip-path: inset(0 max(0px, 100% + 1rem - 100cqw) 0 0 round var(--radius-lg));
+}
+/*
+ * Labels fade out as the sidebar collapses or stops peeking, and back in as it expands or peeks, instead of what's left of
+ * them in the rail disappearing or appearing at once when it switches between labels and icons, see
+ * `sidebarAnimationStore`. Only while a step plays, so labels that are already shown, like when expanding the peeking
+ * sidebar, stay put. Fading out is a step shorter and holds the labels until the sidebar is nearly closed, since its width
+ * moves the most at the start.
+ */
+:is([data-collapsible='icon'], [data-animation='collapse'], [data-animation='unpeek'])
+	:is([data-sidebar='menu-button'] > :not(svg, :has(svg)), [data-sidebar-label]) {
+	opacity: 0;
+}
+:is([data-animation='collapse'], [data-animation='unpeek'])
+	:is([data-sidebar='menu-button'] > :not(svg, :has(svg)), [data-sidebar-label]) {
+	transition: opacity 150ms var(--ease-in);
+}
+:is([data-animation='expand'], [data-animation='peek'])
+	:is([data-sidebar='menu-button'] > :not(svg, :has(svg)), [data-sidebar-label]) {
+	transition: opacity 200ms var(--ease-out);
+
+	/* Labels the rail hides, and the app's name, are shown again as it starts */
+	@starting-style {
+		opacity: 0;
 	}
 }
 

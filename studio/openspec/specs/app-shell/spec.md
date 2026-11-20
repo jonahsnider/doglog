@@ -123,6 +123,7 @@ Users SHALL be able to collapse the sidebar to a narrow icon-only rail and expan
 - **THEN** it shrinks to an icon-only rail
 - **AND** the dashboard area grows to use the freed space as the sidebar shrinks, without passing under the app's name above the sidebar
 - **AND** on macOS, where the window controls get a strip across the top of the window while the sidebar is collapsed, the dashboard area moves below the strip before the sidebar shrinks, and back up after it expands
+- **AND** collapsing animates like expanding in reverse, with the sidebar's labels cut off by its edge as it shrinks until only icons are left
 - **AND** the toggle stays at the top, with a tooltip reading "Expand sidebar"
 
 #### Scenario: Peek on hover
@@ -131,6 +132,7 @@ Users SHALL be able to collapse the sidebar to a narrow icon-only rail and expan
 - **WHEN** the user hovers the rail
 - **THEN** the full sidebar is shown over the dashboard
 - **AND** the dashboard layout does not change
+- **AND** it animates in and back into the rail like expanding and collapsing, with its labels fading as they're cut off by its edge
 
 #### Scenario: Remember collapsed state
 
