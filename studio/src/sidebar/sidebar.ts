@@ -20,18 +20,18 @@ export function isCollapsing(animation: SidebarAnimation | undefined): boolean {
 	return animation === 'enter-strip' || animation === 'collapse' || animation === 'unpeek';
 }
 
-/** How long the sidebar takes to collapse or expand, like its `duration-200` */
+/** How long the sidebar takes to expand or start peeking, like its `duration-200` */
 const resizeDuration = 200;
 /** How long the main area takes to move to or from below the title bar's strip, like its `duration-150` */
 const stripDuration = 150;
 let animationTimer: ReturnType<typeof setTimeout> | undefined;
 
-/** Plays each step for its duration in milliseconds, then clears the animation */
-function playSteps(steps: (readonly [SidebarAnimation, number])[]): void {
+/** Plays each timed step in order. AppSidebar clears an untimed final step when its width transitions finish. */
+function playSteps(steps: (readonly [SidebarAnimation, number?])[]): void {
 	clearTimeout(animationTimer);
 	const [step, ...rest] = steps;
 	sidebarAnimationStore.set(step?.[0]);
-	if (step) {
+	if (step?.[1] !== undefined) {
 		animationTimer = setTimeout(() => playSteps(rest), step[1]);
 	}
 }
@@ -45,11 +45,11 @@ export function toggleSidebarCollapsed(animate: boolean, strip: boolean): void {
 	} else if (expanding) {
 		playSteps([['expand', resizeDuration], ...(strip ? [['leave-strip', stripDuration] as const] : [])]);
 	} else {
-		playSteps([...(strip ? [['enter-strip', stripDuration] as const] : []), ['collapse', resizeDuration]]);
+		playSteps([...(strip ? [['enter-strip', stripDuration] as const] : []), ['collapse']]);
 	}
 }
 
 /** Plays the collapsed sidebar's step for starting to peek over the main area when `shown`, or for stopping */
 export function animateSidebarPeek(shown: boolean): void {
-	playSteps([[shown ? 'peek' : 'unpeek', resizeDuration]]);
+	playSteps([shown ? ['peek', resizeDuration] : ['unpeek']]);
 }

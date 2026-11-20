@@ -73,6 +73,28 @@ export function AppSidebar() {
 	// Only read to skip the animation's steps when the system reduces motion
 	const reduceMotion = useMotionTransition({ duration: 0.2 }).duration === 0;
 
+	useEffect(() => {
+		if (animation !== 'collapse' && animation !== 'unpeek') {
+			return undefined;
+		}
+
+		// Keep the full layout clipped until both edges reach rail width. A timer can expire before the browser finishes
+		// resizing, especially if layout starts late after moving below the macOS title bar.
+		const resizing = [sidebarRef.current!, containerRef.current!]
+			.flatMap((element) => element.getAnimations())
+			.filter((transition) => transition instanceof CSSTransition && transition.transitionProperty === 'width');
+		let stopped = false;
+		void Promise.allSettled(resizing.map((transition) => transition.finished)).then(() => {
+			if (!stopped && sidebarAnimationStore.get() === animation) {
+				sidebarAnimationStore.set(undefined);
+			}
+			return undefined;
+		});
+		return () => {
+			stopped = true;
+		};
+	}, [animation]);
+
 	const toggle = (animate: boolean) => {
 		clearTimeout(showTimer.current);
 		setPeeking(false);
