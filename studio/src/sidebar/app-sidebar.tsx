@@ -1,7 +1,6 @@
 import { type Hotkey, useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
 import { Link, useMatchRoute } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
-import CircleArrowUpIcon from 'lucide-react/icons/circle-arrow-up';
 import FolderSyncIcon from 'lucide-react/icons/folder-sync';
 import SettingsIcon from 'lucide-react/icons/settings';
 import { useEffect, useRef, useState } from 'react';
@@ -10,7 +9,6 @@ import {
 	SidebarContent,
 	SidebarContext,
 	type SidebarContextProps,
-	SidebarFooter,
 	SidebarGroup,
 	SidebarHeader,
 	SidebarMenu,
@@ -18,11 +16,11 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { AppSidebarFooter } from '@/sidebar/app-sidebar-footer';
 import { SourceControl } from '@/sidebar/source-control';
 import { SidebarDashboards } from '@/sidebar/sidebar-dashboards';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { Kbd } from '@/components/ui/kbd';
-import { Spinner } from '@/components/ui/spinner';
 import { shortcuts, useShortcutHint } from '@/commands/commands';
 import { cn } from '@/lib/utils';
 import { useTitleBarStrip, useTrafficLights } from '@/desktop/title-bar';
@@ -35,14 +33,12 @@ import {
 } from '@/sidebar/sidebar';
 import { useMotionTransition } from '@/lib/motion';
 import { TitleBar } from '@/sidebar/title-bar';
-import { installUpdate, updateTitle, useUpdate } from '@/updater';
 import { useWindowColor } from '@/theme/window-color';
-import { WhatsNewCard } from '@/changelog/whats-new-card';
 
 const peekDelay = 300;
-/** Keeps the peeking sidebar open while the pointer is elsewhere: an open menu, renaming a dashboard, or dragging one */
+/** Keeps the peeking sidebar open while the pointer is over a popup, renaming a dashboard, or dragging one */
 const keepPeekingSelector =
-	'[data-slot="menu-trigger"][data-popup-open], [data-slot="context-menu-trigger"][data-popup-open], input:focus, [data-dnd-dragging]';
+	':is([data-slot="menu-trigger"], [data-slot="context-menu-trigger"], [data-slot="dialog-trigger"])[data-popup-open], input:focus, [data-dnd-dragging]';
 
 function noop(): void {}
 
@@ -61,7 +57,6 @@ export function AppSidebar() {
 	const matchRoute = useMatchRoute();
 	const collapsed = useSelector(sidebarCollapsedStore);
 	const windowColor = useWindowColor();
-	const update = useUpdate();
 	const [peeking, setPeeking] = useState(false);
 	// Toggling with the keyboard skips the animation, clicking and peeking keep it
 	const [animated, setAnimated] = useState(true);
@@ -221,23 +216,7 @@ export function AppSidebar() {
 							</SidebarGroup>
 							<SidebarDashboards />
 						</SidebarContent>
-						<SidebarFooter>
-							<WhatsNewCard onShow={peek} />
-							{update && (
-								<SidebarMenu>
-									<SidebarMenuItem>
-										<SidebarMenuButton
-											disabled={update.installing}
-											onClick={() => void installUpdate(update.update)}
-											tooltip={updateTitle(update.update)}
-										>
-											{update.installing ? <Spinner /> : <CircleArrowUpIcon className="text-sidebar-primary" />}
-											<span>{update.installing ? 'Updating…' : updateTitle(update.update)}</span>
-										</SidebarMenuButton>
-									</SidebarMenuItem>
-								</SidebarMenu>
-							)}
-						</SidebarFooter>
+						<AppSidebarFooter expanded={!iconLayout} closing={iconOnly && !iconLayout} onShow={peek} />
 					</div>
 				</Sidebar>
 			</div>

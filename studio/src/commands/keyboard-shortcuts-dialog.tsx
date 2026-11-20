@@ -125,8 +125,8 @@ const sections: {
 	},
 ];
 
-/** Lists every keyboard shortcut, opened with its own shortcut */
-export function KeyboardShortcutsDialog() {
+/** Lists every keyboard shortcut, opened from the sidebar or with its own shortcut */
+export function KeyboardShortcutsDialog({ children }: { children: ReactNode }) {
 	const [open, setOpen] = useState(false);
 	const formatForDisplay = useFormatForDisplay();
 	const { mediaControls } = useSettings();
@@ -134,6 +134,7 @@ export function KeyboardShortcutsDialog() {
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
+			{children}
 			<DialogPopup className="max-w-3xl">
 				<DialogHeader>
 					<DialogTitle>Keyboard shortcuts</DialogTitle>

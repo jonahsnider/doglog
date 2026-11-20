@@ -3,7 +3,6 @@ import { useSelector } from '@tanstack/react-store';
 import { useGlobalShortcuts } from '@/commands/commands';
 import { AppSidebar } from '@/sidebar/app-sidebar';
 import { DragProvider } from '@/components/drag-provider';
-import { KeyboardShortcutsDialog } from '@/commands/keyboard-shortcuts-dialog';
 import { LogDropOverlay } from '@/components/log-drop-overlay';
 import { SidebarInset } from '@/components/ui/sidebar';
 import { ToastProvider } from '@/components/ui/toast';
@@ -44,7 +43,6 @@ function RootLayout() {
 				</div>
 			</DragProvider>
 			<LogDropOverlay />
-			<KeyboardShortcutsDialog />
 		</ToastProvider>
 	);
 }

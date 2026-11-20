@@ -1,8 +1,11 @@
+import { invoke, isTauri } from '@tauri-apps/api/core';
 import ChevronDownIcon from 'lucide-react/icons/chevron-down';
 import DownloadIcon from 'lucide-react/icons/download';
+import type { ReactElement } from 'react';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Group, GroupSeparator } from '@/components/ui/group';
-import { Menu, MenuLinkItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
+import { Menu, MenuGroup, MenuGroupLabel, MenuItem, MenuLinkItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
+import { toastManager } from '@/components/ui/toast';
 
 type Platform = 'macos' | 'windows' | 'linux';
 
@@ -80,5 +83,37 @@ export function DownloadButton() {
 				{menuPopup}
 			</Menu>
 		</Group>
+	);
+}
+
+async function copyDownloadLink(file: string): Promise<void> {
+	const text = downloadsUrl + file;
+	try {
+		if (isTauri()) {
+			await invoke('plugin:clipboard-manager|write_text', { text });
+		} else {
+			await navigator.clipboard.writeText(text);
+		}
+		toastManager.add({ type: 'success', title: 'Copied download link' });
+	} catch {
+		toastManager.add({ type: 'error', title: 'Couldn’t copy download link' });
+	}
+}
+
+export function CopyDownloadMenu({ trigger }: { trigger: ReactElement }) {
+	return (
+		<Menu>
+			<MenuTrigger render={trigger} />
+			<MenuPopup align="start" side="top">
+				<MenuGroup>
+					<MenuGroupLabel>Copy download link</MenuGroupLabel>
+					{downloads.map(({ file, label }) => (
+						<MenuItem key={file} onClick={() => void copyDownloadLink(file)}>
+							{label}
+						</MenuItem>
+					))}
+				</MenuGroup>
+			</MenuPopup>
+		</Menu>
 	);
 }

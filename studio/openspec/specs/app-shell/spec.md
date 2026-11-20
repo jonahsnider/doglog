@@ -18,6 +18,34 @@ The app SHALL show a vertical sidebar on the left containing, from top to bottom
 - **AND** the pages section below the source control
 - **AND** the Dashboards section, labeled "Dashboards", below the pages section
 
+### Requirement: Sidebar footer actions
+
+The sidebar footer SHALL offer Keyboard shortcuts, Download app, and Check for updates when the sidebar is expanded or peeking. These actions MUST NOT appear in the collapsed rail. When an update is ready, Check for updates MUST become the install action in the same row without moving the other actions or losing focus. The install action MUST remain available in the rail.
+
+#### Scenario: Open keyboard shortcuts
+
+- **WHEN** the user selects Keyboard shortcuts in the footer
+- **THEN** Studio opens the same list as the keyboard shortcut
+
+#### Scenario: Copy an installer link
+
+- **WHEN** the user opens Download app
+- **THEN** the menu lists the macOS Apple silicon and Intel, Windows, Linux AppImage, and Linux .deb installers
+- **AND** selecting an installer copies its download URL without starting a download
+- **AND** Studio confirms whether the link was copied
+
+#### Scenario: Check for updates
+
+- **WHEN** the user selects Check for updates in the footer
+- **THEN** Studio checks for a newer version and reports the result without installing anything
+
+#### Scenario: Collapse the sidebar with What's new visible
+
+- **GIVEN** the What's new card is visible
+- **WHEN** the sidebar animates into the rail
+- **THEN** the expanded-only actions fade out without moving the card
+- **AND** the actions stop taking up space once the sidebar reaches the rail layout
+
 ### Requirement: What's new
 
 The bottom of the sidebar SHALL show a card announcing the newest product update until the user dismisses it. Dismissing it MUST hide the update, and it MUST stay hidden in other windows and after Studio is reopened. Users opening Studio for the first time MUST NOT see updates released before then.
