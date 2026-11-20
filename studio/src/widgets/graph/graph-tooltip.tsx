@@ -9,6 +9,7 @@ import { useHoverTime } from '@/timeline/hover';
 import { formatTime, useCursorTime } from '@/timeline/timeline';
 import type { SeriesUnit } from '@/widgets/graph/axis-units';
 import { bandAt, bandHeight, bandTop, changesIn, rowHeight } from '@/widgets/graph/bands';
+import { bandColor, type BandPalette, type ColorAssignments } from '@/widgets/graph/colors';
 import { formatInUnit } from '@/widgets/graph/format';
 import type { BandHover, LineHover, PointerAt } from '@/widgets/graph/tooltip-side';
 import { useViewRange } from '@/widgets/graph/view';
@@ -77,6 +78,8 @@ function TimeHeader({ time }: { time: number }) {
 export function GraphTooltip({
 	bandHover,
 	bandEntry,
+	palette,
+	assignments,
 	at,
 	pinned,
 	origin,
@@ -86,6 +89,8 @@ export function GraphTooltip({
 }: {
 	bandHover: BandHover | undefined;
 	bandEntry: Entry | undefined;
+	palette: BandPalette;
+	assignments: ColorAssignments;
 	at: LineHover | undefined;
 	pinned: boolean;
 	/** Where the graph is in the window */
@@ -99,7 +104,9 @@ export function GraphTooltip({
 	}
 	const offset = { left: origin.left + insets.left, top: origin.top };
 	if (bandHover) {
-		return <BandTooltip hover={bandHover} entry={bandEntry} offset={offset} />;
+		return (
+			<BandTooltip hover={bandHover} entry={bandEntry} palette={palette} assignments={assignments} offset={offset} />
+		);
 	}
 	if (plotted.length === 0) {
 		return undefined;
@@ -178,7 +185,19 @@ function LineValue({ entry, time, unit }: { entry: Entry | undefined; time: numb
 }
 
 /** The hovered band's value and time range, or how many times the value changes within the hovered pixel */
-function BandTooltip({ hover, entry, offset }: { hover: BandHover; entry: Entry | undefined; offset: Offset }) {
+function BandTooltip({
+	hover,
+	entry,
+	palette,
+	assignments,
+	offset,
+}: {
+	hover: BandHover;
+	entry: Entry | undefined;
+	palette: BandPalette;
+	assignments: ColorAssignments;
+	offset: Offset;
+}) {
 	const range = useTimeRange();
 	const band = entry && range && bandAt(entry, hover.time, range.end);
 	if (!entry || !range || !band) {
@@ -187,9 +206,15 @@ function BandTooltip({ hover, entry, offset }: { hover: BandHover; entry: Entry 
 	const from = hover.time - hover.pixel / 2;
 	const to = hover.time + hover.pixel / 2;
 	const changes = changesIn(entry, from, to);
+	const color = changes > 1 ? undefined : bandColor(assignments, palette, entry, band.value, 'lookup');
 	return (
 		<Popup at={hover} top={hover.top + hover.row * rowHeight + bandTop + bandHeight + 4} offset={offset}>
-			<div className="font-mono font-medium">{changes > 1 ? `${changes} changes` : formatValue(band.value)}</div>
+			<div className="flex items-center gap-2 font-mono font-medium">
+				{color !== undefined && (
+					<span aria-hidden="true" className="size-2 rounded-full" style={{ background: color }} />
+				)}
+				{changes > 1 ? `${changes} changes` : formatValue(band.value)}
+			</div>
 			<div className="text-muted-foreground tabular-nums">
 				{changes > 1
 					? `${formatTime(from, range.start)} - ${formatTime(to, range.start)}`

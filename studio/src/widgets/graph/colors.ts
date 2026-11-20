@@ -30,18 +30,35 @@ export function bandPalette(accentColor: string): BandPalette {
 /** String values get palette colors in the order they're first seen, so each distinct value has its own color */
 export type ColorAssignments = Map<Entry, Map<string, number>>;
 
-export function bandColor(assignments: ColorAssignments, palette: BandPalette, entry: Entry, value: unknown): string {
+export function bandColor(assignments: ColorAssignments, palette: BandPalette, entry: Entry, value: unknown): string;
+export function bandColor(
+	assignments: ColorAssignments,
+	palette: BandPalette,
+	entry: Entry,
+	value: unknown,
+	mode: 'lookup',
+): string | undefined;
+export function bandColor(
+	assignments: ColorAssignments,
+	palette: BandPalette,
+	entry: Entry,
+	value: unknown,
+	mode?: 'lookup',
+): string | undefined {
 	if (typeof value === 'boolean') {
 		return value ? palette.true : palette.false;
 	}
 
+	const text = String(value);
 	let colors = assignments.get(entry);
+	let index = colors?.get(text);
+	if (mode === 'lookup' && index === undefined) {
+		return undefined;
+	}
 	if (!colors) {
 		colors = new Map();
 		assignments.set(entry, colors);
 	}
-	const text = String(value);
-	let index = colors.get(text);
 	if (index === undefined) {
 		index = colors.size;
 		colors.set(text, index);

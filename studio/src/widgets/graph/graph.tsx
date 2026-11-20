@@ -7,7 +7,7 @@ import { seriesUnits } from '@/widgets/graph/axis-units';
 import { BandRow } from '@/widgets/graph/band-row';
 import { DropZones } from '@/widgets/graph/drop-zones';
 import { rowHeight } from '@/widgets/graph/bands';
-import { bandPalette } from '@/widgets/graph/colors';
+import { bandPalette, type ColorAssignments } from '@/widgets/graph/colors';
 import { AxisUnit, GraphLegend } from '@/widgets/graph/graph-legend';
 import { GraphTooltip } from '@/widgets/graph/graph-tooltip';
 import { axisWidth, edgeInset, type PlotSeries } from '@/widgets/graph/plot';
@@ -24,6 +24,7 @@ export function Graph({ bindings }: WidgetProps) {
 	const settings = useSettings();
 	const accent = accentColor(settings.themePreset, settings.themeColor);
 	const palette = useMemo(() => bandPalette(accent), [accent]);
+	const [assignments] = useState<ColorAssignments>(() => new Map());
 
 	const { plotted, discrete } = useMemo(() => {
 		const lines = bindings.filter((binding) => graphSection(binding.role) !== 'discrete');
@@ -77,7 +78,7 @@ export function Graph({ bindings }: WidgetProps) {
 	const plotTop = units.axes.y === undefined && units.axes.y2 === undefined ? edgeInset : 20;
 	// The timeline bar marks the time graphs show
 	useGraphShown();
-	const graph = useGraphDrawing(elements, series, bandEntries, palette, plotTop);
+	const graph = useGraphDrawing(elements, series, bandEntries, palette, assignments, plotTop);
 	const body = useRef<HTMLDivElement>(null);
 	const { bandHover, pointerAt, selection, pinned, handlers } = useGraphPointer(
 		body,
@@ -200,6 +201,8 @@ export function Graph({ bindings }: WidgetProps) {
 				<GraphTooltip
 					bandHover={bandHover}
 					bandEntry={bandHover && discrete[bandHover.row]?.entry}
+					palette={palette}
+					assignments={assignments}
 					at={pointerAt}
 					pinned={pinned}
 					origin={origin}

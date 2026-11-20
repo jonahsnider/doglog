@@ -83,6 +83,7 @@ export function useGraphDrawing(
 	series: readonly PlotSeries[],
 	bandEntries: readonly (Entry | undefined)[],
 	palette: BandPalette,
+	assignments: ColorAssignments,
 	/** Room above the plot, ex. for unit labels */
 	plotTop: number,
 ): RefObject<GraphPlot> {
@@ -95,7 +96,6 @@ export function useGraphDrawing(
 			this.redraw();
 		},
 	});
-	const assignments = useRef<ColorAssignments>(new Map());
 	// Kept while the plot is made again for other entries, so axes and lines ease from how they were drawn, ex. when one is hidden
 	const animations = useRef({ y: createRangeAnimation(), y2: createRangeAnimation() });
 	const fades = useRef(new Map<string, Fade>());
@@ -236,7 +236,7 @@ export function useGraphDrawing(
 			}
 			const canvas = elements.bands.current;
 			if (canvas && bandEntries.length > 0) {
-				drawBands(canvas, bandEntries, view, gaps, assignments.current, palette);
+				drawBands(canvas, bandEntries, view, gaps, assignments, palette);
 			}
 			drawOverlays();
 		};
@@ -292,7 +292,7 @@ export function useGraphDrawing(
 			plot?.destroy();
 			current.plot = undefined;
 		};
-	}, [elements, series, bandEntries, palette, plotTop]);
+	}, [elements, series, bandEntries, palette, assignments, plotTop]);
 
 	return state;
 }

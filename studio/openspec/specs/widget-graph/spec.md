@@ -64,12 +64,13 @@ Where many samples fall in one pixel column, the line SHALL span their minimum a
 
 ### Requirement: Discrete bands
 
-Each discrete entry SHALL be a row labeled with its name above a band per period of unchanged value, labeled with the value when it fits. Where a value changes more than once within one pixel, the band MUST be drawn hatched in a neutral color, with a tooltip saying how many changes it covers. When zoomed in until samples are at least 16 px apart, each sample MUST be marked with a tick.
+Each discrete entry SHALL show its name above a row with a band per period of unchanged value, labeled with the value when it fits. Hovering a band SHALL show its value, time range, and a swatch matching the band color. Where a value changes more than once within a pixel, the band MUST be hatched in a neutral color and the tooltip MUST show a change count instead of a value or swatch. Samples at least 16 px apart MUST be marked with ticks.
 
 #### Scenario: Enum-like string entry
 
 - **GIVEN** the graph shows `/Arm/State` with values `STOWED`, `INTAKING`, and `SCORING`
 - **THEN** each distinct value has its own color
+- **AND** hovering `SCORING` shows a swatch matching the `SCORING` band
 
 #### Scenario: Fast changes while zoomed out
 
