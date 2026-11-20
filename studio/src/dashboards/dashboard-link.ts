@@ -4,7 +4,8 @@ import { type LayoutSnapshot, snapshotLayout } from '@/panes/layout-snapshot';
 import { bindingSchema } from '@/widgets/bindings';
 
 const prefix = 'v1.';
-const maxPayloadLength = 16 * 1024;
+// Workers reject URLs over 16 KB, which would leave a link's preview and the page itself unreachable
+const maxPayloadLength = 15_000;
 const maxJsonBytes = 128 * 1024;
 const maxJsonDepth = 32;
 
@@ -183,9 +184,10 @@ export async function encodeDashboardLink(dashboard: DashboardContents): Promise
 	return prefix + payload;
 }
 
-export async function decodeDashboardLink(hash: string) {
-	const payload = hash.slice(prefix.length);
-	if (!hash.startsWith(prefix) || payload.length > maxPayloadLength || !/^[\w-]+$/u.test(payload)) {
+/** Decode a link's last path segment, ex. `v1.<payload>` from `/import/v1.<payload>` */
+export async function decodeDashboardLink(link: string) {
+	const payload = link.slice(prefix.length);
+	if (!link.startsWith(prefix) || payload.length > maxPayloadLength || !/^[\w-]+$/u.test(payload)) {
 		throw new Error('Invalid dashboard link');
 	}
 	const bytes = Uint8Array.fromBase64(payload, { alphabet: 'base64url' });

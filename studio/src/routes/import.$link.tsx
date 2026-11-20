@@ -6,12 +6,12 @@ import { dashboardSnapshot, decodeDashboardLink, snapshotKey } from '@/dashboard
 import { createDashboard, getDashboards } from '@/dashboards/dashboards';
 import { restoreLayout } from '@/panes/layout-snapshot';
 
-export const Route = createFileRoute('/import')({
-	beforeLoad: async ({ location, preload, abortController }) => {
+export const Route = createFileRoute('/import/$link')({
+	beforeLoad: async ({ params, preload, abortController }) => {
 		if (preload) {
 			return undefined;
 		}
-		const snapshot = await decodeDashboardLink(location.hash).catch(() => undefined);
+		const snapshot = await decodeDashboardLink(params.link).catch(() => undefined);
 		if (abortController.signal.aborted || snapshot === undefined) {
 			return undefined;
 		}

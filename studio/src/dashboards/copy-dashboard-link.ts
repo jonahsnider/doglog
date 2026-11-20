@@ -13,15 +13,15 @@ export async function copyDashboardLink(dashboard: DashboardContents): Promise<v
 		const desktop = isTauri();
 		const origin = import.meta.env.DEV && !desktop ? window.location.origin : 'https://studio.doglog.dev';
 		if (desktop) {
-			const hash = await encodeDashboardLink(dashboard);
-			await invoke('plugin:clipboard-manager|write_text', { text: `${origin}/import#${hash}` });
+			const link = await encodeDashboardLink(dashboard);
+			await invoke('plugin:clipboard-manager|write_text', { text: `${origin}/import/${link}` });
 		} else {
 			if (!('clipboard' in navigator) || typeof ClipboardItem === 'undefined') {
 				throw new Error('Clipboard unavailable');
 			}
 			// Start the clipboard write during the user gesture, before async compression loses activation in WebKit.
 			const text = encodeDashboardLink(dashboard).then(
-				(hash) => new Blob([`${origin}/import#${hash}`], { type: 'text/plain' }),
+				(link) => new Blob([`${origin}/import/${link}`], { type: 'text/plain' }),
 			);
 			await Promise.all([text, navigator.clipboard.write([new ClipboardItem({ 'text/plain': text })])]);
 		}

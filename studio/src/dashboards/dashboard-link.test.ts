@@ -154,7 +154,7 @@ test('rejects unsupported versions before decompressing', async () => {
 
 test.each([
 	['corrupt deflate', 'v1.e30'],
-	['oversized payload', `v1.${'A'.repeat(16 * 1024 + 1)}`],
+	['oversized payload', `v1.${'A'.repeat(15_001)}`],
 	['deep config', linkFromJson(`[[0,["field",{"nested":${'['.repeat(40)}0${']'.repeat(40)}}]]]`)],
 	['too few children', linkFromJson('[[1,[[0]]]]')],
 	['unknown layout tag', linkFromJson('[[3,[[0],[0]]]]')],

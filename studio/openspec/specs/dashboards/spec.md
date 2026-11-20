@@ -570,7 +570,7 @@ Right-clicking a dashboard in the sidebar SHALL open a context menu with Rename,
 
 ### Requirement: Dashboard links
 
-Copy link SHALL copy a Studio URL containing a snapshot of the dashboard's saved name, pane layout, widget settings, and bindings by entry name. The URL MUST NOT include log data or turn on robot sharing. Opening the link SHALL open an editable local dashboard without requiring confirmation.
+Copy link SHALL copy a Studio URL containing a snapshot of the dashboard's saved name, pane layout, widget settings, and bindings by entry name, in its path so link previews can show the dashboard (see `link-previews`). The URL MUST NOT include log data or turn on robot sharing. Opening the link SHALL open an editable local dashboard without requiring confirmation, and MUST NOT leave the link in the browser's history.
 
 #### Scenario: Open a link to a dashboard already saved locally
 

@@ -10,19 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ImportRouteImport } from './routes/import'
 import { Route as LogsRouteImport } from './routes/logs'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as DashboardsDashboardIdRouteImport } from './routes/dashboards.$dashboardId'
+import { Route as ImportLinkRouteImport } from './routes/import.$link'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ImportRoute = ImportRouteImport.update({
-  id: '/import',
-  path: '/import',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LogsRoute = LogsRouteImport.update({
@@ -40,50 +35,55 @@ const DashboardsDashboardIdRoute = DashboardsDashboardIdRouteImport.update({
   path: '/dashboards/$dashboardId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ImportLinkRoute = ImportLinkRouteImport.update({
+  id: '/import/$link',
+  path: '/import/$link',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/import': typeof ImportRoute
   '/logs': typeof LogsRoute
   '/settings': typeof SettingsRoute
   '/dashboards/$dashboardId': typeof DashboardsDashboardIdRoute
+  '/import/$link': typeof ImportLinkRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/import': typeof ImportRoute
   '/logs': typeof LogsRoute
   '/settings': typeof SettingsRoute
   '/dashboards/$dashboardId': typeof DashboardsDashboardIdRoute
+  '/import/$link': typeof ImportLinkRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/import': typeof ImportRoute
   '/logs': typeof LogsRoute
   '/settings': typeof SettingsRoute
   '/dashboards/$dashboardId': typeof DashboardsDashboardIdRoute
+  '/import/$link': typeof ImportLinkRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/import' | '/logs' | '/settings' | '/dashboards/$dashboardId'
+    '/' | '/logs' | '/settings' | '/dashboards/$dashboardId' | '/import/$link'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/import' | '/logs' | '/settings' | '/dashboards/$dashboardId'
+  to: '/' | '/logs' | '/settings' | '/dashboards/$dashboardId' | '/import/$link'
   id:
     | '__root__'
     | '/'
-    | '/import'
     | '/logs'
     | '/settings'
     | '/dashboards/$dashboardId'
+    | '/import/$link'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ImportRoute: typeof ImportRoute
   LogsRoute: typeof LogsRoute
   SettingsRoute: typeof SettingsRoute
   DashboardsDashboardIdRoute: typeof DashboardsDashboardIdRoute
+  ImportLinkRoute: typeof ImportLinkRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -93,13 +93,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/import': {
-      id: '/import'
-      path: '/import'
-      fullPath: '/import'
-      preLoaderRoute: typeof ImportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/logs': {
@@ -123,15 +116,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardsDashboardIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/import/$link': {
+      id: '/import/$link'
+      path: '/import/$link'
+      fullPath: '/import/$link'
+      preLoaderRoute: typeof ImportLinkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ImportRoute: ImportRoute,
   LogsRoute: LogsRoute,
   SettingsRoute: SettingsRoute,
   DashboardsDashboardIdRoute: DashboardsDashboardIdRoute,
+  ImportLinkRoute: ImportLinkRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
