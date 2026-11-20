@@ -2,7 +2,7 @@ import { OrbitControls } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { type AnimationPlaybackControls, animate } from 'motion/react';
 import { type ComponentRef, type Ref, useEffect, useImperativeHandle, useRef } from 'react';
-import { MOUSE, Vector3 } from 'three';
+import { type Camera, MOUSE, Vector3 } from 'three';
 import { easing, useMotionTransition } from '@/lib/motion';
 
 /** Moves the camera of the scene it's in, see `CameraRig` */
@@ -27,6 +27,23 @@ const resetView = { azimuth: -1.05, elevation: 0.72 };
 const center = new Vector3(0, 0, 0.3);
 /** Width and height in meters fit in the view at the default zoom */
 const framedMeters = 2.25;
+
+/** Keep the orbit target within one default view span of the robot, regardless of zoom. */
+function clampPan(target: Vector3, camera?: Camera) {
+	const distance = target.distanceTo(center);
+	if (distance <= framedMeters) {
+		return;
+	}
+	const correction = target
+		.clone()
+		.sub(center)
+		.multiplyScalar(framedMeters / distance - 1);
+	target.add(correction);
+	// After a drag, translate the camera too so clamping doesn't turn it or change its orbit radius.
+	camera?.position.add(correction);
+	camera?.updateMatrixWorld();
+}
+
 /**
  * How far the camera is from what it orbits around. The view has no perspective, so this only sets which depths are
  * drawn: the scene draws `cameraDistance` in front of and behind it. A short range keeps depth steps about a
@@ -108,7 +125,20 @@ export function CameraControls() {
 		};
 	}, [element]);
 
-	return <OrbitControls ref={controls} makeDefault enableDamping={false} {...zoomLimits(size)} />;
+	return (
+		<OrbitControls
+			ref={controls}
+			makeDefault
+			enableDamping={false}
+			{...zoomLimits(size)}
+			onChange={() => {
+				const orbitControls = controls.current;
+				if (orbitControls) {
+					clampPan(orbitControls.target, orbitControls.object);
+				}
+			}}
+		/>
+	);
 }
 
 /** Moves the camera around the robot, and to views of it. Render it inside the scene's canvas. */
@@ -207,10 +237,9 @@ export function CameraRig({ ref }: { ref: Ref<Rig> }) {
 			const orbit = current();
 			const rightAxis = new Vector3().setFromMatrixColumn(camera.matrix, 0);
 			const upAxis = new Vector3().setFromMatrixColumn(camera.matrix, 1);
-			place({
-				...orbit,
-				target: orbit.target.addScaledVector(rightAxis, right / orbit.zoom).addScaledVector(upAxis, up / orbit.zoom),
-			});
+			orbit.target.addScaledVector(rightAxis, right / orbit.zoom).addScaledVector(upAxis, up / orbit.zoom);
+			clampPan(orbit.target);
+			place(orbit);
 		},
 	}));
 

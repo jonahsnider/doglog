@@ -104,6 +104,15 @@ In 3D, the robot widget SHALL use a camera without perspective, starting from th
 - **WHEN** the user double-clicks the widget
 - **THEN** the camera goes back to the robot's front right
 
+### Requirement: 3D pan limit
+
+Panning with any input MUST keep the camera's orbit target within 2.25 m of its default position, at any zoom level.
+
+#### Scenario: Pan beyond the limit
+
+- **WHEN** the user right-drags or holds a pan key to move beyond the limit
+- **THEN** the target stops at the limit without changing the camera's angle or zoom
+
 ### Requirement: Faster 3D camera with Shift
 
 Holding Shift SHALL make the robot widget's 3D camera zoom and pan twice as fast, including when scrolling a mouse wheel that the browser scrolls sideways while Shift is held.
