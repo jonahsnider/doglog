@@ -289,7 +289,7 @@ export function AppSidebar() {
 					data-slot="sidebar-rail-copy"
 					data-collapsible="icon"
 					className={cn(
-						'group pointer-events-none invisible absolute start-0 bottom-0 z-10 w-(--sidebar-width-icon) overflow-hidden',
+						'group pointer-events-none invisible absolute start-0 bottom-0 z-10 w-(--sidebar-width-icon) overflow-hidden text-sidebar-foreground',
 						'peer-data-peeking:visible in-data-[animation=unpeek]:visible',
 						strip ? 'top-10.5' : 'top-0',
 					)}
