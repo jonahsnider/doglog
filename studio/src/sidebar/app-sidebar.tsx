@@ -139,6 +139,8 @@ export function AppSidebar() {
 						'group absolute start-0 bottom-0 z-20 overflow-hidden transition-[width,box-shadow] duration-200 motion-reduce:transition-none',
 						// Below the title bar's strip, like the main area
 						strip ? 'top-9' : 'top-0',
+						// Sized by its top and bottom instead of `Sidebar`'s full height, which would push it past the bottom of the window below the strip
+						'h-auto',
 						// Rounded where it meets the rest of the app, and flush with the window's edges
 						'rounded-e-lg',
 						iconOnly && 'w-(--sidebar-width-icon)',
