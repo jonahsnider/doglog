@@ -34,7 +34,7 @@ export function inferredOption(
 
 /** Every option's value as the widget uses it: the picked choice, or the inferred one, or the default */
 export function optionValues(
-	type: WidgetType,
+	type: Pick<WidgetType, 'options'>,
 	widget: Widget | undefined,
 	bindings: readonly WidgetBinding[],
 ): OptionValues {

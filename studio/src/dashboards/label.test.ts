@@ -1,6 +1,6 @@
 import { expect, test } from 'vite-plus/test';
 import { createWidget } from '../widgets/bindings.ts';
-import { mainWidgetType, suggestDashboardName } from './label.ts';
+import { mainWidgetType, suggestDashboardName, suggestWidgetName } from './label.ts';
 import { getWidgetType } from '../widgets/registry.ts';
 import { createPane, type PaneNode, resizeSplit, splitPane, type Widget } from '../panes/layout.ts';
 
@@ -69,6 +69,15 @@ test('capitalizes top level entries', () => {
 test("names widgets with no entries or only their type's default entries after their type", () => {
 	const console = createWidget(getWidgetType('console')!, ['/messages', '/console']);
 	expect(suggestDashboardName(layoutOf(console, table()))).toBe('Console & Table');
+});
+
+test("names a widget's entries, leaving out ones only showing their type's default entries", () => {
+	expect(suggestWidgetName(table('/Robot/Drive/Speed', '/Robot/Elevator/Height', '/Robot/Drive/Pose'))).toBe(
+		'Drive & Elevator',
+	);
+	expect(suggestWidgetName(createWidget(getWidgetType('console')!, ['/console', '/messages']))).toBeUndefined();
+	expect(suggestWidgetName(createWidget(getWidgetType('console')!, ['/console']))).toBe('Console');
+	expect(suggestWidgetName(table())).toBeUndefined();
 });
 
 test('names an empty dashboard', () => {

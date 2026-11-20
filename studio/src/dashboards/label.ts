@@ -1,11 +1,12 @@
+// Dashboard names and main widget types. Free of React, so link previews can name dashboards on the server.
 import { split } from 'change-case';
 import { widgetBindings } from '@/widgets/bindings';
-import type { Dashboard } from '@/dashboards/dashboards';
+import type { DashboardContents } from '@/dashboards/doc';
 import type { PaneNode, Widget } from '@/panes/layout';
 import { childSizes } from '@/panes/split-sizes';
 import { optionValues } from '@/widgets/options';
-import { getWidgetType } from '@/widgets/registry';
-import { type WidgetType, widgetTitle } from '@/widgets/widget-type';
+import { getWidgetInfo, type KnownWidgetInfo } from '@/widgets/widget-info';
+import { widgetTitle } from '@/widgets/widget-type';
 
 /**
  * Path segments skipped when naming a dashboard after its entries, since they group entries without saying what
@@ -96,40 +97,31 @@ function entryTopic(name: string): string {
 	return topic.length === 0 ? segment : topic.join(' ');
 }
 
-/**
- * A name for a dashboard based on the entries it shows, ex. `/Robot/Localization/Pose` and `/Robot/Intake/Speed` give
- * `Localization & Intake`. Topics with the most entries come first, then in layout order. Widgets without entries, or
- * with only their type's default entries (ex. a console showing `/console` and `/messages`), are named after their type.
- */
-export function suggestDashboardName(layout: PaneNode): string {
+/** Topics of the entries a widget shows, `undefined` when it shows none or only its type's default ones */
+function entryTopics(widget: Widget): string[] | undefined {
+	const entryNames = new Set(widgetBindings(widget).map((binding) => binding.name));
+	const defaults = new Set(getWidgetInfo(widget.type)?.defaultEntryNames);
+	const isDefault = entryNames.size === defaults.size && [...entryNames].every((name) => defaults.has(name));
+	return isDefault ? undefined : [...entryNames].map((name) => entryTopic(name));
+}
+
+/** Lists topics like `A, B, & C`, the most common first, then in order. `undefined` without any. */
+function listTopics(topicNames: readonly string[]): string | undefined {
 	// Keyed by lowercase name so `Debug` and `DEBUG` are one topic
 	const topics = new Map<string, { name: string; entries: number }>();
-	const addTopic = (name: string) => {
+	for (const name of topicNames) {
 		const topic = topics.get(name.toLowerCase());
 		if (topic) {
 			topic.entries++;
 		} else {
 			topics.set(name.toLowerCase(), { name, entries: 1 });
 		}
-	};
-	for (const { widget } of widgetAreas(layout)) {
-		const type = getWidgetType(widget.type);
-		const entryNames = new Set(widgetBindings(widget).map((binding) => binding.name));
-		const defaults = new Set(type?.defaultEntryNames);
-		const isDefault = entryNames.size === defaults.size && [...entryNames].every((name) => defaults.has(name));
-		if (isDefault) {
-			addTopic(type ? widgetTitle(type, optionValues(type, widget, [])) : 'Unknown widget');
-			continue;
-		}
-		for (const name of entryNames) {
-			addTopic(entryTopic(name));
-		}
 	}
 
-	// Sorting is stable, so topics with as many entries stay in layout order
+	// Sorting is stable, so topics with as many entries stay in order
 	const names = [...topics.values()].toSorted((a, b) => b.entries - a.entries).map((topic) => topic.name);
 	if (names.length === 0) {
-		return 'Empty dashboard';
+		return undefined;
 	}
 	if (names.length > maxTopics) {
 		return topicList.format([...names.slice(0, maxTopics - 1), `${names.length - maxTopics + 1} more`]);
@@ -137,8 +129,30 @@ export function suggestDashboardName(layout: PaneNode): string {
 	return topicList.format(names);
 }
 
+/**
+ * A name for a dashboard based on the entries it shows, ex. `/Robot/Localization/Pose` and `/Robot/Intake/Speed` give
+ * `Localization & Intake`. Topics with the most entries come first, then in layout order. Widgets without entries, or
+ * with only their type's default entries (ex. a console showing `/console` and `/messages`), are named after their type.
+ */
+export function suggestDashboardName(layout: PaneNode): string {
+	const topics = widgetAreas(layout).flatMap(({ widget }) => {
+		const type = getWidgetInfo(widget.type);
+		return entryTopics(widget) ?? [type ? widgetTitle(type, optionValues(type, widget, [])) : 'Unknown widget'];
+	});
+	return listTopics(topics) ?? 'Empty dashboard';
+}
+
+/**
+ * A name for the entries a widget shows, named like dashboards are, ex. `Localization & Intake`. `undefined` for
+ * widgets without entries or with only their type's default ones, which their type's name already describes.
+ */
+export function suggestWidgetName(widget: Widget): string | undefined {
+	const topics = entryTopics(widget);
+	return topics && listTopics(topics);
+}
+
 /** The name the user gave a dashboard, or one suggested from its contents */
-export function dashboardName(dashboard: Dashboard): string {
+export function dashboardName(dashboard: DashboardContents): string {
 	return dashboard.name ?? suggestDashboardName(dashboard.layout);
 }
 
@@ -153,11 +167,11 @@ function widgetAreas(layout: PaneNode, area = 1): { widget: Widget; area: number
 }
 
 /** The widget type in the dashboard's biggest pane, the first one in the layout on ties. Its icon represents the dashboard. */
-export function mainWidgetType(layout: PaneNode): WidgetType | undefined {
-	let main: WidgetType | undefined;
+export function mainWidgetType(layout: PaneNode): KnownWidgetInfo | undefined {
+	let main: KnownWidgetInfo | undefined;
 	let max = 0;
 	for (const { widget, area } of widgetAreas(layout)) {
-		const type = getWidgetType(widget.type);
+		const type = getWidgetInfo(widget.type);
 		if (type && area > max) {
 			main = type;
 			max = area;

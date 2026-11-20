@@ -1,9 +1,3 @@
-import BotIcon from 'lucide-react/icons/bot';
-import ChartLineIcon from 'lucide-react/icons/chart-line';
-import Gamepad2Icon from 'lucide-react/icons/gamepad-2';
-import NotebookPenIcon from 'lucide-react/icons/notebook-pen';
-import TableIcon from 'lucide-react/icons/table';
-import TerminalIcon from 'lucide-react/icons/terminal';
 import { lazy } from 'react';
 import { createWidget } from '@/widgets/bindings';
 import type { Entry } from '@/data/data-store';
@@ -12,25 +6,28 @@ import { Console } from '@/widgets/console/console';
 import { Controller } from '@/widgets/controller/controller';
 import { controllerPort } from '@/widgets/controller/data';
 import { controllerOptionFromEntry, controllerOptions, controllerTypeId } from '@/widgets/controller/options';
-import CompetitionFieldIcon from '@/widgets/field/competition-field.svg?react';
 import { Field } from '@/widgets/field/field';
 import { fieldOptions } from '@/widgets/field/options';
 import { fieldConnects, fieldRoles, inferFieldRole } from '@/widgets/field/roles';
 import { Graph } from '@/widgets/graph/graph';
+import { widgetIcons } from '@/widgets/icons';
 import { graphRoles, inferGraphRole } from '@/widgets/graph/roles';
 import { robotOption } from '@/widgets/robot/robot-option';
 import { robotRoles, viewOption } from '@/widgets/robot/roles';
 import { Swerve } from '@/widgets/swerve/swerve';
-import SwerveDriveIcon from '@/widgets/swerve/swerve-drive.svg?react';
 import { swerveRoles } from '@/widgets/swerve/data';
 import { TableWidget } from '@/widgets/table/table';
-import { widgetInfos, type WidgetTypeId } from '@/widgets/widget-info';
+import { type WidgetInfo, widgetInfos, type WidgetTypeId } from '@/widgets/widget-info';
 import type { WidgetType } from '@/widgets/widget-type';
 
-/** The parts of a widget type agents know about too, see `@/widgets/widget-info` */
-function info(id: WidgetTypeId): Pick<WidgetType, 'id' | 'name' | 'accepts' | 'options'> {
-	const { name, accepts, options } = widgetInfos.find((other) => other.id === id)!;
-	return { id, name, accepts, options };
+/** The parts of a widget type agents and link previews know about too, see `@/widgets/widget-info` */
+function info(
+	id: WidgetTypeId,
+): Pick<WidgetType, 'id' | 'name' | 'icon' | 'accepts' | 'options' | 'defaultEntryNames' | 'title'> {
+	const { name, accepts, options, defaultEntryNames, title }: WidgetInfo = widgetInfos.find(
+		(other) => other.id === id,
+	)!;
+	return { id, name, icon: widgetIcons[id], accepts, options, defaultEntryNames, title };
 }
 
 const loadRobot = async () => ({ default: (await import('@/widgets/robot/robot')).Robot });
@@ -40,7 +37,6 @@ const loadNotepad = async () => ({ default: (await import('@/widgets/notepad/not
 export const widgetTypes: readonly WidgetType[] = [
 	{
 		...info('graph'),
-		icon: ChartLineIcon,
 		hotkey: 'G',
 		roles: graphRoles,
 		inferRole: inferGraphRole,
@@ -48,7 +44,6 @@ export const widgetTypes: readonly WidgetType[] = [
 	},
 	{
 		...info('field'),
-		icon: CompetitionFieldIcon,
 		hotkey: 'F',
 		roles: fieldRoles,
 		inferRole: inferFieldRole,
@@ -59,7 +54,6 @@ export const widgetTypes: readonly WidgetType[] = [
 	},
 	{
 		...info('robot'),
-		icon: BotIcon,
 		hotkey: 'R',
 		roles: robotRoles,
 		rendersEmpty: true,
@@ -67,28 +61,18 @@ export const widgetTypes: readonly WidgetType[] = [
 		preload: loadRobot,
 		component: lazy(loadRobot),
 	},
-	{ ...info('table'), icon: TableIcon, hotkey: 'T', component: TableWidget },
-	{
-		...info('console'),
-		icon: TerminalIcon,
-		hotkey: 'C',
-		// WPILib's console output and Driver Station messages
-		defaultEntryNames: ['/console', '/messages'],
-		component: Console,
-	},
-	{ ...info('swerve'), icon: SwerveDriveIcon, hotkey: 'S', roles: swerveRoles, component: Swerve },
+	{ ...info('table'), hotkey: 'T', component: TableWidget },
+	{ ...info('console'), hotkey: 'C', component: Console },
+	{ ...info('swerve'), hotkey: 'S', roles: swerveRoles, component: Swerve },
 	{
 		...info(controllerTypeId),
-		icon: Gamepad2Icon,
 		rendersEmpty: true,
 		options: controllerOptions,
 		optionFromEntry: controllerOptionFromEntry,
-		title: (options) => `Controller ${options['controller']}`,
 		component: Controller,
 	},
 	{
 		...info('notepad'),
-		icon: NotebookPenIcon,
 		hotkey: 'N',
 		rendersEmpty: true,
 		preload: loadNotepad,

@@ -134,7 +134,7 @@ export type WidgetType = {
 };
 
 /** The widget's name in its pane header and suggested dashboard names, see `WidgetType.title` */
-export function widgetTitle(type: WidgetType, options: OptionValues): string {
+export function widgetTitle(type: Pick<WidgetType, 'name' | 'title'>, options: OptionValues): string {
 	return type.title?.(options) ?? type.name;
 }
 

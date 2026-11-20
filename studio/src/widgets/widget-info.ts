@@ -146,6 +146,10 @@ export type WidgetInfo = {
 	/** Every role a binding can take, see `widgetRoles` */
 	readonly roles: readonly Role[];
 	readonly options: readonly WidgetOptionInfo[];
+	/** Entries bound to a newly added widget, ex. the console's `/console` and `/messages` */
+	readonly defaultEntryNames?: readonly string[];
+	/** Shown in the pane header and suggested dashboard names instead of `name`, ex. `Controller 2` */
+	readonly title?: (options: Readonly<Record<string, string>>) => string;
 };
 
 /** Every widget type, in the order they're listed in the widget picker */
@@ -193,6 +197,8 @@ export const widgetInfos = [
 		accepts: ['string'],
 		roles: [],
 		options: [],
+		// WPILib's console output and Driver Station messages
+		defaultEntryNames: ['/console', '/messages'],
 	},
 	{
 		id: 'swerve',
@@ -211,6 +217,7 @@ export const widgetInfos = [
 		accepts: [],
 		roles: [],
 		options: Object.values(widgetOptions.controller),
+		title: (options) => `Controller ${options['controller']}`,
 	},
 	{
 		id: 'notepad',
@@ -223,3 +230,10 @@ export const widgetInfos = [
 ] as const satisfies readonly WidgetInfo[];
 
 export type WidgetTypeId = (typeof widgetInfos)[number]['id'];
+
+/** A widget type's info, with its ID narrowed to the known ones */
+export type KnownWidgetInfo = WidgetInfo & { readonly id: WidgetTypeId };
+
+export function getWidgetInfo(id: string): KnownWidgetInfo | undefined {
+	return widgetInfos.find((info) => info.id === id);
+}

@@ -18,6 +18,7 @@ import { dashboardShortcut, shortcuts, useShortcutHint } from '@/commands/comman
 import { moveDashboardToSection } from '@/dashboards/sharing';
 import { type DashboardDragData, dashboardDragType, dashboardSensors } from '@/dashboards/drag';
 import { dashboardName, mainWidgetType, suggestDashboardName } from '@/dashboards/label';
+import { widgetIcons } from '@/widgets/icons';
 import { type Dashboard, deleteDashboard, deleteDashboards, renameDashboard } from '@/dashboards/dashboards';
 import type { DashboardSelection } from '@/sidebar/selection';
 import { isEnterKey } from '@/lib/keyboard';
@@ -206,7 +207,8 @@ export function DashboardItem({
 	const exitTransition = isDragSource ? { ...transition, opacity: { duration: 0 } } : transition;
 	const shortcut = dashboardShortcut(index);
 	const name = dashboardName(dashboard);
-	const Icon = mainWidgetType(dashboard.layout)?.icon ?? LayoutDashboardIcon;
+	const mainType = mainWidgetType(dashboard.layout);
+	const Icon = mainType ? widgetIcons[mainType.id] : LayoutDashboardIcon;
 	const menuItems = selection.isSelected(dashboard)
 		? selection.menuItems
 		: dashboardMenu({ dashboard, dashboards, index, selection, router, rename: () => setRenaming(true) });
