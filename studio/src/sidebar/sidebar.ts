@@ -20,7 +20,7 @@ export function isCollapsing(animation: SidebarAnimation | undefined): boolean {
 	return animation === 'enter-strip' || animation === 'collapse' || animation === 'unpeek';
 }
 
-/** How long the sidebar takes to expand or start peeking, like its `duration-200` */
+/** How long the sidebar takes to expand, like its `duration-200` */
 const resizeDuration = 200;
 /** How long the main area takes to move to or from below the title bar's strip, like its `duration-150` */
 const stripDuration = 150;
@@ -51,5 +51,5 @@ export function toggleSidebarCollapsed(animate: boolean, strip: boolean): void {
 
 /** Plays the collapsed sidebar's step for starting to peek over the main area when `shown`, or for stopping */
 export function animateSidebarPeek(shown: boolean): void {
-	playSteps([shown ? ['peek', resizeDuration] : ['unpeek']]);
+	playSteps([[shown ? 'peek' : 'unpeek']]);
 }

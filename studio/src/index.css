@@ -480,7 +480,16 @@
 [data-frosted-frame] [data-slot='sidebar']:not([data-peeking]) {
 	--sidebar: transparent;
 }
-/* When peeking ends, the surface fades out with the labels as it shrinks, instead of changing in the rail after it stops */
+/* Keep the overhang opaque so pane contents don't show through while the sidebar's surface fades over the rail. */
+[data-frosted-frame] :is([data-slot='sidebar'][data-peeking], [data-animation='unpeek'] [data-slot='sidebar'])::before {
+	position: absolute;
+	z-index: -1;
+	inset-block: 0;
+	inset-inline: var(--sidebar-width-icon) 0;
+	background-color: var(--frame);
+	content: '';
+}
+/* Fade the rail's surface out with the labels as it shrinks, instead of changing it after it stops. */
 [data-frosted-frame] [data-animation='unpeek'] [data-slot='sidebar'] {
 	/* Unlayered, so it would otherwise beat the sidebar's `motion-reduce:transition-none` */
 	@variant motion-safe {

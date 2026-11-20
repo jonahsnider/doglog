@@ -74,12 +74,12 @@ export function AppSidebar() {
 	const reduceMotion = useMotionTransition({ duration: 0.2 }).duration === 0;
 
 	useEffect(() => {
-		if (animation !== 'collapse' && animation !== 'unpeek') {
+		if (animation !== 'collapse' && animation !== 'unpeek' && animation !== 'peek') {
 			return undefined;
 		}
 
-		// Keep the full layout clipped until both edges reach rail width. A timer can expire before the browser finishes
-		// resizing, especially if layout starts late after moving below the macOS title bar.
+		// Keep the rows clipped to the moving edge until resizing finishes. A timer can expire before the browser
+		// finishes the transition, especially if layout starts late after moving below the macOS title bar.
 		const resizing = [sidebarRef.current!, containerRef.current!]
 			.flatMap((element) => element.getAnimations())
 			.filter((transition) => transition instanceof CSSTransition && transition.transitionProperty === 'width');
