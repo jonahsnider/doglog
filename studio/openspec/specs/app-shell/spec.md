@@ -228,6 +228,13 @@ The macOS desktop app SHALL draw the window controls over the top of the sidebar
 - **THEN** the window controls are shown at the top of the sidebar
 - **AND** the sidebar toggle is shown after them, followed by the app's name, Back, and Forward
 
+#### Scenario: Drag the window from a widget header
+
+- **GIVEN** the user is viewing a dashboard in the desktop app on macOS
+- **WHEN** the user drags the blank space in a widget header
+- **THEN** the window moves
+- **AND** the widget's move handle and action buttons retain their own interactions
+
 #### Scenario: Sidebar collapsed
 
 - **GIVEN** the user is using the desktop app on macOS

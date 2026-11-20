@@ -13,6 +13,7 @@ import { shortcuts } from '@/commands/commands';
 import { closeDashboardPane, splitDashboardPane, toggleZoom, updateLayout } from '@/dashboards/panes';
 import { focusPane } from '@/dashboards/pane-state';
 import { canCapture, copyImage } from '@/desktop/capture';
+import { dragRegion } from '@/desktop/title-bar';
 import { focusEditingPane, startEditing, useEditingPane } from '@/entries/editing';
 import { getEntry, useEntries } from '@/data/data-store';
 import {
@@ -221,6 +222,7 @@ export function PaneView({
 			}
 		>
 			<div
+				{...dragRegion}
 				className={cn(
 					'flex h-9 shrink-0 items-center gap-0.5 px-2 transition-colors',
 					// Marks the widget whose entries the entry browser is editing
