@@ -52,7 +52,7 @@
 		"change-case": "5.4.4",
 		"class-variance-authority": "0.7.1",
 		"clsx": "2.1.1",
-		"convert": "8.1.0",
+		"convert": "8.2.0",
 		"fuzzysort": "4.0.2",
 		"idb-keyval": "6.3.0",
 		"jsonc-parser": "3.3.1",
