@@ -9,7 +9,7 @@ use std::{
 
 use robot_sftp::Robot;
 use serde::Serialize;
-use tauri::{AppHandle, Manager, State, ipc::Channel, scope::fs::Scope, utils::config::FsScope};
+use tauri::{AppHandle, Manager, State, WebviewWindow, ipc::Channel, scope::fs::Scope, utils::config::FsScope};
 use tauri_plugin_fs::FsExt;
 use tokio::sync::Mutex;
 
@@ -27,9 +27,10 @@ pub struct RobotConnection(Mutex<Option<(String, Robot)>>);
 #[derive(Default)]
 pub struct CancelDownload(AtomicBool);
 
-/// Held by the one Studio process that syncs, the OS releases it when that process exits
+/// The label of the one window that syncs, with a file lock the OS releases when Studio exits, so a development build
+/// running alongside it doesn't sync too
 #[derive(Default)]
-pub struct SyncLock(std::sync::Mutex<Option<File>>);
+pub struct SyncLock(std::sync::Mutex<Option<(String, File)>>);
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -60,12 +61,15 @@ async fn with_robot<T>(
     result
 }
 
-/// Try to become the Studio process that syncs logs, since each window opened from the terminal is its own process.
-/// Returns whether this process holds the lock.
+/// Try to become the window that syncs logs, taking over from one that closed. Returns whether this window syncs.
 #[tauri::command]
-pub fn lock_sync(app: AppHandle, lock: State<SyncLock>) -> Result<bool, String> {
+pub fn lock_sync(app: AppHandle, window: WebviewWindow, lock: State<SyncLock>) -> Result<bool, String> {
     let mut held = lock.0.lock().unwrap();
-    if held.is_some() {
+    if let Some((label, _)) = &mut *held {
+        if *label != window.label() && app.get_webview_window(label).is_some() {
+            return Ok(false);
+        }
+        *label = window.label().to_owned();
         return Ok(true);
     }
 
@@ -79,7 +83,7 @@ pub fn lock_sync(app: AppHandle, lock: State<SyncLock>) -> Result<bool, String> 
         .map_err(|error| error.to_string())?;
     match file.try_lock() {
         Ok(()) => {
-            *held = Some(file);
+            *held = Some((window.label().to_owned(), file));
             Ok(true)
         }
         Err(TryLockError::WouldBlock) => Ok(false),

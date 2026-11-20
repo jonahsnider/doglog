@@ -210,13 +210,19 @@ The desktop app SHALL provide New window (⌘N), which opens another Studio wind
 
 ### Requirement: App menu
 
-On macOS, the desktop app SHALL list New window, New dashboard, Reopen closed dashboard, Open log, Close pane, and Close dashboard in its File menu, Undo and Redo in its Edit menu, Back and Forward in its Go menu, and Settings in its app menu, each with its shortcut. Undo and Redo MUST act on the focused text field while one is focused.
+On macOS, the desktop app SHALL list New window, New dashboard, Reopen closed dashboard, Open log, Close pane, and Close dashboard in its File menu, Undo and Redo in its Edit menu, Back and Forward in its Go menu, and Settings in its app menu, each with its shortcut. Undo and Redo MUST act on the focused text field while one is focused. Menu commands MUST act on the focused window.
 
 #### Scenario: Open a log from the menu
 
 - **GIVEN** the user is using the desktop app on macOS
 - **WHEN** the user chooses File > Open Log…
 - **THEN** the file picker for opening a log opens
+
+#### Scenario: Menu with two windows
+
+- **GIVEN** two Studio windows are open on macOS
+- **WHEN** the user focuses the second window and chooses File > New Dashboard
+- **THEN** the second window opens a new dashboard
 
 ### Requirement: Close pane or dashboard
 

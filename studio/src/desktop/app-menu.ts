@@ -1,5 +1,6 @@
 import type { RegisteredRouter } from '@tanstack/react-router';
 import { Menu } from '@tauri-apps/api/menu';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import {
 	closeCurrentDashboard,
 	closeFocused,
@@ -97,4 +98,10 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 		],
 	});
 	await menu.setAsAppMenu();
+	// Every window shares the app menu, so the focused one sets its own for the commands to run in it
+	await getCurrentWindow().onFocusChanged(({ payload: focused }) => {
+		if (focused) {
+			void menu.setAsAppMenu();
+		}
+	});
 }

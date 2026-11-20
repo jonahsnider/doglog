@@ -242,7 +242,7 @@ export async function runLogSync(): Promise<void> {
 	settingsStore.subscribe(() => wake());
 	await showSavedLogs();
 
-	// Only one Studio process syncs, so two can't write to the same log at once
+	// Only one window syncs, so two can't write to the same log at once
 	while (!(await invoke<boolean>('lock_sync'))) {
 		statusStore.set({ type: 'other-window' });
 		await sleep(reconnectDelay);

@@ -9,6 +9,7 @@ mod platform;
 mod platform;
 
 use std::{
+    collections::HashMap,
     fs, io,
     path::{Path, PathBuf},
     sync::{
@@ -19,7 +20,7 @@ use std::{
     thread::{self, JoinHandle},
 };
 
-use tauri::{State, WebviewWindow, async_runtime::spawn_blocking};
+use tauri::{AppHandle, Manager, State, WebviewWindow, async_runtime::spawn_blocking};
 
 use crate::capture::CaptureRect;
 
@@ -29,8 +30,9 @@ const MAX_SIDE: f64 = 4096.0;
 /// Bits per pixel per frame, enough that text and thin graph lines stay sharp
 const BITS_PER_PIXEL: f64 = 0.1;
 
+/// Each window's clip, by window label
 #[derive(Default)]
-pub struct ClipRecording(Mutex<Option<Recording>>);
+pub struct ClipRecording(Mutex<HashMap<String, Recording>>);
 
 struct Recording {
     path: PathBuf,
@@ -52,14 +54,19 @@ fn output_size(width: usize, height: usize) -> (usize, usize) {
 
 /// Start saving a clip to `path`, replacing the file. Any clip that wasn't finished is canceled.
 #[tauri::command]
-pub async fn start_clip(state: State<'_, ClipRecording>, path: PathBuf, fps: u32) -> Result<(), String> {
+pub async fn start_clip(
+    window: WebviewWindow,
+    state: State<'_, ClipRecording>,
+    path: PathBuf,
+    fps: u32,
+) -> Result<(), String> {
     if !path.is_absolute() {
         return Err("The path must be absolute".into());
     }
     if fps == 0 {
         return Err("The frame rate must be positive".into());
     }
-    stop(&state, true).await?;
+    stop(&state, window.label(), true).await?;
     // The save dialog already asked to replace it, and the encoder won't write over a file
     match fs::remove_file(&path) {
         Err(error) if error.kind() != io::ErrorKind::NotFound => {
@@ -78,12 +85,15 @@ pub async fn start_clip(state: State<'_, ClipRecording>, path: PathBuf, fps: u32
             .spawn(move || encode(&path, fps, &receive, &cancelled))
             .map_err(|error| error.to_string())?
     };
-    *state.0.lock().unwrap() = Some(Recording {
-        path,
-        frames,
-        cancelled,
-        encoder,
-    });
+    state.0.lock().unwrap().insert(
+        window.label().to_owned(),
+        Recording {
+            path,
+            frames,
+            cancelled,
+            encoder,
+        },
+    );
     Ok(())
 }
 
@@ -99,7 +109,7 @@ pub async fn add_clip_frame(
         .0
         .lock()
         .unwrap()
-        .as_ref()
+        .get(window.label())
         .map(|recording| recording.frames.clone())
         .ok_or("No clip is being saved")?;
     let sent = spawn_blocking(move || frames.send(frame))
@@ -107,7 +117,7 @@ pub async fn add_clip_frame(
         .map_err(|error| error.to_string())?;
     if sent.is_err() {
         // The encoder stopped after an error
-        stop(&state, false).await?;
+        stop(&state, window.label(), false).await?;
         return Err("The encoder stopped".into());
     }
     Ok(())
@@ -115,23 +125,31 @@ pub async fn add_clip_frame(
 
 /// Finish writing the clip once its frames are encoded.
 #[tauri::command]
-pub async fn finish_clip(state: State<'_, ClipRecording>) -> Result<(), String> {
-    stop(&state, false).await
+pub async fn finish_clip(window: WebviewWindow, state: State<'_, ClipRecording>) -> Result<(), String> {
+    stop(&state, window.label(), false).await
 }
 
 /// Stop saving the clip and delete what was written.
 #[tauri::command]
-pub async fn cancel_clip(state: State<'_, ClipRecording>) -> Result<(), String> {
-    stop(&state, true).await
+pub async fn cancel_clip(window: WebviewWindow, state: State<'_, ClipRecording>) -> Result<(), String> {
+    stop(&state, window.label(), true).await
 }
 
-async fn stop(state: &ClipRecording, cancel: bool) -> Result<(), String> {
+/// Stop saving the clip of the window with `label` as it closes, deleting what was written
+pub fn cancel_window_clip(app: &AppHandle, label: &str) {
+    let (app, label) = (app.clone(), label.to_owned());
+    tauri::async_runtime::spawn(async move {
+        let _ = stop(&app.state::<ClipRecording>(), &label, true).await;
+    });
+}
+
+async fn stop(state: &ClipRecording, label: &str, cancel: bool) -> Result<(), String> {
     let Some(Recording {
         path,
         frames,
         cancelled,
         encoder,
-    }) = state.0.lock().unwrap().take()
+    }) = state.0.lock().unwrap().remove(label)
     else {
         return Ok(());
     };

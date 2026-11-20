@@ -12,43 +12,68 @@ mod relaunch;
 mod sync;
 mod window_state;
 
-use std::{ops::ControlFlow, path::PathBuf, process::ExitCode, sync::Mutex};
-use tauri::{AppHandle, Emitter, Manager, RunEvent, State, WindowEvent, ipc::Response, window::Effect};
+use std::{collections::HashMap, ops::ControlFlow, path::PathBuf, process::ExitCode, sync::Mutex};
+use tauri::{AppHandle, Emitter, Manager, RunEvent, State, WebviewWindow, WindowEvent, ipc::Response, window::Effect};
 use tauri_plugin_deep_link::DeepLinkExt;
 
-/// The last log the OS asked Studio to open, until the frontend takes it
+/// The last log each window was asked to open, by window label, until its frontend takes it
 #[derive(Default)]
-struct OpenedLog(Mutex<Option<PathBuf>>);
+struct OpenedLog(Mutex<HashMap<String, PathBuf>>);
 
-fn set_opened_log(app: &AppHandle, path: PathBuf) {
-    *app.state::<OpenedLog>().0.lock().unwrap() = Some(path);
+/// Open `path` in the window with `label`
+fn set_opened_log(app: &AppHandle, label: &str, path: PathBuf) {
+    app.state::<OpenedLog>()
+        .0
+        .lock()
+        .unwrap()
+        .insert(label.to_owned(), path);
     // Before the frontend is listening this is dropped, it takes the log when it starts instead
-    let _ = app.emit("log-opened", ());
+    let _ = app.emit_to(label, "log-opened", ());
 }
 
 #[tauri::command]
-fn take_opened_log(opened_log: State<OpenedLog>) -> Option<PathBuf> {
-    opened_log.0.lock().unwrap().take()
+fn take_opened_log(window: WebviewWindow, opened_log: State<OpenedLog>) -> Option<PathBuf> {
+    opened_log.0.lock().unwrap().remove(window.label())
 }
 
-/// The last dashboard link the OS asked Studio to open, ex. `v1.<payload>` from `doglog://import/v1.<payload>`, until
-/// the frontend takes it
+/// The last dashboard link each window was asked to open, ex. `v1.<payload>` from `doglog://import/v1.<payload>`, by
+/// window label, until its frontend takes it
 #[derive(Default)]
-struct OpenedDashboardLink(Mutex<Option<String>>);
+struct OpenedDashboardLink(Mutex<HashMap<String, String>>);
 
+/// Open a dashboard link the OS asked Studio to open in the window that was focused last
 fn set_opened_dashboard_link(app: &AppHandle, url: &tauri::Url) {
     if url.scheme() != "doglog" || url.host_str() != Some("import") {
         return;
     }
     let link = url.path().trim_start_matches('/').to_owned();
-    *app.state::<OpenedDashboardLink>().0.lock().unwrap() = Some(link);
+    let label = new_window::last_focused(app);
+    app.state::<OpenedDashboardLink>()
+        .0
+        .lock()
+        .unwrap()
+        .insert(label.clone(), link);
     // Before the frontend is listening this is dropped, it takes the link when it starts instead
-    let _ = app.emit("dashboard-link-opened", ());
+    let _ = app.emit_to(label, "dashboard-link-opened", ());
 }
 
 #[tauri::command]
-fn take_opened_dashboard_link(opened_link: State<OpenedDashboardLink>) -> Option<String> {
-    opened_link.0.lock().unwrap().take()
+fn take_opened_dashboard_link(window: WebviewWindow, opened_link: State<OpenedDashboardLink>) -> Option<String> {
+    opened_link.0.lock().unwrap().remove(window.label())
+}
+
+/// Open a window for a Studio that was started while this one is running, which passed on its arguments and quit
+fn open_started_window(app: &AppHandle, args: Vec<String>, cwd: String) {
+    let arg = args.into_iter().nth(1);
+    // The deep link plugin opens `doglog://` links
+    if arg.as_deref().is_some_and(|arg| arg.starts_with("doglog://")) {
+        return;
+    }
+    // A log, the only argument `cli::parse_args()` lets reach here
+    let log = arg.map(|arg| PathBuf::from(cwd).join(arg));
+    if let Err(error) = new_window::create(app, log) {
+        log::error!("Couldn't open a window: {error}");
+    }
 }
 
 #[tauri::command]
@@ -60,7 +85,7 @@ fn read_file(path: PathBuf) -> Result<Response, String> {
 
 fn handle_run_event(app: &AppHandle, event: RunEvent) {
     if let RunEvent::Exit = event {
-        agent::window::close(app);
+        agent::window::close_all(app);
     }
 
     // macOS sends opened files as an event, both on launch and while running
@@ -68,7 +93,7 @@ fn handle_run_event(app: &AppHandle, event: RunEvent) {
     if let RunEvent::Opened { urls } = event
         && let Some(path) = urls.into_iter().filter_map(|url| url.to_file_path().ok()).next_back()
     {
-        set_opened_log(app, path);
+        set_opened_log(app, &new_window::last_focused(app), path);
     }
 }
 
@@ -126,6 +151,14 @@ pub fn run() -> ExitCode {
     };
 
     let builder = tauri::Builder::default();
+    // Windows opened later, ex. from the `doglog` command, open in this process, so all windows share a connection to the
+    // robot. Development builds are left out, so they can run alongside an installed Studio, which has the same
+    // identifier.
+    let builder = if cfg!(debug_assertions) {
+        builder
+    } else {
+        builder.plugin(tauri_plugin_single_instance::init(open_started_window))
+    };
     #[cfg(target_os = "macos")]
     let builder = builder.plugin(tauri_plugin_macos_fps::init());
     #[cfg(any(target_os = "macos", windows))]
@@ -162,11 +195,28 @@ pub fn run() -> ExitCode {
         .manage(sync::RobotConnection::default())
         .manage(sync::CancelDownload::default())
         .manage(sync::SyncLock::default())
-        .manage(agent::window::AgentWindow::default())
-        .on_window_event(|window, event| {
-            if let WindowEvent::Focused(focused) = event {
-                agent::window::set_focused(window.app_handle(), *focused);
+        .manage(agent::window::AgentWindows::default())
+        .manage(new_window::LastFocused::default())
+        .on_window_event(|window, event| match event {
+            WindowEvent::Focused(focused) => {
+                agent::window::set_focused(window, *focused);
+                if *focused {
+                    new_window::set_focused(window.app_handle(), window.label());
+                }
             }
+            WindowEvent::Destroyed => {
+                let app = window.app_handle();
+                agent::window::close(app, window.label());
+                #[cfg(any(target_os = "macos", windows))]
+                clip::cancel_window_clip(app, window.label());
+                app.state::<OpenedLog>().0.lock().unwrap().remove(window.label());
+                app.state::<OpenedDashboardLink>()
+                    .0
+                    .lock()
+                    .unwrap()
+                    .remove(window.label());
+            }
+            _ => {}
         })
         .invoke_handler(tauri::generate_handler![
             take_opened_log,
@@ -195,7 +245,6 @@ pub fn run() -> ExitCode {
             sync::download_robot_log,
             sync::cancel_robot_download,
             sync::disconnect_robot,
-            window_state::window_slot,
             agent::window::agent_listen,
             agent::window::agent_respond,
             #[cfg(target_os = "macos")]
@@ -218,10 +267,10 @@ pub fn run() -> ExitCode {
                 )?;
             }
 
-            window_state::restore(app);
+            window_state::restore(&app.get_webview_window("main").unwrap(), true);
 
             if let Some(log) = log {
-                set_opened_log(app.handle(), log);
+                set_opened_log(app.handle(), "main", log);
             }
 
             // Windows and Linux start a new process with a `doglog://` link as its argument, macOS sends it as an
