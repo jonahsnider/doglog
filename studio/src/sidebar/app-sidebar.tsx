@@ -139,16 +139,18 @@ export function AppSidebar() {
 					ref={sidebarRef}
 					collapsible="none"
 					data-collapsible={iconOnly ? 'icon' : undefined}
+					// Opaque while it's over the panes, otherwise it can show the window's backdrop through the frame, see `index.css`
+					data-peeking={collapsed && peeking ? '' : undefined}
 					className={cn(
-						'group absolute start-0 bottom-0 z-20 overflow-hidden transition-[width,box-shadow] duration-200 motion-reduce:transition-none',
+						'group absolute start-0 bottom-0 z-20 overflow-hidden transition-[width,box-shadow,background-color] duration-200 motion-reduce:transition-none',
 						// Below the title bar's strip, lined up with the main area's panes and pages, which have a gap above them
 						strip ? 'top-10.5' : 'top-0',
 						// Sized by its top and bottom instead of `Sidebar`'s full height, which would push it past the bottom of the window below the strip
 						'h-auto',
-						// Rounded where it meets the rest of the app, and flush with the window's edges
+						// On the frame like the rest of the app's base, rounded for when it peeks over the panes
 						'rounded-e-lg',
 						iconOnly && 'w-(--sidebar-width-icon)',
-						collapsed && peeking && 'shadow-lg',
+						'data-peeking:shadow-lg',
 						// The content is already at its final size, see below
 						'[&_[data-sidebar=menu-button]]:transition-none',
 						!animated && 'transition-none',

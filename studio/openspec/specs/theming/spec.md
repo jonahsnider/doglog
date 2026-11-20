@@ -51,13 +51,13 @@ The theme SHALL have both light and dark variants derived from the same color sc
 
 ### Requirement: Window frame backdrop
 
-Studio SHALL tint a native backdrop with the theme's frame color on macOS (Liquid Glass on macOS 26 and later, sidebar vibrancy on macOS 15) and Windows 11 22H2 and later (Desktop Acrylic). Only gaps and outer edges SHALL reveal the backdrop; panes, sidebars, and the timeline SHALL stay opaque. Studio SHALL use a solid frame when a native backdrop is unavailable or the system requests reduced transparency or forced colors.
+Studio SHALL tint a native backdrop with the theme's frame color on macOS (Liquid Glass on macOS 26 and later, sidebar vibrancy on macOS 15) and Windows 11 22H2 and later (Desktop Acrylic). The backdrop SHALL show through the frame, including under the sidebars and the timeline, which sit on it; panes and pages SHALL stay opaque. Studio SHALL use a solid frame when a native backdrop is unavailable or the system requests reduced transparency or forced colors.
 
 #### Scenario: Native backdrop is available
 
 - **GIVEN** Studio is running on macOS or Windows 11 22H2 or later with transparency enabled
 - **WHEN** the user views a dashboard
-- **THEN** the native backdrop is visible between panes and at their outer edges, not through the content surfaces
+- **THEN** the native backdrop is visible between panes, at their outer edges, and under the sidebars and timeline, not through the panes
 
 #### Scenario: Native backdrop is unavailable or disabled
 

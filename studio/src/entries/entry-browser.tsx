@@ -64,10 +64,7 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 
 	if (!open) {
 		return (
-			<aside
-				aria-label="Entry browser"
-				className={cn('ms-1.5 shrink-0 rounded-s-lg bg-sidebar px-1.5 pb-1.5', strip ? 'pt-1.5' : 'pt-3')}
-			>
+			<aside aria-label="Entry browser" className={cn('ms-1.5 shrink-0 px-1.5 pb-1.5', strip ? 'pt-1.5' : 'pt-3')}>
 				<ToggleButton open={false} />
 			</aside>
 		);
@@ -92,8 +89,8 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 				onResize={(size, _id, prevSize) => prevSize && widthPxStore.set(size.inPixels)}
 			>
 				{/* Not selectable, so double-clicking or dragging rows doesn't select their labels */}
-				{/* A sidebar like the one on the left, rounded where it meets the rest of the app */}
-				<aside aria-label="Entry browser" className="flex h-full flex-col overflow-hidden rounded-s-lg bg-sidebar">
+				{/* A sidebar like the one on the left, on the frame instead of its own surface */}
+				<aside aria-label="Entry browser" className="flex h-full flex-col overflow-hidden">
 					<div
 						{...dragRegion}
 						className={cn('flex shrink-0 items-center gap-1 ps-3 pe-1.5', strip ? 'h-9' : 'h-10.5 pt-1.5')}

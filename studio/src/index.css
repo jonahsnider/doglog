@@ -235,7 +235,7 @@
 	--md-surface-container-highest: rgb(232 225 224);
 
 	--destructive: var(--md-error);
-	/* Behind the sidebars, panes, and timeline, darker than each of them. MD3's role for the dimmest surface. */
+	/* The base the sidebars and timeline sit on, darker than the panes. MD3's role for the dimmest surface. */
 	--frame: var(--md-surface-dim);
 	/* Chart colors generated from the theme color, see `chartColorVariables()` in src/theme/theme-color.ts */
 	--chart-1: rgb(194 74 71);
@@ -352,7 +352,8 @@
 	--code-foreground: var(--md-on-surface);
 	--code-highlight: var(--md-surface-container-high);
 	--radius: 0.625rem;
-	--sidebar: var(--md-surface-container-low);
+	/* Sidebars sit on the frame instead of their own surface */
+	--sidebar: var(--frame);
 	--sidebar-foreground: var(--md-on-surface-variant);
 	--sidebar-accent: var(--md-surface-container-high);
 	--sidebar-accent-foreground: var(--md-on-surface);
@@ -397,7 +398,7 @@
 	--input: --alpha(var(--color-black) / 10%);
 	--outline: var(--input);
 	--ring: var(--color-neutral-400);
-	--sidebar: var(--color-neutral-50);
+	--sidebar: var(--frame);
 	--sidebar-foreground: color-mix(in srgb, var(--color-neutral-800) 64%, var(--sidebar));
 	--sidebar-primary: var(--color-neutral-800);
 	--sidebar-primary-foreground: var(--color-neutral-50);
@@ -441,7 +442,7 @@
 	--input: --alpha(var(--color-white) / 8%);
 	--outline: var(--input);
 	--ring: var(--color-neutral-500);
-	--sidebar: color-mix(in srgb, var(--color-neutral-950) 97%, var(--color-white));
+	--sidebar: var(--frame);
 	--sidebar-foreground: color-mix(in srgb, var(--color-neutral-100) 64%, var(--sidebar));
 	--sidebar-primary: var(--color-neutral-100);
 	--sidebar-primary-foreground: var(--color-neutral-800);
@@ -517,12 +518,19 @@
 [data-frosted-frame] .bg-frame {
 	background-color: color-mix(in srgb, var(--frame) 75%, transparent);
 }
+/* Sidebars show the backdrop through the frame they sit on, unless the collapsed sidebar is peeking over the panes */
+[data-frosted-frame] [data-slot='sidebar']:not([data-peeking]) {
+	--sidebar: transparent;
+}
 
 /* Older webviews don't report reduced transparency; their native backdrop handles it. */
 @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
 	[data-frosted-frame] body,
 	[data-frosted-frame] .bg-frame {
 		background-color: revert-layer;
+	}
+	[data-frosted-frame] [data-slot='sidebar'] {
+		--sidebar: revert-layer;
 	}
 }
 

@@ -248,7 +248,7 @@ export function Scrubber({
 						{gaps.map((gap) => (
 							<div
 								key={gap.start}
-								className="absolute inset-y-0 bg-background"
+								className="absolute inset-y-0 bg-frame"
 								style={{ left: `${toPercent(gap.start)}%`, width: `${toPercent(gap.end) - toPercent(gap.start)}%` }}
 							>
 								<div className="size-full bg-input/40" />
@@ -265,7 +265,7 @@ export function Scrubber({
 						{compressed.map((span) => (
 							<div
 								key={span.start}
-								className="absolute inset-y-0 bg-background bg-[image:repeating-linear-gradient(-45deg,var(--color-input)_0_2px,transparent_2px_4px)]"
+								className="absolute inset-y-0 bg-frame bg-[image:repeating-linear-gradient(-45deg,var(--color-input)_0_2px,transparent_2px_4px)]"
 								style={{ left: `${toPercent(span.start)}%`, width: `${toPercent(span.end) - toPercent(span.start)}%` }}
 							/>
 						))}

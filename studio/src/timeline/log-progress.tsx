@@ -6,11 +6,7 @@ export function LogProgress({ fileName }: { fileName: string }) {
 	const present = useIsPresent();
 	const progress = useLogProgress();
 	return (
-		<footer
-			aria-label="Timeline"
-			inert={!present}
-			className="flex h-14 items-center rounded-t-lg bg-background px-4 contain-strict"
-		>
+		<footer aria-label="Timeline" inert={!present} className="flex h-14 items-center px-4 contain-strict">
 			{/* Fades in after a moment so small logs that load instantly don't flash it */}
 			<Progress
 				value={progress * 100}

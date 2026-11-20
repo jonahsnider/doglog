@@ -18,7 +18,7 @@ Studio SHALL have one time cursor shared by every dashboard and widget.
 
 ### Requirement: Timeline bar
 
-When a dashboard is open and a source is active, a timeline bar SHALL be shown along the bottom of the dashboard area, flush with the window's bottom edge and rounded only at the top. Dragging or scrolling horizontally along it MUST move the cursor.
+When a dashboard is open and a source is active, a timeline bar SHALL be shown along the bottom of the dashboard area, directly on the app's frame rather than on a surface of its own. Dragging or scrolling horizontally along it MUST move the cursor.
 
 #### Scenario: Open or close the only source
 

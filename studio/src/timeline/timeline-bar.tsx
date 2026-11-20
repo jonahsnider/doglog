@@ -138,7 +138,7 @@ function TimelineControls({
 	useHotkeys(speedHotkeys, { target: speedTrigger, enabled: shortcutsEnabled });
 
 	return (
-		<footer aria-label="Timeline" inert={!present} className="flex h-14 rounded-t-lg bg-background contain-strict">
+		<footer aria-label="Timeline" inert={!present} className="flex h-14 contain-strict">
 			<div
 				className={cn(
 					'flex min-w-0 flex-1 items-center gap-1 px-2',
