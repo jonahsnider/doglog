@@ -97,6 +97,8 @@ The top of the sidebar SHALL be tinted to tell open Studio tabs and windows apar
 
 The pages section SHALL list the auxiliary pages Logs and Settings, and selecting a page MUST show it in the main area.
 
+Settings and the Logs sync overview SHALL use the same centered page column and side padding so their headings line up when switching pages. Settings panels SHALL have a narrower maximum width and stay aligned with the start of the heading. Each heading and its actions MUST stay visible while the content scrolls.
+
 #### Scenario: Open Settings
 
 - **WHEN** the user selects Settings in the sidebar

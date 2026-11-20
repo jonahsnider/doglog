@@ -12,9 +12,9 @@ import { SyncSettingsSheet } from '@/sync/sync-settings-sheet';
 import { SyncStatusPanel } from '@/sync/sync-status';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+import { UtilityPage } from '@/components/utility-page';
 import { DownloadButton } from '@/desktop/download-button';
 import { openLogPath } from '@/data/open-log';
-import { dragRegion } from '@/desktop/title-bar';
 import { dateTimeFormat, logLabel, formatSize } from '@/sync/format';
 import { parseLogName } from '@/sync/log-names';
 import { matchIcons } from '@/sync/match-icons';
@@ -143,62 +143,54 @@ function SyncOverview() {
 	}
 
 	return (
-		<div className="flex-1 overflow-y-auto">
-			<div className="flex flex-col gap-8 p-6">
-				{/* Reaches the top of the page and sticks there, its bottom padding replaces some of the gap so there's room between it and the content scrolling under it */}
-				<header
-					{...dragRegion}
-					className="sticky top-0 z-10 -mt-6 -mb-4 flex items-center justify-between gap-2 bg-background pt-6 pb-4"
-				>
-					<h1 className="font-heading text-2xl font-semibold">Logs</h1>
-					<div className="flex gap-2">
-						<Button variant="ghost" size="sm" onClick={() => void openFolder()}>
-							<FolderOpenIcon />
-							Open folder
-						</Button>
-						<SyncSettingsSheet trigger={settingsButton} />
-					</div>
-				</header>
+		<UtilityPage
+			title="Logs"
+			actions={
+				<>
+					<Button variant="ghost" size="sm" onClick={() => void openFolder()}>
+						<FolderOpenIcon />
+						Open folder
+					</Button>
+					<SyncSettingsSheet trigger={settingsButton} />
+				</>
+			}
+		>
+			<div className="flex flex-col gap-8">
+				<section className="flex flex-col gap-8">
+					<SyncStatusPanel status={status} enabled={enabled} boardLogs={boardLogs} days={days} />
+					{boardLogs.length > 0 && <SyncBoard logs={boardLogs} onOpen={(name) => void open(name)} />}
+				</section>
 
-				<div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
-					<section className="flex flex-col gap-8">
-						<SyncStatusPanel status={status} enabled={enabled} boardLogs={boardLogs} days={days} />
-						{boardLogs.length > 0 && <SyncBoard logs={boardLogs} onOpen={(name) => void open(name)} />}
+				{recent.length > 0 && (
+					<section className="flex flex-col gap-2">
+						<h2 className="text-sm font-medium">Recent logs</h2>
+						<ul className="flex flex-col">
+							{recent.map((log) => {
+								const matchIcon = log.match === undefined ? undefined : matchIcons[log.match.type];
+								return (
+									<li key={log.name}>
+										<button
+											type="button"
+											onClick={() => void open(log.name)}
+											className="flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-left text-sm hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring"
+										>
+											{/* Logs from outside a match have no icon, like on the board */}
+											<span className="size-4 shrink-0 text-muted-foreground">
+												{matchIcon && <matchIcon.icon aria-label={matchIcon.label} className="size-4" />}
+											</span>
+											<span className="min-w-0 flex-1 truncate font-medium">{logLabel(log.name)}</span>
+											{log.match !== undefined && (
+												<span className="text-muted-foreground">{dateTimeFormat.format(log.date)}</span>
+											)}
+											<span className="w-14 text-right text-muted-foreground tabular-nums">{formatSize(log.size)}</span>
+										</button>
+									</li>
+								);
+							})}
+						</ul>
 					</section>
-
-					{recent.length > 0 && (
-						<section className="flex flex-col gap-2">
-							<h2 className="text-sm font-medium">Recent logs</h2>
-							<ul className="flex flex-col">
-								{recent.map((log) => {
-									const matchIcon = log.match === undefined ? undefined : matchIcons[log.match.type];
-									return (
-										<li key={log.name}>
-											<button
-												type="button"
-												onClick={() => void open(log.name)}
-												className="flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-left text-sm hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring"
-											>
-												{/* Logs from outside a match have no icon, like on the board */}
-												<span className="size-4 shrink-0 text-muted-foreground">
-													{matchIcon && <matchIcon.icon aria-label={matchIcon.label} className="size-4" />}
-												</span>
-												<span className="min-w-0 flex-1 truncate font-medium">{logLabel(log.name)}</span>
-												{log.match !== undefined && (
-													<span className="text-muted-foreground">{dateTimeFormat.format(log.date)}</span>
-												)}
-												<span className="w-14 text-right text-muted-foreground tabular-nums">
-													{formatSize(log.size)}
-												</span>
-											</button>
-										</li>
-									);
-								})}
-							</ul>
-						</section>
-					)}
-				</div>
+				)}
 			</div>
-		</div>
+		</UtilityPage>
 	);
 }

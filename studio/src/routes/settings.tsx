@@ -5,7 +5,7 @@ import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui
 import { Frame, FrameHeader, FramePanel, FrameTitle } from '@/components/ui/frame';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { dragRegion } from '@/desktop/title-bar';
+import { UtilityPage } from '@/components/utility-page';
 import { getRobotHost } from '@/robot-target';
 import { useAnonymousName } from '@/sharing/identity';
 import { reportsNaturalScrolling, updateSettings, useSettings } from '@/settings';
@@ -22,16 +22,8 @@ function Settings() {
 	const robotTargetInvalid = robotTarget.trim() !== '' && robotHost === undefined;
 
 	return (
-		<div className="flex flex-1 flex-col overflow-y-auto">
-			<div className="flex max-w-2xl grow flex-col gap-6 p-6">
-				{/* Reaches the top of the page and sticks there, its bottom padding replaces some of the gap so there's room between it and the content scrolling under it */}
-				<h1
-					{...dragRegion}
-					className="sticky top-0 z-10 -mt-6 -mb-3 bg-background pt-6 pb-3 font-heading text-2xl font-semibold"
-				>
-					Settings
-				</h1>
-
+		<UtilityPage title="Settings">
+			<div className="flex max-w-2xl flex-1 flex-col gap-6">
 				<SettingsSection title="Appearance">
 					<AppearanceSettings />
 				</SettingsSection>
@@ -142,7 +134,7 @@ function Settings() {
 					</p>
 				</div>
 			</div>
-		</div>
+		</UtilityPage>
 	);
 }
 
