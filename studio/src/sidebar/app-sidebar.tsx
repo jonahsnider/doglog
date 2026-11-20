@@ -26,6 +26,7 @@ import { cn } from '@/lib/utils';
 import { useTitleBarStrip, useTrafficLights } from '@/desktop/title-bar';
 import {
 	animateSidebarPeek,
+	copyToRail,
 	isCollapsing,
 	sidebarAnimationStore,
 	sidebarCollapsedStore,
@@ -103,11 +104,7 @@ export function AppSidebar() {
 		// sidebar switches to its full layout. A peek starting again while the last one slides out keeps the copy it has.
 		const content = contentRef.current!;
 		if (content.parentElement!.dataset['collapsible'] === 'icon') {
-			const railCopy = railCopyRef.current!;
-			railCopy.replaceChildren(content.cloneNode(true));
-			for (const element of railCopy.querySelectorAll('[id]')) {
-				element.removeAttribute('id');
-			}
+			copyToRail(railCopyRef.current!, content);
 		}
 		setAnimated(true);
 		setPeeking(true);
@@ -142,6 +139,9 @@ export function AppSidebar() {
 				return;
 			}
 
+			// The sidebar slides out over the copy, so its pages and dashboards are copied again, like a new selection. The
+			// header and footer show more while peeking than in the rail, so they keep the copy from when peeking started.
+			copyToRail(railCopyRef.current!, contentRef.current!, '[data-sidebar="content"]');
 			setPeeking(false);
 			animateSidebarPeek(false);
 		};

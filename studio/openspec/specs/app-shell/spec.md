@@ -175,6 +175,7 @@ Users SHALL be able to collapse the sidebar to a narrow icon-only rail and expan
 - **GIVEN** the sidebar is peeking and the user has no sidebar popup open, isn't renaming a dashboard, and isn't dragging one
 - **WHEN** the pointer leaves the sidebar
 - **THEN** it immediately starts sliding back out past the window's edge, uncovering the rail
+- **AND** the uncovered rail already shows changes made while peeking, like a newly selected page or dashboard
 
 #### Scenario: Remember collapsed state
 
