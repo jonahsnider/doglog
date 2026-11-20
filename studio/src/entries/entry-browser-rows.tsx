@@ -83,7 +83,7 @@ export function EntryRows({
 	});
 
 	return (
-		<div ref={container} className={cn('overflow-y-auto pb-2', className)}>
+		<div ref={container} className={cn('relative overflow-y-auto pb-2', className)}>
 			<Tree
 				aria-label={label}
 				mode="none"
