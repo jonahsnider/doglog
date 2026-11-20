@@ -1,10 +1,10 @@
-import { type Hotkey, useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
+import { useHotkey } from '@tanstack/react-hotkeys';
 import { Link, useMatchRoute } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import FolderSyncIcon from 'lucide-react/icons/folder-sync';
 import SettingsIcon from 'lucide-react/icons/settings';
 import SlidersHorizontalIcon from 'lucide-react/icons/sliders-horizontal';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import {
 	Sidebar,
 	SidebarContent,
@@ -13,16 +13,15 @@ import {
 	SidebarGroup,
 	SidebarHeader,
 	SidebarMenu,
-	SidebarMenuBadge,
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { AppSidebarFooter } from '@/sidebar/app-sidebar-footer';
 import { SourceControl } from '@/sidebar/source-control';
+import { ShortcutHint } from '@/sidebar/shortcut-hint';
 import { SidebarDashboards } from '@/sidebar/sidebar-dashboards';
 import { TooltipLabel } from '@/components/tooltip-label';
-import { Kbd } from '@/components/ui/kbd';
-import { shortcuts, useShortcutHint } from '@/commands/commands';
+import { shortcuts } from '@/commands/commands';
 import { cn } from '@/lib/utils';
 import { useTitleBarStrip, useTrafficLights } from '@/desktop/title-bar';
 import {
@@ -42,17 +41,6 @@ const keepPeekingSelector =
 	':is([data-slot="menu-trigger"], [data-slot="context-menu-trigger"], [data-slot="dialog-trigger"])[data-popup-open], input:focus, [data-dnd-dragging]';
 
 function noop(): void {}
-
-function ShortcutHint({ shortcut }: { shortcut: Hotkey }) {
-	const formatForDisplay = useFormatForDisplay();
-	return (
-		useShortcutHint(shortcut) && (
-			<SidebarMenuBadge>
-				<Kbd>{formatForDisplay(shortcut)}</Kbd>
-			</SidebarMenuBadge>
-		)
-	);
-}
 
 export function AppSidebar() {
 	const matchRoute = useMatchRoute();
@@ -126,6 +114,17 @@ export function AppSidebar() {
 		animateSidebarPeek(true);
 	};
 	useHotkey(shortcuts.toggleSidebar, () => toggle(false), { requireReset: true });
+
+	// Also peeks once it's the rail under a pointer that stays still, like after collapsing it with the keyboard
+	const peekIfHovered = useEffectEvent(() =>
+		contentRef.current!.parentElement!.matches(':hover') ? peek() : cancelPeek(),
+	);
+	useEffect(() => {
+		if (iconLayout) {
+			showTimer.current = setTimeout(peekIfHovered, peekDelay);
+		}
+		return () => clearTimeout(showTimer.current);
+	}, [iconLayout]);
 
 	// Check pointer moves since menus are rendered outside the sidebar, and pointerleave for exits from the window
 	useEffect(() => {

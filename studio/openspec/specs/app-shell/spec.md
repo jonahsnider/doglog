@@ -168,7 +168,7 @@ Users SHALL be able to collapse the sidebar to a narrow icon-only rail and expan
 - **THEN** the full sidebar slides in over the rail and the dashboard from the window's edge, as an opaque drawer
 - **AND** the dashboard layout does not change
 - **AND** the rail stays where it is under the drawer
-- **AND** the rail also peeks when the pointer moves over it after the sidebar collapsed under the pointer
+- **AND** the rail also peeks when the sidebar collapses under the pointer, even if the pointer stays still
 
 #### Scenario: Stop peeking on pointer exit
 
