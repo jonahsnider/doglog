@@ -1,12 +1,12 @@
-import { NetworkTables, type NetworkTablesTopic } from '@ntcore-ts/client';
+import type { NetworkTables, NetworkTablesTopic } from '@ntcore-ts/client';
 import * as z from 'zod';
 import { getDashboard, subscribeDashboards } from '@/dashboards/dashboards';
 import { getFocusedPane } from '@/dashboards/panes';
 import { getSharedDocs, receiveSharedDashboard } from '@/dashboards/sharing';
+import { studioTopicPrefix } from '@/data/samples';
 import { settingsStore } from '@/settings';
 import { getDisplayName, sessionId, userIdStore } from '@/sharing/identity';
 import { localActivityStore, type Session, sessionsStore } from '@/sharing/presence';
-import { studioTopicPrefix } from '@/data/samples';
 
 // Topics are `/DogLogStudio/{dashboard ID}/doc/{session ID}`, a snapshot of the dashboard's Loro document,
 // and `/DogLogStudio/{dashboard ID}/presence/{user ID}/{session ID}`, a JSON `presenceSchema`.
@@ -23,20 +23,40 @@ const presenceSchema = z.object({
 const docDelay = 250;
 /** Presence is sent at most twice a second */
 const presenceInterval = 500;
+const publishRetryDelay = 1000;
 
 /** Called by our @ntcore-ts/client patch when a topic under a prefix topic is gone */
 type UnannounceListener = (params: { name: string }) => void;
 
 /** A topic this session publishes. Values set before the server accepts it are sent once it does. */
-function createPublisher<T extends string | Uint8Array>(topic: NetworkTablesTopic<T>) {
+function createPublisher<T extends string | Uint8Array>(nt: NetworkTables, topic: NetworkTablesTopic<T>) {
 	let published = false;
 	let closed = false;
 	let pending: T | undefined;
+	let retryTimer: ReturnType<typeof setTimeout> | undefined;
+	const close = () => {
+		closed = true;
+		clearTimeout(retryTimer);
+		if (published && topic.pubuid !== undefined) {
+			topic.unpublish();
+		}
+	};
 	const publish = async () => {
-		await topic.publish();
+		if (!nt.isRobotConnected()) {
+			return;
+		}
+		try {
+			await topic.publish();
+		} catch {
+			// A missed announcement must not strand the latest value. Disconnect disposes this publisher.
+			if (!closed) {
+				retryTimer = setTimeout(() => void publish(), publishRetryDelay);
+			}
+			return;
+		}
 		published = true;
 		if (closed) {
-			topic.unpublish();
+			close();
 		} else if (pending !== undefined) {
 			topic.setValue(pending);
 		}
@@ -51,16 +71,7 @@ function createPublisher<T extends string | Uint8Array>(topic: NetworkTablesTopi
 				pending = value;
 			}
 		},
-		close() {
-			closed = true;
-			if (published) {
-				try {
-					topic.unpublish();
-				} catch {
-					// Already unpublished by a reconnect
-				}
-			}
-		},
+		close,
 	};
 }
 
@@ -83,12 +94,11 @@ function setSessions(update: (sessions: Map<string, Session>) => void): void {
 }
 
 /**
- * Sync shared dashboards and presence through the NT server at `host`.
+ * Sync shared dashboards and presence through `nt`.
  * `onConnectedChange` is called when the connection opens or drops. Returns a function that disconnects.
  */
-export function connectSharing(host: string, onConnectedChange: (connected: boolean) => void): () => void {
+export function connectSharing(nt: NetworkTables, onConnectedChange: (connected: boolean) => void): () => void {
 	// Shared with the data source when it's connected to the same server
-	const nt = NetworkTables.getInstanceByURI(host);
 	nt.retain();
 	const userId = userIdStore.get();
 
@@ -133,7 +143,11 @@ export function connectSharing(host: string, onConnectedChange: (connected: bool
 	const docPublishers = new Map<string, { publisher: Publisher<Uint8Array>; version: string | undefined }>();
 	let docTimer: ReturnType<typeof setTimeout> | undefined;
 	const sendDocs = () => {
+		clearTimeout(docTimer);
 		docTimer = undefined;
+		if (!nt.isRobotConnected()) {
+			return;
+		}
 		const docs = getSharedDocs();
 		const ids = new Set(docs.map(({ id }) => id));
 		for (const [id, { publisher }] of docPublishers) {
@@ -147,7 +161,7 @@ export function connectSharing(host: string, onConnectedChange: (connected: bool
 			let sent = docPublishers.get(id);
 			if (!sent) {
 				sent = {
-					publisher: createPublisher(nt.getRawTopic(`${studioTopicPrefix}${id}/doc/${sessionId}`)),
+					publisher: createPublisher(nt, nt.getRawTopic(`${studioTopicPrefix}${id}/doc/${sessionId}`)),
 					version: undefined,
 				};
 				docPublishers.set(id, sent);
@@ -169,7 +183,11 @@ export function connectSharing(host: string, onConnectedChange: (connected: bool
 	let presenceTimer: ReturnType<typeof setTimeout> | undefined;
 	let presenceSentAt = 0;
 	const sendPresence = () => {
+		clearTimeout(presenceTimer);
 		presenceTimer = undefined;
+		if (!nt.isRobotConnected()) {
+			return;
+		}
 		presenceSentAt = Date.now();
 		const { dashboardId, lastActiveAt } = localActivityStore.get();
 		const dashboard = dashboardId === undefined ? undefined : getDashboard(dashboardId);
@@ -180,7 +198,7 @@ export function connectSharing(host: string, onConnectedChange: (connected: bool
 			presence =
 				name === undefined
 					? undefined
-					: { name, publisher: createPublisher(nt.getStringTopic(name)), value: undefined };
+					: { name, publisher: createPublisher(nt, nt.getStringTopic(name)), value: undefined };
 		}
 		if (!presence || !dashboard) {
 			return;

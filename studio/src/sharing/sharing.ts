@@ -86,11 +86,14 @@ export function startSharing(): void {
 		}
 
 		// The NT4 client is large, only load it when it's needed
-		const { connectSharing } = await import('@/sharing/nt-sync');
+		const [{ NetworkTables }, { connectSharing }] = await Promise.all([
+			import('@ntcore-ts/client'),
+			import('@/sharing/nt-sync'),
+		]);
 		if (attemptGeneration !== generation) {
 			return;
 		}
-		disconnect = connectSharing(host, (connected) => {
+		disconnect = connectSharing(NetworkTables.getInstanceByURI(host), (connected) => {
 			if (attemptGeneration !== generation) {
 				return;
 			}
