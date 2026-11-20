@@ -69,7 +69,7 @@
 		"torph": "0.1.4",
 		"uplot": "1.6.32",
 		"usehooks-ts": "3.1.1",
-		"wpilib-struct": "1.0.2",
+		"wpilib-struct": "1.1.0",
 		"wpilog-parser": "4.2.1",
 		"zod": "4.6.7"
 	},
