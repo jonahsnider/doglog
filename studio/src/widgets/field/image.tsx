@@ -55,9 +55,9 @@ export function Minimap({
 	return (
 		<div
 			className={cn(
-				'pointer-events-none absolute top-2 w-1/4 overflow-hidden rounded-sm shadow-black/50 shadow-lg ring-1 ring-black/60 transition-opacity duration-300 [container-type:size]',
+				'pointer-events-none absolute top-2 w-1/4 overflow-hidden rounded-sm shadow-black/50 shadow-lg ring-1 ring-black/60 transition-opacity [container-type:size] motion-reduce:transition-none',
 				left ? 'left-2' : 'right-2',
-				visible ? 'opacity-100' : 'opacity-0',
+				visible ? 'opacity-100 duration-150 ease-out' : 'opacity-0 duration-100 ease-in',
 			)}
 			style={{ aspectRatio }}
 			aria-hidden

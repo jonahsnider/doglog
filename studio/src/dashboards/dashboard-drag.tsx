@@ -15,6 +15,7 @@ export function DashboardSplitZones({ dashboard }: { dashboard: Dashboard }) {
 	const draggedId = isDashboardDrag(source) ? source.data.dashboardId : undefined;
 	const dragged = useDashboards().find(({ id }) => id === draggedId && id !== dashboard.id);
 	const transition = useMotionTransition({ duration: 0.15, ease: easing.out });
+	const exitTransition = useMotionTransition({ duration: 0.1, ease: easing.in });
 
 	const disabled = dragged !== undefined && !canJoinLayouts([dashboard.layout, dragged.layout]);
 
@@ -30,7 +31,7 @@ export function DashboardSplitZones({ dashboard }: { dashboard: Dashboard }) {
 								className={cn('flex min-w-0 flex-1 items-center @max-[3rem]:hidden', side === 'right' && 'justify-end')}
 								initial={{ opacity: 0, x: side === 'left' ? -16 : 16 }}
 								animate={{ opacity: 1, x: 0 }}
-								exit={{ opacity: 0, x: side === 'left' ? -16 : 16 }}
+								exit={{ opacity: 0, x: side === 'left' ? -16 : 16, transition: exitTransition }}
 								transition={transition}
 							>
 								<SplitZone dashboardId={dashboard.id} side={side} disabled={disabled} />

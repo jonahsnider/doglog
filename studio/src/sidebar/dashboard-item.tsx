@@ -203,10 +203,11 @@ export function DashboardItem({
 	if (isDragSource && previewOpen) {
 		setPreviewOpen(false);
 	}
-	const transition = useMotionTransition({ duration: 0.2, ease: easing.inOut });
+	const transition = useMotionTransition({ duration: 0.2, ease: easing.out });
+	const exitTransition = useMotionTransition({ duration: 0.15, ease: easing.in });
 	const afterEntry = { type: false as const, delay: transition.duration ?? 0 };
 	// Dashboards dragged to the other section are hidden right away, so only the gap they leave closes
-	const exitTransition = isDragSource ? { ...transition, opacity: { duration: 0 } } : transition;
+	const rowExit = isDragSource ? { ...exitTransition, opacity: { duration: 0 } } : exitTransition;
 	const shortcut = dashboardShortcut(index);
 	const name = dashboardName(dashboard);
 	const mainType = mainWidgetType(dashboard.layout);
@@ -230,7 +231,7 @@ export function DashboardItem({
 					// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Moves the dashboards below
 					animate={{ height: 'auto', marginBottom: '0rem', opacity: 1, zIndex: 'auto', '--row-cover': 'transparent' }}
 					// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Moves the dashboards below
-					exit={{ height: 0, marginBottom: '-0.25rem', opacity: 0, overflow: 'hidden', transition: exitTransition }}
+					exit={{ height: 0, marginBottom: '-0.25rem', opacity: 0, overflow: 'hidden', transition: rowExit }}
 					transition={{ ...transition, zIndex: afterEntry, '--row-cover': afterEntry }}
 				/>
 			}
@@ -241,7 +242,7 @@ export function DashboardItem({
 				className={cn('rounded-lg', isDragSource ? 'bg-frame' : 'bg-(--row-cover)')}
 				initial={false}
 				animate={{ y: '0%' }}
-				exit={{ y: '-100%' }}
+				exit={{ y: '-100%', transition: exitTransition }}
 				transition={transition}
 			>
 				{renaming ? (
