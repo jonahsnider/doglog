@@ -5,8 +5,9 @@ import { createPersistedAtom } from '@/lib/persisted-store';
 /** The newest product update, shown in the sidebar. Increment `id` when changing it so it's shown again. */
 const update = {
 	id: 3,
-	title: 'Dashboard links',
-	description: 'Choose Copy link in a dashboard’s menu to share an editable copy without sending log data.',
+	title: 'Dashboard links, lighting improvements, and higher FPS',
+	description:
+		'Dashboard links can now be shared for collaboration from home, 3D Robot view has improved lighting & layout, and the Mac app now has up to 120hz refresh rate.',
 };
 
 /** ID of the update the user dismissed. New users start caught up, so they only see updates made after they started. */
