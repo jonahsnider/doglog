@@ -1,4 +1,4 @@
-import { dashboardShortcut, shortcuts } from '@/commands/commands';
+import { dashboardShortcut, redoAlternate, shortcuts } from '@/commands/commands';
 import { Dialog, DialogHeader, DialogPanel, DialogPopup, DialogTitle } from '@/components/ui/dialog';
 import { Kbd } from '@/components/ui/kbd';
 import { canCapture } from '@/desktop/capture';
@@ -16,14 +16,23 @@ interface IconKey {
 	icon: ReactNode;
 }
 
-function isIconKey(key: Hotkey | IconKey): key is IconKey {
+type Key = Hotkey | IconKey;
+
+/** Keys for the opposite actions in a label, like step back / forward */
+type KeyPair = readonly [Key, Key];
+
+function isIconKey(key: Key): key is IconKey {
 	return typeof key === 'object' && 'icon' in key;
+}
+
+function isKeyPair(key: Key | KeyPair): key is KeyPair {
+	return Array.isArray(key);
 }
 
 interface Shortcut {
 	label: string;
-	/** Alternative shortcuts, or the first and last of a range */
-	keys: readonly (Hotkey | IconKey)[];
+	/** Alternative shortcuts, or the first and last of a range. Alternative pairs go on separate lines. */
+	keys: readonly (Key | KeyPair)[];
 	/** Shown between the keys, `or` by default */
 	separator?: string;
 }
@@ -45,8 +54,13 @@ const sections: {
 			},
 			{ label: 'Close dashboard', keys: [shortcuts.closeDashboard] },
 			{ label: 'Reopen closed dashboard', keys: [shortcuts.reopenDashboard] },
-			{ label: 'Undo', keys: [shortcuts.undo] },
-			{ label: 'Redo', keys: [shortcuts.redo] },
+			{
+				label: 'Undo / redo',
+				keys: [
+					[shortcuts.undo, shortcuts.redo],
+					...(redoAlternate === undefined ? [] : [[shortcuts.undo, redoAlternate] as const]),
+				],
+			},
 			{ label: 'Check for updates or update', keys: [shortcuts.update] },
 			{ label: 'Keyboard shortcuts', keys: [shortcuts.keyboardShortcuts] },
 		],
@@ -54,8 +68,7 @@ const sections: {
 	{
 		title: 'Navigation',
 		shortcuts: [
-			{ label: 'Back', keys: [shortcuts.back] },
-			{ label: 'Forward', keys: [shortcuts.forward] },
+			{ label: 'Back / forward', keys: [[shortcuts.back, shortcuts.forward]] },
 			{ label: 'Switch to dashboard 1-9', keys: [dashboardShortcut(0)!, dashboardShortcut(8)!], separator: '–' },
 			{ label: 'Logs', keys: [shortcuts.logs] },
 			{ label: 'Settings', keys: [shortcuts.settings] },
@@ -93,18 +106,24 @@ const sections: {
 		title: 'Timeline',
 		shortcuts: [
 			{ label: 'Play or pause', keys: ['Space', 'K'] },
-			{ label: 'Step back', keys: [','] },
-			{ label: 'Step forward', keys: ['.'] },
-			{ label: 'Skip back 5 seconds', keys: ['ArrowLeft'] },
-			{ label: 'Skip forward 5 seconds', keys: ['ArrowRight'] },
-			{ label: 'Skip back 10 seconds', keys: ['J'] },
-			{ label: 'Skip forward 10 seconds', keys: ['L'] },
-			{ label: 'Previous section (ex. auto, teleop)', keys: ['Shift+ArrowLeft'] },
-			{ label: 'Next section', keys: ['Shift+ArrowRight'] },
-			{ label: 'Jump to start', keys: ['Home', 'Mod+ArrowLeft'] },
-			{ label: 'Jump to end', keys: ['End', 'Mod+ArrowRight'] },
-			{ label: 'Slower playback', keys: ['[', '<'] },
-			{ label: 'Faster playback', keys: [']', '>'] },
+			{ label: 'Step back / forward', keys: [[',', '.']] },
+			{ label: 'Skip back / forward 5 seconds', keys: [['ArrowLeft', 'ArrowRight']] },
+			{ label: 'Skip back / forward 10 seconds', keys: [['J', 'L']] },
+			{ label: 'Previous / next section', keys: [['Shift+ArrowLeft', 'Shift+ArrowRight']] },
+			{
+				label: 'Jump to start / end',
+				keys: [
+					['Home', 'End'],
+					['Mod+ArrowLeft', 'Mod+ArrowRight'],
+				],
+			},
+			{
+				label: 'Slower / faster playback',
+				keys: [
+					['[', ']'],
+					['<', '>'],
+				],
+			},
 		],
 	},
 	{
@@ -125,8 +144,15 @@ const sections: {
 					},
 				],
 			},
-			{ label: 'Previous section', keys: [{ name: 'Previous track', icon: <SkipBackIcon /> }] },
-			{ label: 'Next section', keys: [{ name: 'Next track', icon: <SkipForwardIcon /> }] },
+			{
+				label: 'Previous / next section',
+				keys: [
+					[
+						{ name: 'Previous track', icon: <SkipBackIcon /> },
+						{ name: 'Next track', icon: <SkipForwardIcon /> },
+					],
+				],
+			},
 		],
 	},
 ];
@@ -138,6 +164,11 @@ export function KeyboardShortcutsDialog({ children }: { children: ReactNode }) {
 	const formatForDisplay = useFormatForDisplay();
 	const { mediaControls } = useSettings();
 	useHotkey(shortcuts.keyboardShortcuts, () => setOpen((value) => !value), { requireReset: true });
+
+	const keyName = (key: Key | KeyPair): string =>
+		isKeyPair(key) ? `${keyName(key[0])}/${keyName(key[1])}` : isIconKey(key) ? key.name : formatForDisplay(key);
+	const renderKey = (key: Key) =>
+		isIconKey(key) ? <Kbd aria-label={key.name}>{key.icon}</Kbd> : <Kbd>{formatForDisplay(key)}</Kbd>;
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
@@ -160,22 +191,28 @@ export function KeyboardShortcutsDialog({ children }: { children: ReactNode }) {
 								</h3>
 								<dl className="flex flex-col gap-2 text-sm">
 									{section.shortcuts.map((shortcut) => (
-										<div key={shortcut.label} className="flex items-center justify-between gap-4">
+										<div key={shortcut.label} className="flex items-start justify-between gap-4">
 											<dt>{shortcut.label}</dt>
-											<dd className="flex items-center gap-1 text-muted-foreground text-xs">
-												{shortcut.keys.map((key, index) => (
-													<span
-														key={isIconKey(key) ? key.name : formatForDisplay(key)}
-														className="flex items-center gap-1"
-													>
-														{index > 0 && (shortcut.separator ?? 'or')}
-														{isIconKey(key) ? (
-															<Kbd aria-label={key.name}>{key.icon}</Kbd>
-														) : (
-															<Kbd>{formatForDisplay(key)}</Kbd>
-														)}
-													</span>
-												))}
+											<dd className="flex shrink-0 flex-col items-end gap-1 text-muted-foreground text-xs">
+												{(shortcut.keys.some(isKeyPair) ? shortcut.keys.map((key) => [key]) : [shortcut.keys]).map(
+													(line, lineIndex) => (
+														<span key={keyName(line[0]!)} className="flex items-center gap-1">
+															{lineIndex > 0 && 'or'}
+															{line.map((key, index) => (
+																<span key={keyName(key)} className="flex items-center gap-1">
+																	{index > 0 && (shortcut.separator ?? 'or')}
+																	{isKeyPair(key) ? (
+																		<>
+																			{renderKey(key[0])}/{renderKey(key[1])}
+																		</>
+																	) : (
+																		renderKey(key)
+																	)}
+																</span>
+															))}
+														</span>
+													),
+												)}
 											</dd>
 										</div>
 									))}

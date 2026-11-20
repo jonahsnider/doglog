@@ -39,6 +39,12 @@ Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and
 - **WHEN** the user presses ⌘Z
 - **THEN** the text field undoes its typing and the dashboard is unchanged
 
+#### Scenario: Redo on Windows and Linux
+
+- **GIVEN** the user is on Windows or Linux and undid a change to the dashboard
+- **WHEN** the user presses Ctrl+Y
+- **THEN** the change is redone, the same as pressing Ctrl+Shift+Z
+
 #### Scenario: Toggle sidebar
 
 - **WHEN** the user presses ⌘B
@@ -87,15 +93,21 @@ On a dashboard, pressing `/` SHALL focus the entry browser's search box, opening
 
 ### Requirement: Keyboard shortcuts list
 
-The keyboard shortcuts shortcut SHALL open a dialog listing every app-wide keyboard shortcut, grouped by area and formatted for the user's platform. While the media controls setting is on, it SHALL also list the media keys. Pressing the shortcut again MUST close it. The list MUST NOT include shortcuts that only work in one kind of widget.
+The keyboard shortcuts shortcut SHALL open a dialog listing every app-wide keyboard shortcut, grouped by area and formatted for the user's platform. While the media controls setting is on, it SHALL also list the media keys. Pressing the shortcut again MUST close it. The list MUST NOT include shortcuts that only work in one kind of widget. Shortcuts for opposite actions, like step back and step forward, SHALL share one row, with each pair of alternative keys on its own line.
 
 #### Scenario: Open the list
 
 - **WHEN** the user presses ⌘/
 - **THEN** a dialog lists every app-wide keyboard shortcut, including the timeline's
-- **AND** Navigation lists Back, Forward, dashboard switching, Logs, and Settings
+- **AND** Navigation lists Back / forward, dashboard switching, Logs, and Settings
 - **AND** Collaboration and sharing lists Copy dashboard link and, where capture is available, Copy dashboard image and Export dashboard clip
 - **AND** it doesn't list the field widget's measuring shortcuts
+
+#### Scenario: Opposite actions
+
+- **WHEN** the user opens the keyboard shortcuts list
+- **THEN** Step back / forward shows `,` / `.` in one row
+- **AND** Jump to start / end shows `Home` / `End`, with `⌘←` / `⌘→` on the line below
 
 #### Scenario: Web app
 

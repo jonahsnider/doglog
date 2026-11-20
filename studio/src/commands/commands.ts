@@ -74,6 +74,9 @@ export const shortcuts = {
 	update: updateShortcut,
 } as const satisfies Record<string, Hotkey>;
 
+/** Windows and Linux also redo with Ctrl+Y */
+export const redoAlternate: Hotkey | undefined = detectPlatform() === 'mac' ? undefined : 'Mod+Y';
+
 const dashboardNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 
 /** The shortcut that switches to the dashboard at `index` in the sidebar, if it has one */
@@ -280,6 +283,9 @@ export function useGlobalShortcuts(): void {
 				callback: () => undoOrRedo(router, 'redo'),
 				options: { ...outsideNativeMenu, ignoreInputs: true },
 			},
+			...(redoAlternate === undefined
+				? []
+				: [{ hotkey: redoAlternate, callback: () => undoOrRedo(router, 'redo'), options: { ignoreInputs: true } }]),
 			...dashboardNumbers.flatMap((number) => [
 				{ hotkey: `Alt+${number}` as const, callback: () => openDashboardAt(router, number - 1) },
 				{
