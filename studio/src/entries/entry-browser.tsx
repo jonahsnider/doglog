@@ -18,6 +18,7 @@ import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { shortcuts } from '@/commands/commands';
 import { isEnterKey } from '@/lib/keyboard';
+import { cn } from '@/lib/utils';
 import type { Dashboard } from '@/dashboards/dashboards';
 import { type Entry, useEntries } from '@/data/data-store';
 import { useSource } from '@/data/source';
@@ -41,7 +42,7 @@ import {
 	toggleEntryBrowser,
 } from '@/entries/editing';
 import { createPersistedAtom } from '@/lib/persisted-store';
-import { dragRegion } from '@/desktop/title-bar';
+import { dragRegion, useTitleBarStrip } from '@/desktop/title-bar';
 import { acceptsEntry, type WidgetType } from '@/widgets/widget-type';
 import * as z from 'zod';
 
@@ -57,10 +58,16 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 	const edited = useEditedWidget(dashboard);
 	useHotkey('Escape', stopEditing, { enabled: edited !== undefined, ignoreInputs: false, conflictBehavior: 'allow' });
 	const panelRef = usePanelRef();
+	// Reaches the top of the window like the sidebar, so its header is padded to line up with the pane headers below the
+	// dashboard's gap, unless it's below the title bar's strip and that gap
+	const strip = useTitleBarStrip();
 
 	if (!open) {
 		return (
-			<aside aria-label="Entry browser" className="ms-1.5 shrink-0 rounded-s-lg bg-sidebar px-1.5 pt-3 pb-1.5">
+			<aside
+				aria-label="Entry browser"
+				className={cn('ms-1.5 shrink-0 rounded-s-lg bg-sidebar px-1.5 pb-1.5', strip ? 'pt-1.5' : 'pt-3')}
+			>
 				<ToggleButton open={false} />
 			</aside>
 		);
@@ -87,7 +94,10 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 				{/* Not selectable, so double-clicking or dragging rows doesn't select their labels */}
 				{/* A sidebar like the one on the left, rounded where it meets the rest of the app */}
 				<aside aria-label="Entry browser" className="flex h-full flex-col overflow-hidden rounded-s-lg bg-sidebar">
-					<div {...dragRegion} className="flex h-10.5 shrink-0 items-center gap-1 pt-1.5 ps-3 pe-1.5">
+					<div
+						{...dragRegion}
+						className={cn('flex shrink-0 items-center gap-1 ps-3 pe-1.5', strip ? 'h-9' : 'h-10.5 pt-1.5')}
+					>
 						{edited ? (
 							<>
 								<h2 className="min-w-0 flex-1 truncate text-xs font-medium">Editing {edited.type.name}</h2>

@@ -31,8 +31,8 @@ function RootLayout() {
 						className={cn(
 							'relative overflow-hidden',
 							dashboard ? 'bg-transparent' : 'm-1.5 rounded-lg',
-							// Below the title bar's strip, keeping the gap pages have around them
-							strip && (dashboard ? 'mt-9' : 'mt-10.5'),
+							// Below the title bar's strip and a gap like the one pages have around them, lined up with the rail
+							strip && 'mt-10.5',
 						)}
 					>
 						<Outlet />

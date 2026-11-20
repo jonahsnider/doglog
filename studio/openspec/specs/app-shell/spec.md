@@ -188,7 +188,8 @@ The macOS desktop app SHALL draw the window controls over the top of the sidebar
 - **GIVEN** the user is using the desktop app on macOS
 - **WHEN** the user collapses the sidebar
 - **THEN** the window controls, the sidebar toggle, the app's name, Back, and Forward are shown in a strip across the top of the window
-- **AND** the rail and the main area start below the strip
+- **AND** the rail and the main area start below the strip, with their tops lined up
+- **AND** the sidebar's items stay in place when it expands and the strip is removed
 
 #### Scenario: Fullscreen
 

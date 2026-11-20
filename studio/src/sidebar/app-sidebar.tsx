@@ -141,8 +141,8 @@ export function AppSidebar() {
 					data-collapsible={iconOnly ? 'icon' : undefined}
 					className={cn(
 						'group absolute start-0 bottom-0 z-20 overflow-hidden transition-[width,box-shadow] duration-200 motion-reduce:transition-none',
-						// Below the title bar's strip, like the main area
-						strip ? 'top-9' : 'top-0',
+						// Below the title bar's strip, lined up with the main area's panes and pages, which have a gap above them
+						strip ? 'top-10.5' : 'top-0',
 						// Sized by its top and bottom instead of `Sidebar`'s full height, which would push it past the bottom of the window below the strip
 						'h-auto',
 						// Rounded where it meets the rest of the app, and flush with the window's edges
@@ -164,7 +164,8 @@ export function AppSidebar() {
 					<div className="flex h-full w-(--sidebar-width) shrink-0 flex-col contain-strict group-data-[collapsible=icon]:w-(--sidebar-width-icon)">
 						<SidebarHeader
 							// Leaves room for the title bar, which is above the sidebar when it has its own strip
-							className={strip ? undefined : 'pt-10.5'}
+							// The items stay where they are in the rail below the strip, so they don't move when the sidebar expands
+							className={strip ? undefined : 'pt-12.5'}
 							// Tints the top of the sidebar, see `index.css`
 							data-window-color={windowColor}
 						>
