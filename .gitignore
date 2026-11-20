@@ -296,3 +296,6 @@ infer-out/
 
 # Cloudflare Wrangler
 .wrangler
+
+# TanStack Router
+**/.tanstack/tmp
