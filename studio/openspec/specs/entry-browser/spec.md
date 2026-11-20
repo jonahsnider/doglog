@@ -112,11 +112,29 @@ The entry tree SHALL follow the WAI-ARIA tree view pattern: it MUST be a single 
 
 The entry browser SHALL provide a search box that filters the tree to entries whose names contain the query's characters in order, so abbreviations match and separators like `/`, `_`, `-`, and spaces can be skipped, and MUST highlight the matched characters in each entry's and group's name. Struct entries MUST also match their struct type. Primitive types like `boolean` or `double` MUST NOT match, since nearly every entry has one.
 
+Matching groups SHALL start expanded but MUST be collapsible.
+
 #### Scenario: Search entries
 
 - **WHEN** the user types "velocity"
 - **THEN** only entries whose names match "velocity" and their parent groups are shown
 - **AND** "Velocity" is highlighted in each matching entry
+
+#### Scenario: Collapse a matching group
+
+- **GIVEN** searching for "velocity" expands `Arm` and shows `Arm/Velocity`
+- **WHEN** the user collapses `Arm`
+- **THEN** `Arm` remains in the results with `Velocity` hidden
+- **WHEN** the user reopens `Arm`
+- **THEN** `Velocity` is shown again without changing the query
+
+#### Scenario: Change or clear a search after collapsing a matching group
+
+- **GIVEN** the user collapsed `Arm` while searching for "velocity"
+- **WHEN** the user changes the search to "angle"
+- **THEN** `Arm` starts expanded to show `Arm/Angle`
+- **WHEN** the user clears the search
+- **THEN** `Arm` returns to the state it had before searching
 
 #### Scenario: Search with an abbreviation
 

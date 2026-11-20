@@ -1,7 +1,7 @@
 import { type TreeRow, visibleTreeRows } from '@ui-sdk/core/tree';
 import type { Entry } from '@/data/data-store';
 import { FieldEntry } from '@/data/field-entry';
-import { matchRanges, searchEntries } from '@/entries/search';
+import { labelRanges, searchEntries } from '@/entries/search';
 import type { EntryPlacements, EntrySection } from '@/entries/sections';
 
 /** An entry or group in the entry browser tree, in the tree's item data shape. A node can be both, ex. `/Arm` and `/Arm/Angle` are both entries. */
@@ -28,7 +28,7 @@ export type EntryTreeRow = TreeRow & { readonly item: EntryTreeNode; readonly se
 export type EntryTreeView = {
 	/** The hierarchy the tree navigates, only matches and their parent groups while searching */
 	readonly items: EntryTreeNode[];
-	/** Expanded groups, every group while searching */
+	/** Expanded groups */
 	readonly expanded: string[];
 	/** The rows to show, in order */
 	readonly rows: EntryTreeRow[];
@@ -220,6 +220,19 @@ export function entryTreeView(
 	return { items, expanded: groups, rows: sectionRows(visibleTreeRows(items, groups), section), highlights };
 }
 
+/** Apply manual collapses to search results without rerunning the search or changing which entries match. */
+export function collapseSearchGroups(
+	view: EntryTreeView,
+	collapsed: ReadonlySet<string>,
+	section: EntrySection = 'main',
+): EntryTreeView {
+	if (!view.highlights || collapsed.size === 0) {
+		return view;
+	}
+	const expanded = view.expanded.filter((value) => !collapsed.has(value));
+	return { ...view, expanded, rows: sectionRows(visibleTreeRows(view.items, expanded), section) };
+}
+
 /** Which section each row is in, rows after the Pinned section's header are pinned until the next top level row */
 function sectionRows(
 	rows: readonly (TreeRow & { readonly item: EntryTreeNode })[],
@@ -232,24 +245,6 @@ function sectionRows(
 		}
 		return { ...row, section };
 	});
-}
-
-/** Matched ranges of a node's label, which is the end of its path */
-function labelRanges(node: EntryTreeNode, positions: ReadonlyMap<string, number[]>): number[] | undefined {
-	const start = node.value.length - node.label.length;
-	const matched: number[] = [];
-	// Labels can span several segments, ex. a pinned entry's full path
-	let end = start;
-	while (end < node.value.length) {
-		end = node.value.indexOf('/', end + 1);
-		if (end === -1) {
-			end = node.value.length;
-		}
-		for (const position of positions.get(node.value.slice(0, end)) ?? []) {
-			matched.push(position - start);
-		}
-	}
-	return matched.length > 0 ? matchRanges(matched) : undefined;
 }
 
 /** Names of the entries matching the query and the matched positions in their names, keyed by the path of the segment they're in, or `undefined` when the query has nothing to search for */

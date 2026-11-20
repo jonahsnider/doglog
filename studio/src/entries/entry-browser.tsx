@@ -22,10 +22,12 @@ import type { Dashboard } from '@/dashboards/dashboards';
 import { type Entry, useEntries } from '@/data/data-store';
 import { useSource } from '@/data/source';
 import type { EntryDragData, EntrySectionDropData } from '@/entries/drag';
+import { useSearchExpansion } from '@/entries/search-expansion';
 import { entryPlacementsStore, moveToSection } from '@/entries/sections';
 import {
 	ancestorGroups,
 	buildEntryTree,
+	collapseSearchGroups,
 	type EntryTreeNode,
 	type EntryTreeView,
 	entryTreeView,
@@ -158,6 +160,7 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 	}, [searchFocus]);
 	// Keep typing responsive while searching thousands of entries
 	const deferredQuery = useDeferredValue(query);
+	const [searchCollapsed, changeSearchExpansion] = useSearchExpansion(deferredQuery);
 	// Groups expanded or collapsed by the user, top-level groups start expanded
 	const [toggled, setToggled] = useState<ReadonlySet<string>>(new Set());
 	// The entries the edited widget showed when editing it started, see `ActiveSection`
@@ -199,13 +202,14 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 			return entry ? [{ value: name, label: name, entry }] : [];
 		});
 	}, [session, entries]);
-	const view = useMemo(
+	const results = useMemo(
 		() => entryTreeView(sectioned.items, expandedGroups(sectioned.items, toggled), deferredQuery),
 		[sectioned, toggled, deferredQuery],
 	);
+	const view = useMemo(() => collapseSearchGroups(results, searchCollapsed), [results, searchCollapsed]);
 	const dropTarget = dropSection === draggedFrom ? undefined : dropSection;
 
-	const message = emptyMessage(source !== undefined, allEntries, entries, editedType, view);
+	const message = emptyMessage(source !== undefined, allEntries, entries, editedType, results);
 
 	return (
 		<>
@@ -223,8 +227,8 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 						value={query}
 						onChange={(event) => setQuery(event.target.value)}
 						onKeyDown={(event) => {
-							// Binds or unbinds the first match, like picking it
-							const first = view.highlights && view.rows.find((row) => row.item.entry)?.item.entry;
+							// Binds or unbinds the first match, even if its group is collapsed
+							const first = results.highlights && results.rows.find((row) => row.item.entry)?.item.entry;
 							if (isEnterKey(event) && edited && first) {
 								edited.setBound(first.name, !edited.bound.includes(first.name));
 							}
@@ -241,9 +245,10 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 					className="min-h-0 flex-1"
 					dropSection={dropTarget}
 					edited={edited}
-					// Every group stays expanded while searching
 					onExpandedChange={(next) => {
-						if (view.highlights === undefined) {
+						if (view.highlights) {
+							changeSearchExpansion(view.expanded, next);
+						} else {
 							setToggled(toggledGroups(sectioned.items, next));
 						}
 					}}
@@ -255,6 +260,8 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 				<HiddenSection
 					nodes={sectioned.hidden}
 					query={deferredQuery}
+					searchCollapsed={searchCollapsed}
+					onSearchExpandedChange={changeSearchExpansion}
 					dropTarget={dropTarget === 'hidden'}
 					edited={edited}
 				/>

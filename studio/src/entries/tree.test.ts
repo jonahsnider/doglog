@@ -6,6 +6,7 @@ import { Samples } from '../data/samples.ts';
 import {
 	ancestorGroups,
 	buildEntryTree,
+	collapseSearchGroups,
 	entryTreeView,
 	expandedGroups,
 	sectionEntryTree,
@@ -55,6 +56,21 @@ test('search shows matching entries and their parent groups, expanded', () => {
 	expect(view.rows.map((row) => row.item.value)).toEqual(['/Arm', '/Arm/Velocity']);
 	expect(view.expanded).toEqual(['/Arm']);
 	expect(view.rows.map((row) => row.level)).toEqual([1, 2]);
+});
+
+test('search can collapse one matching group without hiding other results', () => {
+	const arms = buildEntryTree(entries('/LeftArm/Wrist/Angle', '/RightArm/Angle', '/RightArm/Velocity'));
+	const results = entryTreeView(arms, [], 'angle');
+	const collapsed = collapseSearchGroups(results, new Set(['/LeftArm/Wrist']));
+	expect(collapsed.expanded).not.toContain('/LeftArm/Wrist');
+	expect(collapsed.rows.map((row) => row.item.value)).toEqual([
+		'/LeftArm',
+		'/LeftArm/Wrist',
+		'/RightArm',
+		'/RightArm/Angle',
+	]);
+	// The matching child is still in the tree, so expanding Wrist can show it again.
+	expect(collapsed.items[0]?.children?.[0]?.children?.map((node) => node.value)).toEqual(['/LeftArm/Wrist/Angle']);
 });
 
 test('search matches the full name', () => {

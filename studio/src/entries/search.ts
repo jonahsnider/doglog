@@ -1,6 +1,7 @@
 import { go, type KeysResult } from 'fuzzysort';
 import { FieldEntry } from '@/data/field-entry';
 import { formatEntryType } from '@/data/samples';
+import type { EntryTreeNode } from '@/entries/tree';
 
 type SearchableEntry = {
 	readonly name: string;
@@ -50,8 +51,26 @@ function matchedInParent(entry: SearchableEntry, indexes: readonly number[], mat
 	return false;
 }
 
+/** Matched ranges of a node's label, which is the end of its path */
+export function labelRanges(node: EntryTreeNode, positions: ReadonlyMap<string, number[]>): number[] | undefined {
+	const start = node.value.length - node.label.length;
+	const matched: number[] = [];
+	// Labels can span several segments, ex. a pinned entry's full path
+	let end = start;
+	while (end < node.value.length) {
+		end = node.value.indexOf('/', end + 1);
+		if (end === -1) {
+			end = node.value.length;
+		}
+		for (const position of positions.get(node.value.slice(0, end)) ?? []) {
+			matched.push(position - start);
+		}
+	}
+	return matched.length > 0 ? matchRanges(matched) : undefined;
+}
+
 /** Turn matched character positions into ranges, as `[start, end, start, end, ...]` */
-export function matchRanges(positions: Iterable<number>): number[] {
+function matchRanges(positions: Iterable<number>): number[] {
 	const ranges: number[] = [];
 	for (const position of [...new Set(positions)].toSorted((a, b) => a - b)) {
 		if (ranges.at(-1) === position) {
