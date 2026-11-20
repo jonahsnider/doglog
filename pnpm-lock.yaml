@@ -296,8 +296,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       convert:
-        specifier: 8.1.0
-        version: 8.1.0
+        specifier: 8.2.0
+        version: 8.2.0
       fuzzysort:
         specifier: 4.0.2
         version: 4.0.2
@@ -5258,8 +5258,8 @@ packages:
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
 
-  convert@8.1.0:
-    resolution: {integrity: sha512-zMKk2/tGzXMgTzztJwm+AP7sqJEibeB7jA/ykNnk1SzjKrNYvRKYyg8OpQndA9jvSkiuv4COpj4xpfNXkbRTPw==}
+  convert@8.2.0:
+    resolution: {integrity: sha512-iq5DPgzBtBL4YNbsvZPoSKdNIaUNODC+c2wnpJtnvgMtv1bZKki6usIlCB7vFHrYMHbNnPHOrATODW3DvyoG2w==}
 
   cookie-es@1.2.3:
     resolution: {integrity: sha512-lXVyvUvrNXblMqzIRrxHb57UUVmqsSWlxqt3XIjCkUP0wDAf6uicO6KMbEgYrMNtEvWgWHwe42CKxPu9MYAnWw==}
@@ -13395,7 +13395,7 @@ snapshots:
 
   convert-source-map@2.0.0: {}
 
-  convert@8.1.0: {}
+  convert@8.2.0: {}
 
   cookie-es@1.2.3: {}
 
