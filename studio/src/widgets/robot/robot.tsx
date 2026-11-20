@@ -23,6 +23,9 @@ import type { WidgetBinding, WidgetProps } from '@/widgets/widget-type';
 
 type View = '2d' | '3d';
 
+const mechanismIcon = <SplineIcon className="size-3.5" />;
+const partsIcon = <BoxesIcon className="size-3.5" />;
+
 /** The mechanisms of the bound entries at the cursor, `undefined` for ones without a value */
 function useMechanisms(bindings: readonly WidgetBinding[]): ReadonlyMap<string, Mechanism | undefined> {
 	const time = useCursorTime();
@@ -115,7 +118,7 @@ export function Robot({ bindings, options, setOption }: WidgetProps) {
 		const text = note(binding);
 		return {
 			binding,
-			icon: isMechanism(binding) ? <SplineIcon className="size-3.5" /> : <BoxesIcon className="size-3.5" />,
+			icon: isMechanism(binding) ? mechanismIcon : partsIcon,
 			dimmed: isMechanism(binding) ? mechanisms.get(binding.name) === undefined : !hasValue(binding.entry, time),
 			...(text !== undefined && { note: text }),
 		};

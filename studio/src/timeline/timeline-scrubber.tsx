@@ -1,16 +1,16 @@
 import { useHotkeys } from '@tanstack/react-hotkeys';
-import { type PointerEvent, useMemo, useRef, useState } from 'react';
+import { type PointerEvent, use, useMemo, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { alertColors, modeColors, shiftColor } from '@/timeline/colors';
 import { HoverTooltip, UnreadTooltip } from '@/timeline/timeline-tooltip';
 import { setHoverTime } from '@/timeline/hover';
-import { GraphMarks } from '@/timeline/graph-marks';
+import { GraphMarks, ScrubberPosition } from '@/timeline/timeline-marks';
 import { getGaps, type TimeRange, useEntries } from '@/data/data-store';
 import type { UnreadEnd } from '@/data/log-source';
 import { cn } from '@/lib/utils';
 import { settingsStore } from '@/settings';
-import { formatTime, getCursorTime, seek, seekHotkeys } from '@/timeline/timeline';
+import { formatTime, getCursorTime, seek, seekHotkeys, TimelineCursorContext } from '@/timeline/timeline';
 import { getAlertSpans, getCompressedSpans, getModePeriods } from '@/timeline/events';
 import { getActiveShifts } from '@/timeline/shifts';
 import { createTimeScale } from '@/timeline/scale';
@@ -32,7 +32,6 @@ const snapDistance = 6;
 
 export function Scrubber({
 	range,
-	time,
 	live,
 	showAlerts,
 	showShifts,
@@ -41,7 +40,6 @@ export function Scrubber({
 	unread,
 }: {
 	range: TimeRange;
-	time: number;
 	live: boolean;
 	showAlerts: boolean;
 	showShifts: boolean;
@@ -109,9 +107,7 @@ export function Scrubber({
 			);
 		return nearest ?? scale.toTime(pointerPercent);
 	};
-	const seekToPointer = (event: PointerEvent) => {
-		seek(timeAt(hoverAt(event)));
-	};
+	const seekToPointer = (event: PointerEvent) => seek(timeAt(hoverAt(event)));
 
 	/** The tooltip for the pointer `x` px into the track, `undefined` if nothing is known there, ex. before Driver Station data */
 	const tooltipAt = (at: Hover) => {
@@ -168,8 +164,7 @@ export function Scrubber({
 		{ passive: false },
 	);
 
-	const cursorPercent = toPercent(time);
-
+	const time = use(TimelineCursorContext)!;
 	return (
 		<div
 			ref={slider}
@@ -228,7 +223,11 @@ export function Scrubber({
 					>
 						<div className="absolute inset-y-0 left-0 bg-input" style={{ width: `${toPercent(range.end)}%` }} />
 						{periods.length === 0 ? (
-							<div className="absolute inset-y-0 left-0 bg-primary" style={{ width: `${cursorPercent}%` }} />
+							<ScrubberPosition
+								toPercent={toPercent}
+								className="absolute inset-y-0 left-0 bg-primary"
+								property="width"
+							/>
 						) : (
 							periods.map((period) => {
 								const color = modeColors[period.mode];
@@ -284,12 +283,13 @@ export function Scrubber({
 
 					<GraphMarks toPercent={toPercent} hoverTime={hover === undefined ? undefined : timeAt(hover)} />
 
-					<div
+					<ScrubberPosition
+						toPercent={toPercent}
+						property="left"
 						className={cn(
 							'absolute top-1/2 size-3.5 -translate-x-1/2 rounded-full border-2 border-primary bg-background transition-[translate] group-focus-visible:ring-[3px] group-focus-visible:ring-ring/48 motion-reduce:transition-none',
 							trackOffset,
 						)}
-						style={{ left: `${cursorPercent}%` }}
 					/>
 				</TooltipTrigger>
 				<TooltipPopup>{tooltip ?? (shownHover && tooltipAt(shownHover))}</TooltipPopup>

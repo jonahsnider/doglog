@@ -32,6 +32,7 @@ const modulePositions: readonly Point[] = [
 	[-moduleOffset, -moduleOffset],
 ];
 const moduleLabels = ['FL', 'FR', 'BL', 'BR'];
+const headingIcon = <CompassIcon className="size-3.5 shrink-0 text-muted-foreground" />;
 
 function ChassisSpeeds({
 	value,
@@ -169,7 +170,7 @@ export function Swerve({ bindings }: WidgetProps) {
 		if (role === 'heading') {
 			legend.push({
 				binding,
-				icon: <CompassIcon className="size-3.5 shrink-0 text-muted-foreground" />,
+				icon: headingIcon,
 				note: `(${angleUnitLabels[inferAngleUnit(entry!)]})`,
 				dimmed: binding !== headingBinding || value === undefined,
 			});

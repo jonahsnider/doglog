@@ -31,6 +31,7 @@ import {
 	skip,
 	step,
 	type Timeline,
+	TimelineCursorContext,
 	togglePlayback,
 	useTimeline,
 } from '@/timeline/timeline';
@@ -157,21 +158,22 @@ function TimelineControls({
 					</SelectPopup>
 				</Select>
 
-				<CursorTime range={range} time={time} />
-				{range && time !== undefined ? (
-					<Scrubber
-						range={range}
-						time={time}
-						live={live}
-						showAlerts={timelineAlerts}
-						showShifts={timelineShifts}
-						compress={timelineCompress}
-						year={getSourceYear(source)}
-						unread={source.type === 'log' ? source.unread : undefined}
-					/>
-				) : (
-					<div className="mx-2 h-1 flex-1 rounded-full bg-input" />
-				)}
+				<TimelineCursorContext value={time}>
+					<CursorTime range={range} />
+					{range && time !== undefined ? (
+						<Scrubber
+							range={range}
+							live={live}
+							showAlerts={timelineAlerts}
+							showShifts={timelineShifts}
+							compress={timelineCompress}
+							year={getSourceYear(source)}
+							unread={source.type === 'log' ? source.unread : undefined}
+						/>
+					) : (
+						<div className="mx-2 h-1 flex-1 rounded-full bg-input" />
+					)}
+				</TimelineCursorContext>
 				{/* Margins match the speed button's inset, so text and icons are evenly spaced from neighboring buttons */}
 				<span className="me-1.5 font-mono text-sm text-muted-foreground tabular-nums">
 					{range ? formatTime(range.end, range.start) : '-'}

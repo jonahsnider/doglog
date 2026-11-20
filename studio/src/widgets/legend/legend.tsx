@@ -1,5 +1,6 @@
 import ChevronDownIcon from 'lucide-react/icons/chevron-down';
-import { type PointerEvent, type ReactNode, use, useEffect, useRef, useState } from 'react';
+import { shallow } from '@tanstack/store';
+import { memo, type PointerEvent, type ReactNode, use, useEffect, useRef, useState } from 'react';
 import { EntryName } from '@/entries/entry-name';
 import { MarqueeText } from '@/components/marquee-text';
 import { Menu, MenuPopup, MenuRadioGroup, MenuRadioItem, MenuTrigger } from '@/components/ui/menu';
@@ -24,17 +25,7 @@ export type LegendItem = {
 	distinctFrom?: readonly string[];
 };
 
-/**
- * Names each binding of a drawn widget with its color, in wrapping rows or with one `vertical` item per row. Vertical
- * legends of bindings that can be connected get a handle on each row to drag connections between them.
- */
-export function Legend({
-	items,
-	vertical = false,
-	dropRole,
-	roles = true,
-	className,
-}: {
+type LegendProps = {
 	items: LegendItem[];
 	vertical?: boolean;
 	/** The role entries dropped on the legend's items take, ex. the graph axis the legend is for */
@@ -42,7 +33,26 @@ export function Legend({
 	/** Shows each item's role, which can be picked there. Roles can also be picked from the item's context menu. */
 	roles?: boolean;
 	className?: string;
-}) {
+};
+
+/**
+ * Names each binding of a drawn widget with its color, in wrapping rows or with one `vertical` item per row. Vertical
+ * legends of bindings that can be connected get a handle on each row to drag connections between them.
+ */
+export const Legend = memo(
+	LegendList,
+	(previous, next) =>
+		// Widgets rebuild items at the cursor, but most ticks don't change whether any of them have a value.
+		previous.vertical === next.vertical &&
+		previous.dropRole === next.dropRole &&
+		previous.roles === next.roles &&
+		previous.className === next.className &&
+		(previous.items === next.items ||
+			(previous.items.length === next.items.length &&
+				previous.items.every((item, index) => shallow(item, next.items[index])))),
+);
+
+function LegendList({ items, vertical = false, dropRole, roles = true, className }: LegendProps) {
 	const widget = use(WidgetBindingsContext);
 	const list = useRef<HTMLUListElement>(null);
 	const gutter = useRef<HTMLDivElement>(null);

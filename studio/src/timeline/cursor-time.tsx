@@ -1,11 +1,11 @@
 import FastForwardIcon from 'lucide-react/icons/fast-forward';
-import { useState } from 'react';
+import { type ComponentPropsWithRef, use, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import type { TimeRange } from '@/data/data-store';
 import { isEnterKey } from '@/lib/keyboard';
 import { cn } from '@/lib/utils';
-import { formatTime, getActiveCompressedSpans, seek } from '@/timeline/timeline';
+import { formatTime, getActiveCompressedSpans, seek, TimelineCursorContext } from '@/timeline/timeline';
 
 /**
  * Parse a time typed like `formatTime()` shows it, ex. `1:05.5`, or as seconds, ex. `65.5`,
@@ -59,8 +59,35 @@ function TimeInput({ initialText, start, onDone }: { initialText: string; start:
 	);
 }
 
+/** The time changes every tick; the tooltip around this button doesn't need to. */
+function CursorTimeButton({
+	start,
+	onEdit,
+	onClick,
+	...props
+}: ComponentPropsWithRef<'button'> & { start: number; onEdit: (text: string) => void }) {
+	const time = use(TimelineCursorContext)!;
+	const text = formatTime(time, start);
+	return (
+		<button
+			{...props}
+			type="button"
+			// Right-aligned so the icon stays pinned as the time widens. The negative margin offsets the padding.
+			className="-me-1 ms-auto cursor-pointer rounded-md px-1 outline-none transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
+			aria-label={`Current time ${text}, go to time`}
+			onClick={(event) => {
+				onClick?.(event);
+				onEdit(text);
+			}}
+		>
+			{text}
+		</button>
+	);
+}
+
 /** The cursor's time in the timeline bar, click it to type a time to go to */
-export function CursorTime({ range, time }: { range: TimeRange | undefined; time: number | undefined }) {
+export function CursorTime({ range }: { range: TimeRange | undefined }) {
+	const time = use(TimelineCursorContext);
 	// The time shown when the user clicked it to type one, `undefined` while not typing
 	const [editText, setEditText] = useState<string>();
 	if (range === undefined || time === undefined) {
@@ -70,7 +97,6 @@ export function CursorTime({ range, time }: { range: TimeRange | undefined; time
 	const skipped = getActiveCompressedSpans(range).some((span) => span.start <= time && time < span.end);
 	// Fits the widest time in the log plus the icon (size-3.5 and gap-1), so the label doesn't resize while playing or typing
 	const maxLength = formatTime(range.end, range.start).length;
-	const text = formatTime(time, range.start);
 	return (
 		<span
 			// The end margin makes room for the button's background and the field's border, which reach past the time
@@ -92,20 +118,7 @@ export function CursorTime({ range, time }: { range: TimeRange | undefined; time
 						<TooltipPopup>The robot was disabled or disconnected, playback fast-forwards through this</TooltipPopup>
 					</Tooltip>
 					<Tooltip>
-						<TooltipTrigger
-							render={
-								<button
-									type="button"
-									// Right-aligned on its own so the icon stays pinned to the left edge as the time widens.
-									// The negative margin keeps the text where it was without the button's padding.
-									className="-me-1 ms-auto cursor-pointer rounded-md px-1 outline-none transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
-									aria-label={`Current time ${text}, go to time`}
-									onClick={() => setEditText(text)}
-								/>
-							}
-						>
-							{text}
-						</TooltipTrigger>
+						<TooltipTrigger render={<CursorTimeButton start={range.start} onEdit={setEditText} />} />
 						<TooltipPopup>Go to time</TooltipPopup>
 					</Tooltip>
 				</>

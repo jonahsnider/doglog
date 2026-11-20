@@ -1,6 +1,7 @@
 import type { UseHotkeyDefinition } from '@tanstack/react-hotkeys';
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
+import { createContext } from 'react';
 import * as z from 'zod';
 import { getGaps, getTimeRange, subscribeData, type TimeRange } from '@/data/data-store';
 import type { Source } from '@/data/source';
@@ -28,6 +29,9 @@ const stepSize = 20_000;
 
 // The one time cursor shared by every dashboard and widget
 const store = createAtom<Timeline>({ time: undefined, playback: 'paused', speed: 1, live: false });
+
+/** The timeline bar's cursor, frozen at its last time while the bar animates out. */
+export const TimelineCursorContext = createContext<number | undefined>(undefined);
 
 /** How many logs to remember the cursor time of, the least recently saved are forgotten first */
 const maxSavedLogs = 100;
