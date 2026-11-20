@@ -177,18 +177,20 @@ export function Field({ bindings, options }: WidgetProps) {
 	const label = measurement && measurementLabel(measurement);
 
 	return (
-		// The legend goes above the field, unless the widget is wider than the field and has room beside it
+		// The legend goes above the field, unless the widget is wider than the field and has room beside it. There, the
+		// field is centered between equal columns, and only moves right as far as the legend needs.
 		<div className="h-full p-2 [container-type:size]">
-			<div className="flex h-full flex-col gap-2 [@container(min-aspect-ratio:1.925)]:flex-row">
+			<div className="flex h-full flex-col gap-2 [@container(min-aspect-ratio:1.925)]:grid [@container(min-aspect-ratio:1.925)]:grid-cols-[1fr_minmax(0,max-content)_1fr] [@container(min-aspect-ratio:1.925)]:gap-x-0">
 				{legend.length > 0 && (
-					<div className="max-h-[33%] shrink-0 overflow-y-auto [@container(min-aspect-ratio:1.925)]:max-h-none [@container(min-aspect-ratio:1.925)]:max-w-[33%]">
+					<div className="max-h-[33%] shrink-0 overflow-y-auto [@container(min-aspect-ratio:1.925)]:max-h-none [@container(min-aspect-ratio:1.925)]:me-2 [@container(min-aspect-ratio:1.925)]:w-max [@container(min-aspect-ratio:1.925)]:max-w-[33cqw]">
 						<Legend items={legend} vertical />
 					</div>
 				)}
-				{/* Sized to the view's aspect ratio, so the image outside the view is cropped instead of filling the widget */}
-				<div className="flex min-h-0 min-w-0 flex-1 items-center justify-center [container-type:size]">
+				{/* Sized to the view's aspect ratio, so the image outside the view is cropped instead of filling the widget.
+				Beside the legend it's sized to the whole widget instead, so its column is as wide as the field. */}
+				<div className="flex min-h-0 min-w-0 flex-1 items-center justify-center [container-type:size] [@container(min-aspect-ratio:1.925)]:col-start-2 [@container(min-aspect-ratio:1.925)]:[container-type:normal]">
 					<div
-						className="flex flex-col gap-1"
+						className="flex max-w-full flex-col gap-1"
 						style={{ width: `min(100cqw, (100cqh - ${readoutHeight}) * ${aspectRatio})` }}
 					>
 						<div

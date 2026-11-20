@@ -218,12 +218,17 @@ Shapes SHALL be drawn under paths, paths under connections, connections under po
 
 ### Requirement: Colors and legend
 
-The field widget SHALL color each entry from the shared chart colors in binding order, and MUST show a legend listing each bound entry, one per line, with its color. The legend SHALL be above the field, unless the widget is wider than the field's shape, where it MUST be beside the field so the field isn't shrunk. Entries with no value at or before the cursor MUST be dimmed in the legend and not drawn.
+The field widget SHALL color each entry from the shared chart colors in binding order, and MUST show a legend listing each bound entry, one per line, with its color. The legend SHALL be above the field, unless the widget is wider than the field's shape, where it MUST be beside the field so the field isn't shrunk, and the field SHALL be centered in the widget unless the legend needs that space. Entries with no value at or before the cursor MUST be dimmed in the legend and not drawn.
 
 #### Scenario: Wide widget
 
 - **GIVEN** a field widget in a short, wide pane
 - **THEN** its legend is on the left of the field
+
+#### Scenario: Very wide widget
+
+- **GIVEN** a field widget much wider than the field, with room for the legend on either side of it
+- **THEN** the field is centered in the widget, with the legend on its left
 
 #### Scenario: Entry without data
 
