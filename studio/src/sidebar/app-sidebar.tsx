@@ -3,6 +3,7 @@ import { Link, useMatchRoute } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import FolderSyncIcon from 'lucide-react/icons/folder-sync';
 import SettingsIcon from 'lucide-react/icons/settings';
+import SlidersHorizontalIcon from 'lucide-react/icons/sliders-horizontal';
 import { useEffect, useRef, useState } from 'react';
 import {
 	Sidebar,
@@ -222,6 +223,12 @@ export function AppSidebar() {
 											<span>Logs</span>
 										</SidebarMenuButton>
 										<ShortcutHint shortcut={shortcuts.logs} />
+									</SidebarMenuItem>
+									<SidebarMenuItem aria-disabled>
+										<SidebarMenuButton render={<div />} className="pointer-events-none text-muted-foreground">
+											<SlidersHorizontalIcon />
+											<span>Tuning</span>
+										</SidebarMenuButton>
 									</SidebarMenuItem>
 									<SidebarMenuItem>
 										<SidebarMenuButton

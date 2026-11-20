@@ -95,9 +95,14 @@ The top of the sidebar SHALL be tinted to tell open Studio tabs and windows apar
 
 ### Requirement: Pages section
 
-The pages section SHALL list the auxiliary pages Logs and Settings, and selecting a page MUST show it in the main area.
+The pages section SHALL show Logs and Settings with a non-interactive Tuning placeholder between them.
 
 Settings and the Logs sync overview SHALL use the same centered page column and side padding so their headings line up when switching pages. Settings panels SHALL have a narrower maximum width and stay aligned with the start of the heading. Each heading and its actions MUST stay visible while the content scrolls.
+
+#### Scenario: Tuning placeholder
+
+- **WHEN** the user clicks Tuning or tabs forward from Logs
+- **THEN** clicking leaves the current page unchanged and tabbing moves focus to Settings
 
 #### Scenario: Open Settings
 
