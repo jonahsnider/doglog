@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { fieldBackground, type FieldView, image, pixelsPerMeterX, pixelsPerMeterY } from '@/widgets/field/geometry';
 import type { Zoom } from '@/widgets/field/zoom';
@@ -7,12 +8,16 @@ import fieldImage from '@/widgets/field/2026-rebuilt.webp';
 
 /** The field image on its background, in SVG coordinates */
 export function FieldImage() {
+	const [loading, setLoading] = useState(true);
+	const loaded = () => setLoading(false);
 	return (
 		<g
+			data-capture-pending={loading ? '' : undefined}
 			transform={`translate(${image.right / pixelsPerMeterX} ${image.top / pixelsPerMeterY}) scale(${-1 / pixelsPerMeterX} ${-1 / pixelsPerMeterY})`}
 		>
 			<rect width={image.width} height={image.height} fill={fieldBackground} />
-			<image href={fieldImage} width={image.width} height={image.height} />
+			{/* oxlint-disable-next-line react/no-unknown-property -- SVG image elements fire load and error events. */}
+			<image href={fieldImage} width={image.width} height={image.height} onLoad={loaded} onError={loaded} />
 		</g>
 	);
 }

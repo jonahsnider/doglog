@@ -13,7 +13,10 @@ import { defaultRobot } from '@/widgets/robot/robot-option';
  * The robot the Robot option picked, with its parts placed by the `parts` entry's poses at the cursor. When it can't be
  * drawn, the simple swerve robot is drawn instead, with a note saying why.
  */
-export function usePickedRobot(name: string, parts: Entry | undefined): { robot: ReactNode; note: ReactNode } {
+export function usePickedRobot(
+	name: string,
+	parts: Entry | undefined,
+): { robot: ReactNode; note: ReactNode; loading?: true } {
 	const time = useCursorTime();
 	const project = useRobotProject(name === defaultRobot ? '' : name);
 	const { state, retry } = useLoadedRobot(name === defaultRobot ? undefined : (project ?? undefined));
@@ -55,5 +58,5 @@ export function usePickedRobot(name: string, parts: Entry | undefined): { robot:
 			),
 		};
 	}
-	return { robot: null, note: `Loading ${name}…` };
+	return { robot: null, note: `Loading ${name}…`, loading: true };
 }

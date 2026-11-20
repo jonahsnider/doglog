@@ -172,9 +172,10 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 			role="application"
 			// oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Focused for its keyboard controls
 			tabIndex={0}
+			data-capture-pending={drawn ? undefined : ''}
 			aria-label={`${label}. Drag to orbit, scroll or W and S to zoom, A, D, Q, and E to pan, hold Shift to go faster.`}
 			className={cn(
-				'relative size-full touch-none overflow-hidden rounded-md outline-none select-none',
+				'relative size-full touch-none overflow-hidden rounded-md outline-none select-none capture:transition-none',
 				keyboardFocus && 'ring-2 ring-ring',
 				drawn ? 'opacity-100 motion-safe:transition-opacity motion-safe:duration-150' : 'opacity-0',
 				drag === 'orbit' && 'cursor-grabbing',

@@ -110,7 +110,7 @@ export function WidgetView({
 				<div className="h-full overflow-auto">
 					<Suspense
 						fallback={
-							<div className="grid h-full place-items-center">
+							<div data-capture-pending className="grid h-full place-items-center">
 								<Spinner aria-label={`Loading ${type.name}`} className="size-4 text-muted-foreground" />
 							</div>
 						}

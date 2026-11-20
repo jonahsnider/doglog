@@ -1,3 +1,4 @@
+import type { RegisteredRouter } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import { invoke, isTauri } from '@tauri-apps/api/core';
@@ -16,7 +17,7 @@ export function dashboardCaptureTarget(dashboardId: string): Element | null {
 	return document.querySelector(`[data-capture-dashboard="${CSS.escape(dashboardId)}"]`);
 }
 
-/** Wait until the webview has painted the styles and pinned readouts from the new capture state. */
+/** Let the webview paint the dashboard or its capture styling. */
 function afterPaint(): Promise<void> {
 	return new Promise((resolve) => {
 		requestAnimationFrame(() => {
@@ -25,12 +26,43 @@ function afterPaint(): Promise<void> {
 	});
 }
 
+export async function copyDashboardImage(router: RegisteredRouter, dashboardId: string): Promise<void> {
+	let target = dashboardCaptureTarget(dashboardId);
+	try {
+		if (!target) {
+			await router.navigate({ to: '/dashboards/$dashboardId', params: { dashboardId } });
+			const deadline = performance.now() + 10_000;
+			await afterPaint();
+			target = dashboardCaptureTarget(dashboardId);
+			while (
+				target &&
+				Array.from(target.querySelectorAll('[data-capture-pending]')).some((pending) =>
+					pending.checkVisibility({ visibilityProperty: true }),
+				)
+			) {
+				if (performance.now() >= deadline) {
+					throw new Error('The dashboard didn’t finish loading in time.');
+				}
+				// oxlint-disable-next-line no-await-in-loop -- Each check needs a fresh paint.
+				await afterPaint();
+				target = dashboardCaptureTarget(dashboardId);
+			}
+		}
+		await copyImage(target);
+	} catch (error) {
+		toastManager.add({ type: 'error', title: 'Couldn’t copy image', description: String(error) });
+	}
+}
+
 export async function copyImage(target: Element | null): Promise<void> {
-	if (!target || !target.isConnected || copying) {
+	if (!(target instanceof HTMLElement) || !target.isConnected || copying) {
 		return;
 	}
 
 	copying = true;
+	const dashboardId = target.dataset['captureDashboard'];
+	// The router can reuse the capture surface for a different dashboard.
+	const stillCurrent = () => target.isConnected && target.dataset['captureDashboard'] === dashboardId;
 	const root = document.documentElement;
 	let covered = false;
 	try {
@@ -38,7 +70,7 @@ export async function copyImage(target: Element | null): Promise<void> {
 			await invoke('set_capture_cover', { show: true });
 			covered = true;
 		}
-		if (!target.isConnected) {
+		if (!stillCurrent()) {
 			return;
 		}
 
@@ -52,17 +84,14 @@ export async function copyImage(target: Element | null): Promise<void> {
 		const y = Math.max(0, top);
 		const bounds = new DOMRect(x, y, Math.min(innerWidth, end) - x, Math.min(innerHeight, bottom) - y);
 		const paneIds = new Set(
-			(target instanceof HTMLElement && target.dataset['paneId'] !== undefined
-				? [target]
-				: [...target.querySelectorAll<HTMLElement>('[data-pane-id]')]
-			)
+			(target.dataset['paneId'] === undefined ? [...target.querySelectorAll<HTMLElement>('[data-pane-id]')] : [target])
 				.filter((pane) => pane.checkVisibility({ visibilityProperty: true }))
 				.map((pane) => pane.dataset['paneId']),
 		);
 		root.dataset['capturing'] = '';
 		frame.set({ bounds, paneIds });
 		await afterPaint();
-		if (!target.isConnected) {
+		if (!stillCurrent()) {
 			return;
 		}
 		await invoke('copy_capture', {

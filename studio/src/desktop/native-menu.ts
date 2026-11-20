@@ -38,7 +38,7 @@ function toNativeEntries(items: readonly MenuEntry[]): NativeMenuEntry[] {
 					: `${item.label.slice(0, accessKeyIndex)}&${item.label.slice(accessKeyIndex)}`,
 			enabled,
 			action: item.onSelect,
-			// Only shown, the shortcut itself is handled elsewhere
+			// macOS also invokes this item if the shortcut is pressed while the popup is open.
 			...(item.shortcut !== undefined && {
 				accelerator: item.shortcut.replace('Mod', 'CmdOrCtrl').replace('Meta', 'Super'),
 			}),

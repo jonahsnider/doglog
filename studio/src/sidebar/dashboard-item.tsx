@@ -1,4 +1,4 @@
-import { type Hotkey, useFormatForDisplay } from '@tanstack/react-hotkeys';
+import { detectPlatform, type Hotkey, useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { Link, type RegisteredRouter, useLocation, useRouter } from '@tanstack/react-router';
 import LayoutDashboardIcon from 'lucide-react/icons/layout-dashboard';
 import { useSortable } from '@dnd-kit/react/sortable';
@@ -9,7 +9,7 @@ import { AppContextMenu, type MenuAction } from '@/components/app-context-menu';
 import { DashboardOptions } from '@/sidebar/dashboard-options';
 import { SidebarInput, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { canCopyDashboardLink, copyDashboardLink } from '@/dashboards/copy-dashboard-link';
-import { canCapture, copyImage, dashboardCaptureTarget } from '@/desktop/capture';
+import { canCapture, copyDashboardImage } from '@/desktop/capture';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { DashboardPreview } from '@/dashboards/dashboard-preview';
 import { PreviewCard, PreviewCardPopup, PreviewCardTrigger } from '@/components/ui/preview-card';
@@ -142,9 +142,11 @@ function dashboardMenu({
 			shortcut: shortcuts.copyDashboardLink,
 			onSelect: () => void copyDashboardLink(dashboard),
 		});
-		if (canCapture && router.state.location.pathname === `/dashboards/${dashboard.id}`) {
-			const onSelect = () => void copyImage(dashboardCaptureTarget(dashboard.id));
-			copy.push({ label: 'Copy image', shortcut: shortcuts.copyDashboardImage, onSelect });
+		if (canCapture) {
+			const onSelect = () => void copyDashboardImage(router, dashboard.id);
+			const showShortcut =
+				detectPlatform() === 'mac' || router.state.location.pathname === `/dashboards/${dashboard.id}`;
+			copy.push({ label: 'Copy image', onSelect, ...(showShortcut && { shortcut: shortcuts.copyDashboardImage }) });
 		}
 	}
 	return [

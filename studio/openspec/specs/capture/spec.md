@@ -17,7 +17,7 @@ Studio SHALL offer capture on macOS and Windows. It MAY offer capture on other p
 
 ### Requirement: Copy an image
 
-The open dashboard's sidebar menu SHALL offer Copy image when it contains a widget. A widget's pane menu SHALL offer Copy image for that pane. Both actions MUST put an image on the clipboard without a save dialog and work with a log or a live source. Copying MUST NOT change the dashboard, the widget, or playback.
+A dashboard's sidebar menu SHALL offer Copy image when it contains a widget. A widget's pane menu SHALL offer Copy image for that pane. Both actions MUST put an image on the clipboard without a save dialog and work with a log or a live source. Copying MUST NOT edit the dashboard or change playback.
 
 #### Scenario: Copy an image on macOS without a visible flash
 
@@ -42,20 +42,28 @@ The open dashboard's sidebar menu SHALL offer Copy image when it contains a widg
 - **WHEN** the user chooses Copy image in the graph pane's menu
 - **THEN** the clipboard receives only the graph pane at its current size, including its title, axes, and legend, without the timeline
 
-#### Scenario: Open another dashboard's menu
+#### Scenario: Copy an image of another dashboard
 
-- **WHEN** the user opens the sidebar menu for a dashboard that isn't open
-- **THEN** the menu does not offer capture actions
+- **GIVEN** another dashboard contains a widget
+- **WHEN** the user chooses Copy image in that dashboard's sidebar menu
+- **THEN** Studio opens that dashboard and copies it after its visible widgets finish loading
+- **AND** the destination dashboard remains open
 
 ### Requirement: Copy a dashboard image with the keyboard
 
-On platforms with capture support, ⌘C (Ctrl+C on Windows) SHALL copy the open dashboard's image when it contains a widget, unless a text field is focused, text is selected, or a widget handles the shortcut.
+With no dashboard menu open, ⌘C (Ctrl+C on Windows) SHALL copy the open dashboard's image when it contains a widget, unless a text field is focused, text is selected, or a widget handles the shortcut. On macOS, ⌘C in a dashboard menu SHALL select that menu's Copy image action when present.
 
 #### Scenario: Copy the dashboard image with the keyboard
 
 - **GIVEN** a dashboard containing a widget is open on a platform with capture support
 - **WHEN** the user presses the copy shortcut with no selected text, focused text field, or widget handling the shortcut
 - **THEN** the clipboard receives the same image as choosing Copy image in the dashboard's sidebar menu
+
+#### Scenario: Copy another dashboard from its open menu on macOS
+
+- **GIVEN** the user opens the sidebar menu for another dashboard that contains a widget on macOS
+- **WHEN** the user presses ⌘C
+- **THEN** Studio opens and copies the dashboard whose menu was open, rather than the dashboard that was previously open
 
 #### Scenario: Copy a text selection
 

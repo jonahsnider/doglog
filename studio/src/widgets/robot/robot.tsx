@@ -104,7 +104,7 @@ export function Robot({ bindings, options, setOption }: WidgetProps) {
 	// 2D draws one mechanism, 3D moves the robot's parts with one pose array
 	const shown2d = bindings.find((binding) => isMechanism(binding) && !binding.hidden);
 	const parts = bindings.find((binding) => binding.entry?.kind === 'struct[]' && !binding.hidden);
-	const { robot, note: robotNote } = usePickedRobot(options['robot'] ?? defaultRobot, parts?.entry);
+	const { robot, note: robotNote, loading } = usePickedRobot(options['robot'] ?? defaultRobot, parts?.entry);
 
 	const note = (binding: WidgetBinding) => {
 		if (binding.entry === undefined || binding.hidden) {
@@ -128,7 +128,7 @@ export function Robot({ bindings, options, setOption }: WidgetProps) {
 	const mechanism2d = shown2d && mechanisms.get(shown2d.name);
 
 	return (
-		<div className="h-full p-2">
+		<div data-capture-pending={view === '3d' && loading ? '' : undefined} className="h-full p-2">
 			<div className="relative flex size-full items-center justify-center [container-type:size]">
 				{view === '3d' ? (
 					<Scene3d ref={scene} label="Robot">
