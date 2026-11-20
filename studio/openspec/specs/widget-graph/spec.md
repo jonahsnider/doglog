@@ -227,7 +227,7 @@ All graphs SHALL show the same time range. Logs MUST start showing their whole r
 
 ### Requirement: Zoom and pan
 
-Scrolling vertically or pinching SHALL zoom the time axis toward the pointer, and scrolling sideways or dragging with Shift held MUST pan it. Whether a scroll pans or zooms MUST follow its recent direction, so a mostly sideways swipe never zooms, and turning it switches without lifting. Holding Shift while scrolling, or scrolling over a y-axis, MUST zoom that y-axis instead. Pressing `r` while the graph is hovered MUST reset the view. Zooming MUST stop at the source's whole range and at 1 ms.
+Scrolling vertically or pinching SHALL zoom the time axis toward the pointer, and scrolling sideways or dragging with Shift held MUST pan it. Whether a scroll pans or zooms MUST follow its recent direction, so a mostly sideways swipe never zooms, and turning it switches without lifting. Holding Shift while scrolling, or scrolling over a y-axis, MUST zoom that y-axis instead. Zooming MUST stop at the source's whole range and at 1 ms.
 
 #### Scenario: Slightly diagonal swipe
 
@@ -235,12 +235,6 @@ Scrolling vertically or pinching SHALL zoom the time axis toward the pointer, an
 - **THEN** the graph pans without zooming
 - **WHEN** the user turns the swipe to vertical without lifting
 - **THEN** the graph zooms
-
-#### Scenario: Reset view
-
-- **GIVEN** the user has zoomed in
-- **WHEN** the user presses `r` while hovering the graph
-- **THEN** the graph shows the whole log again
 
 ### Requirement: Following live data
 

@@ -74,8 +74,8 @@ export type GraphPlot = {
 	plot: uPlot | undefined;
 	manual: ManualRanges;
 	redraw: () => void;
-	/** Fix a y-axis's range, or let every axis fit the data again with `undefined` */
-	setManual: (axis: 'y' | 'y2' | undefined, range?: [number, number]) => void;
+	/** Fix a y-axis's range */
+	setManual: (axis: 'y' | 'y2', range?: [number, number]) => void;
 };
 
 export function useGraphDrawing(
@@ -91,7 +91,7 @@ export function useGraphDrawing(
 		manual: {},
 		redraw: () => {},
 		setManual(axis, range) {
-			this.manual = axis === undefined ? {} : { ...this.manual, [axis]: range };
+			this.manual = { ...this.manual, [axis]: range };
 			this.redraw();
 		},
 	});

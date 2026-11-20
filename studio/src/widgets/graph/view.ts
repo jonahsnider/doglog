@@ -106,10 +106,6 @@ export function panTime(from: TimeRange, offset: number): void {
 	setRange(clampRange(from.start + offset, from.end + offset, source));
 }
 
-export function resetView(): void {
-	viewStore.set({ range: undefined, liveWidth: defaultLiveWidth, data: undefined, logWidth: undefined });
-}
-
 /** Calls `listener` when the user changes the view, ex. by zooming or panning */
 export function subscribeView(listener: () => void): () => void {
 	const { unsubscribe } = viewStore.subscribe(() => listener());

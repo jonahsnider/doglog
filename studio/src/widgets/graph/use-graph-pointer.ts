@@ -3,7 +3,7 @@ import { type PointerEvent, type RefObject, useEffect, useEffectEvent, useRef, u
 import { getCursorTime, seek } from '@/timeline/timeline';
 import type { GraphPlot } from '@/widgets/graph/use-graph-drawing';
 import { setHoverTime } from '@/timeline/hover';
-import { getViewRange, panTime, resetView, zoomTime } from '@/widgets/graph/view';
+import { getViewRange, panTime, zoomTime } from '@/widgets/graph/view';
 import type { TimeRange } from '@/data/data-store';
 import { type BandHover, flipsAt, type LineHover } from '@/widgets/graph/tooltip-side';
 
@@ -47,7 +47,6 @@ export function useGraphPointer(
 ) {
 	const drag = useRef<Drag>(undefined);
 	const gesture = useRef<{ x: number; y: number; at: number }>(undefined);
-	const [hovered, setHovered] = useState(false);
 	const [bandHover, setBandHover] = useState<BandHover>();
 	const [pointerAt, setPointerAt] = useState<LineHover>();
 	const [selection, setSelection] = useState<TimeRange>();
@@ -61,12 +60,6 @@ export function useGraphPointer(
 		},
 		{ enabled: selection !== undefined || pinned, ignoreInputs: false, conflictBehavior: 'allow' },
 	);
-
-	const reset = () => {
-		resetView();
-		graph.current.setManual(undefined);
-	};
-	useHotkey('R', reset, { enabled: hovered, conflictBehavior: 'allow' });
 
 	/** Time under `clientX`, `undefined` outside the area between the y-axes */
 	const timeAt = (clientX: number): number | undefined => {
@@ -279,9 +272,7 @@ export function useGraphPointer(
 			onPointerCancel: () => {
 				drag.current = undefined;
 			},
-			onPointerEnter: () => setHovered(true),
 			onPointerLeave: () => {
-				setHovered(false);
 				setHoverTime(undefined);
 				setBandHover(undefined);
 				setPointerAt(undefined);
