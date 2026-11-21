@@ -3,6 +3,7 @@ import { useSelector } from '@tanstack/react-store';
 import { useGlobalShortcuts } from '@/commands/commands';
 import { AppSidebar } from '@/sidebar/app-sidebar';
 import { useRecording } from '@/desktop/clip';
+import { AboutDialog } from '@/components/about-dialog';
 import { DragProvider } from '@/components/drag-provider';
 import { useDesktopLinkOffer } from '@/dashboards/open-dashboard-link';
 import { LogDropOverlay } from '@/components/log-drop-overlay';
@@ -53,6 +54,7 @@ function RootLayout() {
 				</div>
 			</DragProvider>
 			<LogDropOverlay />
+			<AboutDialog />
 		</ToastProvider>
 	);
 }

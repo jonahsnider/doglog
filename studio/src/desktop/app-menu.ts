@@ -12,6 +12,7 @@ import {
 	undoOrRedo,
 } from '@/commands/commands';
 import { goInHistory } from '@/commands/history';
+import { aboutDialog } from '@/components/about-dialog-handle';
 import { canExportLive, exportLive } from '@/data/export-live';
 import { chooseLog } from '@/data/open-log';
 import { subscribeSource } from '@/data/source';
@@ -37,17 +38,7 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 			{
 				text: 'DogLog Studio',
 				items: [
-					{
-						item: {
-							About: {
-								version: STUDIO_VERSION,
-								// Shown in parentheses after the version
-								...(STUDIO_COMMIT !== null && { shortVersion: STUDIO_COMMIT }),
-								// The copyright comes from `bundle.copyright` in `tauri.conf.json`
-								credits: 'Review FRC robot logs and debug robots live',
-							},
-						},
-					},
+					{ text: 'About DogLog Studio', action: () => aboutDialog.open(null) },
 					{ text: 'Check for Updates…', action: () => void checkForUpdateManually() },
 					separator,
 					{ text: 'Settings…', accelerator: 'CmdOrCtrl+,', action: () => openSettings(router) },

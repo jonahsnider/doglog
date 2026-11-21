@@ -1,6 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
+import { aboutDialog } from '@/components/about-dialog-handle';
 import { CliField } from '@/components/cli-field';
+import { Button } from '@/components/ui/button';
+import { DialogTrigger } from '@/components/ui/dialog';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { Frame, FrameHeader, FramePanel, FrameTitle } from '@/components/ui/frame';
 import { Input } from '@/components/ui/input';
@@ -22,7 +25,14 @@ function Settings() {
 	const robotTargetInvalid = robotTarget.trim() !== '' && robotHost === undefined;
 
 	return (
-		<UtilityPage title="Settings">
+		<UtilityPage
+			title="Settings"
+			actions={
+				<DialogTrigger handle={aboutDialog} render={<Button variant="outline" />}>
+					About DogLog Studio
+				</DialogTrigger>
+			}
+		>
 			<div className="flex max-w-2xl flex-1 flex-col gap-6">
 				<SettingsSection title="Appearance">
 					<AppearanceSettings />

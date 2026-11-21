@@ -273,12 +273,17 @@ The desktop app icon, the installed web app icon, and the browser tab icon SHALL
 - **WHEN** the user installs the web app
 - **THEN** its icon is the DogLog logo
 
-### Requirement: About panel
+### Requirement: About dialog
 
-On macOS, the desktop app's About DogLog Studio panel SHALL show the running Studio version and, when Studio was built from a Git repository, the short hash of the commit it was built from. It SHALL also show the copyright and a short description of Studio.
+Studio SHALL offer an About dialog from Settings on every platform and from the app menu on macOS. The dialog SHALL show the app logo, running version, short commit hash when built from Git, copyright, a short description, and a bulleted list of contributors and what they contributed.
 
-#### Scenario: Built from Git
+#### Scenario: Open About from the macOS app menu
 
 - **GIVEN** Studio version 2026.1.0 was built from commit `9867e24`
 - **WHEN** the user chooses DogLog Studio > About DogLog Studio
-- **THEN** the panel shows version 2026.1.0 and commit `9867e24`
+- **THEN** the dialog opens over the current page and shows version 2026.1.0 and commit `9867e24`
+
+#### Scenario: Open About from Settings
+
+- **WHEN** the user selects About DogLog Studio in Settings
+- **THEN** the dialog opens with a bulleted list of acknowledgments
