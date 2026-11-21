@@ -477,6 +477,17 @@ Splitting a pane in the same direction as the panes beside it SHALL add a pane t
 - **WHEN** the user double-clicks the divider between two panes
 - **THEN** the two panes share their space evenly again
 
+### Requirement: Divider snapping
+
+Dragging a divider close to a parallel divider elsewhere in the dashboard SHALL snap it in line with that divider. Both dividers MUST be highlighted while it's held there.
+
+#### Scenario: Line up a divider with another
+
+- **GIVEN** two rows of two panes, with the bottom row's divider dragged to the right
+- **WHEN** the user drags the top row's divider within a few pixels of the bottom row's
+- **THEN** it snaps in line with it and both dividers are highlighted
+- **AND** it stays in line once it's released
+
 ### Requirement: Zoom pane
 
 Users SHALL be able to zoom a pane so it fills the dashboard, hiding the other panes until it's restored. Zooming MUST slide the other panes off the dashboard, away from the zoomed pane, and restoring MUST slide them back. Panes on the same side of the zoomed pane MUST move together, however the dashboard is split. Splitting or closing any pane MUST restore the other panes. Zooming MUST NOT be an undo step, and a dashboard MUST stay zoomed when it's reopened.

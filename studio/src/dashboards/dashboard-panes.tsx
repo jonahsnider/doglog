@@ -15,14 +15,12 @@ import { type EntryDragData, type EntryDropData, type EntrySectionDropData, entr
 import { useMinWindowSize } from '@/desktop/window-size';
 import { useSize } from '@/hooks/use-size';
 import { cn } from '@/lib/utils';
+import { snapDistance, snapDivider } from '@/panes/divider-snap';
 import { findPane, type PaneNode, resetDivider, resizeSplit, type Split, type SplitDirection } from '@/panes/layout';
 import { dividerSize, minNodeSize, minPaneSizeIn } from '@/panes/pane-size';
 import { SplitPanel, type SplitPanelAnimation } from '@/panes/split-panel';
 import { closingSplit, percentages, type SplitAnimation, splitAnimation } from '@/panes/split-animation';
 import { useZoomAnimation } from '@/panes/zoom-animation';
-
-/** How close a divider is dropped to an even split for it to snap there, in pixels */
-const snapDistance = 8;
 
 export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 	const { layout } = dashboard;
@@ -57,7 +55,7 @@ export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 	});
 
 	return (
-		<div ref={container} className="h-full" data-zooming={zooming || undefined}>
+		<div ref={container} className="h-full" data-dashboard-panes data-zooming={zooming || undefined}>
 			<DashboardLayoutContext value={layout}>
 				<PaneNodeView
 					dashboardId={dashboard.id}
@@ -224,6 +222,8 @@ function SplitView({
 
 	// While a zoomed pane fills the dashboard, its splits only show the child it's in
 	const zoomedHere = hiddenBy !== undefined && findPane(split, hiddenBy) !== undefined;
+	// Whether the divider being dragged is lined up with another one
+	const snapped = useRef(false);
 
 	return (
 		<Group
@@ -231,7 +231,11 @@ function SplitView({
 			elementRef={group}
 			orientation={row ? 'horizontal' : 'vertical'}
 			defaultLayout={groupLayout}
-			onLayoutChange={applyLayout}
+			// Called on every pointer move while a divider's dragged, before the new layout is shown
+			onLayoutChange={(panelLayout) => {
+				applyLayout();
+				snapped.current = !animation && snapDivider(group.current, groupRef.current, split, panelLayout, minSizes);
+			}}
 			// Container units size the animating children, and panes move outside their splits while a zoom animates
 			style={{ containerType: animation ? 'size' : undefined, overflow: zooming ? 'visible' : undefined }}
 			// Called once a drag is released or a key is pressed, not on every pointer move
@@ -241,9 +245,9 @@ function SplitView({
 				}
 
 				const sizes = split.children.map((child) => (requestedLayout[child.id] ?? 0) / 100);
-				updateLayout(dashboardId, (layout) =>
-					resizeSplit(layout, split.id, sizes, snapDistance / Math.max(extent - dividersSize, 1)),
-				);
+				// A divider lined up with another one stays there, unless that's also an even split
+				const snap = (snapped.current ? 0.5 : snapDistance) / Math.max(extent - dividersSize, 1);
+				updateLayout(dashboardId, (layout) => resizeSplit(layout, split.id, sizes, snap));
 			}}
 		>
 			{split.children.flatMap((child, index) => [
@@ -257,7 +261,7 @@ function SplitView({
 						// The gap between panes, with a line in the middle while it's hovered or dragged. The `after` pseudo-element
 						// widens it to the library's 10px hit area so double-clicks land on it.
 						className={cn(
-							'relative z-10 outline-none before:absolute before:rounded-full before:transition-colors focus-visible:before:bg-ring data-[separator=active]:before:bg-ring data-[separator=hover]:before:bg-ring',
+							'relative z-10 outline-none before:absolute before:rounded-full before:transition-colors focus-visible:before:bg-ring data-[separator=active]:before:bg-ring data-[separator=hover]:before:bg-ring data-snap-guide:before:bg-ring',
 							'after:absolute',
 							zoomedHere && 'hidden',
 							row
