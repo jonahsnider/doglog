@@ -2,7 +2,7 @@ import type { Draggable, Droppable } from '@dnd-kit/dom';
 import { useDragOperation, useDroppable } from '@dnd-kit/react';
 import DatabaseIcon from 'lucide-react/icons/database';
 import ListPlusIcon from 'lucide-react/icons/list-plus';
-import { type CSSProperties, type ReactNode, Suspense, useCallback, useMemo } from 'react';
+import { type CSSProperties, type ReactNode, Suspense, use, useCallback, useMemo } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import {
 	connectBindings,
@@ -11,7 +11,7 @@ import {
 	setBindingRole,
 	toggleBindingHidden,
 } from '@/widgets/bindings';
-import { updateLayout } from '@/dashboards/panes';
+import { DashboardLayoutContext, updateLayout } from '@/dashboards/panes';
 import { getEntry } from '@/data/data-store';
 import { formatEntryType } from '@/data/samples';
 import { useSource } from '@/data/source';
@@ -44,6 +44,7 @@ export function WidgetView({
 	options: OptionValues;
 }) {
 	const source = useSource();
+	const dashboardLayout = use(DashboardLayoutContext);
 	// Accepts every entry so rejected ones can explain why they can't be dropped. Entries from this widget are reordered by dropping them on each other instead.
 	const { ref } = useDroppable<EntryDropData>({
 		id: paneId,
@@ -73,7 +74,9 @@ export function WidgetView({
 		[dashboardId, paneId],
 	);
 	const names = new Set(bindings.map((binding) => binding.name));
-	const widget = <type.component bindings={bindings} options={options} setOption={setOption} />;
+	const widget = (
+		<type.component bindings={bindings} options={options} setOption={setOption} layout={dashboardLayout} />
+	);
 
 	let content: ReactNode;
 	if (type.rendersEmpty === true) {

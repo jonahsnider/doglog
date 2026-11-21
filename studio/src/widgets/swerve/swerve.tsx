@@ -4,11 +4,14 @@ import type { Value } from '@/data/samples';
 import { type Entry, useDataVersion } from '@/data/data-store';
 import { angleUnitLabels, inferAngleUnit, toRadians } from '@/data/units';
 import { useCursorTime } from '@/timeline/timeline';
-import { numberField } from '@/data/struct-fields';
+import { numberField, structField } from '@/data/struct-fields';
+import { readPose } from '@/widgets/field/data';
+import { fieldXAxisAngle } from '@/widgets/field/options';
 import { historyMax, isSpeeds, type Module, readModules, swerveRole } from '@/widgets/swerve/data';
 import { chassisHalf, move, type Point, strokeWidth } from '@/widgets/swerve/geometry';
 import { Arrow, Line, ModuleLabel, RotationArc, Wheel } from '@/widgets/swerve/shapes';
 import type { WidgetProps } from '@/widgets/widget-type';
+import type { PaneNode } from '@/panes/layout';
 import { Legend, type LegendItem } from '@/widgets/legend/legend';
 import { bindingColor } from '@/widgets/series-color';
 
@@ -129,15 +132,29 @@ function maxBoundSpeed(bindings: WidgetProps['bindings']): number {
 	return maxSpeed;
 }
 
-/** Robot heading in radians, with the front pointing up when there's no heading value */
+/** Robot heading in radians, 0 when there's no heading value */
 function headingRadians(value: Value | undefined, entry: Entry | undefined): number {
 	if (value === undefined || entry === undefined) {
 		return 0;
 	}
-	return typeof value === 'number' ? toRadians(value, inferAngleUnit(entry)) : numberField(value, 'value');
+	if (typeof value === 'number') {
+		return toRadians(value, inferAngleUnit(entry));
+	}
+	// Poses are headings too, ex. `/Drive/Pose` shown on a field
+	return structField(value, 'rotation') === undefined ? numberField(value, 'value') : (readPose(value).heading ?? 0);
 }
 
-export function Swerve({ bindings }: WidgetProps) {
+/**
+ * Counterclockwise turn of the drivetrain from its front pointing up. A heading from a pose shown on a field, ex.
+ * `/Drive/Pose` or its `/Drive/Pose/rotation` field, turns it so field +X points the same way it does there. Otherwise
+ * field +X points up.
+ */
+function drivetrainRotation(heading: number, headingEntry: Entry | undefined, layout: PaneNode): number {
+	const xAxisAngle = (headingEntry && fieldXAxisAngle(layout, headingEntry.name)) ?? Math.PI / 2;
+	return heading + xAxisAngle - Math.PI / 2;
+}
+
+export function Swerve({ bindings, layout }: WidgetProps) {
 	const time = useCursorTime();
 	// Values at the cursor and the arrow scale change as samples arrive
 	useDataVersion();
@@ -147,6 +164,7 @@ export function Swerve({ bindings }: WidgetProps) {
 	const headingBinding = bindings.find((binding) => !binding.hidden && swerveRole(binding) === 'heading');
 	const headingEntry = headingBinding?.entry;
 	const heading = headingRadians(valueOf(headingEntry), headingEntry);
+	const rotation = drivetrainRotation(heading, headingEntry, layout);
 
 	const maxSpeed = maxBoundSpeed(bindings);
 	const arrowLength = (speed: number) => scaledArrowLength(speed, maxSpeed);
@@ -244,8 +262,8 @@ export function Swerve({ bindings }: WidgetProps) {
 				role="img"
 				aria-label="Swerve drive"
 			>
-				{/* Field +X points up, counterclockwise headings are negative SVG rotations */}
-				<g transform={`rotate(${(-heading * 180) / Math.PI})`}>
+				{/* Counterclockwise turns are negative SVG rotations */}
+				<g transform={`rotate(${(-rotation * 180) / Math.PI})`}>
 					<rect
 						x={-chassisHalf}
 						y={-chassisHalf}
@@ -261,7 +279,7 @@ export function Swerve({ bindings }: WidgetProps) {
 					{modulePositions.map((position, index) => (
 						<g key={moduleLabels[index]}>
 							<Wheel position={position} angle={wheelAngles?.[index] ?? 0} />
-							<ModuleLabel position={position} label={moduleLabels[index]!} heading={heading} />
+							<ModuleLabel position={position} label={moduleLabels[index]!} rotation={rotation} />
 						</g>
 					))}
 					{primaryArrows}

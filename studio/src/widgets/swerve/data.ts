@@ -16,6 +16,9 @@ const structRoles: Partial<Record<string, Role>> = {
 	'struct:ChassisSpeeds': 'speeds',
 	'struct:ChassisVelocities': 'speeds',
 	'struct:Rotation2d': 'heading',
+	// A robot's pose is its heading too, so the same entry can be shown on a field
+	'struct:Pose2d': 'heading',
+	'struct:Pose3d': 'heading',
 };
 
 /** Roles an entry can take, the inferred one first. None if the swerve widget doesn't accept it. */

@@ -1,5 +1,5 @@
 import { expect, test } from 'vite-plus/test';
-import { orientedField, wpilibCoordinates } from '@/widgets/field/geometry';
+import { orientedField, wpilibCoordinates, xAxisAngle } from '@/widgets/field/geometry';
 
 test('portrait orientations place the alliances at opposite ends without changing field coordinates', () => {
 	const blueTop = orientedField('blue-top');
@@ -20,6 +20,24 @@ test('portrait orientations place the alliances at opposite ends without changin
 		expect(picked.y).toBeCloseTo(3, 5);
 	}
 });
+
+test.each([
+	['blue-left', 'blue-wall', 0],
+	['red-left', 'blue-wall', Math.PI],
+	// Blue at the top puts the blue wall's +X pointing down
+	['blue-top', 'blue-wall', -Math.PI / 2],
+	['red-top', 'blue-wall', Math.PI / 2],
+	// Center coordinates' +X points toward blue, which is on the right with red on the left
+	['red-left', 'center', 0],
+	['blue-top', 'center', Math.PI / 2],
+] as const)(
+	'%s orientation with %s coordinates draws +X at %f radians on screen',
+	(orientation, coordinates, angle) => {
+		const actual = xAxisAngle(orientedField(orientation), coordinates);
+		expect(Math.cos(actual)).toBeCloseTo(Math.cos(angle), 5);
+		expect(Math.sin(actual)).toBeCloseTo(Math.sin(angle), 5);
+	},
+);
 
 test('WPILib uses center coordinates from 2027 beta onward', () => {
 	expect(wpilibCoordinates(undefined)).toBe('blue-wall');

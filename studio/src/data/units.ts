@@ -35,7 +35,8 @@ function nameWords(name: string): string[] {
 
 /** The unit an entry's values are in when read as an angle, from its type, then its metadata, then its name, defaulting to radians */
 export function inferAngleUnit(entry: Entry): AngleUnit {
-	if (entry.type === 'struct:Rotation2d') {
+	// Rotation2d, and the rotations of poses
+	if (entry.kind === 'struct') {
 		return 'radians';
 	}
 

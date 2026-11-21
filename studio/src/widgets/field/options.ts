@@ -1,6 +1,9 @@
 import { getEntry } from '@/data/data-store';
-import { wpilibCoordinates } from '@/widgets/field/geometry';
-import { widgetOptions } from '@/widgets/widget-info';
+import { panes, type PaneNode } from '@/panes/layout';
+import { widgetBindings } from '@/widgets/bindings';
+import { orientedField, wpilibCoordinates, xAxisAngle } from '@/widgets/field/geometry';
+import { optionValues } from '@/widgets/options';
+import { type WidgetTypeId, widgetOptions } from '@/widgets/widget-info';
 import type { WidgetOption } from '@/widgets/widget-type';
 
 /**
@@ -32,3 +35,25 @@ export const fieldOptions: readonly WidgetOption[] = [
 		infer: (_, earlier) => (earlier['coordinates'] === 'center' ? 'red-left' : 'blue-left'),
 	},
 ];
+
+/**
+ * Where logged +X points on the first field widget in `layout` showing `entryName` or an entry it's a field of, ex.
+ * `/Drive/Pose` for `/Drive/Pose/rotation` (see `xAxisAngle()`), so other widgets can turn to match it. `undefined`
+ * when no field widget shows it.
+ */
+export function fieldXAxisAngle(layout: PaneNode, entryName: string): number | undefined {
+	const widget = panes(layout).find(
+		(pane) =>
+			pane.widget?.type === ('field' satisfies WidgetTypeId) &&
+			widgetBindings(pane.widget).some(({ name }) => entryName === name || entryName.startsWith(`${name}/`)),
+	)?.widget;
+	if (widget === undefined) {
+		return undefined;
+	}
+	// Neither option is inferred from bindings
+	const options = optionValues({ options: fieldOptions }, widget, []);
+	return xAxisAngle(
+		orientedField(options['orientation']),
+		options['coordinates'] === 'center' ? 'center' : 'blue-wall',
+	);
+}

@@ -77,6 +77,14 @@ export function toBlueWall(point: FieldPoint, coordinates: FieldCoordinates): Fi
 	return coordinates === 'center' ? { x: fieldLength / 2 - point.x, y: fieldWidth / 2 - point.y } : point;
 }
 
+/** Counterclockwise angle on screen of the +X axis poses are logged in, in radians, ex. 0 when it points right */
+export function xAxisAngle(field: FieldView, coordinates: FieldCoordinates): number {
+	const origin = field.toSvg(toBlueWall({ x: 0, y: 0 }, coordinates));
+	const end = field.toSvg(toBlueWall({ x: 1, y: 0 }, coordinates));
+	// SVG +Y points down
+	return Math.atan2(origin.y - end.y, end.x - origin.x);
+}
+
 /**
  * The coordinates a robot running `version` of WPILib logs poses in, from its `/Robot/WPILibVersion`. WPILib switched
  * to `center` after 2027's alpha releases, and older versions don't publish theirs.

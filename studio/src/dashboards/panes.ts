@@ -1,3 +1,4 @@
+import { createContext } from 'react';
 import { addEntries, type DraggedEntry, dropEntry, type EntryDrop, widgetBindings } from '@/widgets/bindings';
 import {
 	createDashboard,
@@ -35,6 +36,9 @@ import { getWidgetType } from '@/widgets/registry';
 import { optionValues, setWidgetOption } from '@/widgets/options';
 import { droppedEntryName } from '@/entries/drag';
 import { acceptsDrop, bindsEntries } from '@/widgets/widget-type';
+
+/** The layout of the dashboard showing a widget, so widgets can follow others, see `WidgetProps.layout` */
+export const DashboardLayoutContext = createContext<PaneNode>(createPane());
 
 /**
  * Change a dashboard's pane layout with one of the `@/panes/layout` operations.

@@ -499,7 +499,7 @@
 													"type"
 												],
 												"additionalProperties": false,
-												"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d or number is the `heading`."
+												"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d, Pose2d, Pose3d, or number is the `heading`. When the heading comes from a pose shown on a field widget, the drawing turns to match that field."
 											},
 											{
 												"type": "object",
@@ -1118,7 +1118,7 @@
 									"type"
 								],
 								"additionalProperties": false,
-								"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d or number is the `heading`."
+								"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d, Pose2d, Pose3d, or number is the `heading`. When the heading comes from a pose shown on a field widget, the drawing turns to match that field."
 							},
 							{
 								"type": "object",
@@ -1374,7 +1374,7 @@
 											"type"
 										],
 										"additionalProperties": false,
-										"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d or number is the `heading`."
+										"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d, Pose2d, Pose3d, or number is the `heading`. When the heading comes from a pose shown on a field widget, the drawing turns to match that field."
 									},
 									{
 										"type": "object",

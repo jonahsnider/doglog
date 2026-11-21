@@ -86,6 +86,8 @@ export type WidgetProps = {
 	readonly options: OptionValues;
 	/** Picks an option's value, ex. from a control in the widget. `undefined` goes back to Auto or the default. */
 	readonly setOption: (id: string, value: string | undefined) => void;
+	/** The dashboard's layout, for widgets that follow others, ex. the swerve widget turns to match a field */
+	readonly layout: PaneNode;
 };
 
 export type WidgetType = {

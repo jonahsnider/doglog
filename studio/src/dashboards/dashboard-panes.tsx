@@ -3,7 +3,13 @@ import { useDragDropMonitor } from '@dnd-kit/react';
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Group, type Layout, Separator, useGroupRef } from 'react-resizable-panels';
 import { PaneView, type PaneNodeProps } from '@/panes/pane-view';
-import { dropDashboardEntry, getFocusedPane, getZoomedPane, updateLayout } from '@/dashboards/panes';
+import {
+	DashboardLayoutContext,
+	dropDashboardEntry,
+	getFocusedPane,
+	getZoomedPane,
+	updateLayout,
+} from '@/dashboards/panes';
 import type { Dashboard } from '@/dashboards/dashboards';
 import { type EntryDragData, type EntryDropData, type EntrySectionDropData, entryDragType } from '@/entries/drag';
 import { useMinWindowSize } from '@/desktop/window-size';
@@ -52,18 +58,20 @@ export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 
 	return (
 		<div ref={container} className="h-full" data-zooming={zooming || undefined}>
-			<PaneNodeView
-				dashboardId={dashboard.id}
-				dashboardLayout={layout}
-				focusedPaneId={focusedPaneId}
-				zoomedPaneId={zoomedPaneId}
-				hiddenBy={zooming ? undefined : zoomedPaneId}
-				zooming={zooming}
-				zoomFillingPaneId={zoom?.zoomingIn === true ? zoom.paneId : undefined}
-				minPaneSizes={minPaneSizes}
-				node={layout}
-				root
-			/>
+			<DashboardLayoutContext value={layout}>
+				<PaneNodeView
+					dashboardId={dashboard.id}
+					dashboardLayout={layout}
+					focusedPaneId={focusedPaneId}
+					zoomedPaneId={zoomedPaneId}
+					hiddenBy={zooming ? undefined : zoomedPaneId}
+					zooming={zooming}
+					zoomFillingPaneId={zoom?.zoomingIn === true ? zoom.paneId : undefined}
+					minPaneSizes={minPaneSizes}
+					node={layout}
+					root
+				/>
+			</DashboardLayoutContext>
 		</div>
 	);
 }

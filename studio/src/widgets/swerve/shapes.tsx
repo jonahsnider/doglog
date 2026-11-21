@@ -52,8 +52,16 @@ export function RotationArc({ radius, sweep, color }: { radius: number; sweep: n
 	);
 }
 
-/** Module name outside the chassis corner, kept upright when the robot rotates by `heading` (radians) */
-export function ModuleLabel({ position: [x, y], label, heading }: { position: Point; label: string; heading: number }) {
+/** Module name outside the chassis corner, kept upright when the drivetrain is turned by `rotation` (radians) */
+export function ModuleLabel({
+	position: [x, y],
+	label,
+	rotation,
+}: {
+	position: Point;
+	label: string;
+	rotation: number;
+}) {
 	// Just outside the chassis corner nearest the module
 	const offset = chassisHalf + 0.08;
 	const [labelX, labelY] = toSvg([Math.sign(x) * offset, Math.sign(y) * offset]);
@@ -61,7 +69,7 @@ export function ModuleLabel({ position: [x, y], label, heading }: { position: Po
 		<text
 			x={labelX}
 			y={labelY}
-			transform={`rotate(${(heading * 180) / Math.PI} ${labelX} ${labelY})`}
+			transform={`rotate(${(rotation * 180) / Math.PI} ${labelX} ${labelY})`}
 			textAnchor="middle"
 			dominantBaseline="central"
 			fontSize={0.09}

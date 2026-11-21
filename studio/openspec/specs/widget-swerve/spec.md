@@ -8,7 +8,7 @@ Define the swerve widget, which draws a top-down view of a 4-module swerve drive
 
 ### Requirement: Swerve inputs
 
-The swerve widget SHALL accept `SwerveModuleState[]`, `SwerveModuleVelocity[]`, `SwerveModulePosition[]`, `ChassisSpeeds`, `ChassisVelocities`, `Rotation2d`, and numeric entries. Each bound entry's role MUST be inferred from its type: module arrays and chassis speeds are drawn, and the first shown `Rotation2d` or numeric entry is the robot heading. Any number of module array and chassis speeds entries MAY be bound.
+The swerve widget SHALL accept `SwerveModuleState[]`, `SwerveModuleVelocity[]`, `SwerveModulePosition[]`, `ChassisSpeeds`, `ChassisVelocities`, `Rotation2d`, `Pose2d`, `Pose3d`, and numeric entries. Each bound entry's role MUST be inferred from its type: module arrays and chassis speeds are drawn, and the first shown `Rotation2d`, pose, or numeric entry is the robot heading. Any number of module array and chassis speeds entries MAY be bound.
 
 #### Scenario: WPILib 2027 names
 
@@ -30,6 +30,15 @@ The swerve widget SHALL accept `SwerveModuleState[]`, `SwerveModuleVelocity[]`, 
 - **GIVEN** the widget already has a heading entry
 - **WHEN** the user binds a second `Rotation2d` entry
 - **THEN** the first heading entry is still used
+
+### Requirement: Pose headings
+
+A pose heading entry's heading SHALL be its rotation, or its yaw for `Pose3d`.
+
+#### Scenario: Heading from a pose
+
+- **WHEN** the user binds `/Drive/MeasuredStates` and `/Drive/Pose`, a `Pose2d` entry
+- **THEN** the rotation of `/Drive/Pose` is used as the robot heading
 
 ### Requirement: Drivetrain layout
 
@@ -136,6 +145,30 @@ Without a heading entry, the swerve widget SHALL draw the robot with its front p
 
 - **GIVEN** a heading entry is bound but has no value at or before the cursor
 - **THEN** the robot's front points up
+
+### Requirement: Field perspective
+
+When the heading entry is a pose, or a field of one such as `/Drive/Pose/rotation`, and a field widget on the same dashboard shows that pose, the swerve widget MUST turn the drivetrain so field +X points the same way on screen as on that field widget, so the robot faces the same way in both. The field widget's orientation and WPILib coordinates options SHALL both be followed. With several such field widgets, the first in the layout SHALL be used. Without one, field +X points up.
+
+#### Scenario: Matches the field
+
+- **GIVEN** a field widget showing `/Drive/Pose` with the Orientation option "Blue left" and the WPILib coordinates option "2026"
+- **AND** a swerve widget whose heading entry is `/Drive/Pose`
+- **WHEN** the robot's heading is 0°
+- **THEN** the robot's front points right in both widgets
+
+#### Scenario: Heading from a pose field
+
+- **GIVEN** a field widget showing `/Drive/Pose` with the Orientation option "Blue top"
+- **AND** a swerve widget whose heading entry is `/Drive/Pose/rotation`
+- **WHEN** the robot's heading is 0°
+- **THEN** the robot's front points down in both widgets
+
+#### Scenario: Field removed
+
+- **GIVEN** the swerve widget matches a field widget showing `/Drive/Pose`
+- **WHEN** the field widget stops showing `/Drive/Pose`
+- **THEN** field +X points up in the swerve widget again
 
 ### Requirement: Colors and legend
 
