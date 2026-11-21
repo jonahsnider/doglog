@@ -380,7 +380,7 @@ jobs:
         with:
           cache: true
       - name: Run benchmarks
-        uses: CodSpeedHQ/action@v5.6.3
+        uses: CodSpeedHQ/action@v5.8.0
         with:
           run: pnpm --dir studio bench
           mode: simulation
