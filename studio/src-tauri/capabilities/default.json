@@ -11,6 +11,7 @@
 		"core:window:allow-set-focus",
 		"core:window:allow-unminimize",
 		"core:window:allow-set-min-size",
+		"core:window:allow-set-title",
 		"clipboard-manager:allow-write-text",
 		"dialog:allow-open",
 		"dialog:allow-message",

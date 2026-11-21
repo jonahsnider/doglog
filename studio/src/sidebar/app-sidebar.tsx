@@ -34,7 +34,6 @@ import {
 } from '@/sidebar/sidebar';
 import { useMotionTransition } from '@/lib/motion';
 import { TitleBar } from '@/sidebar/title-bar';
-import { useWindowColor } from '@/theme/window-color';
 
 const peekDelay = 300;
 /** Keeps the peeking sidebar open while the pointer is over a popup, renaming a dashboard, or dragging one */
@@ -46,7 +45,6 @@ function noop(): void {}
 export function AppSidebar() {
 	const matchRoute = useMatchRoute();
 	const collapsed = useSelector(sidebarCollapsedStore);
-	const windowColor = useWindowColor();
 	const [peeking, setPeeking] = useState(false);
 	// Toggling with the keyboard skips the animation, clicking and peeking keep it
 	const [animated, setAnimated] = useState(true);
@@ -236,8 +234,6 @@ export function AppSidebar() {
 							// Leaves room for the title bar, which is above the sidebar when it has its own strip
 							// The items stay where they are in the rail below the strip, so they don't move when the sidebar expands
 							className={cn(!strip && 'pt-12.5', 'in-data-[animation=enter-strip]:pt-12.5')}
-							// Tints the top of the sidebar, see `index.css`
-							data-window-color={windowColor}
 						>
 							<SidebarMenu>
 								<SourceControl />

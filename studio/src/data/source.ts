@@ -53,6 +53,14 @@ export function getSource(): Source | undefined {
 	return shownSource(sourcesStore.get());
 }
 
+/** What the user calls a source, ex. its log's file name or `Robot at 10.5.81.2` */
+export function sourceName(source: Source): string {
+	if (source.type === 'log') {
+		return source.fileName;
+	}
+	return source.host === simulatorHost ? 'Simulator' : `Robot at ${source.host}`;
+}
+
 /** The window's log and live session, including the one that isn't shown */
 export function useSources(): Sources {
 	return useSelector(sourcesStore);

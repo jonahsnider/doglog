@@ -237,19 +237,19 @@ The `doglog mcp` command SHALL run an MCP server over stdio that controls every 
 
 ### Requirement: Target a window
 
-On desktop, every command that acts on a window SHALL take an optional window ID, defaulting to the most recently focused window. `window_list` MUST list each window's ID, window color, when it was last focused, which dashboard it shows, its active source, and whether it's focused. `window_update` MUST be able to show a dashboard in a window and bring it to the front.
+On desktop, every command that acts on a window SHALL take an optional window ID, defaulting to the most recently focused window. `window_list` MUST list each window's ID, when it was last focused, which dashboard it shows, its active source, and whether it's focused. `window_update` MUST be able to show a dashboard in a window and bring it to the front.
 
 #### Scenario: Several windows open
 
-- **GIVEN** two Studio windows are open, and the user last used the one tinted with the second window color
+- **GIVEN** two Studio windows are open, and the user last used the one showing `match_q42.wpilog`
 - **WHEN** an agent calls `source_get` without a window ID
 - **THEN** it gets that window's source
 
 #### Scenario: Agent picks a window
 
-- **GIVEN** the user tells the agent to use "the blue window"
+- **GIVEN** the user tells the agent to use "the window with the Drivetrain dashboard"
 - **WHEN** the agent calls `window_list`
-- **THEN** it can match the window by its color
+- **THEN** it can match the window by the dashboard it shows
 
 ### Requirement: Version compatibility
 

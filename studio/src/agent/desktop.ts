@@ -3,9 +3,7 @@ import { Channel, invoke } from '@tauri-apps/api/core';
 import { AgentError, agentApiVersion, runAgentCommand } from '@/agent/registry';
 import { getDashboard } from '@/dashboards/dashboards';
 import { dashboardName } from '@/dashboards/label';
-import { getSource } from '@/data/source';
-import { simulatorHost } from '@/robot-target';
-import { getWindowColor } from '@/theme/window-color';
+import { getSource, sourceName } from '@/data/source';
 
 /** A request from an agent's `doglog` command, relayed by `src-tauri/src/agent/window.rs` */
 type AgentRequest = { id: number; method: 'info' } | { id: number; method: 'call'; name: string; args: unknown };
@@ -39,7 +37,6 @@ function info(router: RegisteredRouter) {
 	const dashboard = match && getDashboard(match.params.dashboardId);
 	return {
 		apiVersion: agentApiVersion,
-		color: getWindowColor() ?? null,
 		dashboard: dashboard ? { id: dashboard.id, name: dashboardName(dashboard) } : null,
 		source: describeSource(),
 	};
@@ -53,6 +50,5 @@ function describeSource(): string | null {
 	if (source.type === 'log') {
 		return source.status === 'loading' ? `${source.fileName} (loading)` : source.fileName;
 	}
-	const target = source.host === simulatorHost ? 'Simulator' : `Robot at ${source.host}`;
-	return `${target} (${source.status})`;
+	return `${sourceName(source)} (${source.status})`;
 }

@@ -11,6 +11,7 @@ import { ToastProvider } from '@/components/ui/toast';
 import { cn } from '@/lib/utils';
 import { useTitleBarStrip } from '@/desktop/title-bar';
 import { sidebarAnimationStore } from '@/sidebar/sidebar';
+import { useWindowTitle } from '@/window-title';
 
 export const Route = createRootRoute({
 	component: RootLayout,
@@ -18,6 +19,7 @@ export const Route = createRootRoute({
 
 function RootLayout() {
 	useGlobalShortcuts();
+	useWindowTitle();
 	// After ToastProvider's effect subscribes it, since child effects run first
 	useDesktopLinkOffer();
 	const matchRoute = useMatchRoute();

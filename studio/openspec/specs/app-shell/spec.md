@@ -87,22 +87,40 @@ The bottom of the sidebar SHALL show a card announcing the newest product update
 - **WHEN** the user selects the icon
 - **THEN** the full sidebar is shown over the dashboard with the card
 
-### Requirement: Window colors
+### Requirement: Window titles
 
-The top of the sidebar SHALL be tinted to tell open Studio tabs and windows apart. The first window MUST keep the default color, and each additional window MUST take the next chart color in order, repeating after the last. A window MUST keep its color while it's open, and a newly opened window MUST take the first color no open window is using.
+Each Studio tab and window SHALL be titled after what it shows, so they can be told apart wherever the browser or system lists them: the dashboard's name or the page, then the source's name in parentheses, then "DogLog Studio". Parts that don't apply MUST be left out. Log names MUST leave out their `.wpilog` extension. The macOS desktop app MUST leave out "DogLog Studio", since macOS already groups windows by app. The title MUST update when the dashboard, page, or source changes.
 
-#### Scenario: Open a second window
+#### Scenario: Two windows on the same log
 
-- **GIVEN** Studio is open in one window
-- **WHEN** the user opens Studio in another window
-- **THEN** the first window's sidebar is unchanged
-- **AND** the top of the second window's sidebar is tinted with the first chart color
+- **GIVEN** Studio is open in two windows with the same log loaded
+- **WHEN** one window shows the Auto tuning dashboard and the other shows the Drivetrain dashboard
+- **THEN** their titles name their dashboards and the log, ex. "Auto tuning (match_q42) — DogLog Studio"
 
-#### Scenario: Reuse a closed window's color
+#### Scenario: Live source
 
-- **GIVEN** Studio is open in three windows
-- **WHEN** the user closes the second window and opens a new one
-- **THEN** the new window takes the color the closed window had
+- **GIVEN** a dashboard named Drivetrain is shown
+- **WHEN** the user connects to the robot at 10.5.81.2
+- **THEN** the window is titled "Drivetrain (Robot at 10.5.81.2) — DogLog Studio"
+
+#### Scenario: Nothing to name
+
+- **GIVEN** a window shows no dashboard or page
+- **WHEN** a log named `match_q42.wpilog` is loaded
+- **THEN** the window is titled "match_q42 — DogLog Studio"
+- **AND** before any source is loaded, it's titled "DogLog Studio" on every platform
+
+#### Scenario: Rename the dashboard
+
+- **GIVEN** a window shows a dashboard
+- **WHEN** the user renames it
+- **THEN** the window's title uses the new name
+
+#### Scenario: macOS desktop app
+
+- **GIVEN** the desktop app is running on macOS
+- **WHEN** a window shows the Auto tuning dashboard with `match_q42.wpilog` loaded
+- **THEN** the window is titled "Auto tuning (match_q42)"
 
 ### Requirement: Pages section
 

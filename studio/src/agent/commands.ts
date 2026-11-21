@@ -49,7 +49,7 @@ const dashboardReturns = 'Returns the dashboard like `dashboard_get`.';
 const commands = {
 	window_list: {
 		description:
-			"List open Studio windows: each one's ID, window color, when it was last focused, the dashboard it shows, its source, and whether it's focused. Use a window's ID as the `window` input of other commands to target it, otherwise they act on the most recently focused window.",
+			"List open Studio windows: each one's ID, when it was last focused, the dashboard it shows, its source, and whether it's focused. Use a window's ID as the `window` input of other commands to target it, otherwise they act on the most recently focused window.",
 		input: empty,
 		platforms: ['desktop'],
 		bridge: true,
