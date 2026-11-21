@@ -1,12 +1,14 @@
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import { toastManager } from '@/components/ui/toast';
-import { findConnectTarget, isReachable, isSourceTarget } from '@/data/connect-target';
+import { findConnectTarget, findReachable, isSourceTarget } from '@/data/connect-target';
 import type { DataSet } from '@/data/data-set';
 import { createDataSet, type Entry, setActiveData } from '@/data/data-store';
 import { loadDevLog, saveDevLog } from '@/data/dev-log';
 import type { LiveStatus } from '@/data/live-source';
 import { loadLog, type UnreadEnd } from '@/data/log-source';
+import type { RestoredLog } from '@/data/log-worker';
+import { deleteLiveRecording, recordLive } from '@/data/recording';
 import { simulatorHost } from '@/robot-target';
 import { formatRoughDuration, formatTime, resetTimeline } from '@/timeline/timeline';
 import { keepViewWidth, showWholeSource } from '@/widgets/graph/view';
@@ -123,12 +125,13 @@ export function closeLog(): void {
 	}
 }
 
-/** Throw away the live session's data and stop connecting, showing the log if there is one */
+/** Throw away the live session's data and recording and stop connecting, showing the log if there is one */
 export function closeLive(): void {
 	liveGeneration++;
 	stopLive?.();
 	stopLive = undefined;
 	liveData = undefined;
+	deleteLiveRecording();
 	const { shown, log } = sourcesStore.get();
 	updateSources({ live: undefined });
 	if (shown === 'live') {
@@ -218,7 +221,7 @@ async function connectToHost(host: string, status: LiveStatus): Promise<void> {
 		nt.close();
 		return;
 	}
-	stopLive = connectLive(nt, liveData, (liveStatus) => {
+	stopLive = connectLive(nt, liveData, recordLive(host), (liveStatus) => {
 		updateSources({ live: { type: 'live', host, status: liveStatus } });
 	});
 }
@@ -238,8 +241,6 @@ export function disconnect(): void {
 	stopLive = undefined;
 	updateSources({ live: { ...live, status: 'disconnected' } });
 }
-
-const retryDelay = 1000;
 
 /**
  * Show the live session, connecting to the robot at `robotHost` if it's reachable, otherwise to the simulator.
@@ -272,28 +273,27 @@ export async function connect(robotHost: string | undefined): Promise<void> {
 	liveGeneration++;
 	stopLive?.();
 	stopLive = undefined;
+	deleteLiveRecording();
 	liveData = createDataSet();
 	const hosts = robotHost === undefined ? [simulatorHost] : [robotHost, simulatorHost];
 	updateSources({ live: { type: 'live', host: hosts.join(' or '), status: 'connecting' } });
 	show('live');
-	const requestedAt = liveGeneration;
-	let retryTimer: ReturnType<typeof setTimeout> | undefined;
-	stopLive = () => clearTimeout(retryTimer);
+	// Stopped when the live session is replaced or closed
+	stopLive = findReachable(hosts, (host) => void connectToHost(host, 'connecting'));
+}
 
-	const attempt = async () => {
-		const reachable = await Promise.all(hosts.map((host) => isReachable(host)));
-		if (liveGeneration !== requestedAt) {
-			// The live session was replaced or closed while checking
-			return;
-		}
-
-		// Hosts are in order of preference
-		const host = hosts.find((_, index) => reachable[index] === true);
-		if (host === undefined) {
-			retryTimer = setTimeout(() => void attempt(), retryDelay);
-		} else {
-			void connectToHost(host, 'connecting');
-		}
-	};
-	void attempt();
+/** Show a live session restored from its recording, see `@/data/restore-live`. `false` if one was started first. */
+export function restoreLiveSession(data: DataSet, { host, disconnected }: RestoredLog): boolean {
+	if (sourcesStore.get().live !== undefined) {
+		return false;
+	}
+	liveData = data;
+	updateSources({ live: { type: 'live', host, status: 'disconnected' } });
+	if (sourcesStore.get().shown === undefined) {
+		show('live');
+	}
+	if (!disconnected) {
+		void connectToHost(host, 'reconnecting');
+	}
+	return true;
 }

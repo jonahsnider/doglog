@@ -7,6 +7,7 @@ import {
 	parseStructSpecification,
 	type StructDeclaration,
 } from 'wpilog-parser';
+import { isRecordingEntry, readRecordingValue, type RecordingInfo } from '@/data/read-recording';
 import { isSchemaEntry, isStudioEntry, normalizeEntryName, Samples, type Value } from '@/data/samples';
 
 type ParsedEntry = { type: string; metadata: string; samples: Samples };
@@ -24,6 +25,10 @@ export type ParsedLog = {
 	 * A robot that loses power can leave a partial last record, or blocks the file system reserved but never wrote.
 	 */
 	unreadBytes: number;
+	/** For a live session Studio recorded, when it connected */
+	recording: RecordingInfo | undefined;
+	/** IDs of entries that were started and not finished, including ones that aren't shown */
+	openEntryIds: number[];
 };
 
 const textDecoder = new TextDecoder();
@@ -99,6 +104,8 @@ export function parseLog(bytes: Uint8Array, onProgress: (progress: number) => vo
 	let readBytes = records.bytesRead;
 	// The latest value each entry was set to before the log started, see below
 	const beforeStart = new Map<Samples, { timestamp: number; value: Value }>();
+	let recording: RecordingInfo | undefined;
+	const openEntryIds = new Set<number>();
 
 	try {
 		for (const record of records) {
@@ -110,11 +117,22 @@ export function parseLog(bytes: Uint8Array, onProgress: (progress: number) => vo
 			}
 
 			if (!isDataRecord(record)) {
-				handleControlRecord(record.payload, entries, names);
+				const { payload } = record;
+				if (payload.controlRecordType === ControlRecordType.Start) {
+					openEntryIds.add(payload.entryId);
+				} else if (payload.controlRecordType === ControlRecordType.Finish) {
+					openEntryIds.delete(payload.entryId);
+				}
+				handleControlRecord(payload, entries, names);
 				continue;
 			}
 
 			const name = normalizeEntryName(record.entry.name);
+			if (isRecordingEntry(name)) {
+				recording ??= { host: undefined, status: undefined, connections: [], end: record.timestamp };
+				readRecordingValue(recording, name, record.timestamp, record.payload);
+				continue;
+			}
 			if (record.entry.type === 'structschema') {
 				if (name.startsWith(structSchemaPrefix) && typeof record.payload === 'string') {
 					addStructSchema(structSchemas, name.slice(structSchemaPrefix.length), record.payload);
@@ -158,5 +176,26 @@ export function parseLog(bytes: Uint8Array, onProgress: (progress: number) => vo
 		}
 	}
 
-	return { entries, structSchemas, start, end, unreadBytes: bytes.byteLength - readBytes };
+	// A recorded live session starts when it first connected, values from before then are its values at the start
+	const connectedAt = recording?.connections[0]?.start;
+	if (connectedAt !== undefined) {
+		for (const { samples } of entries.values()) {
+			samples.trimBefore(connectedAt);
+			if (samples.length > 0 && samples.timestamps[0]! < connectedAt) {
+				samples.timestamps[0] = connectedAt;
+			}
+		}
+		start = connectedAt;
+		end = Math.max(end ?? connectedAt, recording!.end);
+	}
+
+	return {
+		entries,
+		structSchemas,
+		start,
+		end,
+		unreadBytes: bytes.byteLength - readBytes,
+		recording,
+		openEntryIds: [...openEntryIds],
+	};
 }

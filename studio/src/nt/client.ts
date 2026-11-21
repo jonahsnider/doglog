@@ -19,6 +19,8 @@ export type NtSubscribeOptions = { all?: boolean; periodic?: number };
 /** A client of an NT4 server, which may share its connection with other clients */
 export interface NtClient {
 	isConnected(): boolean;
+	/** The server's clock now (µs), synced when connecting. `undefined` while disconnected. */
+	serverTime(): number | undefined;
 	/** Called with the current state right after this returns, then whenever it changes. Returns a function that removes it. */
 	onConnectedChange(listener: (connected: boolean) => void): () => void;
 	/**

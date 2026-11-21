@@ -231,6 +231,18 @@ const commands = {
 		description: 'Close the active source, leaving none.',
 		input: empty,
 	},
+	source_export: {
+		description:
+			"Save everything the live session received as a WPILOG file, to read with wpilog-parser, whether or not the live session is shown. Its times are on the robot's clock, so they line up with the robot's own logs but not `timeline_get`. Returns the file's path.",
+		input: z.strictObject({
+			path: z
+				.string()
+				.min(1)
+				.optional()
+				.describe('Absolute path to save the file to. Left out, it goes in a new file in the temporary folder.'),
+		}),
+		platforms: ['desktop'],
+	},
 	timeline_get: {
 		description:
 			"Get the timeline cursor and the source's time range, in seconds on the source's clock: a log's timestamps (microseconds, as wpilog-parser reads them) divided by 1,000,000. Studio shows times relative to `start`.",

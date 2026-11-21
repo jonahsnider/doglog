@@ -1,6 +1,7 @@
 import { StructRegistry } from 'wpilib-struct';
 import type { DataSet } from '@/data/data-set';
 import { type Entry, liveTime, parseMetadata } from '@/data/data-store';
+import type { LiveRecording } from '@/data/recording';
 import { isSchemaEntry, isStudioEntry, normalizeEntryName, type Value } from '@/data/samples';
 import type { NtClient, NtValue } from '@/nt/client';
 
@@ -14,12 +15,13 @@ const structSchemaPrefix = '/.schema/struct:';
 const textDecoder = new TextDecoder();
 
 /**
- * Add every topic and value from `nt` to `data`, recording when the connection drops.
+ * Add every topic and value from `nt` to `data` and `recording`, noting when the connection drops.
  * Reconnects automatically and keeps adding to the same history. Returns a function that disconnects and closes `nt`.
  */
 export function connectLive(
 	nt: NtClient,
 	data: DataSet,
+	recording: LiveRecording,
 	onStatus: (status: Exclude<LiveStatus, 'disconnected'>) => void,
 ): () => void {
 	const structs = new StructRegistry();
@@ -28,8 +30,8 @@ export function connectLive(
 	let closed = false;
 	let connected = false;
 	let connectedAt = 0;
-	// Client clock minus server clock for the current connection. The smallest difference seen is the least delayed value.
-	let clockOffset: number | undefined;
+	// Studio's clock minus the server's for the current connection
+	let clockOffset = 0;
 
 	const decodeStruct = (entry: Entry, bytes: Uint8Array): Value | string => {
 		const structName = entry.type.slice('struct:'.length);
@@ -88,16 +90,22 @@ export function connectLive(
 			return;
 		}
 
+		const wasConnected = connected;
 		connected = isConnected;
 		if (connected) {
 			connectedAt = liveTime();
-			clockOffset = undefined;
+			// Synced by the NT4 client before it says it's connected
+			const serverTime = nt.serverTime() ?? connectedAt;
+			clockOffset = connectedAt - serverTime;
 			if (data.start === undefined) {
 				data.setStartTime(connectedAt);
 			}
 			data.connect(connectedAt);
-		} else if (data.start !== undefined) {
-			data.disconnect(liveTime());
+			recording.record({ type: 'connected', liveTime: connectedAt, serverTime });
+		} else if (wasConnected) {
+			const now = liveTime();
+			data.disconnect(now);
+			recording.record({ type: 'status', status: 'reconnecting', liveTime: now });
 		}
 
 		// Data from an earlier connection means this is reconnecting, ex. after the user disconnected
@@ -111,13 +119,22 @@ export function connectLive(
 			// Topics without values are listed too
 			announce: ({ name: topicName, type, properties }) => {
 				const name = normalizeEntryName(topicName);
-				if (!closed && !isSchemaEntry(name) && !isStudioEntry(name)) {
+				if (closed || isStudioEntry(name)) {
+					return;
+				}
+				recording.record({ type: 'announce', name, topicType: type, properties, liveTime: liveTime() });
+				if (!isSchemaEntry(name)) {
 					data.addEntry(name, type, undefined, parseMetadata(properties));
 				}
 			},
 			properties: (topicName, update) => {
-				const entry = data.entries.get(normalizeEntryName(topicName));
-				if (closed || !entry) {
+				const name = normalizeEntryName(topicName);
+				if (closed || isStudioEntry(name)) {
+					return;
+				}
+				recording.record({ type: 'properties', name, update, liveTime: liveTime() });
+				const entry = data.entries.get(name);
+				if (!entry) {
 					return;
 				}
 				const metadata = { ...entry.metadata, ...parseMetadata(update) };
@@ -130,12 +147,14 @@ export function connectLive(
 			},
 			value: (topicName, type, value, serverTime) => {
 				const name = normalizeEntryName(topicName);
-				if (closed || isStudioEntry(name) || isSchemaEntry(name)) {
+				if (closed || isStudioEntry(name)) {
+					return;
+				}
+				recording.record({ type: 'value', name, topicType: type, value, serverTime });
+				if (isSchemaEntry(name)) {
 					return;
 				}
 
-				const now = liveTime();
-				clockOffset = Math.min(clockOffset ?? Infinity, now - serverTime);
 				// Values that changed before this connection (sent when subscribing) are placed at the connection time
 				const timestamp = Math.max(serverTime + clockOffset, connectedAt);
 
@@ -154,8 +173,9 @@ export function connectLive(
 		structSchemaPrefix,
 		{ all: true },
 		{
-			value: (name, _type, value) => {
+			value: (name, type, value, serverTime) => {
 				if (!closed) {
+					recording.record({ type: 'value', name: normalizeEntryName(name), topicType: type, value, serverTime });
 					registerStructSchema(name, value instanceof Uint8Array ? textDecoder.decode(value) : String(value));
 				}
 			},
@@ -167,6 +187,8 @@ export function connectLive(
 		if (connected) {
 			data.disconnect(liveTime());
 		}
+		// Unless the session is replaced or cleared, which deletes its recording, the user disconnected
+		recording.record({ type: 'status', status: 'disconnected', liveTime: liveTime() });
 		nt.close();
 	};
 }

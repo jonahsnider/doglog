@@ -17,6 +17,20 @@ interface LaunchParams {
 	readonly files: readonly FileSystemHandle[];
 }
 
+// Only in dedicated workers, which TypeScript's DOM types leave out
+interface FileSystemSyncAccessHandle {
+	close(): void;
+	flush(): void;
+	getSize(): number;
+	read(buffer: ArrayBufferView, options?: { at?: number }): number;
+	truncate(newSize: number): void;
+	write(buffer: ArrayBufferView, options?: { at?: number }): number;
+}
+
+interface FileSystemFileHandle {
+	createSyncAccessHandle(): Promise<FileSystemSyncAccessHandle>;
+}
+
 interface Window {
 	showOpenFilePicker?(options?: OpenFilePickerOptions): Promise<FileSystemFileHandle[]>;
 	showDirectoryPicker?(options?: { mode?: 'read' | 'readwrite' }): Promise<FileSystemDirectoryHandle>;

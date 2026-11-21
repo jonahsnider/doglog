@@ -5,6 +5,7 @@ import type { Handlers } from '@/agent/commands';
 import { dashboardHandlers, requireDashboard, showDashboard } from '@/agent/dashboard-handlers';
 import { paneHandlers } from '@/agent/pane-handlers';
 import { flushData, getEntries, getTimeRange } from '@/data/data-store';
+import { saveLiveExport } from '@/data/export-live';
 import { openLogPath } from '@/data/open-log';
 import { isReachable } from '@/data/connect-target';
 import { closeSource, connect, getSource, type Source, subscribeSource } from '@/data/source';
@@ -122,6 +123,17 @@ export const handlers: Handlers = {
 
 	source_delete: () => {
 		closeSource();
+	},
+
+	source_export: async ({ path }) => {
+		if (!STUDIO_DESKTOP) {
+			return undefined;
+		}
+		try {
+			return { path: await saveLiveExport(path) };
+		} catch (error) {
+			throw new AgentError(error instanceof Error ? error.message : String(error));
+		}
 	},
 
 	timeline_get: () => describeTimeline(),

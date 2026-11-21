@@ -16,7 +16,8 @@ export type NtWorkerRequest =
 
 /** Sent to `shared.ts` in batches */
 export type NtWorkerEvent =
-	| { type: 'connected'; client: number; connected: boolean }
+	/** `serverTime` is the server's clock when this was sent */
+	| { type: 'connected'; client: number; connected: boolean; serverTime: number | undefined }
 	| { type: 'announce'; subscription: number; topic: NtTopic }
 	| { type: 'unannounce'; subscription: number; name: string }
 	| { type: 'properties'; subscription: number; name: string; update: Record<string, unknown> }
@@ -61,7 +62,9 @@ addEventListener('connect', (event) => {
 		if (request.type === 'open') {
 			const nt = openLocalNt(request.host);
 			clients.set(request.client, { nt, subscriptions: new Map() });
-			nt.onConnectedChange((connected) => send({ type: 'connected', client: request.client, connected }));
+			nt.onConnectedChange((connected) =>
+				send({ type: 'connected', client: request.client, connected, serverTime: nt.serverTime() }),
+			);
 			return;
 		}
 

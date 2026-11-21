@@ -8,7 +8,7 @@ Define how users load data into Studio, by opening a WPILOG file and connecting 
 
 ### Requirement: Log and live session
 
-Each window SHALL have at most one open log and one live session, and MUST show one of them in every dashboard and widget. The live session SHALL last until the window closes, receiving data whether or not it's shown, and the log MUST stay loaded while the live session is shown, so switching between them is instant.
+Each window SHALL have at most one open log and one live session, and MUST show one of them in every dashboard and widget. The live session SHALL last until the user clears it or Connect replaces it, receiving data whether or not it's shown and coming back when Studio reopens (see Restore the live session). The log MUST stay loaded while the live session is shown, so switching between them is instant.
 
 #### Scenario: Open a log while live
 
@@ -151,7 +151,7 @@ Users SHALL be able to connect to a robot or simulator over NT4 with a single Co
 
 ### Requirement: Live connection resilience
 
-Studio MUST keep all data received from a live source when the connection drops, and SHALL reconnect automatically. Received data MUST be kept until the window closes, the user clears the live session, or Connect replaces it with another target.
+Studio MUST keep all data received from a live source when the connection drops, and SHALL reconnect automatically. Received data MUST be kept until the user clears the live session or Connect replaces it with another target, including after Studio closes.
 
 #### Scenario: Robot reboots mid-session
 
@@ -188,7 +188,7 @@ Studio tabs and windows SHALL share one NT4 connection to each server, for their
 
 ### Requirement: Disconnect and clear
 
-The source control menu's live section SHALL offer one action for the live session's state: Connect without a session, Disconnect while it's connecting, connected, or reconnecting, and once disconnected, Reconnect and Clear. Disconnect MUST stop reconnecting and keep the received data, and Reconnect MUST continue the same session. Clear MUST close the live session and throw away its data.
+The source control menu's live section SHALL offer one action for the live session's state: Connect without a session, Disconnect while it's connecting, connected, or reconnecting, and once disconnected, Reconnect and Clear. Disconnect MUST stop reconnecting and keep the received data, and Reconnect MUST continue the same session. Clear MUST close the live session and throw away its data, including its recording.
 
 #### Scenario: Disconnect
 
@@ -210,6 +210,109 @@ The source control menu's live section SHALL offer one action for the live sessi
 - **GIVEN** Studio is still looking for the robot or simulator
 - **WHEN** the user chooses Disconnect
 - **THEN** the live session is closed, since it has no data
+
+### Requirement: Live recording
+
+Studio SHALL record every live session to a WPILOG file on the user's device as data arrives, with no setting to turn it off, and MUST write what it received at least once a second. Each tab or window MUST record its own session, even when they share a connection. A recording MUST last as long as its session: clearing the session, or Connect replacing it with another target, deletes it. Unlike the session's history in memory, a recording MUST NOT drop old data.
+
+#### Scenario: Two windows connected to the robot
+
+- **GIVEN** two Studio windows are connected to the robot
+- **THEN** each window records its own session
+- **WHEN** the user clears the live session in one window
+- **THEN** only that window's recording is deleted
+
+### Requirement: Recording contents
+
+A recording MUST contain every topic and value the session received as the server sent it, including values Studio can't decode, struct schemas as text, and topic property changes as entry metadata. It MUST NOT contain the topics Studio uses to share dashboards, or entries Studio derives, ex. struct fields. It SHALL also contain entries under `/DogLogStudio/` for when each connection started and ended, and both clocks when it started.
+
+#### Scenario: Values Studio can't decode
+
+- **GIVEN** Studio is connected to a robot publishing protobuf values to `/Vision/Result`
+- **THEN** `/Vision/Result` is listed as unsupported
+- **AND** the recording has every value the robot sent for it
+
+### Requirement: Recording times
+
+Times in a recording SHALL be on the server's clock, so a robot's recording lines up with its own logs. A value changed before Studio connected MUST keep the time it changed, and one without a known time is recorded when the connection was made. When the server's clock goes back, ex. after the robot is power cycled, later data MUST continue from the last recorded time plus how long Studio was disconnected. The live session keeps Studio's clock.
+
+#### Scenario: Robot power cycled during a session
+
+- **GIVEN** Studio is connected to the robot, and the recording reached 300 s on the robot's clock
+- **WHEN** the robot is power cycled and Studio reconnects to it 40 s later
+- **THEN** data received after reconnecting is recorded starting at 340 s
+
+### Requirement: Recording failure
+
+When the recording can't be written, ex. because storage is full, the live session MUST keep receiving data, and Studio SHALL warn once that recording stopped. The recording keeps what was written before it stopped.
+
+#### Scenario: Storage is full
+
+- **GIVEN** Studio is connected to the robot
+- **WHEN** the recording can't be written because storage is full
+- **THEN** Studio warns that recording stopped
+- **AND** the live session keeps receiving data
+
+### Requirement: Restore the live session
+
+When Studio reopens after closing with a live session, including after a crash, each window SHALL restore the most recent recording that no other window has restored. It MUST show the same data, disconnect gaps, and times as before Studio closed, up to the most history a live session keeps in memory, and mark the time Studio was closed as a gap. It MUST reconnect to the same server, unless the user had disconnected it. A session that never connected isn't restored.
+
+#### Scenario: Reopen after a crash
+
+- **GIVEN** Studio was connected to the robot for 10 minutes
+- **WHEN** Studio crashes and the user opens it again
+- **THEN** the live session shows the 10 minutes of data
+- **AND** Studio reconnects to the robot, adding to the same session
+- **AND** the time Studio was closed is marked on the timeline
+
+#### Scenario: Reopen a disconnected session
+
+- **GIVEN** the user disconnected from the robot and quit Studio
+- **WHEN** the user opens Studio again
+- **THEN** the live session shows the data it received, in the disconnected state
+- **AND** the menu offers "Reconnect to robot" and "Clear"
+
+#### Scenario: Several windows
+
+- **GIVEN** two Studio windows each had a live session when Studio quit
+- **WHEN** the user opens Studio, then opens another window
+- **THEN** the first window restores the session that received data most recently
+- **AND** the new window restores the other session
+
+### Requirement: Export live data
+
+The source control menu SHALL offer Export as WPILOG in its own section above the live session's actions whenever the live session has data. Exporting MUST save a copy of the whole recording, including history no longer kept in memory, without interrupting the session. The desktop app MUST ask where to save it, and the web app MUST download it. The suggested file name MUST be `WPILIB_<date>_<time>.wpilog` with the date and time the session started in UTC, like WPILib names its logs.
+
+#### Scenario: Export while connected
+
+- **GIVEN** Studio has been connected to the robot since 22:30 UTC on November 21, 2026
+- **WHEN** the user chooses Export as WPILOG in the desktop app
+- **THEN** the save dialog suggests `WPILIB_20261121_223000.wpilog`
+- **AND** Studio stays connected, still adding to the same session
+
+#### Scenario: Export a long session
+
+- **GIVEN** the live session received more data than Studio keeps in memory, so its oldest data is no longer shown
+- **WHEN** the user exports it
+- **THEN** the file includes the oldest data
+
+#### Scenario: Export in the web app
+
+- **GIVEN** the user is connected to the simulator in the web app
+- **WHEN** the user chooses Export as WPILOG
+- **THEN** the browser downloads the recording
+
+### Requirement: Open an exported recording
+
+Tools that don't read Studio's entries see no values published while Studio was disconnected. Studio MUST mark those gaps on the timeline when it opens an exported recording as a log, and MUST start it when Studio first connected.
+
+#### Scenario: Open an export
+
+- **GIVEN** the user exported a session in which the robot disconnected for 5 s
+- **WHEN** the user opens the exported file
+- **THEN** its entries have the values the live session received, at times on the robot's clock
+- **AND** the 5 s the robot was disconnected is marked on the timeline
+- **AND** Studio's recording entries aren't shown
 
 ### Requirement: Damaged log tolerance
 
@@ -297,7 +400,7 @@ Studio SHALL read each entry's JSON metadata from WPILOG entry metadata and from
 
 ### Requirement: Studio's own topics
 
-Entries under `/DogLogStudio/`, which Studio uses to share dashboards, SHALL NOT be shown, whether they come from a live NT4 server or from a log that recorded NetworkTables (ex. `NT:/DogLogStudio/`).
+Entries under `/DogLogStudio/`, which Studio uses to share dashboards and record live sessions, SHALL NOT be shown, whether they come from a live NT4 server or from a log that recorded NetworkTables (ex. `NT:/DogLogStudio/`).
 
 #### Scenario: Robot log with shared dashboards
 

@@ -1,6 +1,6 @@
-import { useFormatForDisplay } from '@tanstack/react-hotkeys';
+import { useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
 import ChevronsUpDownIcon from 'lucide-react/icons/chevrons-up-down';
-import { useEffect, useId, useState } from 'react';
+import { Fragment, useEffect, useId, useState } from 'react';
 import { TextMorph } from 'torph/react';
 import { AppContextMenu, type MenuAction, type MenuEntry } from '@/components/app-context-menu';
 import {
@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/menu';
 import { SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
-import { shortcuts, startConnect } from '@/commands/commands';
+import { nativeMenu, shortcuts, startConnect } from '@/commands/commands';
 import { useEntries } from '@/data/data-store';
 import {
 	clearRecentLogs,
@@ -27,6 +27,7 @@ import {
 } from '@/data/recent-logs';
 import { chooseLog, openLogPath, openRecentLogHandle } from '@/data/open-log';
 import { type ConnectTarget, findConnectTarget, isSourceTarget } from '@/data/connect-target';
+import { canExportLive, exportLive, exportLiveShortcut } from '@/data/export-live';
 import {
 	closeLive,
 	disconnect,
@@ -87,7 +88,18 @@ const connectAction = (label: string): MenuAction => ({
 });
 
 /**
- * The live section of the source menu: connecting, disconnecting, or once disconnected, reconnecting or clearing the data.
+ * The export section of the source menu, shown once the live session has data, above the actions that end it.
+ * Takes `live` so it's checked again when its status changes, the recording starts when it first connects.
+ */
+function exportActions(live: LiveSource | undefined): MenuAction[] {
+	return live !== undefined && canExportLive()
+		? [{ label: 'Export as WPILOG', shortcut: exportLiveShortcut, onSelect: () => void exportLive() }]
+		: [];
+}
+
+/**
+ * The live section of the source menu: connecting, disconnecting, or once disconnected, reconnecting or clearing the
+ * data.
  * `backToLive` offers going back to a live session behind the log, for menus without the switcher.
  */
 function liveActions(
@@ -174,6 +186,16 @@ function SourceTrigger(sources: Sources) {
 	);
 }
 
+function ActionItem({ action }: { action: MenuAction }) {
+	const formatForDisplay = useFormatForDisplay();
+	return (
+		<MenuItem onClick={action.onSelect}>
+			{action.label}
+			{action.shortcut !== undefined && <MenuShortcut>{formatForDisplay(action.shortcut)}</MenuShortcut>}
+		</MenuItem>
+	);
+}
+
 function OpenRecentMenu() {
 	const savedPaths = useRecentLogs();
 	// Only the desktop app can open paths, ignore any saved on the web
@@ -211,6 +233,8 @@ export function SourceControl() {
 	useEntries();
 	const formatForDisplay = useFormatForDisplay();
 	const [connectTarget, setConnectTarget] = useState<ConnectTarget>();
+	// The native menu handles it on macOS
+	useHotkey(exportLiveShortcut, () => void exportLive(), { enabled: !nativeMenu, requireReset: true });
 
 	// Each check briefly connects to the NT server, so only check on mount (so the label is ready when the menu first opens) and when the menu opens.
 	// The last result is shown until a check finishes.
@@ -232,6 +256,7 @@ export function SourceControl() {
 			: []),
 		{ label: 'Open log', shortcut: shortcuts.openLog, onSelect: chooseLog },
 		'separator',
+		...exportActions(live).flatMap((action): MenuEntry[] => [action, 'separator']),
 		...liveActions(sources, connectTarget, true),
 	];
 
@@ -258,12 +283,15 @@ export function SourceControl() {
 					</MenuItem>
 					{(STUDIO_DESKTOP || supportsFileHandles) && <OpenRecentMenu />}
 					<MenuSeparator />
+					{exportActions(live).map((action) => (
+						<Fragment key={action.label}>
+							<ActionItem action={action} />
+							<MenuSeparator />
+						</Fragment>
+					))}
 					{/* The switcher goes back to the live session */}
 					{liveActions(sources, connectTarget, false).map((action) => (
-						<MenuItem key={action.label} onClick={action.onSelect}>
-							{action.label}
-							{action.shortcut !== undefined && <MenuShortcut>{formatForDisplay(action.shortcut)}</MenuShortcut>}
-						</MenuItem>
+						<ActionItem key={action.label} action={action} />
 					))}
 				</MenuPopup>
 			</Menu>

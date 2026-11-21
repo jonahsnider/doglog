@@ -25,7 +25,7 @@ The agent commands SHALL be:
 - `pane_create`, `pane_update`, `pane_move`, `pane_delete`
 - `binding_create`, `binding_update`, `binding_delete`
 - `entry_list`
-- `source_get`, `source_update`, `source_delete`
+- `source_get`, `source_update`, `source_delete`, `source_export`
 - `timeline_get`, `timeline_update`
 - `settings_get`, `settings_update`
 
@@ -180,6 +180,22 @@ Agents SHALL be able to read the active source, connect to a robot, and close th
 - **WHEN** it moves the timeline cursor to 92.4 s
 - **THEN** the user's dashboards show that moment
 
+### Requirement: Export live data
+
+`source_export` SHALL save a copy of the live session's recording, the same file Export as WPILOG saves, whether or not the live session is shown. It MUST save to the absolute path it's given, or to a new file in the temporary folder, and return the file's path. It MUST fail and say why when there's no live session with data.
+
+#### Scenario: Analyze a practice session
+
+- **GIVEN** the user has been connected to the robot during practice
+- **WHEN** an agent runs `doglog source export`
+- **THEN** it gets the path of a WPILOG file in the temporary folder that it can read with wpilog-parser
+
+#### Scenario: No live session
+
+- **GIVEN** only a log is open
+- **WHEN** an agent calls `source_export`
+- **THEN** the command fails and says there's no live session to export
+
 ### Requirement: Settings
 
 Agents SHALL be able to read and change every setting on the Settings page.
@@ -200,13 +216,13 @@ Agents SHALL NOT be able to read or write notepad text or control playback. Agen
 
 ### Requirement: Platform-specific commands
 
-A command that can't work on the current platform SHALL NOT be offered there, rather than being offered and failing. In the web app this means no window commands or `window` input, no `dashboard_capture`, and no opening logs by file path. On desktop platforms without capture support, it means no `dashboard_capture`.
+A command that can't work on the current platform SHALL NOT be offered there, rather than being offered and failing. In the web app this means no window commands or `window` input, no `dashboard_capture` or `source_export`, and no opening logs by file path. On desktop platforms without capture support, it means no `dashboard_capture`.
 
 #### Scenario: Web app
 
 - **GIVEN** an agent is connected to the web app through WebMCP
 - **WHEN** it lists the available commands
-- **THEN** there are no window commands or `dashboard_capture`
+- **THEN** there are no window commands, `dashboard_capture`, or `source_export`
 - **AND** `source_update` can connect to a robot but not open a file path
 
 ### Requirement: WebMCP in the web app

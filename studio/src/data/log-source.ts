@@ -1,6 +1,6 @@
 import type { DataSet } from '@/data/data-set';
 import { parseMetadata } from '@/data/data-store';
-import type { LogWorkerMessage } from '@/data/log-worker';
+import type { LogWorkerMessage, LogWorkerRequest, RestoredLog } from '@/data/log-worker';
 import { Samples } from '@/data/samples';
 
 /** The end of a log's file that couldn't be read */
@@ -16,13 +16,24 @@ export type UnreadEnd = {
 type LoadLogCallbacks = {
 	/** Called with the fraction of the log parsed, from 0 to 1 */
 	onProgress: (progress: number) => void;
-	/** `unread` is unset when the whole log was read, or all but a partial last record */
-	onLoaded: (unread: UnreadEnd | undefined) => void;
+	/**
+	 * `unread` is unset when the whole log was read, or all but a partial last record. `restored` is the live session a
+	 * recording loaded with `live` recorded.
+	 */
+	onLoaded: (unread: UnreadEnd | undefined, restored: RestoredLog | undefined) => void;
 	onError: (message: string) => void;
 };
 
-/** Parse a WPILOG file in a worker and add its entries to `data`. Returns a function that cancels loading. */
-export function loadLog(file: File, data: DataSet, { onProgress, onLoaded, onError }: LoadLogCallbacks): () => void {
+/**
+ * Parse a WPILOG file in a worker and add its entries to `data`. With `live`, a live session's recording is added on
+ * Studio's clock, like the live session showed it. Returns a function that cancels loading.
+ */
+export function loadLog(
+	file: File,
+	data: DataSet,
+	{ onProgress, onLoaded, onError }: LoadLogCallbacks,
+	live = false,
+): () => void {
 	const worker = new Worker(new URL('./log-worker.ts', import.meta.url), { type: 'module' });
 	let stopped = false;
 
@@ -60,6 +71,7 @@ export function loadLog(file: File, data: DataSet, { onProgress, onLoaded, onErr
 				if (message.start !== undefined && message.end !== undefined) {
 					data.setStartTime(message.start);
 					data.extendTimeRange(message.start, message.end);
+					data.gaps.push(...message.gaps);
 					// A partial last record is normal when the robot is turned off, and a little damage only loses about a second at the end
 					if (message.unreadBytes > 64 * 1024) {
 						const after = message.end - message.start;
@@ -70,7 +82,7 @@ export function loadLog(file: File, data: DataSet, { onProgress, onLoaded, onErr
 						};
 					}
 				}
-				onLoaded(unread);
+				onLoaded(unread, message.restored);
 				break;
 			}
 			case 'error':
@@ -88,7 +100,7 @@ export function loadLog(file: File, data: DataSet, { onProgress, onLoaded, onErr
 	});
 
 	// oxlint-disable-next-line unicorn/require-post-message-target-origin -- Workers don't take a target origin
-	worker.postMessage(file);
+	worker.postMessage({ file, live } satisfies LogWorkerRequest);
 
 	return stop;
 }

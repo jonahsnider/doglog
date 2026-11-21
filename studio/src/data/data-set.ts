@@ -17,7 +17,7 @@ export type EntriesSnapshot = { readonly list: readonly Entry[]; readonly map: R
  */
 export class DataSet {
 	readonly entries = new Map<string, Entry>();
-	/** When the live session was disconnected, sorted. Gaps still going on aren't included. */
+	/** When the live session, or the live session a log recorded, was disconnected, sorted. Gaps still going on aren't included. */
 	readonly gaps: TimeRange[] = [];
 	/** When the live connection dropped, `undefined` while connected */
 	disconnectedAt: number | undefined;
@@ -160,7 +160,8 @@ export class DataSet {
 		return [...new Set(logged.map((entry) => entry.samples))];
 	}
 
-	private trimHistory(): void {
+	/** Drop the oldest history if there's too much, ex. after adding a restored live session's samples directly */
+	trimHistory(): void {
 		const samples = this.uniqueSamples();
 		this.sampleCount = samples.reduce((total, item) => total + item.length, 0);
 		if (this.sampleCount > maxLiveSamples) {

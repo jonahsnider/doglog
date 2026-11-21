@@ -4,6 +4,7 @@ mod capture;
 mod cli;
 #[cfg(any(target_os = "macos", windows))]
 mod clip;
+mod live_export;
 #[cfg(desktop)]
 mod mcp_install;
 mod new_window;
@@ -236,6 +237,7 @@ pub fn run() -> ExitCode {
             clip::finish_clip,
             #[cfg(any(target_os = "macos", windows))]
             clip::cancel_clip,
+            live_export::save_live_export,
             new_window::new_window,
             recent_logs::note_recent_log,
             recent_logs::clear_recent_logs,

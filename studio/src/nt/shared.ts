@@ -1,7 +1,12 @@
 import type { NtClient, NtListener } from '@/nt/client';
 import type { NtWorkerEvent, NtWorkerRequest } from '@/nt/nt-worker';
 
-type Client = { connected: boolean; connectionListeners: Set<(connected: boolean) => void> };
+type Client = {
+	connected: boolean;
+	/** This tab's clock (µs) minus the server's, while connected */
+	clockOffset: number | undefined;
+	connectionListeners: Set<(connected: boolean) => void>;
+};
 
 const clients = new Map<number, Client>();
 const listeners = new Map<number, NtListener>();
@@ -15,6 +20,8 @@ function handle(event: NtWorkerEvent): void {
 			const client = clients.get(event.client);
 			if (client) {
 				client.connected = event.connected;
+				// The worker has its own clock, so only the server's time is sent
+				client.clockOffset = event.serverTime === undefined ? undefined : performance.now() * 1000 - event.serverTime;
 				for (const listener of client.connectionListeners) {
 					listener(event.connected);
 				}
@@ -69,13 +76,14 @@ function send(request: NtWorkerRequest): void {
 /** A client of the NT4 server at `host` through a shared worker, which shares one connection with other tabs and windows */
 export function openSharedNt(host: string): NtClient {
 	const id = nextId++;
-	const client: Client = { connected: false, connectionListeners: new Set() };
+	const client: Client = { connected: false, clockOffset: undefined, connectionListeners: new Set() };
 	clients.set(id, client);
 	const subscriptions = new Set<number>();
 	send({ type: 'open', client: id, host });
 
 	return {
 		isConnected: () => client.connected,
+		serverTime: () => (client.clockOffset === undefined ? undefined : performance.now() * 1000 - client.clockOffset),
 		onConnectedChange(listener) {
 			client.connectionListeners.add(listener);
 			queueMicrotask(() => {

@@ -132,7 +132,7 @@ export function getTimeRange(): TimeRange | undefined {
 	return active.timeRange;
 }
 
-/** When the active live session was disconnected, sorted. Empty for logs. */
+/** When the active live session, or the live session a log recorded, was disconnected, sorted */
 export function getGaps(): readonly TimeRange[] {
 	return active.gaps;
 }

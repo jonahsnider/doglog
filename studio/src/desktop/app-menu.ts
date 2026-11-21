@@ -1,5 +1,5 @@
 import type { RegisteredRouter } from '@tanstack/react-router';
-import { Menu } from '@tauri-apps/api/menu';
+import { Menu, MenuItem } from '@tauri-apps/api/menu';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import {
 	closeCurrentDashboard,
@@ -12,7 +12,9 @@ import {
 	undoOrRedo,
 } from '@/commands/commands';
 import { goInHistory } from '@/commands/history';
+import { canExportLive, exportLive } from '@/data/export-live';
 import { chooseLog } from '@/data/open-log';
+import { subscribeSource } from '@/data/source';
 import { createOpenRecentMenu } from '@/desktop/native-menu';
 import { checkForUpdateManually } from '@/updater';
 
@@ -23,6 +25,13 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 	}
 
 	const separator = { item: 'Separator' } as const;
+	const exportItem = await MenuItem.new({
+		text: 'Export Live Data as WPILOG…',
+		accelerator: 'CmdOrCtrl+S',
+		enabled: canExportLive(),
+		action: () => void exportLive(),
+	});
+	subscribeSource(() => void exportItem.setEnabled(canExportLive()));
 	const menu = await Menu.new({
 		items: [
 			{
@@ -64,6 +73,8 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 					},
 					{ text: 'Open Log…', accelerator: 'CmdOrCtrl+O', action: chooseLog },
 					await createOpenRecentMenu(),
+					separator,
+					exportItem,
 					separator,
 					{ text: 'Close Pane', accelerator: 'CmdOrCtrl+W', action: () => closeFocused(router) },
 					{

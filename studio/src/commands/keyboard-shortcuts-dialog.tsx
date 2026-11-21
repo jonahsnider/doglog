@@ -1,6 +1,7 @@
 import { dashboardShortcut, redoAlternate, shortcuts } from '@/commands/commands';
 import { Dialog, DialogHeader, DialogPanel, DialogPopup, DialogTitle } from '@/components/ui/dialog';
 import { Kbd } from '@/components/ui/kbd';
+import { exportLiveShortcut } from '@/data/export-live';
 import { canCapture } from '@/desktop/capture';
 import { useSettings } from '@/settings';
 import { type Hotkey, useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
@@ -90,6 +91,7 @@ const sections: {
 		title: 'Data',
 		shortcuts: [
 			{ label: 'Open log', keys: [shortcuts.openLog] },
+			{ label: 'Export live data as WPILOG', keys: [exportLiveShortcut] },
 			{ label: 'Connect', keys: [shortcuts.connect] },
 			{ label: 'Switch between log and live', keys: [shortcuts.switchSource] },
 		],

@@ -9,6 +9,8 @@ type PatchedPrefixTopic = NetworkTablesPrefixTopic & {
 	onProperties?: (params: { name: string; update: Record<string, unknown> }) => void;
 };
 
+type NtInternals = { _client: { messenger: { socket: { getServerTime(): number } } } };
+
 /** One subscription to the server, shared by every listener with the same prefix and options */
 type Subscription = {
 	prefix: string;
@@ -174,6 +176,17 @@ export function openLocalNt(hostname: string, port = 5810): NtClient {
 
 	const client: NtClient = {
 		isConnected: () => host.connected,
+		// Connection listeners are only called once the client synced its clock with the server's
+		serverTime: () => {
+			if (!host.connected) {
+				return undefined;
+			}
+			// The NT4 client only uses the server's time internally
+			// oxlint-disable-next-line typescript/no-unsafe-type-assertion -- See above
+			const internals = nt as unknown as NtInternals;
+			// oxlint-disable-next-line no-underscore-dangle -- See above
+			return internals._client.messenger.socket.getServerTime();
+		},
 		onConnectedChange(listener) {
 			connectionListeners.add(listener);
 			host.connectionListeners.add(listener);

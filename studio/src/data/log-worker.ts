@@ -1,7 +1,18 @@
 // Parses WPILOG files off the main thread so the UI stays responsive while large logs load
 import type { StructDeclaration } from 'wpilib-struct';
 import { parseLog } from '@/data/parse-log';
+import { recordedGaps, type RestoredRecording, toLiveTimes } from '@/data/read-recording';
 import type { Value } from '@/data/samples';
+
+/** A live session read back from its recording, with what's needed to continue writing it */
+export type RestoredLog = RestoredRecording & {
+	/** Bytes of the file that were read, anything after them is damaged */
+	length: number;
+	openEntryIds: number[];
+};
+
+/** What the worker is sent: a log, and whether it's the recording of a live session to restore */
+export type LogWorkerRequest = { file: File; live: boolean };
 
 /**
  * Messages posted by the worker, in order: `progress` while parsing, `schemas`, one `entry` per entry, then `done` or
@@ -34,13 +45,31 @@ export type LogWorkerMessage =
 			end: number | undefined;
 			/** Bytes at the end of the file that couldn't be read */
 			unreadBytes: number;
+			/** When a recorded live session was disconnected */
+			gaps: { start: number; end: number }[];
+			/** For a live session's recording, the session it recorded. Times are on Studio's clock. */
+			restored: RestoredLog | undefined;
 	  }
 	| { type: 'error'; message: string };
 
-function parse(bytes: Uint8Array): void {
-	const { entries, structSchemas, start, end, unreadBytes } = parseLog(bytes, (progress) => {
+function parse(bytes: Uint8Array, live: boolean): void {
+	const parsed = parseLog(bytes, (progress) => {
 		postMessage({ type: 'progress', progress } satisfies LogWorkerMessage);
 	});
+	const { entries, structSchemas, recording, unreadBytes } = parsed;
+	let { start, end } = parsed;
+	let gaps: { start: number; end: number }[] = [];
+	let restored: RestoredLog | undefined;
+	if (recording !== undefined && end !== undefined && !live) {
+		gaps = recordedGaps(recording, end);
+	} else if (recording !== undefined && end !== undefined) {
+		const session = toLiveTimes(entries.values(), recording, end);
+		if (session) {
+			restored = { ...session, length: bytes.byteLength - unreadBytes, openEntryIds: parsed.openEntryIds };
+			({ start, gaps } = session);
+			end = session.disconnectedAt;
+		}
+	}
 	postMessage({ type: 'schemas', structSchemas } satisfies LogWorkerMessage);
 
 	for (const [name, { type, metadata, samples }] of entries) {
@@ -55,12 +84,12 @@ function parse(bytes: Uint8Array): void {
 		postMessage(message, { transfer: [samples.timestamps.buffer] });
 	}
 
-	postMessage({ type: 'done', start, end, unreadBytes } satisfies LogWorkerMessage);
+	postMessage({ type: 'done', start, end, unreadBytes, gaps, restored } satisfies LogWorkerMessage);
 }
 
-async function parseFile(file: File): Promise<void> {
+async function parseFile({ file, live }: LogWorkerRequest): Promise<void> {
 	try {
-		parse(new Uint8Array(await file.arrayBuffer()));
+		parse(new Uint8Array(await file.arrayBuffer()), live);
 	} catch (error) {
 		postMessage({
 			type: 'error',
@@ -69,6 +98,6 @@ async function parseFile(file: File): Promise<void> {
 	}
 }
 
-addEventListener('message', (event: MessageEvent<File>) => {
+addEventListener('message', (event: MessageEvent<LogWorkerRequest>) => {
 	void parseFile(event.data);
 });

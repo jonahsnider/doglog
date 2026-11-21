@@ -28,6 +28,34 @@ export async function isReachable(host: string): Promise<boolean> {
 	return reachable;
 }
 
+const retryDelay = 1000;
+
+/**
+ * Call `onReachable` with the first of `hosts` with a reachable NT4 server, in order of preference, checking again until
+ * one is. Returns a function that stops checking.
+ */
+export function findReachable(hosts: readonly string[], onReachable: (host: string) => void): () => void {
+	let stopped = false;
+	let retryTimer: ReturnType<typeof setTimeout> | undefined;
+	const attempt = async () => {
+		const reachable = await Promise.all(hosts.map((host) => isReachable(host)));
+		if (stopped) {
+			return;
+		}
+		const host = hosts.find((_, index) => reachable[index] === true);
+		if (host === undefined) {
+			retryTimer = setTimeout(() => void attempt(), retryDelay);
+		} else {
+			onReachable(host);
+		}
+	};
+	void attempt();
+	return () => {
+		stopped = true;
+		clearTimeout(retryTimer);
+	};
+}
+
 /** Whether connecting to an address space won't show Chrome's Local Network Access permission prompt */
 export async function canConnectWithoutPrompt(permission: 'local-network' | 'loopback-network'): Promise<boolean> {
 	// Pages served from this computer, ex. the dev server, are never asked, so the permission stays at "prompt"

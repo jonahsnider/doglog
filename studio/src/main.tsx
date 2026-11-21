@@ -11,6 +11,7 @@ import { setUpAppMenu } from './desktop/app-menu.ts';
 import { trackHistory } from './commands/history.ts';
 import { handleOpenedDashboardLinks } from './dashboards/open-dashboard-link.ts';
 import { handleLaunchedLogFiles, handleLogFileDrops, handleOpenedLogFiles } from './data/open-log.ts';
+import { restoreLive } from './data/restore-live.ts';
 import { reopenDevLog } from './data/source.ts';
 import { syncMediaSession } from './timeline/media-session.ts';
 import { routeTree } from './routeTree.gen.ts';
@@ -50,6 +51,7 @@ if (STUDIO_DESKTOP) {
 		addEventListener('load', () => void registerServiceWorker());
 	}
 }
+void restoreLive();
 if (import.meta.env.DEV) {
 	void reopenDevLog();
 }

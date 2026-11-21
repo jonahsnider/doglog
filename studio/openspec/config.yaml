@@ -50,7 +50,6 @@ context: |
   - Comparing multiple logs at once, and multiple simultaneous data sources.
   - Protobuf-encoded entries.
   - Managed sync service for dashboards; dashboard import/export.
-  - Saving a live session to a log file.
   - Playback looping and trimming the playback range.
   - FRC match time display (ex. "Teleop 1:32").
   - A command palette.
