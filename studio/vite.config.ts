@@ -140,6 +140,9 @@ export default defineConfig({
 			'landmines-style/no-comments': 'off',
 			// Return types document functions and catch mistakes at the definition
 			'landmines-types/no-explicit-return-types': 'off',
+			// Duplicates React Doctor's `react-hooks-js/incompatible-library`, and the two tools' suppression comments can't both
+			// sit directly above the same line
+			'react/incompatible-library': 'off',
 
 			'typescript/no-confusing-void-expression': ['error', { ignoreArrowShorthand: true }],
 			'typescript/switch-exhaustiveness-check': ['error', { considerDefaultExhaustiveForUnions: true }],

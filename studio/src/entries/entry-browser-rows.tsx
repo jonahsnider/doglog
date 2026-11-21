@@ -34,7 +34,7 @@ export function EntryRows({
 	const container = useRef<HTMLDivElement>(null);
 	// Index of the row keyboard focus moved to, see `rangeExtractor`
 	const [highlighted, setHighlighted] = useState(0);
-	// oxlint-disable-next-line react/incompatible-library -- React Compiler skips this component rather than memoizing the mutable virtualizer
+	// react-doctor-disable-next-line react-hooks-js/incompatible-library -- React Compiler skips this component rather than memoizing the mutable virtualizer
 	const virtualizer = useVirtualizer({
 		count: rows.length,
 		getScrollElement: () => container.current,

@@ -93,6 +93,7 @@ export function Console({ bindings }: WidgetProps) {
 	const scrollElement = useRef<HTMLDivElement>(null);
 	// Keyed by message so a message keeps its measured height when filtering changes which messages are shown
 	const getItemKey = useCallback((index: number) => messages.ids[index]!, [messages]);
+	// react-doctor-disable-next-line react-hooks-js/incompatible-library -- React Compiler skips this component rather than memoizing the mutable virtualizer
 	const virtualizer = useVirtualizer({
 		count,
 		getScrollElement: () => scrollElement.current,

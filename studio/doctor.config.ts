@@ -19,8 +19,6 @@ export default defineConfig({
 		ciFailure: {
 			includeTags: ['design'],
 			includeFileContexts: ['test'],
-			// Unsupported syntax and mutable library APIs are reported, but safely skip compilation.
-			excludeRules: ['react-hooks-js/todo', 'react-hooks-js/incompatible-library'],
 		},
 	},
 	// Opt-in rules worth enforcing. Unused code is left to Knip, and import cycles and style rules to Oxlint
