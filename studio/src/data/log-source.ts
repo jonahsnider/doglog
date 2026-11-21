@@ -3,6 +3,16 @@ import { parseMetadata } from '@/data/data-store';
 import type { LogWorkerMessage, LogWorkerRequest, RestoredLog } from '@/data/log-worker';
 import { Samples } from '@/data/samples';
 
+export type LogInput = File | { name: string; contents: ArrayBuffer };
+
+export async function isWpilog(contents: File | ArrayBuffer): Promise<boolean> {
+	const header =
+		contents instanceof File
+			? await contents.slice(0, 6).text()
+			: new TextDecoder().decode(new Uint8Array(contents, 0, Math.min(contents.byteLength, 6)));
+	return header === 'WPILOG';
+}
+
 /** The end of a log's file that couldn't be read */
 export type UnreadEnd = {
 	/** Percent of the file */
@@ -26,14 +36,15 @@ type LoadLogCallbacks = {
 
 /**
  * Parse a WPILOG file in a worker and add its entries to `data`. With `live`, a live session's recording is added on
- * Studio's clock, like the live session showed it. Returns a function that cancels loading.
+ * Studio's clock, like the live session showed it. Transfers ownership of a buffer and returns a function that cancels loading.
  */
 export function loadLog(
-	file: File,
+	contents: File | ArrayBuffer,
 	data: DataSet,
 	{ onProgress, onLoaded, onError }: LoadLogCallbacks,
 	live = false,
 ): () => void {
+	const size = contents instanceof File ? contents.size : contents.byteLength;
 	const worker = new Worker(new URL('./log-worker.ts', import.meta.url), { type: 'module' });
 	let stopped = false;
 
@@ -76,8 +87,8 @@ export function loadLog(
 					if (message.unreadBytes > 64 * 1024) {
 						const after = message.end - message.start;
 						unread = {
-							percent: Math.ceil((message.unreadBytes / file.size) * 100),
-							duration: (message.unreadBytes / (file.size - message.unreadBytes)) * after,
+							percent: Math.ceil((message.unreadBytes / size) * 100),
+							duration: (message.unreadBytes / (size - message.unreadBytes)) * after,
 							after,
 						};
 					}
@@ -99,8 +110,7 @@ export function loadLog(
 		}
 	});
 
-	// oxlint-disable-next-line unicorn/require-post-message-target-origin -- Workers don't take a target origin
-	worker.postMessage({ file, live } satisfies LogWorkerRequest);
+	worker.postMessage({ contents, live } satisfies LogWorkerRequest, contents instanceof ArrayBuffer ? [contents] : []);
 
 	return stop;
 }

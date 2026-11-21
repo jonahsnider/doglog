@@ -105,7 +105,7 @@ export async function openLogPath(path: string, onError?: (message: string) => v
 		onError?.(String(error));
 		return false;
 	}
-	const opened = await openLog(new File([contents], fileName), onError);
+	const opened = await openLog({ name: fileName, contents }, onError);
 	if (opened) {
 		addRecentLog(path);
 	}

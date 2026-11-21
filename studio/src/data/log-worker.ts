@@ -12,7 +12,7 @@ export type RestoredLog = RestoredRecording & {
 };
 
 /** What the worker is sent: a log, and whether it's the recording of a live session to restore */
-export type LogWorkerRequest = { file: File; live: boolean };
+export type LogWorkerRequest = { contents: File | ArrayBuffer; live: boolean };
 
 /**
  * Messages posted by the worker, in order: `progress` while parsing, `schemas`, one `entry` per entry, then `done` or
@@ -86,9 +86,9 @@ function parse(bytes: Uint8Array, live: boolean): void {
 	postMessage({ type: 'done', start, end, unreadBytes, gaps, restored } satisfies LogWorkerMessage);
 }
 
-async function parseFile({ file, live }: LogWorkerRequest): Promise<void> {
+async function parseInput({ contents, live }: LogWorkerRequest): Promise<void> {
 	try {
-		parse(new Uint8Array(await file.arrayBuffer()), live);
+		parse(new Uint8Array(contents instanceof File ? await contents.arrayBuffer() : contents), live);
 	} catch (error) {
 		postMessage({
 			type: 'error',
@@ -98,5 +98,5 @@ async function parseFile({ file, live }: LogWorkerRequest): Promise<void> {
 }
 
 addEventListener('message', (event: MessageEvent<LogWorkerRequest>) => {
-	void parseFile(event.data);
+	void parseInput(event.data);
 });

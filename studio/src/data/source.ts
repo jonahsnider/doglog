@@ -6,7 +6,7 @@ import type { DataSet } from '@/data/data-set';
 import { createDataSet, type Entry, setActiveData } from '@/data/data-store';
 import { loadDevLog, saveDevLog } from '@/data/dev-log';
 import type { LiveStatus } from '@/data/live-source';
-import { loadLog, type UnreadEnd } from '@/data/log-source';
+import { isWpilog, loadLog, type LogInput, type UnreadEnd } from '@/data/log-source';
 import type { RestoredLog } from '@/data/log-worker';
 import { deleteLiveRecording, recordLive } from '@/data/recording';
 import { simulatorHost } from '@/robot-target';
@@ -147,21 +147,20 @@ export function closeSource(): void {
 	}
 }
 
-async function isWpilog(file: File): Promise<boolean> {
-	return (await file.slice(0, 6).text()) === 'WPILOG';
-}
-
 /**
  * Open a WPILOG file and show it, replacing the open log. The live session keeps running in the background.
- * Nothing changes if the file isn't a WPILOG file. Returns whether the file started loading.
+ * Nothing changes if the file isn't a WPILOG file. Returns whether the file started loading and transferred its buffer, if any.
  * `onError` gets why it couldn't be opened, which is also shown in a toast.
  */
-export async function openLog(file: File, onError?: (message: string) => void): Promise<boolean> {
+export async function openLog(input: LogInput, onError?: (message: string) => void): Promise<boolean> {
+	const { name } = input;
+	const contents = input instanceof File ? input : input.contents;
+	const size = contents instanceof File ? contents.size : contents.byteLength;
 	const requestedAt = logGeneration;
-	if (file.size === 0 || !(await isWpilog(file))) {
+	if (size === 0 || !(await isWpilog(contents))) {
 		// Ex. a log the robot lost power right after creating
-		const message = file.size === 0 ? "It's empty." : "It isn't a WPILOG file.";
-		toastManager.add({ type: 'error', title: `Couldn't open ${file.name}`, description: message });
+		const message = size === 0 ? "It's empty." : "It isn't a WPILOG file.";
+		toastManager.add({ type: 'error', title: `Couldn't open ${name}`, description: message });
 		onError?.(message);
 		return false;
 	}
@@ -175,14 +174,16 @@ export async function openLog(file: File, onError?: (message: string) => void): 
 	const data = createDataSet();
 	logData = data;
 	logProgressStore.set(0);
-	updateSources({ log: { type: 'log', fileName: file.name, status: 'loading' } });
+	updateSources({ log: { type: 'log', fileName: name, status: 'loading' } });
 	show('log', true);
-	stopLog = loadLog(file, data, {
+	// Keep a copy for dev reloads before the worker takes ownership of the buffer.
+	const devFile = import.meta.env.DEV && (contents instanceof File ? contents : new File([contents], name));
+	stopLog = loadLog(contents, data, {
 		onProgress: (progress) => logProgressStore.set(progress),
 		onLoaded: (unread) => {
-			updateSources({ log: { type: 'log', fileName: file.name, status: 'loaded', unread } });
-			if (import.meta.env.DEV) {
-				void saveDevLog(file);
+			updateSources({ log: { type: 'log', fileName: name, status: 'loaded', unread } });
+			if (devFile !== false) {
+				void saveDevLog(devFile);
 			}
 			if (unread !== undefined) {
 				toastManager.add({
@@ -194,7 +195,7 @@ export async function openLog(file: File, onError?: (message: string) => void): 
 		},
 		onError: (message) => {
 			closeLog();
-			toastManager.add({ type: 'error', title: `Couldn't open ${file.name}`, description: message });
+			toastManager.add({ type: 'error', title: `Couldn't open ${name}`, description: message });
 			onError?.(message);
 		},
 	});
