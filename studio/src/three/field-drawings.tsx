@@ -31,6 +31,8 @@ import type { WidgetBinding } from '@/widgets/widget-type';
 const pointRadius = 0.05;
 const headingLength = 0.3;
 const lineWidth = 2.5;
+/** Paths and connections are lines on their own, so they're drawn thicker than headings and outlines */
+const wideLineWidth = 5;
 const sphere = new SphereGeometry(pointRadius, 16, 12);
 
 /** Where each point is drawn, with the end of its heading line if it's a pose */
@@ -72,7 +74,7 @@ function Path({ value, color }: { value: Value; color: string }) {
 		() => items(value).map((item) => lifted(new Vector3().setFromMatrixPosition(fieldPoseMatrix(item)))),
 		[value],
 	);
-	return points.length >= 2 ? <Line points={points} color={color} lineWidth={lineWidth} /> : null;
+	return points.length >= 2 ? <Line points={points} color={color} lineWidth={wideLineWidth} /> : null;
 }
 
 const ellipseSegments = 64;
@@ -195,7 +197,7 @@ function FieldDrawing({
 						key={`${source.binding.id}-${index}`}
 						points={[start, end]}
 						color={color}
-						lineWidth={lineWidth}
+						lineWidth={wideLineWidth}
 					/>
 				));
 			})}
