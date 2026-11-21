@@ -9,7 +9,7 @@ import { Spinner } from '@/components/ui/spinner';
 import {
 	connectBindings,
 	disconnectBindings,
-	setBindingColor,
+	setBindingPick,
 	setBindingRole,
 	toggleBindingHidden,
 } from '@/widgets/bindings';
@@ -66,7 +66,9 @@ export function WidgetView({
 			toggleHidden: (bindingId) =>
 				updateLayout(dashboardId, (layout) => toggleBindingHidden(layout, paneId, bindingId)),
 			setColor: (bindingId, color) =>
-				updateLayout(dashboardId, (layout) => setBindingColor(layout, paneId, bindingId, color)),
+				updateLayout(dashboardId, (layout) => setBindingPick(layout, paneId, bindingId, 'color', color)),
+			setRobot: (bindingId, robot) =>
+				updateLayout(dashboardId, (layout) => setBindingPick(layout, paneId, bindingId, 'robot', robot)),
 		}),
 		[dashboardId, paneId, bindings],
 	);

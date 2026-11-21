@@ -32,6 +32,11 @@ context: |
   - Studio's website is static files. A small Worker in `worker/` runs only for dashboard links (`/import/*`) to give
     them Open Graph tags; `cloud/`, a Void app at cloud.doglog.dev, draws their preview images and will host the
     future Cloud backend. Both read the link with Studio's own code from `src/link-previews/`.
+  - The 3D field model is converted from FIRST's official STEP file each season by a checked-in script, which runs
+    OpenCascade's Python bindings, a uv project in `scripts/field3d`, to read the CAD (native, since WebAssembly takes minutes), strips
+    fasteners and other hardware, simplifies, and compresses it to a GLB of about 2 MB that's committed and bundled.
+    The CAD's AprilTags are plain, so the GLB holds WPILib's tag layout instead, and the widget draws their patterns.
+    Redistributing a model derived from FIRST's CAD is an accepted risk: Studio is a free tool for students.
   - Error reporting: Sentry, in production builds only. No usage analytics, and never log contents or personal info
     (ex. hostnames).
 
@@ -52,7 +57,7 @@ context: |
   - Managed sync service for dashboards; dashboard import/export.
   - Playback looping and trimming the playback range.
   - A command palette.
-  - A 3D field view, and field widget robot trails and per-project robot sizes.
+  - Field widget robot trails and per-project robot sizes.
   - A robot editor that writes `doglog.jsonc` from one CAD model.
   - DogLog logging the robot project, so Studio matches a log to its project without the user picking it.
   - More built-in robots, ex. the 2026 KitBot, if FIRST allows redistributing its CAD.

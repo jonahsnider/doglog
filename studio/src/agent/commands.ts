@@ -11,6 +11,7 @@ import {
 	empty,
 	entryName,
 	hidden,
+	robot,
 	layoutSchema,
 	paneId,
 	settingsSchema,
@@ -180,13 +181,14 @@ const commands = {
 		}),
 	},
 	binding_update: {
-		description: `Change a binding's role, color, hidden state, or connections. ${dashboardReturns}`,
+		description: `Change a binding's role, color, hidden state, robot, or connections. ${dashboardReturns}`,
 		input: z.strictObject({
 			dashboardId,
 			bindingId,
 			role: z.string().optional().describe("One of the widget type's roles that fits the entry"),
 			color: color.nullable().optional().describe(`${color.description} \`null\` lets the widget pick again.`),
 			hidden: hidden.optional(),
+			robot: robot.nullable().optional().describe(`${robot.description}. \`null\` uses the first robot's again.`),
 			connectedFrom: z
 				.array(z.string())
 				.optional()

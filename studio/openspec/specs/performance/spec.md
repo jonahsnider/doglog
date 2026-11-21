@@ -43,3 +43,13 @@ Time-series widgets SHALL render at 60 frames per second while scrubbing or stre
 
 - **WHEN** the user scrubs the timeline with several graphs open
 - **THEN** the graphs update at 60 frames per second
+
+### Requirement: Light 3D field
+
+The 3D field model SHALL add at most about 1 MB to the app as downloaded, and a field widget in 3D SHALL render at 60 frames per second while playing back on a typical school laptop with integrated graphics.
+
+#### Scenario: Play back in 3D
+
+- **GIVEN** a field widget in 3D showing a robot, its parts, and a path
+- **WHEN** the user plays back a match
+- **THEN** the field widget updates at 60 frames per second

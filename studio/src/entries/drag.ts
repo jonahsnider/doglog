@@ -73,6 +73,8 @@ export type WidgetBindings = {
 	toggleHidden: (bindingId: string) => void;
 	/** `undefined` lets the widget pick the binding's color again */
 	setColor: (bindingId: string, color: number | undefined) => void;
+	/** `undefined` lets the widget pick the binding's robot again */
+	setRobot: (bindingId: string, robot: string | undefined) => void;
 };
 
 export const WidgetBindingsContext = createContext<WidgetBindings | undefined>(undefined);

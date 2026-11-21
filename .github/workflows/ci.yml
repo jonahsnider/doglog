@@ -304,6 +304,17 @@ jobs:
       - name: Lint, format, and type check
         run: pnpm check
         working-directory: studio
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v10.4.0
+      - name: Check Python formatting
+        run: uv run --locked ruff format --check
+        working-directory: studio/scripts/field3d
+      - name: Lint Python
+        run: uv run --locked ruff check
+        working-directory: studio/scripts/field3d
+      - name: Type check Python
+        run: uv run --locked ty check
+        working-directory: studio/scripts/field3d
       - name: React Doctor
         # `pnpm doctor` is a built-in pnpm command
         run: pnpm react-doctor

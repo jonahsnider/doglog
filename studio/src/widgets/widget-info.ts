@@ -4,7 +4,7 @@ import type { EntryKind } from '../data/entry-kind.ts';
 
 export type BindableKind = Exclude<EntryKind, 'unsupported'>;
 
-/** Every bindable kind but Mechanism2d, which only the robot widget can draw */
+/** Every bindable kind but Mechanism2d, which only the robot and field widgets can draw */
 const valueKinds: readonly BindableKind[] = [
 	'number',
 	'boolean',
@@ -39,6 +39,11 @@ export const widgetRoles = {
 		point: { id: 'point', label: 'Point' },
 		ghost: { id: 'ghost', label: 'Ghost' },
 		robot: { id: 'robot', label: 'Robot' },
+		// Only drawn in 3D, on a robot, like the robot widget's roles
+		parts: { id: 'parts', label: 'Parts' },
+		side: { id: 'side', label: 'XZ plane' },
+		front: { id: 'front', label: 'YZ plane' },
+		top: { id: 'top', label: 'XY plane' },
 	},
 	robot: {
 		side: { id: 'side', label: 'XZ plane' },
@@ -69,6 +74,16 @@ export const controllerPorts = [0, 1, 2, 3, 4, 5] as const;
 /** The options of each widget that has them, see `WidgetType.options` */
 export const widgetOptions = {
 	field: {
+		view: {
+			kind: 'choice',
+			id: 'view',
+			label: 'View',
+			choices: [
+				{ id: '2d', label: '2D' },
+				{ id: '3d', label: '3D' },
+			],
+			default: '2d',
+		},
 		coordinates: {
 			kind: 'choice',
 			id: 'coordinates',
@@ -90,6 +105,16 @@ export const widgetOptions = {
 				{ id: 'red-top', label: 'Red top' },
 			],
 			default: 'blue-left',
+		},
+		stagedGamePieces: {
+			kind: 'choice',
+			id: 'stagedGamePieces',
+			label: 'Staged game pieces',
+			choices: [
+				{ id: 'shown', label: 'Shown' },
+				{ id: 'hidden', label: 'Hidden' },
+			],
+			default: 'shown',
 		},
 	},
 	robot: {
@@ -166,8 +191,8 @@ export const widgetInfos = [
 		id: 'field',
 		name: 'Field',
 		description:
-			'The FRC field seen from above. Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees. The `coordinates` option is `blue-wall` (WPILib 2026, origin at the blue alliance wall) or `center` (WPILib 2027, origin at the center with +X toward blue), inferred from the WPILib version the robot published. The `orientation` option supports landscape (`blue-left`, `red-left`) and portrait (`blue-top`, `red-top`), and defaults to putting +X on the right.',
-		accepts: ['struct', 'struct[]'],
+			"The FRC field, seen from above or in 3D (the `view` option, `2d` or `3d`). Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees. In 3D, a Pose3d[] can place a robot project's `parts` (inferred from names containing `component`), and Mechanism2d entries are drawn on a robot's `side` (XZ, the default), `front` (YZ), or `top` (XY) plane; connect them from a robot or ghost to attach them to it, or they're drawn on the only robot. Each robot and ghost binding can pick its `robot`, as in the robot widget's option, defaulting to the first robot's. The `view` option is inferred as 3D when a parts or mechanism binding is bound. The `coordinates` option is `blue-wall` (WPILib 2026, origin at the blue alliance wall) or `center` (WPILib 2027, origin at the center with +X toward blue), inferred from the WPILib version the robot published. The `orientation` option supports landscape (`blue-left`, `red-left`) and portrait (`blue-top`, `red-top`), and defaults to putting +X on the right, in 3D the camera starts turned the same way. The `stagedGamePieces` option (`shown` or `hidden`) draws the game pieces staged at the start of a match in 3D.",
+		accepts: ['struct', 'struct[]', 'mechanism2d'],
 		roles: Object.values(widgetRoles.field),
 		options: Object.values(widgetOptions.field),
 	},

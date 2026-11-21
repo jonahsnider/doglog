@@ -19,6 +19,11 @@ local studio = new Mapping<String, Step> {
     // Its rules are per-file, so only staged files are scanned to keep commits fast. CI runs the full scan
     check = "pnpm exec react-doctor --no-telemetry --staged"
   }
+  ["studio:python"] {
+    dir = "studio/scripts/field3d"
+    glob = List("**/*.py", "pyproject.toml", "uv.lock")
+    check = "uv run --locked ruff format --check && uv run --locked ruff check && uv run --locked ty check"
+  }
   ["studio:rustfmt"] {
     dir = "studio/src-tauri"
     glob = List("**/*.rs", "rustfmt.toml")

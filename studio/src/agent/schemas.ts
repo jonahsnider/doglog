@@ -32,6 +32,13 @@ export const color = z
 
 export const hidden = z.boolean().describe('Listed in the legend but not drawn');
 
+export const robot = z
+	.string()
+	.min(1)
+	.describe(
+		"A robot or ghost's robot in 3D: `swerve` (a simple swerve robot) or the name of a robot project the user added on their device",
+	);
+
 function optionSchema(option: WidgetOptionInfo) {
 	const ids = option.choices.map((choice) => choice.id);
 	const choice = option.openChoices
@@ -62,6 +69,7 @@ function bindingSchema(info: WidgetInfo) {
 				});
 	return info.id === 'field'
 		? withRole.extend({
+				robot: robot.optional().describe(`${robot.description}. Left out, it's the first robot's.`),
 				connectedFrom: z
 					.array(z.int().nonnegative())
 					.optional()
@@ -78,6 +86,7 @@ type BindingInput = {
 	color?: number | undefined;
 	hidden?: boolean | undefined;
 	connectedFrom?: number[] | undefined;
+	robot?: string | undefined;
 };
 
 export type WidgetInput = {

@@ -4,9 +4,9 @@ import { createPersistedAtom } from '@/lib/persisted-store';
 
 /** The newest product update, shown in the sidebar. Increment `id` when changing it so it's shown again. */
 const update = {
-	id: 4,
-	title: 'Image and video capture',
-	description: 'Studio for desktop can now capture images and videos of your dashboards directly from the app.',
+	id: 5,
+	title: '3D field',
+	description: 'The field widget now supports 3D rendering.',
 };
 
 /** ID of the update the user dismissed. New users start caught up, so they only see updates made after they started. */

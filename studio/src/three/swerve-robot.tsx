@@ -126,36 +126,48 @@ function Part({
 	position,
 	rotation,
 	scale,
+	opacity,
 }: {
 	color: string;
 	geometry: ReactNode;
 	position?: [number, number, number];
 	rotation?: [number, number, number];
 	scale?: [number, number, number];
+	opacity: number;
 }) {
 	return (
 		<mesh position={position} rotation={rotation} scale={scale}>
 			{geometry}
-			<meshStandardMaterial color={color} />
-			<Edges color={edgeColor} threshold={30} />
+			<meshStandardMaterial color={color} {...seeThrough(opacity)} />
+			<Edges color={edgeColor} threshold={30} {...seeThrough(opacity)} />
 		</mesh>
 	);
 }
 
+/** Material props for a see-through robot, which doesn't hide what's behind it */
+function seeThrough(opacity: number) {
+	return opacity < 1 ? { transparent: true, opacity, depthWrite: false } : {};
+}
+
 const box = <boxGeometry />;
 
-/** A simple swerve robot drawn without a model, with bumpers in the theme's primary color */
-export function SwerveRobot() {
-	const bumperColor = useThemeColor('var(--primary)');
+/**
+ * A simple swerve robot drawn without a model, with bumpers in `color` or the theme's primary color. Ghosts are drawn
+ * with an `opacity` below 1.
+ */
+export function SwerveRobot({ color, opacity = 1 }: { color?: string; opacity?: number }) {
+	const primary = useThemeColor('var(--primary)');
+	const bumperColor = color ?? primary;
 	const panSize = (frameHalf - tubeWidth) * 2;
 	return (
 		<group>
 			<mesh geometry={bumper}>
-				<meshStandardMaterial color={bumperColor} />
+				<meshStandardMaterial color={bumperColor} {...seeThrough(opacity)} />
 			</mesh>
 			{rails.map(({ position: [x, y], size: [sx, sy] }) => (
 				<Part
 					key={`${x},${y}`}
+					opacity={opacity}
 					color={colors.frame}
 					geometry={box}
 					position={[x, y, frameBottom + tubeHeight / 2]}
@@ -163,23 +175,26 @@ export function SwerveRobot() {
 				/>
 			))}
 			<Part
+				opacity={opacity}
 				color={colors.bellypan}
 				geometry={box}
 				position={[0, 0, frameBottom + bellypanThickness / 2]}
 				scale={[panSize, panSize, bellypanThickness]}
 			/>
 			<mesh geometry={arrow}>
-				<meshBasicMaterial color={edgeColor} />
+				<meshBasicMaterial color={edgeColor} {...seeThrough(opacity)} />
 			</mesh>
 			{corners.map(([sx, sy]) => (
 				<group key={`${sx},${sy}`} position={[sx * moduleOffset, sy * moduleOffset, 0]}>
 					{/* Cylinders are along Y, which is the wheel's axle when it points forward */}
 					<Part
+						opacity={opacity}
 						color={colors.wheel}
 						geometry={<cylinderGeometry args={[wheelRadius, wheelRadius, wheelWidth, 32]} />}
 						position={[0, 0, wheelRadius]}
 					/>
 					<Part
+						opacity={opacity}
 						color={colors.module}
 						geometry={box}
 						position={[0, 0, frameTop + moduleThickness / 2]}
@@ -192,6 +207,7 @@ export function SwerveRobot() {
 					].map(({ radius, height, x, y }) => (
 						<Part
 							key={radius}
+							opacity={opacity}
 							color={colors.motor}
 							geometry={<cylinderGeometry args={[radius, radius, height, 32]} />}
 							position={[x, y, frameTop + moduleThickness + height / 2]}

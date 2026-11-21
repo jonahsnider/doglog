@@ -29,6 +29,8 @@ export default defineConfig({
 		'react-doctor/fieldset-requires-legend': 'warn',
 		'react-doctor/forwarded-set-state-in-effect': 'warn',
 		'react-doctor/loading-action-preserves-trigger': 'warn',
+		// Checks the same as `no-array-index-key`, but ignores the Oxlint comments that mark the index keys that are fine
+		'react-doctor/no-array-index-as-key': 'off',
 		'react-doctor/no-array-index-key': 'warn',
 		'react-doctor/no-aria-invalid-without-description': 'warn',
 		'react-doctor/no-collapse-request-error-to-empty-state': 'warn',

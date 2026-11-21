@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Define the field widget, which draws robots and other field-relative poses on a top-down view of the current season's FRC field, so teams can see where the robot was and where it was trying to go. The widget works without any settings: each entry's role is inferred, and MAY be changed from the legend.
+Define the field widget, which draws robots and other field-relative poses on the current season's FRC field, in a top-down 2D view or a 3D view, so teams can see where the robot was and where it was trying to go. 3D adds what 2D can't show: robot height and tilt, game pieces and vision poses above the floor, and the robot's CAD and mechanisms on the field. The widget works without any settings: each entry's role is inferred, and MAY be changed from the legend.
 
 ## Requirements
 
 ### Requirement: Field inputs
 
-The field widget SHALL accept `Pose2d`, `Pose3d`, `Translation2d`, `Translation3d`, `Rectangle2d`, and `Ellipse2d` entries and arrays of them, and any number of them MAY be bound.
+The field widget SHALL accept `Pose2d`, `Pose3d`, `Translation2d`, `Translation3d`, `Rectangle2d`, and `Ellipse2d` entries and arrays of them, and `Mechanism2d` entries, and any number of them MAY be bound.
 
 #### Scenario: Several entries
 
@@ -44,9 +44,18 @@ The field widget SHALL offer these roles, the inferred one first: single poses a
 - **WHEN** the user binds `/Auto/ShootingZone`, a `Rectangle2d` entry
 - **THEN** it is drawn as a shape
 
+### Requirement: 3D roles
+
+`Pose3d` arrays SHALL also offer a parts role, inferred instead of points or a path when the last part of their name contains "component" (ignoring case). Mechanisms SHALL offer the robot widget's plane roles, XZ plane first. Parts and mechanisms MUST only be drawn in 3D, and the legend MUST mark them "3D only" in 2D.
+
+#### Scenario: Component poses
+
+- **WHEN** the user binds `/Robot/Components`, a `Pose3d[]` entry
+- **THEN** its role is parts
+
 ### Requirement: Field view
 
-The field widget SHALL draw the 2026 FRC field from a top-down render, fit to the widget. The view MUST fill the space the widget has for it at any shape, rather than keeping the field's shape, so the room around the field can be used when zoomed in. The field MUST show its boundary with the same small margin on every side, cropping the driver station areas. The field SHALL have the same neutral gray background in every theme.
+In 2D, the field widget SHALL draw the 2026 FRC field from a top-down render, fit to the widget. The view MUST fill the space the widget has for it at any shape, rather than keeping the field's shape, so the room around the field can be used when zoomed in. The field MUST show its boundary with the same small margin on every side, cropping the driver station areas. The field SHALL have the same neutral gray background in every theme.
 
 #### Scenario: Tall widget
 
@@ -58,6 +67,28 @@ The field widget SHALL draw the 2026 FRC field from a top-down render, fit to th
 
 - **GIVEN** a field widget with no bound entries, or no source
 - **THEN** the field is drawn instead of an empty state
+
+### Requirement: View
+
+The field widget SHALL have a View option with "2D" and "3D", which it MUST infer: 3D when it has a parts or mechanism binding, and 2D otherwise. A control for the View option SHALL be below the bottom-right corner of the view, shown like the measuring tool buttons, and in 3D a Reset view button MUST take the measuring tools' place. Switching views MUST keep the widget's bindings, roles, connections, colors, and options.
+
+#### Scenario: Robot pose
+
+- **WHEN** the user double-clicks `/Drive/Pose`, a `Pose2d` entry
+- **THEN** a field widget shows it in 2D
+
+#### Scenario: Add a mechanism
+
+- **GIVEN** a field widget showing `/Drive/Pose` in 2D
+- **WHEN** the user binds `/Robot/Arm/Mechanism`, a `Mechanism2d` entry
+- **THEN** the widget switches to 3D
+
+#### Scenario: Back to 2D
+
+- **GIVEN** a field widget in 3D bound to `/Drive/Pose` and `/Robot/Components`, as parts
+- **WHEN** the user picks 2D
+- **THEN** `/Drive/Pose` is drawn on the top-down field
+- **AND** `/Robot/Components` is marked "3D only" in the legend
 
 ### Requirement: WPILib coordinates
 
@@ -115,7 +146,7 @@ The field widget SHALL have an Orientation dropdown with **Blue left**, **Red le
 
 ### Requirement: Zoom and pan
 
-Scrolling or pinching over the field SHALL zoom in and out around the pointer, from the whole field up to 8×. Dragging the zoomed field MUST pan it. The field MUST NOT pan past the edges of the view, or leave empty the space it covers when it isn't zoomed. Double-clicking SHALL reset the view. Drawings MUST zoom with the field, including the width of their lines, so they keep their look at every zoom.
+In 2D, scrolling or pinching over the field SHALL zoom in and out around the pointer, from the whole field up to 8×. Dragging the zoomed field MUST pan it. The field MUST NOT pan past the edges of the view, or leave empty the space it covers when it isn't zoomed. Double-clicking SHALL reset the view. Drawings MUST zoom with the field, including the width of their lines, so they keep their look at every zoom.
 
 #### Scenario: Zoom to a robot
 
@@ -130,7 +161,7 @@ Scrolling or pinching over the field SHALL zoom in and out around the pointer, f
 
 ### Requirement: Minimap
 
-While the user zooms or pans a zoomed-in field, a minimap of the whole field SHALL appear in the top-right corner beside or under the legend, outlining the part that's shown, and MUST fade out shortly after they stop. While the pointer is on the right side of the field, the minimap MUST move to the top-left corner so it doesn't cover what the user is zooming into, and it MUST NOT switch sides while the pointer is near the middle.
+In 2D, while the user zooms or pans a zoomed-in field, a minimap of the whole field SHALL appear in the top-right corner beside or under the legend, outlining the part that's shown, and MUST fade out shortly after they stop. While the pointer is on the right side of the field, the minimap MUST move to the top-left corner so it doesn't cover what the user is zooming into, and it MUST NOT switch sides while the pointer is near the middle.
 
 #### Scenario: Minimap
 
@@ -147,7 +178,7 @@ While the user zooms or pans a zoomed-in field, a minimap of the whole field SHA
 
 ### Requirement: Robots
 
-Each robot SHALL be drawn as a 0.9 m square centered on its pose, rotated by its heading (counterclockwise positive), with bumpers in the entry's color around a dark body and a white arrow pointing toward its front. Ghosts MUST be drawn like robots, but see-through. `Pose3d` robots and ghosts MUST be drawn at their yaw, ignoring height, pitch, and roll.
+In 2D, each robot SHALL be drawn as a 0.9 m square centered on its pose, rotated by its heading (counterclockwise positive), with bumpers in the entry's color around a dark body and a white arrow pointing toward its front. Ghosts MUST be drawn like robots, but see-through. `Pose3d` robots and ghosts MUST be drawn at their yaw, ignoring height, pitch, and roll.
 
 #### Scenario: Turned left
 
@@ -161,7 +192,7 @@ Each robot SHALL be drawn as a 0.9 m square centered on its pose, rotated by its
 
 ### Requirement: Points and paths
 
-Each point SHALL be drawn as a dot, with a short line toward its heading if it's a pose. `Translation3d` entries MUST be drawn at their X and Y position, ignoring height. A path entry MUST be drawn as a line through its points in order. Lines SHALL keep the same on-screen width at any widget size.
+In 2D, each point SHALL be drawn as a dot, with a short line toward its heading if it's a pose. `Translation3d` entries MUST be drawn at their X and Y position, ignoring height. A path entry MUST be drawn as a line through its points in order. Lines SHALL keep the same on-screen width at any widget size.
 
 #### Scenario: Empty array
 
@@ -222,7 +253,7 @@ The field legend SHALL draw each connection to the right of its rows, as straigh
 
 ### Requirement: Draw order
 
-Shapes SHALL be drawn under paths, paths under connections, connections under points, points under ghosts, and ghosts under robots. Within a role, earlier bindings MUST be drawn on top of later ones.
+In 2D, shapes SHALL be drawn under paths, paths under connections, connections under points, points under ghosts, and ghosts under robots. Within a role, earlier bindings MUST be drawn on top of later ones.
 
 #### Scenario: Robot over its path
 
@@ -244,9 +275,9 @@ The field widget SHALL color each entry from the shared chart colors in binding 
 - **WHEN** the user middle-clicks the robot drawn for `/Drive/Pose`
 - **THEN** the widget stops showing `/Drive/Pose`
 
-### Requirement: Legend layout
+### Requirement: Legend layout in 2D
 
-The legend SHALL be above the field, unless the widget is wider than the field's shape, where it MUST be beside the field so the field isn't shrunk, and the field SHALL be centered in the widget unless the legend needs that space. The zoomed field MUST extend under the legend instead of leaving its side of the widget empty, and the legend MUST stay on top of it with an opaque background.
+In 2D, the legend SHALL be above the field, unless the widget is wider than the field's shape, where it MUST be beside the field so the field isn't shrunk, and the field SHALL be centered in the widget unless the legend needs that space. The zoomed field MUST extend under the legend instead of leaving its side of the widget empty, and the legend MUST stay on top of it with an opaque background.
 
 #### Scenario: Wide widget
 
@@ -265,6 +296,15 @@ The legend SHALL be above the field, unless the widget is wider than the field's
 - **THEN** the field fills the widget, including behind the legend
 - **AND** the legend stays readable over it
 
+### Requirement: Legend layout in 3D
+
+In 3D, the scene SHALL fill the widget, and the legend MUST be in its top-left corner over the scene, only as large as its entries, with an opaque background.
+
+#### Scenario: Legend over the scene
+
+- **GIVEN** a field widget in 3D showing `/Drive/Pose`
+- **THEN** the field fills the widget, with the legend over its top-left corner
+
 ### Requirement: Cursor position
 
 The field widget SHALL show the field position under the pointer, in meters, below the bottom-left corner of the view, fading in and out quickly as the pointer enters and leaves the field, followed by the copy shortcut. Pressing ⌘C (Ctrl+C on Windows and Linux) while the pointer is over the field MUST copy that position as `x, y`. The position SHALL briefly fade to a "Copied" label only if the copy succeeds.
@@ -277,7 +317,7 @@ The field widget SHALL show the field position under the pointer, in meters, bel
 
 ### Requirement: Measuring tool buttons
 
-Buttons below the bottom-right corner of the view SHALL show the distance and angle tools with their keys, toggle them when clicked, and show which one is active. On devices that support hover, the buttons SHALL only be visible while the field widget is hovered, focus is within it, or a measuring tool is selected.
+In 2D, buttons below the bottom-right corner of the view SHALL show the distance and angle tools with their keys, toggle them when clicked, and show which one is active. On devices that support hover, the buttons SHALL only be visible while the field widget is hovered, focus is within it, or a measuring tool is selected.
 
 #### Scenario: Leave an idle field
 
@@ -293,7 +333,7 @@ Buttons below the bottom-right corner of the view SHALL show the distance and an
 
 ### Requirement: Measuring
 
-While the pointer is over the field, `M` SHALL start measuring distances and `A` angles. Dragging MUST then draw a line labeled with its length, or its angle counterclockwise from +X with an arc from +X, instead of panning. Drags only a few pixels long MUST be ignored as accidental clicks. The last measurement SHALL stay until the user starts another, presses the same key again, or presses Escape, which also stop measuring.
+In 2D, while the pointer is over the field, `M` SHALL start measuring distances and `A` angles. Dragging MUST then draw a line labeled with its length, or its angle counterclockwise from +X with an arc from +X, instead of panning. Drags only a few pixels long MUST be ignored as accidental clicks. The last measurement SHALL stay until the user starts another, presses the same key again, or presses Escape, which also stop measuring.
 
 #### Scenario: Measure a distance
 
@@ -325,3 +365,192 @@ Holding Shift while dragging a measurement SHALL snap its line to the nearest mu
 
 - **WHEN** the user presses `M` and drags from (2, 2) toward (5, 2.3) while holding Shift
 - **THEN** the line ends level with (2, 2), at about (5.01, 2)
+
+### Requirement: 3D field
+
+In 3D, the field widget SHALL draw a 3D model of the same season's field as 2D, from FIRST's official field CAD, with its field elements, tape lines, and AprilTags. The carpet SHALL be the same neutral gray as the 2D field's background in every theme, and the space around the field MUST use the pane's background. The scene SHALL use the robot widget's lighting: soft, fixed as the camera moves, and low-gloss, keeping the model's colors.
+
+#### Scenario: Field elements
+
+- **GIVEN** a field widget in 3D
+- **THEN** the field's elements, like the hubs and bumps, are drawn at their height
+
+### Requirement: AprilTags in 3D
+
+In 3D, each of the field's AprilTags SHALL show its 36h11 pattern, readable by AprilTag detectors, with its ID printed below it, at its pose in WPILib's AprilTag layout for the field, so the tags a robot's cameras see can be found on the field.
+
+#### Scenario: Zoom to a hub
+
+- **GIVEN** a field widget in 3D
+- **WHEN** the user zooms in on the side of the blue hub facing the scoring table
+- **THEN** tags 27 and 18 are drawn on it, left to right, each with its ID below it
+
+### Requirement: Staged game pieces
+
+The field widget SHALL have a Staged game pieces option, on by default, that draws the game pieces where they're staged at the start of a match. It MUST only apply in 3D.
+
+#### Scenario: Turn off staged game pieces
+
+- **GIVEN** a field widget in 3D
+- **WHEN** the user turns off Staged game pieces in its options
+- **THEN** the field is drawn without the staged game pieces
+
+### Requirement: Loading the 3D field
+
+The 3D field model MUST be included with the app, so 3D works offline, and MUST only load once a field widget is open. A field widget in 2D SHALL load the 3D field in the background shortly after it appears, so switching to 3D shows the model without waiting. Until it has loaded, the widget SHALL draw the 2D field's top-down render on the floor.
+
+#### Scenario: Switch to 3D
+
+- **GIVEN** a field widget has been open in 2D for a few seconds
+- **WHEN** the user switches it to 3D
+- **THEN** the 3D field is drawn right away
+
+#### Scenario: Offline
+
+- **GIVEN** the web app was installed and the device is offline
+- **WHEN** the user switches a field widget to 3D
+- **THEN** the 3D field is drawn
+
+### Requirement: 3D camera
+
+In 3D, the field widget SHALL use a camera with perspective. Dragging MUST orbit, right-dragging MUST pan, and scrolling or pinching MUST zoom, with the robot widget's keyboard controls and faster zoom and pan with Shift. Double-clicking and the Reset view button SHALL reset the camera, animating unless the system reduces motion. Right-clicking without dragging MUST open the context menu. The camera MUST keep its view while the app is open, but MUST NOT be saved with the dashboard.
+
+#### Scenario: Reset the camera
+
+- **GIVEN** the user has orbited the camera
+- **WHEN** the user double-clicks the field
+- **THEN** the camera goes back to its default view
+
+#### Scenario: Split the pane
+
+- **GIVEN** the user has orbited the camera
+- **WHEN** the user splits the field widget's pane
+- **THEN** the camera keeps its view
+
+### Requirement: 3D default view
+
+In 3D, the camera SHALL start a little above the side of the field, angled down, and turned so the field is oriented like the Orientation option's 2D view.
+
+#### Scenario: Blue left
+
+- **GIVEN** a field widget in 3D whose Orientation option is "Blue left"
+- **THEN** the field is seen from the scoring table side, with the blue alliance on the left
+
+#### Scenario: Red top
+
+- **GIVEN** a field widget in 3D whose Orientation option is "Red top"
+- **THEN** the field is seen from behind the blue alliance wall, with the red alliance farthest away
+
+### Requirement: 3D camera limits
+
+In 3D, scrolling SHALL zoom toward the pointer at a speed set only by how far the camera is from the field, faster from far away and steady near it. Panning MUST keep what's under the pointer under it, and orbiting MUST pivot around the center of the view, each treating anything past the field as at its far side. Inputs MUST keep the camera just above the floor and within about twice the default view's distance from the field's center, and MUST NOT otherwise stop it.
+
+#### Scenario: Zoom into a hub
+
+- **GIVEN** the default view
+- **WHEN** the user scrolls to zoom in with the pointer on a hub
+- **THEN** the camera moves toward the hub, quickly at first, then at a steady speed once it's near the field
+- **AND** it keeps moving into the hub while the user keeps scrolling
+
+#### Scenario: Zoom with the pointer over a robot
+
+- **GIVEN** the camera is zoomed in near the field's center
+- **WHEN** the user scrolls with the pointer on a nearby robot, then on the far alliance wall
+- **THEN** the camera zooms at the same speed toward each
+
+#### Scenario: Pan from beyond the field
+
+- **GIVEN** the camera is low beside the field
+- **WHEN** the user right-drags from a point near the horizon, past the field
+- **THEN** the field moves with the pointer as if grabbed at its far side
+
+#### Scenario: Orbit below the floor
+
+- **WHEN** the user drags to orbit the camera down past the floor
+- **THEN** the camera stops just above the floor
+
+### Requirement: Follow a robot
+
+In 3D, the context menu of a robot or ghost, on the field or in the legend, SHALL offer to follow it. While following, the camera MUST move with the robot without turning, keeping the user's view direction, and orbiting and zooming MUST work around the robot. A chip in the widget SHALL show which entry is followed, with a button to stop. Following MUST stop when the user pans, resets the view, or hides or removes the followed entry.
+
+#### Scenario: Follow a turning robot
+
+- **GIVEN** the user follows `/Drive/Pose`
+- **WHEN** the robot drives forward and turns 90°
+- **THEN** the camera moves with the robot
+- **AND** the view direction doesn't change
+
+#### Scenario: Pan to stop following
+
+- **GIVEN** the user follows `/Drive/Pose`
+- **WHEN** the user right-drags the scene
+- **THEN** the camera pans and stops following the robot
+
+### Requirement: 3D robots
+
+In 3D, each robot and ghost SHALL be drawn at its pose, including height, pitch, and roll for `Pose3d` entries, as its binding's Robot. Ghosts MUST be drawn see-through, tinted all over in their entry's color with one opacity. Middle-clicking a robot or ghost MUST stop showing its binding, as in 2D.
+
+#### Scenario: Tipped robot
+
+- **GIVEN** a `Pose3d` robot 0.2 m off the floor, rolled 15°
+- **THEN** the robot is drawn 0.2 m off the floor, tipped 15° onto its side
+
+### Requirement: Robot per binding
+
+In 3D, each robot and ghost binding's legend row SHALL show its Robot after its role, which can be picked there with the same choices, "Add project…", and "Remove project" as the robot widget's Robot option. A binding without one MUST use the first robot binding's Robot, or the simple swerve robot. A Robot whose project isn't added on this device MUST be drawn as the simple swerve robot, with a note on its legend row in 3D. A binding's Robot MUST only change how it's drawn in 3D.
+
+#### Scenario: Setpoint ghost
+
+- **GIVEN** a field widget showing `/Drive/Pose` as the robot "581 2026"
+- **WHEN** the user binds `/Drive/Setpoint`, a `Pose2d` entry
+- **THEN** it's drawn as a see-through "581 2026" robot in its entry's color
+
+#### Scenario: Two robots
+
+- **GIVEN** a field widget showing `/Drive/Pose` as the robot "581 2026"
+- **WHEN** the user picks the simple swerve robot in the legend row of `/Opponent/Pose`
+- **THEN** `/Drive/Pose` is still drawn as "581 2026"
+
+### Requirement: Parts and mechanisms on robots
+
+Parts and mechanism bindings SHALL be drawn on the robots or ghosts they're connected from, as the robot widget draws them: parts move the Robot's parts by index, and mechanisms are drawn on their plane. Connecting from the legend MUST attach them instead of drawing lines. With exactly one robot, unconnected parts and mechanisms MUST be drawn on it, and otherwise not drawn, with a note to connect them. A robot MUST use its first parts binding that isn't hidden.
+
+#### Scenario: One robot
+
+- **GIVEN** a field widget showing `/Drive/Pose` as its only robot
+- **WHEN** the user binds `/Robot/Arm/Mechanism`, a `Mechanism2d` entry
+- **THEN** the mechanism is drawn on the robot, moving with it
+
+#### Scenario: Attach to a ghost
+
+- **GIVEN** a field widget showing `/Drive/Pose` as a robot and `/Drive/Setpoint` as a ghost
+- **WHEN** the user drags the handle of `/Robot/SetpointComponents`, as parts, onto `/Drive/Setpoint`
+- **THEN** the ghost's parts are moved by `/Robot/SetpointComponents`
+
+### Requirement: 3D drawings
+
+In 3D, 2D types SHALL be drawn on the floor, and `Pose3d` and `Translation3d` points and paths at their height. Points MUST be spheres about 10 cm across, with a faint line down to the floor when above it, and pose points MUST show their full 3D heading. Shapes and paths on the floor MUST be drawn just above it, so they don't flicker into it. Lines SHALL keep the same on-screen width, as in 2D. Connections MUST run between the drawn positions, from a robot's center.
+
+#### Scenario: Game piece in the air
+
+- **GIVEN** a `Translation3d` point at (4, 4, 1.5)
+- **THEN** a sphere is drawn 1.5 m above (4, 4), with a line down to the floor
+
+### Requirement: Hidden drawings
+
+In 3D, drawings MUST be hidden behind field elements and robots in front of them, like real objects.
+
+#### Scenario: Path behind a hub
+
+- **GIVEN** a path that passes behind a hub as seen from the camera
+- **THEN** the part of the path behind the hub is hidden
+
+### Requirement: Cursor position in 3D
+
+In 3D, the cursor position SHALL be where the pointer's line of sight meets the floor, ignoring field elements in the way, and MUST only be shown within the field boundary.
+
+#### Scenario: Pointer over a hub
+
+- **GIVEN** a field widget in 3D
+- **WHEN** the pointer is over the top of a hub
+- **THEN** the cursor position shows the point on the floor behind it

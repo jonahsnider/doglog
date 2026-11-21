@@ -3,7 +3,7 @@ import type { Entry } from '@/data/data-store';
 import { createId } from '@/lib/random-id';
 import { findPane, type PaneNode, setPaneWidget, type Widget } from '@/panes/layout';
 import { initialOptions } from '@/widgets/options';
-import { acceptsEntry, type RoleOption, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
+import { acceptsEntry, canConnect, type RoleOption, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
 
 export const bindingSchema = z.object({
 	/** Tells apart bindings of the same entry, which can be bound more than once */
@@ -17,6 +17,8 @@ export const bindingSchema = z.object({
 	color: z.int().nonnegative().optional().catch(undefined),
 	/** IDs of the bindings connected to this one from the legend, see `connectBindings()` */
 	sources: z.array(z.string()).optional(),
+	/** The robot picked to draw the binding as, ex. a field robot's robot project, the widget picks one otherwise */
+	robot: z.string().optional(),
 });
 
 export type Binding = z.infer<typeof bindingSchema>;
@@ -115,21 +117,16 @@ export function setBindingRole(layout: PaneNode, paneId: string, bindingId: stri
 	);
 }
 
-/** Pick a series color for a binding, `undefined` lets the widget pick one again */
-export function setBindingColor(
+/** Pick a binding's series color or robot, `undefined` lets the widget pick one again */
+export function setBindingPick<K extends 'color' | 'robot'>(
 	layout: PaneNode,
 	paneId: string,
 	bindingId: string,
-	color: number | undefined,
+	key: K,
+	value: Binding[K],
 ): PaneNode {
 	return updateBindings(layout, paneId, (bindings) =>
-		bindings.map((binding) => {
-			if (binding.id !== bindingId) {
-				return binding;
-			}
-			const { color: _, ...rest } = binding;
-			return color === undefined ? rest : { ...rest, color };
-		}),
+		bindings.map((binding) => (binding.id === bindingId ? { ...binding, [key]: value } : binding)),
 	);
 }
 
@@ -278,6 +275,7 @@ export function resolveBindings(
 			roleLabel: role && (roles.length > 1 || counts.get(binding.name)! > 1) ? role.label : undefined,
 			hidden: binding.hidden === true,
 			color: binding.color,
+			robot: binding.robot,
 			connects: undefined,
 			sources: [],
 		};
@@ -291,7 +289,7 @@ export function resolveBindings(
 				? []
 				: (bindings[index]!.sources ?? []).flatMap((id) => {
 						const source = byId.get(id);
-						return source?.connects === 'single' ? [source] : [];
+						return source && canConnect(source, binding) ? [source] : [];
 					});
 	}
 	return withRoles;

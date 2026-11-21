@@ -9,7 +9,7 @@ import {
 	connectBindings,
 	createWidget,
 	resolveBindings,
-	setBindingColor,
+	setBindingPick,
 	setBindingRole,
 	toggleBindingHidden,
 	widgetBindings,
@@ -17,7 +17,7 @@ import {
 import { initialOptions, optionValues } from '@/widgets/options';
 import { getWidgetType } from '@/widgets/registry';
 import { widgetInfos } from '@/widgets/widget-info';
-import { acceptsEntry, bindsEntries, type WidgetType } from '@/widgets/widget-type';
+import { acceptsEntry, bindsEntries, canConnect, type WidgetType } from '@/widgets/widget-type';
 import {
 	createPane,
 	findPane,
@@ -93,13 +93,9 @@ export function checkConnections(type: WidgetType, bindings: readonly Binding[],
 			if (!source || source.id === target.id) {
 				throw new AgentError('A binding can only be connected to another binding in the same widget.');
 			}
-			if (
-				source.entry &&
-				target.entry &&
-				(source.connects !== 'single' || target.connects === undefined || source.sources.includes(target))
-			) {
+			if (source.entry && target.entry && (!canConnect(source, target) || source.sources.includes(target))) {
 				throw new AgentError(
-					`\`${target.name}\` can't be connected from \`${source.name}\`. Lines are drawn from a single robot, ghost, or point to another robot, ghost, point, points, or path, one way.`,
+					`\`${target.name}\` can't be connected from \`${source.name}\`. Lines are drawn from a single robot, ghost, or point to another robot, ghost, point, points, or path, one way, and parts and mechanisms are attached to a robot or ghost.`,
 				);
 			}
 		}
@@ -114,14 +110,23 @@ export function applyBindingInput(
 		role,
 		color,
 		hidden,
-	}: { role?: string | undefined; color?: number | null | undefined; hidden?: boolean | undefined },
+		robot,
+	}: {
+		role?: string | undefined;
+		color?: number | null | undefined;
+		hidden?: boolean | undefined;
+		robot?: string | null | undefined;
+	},
 ): PaneNode {
 	let next = layout;
 	if (role !== undefined) {
 		next = setBindingRole(next, paneId, binding.id, role);
 	}
 	if (color !== undefined) {
-		next = setBindingColor(next, paneId, binding.id, color ?? undefined);
+		next = setBindingPick(next, paneId, binding.id, 'color', color ?? undefined);
+	}
+	if (robot !== undefined) {
+		next = setBindingPick(next, paneId, binding.id, 'robot', robot ?? undefined);
 	}
 	if (hidden !== undefined && hidden !== (binding.hidden === true)) {
 		next = toggleBindingHidden(next, paneId, binding.id);
@@ -232,6 +237,7 @@ function describeBindings(type: WidgetType, widget: Widget, entryOf: EntryOf, so
 			role: binding.role?.id ?? role,
 			color: binding.color,
 			hidden: binding.hidden ? true : undefined,
+			robot: binding.robot,
 			connectedFrom: sources,
 			problems: problems.length > 0 ? problems : undefined,
 		};

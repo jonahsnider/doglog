@@ -1,0 +1,25 @@
+# Converts FIRST's field CAD for the field widget's 3D model, run by `scripts/field-model.ts`
+[project]
+name = "field3d"
+version = "0.0.0"
+requires-python = "==3.12.*"
+dependencies = ["cadquery-ocp==8.0.1.1.0"]
+
+[dependency-groups]
+dev = [
+	# Types for ty, which can't read them from OpenCascade's compiled bindings
+	"cadquery-ocp-stubs==8.0.1.1.0",
+	"ruff==0.17.6",
+	"ty==0.0.107",
+]
+
+[tool.uv]
+# Scripts, not a package to install
+package = false
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+# Ruff's default rules, plus sorted imports
+extend-select = ["I"]

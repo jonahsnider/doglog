@@ -2,8 +2,9 @@ import { OrbitControls } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { type AnimationPlaybackControls, animate } from 'motion/react';
 import { type ComponentRef, type Ref, useEffect, useImperativeHandle, useRef } from 'react';
-import { type Camera, MOUSE, Vector3 } from 'three';
+import { type Camera, Vector3 } from 'three';
 import { easing, useMotionTransition } from '@/lib/motion';
+import { isControls, turn, useShiftSpeedup } from '@/three/orbit';
 
 /** Moves the camera of the scene it's in, see `CameraRig` */
 export type Rig = {
@@ -18,6 +19,11 @@ export type Rig = {
 	pan: (right: number, up: number) => void;
 	/** Stop moving to a view, ex. when the user moves the camera themselves */
 	stop: () => void;
+	/**
+	 * Keep the camera on a moving position, without turning it: each call moves it as far as `position` moved since
+	 * the last. `undefined` stops following.
+	 */
+	follow?: (position: Vector3 | undefined) => void;
 };
 
 /** The default view's direction, as radians counterclockwise from the robot's front and above the floor: its front right, a little above it */
@@ -50,16 +56,9 @@ function clampPan(target: Vector3, camera?: Camera) {
  * micrometer, which robot models are offset by to draw flush CAD faces, see `prepare()`.
  */
 export const cameraDistance = 10;
-const maxElevation = Math.PI / 2 - 1e-4;
+export const maxElevation = Math.PI / 2 - 1e-4;
 
 type Orbit = { target: Vector3; azimuth: number; elevation: number; zoom: number };
-
-/** The parts of drei's orbit controls the camera rig moves */
-type Controls = { target: Vector3; update: () => void };
-
-function isControls(value: unknown): value is Controls {
-	return typeof value === 'object' && value !== null && 'target' in value && 'update' in value;
-}
 
 const zoomOut = 4;
 const zoomIn = 16;
@@ -70,60 +69,14 @@ function zoomLimits(size: { width: number; height: number }): { minZoom: number;
 	return { minZoom: fit / zoomOut, maxZoom: fit * zoomIn };
 }
 
-/** The angle from `from` to `to` the short way around */
-function turn(from: number, to: number): number {
-	return ((((to - from + Math.PI) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) - Math.PI;
-}
-
-/** How many times as fast the camera zooms and pans while Shift is held */
-export const shiftSpeedup = 2;
-
 /**
  * Orbit controls the camera rig moves, which can't zoom too far out or in for the canvas's size, and zoom and pan faster
  * while Shift is held
  */
 export function CameraControls() {
 	const size = useThree((state) => state.size);
-	// Where drei's orbit controls listen for input
-	const element = useThree((state) => {
-		const connected: unknown = state.events.connected;
-		return connected instanceof HTMLElement ? connected : state.gl.domElement;
-	});
 	const controls = useRef<ComponentRef<typeof OrbitControls>>(null);
-
-	useEffect(() => {
-		// Runs before the controls handle the event, which they listen for without capturing
-		const onInput = (event: PointerEvent | WheelEvent) => {
-			const orbitControls = controls.current;
-			if (!orbitControls) {
-				return;
-			}
-			const speed = event.shiftKey ? shiftSpeedup : 1;
-			orbitControls.zoomSpeed = speed;
-			orbitControls.panSpeed = speed;
-			// The controls swap orbiting and panning while Shift is held, so the right button orbits to keep panning
-			if (event.type === 'pointerdown') {
-				orbitControls.mouseButtons.RIGHT = event.shiftKey ? MOUSE.ROTATE : MOUSE.PAN;
-			}
-			// Browsers scroll mouse wheels sideways while Shift is held, which the controls don't zoom with
-			if (event instanceof WheelEvent && event.shiftKey && event.deltaY === 0 && event.deltaX !== 0) {
-				event.preventDefault();
-				if (event.deltaX < 0) {
-					orbitControls.dollyIn();
-				} else {
-					orbitControls.dollyOut();
-				}
-			}
-		};
-		element.addEventListener('pointerdown', onInput, { capture: true });
-		element.addEventListener('pointermove', onInput, { capture: true });
-		element.addEventListener('wheel', onInput, { capture: true, passive: false });
-		return () => {
-			element.removeEventListener('pointerdown', onInput, { capture: true });
-			element.removeEventListener('pointermove', onInput, { capture: true });
-			element.removeEventListener('wheel', onInput, { capture: true });
-		};
-	}, [element]);
+	useShiftSpeedup(controls);
 
 	return (
 		<OrbitControls

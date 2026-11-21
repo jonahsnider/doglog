@@ -17,8 +17,8 @@ export type RobotState =
 
 const loader = new GLTFLoader();
 
-/** `instanceof Mesh` types a mesh's material as `any` */
-function isMesh(object: Object3D): object is Mesh {
+/** `instanceof Mesh` types a mesh's geometry and material as `any` */
+export function isMesh(object: Object3D): object is Mesh {
 	return object instanceof Mesh;
 }
 

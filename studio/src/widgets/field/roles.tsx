@@ -23,7 +23,10 @@ const roles = [
 	{ ...field.robot, draw: (value, color) => <Robot pose={readPose(value)} color={color} /> },
 ] as const satisfies readonly (RoleOption & { draw: Draw })[];
 
-type FieldRoleId = (typeof roles)[number]['id'];
+type FieldRoleId = keyof typeof field;
+
+/** Roles only drawn in 3D, on a robot */
+export const roles3d: ReadonlySet<string> = new Set(['parts', 'side', 'front', 'top'] satisfies FieldRoleId[]);
 
 /** Every layer, later ones are drawn on top. Connections are drawn from the bindings connected to another, not by a role. */
 const drawOrder = ['shape', 'path', 'connections', 'points', 'point', 'ghost', 'robot'] as const satisfies readonly (
@@ -34,6 +37,8 @@ const drawOrder = ['shape', 'path', 'connections', 'points', 'point', 'ghost', '
 const pose: readonly FieldRoleId[] = ['robot', 'ghost', 'point'];
 const translation: readonly FieldRoleId[] = ['point'];
 const poseArray: readonly FieldRoleId[] = ['points', 'path'];
+const pose3dArray: readonly FieldRoleId[] = ['points', 'path', 'parts'];
+const mechanism: readonly FieldRoleId[] = ['side', 'front', 'top'];
 const translationArray: readonly FieldRoleId[] = ['path', 'points'];
 const shape: readonly FieldRoleId[] = ['shape'];
 
@@ -42,7 +47,7 @@ const typeRoles: Partial<Record<string, readonly FieldRoleId[]>> = {
 	'struct:Pose2d': pose,
 	'struct:Pose3d': pose,
 	'struct:Pose2d[]': poseArray,
-	'struct:Pose3d[]': poseArray,
+	'struct:Pose3d[]': pose3dArray,
 	'struct:Translation2d': translation,
 	'struct:Translation3d': translation,
 	'struct:Translation2d[]': translationArray,
@@ -55,12 +60,16 @@ const typeRoles: Partial<Record<string, readonly FieldRoleId[]>> = {
 
 /** Roles an entry can take on the field, the inferred one first. None if the field doesn't accept it. */
 export function fieldRoles(entry: Entry): RoleOption[] {
-	let ids = typeRoles[entry.type] ?? [];
-	// Arrays named like PathPlanner's `activePath` or Choreo's `Trajectory` are paths, not separate points
-	if (ids.includes('path') && /path|trajectory/iu.test(entry.name.slice(entry.name.lastIndexOf('/') + 1))) {
-		ids = ['path', ...ids.filter((id) => id !== 'path')];
+	let ids = entry.kind === 'mechanism2d' ? mechanism : (typeRoles[entry.type] ?? []);
+	const lastName = entry.name.slice(entry.name.lastIndexOf('/') + 1);
+	// Arrays named like AdvantageKit's `Components` place a robot's parts, and like PathPlanner's `activePath` or
+	// Choreo's `Trajectory` are paths, not separate points
+	const first = ids.includes('parts') && /component/iu.test(lastName) ? 'parts' : undefined;
+	const inferred = first ?? (ids.includes('path') && /path|trajectory/iu.test(lastName) ? 'path' : undefined);
+	if (inferred !== undefined) {
+		ids = [inferred, ...ids.filter((id) => id !== inferred)];
 	}
-	return ids.flatMap((id) => roles.filter((role) => role.id === id).map(({ label }) => ({ id, label })));
+	return ids.map((id) => ({ id, label: field[id].label }));
 }
 
 /** The first pose is drawn as a robot, and later ones as ghosts, ex. a setpoint added after the robot's pose */
@@ -75,16 +84,24 @@ export function inferFieldRole(
 	return options.find((option) => option.id === (anotherPose ? 'ghost' : 'robot'));
 }
 
-const singleRoles: ReadonlySet<string> = new Set(['robot', 'ghost', 'point']);
-const manyRoles: ReadonlySet<string> = new Set(['points', 'path']);
+const connects: Partial<Record<string, Connects>> = {
+	robot: 'carrier',
+	ghost: 'carrier',
+	point: 'single',
+	points: 'many',
+	path: 'many',
+	parts: 'attached',
+	side: 'attached',
+	front: 'attached',
+	top: 'attached',
+};
 
-/** Single poses and translations can be connected to anything but shapes, which can't be connected */
+/**
+ * Single poses and translations can be connected to anything but shapes, which can't be connected, and parts and
+ * mechanisms are attached to robots and ghosts
+ */
 export function fieldConnects(binding: WidgetBinding): Connects | undefined {
-	const role = binding.role?.id;
-	if (role !== undefined && singleRoles.has(role)) {
-		return 'single';
-	}
-	return role !== undefined && manyRoles.has(role) ? 'many' : undefined;
+	return binding.role && connects[binding.role.id];
 }
 
 /**

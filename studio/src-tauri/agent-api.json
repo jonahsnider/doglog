@@ -187,6 +187,21 @@
 													"options": {
 														"type": "object",
 														"properties": {
+															"view": {
+																"description": "View, `2d` by default. `null` goes back to inferring it or the default.",
+																"anyOf": [
+																	{
+																		"type": "string",
+																		"enum": [
+																			"2d",
+																			"3d"
+																		]
+																	},
+																	{
+																		"type": "null"
+																	}
+																]
+															},
 															"coordinates": {
 																"description": "WPILib coordinates, `blue-wall` by default. `null` goes back to inferring it or the default.",
 																"anyOf": [
@@ -218,12 +233,27 @@
 																		"type": "null"
 																	}
 																]
+															},
+															"stagedGamePieces": {
+																"description": "Staged game pieces, `shown` by default. `null` goes back to inferring it or the default.",
+																"anyOf": [
+																	{
+																		"type": "string",
+																		"enum": [
+																			"shown",
+																			"hidden"
+																		]
+																	},
+																	{
+																		"type": "null"
+																	}
+																]
 															}
 														},
 														"additionalProperties": false
 													},
 													"bindings": {
-														"description": "Entries to show, in order. Accepted kinds: struct, struct[]. Left out, the widget starts like one the user adds.",
+														"description": "Entries to show, in order. Accepted kinds: struct, struct[], mechanism2d. Left out, the widget starts like one the user adds.",
 														"type": "array",
 														"items": {
 															"type": "object",
@@ -252,8 +282,17 @@
 																		"points",
 																		"point",
 																		"ghost",
-																		"robot"
+																		"robot",
+																		"parts",
+																		"side",
+																		"front",
+																		"top"
 																	]
+																},
+																"robot": {
+																	"description": "A robot or ghost's robot in 3D: `swerve` (a simple swerve robot) or the name of a robot project the user added on their device. Left out, it's the first robot's.",
+																	"type": "string",
+																	"minLength": 1
 																},
 																"connectedFrom": {
 																	"description": "Indexes of this widget's bindings (from 0) to draw lines from, ex. from the robot to seen AprilTags. Each must be a single robot, ghost, or point.",
@@ -276,7 +315,7 @@
 													"type"
 												],
 												"additionalProperties": false,
-												"description": "Field: The FRC field seen from above. Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees. The `coordinates` option is `blue-wall` (WPILib 2026, origin at the blue alliance wall) or `center` (WPILib 2027, origin at the center with +X toward blue), inferred from the WPILib version the robot published. The `orientation` option supports landscape (`blue-left`, `red-left`) and portrait (`blue-top`, `red-top`), and defaults to putting +X on the right."
+												"description": "Field: The FRC field, seen from above or in 3D (the `view` option, `2d` or `3d`). Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees. In 3D, a Pose3d[] can place a robot project's `parts` (inferred from names containing `component`), and Mechanism2d entries are drawn on a robot's `side` (XZ, the default), `front` (YZ), or `top` (XY) plane; connect them from a robot or ghost to attach them to it, or they're drawn on the only robot. Each robot and ghost binding can pick its `robot`, as in the robot widget's option, defaulting to the first robot's. The `view` option is inferred as 3D when a parts or mechanism binding is bound. The `coordinates` option is `blue-wall` (WPILib 2026, origin at the blue alliance wall) or `center` (WPILib 2027, origin at the center with +X toward blue), inferred from the WPILib version the robot published. The `orientation` option supports landscape (`blue-left`, `red-left`) and portrait (`blue-top`, `red-top`), and defaults to putting +X on the right, in 3D the camera starts turned the same way. The `stagedGamePieces` option (`shown` or `hidden`) draws the game pieces staged at the start of a match in 3D."
 											},
 											{
 												"type": "object",
@@ -806,6 +845,21 @@
 									"options": {
 										"type": "object",
 										"properties": {
+											"view": {
+												"description": "View, `2d` by default. `null` goes back to inferring it or the default.",
+												"anyOf": [
+													{
+														"type": "string",
+														"enum": [
+															"2d",
+															"3d"
+														]
+													},
+													{
+														"type": "null"
+													}
+												]
+											},
 											"coordinates": {
 												"description": "WPILib coordinates, `blue-wall` by default. `null` goes back to inferring it or the default.",
 												"anyOf": [
@@ -837,12 +891,27 @@
 														"type": "null"
 													}
 												]
+											},
+											"stagedGamePieces": {
+												"description": "Staged game pieces, `shown` by default. `null` goes back to inferring it or the default.",
+												"anyOf": [
+													{
+														"type": "string",
+														"enum": [
+															"shown",
+															"hidden"
+														]
+													},
+													{
+														"type": "null"
+													}
+												]
 											}
 										},
 										"additionalProperties": false
 									},
 									"bindings": {
-										"description": "Entries to show, in order. Accepted kinds: struct, struct[]. Left out, the widget starts like one the user adds.",
+										"description": "Entries to show, in order. Accepted kinds: struct, struct[], mechanism2d. Left out, the widget starts like one the user adds.",
 										"type": "array",
 										"items": {
 											"type": "object",
@@ -871,8 +940,17 @@
 														"points",
 														"point",
 														"ghost",
-														"robot"
+														"robot",
+														"parts",
+														"side",
+														"front",
+														"top"
 													]
+												},
+												"robot": {
+													"description": "A robot or ghost's robot in 3D: `swerve` (a simple swerve robot) or the name of a robot project the user added on their device. Left out, it's the first robot's.",
+													"type": "string",
+													"minLength": 1
 												},
 												"connectedFrom": {
 													"description": "Indexes of this widget's bindings (from 0) to draw lines from, ex. from the robot to seen AprilTags. Each must be a single robot, ghost, or point.",
@@ -895,7 +973,7 @@
 									"type"
 								],
 								"additionalProperties": false,
-								"description": "Field: The FRC field seen from above. Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees. The `coordinates` option is `blue-wall` (WPILib 2026, origin at the blue alliance wall) or `center` (WPILib 2027, origin at the center with +X toward blue), inferred from the WPILib version the robot published. The `orientation` option supports landscape (`blue-left`, `red-left`) and portrait (`blue-top`, `red-top`), and defaults to putting +X on the right."
+								"description": "Field: The FRC field, seen from above or in 3D (the `view` option, `2d` or `3d`). Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees. In 3D, a Pose3d[] can place a robot project's `parts` (inferred from names containing `component`), and Mechanism2d entries are drawn on a robot's `side` (XZ, the default), `front` (YZ), or `top` (XY) plane; connect them from a robot or ghost to attach them to it, or they're drawn on the only robot. Each robot and ghost binding can pick its `robot`, as in the robot widget's option, defaulting to the first robot's. The `view` option is inferred as 3D when a parts or mechanism binding is bound. The `coordinates` option is `blue-wall` (WPILib 2026, origin at the blue alliance wall) or `center` (WPILib 2027, origin at the center with +X toward blue), inferred from the WPILib version the robot published. The `orientation` option supports landscape (`blue-left`, `red-left`) and portrait (`blue-top`, `red-top`), and defaults to putting +X on the right, in 3D the camera starts turned the same way. The `stagedGamePieces` option (`shown` or `hidden`) draws the game pieces staged at the start of a match in 3D."
 							},
 							{
 								"type": "object",
@@ -1244,6 +1322,21 @@
 											"options": {
 												"type": "object",
 												"properties": {
+													"view": {
+														"description": "View, `2d` by default. `null` goes back to inferring it or the default.",
+														"anyOf": [
+															{
+																"type": "string",
+																"enum": [
+																	"2d",
+																	"3d"
+																]
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
 													"coordinates": {
 														"description": "WPILib coordinates, `blue-wall` by default. `null` goes back to inferring it or the default.",
 														"anyOf": [
@@ -1275,6 +1368,21 @@
 																"type": "null"
 															}
 														]
+													},
+													"stagedGamePieces": {
+														"description": "Staged game pieces, `shown` by default. `null` goes back to inferring it or the default.",
+														"anyOf": [
+															{
+																"type": "string",
+																"enum": [
+																	"shown",
+																	"hidden"
+																]
+															},
+															{
+																"type": "null"
+															}
+														]
 													}
 												},
 												"additionalProperties": false
@@ -1284,7 +1392,7 @@
 											"type"
 										],
 										"additionalProperties": false,
-										"description": "Field: The FRC field seen from above. Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees. The `coordinates` option is `blue-wall` (WPILib 2026, origin at the blue alliance wall) or `center` (WPILib 2027, origin at the center with +X toward blue), inferred from the WPILib version the robot published. The `orientation` option supports landscape (`blue-left`, `red-left`) and portrait (`blue-top`, `red-top`), and defaults to putting +X on the right."
+										"description": "Field: The FRC field, seen from above or in 3D (the `view` option, `2d` or `3d`). Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees. In 3D, a Pose3d[] can place a robot project's `parts` (inferred from names containing `component`), and Mechanism2d entries are drawn on a robot's `side` (XZ, the default), `front` (YZ), or `top` (XY) plane; connect them from a robot or ghost to attach them to it, or they're drawn on the only robot. Each robot and ghost binding can pick its `robot`, as in the robot widget's option, defaulting to the first robot's. The `view` option is inferred as 3D when a parts or mechanism binding is bound. The `coordinates` option is `blue-wall` (WPILib 2026, origin at the blue alliance wall) or `center` (WPILib 2027, origin at the center with +X toward blue), inferred from the WPILib version the robot published. The `orientation` option supports landscape (`blue-left`, `red-left`) and portrait (`blue-top`, `red-top`), and defaults to putting +X on the right, in 3D the camera starts turned the same way. The `stagedGamePieces` option (`shown` or `hidden`) draws the game pieces staged at the start of a match in 3D."
 									},
 									{
 										"type": "object",
@@ -1593,7 +1701,7 @@
 		},
 		{
 			"name": "binding_update",
-			"description": "Change a binding's role, color, hidden state, or connections. Returns the dashboard like `dashboard_get`.",
+			"description": "Change a binding's role, color, hidden state, robot, or connections. Returns the dashboard like `dashboard_get`.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
@@ -1627,6 +1735,19 @@
 					"hidden": {
 						"type": "boolean",
 						"description": "Listed in the legend but not drawn"
+					},
+					"robot": {
+						"description": "A robot or ghost's robot in 3D: `swerve` (a simple swerve robot) or the name of a robot project the user added on their device. `null` uses the first robot's again.",
+						"anyOf": [
+							{
+								"type": "string",
+								"minLength": 1,
+								"description": "A robot or ghost's robot in 3D: `swerve` (a simple swerve robot) or the name of a robot project the user added on their device"
+							},
+							{
+								"type": "null"
+							}
+						]
 					},
 					"connectedFrom": {
 						"description": "IDs of the bindings in the same field widget to draw lines from, replacing the current ones. Each must be a single robot, ghost, or point.",

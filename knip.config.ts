@@ -10,6 +10,8 @@ const config: KnipConfig = {
 		'wrangler',
 		// Built into macOS
 		'ditto',
+		// Runs the field model's Python project in CI, see `studio/scripts/field3d`
+		'uv',
 	],
 	workspaces: {
 		cloud: {
@@ -27,6 +29,8 @@ const config: KnipConfig = {
 				// coss ui components are copied in from a registry, and are available even if unused
 				'src/components/ui/**/*.tsx',
 				'src/hooks/use-media-query.ts',
+				// Run by hand once a season
+				'scripts/field-model.ts',
 			],
 		},
 	},

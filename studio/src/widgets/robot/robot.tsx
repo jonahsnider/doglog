@@ -3,13 +3,10 @@ import DatabaseIcon from 'lucide-react/icons/database';
 import HouseIcon from 'lucide-react/icons/house';
 import ListPlusIcon from 'lucide-react/icons/list-plus';
 import SplineIcon from 'lucide-react/icons/spline';
-import { useMemo, useRef } from 'react';
+import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
-import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control';
-import { type Entry, useDataVersion, useEntries } from '@/data/data-store';
+import type { Entry } from '@/data/data-store';
 import { useSource } from '@/data/source';
-import { type Mechanism, mechanismLayout, readMechanism } from '@/data/mechanism';
 import { Mechanism3d } from '@/three/mechanism-3d';
 import { Scene3d, type Scene3dHandle } from '@/three/scene';
 import { useCursorTime } from '@/timeline/timeline';
@@ -17,32 +14,14 @@ import { Legend, type LegendItem } from '@/widgets/legend/legend';
 import { MechanismCanvas } from '@/widgets/robot/mechanism-2d';
 import { usePickedRobot } from '@/widgets/robot/picked-robot';
 import { mechanismPlane } from '@/widgets/robot/roles';
+import { useMechanisms } from '@/widgets/use-mechanisms';
 import { defaultRobot } from '@/widgets/robot/robot-option';
+import { type View, ViewToggle } from '@/widgets/view-toggle';
 import { WidgetEmpty } from '@/widgets/widget-empty';
 import type { WidgetBinding, WidgetProps } from '@/widgets/widget-type';
 
-type View = '2d' | '3d';
-
 const mechanismIcon = <SplineIcon className="size-3.5" />;
 const partsIcon = <BoxesIcon className="size-3.5" />;
-
-/** The mechanisms of the bound entries at the cursor, `undefined` for ones without a value */
-function useMechanisms(bindings: readonly WidgetBinding[]): ReadonlyMap<string, Mechanism | undefined> {
-	const time = useCursorTime();
-	// Values at the cursor change as samples arrive
-	useDataVersion();
-	const entries = useEntries();
-	const names = [
-		...new Set(bindings.flatMap((binding) => (binding.entry?.kind === 'mechanism2d' ? [binding.name] : []))),
-	].join('\n');
-	const layouts = useMemo(
-		() => (names === '' ? [] : names.split('\n').map((name) => [name, mechanismLayout(name, entries)] as const)),
-		[names, entries],
-	);
-	return new Map(
-		layouts.map(([name, layout]) => [name, time === undefined ? undefined : readMechanism(layout, time)] as const),
-	);
-}
 
 function isMechanism(binding: WidgetBinding): boolean {
 	return binding.entry?.kind === 'mechanism2d';
@@ -50,26 +29,6 @@ function isMechanism(binding: WidgetBinding): boolean {
 
 function hasValue(entry: Entry | undefined, time: number | undefined): boolean {
 	return entry !== undefined && time !== undefined && entry.samples.valueAt(time) !== undefined;
-}
-
-function ViewToggle({ view, onChange }: { view: View; onChange: (view: View) => void }) {
-	return (
-		<SegmentedControl
-			size="sm"
-			className="capture:invisible"
-			render={
-				<RadioGroup
-					aria-label="View"
-					className="flex-row gap-0.5"
-					value={view}
-					onValueChange={(value: string) => onChange(value === '2d' ? '2d' : '3d')}
-				/>
-			}
-		>
-			<SegmentedControlItem render={<RadioPrimitive.Root value="2d" />}>2D</SegmentedControlItem>
-			<SegmentedControlItem render={<RadioPrimitive.Root value="3d" />}>3D</SegmentedControlItem>
-		</SegmentedControl>
-	);
 }
 
 function Empty2d({ mechanism }: { mechanism: WidgetBinding | undefined }) {

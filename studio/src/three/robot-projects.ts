@@ -58,11 +58,10 @@ async function saveProjects(projects: readonly RobotProject[]): Promise<void> {
 	await loadProjects();
 }
 
-const noProjects: readonly RobotProject[] = [];
-
-export function useRobotProjects(): readonly RobotProject[] {
+/** The projects the user added, `undefined` while they load */
+export function useRobotProjects(): readonly RobotProject[] | undefined {
 	useEffect(startLoading, []);
-	return useSelector(projectsStore) ?? noProjects;
+	return useSelector(projectsStore);
 }
 
 /** A project by its robot's name, `null` if there's none, or `undefined` while projects load */

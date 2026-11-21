@@ -9,9 +9,10 @@ function entry(name: string, type: string): Entry {
 
 test.each([
 	['/Drive/Pose', 'struct:Pose2d', ['robot', 'ghost', 'point']],
-	['/Vision/TagPoses', 'struct:Pose3d[]', ['points', 'path']],
+	['/Vision/TagPoses', 'struct:Pose3d[]', ['points', 'path', 'parts']],
+	['/RealOutputs/FinalComponentPoses', 'struct:Pose3d[]', ['parts', 'points', 'path']],
 	['/PathPlanner/activePath', 'struct:Pose2d[]', ['path', 'points']],
-	['/Auto/Trajectory', 'struct:Pose3d[]', ['path', 'points']],
+	['/Auto/Trajectory', 'struct:Pose3d[]', ['path', 'points', 'parts']],
 	// Only the last part of the name counts
 	['/Trajectory/Targets', 'struct:Pose2d[]', ['points', 'path']],
 	['/Auto/Waypoints', 'struct:Translation2d[]', ['path', 'points']],

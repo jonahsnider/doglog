@@ -162,7 +162,7 @@ Agents SHALL be able to split a pane to add one, move and delete panes, and set 
 
 ### Requirement: Edit bindings
 
-Agents SHALL be able to bind entries to a widget by entry name, and set each binding's role, color, hidden state, and connections. Entries MUST be bound even when they're missing from the active source, as the user can. A role left unset MUST be inferred as it is for the user.
+Agents SHALL be able to bind entries to a widget by entry name, and set each binding's role, color, hidden state, connections, and a field robot's Robot. Entries MUST be bound even when they're missing from the active source, as the user can. A role left unset MUST be inferred as it is for the user.
 
 #### Scenario: Bind a pose with an inferred role
 

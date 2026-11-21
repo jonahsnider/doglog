@@ -7,6 +7,7 @@ import { useBindingDrag, WidgetBindingsContext } from '@/entries/drag';
 import { cn } from '@/lib/utils';
 import { type Connection, type ConnectionDrag, connectionBetween, rowHeight } from '@/widgets/legend/connections';
 import { ConnectionGutter } from '@/widgets/legend/connection-gutter';
+import { RobotPicker } from '@/widgets/legend/robot-picker';
 import { RoleLabel } from '@/widgets/legend/role-picker';
 import { LegendSwatch } from '@/widgets/legend/swatch';
 import type { WidgetBinding } from '@/widgets/widget-type';
@@ -18,6 +19,8 @@ export type LegendItem = {
 	icon?: ReactNode;
 	/** Shown dimmed after the name */
 	note?: string;
+	/** The robot a robot or ghost is drawn as, picked after its role, ex. on the field in 3D */
+	robot?: string;
 	/** Has no value at the cursor */
 	dimmed: boolean;
 	error?: string;
@@ -218,7 +221,8 @@ function LegendEntry({
 			{roles && binding.roleLabel !== undefined && (
 				<RoleLabel binding={binding} onPick={(role) => widget?.setRole(binding.id, role)} />
 			)}
-			{item.note !== undefined && <span className="text-muted-foreground">{item.note}</span>}
+			{item.robot !== undefined && <RobotPicker binding={binding} robot={item.robot} />}
+			{item.note !== undefined && <span className="whitespace-nowrap text-muted-foreground">{item.note}</span>}
 			{item.error !== undefined && <span className="text-destructive-foreground">{item.error}</span>}
 			{handle}
 		</li>
@@ -235,7 +239,13 @@ function LegendName({ name, distinctFrom }: { name: string; distinctFrom: readon
 
 	useResizeObserver({
 		ref: full,
-		onResize: () => setCollapsed(full.current.scrollWidth > full.current.clientWidth),
+		onResize: () => {
+			// Can run after it's unmounted, ex. when the field widget switches to 3D
+			const element: HTMLSpanElement | null = full.current;
+			if (element !== null) {
+				setCollapsed(element.scrollWidth > element.clientWidth);
+			}
+		},
 	});
 
 	return (

@@ -283,6 +283,11 @@ export default defineConfig({
 				files: ['src/three/**'],
 				rules: { 'react/no-unknown-property': 'off' },
 			},
+			{
+				// Scripts run in a terminal, where logging is how they report progress, and read top to bottom as one pipeline
+				files: ['scripts/**'],
+				rules: { 'no-console': 'off', 'eslint/max-lines': 'off' },
+			},
 		],
 		ignorePatterns,
 		options: {

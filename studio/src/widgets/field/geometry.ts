@@ -4,8 +4,8 @@ import type { Bounds } from '@/widgets/field/zoom';
 
 // 2026 field, in meters. Drawings use WPILib's 2026 convention: the origin is the blue alliance wall's right corner, as
 // seen from the blue driver stations, +X points toward red, and +Y points left from the blue driver stations.
-const fieldLength = 16.541;
-const fieldWidth = 8.069;
+export const fieldLength = 16.541;
+export const fieldWidth = 8.069;
 /**
  * Image size and the field boundary's edges in image pixels, measured where the image turns opaque at the inside faces
  * of the alliance walls and guardrails. The image has red on the left.

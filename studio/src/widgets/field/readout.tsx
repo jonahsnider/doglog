@@ -11,6 +11,10 @@ const tools: readonly { tool: MeasureTool; key: 'M' | 'A'; label: string; hint: 
 	{ tool: 'angle', key: 'A', label: 'Angle', hint: 'Drag to measure the angle from +X, hold Shift to snap to 45°' },
 ];
 
+/** Hides controls under the field while it isn't hovered or focused, on devices that can hover */
+export const hiddenWhileIdle =
+	'transition-opacity duration-150 motion-reduce:transition-none [@media(hover:hover)]:group-[:not(:hover,:focus-within)]/field:opacity-0 [@media(hover:hover)]:group-[:not(:hover,:focus-within)]/field:duration-100';
+
 export function CursorPosition({
 	pointer,
 	hovered,
@@ -68,8 +72,7 @@ export function ToolButtons({
 		<div
 			className={cn(
 				'flex gap-1 transition-opacity duration-150 motion-reduce:transition-none',
-				tool === undefined &&
-					'[@media(hover:hover)]:group-[:not(:hover,:focus-within)]/field:opacity-0 [@media(hover:hover)]:group-[:not(:hover,:focus-within)]/field:duration-100',
+				tool === undefined && hiddenWhileIdle,
 			)}
 		>
 			{tools.map((option) => (

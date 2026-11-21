@@ -4,8 +4,12 @@ import { type KeyboardEvent, type ReactNode, type Ref, useEffect, useImperativeH
 import { PMREMGenerator, Vector3 } from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { cn } from '@/lib/utils';
-import { CameraControls, CameraRig, cameraDistance, type Rig, shiftSpeedup } from '@/three/camera';
+import { CameraControls, CameraRig, cameraDistance, type Rig } from '@/three/camera';
+import { shiftSpeedup } from '@/three/orbit';
+import { useRightClickMenu } from '@/three/right-click-menu';
 import { useThemeColor } from '@/three/theme';
+import { FieldCameraControls, FieldCameraRig } from '@/three/field-camera';
+import { type FieldFraming, fieldOfView } from '@/three/field-framing';
 import { ViewCube } from '@/three/view-cube';
 
 const gridSize = 2.4;
@@ -102,11 +106,37 @@ if (typeof window !== 'undefined') {
  * focused, hold the arrow keys to orbit, W and S to zoom, and A, D, Q, and E to pan. Hold Shift to zoom and pan faster.
  */
 /** Moves the camera of a `Scene3d` from outside it, ex. a reset button in the widget's toolbar */
-export type Scene3dHandle = { reset: () => void };
+export type Scene3dHandle = Pick<Rig, 'reset'> & Required<Pick<Rig, 'follow'>>;
 
-export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; label: string; children: ReactNode }) {
+/** Keys that pan the camera */
+const panKeys = new Set(['a', 'd', 'q', 'e']);
+
+export function Scene3d({
+	ref,
+	label,
+	field,
+	following = false,
+	onStopFollowing,
+	viewKey,
+	children,
+}: {
+	ref?: Ref<Scene3dHandle>;
+	label: string;
+	/** Shows a field with a perspective camera instead of a robot, without the robot's floor grid and view cube */
+	field?: FieldFraming;
+	/** The camera follows a robot, see `Rig.follow`, so it orbits and zooms around it */
+	following?: boolean;
+	/** The user panned or reset the view, which stops following */
+	onStopFollowing?: () => void;
+	/** Keeps the field's view while the app is open when the scene is drawn again, ex. the pane's ID */
+	viewKey?: string;
+	children: ReactNode;
+}) {
 	const rig = useRef<Rig>(null);
-	useImperativeHandle(ref, () => ({ reset: () => rig.current?.reset() }));
+	useImperativeHandle(ref, () => ({
+		reset: () => rig.current?.reset(),
+		follow: (position) => rig.current?.follow?.(position),
+	}));
 	const [cubeHovered, setCubeHovered] = useState(false);
 
 	const labels = useRef<(HTMLSpanElement | null)[]>([]);
@@ -116,6 +146,9 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 	const positionLabels = ({ camera, size }: RootState) => {
 		if (!drawn && size.width > 0) {
 			setDrawn(true);
+		}
+		if (field) {
+			return;
 		}
 		for (const [index, floorLabel] of floorLabels.entries()) {
 			const element = labels.current[index];
@@ -156,12 +189,16 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 		event.preventDefault();
 		if (!held.current.has(key)) {
 			held.current.add(key);
+			if (panKeys.has(key)) {
+				onStopFollowing?.();
+			}
 			rig.current?.stop();
 			frame.current = frame.current ?? requestAnimationFrame(move(performance.now()));
 		}
 	};
 
 	const [drag, setDrag] = useState<'orbit' | 'pan'>();
+	const rightClick = useRightClickMenu();
 	// The orbit controls keep the browser from focusing the scene on click, so it's focused from script, which the browser
 	// treats like keyboard focus. The focus ring is only shown when the keyboard was used last.
 	const [keyboardFocus, setKeyboardFocus] = useState(false);
@@ -186,9 +223,18 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 				event.currentTarget.focus({ preventScroll: true });
 				setKeyboardFocus(false);
 				rig.current?.stop();
-				setDrag(dragOf(event.nativeEvent));
+				const next = dragOf(event.nativeEvent);
+				setDrag(next);
+				if (next === 'pan') {
+					onStopFollowing?.();
+				}
+				rightClick.onPointerDown(event);
 			}}
-			onPointerUp={() => setDrag(undefined)}
+			onPointerMove={rightClick.onPointerMove}
+			onPointerUp={(event) => {
+				setDrag(undefined);
+				rightClick.onPointerUp(event);
+			}}
 			onPointerCancel={() => setDrag(undefined)}
 			onLostPointerCapture={() => setDrag(undefined)}
 			onWheel={() => rig.current?.stop()}
@@ -203,33 +249,45 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 				shift.current = false;
 				setKeyboardFocus(false);
 			}}
-			onDoubleClick={() => rig.current?.reset()}
-			// Right-dragging pans, so it doesn't open the widget's menu
-			onContextMenu={(event) => {
-				event.preventDefault();
-				event.stopPropagation();
+			onDoubleClick={() => {
+				rig.current?.reset();
+				onStopFollowing?.();
 			}}
+			// Right-dragging pans, so the widget's menu opens when a right-click is released instead
+			onContextMenu={rightClick.onContextMenu}
 		>
-			<Canvas orthographic frameloop="demand" camera={{ up: [0, 0, 1], near: 0, far: cameraDistance * 2 }}>
-				<CameraControls />
-				<CameraRig ref={rig} />
-				<StudioLighting />
-				<Floor />
-				<OnFrame callback={positionLabels} />
-				{children}
-				<ViewCube onLookFrom={(direction) => rig.current?.lookFrom(direction)} onHoverChange={setCubeHovered} />
-			</Canvas>
-			{floorLabels.map(({ text }, index) => (
-				<span
-					key={text}
-					ref={(element) => {
-						labels.current[index] = element;
-					}}
-					className="pointer-events-none absolute top-0 left-0 whitespace-nowrap text-muted-foreground text-xs"
-				>
-					{text}
-				</span>
-			))}
+			{field ? (
+				<Canvas frameloop="demand" camera={{ fov: fieldOfView, up: [0, 0, 1], near: 0.05, far: 200 }}>
+					<FieldCameraControls field={field} following={following} />
+					<FieldCameraRig ref={rig} field={field} viewKey={viewKey} />
+					<StudioLighting />
+					<OnFrame callback={positionLabels} />
+					{children}
+				</Canvas>
+			) : (
+				<>
+					<Canvas orthographic frameloop="demand" camera={{ up: [0, 0, 1], near: 0, far: cameraDistance * 2 }}>
+						<CameraControls />
+						<CameraRig ref={rig} />
+						<StudioLighting />
+						<Floor />
+						<OnFrame callback={positionLabels} />
+						{children}
+						<ViewCube onLookFrom={(direction) => rig.current?.lookFrom(direction)} onHoverChange={setCubeHovered} />
+					</Canvas>
+					{floorLabels.map(({ text }, index) => (
+						<span
+							key={text}
+							ref={(element) => {
+								labels.current[index] = element;
+							}}
+							className="pointer-events-none absolute top-0 left-0 whitespace-nowrap text-muted-foreground text-xs"
+						>
+							{text}
+						</span>
+					))}
+				</>
+			)}
 		</div>
 	);
 }

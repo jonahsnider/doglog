@@ -179,13 +179,16 @@ export const paneHandlers: Pick<
 		return { bindingIds, dashboard: describeDashboard(dashboardId) };
 	},
 
-	binding_update: ({ dashboardId, bindingId, role, color, hidden, connectedFrom }) => {
+	binding_update: ({ dashboardId, bindingId, role, color, hidden, robot, connectedFrom }) => {
 		requireDashboard(dashboardId);
 		flushData();
 		updateLayout(dashboardId, (layout) => {
 			const { pane, binding, type } = requireBinding(layout, bindingId);
 			checkBinding(type, binding.name, role, getEntry);
-			let next = applyBindingInput(layout, pane.id, binding, { role, color, hidden });
+			if (robot !== undefined && type.id !== 'field') {
+				throw new AgentError(`${type.name} widgets don't pick a robot for each binding.`);
+			}
+			let next = applyBindingInput(layout, pane.id, binding, { role, color, hidden, robot });
 			if (connectedFrom !== undefined) {
 				if (!type.connects) {
 					throw new AgentError(`${type.name} widgets don't connect bindings.`);

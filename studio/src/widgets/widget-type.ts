@@ -31,6 +31,8 @@ export type WidgetBinding = {
 	readonly hidden: boolean;
 	/** Index of the color picked from the legend, widgets use it instead of their own, see `bindingColor()` */
 	readonly color: number | undefined;
+	/** The robot picked to draw the binding as, ex. a field robot's robot project, see `setBindingPick()` */
+	readonly robot: string | undefined;
 	/** How the binding can be connected to others, see `WidgetType.connects` */
 	readonly connects: Connects | undefined;
 	/** Bindings connected to this one, which the widget draws from, ex. the field draws lines from a robot to seen tags */
@@ -38,10 +40,21 @@ export type WidgetBinding = {
 };
 
 /**
- * A binding that shows one position, ex. a robot, can be connected to any connectable binding. One that shows `many`,
- * ex. a path, can only be connected to from a `single` one.
+ * How a binding can be connected to others, see `canConnect()`:
+ * - `single`: shows one position, ex. a point, that lines are drawn from
+ * - `carrier`: a `single` binding others can also be attached to, ex. a robot
+ * - `many`: shows many positions, ex. a path
+ * - `attached`: drawn on the carriers it's connected from instead of with lines, ex. a mechanism on a robot
  */
-export type Connects = 'single' | 'many';
+export type Connects = 'single' | 'carrier' | 'many' | 'attached';
+
+/** Whether `target` can be connected from `source`: lines start at single positions, and attach only to carriers */
+export function canConnect(source: Pick<WidgetBinding, 'connects'>, target: Pick<WidgetBinding, 'connects'>): boolean {
+	if (source.connects !== 'single' && source.connects !== 'carrier') {
+		return false;
+	}
+	return target.connects === 'attached' ? source.connects === 'carrier' : target.connects !== undefined;
+}
 
 /**
  * A setting shown in the widget options, saved in dashboards. Prefer inferring from entries over adding options, and

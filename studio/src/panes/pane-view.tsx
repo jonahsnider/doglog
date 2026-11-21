@@ -31,6 +31,7 @@ import {
 } from '@/widgets/bindings';
 import { cn } from '@/lib/utils';
 import { usePaneDrag } from '@/panes/drag';
+import { widgetMenuItems } from '@/panes/widget-menu';
 import { canSplitPane, type Pane, type PaneNode, setPaneWidget, type SplitDirection } from '@/panes/layout';
 import { getWidgetType, widgetTypes } from '@/widgets/registry';
 import { PanePresence } from '@/sharing/presence-avatars';
@@ -189,6 +190,7 @@ export function PaneView({
 				: { label: `Remove ${bindingLabel(targetBinding)}`, onSelect: () => remove(targetBinding.id) },
 			...disconnectItems(targetBinding),
 			...roleItems(targetBinding),
+			...widgetMenuItems(pane.id, targetBinding),
 			...(STUDIO_DESKTOP && captureTarget
 				? [{ label: 'Copy image', onSelect: () => void copyImage(captureTarget) }]
 				: []),

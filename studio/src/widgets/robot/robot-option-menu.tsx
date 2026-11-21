@@ -6,7 +6,7 @@ import { addRobotProject, canAddRobotProjects, removeRobotProject, useRobotProje
 export function RobotChoices() {
 	return (
 		<>
-			{useRobotProjects().map((project) => (
+			{(useRobotProjects() ?? []).map((project) => (
 				<MenuRadioItem key={project.name} value={project.name} closeOnClick>
 					{project.name}
 				</MenuRadioItem>
@@ -16,7 +16,7 @@ export function RobotChoices() {
 }
 
 export function RobotCommands({ value, pick }: { value: string; pick: (value: string | undefined) => void }) {
-	const added = useRobotProjects().some((project) => project.name === value);
+	const added = useRobotProjects()?.some((project) => project.name === value) === true;
 	const add = async () => {
 		try {
 			const name = await addRobotProject();

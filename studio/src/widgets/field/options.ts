@@ -2,6 +2,7 @@ import { getEntry } from '@/data/data-store';
 import { panes, type PaneNode } from '@/panes/layout';
 import { widgetBindings } from '@/widgets/bindings';
 import { orientedField, wpilibCoordinates, xAxisAngle } from '@/widgets/field/geometry';
+import { roles3d } from '@/widgets/field/roles';
 import { optionValues } from '@/widgets/options';
 import { type WidgetTypeId, widgetOptions } from '@/widgets/widget-info';
 import type { WidgetOption } from '@/widgets/widget-type';
@@ -27,6 +28,12 @@ function wpilibVersion(): unknown {
 }
 
 export const fieldOptions: readonly WidgetOption[] = [
+	// Parts and mechanisms are only drawn in 3D
+	{
+		...widgetOptions.field.view,
+		infer: (bindings) =>
+			bindings.some((binding) => binding.role !== undefined && roles3d.has(binding.role.id)) ? '3d' : undefined,
+	},
 	{ ...widgetOptions.field.coordinates, infer: () => wpilibCoordinates(wpilibVersion()) },
 	// WPILib 2027 draws the field with red on the left, so +X points right in either coordinates
 	{
@@ -34,6 +41,7 @@ export const fieldOptions: readonly WidgetOption[] = [
 		dropdown: true,
 		infer: (_, earlier) => (earlier['coordinates'] === 'center' ? 'red-left' : 'blue-left'),
 	},
+	widgetOptions.field.stagedGamePieces,
 ];
 
 /**

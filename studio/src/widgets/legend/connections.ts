@@ -1,4 +1,4 @@
-import type { WidgetBinding } from '@/widgets/widget-type';
+import { canConnect, type WidgetBinding } from '@/widgets/widget-type';
 
 /** Height of each row of a vertical legend, so connections can be drawn between rows without measuring them */
 export const rowHeight = 24;
@@ -11,19 +11,19 @@ export type Connection = { sourceId: string; targetId: string; color: string | u
 
 /**
  * The source and target of connecting `from` to `to` by dragging, `undefined` if they can't be connected. Lines start at
- * single positions, so dragging from an array to a single pose connects the other way.
+ * single positions, so dragging from an array to a single pose connects the other way, like dragging a part to a robot.
  */
 export function connectionBetween(
 	from: WidgetBinding,
 	to: WidgetBinding,
 ): { source: WidgetBinding; target: WidgetBinding } | undefined {
-	if (from.id === to.id || from.connects === undefined || to.connects === undefined) {
+	if (from.id === to.id) {
 		return undefined;
 	}
-	if (from.connects === 'single') {
+	if (canConnect(from, to)) {
 		return { source: from, target: to };
 	}
-	return to.connects === 'single' ? { source: to, target: from } : undefined;
+	return canConnect(to, from) ? { source: to, target: from } : undefined;
 }
 
 /** Each source gets its own lane, the ones spanning the fewest rows nearest the handles so links cross less */

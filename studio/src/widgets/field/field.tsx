@@ -1,6 +1,6 @@
 import { useHotkey } from '@tanstack/react-hotkeys';
-import { type PointerEvent, useEffect, useId, useRef, useState } from 'react';
-import { useCopyToClipboard, useIsMounted, useResizeObserver } from 'usehooks-ts';
+import { lazy, type PointerEvent, Suspense, useEffect, useId, useRef, useState } from 'react';
+import { useResizeObserver } from 'usehooks-ts';
 import { type Entry, useDataVersion } from '@/data/data-store';
 import { cn } from '@/lib/utils';
 import { useCursorTime } from '@/timeline/timeline';
@@ -19,21 +19,41 @@ import {
 } from '@/widgets/field/geometry';
 import { FieldImage, Minimap } from '@/widgets/field/image';
 import { MeasurementDrawing } from '@/widgets/field/measure';
-import { CursorPosition, ToolButtons } from '@/widgets/field/readout';
+import { fieldLegendItems } from '@/widgets/field/legend-items';
+import { CursorPosition, hiddenWhileIdle, ToolButtons } from '@/widgets/field/readout';
+import { useCopyPosition } from '@/widgets/field/copy-position';
 import { fieldDrawings } from '@/widgets/field/roles';
 import { useFieldZoom } from '@/widgets/field/zoom';
-import { Legend, type LegendItem } from '@/widgets/legend/legend';
-import { bindingColor } from '@/widgets/series-color';
+import { Legend } from '@/widgets/legend/legend';
+import { useMechanisms } from '@/widgets/use-mechanisms';
+import { ViewToggle } from '@/widgets/view-toggle';
 import type { WidgetProps } from '@/widgets/widget-type';
+
+const loadField3d = async () => ({ default: (await import('@/widgets/field/field-3d')).Field3d });
+const Field3d = lazy(loadField3d);
+/** Milliseconds after a field appears in 2D that its 3D view starts loading, so it doesn't slow down opening the log */
+const preloadDelay = 2000;
+
+/** The field in 2D, or in 3D once its renderer has loaded */
+export function Field(props: WidgetProps) {
+	return props.options['view'] === '3d' ? (
+		<Suspense fallback={null}>
+			<Field3d {...props} />
+		</Suspense>
+	) : (
+		<Field2d {...props} />
+	);
+}
 
 /** Shorter measurements are dropped as accidental clicks */
 const minMeasurePixels = 8;
 
-function formatPosition({ x, y }: FieldPoint): string {
-	return `${x.toFixed(2)}, ${y.toFixed(2)}`;
-}
-
-export function Field({ bindings, options }: WidgetProps) {
+function Field2d({ bindings, options, setOption }: WidgetProps) {
+	// three.js and the field's model load in the background, so switching to 3D doesn't wait for them
+	useEffect(() => {
+		const timeout = setTimeout(() => void loadField3d(), preloadDelay);
+		return () => clearTimeout(timeout);
+	}, []);
 	const coordinates: FieldCoordinates = options['coordinates'] === 'center' ? 'center' : 'blue-wall';
 	const field = orientedField(options['orientation']);
 	const { bounds, vertical } = field;
@@ -60,11 +80,7 @@ export function Field({ bindings, options }: WidgetProps) {
 	const [pointer, setPointer] = useState<FieldPoint>();
 	const [hovered, setHovered] = useState(false);
 	const [minimapLeft, setMinimapLeft] = useState(false);
-	const [, copy] = useCopyToClipboard();
-	const isMounted = useIsMounted();
-	const [copied, setCopied] = useState(false);
-	const copiedTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-	useEffect(() => () => clearTimeout(copiedTimer.current), []);
+	const copied = useCopyPosition(pointer, hovered);
 	const [tool, setTool] = useState<MeasureTool>();
 	const [measurement, setMeasurement] = useState<Measurement>();
 	const measuring = useRef(false);
@@ -84,24 +100,6 @@ export function Field({ bindings, options }: WidgetProps) {
 			setMeasurement(undefined);
 		},
 		{ ...whileHovered, enabled: hovered && (tool !== undefined || measurement !== undefined) },
-	);
-	const copyPosition = async () => {
-		if (!pointer || !(await copy(formatPosition(pointer))) || !isMounted()) {
-			return;
-		}
-		setCopied(true);
-		clearTimeout(copiedTimer.current);
-		copiedTimer.current = setTimeout(() => setCopied(false), 1200);
-	};
-	useHotkey(
-		'Mod+C',
-		(event) => {
-			if (!event.defaultPrevented && window.getSelection()?.isCollapsed !== false) {
-				event.preventDefault();
-				void copyPosition();
-			}
-		},
-		{ ...whileHovered, ignoreInputs: true, preventDefault: false, stopPropagation: false },
 	);
 
 	const fieldPointAt = (event: PointerEvent) => {
@@ -136,11 +134,8 @@ export function Field({ bindings, options }: WidgetProps) {
 	};
 
 	const valueOf = (entry: Entry | undefined) => (entry && time !== undefined ? entry.samples.valueAt(time) : undefined);
-	const legend = bindings.map((binding, index): LegendItem => ({
-		binding,
-		color: bindingColor(binding, index),
-		dimmed: valueOf(binding.entry) === undefined,
-	}));
+	const mechanisms = useMechanisms(bindings);
+	const legend = fieldLegendItems(bindings, { view: '2d', time, mechanisms });
 
 	const label = measurement && measurementLabel(measurement);
 
@@ -267,7 +262,10 @@ export function Field({ bindings, options }: WidgetProps) {
 				</div>
 				<div className="flex h-5 items-center justify-between gap-2 text-muted-foreground text-xs capture:invisible">
 					<CursorPosition pointer={pointer} hovered={hovered} copied={copied} />
-					<ToolButtons tool={tool} onToggle={toggleTool} />
+					<div className="flex items-center gap-2">
+						<ToolButtons tool={tool} onToggle={toggleTool} />
+						<ViewToggle compact className={hiddenWhileIdle} view="2d" onChange={(next) => setOption('view', next)} />
+					</div>
 				</div>
 			</div>
 		</div>

@@ -48,6 +48,14 @@ jobs:
         working-directory: studio
         continue-on-error: true
 
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v10.4.0
+
+      - name: Fix Studio Python lint and formatting issues
+        run: uv run --locked ruff check --fix && uv run --locked ruff format
+        working-directory: studio/scripts/field3d
+        continue-on-error: true
+
       - name: Fix Knip issues
         run: pnpm knip --fix
         continue-on-error: true
