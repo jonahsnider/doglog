@@ -118,16 +118,16 @@ export function sectionEntryTree(
 	};
 }
 
-/** Top-level groups start expanded, ex. `/Robot` that DogLog logs everything under. `toggled` are the groups expanded or collapsed since. */
+/** The groups expanded by default, see `defaultGroups()`. `toggled` are the groups expanded or collapsed since. */
 export function expandedGroups(items: readonly EntryTreeNode[], toggled: ReadonlySet<string>): string[] {
-	const defaults = topLevelGroups(items);
+	const defaults = defaultGroups(items);
 	const isDefault = new Set(defaults);
 	return [...defaults.filter((value) => !toggled.has(value)), ...[...toggled].filter((value) => !isDefault.has(value))];
 }
 
 /** The groups whose expanded state differs from their default, the inverse of `expandedGroups()` */
 export function toggledGroups(items: readonly EntryTreeNode[], expanded: readonly string[]): Set<string> {
-	const defaults = new Set(topLevelGroups(items));
+	const defaults = new Set(defaultGroups(items));
 	const now = new Set(expanded);
 	return new Set([
 		...expanded.filter((value) => !defaults.has(value)),
@@ -146,8 +146,20 @@ export function ancestorGroups(names: Iterable<string>): Set<string> {
 	return groups;
 }
 
-function topLevelGroups(items: readonly EntryTreeNode[]): string[] {
-	return items.flatMap((node) => (node.children ? [node.value] : []));
+/**
+ * The Pinned section, `/Robot` that DogLog logs everything under, and the only top-level group when there's one.
+ * Other groups, ex. controllers and NetworkTables, start collapsed so they don't bury the robot's own entries.
+ */
+function defaultGroups(items: readonly EntryTreeNode[]): string[] {
+	const groups = items.filter((node) => node.children !== undefined && node.section === undefined);
+	return items.flatMap((node) => {
+		if (!node.children) {
+			return [];
+		}
+		// `/Robot` may be compacted with the groups under it, ex. `/Robot/Drive`
+		const robot = node.value === '/Robot' || node.value.startsWith('/Robot/');
+		return node.section === 'pinned' || robot || groups.length === 1 ? [node.value] : [];
+	});
 }
 
 /**

@@ -30,15 +30,30 @@ test('entries are grouped by path segment and collapsed groups hide their childr
 	expect(paths(['/Arm'])).toEqual(['/Arm', '/Arm/Angle', '/Arm/Velocity', '/Drive', '/Time']);
 });
 
-test('top-level groups start expanded until the user collapses them', () => {
-	expect(expandedGroups(tree, new Set())).toEqual(['/Arm', '/Drive']);
+test('only /Robot, the Pinned section, or a lone top-level group start expanded', () => {
+	const match = buildEntryTree(
+		entries(
+			'/Robot/Arm/Angle',
+			'/Robot/Drive/Speed',
+			'/RobotState/Mode',
+			'/DS:joystick0/axes',
+			'/NT:/Spot/Pose',
+			'/DS:enabled',
+		),
+	);
+	expect(expandedGroups(match, new Set())).toEqual(['/Robot']);
 
-	const collapsed = toggledGroups(tree, ['/Drive']);
-	expect(expandedGroups(tree, collapsed)).toEqual(['/Drive']);
+	// The user's own toggles are kept
+	const toggled = toggledGroups(match, ['/DS:joystick0']);
+	expect(expandedGroups(match, toggled)).toEqual(['/DS:joystick0']);
 
-	// A group that appears later, ex. from a live source, starts expanded too
-	const later = buildEntryTree(entries('/Arm/Angle', '/Drive/Module2', '/Vision/Pose'));
-	expect(expandedGroups(later, collapsed)).toEqual(['/Drive', '/Vision']);
+	// `/Robot` compacted with the only group in it
+	const compacted = sectionEntryTree(buildEntryTree(entries('/Robot/Drive/Speed', '/Spot/Pose')), {}, false).items;
+	expect(expandedGroups(compacted, new Set())).toEqual(['/Robot/Drive']);
+
+	expect(expandedGroups(tree, new Set())).toEqual([]);
+	const pinned = sectionEntryTree(tree, { '/Arm': 'pinned' }, false).items;
+	expect(expandedGroups(pinned, new Set())).toEqual(['pinned', '/Drive']);
 });
 
 test('a name can be both an entry and a group', () => {
