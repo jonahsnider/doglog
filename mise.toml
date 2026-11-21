@@ -2,6 +2,9 @@
 hk = { version = "2.13.0", workflow = "release.yml" }
 java = "temurin-25"
 pkl = "0.33.1"
+uv = "0.13.9"
 
 [settings]
-idiomatic_version_file_enable_tools = ["node", "pnpm", "rust"]
+idiomatic_version_file_enable_tools = ["node", "pnpm", "python", "rust"]
+# Activates the virtualenv of uv projects, such as `studio/scripts/field3d`
+python.uv_venv_auto = "source"
