@@ -35,6 +35,10 @@ export function AboutDialog() {
 							<strong className="font-medium">Connor Horn</strong>
 							<span className="block text-muted-foreground">Moral support</span>
 						</li>
+						<li>
+							<strong className="font-medium">Eugene Fang</strong>
+							<span className="block text-muted-foreground">He knows what he did</span>
+						</li>
 					</ul>
 					<p className="mt-4 border-t pt-4 text-center text-muted-foreground text-xs">{bundle.copyright}</p>
 				</DialogPanel>
