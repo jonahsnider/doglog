@@ -9,12 +9,7 @@ use tauri::{Manager, Position, ResourceId, Webview, Window};
 /// frontend sends meanwhile, ex. enabling an app menu item as the live source reconnects, run on the main thread that's
 /// showing the menu and wait for the table forever, hanging the app.
 #[tauri::command]
-pub async fn popup_menu(
-    webview: Webview,
-    window: Window,
-    rid: ResourceId,
-    at: Option<Position>,
-) -> Result<(), String> {
+pub async fn popup_menu(webview: Webview, window: Window, rid: ResourceId, at: Option<Position>) -> Result<(), String> {
     // The table is unlocked at the end of this statement
     let menu = webview
         .resources_table()
