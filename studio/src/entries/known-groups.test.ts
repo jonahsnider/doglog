@@ -11,6 +11,7 @@ test('recognizes the groups devices and libraries log', () => {
 	expect(knownGroup('/Robot/Tunable')?.name).toBe('Tunable values');
 	expect(knownGroup('/NT:/Spot')?.name).toBe('Spot');
 	expect(knownGroup('/Robot/Trailblazer')?.name).toBe('Trailblazer');
+	expect(knownGroup('/Robot/Trailblazer3')?.name).toBe('Trailblazer');
 });
 
 test('ignores groups that only look like them', () => {

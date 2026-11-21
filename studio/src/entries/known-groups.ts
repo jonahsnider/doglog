@@ -47,7 +47,8 @@ export function knownGroup(path: string): KnownGroup | undefined {
 	}
 
 	// Team 581's Trailblazer path follower logs to DogLog under `Trailblazer`
-	if (segment === 'Trailblazer') {
+	// `Trailblazer3` is temporary, remove it in 2027
+	if (segment === 'Trailblazer' || segment === 'Trailblazer3') {
 		return { name: 'Trailblazer', icon: FlameIcon };
 	}
 
