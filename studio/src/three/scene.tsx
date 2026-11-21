@@ -55,21 +55,19 @@ function OnFrame({ callback }: { callback: (state: RootState) => void }) {
 	return null;
 }
 
-/** What held keys do each second: radians to orbit, factor to zoom, and pixels to pan. Zooming and panning go `speed` times as fast. */
+/** Radians per second of keyboard orbiting */
 const orbitSpeed = 1.5;
-const zoomSpeed = 3;
-const panSpeed = 500;
 const keys: Partial<Record<string, (rig: Rig, seconds: number, speed: number) => void>> = {
 	arrowleft: (rig, seconds) => rig.orbit(-orbitSpeed * seconds, 0),
 	arrowright: (rig, seconds) => rig.orbit(orbitSpeed * seconds, 0),
 	arrowup: (rig, seconds) => rig.orbit(0, orbitSpeed * seconds),
 	arrowdown: (rig, seconds) => rig.orbit(0, -orbitSpeed * seconds),
-	w: (rig, seconds, speed) => rig.zoom(zoomSpeed ** (seconds * speed)),
-	s: (rig, seconds, speed) => rig.zoom(zoomSpeed ** (-seconds * speed)),
-	a: (rig, seconds, speed) => rig.pan(-panSpeed * seconds * speed, 0),
-	d: (rig, seconds, speed) => rig.pan(panSpeed * seconds * speed, 0),
-	q: (rig, seconds, speed) => rig.pan(0, -panSpeed * seconds * speed),
-	e: (rig, seconds, speed) => rig.pan(0, panSpeed * seconds * speed),
+	w: (rig, seconds, speed) => rig.zoom(seconds * speed),
+	s: (rig, seconds, speed) => rig.zoom(-seconds * speed),
+	a: (rig, seconds, speed) => rig.pan(-seconds * speed, 0),
+	d: (rig, seconds, speed) => rig.pan(seconds * speed, 0),
+	q: (rig, seconds, speed) => rig.pan(0, -seconds * speed),
+	e: (rig, seconds, speed) => rig.pan(0, seconds * speed),
 };
 
 function dragOf(event: PointerEvent): 'orbit' | 'pan' | undefined {

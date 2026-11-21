@@ -23,7 +23,7 @@ export const minDistance = 0.1;
 /** How far the camera can be from the field's center, as a multiple of the default view's distance */
 export const zoomOut = 2;
 /**
- * Pressing a key after this many milliseconds without starts a new gesture, which aims at the center of the view.
+ * Orbiting with the keyboard after this long without orbiting aims at the center of the view.
  * Aiming checks the field's every triangle, too slow to do for every step of a gesture.
  */
 export const gestureGap = 150;

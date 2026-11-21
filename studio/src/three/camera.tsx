@@ -14,8 +14,9 @@ export type Rig = {
 	lookFrom: (direction: Vector3) => void;
 	/** Orbit by radians, counterclockwise around the robot and up */
 	orbit: (azimuth: number, elevation: number) => void;
-	zoom: (factor: number) => void;
-	/** Pan by pixels, right and up on screen */
+	/** Zoom for a signed number of input seconds, positive to move closer */
+	zoom: (seconds: number) => void;
+	/** Pan for a signed number of input seconds along each screen axis, positive to move right or up */
 	pan: (right: number, up: number) => void;
 	/** Stop moving to a view, ex. when the user moves the camera themselves */
 	stop: () => void;
@@ -62,6 +63,9 @@ type Orbit = { target: Vector3; azimuth: number; elevation: number; zoom: number
 
 const zoomOut = 4;
 const zoomIn = 16;
+/** The zoom factor and pan pixels per second of keyboard input */
+const zoomSpeed = 3;
+const panSpeed = 500;
 
 /** The camera's zoom limits in a canvas of `size`, in pixels per meter */
 function zoomLimits(size: { width: number; height: number }): { minZoom: number; maxZoom: number } {
@@ -180,17 +184,18 @@ export function CameraRig({ ref }: { ref: Ref<Rig> }) {
 				elevation: Math.min(maxElevation, Math.max(-maxElevation, orbit.elevation + elevation)),
 			});
 		},
-		zoom: (factor) => {
+		zoom: (seconds) => {
 			const orbit = current();
 			const { minZoom, maxZoom } = zoomLimits(get().size);
-			place({ ...orbit, zoom: Math.min(maxZoom, Math.max(minZoom, orbit.zoom * factor)) });
+			place({ ...orbit, zoom: Math.min(maxZoom, Math.max(minZoom, orbit.zoom * zoomSpeed ** seconds)) });
 		},
 		pan: (right, up) => {
 			const { camera } = get();
 			const orbit = current();
 			const rightAxis = new Vector3().setFromMatrixColumn(camera.matrix, 0);
 			const upAxis = new Vector3().setFromMatrixColumn(camera.matrix, 1);
-			orbit.target.addScaledVector(rightAxis, right / orbit.zoom).addScaledVector(upAxis, up / orbit.zoom);
+			const scale = panSpeed / orbit.zoom;
+			orbit.target.addScaledVector(rightAxis, right * scale).addScaledVector(upAxis, up * scale);
 			clampPan(orbit.target);
 			place(orbit);
 		},

@@ -4,14 +4,13 @@ import { OrbitControls } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import { type AnimationPlaybackControls, animate } from 'motion/react';
 import { type ComponentRef, type Ref, useEffect, useEffectEvent, useImperativeHandle, useRef } from 'react';
-import { MathUtils, PerspectiveCamera, Vector2, Vector3 } from 'three';
+import { MathUtils, Vector2, Vector3 } from 'three';
 import { easing, useMotionTransition } from '@/lib/motion';
 import { maxElevation, type Rig } from '@/three/camera';
 import {
 	aim,
 	aimZoom,
 	type FieldFraming,
-	fieldOfView,
 	framingDistance,
 	gestureGap,
 	keepInBounds,
@@ -23,8 +22,10 @@ import {
 } from '@/three/field-framing';
 import { isControls, turn, useShiftSpeedup } from '@/three/orbit';
 
-/** How many times as fast zooming and panning are as in the robot widget, since the field is much bigger */
+/** How many times as fast mouse zooming and panning are as in the robot widget, since the field is much bigger */
 const fieldSpeed = 2;
+/** Meters per second of keyboard movement */
+const keyboardMoveSpeed = 8;
 
 type Orbit = { target: Vector3; azimuth: number; elevation: number; distance: number };
 
@@ -172,19 +173,9 @@ export function FieldCameraRig({ ref, field, viewKey }: { ref: Ref<Rig>; field: 
 		});
 	};
 
-	// Keyboard controls work at the scale of what's at the center of the view, like dragging, see `aim()`
-	const lastMove = useRef(Number.NEGATIVE_INFINITY);
+	const lastOrbit = useRef(Number.NEGATIVE_INFINITY);
 	/** The position the camera follows, where it was last */
 	const followed = useRef<Vector3>(undefined);
-	const aimed = (): Orbit => {
-		const { controls: orbitControls } = get();
-		const now = performance.now();
-		if (isControls(orbitControls) && followed.current === undefined && now - lastMove.current >= gestureGap) {
-			aim(get(), orbitControls.target, viewCenter, field);
-		}
-		lastMove.current = now;
-		return current();
-	};
 
 	useImperativeHandle(ref, () => ({
 		reset: () => animateTo(resetOrbit()),
@@ -209,31 +200,38 @@ export function FieldCameraRig({ ref, field, viewKey }: { ref: Ref<Rig>; field: 
 		},
 		stop,
 		orbit: (azimuth, elevation) => {
-			const orbit = aimed();
+			const state = get();
+			const now = performance.now();
+			if (isControls(state.controls) && followed.current === undefined && now - lastOrbit.current >= gestureGap) {
+				aim(state, state.controls.target, viewCenter, field);
+			}
+			lastOrbit.current = now;
+			const orbit = current();
 			place({
 				...orbit,
 				azimuth: orbit.azimuth + azimuth,
 				elevation: MathUtils.clamp(orbit.elevation + elevation, minElevation, maxElevation),
 			});
 		},
-		zoom: (factor) => {
-			const orbit = aimed();
-			const { camera } = get();
+		zoom: (seconds) => {
+			const orbit = current();
+			const distance = seconds * keyboardMoveSpeed;
 			if (followed.current === undefined) {
-				aimZoom(camera, orbit.target, field);
+				orbit.target.addScaledVector(get().camera.getWorldDirection(new Vector3()), distance);
+			} else {
+				// Keep looking at the followed robot and stop before passing through it
+				orbit.distance = Math.max(minDistance, orbit.distance - distance);
 			}
-			place({ ...orbit, distance: camera.position.distanceTo(orbit.target) / factor ** fieldSpeed });
+			place(orbit);
 		},
 		pan: (right, up) => {
-			const { camera, size } = get();
-			const orbit = aimed();
-			const fov = camera instanceof PerspectiveCamera ? camera.fov : fieldOfView;
-			// Meters per pixel at the orbit target's distance, sped up like the mouse
-			const scale =
-				(fieldSpeed * 2 * orbit.distance * Math.tan(MathUtils.degToRad(fov / 2))) / Math.max(size.height, 1);
+			const { camera } = get();
+			const orbit = current();
 			const rightAxis = new Vector3().setFromMatrixColumn(camera.matrix, 0);
 			const upAxis = new Vector3().setFromMatrixColumn(camera.matrix, 1);
-			orbit.target.addScaledVector(rightAxis, right * scale).addScaledVector(upAxis, up * scale);
+			orbit.target
+				.addScaledVector(rightAxis, right * keyboardMoveSpeed)
+				.addScaledVector(upAxis, up * keyboardMoveSpeed);
 			place(orbit);
 		},
 	}));
