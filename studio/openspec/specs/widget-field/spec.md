@@ -452,7 +452,7 @@ In 3D, the camera SHALL start a little above the side of the field, angled down,
 
 ### Requirement: 3D camera limits
 
-In 3D, scrolling SHALL zoom toward the pointer at a speed set only by how far the camera is from the field, faster from far away and steady near it. Panning MUST keep what's under the pointer under it, and orbiting MUST pivot around the center of the view, each treating anything past the field as at its far side. Inputs MUST keep the camera just above the floor and within about twice the default view's distance from the field's center, and MUST NOT otherwise stop it.
+In 3D, scrolling SHALL zoom toward the pointer at a speed set only by how far the camera is from the field, faster from far away and steady near it. Panning without Shift MUST keep what's under the pointer under it, and orbiting MUST pivot around the center of the view, each treating anything past the field as at its far side. Inputs MUST keep the camera just above the floor and within about twice the default view's distance from the field's center, and MUST NOT otherwise stop it.
 
 #### Scenario: Zoom into a hub
 
@@ -466,6 +466,11 @@ In 3D, scrolling SHALL zoom toward the pointer at a speed set only by how far th
 - **GIVEN** the camera is zoomed in near the field's center
 - **WHEN** the user scrolls with the pointer on a nearby robot, then on the far alliance wall
 - **THEN** the camera zooms at the same speed toward each
+
+#### Scenario: Grab the field
+
+- **WHEN** the user right-drags from a point on the field without reaching a movement limit
+- **THEN** that point follows the pointer one-to-one at any zoom level
 
 #### Scenario: Pan from beyond the field
 

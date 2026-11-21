@@ -19,11 +19,8 @@ export function turn(from: number, to: number): number {
 	return ((((to - from + Math.PI) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) - Math.PI;
 }
 
-/**
- * Makes drei's orbit `controls` zoom and pan at `speed`, and faster while Shift is held. Use it inside the scene's
- * canvas.
- */
-export function useShiftSpeedup(controls: RefObject<ComponentRef<typeof OrbitControls> | null>, speed = 1) {
+/** Sets the base zoom speed and doubles zoom and pan speed while Shift is held. Use inside the scene's canvas. */
+export function useShiftSpeedup(controls: RefObject<ComponentRef<typeof OrbitControls> | null>, zoomSpeed = 1) {
 	// Where drei's orbit controls listen for input
 	const element = useThree((state) => {
 		const connected: unknown = state.events.connected;
@@ -37,8 +34,8 @@ export function useShiftSpeedup(controls: RefObject<ComponentRef<typeof OrbitCon
 			if (!orbitControls) {
 				return;
 			}
-			const inputSpeed = event.shiftKey ? speed * shiftSpeedup : speed;
-			orbitControls.zoomSpeed = inputSpeed;
+			const inputSpeed = event.shiftKey ? shiftSpeedup : 1;
+			orbitControls.zoomSpeed = zoomSpeed * inputSpeed;
 			orbitControls.panSpeed = inputSpeed;
 			// The controls swap orbiting and panning while Shift is held, so the right button orbits to keep panning
 			if (event.type === 'pointerdown') {
@@ -62,5 +59,5 @@ export function useShiftSpeedup(controls: RefObject<ComponentRef<typeof OrbitCon
 			element.removeEventListener('pointermove', onInput, { capture: true });
 			element.removeEventListener('wheel', onInput, { capture: true });
 		};
-	}, [element, controls, speed]);
+	}, [element, controls, zoomSpeed]);
 }

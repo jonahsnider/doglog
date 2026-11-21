@@ -22,8 +22,8 @@ import {
 } from '@/three/field-framing';
 import { isControls, turn, useShiftSpeedup } from '@/three/orbit';
 
-/** How many times as fast mouse zooming and panning are as in the robot widget, since the field is much bigger */
-const fieldSpeed = 2;
+/** How many times as fast wheel zoom is as in the robot widget, since the field is much bigger */
+const fieldZoomSpeed = 2;
 /** Meters per second of keyboard movement */
 const keyboardMoveSpeed = 8;
 
@@ -47,7 +47,7 @@ export function FieldCameraControls({ field, following }: { field: FieldFraming;
 		return connected instanceof HTMLElement ? connected : state.gl.domElement;
 	});
 	const controls = useRef<ComponentRef<typeof OrbitControls>>(null);
-	useShiftSpeedup(controls, fieldSpeed);
+	useShiftSpeedup(controls, fieldZoomSpeed);
 
 	useEffect(() => {
 		// Runs before the controls handle the event, which they listen for without capturing
