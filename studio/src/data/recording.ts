@@ -105,7 +105,6 @@ export class LiveRecording {
 		});
 	}
 
-	/** Delete the recording */
 	delete(): void {
 		if (this.deleted) {
 			return;
@@ -118,7 +117,7 @@ export class LiveRecording {
 		if (this.worker) {
 			this.send({ type: 'delete' });
 		} else {
-			void deleteRecordingFile(this.id).then(() => this.stop());
+			this.stop();
 		}
 	}
 
@@ -152,6 +151,9 @@ export class LiveRecording {
 			}
 			case 'deleted':
 				this.stop();
+				if (message.error !== undefined) {
+					reportDeleteError(message.error);
+				}
 				break;
 		}
 	}
@@ -188,11 +190,18 @@ export function deleteLiveRecording(): void {
 }
 
 async function deleteRecordingFile(id: string): Promise<void> {
+	const folder = await getFolder();
 	try {
-		await (await getFolder()).removeEntry(fileName(id));
-	} catch {
-		// It was never created
+		await folder.removeEntry(fileName(id));
+	} catch (error) {
+		if (!(error instanceof DOMException && error.name === 'NotFoundError')) {
+			throw error;
+		}
 	}
+}
+
+function reportDeleteError(error: unknown): void {
+	toastManager.add({ type: 'error', title: "Couldn't delete live recording", description: String(error) });
 }
 
 /** A recording this tab or window chose to restore, which no other tab or window can use until it's released */
@@ -238,7 +247,7 @@ export function claimRecording(): Promise<ClaimedRecording | undefined> {
 				liveRecording = LiveRecording.restore(id, release, restored);
 				return liveRecording;
 			},
-			delete: () => void deleteRecordingFile(id).then(release),
+			delete: () => void deleteRecordingFile(id).catch(reportDeleteError).finally(release),
 			release,
 		};
 	});

@@ -15,7 +15,7 @@ export type RecordingWorkerMessage =
 	| { type: 'failed'; message: string }
 	| { type: 'read'; request: number; file: Blob }
 	| { type: 'read'; request: number; error: string }
-	| { type: 'deleted' };
+	| { type: 'deleted'; error?: string };
 
 /** A WPILOG header without extra text */
 const headerLength = 12;
@@ -24,6 +24,7 @@ const flushInterval = 1000;
 const readChunkLength = 16 * 1024 * 1024;
 
 let folder: FileSystemDirectoryHandle | undefined;
+let folderName = '';
 let fileName = '';
 let file: FileSystemSyncAccessHandle | undefined;
 let writer: DataLogWriter | undefined;
@@ -70,7 +71,13 @@ async function drain(readable: ReadableStream<Uint8Array>, continued: boolean): 
 	}
 }
 
-async function open({ folder: folderName, name, host, restored }: Extract<RecordingWorkerRequest, { type: 'open' }>) {
+async function open({
+	folder: directoryName,
+	name,
+	host,
+	restored,
+}: Extract<RecordingWorkerRequest, { type: 'open' }>) {
+	folderName = directoryName;
 	fileName = name;
 	folder = await (await navigator.storage.getDirectory()).getDirectoryHandle(folderName, { create: true });
 	file = await (await folder.getFileHandle(name, { create: true })).createSyncAccessHandle();
@@ -112,11 +119,22 @@ function read(request: number): void {
 }
 
 async function remove(): Promise<void> {
-	writer?.close();
-	file?.close();
-	file = undefined;
-	await folder?.removeEntry(fileName).catch(() => {});
-	postMessage({ type: 'deleted' } satisfies RecordingWorkerMessage);
+	try {
+		writer?.close();
+		file?.close();
+		file = undefined;
+		try {
+			const recordingFolder = folder ?? (await (await navigator.storage.getDirectory()).getDirectoryHandle(folderName));
+			await recordingFolder.removeEntry(fileName);
+		} catch (error) {
+			if (!(error instanceof DOMException && error.name === 'NotFoundError')) {
+				throw error;
+			}
+		}
+		postMessage({ type: 'deleted' } satisfies RecordingWorkerMessage);
+	} catch (error) {
+		postMessage({ type: 'deleted', error: message(error) } satisfies RecordingWorkerMessage);
+	}
 }
 
 async function handle(request: RecordingWorkerRequest): Promise<void> {
