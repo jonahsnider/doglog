@@ -66,25 +66,108 @@ export function EntryRows({
 	const guide = useMemo(() => activeGuide(rows, families, active), [rows, families, active]);
 	const guideAt = (index: number) => (guide && index >= guide.start && index < guide.end ? guide.level : undefined);
 
+	const stickyHeight = sticky.length > 0 ? Math.max(...sticky.map(({ top }) => top + rowHeight)) : 0;
+
 	return (
-		<div ref={container} className={cn('relative overflow-y-auto pb-2', className)}>
+		<div className={cn('relative flex flex-col', className)}>
+			<div
+				ref={container}
+				className="min-h-0 overflow-y-auto pb-2"
+				// Hides the rows scrolled under the pinned groups, which have no background so they match the frame even when it's translucent
+				style={
+					stickyHeight > 0
+						? { maskImage: `linear-gradient(transparent ${stickyHeight}px, black ${stickyHeight}px)` }
+						: undefined
+				}
+			>
+				<Tree
+					aria-label={label}
+					mode="none"
+					items={view.items}
+					expanded={view.expanded}
+					onExpandedChange={onExpandedChange}
+					checkable={edited !== undefined}
+					checkStrategy="independent"
+					checked={edited ? [...edited.bound] : []}
+					onCheckedChange={(checked) => {
+						const change = changedCheckbox(edited!.bound, checked, entryNames);
+						if (change) {
+							edited!.setBound(change.name, change.checked);
+						}
+					}}
+					onAction={(value) => {
+						// Clicking or pressing Enter on an entry toggles it too
+						if (edited && entryNames.has(value)) {
+							edited.setBound(value, !edited.bound.includes(value));
+						}
+					}}
+					onKeyDown={(event) => {
+						// Space only toggles checkboxes while editing, it shouldn't scroll the list a page otherwise
+						if (event.key === ' ' && !edited) {
+							event.preventDefault();
+						}
+					}}
+					onFocus={(event) => {
+						const value = event.target.dataset['value'];
+						if (value !== undefined) {
+							setActive(value);
+						}
+					}}
+					onHighlight={(_value, { index }) => {
+						if (index >= 0) {
+							setHighlighted(index);
+							// Keep the row out from under the pinned groups, which are its ancestors once it's scrolled to the top
+							const offset = virtualizer.scrollOffset ?? 0;
+							const top = index * rowHeight;
+							if (top < offset + sticky.length * rowHeight) {
+								virtualizer.scrollToOffset(top - Math.min(rows[index]!.level - 1, maxSticky) * rowHeight);
+							} else {
+								virtualizer.scrollToIndex(index);
+							}
+						}
+					}}
+					className="relative"
+					style={{ height: virtualizer.getTotalSize() }}
+				>
+					{virtualizer.getVirtualItems().map((item) => {
+						const row = rows[item.index]!;
+						return (
+							<Fragment key={row.item.value}>
+								{row.section === 'main' && rows[item.index - 1]?.section === 'pinned' && (
+									<Separator aria-hidden className="absolute inset-x-0" style={{ top: item.start }} />
+								)}
+								<EntryRowView
+									row={row}
+									top={item.start}
+									highlights={highlights?.get(row.item.value)}
+									dropTarget={row.section === dropSection}
+									editing={edited !== undefined}
+									bound={isBound(row.item, bound)}
+									containsBound={row.item.field === undefined && boundGroups.has(row.item.value)}
+									activeGuide={guideAt(item.index)}
+								/>
+							</Fragment>
+						);
+					})}
+				</Tree>
+			</div>
 			{sticky.length > 0 && (
-				// Rows in the tree already name these groups to screen readers
-				<div aria-hidden className="sticky top-0 z-10 h-0">
-					{/* Casts a shadow on the rows scrolling under them */}
-					<div
-						className="absolute inset-x-0 top-0 bg-sidebar shadow-md"
-						style={{ height: Math.max(...sticky.map(({ top }) => top + rowHeight)) }}
-					/>
+				// Rows in the tree already name these groups to screen readers. Outside the scrolling container so its mask
+				// doesn't hide them, which is why scrolling over them is passed on to it.
+				<div
+					aria-hidden
+					className="absolute inset-x-0 top-0 z-10"
+					style={{ height: stickyHeight }}
+					onWheel={(event) => container.current?.scrollBy({ top: event.deltaY })}
+				>
 					{sticky.map(({ index, top }, depth) => {
 						const row = rows[index]!;
 						return (
 							<StickyRow
 								key={row.item.value}
 								row={row}
+								slot={depth * rowHeight}
 								top={top}
-								// Deeper rows slide out under the ones above them
-								zIndex={sticky.length - depth}
 								highlights={highlights?.get(row.item.value)}
 								bound={isBound(row.item, bound)}
 								checked={edited !== undefined && isBound(row.item, bound)}
@@ -97,76 +180,6 @@ export function EntryRows({
 					})}
 				</div>
 			)}
-			<Tree
-				aria-label={label}
-				mode="none"
-				items={view.items}
-				expanded={view.expanded}
-				onExpandedChange={onExpandedChange}
-				checkable={edited !== undefined}
-				checkStrategy="independent"
-				checked={edited ? [...edited.bound] : []}
-				onCheckedChange={(checked) => {
-					const change = changedCheckbox(edited!.bound, checked, entryNames);
-					if (change) {
-						edited!.setBound(change.name, change.checked);
-					}
-				}}
-				onAction={(value) => {
-					// Clicking or pressing Enter on an entry toggles it too
-					if (edited && entryNames.has(value)) {
-						edited.setBound(value, !edited.bound.includes(value));
-					}
-				}}
-				onKeyDown={(event) => {
-					// Space only toggles checkboxes while editing, it shouldn't scroll the list a page otherwise
-					if (event.key === ' ' && !edited) {
-						event.preventDefault();
-					}
-				}}
-				onFocus={(event) => {
-					const value = event.target.dataset['value'];
-					if (value !== undefined) {
-						setActive(value);
-					}
-				}}
-				onHighlight={(_value, { index }) => {
-					if (index >= 0) {
-						setHighlighted(index);
-						// Keep the row out from under the pinned groups, which are its ancestors once it's scrolled to the top
-						const offset = virtualizer.scrollOffset ?? 0;
-						const top = index * rowHeight;
-						if (top < offset + sticky.length * rowHeight) {
-							virtualizer.scrollToOffset(top - Math.min(rows[index]!.level - 1, maxSticky) * rowHeight);
-						} else {
-							virtualizer.scrollToIndex(index);
-						}
-					}
-				}}
-				className="relative"
-				style={{ height: virtualizer.getTotalSize() }}
-			>
-				{virtualizer.getVirtualItems().map((item) => {
-					const row = rows[item.index]!;
-					return (
-						<Fragment key={row.item.value}>
-							{row.section === 'main' && rows[item.index - 1]?.section === 'pinned' && (
-								<Separator aria-hidden className="absolute inset-x-0" style={{ top: item.start }} />
-							)}
-							<EntryRowView
-								row={row}
-								top={item.start}
-								highlights={highlights?.get(row.item.value)}
-								dropTarget={row.section === dropSection}
-								editing={edited !== undefined}
-								bound={isBound(row.item, bound)}
-								containsBound={row.item.field === undefined && boundGroups.has(row.item.value)}
-								activeGuide={guideAt(item.index)}
-							/>
-						</Fragment>
-					);
-				})}
-			</Tree>
 		</div>
 	);
 }

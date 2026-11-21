@@ -25,7 +25,7 @@ export function ActiveSection({
 
 	return (
 		<section aria-label="Active entries" className="flex max-h-1/3 min-h-0 shrink-0 flex-col">
-			<div className="flex h-7 shrink-0 items-center gap-1.5 ps-2 pe-3">
+			<div className="flex h-7 shrink-0 items-center gap-1.5 px-4.5">
 				{/* Counts matches while searching */}
 				<SectionHeaderLabel section="active" count={view.items.length} />
 			</div>

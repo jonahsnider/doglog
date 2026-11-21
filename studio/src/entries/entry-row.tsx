@@ -83,7 +83,8 @@ export const EntryRowView = memo(function EntryRowView({
 		},
 		[dragRef, dropRef],
 	);
-	const className = cn(rowClassName, dropTarget && 'bg-primary/8');
+	// Square while dropping on its section, so the section's rows highlight as one block
+	const className = cn(rowClassName, dropTarget && 'rounded-none bg-primary/8');
 	const style = rowStyle(top, level);
 
 	if (header) {
@@ -132,8 +133,8 @@ export const EntryRowView = memo(function EntryRowView({
 /** Ancestors of the rows at the top of the list, pinned there while their children scroll under them */
 export function StickyRow({
 	row,
+	slot,
 	top,
-	zIndex,
 	highlights,
 	bound,
 	checked,
@@ -142,8 +143,9 @@ export function StickyRow({
 	onClick,
 }: {
 	row: EntryTreeRow;
+	/** Where the row is pinned when it isn't being pushed out */
+	slot: number;
 	top: number;
-	zIndex: number;
 	highlights: readonly number[] | undefined;
 	bound: boolean;
 	checked: boolean;
@@ -154,12 +156,13 @@ export function StickyRow({
 	const { item: node, level } = row;
 	const { entry } = node;
 	return (
-		<div className="absolute inset-x-0 bg-sidebar" style={{ top, zIndex, height: rowHeight }}>
+		// Clipped to its slot, so a row being pushed out slides under the one above it without a background to hide it
+		<div className="absolute inset-x-0 overflow-hidden" style={{ top: slot, height: rowHeight }}>
 			<button
 				type="button"
 				tabIndex={-1}
 				className={cn(rowClassName, 'cursor-pointer text-start')}
-				style={rowStyle(0, level)}
+				style={rowStyle(top - slot, level)}
 				onClick={onClick}
 			>
 				<IndentGuides level={level} active={activeGuide} />
@@ -178,11 +181,12 @@ export function StickyRow({
 	);
 }
 
+// Inset and rounded like the sidebar's items, with the leading icons lined up with the search box's
 const rowClassName =
-	'absolute inset-x-0 flex items-center gap-1.5 pe-3 text-sm outline-none hover:bg-accent focus-visible:bg-accent';
+	'absolute inset-x-2 flex items-center gap-1.5 rounded-lg pe-2.5 text-sm outline-none hover:bg-accent focus-visible:bg-accent';
 
 function rowStyle(top: number, level: number) {
-	return { top, height: rowHeight, paddingInlineStart: 8 + (level - 1) * 12 };
+	return { top, height: rowHeight, paddingInlineStart: 10 + (level - 1) * 12 };
 }
 
 /**
@@ -195,14 +199,14 @@ function IndentGuides({ level, active }: { level: number; active: number | undef
 			<>
 				<span
 					aria-hidden
-					className="pointer-events-none absolute inset-y-0 start-3.75 bg-[repeating-linear-gradient(to_right,var(--color-border)_0_1px,transparent_1px_12px)] opacity-0 transition-opacity duration-100 group-hover/entry-browser:opacity-100"
+					className="pointer-events-none absolute inset-y-0 start-4.25 bg-[repeating-linear-gradient(to_right,var(--color-border)_0_1px,transparent_1px_12px)] opacity-0 transition-opacity duration-100 group-hover/entry-browser:opacity-100"
 					style={{ width: (level - 1) * 12 - 11 }}
 				/>
 				{active !== undefined && (
 					<span
 						aria-hidden
 						className="pointer-events-none absolute inset-y-0 w-px bg-outline"
-						style={{ insetInlineStart: 15 + (active - 1) * 12 }}
+						style={{ insetInlineStart: 17 + (active - 1) * 12 }}
 					/>
 				)}
 			</>

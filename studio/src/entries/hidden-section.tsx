@@ -45,7 +45,7 @@ export function HiddenSection({
 			<button
 				type="button"
 				aria-expanded={open}
-				className="flex h-7 shrink-0 items-center gap-1.5 ps-2 pe-3 outline-none hover:bg-accent focus-visible:bg-accent"
+				className="mx-2 flex h-7 shrink-0 items-center gap-1.5 rounded-lg px-2.5 outline-none hover:bg-accent focus-visible:bg-accent"
 				onClick={() => setOpen(!open)}
 			>
 				<ChevronRightIcon

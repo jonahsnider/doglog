@@ -66,8 +66,9 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 
 	if (!open) {
 		return (
-			// Padded like the header below
-			<aside aria-label="Entry browser" inert={exporting} className="ms-1.5 shrink-0 px-1.5 pt-3 pb-1.5">
+			// As wide as the collapsed sidebar, with the toggle centered like its toggle and where it is in the header below, so it
+			// doesn't move when toggled
+			<aside aria-label="Entry browser" inert={exporting} className="ms-1.5 shrink-0 ps-1.5 pe-3 pt-3 pb-1.5">
 				<ToggleButton open={false} />
 			</aside>
 		);
@@ -100,7 +101,8 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 					className="group/entry-browser flex h-full flex-col overflow-hidden"
 				>
 					{/* Reaches the top of the main area like the sidebar, so it's padded to line up with the pane headers below the dashboard's gap */}
-					<div {...dragRegion} className="flex h-10.5 shrink-0 items-center gap-1 ps-3 pe-1.5 pt-1.5">
+					{/* The title is inset like the search box, so they share an edge with the row icons. The toggle is as far from the window's edge as the sidebar's. */}
+					<div {...dragRegion} className="flex h-10.5 shrink-0 items-center gap-1 ps-2 pe-3 pt-1.5">
 						{edited ? (
 							<>
 								<h2 className="min-w-0 flex-1 truncate font-heading text-sm font-medium">Editing {edited.type.name}</h2>
@@ -204,7 +206,8 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 
 	return (
 		<>
-			<div className="shrink-0 p-2">
+			{/* The header's height leaves room above, so less top padding keeps the gaps around the search box even */}
+			<div className="shrink-0 px-2 pt-1 pb-2">
 				<InputGroup>
 					<InputGroupAddon>
 						<SearchIcon />

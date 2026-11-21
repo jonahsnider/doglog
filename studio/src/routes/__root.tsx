@@ -34,7 +34,7 @@ function RootLayout() {
 		<ToastProvider>
 			{/* Wraps the whole app, so dashboards and panes can be dragged between the sidebar and the main area */}
 			<DragProvider>
-				<div className="group/app flex h-svh bg-frame [--sidebar-width-icon:3rem] [--sidebar-width:17.25rem]">
+				<div className="group/app flex h-svh bg-frame [--sidebar-width-icon:2.625rem] [--sidebar-width:17.25rem]">
 					{/* Video export mode keeps the dashboard it previews open, the sidebar stays in place without taking up space of its own */}
 					<div inert={exporting} className="contents">
 						<AppSidebar />
