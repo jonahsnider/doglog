@@ -51,15 +51,11 @@ context: |
   - Protobuf-encoded entries.
   - Managed sync service for dashboards; dashboard import/export.
   - Playback looping and trimming the playback range.
-  - FRC match time display (ex. "Teleop 1:32").
   - A command palette.
-  - More FRC-specific widgets, which double-clicking matching entries should default to.
   - A 3D field view, and field widget robot trails and per-project robot sizes.
-  - WPILib 2027 field coordinates (origin at the center, +X toward blue). The field widget is hardcoded to 2026.
   - A robot editor that writes `doglog.jsonc` from one CAD model.
   - DogLog logging the robot project, so Studio matches a log to its project without the user picking it.
   - More built-in robots, ex. the 2026 KitBot, if FIRST allows redistributing its CAD.
-  - Unit inference beyond angles (ex. distance, velocity).
   - Log sync from Systemcore, planned for the 2027 release.
 
   Open questions:
