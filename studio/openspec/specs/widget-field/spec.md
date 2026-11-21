@@ -231,7 +231,22 @@ Shapes SHALL be drawn under paths, paths under connections, connections under po
 
 ### Requirement: Colors and legend
 
-The field widget SHALL color each entry from the shared chart colors in binding order, and MUST show a legend listing each bound entry, one per line, with its color. The legend SHALL be above the field, unless the widget is wider than the field's shape, where it MUST be beside the field so the field isn't shrunk, and the field SHALL be centered in the widget unless the legend needs that space. The zoomed field MUST extend under the legend instead of leaving its side of the widget empty, and the legend MUST stay on top of it with an opaque background. Entries with no value at or before the cursor MUST be dimmed in the legend and not drawn.
+The field widget SHALL color each entry from the shared chart colors in binding order, and MUST show a legend listing each bound entry, one per line, with its color. Entries with no value at or before the cursor MUST be dimmed in the legend and not drawn.
+
+#### Scenario: Entry without data
+
+- **GIVEN** `/Vision/EstimatedPose` has no value before the cursor
+- **THEN** it is dimmed in the legend
+- **AND** nothing is drawn for it
+
+#### Scenario: Remove a robot
+
+- **WHEN** the user middle-clicks the robot drawn for `/Drive/Pose`
+- **THEN** the widget stops showing `/Drive/Pose`
+
+### Requirement: Legend layout
+
+The legend SHALL be above the field, unless the widget is wider than the field's shape, where it MUST be beside the field so the field isn't shrunk, and the field SHALL be centered in the widget unless the legend needs that space. The zoomed field MUST extend under the legend instead of leaving its side of the widget empty, and the legend MUST stay on top of it with an opaque background.
 
 #### Scenario: Wide widget
 
@@ -249,17 +264,6 @@ The field widget SHALL color each entry from the shared chart colors in binding 
 - **WHEN** the user zooms in
 - **THEN** the field fills the widget, including behind the legend
 - **AND** the legend stays readable over it
-
-#### Scenario: Entry without data
-
-- **GIVEN** `/Vision/EstimatedPose` has no value before the cursor
-- **THEN** it is dimmed in the legend
-- **AND** nothing is drawn for it
-
-#### Scenario: Remove a robot
-
-- **WHEN** the user middle-clicks the robot drawn for `/Drive/Pose`
-- **THEN** the widget stops showing `/Drive/Pose`
 
 ### Requirement: Cursor position
 
