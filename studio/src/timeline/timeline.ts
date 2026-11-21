@@ -15,9 +15,7 @@ export type Timeline = {
 	/** Cursor time in microseconds, on the same clock as sample timestamps. `undefined` until the source has data. */
 	readonly time: number | undefined;
 	readonly playback: Playback;
-	/** Playback speed multiplier */
 	readonly speed: number;
-	/** Whether the active source is live */
 	readonly live: boolean;
 	/** The range of the clip being recorded, which the cursor stays in. `undefined` outside Record mode. */
 	readonly clip: TimeRange | undefined;
@@ -174,7 +172,6 @@ export function getCursorTime(): number | undefined {
 }
 
 /**
- * Call `listener` when the cursor or playback state changes, at most once per frame while playing or following.
  * Useful for widgets that draw outside React, ex. on a canvas.
  * @public
  */

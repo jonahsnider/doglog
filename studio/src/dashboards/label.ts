@@ -97,7 +97,6 @@ function entryTopic(name: string): string {
 	return topic.length === 0 ? segment : topic.join(' ');
 }
 
-/** Topics of the entries a widget shows, `undefined` when it shows none or only its type's default ones */
 function entryTopics(widget: Widget): string[] | undefined {
 	const entryNames = new Set(widgetBindings(widget).map((binding) => binding.name));
 	const defaults = new Set(getWidgetInfo(widget.type)?.defaultEntryNames);

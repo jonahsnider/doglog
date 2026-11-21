@@ -4,7 +4,6 @@ import { KeyboardSensor, PointerSensor } from '@dnd-kit/react';
 /** Drag type of dashboards in the sidebar */
 export const dashboardDragType = 'dashboard';
 
-/** Data of a dashboard dragged in the sidebar */
 export type DashboardDragData = { dashboardId: string; shared: boolean };
 
 /** Data of a split zone, dropping a dashboard on it adds its panes to the open dashboard on that side */

@@ -27,7 +27,6 @@ export function bandPalette(accentColor: string): BandPalette {
 	};
 }
 
-/** String values get palette colors in the order they're first seen, so each distinct value has its own color */
 export type ColorAssignments = Map<Entry, Map<string, number>>;
 
 export function bandColor(assignments: ColorAssignments, palette: BandPalette, entry: Entry, value: unknown): string;

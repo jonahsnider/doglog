@@ -3,7 +3,6 @@ import { getTimeRange } from '@/data/data-store';
 import { getModePeriods } from '@/timeline/events';
 import { getCursorRange, getTimeline, goLive, seek } from '@/timeline/timeline';
 
-/** Move the cursor `seconds` forward, or back if negative, without changing playback */
 export function skip(seconds: number): void {
 	const { time } = getTimeline();
 	if (time !== undefined) {

@@ -8,7 +8,6 @@ const sectionHeaders = {
 	hidden: { icon: EyeOffIcon, label: 'Hidden' },
 };
 
-/** Text of a section's header, ex. `Pinned` */
 export function SectionHeaderLabel({ section, count }: { section: keyof typeof sectionHeaders; count: number }) {
 	const { icon: Icon, label } = sectionHeaders[section];
 	return (

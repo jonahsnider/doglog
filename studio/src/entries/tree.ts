@@ -28,9 +28,7 @@ export type EntryTreeRow = TreeRow & { readonly item: EntryTreeNode; readonly se
 export type EntryTreeView = {
 	/** The hierarchy the tree navigates, only matches and their parent groups while searching */
 	readonly items: EntryTreeNode[];
-	/** Expanded groups */
 	readonly expanded: string[];
-	/** The rows to show, in order */
 	readonly rows: EntryTreeRow[];
 	/** Ranges of each node's label that matched, keyed by path, as `[start, end, start, end, ...]`. Only set while searching. */
 	readonly highlights?: ReadonlyMap<string, readonly number[]>;

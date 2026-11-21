@@ -6,7 +6,6 @@ import type { EntrySection } from '@/entries/sections';
 import type { EntryDrop } from '@/widgets/bindings';
 import { acceptsDrop, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
 
-/** Data of a dragged entry */
 export type EntryDragData = {
 	name: string;
 	/** The only field of the struct `name`, from rows that show it, see `droppedEntryName()` */

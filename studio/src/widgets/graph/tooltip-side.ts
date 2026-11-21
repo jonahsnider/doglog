@@ -1,5 +1,3 @@
-// Which side of the pointer the graph's tooltip goes on
-
 /** Where the pointer is, `x` px into the area between the y-axes that's `width` px wide. `flip` puts the tooltip left of it. */
 export type PointerAt = { x: number; width: number; flip: boolean };
 

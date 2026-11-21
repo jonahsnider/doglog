@@ -54,7 +54,6 @@ export function stepLine(
 	const marked = isMarked(last - first + 1, pixels);
 	const columnWidth = 2 ** Math.floor(Math.log2((view.end - view.start) / Math.max(pixels, 1)));
 	let column = Number.NaN;
-	// The current column's lowest and highest values, and which came first
 	let low = 0;
 	let high = 0;
 	let lowFirst = true;

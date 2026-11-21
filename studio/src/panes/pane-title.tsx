@@ -18,7 +18,6 @@ export function PaneTitle({
 	isDragging: boolean;
 	type: WidgetType | undefined;
 	name: string | undefined;
-	/** Edits the widget's entries */
 	onEdit: () => void;
 }) {
 	const Icon = name === undefined ? LayoutDashboardIcon : type?.icon;

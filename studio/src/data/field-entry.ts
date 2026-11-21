@@ -106,7 +106,6 @@ export class FieldEntry implements Entry {
 		return this.copy;
 	}
 
-	// Read samples logged since the last sync
 	private sync(copy: Samples): void {
 		const source = this.root.samples;
 		if (source.rewrites !== this.rewrites) {

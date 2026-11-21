@@ -4,7 +4,6 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { RobotConfigError, type RobotConfig, readRobotConfig } from '@/three/robot-config';
 import { ProjectAccessError, projectFileReader, type RobotProject } from '@/three/robot-projects';
 
-/** A robot project's config and models, ready to draw */
 export type LoadedRobot = {
 	readonly config: RobotConfig;
 	readonly body: Object3D;

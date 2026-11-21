@@ -212,7 +212,6 @@ function themeColorCss(themeColor: string, contrast: Contrast, preset: ThemePres
 	return `:root:root{${variables(false)}}:root.dark{${variables(true)}}`;
 }
 
-/** Colors used to draw a preview of a theme in Settings */
 export interface ThemePreviewColors {
 	surface: string;
 	sidebar: string;

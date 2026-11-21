@@ -40,7 +40,6 @@ export type LogWorkerMessage =
 	  }
 	| {
 			type: 'done';
-			/** Timestamp of the first data record */
 			start: number | undefined;
 			end: number | undefined;
 			/** Bytes at the end of the file that couldn't be read */

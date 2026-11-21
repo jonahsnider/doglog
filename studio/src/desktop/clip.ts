@@ -28,7 +28,6 @@ type Recording = {
 	previous: Pick<Timeline, 'time' | 'playback'>;
 	/** How much of the clip is saved, from 0 to 1, `undefined` while it isn't being saved */
 	saving: number | undefined;
-	/** Stops saving the clip */
 	abort: AbortController | undefined;
 	unsubscribe: () => void;
 };

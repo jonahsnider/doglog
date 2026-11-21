@@ -23,7 +23,6 @@ export type RobotConfig = {
 	readonly parts: readonly RobotPart[];
 };
 
-/** A robot project that can't be shown, with a message saying why */
 export class RobotConfigError extends Error {}
 
 /** Reads a file in the project folder, `undefined` when it doesn't exist */

@@ -38,7 +38,6 @@ impl client::Handler for Client {
     }
 }
 
-/// A log file on the robot
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RemoteLog {
     /// Absolute path on the robot
@@ -47,7 +46,6 @@ pub struct RemoteLog {
     pub size: u64,
 }
 
-/// An SFTP connection to a robot
 pub struct Robot {
     ssh: Handle<Client>,
     sftp: SftpSession,

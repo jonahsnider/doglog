@@ -2,7 +2,6 @@
 // Kept apart from React so agent command schemas can use it in Node, see `@/agent`. `@/widgets/registry` adds the rest.
 import type { EntryKind } from '../data/entry-kind.ts';
 
-/** Entry kinds that can be bound to widgets */
 export type BindableKind = Exclude<EntryKind, 'unsupported'>;
 
 /** Every bindable kind but Mechanism2d, which only the robot widget can draw */
@@ -197,7 +196,6 @@ export const widgetInfos = [
 		accepts: ['string'],
 		roles: [],
 		options: [],
-		// WPILib's console output and Driver Station messages
 		defaultEntryNames: ['/console', '/messages'],
 	},
 	{
@@ -231,7 +229,6 @@ export const widgetInfos = [
 
 export type WidgetTypeId = (typeof widgetInfos)[number]['id'];
 
-/** A widget type's info, with its ID narrowed to the known ones */
 export type KnownWidgetInfo = WidgetInfo & { readonly id: WidgetTypeId };
 
 export function getWidgetInfo(id: string): KnownWidgetInfo | undefined {

@@ -93,7 +93,6 @@ const themeColors = [
 	.map(([, name]) => name)
 	.join('|');
 
-// https://vite.dev/config/
 export default defineConfig({
 	fmt: {
 		singleQuote: true,
@@ -102,7 +101,6 @@ export default defineConfig({
 		ignorePatterns,
 	},
 	lint: {
-		// React Compiler handles safe memoization; don't require it manually around every inline prop.
 		plugins: ['eslint', 'typescript', 'unicorn', 'oxc', 'react', 'jsx-a11y', 'import', 'promise', 'vitest'],
 		// oxlint-disable-next-line typescript/no-unsafe-type-assertion -- JSON imports widen severities like 'error' to string
 		extends: [landmines as OxlintConfig],
@@ -143,7 +141,6 @@ export default defineConfig({
 			// Return types document functions and catch mistakes at the definition
 			'landmines-types/no-explicit-return-types': 'off',
 
-			// Rule options
 			'typescript/no-confusing-void-expression': ['error', { ignoreArrowShorthand: true }],
 			'typescript/switch-exhaustiveness-check': ['error', { considerDefaultExhaustiveForUnions: true }],
 			'import/no-unassigned-import': ['error', { allow: ['**/*.css'] }],

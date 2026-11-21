@@ -5,7 +5,6 @@ import { invoke } from '@tauri-apps/api/core';
 import { check } from '@tauri-apps/plugin-updater';
 import { toastManager } from '@/components/ui/toast';
 
-/** A newer version of Studio that's available */
 type Update = {
 	/** The web app can't know the new version until it loads it */
 	version: string | undefined;
@@ -13,7 +12,6 @@ type Update = {
 	install: () => Promise<void> | void;
 };
 
-/** A newer version, and whether it's being installed */
 type UpdateState = { update: Update; installing: boolean };
 
 const desktop = STUDIO_DESKTOP;
@@ -23,7 +21,6 @@ const updateStore = createAtom<UpdateState | undefined>(undefined);
 /** Checks for a newer version, then installs it when pressed again. Browsers reserve some ⌘ shortcuts, ex. Edge's Read Aloud, so the web app uses Alt. */
 export const updateShortcut = (desktop ? 'Mod+Shift+U' : 'Alt+Shift+U') satisfies Hotkey;
 
-/** Finds a newer version of the desktop app */
 async function findDesktopUpdate(): Promise<Update | undefined> {
 	const update = await check();
 	if (!update) {
@@ -71,7 +68,6 @@ async function findWebUpdate(registration: ServiceWorkerRegistration): Promise<U
 	};
 }
 
-/** Finds a newer version, or `undefined` if Studio is up to date */
 async function findUpdate(): Promise<Update | undefined> {
 	if (desktop) {
 		return findDesktopUpdate();
@@ -176,12 +172,10 @@ if (desktop && !import.meta.env.DEV) {
 	})();
 }
 
-/** The newer version that's available, if any */
 export function useUpdate(): UpdateState | undefined {
 	return useSelector(updateStore);
 }
 
-/** The label of the button that installs `update` */
 export function updateTitle(update: Update): string {
 	return update.version === undefined ? 'Update Studio' : `Update to ${update.version}`;
 }

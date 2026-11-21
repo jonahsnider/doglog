@@ -26,7 +26,6 @@ import { addDemoMatch, resetDemo, updateDemo, useDemo } from '@/sync/demo';
 import { syncNow, useSyncFolder } from '@/sync/sync';
 import { updateSyncSettings, useSyncSettings } from '@/sync/sync-settings';
 
-/** Which logs sync copies and where to, opened by `trigger` */
 export function SyncSettingsSheet({ trigger }: { trigger: ReactElement }) {
 	const { folder, days, officialOnly, capGb, demo } = useSyncSettings();
 	const { robotTarget } = useSettings();

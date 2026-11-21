@@ -75,7 +75,6 @@ export function addDemoMatch(): void {
 	updateDemo({ robotLogs: [...robotLogs, robotLog(new Date(), 40 * mb, `E${match}`)] });
 }
 
-/** Start over with the original logs on the robot and nothing synced */
 export function resetDemo(): void {
 	updateDemo({ robotLogs: initialRobotLogs(), savedLogs: {} });
 }

@@ -34,7 +34,6 @@ type EntryOf = (name: string) => Entry | undefined;
 
 const directionNames: Record<SplitDirection, string> = { row: 'side by side', column: 'stacked' };
 
-/** Explains that a layout would have more panes in a row or column than fit */
 export function tooManyPanes(direction: SplitDirection): AgentError {
 	return new AgentError(`At most ${maxPanesAlong} panes fit ${directionNames[direction]}.`);
 }
@@ -107,7 +106,6 @@ export function checkConnections(type: WidgetType, bindings: readonly Binding[],
 	}
 }
 
-/** Set a binding's color and hidden state, and its role if it has one */
 export function applyBindingInput(
 	layout: PaneNode,
 	paneId: string,
@@ -148,7 +146,6 @@ function optionPicks(
 	return picks;
 }
 
-/** Show a widget from agent input in a pane, bound and with options picked as given */
 export function showInputWidget(layout: PaneNode, paneId: string, input: WidgetInput, entryOf: EntryOf): PaneNode {
 	const type = getWidgetType(input.type)!;
 	const { bindings } = input;

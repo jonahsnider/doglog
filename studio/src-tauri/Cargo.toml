@@ -9,8 +9,6 @@ homepage = "https://studio.doglog.dev"
 edition = "2024"
 rust-version = "1.90"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [workspace]
 members = ["robot-sftp"]
 

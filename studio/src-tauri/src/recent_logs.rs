@@ -4,7 +4,6 @@
 use std::path::PathBuf;
 use tauri::AppHandle;
 
-/// Add a log to the OS's recent documents
 #[tauri::command]
 pub fn note_recent_log(app: AppHandle, path: PathBuf) {
     // AppKit and COM both need the main thread
@@ -35,7 +34,6 @@ pub fn note_recent_log(app: AppHandle, path: PathBuf) {
     });
 }
 
-/// Remove Studio's logs from the OS's recent documents
 #[tauri::command]
 pub fn clear_recent_logs(app: AppHandle) {
     let _ = app.run_on_main_thread(|| {

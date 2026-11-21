@@ -12,12 +12,10 @@ const update = {
 /** ID of the update the user dismissed. New users start caught up, so they only see updates made after they started. */
 const seenStore = createPersistedAtom('changelog-seen', z.int(), update.id);
 
-/** The newest update if the user hasn't dismissed it yet */
 export function useUnseenUpdate(): typeof update | undefined {
 	return useSelector(seenStore) < update.id ? update : undefined;
 }
 
-/** Hide the newest update */
 export function dismissUpdate(): void {
 	seenStore.set(update.id);
 }

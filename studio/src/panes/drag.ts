@@ -6,7 +6,6 @@ import type { Pane, PaneSide } from '@/panes/layout';
 /** Drag type of panes, dragged by their header */
 export const paneDragType = 'pane';
 
-/** Data of a dragged pane */
 export type PaneDragData = { dashboardId: string; paneId: string; widgetType: string | undefined };
 
 /** Data of a pane that other panes can be dropped beside */

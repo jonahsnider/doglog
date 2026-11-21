@@ -273,7 +273,6 @@ const splitSchema = z.object({
 	},
 });
 
-/** Validates a stored layout */
 export const paneNodeSchema: z.ZodType<PaneNode> = z
 	.discriminatedUnion('kind', [paneSchema, splitSchema])
 	.transform((node) => normalize(node));

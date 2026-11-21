@@ -46,7 +46,6 @@ function displayName(name: string, anonymousName: string): string {
 	return name.trim() === '' ? anonymousName : name.trim();
 }
 
-/** The name others see in shared dashboards */
 export function getDisplayName(): string {
 	return displayName(settingsStore.get().name, anonymousNameStore.get());
 }

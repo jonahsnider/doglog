@@ -29,7 +29,6 @@ const contrastLabels: Record<Contrast, string> = {
 	high: 'High',
 };
 
-/** Settings panels for the theme and theme color */
 export function AppearanceSettings() {
 	const { theme, themeColor, themePreset, contrast } = useSettings();
 
@@ -118,7 +117,6 @@ export function AppearanceSettings() {
 	);
 }
 
-/** Settings panel for the color scheme's contrast */
 export function ContrastSetting() {
 	const { contrast } = useSettings();
 

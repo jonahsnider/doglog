@@ -78,7 +78,6 @@ export const canAddRobotProjects = STUDIO_DESKTOP || 'showDirectoryPicker' in gl
 /** The web app lost access to a project's folder, ex. after reloading, and needs the user to allow it again */
 export class ProjectAccessError extends Error {}
 
-/** Reads files in a project's folder */
 export function projectFileReader(project: RobotProject): ReadProjectFile {
 	const { path, handle } = project;
 	if (STUDIO_DESKTOP && path !== undefined) {

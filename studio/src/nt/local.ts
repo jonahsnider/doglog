@@ -37,14 +37,12 @@ function subscriptionsTo(host: Host, prefix: string): Subscription[] {
 	return [...host.subscriptions.values()].filter((subscription) => subscription.prefix === prefix);
 }
 
-/** Pass announcements and property changes for `topic` to subscriptions to its prefix */
 function hookTopic(host: Host, topic: PatchedPrefixTopic): void {
 	if (hookedTopics.has(topic)) {
 		return;
 	}
 	hookedTopics.add(topic);
 
-	// Prefix subscribers aren't told about announcements, so topics without values wouldn't be listed
 	const announce = topic.announce.bind(topic);
 	topic.announce = (params) => {
 		announce(params);
@@ -181,10 +179,9 @@ export function openLocalNt(hostname: string, port = 5810): NtClient {
 			if (!host.connected) {
 				return undefined;
 			}
-			// The NT4 client only uses the server's time internally
-			// oxlint-disable-next-line typescript/no-unsafe-type-assertion -- See above
+			// oxlint-disable-next-line typescript/no-unsafe-type-assertion
 			const internals = nt as unknown as NtInternals;
-			// oxlint-disable-next-line no-underscore-dangle -- See above
+			// oxlint-disable-next-line no-underscore-dangle
 			return internals._client.messenger.socket.getServerTime();
 		},
 		onConnectedChange(listener) {

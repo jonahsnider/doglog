@@ -140,7 +140,6 @@ async function showSavedLogs(): Promise<void> {
 /** Copy new logs from the robot and delete old ones past the storage limit. Returns how long to wait before the next sync. */
 async function syncOnce(host: string): Promise<number> {
 	const backend = currentBackend();
-	// Stop when sync is paused, or switches to or from demo mode
 	const stopped = () => isPaused() || currentBackend() !== backend;
 	if (!['syncing', 'up-to-date', 'error'].includes(statusStore.get().type)) {
 		statusStore.set({ type: 'waiting', host, error: undefined });
@@ -210,7 +209,6 @@ async function syncOnce(host: string): Promise<number> {
 			total += Math.max(copied - expected, 0);
 			await refreshFolder();
 			if (copied < expected && stopped()) {
-				// Cancelled because the robot was enabled or the user paused sync, the rest is copied once it resumes
 				return 0;
 			}
 		}

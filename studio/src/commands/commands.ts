@@ -230,7 +230,6 @@ function switchSource(): void {
 	showSource(getSource()?.type === 'log' ? 'live' : 'log');
 }
 
-/** Register the app-wide keyboard shortcuts */
 export function useGlobalShortcuts(): void {
 	const router = useRouter();
 

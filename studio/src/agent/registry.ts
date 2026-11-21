@@ -7,7 +7,6 @@ import { handlers } from '@/agent/handlers';
 export { AgentError } from '@/agent/agent-error';
 export { agentApiVersion } from '@/agent/commands';
 
-/** The commands offered in this window */
 export const availableCommands = platformCommands(STUDIO_DESKTOP ? 'desktop' : 'web');
 
 function isHandled(name: string): name is keyof typeof handlers {

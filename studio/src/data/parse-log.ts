@@ -17,7 +17,6 @@ export type ParsedLog = {
 	entries: Map<string, ParsedEntry>;
 	/** Fields of the log's struct schemas by struct name, ex. `Pose2d` */
 	structSchemas: Map<string, StructDeclaration[]>;
-	/** Timestamp of the first data record */
 	start: number | undefined;
 	end: number | undefined;
 	/**

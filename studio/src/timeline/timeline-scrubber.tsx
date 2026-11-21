@@ -50,7 +50,6 @@ export function Scrubber({
 	/** The end of a log's file that couldn't be read, shown after the data for about as long as it would have lasted */
 	unread: UnreadEnd | undefined;
 }) {
-	// Non-null so it matches the React 18 `RefObject` that usehooks-ts' `useEventListener` expects
 	const slider = useRef<HTMLDivElement>(null!);
 	const track = useRef<HTMLDivElement>(null);
 	// Hotkeys skip the arrow, Home, and End keys a focused slider uses itself, so they're given to the slider directly

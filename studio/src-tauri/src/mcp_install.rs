@@ -112,7 +112,6 @@ fn doglog_command() -> Option<String> {
     path.exists().then(|| path.to_string_lossy().into_owned())
 }
 
-/// Find a command in a PATH
 fn find_command(name: &str, path: &OsStr) -> Option<PathBuf> {
     #[cfg(windows)]
     const EXTENSIONS: &[&str] = &[".exe", ".cmd"];
@@ -262,7 +261,6 @@ pub async fn mcp_agents() -> Vec<DetectedAgent> {
         .collect()
 }
 
-/// Add the MCP server to an agent
 #[tauri::command]
 pub async fn install_mcp(agent: Agent) -> Result<(), String> {
     let doglog = doglog_command().ok_or("The doglog command isn't installed")?;

@@ -2,7 +2,6 @@ import type { NetworkTablesTypes } from '@ntcore-ts/client';
 
 export type NtValue = NetworkTablesTypes;
 
-/** A topic the server announced */
 export type NtTopic = { name: string; type: string; properties: Record<string, unknown> };
 
 export type NtListener = {

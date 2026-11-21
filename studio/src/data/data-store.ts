@@ -14,7 +14,6 @@ export type Entry = {
 	readonly kind: EntryKind;
 	/** Mutated in place as data arrives, read it when rendering instead of copying it into React state */
 	readonly samples: Samples;
-	/** WPILOG entry metadata or NT4 topic properties, ex. `{ "unit": "deg" }`. Replaced when it changes, like `samples`. */
 	metadata: Readonly<Record<string, unknown>>;
 };
 
@@ -48,14 +47,12 @@ export function liveTime(): number {
 	return (performance.timeOrigin + performance.now()) * 1000;
 }
 
-/** A new, empty data set */
 export function createDataSet(): DataSet {
 	return new DataSet(scheduleFlush);
 }
 
 // The data set every dashboard and widget shows, empty without a source
 let active = createDataSet();
-// Data sets changed since the last frame
 const changedSets = new Set<DataSet>();
 let flushScheduled = false;
 

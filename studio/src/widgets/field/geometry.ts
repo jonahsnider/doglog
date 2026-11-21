@@ -165,7 +165,6 @@ export function angleOf({ from, to }: Measurement): number {
 	return Math.atan2(to.y - from.y, to.x - from.x);
 }
 
-/** The measurement's text and where it's shown */
 export function measurementLabel(measurement: Measurement): { text: string; at: FieldPoint } {
 	const { from, to } = measurement;
 	if (measurement.tool === 'distance') {

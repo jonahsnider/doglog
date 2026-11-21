@@ -1,4 +1,3 @@
-// What every link preview image shares: its size, Studio's colors and fonts, and its logo.
 import { hexFromArgb } from '@material/material-color-utilities';
 import type { RenderOptions } from 'takumi-js';
 import { defaultThemeColor, schemeColors } from '@/theme/theme-color';

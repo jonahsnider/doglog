@@ -48,7 +48,6 @@ interface Candidate {
 	date: number;
 	remote: RemoteLog | undefined;
 	local: LocalLog | undefined;
-	/** Whether the robot's copy passes the filter, so it should be downloaded */
 	wanted: boolean;
 }
 

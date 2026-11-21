@@ -248,7 +248,6 @@ export function saveDashboardDoc(id: string, doc: LoroDoc): void {
 	saveDoc(storageKey(id), doc);
 }
 
-/** Delete a dashboard's saved document */
 export function deleteDashboardDoc(id: string): void {
 	removeStorage(storageKey(id));
 }

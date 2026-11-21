@@ -155,10 +155,6 @@ function FaceLabel({ label, color, ...transform }: (typeof faces)[number] & { co
 	) : null;
 }
 
-/**
- * A rounded cube in the scene's top-right corner that turns with the camera. Clicking a face, edge, or corner looks
- * from that direction.
- */
 type HoverUniforms = {
 	hoverDirection: { value: Vector3 };
 	hovered: { value: number };

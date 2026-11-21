@@ -62,7 +62,6 @@ export function TitleBar({
 }) {
 	const trafficLights = useTrafficLights();
 	const strip = useTitleBarStrip();
-	// Whether the sidebar is animating, see `sidebarAnimationStore`
 	const animating = useSelector(sidebarAnimationStore) !== undefined;
 	const label = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
 	return (

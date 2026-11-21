@@ -24,7 +24,6 @@ pub fn last_focused(app: &AppHandle) -> String {
     app.state::<LastFocused>().0.lock().unwrap().clone()
 }
 
-/// Open another Studio window, opening `log` in it
 pub fn create(app: &AppHandle, log: Option<PathBuf>) -> tauri::Result<()> {
     static NEXT: AtomicU32 = AtomicU32::new(1);
     let mut config = app.config().app.windows[0].clone();

@@ -1,7 +1,6 @@
 import { type Hotkey, useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { Kbd, KbdGroup } from '@/components/ui/kbd';
 
-/** Tooltip content for a control, followed by its keyboard shortcuts if it has any */
 export function TooltipLabel({
 	label,
 	shortcut,

@@ -51,7 +51,6 @@ export function HiddenSection({
 				<ChevronRightIcon
 					className={cn('size-4 shrink-0 text-muted-foreground transition-transform', open && 'rotate-90')}
 				/>
-				{/* Counts matches while searching */}
 				<SectionHeaderLabel section="hidden" count={view.items.length} />
 			</button>
 			{open && (

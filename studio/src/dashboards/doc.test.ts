@@ -110,7 +110,6 @@ test('peers splitting the same pane at once end up with the same valid layout', 
 	expect(paneIds(layout)).toHaveLength(3);
 	expect(paneIds(layout)).toContain(pane.id);
 
-	// Writing the layout read back keeps it
 	write(doc, { layout });
 	expect(readDashboardDoc(doc).layout).toEqual(layout);
 });

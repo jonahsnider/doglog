@@ -84,7 +84,6 @@ export function Shapes({ values, color }: { values: readonly unknown[]; color: s
 	);
 }
 
-/** A line through the poses in order */
 export function Path({ poses, color }: { poses: Pose[]; color: string }) {
 	return (
 		<polyline
@@ -98,7 +97,6 @@ export function Path({ poses, color }: { poses: Pose[]; color: string }) {
 	);
 }
 
-/** A line from `from` to each pose */
 export function Connections({ from, poses, color }: { from: Pose; poses: Pose[]; color: string }) {
 	return (
 		<path

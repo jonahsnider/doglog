@@ -175,7 +175,6 @@ enum Kind {
     Enum(Vec<String>),
 }
 
-/// What a flag takes
 struct Flag {
     kind: Kind,
     /// A list, given as several values

@@ -21,7 +21,6 @@ const presenceSchema = z.object({
 
 /** Changes are batched, so dragging a split or typing a name doesn't send a snapshot for every step */
 const docDelay = 250;
-/** Presence is sent at most twice a second */
 const presenceInterval = 500;
 const publishRetryDelay = 1000;
 
@@ -97,7 +96,6 @@ function setSessions(update: (sessions: Map<string, Session>) => void): void {
 export function connectSharing(nt: NtClient, onConnectedChange: (connected: boolean) => void): () => void {
 	const userId = userIdStore.get();
 
-	// Every dashboard others share, and where they are in them
 	const receive = (name: string, value: unknown) => {
 		const doc = docTopicPattern.exec(name);
 		if (doc?.[1] !== undefined && doc[2] !== sessionId && value instanceof Uint8Array) {
@@ -140,7 +138,6 @@ export function connectSharing(nt: NtClient, onConnectedChange: (connected: bool
 		},
 	);
 
-	// Shared dashboards, by ID, with the version last sent
 	const docPublishers = new Map<string, { publisher: Publisher; version: string | undefined }>();
 	let docTimer: ReturnType<typeof setTimeout> | undefined;
 	const sendDocs = () => {
@@ -179,7 +176,6 @@ export function connectSharing(nt: NtClient, onConnectedChange: (connected: bool
 		docTimer ??= setTimeout(sendDocs, docDelay);
 	};
 
-	// This session's presence in the shared dashboard it shows
 	let presence: { name: string; publisher: Publisher; value: string | undefined } | undefined;
 	let presenceTimer: ReturnType<typeof setTimeout> | undefined;
 	let presenceSentAt = 0;

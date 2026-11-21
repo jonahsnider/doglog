@@ -40,7 +40,6 @@ type Submenu = {
 	items: readonly MenuEntry[];
 };
 
-/** An item in a context menu definition */
 export type MenuEntry = MenuAction | MenuCheckbox | Submenu | 'separator';
 
 type AppContextMenuProps = {

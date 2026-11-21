@@ -62,7 +62,6 @@ async fn windows() -> Result<Vec<Window>, String> {
     Ok(windows)
 }
 
-/// `window_list`
 pub async fn window_list() -> Result<Value, String> {
     Ok(windows().await?.into_iter().map(|window| window.info).collect())
 }

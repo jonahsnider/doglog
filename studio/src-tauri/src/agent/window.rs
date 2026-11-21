@@ -27,7 +27,6 @@ pub enum WebviewRequest {
     },
 }
 
-/// Agent control for one window
 pub struct AgentWindow {
     id: String,
     /// Accepting connections on this window's socket, until the window closes

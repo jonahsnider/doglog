@@ -34,7 +34,6 @@ export type RecordingEvent =
 /** How the recording's clock relates to the others at the latest connection: `shift` from the server's, and `offset` from Studio's to the server's */
 export type RecordingClock = { shift: number; offset: number };
 
-/** Writes a live session's topics and values with `writer`, on the server's clock */
 export class Recorder {
 	private readonly writer: DataLogWriter;
 	private readonly host: string;
@@ -109,7 +108,6 @@ export class Recorder {
 		const offset = liveTime - serverTime;
 		const previous = this.clock;
 		let shift = previous?.shift ?? 0;
-		// After a reset, time continues from when the last connection ended
 		if (previous !== undefined && Math.abs(offset - previous.offset) > resetThreshold) {
 			shift += offset - previous.offset;
 		}
