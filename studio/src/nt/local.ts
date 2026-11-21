@@ -1,19 +1,12 @@
-import { LogLevel, NetworkTables, type NetworkTablesPrefixTopic, type NetworkTablesTopic } from '@ntcore-ts/client';
+import { LogLevel, NetworkTables, type NetworkTablesTopic } from '@ntcore-ts/client';
 import type { NtClient, NtListener, NtSubscribeOptions, NtTopic, NtValue } from '@/nt/client';
 
 NetworkTables.setLogLevel(LogLevel.WARN);
-
-/** Hooks called by our @ntcore-ts/client patch */
-type PatchedPrefixTopic = NetworkTablesPrefixTopic & {
-	onUnannounce?: (params: { name: string }) => void;
-	onProperties?: (params: { name: string; update: Record<string, unknown> }) => void;
-};
 
 type NtInternals = { _client: { messenger: { socket: { getServerTime(): number } } } };
 
 /** One subscription to the server, shared by every listener with the same prefix and options */
 type Subscription = {
-	prefix: string;
 	listeners: Set<NtListener>;
 	/** What the server sent for this subscription, for listeners that join later */
 	topics: Map<string, NtTopic>;
@@ -31,93 +24,33 @@ type Host = {
 };
 
 const hosts = new Map<string, Host>();
-const hookedTopics = new WeakSet<NetworkTablesPrefixTopic>();
-
-function subscriptionsTo(host: Host, prefix: string): Subscription[] {
-	return [...host.subscriptions.values()].filter((subscription) => subscription.prefix === prefix);
-}
-
-function hookTopic(host: Host, topic: PatchedPrefixTopic): void {
-	if (hookedTopics.has(topic)) {
-		return;
-	}
-	hookedTopics.add(topic);
-
-	const announce = topic.announce.bind(topic);
-	topic.announce = (params) => {
-		announce(params);
-		const announced: NtTopic = { name: params.name, type: params.type, properties: { ...params.properties } };
-		for (const subscription of subscriptionsTo(host, topic.name)) {
-			subscription.topics.set(announced.name, announced);
-			for (const listener of subscription.listeners) {
-				listener.announce?.(announced);
-			}
-		}
-	};
-	topic.onUnannounce = ({ name }) => {
-		for (const subscription of subscriptionsTo(host, topic.name)) {
-			subscription.topics.delete(name);
-			subscription.values.delete(name);
-			for (const listener of subscription.listeners) {
-				listener.unannounce?.(name);
-			}
-		}
-	};
-	topic.onProperties = ({ name, update }) => {
-		for (const subscription of subscriptionsTo(host, topic.name)) {
-			const announced = subscription.topics.get(name);
-			if (announced) {
-				const properties = { ...announced.properties, ...update };
-				for (const [key, value] of Object.entries(update)) {
-					if (value === null) {
-						delete properties[key];
-					}
-				}
-				subscription.topics.set(name, { ...announced, properties });
-			}
-			for (const listener of subscription.listeners) {
-				listener.properties?.(name, update);
-			}
-		}
-	};
-}
 
 function subscribe(host: Host, prefix: string, options: NtSubscribeOptions): Subscription {
-	const topic: PatchedPrefixTopic = host.nt.getPrefixTopic(prefix);
-	hookTopic(host, topic);
-	const subscription: Subscription = {
-		prefix,
-		listeners: new Set(),
-		topics: new Map(),
-		values: new Map(),
-		unsubscribe: () => {},
-	};
+	const topic = host.nt.getPrefixTopic(prefix);
+	const listeners = new Set<NtListener>();
+	const topics = new Map<string, NtTopic>();
+	const values: Subscription['values'] = new Map();
 
-	// The server sends each topic to a client once, so topics other subscriptions received aren't sent for this one
+	// The library replays subtopic values, but skips a topic whose name equals the prefix.
 	for (const other of host.subscriptions.values()) {
-		for (const [name, announced] of other.topics) {
-			if (name.startsWith(prefix)) {
-				subscription.topics.set(name, announced);
-			}
-		}
-		for (const [name, value] of other.values) {
-			if (name.startsWith(prefix)) {
-				subscription.values.set(name, value);
-			}
+		const exact = other.values.get(prefix);
+		if (exact) {
+			values.set(prefix, exact);
+			break;
 		}
 	}
 
 	const subuid = topic.subscribe(
-		(value, params) => {
+		(value, { name, type }) => {
 			if (value === null) {
-				subscription.values.delete(params.name);
+				values.delete(name);
 				return;
 			}
-			// Set right before subscribers are called
-			const serverTime = topic.lastChangedTime ?? 0;
-			subscription.values.set(params.name, { type: params.type, value, serverTime });
-			for (const listener of subscription.listeners) {
-				listener.value?.(params.name, params.type, value, serverTime);
+			// The library caches each value and its timestamp before notifying subscribers.
+			const sample = topic.getSubtopicValue(name)!;
+			values.set(name, { type, value: sample.value, serverTime: sample.serverTime });
+			for (const listener of listeners) {
+				listener.value?.(name, type, sample.value, sample.serverTime);
 			}
 		},
 		{
@@ -126,8 +59,39 @@ function subscribe(host: Host, prefix: string, options: NtSubscribeOptions): Sub
 			immediateNotify: topic.subscribers.size > 0,
 		},
 	);
-	subscription.unsubscribe = () => topic.unsubscribe(subuid);
-	return subscription;
+	const removeAnnounce = topic.addAnnounceListener(
+		({ name, type, properties }) => {
+			// The library updates these properties in place; hand listeners a snapshot.
+			topics.set(name, { name, type, properties });
+			for (const listener of listeners) {
+				listener.announce?.({ name, type, properties: { ...properties } });
+			}
+		},
+		{ immediateNotify: true },
+	);
+	const removeUnannounce = topic.addUnannounceListener(({ name }) => {
+		topics.delete(name);
+		values.delete(name);
+		for (const listener of listeners) {
+			listener.unannounce?.(name);
+		}
+	});
+	const removeProperties = topic.addPropertiesListener(({ name, update }) => {
+		for (const listener of listeners) {
+			listener.properties?.(name, update);
+		}
+	});
+	return {
+		listeners,
+		topics,
+		values,
+		unsubscribe: () => {
+			removeAnnounce();
+			removeUnannounce();
+			removeProperties();
+			topic.unsubscribe(subuid);
+		},
+	};
 }
 
 /** A client of the NT4 server at `host`, sharing a connection with other clients in this tab or window */
@@ -212,7 +176,7 @@ export function openLocalNt(hostname: string, port = 5810): NtClient {
 					return;
 				}
 				for (const announced of joined.topics.values()) {
-					listener.announce?.(announced);
+					listener.announce?.({ ...announced, properties: { ...announced.properties } });
 				}
 				for (const [name, { type, value, serverTime }] of joined.values) {
 					listener.value?.(name, type, value, serverTime);

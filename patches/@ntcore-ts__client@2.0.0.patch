@@ -1,0 +1,64 @@
+diff --git a/dist/index.esm.js b/dist/index.esm.js
+index de80b9329092fff05a2b2ed576c7f5496e4c025f..6874e99a47d4f99a627c264e7d4a916c7b74943d 100644
+--- a/dist/index.esm.js
++++ b/dist/index.esm.js
+@@ -740,7 +740,15 @@ class NetworkTablesTopic extends NetworkTablesBaseTopic {
+                 pubuid: this._pubuid,
+                 properties,
+             };
+-            return await this.client.messenger.publish(publishParams);
++            try {
++                return await this.client.messenger.publish(publishParams);
++            }
++            catch (error) {
++                // An announcement for a failed attempt must not make this topic a publisher.
++                this._pubuid = undefined;
++                this._publisher = false;
++                throw error;
++            }
+         });
+     }
+     /**
+@@ -3063,12 +3071,14 @@ class Messenger {
+                 timeout: 3000,
+                 force,
+             });
++            const websocket = this.socket.websocket;
+             let timeoutId = null;
+             let resolved = false;
+             // Cleanup function to remove listener and clear timeouts
+             const cleanup = () => {
+                 messengerLogger.trace('Cleanup: removing event listener and clearing timeouts', { topicName: params.name });
+-                this.socket.websocket.removeEventListener('message', wsHandler);
++                websocket.removeEventListener('message', wsHandler);
++                websocket.removeEventListener('close', onClose);
+                 if (timeoutId) {
+                     clearTimeout(timeoutId);
+                     messengerLogger.trace('Main timeout cleared', { topicName: params.name });
+@@ -3095,8 +3105,13 @@ class Messenger {
+                 messengerLogger.trace('Promise rejector called', { topicName: params.name, error: error.message });
+                 resolved = true;
+                 cleanup();
++                // The server may have registered the publisher even if the announcement was missed.
++                if (this.socket.websocket === websocket && this.socket.isConnected()) {
++                    this.socket.sendTextFrame({ method: 'unpublish', params: { pubuid: params.pubuid } });
++                }
+                 reject(error);
+             };
++            const onClose = () => rejector(new Error('Socket closed'));
+             const wsHandler = (event) => {
+                 const messages = this.parseAndFilterMessage(event, 'announce');
+                 messengerLogger.debug('Messages filtered for announce', { count: messages.length });
+@@ -3135,7 +3150,11 @@ class Messenger {
+                 }
+             };
+             messengerLogger.trace('Event listener attached', { topicName: params.name });
+-            this.socket.websocket.addEventListener('message', wsHandler);
++            websocket.addEventListener('message', wsHandler);
++            // Once sent, the request belongs to this socket, not the next connection.
++            if (this.socket.isConnected()) {
++                websocket.addEventListener('close', onClose);
++            }
+             this.sendPublishFrames(params);
+             // Reject the promise if the topic is not announced within 3 seconds
+             this.socket
