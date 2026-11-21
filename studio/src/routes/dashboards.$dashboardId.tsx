@@ -8,9 +8,9 @@ import { canCopyDashboardLink } from '@/dashboards/copy-dashboard-link';
 import { DashboardSplitZones } from '@/dashboards/dashboard-drag';
 import { DashboardPanes } from '@/dashboards/dashboard-panes';
 import { canCapture, copyImage, dashboardCaptureTarget } from '@/desktop/capture';
-import { canExportClip, startRecording, useRecording } from '@/desktop/clip';
+import { canExportVideo, startVideoExport, useVideoExport } from '@/desktop/video-export';
 import { getSource } from '@/data/source';
-import { RecordBar } from '@/timeline/record-bar';
+import { VideoExportBar } from '@/timeline/video-export-bar';
 import { EntryBrowser } from '@/entries/entry-browser';
 import { TimelineBar } from '@/timeline/timeline-bar';
 import { type Dashboard, getDashboard, useDashboards } from '@/dashboards/dashboards';
@@ -104,7 +104,7 @@ function DashboardView() {
 /** The panes with the timeline under them */
 function PanesColumn({ dashboard }: { dashboard: Dashboard }) {
 	const router = useRouter();
-	const recording = useRecording()?.dashboardId === dashboard.id;
+	const exporting = useVideoExport()?.dashboardId === dashboard.id;
 	useHotkey(
 		shortcuts.copyDashboardImage,
 		(event) => {
@@ -130,10 +130,10 @@ function PanesColumn({ dashboard }: { dashboard: Dashboard }) {
 
 	// Also stops ⌘R from reloading the window on desktop
 	useHotkey(
-		shortcuts.exportClip,
+		shortcuts.exportVideo,
 		() => {
-			if (canExportClip(dashboard, getSource())) {
-				startRecording(router, dashboard.id);
+			if (canExportVideo(dashboard, getSource())) {
+				startVideoExport(router, dashboard.id);
 			}
 		},
 		{ enabled: STUDIO_DESKTOP && canCapture, requireReset: true },
@@ -142,10 +142,10 @@ function PanesColumn({ dashboard }: { dashboard: Dashboard }) {
 	return (
 		// Under the panes rather than the entry browser too, so the entry browser reaches the bottom of the window like the sidebar
 		<div className="flex h-full flex-col">
-			{/* Shown with capture styling in Record mode, so the preview looks like the clip */}
+			{/* Shown with capture styling in video export mode, so the preview looks like the video */}
 			<div
 				data-capture-dashboard={dashboard.id}
-				data-capturing={recording ? '' : undefined}
+				data-capturing={exporting ? '' : undefined}
 				className="flex min-h-0 flex-1 flex-col ps-1.5 pt-1.5 capture:bg-frame"
 			>
 				<section aria-label="Panes" className="relative isolate mb-1.5 min-h-0 min-w-0 flex-1">
@@ -154,7 +154,7 @@ function PanesColumn({ dashboard }: { dashboard: Dashboard }) {
 				</section>
 				<TimelineBar />
 			</div>
-			{recording && <RecordBar />}
+			{exporting && <VideoExportBar />}
 		</div>
 	);
 }

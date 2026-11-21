@@ -21,7 +21,7 @@ import { isEnterKey } from '@/lib/keyboard';
 import type { Dashboard } from '@/dashboards/dashboards';
 import { type Entry, useEntries } from '@/data/data-store';
 import { useSource } from '@/data/source';
-import { useRecording } from '@/desktop/clip';
+import { useVideoExport } from '@/desktop/video-export';
 import type { EntryDragData, EntrySectionDropData } from '@/entries/drag';
 import { useSearchExpansion } from '@/entries/search-expansion';
 import { entryPlacementsStore, moveToSection } from '@/entries/sections';
@@ -60,13 +60,13 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 	const edited = useEditedWidget(dashboard);
 	useHotkey('Escape', stopEditing, { enabled: edited !== undefined, ignoreInputs: false, conflictBehavior: 'allow' });
 	const panelRef = usePanelRef();
-	// Record mode keeps the dashboard it previews as it is
-	const recording = useRecording() !== undefined;
+	// Video export mode keeps the dashboard it previews as it is
+	const exporting = useVideoExport() !== undefined;
 
 	if (!open) {
 		return (
 			// Padded like the header below
-			<aside aria-label="Entry browser" inert={recording} className="ms-1.5 shrink-0 px-1.5 pt-3 pb-1.5">
+			<aside aria-label="Entry browser" inert={exporting} className="ms-1.5 shrink-0 px-1.5 pt-3 pb-1.5">
 				<ToggleButton open={false} />
 			</aside>
 		);
@@ -76,7 +76,7 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 		<>
 			<Separator
 				aria-label="Resize entry browser"
-				disabled={recording}
+				disabled={exporting}
 				// Covers the library's 10px hit area so double-clicks land on the separator
 				className="relative z-10 w-1.5 outline-none before:absolute before:inset-x-0.5 before:inset-y-1 before:rounded-full before:transition-colors after:absolute after:inset-y-0 after:-inset-x-0.5 focus-visible:before:bg-ring data-[separator=active]:before:bg-ring data-[separator=hover]:before:bg-ring capture:before:hidden"
 				// The built-in reset would use the saved width
@@ -95,7 +95,7 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 				{/* A sidebar like the one on the left, on the frame instead of its own surface */}
 				<aside
 					aria-label="Entry browser"
-					inert={recording}
+					inert={exporting}
 					className="group/entry-browser flex h-full flex-col overflow-hidden"
 				>
 					{/* Reaches the top of the main area like the sidebar, so it's padded to line up with the pane headers below the dashboard's gap */}

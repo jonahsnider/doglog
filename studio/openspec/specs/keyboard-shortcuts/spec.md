@@ -106,7 +106,7 @@ The keyboard shortcuts shortcut SHALL open a dialog listing every app-wide keybo
 - **WHEN** the user presses ⌘/
 - **THEN** a dialog lists every app-wide keyboard shortcut, including the timeline's
 - **AND** Navigation lists Back / forward, dashboard switching, Logs, and Settings
-- **AND** Collaboration and sharing lists Copy dashboard link and, where capture is available, Copy dashboard image and Export dashboard clip
+- **AND** Collaboration and sharing lists Copy dashboard link and, where capture is available, Copy dashboard image and Export dashboard video
 - **AND** it doesn't list the field widget's measuring shortcuts
 
 #### Scenario: Opposite actions

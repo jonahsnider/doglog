@@ -86,13 +86,12 @@ export class FieldEntry implements Entry {
 	private read = 0;
 	private rewrites = 0;
 
-	constructor(parent: Entry, key: FieldKey, type: string) {
-		this.name = `${parent.name}/${key}`;
+	constructor(root: Entry, path: readonly FieldKey[], type: string) {
+		this.name = `${root.name}/${path.join('/')}`;
 		this.type = type;
 		this.kind = getEntryKind(type);
-		const isField = parent instanceof FieldEntry;
-		this.root = isField ? parent.root : parent;
-		this.path = isField ? [...parent.path, key] : [key];
+		this.root = root;
+		this.path = path;
 	}
 
 	/** An array's metadata, like its unit, applies to its elements. Struct fields have none. */

@@ -2,8 +2,6 @@ mod agent;
 #[cfg(any(target_os = "macos", windows))]
 mod capture;
 mod cli;
-#[cfg(any(target_os = "macos", windows))]
-mod clip;
 mod context_menu;
 mod live_export;
 #[cfg(desktop)]
@@ -12,6 +10,8 @@ mod new_window;
 mod recent_logs;
 mod relaunch;
 mod sync;
+#[cfg(any(target_os = "macos", windows))]
+mod video;
 mod window_state;
 
 use std::{collections::HashMap, ops::ControlFlow, path::PathBuf, process::ExitCode, sync::Mutex};
@@ -168,7 +168,7 @@ pub fn run() -> ExitCode {
     #[cfg(target_os = "macos")]
     let builder = builder.append_invoke_initialization_script("\nwindow.__DOGLOG_CAPTURE_COVER__ = true;");
     #[cfg(any(target_os = "macos", windows))]
-    let builder = builder.manage(clip::ClipRecording::default());
+    let builder = builder.manage(video::VideoExports::default());
     let builder = if frosted_frame {
         builder.append_invoke_initialization_script("\nwindow.__DOGLOG_FROSTED_FRAME__ = true;")
     } else {
@@ -210,7 +210,7 @@ pub fn run() -> ExitCode {
                 let app = window.app_handle();
                 agent::window::close(app, window.label());
                 #[cfg(any(target_os = "macos", windows))]
-                clip::cancel_window_clip(app, window.label());
+                video::cancel_window_video(app, window.label());
                 app.state::<OpenedLog>().0.lock().unwrap().remove(window.label());
                 app.state::<OpenedDashboardLink>()
                     .0
@@ -231,13 +231,13 @@ pub fn run() -> ExitCode {
             #[cfg(target_os = "macos")]
             capture::set_capture_cover,
             #[cfg(any(target_os = "macos", windows))]
-            clip::start_clip,
+            video::start_video,
             #[cfg(any(target_os = "macos", windows))]
-            clip::add_clip_frame,
+            video::add_video_frame,
             #[cfg(any(target_os = "macos", windows))]
-            clip::finish_clip,
+            video::finish_video,
             #[cfg(any(target_os = "macos", windows))]
-            clip::cancel_clip,
+            video::cancel_video,
             context_menu::popup_menu,
             live_export::save_live_export,
             new_window::new_window,

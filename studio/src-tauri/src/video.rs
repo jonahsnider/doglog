@@ -1,11 +1,11 @@
-//! Saving a clip: the frontend steps the playhead and adds a snapshot of the frame for each video frame, which is
+//! Saving a video: the frontend steps the playhead and adds a snapshot of the frame for each video frame, which is
 //! encoded to an H.264 MP4 on a background thread while the next one renders.
 
 #[cfg(target_os = "macos")]
-#[path = "clip_macos.rs"]
+#[path = "video_macos.rs"]
 mod platform;
 #[cfg(windows)]
-#[path = "clip_windows.rs"]
+#[path = "video_windows.rs"]
 mod platform;
 
 use std::{
@@ -30,11 +30,11 @@ const MAX_SIDE: f64 = 4096.0;
 /// Bits per pixel per frame, enough that text and thin graph lines stay sharp
 const BITS_PER_PIXEL: f64 = 0.1;
 
-/// Each window's clip, by window label
+/// Each window's video, by window label
 #[derive(Default)]
-pub struct ClipRecording(Mutex<HashMap<String, Recording>>);
+pub struct VideoExports(Mutex<HashMap<String, VideoExport>>);
 
-struct Recording {
+struct VideoExport {
     path: PathBuf,
     frames: SyncSender<platform::Frame>,
     cancelled: Arc<AtomicBool>,
@@ -52,11 +52,11 @@ fn output_size(width: usize, height: usize) -> (usize, usize) {
     (even(width), even(height))
 }
 
-/// Start saving a clip to `path`, replacing the file. Any clip that wasn't finished is canceled.
+/// Start saving a video to `path`, replacing the file. Any video that wasn't finished is canceled.
 #[tauri::command]
-pub async fn start_clip(
+pub async fn start_video(
     window: WebviewWindow,
-    state: State<'_, ClipRecording>,
+    state: State<'_, VideoExports>,
     path: PathBuf,
     fps: u32,
 ) -> Result<(), String> {
@@ -81,13 +81,13 @@ pub async fn start_clip(
     let encoder = {
         let (path, cancelled) = (path.clone(), cancelled.clone());
         thread::Builder::new()
-            .name("clip-encoder".into())
+            .name("video-encoder".into())
             .spawn(move || encode(&path, fps, &receive, &cancelled))
             .map_err(|error| error.to_string())?
     };
     state.0.lock().unwrap().insert(
         window.label().to_owned(),
-        Recording {
+        VideoExport {
             path,
             frames,
             cancelled,
@@ -97,11 +97,11 @@ pub async fn start_clip(
     Ok(())
 }
 
-/// Snapshot `rect` as the clip's next frame. Returns once it's captured, before it's encoded.
+/// Snapshot `rect` as the video's next frame. Returns once it's captured, before it's encoded.
 #[tauri::command]
-pub async fn add_clip_frame(
+pub async fn add_video_frame(
     window: WebviewWindow,
-    state: State<'_, ClipRecording>,
+    state: State<'_, VideoExports>,
     rect: CaptureRect,
 ) -> Result<(), String> {
     let frame = platform::snapshot(&window, rect).await?;
@@ -110,8 +110,8 @@ pub async fn add_clip_frame(
         .lock()
         .unwrap()
         .get(window.label())
-        .map(|recording| recording.frames.clone())
-        .ok_or("No clip is being saved")?;
+        .map(|export| export.frames.clone())
+        .ok_or("No video is being saved")?;
     let sent = spawn_blocking(move || frames.send(frame))
         .await
         .map_err(|error| error.to_string())?;
@@ -123,28 +123,28 @@ pub async fn add_clip_frame(
     Ok(())
 }
 
-/// Finish writing the clip once its frames are encoded.
+/// Finish writing the video once its frames are encoded.
 #[tauri::command]
-pub async fn finish_clip(window: WebviewWindow, state: State<'_, ClipRecording>) -> Result<(), String> {
+pub async fn finish_video(window: WebviewWindow, state: State<'_, VideoExports>) -> Result<(), String> {
     stop(&state, window.label(), false).await
 }
 
-/// Stop saving the clip and delete what was written.
+/// Stop saving the video and delete what was written.
 #[tauri::command]
-pub async fn cancel_clip(window: WebviewWindow, state: State<'_, ClipRecording>) -> Result<(), String> {
+pub async fn cancel_video(window: WebviewWindow, state: State<'_, VideoExports>) -> Result<(), String> {
     stop(&state, window.label(), true).await
 }
 
-/// Stop saving the clip of the window with `label` as it closes, deleting what was written
-pub fn cancel_window_clip(app: &AppHandle, label: &str) {
+/// Stop saving the video of the window with `label` as it closes, deleting what was written
+pub fn cancel_window_video(app: &AppHandle, label: &str) {
     let (app, label) = (app.clone(), label.to_owned());
     tauri::async_runtime::spawn(async move {
-        let _ = stop(&app.state::<ClipRecording>(), &label, true).await;
+        let _ = stop(&app.state::<VideoExports>(), &label, true).await;
     });
 }
 
-async fn stop(state: &ClipRecording, label: &str, cancel: bool) -> Result<(), String> {
-    let Some(Recording {
+async fn stop(state: &VideoExports, label: &str, cancel: bool) -> Result<(), String> {
+    let Some(VideoExport {
         path,
         frames,
         cancelled,
@@ -185,7 +185,7 @@ fn encode(path: &Path, fps: u32, frames: &Receiver<platform::Frame>, cancelled: 
     match encoder {
         _ if cancelled.load(Ordering::Relaxed) => Ok(()),
         Some(encoder) => encoder.finish(count),
-        None => Err("The clip has no frames".into()),
+        None => Err("The video has no frames".into()),
     }
 }
 

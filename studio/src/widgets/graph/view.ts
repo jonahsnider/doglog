@@ -3,7 +3,7 @@ import { useSelector } from '@tanstack/react-store';
 import { useEffect, useSyncExternalStore } from 'react';
 import { createAtom } from '@tanstack/store';
 import type { DataSet } from '@/data/data-set';
-import { getActiveData, getTimeRange, subscribeData, type TimeRange, useTimeRange } from '@/data/data-store';
+import { getSourceData, getTimeRange, subscribeData, type TimeRange, useTimeRange } from '@/data/data-store';
 import { getTimeline, stopFollowing, subscribeTimeline } from '@/timeline/timeline';
 
 /** Live sources show the newest 30 s until zoomed */
@@ -43,7 +43,7 @@ export function getViewRange(): TimeRange | undefined {
 	}
 
 	const { range, liveWidth, data, logWidth } = viewStore.get();
-	const picked = data === getActiveData() ? range : undefined;
+	const picked = data === getSourceData() ? range : undefined;
 	const { live, playback, time } = getTimeline();
 	if (live && (playback === 'following' || picked === undefined)) {
 		return clampRange(source.end - liveWidth, source.end, source);
@@ -58,7 +58,7 @@ export function getViewRange(): TimeRange | undefined {
 }
 
 function setRange(range: TimeRange): void {
-	viewStore.set((view) => ({ ...view, range, data: getActiveData() }));
+	viewStore.set((view) => ({ ...view, range, data: getSourceData() }));
 }
 
 /** Keep showing as much time when switching between the log and live session, call it before switching */

@@ -51,8 +51,9 @@ export function createDataSet(): DataSet {
 	return new DataSet(scheduleFlush);
 }
 
-// The data set every dashboard and widget shows, empty without a source
-let active = createDataSet();
+// The displayed data is normally the selected source, except while previewing a video of live history.
+let sourceData = createDataSet();
+let active = sourceData;
 const changedSets = new Set<DataSet>();
 let flushScheduled = false;
 
@@ -93,18 +94,34 @@ function scheduleFlush(data: DataSet): void {
 	}
 }
 
-/** Show `data` in every dashboard and widget, or nothing when `undefined` */
-export function setActiveData(data: DataSet | undefined): void {
-	active = data ?? createDataSet();
+function showData(data: DataSet): void {
+	active = data;
 	active.publish();
 	changedSets.delete(active);
 	entriesStore.set(active.snapshot);
 	notifyData();
 }
 
-/** The data set every dashboard and widget shows */
-export function getActiveData(): DataSet {
-	return active;
+/** Show `data` in every dashboard and widget, or nothing when `undefined` */
+export function setActiveData(data: DataSet | undefined): void {
+	sourceData = data ?? createDataSet();
+	showData(sourceData);
+}
+
+/** The selected source, also used to keep the same graph view when replaying its history */
+export function getSourceData(): DataSet {
+	return sourceData;
+}
+
+/** Show a stable copy of the live history. Returns how to resume showing incoming data. */
+export function replayLiveHistory(): () => void {
+	const replay = sourceData.copyForReplay();
+	showData(replay);
+	return () => {
+		if (active === replay) {
+			showData(sourceData);
+		}
+	};
 }
 
 /** Publish entries and samples added since the last frame right away, ex. to read them right after a log loads */

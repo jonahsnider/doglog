@@ -4,7 +4,7 @@ import { createAtom } from '@tanstack/store';
 import { invoke } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { toastManager } from '@/components/ui/toast';
-import { showClipFrame } from '@/timeline/timeline';
+import { showVideoFrame } from '@/timeline/timeline';
 
 export const canCapture = STUDIO_DESKTOP && '__DOGLOG_CAPTURE__' in window;
 
@@ -180,10 +180,10 @@ function toRect(bounds: DOMRect) {
 }
 
 /**
- * Save a clip of a dashboard's capture `target` as an MP4 at `path`, showing each of `times` (µs) in turn as a frame,
+ * Save a video of a dashboard's capture `target` as an MP4 at `path`, showing each of `times` (µs) in turn as a frame,
  * `fps` frames a second. Stops and deletes the file when `signal` aborts. Returns whether it finished.
  */
-export async function saveClip(
+export async function saveVideo(
 	target: HTMLElement,
 	{
 		path,
@@ -201,33 +201,33 @@ export async function saveClip(
 	const root = document.documentElement;
 	let started = false;
 	try {
-		// The clip's own controls and any popups stay out of its frames, see the `saving-clip` variant
-		root.dataset['savingClip'] = '';
+		// The video's own controls and any popups stay out of its frames, see the `saving-video` variant
+		root.dataset['savingVideo'] = '';
 		const area = captureArea(target);
 		frame.set(area);
 		const rect = toRect(area.bounds);
-		await invoke('start_clip', { path, fps });
+		await invoke('start_video', { path, fps });
 		started = true;
 		for (const [index, time] of times.entries()) {
 			if (signal.aborted) {
 				return false;
 			}
-			showClipFrame(time);
+			showVideoFrame(time);
 			// oxlint-disable-next-line no-await-in-loop -- Each frame has to be shown before it's captured.
 			await widgetsLoaded(target);
 			// oxlint-disable-next-line no-await-in-loop -- The encoder takes frames in order.
-			await invoke('add_clip_frame', { rect });
+			await invoke('add_video_frame', { rect });
 			onProgress((index + 1) / times.length);
 		}
-		await invoke('finish_clip');
+		await invoke('finish_video');
 		started = false;
 		return true;
 	} finally {
 		if (started) {
-			await invoke('cancel_clip').catch(() => undefined);
+			await invoke('cancel_video').catch(() => undefined);
 		}
-		showClipFrame(undefined);
-		delete root.dataset['savingClip'];
+		showVideoFrame(undefined);
+		delete root.dataset['savingVideo'];
 		frame.set(undefined);
 		capturing = false;
 	}

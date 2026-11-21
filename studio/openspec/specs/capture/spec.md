@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Let users share what they see in Studio as an image or a short log clip without requiring the recipient to open Studio or obtain the log.
+Let users share what they see in Studio as an image or a short video of a log without requiring the recipient to open Studio or obtain the log.
 
 ## Requirements
 
@@ -89,66 +89,74 @@ Captures SHALL preserve the current theme, pane proportions, scroll position, gr
 
 ### Requirement: Read-only capture timeline
 
-A captured timeline SHALL show the playhead, elapsed time, and visible event markers without playback or clip controls. A clip's timeline MUST mark its start and end with ticks, unless the clip is the whole log. Record mode MUST NOT show the ticks while the user picks the range.
+A captured timeline SHALL show the playhead, elapsed time, and visible event markers without playback or range controls. A video's timeline MUST mark its start and end with ticks, unless the video covers the whole source range. Video export mode MUST NOT show the ticks while the user picks the range.
 
-#### Scenario: Save a clip with a selected range
+#### Scenario: Save a video with a selected range
 
-- **WHEN** the user saves a clip with its start and end handles visible in Record mode
-- **THEN** the video shows the playhead moving between ticks at the clip's start and end, without either handle or any playback controls
+- **WHEN** the user saves a video with its start and end handles visible in video export mode
+- **THEN** the video shows the playhead moving between ticks at the range's start and end, without either handle or any playback controls
 
-### Requirement: Open Record mode for a clip
+### Requirement: Open video export mode
 
-The open dashboard's sidebar menu SHALL offer Export clip when it contains a widget and a log is open, and ⌘R (Ctrl+R on Windows) SHALL do the same. Panes MUST NOT offer it. The action MUST pause playback and open Record mode with the range from the playhead to 10 seconds after it, within the log.
+The open dashboard's sidebar menu SHALL offer Export video… when it contains a widget and shows a loaded log or live history, and ⌘R (Ctrl+R on Windows) SHALL do the same. Panes MUST NOT offer it. The action MUST pause playback and open video export mode with up to 10 seconds from the playhead, shifted earlier if needed to fit within the source.
 
-#### Scenario: Open Record mode with the keyboard
+#### Scenario: Open video export mode with the keyboard
 
 - **GIVEN** a dashboard containing a widget is open on a log
 - **WHEN** the user presses ⌘R
-- **THEN** Record mode opens for that dashboard, with a range starting at the playhead
+- **THEN** Video export mode opens for that dashboard, with a range starting at the playhead
 
-### Requirement: Set a clip range in Record mode
+#### Scenario: Export a video while connected to a live source
 
-The user SHALL be able to set a clip's start and end on the timeline with draggable handles or typed timestamps. The range MUST be within the readable log and at least 1 second long, unless the log is shorter.
+- **GIVEN** the dashboard is following new data from a live source
+- **WHEN** the user chooses Export video…
+- **THEN** Video export mode uses the live history available when it opened, without interrupting the connection or recording of new data
+- **AND** preview playback stops at the end of the selected range instead of following new data
+- **AND** saving or canceling returns the dashboard to following the latest live data
 
-#### Scenario: Trim a clip without a graph
+### Requirement: Set a video's range in video export mode
+
+The user SHALL be able to set a video's start and end on the timeline with draggable handles or typed timestamps. The range MUST be within the available history and at least 1 second long, unless the available history is shorter.
+
+#### Scenario: Trim a video without a graph
 
 - **GIVEN** a dashboard showing only a field widget is open on a log
-- **WHEN** the user enters Record mode, drags the start handle to 0:41, and types 0:49 for the end
+- **WHEN** the user enters video export mode, drags the start handle to 0:41, and types 0:49 for the end
 - **THEN** the preview shows the field widget and the user can scrub the selected eight seconds before saving
 
 #### Scenario: Drag the end handle past the start
 
-- **GIVEN** Record mode is open with a range from 0:41 to 0:49
+- **GIVEN** Video export mode is open with a range from 0:41 to 0:49
 - **WHEN** the user drags the end handle to 0:40
 - **THEN** the range ends at 0:42, one second after its start
 
-### Requirement: Preview a clip in Record mode
+### Requirement: Preview a video in video export mode
 
-Record mode SHALL preview the dashboard or zoomed pane at its current proportions, styled like a capture. The user MUST be able to scrub or play the preview within the range, at the log's original timing. Its controls MUST stay outside the video frame, in a bar under the timeline. Widgets MUST stay usable, but the sidebar, the entry browser, and the dashboard's layout MUST NOT. Escape MUST leave Record mode.
+Video export mode SHALL preview the dashboard or zoomed pane at its current proportions, styled like a capture. The user MUST be able to scrub or play the preview within the range, at the source's original timing. Its controls MUST stay outside the video frame, in a bar under the timeline. Widgets MUST stay usable, but the sidebar, the entry browser, and the dashboard's layout MUST NOT. Escape MUST leave video export mode.
 
-#### Scenario: Preview a clip with faster playback set
+#### Scenario: Preview a video with faster playback set
 
-- **GIVEN** playback was set to 2× before entering Record mode
+- **GIVEN** playback was set to 2× before entering video export mode
 - **WHEN** the user plays the preview
 - **THEN** it plays at 1× and stops at the end of the range
 
-### Requirement: Save a clip without changing the analysis
+### Requirement: Save a video without changing the analysis
 
-Studio SHALL let the user save the selected range as a silent MP4. The clip MUST show the selected range at the log's original timing, regardless of playback speed or Skip idle time. Exiting Record mode after saving or canceling MUST restore the previous dashboard view, playhead position, and playback state.
+Studio SHALL let the user save the selected range as a silent MP4. The video MUST show the selected range at the source's original timing, regardless of playback speed or Skip idle time. Exiting video export mode after saving or canceling MUST restore the previous dashboard view, playhead position, and playback state. If the playhead was following live data, it MUST return to the newest data instead of its previous position.
 
 #### Scenario: Export with faster playback and idle skipping enabled
 
 - **GIVEN** playback was set to 2× with Skip idle time on
-- **WHEN** the user saves a clip from 0:41 to 0:49
-- **THEN** the saved clip runs for eight seconds and includes any idle time in that range
-- **AND** exiting Record mode returns the user to their previous view and playback state
+- **WHEN** the user saves a video from 0:41 to 0:49
+- **THEN** the saved video runs for eight seconds and includes any idle time in that range
+- **AND** exiting video export mode returns the user to their previous view and playback state
 
-### Requirement: Show progress while saving a clip
+### Requirement: Show progress while saving a video
 
-Saving a clip SHALL ask where to save it, suggesting the dashboard's name, then show its progress in the Record mode bar. Clips MUST be H.264 at 30 frames per second, at the frame's size on screen unless that's larger than the encoder supports. Canceling MUST delete the partial file and keep Record mode open with the same range. A saved clip MUST offer to show the file.
+Saving a video SHALL ask where to save it, suggesting the dashboard's name, then show its progress in the video export bar. Videos MUST be H.264 at 30 frames per second, at the frame's size on screen unless that's larger than the encoder supports. Canceling MUST delete the partial file and keep video export mode open with the same range. A saved video MUST offer to show the file.
 
-#### Scenario: Cancel saving a clip
+#### Scenario: Cancel saving a video
 
-- **GIVEN** a clip is being saved
+- **GIVEN** a video is being saved
 - **WHEN** the user chooses Cancel or presses Escape
-- **THEN** no file is left where the clip was being saved, and Record mode stays open with the same range
+- **THEN** no file is left where the video was being saved, and video export mode stays open with the same range

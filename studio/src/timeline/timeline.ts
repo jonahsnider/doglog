@@ -17,8 +17,8 @@ export type Timeline = {
 	readonly playback: Playback;
 	readonly speed: number;
 	readonly live: boolean;
-	/** The range of the clip being recorded, which the cursor stays in. `undefined` outside Record mode. */
-	readonly clip: TimeRange | undefined;
+	/** The range of the video being exported, which the cursor stays in. `undefined` outside video export mode. */
+	readonly videoRange: TimeRange | undefined;
 };
 
 export const playbackSpeeds = [0.25, 0.5, 1, 2, 4, 8];
@@ -27,7 +27,13 @@ export const playbackSpeeds = [0.25, 0.5, 1, 2, 4, 8];
 const stepSize = 20_000;
 
 // The one time cursor shared by every dashboard and widget
-const store = createAtom<Timeline>({ time: undefined, playback: 'paused', speed: 1, live: false, clip: undefined });
+const store = createAtom<Timeline>({
+	time: undefined,
+	playback: 'paused',
+	speed: 1,
+	live: false,
+	videoRange: undefined,
+});
 
 /** The timeline bar's cursor, frozen at its last time while the bar animates out. */
 export const TimelineCursorContext = createContext<number | undefined>(undefined);
@@ -42,16 +48,16 @@ let logName: string | undefined;
 
 let frame: number | undefined;
 let lastFrameTime = 0;
-// While a clip is saved, only its frames move the cursor
-let savingClip = false;
+// While a video is saved, only its frames move the cursor
+let savingVideo = false;
 
 function clamp(time: number, range: TimeRange): number {
 	return Math.min(Math.max(time, range.start), range.end);
 }
 
-/** Where the cursor can go: the clip being recorded, or the whole source */
+/** Where the cursor can go: the video range, or the whole source */
 export function getCursorRange(): TimeRange | undefined {
-	return store.get().clip ?? getTimeRange();
+	return store.get().videoRange ?? getTimeRange();
 }
 
 function update(changes: Partial<Timeline>): void {
@@ -77,9 +83,9 @@ export function getActiveCompressedSpans(range: TimeRange): CompressedSpan[] {
 
 function tick(now: number): void {
 	frame = undefined;
-	const { time, speed, live, clip } = store.get();
+	const { time, speed, live, videoRange } = store.get();
 	const sourceRange = getTimeRange();
-	const range = clip ?? sourceRange;
+	const range = videoRange ?? sourceRange;
 	if (time === undefined || range === undefined || sourceRange === undefined) {
 		update({ playback: 'paused' });
 		return;
@@ -87,10 +93,10 @@ function tick(now: number): void {
 
 	const elapsed = Math.max(0, now - lastFrameTime);
 	lastFrameTime = now;
-	// A clip previews at the log's own timing, like it's saved
-	let next = time + elapsed * 1000 * (clip ? 1 : speed);
+	// A video previews at the source's own timing, like it's saved
+	let next = time + elapsed * 1000 * (videoRange ? 1 : speed);
 	// Fast-forward through compressed spans, stopping at their end so the time kept after them isn't skipped too
-	const compressed = clip
+	const compressed = videoRange
 		? undefined
 		: getActiveCompressedSpans(sourceRange).find((span) => span.start <= time && time < span.end);
 	if (compressed) {
@@ -99,7 +105,7 @@ function tick(now: number): void {
 	}
 
 	if (next >= range.end) {
-		update({ time: range.end, playback: live ? 'following' : 'paused' });
+		update({ time: range.end, playback: live && !videoRange ? 'following' : 'paused' });
 	} else {
 		frame = requestAnimationFrame(tick);
 		update({ time: next });
@@ -123,13 +129,13 @@ subscribeData(() => {
 	}
 });
 
-// Save the cursor of the active log when it settles, saving every frame while playing or saving a clip would be wasteful
+// Save the cursor of the active log when it settles, saving every frame while playing or saving a video would be wasteful
 store.subscribe(({ time, playback }) => {
 	if (
 		logName === undefined ||
 		time === undefined ||
 		playback === 'playing' ||
-		savingClip ||
+		savingVideo ||
 		savedTimes.get()[logName] === time
 	) {
 		return;
@@ -148,7 +154,7 @@ store.subscribe(({ time, playback }) => {
 export function resetTimeline(source: Source | undefined): void {
 	const live = source?.type === 'live';
 	logName = source?.type === 'log' ? source.fileName : undefined;
-	update({ time: undefined, playback: live ? 'following' : 'paused', live, clip: undefined });
+	update({ time: undefined, playback: live ? 'following' : 'paused', live, videoRange: undefined });
 }
 
 /** The full timeline state, re-renders on every cursor move */
@@ -178,30 +184,35 @@ export function subscribeTimeline(listener: () => void): () => void {
 	return unsubscribe;
 }
 
-/** The clip being recorded, `undefined` outside Record mode */
-export function useClip(): TimeRange | undefined {
-	return useSelector(store, (timeline) => timeline.clip);
+/** The range of the video being exported, `undefined` outside video export mode */
+export function useVideoRange(): TimeRange | undefined {
+	return useSelector(store, (timeline) => timeline.videoRange);
 }
 
 /**
- * Set the clip being recorded, keeping the cursor in it, or `undefined` to stop recording. Moves the cursor to the
+ * Set the range of the video being exported, keeping the cursor in it, or `undefined` to stop exporting. Moves the cursor to the
  * `cursor` time and playback, or pauses. Returns the cursor and playback from before.
  */
-export function setClip(
-	clip: TimeRange | undefined,
+export function setVideoRange(
+	videoRange: TimeRange | undefined,
 	cursor?: Pick<Timeline, 'time' | 'playback'>,
 ): Pick<Timeline, 'time' | 'playback'> {
 	const { time, playback } = store.get();
 	const next: Pick<Timeline, 'time' | 'playback'> = cursor ?? { time, playback: 'paused' };
-	update({ clip, playback: next.playback, time: clip && next.time !== undefined ? clamp(next.time, clip) : next.time });
+	const nextTime = next.playback === 'following' ? (getTimeRange()?.end ?? next.time) : next.time;
+	update({
+		videoRange,
+		playback: next.playback,
+		time: videoRange && nextTime !== undefined ? clamp(nextTime, videoRange) : nextTime,
+	});
 	return { time, playback };
 }
 
-/** Show the frame at `time` (µs) of a clip being saved, `undefined` once it's saved or canceled */
-export function showClipFrame(time: number | undefined): void {
-	savingClip = time !== undefined;
-	// Record mode can end before the last frame is shown, ex. when the log is replaced
-	if (time !== undefined && store.get().clip) {
+/** Show the frame at `time` (µs) of a video being saved, `undefined` once it's saved or canceled */
+export function showVideoFrame(time: number | undefined): void {
+	savingVideo = time !== undefined;
+	// Video export mode can end before the last frame is shown, ex. when the log is replaced
+	if (time !== undefined && store.get().videoRange) {
 		update({ time, playback: 'paused' });
 	}
 }
@@ -209,7 +220,7 @@ export function showClipFrame(time: number | undefined): void {
 /** Move the cursor to `time` (µs), ex. when the user clicks a graph. Stops following live data. */
 export function seek(time: number): void {
 	const range = getCursorRange();
-	if (range === undefined || savingClip) {
+	if (range === undefined || savingVideo) {
 		return;
 	}
 	const { playback } = store.get();
@@ -223,22 +234,27 @@ export function stopFollowing(): void {
 	}
 }
 
-/** Jump to the newest data and follow it */
+/** Jump to the newest data and follow it, or seek to the end of the video range */
 export function goLive(): void {
+	const { videoRange } = store.get();
+	if (videoRange) {
+		seek(videoRange.end);
+		return;
+	}
 	update({ playback: 'following', time: getTimeRange()?.end ?? store.get().time });
 }
 
 export function togglePlayback(): void {
-	const { time, playback, live } = store.get();
+	const { time, playback, live, videoRange } = store.get();
 	const range = getCursorRange();
 
-	if (savingClip) {
-		// Saving a clip shows its frames
+	if (savingVideo) {
+		// Saving a video shows its frames
 	} else if (playback !== 'paused') {
 		update({ playback: 'paused' });
 	} else if (time !== undefined && range !== undefined) {
-		// Play a finished log from the beginning
-		update({ playback: 'playing', time: !live && time >= range.end ? range.start : time });
+		// Replay a finished log or video range from the beginning
+		update({ playback: 'playing', time: (!live || videoRange) && time >= range.end ? range.start : time });
 	}
 }
 
@@ -246,7 +262,7 @@ export function togglePlayback(): void {
 export function step(direction: 1 | -1): void {
 	const { time } = store.get();
 	const range = getCursorRange();
-	if (time !== undefined && range !== undefined && !savingClip) {
+	if (time !== undefined && range !== undefined && !savingVideo) {
 		update({ time: clamp(time + direction * stepSize, range), playback: 'paused' });
 	}
 }
@@ -255,9 +271,9 @@ export function setSpeed(speed: number): void {
 	update({ speed });
 }
 
-/** Switch to the next faster or slower playback speed. Clips always preview at 1×. */
+/** Switch to the next faster or slower playback speed. Videos always preview at 1×. */
 export function changeSpeed(direction: 1 | -1): void {
-	if (store.get().clip) {
+	if (store.get().videoRange) {
 		return;
 	}
 	const next = playbackSpeeds[playbackSpeeds.indexOf(store.get().speed) + direction];

@@ -96,7 +96,7 @@ function TimelineControls({
 	timeline: Timeline;
 }) {
 	const present = useIsPresent();
-	const { time, playback, speed, live } = timeline;
+	const { time, playback, speed, live, videoRange } = timeline;
 	const { timelineAlerts, timelineCompress, timelineShifts } = useSettings();
 	const [speedOpen, setSpeedOpen] = useState(false);
 	const [optionsOpen, setOptionsOpen] = useState(false);
@@ -166,7 +166,8 @@ function TimelineControls({
 					{range && time !== undefined ? (
 						<Scrubber
 							range={range}
-							live={live}
+							// Frozen live history doesn't need room to grow.
+							live={live && !videoRange}
 							showAlerts={timelineAlerts}
 							showShifts={timelineShifts}
 							compress={timelineCompress}

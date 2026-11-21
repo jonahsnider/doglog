@@ -1,5 +1,5 @@
 import { use } from 'react';
-import { ClipRange } from '@/timeline/clip-range';
+import { VideoRange } from '@/timeline/video-range';
 import { useHoverTime } from '@/timeline/hover';
 import type { TimeScale } from '@/timeline/scale';
 import { TimelineCursorContext } from '@/timeline/timeline';
@@ -21,7 +21,7 @@ export function ScrubberPosition({
 
 /**
  * The time range graphs are zoomed to, so it's clear where they are in the whole source, the hovered time: the one
- * the tooltip is about, or the one hovered in a graph, and the range of a clip being recorded
+ * the tooltip is about, or the one hovered in a graph, and the range of a video being exported
  */
 export function GraphMarks({
 	scale,
@@ -51,7 +51,7 @@ export function GraphMarks({
 					style={{ left: `${toPercent(hover)}%` }}
 				/>
 			)}
-			<ClipRange scale={scale} trackOffset={trackOffset} />
+			<VideoRange scale={scale} trackOffset={trackOffset} />
 		</>
 	);
 }

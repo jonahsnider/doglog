@@ -8,13 +8,13 @@ import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { useTimeRange } from '@/data/data-store';
-import { cancelSaving, exitRecording, saveRecording, setClipEdge, useRecording } from '@/desktop/clip';
+import { cancelSaving, exitVideoExport, exportVideo, setVideoRangeEdge, useVideoExport } from '@/desktop/video-export';
 import { isEnterKey } from '@/lib/keyboard';
-import { formatTime, togglePlayback, useClip, useTimeline } from '@/timeline/timeline';
+import { formatTime, togglePlayback, useVideoRange, useTimeline } from '@/timeline/timeline';
 import { parseTime } from '@/timeline/parse-time';
 
-/** A clip's start or end, typed like the timeline's time */
-function ClipTimeField({
+/** The video range's start or end, typed like the timeline's time */
+function VideoRangeField({
 	label,
 	edge,
 	text,
@@ -42,7 +42,7 @@ function ClipTimeField({
 						event.currentTarget.value = text;
 						setInvalid(false);
 					} else {
-						setClipEdge(edge, parsed);
+						setVideoRangeEdge(edge, parsed);
 					}
 				}}
 				onKeyDown={(event) => {
@@ -62,34 +62,34 @@ function ClipTimeField({
 	);
 }
 
-/** Record mode's controls, under the timeline and outside the clip's frame */
-export function RecordBar() {
-	const recording = useRecording();
-	const clip = useClip();
+/** Video export mode's controls, under the timeline and outside the video's frame */
+export function VideoExportBar() {
+	const videoExport = useVideoExport();
+	const videoRange = useVideoRange();
 	const range = useTimeRange();
 	const { playback } = useTimeline();
-	const saving = recording?.saving;
+	const saving = videoExport?.saving;
 	// Text fields handle Escape themselves
-	useHotkey('Escape', () => (saving === undefined ? exitRecording() : cancelSaving()), {
+	useHotkey('Escape', () => (saving === undefined ? exitVideoExport() : cancelSaving()), {
 		ignoreInputs: true,
 		conflictBehavior: 'allow',
 	});
 
-	if (!clip || !range) {
+	if (!videoRange || !range) {
 		return null;
 	}
-	const startText = formatTime(clip.start, range.start);
-	const endText = formatTime(clip.end, range.start);
+	const startText = formatTime(videoRange.start, range.start);
+	const endText = formatTime(videoRange.end, range.start);
 
 	return (
-		<div role="toolbar" aria-label="Record clip" className="flex h-10 shrink-0 items-center gap-3 ps-3 pe-1.5 pb-1.5">
+		<div role="toolbar" aria-label="Export video" className="flex h-10 shrink-0 items-center gap-3 ps-3 pe-1.5 pb-1.5">
 			{saving === undefined ? (
 				<>
 					{/* Remounted when the range changes, so they show the new times */}
-					<ClipTimeField key={`start-${startText}`} label="Start" edge="start" text={startText} start={range.start} />
-					<ClipTimeField key={`end-${endText}`} label="End" edge="end" text={endText} start={range.start} />
+					<VideoRangeField key={`start-${startText}`} label="Start" edge="start" text={startText} start={range.start} />
+					<VideoRangeField key={`end-${endText}`} label="End" edge="end" text={endText} start={range.start} />
 					<span className="font-mono text-sm text-muted-foreground tabular-nums">
-						{formatTime(clip.end, clip.start)} long
+						{formatTime(videoRange.end, videoRange.start)} long
 					</span>
 					<Tooltip>
 						<TooltipTrigger
@@ -109,17 +109,17 @@ export function RecordBar() {
 						</TooltipPopup>
 					</Tooltip>
 					<div className="flex-1" />
-					<Button variant="ghost" size="sm" onClick={() => exitRecording()}>
+					<Button variant="ghost" size="sm" onClick={() => exitVideoExport()}>
 						Cancel
 					</Button>
-					<Button size="sm" onClick={() => void saveRecording()}>
-						Save clip…
+					<Button size="sm" onClick={() => void exportVideo()}>
+						Save video…
 					</Button>
 				</>
 			) : (
 				<>
-					<span className="text-sm text-muted-foreground">Saving clip</span>
-					<Progress value={Math.round(saving * 100)} aria-label="Saving clip" className="flex-1" />
+					<span className="text-sm text-muted-foreground">Saving video</span>
+					<Progress value={Math.round(saving * 100)} aria-label="Saving video" className="flex-1" />
 					<span className="w-10 text-right font-mono text-sm text-muted-foreground tabular-nums">
 						{Math.round(saving * 100)}%
 					</span>

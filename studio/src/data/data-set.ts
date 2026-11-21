@@ -148,6 +148,30 @@ export class DataSet {
 		return changes;
 	}
 
+	/** Copy the displayed history for replay while the live data set keeps receiving and dropping samples. */
+	copyForReplay(): DataSet {
+		const replay = new DataSet(() => {});
+		const histories = new Map<Samples, Samples>();
+		const list = this.snapshot.list.map((entry) => {
+			let copy: Entry;
+			if (entry instanceof FieldEntry) {
+				// Roots sort before their fields, which stay lazy and read the copied samples.
+				copy = new FieldEntry(replay.entries.get(entry.root.name)!, entry.path, entry.type);
+			} else {
+				const from = entry.samples;
+				const samples = histories.get(from) ?? new Samples(from.timestamps.slice(0, from.length), from.values.slice());
+				histories.set(from, samples);
+				copy = { ...entry, samples };
+			}
+			replay.entries.set(copy.name, copy);
+			return copy;
+		});
+		replay.snapshot = { list, map: replay.entries };
+		replay.gaps.push(...this.gaps);
+		replay.timeRange = this.timeRange;
+		return replay;
+	}
+
 	private changed(): void {
 		this.dataChanged = true;
 		this.scheduleFlush(this);
@@ -243,7 +267,10 @@ export class DataSet {
 
 	/** Add a field entry, and the elements of struct array fields, which have a fixed `length` */
 	private addField(parent: Entry, key: FieldKey, type: string, length?: number): void {
-		const field = new FieldEntry(parent, key, type);
+		const field =
+			parent instanceof FieldEntry
+				? new FieldEntry(parent.root, [...parent.path, key], type)
+				: new FieldEntry(parent, [key], type);
 		if (this.entries.has(field.name)) {
 			return;
 		}

@@ -101,7 +101,7 @@ const sections: {
 		shortcuts: [
 			{ label: 'Copy dashboard link', keys: [shortcuts.copyDashboardLink] },
 			...(canCapture ? [{ label: 'Copy dashboard image', keys: [shortcuts.copyDashboardImage] }] : []),
-			...(canCapture ? [{ label: 'Export dashboard clip', keys: [shortcuts.exportClip] }] : []),
+			...(canCapture ? [{ label: 'Export dashboard video', keys: [shortcuts.exportVideo] }] : []),
 		],
 	},
 	{

@@ -99,7 +99,7 @@ pub(crate) fn snapshot(webview: PlatformWebview, rect: CaptureRect, reply: Sende
     });
 }
 
-/// Like `snapshot`, but returns the image itself for a clip's encoder rather than a PNG.
+/// Like `snapshot`, but returns the image itself for a video's encoder rather than a PNG.
 pub(crate) fn snapshot_image(
     webview: PlatformWebview,
     rect: CaptureRect,

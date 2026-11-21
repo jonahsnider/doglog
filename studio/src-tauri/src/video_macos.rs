@@ -214,7 +214,7 @@ impl Encoder {
 
 impl Drop for Encoder {
     fn drop(&mut self) {
-        // Stops a clip that wasn't finished, so its file can be deleted
+        // Stops a video that wasn't finished, so its file can be deleted
         if unsafe { self.writer.status() } == AVAssetWriterStatus::Writing {
             unsafe { self.writer.cancelWriting() };
         }

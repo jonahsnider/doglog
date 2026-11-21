@@ -83,4 +83,28 @@ describe('field entries', () => {
 			[30, 3],
 		]);
 	});
+
+	test('replaying live history keeps its samples and extent as live data grows and is trimmed', () => {
+		const live = new DataSet(() => {});
+		const speeds = live.addEntry('/Drive/Speeds', 'double[]');
+		live.addSample(speeds, 10, [1, 4]);
+		live.addSample(speeds, 30, [2, 8]);
+		live.publish();
+		const replay = live.copyForReplay();
+		replay.publish();
+
+		live.addSample(speeds, 50, [3, 9]);
+		speeds.samples.trimBefore(31);
+		live.publish();
+
+		expect(replay.timeRange).toEqual({ start: 10, end: 30 });
+		expect(valuesOf(replay.entries.get('/Drive/Speeds/1')!.samples)).toEqual([
+			[10, 4],
+			[30, 8],
+		]);
+		expect(valuesOf(live.entries.get('/Drive/Speeds/1')!.samples)).toEqual([
+			[30, 8],
+			[50, 9],
+		]);
+	});
 });
