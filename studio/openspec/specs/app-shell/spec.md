@@ -27,10 +27,18 @@ The sidebar footer SHALL offer Keyboard shortcuts, Download app, and Check for u
 - **WHEN** the user selects Keyboard shortcuts in the footer
 - **THEN** Studio opens the same list as the keyboard shortcut
 
-#### Scenario: Copy an installer link
+#### Scenario: Download an installer in the web app
 
+- **GIVEN** Studio is running in a browser
 - **WHEN** the user opens Download app
 - **THEN** the menu lists the macOS Apple silicon and Intel, Windows, Linux AppImage, and Linux .deb installers
+- **AND** selecting an installer downloads it
+
+#### Scenario: Copy an installer link in the desktop app
+
+- **GIVEN** Studio is running in the desktop app
+- **WHEN** the user opens Download app
+- **THEN** the menu lists the same installers
 - **AND** selecting an installer copies its download URL without starting a download
 - **AND** Studio confirms whether the link was copied
 

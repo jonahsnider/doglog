@@ -87,32 +87,36 @@ export function DownloadButton() {
 }
 
 async function copyDownloadLink(file: string): Promise<void> {
-	const text = downloadsUrl + file;
 	try {
-		if (STUDIO_DESKTOP) {
-			await invoke('plugin:clipboard-manager|write_text', { text });
-		} else {
-			await navigator.clipboard.writeText(text);
-		}
+		await invoke('plugin:clipboard-manager|write_text', { text: downloadsUrl + file });
 		toastManager.add({ type: 'success', title: 'Copied download link' });
 	} catch {
 		toastManager.add({ type: 'error', title: 'Couldn’t copy download link' });
 	}
 }
 
-export function CopyDownloadMenu({ trigger }: { trigger: ReactElement }) {
+/** Lists every installer, which downloads in the browser and copies its link in the desktop app for sharing */
+export function DownloadMenu({ trigger }: { trigger: ReactElement }) {
 	return (
 		<Menu>
 			<MenuTrigger render={trigger} />
 			<MenuPopup align="start" side="top">
-				<MenuGroup>
-					<MenuGroupLabel>Copy download link</MenuGroupLabel>
-					{downloads.map(({ file, label }) => (
-						<MenuItem key={file} onClick={() => void copyDownloadLink(file)}>
+				{STUDIO_DESKTOP ? (
+					<MenuGroup>
+						<MenuGroupLabel>Copy download link</MenuGroupLabel>
+						{downloads.map(({ file, label }) => (
+							<MenuItem key={file} onClick={() => void copyDownloadLink(file)}>
+								{label}
+							</MenuItem>
+						))}
+					</MenuGroup>
+				) : (
+					downloads.map(({ file, label }) => (
+						<MenuLinkItem key={file} href={downloadsUrl + file}>
 							{label}
-						</MenuItem>
-					))}
-				</MenuGroup>
+						</MenuLinkItem>
+					))
+				)}
 			</MenuPopup>
 		</Menu>
 	);

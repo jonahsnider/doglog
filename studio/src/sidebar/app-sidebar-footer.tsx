@@ -11,7 +11,7 @@ import { DialogTrigger } from '@/components/ui/dialog';
 import { SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Spinner } from '@/components/ui/spinner';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
-import { CopyDownloadMenu } from '@/desktop/download-button';
+import { DownloadMenu } from '@/desktop/download-button';
 import { cn } from '@/lib/utils';
 import { checkForUpdateManually, installUpdate, updateTitle, useUpdate } from '@/updater';
 
@@ -55,7 +55,7 @@ export function AppSidebarFooter({
 									</Tooltip>
 								</SidebarMenuItem>
 								<SidebarMenuItem className={expandedRow} inert={closing}>
-									<CopyDownloadMenu
+									<DownloadMenu
 										trigger={
 											<SidebarMenuButton
 												size="sm"
