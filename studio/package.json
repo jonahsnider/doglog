@@ -70,7 +70,7 @@
 		"tailwind-merge": "3.7.1",
 		"takumi-js": "2.22.1",
 		"three": "0.187.0",
-		"three-mesh-bvh": "0.8.3",
+		"three-mesh-bvh": "0.9.18",
 		"torph": "0.1.4",
 		"uplot": "1.6.32",
 		"usehooks-ts": "3.1.1",
