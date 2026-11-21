@@ -271,7 +271,7 @@ export function DashboardItem({
 								<span>{name}</span>
 							</PreviewCardTrigger>
 							{/* Only previews other dashboards, the selected one is already on screen. A single empty pane has nothing to preview. */}
-							{!active && !(dashboard.layout.kind === 'pane' && dashboard.layout.widget === undefined) && (
+							{present && !active && !(dashboard.layout.kind === 'pane' && dashboard.layout.widget === undefined) && (
 								<PreviewCardPopup side="right" align="start" className="w-auto p-2">
 									<DashboardPreview layout={dashboard.layout} />
 								</PreviewCardPopup>

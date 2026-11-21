@@ -130,6 +130,12 @@ Hovering a dashboard in the sidebar SHALL show a miniature of its pane layout, w
 - **WHEN** the user hovers a dashboard that isn't selected
 - **THEN** a miniature of its pane layout is shown next to it
 
+#### Scenario: Close a dashboard while its preview is visible
+
+- **GIVEN** a dashboard's hover preview is visible
+- **WHEN** the user closes that dashboard
+- **THEN** its preview disappears as soon as the sidebar row starts to collapse
+
 #### Scenario: Hover the selected dashboard
 
 - **WHEN** the user hovers the selected dashboard
