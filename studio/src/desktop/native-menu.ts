@@ -1,4 +1,5 @@
-import type { LogicalPosition } from '@tauri-apps/api/dpi';
+import { invoke } from '@tauri-apps/api/core';
+import { type LogicalPosition, Position } from '@tauri-apps/api/dpi';
 import {
 	type CheckMenuItemOptions,
 	Menu,
@@ -56,7 +57,8 @@ export async function popUpNativeMenu(items: readonly MenuEntry[], at?: LogicalP
 	const menu = await Menu.new({ items: toNativeEntries(items) });
 	void lastNativeMenu?.close();
 	lastNativeMenu = menu;
-	await menu.popup(at);
+	// Not `menu.popup()`, which hangs the app if a menu changes while it's open, see `context_menu.rs`
+	await invoke('popup_menu', { rid: menu.rid, at: at && new Position(at) });
 }
 
 function recentLogItems(paths: readonly string[]): (MenuItemOptions | PredefinedMenuItemOptions)[] {
