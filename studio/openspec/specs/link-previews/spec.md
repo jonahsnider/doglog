@@ -92,7 +92,7 @@ Preview images SHALL be 1200 by 630 pixels, in dark mode with the default theme 
 
 ### Requirement: Privacy
 
-Link previews SHALL be made from the link alone. Dashboard links MUST NOT be stored or logged by the servers that make their previews, so a shared dashboard only exists on the devices that open it.
+Link previews SHALL be made from the link alone. Dashboard links MUST NOT be stored or logged by the servers that make their previews. Opening a dashboard link MUST NOT publish the dashboard to Cloud or a robot.
 
 #### Scenario: Preview a link
 

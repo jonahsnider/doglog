@@ -22,8 +22,9 @@ context: |
   - Core logic is TypeScript. Rust only where the desktop app needs it (ex. SSH for log sync, the `doglog` CLI).
   - Charts use a temporary library until Base UI charts ship, kept behind the widget contract so it can be swapped.
   - Zod validates all persisted and external data.
-  - Shared dashboards are Loro CRDT documents. Peers are the source of truth; the robot's NT4 server only relays, so
-    sharing works without internet.
+  - Shared dashboards use one Loro CRDT document per dashboard, with an identity independent of robot addresses.
+    For robot-only sharing, peers hold the documents and the robot's NT4 server only relays. For Cloud sharing,
+    Cloud stores the documents and an authorized Studio can relay the same documents over NT4 to linked robots.
   - Widgets infer how to show entries from entry types, metadata, and names. Widget options override what's inferred
     or pick what can't be; keep them rare so users aren't overloaded.
   - Agent commands live in one Zod registry with no React or DOM imports, so the Rust binary can embed their schemas
@@ -45,11 +46,11 @@ context: |
 
   Future needs (not specced yet):
   - Mobile layouts.
-  - Accounts, cloud sync, or usage analytics.
+  - Usage analytics.
   - Writing or editing NT values.
   - Comparing multiple logs at once, and multiple simultaneous data sources.
   - Protobuf-encoded entries.
-  - Managed sync service for dashboards; dashboard import/export.
+  - Dashboard import/export.
   - Playback looping and trimming the playback range.
   - FRC match time display (ex. "Teleop 1:32").
   - A command palette.

@@ -260,7 +260,7 @@ Dropping a pane on the sidebar's dashboards SHALL move it into a new dashboard. 
 
 ### Requirement: Close a dashboard
 
-Closing a dashboard SHALL remove it from the sidebar without asking for confirmation, since it can be reopened. Closing a shared dashboard deletes it for everyone (see the shared-dashboards spec). Like browser tabs, middle-clicking a dashboard in the sidebar SHALL close it.
+Closing a dashboard SHALL remove it from the sidebar without asking for confirmation, since it can be reopened. Closing a shared dashboard requires an active sharing connection and removes it for everyone (see the shared-dashboards spec). Like browser tabs, middle-clicking a dashboard in the sidebar SHALL close it where closing is available.
 
 #### Scenario: Close a dashboard
 
