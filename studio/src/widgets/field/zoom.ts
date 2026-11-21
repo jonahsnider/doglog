@@ -16,14 +16,29 @@ function clamp(value: number, min: number, max: number): number {
 	return Math.min(Math.max(value, min), max);
 }
 
-/** Limits the scale, and keeps the zoomed content covering `bounds` so it can't be panned out of view */
-function clampZoom(bounds: Bounds, { scale, x, y }: Zoom): Zoom {
+/**
+ * Offset along one axis that keeps content from `start` to `end`, scaled by `scale`, in view. Content bigger than the
+ * view must cover it, and smaller content must stay inside it while covering where it's shown unzoomed, so it can't be
+ * panned out of view and grows into the view's spare room as it zooms in.
+ */
+function clampOffset(offset: number, scale: number, start: number, end: number, viewStart: number, viewEnd: number) {
+	if ((end - start) * scale >= viewEnd - viewStart) {
+		return clamp(offset, viewEnd - end * scale, viewStart - start * scale);
+	}
+	return clamp(
+		offset,
+		Math.max(viewStart - start * scale, end - end * scale),
+		Math.min(start - start * scale, viewEnd - end * scale),
+	);
+}
+
+/** Limits the scale and keeps the zoomed `bounds` in `view`, see `clampOffset()` */
+function clampZoom(bounds: Bounds, view: Bounds, { scale, x, y }: Zoom): Zoom {
 	const clampedScale = clamp(scale, 1, maxScale);
-	const shrink = 1 - clampedScale;
 	return {
 		scale: clampedScale,
-		x: clamp(x, (bounds.x + bounds.width) * shrink, bounds.x * shrink),
-		y: clamp(y, (bounds.y + bounds.height) * shrink, bounds.y * shrink),
+		x: clampOffset(x, clampedScale, bounds.x, bounds.x + bounds.width, view.x, view.x + view.width),
+		y: clampOffset(y, clampedScale, bounds.y, bounds.y + bounds.height, view.y, view.y + view.height),
 	};
 }
 
@@ -38,10 +53,15 @@ function toUser(svg: SVGSVGElement, clientX: number, clientY: number): DOMPoint 
 	return new DOMPoint(clientX, clientY).matrixTransform(svg.getScreenCTM()!.inverse());
 }
 
-/** Zoom to the pointer with the scroll wheel or a pinch, pan by dragging, and reset by double-clicking */
-export function useFieldZoom(bounds: Bounds) {
+/**
+ * Zoom to the pointer with the scroll wheel or a pinch, pan by dragging, and reset by double-clicking. `view` is the
+ * SVG's whole view box, when it shows more than `bounds` around them.
+ */
+export function useFieldZoom(bounds: Bounds, view = bounds) {
 	const svgRef = useRef<SVGSVGElement>(null!);
-	const [zoom, setZoom] = useState(noZoom);
+	const [storedZoom, setZoom] = useState(noZoom);
+	// The view changes size with the widget, so an offset that was in view may not be anymore
+	const zoom = clampZoom(bounds, view, storedZoom);
 	const [zoomBounds, setZoomBounds] = useState(bounds);
 	const [active, setActive] = useState(false);
 	const activeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -54,7 +74,7 @@ export function useFieldZoom(bounds: Bounds) {
 	}
 
 	const update = (next: (current: Zoom) => Zoom) => {
-		setZoom((current) => clampZoom(bounds, next(current)));
+		setZoom((current) => clampZoom(bounds, view, next(clampZoom(bounds, view, current))));
 		markActive(activeTimer, setActive);
 	};
 
@@ -69,11 +89,12 @@ export function useFieldZoom(bounds: Bounds) {
 			// Pinches send small deltas with `ctrlKey`, mouse wheels send large deltas, sometimes in lines
 			const sensitivity = (event.deltaMode === WheelEvent.DOM_DELTA_LINE ? 0.05 : 0.002) * (event.ctrlKey ? 5 : 1);
 			const factor = Math.exp(-event.deltaY * sensitivity);
-			setZoom((current) => {
+			setZoom((stored) => {
+				const current = clampZoom(bounds, view, stored);
 				const scale = clamp(current.scale * factor, 1, maxScale);
 				const ratio = scale / current.scale;
 				// Keep the point under the pointer in place
-				return clampZoom(bounds, {
+				return clampZoom(bounds, view, {
 					scale,
 					x: anchor.x - (anchor.x - current.x) * ratio,
 					y: anchor.y - (anchor.y - current.y) * ratio,

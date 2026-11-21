@@ -1,5 +1,5 @@
 import { expect, test } from 'vite-plus/test';
-import { orientedField, wpilibCoordinates, xAxisAngle } from '@/widgets/field/geometry';
+import { fieldLayout, orientedField, wpilibCoordinates, xAxisAngle } from '@/widgets/field/geometry';
 
 test('portrait orientations place the alliances at opposite ends without changing field coordinates', () => {
 	const blueTop = orientedField('blue-top');
@@ -47,4 +47,29 @@ test('WPILib uses center coordinates from 2027 beta onward', () => {
 	expect(wpilibCoordinates('2027.0.0-beta-1')).toBe('center');
 	expect(wpilibCoordinates('2027.1.2')).toBe('center');
 	expect(wpilibCoordinates('2028.0.0-alpha-1')).toBe('center');
+});
+
+test.each([
+	// Beside a narrow legend, the field is centered on the widget
+	[
+		{ width: 400, height: 100, legendWidth: 60, legendHeight: 60 },
+		{ left: 100, top: 0 },
+	],
+	// A wider legend pushes it right only as far as the legend needs
+	[
+		{ width: 400, height: 100, legendWidth: 150, legendHeight: 60 },
+		{ left: 150, top: 0 },
+	],
+	// In a tall box, the field fits bigger under the legend, centered in the space below it
+	[
+		{ width: 200, height: 300, legendWidth: 120, legendHeight: 40 },
+		{ left: 0, top: 120 },
+	],
+])('field layout in %o puts the unzoomed field at %o and fills the box', (box, expected) => {
+	const bounds = { x: -1, y: -11, width: 20, height: 10 };
+	const { view } = fieldLayout(bounds, box);
+	const pixelsPerUnit = box.width / view.width;
+	expect((bounds.x - view.x) * pixelsPerUnit).toBeCloseTo(expected.left);
+	expect((bounds.y - view.y) * pixelsPerUnit).toBeCloseTo(expected.top);
+	expect(view.height * pixelsPerUnit).toBeCloseTo(box.height);
 });

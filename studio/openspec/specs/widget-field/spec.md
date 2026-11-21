@@ -46,7 +46,13 @@ The field widget SHALL offer these roles, the inferred one first: single poses a
 
 ### Requirement: Field view
 
-The field widget SHALL draw the 2026 FRC field from a top-down render, fit to the widget. The view MUST show the field boundary with the same small margin on every side, cropping the driver station areas. The field SHALL have the same neutral gray background in every theme.
+The field widget SHALL draw the 2026 FRC field from a top-down render, fit to the widget. The view MUST fill the space the widget has for it at any shape, rather than keeping the field's shape, so the room around the field can be used when zoomed in. The field MUST show its boundary with the same small margin on every side, cropping the driver station areas. The field SHALL have the same neutral gray background in every theme.
+
+#### Scenario: Tall widget
+
+- **GIVEN** a field widget in a tall, narrow pane
+- **WHEN** the user zooms in
+- **THEN** the field grows into the space above and below it until it fills the pane
 
 #### Scenario: No entries
 
@@ -109,7 +115,7 @@ The field widget SHALL have an Orientation dropdown with **Blue left**, **Red le
 
 ### Requirement: Zoom and pan
 
-Scrolling or pinching over the field SHALL zoom in and out around the pointer, from the whole view up to 8×. Dragging the zoomed field MUST pan it, and the field MUST NOT pan or zoom out past the edges of the view. Double-clicking SHALL reset the view. Drawings MUST zoom with the field, including the width of their lines, so they keep their look at every zoom.
+Scrolling or pinching over the field SHALL zoom in and out around the pointer, from the whole field up to 8×. Dragging the zoomed field MUST pan it. The field MUST NOT pan past the edges of the view, or leave empty the space it covers when it isn't zoomed. Double-clicking SHALL reset the view. Drawings MUST zoom with the field, including the width of their lines, so they keep their look at every zoom.
 
 #### Scenario: Zoom to a robot
 
@@ -124,7 +130,7 @@ Scrolling or pinching over the field SHALL zoom in and out around the pointer, f
 
 ### Requirement: Minimap
 
-While the user zooms or pans a zoomed-in field, a minimap of the whole field SHALL appear in the top-right corner, outlining the part that's shown, and MUST fade out shortly after they stop. While the pointer is on the right side of the field, the minimap MUST move to the top-left corner so it doesn't cover what the user is zooming into, and it MUST NOT switch sides while the pointer is near the middle.
+While the user zooms or pans a zoomed-in field, a minimap of the whole field SHALL appear in the top-right corner beside or under the legend, outlining the part that's shown, and MUST fade out shortly after they stop. While the pointer is on the right side of the field, the minimap MUST move to the top-left corner so it doesn't cover what the user is zooming into, and it MUST NOT switch sides while the pointer is near the middle.
 
 #### Scenario: Minimap
 
@@ -225,7 +231,7 @@ Shapes SHALL be drawn under paths, paths under connections, connections under po
 
 ### Requirement: Colors and legend
 
-The field widget SHALL color each entry from the shared chart colors in binding order, and MUST show a legend listing each bound entry, one per line, with its color. The legend SHALL be above the field, unless the widget is wider than the field's shape, where it MUST be beside the field so the field isn't shrunk, and the field SHALL be centered in the widget unless the legend needs that space. Entries with no value at or before the cursor MUST be dimmed in the legend and not drawn.
+The field widget SHALL color each entry from the shared chart colors in binding order, and MUST show a legend listing each bound entry, one per line, with its color. The legend SHALL be above the field, unless the widget is wider than the field's shape, where it MUST be beside the field so the field isn't shrunk, and the field SHALL be centered in the widget unless the legend needs that space. The zoomed field MUST extend under the legend instead of leaving its side of the widget empty, and the legend MUST stay on top of it with an opaque background. Entries with no value at or before the cursor MUST be dimmed in the legend and not drawn.
 
 #### Scenario: Wide widget
 
@@ -236,6 +242,13 @@ The field widget SHALL color each entry from the shared chart colors in binding 
 
 - **GIVEN** a field widget much wider than the field, with room for the legend on either side of it
 - **THEN** the field is centered in the widget, with the legend on its left
+
+#### Scenario: Zoomed under the legend
+
+- **GIVEN** a field widget in a short, wide pane with its legend on the left
+- **WHEN** the user zooms in
+- **THEN** the field fills the widget, including behind the legend
+- **AND** the legend stays readable over it
 
 #### Scenario: Entry without data
 
@@ -250,7 +263,7 @@ The field widget SHALL color each entry from the shared chart colors in binding 
 
 ### Requirement: Cursor position
 
-The field widget SHALL show the field position under the pointer, in meters, below the bottom-left corner of the field, fading in and out quickly as the pointer enters and leaves the field, followed by the copy shortcut. Pressing ⌘C (Ctrl+C on Windows and Linux) while the pointer is over the field MUST copy that position as `x, y`. The position SHALL briefly fade to a "Copied" label only if the copy succeeds.
+The field widget SHALL show the field position under the pointer, in meters, below the bottom-left corner of the view, fading in and out quickly as the pointer enters and leaves the field, followed by the copy shortcut. Pressing ⌘C (Ctrl+C on Windows and Linux) while the pointer is over the field MUST copy that position as `x, y`. The position SHALL briefly fade to a "Copied" label only if the copy succeeds.
 
 #### Scenario: Copy a position
 
@@ -260,7 +273,7 @@ The field widget SHALL show the field position under the pointer, in meters, bel
 
 ### Requirement: Measuring tool buttons
 
-Buttons below the bottom-right corner of the field SHALL show the distance and angle tools with their keys, toggle them when clicked, and show which one is active. On devices that support hover, the buttons SHALL only be visible while the field widget is hovered, focus is within it, or a measuring tool is selected.
+Buttons below the bottom-right corner of the view SHALL show the distance and angle tools with their keys, toggle them when clicked, and show which one is active. On devices that support hover, the buttons SHALL only be visible while the field widget is hovered, focus is within it, or a measuring tool is selected.
 
 #### Scenario: Leave an idle field
 

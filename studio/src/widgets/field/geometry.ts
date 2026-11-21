@@ -1,5 +1,7 @@
 // Field widget math, in field meters with +Y up
 
+import type { Bounds } from '@/widgets/field/zoom';
+
 // 2026 field, in meters. Drawings use WPILib's 2026 convention: the origin is the blue alliance wall's right corner, as
 // seen from the blue driver stations, +X points toward red, and +Y points left from the blue driver stations.
 const fieldLength = 16.541;
@@ -59,6 +61,40 @@ const fieldViews = new Map([
 
 export function orientedField(orientation: string | undefined): FieldView {
 	return fieldViews.get(orientation ?? '') ?? blueLeft;
+}
+
+/** The field widget's box, which spans the widget, and the legend over its top-left corner, in pixels */
+export type FieldBox = { width: number; height: number; legendWidth: number; legendHeight: number };
+
+/**
+ * The view box that fills `box`, and the `area` of the box beside the legend or under it, whichever fits a bigger field,
+ * in pixels. Unzoomed, `bounds` fit in the area, centered on the widget where there's room, so the legend only moves
+ * the field as far as it needs. The rest of the box, including under the legend, is left for zooming into.
+ */
+export function fieldLayout(
+	bounds: Bounds,
+	{ width, height, legendWidth, legendHeight }: FieldBox,
+): { view: Bounds; area: { left: number; top: number; width: number; height: number } } {
+	const beside = { left: legendWidth, top: 0, width: width - legendWidth, height };
+	const under = { left: 0, top: legendHeight, width, height: height - legendHeight };
+	const pixelsPerUnit = (area: typeof beside) => Math.min(area.width / bounds.width, area.height / bounds.height);
+	const area = pixelsPerUnit(beside) >= pixelsPerUnit(under) ? beside : under;
+	if (pixelsPerUnit(area) <= 0) {
+		return { view: bounds, area };
+	}
+	const unitsPerPixel = 1 / pixelsPerUnit(area);
+	const halfField = bounds.width / unitsPerPixel / 2;
+	const centerX = Math.min(Math.max(width / 2, area.left + halfField), area.left + area.width - halfField);
+	const centerY = area.top + area.height / 2;
+	return {
+		view: {
+			x: bounds.x + bounds.width / 2 - centerX * unitsPerPixel,
+			y: bounds.y + bounds.height / 2 - centerY * unitsPerPixel,
+			width: width * unitsPerPixel,
+			height: height * unitsPerPixel,
+		},
+		area,
+	};
 }
 
 /**

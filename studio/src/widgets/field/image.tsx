@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { fieldBackground, type FieldView, image, pixelsPerMeterX, pixelsPerMeterY } from '@/widgets/field/geometry';
-import type { Zoom } from '@/widgets/field/zoom';
+import type { Bounds } from '@/widgets/field/zoom';
 // Rendered from the official field CAD by Cameron (Juniormunk) on Chief Delphi, without the background or fuel:
 // https://www.chiefdelphi.com/t/2026-rebuilt-high-resolution-field-image/510611
 import fieldImage from '@/widgets/field/2026-rebuilt.webp';
@@ -31,26 +31,26 @@ function outlineRadius(x: number, y: number): string {
 }
 
 /**
- * The whole field with the zoomed-in part outlined, shown while zooming or panning. It's in the top-right corner, or the
+ * The whole field with the `shown` part outlined, shown while zooming or panning. It's in the top-right corner, or the
  * top-left one while the pointer is on the right, so it doesn't cover what the user is zooming into.
  */
 export function Minimap({
-	zoom,
+	shown,
 	visible,
 	left,
 	field,
 }: {
-	zoom: Zoom;
+	shown: Bounds;
 	visible: boolean;
 	left: boolean;
 	field: FieldView;
 }) {
 	const { bounds, aspectRatio, viewBox, transform } = field;
 	// The outlined part's insets from each edge, as fractions of the minimap
-	const insetLeft = ((bounds.x - zoom.x) / zoom.scale - bounds.x) / bounds.width;
-	const insetTop = ((bounds.y - zoom.y) / zoom.scale - bounds.y) / bounds.height;
-	const insetRight = 1 - insetLeft - 1 / zoom.scale;
-	const insetBottom = 1 - insetTop - 1 / zoom.scale;
+	const insetLeft = (shown.x - bounds.x) / bounds.width;
+	const insetTop = (shown.y - bounds.y) / bounds.height;
+	const insetRight = 1 - insetLeft - shown.width / bounds.width;
+	const insetBottom = 1 - insetTop - shown.height / bounds.height;
 
 	return (
 		<div
@@ -72,8 +72,8 @@ export function Minimap({
 				style={{
 					left: `${insetLeft * 100}%`,
 					top: `${insetTop * 100}%`,
-					width: `${100 / zoom.scale}%`,
-					height: `${100 / zoom.scale}%`,
+					width: `${(shown.width / bounds.width) * 100}%`,
+					height: `${(shown.height / bounds.height) * 100}%`,
 					borderTopLeftRadius: outlineRadius(insetLeft, insetTop),
 					borderTopRightRadius: outlineRadius(insetRight, insetTop),
 					borderBottomRightRadius: outlineRadius(insetRight, insetBottom),
