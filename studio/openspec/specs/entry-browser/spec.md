@@ -141,6 +141,8 @@ The entry tree SHALL follow the WAI-ARIA tree view pattern: it MUST be a single 
 
 The entry browser SHALL provide a search box that filters the tree to entries whose names contain the query's characters in order, so abbreviations match and separators like `/`, `_`, `-`, and spaces can be skipped, and MUST highlight the matched characters in each entry's and group's name. Struct entries MUST also match their struct type. Primitive types like `boolean` or `double` MUST NOT match, since nearly every entry has one.
 
+The search box SHALL show its `/` focus shortcut while it's empty and not focused.
+
 Matching groups SHALL start expanded but MUST be collapsible.
 
 #### Scenario: Search entries

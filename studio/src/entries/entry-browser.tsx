@@ -14,6 +14,7 @@ import { HiddenSection } from '@/entries/hidden-section';
 import { type EditedWidget, hiddenEntriesNote, useEditedWidget } from '@/entries/edited-widget';
 import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
+import { Kbd } from '@/components/ui/kbd';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { shortcuts } from '@/commands/commands';
@@ -224,6 +225,11 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 							}
 						}}
 					/>
+					{query === '' && (
+						<InputGroupAddon align="inline-end" className="in-[[data-slot=input-group]:has(input:focus)]:hidden">
+							<Kbd className="border border-input bg-transparent">{shortcuts.searchEntries}</Kbd>
+						</InputGroupAddon>
+					)}
 				</InputGroup>
 			</div>
 			<EntryRowsTooltip />
