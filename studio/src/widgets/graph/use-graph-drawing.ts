@@ -93,8 +93,8 @@ export function useGraphDrawing(
 		manual: {},
 		redraw: () => {},
 		setManual(axis, range) {
-			this.manual = { ...this.manual, [axis]: range };
-			this.redraw();
+			state.current.manual = { ...state.current.manual, [axis]: range };
+			state.current.redraw();
 		},
 	});
 	// Kept while the plot is made again for other entries, so axes and lines ease from how they were drawn, ex. when one is hidden
@@ -180,7 +180,7 @@ export function useGraphDrawing(
 			for (const [index, line] of series.entries()) {
 				const fade = lineFades.get(line.id)!;
 				plot!.series[index + 1]!.alpha = opacityAt(fade, now);
-				fading ||= isFading(fade, now);
+				fading = isFading(fade, now) || fading;
 			}
 			return fading;
 		};

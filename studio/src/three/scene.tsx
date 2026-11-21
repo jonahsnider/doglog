@@ -117,10 +117,10 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 		if (!drawn && size.width > 0) {
 			setDrawn(true);
 		}
-		for (const [index, { position }] of floorLabels.entries()) {
+		for (const [index, floorLabel] of floorLabels.entries()) {
 			const element = labels.current[index];
 			if (element) {
-				const { x, y } = position.clone().project(camera);
+				const { x, y } = floorLabel.position.clone().project(camera);
 				element.style.transform = `translate(${((x + 1) / 2) * size.width}px, ${((1 - y) / 2) * size.height}px) translate(-50%, -50%)`;
 			}
 		}
@@ -157,7 +157,7 @@ export function Scene3d({ ref, label, children }: { ref?: Ref<Scene3dHandle>; la
 		if (!held.current.has(key)) {
 			held.current.add(key);
 			rig.current?.stop();
-			frame.current ??= requestAnimationFrame(move(performance.now()));
+			frame.current = frame.current ?? requestAnimationFrame(move(performance.now()));
 		}
 	};
 

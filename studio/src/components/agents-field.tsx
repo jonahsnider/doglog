@@ -86,9 +86,8 @@ function AddAgentButton({ agent }: { agent: Agent }) {
 			}
 		} catch (error) {
 			toastManager.add({ type: 'error', title: `Couldn't add Studio to ${agent.name}`, description: String(error) });
-		} finally {
-			setAdding(false);
 		}
+		setAdding(false);
 	}
 
 	return (

@@ -1,7 +1,7 @@
 // A view cube, built in the robot's coordinates (+X front, +Y left, +Z up)
 import { GizmoHelper, Line, RoundedBox } from '@react-three/drei';
 import { type ThreeEvent, useThree } from '@react-three/fiber';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { type RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import {
 	CanvasTexture,
 	Color,
@@ -161,8 +161,14 @@ type HoverUniforms = {
 	highlight: { value: Color };
 };
 
-function createHoverUniforms(): HoverUniforms {
-	return { hoverDirection: { value: new Vector3() }, hovered: { value: 0 }, highlight: { value: new Color() } };
+/** Made on first use, so they aren't made again on every render */
+function hoverUniforms(ref: RefObject<HoverUniforms | undefined>): HoverUniforms {
+	ref.current ??= {
+		hoverDirection: { value: new Vector3() },
+		hovered: { value: 0 },
+		highlight: { value: new Color() },
+	};
+	return ref.current;
 }
 
 /**
@@ -205,7 +211,7 @@ export function ViewCube({
 	const uniforms = useRef<HoverUniforms>(undefined);
 	const invalidate = useThree((state) => state.invalidate);
 	useEffect(() => {
-		const current = (uniforms.current ??= createHoverUniforms());
+		const current = hoverUniforms(uniforms);
 		const part = hovered === undefined ? undefined : regions[hovered];
 		current.hovered.value = part ? 1 : 0;
 		if (part) {
@@ -229,7 +235,7 @@ export function ViewCube({
 					<meshMatcapMaterial
 						matcap={matcap}
 						color={color}
-						onBeforeCompile={(shader) => tintHoveredPart(shader, (uniforms.current ??= createHoverUniforms()))}
+						onBeforeCompile={(shader) => tintHoveredPart(shader, hoverUniforms(uniforms))}
 					/>
 				</RoundedBox>
 				{dividers.map(({ key, points }) => (
