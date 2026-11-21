@@ -5,7 +5,7 @@ import { type Entry, getGaps, getTimeRange, subscribeData } from '@/data/data-st
 import type { Size } from '@/hooks/use-size';
 import { settingsStore } from '@/settings';
 import { getCursorTime, subscribeTimeline } from '@/timeline/timeline';
-import { drawBands } from '@/widgets/graph/bands';
+import { drawBands, placeGaps } from '@/widgets/graph/bands';
 import type { BandPalette, ColorAssignments } from '@/widgets/graph/colors';
 import { formatDuration } from '@/widgets/graph/format';
 import {
@@ -28,6 +28,7 @@ export type GraphElements = {
 	bands: RefObject<HTMLCanvasElement | null>;
 	/** Spans the plot and bands between the y-axes, holds the lines below */
 	area: RefObject<HTMLDivElement | null>;
+	gaps: RefObject<HTMLDivElement | null>;
 	cursorLine: RefObject<HTMLDivElement | null>;
 	hoverLine: RefObject<HTMLDivElement | null>;
 	hoverDelta: RefObject<HTMLDivElement | null>;
@@ -131,6 +132,7 @@ export function useGraphDrawing(
 				ruler.hidden = true;
 				return;
 			}
+			placeGaps(elements.gaps.current!, getGaps(), view, width);
 			const cursor = getCursorTime();
 			const hover = getHoverTime();
 			const cursorX = placeLine(elements.cursorLine.current!, cursor, view, width);

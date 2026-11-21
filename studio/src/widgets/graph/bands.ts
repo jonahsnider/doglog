@@ -59,6 +59,30 @@ function hatch(context: CanvasRenderingContext2D, background: string): CanvasPat
 	return context.createPattern(tile, 'repeat')!;
 }
 
+/**
+ * Shade the parts of `view` the live session was disconnected for across the whole graph, one span in `container` for
+ * each, reusing them from the last call
+ */
+export function placeGaps(container: HTMLDivElement, gaps: readonly TimeRange[], view: TimeRange, width: number): void {
+	const visible = gaps.filter((gap) => gap.end > view.start && gap.start < view.end);
+	while (container.childElementCount < visible.length) {
+		const span = document.createElement('div');
+		span.className = 'absolute inset-y-0 left-0 bg-muted-foreground/12';
+		container.append(span);
+	}
+	while (container.childElementCount > visible.length) {
+		container.lastElementChild!.remove();
+	}
+	const spans = container.querySelectorAll('div');
+	const toX = (time: number) =>
+		((Math.min(Math.max(time, view.start), view.end) - view.start) / (view.end - view.start)) * width;
+	for (const [index, gap] of visible.entries()) {
+		const left = toX(gap.start);
+		spans[index]!.style.transform = `translateX(${left}px)`;
+		spans[index]!.style.width = `${toX(gap.end) - left}px`;
+	}
+}
+
 /** Draw each entry's bands across `view`, on a canvas as wide as the plot and as tall as the rows */
 export function drawBands(
 	canvas: HTMLCanvasElement,

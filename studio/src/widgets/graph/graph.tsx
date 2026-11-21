@@ -57,6 +57,7 @@ export function Graph({ bindings }: WidgetProps) {
 	const plotRef = useRef<HTMLDivElement>(null);
 	const bandsRef = useRef<HTMLCanvasElement>(null);
 	const areaRef = useRef<HTMLDivElement>(null);
+	const gapsRef = useRef<HTMLDivElement>(null);
 	const cursorLineRef = useRef<HTMLDivElement>(null);
 	const hoverLineRef = useRef<HTMLDivElement>(null);
 	const hoverDeltaRef = useRef<HTMLDivElement>(null);
@@ -67,6 +68,7 @@ export function Graph({ bindings }: WidgetProps) {
 			plot: plotRef,
 			bands: bandsRef,
 			area: areaRef,
+			gaps: gapsRef,
 			cursorLine: cursorLineRef,
 			hoverLine: hoverLineRef,
 			hoverDelta: hoverDeltaRef,
@@ -172,6 +174,7 @@ export function Graph({ bindings }: WidgetProps) {
 					className="pointer-events-none absolute inset-y-0"
 					style={{ left: insets.left, right: insets.right }}
 				>
+					<div ref={gapsRef} />
 					{selection && <RangeSelection selection={selection} plotted={plotted} units={units.units} />}
 					<div
 						ref={hoverLineRef}

@@ -12,6 +12,8 @@ import type { NtClient, NtValue } from '@/nt/client';
 export type LiveStatus = 'connecting' | 'connected' | 'reconnecting' | 'disconnected';
 
 const structSchemaPrefix = '/.schema/struct:';
+/** How long (µs) the NT4 client goes without hearing from the server before it drops the connection */
+const idleTimeout = 3_000_000;
 const textDecoder = new TextDecoder();
 
 /**
@@ -32,6 +34,8 @@ export function connectLive(
 	let connectedAt = 0;
 	// Studio's clock minus the server's for the current connection
 	let clockOffset = 0;
+	// When the newest value received was sent, on Studio's clock
+	let newestValueAt = 0;
 
 	const decodeStruct = (entry: Entry, bytes: Uint8Array): Value | string => {
 		const structName = entry.type.slice('struct:'.length);
@@ -103,9 +107,11 @@ export function connectLive(
 			data.connect(connectedAt);
 			recording.record({ type: 'connected', liveTime: connectedAt, serverTime });
 		} else if (wasConnected) {
-			const now = liveTime();
-			data.disconnect(now);
-			recording.record({ type: 'status', status: 'reconnecting', liveTime: now });
+			// The connection is dropped a while after the server went quiet, which is when it really dropped. That's the
+			// newest value's time while the robot sends data, and at most the idle timeout earlier otherwise.
+			const droppedAt = Math.max(connectedAt, newestValueAt, liveTime() - idleTimeout);
+			data.disconnect(droppedAt);
+			recording.record({ type: 'status', status: 'reconnecting', liveTime: droppedAt });
 		}
 
 		// Data from an earlier connection means this is reconnecting, ex. after the user disconnected
@@ -157,6 +163,7 @@ export function connectLive(
 
 				// Values that changed before this connection (sent when subscribing) are placed at the connection time
 				const timestamp = Math.max(serverTime + clockOffset, connectedAt);
+				newestValueAt = Math.max(newestValueAt, timestamp);
 
 				const entry = data.addEntry(name, type);
 				const decoded = toValue(entry, value, timestamp);

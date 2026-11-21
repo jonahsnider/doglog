@@ -244,15 +244,13 @@ export function Scrubber({
 								);
 							})
 						)}
-						{/* Disconnected spans look like the track past the newest data, since nothing was received */}
+						{/* Disconnected spans break the track since nothing was received, wide enough that short drops stand out */}
 						{gaps.map((gap) => (
 							<div
 								key={gap.start}
-								className="absolute inset-y-0 bg-frame"
+								className="absolute inset-y-0 min-w-0.75 bg-frame"
 								style={{ left: `${toPercent(gap.start)}%`, width: `${toPercent(gap.end) - toPercent(gap.start)}%` }}
-							>
-								<div className="size-full bg-muted" />
-							</div>
+							/>
 						))}
 						{/* The unreadable end of a log, hatched since its length is an estimate */}
 						{unread !== undefined && (

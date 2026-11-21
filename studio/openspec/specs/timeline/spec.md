@@ -140,13 +140,24 @@ The timeline bar SHALL mark the time hovered in a graph, and while graphs are zo
 
 ### Requirement: Disconnected time
 
-The timeline bar SHALL show the time a live session was disconnected like the track past the newest data, and its tooltip MUST say "Disconnected". Graphs MUST NOT draw lines or bands across it, and widgets SHALL show the last values received before the connection dropped while the cursor is in it.
+The timeline bar SHALL show the time a live session was disconnected as a break in the track, at least a few pixels wide so short drops stand out, and its tooltip MUST say "Disconnected". Graphs MUST shade it gray and MUST NOT draw lines or bands across it, and widgets SHALL show the last values received before the connection dropped while the cursor is in it.
 
 #### Scenario: Robot rebooted
 
 - **GIVEN** the robot was disconnected from 1:10 to 1:40 during a live session
-- **THEN** the timeline bar shows 1:10 to 1:40 as disconnected
-- **AND** graphs leave 1:10 to 1:40 empty
+- **THEN** the timeline bar shows a break from 1:10 to 1:40
+- **AND** graphs shade 1:10 to 1:40 gray, without lines or bands
+
+### Requirement: Start of disconnected time
+
+Disconnected time MUST start when the robot stopped sending data, not when Studio noticed the connection dropped, which can be seconds later. While the robot sends data, that's the newest value received.
+
+#### Scenario: Network drops
+
+- **GIVEN** Studio is connected to a robot sending data every 20 ms
+- **WHEN** the network drops at 1:10, and Studio notices 3 seconds later
+- **THEN** the disconnected time starts at 1:10
+- **AND** graphs don't hold the last values from 1:10 to 1:13
 
 ### Requirement: Unreadable end of a log
 
