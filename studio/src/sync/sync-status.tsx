@@ -205,8 +205,9 @@ export function SyncStatusPanel({
 	/** When step `index`'s circle changes: once the line reaches it when filling in, before the line empties otherwise */
 	const circleDelay = (index: number) => lineDelay(index) + (changes(index) && advancing ? stepMs : 0);
 
+	// Top padding keeps the button's hover scale and focus outline clear of the sticky page header
 	return (
-		<section className="flex flex-col items-center gap-10 text-center">
+		<section className="flex flex-col items-center gap-10 pt-2 text-center">
 			<div className="flex flex-col items-center gap-4">
 				<Tooltip>
 					<TooltipTrigger
