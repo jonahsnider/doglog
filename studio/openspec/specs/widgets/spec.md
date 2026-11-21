@@ -229,6 +229,17 @@ When a bound entry doesn't exist in the active source, or no source is active, t
 - **THEN** the widget shows "no data" for that entry
 - **AND** the binding is kept for future sources
 
+### Requirement: Widget errors
+
+When a widget fails to draw, its pane SHALL show the error with a button to try again, and the rest of the app MUST keep working. The widget MUST try again when its entries or options change.
+
+#### Scenario: Widget crashes
+
+- **GIVEN** a dashboard with a field widget and a graph
+- **WHEN** the field widget fails to draw
+- **THEN** its pane shows the error with "Try again"
+- **AND** the graph keeps working
+
 ### Requirement: Shortened entry names
 
 Widgets SHALL shorten the `/Robot`, `/RealOutputs`, `/AdvantageKit`, `/AdvantageKit/RealOutputs`, and `/AdvantageKit/DriverStation` prefixes of entry names to their slashes and capital letters, shown dimmed, and MUST show the whole name in full when the shortened prefix has been hovered for a short delay. `/ReplayOutputs` MUST NOT be shortened, so replayed outputs stand out from real ones.

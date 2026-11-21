@@ -2,7 +2,9 @@ import type { Draggable, Droppable } from '@dnd-kit/dom';
 import { useDragOperation, useDroppable } from '@dnd-kit/react';
 import DatabaseIcon from 'lucide-react/icons/database';
 import ListPlusIcon from 'lucide-react/icons/list-plus';
-import { type CSSProperties, type ReactNode, Suspense, use, useCallback, useMemo } from 'react';
+import TriangleAlertIcon from 'lucide-react/icons/triangle-exclamation-point';
+import { Component, type CSSProperties, type ReactNode, Suspense, use, useCallback, useMemo } from 'react';
+import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import {
 	connectBindings,
@@ -111,20 +113,52 @@ export function WidgetView({
 		<div ref={ref} className="relative h-full">
 			<WidgetBindingsContext value={widgetBindings}>
 				<div className="h-full overflow-auto">
-					<Suspense
-						fallback={
-							<div data-capture-pending className="grid h-full place-items-center">
-								<Spinner aria-label={`Loading ${type.name}`} className="size-4 text-muted-foreground" />
-							</div>
-						}
-					>
-						{content}
-					</Suspense>
+					{/* A widget that crashes only replaces itself, and tries again when its entries or options change */}
+					<WidgetErrorBoundary resetKey={bindings}>
+						<Suspense
+							fallback={
+								<div data-capture-pending className="grid h-full place-items-center">
+									<Spinner aria-label={`Loading ${type.name}`} className="size-4 text-muted-foreground" />
+								</div>
+							}
+						>
+							{content}
+						</Suspense>
+					</WidgetErrorBoundary>
 				</div>
 			</WidgetBindingsContext>
 			<DropFeedback paneId={paneId} type={type} bindings={bindings} />
 		</div>
 	);
+}
+
+type ErrorBoundaryState = { error: Error | undefined; resetKey: unknown };
+
+/** Shows a widget's error instead of the widget, until the user tries again or `resetKey` changes */
+class WidgetErrorBoundary extends Component<{ resetKey: unknown; children: ReactNode }, ErrorBoundaryState> {
+	override state: ErrorBoundaryState = { error: undefined, resetKey: this.props.resetKey };
+
+	static getDerivedStateFromError(error: unknown): Partial<ErrorBoundaryState> {
+		return { error: error instanceof Error ? error : new Error('Unknown error') };
+	}
+
+	static getDerivedStateFromProps(props: { resetKey: unknown }, state: ErrorBoundaryState): ErrorBoundaryState | null {
+		return props.resetKey === state.resetKey ? null : { error: undefined, resetKey: props.resetKey };
+	}
+
+	override render() {
+		const { error } = this.state;
+		if (error === undefined) {
+			return this.props.children;
+		}
+		return (
+			<WidgetEmpty icon={<TriangleAlertIcon />} title="Something went wrong" description={error.message}>
+				<Button variant="outline" size="sm" onClick={() => this.setState({ error: undefined })}>
+					Try again
+				</Button>
+			</WidgetEmpty>
+		);
+	}
 }
 
 function DropFeedback({
