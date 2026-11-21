@@ -25,6 +25,9 @@ const minLiveDuration = 160_000_000;
 /** How close (px) the pointer has to be to an alert to show it, so short alerts are easy to hover */
 const alertHoverSlop = 4;
 
+/** How far (µs) scrolling one pixel moves the cursor, under a robot loop so each frame can be reached */
+const scrollTimePerPixel = 15_000;
+
 /** Pointer position along the track and the track's width (px) */
 type Hover = { x: number; width: number };
 
@@ -140,7 +143,8 @@ export function Scrubber({
 		setShownHover(hover);
 	}
 
-	// Scrolling moves the cursor like dragging it would, following the fingers whichever way the system scrolls.
+	// Scrolling moves the cursor a fixed time per pixel, so it's as precise in a long log as a short one,
+	// following the fingers whichever way the system scrolls.
 	// Natural scrolling inverts the delta, WebKit reports when it does and other browsers rely on the setting.
 	// Not passive so it can stop the browser from treating a horizontal swipe as back or forward.
 	useEventListener(
@@ -155,7 +159,7 @@ export function Scrubber({
 				(event as WheelEvent & { webkitDirectionInvertedFromDevice?: boolean }).webkitDirectionInvertedFromDevice ??
 				settingsStore.get().naturalScrolling;
 			const delta = natural ? -event.deltaX : event.deltaX;
-			seek(scale.toTime(toPercent(cursor) + (delta / track.current!.clientWidth) * 100));
+			seek(cursor + delta * scrollTimePerPixel);
 		},
 		slider,
 		{ passive: false },
