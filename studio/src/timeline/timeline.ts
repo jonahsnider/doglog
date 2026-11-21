@@ -72,9 +72,7 @@ const compressedPlaybackTime = 1500;
 
 /** Long idle spans of the active source that are compressed on the timeline, empty when compression is turned off */
 export function getActiveCompressedSpans(range: TimeRange): CompressedSpan[] {
-	return settingsStore.get().timelineCompress
-		? getCompressedSpans(getModePeriods(range), getGaps(), range, store.get().live)
-		: [];
+	return settingsStore.get().timelineCompress ? getCompressedSpans(getModePeriods(range), getGaps()) : [];
 }
 
 function tick(now: number): void {

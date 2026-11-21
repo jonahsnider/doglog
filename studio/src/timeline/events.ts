@@ -177,17 +177,12 @@ export type CompressedSpan = { readonly start: number; readonly end: number };
 /**
  * The long stretches of a source where the robot was disabled or the live session was disconnected (`gaps`), minus a
  * margin at each end, sorted and merged where they overlap. Disabled periods aren't compressed if the robot was never
- * enabled, since there's nothing to make room for. A live source's ongoing disabled period isn't compressed, so the
- * newest data doesn't move around.
+ * enabled, since there's nothing to make room for. A live source's ongoing disabled period is compressed too, with its
+ * newest seconds kept at normal scale like any other margin.
  */
-export function getCompressedSpans(
-	periods: readonly ModePeriod[],
-	gaps: readonly TimeRange[],
-	range: TimeRange,
-	live: boolean,
-): CompressedSpan[] {
+export function getCompressedSpans(periods: readonly ModePeriod[], gaps: readonly TimeRange[]): CompressedSpan[] {
 	const disabled = periods.some((period) => period.mode !== 'disabled')
-		? periods.filter((period) => period.mode === 'disabled' && !(live && period.end === range.end))
+		? periods.filter((period) => period.mode === 'disabled')
 		: [];
 	const idle = [...disabled, ...gaps]
 		.filter((span) => span.end - span.start > minCompressedDuration)

@@ -64,10 +64,7 @@ export function Scrubber({
 	const periods = useMemo(() => getModePeriods(range), [range]);
 	// Changed in place, gaps are added along with a new range
 	const gaps = getGaps();
-	const compressed = useMemo(
-		() => (compress ? getCompressedSpans(periods, gaps, range, live) : []),
-		[compress, periods, gaps, range, live],
-	);
+	const compressed = useMemo(() => (compress ? getCompressedSpans(periods, gaps) : []), [compress, periods, gaps]);
 	const scale = useMemo(
 		() => createTimeScale(range.start, shownDuration, compressed),
 		[range.start, shownDuration, compressed],
