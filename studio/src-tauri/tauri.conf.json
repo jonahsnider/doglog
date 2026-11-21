@@ -1,7 +1,7 @@
 {
 	"$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
 	"productName": "DogLog Studio",
-	"version": "0.0.0",
+	"version": "2026.0.0",
 	"identifier": "dev.doglog.studio",
 	"build": {
 		"frontendDist": "../dist",
@@ -17,7 +17,10 @@
 				"title": "DogLog Studio",
 				"titleBarStyle": "Overlay",
 				"hiddenTitle": true,
-				"trafficLightPosition": { "x": 19, "y": 26 },
+				"trafficLightPosition": {
+					"x": 19,
+					"y": 26
+				},
 				"dragDropEnabled": false,
 				"width": 1280,
 				"height": 800,
@@ -37,18 +40,34 @@
 		"category": "DeveloperTool",
 		"shortDescription": "Review FRC robot logs and debug robots live",
 		"homepage": "https://studio.doglog.dev",
-		"targets": ["app", "dmg", "nsis", "appimage", "deb"],
-		"icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+		"targets": [
+			"app",
+			"dmg",
+			"nsis",
+			"appimage",
+			"deb"
+		],
+		"icon": [
+			"icons/32x32.png",
+			"icons/128x128.png",
+			"icons/128x128@2x.png",
+			"icons/icon.icns",
+			"icons/icon.ico"
+		],
 		"fileAssociations": [
 			{
-				"ext": ["wpilog"],
+				"ext": [
+					"wpilog"
+				],
 				"name": "WPILOG",
 				"description": "WPILOG robot log",
 				"role": "Viewer",
 				"mimeType": "application/x-wpilog",
 				"exportedType": {
 					"identifier": "dev.doglog.studio.wpilog",
-					"conformsTo": ["public.data"]
+					"conformsTo": [
+						"public.data"
+					]
 				}
 			}
 		],
@@ -71,11 +90,21 @@
 		}
 	},
 	"plugins": {
-		"macos-fps": { "enabled": true },
-		"deep-link": { "desktop": { "schemes": ["doglog"] } },
+		"macos-fps": {
+			"enabled": true
+		},
+		"deep-link": {
+			"desktop": {
+				"schemes": [
+					"doglog"
+				]
+			}
+		},
 		"updater": {
 			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDAzM0I1RkVGNEM3QTRBRkUKUldUK1NucE03MTg3QS9mWjZZRGdaZWVHQWYxb0hnRzNYOXl0OWg1QW1KWGV3QWFEczhYZHIxcGgK",
-			"endpoints": ["https://updates.doglog.dev/studio/latest.json"]
+			"endpoints": [
+				"https://updates.doglog.dev/studio/latest.json"
+			]
 		}
 	}
 }
