@@ -1,4 +1,5 @@
 import fnv1a from '@sindresorhus/fnv1a';
+import type { LucideIcon } from 'lucide-react/types';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { dateTimeFormat, formatSize, logLabel } from '@/sync/format';
@@ -20,10 +21,14 @@ const dayFormat = new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 
 const cellCount = 16;
 
 /** The order a log's cells fill in, shuffled the same way every time for the same log so they don't jump around */
-function fillOrder(name: string): number[] {
+function logCells(name: string) {
 	const hashes = Array.from({ length: cellCount }, (_, cell) => fnv1a(`${name}/${cell}`));
 	// Each cell's place in the order is how many cells have a smaller hash
-	return hashes.map((hash) => hashes.filter((other) => other < hash).length);
+	return hashes.map((hash, index) => ({
+		row: Math.floor(index / 4),
+		column: index % 4,
+		order: hashes.filter((other) => other < hash).length,
+	}));
 }
 
 const stateText: Record<BoardLog['state'], string> = {
@@ -103,31 +108,39 @@ export function SyncBoard({ logs, onOpen }: { logs: BoardLog[]; onOpen: (name: s
 }
 
 const squareClasses: Record<BoardLog['state'], string> = {
-	synced: 'cursor-pointer bg-primary before:absolute before:inset-0 hover:before:bg-primary-foreground/8',
+	synced:
+		'cursor-pointer bg-primary text-primary-foreground before:absolute before:inset-0 hover:before:bg-primary-foreground/8',
 	copying: 'bg-muted ring-1 ring-primary',
 	queued: 'bg-muted',
 	'over-limit': 'border border-dashed border-outline',
 };
 
-function filledCells(log: BoardLog): number {
-	if (log.state === 'synced') {
-		return cellCount;
-	}
-	return log.size === 0 ? 0 : Math.floor((log.saved / log.size) * cellCount);
-}
-
 /** The cells of a log that's waiting or being copied, the next one pulses while it's copied */
-function Cells({ log }: { log: BoardLog }) {
-	const filled = filledCells(log);
-	return fillOrder(log.name).map((order, index) => (
+function Cells({ log, icon: Icon }: { log: BoardLog; icon: LucideIcon | undefined }) {
+	const filled = log.size === 0 ? 0 : Math.floor((log.saved / log.size) * cellCount);
+	return logCells(log.name).map(({ row, column, order }) => (
 		<span
-			// oxlint-disable-next-line react/no-array-index-key -- Cells are positions in the grid
-			key={index}
+			key={`${row}:${column}`}
 			className={cn(
-				order < filled && 'bg-primary',
-				order === filled && log.state === 'copying' && 'bg-secondary motion-safe:animate-pulse',
+				'relative overflow-hidden',
+				order < filled && 'bg-primary text-primary-foreground',
+				order === filled &&
+					log.state === 'copying' &&
+					'before:absolute before:inset-0 before:bg-background motion-safe:before:animate-pulse',
 			)}
-		/>
+		>
+			{/* The centered icon spans four cells; each clips and colors its own quadrant. */}
+			{Icon && row > 0 && row < 3 && column > 0 && column < 3 && (
+				<Icon
+					aria-hidden
+					className={cn(
+						'absolute size-[200%]',
+						row === 1 ? 'top-0' : '-top-full',
+						column === 1 ? 'start-0' : '-start-full',
+					)}
+				/>
+			)}
+		</span>
 	));
 }
 
@@ -160,21 +173,16 @@ function LogSquare({ log, onOpen }: { log: BoardLog; onOpen: (name: string) => v
 						aria-label={`${label}, ${stateText[log.state]}`}
 						onClick={log.state === 'synced' ? () => onOpen(log.name) : undefined}
 						className={cn(
-							'relative grid size-8 grid-cols-4 overflow-hidden rounded-md outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
+							'relative grid size-8 grid-cols-4 overflow-hidden rounded-md text-muted-foreground outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
 							squareClasses[log.state],
 						)}
 					/>
 				}
 			>
-				{(log.state === 'copying' || log.state === 'queued') && <Cells log={log} />}
-				{MatchIcon && (
-					<MatchIcon
-						aria-hidden
-						className={cn(
-							'absolute inset-0 m-auto size-4',
-							filledCells(log) > cellCount / 2 ? 'text-primary-foreground' : 'text-muted-foreground',
-						)}
-					/>
+				{log.state === 'copying' || log.state === 'queued' ? (
+					<Cells log={log} icon={MatchIcon} />
+				) : (
+					MatchIcon && <MatchIcon aria-hidden className="absolute inset-0 m-auto size-4" />
 				)}
 			</TooltipTrigger>
 			<TooltipPopup>
