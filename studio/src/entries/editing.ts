@@ -1,9 +1,16 @@
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import * as z from 'zod';
+import { isMobileLayout } from '@/lib/mobile-layout';
 import { createPersistedAtom } from '@/lib/persisted-store';
 
-export const entryBrowserOpenStore = createPersistedAtom('entry-browser-open', z.boolean(), true, { perWindow: true });
+const dockedOpenStore = createPersistedAtom('entry-browser-open', z.boolean(), true, { perWindow: true });
+// Opening a full-screen panel on a phone shouldn't change the saved docked layout.
+const mobileOpenStore = createAtom(false);
+
+export function getEntryBrowserOpenStore(mobile = isMobileLayout()) {
+	return mobile ? mobileOpenStore : dockedOpenStore;
+}
 
 type Editing = {
 	dashboardId: string;
@@ -19,15 +26,19 @@ const editingStore = createAtom<Editing | undefined>(undefined);
 export const searchFocusStore = createAtom(0);
 
 export function focusEntrySearch(): void {
-	entryBrowserOpenStore.set(true);
+	getEntryBrowserOpenStore().set(true);
 	searchFocusStore.set((count) => count + 1);
 }
 
-export function toggleEntryBrowser(): void {
-	if (entryBrowserOpenStore.get()) {
+export function setEntryBrowserOpen(open: boolean): void {
+	if (!open) {
 		editingStore.set(undefined);
 	}
-	entryBrowserOpenStore.set((open) => !open);
+	getEntryBrowserOpenStore().set(open);
+}
+
+export function toggleEntryBrowser(): void {
+	setEntryBrowserOpen(!getEntryBrowserOpenStore().get());
 }
 
 /** The pane whose widget's entries are being edited */
@@ -41,14 +52,14 @@ export function useEditingPane(dashboardId: string, paneId: string): boolean {
 
 export function startEditing(dashboardId: string, paneId: string): void {
 	const current = editingStore.get();
-	const open = entryBrowserOpenStore.get();
+	const open = getEntryBrowserOpenStore().get();
 	editingStore.set({ dashboardId, paneId, opened: current ? current.opened : !open });
 	focusEntrySearch();
 }
 
 export function stopEditing(): void {
 	if (editingStore.get()?.opened === true) {
-		entryBrowserOpenStore.set(false);
+		getEntryBrowserOpenStore().set(false);
 	}
 	editingStore.set(undefined);
 }

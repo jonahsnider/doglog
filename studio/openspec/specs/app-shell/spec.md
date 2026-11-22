@@ -188,7 +188,7 @@ When a dashboard is shown, the main area SHALL show the dashboard's panes, a col
 
 ### Requirement: Collapsible sidebar
 
-Users SHALL be able to collapse the sidebar to a narrow icon-only rail and expand it again. An icon-only toggle button at the top of the sidebar MUST stay in place in both states, named by a tooltip with its keyboard shortcut. Hovering the collapsed rail MUST temporarily expand it over the dashboard without resizing the dashboard, and the collapsed state MUST persist.
+Outside the phone layout, users SHALL be able to collapse the sidebar to a narrow icon-only rail and expand it again. An icon-only toggle button at the top of the sidebar MUST stay in place in both states, named by a tooltip with its keyboard shortcut. Hovering the collapsed rail MUST temporarily expand it over the dashboard without resizing the dashboard, and the collapsed state MUST persist.
 
 #### Scenario: Collapse for more space
 
@@ -226,6 +226,18 @@ Users SHALL be able to collapse the sidebar to a narrow icon-only rail and expan
 - **WHEN** the user toggles the sidebar with its keyboard shortcut
 - **THEN** it collapses or expands without animating
 - **AND** toggling it by clicking still animates
+
+### Requirement: Full-screen sidebar on phones
+
+Studio on the web SHALL use the phone layout in viewports narrower than 800 CSS pixels, or shorter than 480 CSS pixels when the primary pointer is coarse, as on a phone in landscape. In that layout, the sidebar MUST start closed regardless of the saved docked layout. Its toggle MUST stay in the top bar without reserving a rail beside the main area. Opening or closing it MUST NOT change the saved docked layout.
+
+#### Scenario: Navigate from the sidebar on a phone
+
+- **GIVEN** Studio is using the phone layout
+- **WHEN** the user taps the sidebar toggle
+- **THEN** the sidebar covers the viewport and has a button to close it
+- **WHEN** the user navigates to another page or dashboard
+- **THEN** the sidebar closes, revealing the selected destination
 
 ### Requirement: Navigation history
 
