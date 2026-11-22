@@ -32,6 +32,8 @@ context: |
   - Studio's website is static files. A small Worker in `worker/` runs only for dashboard links (`/import/*`) to give
     them Open Graph tags; `cloud/`, a Void app at cloud.doglog.dev, draws their preview images and will host the
     future Cloud backend. Both read the link with Studio's own code from `src/link-previews/`.
+  - YouTube only plays embedded videos for pages on a website, so the desktop app's video widget loads
+    `public/youtube-player.html` from studio.doglog.dev and controls it with messages.
   - The 3D field model is converted from FIRST's official STEP file each season by a checked-in script, which runs
     OpenCascade's Python bindings, a uv project in `scripts/field3d`, to read the CAD (native, since WebAssembly takes minutes), strips
     fasteners and other hardware, simplifies, and compresses it to a GLB of about 2 MB that's committed and bundled.

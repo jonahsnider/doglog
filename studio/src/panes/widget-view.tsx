@@ -79,7 +79,13 @@ export function WidgetView({
 	);
 	const names = new Set(bindings.map((binding) => binding.name));
 	const widget = (
-		<type.component bindings={bindings} options={options} setOption={setOption} layout={dashboardLayout} />
+		<type.component
+			bindings={bindings}
+			options={options}
+			setOption={setOption}
+			layout={dashboardLayout}
+			paneId={paneId}
+		/>
 	);
 
 	let content: ReactNode;

@@ -1,5 +1,6 @@
 import PauseIcon from 'lucide-react/icons/pause';
 import PlayIcon from 'lucide-react/icons/play';
+import TriangleAlertIcon from 'lucide-react/icons/triangle-exclamation-point';
 import { useHotkey } from '@tanstack/react-hotkeys';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,19 @@ import { cancelSaving, exitVideoExport, exportVideo, setVideoRangeEdge, useVideo
 import { isEnterKey } from '@/lib/keyboard';
 import { formatTime, togglePlayback, useVideoRange, useTimeline } from '@/timeline/timeline';
 import { parseTime } from '@/timeline/parse-time';
+import { useDashboards } from '@/dashboards/dashboards';
+import { panes, type PaneNode } from '@/panes/layout';
+import { pickedOption } from '@/widgets/options';
+import { parseVideo } from '@/widgets/video/source';
+import { widgetOptions } from '@/widgets/widget-info';
+
+/** Whether a layout has a video widget playing a YouTube video, which saved videos show as a thumbnail */
+function hasYouTubeVideo(layout: PaneNode | undefined): boolean {
+	return (layout ? panes(layout) : []).some(
+		({ widget }) =>
+			widget?.type === 'video' && parseVideo(pickedOption(widget, widgetOptions.video.video) ?? '')?.kind === 'youtube',
+	);
+}
 
 /** The video range's start or end, typed like the timeline's time */
 function VideoRangeField({
@@ -69,6 +83,8 @@ export function VideoExportBar() {
 	const range = useTimeRange();
 	const { playback } = useTimeline();
 	const saving = videoExport?.saving;
+	const dashboards = useDashboards();
+	const youTube = hasYouTubeVideo(dashboards.find((dashboard) => dashboard.id === videoExport?.dashboardId)?.layout);
 	// Text fields handle Escape themselves
 	useHotkey('Escape', () => (saving === undefined ? exitVideoExport() : cancelSaving()), {
 		ignoreInputs: true,
@@ -109,6 +125,12 @@ export function VideoExportBar() {
 						</TooltipPopup>
 					</Tooltip>
 					<div className="flex-1" />
+					{youTube && (
+						<span className="flex min-w-0 items-center gap-1.5 text-sm text-warning-foreground">
+							<TriangleAlertIcon className="size-4 shrink-0" />
+							<span className="truncate">YouTube videos are saved as their thumbnail</span>
+						</span>
+					)}
 					<Button variant="ghost" size="sm" onClick={() => exitVideoExport()}>
 						Cancel
 					</Button>

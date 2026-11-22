@@ -84,6 +84,18 @@ fn read_file(path: PathBuf) -> Result<Response, String> {
         .map_err(|error| error.to_string())
 }
 
+/// Let the webview play the video widget's video at `path` from `asset://`, erroring when it isn't a file. Not added to
+/// the asset protocol's scope by default, since videos can be anywhere, and `read_file()` can read any file anyway.
+#[tauri::command]
+fn allow_video(app: AppHandle, path: PathBuf) -> Result<(), String> {
+    if !path.is_file() {
+        return Err(format!("{} isn't a file", path.display()));
+    }
+    app.asset_protocol_scope()
+        .allow_file(&path)
+        .map_err(|error| error.to_string())
+}
+
 fn handle_run_event(app: &AppHandle, event: RunEvent) {
     if let RunEvent::Exit = event {
         agent::window::close_all(app);
@@ -223,6 +235,7 @@ pub fn run() -> ExitCode {
             take_opened_log,
             take_opened_dashboard_link,
             read_file,
+            allow_video,
             #[cfg(any(target_os = "macos", windows))]
             capture::copy_capture,
             #[cfg(any(target_os = "macos", windows))]

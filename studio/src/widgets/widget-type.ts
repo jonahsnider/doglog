@@ -76,6 +76,21 @@ export type WidgetOption = WidgetOptionInfo & {
 	 * added on this device, and the widget can say so.
 	 */
 	readonly menu?: OptionMenu;
+	/** Draws a text option's control in the widget options, see `OptionControlProps` */
+	readonly control?: ComponentType<OptionControlProps>;
+	/**
+	 * Turns a value an agent set into the one saved, ex. the video widget saves a file's name and keeps its path on the
+	 * device. Throws an error explaining why the value can't be used.
+	 */
+	readonly fromAgent?: (value: string, paneId: string) => string;
+};
+
+export type OptionControlProps = {
+	readonly paneId: string;
+	/** The value of each of the widget's options by option ID */
+	readonly values: OptionValues;
+	/** Picks an option's value, `undefined` unsets it */
+	readonly setOption: (id: string, value: string | undefined) => void;
 };
 
 export type OptionMenu = {
@@ -95,12 +110,14 @@ export type WidgetProps = {
 	 * Widgets are read-only, and follow the cursor with `useCursorTime()` or `subscribeTimeline()` from `@/timeline/timeline`.
 	 */
 	readonly bindings: readonly WidgetBinding[];
-	/** The value of each of the type's `options` by option ID, always one of its choices' IDs */
+	/** The value of each of the type's `options` by option ID: one of its choices' IDs, or a text option's text (empty when it isn't set) */
 	readonly options: OptionValues;
 	/** Picks an option's value, ex. from a control in the widget. `undefined` goes back to Auto or the default. */
 	readonly setOption: (id: string, value: string | undefined) => void;
 	/** The dashboard's layout, for widgets that follow others, ex. the swerve widget turns to match a field */
 	readonly layout: PaneNode;
+	/** The widget's pane, for state kept on the device instead of the dashboard, ex. the video widget's file access */
+	readonly paneId: string;
 };
 
 export type WidgetType = {

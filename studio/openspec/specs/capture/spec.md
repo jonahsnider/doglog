@@ -151,6 +151,17 @@ Studio SHALL let the user save the selected range as a silent MP4. The video MUS
 - **THEN** the saved video runs for eight seconds and includes any idle time in that range
 - **AND** exiting video export mode returns the user to their previous view and playback state
 
+### Requirement: YouTube videos in saved videos
+
+A video widget playing a YouTube video SHALL show the video's thumbnail labeled as a YouTube video in saved videos, since YouTube can't show a given frame on time. Video export mode MUST say so as soon as it opens, before the user saves. Copied images MUST show the video as it's shown.
+
+#### Scenario: Export a dashboard with a YouTube video
+
+- **GIVEN** a dashboard with a video widget playing a YouTube video
+- **WHEN** the user chooses Export video…
+- **THEN** video export mode says YouTube videos are saved as their thumbnail
+- **AND** the saved video shows the thumbnail where the YouTube video is
+
 ### Requirement: Show progress while saving a video
 
 Saving a video SHALL ask where to save it, suggesting the dashboard's name, then show its progress in the video export bar. Videos MUST be H.264 at 30 frames per second, at the frame's size on screen unless that's larger than the encoder supports. Canceling MUST delete the partial file and keep video export mode open with the same range. A saved video MUST offer to show the file.

@@ -42,6 +42,7 @@ export function WidgetButtons({
 			)}
 			{(type.options?.length ?? 0) > 0 && (
 				<WidgetOptions
+					paneId={paneId}
 					type={type}
 					widget={widget}
 					bindings={bindings}

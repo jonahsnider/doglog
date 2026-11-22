@@ -1,0 +1,113 @@
+<!doctype html>
+<!--
+	Plays a YouTube video for Studio's video widget, which controls it with messages, see `@/widgets/video/youtube-video`.
+	YouTube only plays videos embedded by a website, so the desktop app, whose pages aren't on one, loads this page from
+	studio.doglog.dev.
+-->
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="referrer" content="strict-origin-when-cross-origin" />
+		<title>YouTube video</title>
+		<style>
+			html,
+			body,
+			#player {
+				width: 100%;
+				height: 100%;
+				margin: 0;
+				overflow: hidden;
+				background: #000;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="player"></div>
+		<script>
+			const videoId = new URLSearchParams(location.search).get('v');
+			let player;
+			// Seeking a video that isn't playing starts it unless it's paused, so seeks pause it again
+			let playing = false;
+			// YouTube only seeks videos that have started, so the video plays muted until it starts before Studio controls it
+			let primed = false;
+
+			function send(message) {
+				window.parent.postMessage({ source: 'doglog-youtube', ...message }, '*');
+			}
+
+			function report() {
+				send({
+					type: 'status',
+					time: player.getCurrentTime(),
+					duration: player.getDuration(),
+					state: player.getPlayerState(),
+					rate: player.getPlaybackRate(),
+				});
+			}
+
+			window.onYouTubeIframeAPIReady = () => {
+				player = new YT.Player('player', {
+					videoId,
+					playerVars: {
+						controls: 0,
+						disablekb: 1,
+						fs: 0,
+						iv_load_policy: 3,
+						playsinline: 1,
+						rel: 0,
+						origin: location.origin,
+					},
+					events: {
+						onReady() {
+							player.mute();
+							player.playVideo();
+						},
+						onStateChange(event) {
+							if (!primed && event.data === YT.PlayerState.PLAYING) {
+								primed = true;
+								player.pauseVideo();
+								send({ type: 'ready' });
+								setInterval(report, 100);
+							}
+							if (primed) {
+								report();
+							}
+						},
+						onError(event) {
+							send({ type: 'error', code: event.data });
+						},
+					},
+				});
+			};
+
+			window.addEventListener('message', (event) => {
+				if (event.source !== window.parent || !primed || event.data?.source !== 'doglog-studio') {
+					return;
+				}
+				const message = event.data;
+				if (message.type === 'seek') {
+					player.seekTo(message.time, true);
+					if (!playing) {
+						player.pauseVideo();
+					}
+				} else if (message.type === 'play') {
+					playing = true;
+					player.playVideo();
+				} else if (message.type === 'pause') {
+					playing = false;
+					player.pauseVideo();
+				} else if (message.type === 'rate') {
+					player.setPlaybackRate(message.rate);
+				} else if (message.type === 'mute') {
+					if (message.muted) {
+						player.mute();
+					} else {
+						player.unMute();
+					}
+				}
+				report();
+			});
+		</script>
+		<script src="https://www.youtube.com/iframe_api"></script>
+	</body>
+</html>

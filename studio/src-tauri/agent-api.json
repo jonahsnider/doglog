@@ -642,6 +642,50 @@
 												],
 												"additionalProperties": false,
 												"description": "Notepad: Notes the user types, the same notes in every notepad. Doesn't take entries."
+											},
+											{
+												"type": "object",
+												"properties": {
+													"type": {
+														"type": "string",
+														"const": "video"
+													},
+													"options": {
+														"type": "object",
+														"properties": {
+															"video": {
+																"description": "Video: A YouTube link, or the name of a video file on the user's device, ex. `qual12.mp4`. In the desktop app, an absolute path to a video file is accepted too, only its name is saved with the dashboard. Changing it should also set `sync`. `null` unsets it.",
+																"anyOf": [
+																	{
+																		"type": "string",
+																		"pattern": "\\S"
+																	},
+																	{
+																		"type": "null"
+																	}
+																]
+															},
+															"sync": {
+																"description": "Sync: Lines the video up with the log as `<log seconds>=<video seconds>`, ex. `83=296.5` shows 4:56.50 in the video when the cursor is 1:23.00 into the log. Log seconds count from the start of the log, like the timeline shows. Not set, the log and video start together. `null` unsets it.",
+																"anyOf": [
+																	{
+																		"type": "string",
+																		"pattern": "^\\d+(?:\\.\\d+)?=\\d+(?:\\.\\d+)?$"
+																	},
+																	{
+																		"type": "null"
+																	}
+																]
+															}
+														},
+														"additionalProperties": false
+													}
+												},
+												"required": [
+													"type"
+												],
+												"additionalProperties": false,
+												"description": "Video: A video of the match that plays along with the log, following the timeline cursor, ex. the broadcast or a recording from the stands. Doesn't take entries: set the `video` and `sync` options. Each video widget has one video, use several for more angles. Videos only play with logs, not live sources."
 											}
 										]
 									},
@@ -1300,6 +1344,50 @@
 								],
 								"additionalProperties": false,
 								"description": "Notepad: Notes the user types, the same notes in every notepad. Doesn't take entries."
+							},
+							{
+								"type": "object",
+								"properties": {
+									"type": {
+										"type": "string",
+										"const": "video"
+									},
+									"options": {
+										"type": "object",
+										"properties": {
+											"video": {
+												"description": "Video: A YouTube link, or the name of a video file on the user's device, ex. `qual12.mp4`. In the desktop app, an absolute path to a video file is accepted too, only its name is saved with the dashboard. Changing it should also set `sync`. `null` unsets it.",
+												"anyOf": [
+													{
+														"type": "string",
+														"pattern": "\\S"
+													},
+													{
+														"type": "null"
+													}
+												]
+											},
+											"sync": {
+												"description": "Sync: Lines the video up with the log as `<log seconds>=<video seconds>`, ex. `83=296.5` shows 4:56.50 in the video when the cursor is 1:23.00 into the log. Log seconds count from the start of the log, like the timeline shows. Not set, the log and video start together. `null` unsets it.",
+												"anyOf": [
+													{
+														"type": "string",
+														"pattern": "^\\d+(?:\\.\\d+)?=\\d+(?:\\.\\d+)?$"
+													},
+													{
+														"type": "null"
+													}
+												]
+											}
+										},
+										"additionalProperties": false
+									}
+								},
+								"required": [
+									"type"
+								],
+								"additionalProperties": false,
+								"description": "Video: A video of the match that plays along with the log, following the timeline cursor, ex. the broadcast or a recording from the stands. Doesn't take entries: set the `video` and `sync` options. Each video widget has one video, use several for more angles. Videos only play with logs, not live sources."
 							}
 						]
 					}
@@ -1586,6 +1674,50 @@
 										],
 										"additionalProperties": false,
 										"description": "Notepad: Notes the user types, the same notes in every notepad. Doesn't take entries."
+									},
+									{
+										"type": "object",
+										"properties": {
+											"type": {
+												"type": "string",
+												"const": "video"
+											},
+											"options": {
+												"type": "object",
+												"properties": {
+													"video": {
+														"description": "Video: A YouTube link, or the name of a video file on the user's device, ex. `qual12.mp4`. In the desktop app, an absolute path to a video file is accepted too, only its name is saved with the dashboard. Changing it should also set `sync`. `null` unsets it.",
+														"anyOf": [
+															{
+																"type": "string",
+																"pattern": "\\S"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"sync": {
+														"description": "Sync: Lines the video up with the log as `<log seconds>=<video seconds>`, ex. `83=296.5` shows 4:56.50 in the video when the cursor is 1:23.00 into the log. Log seconds count from the start of the log, like the timeline shows. Not set, the log and video start together. `null` unsets it.",
+														"anyOf": [
+															{
+																"type": "string",
+																"pattern": "^\\d+(?:\\.\\d+)?=\\d+(?:\\.\\d+)?$"
+															},
+															{
+																"type": "null"
+															}
+														]
+													}
+												},
+												"additionalProperties": false
+											}
+										},
+										"required": [
+											"type"
+										],
+										"additionalProperties": false,
+										"description": "Video: A video of the match that plays along with the log, following the timeline cursor, ex. the broadcast or a recording from the stands. Doesn't take entries: set the `video` and `sync` options. Each video widget has one video, use several for more angles. Videos only play with logs, not live sources."
 									}
 								]
 							},
@@ -1979,7 +2111,7 @@
 						]
 					},
 					"themePreset": {
-						"description": "Theme color: Team 581 maroon (`team581`), match13 blue, `neutral` gray, or `custom` for `themeColor`",
+						"description": "Theme color: Team 581 maroon (`team581`), match13 blue, FrogLog green and blue (`froglog`), `neutral` gray, or `custom` for `themeColor`",
 						"type": "string",
 						"enum": [
 							"team581",

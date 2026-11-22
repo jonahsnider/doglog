@@ -18,6 +18,7 @@ import type { OptionMenu, WidgetBinding, WidgetOption, WidgetType } from '@/widg
 const auto = '';
 
 type WidgetOptionsProps = {
+	paneId: string;
 	type: WidgetType;
 	widget: Widget | undefined;
 	bindings: readonly WidgetBinding[];
@@ -25,7 +26,7 @@ type WidgetOptionsProps = {
 };
 
 /** The widget options button for a pane toolbar, for widgets with options */
-export function WidgetOptions({ type, widget, bindings, onOptionChange }: WidgetOptionsProps) {
+export function WidgetOptions({ paneId, type, widget, bindings, onOptionChange }: WidgetOptionsProps) {
 	const { options = [] } = type;
 	const values = optionValues(type, widget, bindings);
 	return (
@@ -45,7 +46,11 @@ export function WidgetOptions({ type, widget, bindings, onOptionChange }: Widget
 			<PopoverPopup align="end" className="w-80">
 				<div className="flex flex-col gap-3">
 					{options.map((option) =>
-						option.menu ? (
+						option.kind === 'text' ? (
+							option.control && (
+								<option.control key={option.id} paneId={paneId} values={values} setOption={onOptionChange} />
+							)
+						) : option.menu ? (
 							<MenuOptionControl
 								key={option.id}
 								option={option}
@@ -69,13 +74,16 @@ export function WidgetOptions({ type, widget, bindings, onOptionChange }: Widget
 	);
 }
 
+/** An option picked from choices */
+type ChoiceOption = Extract<WidgetOption, { kind: 'choice' }>;
+
 function OptionControl({
 	option,
 	picked,
 	inferred,
 	onChange,
 }: {
-	option: WidgetOption;
+	option: ChoiceOption;
 	picked: string | undefined;
 	inferred: string | undefined;
 	onChange: (value: string | undefined) => void;
@@ -143,7 +151,7 @@ function MenuOptionControl({
 	value,
 	onChange,
 }: {
-	option: WidgetOption;
+	option: ChoiceOption;
 	menu: OptionMenu;
 	value: string;
 	onChange: (value: string | undefined) => void;

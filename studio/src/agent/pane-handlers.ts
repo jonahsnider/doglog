@@ -3,7 +3,14 @@
 import { AgentError } from '@/agent/agent-error';
 import type { Handlers } from '@/agent/commands';
 import { describeDashboard, requireDashboard } from '@/agent/dashboard-handlers';
-import { applyBindingInput, checkBinding, checkConnections, showInputWidget, tooManyPanes } from '@/agent/layouts';
+import {
+	agentOptionValue,
+	applyBindingInput,
+	checkBinding,
+	checkConnections,
+	showInputWidget,
+	tooManyPanes,
+} from '@/agent/layouts';
 import { updateDashboard } from '@/dashboards/dashboards';
 import { closeDashboardPane, moveDashboardPane, splitDirectionFor, updateLayout } from '@/dashboards/panes';
 import { flushData, getEntry } from '@/data/data-store';
@@ -129,7 +136,12 @@ export const paneHandlers: Pick<
 					next = changeWidgetType(next, paneId, type, getEntry);
 				}
 				for (const [id, value] of Object.entries(widget.options ?? {})) {
-					next = setWidgetOption(next, paneId, id, value ?? undefined);
+					next = setWidgetOption(
+						next,
+						paneId,
+						id,
+						value === null || value === undefined ? undefined : agentOptionValue(type, paneId, id, value),
+					);
 				}
 			}
 			return size === undefined ? next : resizePane(next, paneId, size);

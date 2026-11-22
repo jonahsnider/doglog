@@ -1,5 +1,6 @@
 import BotIcon from 'lucide-react/icons/bot';
 import ChartLineIcon from 'lucide-react/icons/chart-line';
+import ClapperboardIcon from 'lucide-react/icons/clapperboard';
 import Gamepad2Icon from 'lucide-react/icons/gamepad-2';
 import NotebookPenIcon from 'lucide-react/icons/notebook-pen';
 import TableIcon from 'lucide-react/icons/table';
@@ -22,4 +23,5 @@ export const widgetIcons: Record<WidgetTypeId, ComponentType<SVGProps<SVGSVGElem
 	swerve: SwerveDriveIcon,
 	controller: Gamepad2Icon,
 	notepad: NotebookPenIcon,
+	video: ClapperboardIcon,
 };

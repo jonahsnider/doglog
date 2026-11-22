@@ -40,6 +40,14 @@ export const robot = z
 	);
 
 function optionSchema(option: WidgetOptionInfo) {
+	if (option.kind === 'text') {
+		return z
+			.string()
+			.regex(option.pattern)
+			.nullable()
+			.optional()
+			.describe(`${option.label}: ${option.description} \`null\` unsets it.`);
+	}
 	const ids = option.choices.map((choice) => choice.id);
 	const choice = option.openChoices
 		? z
@@ -146,7 +154,9 @@ export const settingsSchema = z.strictObject({
 	themePreset: z
 		.enum(themePresets)
 		.optional()
-		.describe('Theme color: Team 581 maroon (`team581`), match13 blue, `neutral` gray, or `custom` for `themeColor`'),
+		.describe(
+			'Theme color: Team 581 maroon (`team581`), match13 blue, FrogLog green and blue (`froglog`), `neutral` gray, or `custom` for `themeColor`',
+		),
 	themeColor: z
 		.string()
 		.regex(/^#[\da-f]{6}$/iu)

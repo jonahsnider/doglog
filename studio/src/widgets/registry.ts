@@ -17,6 +17,7 @@ import { robotRoles, viewOption } from '@/widgets/robot/roles';
 import { Swerve } from '@/widgets/swerve/swerve';
 import { swerveRoles } from '@/widgets/swerve/data';
 import { TableWidget } from '@/widgets/table/table';
+import { videoOptions } from '@/widgets/video/video-options';
 import { type WidgetInfo, widgetInfos, type WidgetTypeId } from '@/widgets/widget-info';
 import type { WidgetType } from '@/widgets/widget-type';
 
@@ -32,6 +33,7 @@ function info(
 
 const loadRobot = async () => ({ default: (await import('@/widgets/robot/robot')).Robot });
 const loadNotepad = async () => ({ default: (await import('@/widgets/notepad/notepad')).Notepad });
+const loadVideo = async () => ({ default: (await import('@/widgets/video/video')).Video });
 
 /** Every widget type, in the order they're listed in the widget picker */
 export const widgetTypes: readonly WidgetType[] = [
@@ -77,6 +79,14 @@ export const widgetTypes: readonly WidgetType[] = [
 		rendersEmpty: true,
 		preload: loadNotepad,
 		component: lazy(loadNotepad),
+	},
+	{
+		...info('video'),
+		hotkey: 'V',
+		rendersEmpty: true,
+		options: videoOptions,
+		preload: loadVideo,
+		component: lazy(loadVideo),
 	},
 ];
 

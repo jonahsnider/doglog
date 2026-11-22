@@ -134,10 +134,21 @@ export function applyBindingInput(
 	return next;
 }
 
+/** The value saved for an option an agent set, see `WidgetOption.fromAgent` */
+export function agentOptionValue(type: WidgetType, paneId: string, id: string, value: string): string {
+	const fromAgent = type.options?.find((option) => option.id === id)?.fromAgent;
+	try {
+		return fromAgent ? fromAgent(value, paneId) : value;
+	} catch (error) {
+		throw new AgentError(error instanceof Error ? error.message : String(error));
+	}
+}
+
 /** Option picks from agent input, `null` goes back to inferring the option or its default */
 function optionPicks(
 	type: WidgetType,
 	layout: PaneNode,
+	paneId: string,
 	options: Readonly<Record<string, string | null | undefined>> | undefined,
 ): Record<string, string> {
 	const picks: Record<string, string> = initialOptions(type, layout);
@@ -145,7 +156,7 @@ function optionPicks(
 		if (value === null) {
 			delete picks[id];
 		} else if (value !== undefined) {
-			picks[id] = value;
+			picks[id] = agentOptionValue(type, paneId, id, value);
 		}
 	}
 	return picks;
@@ -161,7 +172,7 @@ export function showInputWidget(layout: PaneNode, paneId: string, input: WidgetI
 	const widget = createWidget(
 		type,
 		bindings?.map((binding) => binding.entry),
-		optionPicks(type, layout, input.options),
+		optionPicks(type, layout, paneId, input.options),
 	);
 	let next = setPaneWidget(layout, paneId, widget);
 	const created = widgetBindings(widget);

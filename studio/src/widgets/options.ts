@@ -9,6 +9,9 @@ const configSchema = z
 	.transform((config) => config.options);
 
 function choiceSchema(option: WidgetOption) {
+	if (option.kind === 'text') {
+		return z.string().regex(option.pattern);
+	}
 	return option.openChoices
 		? z.string().min(1)
 		: z.string().refine((id) => option.choices.some((choice) => choice.id === id));

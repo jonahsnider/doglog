@@ -1,3 +1,4 @@
+// oxlint-disable max-lines -- Every widget type's info is kept together, it's mostly descriptions for agents
 // What there is to know about each widget type besides how it's drawn: its accepted entries, roles, and options.
 // Kept apart from React so agent command schemas can use it in Node, see `@/agent`. `@/widgets/registry` adds the rest.
 import type { EntryKind } from '../data/entry-kind.ts';
@@ -55,17 +56,31 @@ export const widgetRoles = {
 
 /** The parts of a `WidgetOption` that don't depend on the app, see there */
 export type WidgetOptionInfo = {
-	readonly kind: 'choice';
 	/** Saved in dashboards, don't change it */
 	readonly id: string;
 	/** Shown in the widget options, ex. `Orientation` */
 	readonly label: string;
+} & (ChoiceOptionInfo | TextOptionInfo);
+
+type ChoiceOptionInfo = {
+	readonly kind: 'choice';
 	/** IDs are saved in dashboards, don't change them */
 	readonly choices: readonly { readonly id: string; readonly label: string }[];
 	/** The choice's ID when it isn't picked, or isn't inferred */
 	readonly default: string;
 	/** Any choice can be picked besides `choices`, ex. the user's own robot projects. Picked ones are kept even if they aren't found. */
 	readonly openChoices?: true;
+};
+
+/** An option set to text, ex. the video widget's video. Its widget shows its control, see `WidgetOption.control`. */
+type TextOptionInfo = {
+	readonly kind: 'text';
+	/** What the text is, for agents */
+	readonly description: string;
+	/** Text that isn't matched is ignored, as if the option wasn't set */
+	readonly pattern: RegExp;
+	/** The value when it isn't set, always empty */
+	readonly default: '';
 };
 
 /** The Driver Station's joystick ports */
@@ -154,6 +169,26 @@ export const widgetOptions = {
 				{ id: 'playstation', label: 'PlayStation' },
 			],
 			default: 'xbox',
+		},
+	},
+	video: {
+		video: {
+			kind: 'text',
+			id: 'video',
+			label: 'Video',
+			description:
+				"A YouTube link, or the name of a video file on the user's device, ex. `qual12.mp4`. In the desktop app, an absolute path to a video file is accepted too, only its name is saved with the dashboard. Changing it should also set `sync`.",
+			pattern: /\S/u,
+			default: '',
+		},
+		sync: {
+			kind: 'text',
+			id: 'sync',
+			label: 'Sync',
+			description:
+				'Lines the video up with the log as `<log seconds>=<video seconds>`, ex. `83=296.5` shows 4:56.50 in the video when the cursor is 1:23.00 into the log. Log seconds count from the start of the log, like the timeline shows. Not set, the log and video start together.',
+			pattern: /^\d+(?:\.\d+)?=\d+(?:\.\d+)?$/u,
+			default: '',
 		},
 	},
 } as const satisfies Record<string, Record<string, WidgetOptionInfo>>;
@@ -249,6 +284,15 @@ export const widgetInfos = [
 		accepts: [],
 		roles: [],
 		options: [],
+	},
+	{
+		id: 'video',
+		name: 'Video',
+		description:
+			"A video of the match that plays along with the log, following the timeline cursor, ex. the broadcast or a recording from the stands. Doesn't take entries: set the `video` and `sync` options. Each video widget has one video, use several for more angles. Videos only play with logs, not live sources.",
+		accepts: [],
+		roles: [],
+		options: Object.values(widgetOptions.video),
 	},
 ] as const satisfies readonly WidgetInfo[];
 
