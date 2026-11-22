@@ -24,6 +24,7 @@ jobs:
         uses: pnpm/setup@v3.2.0
         with:
           cache: true
+          save-cache: ${{ github.ref == 'refs/heads/main' }}
       - name: Validate Studio specs
         run: pnpm --dir studio openspec:check
 
@@ -89,9 +90,9 @@ jobs:
           java-version: 25
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6.4.1
-      - name: Cache Infer
+      - name: Restore Infer cache
         id: cache-infer
-        uses: actions/cache@v6.1.0
+        uses: actions/cache/restore@v6.1.0
         with:
           path: /tmp/infer
           key: infer-linux-x86_64-${{ env.INFER_VERSION }}
@@ -105,6 +106,12 @@ jobs:
         run: echo "/tmp/infer/infer-linux-x86_64-${INFER_VERSION}/bin" >> "$GITHUB_PATH"
       - name: Run Infer
         run: ./gradlew infer -PinferFailOnIssue
+      - name: Save Infer cache
+        if: github.ref == 'refs/heads/main' && steps.cache-infer.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: /tmp/infer
+          key: ${{ steps.cache-infer.outputs.cache-primary-key }}
 
   assemble-test-project:
     name: Assemble test project
@@ -199,6 +206,7 @@ jobs:
         uses: pnpm/setup@v3.2.0
         with:
           cache: true
+          save-cache: ${{ github.ref == 'refs/heads/main' }}
       - name: Check formatting with Oxfmt
         run: pnpm format
       - name: Build docs
@@ -301,6 +309,7 @@ jobs:
         uses: pnpm/setup@v3.2.0
         with:
           cache: true
+          save-cache: ${{ github.ref == 'refs/heads/main' }}
       - name: Lint, format, and type check
         run: pnpm check
         working-directory: studio
@@ -359,6 +368,7 @@ jobs:
         uses: pnpm/setup@v3.2.0
         with:
           cache: true
+          save-cache: ${{ github.ref == 'refs/heads/main' }}
       - name: Lint, format, and type check
         run: pnpm check
         working-directory: cloud
@@ -390,6 +400,7 @@ jobs:
         uses: pnpm/setup@v3.2.0
         with:
           cache: true
+          save-cache: ${{ github.ref == 'refs/heads/main' }}
       - name: Run benchmarks
         uses: CodSpeedHQ/action@v5.8.0
         with:
