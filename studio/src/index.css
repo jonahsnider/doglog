@@ -85,6 +85,8 @@
 	--color-sidebar-accent: var(--sidebar-accent);
 	--color-sidebar: var(--sidebar);
 	--color-frame: var(--frame);
+	/* Raised parts of drawings, like controller buttons, which stand out from both light and dark surfaces */
+	--color-surface-bright: var(--md-surface-bright);
 	--color-code-highlight: var(--code-highlight);
 	--code-foreground: var(--code-foreground);
 	--color-code: var(--code);

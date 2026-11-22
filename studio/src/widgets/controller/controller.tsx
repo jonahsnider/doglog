@@ -3,7 +3,7 @@ import { getEntry, useDataVersion, useEntries } from '@/data/data-store';
 import { useSource } from '@/data/source';
 import { useCursorTime } from '@/timeline/timeline';
 import { findController, hasControllerData, readController } from '@/widgets/controller/data';
-import { layouts } from '@/widgets/controller/layouts';
+import { height, layouts, width } from '@/widgets/controller/layouts';
 import { Dpad, FaceButtons, MenuButton, Shoulder, Stick } from '@/widgets/controller/shapes';
 import { WidgetEmpty } from '@/widgets/widget-empty';
 import type { WidgetProps } from '@/widgets/widget-type';
@@ -36,7 +36,13 @@ export function Controller({ options }: WidgetProps) {
 	const state = readController(controller!, layout, time);
 	const { axes, pressed } = state;
 	return (
-		<svg className="size-full p-3" viewBox="0 0 400 288" role="img" aria-label={`Controller ${port}`} strokeWidth={1.5}>
+		<svg
+			className="size-full p-3"
+			viewBox={`0 0 ${width} ${height}`}
+			role="img"
+			aria-label={`Controller ${port}`}
+			strokeWidth={1.5}
+		>
 			<Shoulder
 				side="left"
 				trigger={axes.leftTrigger}
@@ -51,17 +57,19 @@ export function Controller({ options }: WidgetProps) {
 			/>
 			<path d={shape.body} strokeLinejoin="round" className="fill-muted stroke-border" />
 			{shape.touchpad && (
-				<rect x={150} y={64} width={100} height={52} rx={8} className="fill-background stroke-border" />
+				<rect x={134} y={60} width={92} height={50} rx={8} className="fill-surface-bright stroke-border" />
 			)}
 			<MenuButton
 				center={shape.back}
 				shape={shape.menuShape}
+				button="back"
 				pressed={pressed.has('back')}
 				label={shape.menuLabels[0]}
 			/>
 			<MenuButton
 				center={shape.start}
 				shape={shape.menuShape}
+				button="start"
 				pressed={pressed.has('start')}
 				label={shape.menuLabels[1]}
 			/>

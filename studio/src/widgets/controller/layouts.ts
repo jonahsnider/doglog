@@ -2,8 +2,9 @@ import type { ControllerLayout } from '@/widgets/controller/data';
 
 export type Point = readonly [x: number, y: number];
 
-/** The SVG is 400 wide, the right side's shoulder controls mirror the left side's across x = 200 */
-export const width = 400;
+/** The SVG's size, the right side's shoulder controls mirror the left side's across its center */
+export const width = 360;
+export const height = 266;
 
 /** How each layout looks, in the SVG's units */
 export type LayoutShape = {
@@ -28,14 +29,14 @@ export type LayoutShape = {
 export const layouts: Readonly<Record<ControllerLayout, LayoutShape>> = {
 	xbox: {
 		// Rounded shoulders, a dip between the grips
-		body: 'M 200 70 C 236 70 262 62 296 62 C 336 62 360 82 372 116 C 386 156 398 210 396 240 C 394 268 368 282 346 270 C 326 260 314 238 298 218 C 288 204 272 196 250 196 L 150 196 C 128 196 112 204 102 218 C 86 238 74 260 54 270 C 32 282 6 268 4 240 C 2 210 14 156 28 116 C 40 82 64 62 104 62 C 138 62 164 70 200 70 Z',
+		body: 'M 180 64 C 160 64 140 54 110 52 C 74 50 48 64 36 90 C 24 118 12 168 10 206 C 8 238 24 258 46 258 C 64 258 76 246 88 228 C 100 210 112 196 136 194 C 150 193 165 193 180 193 C 195 193 210 193 224 194 C 248 196 260 210 272 228 C 284 246 296 258 314 258 C 336 258 352 238 350 206 C 348 168 336 118 324 90 C 312 64 286 50 250 52 C 220 54 200 64 180 64 Z',
 		// Offset sticks: left stick high, D-pad and right stick low in the middle
-		leftStick: [104, 118],
-		rightStick: [248, 164],
-		face: [296, 118],
-		dpad: [152, 164],
-		back: [176, 112],
-		start: [224, 112],
+		leftStick: [86, 108],
+		rightStick: [224, 158],
+		face: [274, 108],
+		dpad: [136, 158],
+		back: [154, 104],
+		start: [206, 104],
 		menuShape: 'circle',
 		faceGlyphs: ['Y', 'B', 'A', 'X'],
 		bumpers: ['LB', 'RB'],
@@ -45,14 +46,14 @@ export const layouts: Readonly<Record<ControllerLayout, LayoutShape>> = {
 	},
 	playstation: {
 		// Flat top around the touchpad, longer grips
-		body: 'M 200 62 L 262 62 C 300 62 330 60 352 72 C 372 84 380 110 386 140 C 394 182 400 226 396 250 C 392 276 366 286 346 274 C 328 262 316 236 302 216 C 294 206 282 202 268 202 L 132 202 C 118 202 106 206 98 216 C 84 236 72 262 54 274 C 34 286 8 276 4 250 C 0 226 6 182 14 140 C 20 110 28 84 48 72 C 70 60 100 62 138 62 Z',
+		body: 'M 180 56 L 120 56 C 88 56 64 54 46 64 C 30 74 22 98 18 124 C 12 162 6 206 8 230 C 10 252 30 264 50 256 C 66 250 76 232 88 214 C 98 202 108 196 124 196 L 180 196 L 236 196 C 252 196 262 202 272 214 C 284 232 294 250 310 256 C 330 264 350 252 352 230 C 354 206 348 162 342 124 C 338 98 330 74 314 64 C 296 54 272 56 240 56 L 180 56 Z',
 		// Symmetric sticks below the D-pad and face buttons
-		leftStick: [148, 172],
-		rightStick: [252, 172],
-		face: [306, 124],
-		dpad: [94, 124],
-		back: [134, 80],
-		start: [266, 80],
+		leftStick: [134, 160],
+		rightStick: [226, 160],
+		face: [282, 112],
+		dpad: [78, 112],
+		back: [116, 80],
+		start: [244, 80],
 		menuShape: 'pill',
 		faceGlyphs: ['△', '○', '✕', '□'],
 		bumpers: ['L1', 'R1'],
