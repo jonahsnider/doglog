@@ -20,6 +20,7 @@ import { flushData, getEntry } from '@/data/data-store';
 import { getSource } from '@/data/source';
 import { canJoinLayouts, createPane, findPane } from '@/panes/layout';
 import { saveCaptureImage } from '@/desktop/capture';
+import { canExportVideo, saveDashboardVideo } from '@/desktop/video-export';
 
 let router: RegisteredRouter | undefined;
 
@@ -71,6 +72,7 @@ export const dashboardHandlers: Pick<
 	| 'dashboard_duplicate'
 	| 'dashboard_combine'
 	| 'dashboard_capture'
+	| 'dashboard_record'
 > = {
 	dashboard_list: () => {
 		const shown = currentDashboard(getRouter())?.id;
@@ -141,6 +143,33 @@ export const dashboardHandlers: Pick<
 				throw new AgentError(`The dashboard has no pane \`${input.paneId}\`, see \`dashboard_get\`.`);
 			}
 			return { path: await saveCaptureImage(getRouter(), input) };
+		}
+		return undefined;
+	},
+
+	dashboard_record: async ({ dashboardId, start, end, path }) => {
+		if (STUDIO_DESKTOP) {
+			const dashboard = requireDashboard(dashboardId);
+			const source = getSource();
+			if (source === undefined) {
+				throw new AgentError('No source is open, open one with `source_update`.');
+			}
+			if (!canExportVideo(dashboard, source)) {
+				throw new AgentError(
+					'The dashboard needs a widget, and the source needs data, to save a video. Add one with `pane_update`, or check the source with `source_get`.',
+				);
+			}
+			if (end <= start) {
+				throw new AgentError('`end` must be after `start`.');
+			}
+			return {
+				path: await saveDashboardVideo(getRouter(), {
+					dashboardId,
+					start: start * 1_000_000,
+					end: end * 1_000_000,
+					path,
+				}),
+			};
 		}
 		return undefined;
 	},

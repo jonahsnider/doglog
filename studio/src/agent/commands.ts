@@ -13,6 +13,8 @@ import {
 	hidden,
 	robot,
 	layoutSchema,
+	savePath,
+	sourceTime,
 	paneId,
 	settingsSchema,
 	size,
@@ -23,7 +25,7 @@ import {
 /** Changes only when commands change incompatibly, the desktop MCP server refuses windows with another version */
 export const agentApiVersion = 1;
 
-export const agentInstructions = `DogLog Studio shows FRC robot logs (WPILOG files) and live robot data on dashboards. With these commands you can build and arrange dashboards for the user, save images of them to check how they look, open a log or connect to the robot, move the timeline cursor to a moment, and change settings.
+export const agentInstructions = `DogLog Studio shows FRC robot logs (WPILOG files) and live robot data on dashboards. With these commands you can build and arrange dashboards for the user, save images of them to check how they look, save videos of them to share, open a log or connect to the robot, move the timeline cursor to a moment, and change settings.
 
 Each dashboard's layout is a tree: a split puts its children side by side (\`row\`) or stacks them (\`column\`), and each leaf is a pane. A pane shows one widget, or nothing. A widget's bindings are the entries it shows, bound by entry name. \`dashboard_get\` returns the IDs other commands take, and points out bindings that won't show what you meant.
 
@@ -79,11 +81,19 @@ const commands = {
 		input: z.strictObject({
 			dashboardId,
 			paneId: paneId.optional().describe('Only this pane. Left out, the whole dashboard.'),
-			path: z
-				.string()
-				.min(1)
-				.optional()
-				.describe('Absolute path to save the PNG to. Left out, it goes in a new file in the temporary folder.'),
+			path: savePath('the PNG'),
+		}),
+		platforms: ['desktop'],
+		capture: true,
+	},
+	dashboard_record: {
+		description:
+			"Save an MP4 video of a dashboard from `start` to `end`, the same video Export video saves: 30 frames a second at the source's original timing, with the window's theme and sizes, and the timeline below. Shows the dashboard in video export mode while it saves, where the user sees its progress and can cancel, then returns the window to how it was. Saving can take about as long as the video. Returns the video's path.",
+		input: z.strictObject({
+			dashboardId,
+			start: sourceTime,
+			end: sourceTime.describe(`${sourceTime.description} After \`start\`.`),
+			path: savePath('the MP4'),
 		}),
 		platforms: ['desktop'],
 		capture: true,
@@ -237,11 +247,7 @@ const commands = {
 		description:
 			"Save everything the live session received as a WPILOG file, to read with wpilog-parser, whether or not the live session is shown. Its times are on the robot's clock, so they line up with the robot's own logs but not `timeline_get`. Returns the file's path.",
 		input: z.strictObject({
-			path: z
-				.string()
-				.min(1)
-				.optional()
-				.describe('Absolute path to save the file to. Left out, it goes in a new file in the temporary folder.'),
+			path: savePath('the file'),
 		}),
 		platforms: ['desktop'],
 	},
@@ -254,11 +260,7 @@ const commands = {
 		description:
 			"Move the timeline cursor so the user's dashboards show that moment. Stops following live data. Returns the timeline like `timeline_get`.",
 		input: z.strictObject({
-			time: z
-				.number()
-				.describe(
-					"Seconds on the source's clock, see `timeline_get`. Times outside the source's range go to its start or end.",
-				),
+			time: sourceTime,
 		}),
 	},
 	settings_get: {

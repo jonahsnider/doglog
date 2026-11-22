@@ -1,6 +1,6 @@
 {
 	"apiVersion": 1,
-	"instructions": "DogLog Studio shows FRC robot logs (WPILOG files) and live robot data on dashboards. With these commands you can build and arrange dashboards for the user, save images of them to check how they look, open a log or connect to the robot, move the timeline cursor to a moment, and change settings.\n\nEach dashboard's layout is a tree: a split puts its children side by side (`row`) or stacks them (`column`), and each leaf is a pane. A pane shows one widget, or nothing. A widget's bindings are the entries it shows, bound by entry name. `dashboard_get` returns the IDs other commands take, and points out bindings that won't show what you meant.\n\nCommands never return entry values. To analyze data, ex. to find when something happened, read the log with the wpilog-parser library (and its skill, if you have it), then show the user that moment with `timeline_update`.",
+	"instructions": "DogLog Studio shows FRC robot logs (WPILOG files) and live robot data on dashboards. With these commands you can build and arrange dashboards for the user, save images of them to check how they look, save videos of them to share, open a log or connect to the robot, move the timeline cursor to a moment, and change settings.\n\nEach dashboard's layout is a tree: a split puts its children side by side (`row`) or stacks them (`column`), and each leaf is a pane. A pane shows one widget, or nothing. A widget's bindings are the entries it shows, bound by entry name. `dashboard_get` returns the IDs other commands take, and points out bindings that won't show what you meant.\n\nCommands never return entry values. To analyze data, ex. to find when something happened, read the log with the wpilog-parser library (and its skill, if you have it), then show the user that moment with `timeline_update`.",
 	"commands": [
 		{
 			"name": "window_list",
@@ -90,6 +90,41 @@
 				},
 				"required": [
 					"dashboardId"
+				],
+				"additionalProperties": false
+			},
+			"bridge": false,
+			"capture": true
+		},
+		{
+			"name": "dashboard_record",
+			"description": "Save an MP4 video of a dashboard from `start` to `end`, the same video Export video saves: 30 frames a second at the source's original timing, with the window's theme and sizes, and the timeline below. Shows the dashboard in video export mode while it saves, where the user sees its progress and can cancel, then returns the window to how it was. Saving can take about as long as the video. Returns the video's path.",
+			"inputSchema": {
+				"$schema": "https://json-schema.org/draft/2020-12/schema",
+				"type": "object",
+				"properties": {
+					"dashboardId": {
+						"type": "string",
+						"description": "The dashboard's ID, from `dashboard_list`"
+					},
+					"start": {
+						"type": "number",
+						"description": "Seconds on the source's clock, see `timeline_get`. Times outside the source's range go to its start or end."
+					},
+					"end": {
+						"type": "number",
+						"description": "Seconds on the source's clock, see `timeline_get`. Times outside the source's range go to its start or end. After `start`."
+					},
+					"path": {
+						"description": "Absolute path to save the MP4 to. Left out, it goes in a new file in the temporary folder.",
+						"type": "string",
+						"minLength": 1
+					}
+				},
+				"required": [
+					"dashboardId",
+					"start",
+					"end"
 				],
 				"additionalProperties": false
 			},

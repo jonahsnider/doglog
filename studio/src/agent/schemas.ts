@@ -175,4 +175,19 @@ export const settingsSchema = z.strictObject({
 		.describe("Whether scrolling the timeline follows natural scrolling, in browsers that don't report it"),
 });
 
+export const sourceTime = z
+	.number()
+	.describe(
+		"Seconds on the source's clock, see `timeline_get`. Times outside the source's range go to its start or end.",
+	);
+
+/** Where a command saves `file`, ex. `the PNG` */
+export function savePath(file: string) {
+	return z
+		.string()
+		.min(1)
+		.optional()
+		.describe(`Absolute path to save ${file} to. Left out, it goes in a new file in the temporary folder.`);
+}
+
 export const empty = z.strictObject({});

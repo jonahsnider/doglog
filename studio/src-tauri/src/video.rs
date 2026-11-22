@@ -18,6 +18,7 @@ use std::{
         mpsc::{self, Receiver, SyncSender},
     },
     thread::{self, JoinHandle},
+    time::{SystemTime, UNIX_EPOCH},
 };
 
 use tauri::{AppHandle, Manager, State, WebviewWindow, async_runtime::spawn_blocking};
@@ -52,22 +53,31 @@ fn output_size(width: usize, height: usize) -> (usize, usize) {
     (even(width), even(height))
 }
 
-/// Start saving a video to `path`, replacing the file. Any video that wasn't finished is canceled.
+/// Start saving a video to `path`, replacing the file, or to a new file in the temporary folder for agents. Any video
+/// that wasn't finished is canceled. Returns where it's saved.
 #[tauri::command]
 pub async fn start_video(
     window: WebviewWindow,
     state: State<'_, VideoExports>,
-    path: PathBuf,
+    path: Option<PathBuf>,
     fps: u32,
-) -> Result<(), String> {
-    if !path.is_absolute() {
+) -> Result<PathBuf, String> {
+    if path.as_ref().is_some_and(|path| !path.is_absolute()) {
         return Err("The path must be absolute".into());
     }
     if fps == 0 {
         return Err("The frame rate must be positive".into());
     }
+    let path = path.unwrap_or_else(|| {
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_millis();
+        std::env::temp_dir().join(format!("doglog-video-{now}.mp4"))
+    });
     stop(&state, window.label(), true).await?;
-    // The save dialog already asked to replace it, and the encoder won't write over a file
+    // The save dialog already asked to replace it, agents replace files like images they save, and the encoder won't
+    // write over a file
     match fs::remove_file(&path) {
         Err(error) if error.kind() != io::ErrorKind::NotFound => {
             return Err(format!("Couldn't replace {}: {error}", path.display()));
@@ -88,13 +98,13 @@ pub async fn start_video(
     state.0.lock().unwrap().insert(
         window.label().to_owned(),
         VideoExport {
-            path,
+            path: path.clone(),
             frames,
             cancelled,
             encoder,
         },
     );
-    Ok(())
+    Ok(path)
 }
 
 /// Snapshot `rect` as the video's next frame. Returns once it's captured, before it's encoded.

@@ -2,6 +2,7 @@ import { detectPlatform } from '@tanstack/react-hotkeys';
 import type { RegisteredRouter } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { save } from '@tauri-apps/plugin-dialog';
 import { revealItemInDir } from '@tauri-apps/plugin-opener';
 import { toastManager } from '@/components/ui/toast';
@@ -148,16 +149,8 @@ const reservedCharacters = /[<>:"/\\|?*]/gu;
 /** Ask where to save the video, then save it and leave video export mode */
 export async function exportVideo(): Promise<void> {
 	const videoExport = store.get();
-	const { videoRange } = getTimeline();
 	const dashboard = videoExport && getDashboard(videoExport.dashboardId);
-	const target = videoExport && dashboardCaptureTarget(videoExport.dashboardId);
-	if (
-		!videoExport ||
-		videoExport.saving !== undefined ||
-		!videoRange ||
-		!dashboard ||
-		!(target instanceof HTMLElement)
-	) {
+	if (!videoExport || videoExport.saving !== undefined || !dashboard) {
 		return;
 	}
 
@@ -167,6 +160,76 @@ export async function exportVideo(): Promise<void> {
 	});
 	if (path === null || store.get() !== videoExport) {
 		return;
+	}
+
+	try {
+		if ((await saveRange(videoExport, path)) !== undefined) {
+			toastManager.add({
+				type: 'success',
+				title: 'Saved video',
+				actionProps: {
+					children: detectPlatform() === 'mac' ? 'Show in Finder' : 'Show in File Explorer',
+					onClick: () => void revealItemInDir(path),
+				},
+			});
+		}
+	} catch (error) {
+		toastManager.add({ type: 'error', title: 'Couldn’t save video', description: String(error) });
+	}
+}
+
+/**
+ * Save a video of a dashboard from `start` to `end` (µs, kept within the source) to `path`, or a new file in the
+ * temporary folder, for agents. Shows it in video export mode while it's saved, where the user can cancel, then leaves
+ * video export mode. Returns where the video was saved.
+ */
+export async function saveDashboardVideo(
+	router: RegisteredRouter,
+	{ dashboardId, start, end, path }: { dashboardId: string; start: number; end: number; path?: string | undefined },
+): Promise<string> {
+	if (store.get()) {
+		throw new Error('The window is already in video export mode, try again once the user leaves it.');
+	}
+	// A minimized window doesn't paint, so the video would wait until the user restores it
+	if (document.visibilityState === 'hidden') {
+		await getCurrentWindow().unminimize();
+	}
+	await router.navigate({ to: '/dashboards/$dashboardId', params: { dashboardId } });
+	startVideoExport(router, dashboardId);
+	const videoExport = store.get();
+	const range = getTimeRange();
+	if (!videoExport || !range) {
+		throw new Error("The dashboard couldn't open in video export mode.");
+	}
+
+	try {
+		const videoRange = {
+			start: Math.max(start, range.start),
+			end: Math.min(end, range.end),
+		};
+		if (videoRange.start >= videoRange.end) {
+			throw new Error('The range has no time in the source, see `timeline_get`.');
+		}
+		setVideoRange(videoRange, { time: videoRange.start, playback: 'paused' });
+		const saved = await saveRange(videoExport, path ?? null);
+		if (saved === undefined) {
+			throw new Error('Saving the video was canceled.');
+		}
+		return saved;
+	} finally {
+		exitVideoExport();
+	}
+}
+
+/**
+ * Save video export mode's range to `path` (`null` for a temporary file) with progress in the video export bar, then
+ * leave video export mode. Returns where it was saved, or nothing when the user canceled and video export mode stays open.
+ */
+async function saveRange(videoExport: VideoExport, path: string | null): Promise<string | undefined> {
+	const { videoRange } = getTimeline();
+	const target = dashboardCaptureTarget(videoExport.dashboardId);
+	if (!videoRange || !(target instanceof HTMLElement)) {
+		throw new Error('The dashboard isn’t shown.');
 	}
 
 	const abort = new AbortController();
@@ -185,20 +248,11 @@ export async function exportVideo(): Promise<void> {
 			signal: abort.signal,
 			onProgress: (saving) => update({ saving }),
 		});
-		if (saved) {
+		if (saved !== undefined) {
 			exitVideoExport();
-			toastManager.add({
-				type: 'success',
-				title: 'Saved video',
-				actionProps: {
-					children: detectPlatform() === 'mac' ? 'Show in Finder' : 'Show in File Explorer',
-					onClick: () => void revealItemInDir(path),
-				},
-			});
-			return;
 		}
-	} catch (error) {
-		toastManager.add({ type: 'error', title: 'Couldn’t save video', description: String(error) });
+		return saved;
+	} finally {
+		update({ saving: undefined, abort: undefined });
 	}
-	update({ saving: undefined, abort: undefined });
 }

@@ -20,14 +20,14 @@ Studio SHALL offer agents one set of commands, named `<resource>_<action>`, thro
 
 The agent commands SHALL be:
 
-- `window_list`, `window_update`
-- `dashboard_list`, `dashboard_get`, `dashboard_create`, `dashboard_update`, `dashboard_delete`, `dashboard_duplicate`, `dashboard_combine`, `dashboard_capture`
-- `pane_create`, `pane_update`, `pane_move`, `pane_delete`
-- `binding_create`, `binding_update`, `binding_delete`
-- `entry_list`
-- `source_get`, `source_update`, `source_delete`, `source_export`
-- `timeline_get`, `timeline_update`
-- `settings_get`, `settings_update`
+- window_list, window_update
+- dashboard_list, dashboard_get, dashboard_create, dashboard_update, dashboard_delete, dashboard_duplicate, dashboard_combine, dashboard_capture, dashboard_record
+- pane_create, pane_update, pane_move, pane_delete
+- binding_create, binding_update, binding_delete
+- entry_list
+- source_get, source_update, source_delete, source_export
+- timeline_get, timeline_update
+- settings_get, settings_update
 
 #### Scenario: Consistent names
 
@@ -144,6 +144,30 @@ Agents SHALL be able to rename, share or stop sharing, duplicate, combine, and d
 - **WHEN** an agent calls `dashboard_capture`
 - **THEN** the window is restored and the image is saved
 
+### Requirement: Save dashboard videos
+
+`dashboard_record` SHALL save an MP4 of a dashboard from a start time to an end time, the same video video export mode saves. Times MUST be in seconds on the source's clock, kept within the source's range. It MUST save to the absolute path it's given, or a new file in the temporary folder, and return the file's path. While saving, the window MUST show video export mode with its progress, where the user can cancel, then return to how it was.
+
+#### Scenario: Share a moment from a match
+
+- **GIVEN** an agent found with wpilog-parser that the robot browned out at 92.4 s
+- **WHEN** it runs `doglog dashboard record --dashboard-id <id> --start 88 --end 96`
+- **THEN** it gets the path of an eight-second MP4 in the temporary folder showing the dashboard and timeline from 88 s to 96 s
+- **AND** the window's playhead and playback are as they were before
+
+#### Scenario: User cancels the video
+
+- **GIVEN** an agent is saving a video with `dashboard_record`
+- **WHEN** the user cancels it in the video export bar
+- **THEN** no file is left where the video was being saved
+- **AND** the command fails and says it was canceled
+
+#### Scenario: Window already in video export mode
+
+- **GIVEN** the user has video export mode open
+- **WHEN** an agent calls `dashboard_record`
+- **THEN** the command fails and says why, without changing the user's range
+
 ### Requirement: Edit panes and widgets
 
 Agents SHALL be able to split a pane to add one, move and delete panes, and set a pane's widget type, widget options, and size. When `pane_create` isn't given a direction, it MUST pick the same direction Studio picks when the user adds a widget to that pane. Edits Studio wouldn't allow the user to make MUST be rejected with an explanation.
@@ -216,13 +240,13 @@ Agents SHALL NOT be able to read or write notepad text or control playback. Agen
 
 ### Requirement: Platform-specific commands
 
-A command that can't work on the current platform SHALL NOT be offered there, rather than being offered and failing. In the web app this means no window commands or `window` input, no `dashboard_capture` or `source_export`, and no opening logs by file path. On desktop platforms without capture support, it means no `dashboard_capture`.
+A command that can't work on the current platform SHALL NOT be offered there, rather than being offered and failing. In the web app this means no window commands or `window` input, no `dashboard_capture`, `dashboard_record`, or `source_export`, and no opening logs by file path. On desktop platforms without capture support, it means no `dashboard_capture` or `dashboard_record`.
 
 #### Scenario: Web app
 
 - **GIVEN** an agent is connected to the web app through WebMCP
 - **WHEN** it lists the available commands
-- **THEN** there are no window commands, `dashboard_capture`, or `source_export`
+- **THEN** there are no window commands, `dashboard_capture`, `dashboard_record`, or `source_export`
 - **AND** `source_update` can connect to a robot but not open a file path
 
 ### Requirement: WebMCP in the web app

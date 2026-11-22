@@ -180,8 +180,9 @@ function toRect(bounds: DOMRect) {
 }
 
 /**
- * Save a video of a dashboard's capture `target` as an MP4 at `path`, showing each of `times` (µs) in turn as a frame,
- * `fps` frames a second. Stops and deletes the file when `signal` aborts. Returns whether it finished.
+ * Save a video of a dashboard's capture `target` as an MP4 at `path` (`null` for a temporary file), showing each of
+ * `times` (µs) in turn as a frame, `fps` frames a second. Stops and deletes the file when `signal` aborts. Returns where
+ * it was saved, or nothing when it was aborted.
  */
 export async function saveVideo(
 	target: HTMLElement,
@@ -191,8 +192,8 @@ export async function saveVideo(
 		fps,
 		signal,
 		onProgress,
-	}: { path: string; times: number[]; fps: number; signal: AbortSignal; onProgress: (progress: number) => void },
-): Promise<boolean> {
+	}: { path: string | null; times: number[]; fps: number; signal: AbortSignal; onProgress: (progress: number) => void },
+): Promise<string | undefined> {
 	if (capturing) {
 		throw new Error('Another image is being captured.');
 	}
@@ -203,14 +204,16 @@ export async function saveVideo(
 	try {
 		// The video's own controls and any popups stay out of its frames, see the `saving-video` variant
 		root.dataset['savingVideo'] = '';
+		// Video export mode may have just opened, which changes the dashboard's size
+		await afterPaint();
 		const area = captureArea(target);
 		frame.set(area);
 		const rect = toRect(area.bounds);
-		await invoke('start_video', { path, fps });
+		const saved = await invoke<string>('start_video', { path, fps });
 		started = true;
 		for (const [index, time] of times.entries()) {
 			if (signal.aborted) {
-				return false;
+				return undefined;
 			}
 			showVideoFrame(time);
 			// oxlint-disable-next-line no-await-in-loop -- Each frame has to be shown before it's captured.
@@ -221,7 +224,7 @@ export async function saveVideo(
 		}
 		await invoke('finish_video');
 		started = false;
-		return true;
+		return saved;
 	} finally {
 		if (started) {
 			await invoke('cancel_video').catch(() => undefined);
