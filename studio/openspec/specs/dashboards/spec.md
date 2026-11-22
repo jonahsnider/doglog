@@ -498,6 +498,23 @@ Dragging a divider close to a parallel divider elsewhere in the dashboard SHALL 
 - **THEN** it snaps in line with it and both dividers are highlighted
 - **AND** it stays in line once it's released
 
+### Requirement: Dividers in line
+
+Dividers that look like one line, parallel and in line with only a divider across them between their ends, SHALL move together. Hovering a divider MUST highlight the others that move with it. Dragging one MUST move them all to the same place, only as far as every pane beside them can shrink, and releasing it MUST be one undo step. Double-clicking one MUST reset them all. Holding Alt while starting to drag or double-clicking MUST only affect the divider under the pointer.
+
+#### Scenario: Resize two rows at once
+
+- **GIVEN** two columns of two panes
+- **WHEN** the user drags the divider between the left column's panes down
+- **THEN** the right column's divider moves down with it
+
+#### Scenario: Resize one row on its own
+
+- **GIVEN** two columns of two panes
+- **WHEN** the user holds Alt and drags the divider between the left column's panes down
+- **THEN** only the left column's divider moves
+- **AND** once it's dragged back in line with the right column's divider, they move together again
+
 ### Requirement: Zoom pane
 
 Users SHALL be able to zoom a pane so it fills the dashboard, hiding the other panes until it's restored. Zooming MUST slide the other panes off the dashboard, away from the zoomed pane, and restoring MUST slide them back. Panes on the same side of the zoomed pane MUST move together, however the dashboard is split. Splitting or closing any pane MUST restore the other panes. Zooming MUST NOT be an undo step, and a dashboard MUST stay zoomed when it's reopened.

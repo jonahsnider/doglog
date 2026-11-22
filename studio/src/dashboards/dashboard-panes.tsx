@@ -1,7 +1,7 @@
 import type { Draggable, Droppable } from '@dnd-kit/dom';
 import { useDragDropMonitor } from '@dnd-kit/react';
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Group, type Layout, Separator, useGroupRef } from 'react-resizable-panels';
+import { Group, type Layout, useGroupRef } from 'react-resizable-panels';
 import { PaneView, type PaneNodeProps } from '@/panes/pane-view';
 import {
 	DashboardLayoutContext,
@@ -14,9 +14,9 @@ import type { Dashboard } from '@/dashboards/dashboards';
 import { type EntryDragData, type EntryDropData, type EntrySectionDropData, entryDragType } from '@/entries/drag';
 import { useMinWindowSize } from '@/desktop/window-size';
 import { useSize } from '@/hooks/use-size';
-import { cn } from '@/lib/utils';
-import { snapDistance, snapDivider } from '@/panes/divider-snap';
-import { findPane, type PaneNode, resetDivider, resizeSplit, type Split, type SplitDirection } from '@/panes/layout';
+import { dragDivider, endDrag, snapDistance, useSplitGroup } from '@/panes/divider-snap';
+import { findPane, type PaneNode, resizeSplit, type Split, type SplitDirection } from '@/panes/layout';
+import { SplitDivider } from '@/panes/split-divider';
 import { dividerSize, minNodeSize, minPaneSizeIn } from '@/panes/pane-size';
 import { SplitPanel, type SplitPanelAnimation } from '@/panes/split-panel';
 import { closingSplit, percentages, type SplitAnimation, splitAnimation } from '@/panes/split-animation';
@@ -224,6 +224,7 @@ function SplitView({
 	const zoomedHere = hiddenBy !== undefined && findPane(split, hiddenBy) !== undefined;
 	// Whether the divider being dragged is lined up with another one
 	const snapped = useRef(false);
+	useSplitGroup(group, groupRef, split, minSizes);
 
 	return (
 		<Group
@@ -234,7 +235,7 @@ function SplitView({
 			// Called on every pointer move while a divider's dragged, before the new layout is shown
 			onLayoutChange={(panelLayout) => {
 				applyLayout();
-				snapped.current = !animation && snapDivider(group.current, groupRef.current, split, panelLayout, minSizes);
+				snapped.current = !animation && dragDivider(group.current, panelLayout);
 			}}
 			// Container units size the animating children, and panes move outside their splits while a zoom animates
 			style={{ containerType: animation ? 'size' : undefined, overflow: zooming ? 'visible' : undefined }}
@@ -247,32 +248,21 @@ function SplitView({
 				const sizes = split.children.map((child) => (requestedLayout[child.id] ?? 0) / 100);
 				// A divider lined up with another one stays there, unless that's also an even split
 				const snap = (snapped.current ? 0.5 : snapDistance) / Math.max(extent - dividersSize, 1);
-				updateLayout(dashboardId, (layout) => resizeSplit(layout, split.id, sizes, snap));
+				// The dividers dragged along with it are resized in the same change, so it's one undo step
+				const resizeLinks = endDrag(group.current, sizes, snap);
+				updateLayout(dashboardId, (layout) => resizeLinks(resizeSplit(layout, split.id, sizes, snap)));
 			}}
 		>
 			{split.children.flatMap((child, index) => [
 				index > 0 && (
-					<Separator
+					<SplitDivider
 						key={`${child.id}-separator`}
-						aria-label="Resize panes"
-						// Disabled dividers don't get the hover and active highlights, and the not-allowed cursor is replaced so they don't look interactive
-						disabled={locked}
-						style={locked ? { cursor: 'auto' } : undefined}
-						// The gap between panes, with a line in the middle while it's hovered or dragged. The `after` pseudo-element
-						// widens it to the library's 10px hit area so double-clicks land on it.
-						className={cn(
-							'relative z-10 outline-none before:absolute before:rounded-full before:transition-colors focus-visible:before:bg-ring data-[separator=active]:before:bg-ring data-[separator=hover]:before:bg-ring data-snap-guide:before:bg-ring',
-							'after:absolute',
-							zoomedHere && 'hidden',
-							row
-								? 'w-1.5 before:inset-y-1 before:inset-x-0.5 after:inset-y-0 after:-inset-x-0.5'
-								: 'h-1.5 before:inset-x-1 before:inset-y-0.5 after:inset-x-0 after:-inset-y-0.5',
-						)}
-						onDoubleClick={() => {
-							if (!locked) {
-								updateLayout(dashboardId, (layout) => resetDivider(layout, split.id, index - 1));
-							}
-						}}
+						dashboardId={dashboardId}
+						splitId={split.id}
+						index={index - 1}
+						direction={split.direction}
+						locked={locked}
+						hidden={zoomedHere}
 					/>
 				),
 				<SplitPanel
