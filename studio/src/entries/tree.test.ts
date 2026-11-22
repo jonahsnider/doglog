@@ -6,7 +6,7 @@ import { Samples } from '../data/samples.ts';
 import {
 	ancestorGroups,
 	buildEntryTree,
-	collapseSearchGroups,
+	toggleSearchGroups,
 	entryTreeView,
 	expandedGroups,
 	sectionEntryTree,
@@ -76,7 +76,7 @@ test('search shows matching entries and their parent groups, expanded', () => {
 test('search can collapse one matching group without hiding other results', () => {
 	const arms = buildEntryTree(entries('/LeftArm/Wrist/Angle', '/RightArm/Angle', '/RightArm/Velocity'));
 	const results = entryTreeView(arms, [], 'angle');
-	const collapsed = collapseSearchGroups(results, new Set(['/LeftArm/Wrist']));
+	const collapsed = toggleSearchGroups(results, new Set(['/LeftArm/Wrist']));
 	expect(collapsed.expanded).not.toContain('/LeftArm/Wrist');
 	expect(collapsed.rows.map((row) => row.item.value)).toEqual(['/LeftArm/Wrist', '/RightArm', '/RightArm/Angle']);
 	// The matching child is still in the tree, so expanding Wrist can show it again.
@@ -262,4 +262,26 @@ test("search doesn't list every field of a matching struct or array", () => {
 	// `/Drive` is left with one group in it
 	expect(search('speeds 1')).toEqual(['/Drive/Speeds', '/Drive/Speeds/1']);
 	expect(search('pose x')).toEqual(['/Drive/Pose', '/Drive/Pose/translation', '/Drive/Pose/translation/x']);
+});
+
+test("search doesn't expand every field of a struct or array that isn't shown, unless it matched inside it", () => {
+	// Ex. editing a graph, which shows the fields but not their structs and arrays
+	const numbers = buildEntryTree(fieldEntries().filter((entry) => entry.kind === 'number'));
+	const results = entryTreeView(numbers, [], 'drive');
+	expect(results.rows.map((row) => row.item.value)).toEqual(['/Drive', '/Drive/Pose', '/Drive/Speeds']);
+	expect(toggleSearchGroups(results, new Set(['/Drive/Speeds'])).rows.map((row) => row.item.value)).toEqual([
+		'/Drive',
+		'/Drive/Pose',
+		'/Drive/Speeds',
+		'/Drive/Speeds/0',
+		'/Drive/Speeds/1',
+	]);
+	expect(entryTreeView(numbers, [], 'speeds 1').rows.map((row) => row.item.value)).toEqual([
+		'/Drive/Speeds',
+		'/Drive/Speeds/1',
+	]);
+	expect(entryTreeView(numbers, [], 'pose x').rows.map((row) => row.item.value)).toEqual([
+		'/Drive/Pose/translation',
+		'/Drive/Pose/translation/x',
+	]);
 });

@@ -1,5 +1,6 @@
 import { type TreeRow, visibleTreeRows } from '@ui-sdk/core/tree';
 import type { Entry } from '@/data/data-store';
+import { FieldEntry } from '@/data/field-entry';
 import { compactGroups, mergeSingleFields } from '@/entries/merged-rows';
 import { labelRanges, searchEntries } from '@/entries/search';
 import type { EntryPlacements, EntrySection } from '@/entries/sections';
@@ -195,11 +196,15 @@ export function entryTreeView(
 	const items = compactGroups(filter(tree));
 
 	const groups: string[] = [];
+	const matchedBelow = ancestorGroups(search.positions.keys());
 	const highlights = new Map<string, number[]>();
 	const visit = (nodes: readonly EntryTreeNode[]) => {
 		for (const node of nodes) {
 			if (node.children) {
-				groups.push(node.value);
+				// An array or struct missing from the tree, ex. one the edited widget can't show, otherwise lists every element when a group it's in matches
+				if (!isFieldGroup(node) || matchedBelow.has(node.value)) {
+					groups.push(node.value);
+				}
 				visit(node.children);
 			}
 			const ranges = labelRanges(node, search.positions);
@@ -212,16 +217,29 @@ export function entryTreeView(
 	return { items, expanded: groups, rows: sectionRows(visibleTreeRows(items, groups), section), highlights };
 }
 
-/** Apply manual collapses to search results without rerunning the search or changing which entries match. */
-export function collapseSearchGroups(
+/** Whether a group is an array's elements or a struct's fields, or a struct nested in one */
+function isFieldGroup(node: EntryTreeNode): boolean {
+	let first = node;
+	while (first.children) {
+		first = first.children[0]!;
+	}
+	return first.entry instanceof FieldEntry && first.entry.root.name.length <= node.value.length;
+}
+
+/** Apply manual expands and collapses to search results without rerunning the search or changing which entries match. */
+export function toggleSearchGroups(
 	view: EntryTreeView,
-	collapsed: ReadonlySet<string>,
+	toggled: ReadonlySet<string>,
 	section: EntrySection = 'main',
 ): EntryTreeView {
-	if (!view.highlights || collapsed.size === 0) {
+	if (!view.highlights || toggled.size === 0) {
 		return view;
 	}
-	const expanded = view.expanded.filter((value) => !collapsed.has(value));
+	const defaults = new Set(view.expanded);
+	const expanded = [
+		...view.expanded.filter((value) => !toggled.has(value)),
+		...[...toggled].filter((value) => !defaults.has(value)),
+	];
 	return { ...view, expanded, rows: sectionRows(visibleTreeRows(view.items, expanded), section) };
 }
 

@@ -29,7 +29,7 @@ import { entryPlacementsStore, moveToSection } from '@/entries/sections';
 import {
 	ancestorGroups,
 	buildEntryTree,
-	collapseSearchGroups,
+	toggleSearchGroups,
 	type EntryTreeNode,
 	type EntryTreeView,
 	entryTreeView,
@@ -153,7 +153,7 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 	}, [searchFocus]);
 	// Keep typing responsive while searching thousands of entries
 	const deferredQuery = useDeferredValue(query);
-	const [searchCollapsed, changeSearchExpansion] = useSearchExpansion(deferredQuery);
+	const [searchToggled, changeSearchExpansion] = useSearchExpansion(deferredQuery);
 	// Groups expanded or collapsed by the user, top-level groups start expanded
 	const [toggled, setToggled] = useState<ReadonlySet<string>>(new Set());
 	// The entries the edited widget showed when editing it started, see `ActiveSection`
@@ -199,7 +199,7 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 		() => entryTreeView(sectioned.items, expandedGroups(sectioned.items, toggled), deferredQuery),
 		[sectioned, toggled, deferredQuery],
 	);
-	const view = useMemo(() => collapseSearchGroups(results, searchCollapsed), [results, searchCollapsed]);
+	const view = useMemo(() => toggleSearchGroups(results, searchToggled), [results, searchToggled]);
 	const dropTarget = dropSection === draggedFrom ? undefined : dropSection;
 
 	const message = emptyMessage(source !== undefined, allEntries, entries, editedType, results);
@@ -259,7 +259,7 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 				<HiddenSection
 					nodes={sectioned.hidden}
 					query={deferredQuery}
-					searchCollapsed={searchCollapsed}
+					searchToggled={searchToggled}
 					onSearchExpandedChange={changeSearchExpansion}
 					dropTarget={dropTarget === 'hidden'}
 					edited={edited}

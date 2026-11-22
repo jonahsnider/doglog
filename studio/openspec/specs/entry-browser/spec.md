@@ -212,6 +212,8 @@ Matching groups SHALL start expanded but MUST be collapsible.
 
 Array elements and struct fields SHALL NOT match a search when the query only matched the part of their name that's their array's or struct's name, and that array or struct matched too, so searching for an array doesn't list every element.
 
+When an array or struct isn't in the tree but its elements or fields are, ex. while editing a widget that can't show it, its group MUST start collapsed in search results unless the query matched part of an element's or field's name below it.
+
 #### Scenario: Search for an array
 
 - **GIVEN** the source has `/Drive/ModuleStates` of type `struct:SwerveModuleState[]`
@@ -219,6 +221,14 @@ Array elements and struct fields SHALL NOT match a search when the query only ma
 - **THEN** `/Drive/ModuleStates` is shown without its modules
 - **WHEN** the user types "modulestates 1 speed"
 - **THEN** `/Drive/ModuleStates/1/speed` is shown
+
+#### Scenario: Search for a group containing an array while editing
+
+- **GIVEN** the source has `/Vision/botpose` of type `double[]` and the user is editing a graph, which can't show arrays
+- **WHEN** the user types "vision"
+- **THEN** the `botpose` group is shown collapsed
+- **WHEN** the user types "vision botpose 2"
+- **THEN** `/Vision/botpose/2` is shown
 
 ### Requirement: Collapsible panel
 

@@ -6,21 +6,21 @@ import type { EditedWidget } from '@/entries/edited-widget';
 import type { EntrySectionDropData } from '@/entries/drag';
 import { EntryRows } from '@/entries/entry-browser-rows';
 import { SectionHeaderLabel } from '@/entries/section-header-label';
-import { collapseSearchGroups, type EntryTreeNode, entryTreeView } from '@/entries/tree';
+import { toggleSearchGroups, type EntryTreeNode, entryTreeView } from '@/entries/tree';
 import { cn } from '@/lib/utils';
 
 /** Hidden entries and groups, collapsed by default and kept at the bottom of the entry browser */
 export function HiddenSection({
 	nodes,
 	query,
-	searchCollapsed,
+	searchToggled,
 	onSearchExpandedChange,
 	dropTarget,
 	edited,
 }: {
 	nodes: EntryTreeNode[];
 	query: string;
-	searchCollapsed: ReadonlySet<string>;
+	searchToggled: ReadonlySet<string>;
 	onSearchExpandedChange: (expanded: string[], next: string[]) => void;
 	dropTarget: boolean;
 	edited: EditedWidget | undefined;
@@ -28,7 +28,7 @@ export function HiddenSection({
 	const [open, setOpen] = useState(false);
 	const [expanded, setExpanded] = useState<string[]>([]);
 	const results = useMemo(() => entryTreeView(nodes, expanded, query, 'hidden'), [nodes, expanded, query]);
-	const view = useMemo(() => collapseSearchGroups(results, searchCollapsed, 'hidden'), [results, searchCollapsed]);
+	const view = useMemo(() => toggleSearchGroups(results, searchToggled, 'hidden'), [results, searchToggled]);
 	const { ref } = useDroppable<EntrySectionDropData>({
 		id: 'hidden',
 		accept: (source) => source.data['section'] !== undefined,
