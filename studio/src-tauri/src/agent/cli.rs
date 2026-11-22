@@ -118,8 +118,9 @@ fn action_command(command: &super::Command, action: &str) -> clap::Command {
                 .value_parser(value_parser!(bool))
                 .num_args(0..=1)
                 .default_missing_value("true"),
-            Kind::Integer => arg.value_parser(value_parser!(i64)),
-            Kind::Number => arg.value_parser(value_parser!(f64)),
+            // So `--time -1` is a value rather than a flag
+            Kind::Integer => arg.value_parser(value_parser!(i64)).allow_negative_numbers(true),
+            Kind::Number => arg.value_parser(value_parser!(f64)).allow_negative_numbers(true),
             Kind::String => arg,
             Kind::Enum(values) => arg.value_parser(PossibleValuesParser::new(values)),
         };
