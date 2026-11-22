@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import { addEntries, type DraggedEntry, dropEntry, type EntryDrop, widgetBindings } from '@/widgets/bindings';
+import { addEntries, dropEntry, type EntryDrop, widgetBindings } from '@/widgets/bindings';
 import {
 	createDashboard,
 	type Dashboard,
@@ -35,7 +35,7 @@ import {
 } from '@/panes/layout';
 import { getWidgetType } from '@/widgets/registry';
 import { optionValues, setWidgetOption } from '@/widgets/options';
-import { droppedEntryName } from '@/entries/drag';
+import { droppedEntryName, droppedGroupNames, type EntryDragData } from '@/entries/drag';
 import { acceptsDrop, bindsEntries } from '@/widgets/widget-type';
 
 /** The layout of the dashboard showing a widget, so widgets can follow others, see `WidgetProps.layout` */
@@ -53,21 +53,26 @@ export function updateLayout(id: string, update: (layout: PaneNode) => PaneNode)
 }
 
 /**
- * Bind an entry dropped on a pane's widget if the widget accepts it (see `dropEntry()`), or pick the option the widget
- * picks from it, see `WidgetType.optionFromEntry`
+ * Bind the entries dropped on a pane's widget, or pick its option when a single entry is dropped (see `optionFromEntry`).
  */
-export function dropDashboardEntry(id: string, dragged: DraggedEntry, to: EntryDrop): void {
+export function dropDashboardEntry(id: string, dragged: EntryDragData, to: EntryDrop): void {
 	updateLayout(id, (layout) => {
 		const widget = findPane(layout, to.paneId)?.widget;
 		const type = widget && getWidgetType(widget.type);
-		const name = type && droppedEntryName(type, dragged);
-		if (!type || name === undefined || !acceptsDrop(type, name, getEntry(name))) {
+		if (!type) {
 			return layout;
 		}
+		if (dragged.group) {
+			return addEntries(layout, to.paneId, droppedGroupNames(type, dragged.group));
+		}
+		const name = droppedEntryName(type, dragged);
+		if (!acceptsDrop(type, name, getEntry(name))) {
+			return layout;
+		}
+		const { paneId, bindingId } = dragged;
+		const from = paneId !== undefined && bindingId !== undefined ? { paneId, bindingId } : undefined;
 		const option = type.optionFromEntry?.(name);
-		return option
-			? setWidgetOption(layout, to.paneId, option.id, option.value)
-			: dropEntry(layout, { ...dragged, name }, to);
+		return option ? setWidgetOption(layout, to.paneId, option.id, option.value) : dropEntry(layout, { name, from }, to);
 	});
 }
 

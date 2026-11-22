@@ -34,12 +34,12 @@ export function EntryRows({
 	const boundGroups = ancestorGroups(bound);
 	const groups = useMemo(() => groupEntries(view.items), [view.items]);
 	const groupCheck = (value: string): GroupCheck | undefined => {
-		const names = edited && groups.get(value);
-		if (!names || names.length === 0) {
+		const entries = edited && groups.get(value);
+		if (!entries || entries.length === 0) {
 			return undefined;
 		}
-		const count = names.filter((name) => bound.has(name)).length;
-		return count === 0 ? 'unchecked' : count === names.length ? 'checked' : 'partial';
+		const count = entries.filter(({ name }) => bound.has(name)).length;
+		return count === 0 ? 'unchecked' : count === entries.length ? 'checked' : 'partial';
 	};
 	// Fully checked groups are checked in the tree too, so unchecking one is a change it reports
 	const checkedGroups = new Set([...groups.keys()].filter((value) => groupCheck(value) === 'checked'));
@@ -106,7 +106,10 @@ export function EntryRows({
 						const group = [...groups.keys()].find((value) => now.has(value) !== checkedGroups.has(value));
 						if (group !== undefined) {
 							// A partly checked group checks the rest of its entries
-							edited!.setBound(groups.get(group)!, now.has(group));
+							edited!.setBound(
+								groups.get(group)!.map(({ name }) => name),
+								now.has(group),
+							);
 							return;
 						}
 						const change = changedCheckbox(edited!.bound, checked, entryNames);
@@ -166,6 +169,7 @@ export function EntryRows({
 										row.item.field === undefined && !groups.has(row.item.value) && boundGroups.has(row.item.value)
 									}
 									groupCheck={groupCheck(row.item.value)}
+									group={groups.get(row.item.value)}
 									activeGuide={guideAt(item.index)}
 								/>
 							</Fragment>

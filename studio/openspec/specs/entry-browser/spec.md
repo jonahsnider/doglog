@@ -268,12 +268,18 @@ The entry browser SHALL be a collapsible panel on the right side of the dashboar
 
 ### Requirement: Drag to bind
 
-Users SHALL be able to drag entries from the entry browser onto widgets to bind them.
+Users SHALL be able to drag entries from the entry browser onto widgets to bind them. Dropping a group that isn't an entry itself SHALL bind the entries under it that the widget can show, including those under collapsed branches. It MUST honor the current search filter, skip entries the widget already shows, and bind the rest in one undoable change.
 
 #### Scenario: Drag an entry
 
 - **WHEN** the user drags `/Arm/Angle` onto a table
 - **THEN** the table binds `/Arm/Angle`
+
+#### Scenario: Drag a collapsed group
+
+- **GIVEN** a table already shows `/Arm/Angle` and the collapsed `Arm` group also contains `/Arm/Wrist/Angle`
+- **WHEN** the user drags `Arm` onto the table
+- **THEN** the table adds `/Arm/Wrist/Angle` without duplicating `/Arm/Angle`
 
 ### Requirement: Type indicators
 

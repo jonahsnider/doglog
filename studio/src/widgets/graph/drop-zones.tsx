@@ -4,6 +4,7 @@ import { use } from 'react';
 import { getEntry } from '@/data/data-store';
 import {
 	type EntryDragData,
+	type EntryDragItem,
 	type EntryDropData,
 	entryDragType,
 	isEntryDrag,
@@ -16,7 +17,7 @@ import { type GraphSection, graphRoles, graphSection } from '@/widgets/graph/rol
  * The sections a dragged entry can be shown in, ex. strings can only be bands. Rows showing a struct's only field go
  * where the field can, see `droppedEntryName()`.
  */
-function sectionsOf({ name, field }: Pick<EntryDragData, 'name' | 'field'>): GraphSection[] {
+function sectionsOf({ name, field }: EntryDragItem): GraphSection[] {
 	for (const candidate of [name, field]) {
 		const entry = candidate === undefined ? undefined : getEntry(candidate);
 		const roles = entry ? graphRoles(entry) : [];
@@ -39,8 +40,8 @@ export function DropZones({ bandsHeight }: { bandsHeight: number }) {
 		Droppable<EntryDropData>
 	>();
 	const drop = target?.data;
-	const shown =
-		isEntryDrag(source) && (source.data.paneId === paneId || (drop !== undefined && drop.paneId === paneId));
+	// A group can mix entries that belong on different axes or bands, so let the graph infer each role.
+	const shown = isEntryDrag(source) && !source.data.group && (source.data.paneId === paneId || drop?.paneId === paneId);
 	if (!shown) {
 		return undefined;
 	}
@@ -81,9 +82,10 @@ function Zone({
 	const { ref } = useDroppable<EntryDropData>({
 		id: `${paneId}:${section}`,
 		accept: (source) => {
-			const { name, field } = source.data;
+			const { name, field, group } = source.data;
 			return (
 				source.type === entryDragType &&
+				group === undefined &&
 				sectionsOf({ name: String(name), field: typeof field === 'string' ? field : undefined }).includes(section)
 			);
 		},

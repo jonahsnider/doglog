@@ -4,12 +4,16 @@ import { createContext, use, useCallback, useId } from 'react';
 import { getEntry } from '@/data/data-store';
 import type { EntrySection } from '@/entries/sections';
 import type { EntryDrop } from '@/widgets/bindings';
-import { acceptsDrop, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
+import { acceptsDrop, acceptsEntry, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
 
-export type EntryDragData = {
+export type EntryDragItem = {
 	name: string;
 	/** The only field of the struct `name`, from rows that show it, see `droppedEntryName()` */
 	field?: string | undefined;
+};
+
+export type EntryDragData = EntryDragItem & {
+	group?: readonly EntryDragItem[] | undefined;
 	/** The pane whose widget the entry was dragged out of, `undefined` when it's from the entry browser */
 	paneId?: string;
 	/** The binding the entry was dragged out of, with `paneId` */
@@ -22,10 +26,22 @@ export type EntryDragData = {
  * The entry a widget binds when `dragged` is dropped on it. Rows showing a struct's only field bind the field to
  * widgets that can't show the struct, ex. an enum logged as a struct dropped on a graph.
  */
-export function droppedEntryName(type: WidgetType, { name, field }: Pick<EntryDragData, 'name' | 'field'>): string {
+export function droppedEntryName(type: WidgetType, { name, field }: EntryDragItem): string {
 	return field !== undefined && !acceptsDrop(type, name, getEntry(name)) && acceptsDrop(type, field, getEntry(field))
 		? field
 		: name;
+}
+
+export function droppedGroupNames(type: WidgetType, group: readonly EntryDragItem[]): string[] {
+	const names = new Set<string>();
+	for (const item of group) {
+		const name = droppedEntryName(type, item);
+		const entry = getEntry(name);
+		if (entry && acceptsEntry(type, entry)) {
+			names.add(name);
+		}
+	}
+	return [...names];
 }
 
 type EntryOrientation = 'vertical' | 'horizontal';
@@ -53,7 +69,7 @@ export function isEntryDrag(source: Draggable | null | undefined): source is Dra
 	return source?.type === entryDragType;
 }
 
-/** Drag type of entry browser rows that widgets don't accept, ex. groups, which can only be moved between the entry browser's sections */
+/** Drag type of entry browser rows that can only be moved between its sections, ex. unsupported entries */
 export const entryRowDragType = 'entry-row';
 
 export function isEntryRowDrag(source: Draggable | null | undefined): source is Draggable<EntryDragData> {

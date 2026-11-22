@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react';
 import type { Dashboard } from '@/dashboards/dashboards';
 import { updateLayout } from '@/dashboards/panes';
 import type { Entry } from '@/data/data-store';
+import type { EntryDragItem } from '@/entries/drag';
 import { stopEditing, useEditing } from '@/entries/editing';
 import type { EntryTreeNode } from '@/entries/tree';
 import { findPane } from '@/panes/layout';
@@ -84,15 +85,15 @@ export function changedCheckbox(
 	return removed === undefined ? undefined : { name: removed, checked: false };
 }
 
-/** The entries in each group that isn't an entry itself, by its path, which its checkbox binds together while editing */
-export function groupEntries(nodes: readonly EntryTreeNode[]): Map<string, string[]> {
-	const groups = new Map<string, string[]>();
-	const collect = (node: EntryTreeNode): string[] => {
-		const names = (node.children ?? []).flatMap((child) => collect(child));
+/** The descendants bound together by dragging or checking a group that isn't an entry itself */
+export function groupEntries(nodes: readonly EntryTreeNode[]): Map<string, EntryDragItem[]> {
+	const groups = new Map<string, EntryDragItem[]>();
+	const collect = (node: EntryTreeNode): EntryDragItem[] => {
+		const entries = (node.children ?? []).flatMap((child) => collect(child));
 		if (node.children && !node.entry && node.section === undefined) {
-			groups.set(node.value, names);
+			groups.set(node.value, entries);
 		}
-		return node.entry ? [node.value, ...names] : names;
+		return node.entry ? [{ name: node.value, field: node.field?.name }, ...entries] : entries;
 	};
 	for (const node of nodes) {
 		collect(node);

@@ -11,7 +11,7 @@ import { type GroupCheck, GroupCheckbox, GroupMark, MarkTooltip, TypeMark } from
 import { EntryRowValue } from '@/entries/entry-value';
 import { entryMenuItems } from '@/entries/entry-menu';
 import { addDashboardWidget, DashboardIdContext } from '@/dashboards/panes';
-import type { EntryDragData, EntrySectionDropData } from '@/entries/drag';
+import type { EntryDragData, EntryDragItem, EntrySectionDropData } from '@/entries/drag';
 import { entryDragType, entryRowDragType, entryRowSensors } from '@/entries/drag';
 import { sectionMenuItems } from '@/entries/sections';
 import type { EntryTreeNode, EntryTreeRow } from '@/entries/tree';
@@ -38,6 +38,7 @@ export const EntryRowView = memo(function EntryRowView({
 	bound,
 	containsBound,
 	groupCheck,
+	group,
 	activeGuide,
 }: {
 	row: EntryTreeRow;
@@ -51,6 +52,7 @@ export const EntryRowView = memo(function EntryRowView({
 	containsBound: boolean;
 	/** Set on groups that aren't entries themselves while editing, see `GroupCheckbox` */
 	groupCheck: GroupCheck | undefined;
+	group: readonly EntryDragItem[] | undefined;
 	/** Level of the group whose guide is emphasized, when the row is in it */
 	activeGuide: number | undefined;
 }) {
@@ -65,11 +67,10 @@ export const EntryRowView = memo(function EntryRowView({
 	const add = widget && (() => addDashboardWidget(dashboardId, widget));
 	const { ref: dragRef } = useDraggable<EntryDragData>({
 		id: node.value,
-		// Groups and unsupported entries can only be moved between sections
-		type: entry && !unsupported ? entryDragType : entryRowDragType,
+		type: unsupported ? entryRowDragType : entryDragType,
 		disabled: header,
 		sensors: entryRowSensors,
-		data: { name: node.value, field: field?.name, section },
+		data: { name: node.value, field: field?.name, group, section },
 	});
 	const { ref: dropRef } = useDroppable<EntrySectionDropData>({
 		id: node.value,

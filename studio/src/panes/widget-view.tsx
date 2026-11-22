@@ -19,6 +19,7 @@ import { formatEntryType } from '@/data/samples';
 import { useSource } from '@/data/source';
 import {
 	droppedEntryName,
+	droppedGroupNames,
 	type EntryDragData,
 	type EntryDropData,
 	entryDragType,
@@ -199,27 +200,48 @@ function DropFeedback({
 		return undefined;
 	}
 
-	// Entries the widget already shows can be bound again, ex. to draw a pose as a robot and a ghost
-	const name = droppedEntryName(type, dragged);
-	const entry = getEntry(name);
-	let rejection: string | undefined;
-	if (!acceptsDrop(type, name, entry)) {
-		rejection = entry
-			? `${type.name} doesn't accept ${formatEntryType(entry.type)} entries`
-			: `${type.name} doesn't accept ${name}`;
-	}
+	const { accepted, message } = entryDropFeedback(type, dragged, bindings);
 	return (
 		<div
 			className={cn(
 				'pointer-events-none absolute inset-1 flex items-center justify-center rounded-lg border-2 border-dashed p-4 text-center text-sm font-medium backdrop-blur-xs',
-				rejection === undefined
+				accepted
 					? 'border-primary bg-primary/8 text-foreground'
 					: 'border-destructive bg-destructive/8 text-destructive-foreground',
 			)}
 		>
-			{rejection ?? `Drop to show ${name}`}
+			{message}
 		</div>
 	);
+}
+
+function entryDropFeedback(type: WidgetType, dragged: EntryDragData, bindings: readonly WidgetBinding[]) {
+	if (dragged.group) {
+		const names = droppedGroupNames(type, dragged.group);
+		const bound = new Set(bindings.map((binding) => binding.name));
+		const count = names.filter((name) => !bound.has(name)).length;
+		return {
+			accepted: count > 0,
+			message:
+				count > 0
+					? `Drop to add ${count} ${count === 1 ? 'entry' : 'entries'}`
+					: names.length === 0
+						? `${type.name} doesn't accept any entries in this group`
+						: `${type.name} already shows all compatible entries in this group`,
+		};
+	}
+	// A single entry can be bound again, ex. to draw a pose as a robot and a ghost
+	const name = droppedEntryName(type, dragged);
+	const entry = getEntry(name);
+	const accepted = acceptsDrop(type, name, entry);
+	return {
+		accepted,
+		message: accepted
+			? `Drop to show ${name}`
+			: entry
+				? `${type.name} doesn't accept ${formatEntryType(entry.type)} entries`
+				: `${type.name} doesn't accept ${name}`,
+	};
 }
 
 function ReorderIndicator({
