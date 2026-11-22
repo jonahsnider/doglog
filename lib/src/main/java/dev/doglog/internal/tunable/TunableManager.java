@@ -2,14 +2,18 @@ package dev.doglog.internal.tunable;
 
 import com.google.errorprone.annotations.ThreadSafe;
 import dev.doglog.DogLogOptions;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.LongConsumer;
 import java.util.function.UnaryOperator;
+import java.util.stream.DoubleStream;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.wpilib.internal.UnitTelemetry;
+import org.wpilib.math.interpolation.InterpolatingDoubleTreeMap;
 import org.wpilib.tunable.Tunable;
 import org.wpilib.tunable.TunableBoolean;
 import org.wpilib.tunable.TunableConfig;
@@ -25,6 +29,12 @@ import org.wpilib.util.function.FloatConsumer;
 @NullMarked
 @ThreadSafe
 public final class TunableManager {
+  private static void putPairs(InterpolatingDoubleTreeMap map, double[] pairs) {
+    for (int i = 0; i + 1 < pairs.length; i += 2) {
+      map.put(pairs[i], pairs[i + 1]);
+    }
+  }
+
   private final AtomicReference<DogLogOptions> options;
 
   public TunableManager(DogLogOptions initialOptions) {
@@ -98,6 +108,32 @@ public final class TunableManager {
     var tunable = Tunable.createConfig(state::get, state::set, String.class, config);
     Tunables.publish(key, tunable);
     return tunable;
+  }
+
+  public InterpolatingDoubleTreeMap createInterpolatingMap(
+      String key, @Nullable String unit, Map.Entry<Double, Double>[] entries) {
+    var map = InterpolatingDoubleTreeMap.ofEntries(entries);
+    var defaultPairs =
+        Arrays.stream(entries)
+            .flatMapToDouble(entry -> DoubleStream.of(entry.getKey(), entry.getValue()))
+            .toArray();
+    var state = guarded(defaultPairs, double[]::clone);
+    // Dashboards that understand tupleSize edit the array as a table of pairs
+    var config =
+        config(
+                unit,
+                state,
+                (double[] pairs) -> {
+                  // An odd length is an incomplete edit, keep the last complete map
+                  if (pairs.length % 2 == 0) {
+                    map.clear();
+                    putPairs(map, pairs);
+                  }
+                })
+            .withProperty("tupleSize", "2");
+    var tunable = Tunable.createConfig(state::get, state::set, double[].class, config);
+    Tunables.publish(key, tunable);
+    return map;
   }
 
   public void setOptions(DogLogOptions newOptions) {

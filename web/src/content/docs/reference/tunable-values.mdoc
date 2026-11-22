@@ -38,6 +38,27 @@ private final Tunable<AngularVelocity> shooterVelocity =
 DogLog writes unit metadata for tools that understand WPILib units.
 A measure tunable retains its specific measure type and is published in its base unit.
 
+### Interpolating maps
+
+Lookup tables, like a shooter's speed by distance to the target, can be tuned with `DogLog.tunableInterpolatingMap()`.
+Provide the default points like WPILib's `InterpolatingDoubleTreeMap.ofEntries()`, and it returns a WPILib [`InterpolatingDoubleTreeMap`](https://github.wpilib.org/allwpilib/docs/release/java/org/wpilib/math/interpolation/InterpolatingDoubleTreeMap.html) that's updated whenever the tunable value changes:
+
+```java
+// Shooter RPM by distance in meters
+private final InterpolatingDoubleTreeMap distanceToRpm = DogLog.tunableInterpolatingMap(
+	"Shooter/DistanceToRPM",
+	Map.entry(1.5, 2000.0),
+	Map.entry(3.0, 2500.0),
+	Map.entry(4.5, 3100.0)
+);
+
+double rpm = distanceToRpm.get(distance);
+```
+
+The map is published as a double array of x, y pairs, so points can be added or removed while tuning.
+Changes with an odd number of values are ignored.
+When the x and y values use the same unit, pass it before the points.
+
 ## Reading a tunable value
 
 Once you've created a tunable value, you can read it from the returned WPILib tunable:

@@ -19,6 +19,7 @@ import org.wpilib.driverstation.DriverStation;
 import org.wpilib.hardware.hal.HAL;
 import org.wpilib.hardware.power.PowerDistribution;
 import org.wpilib.internal.UnitTelemetry;
+import org.wpilib.math.interpolation.InterpolatingDoubleTreeMap;
 import org.wpilib.system.DataLogManager;
 import org.wpilib.system.RobotController;
 import org.wpilib.telemetry.Telemetry;
@@ -1002,6 +1003,37 @@ public class DogLog {
   public static Tunable<String> tunable(
       String key, String defaultValue, @Nullable Consumer<String> onChange) {
     return TUNABLE_MANAGER.create(key, defaultValue, onChange);
+  }
+
+  /**
+   * Create a tunable interpolating map, ex. a shooter's speed by distance to the target. It's
+   * published as a double array of x, y pairs, and changing it replaces the map's points. Changes
+   * with an odd number of values are ignored.
+   *
+   * @param key The key for the tunable value.
+   * @param entries The map's default points, ex. {@code Map.entry(1.5, 2000.0)}.
+   * @return A map that's updated when the tunable value changes.
+   */
+  @SafeVarargs
+  public static InterpolatingDoubleTreeMap tunableInterpolatingMap(
+      String key, Map.Entry<Double, Double>... entries) {
+    return TUNABLE_MANAGER.createInterpolatingMap(key, null, entries);
+  }
+
+  /**
+   * Create a tunable interpolating map with unit metadata, for maps whose points use the same unit
+   * for x and y. It's published as a double array of x, y pairs, and changing it replaces the map's
+   * points. Changes with an odd number of values are ignored.
+   *
+   * @param key The key for the tunable value.
+   * @param unit The unit of the map's x and y values.
+   * @param entries The map's default points, ex. {@code Map.entry(1.5, 2000.0)}.
+   * @return A map that's updated when the tunable value changes.
+   */
+  @SafeVarargs
+  public static InterpolatingDoubleTreeMap tunableInterpolatingMap(
+      String key, @Nullable Unit unit, Map.Entry<Double, Double>... entries) {
+    return TUNABLE_MANAGER.createInterpolatingMap(key, unit == null ? null : unit.name(), entries);
   }
 
   private static void prepareKey(String key) {

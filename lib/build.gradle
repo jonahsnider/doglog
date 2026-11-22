@@ -78,6 +78,7 @@ dependencies {
 	implementation "org.wpilib.wpiunits:wpiunits-java:$wpilibVersion"
 	implementation "org.wpilib.hal:hal-java:$wpilibVersion"
 	implementation "org.wpilib.ntcore:ntcore-java:$wpilibVersion"
+	implementation "org.wpilib.wpimath:wpimath-java:$wpilibVersion"
 
 	compileOnly "us.hebi.quickbuf:quickbuf-runtime:1.4"
 	compileOnly "com.google.errorprone:error_prone_annotations:2.50.0"
