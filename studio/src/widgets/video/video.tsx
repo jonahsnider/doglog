@@ -1,7 +1,7 @@
 import ClapperboardIcon from 'lucide-react/icons/clapperboard';
 import FileVideoIcon from 'lucide-react/icons/file-video';
 import TriangleAlertIcon from 'lucide-react/icons/triangle-exclamation-point';
-import { useSyncExternalStore } from 'react';
+import { type ReactNode, useSyncExternalStore } from 'react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { useSource } from '@/data/source';
@@ -17,6 +17,7 @@ import { SyncedVideo, type VideoProps } from '@/widgets/video/synced-video';
 export function Video({ options, setOption, paneId }: WidgetProps) {
 	const source = useSource();
 	const video = parseVideo(options['video'] ?? '');
+	const { choose, dropProps, draggingVideo } = useAddVideo(paneId, setOption);
 
 	if (source?.type !== 'log') {
 		return (
@@ -27,11 +28,11 @@ export function Video({ options, setOption, paneId }: WidgetProps) {
 			/>
 		);
 	}
+	let content: ReactNode;
 	if (video === undefined) {
-		return <AddVideo paneId={paneId} setOption={setOption} />;
-	}
-	if (video.kind === 'unsupported') {
-		return (
+		content = <AddVideo paneId={paneId} setOption={setOption} choose={choose} />;
+	} else if (video.kind === 'unsupported') {
+		content = (
 			<WidgetEmpty
 				icon={<TriangleAlertIcon />}
 				title="Studio can’t play this link"
@@ -42,12 +43,33 @@ export function Video({ options, setOption, paneId }: WidgetProps) {
 				</Button>
 			</WidgetEmpty>
 		);
+	} else {
+		const sync = parseSync(options['sync'] ?? '');
+		content =
+			video.kind === 'youtube' ? (
+				<YouTubeVideo key={video.id} id={video.id} paneId={paneId} sync={sync} setOption={setOption} />
+			) : (
+				<LocalVideo
+					key={video.name}
+					name={video.name}
+					paneId={paneId}
+					sync={sync}
+					setOption={setOption}
+					choose={choose}
+				/>
+			);
 	}
-	const sync = parseSync(options['sync'] ?? '');
-	return video.kind === 'youtube' ? (
-		<YouTubeVideo key={video.id} id={video.id} paneId={paneId} sync={sync} setOption={setOption} />
-	) : (
-		<LocalVideo key={video.name} name={video.name} paneId={paneId} sync={sync} setOption={setOption} />
+	return (
+		<div {...dropProps} className="relative h-full">
+			{content}
+			{draggingVideo && (
+				<div className="pointer-events-none absolute inset-1 grid items-start justify-items-center rounded-lg border-2 border-dashed border-primary bg-primary/8 p-2">
+					<span className="rounded-full bg-primary px-3 py-1.5 text-center text-sm font-medium text-primary-foreground">
+						{video === undefined ? 'Drop to add video' : 'Drop to replace video'}
+					</span>
+				</div>
+			)}
+		</div>
 	);
 }
 
@@ -80,10 +102,8 @@ function YouTubeVideo({ id, ...props }: VideoProps & { id: string }) {
 	return <SyncedVideo {...props} video={{ kind: 'youtube', id }} />;
 }
 
-function LocalVideo({ name, ...props }: VideoProps & { name: string }) {
-	const { paneId, setOption } = props;
-	const local = useLocalVideo(paneId, name);
-	const { choose, dropProps } = useAddVideo(paneId, setOption);
+function LocalVideo({ name, choose, ...props }: VideoProps & { name: string; choose: () => void }) {
+	const local = useLocalVideo(props.paneId, name);
 
 	if (local.state === 'loading') {
 		return (
@@ -107,22 +127,20 @@ function LocalVideo({ name, ...props }: VideoProps & { name: string }) {
 	}
 	if (local.state === 'missing') {
 		return (
-			<div {...dropProps} className="h-full">
-				<WidgetEmpty
-					icon={<FileVideoIcon />}
-					title={STUDIO_DESKTOP ? `Find ${name}` : `Choose ${name} again`}
-					description={
-						STUDIO_DESKTOP
-							? "Studio can't find this video on this computer, it may have been moved, or added on another device."
-							: "Your browser doesn't keep access to video files, or it was added on another device."
-					}
-				>
-					<Button variant="outline" size="sm" onClick={choose}>
-						<FileVideoIcon />
-						Choose file…
-					</Button>
-				</WidgetEmpty>
-			</div>
+			<WidgetEmpty
+				icon={<FileVideoIcon />}
+				title={STUDIO_DESKTOP ? `Find ${name}` : `Choose ${name} again`}
+				description={
+					STUDIO_DESKTOP
+						? "Studio can't find this video on this computer, it may have been moved, or added on another device."
+						: "Your browser doesn't keep access to video files, or it was added on another device."
+				}
+			>
+				<Button variant="outline" size="sm" onClick={choose}>
+					<FileVideoIcon />
+					Choose file…
+				</Button>
+			</WidgetEmpty>
 		);
 	}
 	return <SyncedVideo {...props} video={{ kind: 'file', url: local.url }} replace={choose} />;

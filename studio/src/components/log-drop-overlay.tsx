@@ -1,9 +1,9 @@
 import FileUpIcon from 'lucide-react/icons/file-up';
 import { useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
-import { hasFiles } from '@/data/open-log';
+import { draggedFileType, handleLogFileDrop } from '@/data/open-log';
 
-/** Covers the window while files are dragged over it, dropping them is handled by `handleLogFileDrops` */
+/** Covers the window while a potential log file is dragged over it */
 export function LogDropOverlay() {
 	const [dragging, setDragging] = useState(false);
 
@@ -11,19 +11,36 @@ export function LogDropOverlay() {
 	const depth = useRef(0);
 
 	useEventListener('dragenter', (event) => {
-		if (hasFiles(event)) {
+		if (event.dataTransfer?.types.includes('Files') === true) {
 			depth.current++;
-			setDragging(true);
 		}
+	});
+	useEventListener('dragover', (event) => {
+		const transfer = event.dataTransfer;
+		const type = draggedFileType(transfer);
+		if (!transfer || type === undefined) {
+			return;
+		}
+		// Unknown files may be logs, but don't show a log hint over a widget accepting the drag.
+		const log = !event.defaultPrevented && (type === '' || type === 'application/x-wpilog');
+		if (!event.defaultPrevented) {
+			event.preventDefault();
+			transfer.dropEffect = log ? 'copy' : 'none';
+		}
+		setDragging(log);
 	});
 	useEventListener('dragleave', (event) => {
-		if (hasFiles(event) && --depth.current === 0) {
-			setDragging(false);
+		if (event.dataTransfer?.types.includes('Files') === true) {
+			depth.current = Math.max(0, depth.current - 1);
+			if (depth.current === 0) {
+				setDragging(false);
+			}
 		}
 	});
-	useEventListener('drop', () => {
+	useEventListener('drop', (event) => {
 		depth.current = 0;
 		setDragging(false);
+		handleLogFileDrop(event);
 	});
 
 	if (!dragging) {

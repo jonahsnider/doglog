@@ -119,11 +119,17 @@ Users SHALL be able to open a WPILOG file with a file picker or by dropping it a
 - **WHEN** the user drops a `.wpilog` file anywhere on the app window
 - **THEN** that log becomes the active source
 
-#### Scenario: Dragging a file over the window
+#### Scenario: Dragging a potential log over the window
 
-- **WHEN** the user drags a file over the app window
+- **WHEN** the user drags a potential log file over the window outside a widget accepting the drag
 - **THEN** an overlay shows that dropping it opens the log
 - **AND** the overlay hides when the file is dropped or dragged out of the window
+
+#### Scenario: Video dropped outside a video widget
+
+- **WHEN** the user drops a video file outside a video widget
+- **THEN** Studio doesn't try to open it as a log
+- **AND** the active source doesn't change
 
 #### Scenario: Values set before logging started
 

@@ -32,6 +32,13 @@ A video widget without a video SHALL offer to paste a YouTube link or choose a v
 - **THEN** the widget plays `qual12.mp4` in Sync mode
 - **AND** the window doesn't try to open it as a log
 
+#### Scenario: Replace a local video by dropping another file
+
+- **GIVEN** a video widget playing `qual12.mp4`
+- **WHEN** the user drags `qual12-side.mp4` over the player
+- **THEN** only the widget shows that dropping it will replace the video
+- **AND** dropping it plays `qual12-side.mp4` in Sync mode without changing the open log
+
 ### Requirement: One video per widget
 
 Each video widget SHALL have one video and one sync, saved with the dashboard, which MUST be kept when another log is opened. Replacing the video MUST discard the old one. Several videos, such as more angles of a match, are shown with several video widgets.

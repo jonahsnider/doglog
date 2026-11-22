@@ -81,8 +81,14 @@ export function chooseLog(): void {
 	input.click();
 }
 
-/** Whether a drag event is dragging files from outside the window */
-export const hasFiles = (event: DragEvent) => event.dataTransfer?.types.includes('Files') ?? false;
+/** The first dragged file's MIME type. File names aren't available until drop. */
+export function draggedFileType(transfer: DataTransfer | null): string | undefined {
+	if (!transfer || !transfer.types.includes('Files')) {
+		return undefined;
+	}
+	const type = Array.from(transfer.items).find((item) => item.kind === 'file')?.type;
+	return type === 'application/octet-stream' ? '' : (type ?? '');
+}
 
 /** Open the last log the OS asked the desktop app to open, if it hasn't been opened yet */
 async function openTakenLog(): Promise<void> {
@@ -119,24 +125,24 @@ export async function handleOpenedLogFiles(): Promise<void> {
 	await openTakenLog();
 }
 
-/** Open WPILOG files dropped anywhere on the window */
-export function handleLogFileDrops(): void {
-	window.addEventListener('dragover', (event) => {
-		if (hasFiles(event)) {
-			event.preventDefault();
-			event.dataTransfer!.dropEffect = 'copy';
-		}
-	});
-
-	window.addEventListener('drop', (event) => {
-		const file = event.dataTransfer?.files[0];
-		if (file) {
-			event.preventDefault();
-			// The handle has to be requested before the event ends
-			const handle = supportsFileHandles ? event.dataTransfer.items[0]?.getAsFileSystemHandle?.() : undefined;
-			void openDroppedLog(file, handle);
-		}
-	});
+/** Open a dropped WPILOG unless a widget has already handled the drop */
+export function handleLogFileDrop(event: DragEvent): void {
+	const transfer = event.dataTransfer;
+	const file = transfer?.files[0];
+	if (event.defaultPrevented || !file) {
+		return;
+	}
+	// Don't let the browser navigate to unhandled files.
+	event.preventDefault();
+	if (/\.wpilog$/iu.test(file.name)) {
+		// The handle has to be requested before the event ends.
+		const handle = supportsFileHandles
+			? Array.from(transfer.items)
+					.find((item) => item.kind === 'file')
+					?.getAsFileSystemHandle?.()
+			: undefined;
+		void openDroppedLog(file, handle);
+	}
 }
 
 async function openDroppedLog(file: File, handle: Promise<FileSystemHandle | null> | undefined): Promise<void> {
