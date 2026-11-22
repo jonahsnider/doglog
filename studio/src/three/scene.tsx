@@ -1,8 +1,7 @@
 // A 3D scene in WPILib's robot coordinates (meters, +X forward, +Y left, +Z up), with an orbiting orthographic camera.
-import { Canvas, type RootState, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, type RootState, useFrame } from '@react-three/fiber';
 import { type KeyboardEvent, type ReactNode, type Ref, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { PMREMGenerator, Vector3 } from 'three';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { Vector3 } from 'three';
 import { cn } from '@/lib/utils';
 import { CameraControls, CameraRig, cameraDistance, type Rig } from '@/three/camera';
 import { shiftSpeedup } from '@/three/orbit';
@@ -12,32 +11,10 @@ import { FieldCameraControls, FieldCameraRig } from '@/three/field-camera';
 import { ResizeWithPane } from '@/three/resize';
 import { type FieldFraming, fieldOfView } from '@/three/field-framing';
 import { ViewCube } from '@/three/view-cube';
+import { useSceneCanvas } from '@/three/use-scene-canvas';
 
 const gridSize = 2.4;
 const gridDivisions = 6;
-
-function StudioLighting() {
-	const get = useThree((state) => state.get);
-	useEffect(() => {
-		const { gl, scene, invalidate } = get();
-		const room = new RoomEnvironment();
-		const generator = new PMREMGenerator(gl);
-		// Soften the room's bright light panels even in the reflections of smooth CAD surfaces.
-		const environment = generator.fromScene(room, 0.35);
-		generator.dispose();
-		room.dispose();
-		scene.environment = environment.texture;
-		scene.environmentIntensity = 0.65;
-		// The room is Y-up; the robot is Z-up.
-		scene.environmentRotation.x = Math.PI / 2;
-		invalidate();
-		return () => {
-			scene.environment = null;
-			environment.dispose();
-		};
-	}, [get]);
-	return null;
-}
 
 function Floor() {
 	const line = useThemeColor('var(--border)');
@@ -137,6 +114,7 @@ export function Scene3d({
 		follow: (position) => rig.current?.follow?.(position),
 	}));
 	const [cubeHovered, setCubeHovered] = useState(false);
+	const canvas = useSceneCanvas();
 
 	const labels = useRef<(HTMLSpanElement | null)[]>([]);
 	// Hidden until the canvas is sized and drawn, it starts at the browser's default size with the labels in the corner
@@ -171,8 +149,11 @@ export function Scene3d({
 	};
 	useEffect(
 		() => () => {
+			held.current.clear();
+			shift.current = false;
 			if (frame.current !== undefined) {
 				cancelAnimationFrame(frame.current);
+				frame.current = undefined;
 			}
 		},
 		[],
@@ -211,9 +192,9 @@ export function Scene3d({
 			data-capture-pending={drawn ? undefined : ''}
 			aria-label={`${label}. Drag to orbit, scroll or W and S to zoom, A, D, Q, and E to pan, hold Shift to go faster.`}
 			className={cn(
-				'relative size-full touch-none overflow-hidden rounded-md outline-none select-none capture:transition-none',
+				'relative size-full touch-none overflow-hidden rounded-md outline-none select-none',
 				keyboardFocus && 'ring-2 ring-ring',
-				drawn ? 'opacity-100 motion-safe:transition-opacity motion-safe:duration-150' : 'opacity-0',
+				!drawn && 'opacity-0',
 				drag === 'orbit' && 'cursor-grabbing',
 				drag === 'pan' && 'cursor-move',
 				drag === undefined && cubeHovered && 'cursor-pointer',
@@ -256,21 +237,19 @@ export function Scene3d({
 			onContextMenu={rightClick.onContextMenu}
 		>
 			{field ? (
-				<Canvas frameloop="demand" camera={{ fov: fieldOfView, up: [0, 0, 1], near: 0.05, far: 200 }}>
+				<Canvas {...canvas} camera={{ fov: fieldOfView, up: [0, 0, 1], near: 0.05, far: 200 }}>
 					<ResizeWithPane />
 					<FieldCameraControls field={field} following={following} />
 					<FieldCameraRig ref={rig} field={field} viewKey={viewKey} />
-					<StudioLighting />
 					<OnFrame callback={positionLabels} />
 					{children}
 				</Canvas>
 			) : (
 				<>
-					<Canvas orthographic frameloop="demand" camera={{ up: [0, 0, 1], near: 0, far: cameraDistance * 2 }}>
+					<Canvas {...canvas} orthographic camera={{ up: [0, 0, 1], near: 0, far: cameraDistance * 2 }}>
 						<ResizeWithPane />
 						<CameraControls />
 						<CameraRig ref={rig} />
-						<StudioLighting />
 						<Floor />
 						<OnFrame callback={positionLabels} />
 						{children}

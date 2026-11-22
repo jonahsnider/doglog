@@ -1,7 +1,7 @@
 import { useDragDropMonitor } from '@dnd-kit/react';
 import { useHotkey } from '@tanstack/react-hotkeys';
 import { Navigate, createFileRoute, useLocation, useRouter } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
+import { Activity, useEffect, useState } from 'react';
 import { Group, Panel } from 'react-resizable-panels';
 import { shortcuts } from '@/commands/commands';
 import { canCopyDashboardLink } from '@/dashboards/copy-dashboard-link';
@@ -9,6 +9,7 @@ import { DashboardSplitZones } from '@/dashboards/dashboard-drag';
 import { DashboardPanes } from '@/dashboards/dashboard-panes';
 import { canCapture, copyImage, dashboardCaptureTarget } from '@/desktop/capture';
 import { canExportVideo, startVideoExport, useVideoExport } from '@/desktop/video-export';
+import { getEntry } from '@/data/data-store';
 import { getSource } from '@/data/source';
 import { VideoExportBar } from '@/timeline/video-export-bar';
 import { EntryBrowser } from '@/entries/entry-browser';
@@ -20,6 +21,9 @@ import { panes } from '@/panes/layout';
 import { minNodeSize } from '@/panes/pane-size';
 import { setViewedDashboard } from '@/sharing/presence';
 import { useNamePrompt } from '@/sharing/name-prompt';
+import { resolveBindings, widgetBindings } from '@/widgets/bindings';
+import { preloadField3d } from '@/widgets/field/load-3d';
+import { optionValues } from '@/widgets/options';
 import { getWidgetType } from '@/widgets/registry';
 
 declare module '@tanstack/react-router' {
@@ -29,10 +33,24 @@ declare module '@tanstack/react-router' {
 	}
 }
 
+function has3dWidget(dashboard: Dashboard, kind: 'field' | 'robot'): boolean {
+	const type = getWidgetType(kind)!;
+	return panes(dashboard.layout).some(({ widget }) => {
+		if (widget?.type !== kind) {
+			return false;
+		}
+		const bindings = resolveBindings(type, widgetBindings(widget), getEntry);
+		return optionValues(type, widget, bindings)['view'] === '3d';
+	});
+}
+
 export const Route = createFileRoute('/dashboards/$dashboardId')({
 	loader: async ({ params }) => {
 		const dashboard = getDashboard(params.dashboardId);
 		if (dashboard) {
+			if (has3dWidget(dashboard, 'field')) {
+				preloadField3d();
+			}
 			const loaders = new Set(
 				panes(dashboard.layout).map(({ widget }) => widget && getWidgetType(widget.type)?.preload),
 			);
@@ -93,7 +111,7 @@ function DashboardView() {
 				{/* Widening the entry browser stops at the panes' minimum size on desktop, where the window is kept big enough for
 				    it. A smaller browser window shrinks the panes before the entry browser. */}
 				<Panel minSize={STUDIO_DESKTOP ? minNodeSize(dashboard.layout, 'row') : '7rem'} style={{ overflow: 'hidden' }}>
-					<PanesColumn dashboard={dashboard} />
+					<PanesColumn dashboard={dashboard} dashboards={dashboards} />
 				</Panel>
 				<EntryBrowser dashboard={dashboard} />
 			</Group>
@@ -102,9 +120,18 @@ function DashboardView() {
 }
 
 /** The panes with the timeline under them */
-function PanesColumn({ dashboard }: { dashboard: Dashboard }) {
+function PanesColumn({ dashboard, dashboards }: { dashboard: Dashboard; dashboards: readonly Dashboard[] }) {
 	const router = useRouter();
 	const exporting = useVideoExport()?.dashboardId === dashboard.id;
+	const [recent, setRecent] = useState({ active: dashboard.id, parked: undefined as string | undefined });
+	if (recent.active !== dashboard.id) {
+		const previous = dashboards.find(({ id }) => id === recent.active);
+		const parked =
+			previous && (has3dWidget(previous, 'field') || has3dWidget(previous, 'robot')) ? previous.id : recent.parked;
+		// More than one inactive layout can hold too many WebGL contexts. Keep only the most recent 3D layout.
+		setRecent({ active: dashboard.id, parked: parked === dashboard.id ? undefined : parked });
+	}
+	const parked = dashboards.find(({ id }) => id === recent.parked);
 	useHotkey(
 		shortcuts.copyDashboardImage,
 		(event) => {
@@ -149,7 +176,11 @@ function PanesColumn({ dashboard }: { dashboard: Dashboard }) {
 				className="flex min-h-0 flex-1 flex-col ps-1.5 pt-1.5 capture:bg-frame"
 			>
 				<section aria-label="Panes" className="relative isolate mb-1.5 min-h-0 min-w-0 flex-1">
-					<DashboardPanes dashboard={dashboard} />
+					{(parked ? [dashboard, parked] : [dashboard]).map((item) => (
+						<Activity key={item.id} mode={item.id === dashboard.id ? 'visible' : 'hidden'}>
+							<DashboardPanes dashboard={item} />
+						</Activity>
+					))}
 					<DashboardSplitZones dashboard={dashboard} />
 				</section>
 				<TimelineBar />

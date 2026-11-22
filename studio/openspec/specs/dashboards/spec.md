@@ -121,6 +121,16 @@ Users SHALL be able to rename a dashboard inline in the sidebar. The name field 
 - **WHEN** the user double-clicks a dashboard in the sidebar
 - **THEN** its name becomes editable in place
 
+### Requirement: Keep a recent 3D dashboard ready
+
+When switching between dashboards, the app SHALL keep at most one inactive dashboard with a 3D Field or Robot loaded. The inactive layout MUST NOT draw or respond to dashboard input.
+
+#### Scenario: Return to a recent 3D dashboard
+
+- **GIVEN** a dashboard with a 3D Field or Robot has drawn
+- **WHEN** the user switches to another dashboard and back
+- **THEN** the 3D view reuses its existing scene instead of opening a new one
+
 ### Requirement: Preview a dashboard
 
 Hovering a dashboard in the sidebar SHALL show a miniature of its pane layout, with each pane showing its widget's icon. The selected dashboard MUST NOT show a preview, since it's already on screen. A dashboard whose layout is a single empty pane MUST NOT show a preview.

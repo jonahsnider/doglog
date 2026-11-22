@@ -397,7 +397,7 @@ The field widget SHALL have a Staged game pieces option, on by default, that dra
 
 ### Requirement: Loading the 3D field
 
-The 3D field model MUST be included with the app, so 3D works offline, and MUST only load once a field widget is open. A field widget in 2D SHALL load the 3D field in the background shortly after it appears, so switching to 3D shows the model without waiting. Until it has loaded, the widget SHALL draw the 2D field's top-down render on the floor.
+The app MUST bundle the 3D field model for offline use. When opening a dashboard with a 3D field, the model and renderer SHALL start loading in parallel without blocking the dashboard. In 2D, the widget SHALL start loading both shortly after it appears. If the model is still loading when the 3D scene can draw, the scene SHALL draw the top-down field render on its floor.
 
 #### Scenario: Switch to 3D
 

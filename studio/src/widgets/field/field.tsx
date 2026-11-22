@@ -18,6 +18,7 @@ import {
 	toBlueWall,
 } from '@/widgets/field/geometry';
 import { FieldImage, Minimap } from '@/widgets/field/image';
+import { loadField3d, preloadField3d } from '@/widgets/field/load-3d';
 import { MeasurementDrawing } from '@/widgets/field/measure';
 import { fieldLegendItems } from '@/widgets/field/legend-items';
 import { CursorPosition, hiddenWhileIdle, ToolButtons } from '@/widgets/field/readout';
@@ -29,7 +30,6 @@ import { useMechanisms } from '@/widgets/use-mechanisms';
 import { ViewToggle } from '@/widgets/view-toggle';
 import type { WidgetProps } from '@/widgets/widget-type';
 
-const loadField3d = async () => ({ default: (await import('@/widgets/field/field-3d')).Field3d });
 const Field3d = lazy(loadField3d);
 /** Milliseconds after a field appears in 2D that its 3D view starts loading, so it doesn't slow down opening the log */
 const preloadDelay = 2000;
@@ -51,7 +51,7 @@ const minMeasurePixels = 8;
 function Field2d({ bindings, options, setOption }: WidgetProps) {
 	// three.js and the field's model load in the background, so switching to 3D doesn't wait for them
 	useEffect(() => {
-		const timeout = setTimeout(() => void loadField3d(), preloadDelay);
+		const timeout = setTimeout(preloadField3d, preloadDelay);
 		return () => clearTimeout(timeout);
 	}, []);
 	const coordinates: FieldCoordinates = options['coordinates'] === 'center' ? 'center' : 'blue-wall';
