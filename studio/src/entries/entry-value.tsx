@@ -3,17 +3,29 @@ import { TooltipTrigger } from '@/components/ui/tooltip';
 import type { MarkTooltipHandle } from '@/entries/value-marks';
 import { type Entry, useDataVersion } from '@/data/data-store';
 import { formatValue } from '@/data/format-value';
+import { cn } from '@/lib/utils';
 import { useCursorTime } from '@/timeline/timeline';
+
+/** Characters that fit in the value's `max-w-28`, IBM Plex Mono is 0.6em wide per character at `text-xs` */
+const maxValueLength = 15;
 
 function EntryValue({ entry }: { entry: Entry }) {
 	const time = useCursorTime();
 	// Values at the cursor can change as samples arrive, ex. while a log loads
 	useDataVersion();
 	const value = time === undefined ? undefined : entry.samples.valueAt(time);
+	const text = formatValue(value);
+	// A truncated array says little, and its elements are listed under it
+	const count = Array.isArray(value) && text.length > maxValueLength;
 
 	return (
-		<span className="min-w-0 max-w-28 shrink truncate text-right font-mono text-xs tabular-nums">
-			{formatValue(value)}
+		<span
+			className={cn(
+				'min-w-0 max-w-28 shrink truncate text-right font-mono text-xs tabular-nums',
+				count && 'text-muted-foreground',
+			)}
+		>
+			{count ? `${value.length} ${value.length === 1 ? 'item' : 'items'}` : text}
 		</span>
 	);
 }

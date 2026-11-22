@@ -90,6 +90,20 @@ An array SHALL list as many elements as the longest value logged so far, and an 
 - **WHEN** a value with three elements arrives
 - **THEN** `/Vision/TargetIds/1` and `/Vision/TargetIds/2` appear in the tree
 
+### Requirement: Long array values
+
+An array's row SHALL show its value at the cursor when it fits in the row, and MUST otherwise show how many elements the value has, ex. `12 items`, instead of a truncated value.
+
+#### Scenario: Short array
+
+- **GIVEN** `/Vision/TargetIds` is `[4, 7]` at the cursor
+- **THEN** its row shows `[4, 7]`
+
+#### Scenario: Long array
+
+- **GIVEN** `/Drive/ModuleStates` has four modules at the cursor
+- **THEN** its row shows `4 items`
+
 ### Requirement: Structs with one field
 
 A struct with one field, like a Java enum logged as a struct or a `Rotation2d`, SHALL be shown as one row with the field's value instead of listing the field under it, nested as deep as single fields go. The row MUST still be the struct entry, except that dropping it on a widget that can't show the struct but can show the field, double-clicking it, and adding it from its context menu MUST use the field.
