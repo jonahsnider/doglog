@@ -1,10 +1,11 @@
-import { Contrast, argbFromHex, lstarFromArgb } from '@material/material-color-utilities';
+import { Contrast, Hct, argbFromHex, lstarFromArgb } from '@material/material-color-utilities';
 import { afterEach, assert, describe, expect, test, vi } from 'vite-plus/test';
 import css from '../index.css?raw';
 import {
 	applyThemeColor,
 	chartColorVariables,
 	defaultThemeColor,
+	schemeColors,
 	themeColorVariables,
 	themePreviewColors,
 } from './theme-color.ts';
@@ -63,6 +64,20 @@ describe('themeColorVariables()', () => {
 			Contrast.ratioOfTones(lstarFromArgb(argbFromHex(primary)), lstarFromArgb(argbFromHex(onPrimary))),
 		).toBeGreaterThanOrEqual(ratio);
 	});
+});
+
+test.each([false, true])('FrogLog uses readable green and blue accents (dark: %s)', (dark) => {
+	const color = schemeColors(defaultThemeColor, dark, 'standard', 'froglog');
+	const primary = Hct.fromInt(color('primary'));
+	const secondary = Hct.fromInt(color('secondaryContainer'));
+	expect(primary.hue).toBeGreaterThan(110);
+	expect(primary.hue).toBeLessThan(150);
+	expect(secondary.hue).toBeGreaterThan(210);
+	expect(secondary.hue).toBeLessThan(260);
+	expect(Contrast.ratioOfTones(primary.tone, lstarFromArgb(color('onPrimary')))).toBeGreaterThanOrEqual(4.5);
+	expect(Contrast.ratioOfTones(secondary.tone, lstarFromArgb(color('onSecondaryContainer')))).toBeGreaterThanOrEqual(
+		4.5,
+	);
 });
 
 test('switching presets restores the chosen scheme', () => {

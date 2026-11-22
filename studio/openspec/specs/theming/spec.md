@@ -29,6 +29,16 @@ The match13 preset MUST retain its `#1a7ccd` seed. Its primary, secondary, and n
 - **AND** primary actions switch from deep blue to bright blue
 - **AND** selected sidebar items stay blue-tinted in both modes
 
+### Requirement: FrogLog palette
+
+FrogLog SHALL use leaf green for its primary palette and soft stream blue for its secondary palette. Both palettes MUST follow the selected light or dark appearance and contrast setting.
+
+#### Scenario: FrogLog accents
+
+- **GIVEN** FrogLog is selected
+- **WHEN** the user views Studio in light or dark mode
+- **THEN** primary actions use green and selected sidebar items use blue
+
 ### Requirement: Neutral colors
 
 The Neutral preset SHALL generate its scheme from untinted gray palettes in place of the primary, secondary, neutral, and neutral variant palettes, so surfaces, borders, and primary actions have no hue. Its series, status, and band colors MUST be generated from Tailwind's blue, since gray has no hue to start from.

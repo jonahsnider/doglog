@@ -16,6 +16,8 @@ export const defaultThemeColor = '#591616';
 /** Default for the Custom preset, `hsl(20deg 12% 9.8%)` */
 export const defaultCustomColor = '#1c1816';
 
+const frogLogGreen = '#79b748';
+
 /** MD3 contrast levels matching the Material Theme Builder's options */
 const contrastLevels: Record<Contrast, number> = {
 	standard: 0,
@@ -30,6 +32,7 @@ const contrastLevels: Record<Contrast, number> = {
 const presetColors: Partial<Record<ThemePreset, string>> = {
 	team581: defaultThemeColor,
 	match13: '#1a7ccd',
+	froglog: frogLogGreen,
 	neutral: '#3b82f6',
 };
 
@@ -94,6 +97,10 @@ type Palettes = Pick<
 
 const fromHex = (hex: string) => TonalPalette.fromInt(argbFromHex(hex));
 const maroonHue = Hct.fromInt(argbFromHex(defaultThemeColor)).hue;
+const frogLogPalettes: Palettes = {
+	primaryPalette: fromHex(frogLogGreen),
+	secondaryPalette: fromHex('#9ed8f7'),
+};
 const gray = TonalPalette.fromHueAndChroma(0, 0);
 const grayPalettes: Palettes = {
 	primaryPalette: gray,
@@ -128,6 +135,7 @@ const presetPalettes: Partial<Record<ThemePreset, Record<'light' | 'dark', Palet
 			neutralPalette: fromHex('#000000'),
 		},
 	},
+	froglog: { light: frogLogPalettes, dark: frogLogPalettes },
 	// Untinted grays, so only status, series, and error colors have a hue
 	neutral: { light: grayPalettes, dark: grayPalettes },
 };
@@ -234,7 +242,7 @@ export function themePreviewColors(
 		bar: hexFromArgb(color('surfaceContainerHighest')),
 		border: hexFromArgb(color('outlineVariant')),
 		primary: hexFromArgb(color('primary')),
-		accent: hexFromArgb(color('primaryContainer')),
+		accent: hexFromArgb(color('secondaryContainer')),
 	};
 }
 

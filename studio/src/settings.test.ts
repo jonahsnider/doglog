@@ -68,12 +68,12 @@ test('custom colors survive preset changes and a reload', async () => {
 		updateSettings({ themePreset });
 		expect(settingsStore.get().themeColor).toBe('#123456');
 	}
-	updateSettings({ themePreset: 'match13' });
+	updateSettings({ themePreset: 'froglog' });
 	vi.resetModules();
 	const reloaded = await import('./settings.ts');
 	expect(reloaded.settingsStore.get()).toStrictEqual({
 		theme: 'dark',
-		themePreset: 'match13',
+		themePreset: 'froglog',
 		themeColor: '#123456',
 		contrast: 'standard',
 		reduceMotion: false,

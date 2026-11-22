@@ -2116,6 +2116,7 @@
 						"enum": [
 							"team581",
 							"match13",
+							"froglog",
 							"neutral",
 							"custom"
 						]

@@ -19,6 +19,7 @@ const themeLabels: Record<Theme, string> = {
 const themePresetLabels: Record<ThemePreset, string> = {
 	team581: 'Team 581 maroon',
 	match13: 'match13',
+	froglog: 'FrogLog',
 	neutral: 'Neutral',
 	custom: 'Custom',
 };
@@ -74,7 +75,7 @@ export function AppearanceSettings() {
 					<Fieldset className="min-w-0 self-stretch">
 						<FieldsetLegend className="mb-4 text-sm">Theme color</FieldsetLegend>
 						<RadioGroup
-							className="relative -m-1 -mb-3 grid auto-cols-[minmax(max-content,1fr)] grid-flow-col overflow-x-auto p-1 pb-3 scroll-p-1"
+							className="relative -m-1 -mb-3 grid auto-cols-[minmax(max-content,1fr)] grid-flow-col gap-2 overflow-x-auto p-1 pb-3 scroll-p-1"
 							value={themePreset}
 							onValueChange={(value: ThemePreset) => updateSettings({ themePreset: value })}
 						>
@@ -187,10 +188,10 @@ function ThemeSwatch({ colors }: { colors: ThemePreviewColors }) {
 	return (
 		<div
 			aria-hidden
-			className="aspect-square w-12 rounded-full border shadow-sm"
+			className="aspect-square w-11 rounded-full border shadow-sm"
 			style={{
 				borderColor: colors.border,
-				background: `linear-gradient(45deg, ${colors.surface}, ${colors.primary})`,
+				background: `linear-gradient(45deg, ${colors.accent} 25%, ${colors.primary} 75%)`,
 			}}
 		/>
 	);
