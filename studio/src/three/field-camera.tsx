@@ -1,7 +1,7 @@
 // The field widget's 3D camera: perspective, moving relative to what the user points at, and kept above the carpet and
 // near the field
 import { OrbitControls } from '@react-three/drei';
-import { useThree } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { type AnimationPlaybackControls, animate } from 'motion/react';
 import { type ComponentRef, type Ref, useEffect, useEffectEvent, useImperativeHandle, useRef } from 'react';
 import { MathUtils, Vector2, Vector3 } from 'three';
@@ -28,6 +28,7 @@ const fieldZoomSpeed = 2;
 const keyboardMoveSpeed = 8;
 
 type Orbit = { target: Vector3; azimuth: number; elevation: number; distance: number };
+type Size = { width: number; height: number };
 
 /** The controls pan with the right button, or the left with a modifier, and swap them while Shift is held */
 function pans(event: PointerEvent): boolean {
@@ -92,7 +93,8 @@ export function FieldCameraControls({ field, following }: { field: FieldFraming;
 			onChange={() => {
 				const orbitControls = controls.current;
 				if (orbitControls) {
-					keepInBounds(orbitControls.object, orbitControls.target, field, size);
+					// The canvas's size from the store, which is ahead of React's while it's resized, see `ResizeWithPane`
+					keepInBounds(orbitControls.object, orbitControls.target, field, get().size);
 				}
 			}}
 		/>
@@ -103,7 +105,7 @@ export function FieldCameraControls({ field, following }: { field: FieldFraming;
  * Each field's view while the app is open, by the scene's `viewKey`, so it's kept when the scene is drawn again, ex.
  * after its pane is split or moved, or the widget goes back to 3D
  */
-const keptViews = new Map<string, { orbit: Orbit; azimuth: number }>();
+const keptViews = new Map<string, { orbit: Orbit; azimuth: number; size: Size }>();
 
 /** Moves the camera around the field, and to its default view. Render it inside the scene's canvas. */
 export function FieldCameraRig({ ref, field, viewKey }: { ref: Ref<Rig>; field: FieldFraming; viewKey?: string }) {
@@ -149,6 +151,12 @@ export function FieldCameraRig({ ref, field, viewKey }: { ref: Ref<Rig>; field: 
 		moving.current?.stop();
 		moving.current = undefined;
 	};
+
+	/** Moves `orbit`, seen in a canvas of `from`, closer or farther so it shows the same part of the field now */
+	const reframed = (orbit: Orbit, from: Size): Orbit => ({
+		...orbit,
+		distance: orbit.distance * (framingDistance(field, get().size) / framingDistance(field, from)),
+	});
 
 	const resetOrbit = (): Orbit => ({
 		target: center(),
@@ -239,21 +247,33 @@ export function FieldCameraRig({ ref, field, viewKey }: { ref: Ref<Rig>; field: 
 	// Frame the field once the controls exist, they move the camera when they're created, and again when the default
 	// view's direction changes
 	const framed = useRef<number>(undefined);
+	const framedSize = useRef<Size>(undefined);
 	useEffect(() => {
 		if (controls && framed.current !== field.azimuth) {
 			const first = framed.current === undefined;
 			framed.current = field.azimuth;
 			if (first) {
+				framedSize.current = get().size;
 				const kept = viewKey === undefined ? undefined : keptViews.get(viewKey);
-				place(kept?.azimuth === field.azimuth ? kept.orbit : resetOrbit());
+				place(kept?.azimuth === field.azimuth ? reframed(kept.orbit, kept.size) : resetOrbit());
 			} else {
 				animateTo(resetOrbit());
 			}
 		}
 	});
+	// Keep showing the same part of the field when the widget is resized, instead of zooming with the canvas's height.
+	// Before it's drawn at the new size.
+	useFrame(({ size }) => {
+		const from = framedSize.current;
+		if (from !== undefined && (from.width !== size.width || from.height !== size.height)) {
+			framedSize.current = size;
+			stop();
+			place(reframed(current(), from));
+		}
+	});
 	const keep = useEffectEvent(() => {
 		if (viewKey !== undefined && framed.current !== undefined) {
-			keptViews.set(viewKey, { orbit: current(), azimuth: framed.current });
+			keptViews.set(viewKey, { orbit: current(), azimuth: framed.current, size: get().size });
 		}
 	});
 	useEffect(

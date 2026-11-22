@@ -1,5 +1,5 @@
 import { OrbitControls } from '@react-three/drei';
-import { useThree } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { type AnimationPlaybackControls, animate } from 'motion/react';
 import { type ComponentRef, type Ref, useEffect, useImperativeHandle, useRef } from 'react';
 import { type Camera, Vector3 } from 'three';
@@ -211,19 +211,16 @@ export function CameraRig({ ref }: { ref: Ref<Rig> }) {
 	});
 	useEffect(() => () => moving.current?.stop(), []);
 
-	// Keep showing the same part of the scene when the widget is resized
-	const size = useThree((state) => state.size);
+	// Keep showing the same part of the scene when the widget is resized, before it's drawn at the new size
 	const lastSize = useRef<number>(undefined);
-	useEffect(() => {
+	useFrame(({ camera, size }) => {
 		const shortest = Math.min(size.width, size.height);
-		if (lastSize.current !== undefined && lastSize.current > 0 && shortest > 0) {
-			const { camera, invalidate } = get();
+		if (lastSize.current !== undefined && lastSize.current > 0 && shortest > 0 && shortest !== lastSize.current) {
 			camera.zoom *= shortest / lastSize.current;
 			camera.updateProjectionMatrix();
-			invalidate();
 		}
 		lastSize.current = shortest;
-	}, [size, get]);
+	});
 
 	return null;
 }

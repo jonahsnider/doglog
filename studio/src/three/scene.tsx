@@ -9,6 +9,7 @@ import { shiftSpeedup } from '@/three/orbit';
 import { useRightClickMenu } from '@/three/right-click-menu';
 import { useThemeColor } from '@/three/theme';
 import { FieldCameraControls, FieldCameraRig } from '@/three/field-camera';
+import { ResizeWithPane } from '@/three/resize';
 import { type FieldFraming, fieldOfView } from '@/three/field-framing';
 import { ViewCube } from '@/three/view-cube';
 
@@ -256,6 +257,7 @@ export function Scene3d({
 		>
 			{field ? (
 				<Canvas frameloop="demand" camera={{ fov: fieldOfView, up: [0, 0, 1], near: 0.05, far: 200 }}>
+					<ResizeWithPane />
 					<FieldCameraControls field={field} following={following} />
 					<FieldCameraRig ref={rig} field={field} viewKey={viewKey} />
 					<StudioLighting />
@@ -265,6 +267,7 @@ export function Scene3d({
 			) : (
 				<>
 					<Canvas orthographic frameloop="demand" camera={{ up: [0, 0, 1], near: 0, far: cameraDistance * 2 }}>
+						<ResizeWithPane />
 						<CameraControls />
 						<CameraRig ref={rig} />
 						<StudioLighting />
