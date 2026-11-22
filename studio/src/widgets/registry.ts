@@ -1,3 +1,4 @@
+import SlidersHorizontalIcon from 'lucide-react/icons/sliders-horizontal';
 import { lazy } from 'react';
 import { createWidget } from '@/widgets/bindings';
 import type { Entry } from '@/data/data-store';
@@ -18,6 +19,7 @@ import { Swerve } from '@/widgets/swerve/swerve';
 import { swerveRoles } from '@/widgets/swerve/data';
 import { TableWidget } from '@/widgets/table/table';
 import { videoOptions } from '@/widgets/video/video-options';
+import { arrayLayouts, inferArrayLayout, isTunable } from '@/tuning/tunables';
 import { type WidgetInfo, widgetInfos, type WidgetTypeId } from '@/widgets/widget-info';
 import type { WidgetType } from '@/widgets/widget-type';
 
@@ -34,6 +36,28 @@ function info(
 const loadRobot = async () => ({ default: (await import('@/widgets/robot/robot')).Robot });
 const loadNotepad = async () => ({ default: (await import('@/widgets/notepad/notepad')).Notepad });
 const loadVideo = async () => ({ default: (await import('@/widgets/video/video')).Video });
+const loadTuning = async () => ({ default: (await import('@/tuning/tuning-widget')).TuningWidget });
+
+const tunableRoles = [{ id: 'tunable', label: 'Tunable' }] as const;
+
+/** The Tuning page's tuning pane, kept out of the widget picker so it's the only place Studio writes to the robot */
+export const tuningWidgetType: WidgetType = {
+	id: 'tuning',
+	name: 'Tuning',
+	icon: SlidersHorizontalIcon,
+	accepts: ['number', 'boolean', 'string', 'number[]', 'boolean[]', 'string[]'],
+	// Arrays pick how they're edited, see `arrayLayouts`
+	roles: (entry) => {
+		if (!isTunable(entry)) {
+			return [];
+		}
+		return entry.type.endsWith('[]') ? arrayLayouts : tunableRoles;
+	},
+	inferRole: (_roles, _earlier, entry) => (entry.type.endsWith('[]') ? inferArrayLayout(entry) : undefined),
+	rendersEmpty: true,
+	preload: loadTuning,
+	component: lazy(loadTuning),
+};
 
 /** Every widget type, in the order they're listed in the widget picker */
 export const widgetTypes: readonly WidgetType[] = [
@@ -91,7 +115,7 @@ export const widgetTypes: readonly WidgetType[] = [
 ];
 
 export function getWidgetType(id: string): WidgetType | undefined {
-	return widgetTypes.find((type) => type.id === id);
+	return id === tuningWidgetType.id ? tuningWidgetType : widgetTypes.find((type) => type.id === id);
 }
 
 function defaultWidgetTypeId(entry: Entry): string {

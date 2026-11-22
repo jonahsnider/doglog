@@ -12,6 +12,7 @@ import {
 	writeDashboardDoc,
 	writeSharing,
 } from '@/dashboards/doc';
+import { allowsLayout, isUnlisted } from '@/dashboards/unlisted';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { createId } from '@/lib/random-id';
 import { focusedPanesStore, focusPane, zoomedPanesStore, zoomPane } from '@/dashboards/pane-state';
@@ -128,7 +129,7 @@ export function getDashboards(): Dashboard[] {
 }
 
 export function getDashboard(id: string): Dashboard | undefined {
-	return store.get().find((dashboard) => dashboard.id === id);
+	return store.get().find((dashboard) => dashboard.id === id) ?? (isUnlisted(id) ? readDashboard(id) : undefined);
 }
 
 /** Called whenever a dashboard or the list changes, including dashboards that aren't shown */
@@ -171,11 +172,10 @@ export function duplicateDashboards(ids: readonly string[]): string[] {
 /** Change a dashboard, its contents changing is an undo step */
 export function updateDashboard(id: string, update: (dashboard: Dashboard) => Dashboard): void {
 	const dashboard = getDashboard(id);
-	if (!dashboard) {
+	const updated = dashboard && update(dashboard);
+	if (!dashboard || !updated || !allowsLayout(id, updated.layout)) {
 		return;
 	}
-
-	const updated = update(dashboard);
 	const { doc } = getDoc(id);
 	writeDashboardDoc(doc, updated);
 	doc.commit();

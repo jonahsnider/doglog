@@ -3,6 +3,7 @@ import BoxIcon from 'lucide-react/icons/box';
 import BoxesIcon from 'lucide-react/icons/boxes';
 import BracesIcon from 'lucide-react/icons/braces';
 import CheckIcon from 'lucide-react/icons/check';
+import MinusIcon from 'lucide-react/icons/minus';
 import HashIcon from 'lucide-react/icons/hash';
 import ListChecksIcon from 'lucide-react/icons/list-checks';
 import ListIcon from 'lucide-react/icons/list';
@@ -11,6 +12,7 @@ import SplineIcon from 'lucide-react/icons/spline';
 import ToggleRightIcon from 'lucide-react/icons/toggle-right';
 import TypeIcon from 'lucide-react/icons/type';
 import type { LucideIcon } from 'lucide-react/types';
+import { TreeItemCheckbox } from '@ui-sdk/react/tree';
 import type { TooltipPrimitive } from '@/components/ui/tooltip';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import type { EntryKind } from '@/data/entry-kind';
@@ -94,6 +96,36 @@ export function TypeMark({
 				</>
 			)}
 		</TooltipTrigger>
+	);
+}
+
+/** How many of a group's entries the edited widget shows, see `GroupCheckbox` */
+export type GroupCheck = 'checked' | 'partial' | 'unchecked';
+
+/**
+ * Binds or unbinds every entry in a group while editing, after its chevron like the checkbox of a group that's also an
+ * entry. `sticky` draws it on a pinned copy of the row, outside the tree. Renders nothing without a `check`.
+ */
+export function GroupCheckbox({ check, sticky = false }: { check: GroupCheck | undefined; sticky?: boolean }) {
+	if (check === undefined) {
+		return null;
+	}
+	const className = cn(
+		'flex size-4 shrink-0 items-center justify-center rounded-[.25rem]',
+		check === 'unchecked' ? 'border border-outline' : 'bg-primary text-primary-foreground',
+	);
+	const icon =
+		check === 'unchecked' ? undefined : check === 'checked' ? (
+			<CheckIcon aria-hidden className="size-3" strokeWidth={3} />
+		) : (
+			<MinusIcon aria-hidden className="size-3" strokeWidth={3} />
+		);
+	return sticky ? (
+		<span aria-hidden className={className}>
+			{icon}
+		</span>
+	) : (
+		<TreeItemCheckbox className={className}>{icon}</TreeItemCheckbox>
 	);
 }
 

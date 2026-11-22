@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LogsRouteImport } from './routes/logs'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as TuningRouteImport } from './routes/tuning'
 import { Route as DashboardsDashboardIdRouteImport } from './routes/dashboards.$dashboardId'
 import { Route as ImportLinkRouteImport } from './routes/import.$link'
 
@@ -30,6 +31,11 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TuningRoute = TuningRouteImport.update({
+  id: '/tuning',
+  path: '/tuning',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardsDashboardIdRoute = DashboardsDashboardIdRouteImport.update({
   id: '/dashboards/$dashboardId',
   path: '/dashboards/$dashboardId',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/logs': typeof LogsRoute
   '/settings': typeof SettingsRoute
+  '/tuning': typeof TuningRoute
   '/dashboards/$dashboardId': typeof DashboardsDashboardIdRoute
   '/import/$link': typeof ImportLinkRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/logs': typeof LogsRoute
   '/settings': typeof SettingsRoute
+  '/tuning': typeof TuningRoute
   '/dashboards/$dashboardId': typeof DashboardsDashboardIdRoute
   '/import/$link': typeof ImportLinkRoute
 }
@@ -60,20 +68,33 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/logs': typeof LogsRoute
   '/settings': typeof SettingsRoute
+  '/tuning': typeof TuningRoute
   '/dashboards/$dashboardId': typeof DashboardsDashboardIdRoute
   '/import/$link': typeof ImportLinkRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/logs' | '/settings' | '/dashboards/$dashboardId' | '/import/$link'
+    | '/'
+    | '/logs'
+    | '/settings'
+    | '/tuning'
+    | '/dashboards/$dashboardId'
+    | '/import/$link'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/logs' | '/settings' | '/dashboards/$dashboardId' | '/import/$link'
+  to:
+    | '/'
+    | '/logs'
+    | '/settings'
+    | '/tuning'
+    | '/dashboards/$dashboardId'
+    | '/import/$link'
   id:
     | '__root__'
     | '/'
     | '/logs'
     | '/settings'
+    | '/tuning'
     | '/dashboards/$dashboardId'
     | '/import/$link'
   fileRoutesById: FileRoutesById
@@ -82,6 +103,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LogsRoute: typeof LogsRoute
   SettingsRoute: typeof SettingsRoute
+  TuningRoute: typeof TuningRoute
   DashboardsDashboardIdRoute: typeof DashboardsDashboardIdRoute
   ImportLinkRoute: typeof ImportLinkRoute
 }
@@ -109,6 +131,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tuning': {
+      id: '/tuning'
+      path: '/tuning'
+      fullPath: '/tuning'
+      preLoaderRoute: typeof TuningRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboards/$dashboardId': {
       id: '/dashboards/$dashboardId'
       path: '/dashboards/$dashboardId'
@@ -130,6 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LogsRoute: LogsRoute,
   SettingsRoute: SettingsRoute,
+  TuningRoute: TuningRoute,
   DashboardsDashboardIdRoute: DashboardsDashboardIdRoute,
   ImportLinkRoute: ImportLinkRoute,
 }

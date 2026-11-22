@@ -1,17 +1,16 @@
 import { useDraggable, useDroppable } from '@dnd-kit/react';
-import { useParams } from '@tanstack/react-router';
 import { TreeItem, TreeItemIndicator, TreeItemLabel } from '@ui-sdk/react/tree';
 import ChevronRightIcon from 'lucide-react/icons/chevron-right';
-import { memo, useCallback } from 'react';
+import { memo, use, useCallback } from 'react';
 import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { EntryName } from '@/entries/entry-name';
 import { SectionHeaderLabel } from '@/entries/section-header-label';
 import { HighlightedText } from '@/components/highlighted-text';
 import { TooltipCreateHandle, TooltipTrigger } from '@/components/ui/tooltip';
-import { GroupMark, MarkTooltip, TypeMark } from '@/entries/value-marks';
+import { type GroupCheck, GroupCheckbox, GroupMark, MarkTooltip, TypeMark } from '@/entries/value-marks';
 import { EntryRowValue } from '@/entries/entry-value';
 import { entryMenuItems } from '@/entries/entry-menu';
-import { addDashboardWidget } from '@/dashboards/panes';
+import { addDashboardWidget, DashboardIdContext } from '@/dashboards/panes';
 import type { EntryDragData, EntrySectionDropData } from '@/entries/drag';
 import { entryDragType, entryRowDragType, entryRowSensors } from '@/entries/drag';
 import { sectionMenuItems } from '@/entries/sections';
@@ -38,6 +37,7 @@ export const EntryRowView = memo(function EntryRowView({
 	editing,
 	bound,
 	containsBound,
+	groupCheck,
 	activeGuide,
 }: {
 	row: EntryTreeRow;
@@ -49,10 +49,12 @@ export const EntryRowView = memo(function EntryRowView({
 	bound: boolean;
 	/** The edited widget shows entries in this group, marked like a folder with changes in a code editor */
 	containsBound: boolean;
+	/** Set on groups that aren't entries themselves while editing, see `GroupCheckbox` */
+	groupCheck: GroupCheck | undefined;
 	/** Level of the group whose guide is emphasized, when the row is in it */
 	activeGuide: number | undefined;
 }) {
-	const { dashboardId } = useParams({ from: '/dashboards/$dashboardId' });
+	const dashboardId = use(DashboardIdContext);
 	const { item: node, level, section } = row;
 	const { entry, field } = node;
 	const header = node.section !== undefined;
@@ -121,6 +123,7 @@ export const EntryRowView = memo(function EntryRowView({
 				<RowIndicator expandable={node.children !== undefined} />
 				{/* Checked while editing instead of having a checkbox of its own, so editing doesn't push the label over */}
 				{entry && <TypeMark type={entry.type} tooltip={markTooltip} checked={editing && bound} checkable={editing} />}
+				<GroupCheckbox check={groupCheck} />
 				<RowLabel node={node} highlights={highlights} unsupported={unsupported} bound={bound} />
 				{containsBound && <ContainsBoundMark />}
 			</TreeItemLabel>
@@ -139,6 +142,7 @@ export function StickyRow({
 	bound,
 	checked,
 	containsBound,
+	groupCheck,
 	activeGuide,
 	onClick,
 }: {
@@ -150,6 +154,7 @@ export function StickyRow({
 	bound: boolean;
 	checked: boolean;
 	containsBound: boolean;
+	groupCheck: GroupCheck | undefined;
 	activeGuide: number | undefined;
 	onClick: () => void;
 }) {
@@ -170,6 +175,7 @@ export function StickyRow({
 				{node.section === undefined ? (
 					<>
 						{entry && <TypeMark type={entry.type} tooltip={markTooltip} checked={checked} />}
+						<GroupCheckbox check={groupCheck} sticky />
 						<RowLabel node={node} highlights={highlights} unsupported={entry?.kind === 'unsupported'} bound={bound} />
 						{containsBound && <ContainsBoundMark />}
 					</>

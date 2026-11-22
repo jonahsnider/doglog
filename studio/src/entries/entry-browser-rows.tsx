@@ -4,7 +4,8 @@ import { Fragment, useCallback, useMemo, useRef, useState } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { EntryRowView, rowHeight, StickyRow } from '@/entries/entry-row';
 import type { EntrySection } from '@/entries/sections';
-import { changedCheckbox, type EditedWidget } from '@/entries/edited-widget';
+import { changedCheckbox, type EditedWidget, groupEntries } from '@/entries/edited-widget';
+import type { GroupCheck } from '@/entries/value-marks';
 import { ancestorGroups, type EntryTreeNode, type EntryTreeRow, type EntryTreeView } from '@/entries/tree';
 import { cn } from '@/lib/utils';
 
@@ -31,6 +32,17 @@ export function EntryRows({
 	const entryNames = new Set(rows.flatMap((row) => (row.item.entry ? [row.item.value] : [])));
 	const bound = new Set(edited?.bound);
 	const boundGroups = ancestorGroups(bound);
+	const groups = useMemo(() => groupEntries(view.items), [view.items]);
+	const groupCheck = (value: string): GroupCheck | undefined => {
+		const names = edited && groups.get(value);
+		if (!names || names.length === 0) {
+			return undefined;
+		}
+		const count = names.filter((name) => bound.has(name)).length;
+		return count === 0 ? 'unchecked' : count === names.length ? 'checked' : 'partial';
+	};
+	// Fully checked groups are checked in the tree too, so unchecking one is a change it reports
+	const checkedGroups = new Set([...groups.keys()].filter((value) => groupCheck(value) === 'checked'));
 	const container = useRef<HTMLDivElement>(null);
 	// Index of the row keyboard focus moved to, see `rangeExtractor`
 	const [highlighted, setHighlighted] = useState(0);
@@ -88,17 +100,24 @@ export function EntryRows({
 					onExpandedChange={onExpandedChange}
 					checkable={edited !== undefined}
 					checkStrategy="independent"
-					checked={edited ? [...edited.bound] : []}
+					checked={edited ? [...edited.bound, ...checkedGroups] : []}
 					onCheckedChange={(checked) => {
+						const now = new Set(checked);
+						const group = [...groups.keys()].find((value) => now.has(value) !== checkedGroups.has(value));
+						if (group !== undefined) {
+							// A partly checked group checks the rest of its entries
+							edited!.setBound(groups.get(group)!, now.has(group));
+							return;
+						}
 						const change = changedCheckbox(edited!.bound, checked, entryNames);
 						if (change) {
-							edited!.setBound(change.name, change.checked);
+							edited!.setBound([change.name], change.checked);
 						}
 					}}
 					onAction={(value) => {
 						// Clicking or pressing Enter on an entry toggles it too
 						if (edited && entryNames.has(value)) {
-							edited.setBound(value, !edited.bound.includes(value));
+							edited.setBound([value], !edited.bound.includes(value));
 						}
 					}}
 					onKeyDown={(event) => {
@@ -143,7 +162,10 @@ export function EntryRows({
 									dropTarget={row.section === dropSection}
 									editing={edited !== undefined}
 									bound={isBound(row.item, bound)}
-									containsBound={row.item.field === undefined && boundGroups.has(row.item.value)}
+									containsBound={
+										row.item.field === undefined && !groups.has(row.item.value) && boundGroups.has(row.item.value)
+									}
+									groupCheck={groupCheck(row.item.value)}
 									activeGuide={guideAt(item.index)}
 								/>
 							</Fragment>
@@ -171,7 +193,8 @@ export function EntryRows({
 								highlights={highlights?.get(row.item.value)}
 								bound={isBound(row.item, bound)}
 								checked={edited !== undefined && isBound(row.item, bound)}
-								containsBound={boundGroups.has(row.item.value)}
+								containsBound={!groups.has(row.item.value) && boundGroups.has(row.item.value)}
+								groupCheck={groupCheck(row.item.value)}
 								activeGuide={guideAt(index)}
 								// Scroll the group back to where it's pinned
 								onClick={() => virtualizer.scrollToOffset((index - depth) * rowHeight)}

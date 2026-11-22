@@ -12,7 +12,7 @@ import { type RegisteredRouter, useRouter } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import { useDebounceValue } from 'usehooks-ts';
 import { canCopyDashboardLink, copyDashboardLink } from '@/dashboards/copy-dashboard-link';
-import { closeFocusedPane, getFocusedPane, splitDashboardPane, toggleZoom } from '@/dashboards/panes';
+import { canSplit, closeFocusedPane, getFocusedPane, splitDashboardPane, toggleZoom } from '@/dashboards/panes';
 import {
 	createDashboard,
 	type Dashboard,
@@ -29,7 +29,8 @@ import { toggleEditing } from '@/entries/editing';
 import { chooseLog } from '@/data/open-log';
 import { checkOrInstallUpdate, updateShortcut } from '@/updater';
 import { connect, getSource, showSource } from '@/data/source';
-import { canSplitPane, type SplitDirection } from '@/panes/layout';
+import type { SplitDirection } from '@/panes/layout';
+import { shownTuningDashboard } from '@/tuning/dashboard';
 import { getRobotHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
 import { getWidgetType } from '@/widgets/registry';
@@ -118,7 +119,7 @@ export function newWindow(): void {
 
 /** On desktop, closes the window once there's no dashboard left to close */
 export function closeFocused(router: RegisteredRouter): void {
-	const dashboard = currentDashboard(router);
+	const dashboard = currentDashboard(router) ?? shownTuningDashboard(router);
 	if (dashboard) {
 		// Video export mode keeps the layout it previews
 		if (!isExportingVideo()) {
@@ -167,21 +168,21 @@ export function undoOrRedo(router: RegisteredRouter, direction: 'undo' | 'redo')
 		return;
 	}
 
-	const dashboard = currentDashboard(router);
+	const dashboard = currentDashboard(router) ?? shownTuningDashboard(router);
 	if (dashboard && !isExportingVideo()) {
 		(direction === 'undo' ? undoDashboard : redoDashboard)(dashboard.id);
 	}
 }
 
 function toggleFocusedZoom(router: RegisteredRouter): void {
-	const dashboard = currentDashboard(router);
+	const dashboard = currentDashboard(router) ?? shownTuningDashboard(router);
 	if (dashboard && !isExportingVideo()) {
 		toggleZoom(dashboard.id, getFocusedPane(dashboard).id);
 	}
 }
 
 function toggleFocusedEditing(router: RegisteredRouter): void {
-	const dashboard = currentDashboard(router);
+	const dashboard = currentDashboard(router) ?? shownTuningDashboard(router);
 	if (!dashboard || isExportingVideo()) {
 		return;
 	}
@@ -194,13 +195,13 @@ function toggleFocusedEditing(router: RegisteredRouter): void {
 }
 
 function splitFocused(router: RegisteredRouter, direction: SplitDirection): void {
-	const dashboard = currentDashboard(router);
+	const dashboard = currentDashboard(router) ?? shownTuningDashboard(router);
 	if (!dashboard || isExportingVideo()) {
 		return;
 	}
 
 	const pane = getFocusedPane(dashboard);
-	if (canSplitPane(dashboard.layout, pane.id, direction)) {
+	if (canSplit(dashboard.id, pane.id, direction)) {
 		splitDashboardPane(dashboard.id, pane.id, direction);
 	}
 }

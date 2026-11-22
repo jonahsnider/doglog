@@ -15,6 +15,20 @@ export type NtListener = {
 
 export type NtSubscribeOptions = { all?: boolean; periodic?: number };
 
+/** NT4 types Studio can publish, by their NT4 type string */
+export type NtPublishType =
+	| 'raw'
+	| 'string'
+	| 'double'
+	| 'float'
+	| 'int'
+	| 'boolean'
+	| 'string[]'
+	| 'double[]'
+	| 'float[]'
+	| 'int[]'
+	| 'boolean[]';
+
 /** A client of an NT4 server, which may share its connection with other clients */
 export interface NtClient {
 	isConnected(): boolean;
@@ -28,8 +42,9 @@ export interface NtClient {
 	 */
 	subscribe(prefix: string, options: NtSubscribeOptions, listener: NtListener): () => void;
 	/** Publish the topic `name`, resolving once the server accepts it */
-	publish(name: string, kind: 'raw' | 'string'): Promise<void>;
-	setValue(name: string, value: string | Uint8Array): void;
+	publish(name: string, type: NtPublishType): Promise<void>;
+	/** Set a published topic's value, which must match the type it was published with */
+	setValue(name: string, value: NtValue): void;
 	unpublish(name: string): void;
 	/** Unsubscribe and unpublish everything, disconnecting once no other client uses the connection */
 	close(): void;

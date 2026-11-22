@@ -1,7 +1,27 @@
-import { LogLevel, NetworkTables, type NetworkTablesTopic } from '@ntcore-ts/client';
-import type { NtClient, NtListener, NtSubscribeOptions, NtTopic, NtValue } from '@/nt/client';
+import {
+	LogLevel,
+	NetworkTables,
+	type NetworkTablesTopic,
+	type NetworkTablesTypeInfo,
+	NetworkTablesTypeInfos,
+} from '@ntcore-ts/client';
+import type { NtClient, NtListener, NtPublishType, NtSubscribeOptions, NtTopic, NtValue } from '@/nt/client';
 
 NetworkTables.setLogLevel(LogLevel.WARN);
+
+const typeInfos = {
+	raw: NetworkTablesTypeInfos.kUint8Array,
+	string: NetworkTablesTypeInfos.kString,
+	double: NetworkTablesTypeInfos.kDouble,
+	float: NetworkTablesTypeInfos.kFloat,
+	int: NetworkTablesTypeInfos.kInteger,
+	boolean: NetworkTablesTypeInfos.kBoolean,
+	'string[]': NetworkTablesTypeInfos.kStringArray,
+	'double[]': NetworkTablesTypeInfos.kDoubleArray,
+	'float[]': NetworkTablesTypeInfos.kFloatArray,
+	'int[]': NetworkTablesTypeInfos.kIntegerArray,
+	'boolean[]': NetworkTablesTypeInfos.kBooleanArray,
+} satisfies Record<NtPublishType, NetworkTablesTypeInfo>;
 
 type NtInternals = { _client: { messenger: { socket: { getServerTime(): number } } } };
 
@@ -131,10 +151,7 @@ export function openLocalNt(hostname: string, port = 5810): NtClient {
 	let closed = false;
 	const connectionListeners = new Set<(connected: boolean) => void>();
 	const unsubscribes = new Set<() => void>();
-	const published = new Map<
-		string,
-		{ kind: 'raw'; topic: NetworkTablesTopic<Uint8Array> } | { kind: 'string'; topic: NetworkTablesTopic<string> }
-	>();
+	const published = new Map<string, NetworkTablesTopic<NtValue>>();
 
 	const client: NtClient = {
 		isConnected: () => host.connected,
@@ -193,27 +210,19 @@ export function openLocalNt(hostname: string, port = 5810): NtClient {
 			unsubscribes.add(unsubscribe);
 			return unsubscribe;
 		},
-		async publish(name, kind) {
-			const publisher =
-				kind === 'raw'
-					? ({ kind, topic: nt.getRawTopic(name) } as const)
-					: ({ kind, topic: nt.getStringTopic(name) } as const);
-			published.set(name, publisher);
-			await publisher.topic.publish();
+		async publish(name, type) {
+			const topic = nt.createTopic<NtValue>(name, typeInfos[type]);
+			published.set(name, topic);
+			await topic.publish();
 		},
 		setValue(name, value) {
-			const publisher = published.get(name);
-			if (publisher?.kind === 'raw' && value instanceof Uint8Array) {
-				publisher.topic.setValue(value);
-			} else if (publisher?.kind === 'string' && typeof value === 'string') {
-				publisher.topic.setValue(value);
-			}
+			published.get(name)?.setValue(value);
 		},
 		unpublish(name) {
-			const publisher = published.get(name);
+			const topic = published.get(name);
 			published.delete(name);
-			if (publisher?.topic.pubuid !== undefined) {
-				publisher.topic.unpublish();
+			if (topic?.pubuid !== undefined) {
+				topic.unpublish();
 			}
 		},
 		close() {

@@ -253,8 +253,12 @@ export function AppSidebar() {
 										</SidebarMenuButton>
 										<ShortcutHint shortcut={shortcuts.logs} />
 									</SidebarMenuItem>
-									<SidebarMenuItem aria-disabled>
-										<SidebarMenuButton render={<div />} className="pointer-events-none text-muted-foreground">
+									<SidebarMenuItem>
+										<SidebarMenuButton
+											isActive={Boolean(matchRoute({ to: '/tuning' }))}
+											render={<Link to="/tuning" />}
+											tooltip={{ children: 'Tuning' }}
+										>
 											<SlidersHorizontalIcon />
 											<span>Tuning</span>
 										</SidebarMenuButton>

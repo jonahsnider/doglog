@@ -3,6 +3,7 @@ import type { Dashboard } from '@/dashboards/dashboards';
 import { updateLayout } from '@/dashboards/panes';
 import type { Entry } from '@/data/data-store';
 import { stopEditing, useEditing } from '@/entries/editing';
+import type { EntryTreeNode } from '@/entries/tree';
 import { findPane } from '@/panes/layout';
 import { addEntries, setBoundEntries, widgetBindings } from '@/widgets/bindings';
 import { getWidgetType } from '@/widgets/registry';
@@ -14,8 +15,8 @@ export type EditedWidget = {
 	type: WidgetType;
 	/** Names of the entries the widget shows */
 	bound: readonly string[];
-	/** Bind or unbind every binding of an entry */
-	setBound: (name: string, bound: boolean) => void;
+	/** Bind or unbind every binding of entries, as one change */
+	setBound: (names: readonly string[], bound: boolean) => void;
 };
 
 /** The widget being edited in this dashboard, `undefined` when its pane was closed or its widget doesn't take entries anymore */
@@ -43,16 +44,18 @@ export function useEditedWidget(dashboard: Dashboard): EditedWidget | undefined 
 			paneId,
 			type: edited,
 			bound,
-			setBound: (name, on) =>
+			setBound: (names, on) => {
+				const changed = new Set(names);
 				updateLayout(dashboardId, (layout) =>
 					on
-						? addEntries(layout, paneId, [name])
+						? addEntries(layout, paneId, names)
 						: setBoundEntries(
 								layout,
 								paneId,
-								bound.filter((other) => other !== name),
+								bound.filter((other) => !changed.has(other)),
 							),
-				),
+				);
+			},
 		};
 	}, [edited, editing, widget]);
 }
@@ -79,4 +82,20 @@ export function changedCheckbox(
 	}
 	const removed = bound.find((name) => !now.has(name) && toggleable.has(name));
 	return removed === undefined ? undefined : { name: removed, checked: false };
+}
+
+/** The entries in each group that isn't an entry itself, by its path, which its checkbox binds together while editing */
+export function groupEntries(nodes: readonly EntryTreeNode[]): Map<string, string[]> {
+	const groups = new Map<string, string[]>();
+	const collect = (node: EntryTreeNode): string[] => {
+		const names = (node.children ?? []).flatMap((child) => collect(child));
+		if (node.children && !node.entry && node.section === undefined) {
+			groups.set(node.value, names);
+		}
+		return node.entry ? [node.value, ...names] : names;
+	};
+	for (const node of nodes) {
+		collect(node);
+	}
+	return groups;
 }

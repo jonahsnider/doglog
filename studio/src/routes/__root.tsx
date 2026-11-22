@@ -24,8 +24,8 @@ function RootLayout() {
 	// After ToastProvider's effect subscribes it, since child effects run first
 	useDesktopLinkOffer();
 	const matchRoute = useMatchRoute();
-	// Dashboards lay out their own panes, entry browser, and timeline on the frame, other pages are one container
-	const dashboard = Boolean(matchRoute({ to: '/dashboards/$dashboardId' }));
+	// Dashboards and Tuning lay out their own panes and entry browser on the frame, other pages are one container
+	const dashboard = matchRoute({ to: '/dashboards/$dashboardId' }) !== false || matchRoute({ to: '/tuning' }) !== false;
 	const strip = useTitleBarStrip();
 	const animation = useSelector(sidebarAnimationStore);
 	const exporting = useVideoExport() !== undefined;

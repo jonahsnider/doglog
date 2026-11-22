@@ -25,6 +25,8 @@ export function useWindowTitle(): void {
 		page = dashboardName(dashboard);
 	} else if (matchRoute({ to: '/logs' }) !== false) {
 		page = 'Logs';
+	} else if (matchRoute({ to: '/tuning' }) !== false) {
+		page = 'Tuning';
 	} else if (matchRoute({ to: '/settings' }) !== false) {
 		page = 'Settings';
 	}

@@ -8,6 +8,7 @@ How Studio's UI is built. The OpenSpec specs in `openspec/specs` describe what u
 - `src/components/ui` holds those components. Treat them as vendored: compose and wrap them in app code instead of changing them. Change them only to fix something everywhere they're used (ex. pointer cursors on buttons), and keep the change small so it's easy to reapply when updating from upstream.
 - Write a custom component when coss ui has nothing close, or when the component is specific to Studio (ex. panes, widgets, the timeline). Build it from Base UI primitives when it needs accessible behavior like menus, focus management, or keyboard navigation.
 - Use coss `Select` on desktop and web for dropdowns that only pick a value, such as playback speed or field orientation. The trigger can match its surroundings: a compact toolbar button or a labeled field.
+- Controls for a row in a list, like removing it, show while it's hovered or focused, and always without hover, like the pane controls.
 - Use coss `Menu` on desktop and web for in-app command menus, including menus that mix choices and commands, such as the source switcher.
 - Keep the file icon in the source control and switcher even when a match or date replaces the filename. Show the original filename in the source control tooltip.
 - Context menus go through `AppContextMenu`, which uses coss menus on desktop and web. Don't pop up native menus, they don't match the app's styling. The dashboard's `…` button offers the same commands as right-click. The app menu bar on macOS stays native.

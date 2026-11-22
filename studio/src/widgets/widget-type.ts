@@ -107,7 +107,7 @@ export type WidgetProps = {
 	/**
 	 * Bound entries in the order they were bound. At least one of them has an entry, the widget isn't rendered otherwise,
 	 * unless its type is `rendersEmpty`.
-	 * Widgets are read-only, and follow the cursor with `useCursorTime()` or `subscribeTimeline()` from `@/timeline/timeline`.
+	 * Widgets are read-only, except the Tuning page's tuning widget, and follow the cursor with `useCursorTime()` or `subscribeTimeline()` from `@/timeline/timeline`.
 	 */
 	readonly bindings: readonly WidgetBinding[];
 	/** The value of each of the type's `options` by option ID: one of its choices' IDs, or a text option's text (empty when it isn't set) */

@@ -8,7 +8,7 @@ Define the behavior shared by every widget: binding entries by name, filtering b
 
 ### Requirement: Read-only widgets
 
-Widgets SHALL only display data and MUST NOT write to or modify any data source.
+Widgets SHALL only display data and MUST NOT write to or modify any data source. The only exception is the Tuning widget, which changes the robot's tunable values and is only shown on the Tuning page (see the tuning spec).
 
 #### Scenario: No editing
 

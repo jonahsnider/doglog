@@ -354,7 +354,7 @@ The entry browser SHALL mark groups that a known device or library logs (control
 
 #### Scenario: Tunable values
 
-- **GIVEN** the source has DogLog's tunable values in `/Tunables`, `/NT:/Tunables`, or `/Robot/Tunable` (DogLog releases before 2027)
+- **GIVEN** the source has DogLog's tunable values in `/Tunables` or `/NT:/Tunables`, or from DogLog releases before 2027, in `/Tunable`, `/NT:/Tunable`, or `/Robot/Tunable`
 - **THEN** the group's row shows a sliders icon
 
 ### Requirement: Edit a widget's entries
@@ -401,6 +401,18 @@ While editing a widget's entries, each entry the widget shows SHALL show a check
 - **THEN** the table shows `/Arm/Angle` and its row shows a checkmark instead of its type
 - **WHEN** the user clicks `/Arm/Angle` again
 - **THEN** the table stops showing it
+
+### Requirement: Toggle groups while editing
+
+While editing a widget's entries, each group that isn't an entry itself SHALL show a checkbox after its chevron, checked when the widget shows every entry in it and partly checked when it shows some. Checking it MUST bind every entry in the group, at any depth, that the widget accepts, and unchecking it MUST unbind them, as one change. Space on a focused group MUST toggle it too.
+
+#### Scenario: Bind a group
+
+- **GIVEN** the entry browser is editing a table's entries, and the source has `/Arm/Angle` and `/Arm/Wrist/Angle`
+- **WHEN** the user checks the `Arm` group
+- **THEN** the table shows both entries, and `Arm` is checked
+- **WHEN** the user unchecks `/Arm/Angle`
+- **THEN** `Arm` is partly checked
 
 ### Requirement: Toggle entries from search while editing
 

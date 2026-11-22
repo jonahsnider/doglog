@@ -16,10 +16,10 @@ export type KnownGroup = {
 };
 
 /**
- * Where DogLog's tunable values are: NetworkTables' `/Tunables` table, streamed or logged under `/NT:`, and
- * `/Robot/Tunable` from DogLog releases before 2027
+ * Where DogLog's tunable values are: NetworkTables' `/Tunables` table, streamed or logged under `/NT:`, and from DogLog
+ * releases before 2027, NetworkTables' `/Tunable` table and `/Robot/Tunable` in the robot's log
  */
-const tunablePaths = new Set(['/Tunables', '/NT:/Tunables', '/Robot/Tunable']);
+const tunablePaths = new Set(['/Tunables', '/NT:/Tunables', '/Tunable', '/NT:/Tunable', '/Robot/Tunable']);
 
 /** Where Team 581's Spot vision system publishes, and where its topics are logged from NetworkTables */
 const spotPaths = new Set(['/Spot', '/NT:/Spot']);

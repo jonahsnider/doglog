@@ -38,10 +38,10 @@ const sensors = [
 
 /**
  * Lets a pane be dragged by its title to move it beside another pane or into a new dashboard.
- * The only pane can still be dropped on the sidebar to move its dashboard.
+ * The only pane can still be dropped on the sidebar to move its dashboard. Panes that aren't `movable` can't be dragged.
  * Attach `dragRef` to the title and `dropRef` to the pane.
  */
-export function usePaneDrag(dashboardId: string, pane: Pane) {
+export function usePaneDrag(dashboardId: string, pane: Pane, movable: boolean) {
 	const exporting = useVideoExport() !== undefined;
 	const { ref: dragRef, isDragging } = useDraggable<PaneDragData>({
 		id: `pane-${pane.id}`,
@@ -49,7 +49,7 @@ export function usePaneDrag(dashboardId: string, pane: Pane) {
 		sensors,
 		data: { dashboardId, paneId: pane.id, widgetType: pane.widget?.type },
 		// Video export mode keeps the layout it previews
-		disabled: exporting,
+		disabled: exporting || !movable,
 	});
 	const { ref: dropRef, isDropTarget } = useDroppable<PaneDropData>({
 		id: `pane-drop-${pane.id}`,

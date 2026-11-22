@@ -6,8 +6,9 @@ import { shortcuts } from '@/commands/commands';
 import { PaneButton } from '@/panes/pane-button';
 import type { SplitDirection } from '@/panes/layout';
 
-/** Splitting is hidden while zoomed since it would restore the other panes */
+/** Splitting is hidden while zoomed since it would restore the other panes, and for panes that aren't `splittable` */
 export function PaneLayoutButtons({
+	splittable,
 	canSplitRight,
 	canSplitDown,
 	canZoom,
@@ -15,6 +16,7 @@ export function PaneLayoutButtons({
 	onSplit,
 	onZoom,
 }: {
+	splittable: boolean;
 	canSplitRight: boolean;
 	canSplitDown: boolean;
 	canZoom: boolean;
@@ -24,7 +26,7 @@ export function PaneLayoutButtons({
 }) {
 	return (
 		<>
-			{!zoomed && (
+			{splittable && !zoomed && (
 				<>
 					<PaneButton
 						label="Split right"

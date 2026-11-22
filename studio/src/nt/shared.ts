@@ -107,9 +107,9 @@ export function openSharedNt(host: string): NtClient {
 				}
 			};
 		},
-		publish(name, kind) {
+		publish(name, topicType) {
 			const request = nextId++;
-			send({ type: 'publish', client: id, request, name, kind });
+			send({ type: 'publish', client: id, request, name, topicType });
 			return new Promise((resolve, reject) => {
 				publishes.set(request, { resolve, reject });
 			});

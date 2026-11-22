@@ -6,11 +6,12 @@ import { WidgetButtons } from '@/panes/widget-buttons';
 import { PaneButton } from '@/panes/pane-button';
 import { PaneTitle } from '@/panes/pane-title';
 import { PaneLayoutButtons } from '@/panes/pane-layout-buttons';
+import { splitMenuItems } from '@/panes/split-menu';
 import { PaneDropIndicator } from '@/panes/pane-drop-indicator';
 import { Toolbar } from '@/components/ui/toolbar';
 import { WidgetView } from '@/panes/widget-view';
 import { shortcuts } from '@/commands/commands';
-import { closeDashboardPane, splitDashboardPane, toggleZoom, updateLayout } from '@/dashboards/panes';
+import { allowedActions, closeDashboardPane, splitDashboardPane, toggleZoom, updateLayout } from '@/dashboards/panes';
 import { focusPane } from '@/dashboards/pane-state';
 import { canCapture, copyImage } from '@/desktop/capture';
 import { useVideoExport } from '@/desktop/video-export';
@@ -32,7 +33,7 @@ import {
 import { cn } from '@/lib/utils';
 import { usePaneDrag } from '@/panes/drag';
 import { widgetMenuItems } from '@/panes/widget-menu';
-import { canSplitPane, type Pane, type PaneNode, setPaneWidget, type SplitDirection } from '@/panes/layout';
+import { type Pane, type PaneNode, setPaneWidget, type SplitDirection } from '@/panes/layout';
 import { getWidgetType, widgetTypes } from '@/widgets/registry';
 import { PanePresence } from '@/sharing/presence-avatars';
 import { initialOptions, optionValues } from '@/widgets/options';
@@ -59,8 +60,10 @@ export function PaneView({
 	zoomedPaneId,
 	zoomFillingPaneId,
 	pane,
-	closable,
+	closable: closableHere,
 }: PaneNodeProps & { pane: Pane; closable: boolean }) {
+	const allowed = allowedActions(dashboardId, pane.id);
+	const closable = closableHere && allowed.close;
 	const update = (operation: (layout: PaneNode) => PaneNode) => updateLayout(dashboardId, operation);
 	const { widget } = pane;
 	const type = widget && getWidgetType(widget.type);
@@ -72,7 +75,7 @@ export function PaneView({
 	/** The bindings when the context menu opened, so the ones removed from it stay listed and can be restored */
 	const [menuBindings, setMenuBindings] = useState<Binding[]>();
 	const options = useMemo(() => (type ? optionValues(type, widget, bindings) : {}), [type, widget, bindings]);
-	const { dragRef, isDragging, dropRef, isDropTarget } = usePaneDrag(dashboardId, pane);
+	const { dragRef, isDragging, dropRef, isDropTarget } = usePaneDrag(dashboardId, pane, allowed.move);
 	// Video export mode keeps the layout it previews, widgets stay usable
 	const exporting = useVideoExport() !== undefined;
 
@@ -83,8 +86,6 @@ export function PaneView({
 	const changeWidget = (newType: WidgetType) =>
 		update((layout) => changeWidgetType(layout, pane.id, newType, getEntry));
 	const split = (direction: SplitDirection) => splitDashboardPane(dashboardId, pane.id, direction);
-	const canSplitRight = canSplitPane(dashboardLayout, pane.id, 'row');
-	const canSplitDown = canSplitPane(dashboardLayout, pane.id, 'column');
 	const close = () => closeDashboardPane(dashboardId, pane.id);
 	const focused = pane.id === focusedPaneId;
 	const zoomed = pane.id === zoomedPaneId;
@@ -142,18 +143,7 @@ export function PaneView({
 		const listedLabels = type ? resolveBindings(type, listed, getEntry).map((binding) => bindingLabel(binding)) : [];
 		const boundIds = new Set(bindings.map((binding) => binding.id));
 		return [
-			{
-				label: 'Split right',
-				shortcut: shortcuts.splitRight,
-				disabled: !canSplitRight,
-				onSelect: () => split('row'),
-			},
-			{
-				label: 'Split down',
-				shortcut: shortcuts.splitDown,
-				disabled: !canSplitDown,
-				onSelect: () => split('column'),
-			},
+			...splitMenuItems(allowed, split),
 			{
 				label: zoomed ? 'Restore pane' : 'Zoom pane',
 				shortcut: shortcuts.zoom,
@@ -163,6 +153,7 @@ export function PaneView({
 			'separator',
 			{
 				label: widget === undefined ? 'Add widget' : 'Change widget',
+				disabled: !allowed.changeWidget,
 				items: widgetTypes.map((other) => ({
 					label: other.name,
 					accessKey: other.hotkey,
@@ -244,6 +235,7 @@ export function PaneView({
 				<span className="flex min-w-0 flex-1">
 					<PaneTitle
 						dragRef={dragRef}
+						movable={allowed.move}
 						isDragging={isDragging}
 						type={type}
 						name={type ? widgetTitle(type, options) : widget?.type}
@@ -269,8 +261,9 @@ export function PaneView({
 						/>
 					)}
 					<PaneLayoutButtons
-						canSplitRight={canSplitRight}
-						canSplitDown={canSplitDown}
+						splittable={allowed.splittable}
+						canSplitRight={allowed.splitRight}
+						canSplitDown={allowed.splitDown}
 						canZoom={dashboardLayout.kind === 'split'}
 						zoomed={zoomed}
 						onSplit={split}

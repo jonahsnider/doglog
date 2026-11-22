@@ -20,6 +20,7 @@ import { TooltipLabel } from '@/components/tooltip-label';
 import { shortcuts } from '@/commands/commands';
 import { isEnterKey } from '@/lib/keyboard';
 import type { Dashboard } from '@/dashboards/dashboards';
+import { DashboardIdContext } from '@/dashboards/panes';
 import { type Entry, useEntries } from '@/data/data-store';
 import { useSource } from '@/data/source';
 import { useVideoExport } from '@/desktop/video-export';
@@ -75,7 +76,7 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 	}
 
 	return (
-		<>
+		<DashboardIdContext value={dashboard.id}>
 			<Separator
 				aria-label="Resize entry browser"
 				disabled={exporting}
@@ -127,7 +128,7 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 					<EntryTree edited={edited} />
 				</aside>
 			</Panel>
-		</>
+		</DashboardIdContext>
 	);
 }
 
@@ -224,7 +225,7 @@ function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 							// Binds or unbinds the first match, even if its group is collapsed
 							const first = results.highlights && results.rows.find((row) => row.item.entry)?.item.entry;
 							if (isEnterKey(event) && edited && first) {
-								edited.setBound(first.name, !edited.bound.includes(first.name));
+								edited.setBound([first.name], !edited.bound.includes(first.name));
 							}
 						}}
 					/>

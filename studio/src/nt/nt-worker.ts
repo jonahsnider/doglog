@@ -1,5 +1,5 @@
 // Shares NT4 connections between tabs and windows, see `openNt()`
-import type { NtClient, NtSubscribeOptions, NtTopic, NtValue } from '@/nt/client';
+import type { NtClient, NtPublishType, NtSubscribeOptions, NtTopic, NtValue } from '@/nt/client';
 import { openLocalNt } from '@/nt/local';
 
 /** Sent by `shared.ts`. IDs are chosen by the tab or window, and only unique within it. */
@@ -9,8 +9,8 @@ export type NtWorkerRequest =
 	| { type: 'open'; client: number; host: string }
 	| { type: 'subscribe'; client: number; subscription: number; prefix: string; options: NtSubscribeOptions }
 	| { type: 'unsubscribe'; client: number; subscription: number }
-	| { type: 'publish'; client: number; request: number; name: string; kind: 'raw' | 'string' }
-	| { type: 'set'; client: number; name: string; value: string | Uint8Array }
+	| { type: 'publish'; client: number; request: number; name: string; topicType: NtPublishType }
+	| { type: 'set'; client: number; name: string; value: NtValue }
 	| { type: 'unpublish'; client: number; name: string }
 	| { type: 'close'; client: number };
 
@@ -91,7 +91,7 @@ addEventListener('connect', (event) => {
 				subscriptions.delete(request.subscription);
 				break;
 			case 'publish':
-				nt.publish(request.name, request.kind).then(
+				nt.publish(request.name, request.topicType).then(
 					() => send({ type: 'published', request: request.request }),
 					(error: unknown) => send({ type: 'published', request: request.request, error: String(error) }),
 				);

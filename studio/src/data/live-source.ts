@@ -1,6 +1,7 @@
 import { StructRegistry } from 'wpilib-struct';
 import type { DataSet } from '@/data/data-set';
 import { type Entry, liveTime, parseMetadata } from '@/data/data-store';
+import { setLiveConnection } from '@/data/live-connection';
 import type { LiveRecording } from '@/data/recording';
 import { isSchemaEntry, isStudioEntry, normalizeEntryName, type Value } from '@/data/samples';
 import type { NtClient, NtValue } from '@/nt/client';
@@ -26,6 +27,7 @@ export function connectLive(
 	recording: LiveRecording,
 	onStatus: (status: Exclude<LiveStatus, 'disconnected'>) => void,
 ): () => void {
+	setLiveConnection(nt);
 	const structs = new StructRegistry();
 	// Struct values that arrived before their schema
 	let pendingStructs: { entry: Entry; timestamp: number; bytes: Uint8Array }[] = [];
@@ -191,6 +193,7 @@ export function connectLive(
 
 	return () => {
 		closed = true;
+		setLiveConnection(undefined);
 		if (connected) {
 			data.disconnect(liveTime());
 		}
