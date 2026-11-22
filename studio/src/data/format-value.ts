@@ -2,7 +2,7 @@ import type { Value } from '@/data/samples';
 
 type Formattable = Value | bigint | undefined | Formattable[] | { [key: string]: Formattable };
 
-/** Format a value compactly for display, ex. `1.23457`, `[1, 2]`, or `{x: 1, y: 2}` */
+/** Format a value compactly for display, ex. `1.23457`, `[1, 2]`, or `x: 1, y: 2` */
 export function formatValue(value: Formattable): string {
 	switch (typeof value) {
 		case 'number':
@@ -19,15 +19,19 @@ export function formatValue(value: Formattable): string {
 				return `[${value.map((item) => formatNested(item)).join(', ')}]`;
 			}
 
-			return `{${Object.entries(value)
+			return Object.entries(value)
 				.map(([key, field]) => `${key}: ${formatNested(field)}`)
-				.join(', ')}}`;
+				.join(', ');
 	}
 }
 
-/** Strings inside arrays and structs are quoted so commas in them stay readable */
+/** Strings inside arrays and structs are quoted so commas in them stay readable, and structs are braced so their fields stay grouped */
 function formatNested(value: Formattable): string {
-	return typeof value === 'string' ? JSON.stringify(value) : formatValue(value);
+	if (typeof value === 'string') {
+		return JSON.stringify(value);
+	}
+
+	return typeof value === 'object' && !Array.isArray(value) ? `{${formatValue(value)}}` : formatValue(value);
 }
 
 /** Format a value for the clipboard, JSON except plain strings which aren't quoted */
