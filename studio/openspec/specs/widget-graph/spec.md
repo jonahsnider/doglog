@@ -77,6 +77,11 @@ Each discrete entry SHALL show its name above a row with a band per period of un
 - **GIVEN** `/Vision/HasTarget` flickers 12 times within one pixel
 - **THEN** that pixel is hatched, and hovering it says "12 changes"
 
+#### Scenario: Narrow boolean band
+
+- **GIVEN** `/Intake/HasGamePiece` is true for a band too narrow to fit "true"
+- **THEN** the band is labeled "t"
+
 ### Requirement: Band colors
 
 String values SHALL use colors whose hues are spaced evenly around the hue wheel starting from the theme color's hue (Tailwind's blue for the Neutral preset). True uses the theme's success color, and false uses a near-gray tinted with the theme color. Band colors MUST share one lightness that keeps black value labels readable on every band in both light and dark variants.

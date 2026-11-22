@@ -160,9 +160,12 @@ export function drawBands(
 			context.fillStyle = bandColor(assignments, palette, entry, value);
 			// A 1px gap separates neighboring bands, in case two values share a color
 			context.fillRect(left, y, bandWidth > 2 ? bandWidth - 1 : bandWidth, bandHeight);
-			if (bandWidth > 24) {
-				const text = formatValue(value);
-				if (context.measureText(text).width + 8 <= bandWidth) {
+			if (bandWidth > 12) {
+				// Booleans shorten to t or f when true or false doesn't fit
+				const text = [formatValue(value), ...(typeof value === 'boolean' ? [value ? 't' : 'f'] : [])].find(
+					(label) => context.measureText(label).width + 8 <= bandWidth,
+				);
+				if (text !== undefined) {
 					context.fillStyle = bandTextColor;
 					context.fillText(text, left + 4, y + bandHeight / 2);
 				}
