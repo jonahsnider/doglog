@@ -13,7 +13,7 @@ import { WidgetBindingsContext } from '@/entries/drag';
 import { startEditing } from '@/entries/editing';
 import { tuningDashboardId } from '@/tuning/dashboard';
 import { ArrayTunable } from '@/tuning/array-tunable';
-import { type Editing, ScalarRow, SectionHeading } from '@/tuning/tunable-rows';
+import { type Editing, Notes, ScalarRow, SectionHeading } from '@/tuning/tunable-rows';
 import {
 	applyTunables,
 	committedDraft,
@@ -32,7 +32,8 @@ import type { WidgetBinding, WidgetProps } from '@/widgets/widget-type';
 
 const applyShortcut = 'Mod+Enter';
 
-type Staged = Readonly<Record<string, TunableValue>>;
+/** Staged values, with the robot's value when each was staged */
+type Staged = Readonly<Record<string, { value: TunableValue; base: TunableValue | undefined }>>;
 
 function without<T>(record: Readonly<Record<string, T>>, key: string): Readonly<Record<string, T>> {
 	const { [key]: _, ...rest } = record;
@@ -42,7 +43,8 @@ function without<T>(record: Readonly<Record<string, T>>, key: string): Readonly<
 /** Stage a value, or unstage it if it's what the robot has */
 function stage(current: Staged, tunable: Tunable, value: TunableValue): Staged {
 	const rest = without(current, tunable.entry.name);
-	return sameTunableValue(value, currentValue(tunable)) ? rest : { ...rest, [tunable.entry.name]: value };
+	const base = currentValue(tunable);
+	return sameTunableValue(value, base) ? rest : { ...rest, [tunable.entry.name]: { value, base } };
 }
 
 function showApplyError(error: unknown): void {
@@ -124,6 +126,22 @@ function Tunables({ bindings, status }: Pick<WidgetProps, 'bindings'> & { status
 	const formatForDisplay = useFormatForDisplay();
 
 	const [staged, setStaged] = useState<Staged>({});
+	// Values the robot already has, ex. someone else applied them, aren't staged anymore
+	const settled = tunables.filter((tunable) => {
+		const value = staged[tunable.entry.name]?.value;
+		return value !== undefined && sameTunableValue(value, currentValue(tunable));
+	});
+	if (settled.length > 0) {
+		setStaged(settled.reduce((rest, { entry }) => without(rest, entry.name), staged));
+	}
+	const stagedValues = Object.fromEntries(Object.entries(staged).map(([name, { value }]) => [name, value]));
+	// Staged values the robot's value changed under, ex. someone else applied another value
+	const stale = new Set(
+		tunables.flatMap((tunable) => {
+			const { name } = tunable.entry;
+			return name in staged && !sameTunableValue(staged[name]!.base, currentValue(tunable)) ? [name] : [];
+		}),
+	);
 	// What's typed in each field, staged as soon as it's a valid value
 	const [drafts, setDrafts] = useState<Readonly<Record<string, Draft>>>({});
 	const [applying, setApplying] = useState(false);
@@ -135,7 +153,8 @@ function Tunables({ bindings, status }: Pick<WidgetProps, 'bindings'> & { status
 	});
 
 	const editing: Editing = {
-		staged,
+		staged: stagedValues,
+		stale,
 		drafts,
 		previous,
 		edit: (tunable, draft) => {
@@ -179,7 +198,7 @@ function Tunables({ bindings, status }: Pick<WidgetProps, 'bindings'> & { status
 			return;
 		}
 		setApplying(true);
-		void applyTunables(tunables, staged)
+		void applyTunables(tunables, stagedValues)
 			.then(applied, showApplyError)
 			.finally(() => setApplying(false));
 	};
@@ -234,18 +253,19 @@ function Tunables({ bindings, status }: Pick<WidgetProps, 'bindings'> & { status
 			<div className="flex shrink-0 items-center gap-2 px-3 py-2">
 				<span className="flex flex-1 items-center gap-1.5 text-xs text-muted-foreground tabular-nums">
 					{status === 'reconnecting' && <Spinner className="size-3" />}
-					{[
-						stagedCount > 0 && `${stagedCount} staged`,
-						!connected && (status === 'reconnecting' ? 'Reconnecting' : 'Disconnected'),
-					]
-						.filter(Boolean)
-						.join(', ')}
+					<Notes
+						notes={[
+							stagedCount > 0 && { text: `${stagedCount} staged` },
+							stale.size > 0 && { text: `${stale.size} changed`, warning: true },
+							!connected && { text: status === 'reconnecting' ? 'Reconnecting' : 'Disconnected' },
+						]}
+					/>
 				</span>
 				<Button variant="ghost" size="sm" disabled={stagedCount === 0 && !hasInvalid} onClick={discard}>
 					Discard
 				</Button>
 				<Button size="sm" disabled={stagedCount === 0 || applying || !connected} onClick={apply}>
-					Apply
+					{stale.size > 0 ? 'Apply anyway' : 'Apply'}
 					<Kbd>{formatForDisplay(applyShortcut)}</Kbd>
 				</Button>
 			</div>

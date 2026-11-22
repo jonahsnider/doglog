@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectItem, SelectPopup, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { type Editing, rowClassName, SectionHeading, ValueField } from '@/tuning/tunable-rows';
+import { type Editing, Notes, rowClassName, SectionHeading, ValueField } from '@/tuning/tunable-rows';
 import {
 	arrayLayouts,
 	currentValue,
@@ -50,11 +50,6 @@ export function ArrayTunable({
 	const size = rowSize(layout);
 	// The first field of the row just added, focused once it's shown
 	const [added, setAdded] = useState<number>();
-	// No unit, its name's is usually only one column's, ex. a distance to RPM map
-	const notes = [
-		texts.length % size !== 0 && `${texts.length} values aren't whole ${layout?.label.toLowerCase()}`,
-		name in previous && `was ${formatTunableValue(previous[name], { rounded: true })}`,
-	].filter(Boolean);
 
 	const rows: number[] = [];
 	for (let start = 0; start < texts.length; start += size) {
@@ -65,9 +60,17 @@ export function ArrayTunable({
 	return (
 		<section>
 			<SectionHeading table={tunable.table === '' ? tunable.label : `${tunable.table}/${tunable.label}`} title={name}>
-				<span className="truncate font-mono text-xs font-normal text-muted-foreground tabular-nums">
-					{notes.join(', ')}
-				</span>
+				{/* No unit, its name's is usually only one column's, ex. a distance to RPM map */}
+				<Notes
+					className="truncate font-mono text-xs font-normal text-muted-foreground tabular-nums"
+					notes={[
+						texts.length % size !== 0 && {
+							text: `${texts.length} values aren't whole ${layout?.label.toLowerCase()}`,
+						},
+						editing.stale.has(name) && { text: 'changed since staged', warning: true },
+						name in previous && { text: `was ${formatTunableValue(previous[name], { rounded: true })}` },
+					]}
+				/>
 				<Select
 					items={arrayLayouts.map(({ id, label }) => ({ value: id, label }))}
 					value={layout?.id ?? arrayLayouts[0].id}

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { Fragment, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { inferUnit } from '@/data/units';
@@ -20,6 +20,8 @@ import {
 /** The tuning widget's staged values and drafts, and how to change them */
 export type Editing = {
 	staged: Readonly<Record<string, TunableValue>>;
+	/** Staged values the robot's value changed under since they were staged */
+	stale: ReadonlySet<string>;
 	drafts: Readonly<Record<string, Draft>>;
 	/** Values before they were last applied, see `previousStore` */
 	previous: Readonly<Record<string, TunableValue>>;
@@ -30,6 +32,25 @@ export type Editing = {
 };
 
 export const rowClassName = 'h-8 items-center gap-2 rounded-md px-1.5 hover:bg-foreground/8';
+
+type Note = { text: string; warning?: boolean };
+
+/** Notes about a value or the widget, separated by commas, `false` ones are left out */
+export function Notes({ notes, className }: { notes: readonly (Note | false)[]; className?: string }) {
+	return (
+		<span className={className}>
+			{notes
+				.filter((note) => note !== false)
+				.map((note, index) => (
+					<Fragment key={note.text}>
+						{index > 0 && ', '}
+						<span className={cn(note.warning === true && 'text-warning-foreground')}>{note.text}</span>
+					</Fragment>
+				))}
+		</span>
+	);
+}
+
 const inputClassName = 'font-mono [&_input]:text-end [&_input]:tabular-nums';
 
 /**
@@ -128,17 +149,23 @@ export function ScalarRow({ tunable, editing }: { tunable: Tunable; editing: Edi
 	const value = parseTunableValue(tunable, text);
 	const unit =
 		tunable.scalarType === 'string' || tunable.scalarType === 'boolean' ? undefined : inferUnit(tunable.entry);
-	const notes = [
-		isExpression(tunable, text, value) && `= ${formatTunableValue(value, { rounded: true })}`,
-		isStaged && `applied ${formatTunableValue(current, { rounded: true })}`,
-		name in previous && `was ${formatTunableValue(previous[name], { rounded: true })}`,
-	].filter(Boolean);
+	const applied = formatTunableValue(current, { rounded: true });
 	return (
 		<div className={cn('grid grid-cols-[minmax(0,1fr)_auto_7.5rem_3.75rem]', rowClassName)}>
 			<span className="truncate text-sm" title={name}>
 				{tunable.label}
 			</span>
-			<span className="font-mono text-xs text-muted-foreground tabular-nums">{notes.join(', ')}</span>
+			<Notes
+				className="font-mono text-xs text-muted-foreground tabular-nums"
+				notes={[
+					isExpression(tunable, text, value) && { text: `= ${formatTunableValue(value, { rounded: true })}` },
+					isStaged &&
+						(editing.stale.has(name)
+							? { text: `changed to ${applied}`, warning: true }
+							: { text: `applied ${applied}` }),
+					name in previous && { text: `was ${formatTunableValue(previous[name], { rounded: true })}` },
+				]}
+			/>
 			<ValueField
 				tunable={tunable}
 				editing={editing}

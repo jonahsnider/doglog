@@ -150,6 +150,24 @@ Values SHALL be staged as soon as what's typed is valid for their type, and stay
 - **WHEN** the user clicks Discard
 - **THEN** the field shows kP's value again
 
+### Requirement: Changes on the robot
+
+When a staged value's robot value changes, ex. someone else applied it, the value MUST be unstaged if the robot now has it. Otherwise it MUST stay staged, marked as changed with the robot's new value, the widget MUST say how many values changed since they were staged, and Apply SHALL say it applies anyway until they're staged again or unstaged.
+
+#### Scenario: Someone else applies the same value
+
+- **GIVEN** Elevator kP is 8, and the user stages 12
+- **WHEN** another user applies 12 for kP
+- **THEN** kP isn't staged anymore
+
+#### Scenario: Someone else applies another value
+
+- **GIVEN** Elevator kP is 8, and the user stages 12
+- **WHEN** another user applies 15 for kP
+- **THEN** kP is still staged as 12, marked as changed to 15, and Apply says Apply anyway
+- **WHEN** the user types 13 for kP
+- **THEN** kP is staged as 13 and isn't marked as changed
+
 ### Requirement: Number input
 
 Numbers MAY be typed as arithmetic with `+ - * /` and parentheses, computed exactly until the result, and with a unit after a number that's converted to the value's unit, ex. `5 ft` for a length in meters. The result SHALL be shown beside the field until Enter or leaving the field replaces what's typed with it. A fraction, ex. `2/3`, MUST stay as it's typed, also once it's applied, until the value changes another way.
