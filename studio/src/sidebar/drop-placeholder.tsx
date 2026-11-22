@@ -40,14 +40,15 @@ export function DropPlaceholder({
 		>
 			<div
 				className={cn(
-					'flex h-8 items-center gap-2 overflow-hidden rounded-md border border-dashed px-2 text-sm whitespace-nowrap [&>svg]:size-4 [&>svg]:shrink-0',
+					// Matches the dashboards' buttons when the sidebar only shows icons
+					'flex h-8 items-center gap-2 overflow-hidden rounded-md border border-dashed px-2 text-sm whitespace-nowrap group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 [&>svg]:size-4 [&>svg]:shrink-0',
 					active
 						? 'border-sidebar-primary bg-sidebar-primary/10 text-sidebar-primary'
 						: 'border-outline text-muted-foreground',
 				)}
 			>
 				<Icon />
-				<span>{label}</span>
+				<span className="group-data-[collapsible=icon]:hidden">{label}</span>
 			</div>
 		</MotionSidebarMenuItem>
 	);
