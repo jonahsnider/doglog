@@ -3,17 +3,14 @@ import { cn } from '@/lib/utils';
 import type { ControllerButton, ControllerState } from '@/widgets/controller/data';
 import { type LayoutShape, type Point, width } from '@/widgets/controller/layouts';
 
-/** A trigger's front, wider at its rounded top, leaning outward from its pivot behind the bumper */
+/** The top of a trigger, peeking out above the bumper like it does when looking at a controller's front */
 const trigger = {
-	path: 'M 70 50 L 66 16 C 65 9 70 4 78 4 L 106 4 C 114 4 119 9 118 16 L 114 50 Z',
-	pivot: [92, 48] as Point,
-	lean: -8,
-	top: 4,
-	/** Where the bumper covers the whole width of the trigger, the bottom of its fill */
-	visibleBottom: 46,
-	/** How far a trigger moves down when it's pressed all the way */
-	travel: 5,
-	labelHeight: 25,
+	path: 'M 68 60 C 67 40 78 26 98 25 C 118 24 131 34 132 48 L 130 60 Z',
+	/** The trigger's outer and inner ends, its fill grows from the outer end as it's pressed */
+	outer: 67,
+	inner: 132,
+	top: 24,
+	label: [99, 16] as Point,
 };
 const bumper = {
 	// The top edge shows above the body's shoulder, the rest is tucked behind the body
@@ -34,6 +31,8 @@ const dpadWell = 31;
 const raised = 'fill-surface-bright stroke-border';
 const recessed = 'fill-frame stroke-border';
 const pressedFill = 'fill-primary stroke-primary';
+/** Draws the left side's shoulder controls on the right */
+const mirror = `matrix(-1 0 0 1 ${width} 0)`;
 const glyphColor = (pressed: boolean) => (pressed ? 'stroke-primary-foreground' : 'stroke-muted-foreground');
 
 const faceButtons: readonly (readonly [ControllerButton, Point])[] = [
@@ -196,45 +195,33 @@ export function Shoulder({
 }) {
 	const clipId = useId();
 	const pressed = Math.min(1, Math.max(0, value));
-	const fillTop = trigger.visibleBottom - pressed * (trigger.visibleBottom - trigger.top);
-	const travel = pressed * trigger.travel;
-	const [pivotX, pivotY] = trigger.pivot;
 	// Labels are placed after mirroring so their text isn't flipped
 	const labelX = (left: number) => (side === 'left' ? left : width - left);
-	const lean = (trigger.lean * Math.PI) / 180;
 	return (
 		<g>
-			<g transform={side === 'left' ? undefined : `matrix(-1 0 0 1 ${width} 0)`}>
-				<g transform={`translate(0 ${travel}) rotate(${trigger.lean} ${pivotX} ${pivotY})`}>
-					<clipPath id={clipId}>
-						<path d={trigger.path} />
-					</clipPath>
-					<path d={trigger.path} strokeLinejoin="round" className="fill-muted stroke-border" />
-					{pressed > 0 && (
-						<rect
-							x={pivotX - 30}
-							y={fillTop}
-							width={60}
-							height={pivotY + 4 - fillTop}
-							clipPath={`url(#${clipId})`}
-							className="fill-primary"
-						/>
-					)}
-					<path d={trigger.path} strokeLinejoin="round" className="fill-none stroke-border" />
-				</g>
+			<g transform={side === 'left' ? undefined : mirror}>
+				<clipPath id={clipId}>
+					<path d={trigger.path} />
+				</clipPath>
+				<path d={trigger.path} strokeLinejoin="round" className="fill-muted stroke-border" />
+				{pressed > 0 && (
+					<rect
+						x={trigger.outer}
+						y={trigger.top}
+						width={pressed * (trigger.inner - trigger.outer)}
+						height={36}
+						clipPath={`url(#${clipId})`}
+						className="fill-primary"
+					/>
+				)}
+				<path d={trigger.path} strokeLinejoin="round" className="fill-none stroke-border" />
 				<path
 					d={bumper.path}
 					strokeLinejoin="round"
 					className={bumperPressed ? pressedFill : 'fill-muted stroke-border'}
 				/>
 			</g>
-			<Label
-				at={[
-					labelX(pivotX + Math.sin(lean) * trigger.labelHeight),
-					pivotY - Math.cos(lean) * trigger.labelHeight + travel,
-				]}
-				pressed={pressed >= 0.6}
-			>
+			<Label at={[labelX(trigger.label[0]), trigger.label[1]]} pressed={false} size={9}>
 				{triggerLabel}
 			</Label>
 			<Label at={[labelX(bumper.label[0]), bumper.label[1]]} pressed={bumperPressed} size={8}>
