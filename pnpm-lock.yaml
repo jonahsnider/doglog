@@ -368,8 +368,8 @@ importers:
         specifier: 0.187.0
         version: 0.187.0
       three-mesh-bvh:
-        specifier: 0.8.3
-        version: 0.8.3(@types/three@0.187.0)(three@0.187.0)
+        specifier: 0.9.18
+        version: 0.9.18(@types/three@0.187.0)(three@0.187.0)
       torph:
         specifier: 0.1.4
         version: 0.1.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -8673,6 +8673,12 @@ packages:
 
   three-mesh-bvh@0.8.3:
     resolution: {integrity: sha512-4G5lBaF+g2auKX3P0yqx+MJC6oVt6sB5k+CchS6Ob0qvH0YIhuUk1eYr7ktsIpY+albCqE80/FVQGV190PmiAg==}
+    peerDependencies:
+      '@types/three': '*'
+      three: '>= 0.159.0'
+
+  three-mesh-bvh@0.9.18:
+    resolution: {integrity: sha512-S76hOBnsSG4jsuEyCu98K63klONG4NwJANabPY1LUD5l7oUgu2xtKC0IwnX/XyPzo4YZ1D7ZU+gHVA479UdQmA==}
     peerDependencies:
       '@types/three': '*'
       three: '>= 0.159.0'
@@ -18297,6 +18303,11 @@ snapshots:
       source-map-support: 0.5.21
 
   three-mesh-bvh@0.8.3(@types/three@0.187.0)(three@0.187.0):
+    dependencies:
+      '@types/three': 0.187.0
+      three: 0.187.0
+
+  three-mesh-bvh@0.9.18(@types/three@0.187.0)(three@0.187.0):
     dependencies:
       '@types/three': 0.187.0
       three: 0.187.0
