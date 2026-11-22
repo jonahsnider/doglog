@@ -1,34 +1,17 @@
 import { useFormatForDisplay } from '@tanstack/react-hotkeys';
-import { LogicalPosition } from '@tauri-apps/api/dpi';
 import EllipsisIcon from 'lucide-react/icons/ellipsis';
 import { useState } from 'react';
 import type { MenuAction } from '@/components/app-context-menu';
 import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuShortcut, MenuTrigger } from '@/components/ui/menu';
 import { SidebarMenuAction } from '@/components/ui/sidebar';
-import { popUpNativeMenu } from '@/desktop/native-menu';
 
 type DashboardOptionsProps = {
 	items: readonly (MenuAction | 'separator')[];
 	hidden: boolean;
 };
 
-function NativeDashboardOptions({ items, hidden }: DashboardOptionsProps) {
-	return (
-		<SidebarMenuAction
-			showOnHover
-			className={hidden ? 'invisible' : undefined}
-			onClick={(event) => {
-				const rect = event.currentTarget.getBoundingClientRect();
-				void popUpNativeMenu(items, new LogicalPosition(rect.right, rect.top));
-			}}
-		>
-			<EllipsisIcon />
-			<span className="sr-only">Dashboard options</span>
-		</SidebarMenuAction>
-	);
-}
-
-function WebDashboardOptions({ items, hidden }: DashboardOptionsProps) {
+/** The dashboard's context menu, opened from its `…` button */
+export function DashboardOptions({ items, hidden }: DashboardOptionsProps) {
 	const [open, setOpen] = useState(false);
 	const formatForDisplay = useFormatForDisplay();
 
@@ -65,6 +48,3 @@ function WebDashboardOptions({ items, hidden }: DashboardOptionsProps) {
 		</Menu>
 	);
 }
-
-/** The dashboard's context menu, as a native menu in the desktop app */
-export const DashboardOptions = STUDIO_DESKTOP ? NativeDashboardOptions : WebDashboardOptions;

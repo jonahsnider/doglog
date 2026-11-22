@@ -2,7 +2,6 @@ mod agent;
 #[cfg(any(target_os = "macos", windows))]
 mod capture;
 mod cli;
-mod context_menu;
 mod live_export;
 #[cfg(desktop)]
 mod mcp_install;
@@ -238,7 +237,6 @@ pub fn run() -> ExitCode {
             video::finish_video,
             #[cfg(any(target_os = "macos", windows))]
             video::cancel_video,
-            context_menu::popup_menu,
             live_export::save_live_export,
             new_window::new_window,
             recent_logs::note_recent_log,

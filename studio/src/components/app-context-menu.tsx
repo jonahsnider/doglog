@@ -1,6 +1,5 @@
-import { useRender } from '@base-ui/react/use-render';
 import { type HotkeyChord, useFormatForDisplay } from '@tanstack/react-hotkeys';
-import { type MouseEvent, type ReactElement, type ReactNode, useState } from 'react';
+import { type ReactElement, type ReactNode, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 import {
 	ContextMenu,
@@ -14,7 +13,6 @@ import {
 	ContextMenuSubTrigger,
 	ContextMenuTrigger,
 } from '@/components/ui/context-menu';
-import { popUpNativeMenu } from '@/desktop/native-menu';
 
 export type MenuAction = {
 	label: string;
@@ -22,12 +20,11 @@ export type MenuAction = {
 	/** A single key that selects the item while its submenu is open, ex. `S` */
 	accessKey?: string;
 	disabled?: boolean;
-	/** Only styled on the web */
 	destructive?: boolean;
 	onSelect: () => void;
 };
 
-/** Toggling it keeps the menu open on the web, native menus close */
+/** Toggling it keeps the menu open */
 export type MenuCheckbox = {
 	label: string;
 	checked: boolean;
@@ -50,7 +47,6 @@ type AppContextMenuProps = {
 	children?: ReactNode;
 	/** Shows the browser's own context menu instead */
 	disabled?: boolean;
-	/** Only called on the web, native menus can't change while they're open */
 	onOpenChange?: (open: boolean) => void;
 };
 
@@ -85,7 +81,7 @@ function AccessKeys({ items, close }: { items: readonly MenuEntry[]; close: () =
 	return null;
 }
 
-function WebMenuEntries({ items, close }: { items: readonly MenuEntry[]; close: () => void }) {
+function MenuEntries({ items, close }: { items: readonly MenuEntry[]; close: () => void }) {
 	const formatForDisplay = useFormatForDisplay();
 
 	return items.map((item, index, all) => {
@@ -100,7 +96,7 @@ function WebMenuEntries({ items, close }: { items: readonly MenuEntry[]; close: 
 					<ContextMenuSubTrigger disabled={item.disabled ?? false}>{item.label}</ContextMenuSubTrigger>
 					<ContextMenuSubPopup>
 						<AccessKeys items={item.items} close={close} />
-						<WebMenuEntries items={item.items} close={close} />
+						<MenuEntries items={item.items} close={close} />
 					</ContextMenuSubPopup>
 				</ContextMenuSub>
 			);
@@ -132,7 +128,8 @@ function WebMenuEntries({ items, close }: { items: readonly MenuEntry[]; close: 
 	});
 }
 
-function WebContextMenu({ items, render, children, disabled = false, onOpenChange }: AppContextMenuProps) {
+/** A right-click menu for `render` */
+export function AppContextMenu({ items, render, children, disabled = false, onOpenChange }: AppContextMenuProps) {
 	const [target, setTarget] = useState<Element>();
 	const [open, setOpen] = useState(false);
 	const changeOpen = (newOpen: boolean) => {
@@ -150,33 +147,8 @@ function WebContextMenu({ items, render, children, disabled = false, onOpenChang
 				{children}
 			</ContextMenuTrigger>
 			<ContextMenuPopup align="start" side="bottom" sideOffset={0}>
-				<WebMenuEntries items={typeof items === 'function' ? (target ? items(target) : []) : items} close={close} />
+				<MenuEntries items={typeof items === 'function' ? (target ? items(target) : []) : items} close={close} />
 			</ContextMenuPopup>
 		</ContextMenu>
 	);
 }
-
-function NativeContextMenu({ items, render, children, disabled = false }: AppContextMenuProps) {
-	return useRender({
-		render,
-		props: {
-			children,
-			onContextMenu: (event: MouseEvent) => {
-				if (disabled) {
-					return;
-				}
-
-				event.preventDefault();
-				event.stopPropagation();
-				void popUpNativeMenu(
-					typeof items === 'function'
-						? items(event.target instanceof Element ? event.target : event.currentTarget)
-						: items,
-				);
-			},
-		},
-	});
-}
-
-/** A right-click menu for `render`, a native menu in the desktop app and a coss menu on the web */
-export const AppContextMenu = STUDIO_DESKTOP ? NativeContextMenu : WebContextMenu;

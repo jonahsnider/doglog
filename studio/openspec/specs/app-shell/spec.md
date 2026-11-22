@@ -289,37 +289,28 @@ The macOS desktop app SHALL draw the window controls over the top of the sidebar
 
 ### Requirement: Context menus
 
-Context menus SHALL be shown as native operating system menus in the desktop app and as in-app menus on the web, with the same items on both.
+Context menus SHALL be shown as in-app menus, in the desktop app and on the web, so they match the rest of the app.
 
-#### Scenario: Desktop context menu
+#### Scenario: Context menu
 
-- **GIVEN** the user is using the desktop app
 - **WHEN** the user right-clicks a dashboard in the sidebar
-- **THEN** a native menu is shown
+- **THEN** an in-app menu is shown
 
-#### Scenario: Desktop dashboard options menu
+#### Scenario: Dashboard options menu
 
-- **GIVEN** the user is using the desktop app
 - **WHEN** the user clicks a dashboard's options button in the sidebar
-- **THEN** the same native menu is shown beside the button
-
-#### Scenario: Web context menu
-
-- **GIVEN** the user is using the web app
-- **WHEN** the user right-clicks a dashboard in the sidebar
-- **THEN** an in-app menu with the same items is shown
+- **THEN** the same menu is shown beside the button
 
 ### Requirement: Menu items are text only
 
-Items in context menus and dropdown menus SHALL NOT show icons, so in-app menus match native menus and stay easy to scan.
+Items in context menus and dropdown menus SHALL NOT show icons, so they stay easy to scan.
 
 #### Scenario: Open a dropdown menu
 
 - **WHEN** the user opens the dashboard options menu in the sidebar
 - **THEN** each item shows only its label and keyboard shortcut, if any
 
-#### Scenario: Open a context menu on the web
+#### Scenario: Open a context menu
 
-- **GIVEN** the user is using the web app
 - **WHEN** the user right-clicks a dashboard pane
 - **THEN** each item shows only its label and keyboard shortcut, if any
