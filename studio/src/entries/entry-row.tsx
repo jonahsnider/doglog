@@ -110,7 +110,7 @@ export const EntryRowView = memo(function EntryRowView({
 					// Tells the tree which row has focus, see `EntryRows`
 					data-value={node.value}
 					ref={ref}
-					className={cn(className, 'cursor-grab active:cursor-grabbing')}
+					className={cn(className, 'group/entry-row cursor-grab active:cursor-grabbing')}
 					style={style}
 					onDoubleClick={editing ? undefined : add}
 				/>
@@ -120,7 +120,7 @@ export const EntryRowView = memo(function EntryRowView({
 			<TreeItemLabel className="flex h-full min-w-0 flex-1 items-center gap-1.5">
 				<RowIndicator expandable={node.children !== undefined} />
 				{/* Checked while editing instead of having a checkbox of its own, so editing doesn't push the label over */}
-				{entry && <TypeMark type={entry.type} tooltip={markTooltip} checked={editing && bound} />}
+				{entry && <TypeMark type={entry.type} tooltip={markTooltip} checked={editing && bound} checkable={editing} />}
 				<RowLabel node={node} highlights={highlights} unsupported={unsupported} bound={bound} />
 				{containsBound && <ContainsBoundMark />}
 			</TreeItemLabel>

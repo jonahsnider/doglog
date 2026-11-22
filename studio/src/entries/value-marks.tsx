@@ -47,15 +47,20 @@ export function EntryTypeIcon({ type, className }: { type: string; className?: s
 	return <Icon aria-hidden className={className} />;
 }
 
-/** Compact icon for an entry type, with the full type in a tooltip. `checked` shows a checked checkbox in its place. */
+/**
+ * Compact icon for an entry type, with the full type in a tooltip. `checked` shows a checked checkbox in its place, and
+ * `checkable` shows an empty one while its `group/entry-row` is hovered or focused.
+ */
 export function TypeMark({
 	type,
 	tooltip,
 	checked = false,
+	checkable = false,
 }: {
 	type: string;
 	tooltip: MarkTooltipHandle;
 	checked?: boolean;
+	checkable?: boolean;
 }) {
 	return (
 		<TooltipTrigger
@@ -75,7 +80,18 @@ export function TypeMark({
 			{checked ? (
 				<CheckIcon aria-hidden className="size-3" strokeWidth={3} />
 			) : (
-				<EntryTypeIcon type={type} className="size-3.5" />
+				<>
+					<EntryTypeIcon
+						type={type}
+						className={cn('size-3.5', checkable && 'group-hover/entry-row:hidden group-focus-visible/entry-row:hidden')}
+					/>
+					{checkable && (
+						<span
+							aria-hidden
+							className="hidden size-4 rounded-[.25rem] border border-outline group-hover/entry-row:block group-focus-visible/entry-row:block"
+						/>
+					)}
+				</>
 			)}
 		</TooltipTrigger>
 	);

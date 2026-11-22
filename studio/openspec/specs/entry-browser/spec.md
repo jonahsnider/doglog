@@ -368,7 +368,7 @@ Users SHALL also be able to edit a widget's entries by double-clicking its title
 
 ### Requirement: Toggle entries while editing
 
-While editing a widget's entries, each entry the widget shows SHALL show a checkmark in place of its type indicator, so editing doesn't move the entries' names. Clicking an entry, or pressing Space or Enter on it, MUST bind or unbind it, and unbinding MUST remove every binding of an entry bound more than once. Pressing Enter in the search box MUST toggle the first matching entry, keeping the search. Double-clicking MUST NOT add the entry to the dashboard, and entries MUST still be draggable.
+While editing a widget's entries, each entry the widget shows SHALL show a checkmark in place of its type indicator, so editing doesn't move the entries' names. Hovering or focusing any other entry MUST show an empty checkbox there. Clicking an entry, or pressing Space or Enter on it, MUST bind or unbind it, and unbinding MUST remove every binding of an entry bound more than once. Double-clicking MUST NOT add the entry to the dashboard, and entries MUST still be draggable.
 
 #### Scenario: Bind by clicking
 
@@ -377,6 +377,10 @@ While editing a widget's entries, each entry the widget shows SHALL show a check
 - **THEN** the table shows `/Arm/Angle` and its row shows a checkmark instead of its type
 - **WHEN** the user clicks `/Arm/Angle` again
 - **THEN** the table stops showing it
+
+### Requirement: Toggle entries from search while editing
+
+While editing a widget's entries, pressing Enter in the search box SHALL toggle the first matching entry, keeping the search.
 
 #### Scenario: Bind from search
 
