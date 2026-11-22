@@ -109,7 +109,7 @@
 		"react-doctor": "0.9.23",
 		"sentry": "0.50.0",
 		"tailwindcss": "4.3.5",
-		"typescript": "7.1.0-dev.20261120.1",
+		"typescript": "7.1.0-dev.20261121.1",
 		"vite": "catalog:",
 		"vite-plugin-pwa": "2.0.0",
 		"vite-plugin-svgr": "5.2.0",
