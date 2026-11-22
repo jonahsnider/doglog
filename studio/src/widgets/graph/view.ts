@@ -75,6 +75,17 @@ export function showWholeSource(): void {
 	viewStore.set((view) => ({ ...view, range: undefined, data: undefined, logWidth: undefined }));
 }
 
+/** Show the time range graphs start with again, the whole log or the newest 30 s of a live source */
+export function resetView(): void {
+	viewStore.set((view) => ({
+		...view,
+		range: undefined,
+		data: undefined,
+		liveWidth: defaultLiveWidth,
+		logWidth: undefined,
+	}));
+}
+
 /** Zoom the time range by `factor` (below 1 zooms in) around `anchor`, a time in the range */
 export function zoomTime(anchor: number, factor: number): void {
 	const view = getViewRange();

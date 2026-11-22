@@ -16,7 +16,8 @@ import { graphSection } from '@/widgets/graph/roles';
 import { TimeAxis } from '@/widgets/graph/time-axis';
 import { type GraphElements, useGraphDrawing } from '@/widgets/graph/use-graph-drawing';
 import { useGraphPointer } from '@/widgets/graph/use-graph-pointer';
-import { useGraphShown } from '@/widgets/graph/view';
+import { resetView, useGraphShown } from '@/widgets/graph/view';
+import { useWidgetMenu } from '@/panes/widget-menu';
 import { bindingColor } from '@/widgets/series-color';
 import type { WidgetProps } from '@/widgets/widget-type';
 
@@ -81,6 +82,17 @@ export function Graph({ bindings }: WidgetProps) {
 	// The timeline bar marks the time graphs show
 	useGraphShown();
 	const graph = useGraphDrawing(elements, series, bandEntries, palette, assignments, plotTop);
+	useWidgetMenu(() => [
+		'separator',
+		{
+			label: 'Reset view',
+			onSelect: () => {
+				graph.current.setManual('y');
+				graph.current.setManual('y2');
+				resetView();
+			},
+		},
+	]);
 	const body = useRef<HTMLDivElement>(null!);
 	const { bandHover, pointerAt, selection, pinned, handlers } = useGraphPointer(
 		body,

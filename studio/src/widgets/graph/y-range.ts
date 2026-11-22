@@ -9,6 +9,12 @@ export type Range = [min: number, max: number];
 const minShare = 0.05;
 /** Space above and below the data, as a share of the axis */
 const padShare = 0.05;
+/** Zooming out a y-axis stops at this many times the range that fits its data */
+const maxZoomOut = 100;
+/** Zooming in a y-axis stops at this share of the range that fits its data */
+const maxZoomIn = 1e-3;
+/** Zooming in also stops at this share of the axis's values, finer steps can't be told apart and the labels repeat */
+const minRelativeSpan = 1e-9;
 const animationMs = 200;
 const ease = cubicBezier(...easing.inOut);
 
@@ -45,6 +51,19 @@ export function fitRange(visible: Range, whole: Range | undefined): Range {
 	const [min, max] = high - low < minSpan ? [center - minSpan / 2, center + minSpan / 2] : visible;
 	const pad = max === min ? Math.abs(min) * 0.1 || 1 : (max - min) * padShare;
 	return [min - pad, max + pad];
+}
+
+/**
+ * How much a y-axis showing `range` spans after zooming by `factor` (below 1 zooms in), limited around `fitted`, the
+ * range that fits the data. An axis already past a limit, ex. after zooming into time, can still zoom back toward it.
+ */
+export function zoomedSpan(range: Range, factor: number, fitted: Range): number {
+	const span = range[1] - range[0];
+	const fittedSpan = fitted[1] - fitted[0];
+	const min = Math.max(fittedSpan * maxZoomIn, Math.max(Math.abs(range[0]), Math.abs(range[1])) * minRelativeSpan);
+	const max = fittedSpan * maxZoomOut;
+	const next = span * factor;
+	return factor > 1 ? Math.min(next, Math.max(span, max)) : Math.max(next, Math.min(span, min));
 }
 
 /** Eases an axis from the range it showed to a new one, instantly when reducing motion */

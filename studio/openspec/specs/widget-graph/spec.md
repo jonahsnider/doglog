@@ -254,7 +254,20 @@ While following a live source, the graph SHALL keep the newest data at its right
 
 ### Requirement: Y-axis range
 
-Each y-axis SHALL fit the data in view, but MUST NOT span less than 5% of its entries' range across the whole source, so noise in a quiet stretch doesn't fill the graph. Changes to the range MUST ease over about 200 ms, instantly when the system reduces motion. Zooming or panning an axis keeps its range fixed until the view is reset.
+Each y-axis SHALL fit the data in view, but MUST NOT span less than 5% of its entries' range across the whole source, so noise in a quiet stretch doesn't fill the graph. Changes to the range MUST ease over about 200 ms, instantly when the system reduces motion. Zooming or panning an axis keeps its range fixed until the view is reset. Zooming an axis MUST stop at 100 times the range that fits its data, and at a thousandth of it or where its labels would repeat, whichever is wider.
+
+#### Scenario: Zoom an axis far out
+
+- **GIVEN** the left axis fits `/Arm/Angle` between 10° and 20°
+- **WHEN** the user keeps scrolling over the left axis to zoom out
+- **THEN** it stops zooming out once it spans about 1000°
+
+#### Scenario: Reset view
+
+- **GIVEN** the user zoomed a graph's time and y-axes
+- **WHEN** the user picks Reset view from the graph's context menu
+- **THEN** the y-axes fit the data in view again
+- **AND** all graphs show the whole log, or the newest 30 seconds of a live source
 
 #### Scenario: Quiet stretch
 

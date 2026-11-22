@@ -197,6 +197,9 @@ function union(range: Range | undefined, other: Range): Range {
 	return range ? [Math.min(range[0], other[0]), Math.max(range[1], other[1])] : other;
 }
 
+/** The range of a y-axis without entries in view, it still needs one to be drawn and keep its space */
+export const emptyAxisRange: Range = [0, 1];
+
 export type RangeAnimations = Record<'y' | 'y2', ReturnType<typeof createRangeAnimation>>;
 
 /** Sets each y-axis to the range the user zoomed it to, or eases it to its target. Returns whether one is still easing. */
@@ -212,8 +215,7 @@ export function setYRanges(
 		const target = targets[axis];
 		const range = manual[axis] ?? (target && animations[axis].update(target, now));
 		animating ||= manual[axis] === undefined && animations[axis].isAnimating(now);
-		// An axis without entries still needs a range to be drawn and keep its space
-		const [min, max] = range ?? [0, 1];
+		const [min, max] = range ?? emptyAxisRange;
 		plot.setScale(axis, { min, max });
 	}
 	return animating;

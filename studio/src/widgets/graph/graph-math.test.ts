@@ -2,7 +2,7 @@ import { expect, test } from 'vite-plus/test';
 import { Samples } from '@/data/samples';
 import { stepLine } from '@/widgets/graph/decimate';
 import { formatTick, timeTicks } from '@/widgets/graph/ticks';
-import { fitRange } from '@/widgets/graph/y-range';
+import { fitRange, zoomedSpan } from '@/widgets/graph/y-range';
 
 function samples(points: [time: number, value: number][]): Samples {
 	const result = new Samples();
@@ -81,4 +81,19 @@ test('the y-axis never zooms in past a share of the range across the whole sourc
 	// An entry that's small everywhere is still fit closely
 	const [smallMin, smallMax] = fitRange([-0.001, 0.001], [-0.002, 0.002]);
 	expect(smallMax - smallMin).toBeLessThan(0.003);
+});
+
+test('zooming a y-axis stops before its labels would run out of precision or grow huge', () => {
+	const fitted: [number, number] = [1e9, 1e9 + 2];
+	let span = 2;
+	for (let step = 0; step < 1000; step++) {
+		span = zoomedSpan([1e9, 1e9 + span], 0.5, fitted);
+	}
+	// Near 1e9, ticks across a thousandth of the fitted range would be too close together for doubles to tell apart
+	expect(span).toBe(1);
+
+	expect(zoomedSpan([0, 150], 2, [0, 2])).toBe(200);
+	// Already zoomed out further than that, ex. before zooming into time, it doesn't jump in
+	expect(zoomedSpan([0, 1000], 2, [0, 2])).toBe(1000);
+	expect(zoomedSpan([0, 1000], 0.5, [0, 2])).toBe(500);
 });

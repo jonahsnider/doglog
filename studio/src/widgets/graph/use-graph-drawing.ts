@@ -70,12 +70,12 @@ function placeLine(
 	return x;
 }
 
-/** The uPlot instance, for reading positions, and the y-axis ranges the user zoomed */
+/** The uPlot instance, for reading positions, the ranges that fit the data in view, and the ones the user fixed by zooming */
 export type GraphPlot = {
 	plot: uPlot | undefined;
+	targets: YTargets;
 	manual: ManualRanges;
 	redraw: () => void;
-	/** Fix a y-axis's range */
 	setManual: (axis: 'y' | 'y2', range?: [number, number]) => void;
 };
 
@@ -90,6 +90,7 @@ export function useGraphDrawing(
 ): RefObject<GraphPlot> {
 	const state = useRef<GraphPlot>({
 		plot: undefined,
+		targets: {},
 		manual: {},
 		redraw: () => {},
 		setManual(axis, range) {
@@ -189,7 +190,6 @@ export function useGraphDrawing(
 		const fitted = (now: number) => series.map((line) => !line.hidden || isFading(lineFades.get(line.id)!, now));
 		let wasFading = false;
 
-		let targets: YTargets = {};
 		// Eases the y-axes and fades lines without working out the lines again, they're already in view
 		const animate = perFrame(() => {
 			if (plot) {
@@ -197,7 +197,7 @@ export function useGraphDrawing(
 				const fading = fadeLines(now);
 				let easing = false;
 				plot.batch(() => {
-					easing = setYRanges(plot, targets, current.manual, animations.current, now);
+					easing = setYRanges(plot, current.targets, current.manual, animations.current, now);
 				});
 				if (!fading && wasFading) {
 					// Lines that faded out stop being fitted
@@ -230,8 +230,8 @@ export function useGraphDrawing(
 					if (size) {
 						plot.setSize(size);
 					}
-					targets = drawPlot(plot, series, view, range.end, gaps, dots, fitted(now));
-					if (setYRanges(plot, targets, current.manual, animations.current, now) || fading) {
+					current.targets = drawPlot(plot, series, view, range.end, gaps, dots, fitted(now));
+					if (setYRanges(plot, current.targets, current.manual, animations.current, now) || fading) {
 						animate.schedule();
 					}
 				});

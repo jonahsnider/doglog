@@ -7,6 +7,8 @@ import { setHoverTime } from '@/timeline/hover';
 import { getViewRange, panTime, zoomTime } from '@/widgets/graph/view';
 import type { TimeRange } from '@/data/data-store';
 import { type BandHover, flipsAt, type LineHover } from '@/widgets/graph/tooltip-side';
+import { emptyAxisRange } from '@/widgets/graph/plot';
+import { zoomedSpan } from '@/widgets/graph/y-range';
 
 const gesturePauseMs = 200;
 /** How much of a scroll gesture's earlier movement counts toward its direction with each event, ex. 0.7 keeps about the last 100 ms */
@@ -99,7 +101,8 @@ export function useGraphPointer(
 				continue;
 			}
 			const anchor = plot.posToVal(clientY - plot.over.getBoundingClientRect().top, axis);
-			graph.current.setManual(axis, [anchor - (anchor - min) * factor, anchor + (max - anchor) * factor]);
+			const scale = zoomedSpan([min, max], factor, graph.current.targets[axis] ?? emptyAxisRange) / (max - min);
+			graph.current.setManual(axis, [anchor - (anchor - min) * scale, anchor + (max - anchor) * scale]);
 		}
 	};
 
