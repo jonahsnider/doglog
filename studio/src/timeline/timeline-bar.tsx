@@ -1,26 +1,26 @@
 import ChevronsUpDownIcon from 'lucide-react/icons/chevrons-up-down';
 import PauseIcon from 'lucide-react/icons/pause';
 import PlayIcon from 'lucide-react/icons/play';
-import SlidersHorizontalIcon from 'lucide-react/icons/sliders-horizontal';
 import { type Hotkey, type UseHotkeyDefinition, useHotkeys } from '@tanstack/react-hotkeys';
 import { Select as SelectPrimitive } from '@base-ui/react/select';
 import { AnimatePresence, domAnimation, LazyMotion, m, useIsPresent } from 'motion/react';
 import { type ReactNode, useRef, useState } from 'react';
 import { TextMorph } from 'torph/react';
 import { Button } from '@/components/ui/button';
-import { Menu, MenuCheckboxItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
 import { Select, SelectItem, SelectPopup } from '@/components/ui/select';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { CursorTime } from '@/timeline/cursor-time';
 import { LogProgress } from '@/timeline/log-progress';
+import { TimelineOptions } from '@/timeline/timeline-options';
 import { Scrubber } from '@/timeline/timeline-scrubber';
 import { getSourceYear } from '@/timeline/shifts';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { type TimeRange, useTimeRange } from '@/data/data-store';
 import { type Source, useSource } from '@/data/source';
+import { useSize } from '@/hooks/use-size';
 import { easing, useMotionTransition } from '@/lib/motion';
 import { cn } from '@/lib/utils';
-import { updateSettings, useSettings } from '@/settings';
+import { useSettings } from '@/settings';
 import {
 	changeSpeed,
 	formatTime,
@@ -72,7 +72,13 @@ function ControlButton({
 		<Tooltip>
 			<TooltipTrigger
 				render={
-					<Button variant="ghost" size="icon-sm" className="capture:hidden" aria-label={label} onClick={onClick} />
+					<Button
+						variant="ghost"
+						size="icon-sm"
+						className="pointer-coarse:size-11 capture:hidden"
+						aria-label={label}
+						onClick={onClick}
+					/>
 				}
 			>
 				{children}
@@ -81,6 +87,57 @@ function ControlButton({
 				<TooltipLabel label={label} shortcut={shortcut} />
 			</TooltipPopup>
 		</Tooltip>
+	);
+}
+
+function TimelineTrack({
+	compact,
+	range,
+	source,
+	timeline,
+}: {
+	compact: boolean;
+	range: TimeRange | undefined;
+	source: Source;
+	timeline: Timeline;
+}) {
+	const { time, playback, live, videoRange } = timeline;
+	const { timelineAlerts, timelineCompress, timelineShifts } = useSettings();
+	const following = playback === 'following';
+	return (
+		<div className={cn('flex min-w-0 items-center', compact ? 'h-11 basis-full' : 'h-full flex-1 gap-1')}>
+			<TimelineCursorContext value={time}>
+				{range && time !== undefined ? (
+					<Scrubber
+						range={range}
+						// Frozen live history doesn't need room to grow.
+						live={live && !videoRange}
+						showAlerts={timelineAlerts}
+						showShifts={timelineShifts}
+						compress={timelineCompress}
+						year={getSourceYear(source)}
+						unread={source.type === 'log' ? source.unread : undefined}
+					/>
+				) : (
+					<div className="mx-2 h-1 flex-1 rounded-full bg-input" />
+				)}
+			</TimelineCursorContext>
+			<span className="me-1.5 font-mono text-sm text-muted-foreground tabular-nums">
+				{range ? formatTime(range.end, range.start) : '-'}
+			</span>
+			{live && (
+				<Button
+					variant={following ? 'ghost' : 'outline'}
+					size="sm"
+					className="pointer-coarse:h-11 capture:hidden"
+					disabled={following}
+					onClick={goLive}
+				>
+					<span className={cn('size-2 rounded-full', following ? 'bg-destructive' : 'bg-muted-foreground')} />
+					{following ? 'Live' : 'Go live'}
+				</Button>
+			)}
+		</div>
 	);
 }
 
@@ -96,11 +153,13 @@ function TimelineControls({
 	timeline: Timeline;
 }) {
 	const present = useIsPresent();
-	const { time, playback, speed, live, videoRange } = timeline;
-	const { timelineAlerts, timelineCompress, timelineShifts } = useSettings();
+	const { time, playback, speed } = timeline;
 	const [speedOpen, setSpeedOpen] = useState(false);
 	const [optionsOpen, setOptionsOpen] = useState(false);
 	const speedTrigger = useRef<HTMLButtonElement>(null);
+	const bar = useRef<HTMLElement>(null);
+	const size = useSize(bar);
+	const compact = size !== undefined && size.width < 480;
 	const shortcutsEnabled = present && !speedOpen;
 
 	// Skips keys used by a focused text field, button, or menu, and keys already handled, ex. by a pane divider.
@@ -109,11 +168,19 @@ function TimelineControls({
 	// The focused speed button skips printable keys as typeahead, so its own shortcuts are given to it directly
 	useHotkeys(speedHotkeys, { target: speedTrigger, enabled: shortcutsEnabled });
 
+	const optionsMenu = <TimelineOptions key="options" compact={compact} onOpenChange={setOptionsOpen} />;
+
 	return (
-		<footer aria-label="Timeline" inert={!present} className="flex h-14 contain-strict">
+		<footer
+			ref={bar}
+			aria-label="Timeline"
+			inert={!present}
+			className={cn('flex contain-strict', compact ? 'h-22' : 'h-14')}
+		>
 			<div
 				className={cn(
 					'flex min-w-0 flex-1 items-center gap-1 px-2',
+					compact && 'flex-wrap gap-y-0',
 					fadeIn && 'transition-opacity duration-300 starting:opacity-0',
 				)}
 			>
@@ -138,7 +205,13 @@ function TimelineControls({
 									ref={speedTrigger}
 									aria-label="Playback speed"
 									// Same inset as the icon buttons, so the gaps between controls look even
-									render={<Button variant="ghost" size="sm" className="px-1.5 tabular-nums capture:hidden" />}
+									render={
+										<Button
+											variant="ghost"
+											size="sm"
+											className="px-1.5 tabular-nums pointer-coarse:h-11 capture:hidden"
+										/>
+									}
 								/>
 							}
 						>
@@ -163,77 +236,10 @@ function TimelineControls({
 
 				<TimelineCursorContext value={time}>
 					<CursorTime range={range} />
-					{range && time !== undefined ? (
-						<Scrubber
-							range={range}
-							// Frozen live history doesn't need room to grow.
-							live={live && !videoRange}
-							showAlerts={timelineAlerts}
-							showShifts={timelineShifts}
-							compress={timelineCompress}
-							year={getSourceYear(source)}
-							unread={source.type === 'log' ? source.unread : undefined}
-						/>
-					) : (
-						<div className="mx-2 h-1 flex-1 rounded-full bg-input" />
-					)}
 				</TimelineCursorContext>
-				{/* Margins match the speed button's inset, so text and icons are evenly spaced from neighboring buttons */}
-				<span className="me-1.5 font-mono text-sm text-muted-foreground tabular-nums">
-					{range ? formatTime(range.end, range.start) : '-'}
-				</span>
-
-				{live && (
-					<Button
-						variant={playback === 'following' ? 'ghost' : 'outline'}
-						size="sm"
-						className="capture:hidden"
-						disabled={playback === 'following'}
-						onClick={goLive}
-					>
-						<span
-							className={cn('size-2 rounded-full', playback === 'following' ? 'bg-destructive' : 'bg-muted-foreground')}
-						/>
-						{playback === 'following' ? 'Live' : 'Go live'}
-					</Button>
-				)}
-
-				<Menu onOpenChange={setOptionsOpen}>
-					<Tooltip>
-						<TooltipTrigger
-							render={
-								<MenuTrigger
-									render={
-										<Button variant="ghost" size="icon-sm" className="capture:hidden" aria-label="Timeline options" />
-									}
-								/>
-							}
-						>
-							<SlidersHorizontalIcon />
-						</TooltipTrigger>
-						<TooltipPopup>Timeline options</TooltipPopup>
-					</Tooltip>
-					<MenuPopup align="end">
-						<MenuCheckboxItem
-							checked={timelineAlerts}
-							onCheckedChange={(checked) => updateSettings({ timelineAlerts: checked })}
-						>
-							Show alerts
-						</MenuCheckboxItem>
-						<MenuCheckboxItem
-							checked={timelineShifts}
-							onCheckedChange={(checked) => updateSettings({ timelineShifts: checked })}
-						>
-							Show active hub shifts
-						</MenuCheckboxItem>
-						<MenuCheckboxItem
-							checked={timelineCompress}
-							onCheckedChange={(checked) => updateSettings({ timelineCompress: checked })}
-						>
-							Skip idle time
-						</MenuCheckboxItem>
-					</MenuPopup>
-				</Menu>
+				{compact && optionsMenu}
+				<TimelineTrack compact={compact} range={range} source={source} timeline={timeline} />
+				{!compact && optionsMenu}
 			</div>
 		</footer>
 	);

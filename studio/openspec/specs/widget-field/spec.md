@@ -127,7 +127,13 @@ The WPILib coordinates option SHALL be inferred from the WPILib version the robo
 
 ### Requirement: Orientation
 
-The field widget SHALL have an Orientation dropdown with **Blue left**, **Red left**, **Blue top**, and **Red top**. The chosen alliance MUST appear at the named edge, with the field, its drawings, and the minimap rotated together. The cursor readout and measurements MUST still use the selected WPILib coordinates. Auto SHALL put +X on the right, like WPILib's field images: "Blue left" with 2026 coordinates and "Red left" with 2027 coordinates.
+The field widget SHALL have an Orientation dropdown with **Blue left**, **Red left**, **Blue top**, and **Red top**. The chosen alliance MUST appear at the named edge, with the field, its drawings, and the minimap rotated together. The cursor readout and measurements MUST still use the selected WPILib coordinates. Auto SHALL put +X down in the phone layout, and to the right elsewhere.
+
+#### Scenario: Open a dashboard on a phone
+
+- **GIVEN** a dashboard with two fields using 2026 coordinates, one set to Auto and the other to Red left
+- **WHEN** Studio switches into the phone layout
+- **THEN** the first field switches to Blue top and the second stays Red left
 
 #### Scenario: Red left
 

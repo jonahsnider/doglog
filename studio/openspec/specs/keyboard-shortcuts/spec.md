@@ -187,6 +187,17 @@ While the user holds the modifier for switching dashboards (⌘ in the desktop a
 - **AND** the dashboards show Alt+1, Alt+2, and Alt+3 in sidebar order
 - **AND** the hints disappear when Alt is released
 
+### Requirement: Inline shortcut hints on phones
+
+The phone layout SHALL hide persistent shortcut badges in the widget picker, entry search, Field widget, and tuning controls. This MUST NOT disable the shortcuts or remove their labels from menus, tooltips, or the keyboard shortcuts dialog.
+
+#### Scenario: Use the widget picker on a phone
+
+- **GIVEN** the phone layout is active and an empty pane is focused
+- **THEN** the widget picker shows the widget names without key badges
+- **WHEN** the user presses F on a hardware keyboard
+- **THEN** Studio adds a Field widget
+
 ### Requirement: Desktop-only shortcuts
 
 ⌘T, ⌘W, ⇧⌘W, ⇧⌘T, ⌘L, ⌘, and ⌘1-⌘9 SHALL only be active in the desktop app, because browsers reserve them. Their Alt variants MUST work in both the desktop app and the web.

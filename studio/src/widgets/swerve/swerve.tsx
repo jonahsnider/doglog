@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import type { Value } from '@/data/samples';
 import { type Entry, useDataVersion } from '@/data/data-store';
 import { angleUnitLabels, inferAngleUnit, toRadians } from '@/data/units';
+import { useMobileLayout } from '@/lib/mobile-layout';
 import { useCursorTime } from '@/timeline/timeline';
 import { numberField, structField } from '@/data/struct-fields';
 import { readPose } from '@/widgets/field/data';
@@ -149,13 +150,19 @@ function headingRadians(value: Value | undefined, entry: Entry | undefined): num
  * `/Drive/Pose` or its `/Drive/Pose/rotation` field, turns it so field +X points the same way it does there. Otherwise
  * field +X points up.
  */
-function drivetrainRotation(heading: number, headingEntry: Entry | undefined, layout: PaneNode): number {
-	const xAxisAngle = (headingEntry && fieldXAxisAngle(layout, headingEntry.name)) ?? Math.PI / 2;
+function drivetrainRotation(
+	heading: number,
+	headingEntry: Entry | undefined,
+	layout: PaneNode,
+	mobile: boolean,
+): number {
+	const xAxisAngle = (headingEntry && fieldXAxisAngle(layout, headingEntry.name, mobile)) ?? Math.PI / 2;
 	return heading + xAxisAngle - Math.PI / 2;
 }
 
 export function Swerve({ bindings, layout }: WidgetProps) {
 	const time = useCursorTime();
+	const mobile = useMobileLayout();
 	// Values at the cursor and the arrow scale change as samples arrive
 	useDataVersion();
 
@@ -164,7 +171,7 @@ export function Swerve({ bindings, layout }: WidgetProps) {
 	const headingBinding = bindings.find((binding) => !binding.hidden && swerveRole(binding) === 'heading');
 	const headingEntry = headingBinding?.entry;
 	const heading = headingRadians(valueOf(headingEntry), headingEntry);
-	const rotation = drivetrainRotation(heading, headingEntry, layout);
+	const rotation = drivetrainRotation(heading, headingEntry, layout, mobile);
 
 	const maxSpeed = maxBoundSpeed(bindings);
 	const arrowLength = (speed: number) => scaledArrowLength(speed, maxSpeed);

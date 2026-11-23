@@ -1,7 +1,7 @@
 // The row under the field widget: the cursor position and the measuring tool buttons
 import { useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { ControlTooltip } from '@/components/control-tooltip';
-import { Kbd } from '@/components/ui/kbd';
+import { InlineShortcut } from '@/components/inline-shortcut';
 import { Toggle } from '@/components/ui/toggle';
 import { cn } from '@/lib/utils';
 import type { FieldPoint, MeasureTool } from '@/widgets/field/geometry';
@@ -56,7 +56,7 @@ export function CursorPosition({
 					Copied
 				</span>
 			</span>
-			<Kbd className="h-4 min-w-4">{formatForDisplay('Mod+C')}</Kbd>
+			<InlineShortcut className="h-4 min-w-4">{formatForDisplay('Mod+C')}</InlineShortcut>
 		</span>
 	);
 }
@@ -88,7 +88,7 @@ export function ToolButtons({
 					}
 				>
 					<>
-						<Kbd className="h-4 min-w-4">{option.key}</Kbd>
+						<InlineShortcut className="h-4 min-w-4">{option.key}</InlineShortcut>
 						{option.label}
 					</>
 				</ControlTooltip>

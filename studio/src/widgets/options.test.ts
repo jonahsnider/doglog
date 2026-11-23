@@ -2,6 +2,7 @@ import NotebookPenIcon from 'lucide-react/icons/notebook-pen';
 import { expect, test } from 'vite-plus/test';
 import { createPane, findPane } from '@/panes/layout';
 import { resolveBindings } from '@/widgets/bindings';
+import { fieldOptions } from '@/widgets/field/options';
 import { optionValues, setWidgetOption } from '@/widgets/options';
 import type { WidgetOption, WidgetType } from '@/widgets/widget-type';
 
@@ -54,4 +55,16 @@ test('setting an option keeps the bindings, and unsetting it goes back to Auto',
 
 	const unset = setWidgetOption(picked, pane.id, 'layout', undefined);
 	expect(findPane(unset, pane.id)?.widget?.config).toEqual({ bindings: [{ id: 'a', name: 'ps4' }] });
+});
+
+test.each([
+	['blue-wall', 'blue-top', 'blue-left'],
+	['center', 'red-top', 'red-left'],
+])('field in %s coordinates adapts only its Auto orientation', (coordinates, portrait, landscape) => {
+	const fieldType = { options: fieldOptions };
+	const field = { type: 'field', config: { options: { coordinates } } };
+	expect(optionValues(fieldType, field, [], true)['orientation']).toBe(portrait);
+	expect(optionValues(fieldType, field, [], false)['orientation']).toBe(landscape);
+	const picked = { ...field, config: { options: { coordinates, orientation: 'red-left' } } };
+	expect(optionValues(fieldType, picked, [], true)['orientation']).toBe('red-left');
 });

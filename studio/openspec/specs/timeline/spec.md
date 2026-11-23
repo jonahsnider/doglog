@@ -20,6 +20,12 @@ Studio SHALL have one time cursor shared by every dashboard and widget.
 
 When a dashboard is open and a source is active, a timeline bar SHALL be shown along the bottom of the dashboard area, directly on the app's frame rather than on a surface of its own. Dragging or scrolling horizontally along it MUST move the cursor.
 
+#### Scenario: Scrub on a narrow dashboard
+
+- **GIVEN** the timeline is narrower than 480 CSS pixels
+- **THEN** the scrubber has a row below the playback controls, alongside the end time and the live button when present
+- **AND** play, playback speed, the current time, and timeline options remain available above it
+
 #### Scenario: Open or close the only source
 
 - **GIVEN** a dashboard is open

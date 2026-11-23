@@ -658,7 +658,7 @@ The desktop app SHALL register itself as the handler for `doglog://import/<link>
 
 ### Requirement: Focused pane
 
-The pane the user last clicked or interacted with SHALL be the focused pane. The focused pane MUST NOT be outlined; showing its header controls is the only indication.
+The pane the user last clicked or interacted with SHALL be the focused pane. The focused pane MUST NOT be outlined. In the docked layout, showing its header controls is the only indication.
 
 #### Scenario: Focus follows interaction
 
@@ -668,17 +668,17 @@ The pane the user last clicked or interacted with SHALL be the focused pane. The
 
 ### Requirement: Pane header controls
 
-A pane's header buttons, like Edit entries, split, and close, SHALL only be shown while the pane is hovered or focused.
+A pane's header buttons, like Edit entries, split, and close, SHALL always be shown in the phone layout. In the docked layout, they SHALL only be shown while the pane is hovered or focused.
 
 #### Scenario: Unfocused pane
 
-- **GIVEN** a dashboard with two panes, the first focused
+- **GIVEN** a dashboard in the docked layout with two panes, the first focused
 - **WHEN** the user isn't hovering the second pane
 - **THEN** the second pane's header buttons are hidden, and the first pane's are shown
 
 #### Scenario: Hover an unfocused pane
 
-- **GIVEN** a dashboard with two panes, the first focused
+- **GIVEN** a dashboard in the docked layout with two panes, the first focused
 - **WHEN** the user hovers the second pane
 - **THEN** the second pane's header buttons are shown
 

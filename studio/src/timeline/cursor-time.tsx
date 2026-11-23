@@ -61,7 +61,7 @@ function CursorTimeButton({
 			{...props}
 			type="button"
 			// Right-aligned so the icon stays pinned as the time widens. The negative margin offsets the padding.
-			className="-me-1 ms-auto cursor-pointer rounded-md px-1 outline-none transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring capture:invisible"
+			className="-me-1 ms-auto cursor-pointer rounded-md px-1 outline-none transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring pointer-coarse:min-h-11 capture:invisible"
 			aria-label={`Current time ${text}, go to time`}
 			onClick={(event) => {
 				onClick?.(event);

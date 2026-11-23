@@ -27,11 +27,12 @@ export function inferredOption(
 	option: WidgetOption,
 	bindings: readonly WidgetBinding[],
 	earlier: OptionValues,
+	mobile: boolean,
 ): string | undefined {
 	if (option.infer === undefined) {
 		return undefined;
 	}
-	const inferred = option.infer(bindings, earlier);
+	const inferred = option.infer(bindings, earlier, mobile);
 	return inferred !== undefined && choiceSchema(option).safeParse(inferred).success ? inferred : option.default;
 }
 
@@ -40,10 +41,12 @@ export function optionValues(
 	type: Pick<WidgetType, 'options'>,
 	widget: Widget | undefined,
 	bindings: readonly WidgetBinding[],
+	mobile = false,
 ): OptionValues {
 	const values: Record<string, string> = {};
 	for (const option of type.options ?? []) {
-		values[option.id] = pickedOption(widget, option) ?? inferredOption(option, bindings, values) ?? option.default;
+		values[option.id] =
+			pickedOption(widget, option) ?? inferredOption(option, bindings, values, mobile) ?? option.default;
 	}
 	return values;
 }

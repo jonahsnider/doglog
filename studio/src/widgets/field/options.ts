@@ -35,11 +35,11 @@ export const fieldOptions: readonly WidgetOption[] = [
 			bindings.some((binding) => binding.role !== undefined && roles3d.has(binding.role.id)) ? '3d' : undefined,
 	},
 	{ ...widgetOptions.field.coordinates, infer: () => wpilibCoordinates(wpilibVersion()) },
-	// WPILib 2027 draws the field with red on the left, so +X points right in either coordinates
+	// Keep logged +X pointing right in landscape or down in portrait, in either coordinate convention.
 	{
 		...widgetOptions.field.orientation,
 		dropdown: true,
-		infer: (_, earlier) => (earlier['coordinates'] === 'center' ? 'red-left' : 'blue-left'),
+		infer: (_, earlier, mobile) => `${earlier['coordinates'] === 'center' ? 'red' : 'blue'}-${mobile ? 'top' : 'left'}`,
 	},
 	widgetOptions.field.stagedGamePieces,
 	widgetOptions.field.fieldBorder,
@@ -51,7 +51,7 @@ export const fieldOptions: readonly WidgetOption[] = [
  * `/Drive/Pose` for `/Drive/Pose/rotation` (see `xAxisAngle()`), so other widgets can turn to match it. `undefined`
  * when no field widget shows it.
  */
-export function fieldXAxisAngle(layout: PaneNode, entryName: string): number | undefined {
+export function fieldXAxisAngle(layout: PaneNode, entryName: string, mobile: boolean): number | undefined {
 	const widget = panes(layout).find(
 		(pane) =>
 			pane.widget?.type === ('field' satisfies WidgetTypeId) &&
@@ -61,7 +61,7 @@ export function fieldXAxisAngle(layout: PaneNode, entryName: string): number | u
 		return undefined;
 	}
 	// Neither option is inferred from bindings
-	const options = optionValues({ options: fieldOptions }, widget, []);
+	const options = optionValues({ options: fieldOptions }, widget, [], mobile);
 	return xAxisAngle(
 		orientedField(options['orientation']),
 		options['coordinates'] === 'center' ? 'center' : 'blue-wall',

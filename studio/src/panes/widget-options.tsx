@@ -10,6 +10,7 @@ import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmente
 import { Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ToolbarButton } from '@/components/ui/toolbar';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
+import { useMobileLayout } from '@/lib/mobile-layout';
 import type { Widget } from '@/panes/layout';
 import { inferredOption, optionValues, pickedOption } from '@/widgets/options';
 import type { OptionMenu, WidgetBinding, WidgetOption, WidgetType } from '@/widgets/widget-type';
@@ -28,7 +29,8 @@ type WidgetOptionsProps = {
 /** The widget options button for a pane toolbar, for widgets with options */
 export function WidgetOptions({ paneId, type, widget, bindings, onOptionChange }: WidgetOptionsProps) {
 	const { options = [] } = type;
-	const values = optionValues(type, widget, bindings);
+	const mobile = useMobileLayout();
+	const values = optionValues(type, widget, bindings, mobile);
 	return (
 		<Popover>
 			<Tooltip>
@@ -63,7 +65,7 @@ export function WidgetOptions({ paneId, type, widget, bindings, onOptionChange }
 								key={option.id}
 								option={option}
 								picked={pickedOption(widget, option)}
-								inferred={inferredOption(option, bindings, values)}
+								inferred={inferredOption(option, bindings, values, mobile)}
 								onChange={(value) => onOptionChange(option.id, value)}
 							/>
 						),

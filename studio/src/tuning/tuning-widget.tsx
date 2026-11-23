@@ -2,8 +2,8 @@ import { useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
 import { useSelector } from '@tanstack/react-store';
 import SlidersHorizontalIcon from 'lucide-react/icons/sliders-horizontal';
 import { use, useRef, useState } from 'react';
+import { InlineShortcut } from '@/components/inline-shortcut';
 import { Button } from '@/components/ui/button';
-import { Kbd } from '@/components/ui/kbd';
 import { Spinner } from '@/components/ui/spinner';
 import { toastManager } from '@/components/ui/toast';
 import { type Entry, useDataVersion } from '@/data/data-store';
@@ -266,7 +266,7 @@ function Tunables({ bindings, status }: Pick<WidgetProps, 'bindings'> & { status
 				</Button>
 				<Button size="sm" disabled={stagedCount === 0 || applying || !connected} onClick={apply}>
 					{stale.size > 0 ? 'Apply anyway' : 'Apply'}
-					<Kbd>{formatForDisplay(applyShortcut)}</Kbd>
+					<InlineShortcut>{formatForDisplay(applyShortcut)}</InlineShortcut>
 				</Button>
 			</div>
 		</div>

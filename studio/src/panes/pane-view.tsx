@@ -30,6 +30,7 @@ import {
 	setBindingRole,
 	widgetBindings,
 } from '@/widgets/bindings';
+import { useMobileLayout } from '@/lib/mobile-layout';
 import { cn } from '@/lib/utils';
 import { usePaneDrag } from '@/panes/drag';
 import { widgetMenuItems } from '@/panes/widget-menu';
@@ -74,7 +75,11 @@ export function PaneView({
 	}, [entries, type, widget]);
 	/** The bindings when the context menu opened, so the ones removed from it stay listed and can be restored */
 	const [menuBindings, setMenuBindings] = useState<Binding[]>();
-	const options = useMemo(() => (type ? optionValues(type, widget, bindings) : {}), [type, widget, bindings]);
+	const mobile = useMobileLayout();
+	const options = useMemo(
+		() => (type ? optionValues(type, widget, bindings, mobile) : {}),
+		[type, widget, bindings, mobile],
+	);
 	const { dragRef, isDragging, dropRef, isDropTarget } = usePaneDrag(dashboardId, pane, allowed.move);
 	// Video export mode keeps the layout it previews, widgets stay usable
 	const exporting = useVideoExport() !== undefined;
@@ -247,7 +252,7 @@ export function PaneView({
 					aria-label="Pane controls"
 					className={cn(
 						'items-center gap-0.5 rounded-none border-0 bg-transparent p-0 transition-opacity duration-100 capture:invisible',
-						!focused && 'opacity-0 group-hover/pane:opacity-100',
+						!mobile && !focused && 'opacity-0 group-hover/pane:opacity-100',
 					)}
 				>
 					{type && (

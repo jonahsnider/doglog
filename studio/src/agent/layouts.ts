@@ -3,6 +3,7 @@
 import { AgentError } from '@/agent/agent-error';
 import type { LayoutInput, WidgetInput } from '@/agent/schemas';
 import type { Entry } from '@/data/data-store';
+import { isMobileLayout } from '@/lib/mobile-layout';
 import { createId } from '@/lib/random-id';
 import {
 	type Binding,
@@ -261,7 +262,7 @@ function describeWidget(widget: Widget, entryOf: EntryOf, sourceOpen: boolean) {
 		return { type: widget.type, problems: ['Unknown widget type, it may be from a newer version of Studio.'] };
 	}
 	const bindings = describeBindings(type, widget, entryOf, sourceOpen);
-	const options = optionValues(type, widget, resolveBindings(type, widgetBindings(widget), entryOf));
+	const options = optionValues(type, widget, resolveBindings(type, widgetBindings(widget), entryOf), isMobileLayout());
 	return {
 		type: type.id,
 		options: Object.keys(options).length > 0 ? options : undefined,

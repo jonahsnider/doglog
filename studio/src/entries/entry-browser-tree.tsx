@@ -29,12 +29,14 @@ import {
 	toggledGroups,
 } from '@/entries/tree';
 import { isEnterKey } from '@/lib/keyboard';
+import { useMobileLayout } from '@/lib/mobile-layout';
 import { acceptsEntry, type WidgetType } from '@/widgets/widget-type';
 
 /** Search requests already handled, so a remounted search box doesn't focus itself again */
 let handledSearchFocus = 0;
 
 export function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
+	const mobile = useMobileLayout();
 	const source = useSource();
 	const allEntries = useEntries();
 	const editedType = edited?.type;
@@ -128,7 +130,7 @@ export function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 							}
 						}}
 					/>
-					{query === '' && (
+					{!mobile && query === '' && (
 						<InputGroupAddon align="inline-end" className="in-[[data-slot=input-group]:has(input:focus)]:hidden">
 							<Kbd className="border border-input bg-transparent">{shortcuts.searchEntries}</Kbd>
 						</InputGroupAddon>

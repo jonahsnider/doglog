@@ -1,6 +1,6 @@
 import { useHotkeys } from '@tanstack/react-hotkeys';
+import { InlineShortcut } from '@/components/inline-shortcut';
 import { Empty, EmptyTitle } from '@/components/ui/empty';
-import { Kbd } from '@/components/ui/kbd';
 import { getWidgetType, widgetTypes } from '@/widgets/registry';
 import type { WidgetType } from '@/widgets/widget-type';
 
@@ -36,7 +36,7 @@ export function AddWidgetPrompt({ onAdd, focused }: { onAdd: (type: WidgetType) 
 						</div>
 						<div className="flex items-center justify-between gap-2 px-1 pb-0.5 add-widget-compact:flex-1 add-widget-compact:px-0 add-widget-compact:pb-0">
 							<span>{type.name}</span>
-							{type.hotkey && <Kbd>{type.hotkey}</Kbd>}
+							{type.hotkey && <InlineShortcut>{type.hotkey}</InlineShortcut>}
 						</div>
 					</button>
 				))}

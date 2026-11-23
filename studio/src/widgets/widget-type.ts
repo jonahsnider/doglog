@@ -62,10 +62,9 @@ export function canConnect(source: Pick<WidgetBinding, 'connects'>, target: Pick
  */
 export type WidgetOption = WidgetOptionInfo & {
 	/**
-	 * Infers a choice from the bindings and the values of the options listed before it, which adds an Auto choice that's
-	 * used until another one is picked. Returns `undefined` to use the default.
+	 * Infers the Auto choice from the bindings, earlier options, or phone layout. Returns `undefined` to use the default.
 	 */
-	readonly infer?: (bindings: readonly WidgetBinding[], earlier: OptionValues) => string | undefined;
+	readonly infer?: (bindings: readonly WidgetBinding[], earlier: OptionValues, mobile: boolean) => string | undefined;
 	/** The choice a newly added widget starts with in `layout`, as if it was picked, ex. a controller not shown yet */
 	readonly initial?: (layout: PaneNode) => string;
 	/** Show fixed choices in a dropdown when they don't fit in a single segmented row. */
