@@ -80,6 +80,17 @@ function getCommitHash(): string | null {
 	}
 }
 
+const commitHash = getCommitHash();
+// Tauri sets this for its frontend dev and build hooks. Use the constant directly in platform-only branches so
+// Rolldown can drop their imports before splitting chunks.
+const isDesktop = process.env['TAURI_ENV_PLATFORM'] !== undefined;
+// Desktop releases match the Rust SDK's `doglog-studio@<version>`; web deploys on every push to main, so include the
+// commit hash to tell deploys apart
+const sentryRelease =
+	!isDesktop && commitHash !== null
+		? `doglog-studio@${packageJson.version}+${commitHash}`
+		: `doglog-studio@${packageJson.version}`;
+
 /** Tailwind's color palettes with shades (not `black` or `white`), which ignore the theme color and the light and dark variants */
 const paletteColors = Object.entries(colors)
 	.filter(([, value]) => typeof value === 'object')
@@ -363,7 +374,7 @@ export default defineConfig({
 			project: 'doglog-studio',
 			// Same as the desktop app's Rust side, Sentry links the commits through its GitHub integration
 			// CI finalizes the release once the build goes live, not when it's built
-			release: { name: `doglog-studio@${packageJson.version}`, finalize: false },
+			release: { name: sentryRelease, finalize: false },
 			telemetry: false,
 			// Sentry's logger code only runs with `debug: true`, which Studio never sets
 			bundleSizeOptimizations: { excludeDebugStatements: true },
@@ -375,10 +386,8 @@ export default defineConfig({
 	},
 	define: {
 		STUDIO_VERSION: JSON.stringify(packageJson.version),
-		STUDIO_COMMIT: JSON.stringify(getCommitHash()),
-		// Tauri sets this for its frontend dev and build hooks. Use the constant directly in platform-only branches so
-		// Rolldown can drop their imports before splitting chunks.
-		STUDIO_DESKTOP: process.env['TAURI_ENV_PLATFORM'] !== undefined,
+		STUDIO_COMMIT: JSON.stringify(commitHash),
+		STUDIO_DESKTOP: isDesktop,
 	},
 	resolve: {
 		tsconfigPaths: true,

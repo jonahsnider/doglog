@@ -240,7 +240,8 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           version="$(jq -r .version package.json)"
-          pnpm exec sentry release finalize "jonah-snider/doglog-studio@$version"
+          commit="$(git rev-parse --short HEAD)"
+          pnpm exec sentry release finalize "jonah-snider/doglog-studio@$version+$commit"
         working-directory: studio
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
