@@ -1,3 +1,4 @@
+import { createId } from '@/lib/random-id';
 import type { NtClient, NtListener } from '@/nt/client';
 import type { NtWorkerEvent, NtWorkerRequest } from '@/nt/nt-worker';
 
@@ -64,7 +65,7 @@ function send(request: NtWorkerRequest): void {
 		});
 		port.start();
 		// Held until this tab or window closes, which tells the worker to close its clients
-		const lock = `doglog-studio:nt-${crypto.randomUUID()}`;
+		const lock = `doglog-studio:nt-${createId()}`;
 		void navigator.locks.request(lock, () => {
 			send({ type: 'hello', lock });
 			return new Promise(() => {});

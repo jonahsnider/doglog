@@ -4,6 +4,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { get, set } from 'idb-keyval';
 import * as z from 'zod';
 import { createPersistedAtom } from '@/lib/persisted-store';
+import { createId } from '@/lib/random-id';
 
 const maxRecentLogs = 10;
 
@@ -84,7 +85,7 @@ async function saveRecentLogHandles(handles: readonly RecentLogHandle[]): Promis
 }
 
 export async function addRecentLogHandle(handle: FileSystemFileHandle): Promise<void> {
-	const recent = { id: crypto.randomUUID(), handle };
+	const recent = { id: createId(), handle };
 	await saveRecentLogHandles([recent, ...(await otherHandles(handle))].slice(0, maxRecentLogs));
 }
 

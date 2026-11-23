@@ -4,6 +4,7 @@ import { toastManager } from '@/components/ui/toast';
 import type { RestoredLog } from '@/data/log-worker';
 import type { RecordingEvent } from '@/data/recorder';
 import type { RecordingWorkerMessage, RecordingWorkerRequest } from '@/data/recording-worker';
+import { createId } from '@/lib/random-id';
 
 const folderName = 'live-recordings';
 // Held while choosing a recording to restore, so two windows don't choose the same one
@@ -65,7 +66,7 @@ export class LiveRecording {
 
 	/** Record a new live session. Its file is created once it connects. */
 	static create(host: string): LiveRecording {
-		const id = crypto.randomUUID();
+		const id = createId();
 		return new LiveRecording(id, host, holdLock(recordingLock(id)));
 	}
 

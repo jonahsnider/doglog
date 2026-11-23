@@ -8,7 +8,10 @@ import { restoreLiveSession } from '@/data/source';
  * Studio closed or crashed. Nothing changes if a live session was started first.
  */
 export async function restoreLive(): Promise<void> {
-	// Ex. the browser has no private file system for the page, since it's served over HTTP
+	// Web Locks are unavailable outside secure contexts.
+	if (!('locks' in navigator)) {
+		return;
+	}
 	const claimed = await claimRecording().catch(() => undefined);
 	if (claimed === undefined) {
 		return;
