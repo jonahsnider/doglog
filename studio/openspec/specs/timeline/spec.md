@@ -52,12 +52,18 @@ Clicking or dragging along the timeline bar SHALL snap the cursor to the start o
 
 ### Requirement: Robot mode on the timeline
 
-When the source has Driver Station data (`DS:` entries in a log, or `/FMSInfo/FMSControlData` from NetworkTables), the timeline bar's track SHALL be colored by the robot's mode: autonomous, teleop, test, and e-stopped, leaving disabled periods uncolored.
+When the source has Driver Station data, the timeline bar's track SHALL be colored by the robot's mode: autonomous, teleop, test, and e-stopped, leaving disabled periods uncolored. Studio MUST use the first source of mode data available: WPILib's `/DS:` flags, AdvantageKit's `/DriverStation/` entries in a log, its `/AdvantageKit/DriverStation/` or `/NT:/AdvantageKit/DriverStation/` entries from NetworkTables, then `/FMSInfo/FMSControlData`.
 
 #### Scenario: Teleop
 
 - **GIVEN** a match log where teleop ran from 2:34.94 to 4:49.84
 - **THEN** that part of the track is colored as teleop
+
+#### Scenario: AdvantageKit robot modes
+
+- **GIVEN** a source with AdvantageKit's `Enabled`, `EmergencyStop`, and `RobotMode` entries instead of separate `Autonomous` and `Test` flags
+- **THEN** the timeline shows `AUTONOMOUS` as auto and `UTILITY` as test while enabled
+- **AND** it shows e-stop when `EmergencyStop` is true, even if the robot is disabled
 
 ### Requirement: Alerts on the timeline
 

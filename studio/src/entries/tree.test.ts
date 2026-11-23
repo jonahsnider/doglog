@@ -56,6 +56,17 @@ test('only /Robot, the Pinned section, or a lone top-level group start expanded'
 	expect(expandedGroups(pinned, new Set())).toEqual(['pinned', '/Drive']);
 });
 
+test.each(['', '/AdvantageKit', '/NT:/AdvantageKit'])('real outputs are easy to find under %s', (prefix) => {
+	const output = `${prefix}/RealOutputs`;
+	const replay = `${prefix}/ReplayOutputs`;
+	const recorded = entries(`${output}/Arm/Angle`, `${replay}/Arm/Angle`, '/NT:/FMSInfo/EventName');
+	const { items } = sectionEntryTree(buildEntryTree(recorded), {}, false);
+	const { rows } = entryTreeView(items, expandedGroups(items, new Set()), '');
+	const visible = rows.map((row) => row.item.value);
+	expect(visible).toContain(`${output}/Arm/Angle`);
+	expect(visible).not.toContain(`${replay}/Arm/Angle`);
+});
+
 test('a name can be both an entry and a group', () => {
 	const arm = tree[0]!;
 	expect(arm.entry?.name).toBe('/Arm');

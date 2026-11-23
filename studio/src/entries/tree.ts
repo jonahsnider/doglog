@@ -36,6 +36,7 @@ export type EntryTreeView = {
 };
 
 const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+const robotOutputPaths = ['/Robot', '/RealOutputs', '/AdvantageKit/RealOutputs', '/NT:/AdvantageKit/RealOutputs'];
 
 function sortNodes(nodes: EntryTreeNode[]): void {
 	nodes.sort((a, b) => collator.compare(a.label, b.label));
@@ -147,19 +148,18 @@ export function ancestorGroups(names: Iterable<string>): Set<string> {
 	return groups;
 }
 
-/**
- * The Pinned section, `/Robot` that DogLog logs everything under, and the only top-level group when there's one.
- * Other groups, ex. controllers and NetworkTables, start collapsed so they don't bury the robot's own entries.
- */
-function defaultGroups(items: readonly EntryTreeNode[]): string[] {
-	const groups = items.filter((node) => node.children !== undefined && node.section === undefined);
+function defaultGroups(items: readonly EntryTreeNode[], topLevel = true): string[] {
+	const lone =
+		topLevel && items.filter((node) => node.children !== undefined && node.section === undefined).length === 1;
 	return items.flatMap((node) => {
 		if (!node.children) {
 			return [];
 		}
-		// `/Robot` may be compacted with the groups under it, ex. `/Robot/Drive`
-		const robot = node.value === '/Robot' || node.value.startsWith('/Robot/');
-		return node.section === 'pinned' || robot || groups.length === 1 ? [node.value] : [];
+		const output = robotOutputPaths.some((path) => node.value === path || node.value.startsWith(`${path}/`));
+		const nested = robotOutputPaths.some((path) => path.startsWith(`${node.value}/`))
+			? defaultGroups(node.children, false)
+			: [];
+		return node.section === 'pinned' || lone || output || nested.length > 0 ? [node.value, ...nested] : [];
 	});
 }
 

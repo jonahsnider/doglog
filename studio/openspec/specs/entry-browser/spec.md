@@ -8,7 +8,7 @@ Define the entry browser, a collapsible panel listing every entry in the active 
 
 ### Requirement: Entry tree
 
-The entry browser SHALL list every entry in the active source as a tree grouped by path segments, showing each entry's type indicator and value at the cursor. Groups MUST start collapsed, except the Pinned section, the `/Robot` group, and the top-level group when it's the only one.
+The entry browser SHALL list every entry in the active source as a tree grouped by path segments, showing each entry's type indicator and value at the cursor. Groups MUST start collapsed, except the Pinned section, the top-level group when it's the only one, and the groups that need to open to show the immediate children of `/Robot`, `/RealOutputs`, `/AdvantageKit/RealOutputs`, or `/NT:/AdvantageKit/RealOutputs`. This MUST also work when the output group is compacted with another group.
 
 #### Scenario: Nested entries
 
@@ -21,6 +21,13 @@ The entry browser SHALL list every entry in the active source as a tree grouped 
 - **WHEN** the user opens it
 - **THEN** the `Robot` group is expanded, showing the groups and entries in it
 - **AND** the controller and NetworkTables groups are collapsed
+
+#### Scenario: Real outputs start expanded
+
+- **GIVEN** a source with `/AdvantageKit/RealOutputs/Arm/Angle`, `/AdvantageKit/RealOutputs/Drive/Speed`, and entries under `/AdvantageKit/ReplayOutputs`
+- **WHEN** the user opens it
+- **THEN** `AdvantageKit` and `RealOutputs` are expanded so `Arm` and `Drive` are visible
+- **AND** `ReplayOutputs` is collapsed
 
 #### Scenario: Lone group starts expanded
 

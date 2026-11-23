@@ -15,8 +15,19 @@ export type AlertSpan = {
 	readonly text: string;
 };
 
-// Logs have one boolean entry per mode flag, written by `DriverStation.startDataLog()`
-const dsEntryNames = ['/DS:enabled', '/DS:autonomous', '/DS:test', '/DS:estop'] as const;
+const driverStationEntries = [
+	['/DS:enabled', '/DS:autonomous', '/DS:test', '/DS:estop'],
+	...['/DriverStation/', '/AdvantageKit/DriverStation/', '/NT:/AdvantageKit/DriverStation/'].map(
+		(prefix) =>
+			[
+				`${prefix}Enabled`,
+				`${prefix}Autonomous`,
+				`${prefix}Test`,
+				`${prefix}EmergencyStop`,
+				`${prefix}RobotMode`,
+			] as const,
+	),
+] as const;
 // Live sources have the same flags as a bitfield in NetworkTables
 const controlDataName = '/FMSInfo/FMSControlData';
 const controlBits = { enabled: 0x01, autonomous: 0x02, test: 0x04, estop: 0x08 };
@@ -61,18 +72,29 @@ function toPeriods(
 
 /** The robot's mode over time, from the Driver Station data in a log or NetworkTables. Empty without that data. */
 export function getModePeriods(range: TimeRange): readonly ModePeriod[] {
-	const [enabled, autonomous, test, estop] = dsEntryNames.map((name) => getEntry(name));
-	const dsEntries = [enabled, autonomous, test, estop].filter((entry): entry is Entry => entry?.kind === 'boolean');
-	if (dsEntries.length > 0) {
+	for (const [enabledName, autoName, testName, estopName, modeName] of driverStationEntries) {
+		const [enabled, autonomous, test, estop] = [enabledName, autoName, testName, estopName].map((name) => {
+			const entry = getEntry(name);
+			return entry?.kind === 'boolean' && entry.samples.length > 0 ? entry : undefined;
+		});
+		const flags = [enabled, autonomous, test, estop].filter((entry) => entry !== undefined);
+		if (flags.length === 0) {
+			continue;
+		}
+		const mode = modeName === undefined ? undefined : getEntry(modeName);
+		const robotMode = mode?.kind === 'string' ? mode : undefined;
 		return toPeriods(
-			dsEntries,
-			(time) =>
-				modeOf(
+			robotMode ? [...flags, robotMode] : flags,
+			(time) => {
+				// The 2027 Driver Station logs a mode name instead of separate auto and test flags.
+				const selected = robotMode?.samples.valueAt(time);
+				return modeOf(
 					enabled?.samples.valueAt(time),
-					autonomous?.samples.valueAt(time),
-					test?.samples.valueAt(time),
+					selected === undefined ? autonomous?.samples.valueAt(time) : selected === 'AUTONOMOUS',
+					selected === undefined ? test?.samples.valueAt(time) : selected === 'UTILITY',
 					estop?.samples.valueAt(time),
-				),
+				);
+			},
 			range,
 		);
 	}
