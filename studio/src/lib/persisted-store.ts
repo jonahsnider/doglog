@@ -1,5 +1,6 @@
 import { type Atom, createAtom } from '@tanstack/store';
 import { decodeImportBlobMeta, LoroDoc } from 'loro-crdt';
+import { base64ToUint8Array, uint8ArrayToBase64 } from 'uint8array-extras';
 import type * as z from 'zod';
 
 const keyPrefix = 'doglog-studio:';
@@ -77,7 +78,7 @@ function readDoc(doc: LoroDoc, key: string): Uint8Array | undefined {
 	}
 
 	try {
-		const bytes = Uint8Array.fromBase64(stored);
+		const bytes = base64ToUint8Array(stored);
 		doc.import(bytes);
 		return bytes;
 	} catch {
@@ -117,7 +118,7 @@ export function createPersistedDoc(key: string): LoroDoc {
 
 /** Save a document created by `createPersistedDoc()`, ex. after importing changes from another device */
 export function saveDoc(key: string, doc: LoroDoc): void {
-	writeStorage(key, doc.export({ mode: 'snapshot' }).toBase64());
+	writeStorage(key, uint8ArrayToBase64(doc.export({ mode: 'snapshot' })));
 }
 
 /** Remove a value saved by `createPersistedAtom()` or `createPersistedDoc()` */

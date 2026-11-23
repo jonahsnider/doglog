@@ -1,3 +1,4 @@
+import { base64ToUint8Array, uint8ArrayToBase64 } from 'uint8array-extras';
 import * as z from 'zod';
 import type { DashboardContents } from '@/dashboards/doc';
 import { type LayoutSnapshot, snapshotLayout } from '@/panes/layout-snapshot';
@@ -177,7 +178,7 @@ export async function encodeDashboardLink(dashboard: DashboardContents): Promise
 		throw new DashboardLinkTooLarge();
 	}
 	const compressed = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
-	const payload = (await new Response(compressed).bytes()).toBase64({ alphabet: 'base64url', omitPadding: true });
+	const payload = uint8ArrayToBase64(await new Response(compressed).arrayBuffer(), { urlSafe: true });
 	if (payload.length > maxPayloadLength) {
 		throw new DashboardLinkTooLarge();
 	}
@@ -190,7 +191,7 @@ export async function decodeDashboardLink(link: string) {
 	if (!link.startsWith(prefix) || payload.length > maxPayloadLength || !/^[\w-]+$/u.test(payload)) {
 		throw new Error('Invalid dashboard link');
 	}
-	const bytes = Uint8Array.fromBase64(payload, { alphabet: 'base64url' });
+	const bytes = base64ToUint8Array(payload);
 	const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
 	const decoder = new TextDecoder('utf-8', { fatal: true });
 	let length = 0;

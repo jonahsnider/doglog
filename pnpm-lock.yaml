@@ -390,6 +390,9 @@ importers:
       torph:
         specifier: 0.1.4
         version: 0.1.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      uint8array-extras:
+        specifier: 1.6.0
+        version: 1.6.0
       uplot:
         specifier: 1.6.32
         version: 1.6.32

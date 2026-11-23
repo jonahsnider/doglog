@@ -1,3 +1,4 @@
+import { base64ToUint8Array, stringToBase64 } from 'uint8array-extras';
 import { hexFromArgb } from '@material/material-color-utilities';
 import type { RenderOptions } from 'takumi-js';
 import { defaultThemeColor, schemeColors } from '@/theme/theme-color';
@@ -21,7 +22,7 @@ export const colors = {
 export const headingFont = '"Source Sans 3"';
 
 function dataUrlBytes(url: string): Uint8Array {
-	return Uint8Array.fromBase64(url.slice(url.indexOf(',') + 1));
+	return base64ToUint8Array(url.slice(url.indexOf(',') + 1));
 }
 
 /** For drawing and measuring with Studio's UI font, and its heading font. Inlined since a server can't count on fetching them. */
@@ -33,4 +34,4 @@ export const renderOptions = {
 	emoji: 'from-font',
 } satisfies RenderOptions;
 
-export const logoUrl = `data:image/svg+xml;base64,${new TextEncoder().encode(logo).toBase64()}`;
+export const logoUrl = `data:image/svg+xml;base64,${stringToBase64(logo)}`;
