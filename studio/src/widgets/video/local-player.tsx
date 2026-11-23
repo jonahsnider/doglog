@@ -31,7 +31,8 @@ export function LocalPlayer({ url, muted, ref, onInfo }: PlayerProps & { url: st
 				if (!video) {
 					return;
 				}
-				if (video.seeking) {
+				// `seeking` can clear before `seeked` drains the queue. Replace the queued target even in that gap.
+				if (video.seeking || pendingSeek.current !== undefined) {
 					pendingSeek.current = time;
 				} else if (video.currentTime !== time) {
 					setPending(true);
@@ -93,13 +94,17 @@ export function LocalPlayer({ url, muted, ref, onInfo }: PlayerProps & { url: st
 			className={videoClassName}
 			onLoadedMetadata={(event) => onInfo({ duration: event.currentTarget.duration })}
 			onLoadedData={() => setPending(false)}
-			onSeeked={(event) => {
+			onSeeked={({ currentTarget: video }) => {
+				// A new seek can start before the previous seek's event arrives.
+				if (video.seeking) {
+					return;
+				}
 				const next = pendingSeek.current;
 				pendingSeek.current = undefined;
-				if (next === undefined || next === event.currentTarget.currentTime) {
+				if (next === undefined || next === video.currentTime) {
 					setPending(false);
 				} else {
-					event.currentTarget.currentTime = next;
+					video.currentTime = next;
 				}
 			}}
 			onError={(event) => {
