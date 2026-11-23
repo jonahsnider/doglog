@@ -48,16 +48,7 @@ jobs:
           java-version: 25
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6.4.1
-      - name: Assemble project
-        run: ./gradlew assemble :lib:plainJavadocJar :lib:generatePomFileForMavenPublication :lib:generateMetadataFileForMavenPublication
-      - name: Check formatting
-        run: ./gradlew spotlessCheck
-      - name: Assemble test project
-        run: ./gradlew assemble
-        working-directory: test-project
-      - name: Check test project formatting
-        run: ./gradlew spotlessCheck
-        working-directory: test-project
+      # Add Infer to PATH before the first Gradle call so the daemon inherits it
       - name: Restore Infer cache
         id: cache-infer
         uses: actions/cache/restore@v6.1.0
@@ -72,6 +63,16 @@ jobs:
             | tar xJ -C /tmp/infer
       - name: Add Infer to PATH
         run: echo "/tmp/infer/infer-linux-x86_64-${INFER_VERSION}/bin" >> "$GITHUB_PATH"
+      - name: Assemble project
+        run: ./gradlew assemble :lib:plainJavadocJar :lib:generatePomFileForMavenPublication :lib:generateMetadataFileForMavenPublication
+      - name: Check formatting
+        run: ./gradlew spotlessCheck
+      - name: Assemble test project
+        run: ./gradlew assemble
+        working-directory: test-project
+      - name: Check test project formatting
+        run: ./gradlew spotlessCheck
+        working-directory: test-project
       - name: Run Infer
         run: ./gradlew infer -PinferFailOnIssue
       - name: Save Infer cache
