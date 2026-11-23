@@ -6,8 +6,7 @@ import { createPersistedAtom } from '@/lib/persisted-store';
 const update = {
 	id: 7,
 	title: 'New logo',
-	description:
-		'Studio has a new logo. I think it lookS nice.',
+	description: 'Studio has a new logo. I think it lookS nice.',
 };
 
 /** ID of the update the user dismissed. New users start caught up, so they only see updates made after they started. */
