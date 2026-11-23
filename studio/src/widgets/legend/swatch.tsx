@@ -75,8 +75,8 @@ export function LegendSwatch({ item }: { item: LegendItem }) {
 			<button
 				ref={swatch}
 				type="button"
-				// Clicked anywhere in the row's height, around the small swatch it shows
-				className="-m-[6px] flex shrink-0 cursor-pointer rounded-full p-[6px] outline-none focus-visible:ring-2 focus-visible:ring-ring"
+				// Clicked anywhere in the row's height, around the small swatch it shows, without growing past it for icons
+				className="-m-[6px] flex h-6 shrink-0 cursor-pointer items-center rounded-full p-[6px] outline-none focus-visible:ring-2 focus-visible:ring-ring"
 				aria-label={`${binding.hidden ? 'Show' : 'Hide'} ${binding.name}`}
 				aria-pressed={!binding.hidden}
 				// Clicking doesn't focus it, so Space plays or pauses instead of toggling it again
