@@ -86,7 +86,7 @@ The desktop app SHALL register itself as an app for `.wpilog` and `.wpilogxz` fi
 
 ### Requirement: Open recent logs
 
-The desktop app SHALL keep a list of the 10 logs it opened most recently, newest first. The source control menu's Open recent submenu and, on macOS, File > Open Recent MUST list them, with an item that clears the list. Logs opened from a path, ex. with the file picker, from the OS, or from the Logs page, MUST be added, and logs that can't be read MUST be removed.
+The desktop app SHALL keep a list of the 10 logs it opened most recently, newest first. The source control menu's Open recent submenu and, on macOS, File > Open Recent MUST list them, with an item that clears the list. Logs opened from a path, ex. with the file picker, by dropping them on the window, from the OS, or from the Logs page, MUST be added, and logs that can't be read MUST be removed.
 
 #### Scenario: Reopen a recent log
 

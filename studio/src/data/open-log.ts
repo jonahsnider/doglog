@@ -10,6 +10,7 @@ import {
 	supportsFileHandles,
 } from '@/data/recent-logs';
 import { openLog } from '@/data/source';
+import { handleFileDrops } from '@/desktop/file-drop';
 
 async function chooseLogWithDialog(): Promise<void> {
 	const path = await openDialog({ filters: [{ name: 'WPILOG', extensions: ['wpilog', 'wpilogxz'] }] });
@@ -125,6 +126,20 @@ export async function handleOpenedLogFiles(): Promise<void> {
 	await openTakenLog();
 }
 
+/** Whether a file's name or path is a log's */
+export function isLogFile(name: string): boolean {
+	return /\.wpilog(?:xz)?$/iu.test(name);
+}
+
+/** Open logs dropped on the desktop app's window, unless a widget takes them */
+export function handleDroppedLogPaths(): Promise<void> {
+	return handleFileDrops((path) => {
+		if (isLogFile(path)) {
+			void openLogPath(path);
+		}
+	});
+}
+
 /** Open a dropped WPILOG unless a widget has already handled the drop */
 export function handleLogFileDrop(event: DragEvent): void {
 	const transfer = event.dataTransfer;
@@ -134,7 +149,7 @@ export function handleLogFileDrop(event: DragEvent): void {
 	}
 	// Don't let the browser navigate to unhandled files.
 	event.preventDefault();
-	if (/\.wpilog(?:xz)?$/iu.test(file.name)) {
+	if (isLogFile(file.name)) {
 		// The handle has to be requested before the event ends.
 		const handle = supportsFileHandles
 			? Array.from(transfer.items)

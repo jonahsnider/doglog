@@ -11,7 +11,7 @@ import { registerWebMcpTools } from './agent/webmcp.ts';
 import { setUpAppMenu } from './desktop/app-menu.ts';
 import { trackHistory } from './commands/history.ts';
 import { handleOpenedDashboardLinks } from './dashboards/open-dashboard-link.ts';
-import { handleLaunchedLogFiles, handleOpenedLogFiles } from './data/open-log.ts';
+import { handleDroppedLogPaths, handleLaunchedLogFiles, handleOpenedLogFiles } from './data/open-log.ts';
 import { restoreLive } from './data/restore-live.ts';
 import { reopenDevLog } from './data/source.ts';
 import { syncMediaSession } from './timeline/media-session.ts';
@@ -42,6 +42,7 @@ if (STUDIO_DESKTOP) {
 		document.documentElement.dataset['frostedFrame'] = '';
 	}
 	void handleOpenedLogFiles();
+	void handleDroppedLogPaths();
 	void runLogSync();
 } else {
 	handleLaunchedLogFiles();

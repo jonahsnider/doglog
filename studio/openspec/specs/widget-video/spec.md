@@ -121,7 +121,13 @@ The dashboard SHALL only save a video file's name. When the device can't open th
 
 ### Requirement: Keep access to video files
 
-Each device SHALL keep how to open each widget's video file: its path in the desktop app, and its file handle in browsers that can keep file access. When the browser needs permission to read it again, the widget MUST ask with "Allow access". Files dropped in the desktop app are only kept until Studio closes.
+Each device SHALL keep how to open each widget's video file: its path in the desktop app, and its file handle in browsers that can keep file access. When the browser needs permission to read it again, the widget MUST ask with "Allow access". Files dropped in the desktop app MUST be kept like chosen ones.
+
+#### Scenario: Reopen the desktop app after dropping a video
+
+- **GIVEN** the user dropped `qual12.mp4` on a video widget in the desktop app
+- **WHEN** the user reopens Studio
+- **THEN** the widget plays `qual12.mp4` without choosing it again
 
 #### Scenario: Reopen Studio in Chrome
 

@@ -27,7 +27,7 @@ export function isVideoFile(file: Pick<File, 'name' | 'type'>): boolean {
 }
 
 // Files opened in this window, by pane, so they play without reading them again. The only way to open files the
-// device can't keep access to: dropped on the desktop app, or picked in browsers without file handles.
+// device can't keep access to, picked or dropped in browsers without file handles.
 const sessionFiles = new Map<string, { name: string; url: string }>();
 
 // Paths of the desktop app's videos, by pane

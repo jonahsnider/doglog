@@ -1,8 +1,9 @@
 import { type DragEvent, useState } from 'react';
 import { draggedFileType } from '@/data/open-log';
+import { useFileDropTarget } from '@/desktop/file-drop';
 import { supportsFileHandles } from '@/data/recent-logs';
 import type { WidgetProps } from '@/widgets/widget-type';
-import { chooseVideoFile, dropVideoFile, isVideoFile } from '@/widgets/video/local-files';
+import { chooseVideoFile, dropVideoFile, isVideoFile, setVideoPath } from '@/widgets/video/local-files';
 import { startSyncing } from '@/widgets/video/state';
 
 /** Adds a video picked or dropped in a pane, and starts syncing it */
@@ -14,10 +15,16 @@ export function useAddVideo(paneId: string, setOption: WidgetProps['setOption'])
 			startSyncing(paneId, 0);
 		}
 	};
+	// Files dropped on the desktop app have paths, so they're kept like picked ones
+	const desktopDrop = useFileDropTarget(
+		(name) => isVideoFile({ name, type: '' }),
+		(path) => addFile(setVideoPath(paneId, path)),
+	);
 	return {
-		draggingVideo,
+		draggingVideo: draggingVideo || desktopDrop.over,
 		choose: () => void chooseVideoFile(paneId).then(addFile),
 		dropProps: {
+			ref: desktopDrop.ref,
 			onDragOver: (event: DragEvent<HTMLDivElement>) => {
 				const type = draggedFileType(event.dataTransfer);
 				const video = type?.startsWith('video/') ?? false;

@@ -1,11 +1,14 @@
 import FileUpIcon from 'lucide-react/icons/file-up';
 import { useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
-import { draggedFileType, handleLogFileDrop } from '@/data/open-log';
+import { draggedFileType, handleLogFileDrop, isLogFile } from '@/data/open-log';
+import { useDraggedFile } from '@/desktop/file-drop';
 
 /** Covers the window while a potential log file is dragged over it */
 export function LogDropOverlay() {
 	const [dragging, setDragging] = useState(false);
+	// The desktop app gets file drags from Tauri instead of the browser's drag events
+	const draggedFile = useDraggedFile();
 
 	// Entering a child element fires before leaving its parent, so count how deep the drag is
 	const depth = useRef(0);
@@ -44,7 +47,7 @@ export function LogDropOverlay() {
 		handleLogFileDrop(event);
 	});
 
-	if (!dragging) {
+	if (!dragging && !(draggedFile !== undefined && isLogFile(draggedFile))) {
 		return null;
 	}
 
