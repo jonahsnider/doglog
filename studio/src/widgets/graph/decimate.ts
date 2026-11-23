@@ -19,7 +19,7 @@ function isSparse(count: number, pixels: number): boolean {
 }
 
 /** Whether samples are far enough apart to mark each one, `count` samples across `pixels` */
-export function isMarked(count: number, pixels: number): boolean {
+function isMarked(count: number, pixels: number): boolean {
 	return count * markedPixels <= pixels;
 }
 

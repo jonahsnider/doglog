@@ -64,7 +64,7 @@ Where many samples fall in one pixel column, the line SHALL span their minimum a
 
 ### Requirement: Discrete bands
 
-Each discrete entry SHALL show its name above a row with a band per period of unchanged value, labeled with the value when it fits. Hovering a band SHALL show its value, time range, and a swatch matching the band color. Where a value changes more than once within a pixel, the band MUST be hatched in a neutral color and the tooltip MUST show a change count instead of a value or swatch. Samples at least 16 px apart MUST be marked with ticks.
+Each discrete entry SHALL show its name above a row with a band per period of unchanged value, labeled with the value when it fits. Bands MUST NOT mark individual samples. Hovering a band SHALL show its value, time range, and a swatch matching the band color. Where a value changes more than once within a pixel, the band MUST be hatched in a neutral color and the tooltip MUST show a change count instead of a value or swatch.
 
 #### Scenario: Enum-like string entry
 

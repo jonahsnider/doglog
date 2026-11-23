@@ -1,7 +1,6 @@
 import type { Entry, TimeRange } from '@/data/data-store';
 import { formatValue } from '@/data/format-value';
 import { bandColor, type BandPalette, bandTextColor, type ColorAssignments } from '@/widgets/graph/colors';
-import { isMarked } from '@/widgets/graph/decimate';
 
 // Layout (px): each row is a label above a band
 export const rowHeight = 44;
@@ -173,19 +172,6 @@ export function drawBands(
 			index = next;
 		}
 		drawNarrow();
-
-		// Marks each sample when they're far enough apart, so a value logged once stands apart from one logged every loop
-		const after = entry.samples.indexAtOrAfter(view.end);
-		const last = after < 0 ? length : after + 1;
-		if (isMarked(last - first, width)) {
-			context.fillStyle = 'rgb(0 0 0 / 45%)';
-			for (let sample = first; sample < last; sample++) {
-				const time = timestamps[sample]!;
-				if (time >= view.start) {
-					context.fillRect(Math.round(toX(time)), y + bandHeight - 5, 1, 5);
-				}
-			}
-		}
 	}
 
 	for (const gap of gaps) {
