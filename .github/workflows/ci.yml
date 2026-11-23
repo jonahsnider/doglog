@@ -28,54 +28,12 @@ jobs:
       - name: Validate Studio specs
         run: pnpm --dir studio openspec:check
 
-  assemble:
-    name: Assemble
+  doglog:
+    name: DogLog
 
     runs-on: ubuntu-latest
 
-    timeout-minutes: 10
-
-    steps:
-      - name: Checkout Git repository
-        uses: actions/checkout@v7.0.1
-      - name: Setup Java
-        uses: actions/setup-java@v6.3.0
-        with:
-          distribution: 'temurin'
-          java-version: 25
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6.4.1
-      - name: Assemble project
-        run: ./gradlew assemble :lib:plainJavadocJar :lib:generatePomFileForMavenPublication :lib:generateMetadataFileForMavenPublication
-  style:
-    name: Check formatting
-
-    runs-on: ubuntu-latest
-
-    timeout-minutes: 10
-
-    needs: [assemble]
-
-    steps:
-      - name: Checkout Git repository
-        uses: actions/checkout@v7.0.1
-      - name: Setup Java
-        uses: actions/setup-java@v6.3.0
-        with:
-          distribution: 'temurin'
-          java-version: 25
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6.4.1
-      - name: Check formatting
-        run: ./gradlew spotlessCheck
-  infer:
-    name: Infer
-
-    runs-on: ubuntu-latest
-
-    timeout-minutes: 10
-
-    needs: [assemble]
+    timeout-minutes: 15
 
     env:
       INFER_VERSION: v1.3.0
@@ -90,6 +48,16 @@ jobs:
           java-version: 25
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6.4.1
+      - name: Assemble project
+        run: ./gradlew assemble :lib:plainJavadocJar :lib:generatePomFileForMavenPublication :lib:generateMetadataFileForMavenPublication
+      - name: Check formatting
+        run: ./gradlew spotlessCheck
+      - name: Assemble test project
+        run: ./gradlew assemble
+        working-directory: test-project
+      - name: Check test project formatting
+        run: ./gradlew spotlessCheck
+        working-directory: test-project
       - name: Restore Infer cache
         id: cache-infer
         uses: actions/cache/restore@v6.1.0
@@ -112,81 +80,16 @@ jobs:
         with:
           path: /tmp/infer
           key: ${{ steps.cache-infer.outputs.cache-primary-key }}
-
-  assemble-test-project:
-    name: Assemble test project
-
-    runs-on: ubuntu-latest
-
-    timeout-minutes: 10
-
-    needs: [assemble]
-
-    steps:
-      - name: Checkout Git repository
-        uses: actions/checkout@v7.0.1
-      - name: Setup Java
-        uses: actions/setup-java@v6.3.0
-        with:
-          distribution: 'temurin'
-          java-version: 25
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6.4.1
-      - name: Assemble DogLog
-        run: ./gradlew assemble
-      - name: Assemble test project
-        run: ./gradlew assemble
-        working-directory: test-project
-  style-test-project:
-    name: Check test project formatting
-
-    runs-on: ubuntu-latest
-
-    timeout-minutes: 10
-
-    needs: [assemble]
-
-    steps:
-      - name: Checkout Git repository
-        uses: actions/checkout@v7.0.1
-      - name: Setup Java
-        uses: actions/setup-java@v6.3.0
-        with:
-          distribution: 'temurin'
-          java-version: 25
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6.4.1
-      - name: Check formatting
-        run: ./gradlew spotlessCheck
-        working-directory: test-project
-  javadoc:
-    name: Publish Javadoc
-
-    runs-on: ubuntu-latest
-
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-    needs: [assemble]
-
-    timeout-minutes: 10
-
-    steps:
-      - name: Checkout Git repository
-        uses: actions/checkout@v7.0.1
-      - name: Setup Java
-        uses: actions/setup-java@v6.3.0
-        with:
-          distribution: 'temurin'
-          java-version: 25
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6.4.1
-      - name: Build
+      - name: Build Javadoc
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: ./gradlew javadoc
       - name: Setup pnpm
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: pnpm/setup@v3.2.0
         with:
           cache: true
       - name: Publish Javadoc to Cloudflare Workers
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: cloudflare/wrangler-action@v4.1.3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -232,27 +135,6 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           command: deploy
           workingDirectory: web
-  studio-robot-sftp:
-    name: Studio robot SFTP
-
-    runs-on: ubuntu-latest
-
-    timeout-minutes: 15
-
-    defaults:
-      run:
-        working-directory: studio/src-tauri
-
-    steps:
-      - name: Checkout Git repository
-        uses: actions/checkout@v7.0.1
-      - name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v2.0.1
-        with:
-          toolchain: stable
-          cache-workspaces: studio/src-tauri -> target
-      - name: Test
-        run: cargo test -p robot-sftp -- --include-ignored
   studio-rust:
     name: Studio Rust
 
@@ -288,6 +170,7 @@ jobs:
           toolchain: stable
           components: rustfmt, clippy
           cache-workspaces: studio/src-tauri -> target
+          cache-save-if: ${{ github.ref == 'refs/heads/main' }}
       - name: Check formatting
         run: cargo fmt --all --check
       - name: Create placeholder frontend build
@@ -295,6 +178,8 @@ jobs:
         run: mkdir -p ../dist
       - name: Clippy
         run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Test robot SFTP
+        run: cargo test -p robot-sftp -- --include-ignored
   studio:
     name: Studio
 
@@ -315,14 +200,18 @@ jobs:
         working-directory: studio
       - name: Setup uv
         uses: astral-sh/setup-uv@v10.4.0
+        with:
+          working-directory: studio/scripts/field3d
+          cache-dependency-glob: uv.lock
+          save-cache: ${{ github.ref == 'refs/heads/main' }}
       - name: Check Python formatting
-        run: uv run --locked ruff format --check
+        run: uv run --locked --only-group dev ruff format --check
         working-directory: studio/scripts/field3d
       - name: Lint Python
-        run: uv run --locked ruff check
+        run: uv run --locked --only-group dev ruff check
         working-directory: studio/scripts/field3d
       - name: Type check Python
-        run: uv run --locked ty check
+        run: uv run --locked --only-group dev ty check
         working-directory: studio/scripts/field3d
       - name: React Doctor
         # `pnpm doctor` is a built-in pnpm command

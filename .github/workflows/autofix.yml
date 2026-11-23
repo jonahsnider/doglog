@@ -22,6 +22,8 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6.4.1
+        with:
+          cache-read-only: true
 
       - name: Fix Error Prone issues
         run: ./gradlew assemble
@@ -51,9 +53,13 @@ jobs:
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v10.4.0
+        with:
+          working-directory: studio/scripts/field3d
+          cache-dependency-glob: uv.lock
+          save-cache: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Fix Studio Python lint and formatting issues
-        run: uv run --locked ruff check --fix && uv run --locked ruff format
+        run: uv run --locked --only-group dev ruff check --fix && uv run --locked --only-group dev ruff format
         working-directory: studio/scripts/field3d
         continue-on-error: true
 

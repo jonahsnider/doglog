@@ -7,6 +7,17 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'studio/**'
+      - '!studio/openspec/**'
+      - '!studio/scripts/field3d/**'
+      - '!studio/DESIGN.md'
+      - 'patches/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'rust-toolchain.toml'
+      - '.github/workflows/studio-preview.yml'
 
 # Only the newest build matters, so a new push cancels the one in progress
 # Bot pushes get their own group so they don't cancel a build they won't replace
