@@ -11,7 +11,7 @@ Constructed on an `8u x 8u` grid (`1u = 16` on the `128 x 128` viewBox, `1u = 12
 - **Left tail**: the bottom bar runs from the left edge (`x = 0`) at `y = 6u`, solid with no fade, so every edge stays crisp (Liquid Glass can't follow a feathered edge).
 - **Cursor ring**: centered at `(6u, 2u)` (`96, 32`), outer diameter `1.75u` (`28`), ring stroke `0.5u` (`8`), hollow center `0.75u` (`12`). Both the top bar and playhead terminate inside the ring wall so no mask is needed.
 - **Playhead**: `x = 6u`, width `3/8u` (`6`), vertical opacity stops `1/4 -> 7/8 -> 5/8 -> 1/4` (`0%, 25%, 75%, 100%`).
-- **Gridlines**: `3x3` interior lines at `2u` spacing (`32, 64, 96`; `x = 6u` omitted behind the playhead), width `1/8u` (`2`). Horizontal lines are segmented around the vertical gridlines, playhead, and hollow cursor hole so semi-transparent strokes never double-composite.
+- **Gridlines**: `3x3` interior lines, width `1/8u` (`2`). Rows sit at `2u` spacing (`y = 32, 64, 96`). Columns sit at `x = 30, 62`, with the playhead taking the third: `1/8u` left of `2u` and `4u` so the wider playhead doesn't squeeze the column beside it, leaving symmetric gaps of `29, 30, 30, 29`. Horizontal lines are segmented around the vertical gridlines, playhead, and hollow cursor hole, and gridlines and playhead stop `1px` inside the frame where the rim's visible band begins, so semi-transparent strokes never double-composite.
 
 ## Color
 

@@ -22,15 +22,15 @@
 	<g clip-path="url(#clip)">
 		<rect width="128" height="128" fill="url(#bg)" />
 		<path
-			d="M 32,0 V 128 M 64,0 V 128 M 0,32 H 31 M 33,32 H 63 M 65,32 H 82 M 110,32 H 128 M 0,64 H 31 M 33,64 H 63 M 65,64 H 93 M 99,64 H 128 M 0,96 H 31 M 33,96 H 63 M 65,96 H 93 M 99,96 H 128"
+			d="M 30,1 V 127 M 62,1 V 127 M 1,32 H 29 M 31,32 H 61 M 63,32 H 82 M 110,32 H 127 M 1,64 H 29 M 31,64 H 61 M 63,64 H 93 M 99,64 H 127 M 1,96 H 29 M 31,96 H 61 M 63,96 H 93 M 99,96 H 127"
 			fill="none"
 			stroke="#fff7f6"
 			stroke-opacity="0.125"
 			stroke-width="2"
 		/>
 		<g stroke="url(#playhead)" stroke-width="6">
-			<line x1="96" y1="0" x2="96" y2="22" />
-			<line x1="96" y1="42" x2="96" y2="128" />
+			<line x1="96" y1="1" x2="96" y2="22" />
+			<line x1="96" y1="42" x2="96" y2="127" />
 		</g>
 		<path
 			d="M 0,96 H 64 A 16,16 0 0,0 64,64 H 48 A 16,16 0 0,1 48,32 H 86"
