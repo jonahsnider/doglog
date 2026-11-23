@@ -275,7 +275,7 @@ export function TimelineBar() {
 						exit={{ height: 0, transition: exit }}
 					>
 						{loading ? (
-							<LogProgress fileName={source.fileName} />
+							<LogProgress fileName={source.fileName} cancelable={source.cancelable} />
 						) : (
 							<TimelineControls fadeIn={showedProgress} range={range} source={source} timeline={timeline} />
 						)}

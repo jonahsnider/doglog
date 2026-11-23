@@ -2,6 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
 import { toastManager } from '@/components/ui/toast';
+import { openLogUrl } from '@/data/open-log-url';
 import {
 	addRecentLog,
 	addRecentLogHandle,
@@ -91,11 +92,18 @@ export function draggedFileType(transfer: DataTransfer | null): string | undefin
 	return type === 'application/octet-stream' ? '' : (type ?? '');
 }
 
-/** Open the last log the OS asked the desktop app to open, if it hasn't been opened yet */
+type OpenedLogTarget = { type: 'path'; value: string } | { type: 'url'; value: string };
+
+/** Open the last log the OS, CLI, or `doglog://open?url=...` link asked the desktop app to open */
 async function openTakenLog(): Promise<void> {
-	const path = await invoke<string | null>('take_opened_log');
-	if (path !== null) {
-		await openLogPath(path);
+	const target = await invoke<OpenedLogTarget | null>('take_opened_log');
+	if (target === null) {
+		return;
+	}
+	if (target.type === 'url') {
+		await openLogUrl(target.value);
+	} else {
+		await openLogPath(target.value);
 	}
 }
 

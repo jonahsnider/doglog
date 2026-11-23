@@ -7,6 +7,7 @@ import { paneHandlers } from '@/agent/pane-handlers';
 import { flushData, getEntries, getTimeRange } from '@/data/data-store';
 import { saveLiveExport } from '@/data/export-live';
 import { openLogPath } from '@/data/open-log';
+import { openLogUrl } from '@/data/open-log-url';
 import { isReachable } from '@/data/connect-target';
 import { closeSource, connect, getSource, type Source, subscribeSource } from '@/data/source';
 import { getRobotHost, simulatorHost } from '@/robot-target';
@@ -85,7 +86,30 @@ export const handlers: Handlers = {
 
 	source_get: () => describeSource(),
 
-	source_update: async ({ path }) => {
+	source_update: async ({ path, url }) => {
+		if (path !== undefined && url !== undefined) {
+			throw new AgentError('Pass either `path` or `url`, not both.');
+		}
+		if (url !== undefined) {
+			let error = '';
+			const result = await openLogUrl(url, {
+				onError: (message) => {
+					error = message;
+				},
+			});
+			if (!result.ok) {
+				throw new AgentError(`Couldn't open ${url}: ${result.error.message}`);
+			}
+			const loading = getSource();
+			const source = await waitForSource((other) => other !== loading);
+			if (source?.type !== 'log' || source.status !== 'loaded') {
+				throw new AgentError(
+					error === '' ? `Another source was opened before ${url} finished loading.` : `Couldn't open ${url}: ${error}`,
+				);
+			}
+			return describeSource();
+		}
+
 		if (!STUDIO_DESKTOP || path === undefined) {
 			const robotHost = getRobotHost(settingsStore.get().robotTarget);
 			const hosts = robotHost === undefined ? [simulatorHost] : [robotHost, simulatorHost];

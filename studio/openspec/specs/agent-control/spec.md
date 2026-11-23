@@ -247,7 +247,13 @@ A command that can't work on the current platform SHALL NOT be offered there, ra
 - **GIVEN** an agent is connected to the web app through WebMCP
 - **WHEN** it lists the available commands
 - **THEN** there are no window commands, `dashboard_capture`, `dashboard_record`, or `source_export`
-- **AND** `source_update` can connect to a robot but not open a file path
+- **AND** `source_update` can connect to a robot or open a log from a URL, but not open a file path
+
+#### Scenario: Open a log from a URL with an agent
+
+- **GIVEN** an agent is connected to Studio
+- **WHEN** it calls `source_update` with `url` set to `https://example.com/match.wpilog`
+- **THEN** Studio downloads and opens that log and returns once it is loaded
 
 ### Requirement: WebMCP in the web app
 

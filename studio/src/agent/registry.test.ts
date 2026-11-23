@@ -20,8 +20,10 @@ test.each(['web', 'desktop'] as const)('every %s command takes an object, as MCP
 	expect(types.filter(([, type]) => type !== 'object')).toEqual([]);
 });
 
-test('the web app offers no window commands or file paths', () => {
+test('the web app offers no window commands or file paths, but allows log URLs', () => {
 	const web = platformCommands('web');
 	expect(web.map(({ name }) => name).filter((name) => name.startsWith('window_'))).toEqual([]);
-	expect(web.find(({ name }) => name === 'source_update')?.input.shape).not.toHaveProperty('path');
+	const sourceUpdate = web.find(({ name }) => name === 'source_update');
+	expect(sourceUpdate?.input.shape).not.toHaveProperty('path');
+	expect(sourceUpdate?.input.shape).toHaveProperty('url');
 });

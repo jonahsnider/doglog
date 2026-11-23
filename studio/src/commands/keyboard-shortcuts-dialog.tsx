@@ -91,6 +91,7 @@ const sections: {
 		title: 'Data',
 		shortcuts: [
 			{ label: 'Open log', keys: [shortcuts.openLog] },
+			{ label: 'Open from URL', keys: [shortcuts.openLogUrl] },
 			{ label: 'Export live data as WPILOG', keys: [exportLiveShortcut] },
 			{ label: 'Connect', keys: [shortcuts.connect] },
 			{ label: 'Switch between log and live', keys: [shortcuts.switchSource] },

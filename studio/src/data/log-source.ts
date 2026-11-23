@@ -6,12 +6,20 @@ import { isXz } from '@/data/xz';
 
 export type LogInput = File | { name: string; contents: ArrayBuffer };
 
+/** Whether the first 6 bytes start a WPILOG or XZ-compressed WPILOG file */
+export function hasWpilogMagic(header: Uint8Array): boolean {
+	if (header.byteLength < 6) {
+		return false;
+	}
+	return new TextDecoder().decode(header.subarray(0, 6)) === 'WPILOG' || isXz(header);
+}
+
 /** Whether a file is a WPILOG file, or an XZ-compressed one (`.wpilogxz`) */
 export async function isWpilog(contents: File | ArrayBuffer): Promise<boolean> {
 	const header = new Uint8Array(
 		contents instanceof File ? await contents.slice(0, 6).arrayBuffer() : contents.slice(0, 6),
 	);
-	return new TextDecoder().decode(header) === 'WPILOG' || isXz(header);
+	return hasWpilogMagic(header);
 }
 
 /** The end of a log's file that couldn't be read */
@@ -25,8 +33,8 @@ export type UnreadEnd = {
 };
 
 type LoadLogCallbacks = {
-	/** Called with the fraction of the log parsed, from 0 to 1 */
-	onProgress: (progress: number) => void;
+	/** Called with the fraction parsed/downloaded from 0 to 1, or `undefined` when indeterminate */
+	onProgress: (progress: number | undefined) => void;
 	/**
 	 * `unread` is unset when the whole log was read, or all but a partial last record. `restored` is the live session a
 	 * recording loaded with `live` recorded.
@@ -35,16 +43,17 @@ type LoadLogCallbacks = {
 	onError: (message: string) => void;
 };
 
-/**
- * Parse a WPILOG file in a worker and add its entries to `data`. With `live`, a live session's recording is added on
- * Studio's clock, like the live session showed it. Transfers ownership of a buffer and returns a function that cancels loading.
- */
-export function loadLog(
-	contents: File | ArrayBuffer,
+export type LogStreamHandle = {
+	push: (chunk: ArrayBuffer, downloadedBytes: number) => void;
+	finish: () => void;
+	fail: (message: string) => void;
+	stop: () => void;
+};
+
+function attachLogWorker(
 	data: DataSet,
 	{ onProgress, onLoaded, onError }: LoadLogCallbacks,
-	live = false,
-): () => void {
+): { worker: Worker; stop: () => void } {
 	const worker = new Worker(new URL('./log-worker.ts', import.meta.url), { type: 'module' });
 	let stopped = false;
 
@@ -111,7 +120,45 @@ export function loadLog(
 		}
 	});
 
-	worker.postMessage({ contents, live } satisfies LogWorkerRequest, contents instanceof ArrayBuffer ? [contents] : []);
+	return { worker, stop };
+}
 
+/**
+ * Parse a WPILOG file in a worker and add its entries to `data`. With `live`, a live session's recording is added on
+ * Studio's clock, like the live session showed it. Transfers ownership of a buffer and returns a function that cancels loading.
+ */
+export function loadLog(
+	contents: File | ArrayBuffer,
+	data: DataSet,
+	callbacks: LoadLogCallbacks,
+	live = false,
+): () => void {
+	const { worker, stop } = attachLogWorker(data, callbacks);
+	worker.postMessage(
+		{ kind: 'buffer', contents, live } satisfies LogWorkerRequest,
+		contents instanceof ArrayBuffer ? [contents] : [],
+	);
 	return stop;
+}
+
+/** Parse a WPILOG stream in a worker as chunks arrive, transferring each chunk zero-copy */
+export function loadLogStream(
+	data: DataSet,
+	totalBytes: number | undefined,
+	callbacks: LoadLogCallbacks,
+): LogStreamHandle {
+	const { worker, stop } = attachLogWorker(data, callbacks);
+	worker.postMessage({ kind: 'stream-start', totalBytes } satisfies LogWorkerRequest, []);
+	return {
+		push: (chunk, downloadedBytes) => {
+			worker.postMessage({ kind: 'stream-chunk', chunk, downloadedBytes } satisfies LogWorkerRequest, [chunk]);
+		},
+		finish: () => {
+			worker.postMessage({ kind: 'stream-end' } satisfies LogWorkerRequest, []);
+		},
+		fail: (message) => {
+			worker.postMessage({ kind: 'stream-error', message } satisfies LogWorkerRequest, []);
+		},
+		stop,
+	};
 }

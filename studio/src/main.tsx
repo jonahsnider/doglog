@@ -13,7 +13,7 @@ import { trackHistory } from './commands/history.ts';
 import { handleOpenedDashboardLinks } from './dashboards/open-dashboard-link.ts';
 import { handleDroppedLogPaths, handleLaunchedLogFiles, handleOpenedLogFiles } from './data/open-log.ts';
 import { restoreLive } from './data/restore-live.ts';
-import { reopenDevLog } from './data/source.ts';
+import { getSources, reopenDevLog, subscribeSource } from './data/source.ts';
 import { syncMediaSession } from './timeline/media-session.ts';
 import { routeTree } from './routeTree.gen.ts';
 import { syncTheme } from './settings.ts';
@@ -44,6 +44,15 @@ if (STUDIO_DESKTOP) {
 	void handleOpenedLogFiles();
 	void handleDroppedLogPaths();
 	void runLogSync();
+	let lastHasSource = false;
+	subscribeSource(() => {
+		const { log, live } = getSources();
+		const hasSource = log !== undefined || live !== undefined;
+		if (hasSource !== lastHasSource) {
+			lastHasSource = hasSource;
+			void invoke('set_window_has_source', { hasSource }).catch(() => {});
+		}
+	});
 } else {
 	handleLaunchedLogFiles();
 	// Waits for the page to load so precaching doesn't compete with it. HTTP pages other than localhost, ex. Studio

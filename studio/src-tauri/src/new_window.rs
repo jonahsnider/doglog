@@ -1,6 +1,6 @@
 //! Opening Studio windows. Every window is in one process, so they share a connection to the robot.
 
-use std::path::PathBuf;
+use crate::OpenedLogTarget;
 use std::process::{Command, Stdio};
 use std::sync::Mutex;
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -24,7 +24,7 @@ pub fn last_focused(app: &AppHandle) -> String {
     app.state::<LastFocused>().0.lock().unwrap().clone()
 }
 
-pub fn create(app: &AppHandle, log: Option<PathBuf>) -> tauri::Result<()> {
+pub fn create(app: &AppHandle, log: Option<OpenedLogTarget>) -> tauri::Result<()> {
     static NEXT: AtomicU32 = AtomicU32::new(1);
     let mut config = app.config().app.windows[0].clone();
     config.label = format!("window-{}", NEXT.fetch_add(1, Ordering::Relaxed));

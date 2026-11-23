@@ -641,3 +641,23 @@
 		visibility: hidden;
 	}
 }
+
+/* Sliding bar for downloads whose total length isn't known (Base UI sets `data-indeterminate` when `value={null}`) */
+[data-slot='progress-indicator'][data-indeterminate] {
+	width: 35%;
+	animation: progress-indeterminate 1.4s var(--ease-in-out) infinite;
+
+	@variant motion-reduce {
+		width: 100%;
+		animation: none;
+		opacity: 0.38;
+	}
+}
+@keyframes progress-indeterminate {
+	from {
+		transform: translateX(-100%);
+	}
+	to {
+		transform: translateX(385%);
+	}
+}

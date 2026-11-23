@@ -68,7 +68,12 @@ Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and
 
 ### Requirement: Data source shortcuts
 
-Studio SHALL provide these data source shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: Open log (⌘O), Export live data as WPILOG (⌘S), Connect (⌘K), and Switch between log and live (⇧⌘K). Switch between log and live MUST do nothing unless both a log and a live session are open. Export live data as WPILOG MUST work on the web too, instead of the browser saving the page, and MUST do nothing while there's no live data.
+Studio SHALL provide these data source shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: Open log (⌘O), Open from URL (⇧⌘O), Export live data as WPILOG (⌘S), Connect (⌘K), and Switch between log and live (⇧⌘K). Switch between log and live MUST do nothing unless both a log and a live session are open. Export live data as WPILOG MUST work on the web too, instead of the browser saving the page, and MUST do nothing while there's no live data.
+
+#### Scenario: Open from URL
+
+- **WHEN** the user presses ⇧⌘O
+- **THEN** the Open from URL dialog opens
 
 #### Scenario: Export live data
 
@@ -227,7 +232,7 @@ The desktop app SHALL provide New window (⌘N), which opens another Studio wind
 
 ### Requirement: App menu
 
-On macOS, the desktop app SHALL list New window, New dashboard, Reopen closed dashboard, Open log, Export live data as WPILOG, Close pane, and Close dashboard in its File menu, Undo and Redo in its Edit menu, Back and Forward in its Go menu, and Settings in its app menu, each with its shortcut. Undo and Redo MUST act on the focused text field while one is focused. Menu commands MUST act on the focused window.
+On macOS, the desktop app SHALL list New window, New dashboard, Reopen closed dashboard, Open log, Open from URL, Export live data as WPILOG, Close pane, and Close dashboard in its File menu, Undo and Redo in its Edit menu, Back and Forward in its Go menu, and Settings in its app menu, each with its shortcut. Undo and Redo MUST act on the focused text field while one is focused. Menu commands MUST act on the focused window.
 
 #### Scenario: Open a log from the menu
 

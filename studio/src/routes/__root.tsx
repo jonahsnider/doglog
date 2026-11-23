@@ -5,6 +5,7 @@ import { AppSidebar } from '@/sidebar/app-sidebar';
 import { useVideoExport } from '@/desktop/video-export';
 import { AboutDialog } from '@/components/about-dialog';
 import { DragProvider } from '@/components/drag-provider';
+import { OpenLogUrlDialog } from '@/components/open-log-url-dialog';
 import { useDesktopLinkOffer } from '@/dashboards/open-dashboard-link';
 import { LogDropOverlay } from '@/components/log-drop-overlay';
 import { SidebarInset } from '@/components/ui/sidebar';
@@ -63,6 +64,7 @@ function RootLayout() {
 			</DragProvider>
 			<LogDropOverlay />
 			<AboutDialog />
+			<OpenLogUrlDialog />
 		</ToastProvider>
 	);
 }

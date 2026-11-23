@@ -51,6 +51,7 @@ sentry = { version = "0.49", default-features = false, features = [
 rustls = { version = "0.23", default-features = false, features = ["ring"] }
 tauri-plugin-deep-link = "2"
 tauri-plugin-single-instance = { version = "2", features = ["deep-link"] }
+reqwest = { version = "0.13", default-features = false, features = ["rustls-no-provider"] }
 # Bundles liblzma instead of linking the system's, which macOS and Windows don't have
 liblzma = { version = "0.4", features = ["static"] }
 

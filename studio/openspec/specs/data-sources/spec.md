@@ -143,6 +143,61 @@ Users SHALL be able to open a WPILOG file with a file picker or by dropping it a
 - **THEN** each of those entries has the latest of those values at the start of the log, unless it was also logged right at the start
 - **AND** the log ends at its last record
 
+### Requirement: Open a log from a URL
+
+Users SHALL be able to open a `.wpilog` or `.wpilogxz` file from an `http://` or `https://` URL, including via an in-app "Open from URL..." dialog in the source control menu and macOS File menu. Other schemes like `file://` MUST be rejected, including after redirects. Scheme-less URLs SHALL default to `https://` when they do not start with `/` and their host is `localhost` or contains a dot. URL logs MUST stay in memory only and MUST NOT be added to recent logs.
+
+#### Scenario: Open a valid log URL from the dialog
+
+- **WHEN** the user opens "Open from URL..." and enters `https://example.com/qual12.wpilog`
+- **THEN** Studio streams and parses the log and displays `qual12.wpilog` once complete
+- **AND** `qual12.wpilog` is not added to recent logs
+
+#### Scenario: Scheme-less URL
+
+- **WHEN** the user enters `example.com/qual12.wpilog`
+- **THEN** Studio fetches `https://example.com/qual12.wpilog`
+
+#### Scenario: Rejected scheme
+
+- **WHEN** a URL uses `file:///tmp/qual12.wpilog`
+- **THEN** Studio rejects it without attempting to read the file
+
+### Requirement: Streaming URL log download and progress
+
+Studio SHALL validate the HTTP status, `Content-Type`, and first 6 magic bytes (`WPILOG` or XZ) before replacing an already open log. While downloading, Studio MUST decompress `.wpilogxz` logs and parse WPILOG records incrementally as chunks arrive, showing the log once complete. The timeline progress bar SHALL show determinate progress when `Content-Length` is known, indeterminate progress otherwise, and a Cancel button that aborts the download and returns to the live session if one is open.
+
+#### Scenario: Cancel a download
+
+- **GIVEN** a live session is running in the background and a large log URL is downloading
+- **WHEN** the user clicks Cancel on the progress bar
+- **THEN** Studio aborts the download and returns to the live session
+
+#### Scenario: Filename derivation
+
+- **GIVEN** a URL redirects to a path ending in `match.wpilog` and sends `Content-Disposition: attachment; filename="qual12.wpilog"`
+- **WHEN** Studio opens the URL
+- **THEN** Studio displays `qual12.wpilog` (falling back to the decoded final URL path segment, then `log.wpilog`)
+
+### Requirement: URL log error handling
+
+HTTP 401 and 403 responses MUST explain that the link requires signing in or permission. `text/html` responses MUST fail fast before reading the body, explaining that the URL returned a web page instead of a WPILOG file, and on desktop MUST offer a toast action to open the URL in the browser. Non-WPILOG responses MUST abort after the first chunk. Mid-download network drops or responses shorter than `Content-Length` MUST fail as download errors instead of showing a partial log.
+
+#### Scenario: Login wall returns HTML
+
+- **GIVEN** a URL redirects to a sign-in page with `Content-Type: text/html`
+- **AND** another log is already open
+- **WHEN** the user opens that URL in the desktop app
+- **THEN** Studio aborts before downloading the page and keeps the already open log
+- **AND** explains that the URL returned a web page instead of a WPILOG file, with an action to open it in the browser
+
+#### Scenario: Mid-download network drop
+
+- **GIVEN** a server advertises `Content-Length` of 50 MB and disconnects after 20 MB
+- **WHEN** the stream ends early
+- **THEN** Studio reports a download error instead of showing a partial log
+- **AND** a complete HTTP response whose WPILOG payload is truncated still applies normal damaged log tolerance
+
 ### Requirement: Connect to a live NT4 server
 
 Users SHALL be able to connect to a robot or simulator over NT4 with a single Connect action, using the connection target from Settings. The source control MUST NOT offer separate actions for the robot and the simulator.

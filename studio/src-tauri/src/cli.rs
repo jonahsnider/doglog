@@ -1,6 +1,6 @@
 //! The `doglog` terminal command
 
-use crate::agent;
+use crate::{OpenedLogTarget, agent, log_url};
 use clap::{Arg, Command};
 use std::ops::ControlFlow;
 use std::path::PathBuf;
@@ -10,7 +10,7 @@ use tauri::{AppHandle, Manager};
 
 /// Parse the `doglog` command's arguments, which Windows and Linux also use to open files. Continues with the log to
 /// open, or breaks with an exit code after running a terminal command, `--help`, `--version`, or invalid arguments.
-pub fn parse_args(version: String) -> ControlFlow<ExitCode, Option<PathBuf>> {
+pub fn parse_args(version: String) -> ControlFlow<ExitCode, Option<OpenedLogTarget>> {
     // Windows and Linux open `doglog://` links by starting Studio with the link as its only argument, which the deep
     // link plugin reads
     if std::env::args_os()
@@ -27,8 +27,8 @@ pub fn parse_args(version: String) -> ControlFlow<ExitCode, Option<PathBuf>> {
         .args_conflicts_with_subcommands(true)
         .arg(
             Arg::new("log")
-                .help("Path to a .wpilog or .wpilogxz file to open in a new window")
-                .value_parser(log_path),
+                .help("Path or HTTP(S) URL of a .wpilog or .wpilogxz file to open in a new window")
+                .value_parser(log_target),
         )
         .subcommand(
             Command::new("mcp")
@@ -59,13 +59,17 @@ pub fn parse_args(version: String) -> ControlFlow<ExitCode, Option<PathBuf>> {
     }
 }
 
-/// A log to open must be a file, so a mistyped command (ex. `doglog dashbaord`) fails instead of opening Studio
-fn log_path(value: &str) -> Result<PathBuf, String> {
+/// A log to open must be a file or HTTP(S) URL, so a mistyped command (ex. `doglog dashbaord`) fails instead of
+/// opening Studio
+fn log_target(value: &str) -> Result<OpenedLogTarget, String> {
+    if log_url::is_http_url(value) {
+        return Ok(OpenedLogTarget::Url(value.to_owned()));
+    }
     let path = PathBuf::from(value);
     if path.is_file() {
-        Ok(path)
+        Ok(OpenedLogTarget::Path(path))
     } else {
-        Err("not a command or a file".to_owned())
+        Err("not a command, file, or HTTP(S) URL".to_owned())
     }
 }
 

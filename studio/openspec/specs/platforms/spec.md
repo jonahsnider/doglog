@@ -84,6 +84,39 @@ The desktop app SHALL register itself as an app for `.wpilog` and `.wpilogxz` fi
 - **WHEN** the user opens a `.wpilog` file with DogLog Studio from the OS
 - **THEN** Studio opens and shows that log
 
+### Requirement: Open log links in the desktop app
+
+The desktop app SHALL register itself as the handler for `doglog://open?url=<log-url>` URLs, downloading and opening the log natively without browser CORS limits. On cold start, the link MUST open in the initial window. When Studio is already running, it MUST reuse the last-focused window if that window has neither a log nor a live session; otherwise it MUST open a new window.
+
+#### Scenario: Open a log link with Studio already showing another log
+
+- **GIVEN** the desktop app is open and showing `qual12.wpilog`
+- **WHEN** the user opens `doglog://open?url=https://example.com/qual13.wpilog`
+- **THEN** a new Studio window opens and loads `qual13.wpilog`
+- **AND** the existing window keeps showing `qual12.wpilog`
+
+#### Scenario: Open a log link when the focused window is empty
+
+- **GIVEN** the desktop app is open and the focused window has no log and no live session
+- **WHEN** the user opens `doglog://open?url=https://example.com/qual13.wpilog`
+- **THEN** that window loads `qual13.wpilog` without opening another window
+
+### Requirement: Open log links in the web app
+
+The web app SHALL handle `/open?url=<log-url>` with desktop handoff. Desktop Chromium opens `doglog://open?url=<log-url>` while fetching, aborting if focus leaves right after and restarting if focus returns on `/open`. Desktop Safari and Firefox show an "Open in the desktop app?" toast that aborts the fetch on Open. Mobile fetches directly. Valid logs redirect replacing history; failures stay on `/open` with Open in desktop app, Download file, and Back to dashboards.
+
+#### Scenario: Open a log link in a browser when CORS blocks the host
+
+- **GIVEN** `https://example.com/qual13.wpilog` does not send CORS headers
+- **WHEN** a user opens `https://doglog.studio/open?url=https://example.com/qual13.wpilog` in a desktop browser without opening the desktop app
+- **THEN** Studio stays on `/open`, explains that the browser could not fetch the file, and offers Open in desktop app, Download file, and Back to dashboards
+
+#### Scenario: Open a log link in desktop Safari and choose Open in the toast
+
+- **GIVEN** a user opens `https://doglog.studio/open?url=https://example.com/qual13.wpilog` in desktop Safari
+- **WHEN** they choose Open in the "Open in the desktop app?" toast while the log is downloading
+- **THEN** Studio aborts the browser download and opens `doglog://open?url=https%3A%2F%2Fexample.com%2Fqual13.wpilog`
+
 ### Requirement: Open recent logs
 
 The desktop app SHALL keep a list of the 10 logs it opened most recently, newest first. The source control menu's Open recent submenu and, on macOS, File > Open Recent MUST list them, with an item that clears the list. Logs opened from a path, ex. with the file picker, by dropping them on the window, from the OS, or from the Logs page, MUST be added, and logs that can't be read MUST be removed.
@@ -138,7 +171,7 @@ The web app SHALL keep the same recent logs list in browsers that support the Fi
 
 ### Requirement: Open logs from a terminal
 
-The desktop app SHALL provide a `doglog` terminal command that opens Studio in a new window, showing the log at the path it's given. The same command also controls open windows and runs the MCP server for agents, see agent-control. Installing the desktop app SHALL add the command to the PATH where the installer allows it, and macOS SHALL have a button in settings to install it.
+The desktop app SHALL provide a `doglog` terminal command that opens Studio in a new window, showing the log at the file path or HTTP(S) URL it's given. The same command also controls open windows and runs the MCP server for agents, see agent-control. Installing the desktop app SHALL add the command to the PATH where the installer allows it, and macOS SHALL have a button in settings to install it.
 
 #### Scenario: Open a log from a terminal
 
@@ -146,6 +179,12 @@ The desktop app SHALL provide a `doglog` terminal command that opens Studio in a
 - **WHEN** the user runs `doglog match.wpilog`
 - **THEN** a new Studio window opens and shows that log
 - **AND** the terminal is free to use while Studio is open
+
+#### Scenario: Open a log URL from a terminal
+
+- **GIVEN** the `doglog` command is installed
+- **WHEN** the user runs `doglog https://example.com/match.wpilog`
+- **THEN** a new Studio window opens and downloads and shows that log
 
 #### Scenario: Studio is already open
 

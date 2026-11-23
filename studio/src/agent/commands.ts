@@ -1,6 +1,7 @@
 // The commands agents can run in Studio, with their inputs. Only Zod and other modules without React or the DOM here, so
 // `pnpm agent:schema` can export them in Node for the desktop app's MCP server and `doglog` command. Handlers are in
 // `@/agent/handlers`.
+// oxlint-disable max-lines -- Every agent command's schema and description is kept together
 import * as z from 'zod';
 import { entryKinds } from '../data/entry-kind.ts';
 import {
@@ -229,15 +230,24 @@ const commands = {
 	},
 	source_update: {
 		description:
-			"Open a WPILOG file, or connect to the robot from the `robotTarget` setting (or the simulator when the robot isn't reachable). Returns once the log is loaded or the connection is made, like `source_get`.",
+			"Open a WPILOG file by path or HTTP(S) URL, or connect to the robot from the `robotTarget` setting (or the simulator when the robot isn't reachable). Returns once the log is loaded or the connection is made, like `source_get`.",
 		input: z.strictObject({
 			path: z
 				.string()
 				.min(1)
 				.optional()
-				.describe('Absolute path of a WPILOG file to open. Left out, connects to the robot instead.'),
+				.describe('Absolute path of a WPILOG file to open. Left out with `url`, connects to the robot instead.'),
+			url: z.string().min(1).optional().describe('HTTP(S) URL of a WPILOG or .wpilogxz file to download and open.'),
 		}),
-		webInput: empty,
+		webInput: z.strictObject({
+			url: z
+				.string()
+				.min(1)
+				.optional()
+				.describe(
+					'HTTP(S) URL of a WPILOG or .wpilogxz file to download and open. Left out, connects to the robot instead.',
+				),
+		}),
 	},
 	source_delete: {
 		description: 'Close the active source, leaving none.',

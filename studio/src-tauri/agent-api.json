@@ -2104,13 +2104,18 @@
 		},
 		{
 			"name": "source_update",
-			"description": "Open a WPILOG file, or connect to the robot from the `robotTarget` setting (or the simulator when the robot isn't reachable). Returns once the log is loaded or the connection is made, like `source_get`.",
+			"description": "Open a WPILOG file by path or HTTP(S) URL, or connect to the robot from the `robotTarget` setting (or the simulator when the robot isn't reachable). Returns once the log is loaded or the connection is made, like `source_get`.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
 				"properties": {
 					"path": {
-						"description": "Absolute path of a WPILOG file to open. Left out, connects to the robot instead.",
+						"description": "Absolute path of a WPILOG file to open. Left out with `url`, connects to the robot instead.",
+						"type": "string",
+						"minLength": 1
+					},
+					"url": {
+						"description": "HTTP(S) URL of a WPILOG or .wpilogxz file to download and open.",
 						"type": "string",
 						"minLength": 1
 					}

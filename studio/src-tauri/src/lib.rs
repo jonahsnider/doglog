@@ -3,6 +3,7 @@ mod agent;
 mod capture;
 mod cli;
 mod live_export;
+mod log_url;
 #[cfg(desktop)]
 mod mcp_install;
 mod new_window;
@@ -14,6 +15,7 @@ mod video;
 mod window_state;
 
 use liblzma::bufread::XzDecoder;
+use serde::Serialize;
 use std::{
     collections::HashMap,
     fs::File,
@@ -29,23 +31,40 @@ use tauri::{
 };
 use tauri_plugin_deep_link::DeepLinkExt;
 
+/// A log a window was asked to open from the OS, CLI, or a `doglog://open?url=...` link
+#[derive(Clone, Serialize)]
+#[serde(tag = "type", content = "value", rename_all = "lowercase")]
+pub enum OpenedLogTarget {
+    Path(PathBuf),
+    Url(String),
+}
+
 /// The last log each window was asked to open, by window label, until its frontend takes it
 #[derive(Default)]
-struct OpenedLog(Mutex<HashMap<String, PathBuf>>);
+struct OpenedLog(Mutex<HashMap<String, OpenedLogTarget>>);
 
-/// Open `path` in the window with `label`
-fn set_opened_log(app: &AppHandle, label: &str, path: PathBuf) {
+/// Whether each window currently has a log or live session open, so `doglog://open?url=...` can reuse empty windows
+#[derive(Default)]
+struct WindowHasSource(Mutex<HashMap<String, bool>>);
+
+#[tauri::command]
+fn set_window_has_source(window: WebviewWindow, has_source: bool, state: State<WindowHasSource>) {
+    state.0.lock().unwrap().insert(window.label().to_owned(), has_source);
+}
+
+/// Open `target` in the window with `label`
+fn set_opened_log(app: &AppHandle, label: &str, target: OpenedLogTarget) {
     app.state::<OpenedLog>()
         .0
         .lock()
         .unwrap()
-        .insert(label.to_owned(), path);
+        .insert(label.to_owned(), target);
     // Before the frontend is listening this is dropped, it takes the log when it starts instead
     let _ = app.emit_to(label, "log-opened", ());
 }
 
 #[tauri::command]
-fn take_opened_log(window: WebviewWindow, opened_log: State<OpenedLog>) -> Option<PathBuf> {
+fn take_opened_log(window: WebviewWindow, opened_log: State<OpenedLog>) -> Option<OpenedLogTarget> {
     opened_log.0.lock().unwrap().remove(window.label())
 }
 
@@ -54,20 +73,58 @@ fn take_opened_log(window: WebviewWindow, opened_log: State<OpenedLog>) -> Optio
 #[derive(Default)]
 struct OpenedDashboardLink(Mutex<HashMap<String, String>>);
 
-/// Open a dashboard link the OS asked Studio to open in the window that was focused last
-fn set_opened_dashboard_link(app: &AppHandle, url: &tauri::Url) {
-    if url.scheme() != "doglog" || url.host_str() != Some("import") {
+/// Handle a `doglog://` deep link the OS asked Studio to open
+fn handle_deep_link(app: &AppHandle, url: &tauri::Url) {
+    if url.scheme() != "doglog" {
         return;
     }
-    let link = url.path().trim_start_matches('/').to_owned();
+    match url.host_str() {
+        Some("import") => {
+            let link = url.path().trim_start_matches('/').to_owned();
+            let label = new_window::last_focused(app);
+            app.state::<OpenedDashboardLink>()
+                .0
+                .lock()
+                .unwrap()
+                .insert(label.clone(), link);
+            // Before the frontend is listening this is dropped, it takes the link when it starts instead
+            let _ = app.emit_to(label, "dashboard-link-opened", ());
+        }
+        Some("open") => {
+            let target_url = url
+                .query_pairs()
+                .find(|(key, _)| key == "url")
+                .map(|(_, value)| value.into_owned())
+                .unwrap_or_default();
+            open_log_url_deep_link(app, target_url);
+        }
+        _ => {}
+    }
+}
+
+/// Reuse the last-focused window when it has no log and no live session; otherwise open a new window for the URL log
+fn open_log_url_deep_link(app: &AppHandle, url: String) {
     let label = new_window::last_focused(app);
-    app.state::<OpenedDashboardLink>()
-        .0
-        .lock()
-        .unwrap()
-        .insert(label.clone(), link);
-    // Before the frontend is listening this is dropped, it takes the link when it starts instead
-    let _ = app.emit_to(label, "dashboard-link-opened", ());
+    let can_reuse = app.get_webview_window(&label).is_some()
+        && !app
+            .state::<WindowHasSource>()
+            .0
+            .lock()
+            .unwrap()
+            .get(&label)
+            .copied()
+            .unwrap_or(false)
+        && !app.state::<OpenedLog>().0.lock().unwrap().contains_key(&label);
+
+    if can_reuse {
+        set_opened_log(app, &label, OpenedLogTarget::Url(url));
+        if let Some(window) = app.get_webview_window(&label) {
+            let _ = window.unminimize();
+            let _ = window.set_focus();
+        }
+    } else if let Err(error) = new_window::create(app, Some(OpenedLogTarget::Url(url))) {
+        log::error!("Couldn't open a window: {error}");
+    }
 }
 
 #[tauri::command]
@@ -82,8 +139,14 @@ fn open_started_window(app: &AppHandle, args: Vec<String>, cwd: String) {
     if arg.as_deref().is_some_and(|arg| arg.starts_with("doglog://")) {
         return;
     }
-    // A log, the only argument `cli::parse_args()` lets reach here
-    let log = arg.map(|arg| PathBuf::from(cwd).join(arg));
+    // A log file or HTTP(S) URL, the only arguments `cli::parse_args()` lets reach here
+    let log = arg.map(|arg| {
+        if log_url::is_http_url(&arg) {
+            OpenedLogTarget::Url(arg)
+        } else {
+            OpenedLogTarget::Path(PathBuf::from(cwd).join(arg))
+        }
+    });
     if let Err(error) = new_window::create(app, log) {
         log::error!("Couldn't open a window: {error}");
     }
@@ -146,7 +209,7 @@ fn handle_run_event(app: &AppHandle, event: RunEvent) {
     if let RunEvent::Opened { urls } = event
         && let Some(path) = urls.into_iter().filter_map(|url| url.to_file_path().ok()).next_back()
     {
-        set_opened_log(app, &new_window::last_focused(app), path);
+        set_opened_log(app, &new_window::last_focused(app), OpenedLogTarget::Path(path));
     }
 }
 
@@ -177,10 +240,10 @@ pub fn run() -> ExitCode {
             });
         }
     }
+    // HTTP clients (remote log fetches, Sentry, and the updater) share this rustls crypto provider
+    let _ = rustls::crypto::ring::default_provider().install_default();
     // Reports panics from release builds, the frontend reports its own errors
     let _sentry = (!cfg!(debug_assertions)).then(|| {
-        // Sentry's HTTP client needs a TLS provider, the same one the updater installs
-        let _ = rustls::crypto::ring::default_provider().install_default();
         sentry::init(
             sentry::ClientOptions::new()
                 .dsn("https://cc0e3a691d3ee00a449b2ee4ea3d55f3@o141130.ingest.us.sentry.io/4512455446495232")
@@ -244,7 +307,9 @@ pub fn run() -> ExitCode {
         .plugin(tauri_plugin_deep_link::init())
         .plugin(window_state::plugin())
         .manage(OpenedLog::default())
+        .manage(WindowHasSource::default())
         .manage(OpenedDashboardLink::default())
+        .manage(log_url::ActiveUrlDownloads::default())
         .manage(sync::RobotConnection::default())
         .manage(sync::CancelDownload::default())
         .manage(sync::SyncLock::default())
@@ -262,7 +327,9 @@ pub fn run() -> ExitCode {
                 agent::window::close(app, window.label());
                 #[cfg(any(target_os = "macos", windows))]
                 video::cancel_window_video(app, window.label());
+                log_url::cancel_for_window(app, window.label());
                 app.state::<OpenedLog>().0.lock().unwrap().remove(window.label());
+                app.state::<WindowHasSource>().0.lock().unwrap().remove(window.label());
                 app.state::<OpenedDashboardLink>()
                     .0
                     .lock()
@@ -273,10 +340,13 @@ pub fn run() -> ExitCode {
         })
         .invoke_handler(tauri::generate_handler![
             take_opened_log,
+            set_window_has_source,
             take_opened_dashboard_link,
             read_file,
             read_log,
             allow_video,
+            log_url::start_log_url,
+            log_url::cancel_log_url,
             #[cfg(any(target_os = "macos", windows))]
             capture::copy_capture,
             #[cfg(any(target_os = "macos", windows))]
@@ -335,11 +405,11 @@ pub fn run() -> ExitCode {
             let handle = app.handle().clone();
             app.deep_link().on_open_url(move |event| {
                 if let Some(url) = event.urls().last() {
-                    set_opened_dashboard_link(&handle, url);
+                    handle_deep_link(&handle, url);
                 }
             });
             if let Some(url) = app.deep_link().get_current()?.and_then(|urls| urls.into_iter().last()) {
-                set_opened_dashboard_link(app.handle(), &url);
+                handle_deep_link(app.handle(), &url);
             }
             // AppImages aren't installed, so they register `doglog://` links each time they start
             #[cfg(all(target_os = "linux", not(debug_assertions)))]

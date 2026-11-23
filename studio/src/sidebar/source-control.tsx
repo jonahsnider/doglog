@@ -3,29 +3,13 @@ import ChevronsUpDownIcon from 'lucide-react/icons/chevrons-up-down';
 import { Fragment, useEffect, useId, useState } from 'react';
 import { TextMorph } from 'torph/react';
 import { AppContextMenu, type MenuAction, type MenuEntry } from '@/components/app-context-menu';
-import {
-	Menu,
-	MenuItem,
-	MenuPopup,
-	MenuSeparator,
-	MenuShortcut,
-	MenuSub,
-	MenuSubPopup,
-	MenuSubTrigger,
-	MenuTrigger,
-} from '@/components/ui/menu';
+import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuShortcut, MenuTrigger } from '@/components/ui/menu';
 import { SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
-import { nativeMenu, shortcuts, startConnect } from '@/commands/commands';
+import { nativeMenu, openLogUrlPrompt, shortcuts, startConnect } from '@/commands/commands';
 import { useEntries } from '@/data/data-store';
-import {
-	clearRecentLogs,
-	recentLogLabels,
-	supportsFileHandles,
-	useRecentLogHandles,
-	useRecentLogs,
-} from '@/data/recent-logs';
-import { chooseLog, openLogPath, openRecentLogHandle } from '@/data/open-log';
+import { supportsFileHandles } from '@/data/recent-logs';
+import { chooseLog } from '@/data/open-log';
 import { type ConnectTarget, findConnectTarget, isSourceTarget } from '@/data/connect-target';
 import { canExportLive, exportLive, exportLiveShortcut } from '@/data/export-live';
 import {
@@ -40,6 +24,7 @@ import {
 import { cn } from '@/lib/utils';
 import { getRobotHost, simulatorHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
+import { OpenRecentMenu } from '@/sidebar/open-recent-menu';
 import { SourceIcon } from '@/sidebar/source-icon';
 import { liveColors, sourceLabels, statusLabels } from '@/sidebar/source-labels';
 import { SourceSwitcher } from '@/sidebar/source-switcher';
@@ -196,37 +181,6 @@ function ActionItem({ action }: { action: MenuAction }) {
 	);
 }
 
-function OpenRecentMenu() {
-	const savedPaths = useRecentLogs();
-	// Only the desktop app can open paths, ignore any saved on the web
-	const paths = STUDIO_DESKTOP ? savedPaths : [];
-	const handles = useRecentLogHandles();
-	const labels = recentLogLabels(paths);
-	const empty = paths.length === 0 && handles.length === 0;
-	return (
-		<MenuSub>
-			<MenuSubTrigger>Open recent</MenuSubTrigger>
-			<MenuSubPopup className="max-w-80">
-				{STUDIO_DESKTOP &&
-					paths.map((path, index) => (
-						<MenuItem key={path} title={path} onClick={() => void openLogPath(path)}>
-							<span className="truncate">{labels[index]}</span>
-						</MenuItem>
-					))}
-				{handles.map((recent) => (
-					<MenuItem key={recent.id} onClick={() => void openRecentLogHandle(recent.handle)}>
-						<span className="truncate">{recent.handle.name}</span>
-					</MenuItem>
-				))}
-				{!empty && <MenuSeparator />}
-				<MenuItem disabled={empty} onClick={clearRecentLogs}>
-					Clear recent
-				</MenuItem>
-			</MenuSubPopup>
-		</MenuSub>
-	);
-}
-
 export function SourceControl() {
 	const sources = useSources();
 	// Re-render when the log's entries load, so its match is read
@@ -255,6 +209,7 @@ export function SourceControl() {
 				]
 			: []),
 		{ label: 'Open log', shortcut: shortcuts.openLog, onSelect: chooseLog },
+		{ label: 'Open from URL…', shortcut: shortcuts.openLogUrl, onSelect: openLogUrlPrompt },
 		'separator',
 		...exportActions(live).flatMap((action): MenuEntry[] => [action, 'separator']),
 		...liveActions(sources, connectTarget, true),
@@ -280,6 +235,10 @@ export function SourceControl() {
 					<MenuItem onClick={chooseLog}>
 						Open log
 						<MenuShortcut>{formatForDisplay(shortcuts.openLog)}</MenuShortcut>
+					</MenuItem>
+					<MenuItem onClick={openLogUrlPrompt}>
+						Open from URL…
+						<MenuShortcut>{formatForDisplay(shortcuts.openLogUrl)}</MenuShortcut>
 					</MenuItem>
 					{(STUDIO_DESKTOP || supportsFileHandles) && <OpenRecentMenu />}
 					<MenuSeparator />

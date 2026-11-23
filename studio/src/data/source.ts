@@ -1,186 +1,93 @@
-import { useSelector } from '@tanstack/react-store';
-import { createAtom } from '@tanstack/store';
 import { toastManager } from '@/components/ui/toast';
 import { findConnectTarget, findReachable, isSourceTarget } from '@/data/connect-target';
 import type { DataSet } from '@/data/data-set';
-import { createDataSet, type Entry, setActiveData } from '@/data/data-store';
+import { createDataSet } from '@/data/data-store';
 import { loadDevLog, saveDevLog } from '@/data/dev-log';
 import type { LiveStatus } from '@/data/live-source';
-import { isWpilog, loadLog, type LogInput, type UnreadEnd } from '@/data/log-source';
+import {
+	isWpilog,
+	loadLog,
+	loadLogStream,
+	type LogInput,
+	type LogStreamHandle,
+	type UnreadEnd,
+} from '@/data/log-source';
 import type { RestoredLog } from '@/data/log-worker';
 import { deleteLiveRecording, recordLive } from '@/data/recording';
+import {
+	closeLive,
+	closeLog,
+	closeSource,
+	getLogEntry,
+	getSource,
+	getSources,
+	type LiveSource,
+	logProgressStore,
+	show,
+	showSource,
+	type Source,
+	sourceName,
+	type Sources,
+	sourcesStore,
+	sourceState,
+	subscribeSource,
+	updateSources,
+	useLogProgress,
+	useSource,
+	useSources,
+} from '@/data/source-store';
 import { simulatorHost } from '@/robot-target';
-import { formatRoughDuration, formatTime, resetTimeline } from '@/timeline/timeline';
-import { keepViewWidth, showWholeSource } from '@/widgets/graph/view';
+import { formatRoughDuration, formatTime } from '@/timeline/timeline';
 
-/** A data source. A window has at most one log and one live session, and shows one of them in every dashboard and widget. */
-export type Source =
-	| {
-			type: 'log';
-			fileName: string;
-			status: 'loading' | 'loaded';
-			/** The end of the file that couldn't be read, unset when it's no more than a partial last record */
-			unread?: UnreadEnd;
-	  }
-	| { type: 'live'; host: string; status: LiveStatus };
+export {
+	closeLive,
+	closeLog,
+	closeSource,
+	getLogEntry,
+	getSource,
+	getSources,
+	type LiveSource,
+	showSource,
+	type Source,
+	sourceName,
+	type Sources,
+	subscribeSource,
+	useLogProgress,
+	useSource,
+	useSources,
+};
 
-type LogSource = Extract<Source, { type: 'log' }>;
-export type LiveSource = Extract<Source, { type: 'live' }>;
-
-/** The window's log and live session, and which one is shown */
-export type Sources = { readonly log?: LogSource; readonly live?: LiveSource; readonly shown?: Source['type'] };
-
-const sourcesStore = createAtom<Sources>({});
-// Kept apart from the sources so progress updates don't rerender everything that uses them
-const logProgressStore = createAtom(0);
-let logData: DataSet | undefined;
-let liveData: DataSet | undefined;
-let stopLog: (() => void) | undefined;
-let stopLive: (() => void) | undefined;
-// Change every time the log or live session is replaced or stopped, so slow requests can tell they're outdated
-let logGeneration = 0;
-let liveGeneration = 0;
-
-function shownSource({ log, live, shown }: Sources): Source | undefined {
-	return shown === 'log' ? log : shown === 'live' ? live : undefined;
-}
-
-/** The source every dashboard and widget shows */
-export function useSource(): Source | undefined {
-	return useSelector(sourcesStore, shownSource);
-}
-
-/** The source every dashboard and widget shows */
-export function getSource(): Source | undefined {
-	return shownSource(sourcesStore.get());
-}
-
-/** What the user calls a source, ex. its log's file name or `Robot at 10.5.81.2` */
-export function sourceName(source: Source): string {
-	if (source.type === 'log') {
-		return source.fileName;
-	}
-	return source.host === simulatorHost ? 'Simulator' : `Robot at ${source.host}`;
-}
-
-/** The window's log and live session, including the one that isn't shown */
-export function useSources(): Sources {
-	return useSelector(sourcesStore);
-}
-
-/** Call `listener` when a source, its status, or which one is shown changes */
-export function subscribeSource(listener: () => void): () => void {
-	const { unsubscribe } = sourcesStore.subscribe(() => listener());
-	return unsubscribe;
-}
-
-/** Fraction of the loading log parsed so far, from 0 to 1 */
-export function useLogProgress(): number {
-	return useSelector(logProgressStore);
-}
-
-function updateSources(changes: Partial<Sources>): void {
-	sourcesStore.set((sources) => ({ ...sources, ...changes }));
-}
-
-/** Show the log or live session in every dashboard and widget. A new log shows all of itself in graphs. */
-function show(type: Source['type'] | undefined, newLog = false): void {
-	if (newLog) {
-		showWholeSource();
-	} else {
-		keepViewWidth();
-	}
-	const sources = { ...sourcesStore.get(), shown: type };
-	resetTimeline(shownSource(sources));
-	sourcesStore.set(sources);
-	setActiveData(type === 'log' ? logData : type === 'live' ? liveData : undefined);
-}
-
-/** Switch to the log or the live session, if it's open and not already shown */
-export function showSource(type: Source['type']): void {
-	const sources = sourcesStore.get();
-	if (sources[type] !== undefined && sources.shown !== type) {
-		show(type);
-	}
-}
-
-/** An entry of the open log, whether or not it's shown */
-export function getLogEntry(name: string): Entry | undefined {
-	return logData?.entries.get(name);
-}
-
-/** Close the log, showing the live session if there is one */
-export function closeLog(): void {
-	logGeneration++;
-	stopLog?.();
-	stopLog = undefined;
-	logData = undefined;
-	const { shown, live } = sourcesStore.get();
-	updateSources({ log: undefined });
-	if (shown === 'log') {
-		show(live && 'live');
-	}
-	if (import.meta.env.DEV) {
-		void saveDevLog(undefined);
-	}
-}
-
-/** Throw away the live session's data and recording and stop connecting, showing the log if there is one */
-export function closeLive(): void {
-	liveGeneration++;
-	stopLive?.();
-	stopLive = undefined;
-	liveData = undefined;
-	deleteLiveRecording();
-	const { shown, log } = sourcesStore.get();
-	updateSources({ live: undefined });
-	if (shown === 'live') {
-		show(log && 'log');
-	}
-}
-
-/** Close the shown source, showing the other one if there is one */
-export function closeSource(): void {
-	const { shown } = sourcesStore.get();
-	if (shown !== undefined) {
-		(shown === 'log' ? closeLog : closeLive)();
-	}
-}
-
-/**
- * Open a WPILOG file and show it, replacing the open log. The live session keeps running in the background.
- * Nothing changes if the file isn't a WPILOG file. Returns whether the file started loading and transferred its buffer, if any.
- * `onError` gets why it couldn't be opened, which is also shown in a toast.
- */
-export async function openLog(input: LogInput, onError?: (message: string) => void): Promise<boolean> {
-	const { name } = input;
-	const contents = input instanceof File ? input : input.contents;
-	const size = contents instanceof File ? contents.size : contents.byteLength;
-	const requestedAt = logGeneration;
-	if (size === 0 || !(await isWpilog(contents))) {
-		// Ex. a log the robot lost power right after creating
-		const message = size === 0 ? "It's empty." : "It isn't a WPILOG file.";
-		toastManager.add({ type: 'error', title: `Couldn't open ${name}`, description: message });
-		onError?.(message);
-		return false;
-	}
-	if (logGeneration !== requestedAt) {
-		// Another log was chosen while the file was being checked
-		return false;
-	}
-
-	logGeneration++;
-	stopLog?.();
+/** Shared callbacks and source-state setup for both whole-file and streaming log loads */
+function startLogLoad(options: {
+	name: string;
+	initialProgress: number | undefined;
+	cancelable?: boolean;
+	devFile?: File | false;
+	onError?: (message: string) => void;
+}) {
+	const { name, initialProgress, cancelable, devFile = false, onError } = options;
+	sourceState.logGeneration++;
+	const generation = sourceState.logGeneration;
+	sourceState.stopLog?.();
 	const data = createDataSet();
-	logData = data;
-	logProgressStore.set(0);
-	updateSources({ log: { type: 'log', fileName: name, status: 'loading' } });
+	sourceState.logData = data;
+	logProgressStore.set(initialProgress);
+	updateSources({ log: { type: 'log', fileName: name, status: 'loading', cancelable } });
 	show('log', true);
-	// Keep a copy for dev reloads before the worker takes ownership of the buffer.
-	const devFile = import.meta.env.DEV && (contents instanceof File ? contents : new File([contents], name));
-	stopLog = loadLog(contents, data, {
-		onProgress: (progress) => logProgressStore.set(progress),
-		onLoaded: (unread) => {
+
+	let finished = false;
+	const isActive = () => !finished && sourceState.logGeneration === generation;
+	const callbacks = {
+		onProgress: (progress: number | undefined) => {
+			if (isActive()) {
+				logProgressStore.set(progress);
+			}
+		},
+		onLoaded: (unread: UnreadEnd | undefined) => {
+			if (!isActive()) {
+				return;
+			}
+			finished = true;
 			updateSources({ log: { type: 'log', fileName: name, status: 'loaded', unread } });
 			if (devFile !== false) {
 				void saveDevLog(devFile);
@@ -193,13 +100,91 @@ export async function openLog(input: LogInput, onError?: (message: string) => vo
 				});
 			}
 		},
-		onError: (message) => {
+		onError: (message: string) => {
+			if (!isActive()) {
+				return;
+			}
+			finished = true;
 			closeLog();
 			toastManager.add({ type: 'error', title: `Couldn't open ${name}`, description: message });
 			onError?.(message);
 		},
-	});
+	};
+	return { data, callbacks, isActive, markFinished: () => (finished = true) };
+}
+
+/**
+ * Open a WPILOG file and show it, replacing the open log. The live session keeps running in the background.
+ * Nothing changes if the file isn't a WPILOG file. Returns whether the file started loading and transferred its buffer, if any.
+ * `onError` gets why it couldn't be opened, which is also shown in a toast.
+ */
+export async function openLog(input: LogInput, onError?: (message: string) => void): Promise<boolean> {
+	const { name } = input;
+	const contents = input instanceof File ? input : input.contents;
+	const size = contents instanceof File ? contents.size : contents.byteLength;
+	const requestedAt = sourceState.logGeneration;
+	if (size === 0 || !(await isWpilog(contents))) {
+		// Ex. a log the robot lost power right after creating
+		const message = size === 0 ? "It's empty." : "It isn't a WPILOG file.";
+		toastManager.add({ type: 'error', title: `Couldn't open ${name}`, description: message });
+		onError?.(message);
+		return false;
+	}
+	if (sourceState.logGeneration !== requestedAt) {
+		return false;
+	}
+
+	// Keep a copy for dev reloads before the worker takes ownership of the buffer.
+	const devFile = import.meta.env.DEV && (contents instanceof File ? contents : new File([contents], name));
+	const { data, callbacks } = startLogLoad({ name, initialProgress: 0, devFile, onError });
+	sourceState.stopLog = loadLog(contents, data, callbacks);
 	return true;
+}
+
+/**
+ * Open a streaming WPILOG source (ex. a remote URL download), replacing the open log once headers and magic bytes have
+ * already been validated. Returns a handle to push chunks, finish, or fail the stream.
+ */
+export function openLogStream(options: {
+	name: string;
+	totalBytes: number | undefined;
+	onCancel: () => void;
+	onError?: (message: string) => void;
+}): Omit<LogStreamHandle, 'stop'> & { isActive: () => boolean } {
+	const { name, totalBytes, onCancel, onError } = options;
+	const initialProgress = totalBytes !== undefined && totalBytes > 0 ? 0 : undefined;
+	const { data, callbacks, isActive, markFinished } = startLogLoad({
+		name,
+		initialProgress,
+		cancelable: true,
+		onError,
+	});
+	const stream = loadLogStream(data, totalBytes, callbacks);
+	sourceState.stopLog = () => {
+		stream.stop();
+		if (isActive()) {
+			markFinished();
+			onCancel();
+		}
+	};
+	return {
+		isActive,
+		push: (chunk, downloadedBytes) => {
+			if (isActive()) {
+				stream.push(chunk, downloadedBytes);
+			}
+		},
+		finish: () => {
+			if (isActive()) {
+				stream.finish();
+			}
+		},
+		fail: (message) => {
+			if (isActive()) {
+				stream.fail(message);
+			}
+		},
+	};
 }
 
 /** Open the log from the `log` search parameter, or reopen the one that was open before the page reloaded. Only call this in dev. */
@@ -214,15 +199,15 @@ export async function reopenDevLog(): Promise<void> {
 /** Connect the live session to the NT4 server at `host`, adding to its data */
 async function connectToHost(host: string, status: LiveStatus): Promise<void> {
 	updateSources({ live: { type: 'live', host, status } });
-	const requestedAt = liveGeneration;
+	const requestedAt = sourceState.liveGeneration;
 	const [{ connectLive }, { openNt }] = await Promise.all([import('@/data/live-source'), import('@/nt/client')]);
 	const nt = await openNt(host);
-	if (liveGeneration !== requestedAt || liveData === undefined) {
+	if (sourceState.liveGeneration !== requestedAt || sourceState.liveData === undefined) {
 		// Replaced while loading
 		nt.close();
 		return;
 	}
-	stopLive = connectLive(nt, liveData, recordLive(host), (liveStatus) => {
+	sourceState.stopLive = connectLive(nt, sourceState.liveData, recordLive(host), (liveStatus) => {
 		updateSources({ live: { type: 'live', host, status: liveStatus } });
 	});
 }
@@ -237,9 +222,9 @@ export function disconnect(): void {
 		closeLive();
 		return;
 	}
-	liveGeneration++;
-	stopLive?.();
-	stopLive = undefined;
+	sourceState.liveGeneration++;
+	sourceState.stopLive?.();
+	sourceState.stopLive = undefined;
 	updateSources({ live: { ...live, status: 'disconnected' } });
 }
 
@@ -264,23 +249,23 @@ export async function connect(robotHost: string | undefined): Promise<void> {
 		}
 		if (isSourceTarget(live, target)) {
 			if (live.status === 'disconnected') {
-				liveGeneration++;
+				sourceState.liveGeneration++;
 				void connectToHost(live.host, 'reconnecting');
 			}
 			return;
 		}
 	}
 
-	liveGeneration++;
-	stopLive?.();
-	stopLive = undefined;
+	sourceState.liveGeneration++;
+	sourceState.stopLive?.();
+	sourceState.stopLive = undefined;
 	deleteLiveRecording();
-	liveData = createDataSet();
+	sourceState.liveData = createDataSet();
 	const hosts = robotHost === undefined ? [simulatorHost] : [robotHost, simulatorHost];
 	updateSources({ live: { type: 'live', host: hosts.join(' or '), status: 'connecting' } });
 	show('live');
 	// Stopped when the live session is replaced or closed
-	stopLive = findReachable(hosts, (host) => void connectToHost(host, 'connecting'));
+	sourceState.stopLive = findReachable(hosts, (host) => void connectToHost(host, 'connecting'));
 }
 
 /** Show a live session restored from its recording, see `@/data/restore-live`. `false` if one was started first. */
@@ -288,7 +273,7 @@ export function restoreLiveSession(data: DataSet, { host, disconnected }: Restor
 	if (sourcesStore.get().live !== undefined) {
 		return false;
 	}
-	liveData = data;
+	sourceState.liveData = data;
 	updateSources({ live: { type: 'live', host, status: 'disconnected' } });
 	if (sourcesStore.get().shown === undefined) {
 		show('live');
