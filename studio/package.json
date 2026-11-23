@@ -43,7 +43,7 @@
 		"@tanstack/react-hotkeys": "0.27.2",
 		"@tanstack/react-router": "1.170.46",
 		"@tanstack/react-store": "0.11.2",
-		"@tanstack/react-virtual": "3.14.26",
+		"@tanstack/react-virtual": "3.14.27",
 		"@tanstack/store": "0.11.2",
 		"@tauri-apps/api": "2.12.5",
 		"@tauri-apps/plugin-dialog": "2.8.4",
