@@ -20,7 +20,6 @@ export type MenuAction = {
 	/** A single key that selects the item while its submenu is open, ex. `S` */
 	accessKey?: string;
 	disabled?: boolean;
-	destructive?: boolean;
 	onSelect: () => void;
 };
 
@@ -117,12 +116,7 @@ function MenuEntries({ items, close }: { items: readonly MenuEntry[]; close: () 
 		}
 
 		return (
-			<ContextMenuItem
-				key={item.label}
-				disabled={item.disabled ?? false}
-				variant={item.destructive === true ? 'destructive' : 'default'}
-				onClick={item.onSelect}
-			>
+			<ContextMenuItem key={item.label} disabled={item.disabled ?? false} onClick={item.onSelect}>
 				{item.label}
 				{item.shortcut === undefined ? (
 					item.accessKey !== undefined && <ContextMenuShortcut>{item.accessKey.toUpperCase()}</ContextMenuShortcut>

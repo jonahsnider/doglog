@@ -130,7 +130,7 @@ function dashboardMenu({
 	index: number;
 	selection: DashboardSelection;
 	router: RegisteredRouter;
-	copy: MenuAction[];
+	copy: (MenuAction | 'separator')[];
 	rename: () => void;
 }): (MenuAction | 'separator')[] {
 	const closeOthers = () =>
@@ -140,7 +140,7 @@ function dashboardMenu({
 		{ label: 'Rename', onSelect: rename },
 		{ label: 'Duplicate', onSelect: () => selection.duplicate([dashboard.id]) },
 		{
-			label: dashboard.shared ? 'Stop sharing' : 'Share',
+			label: dashboard.shared ? 'Make private' : 'Move to Shared',
 			onSelect: () => {
 				moveDashboardToSection(router, dashboard.id, !dashboard.shared);
 			},
@@ -150,7 +150,6 @@ function dashboardMenu({
 		{
 			label: 'Close',
 			shortcut: shortcuts.closeDashboard,
-			destructive: true,
 			onSelect: () => deleteDashboard(dashboard.id),
 		},
 		// Disabled rather than hidden like in a browser's tab menu, so the close actions don't shift

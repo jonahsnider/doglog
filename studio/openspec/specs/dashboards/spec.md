@@ -605,7 +605,7 @@ Dashboards and closed dashboards MUST be shared by every open Studio tab or wind
 
 ### Requirement: Dashboard context menu
 
-Right-clicking a dashboard in the sidebar SHALL open a context menu with Rename, Duplicate, Close dashboard, Close other dashboards, and Close dashboards below. The menu SHALL show Copy link only if at least one pane contains a widget. A dashboard selected along with others SHALL show the selection's menu instead.
+Right-clicking a dashboard in the sidebar SHALL open a context menu with Rename, Duplicate, Close dashboard, Close other dashboards, and Close dashboards below. The menu SHALL show Copy link only if at least one pane contains a widget. Copy link, Copy image, and Export video, when available, MUST appear in the same group, separate from other commands. A dashboard selected along with others SHALL show the selection's menu instead.
 
 #### Scenario: Close from the context menu
 

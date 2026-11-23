@@ -35,7 +35,7 @@ The sidebar SHALL list shared dashboards in a Shared section, below the dashboar
 
 ### Requirement: Share a dashboard
 
-Users SHALL be able to share a dashboard by dragging it into the Shared section, by dropping a pane there, or with Share in the dashboard's menu. A shared dashboard MUST show up in the Shared section of everyone connected to the robot, without them doing anything.
+Users SHALL be able to share a dashboard by dragging it into the Shared section, by dropping a pane there, or with Move to Shared in the dashboard's menu. A shared dashboard MUST show up in the Shared section of everyone connected to the robot, without them doing anything.
 
 #### Scenario: Drag a dashboard in
 
@@ -71,7 +71,7 @@ Every edit to a shared dashboard SHALL reach everyone connected to the robot wit
 
 ### Requirement: Stop sharing
 
-Dragging a shared dashboard out of the Shared section, or Stop sharing in its menu, SHALL stop sharing it for everyone: it disappears for others, and the user who stopped sharing it keeps a copy on their device.
+Dragging a shared dashboard out of the Shared section, or choosing Make private in its menu, SHALL stop sharing it for everyone: it disappears for others, and the user who stopped sharing it keeps a copy on their device.
 
 #### Scenario: Drag a dashboard out
 

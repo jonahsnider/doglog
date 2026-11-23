@@ -66,7 +66,6 @@ export function useDashboardSelection(dashboards: Dashboard[]) {
 		'separator',
 		{
 			label: `Close ${ids.length} dashboards`,
-			destructive: true,
 			onSelect: () => {
 				deleteDashboards(ids);
 				clear();

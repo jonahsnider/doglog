@@ -33,12 +33,7 @@ export function DashboardOptions({ items, hidden }: DashboardOptionsProps) {
 					}
 
 					return (
-						<MenuItem
-							key={item.label}
-							disabled={item.disabled ?? false}
-							variant={item.destructive === true ? 'destructive' : 'default'}
-							onClick={item.onSelect}
-						>
+						<MenuItem key={item.label} disabled={item.disabled ?? false} onClick={item.onSelect}>
 							{item.label}
 							{item.shortcut !== undefined && <MenuShortcut>{formatForDisplay(item.shortcut)}</MenuShortcut>}
 						</MenuItem>

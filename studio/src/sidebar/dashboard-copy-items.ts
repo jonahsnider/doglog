@@ -10,15 +10,16 @@ import { useSource } from '@/data/source';
 import { canCapture, copyDashboardImage } from '@/desktop/capture';
 import { canExportVideo, startVideoExport } from '@/desktop/video-export';
 
-/** A dashboard's sidebar menu actions that share it, as a link, an image, or a video */
-export function useDashboardCopyItems(dashboard: Dashboard, router: RegisteredRouter): MenuAction[] {
+/** The copy and export section of a dashboard's sidebar menu, with a leading separator when present */
+export function useDashboardCopyItems(dashboard: Dashboard, router: RegisteredRouter): (MenuAction | 'separator')[] {
 	const source = useSource();
 	const open = router.state.location.pathname === `/dashboards/${dashboard.id}`;
 	const canExport = useSyncExternalStore(subscribeData, () => open && canExportVideo(dashboard, source));
 	if (!canCopyDashboardLink(dashboard)) {
 		return [];
 	}
-	const items: MenuAction[] = [
+	const items: (MenuAction | 'separator')[] = [
+		'separator',
 		{ label: 'Copy link', shortcut: shortcuts.copyDashboardLink, onSelect: () => void copyDashboardLink(dashboard) },
 	];
 	if (STUDIO_DESKTOP && canCapture) {
