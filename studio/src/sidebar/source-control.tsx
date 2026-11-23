@@ -41,11 +41,12 @@ function ShownSourceIcon({
 		return <SourceIcon source={source} />;
 	}
 	return (
-		<span className="relative flex shrink-0">
+		<span className="relative flex size-4 shrink-0 [&>svg]:size-full">
 			<SourceIcon source={source} />
 			<span
+				aria-hidden
 				className={cn(
-					'absolute -right-0.5 -bottom-0.5 size-2 rounded-full ring-2 ring-sidebar',
+					'absolute -end-0.5 -bottom-0.5 size-1.5 rounded-full ring-1 ring-sidebar',
 					liveColors[backgroundLive.status].background,
 				)}
 			/>
