@@ -1,16 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-	<defs>
-		<linearGradient id="fade" gradientUnits="userSpaceOnUse" x1="128" y1="0" x2="384" y2="0">
-			<stop offset="0%" stop-color="#fff7f6" stop-opacity="0" />
-			<stop offset="25%" stop-color="#fff7f6" stop-opacity="0.125" />
-			<stop offset="50%" stop-color="#fff7f6" stop-opacity="0.5" />
-			<stop offset="75%" stop-color="#fff7f6" stop-opacity="0.875" />
-			<stop offset="100%" stop-color="#fff7f6" stop-opacity="1" />
-		</linearGradient>
-	</defs>
-	<line x1="128" y1="768" x2="388" y2="768" stroke="url(#fade)" stroke-width="128" />
 	<path
-		d="M 384,768 H 512 A 128,128 0 0,0 512,512 H 384 A 128,128 0 0,1 384,256 H 658"
+		d="M 0,768 H 512 A 128,128 0 0,0 512,512 H 384 A 128,128 0 0,1 384,256 H 658"
 		fill="none"
 		stroke="#fff7f6"
 		stroke-width="128"

@@ -1,6 +1,6 @@
 # DogLog Studio logo
 
-A geometric "S" plotted in realtime on a graph: trailing history fades in from the left, and a vertical playhead with a hollow cursor ring marks the live right tip.
+A geometric "S" plotted in realtime on a graph: the trace enters from the left edge, as though recording started before the window, and a vertical playhead with a hollow cursor ring marks the live right tip.
 
 ## Grid and geometry
 
@@ -8,7 +8,7 @@ Constructed on an `8u x 8u` grid (`1u = 16` on the `128 x 128` viewBox, `1u = 12
 
 - **Frame**: macOS-style squircle (`28` corner curve on `128 x 128`).
 - **S stroke**: `3u x 4u` core (`x: 2u..5u`, `y: 2u..6u`), semicircular turns with `R = 1u` centered at `(3u, 3u)` and `(4u, 5u)`, stroke width `1u` (`16`).
-- **Left tail fade**: `1u -> 3u` (`16 -> 48`) at `y = 6u`, easing through binary eighths (`0, 1/8, 1/2, 7/8, 1`) to avoid a hard transition at `3u`.
+- **Left tail**: the bottom bar runs from the left edge (`x = 0`) at `y = 6u`, solid with no fade, so every edge stays crisp (Liquid Glass can't follow a feathered edge).
 - **Cursor ring**: centered at `(6u, 2u)` (`96, 32`), outer diameter `1.75u` (`28`), ring stroke `0.5u` (`8`), hollow center `0.75u` (`12`). Both the top bar and playhead terminate inside the ring wall so no mask is needed.
 - **Playhead**: `x = 6u`, width `3/8u` (`6`), vertical opacity stops `1/4 -> 7/8 -> 5/8 -> 1/4` (`0%, 25%, 75%, 100%`).
 - **Gridlines**: `3x3` interior lines at `2u` spacing (`32, 64, 96`; `x = 6u` omitted behind the playhead), width `1/8u` (`2`). Horizontal lines are segmented around the vertical gridlines, playhead, and hollow cursor hole so semi-transparent strokes never double-composite.

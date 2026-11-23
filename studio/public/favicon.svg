@@ -3,13 +3,6 @@
 		<clipPath id="clip">
 			<path d="M 28,0 H 100 C 118,0 128,10 128,28 V 100 C 128,118 118,128 100,128 H 28 C 10,128 0,118 0,100 V 28 C 0,10 10,0 28,0 Z" />
 		</clipPath>
-		<linearGradient id="fade" gradientUnits="userSpaceOnUse" x1="16" y1="0" x2="48" y2="0">
-			<stop offset="0%" stop-color="#fff7f6" stop-opacity="0" />
-			<stop offset="25%" stop-color="#fff7f6" stop-opacity="0.125" />
-			<stop offset="50%" stop-color="#fff7f6" stop-opacity="0.5" />
-			<stop offset="75%" stop-color="#fff7f6" stop-opacity="0.875" />
-			<stop offset="100%" stop-color="#fff7f6" stop-opacity="1" />
-		</linearGradient>
 	</defs>
 	<g clip-path="url(#clip)">
 		<rect width="128" height="128" fill="#591616" />
@@ -17,9 +10,8 @@
 			<line x1="96" y1="0" x2="96" y2="20" />
 			<line x1="96" y1="44" x2="96" y2="128" />
 		</g>
-		<line x1="16" y1="96" x2="48.5" y2="96" stroke="url(#fade)" stroke-width="16" />
 		<path
-			d="M 48,96 H 64 A 16,16 0 0,0 64,64 H 48 A 16,16 0 0,1 48,32 H 84"
+			d="M 0,96 H 64 A 16,16 0 0,0 64,64 H 48 A 16,16 0 0,1 48,32 H 84"
 			fill="none"
 			stroke="#fff7f6"
 			stroke-width="16"
