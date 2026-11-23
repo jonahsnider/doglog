@@ -20,7 +20,7 @@ export type LegendItem = {
 	icon?: ReactNode;
 	/** Shown dimmed after the name */
 	note?: string;
-	/** The robot a robot or ghost is drawn as, picked after its role, ex. on the field in 3D */
+	/** The robot a robot or ghost is drawn as, picked with its role, ex. on the field in 3D */
 	robot?: string;
 	/** How the camera follows the binding's robot, picked after its robot, see `FollowPicker` */
 	follow?: string;
@@ -226,7 +226,8 @@ function LegendEntry({
 				<LegendName name={binding.name} distinctFrom={item.distinctFrom} />
 			</span>
 			{vertical && <span className="flex-1" />}
-			{roles && binding.roleLabel !== undefined && (
+			{/* Robots pick their role with their robot */}
+			{roles && binding.roleLabel !== undefined && item.robot === undefined && (
 				<RoleLabel binding={binding} onPick={(role) => widget?.setRole(binding.id, role)} />
 			)}
 			{item.robot !== undefined && <RobotPicker binding={binding} robot={item.robot} />}

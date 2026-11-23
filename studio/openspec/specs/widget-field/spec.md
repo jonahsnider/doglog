@@ -567,7 +567,7 @@ In 3D, each robot and ghost SHALL be drawn at its pose, including height, pitch,
 
 ### Requirement: Robot per binding
 
-In 3D, each robot and ghost binding's legend row SHALL show its Robot after its role, which can be picked there with the same choices, "Add project…", and "Remove project" as the robot widget's Robot option. A binding without one MUST use the first robot binding's Robot, or the simple swerve robot. A Robot whose project isn't added on this device MUST be drawn as the simple swerve robot, with a note on its legend row in 3D. A binding's Robot MUST only change how it's drawn in 3D.
+In 3D, each robot and ghost binding's legend row SHALL pick its role and Robot in one dropdown, with the same Robot choices, "Add project…", and "Remove project" as the robot widget's Robot option. A binding without one MUST use the first robot binding's Robot, or the simple swerve robot. A Robot whose project isn't added on this device MUST be drawn as the simple swerve robot, with a note on its legend row in 3D. A binding's Robot MUST only change how it's drawn in 3D.
 
 #### Scenario: Setpoint ghost
 
