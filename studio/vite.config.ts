@@ -351,9 +351,10 @@ export default defineConfig({
 				// Lets the installed web app open logs from the OS, in Chromium browsers
 				file_handlers: [{ action: '/', accept: { 'application/octet-stream': ['.wpilog', '.wpilogxz'] } }],
 			},
-			// Generates icons from public/logo.svg and injects their links into index.html
+			// Generates manifest icons and apple-touch-icon from public/logo.svg; index.html links favicon.svg for small sizes
 			pwaAssets: {
 				config: true,
+				includeHtmlHeadLinks: false,
 			},
 		}),
 		// Uploads source maps when `SENTRY_AUTH_TOKEN` is set, without writing them to `dist`

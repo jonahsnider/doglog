@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+	<defs>
+		<linearGradient id="playhead" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="1024">
+			<stop offset="0%" stop-color="#fff7f6" stop-opacity="0.25" />
+			<stop offset="25%" stop-color="#fff7f6" stop-opacity="0.875" />
+			<stop offset="75%" stop-color="#fff7f6" stop-opacity="0.625" />
+			<stop offset="100%" stop-color="#fff7f6" stop-opacity="0.25" />
+		</linearGradient>
+	</defs>
+	<g stroke="url(#playhead)" stroke-width="48">
+		<line x1="768" y1="0" x2="768" y2="146" />
+		<line x1="768" y1="366" x2="768" y2="1024" />
+	</g>
+</svg>

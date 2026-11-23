@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+	<path
+		d="M 256,0 V 1024 M 512,0 V 1024 M 0,256 H 248 M 264,256 H 504 M 520,256 H 656 M 880,256 H 1024 M 0,512 H 248 M 264,512 H 504 M 520,512 H 744 M 792,512 H 1024 M 0,768 H 248 M 264,768 H 504 M 520,768 H 744 M 792,768 H 1024"
+		fill="none"
+		stroke="#fff7f6"
+		stroke-opacity="0.125"
+		stroke-width="16"
+	/>
+</svg>

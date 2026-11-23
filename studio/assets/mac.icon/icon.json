@@ -1,33 +1,67 @@
 {
   "color-space-for-untagged-svg-colors" : "display-p3",
-  "fill" : "automatic",
+  "fill" : {
+    "linear-gradient" : [
+      "srgb:0.41961,0.13725,0.13333,1.00000",
+      "srgb:0.28235,0.03529,0.04314,1.00000"
+    ]
+  },
   "groups" : [
     {
-      "blur-material" : 0.5,
       "layers" : [
         {
-          "blend-mode-specializations" : [
-            {
-              "appearance" : "dark",
-              "value" : "normal"
-            }
-          ],
-          "fill-specializations" : [
-            {
-              "appearance" : "dark",
-              "value" : "automatic"
-            }
-          ],
           "glass" : true,
           "hidden" : false,
-          "image-name" : "Bulldog.svg",
-          "name" : "Bulldog",
-          "opacity-specializations" : [
-            {
-              "appearance" : "dark",
-              "value" : 1
-            }
-          ],
+          "image-name" : "Cursor.svg",
+          "name" : "Cursor",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "lighting" : "combined",
+      "name" : "Cursor",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.45
+      },
+      "specular" : true
+    },
+    {
+      "layers" : [
+        {
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Trace.svg",
+          "name" : "Trace",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "lighting" : "combined",
+      "name" : "Trace",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.3
+      },
+      "specular" : false
+    },
+    {
+      "layers" : [
+        {
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Playhead.svg",
+          "name" : "Playhead",
           "position" : {
             "scale" : 1,
             "translation-in-points" : [
@@ -39,8 +73,8 @@
         {
           "glass" : false,
           "hidden" : false,
-          "image-name" : "Flames.svg",
-          "name" : "Flames",
+          "image-name" : "Grid.svg",
+          "name" : "Grid",
           "position" : {
             "scale" : 1,
             "translation-in-points" : [
@@ -51,34 +85,8 @@
         }
       ],
       "lighting" : "combined",
-      "name" : "Logo",
-      "position" : {
-        "scale" : 0.6,
-        "translation-in-points" : [
-          0,
-          0
-        ]
-      },
-      "shadow" : {
-        "kind" : "layer-color",
-        "opacity" : 0.5
-      },
-      "specular" : true,
-      "translucency-specializations" : [
-        {
-          "value" : {
-            "enabled" : true,
-            "value" : 0.5
-          }
-        },
-        {
-          "appearance" : "light",
-          "value" : {
-            "enabled" : true,
-            "value" : 0.25
-          }
-        }
-      ]
+      "name" : "Graph",
+      "specular" : false
     }
   ],
   "supported-platforms" : {

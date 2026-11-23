@@ -4,10 +4,10 @@ import { createPersistedAtom } from '@/lib/persisted-store';
 
 /** The newest product update, shown in the sidebar. Increment `id` when changing it so it's shown again. */
 const update = {
-	id: 6,
-	title: 'Tuning and video widget',
+	id: 7,
+	title: 'New logo',
 	description:
-		'Use the tuning page to update tunable values in real-time, and the video widget to watch a match alongside its log.',
+		'Studio has a new logo. I think it lookS nice.',
 };
 
 /** ID of the update the user dismissed. New users start caught up, so they only see updates made after they started. */
