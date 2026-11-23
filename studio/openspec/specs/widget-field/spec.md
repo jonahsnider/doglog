@@ -485,7 +485,7 @@ In 3D, scrolling SHALL zoom toward the pointer at a speed set only by how far th
 
 ### Requirement: Follow a robot
 
-In 3D, the context menu of a robot or ghost, on the field or in the legend, SHALL offer to follow it. While following, the camera MUST move with the robot without turning, keeping the user's view direction, and orbiting and zooming MUST work around the robot. A chip in the widget SHALL show which entry is followed, with a button to stop. Following MUST stop when the user pans, resets the view, or hides or removes the followed entry.
+In 3D, a robot's or ghost's context menu, on the field or in the legend, SHALL offer to follow it. While following, the camera MUST move with the robot without turning, keeping the user's view direction, and orbiting and zooming MUST work around the robot. Panning MUST move the view relative to the robot and keep following it. A chip in the widget SHALL show which entry is followed, with a button to stop. Following MUST stop when the user resets the view, or hides or removes the followed entry.
 
 #### Scenario: Follow a turning robot
 
@@ -494,11 +494,12 @@ In 3D, the context menu of a robot or ghost, on the field or in the legend, SHAL
 - **THEN** the camera moves with the robot
 - **AND** the view direction doesn't change
 
-#### Scenario: Pan to stop following
+#### Scenario: Pan while following
 
 - **GIVEN** the user follows `/Drive/Pose`
-- **WHEN** the user right-drags the scene
-- **THEN** the camera pans and stops following the robot
+- **WHEN** the user right-drags the scene to put the robot in the corner of the view
+- **AND** the robot drives forward
+- **THEN** the camera moves with the robot, keeping it in the corner
 
 ### Requirement: 3D robots
 

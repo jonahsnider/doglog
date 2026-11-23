@@ -81,9 +81,6 @@ if (typeof window !== 'undefined') {
 /** Moves the camera of a `Scene3d` from outside it, ex. a reset button in the widget's toolbar */
 export type Scene3dHandle = Pick<Rig, 'reset'> & Required<Pick<Rig, 'follow'>>;
 
-/** Keys that pan the camera */
-const panKeys = new Set(['a', 'd', 'q', 'e']);
-
 export function Scene3d({
 	ref,
 	label,
@@ -101,7 +98,7 @@ export function Scene3d({
 	field?: FieldFraming;
 	/** The camera follows a robot, see `Rig.follow`, so it orbits and zooms around it */
 	following?: boolean;
-	/** The user panned or reset the view, which stops following */
+	/** The user reset the view, which stops following */
 	onStopFollowing?: () => void;
 	/** Keeps the field's view while the app is open when the scene is drawn again, ex. the pane's ID */
 	viewKey?: string;
@@ -170,9 +167,6 @@ export function Scene3d({
 		event.preventDefault();
 		if (!held.current.has(key)) {
 			held.current.add(key);
-			if (panKeys.has(key)) {
-				onStopFollowing?.();
-			}
 			rig.current?.stop();
 			frame.current = frame.current ?? requestAnimationFrame(move(performance.now()));
 		}
@@ -210,9 +204,6 @@ export function Scene3d({
 				rig.current?.stop();
 				const next = cameraMatch ? undefined : dragOf(event.nativeEvent);
 				setDrag(next);
-				if (next === 'pan') {
-					onStopFollowing?.();
-				}
 				rightClick.onPointerDown(event);
 			}}
 			onPointerMove={rightClick.onPointerMove}
