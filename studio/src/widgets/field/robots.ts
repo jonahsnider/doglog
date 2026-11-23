@@ -9,12 +9,12 @@ export function isRobotBinding(binding: WidgetBinding): boolean {
 	return binding.role?.id === 'robot' || binding.role?.id === 'ghost';
 }
 
-/** The robot a robot or ghost binding is drawn as in 3D: its own pick, the first robot's, or the simple swerve robot */
+/** The robot a robot or ghost binding is drawn as in 3D: its own pick, the first robot's, or the swerve drivebase */
 export function fieldRobot(binding: WidgetBinding, bindings: readonly WidgetBinding[]): string {
 	return binding.robot ?? bindings.find((other) => other.role?.id === 'robot')?.robot ?? defaultRobot;
 }
 
-/** Notes for robots whose project isn't added on this device, which are drawn as the simple swerve robot */
+/** Notes for robots whose project isn't added on this device, which are drawn as the swerve drivebase */
 export function missingRobotNotes(
 	bindings: readonly WidgetBinding[],
 	projects: readonly RobotProject[] | undefined,

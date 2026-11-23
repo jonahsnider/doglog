@@ -20,7 +20,7 @@ import { poseMatrix } from '@/three/poses';
 import { useLoadedRobot } from '@/three/robot-loading';
 import { ghostOpacity, RobotModel } from '@/three/robot-model';
 import { useRobotProject } from '@/three/robot-projects';
-import { SwerveRobot } from '@/three/swerve-robot';
+import { SwerveDrivebase } from '@/three/swerve-drivebase';
 import { useThemeColor } from '@/three/theme';
 import { readShape } from '@/widgets/field/data';
 import type { FieldCoordinates } from '@/widgets/field/geometry';
@@ -115,7 +115,7 @@ export type RobotDrawing = {
 	mechanisms: readonly { id: string; mechanism: Mechanism; plane: MechanismPlane }[];
 };
 
-/** A robot or ghost as its Robot, the simple swerve robot until a project's robot loads or when it can't */
+/** A robot or ghost as its Robot, the swerve drivebase until a project's robot loads or when it can't */
 function Robot({
 	value,
 	color,
@@ -136,7 +136,7 @@ function Robot({
 			{state?.status === 'loaded' ? (
 				<RobotModel robot={state.robot} poses={poses} {...(ghost && { ghost: color })} />
 			) : (
-				<SwerveRobot color={color} opacity={opacity} />
+				<SwerveDrivebase color={color} opacity={opacity} />
 			)}
 			{mechanisms.map(({ id, mechanism, plane }) => (
 				<Mechanism3d key={id} mechanism={mechanism} plane={plane} />

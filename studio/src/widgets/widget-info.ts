@@ -164,7 +164,7 @@ export const widgetOptions = {
 			kind: 'choice',
 			id: 'robot',
 			label: 'Robot',
-			choices: [{ id: 'swerve', label: 'Simple swerve' }],
+			choices: [{ id: 'swerve', label: 'Swerve drivebase' }],
 			default: 'swerve',
 			openChoices: true,
 		},
@@ -252,7 +252,7 @@ export const widgetInfos = [
 		id: 'robot',
 		name: 'Robot',
 		description:
-			"The robot in 2D or 3D. Mechanism2d entries are drawn on a plane of the robot: `side` (XZ, the default), `front` (YZ), or `top` (XY). A Pose3d[] entry places the parts of a robot project's CAD model (`parts`). The `view` option defaults to 2D when only a mechanism is bound. The `robot` option is `swerve` (a simple swerve robot) or the name of a robot project the user added on their device.",
+			"The robot in 2D or 3D. Mechanism2d entries are drawn on a plane of the robot: `side` (XZ, the default), `front` (YZ), or `top` (XY). A Pose3d[] entry places the parts of a robot project's CAD model (`parts`). The `view` option defaults to 2D when only a mechanism is bound. The `robot` option is `swerve` (the built-in swerve drivebase) or the name of a robot project the user added on their device.",
 		accepts: ['mechanism2d', 'struct[]'],
 		roles: Object.values(widgetRoles.robot),
 		options: Object.values(widgetOptions.robot),

@@ -36,7 +36,7 @@ export const robot = z
 	.string()
 	.min(1)
 	.describe(
-		"A robot or ghost's robot in 3D: `swerve` (a simple swerve robot) or the name of a robot project the user added on their device",
+		"A robot or ghost's robot in 3D: `swerve` (the built-in swerve drivebase) or the name of a robot project the user added on their device",
 	);
 
 function optionSchema(option: WidgetOptionInfo) {

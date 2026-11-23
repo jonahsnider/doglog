@@ -3,7 +3,7 @@ import { Box3, BoxGeometry, BufferGeometry, type Matrix4, type Object3D, Vector3
 import { deinterleaveGeometry, mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { isMesh, type LoadedRobot } from '@/three/robot-loading';
 
-/** How see-through ghosts are, for both CAD models and the simple swerve robot */
+/** How see-through ghosts are, for both CAD models and the swerve drivebase */
 export const ghostOpacity = 0.6;
 
 /**
@@ -86,7 +86,7 @@ function ghostGeometry(model: Object3D): BufferGeometry {
 }
 
 /**
- * A model drawn see-through in one color with the same opacity everywhere, like a ghost of the simple swerve robot.
+ * A model drawn see-through in one color with the same opacity everywhere, like a ghost of the swerve drivebase.
  * Its depth is drawn first, so only the surfaces nearest the camera are blended instead of every part behind them.
  */
 function Ghost({ model, color }: { model: Object3D; color: string }) {

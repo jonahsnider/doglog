@@ -5,13 +5,13 @@ import { poseMatrix } from '@/three/poses';
 import { useLoadedRobot } from '@/three/robot-loading';
 import { RobotModel } from '@/three/robot-model';
 import { allowProjectAccess, useRobotProject } from '@/three/robot-projects';
-import { SwerveRobot } from '@/three/swerve-robot';
+import { SwerveDrivebase } from '@/three/swerve-drivebase';
 import { useCursorTime } from '@/timeline/timeline';
 import { defaultRobot } from '@/widgets/robot/robot-option';
 
 /**
  * The robot the Robot option picked, with its parts placed by the `parts` entry's poses at the cursor. When it can't be
- * drawn, the simple swerve robot is drawn instead, with a note saying why.
+ * drawn, the swerve drivebase is drawn instead, with a note saying why.
  */
 export function usePickedRobot(
 	name: string,
@@ -24,17 +24,17 @@ export function usePickedRobot(
 	const poses = useMemo(() => (Array.isArray(value) ? value.map((pose) => poseMatrix(pose)) : []), [value]);
 
 	if (name === defaultRobot) {
-		return { robot: <SwerveRobot />, note: undefined };
+		return { robot: <SwerveDrivebase />, note: undefined };
 	}
 	if (project === null) {
-		return { robot: <SwerveRobot />, note: `${name} isn't added on this device` };
+		return { robot: <SwerveDrivebase />, note: `${name} isn't added on this device` };
 	}
 	if (state?.status === 'loaded') {
 		return { robot: <RobotModel robot={state.robot} poses={poses} />, note: undefined };
 	}
 	if (state?.status === 'error') {
 		return {
-			robot: <SwerveRobot />,
+			robot: <SwerveDrivebase />,
 			note: (
 				<>
 					<span className="truncate">{state.message}</span>

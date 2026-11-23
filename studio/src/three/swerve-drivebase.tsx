@@ -4,7 +4,7 @@ import { type BufferGeometry, ExtrudeGeometry, Path, Shape, ShapeGeometry, Vecto
 import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { useThemeColor } from '@/three/theme';
 
-// A simple swerve robot in the style of KrayonCAD's swerve drive: a rounded bumper, box tube frame rails, a bellypan,
+// A swerve drivebase in the style of KrayonCAD's swerve drive: a rounded bumper, box tube frame rails, a bellypan,
 // and four modules with a drive and a steer motor each. Meters, +X front, +Y left, +Z up.
 
 /** Bumper footprint, the same as robots on the field */
@@ -152,10 +152,10 @@ function seeThrough(opacity: number) {
 const box = <boxGeometry />;
 
 /**
- * A simple swerve robot drawn without a model, with bumpers in `color` or the theme's primary color. Ghosts are drawn
+ * A swerve drivebase drawn without a model, with bumpers in `color` or the theme's primary color. Ghosts are drawn
  * with an `opacity` below 1.
  */
-export function SwerveRobot({ color, opacity = 1 }: { color?: string; opacity?: number }) {
+export function SwerveDrivebase({ color, opacity = 1 }: { color?: string; opacity?: number }) {
 	const primary = useThemeColor('var(--primary)');
 	const bumperColor = color ?? primary;
 	const panSize = (frameHalf - tubeWidth) * 2;

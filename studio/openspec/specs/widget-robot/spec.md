@@ -181,12 +181,12 @@ In 3D, the center of a mechanism canvas's bottom edge SHALL be at the robot's or
 
 ### Requirement: Robot
 
-The robot widget SHALL have a Robot option, which MUST default to a simple swerve robot drawn without a model: a 0.9 m square frame with bumpers and four swerve modules. Its other choices SHALL be the robots of the projects the user added. The option's menu MUST offer "Add project…" and "Remove project" for the picked robot. Robots MUST only be drawn in 3D.
+The robot widget SHALL have a Robot option, which MUST default to "Swerve drivebase": a 0.9 m square frame with bumpers and four swerve modules, drawn without a model. Its other choices SHALL be the robots of the projects the user added. The option's menu MUST offer "Add project…" and "Remove project" for the picked robot. Robots MUST only be drawn in 3D.
 
 #### Scenario: Default robot
 
 - **GIVEN** a robot widget in 3D, with no robot picked
-- **THEN** the simple swerve robot is drawn
+- **THEN** the swerve drivebase is drawn
 
 #### Scenario: Add a project
 
@@ -197,7 +197,7 @@ The robot widget SHALL have a Robot option, which MUST default to a simple swerv
 
 - **GIVEN** a shared dashboard with a robot widget showing the robot "581 2026"
 - **WHEN** a teammate who hasn't added that robot's project opens it
-- **THEN** the simple swerve robot is drawn, with a note that "581 2026" isn't added on this device
+- **THEN** the swerve drivebase is drawn, with a note that "581 2026" isn't added on this device
 
 ### Requirement: Robot projects
 
@@ -217,19 +217,19 @@ The web app SHALL only add robot projects in browsers that can keep access to fo
 
 - **GIVEN** a robot widget showing a robot project in the web app
 - **WHEN** the user reopens the web app and the browser hasn't kept access to the project's folder
-- **THEN** the simple swerve robot is drawn, with a note and an "Allow access" button
+- **THEN** the swerve drivebase is drawn, with a note and an "Allow access" button
 - **WHEN** the user presses it and allows access
 - **THEN** the project's robot is drawn
 
 ### Requirement: Invalid robot projects
 
-A robot project whose files aren't valid SHALL NOT be drawn, and the widget MUST say which file and key are wrong instead, drawing the simple swerve robot.
+A robot project whose files aren't valid SHALL NOT be drawn, and the widget MUST say which file and key are wrong instead, drawing the swerve drivebase.
 
 #### Scenario: Unknown key
 
 - **GIVEN** a `doglog.jsonc` whose robot has a `colour` key
 - **THEN** the widget says `robot.colour` in `doglog.jsonc` isn't a known key
-- **AND** the simple swerve robot is drawn
+- **AND** the swerve drivebase is drawn
 
 ### Requirement: Robot config
 
