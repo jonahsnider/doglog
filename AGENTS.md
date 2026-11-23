@@ -35,7 +35,7 @@ Testing the desktop app is necessary for some features, but should only be used 
 
 1. Check if a Tauri dev app window is already open
 2. Start a `tauri dev` session for it if not
-   - `tauri dev` uses port 5173, which runs the Tauri-specific build rather than the regular Vite site
+   - `tauri dev` uses port 5173, which runs the Tauri-specific build rather than the regular Vite site and isn't usable separately
 3. Use the Tauri MCP to interact, falling back to `agent-desktop` if necessary
 4. Once finished, end the `tauri dev` session
 
