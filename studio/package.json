@@ -40,7 +40,7 @@
 		"@ridemountainpig/svgl-react": "1.0.19",
 		"@sentry/react": "11.16.0",
 		"@sindresorhus/fnv1a": "4.0.0",
-		"@tanstack/react-hotkeys": "0.27.1",
+		"@tanstack/react-hotkeys": "0.27.2",
 		"@tanstack/react-router": "1.170.46",
 		"@tanstack/react-store": "0.11.2",
 		"@tanstack/react-virtual": "3.14.26",
