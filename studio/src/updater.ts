@@ -87,11 +87,15 @@ export async function registerServiceWorker(): Promise<void> {
 	// worker never takes over open tabs, so this only happens when updating.
 	navigator.serviceWorker.addEventListener('controllerchange', () => location.reload());
 
-	let registration: ServiceWorkerRegistration;
+	let registration: ServiceWorkerRegistration | undefined;
 	try {
 		registration = await navigator.serviceWorker.register('/sw.js');
 	} catch {
 		// Usually means there's no internet, ex. at an event, so there's nothing worth telling the user
+		return;
+	}
+	// Some web archivers and extensions stub `register()` to resolve to `undefined`
+	if (registration === undefined) {
 		return;
 	}
 	const showUpdate = async (): Promise<void> => {
