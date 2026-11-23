@@ -48,6 +48,7 @@ function handlePreloadError(event: Event): void {
 const localPreview =
 	import.meta.env.VITE_DOGLOG_LOCAL_PREVIEW === '1' ||
 	(!STUDIO_DESKTOP && /^(localhost|127\.[\d.]+|\[::1\])$|\.localhost$/u.test(location.hostname));
+const traceWeb = import.meta.env.PROD && !STUDIO_DESKTOP && !localPreview;
 
 // Reports uncaught errors from production-mode builds, with the release set by the build plugin.
 Sentry.init({
@@ -55,6 +56,22 @@ Sentry.init({
 	enabled: import.meta.env.PROD,
 	environment: import.meta.env.DEV || localPreview ? 'development' : 'production',
 	initialScope: { tags: { platform: STUDIO_DESKTOP ? 'desktop' : 'web' } },
+	...(traceWeb && {
+		tracesSampleRate: 0.1,
+		integrations: [Sentry.browserTracingCoreIntegration()],
+		beforeSendSpan(span) {
+			// Page URLs and referrers can contain log URLs or encoded dashboard contents.
+			delete span.attributes['url.full'];
+			delete span.attributes['url.path'];
+			delete span.attributes['http.request.header.referer'];
+			return span;
+		},
+		beforeSend(event) {
+			// Browser tracing also adds the raw pathname as the transaction name on error events.
+			delete event.transaction;
+			return event;
+		},
+	}),
 });
 
 syncTheme();

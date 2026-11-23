@@ -39,8 +39,9 @@ context: |
     fasteners and other hardware, simplifies, and compresses it to a GLB of about 2 MB that's committed and bundled.
     The CAD's AprilTags are plain, so the GLB holds WPILib's tag layout instead, and the widget draws their patterns.
     Redistributing a model derived from FIRST's CAD is an accepted risk: Studio is a free tool for students.
-  - Error reporting: Sentry, in production builds only. No usage analytics, and never log contents or personal info
-    (ex. hostnames).
+  - Error reporting runs in production builds only. The production web app also samples page-load and navigation
+    timings, without URLs, referrers, or outgoing request tracing. No usage analytics, and never log contents or
+    personal info (ex. hostnames).
 
   Platform constraints:
   - Browsers only allow live NT connections from an HTTPS page via Chrome's Local Network Access (Chrome 147+),
