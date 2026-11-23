@@ -305,8 +305,8 @@ importers:
         specifier: 3.14.27
         version: 3.14.27(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@tanstack/store':
-        specifier: 0.11.2
-        version: 0.11.2(patch_hash=64cb2afef9922ab9d26a86b6f2d286c58682094f87d219b442a01fe7f92dc1b7)
+        specifier: 0.11.3
+        version: 0.11.3(patch_hash=64cb2afef9922ab9d26a86b6f2d286c58682094f87d219b442a01fe7f92dc1b7)
       '@tauri-apps/api':
         specifier: 2.12.5
         version: 2.12.5
