@@ -1,29 +1,15 @@
 import { useHotkey } from '@tanstack/react-hotkeys';
-import { Link, useMatchRoute } from '@tanstack/react-router';
+import { useRouter } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
-import FolderSyncIcon from 'lucide-react/icons/folder-sync';
-import SettingsIcon from 'lucide-react/icons/settings';
-import SlidersHorizontalIcon from 'lucide-react/icons/sliders-horizontal';
+import PanelLeftIcon from 'lucide-react/icons/panel-left';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
-import {
-	Sidebar,
-	SidebarContent,
-	SidebarContext,
-	type SidebarContextProps,
-	SidebarGroup,
-	SidebarHeader,
-	SidebarMenu,
-	SidebarMenuButton,
-	SidebarMenuItem,
-} from '@/components/ui/sidebar';
-import { AppSidebarFooter } from '@/sidebar/app-sidebar-footer';
-import { SourceControl } from '@/sidebar/source-control';
-import { ShortcutHint } from '@/sidebar/shortcut-hint';
-import { SidebarDashboards } from '@/sidebar/sidebar-dashboards';
-import { TooltipLabel } from '@/components/tooltip-label';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetPopup, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sidebar, SidebarContext, type SidebarContextProps } from '@/components/ui/sidebar';
 import { shortcuts } from '@/commands/commands';
 import { cn } from '@/lib/utils';
 import { useTitleBarStrip, useTrafficLights } from '@/desktop/title-bar';
+import { SidebarItems } from '@/sidebar/sidebar-items';
 import {
 	animateSidebarPeek,
 	copyToRail,
@@ -42,8 +28,57 @@ const keepPeekingSelector =
 
 function noop(): void {}
 
-export function AppSidebar() {
-	const matchRoute = useMatchRoute();
+export function AppSidebar({ mobile }: { mobile: boolean }) {
+	return mobile ? <MobileAppSidebar /> : <DesktopAppSidebar />;
+}
+
+function MobileAppSidebar() {
+	const [open, setOpen] = useState(false);
+	const router = useRouter();
+	const toggle = () => setOpen((value) => !value);
+	useHotkey(shortcuts.toggleSidebar, toggle, { requireReset: true });
+	useEffect(
+		() =>
+			router.subscribe('onResolved', ({ pathChanged }) => {
+				if (pathChanged) {
+					setOpen(false);
+				}
+			}),
+		[router],
+	);
+
+	const context: SidebarContextProps = {
+		state: 'expanded',
+		open,
+		setOpen,
+		openMobile: open,
+		setOpenMobile: setOpen,
+		isMobile: true,
+		toggleSidebar: toggle,
+	};
+	return (
+		<SidebarContext value={context}>
+			<Sheet open={open} onOpenChange={setOpen}>
+				<header className="flex h-12 shrink-0 items-center gap-1 px-2">
+					<SheetTrigger render={<Button variant="ghost" size="icon-xl" aria-label="Show sidebar" />}>
+						<PanelLeftIcon />
+					</SheetTrigger>
+					<span className="font-heading text-sm font-semibold">DogLog Studio</span>
+				</header>
+				<SheetPopup
+					side="left"
+					className="group w-full max-w-none border-0 bg-sidebar text-sidebar-foreground motion-reduce:transition-none"
+					closeProps={{ 'aria-label': 'Hide sidebar' }}
+				>
+					<SheetTitle className="flex h-12 shrink-0 items-center ps-3 pe-14 text-base">DogLog Studio</SheetTitle>
+					<SidebarItems />
+				</SheetPopup>
+			</Sheet>
+		</SidebarContext>
+	);
+}
+
+function DesktopAppSidebar() {
 	const collapsed = useSelector(sidebarCollapsedStore);
 	const [peeking, setPeeking] = useState(false);
 	// Toggling with the keyboard skips the animation, clicking and peeking keep it
@@ -230,55 +265,14 @@ export function AppSidebar() {
 						ref={contentRef}
 						className="flex h-full w-(--sidebar-width) shrink-0 flex-col contain-strict group-data-[collapsible=icon]:w-(--sidebar-width-icon)"
 					>
-						<SidebarHeader
+						<SidebarItems
 							// Leaves room for the title bar, which is above the sidebar when it has its own strip
 							// The items stay where they are in the rail below the strip, so they don't move when the sidebar expands
-							className={cn(!strip && 'pt-12.5', 'in-data-[animation=enter-strip]:pt-12.5')}
-						>
-							<SidebarMenu>
-								<SourceControl />
-							</SidebarMenu>
-						</SidebarHeader>
-						<SidebarContent>
-							<SidebarGroup>
-								<SidebarMenu>
-									<SidebarMenuItem>
-										<SidebarMenuButton
-											isActive={Boolean(matchRoute({ to: '/logs' }))}
-											render={<Link to="/logs" />}
-											tooltip={{ children: <TooltipLabel label="Logs" shortcut={shortcuts.logs} /> }}
-										>
-											<FolderSyncIcon />
-											<span>Logs</span>
-										</SidebarMenuButton>
-										<ShortcutHint shortcut={shortcuts.logs} />
-									</SidebarMenuItem>
-									<SidebarMenuItem>
-										<SidebarMenuButton
-											isActive={Boolean(matchRoute({ to: '/tuning' }))}
-											render={<Link to="/tuning" />}
-											tooltip={{ children: 'Tuning' }}
-										>
-											<SlidersHorizontalIcon />
-											<span>Tuning</span>
-										</SidebarMenuButton>
-									</SidebarMenuItem>
-									<SidebarMenuItem>
-										<SidebarMenuButton
-											isActive={Boolean(matchRoute({ to: '/settings' }))}
-											render={<Link to="/settings" />}
-											tooltip={{ children: <TooltipLabel label="Settings" shortcut={shortcuts.settings} /> }}
-										>
-											<SettingsIcon />
-											<span>Settings</span>
-										</SidebarMenuButton>
-										<ShortcutHint shortcut={shortcuts.settings} />
-									</SidebarMenuItem>
-								</SidebarMenu>
-							</SidebarGroup>
-							<SidebarDashboards />
-						</SidebarContent>
-						<AppSidebarFooter expanded={!iconLayout} closing={iconOnly && !iconLayout} onShow={peek} />
+							headerClassName={cn(!strip && 'pt-12.5', 'in-data-[animation=enter-strip]:pt-12.5')}
+							expanded={!iconLayout}
+							closing={iconOnly && !iconLayout}
+							onShow={peek}
+						/>
 					</div>
 				</Sidebar>
 				{/* The rail as it was when peeking started, under the sidebar while it's out, see `peek()` */}

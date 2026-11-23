@@ -232,7 +232,7 @@ When an array or struct isn't in the tree but its elements or fields are, ex. wh
 
 ### Requirement: Collapsible panel
 
-The entry browser SHALL be a collapsible panel on the right side of the dashboard view, toggled by a button or keyboard shortcut, and its open state MUST persist. Users MUST be able to resize it by dragging the divider between it and the panes, and its width MUST persist.
+Outside the phone layout, the entry browser SHALL be a collapsible panel on the right side of the dashboard view, toggled by a button or keyboard shortcut, and its open state MUST persist. Users MUST be able to resize it by dragging the divider between it and the panes, and its width MUST persist.
 
 #### Scenario: Toggle and remember
 
@@ -265,6 +265,18 @@ The entry browser SHALL be a collapsible panel on the right side of the dashboar
 - **GIVEN** the desktop app
 - **WHEN** the user drags the entry browser's divider toward the panes
 - **THEN** it stops once the panes are at their minimum width (see the dashboards spec)
+
+### Requirement: Full-screen entry browser on phones
+
+In the phone layout (see app-shell), the entry browser SHALL start closed regardless of the saved docked layout. Its toggle MUST be available in the top bar where the entry browser is available. Opening or closing the full-screen entry browser MUST NOT change the saved docked layout.
+
+#### Scenario: Browse entries on a phone
+
+- **GIVEN** the user is viewing a dashboard in the phone layout
+- **WHEN** the user taps the entry browser toggle
+- **THEN** the entry browser covers the viewport without a resize divider
+- **WHEN** the user taps the close button
+- **THEN** the dashboard is shown again
 
 ### Requirement: Drag to bind
 
