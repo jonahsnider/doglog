@@ -3,8 +3,9 @@
 	"assets": {
 		"directory": "./dist",
 		"binding": "ASSETS",
-		"not_found_handling": "single-page-application",
-		// Only dashboard links need the Worker, every other request is a static asset
+		// Unmatched paths go to the Worker so missing `/assets/*` return 404 instead of `index.html` with immutable caching
+		"not_found_handling": "none",
+		// Dashboard links always run the Worker for Open Graph tags; existing static assets bypass it
 		"run_worker_first": ["/import/*"],
 	},
 	"compatibility_date": "2026-11-15",

@@ -85,7 +85,13 @@ export function startSharing(): void {
 			return;
 		}
 
-		const [{ openNt }, { connectSharing }] = await Promise.all([import('@/nt/client'), import('@/sharing/nt-sync')]);
+		const modules = await Promise.all([import('@/nt/client'), import('@/sharing/nt-sync')]).catch(() => undefined);
+		if (modules === undefined) {
+			// A dynamic import can fail on a flaky network or right after a deploy; retry like an unreachable host
+			retry(attemptGeneration);
+			return;
+		}
+		const [{ openNt }, { connectSharing }] = modules;
 		const nt = await openNt(host);
 		if (attemptGeneration !== generation) {
 			nt.close();

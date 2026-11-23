@@ -21,6 +21,29 @@ import { startSharing } from './sharing/sharing.ts';
 import { runLogSync } from './sync/sync.ts';
 import { registerServiceWorker } from './updater.ts';
 
+const preloadReloadKey = 'doglog-studio:preload-reload';
+const preloadReloadCooldownMs = 30_000;
+
+/** Reload once when an uncontrolled tab fails to fetch a chunk a newer deploy removed. */
+function handlePreloadError(event: Event): void {
+	if (!navigator.onLine) {
+		return;
+	}
+	try {
+		const stored = sessionStorage.getItem(preloadReloadKey);
+		const lastReload = stored === null ? Number.NaN : Number(stored);
+		if (Number.isFinite(lastReload) && Date.now() - lastReload < preloadReloadCooldownMs) {
+			return;
+		}
+		sessionStorage.setItem(preloadReloadKey, String(Date.now()));
+	} catch {
+		// Without storage to prevent a reload loop, let the error surface instead
+		return;
+	}
+	event.preventDefault();
+	location.reload();
+}
+
 // Web previews serve the production bundle on loopback; local desktop packages are marked at build time.
 const localPreview =
 	import.meta.env.VITE_DOGLOG_LOCAL_PREVIEW === '1' ||
@@ -55,10 +78,13 @@ if (STUDIO_DESKTOP) {
 	});
 } else {
 	handleLaunchedLogFiles();
-	// Waits for the page to load so precaching doesn't compete with it. HTTP pages other than localhost, ex. Studio
-	// served on a LAN IP, have no `navigator.serviceWorker`. Registering also checks for a newer version.
-	if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-		addEventListener('load', () => void registerServiceWorker());
+	if (import.meta.env.PROD) {
+		addEventListener('vite:preloadError', handlePreloadError);
+		// Waits for the page to load so precaching doesn't compete with it. HTTP pages other than localhost, ex. Studio
+		// served on a LAN IP, have no `navigator.serviceWorker`. Registering also checks for a newer version.
+		if ('serviceWorker' in navigator) {
+			addEventListener('load', () => void registerServiceWorker());
+		}
 	}
 }
 void restoreLive();
