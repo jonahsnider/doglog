@@ -13,18 +13,18 @@ import { useLocalVideo } from '@/widgets/video/local-files';
 import { parseSync, parseVideo } from '@/widgets/video/source';
 import { SyncedVideo, type VideoProps } from '@/widgets/video/synced-video';
 
-/** A video of the match that plays along with the log, see `widget-video` in the specs */
+/** A video of the match that follows the timeline, see `widget-video` in the specs */
 export function Video({ options, setOption, paneId }: WidgetProps) {
 	const source = useSource();
 	const video = parseVideo(options['video'] ?? '');
 	const { choose, dropProps, draggingVideo } = useAddVideo(paneId, setOption);
 
-	if (source?.type !== 'log') {
+	if (source === undefined) {
 		return (
 			<WidgetEmpty
 				icon={<ClapperboardIcon />}
-				title="Videos play with logs"
-				description={video ? 'Open a log to watch this video with it.' : 'Open a log to add a video of it.'}
+				title="Choose a data source"
+				description="Open a log or connect to follow its timeline with a video."
 			/>
 		);
 	}

@@ -24,16 +24,17 @@ export function LocalPlayer({ url, muted, ref, onInfo }: PlayerProps & { url: st
 		(): Player => ({
 			// Chromium and WebKit play up to 16×, but the audio cuts out above 4× and fewer frames are decoded
 			maxRate: 8,
-			time: () => videoRef.current?.currentTime ?? 0,
+			// Compare against the newest request so reversing a scrub can replace an already queued seek.
+			time: () => pendingSeek.current ?? videoRef.current?.currentTime ?? 0,
 			seek: (time) => {
 				const video = videoRef.current;
 				if (!video) {
 					return;
 				}
-				setPending(true);
 				if (video.seeking) {
 					pendingSeek.current = time;
-				} else {
+				} else if (video.currentTime !== time) {
+					setPending(true);
 					video.currentTime = time;
 				}
 			},
@@ -95,7 +96,7 @@ export function LocalPlayer({ url, muted, ref, onInfo }: PlayerProps & { url: st
 			onSeeked={(event) => {
 				const next = pendingSeek.current;
 				pendingSeek.current = undefined;
-				if (next === undefined) {
+				if (next === undefined || next === event.currentTarget.currentTime) {
 					setPending(false);
 				} else {
 					event.currentTarget.currentTime = next;

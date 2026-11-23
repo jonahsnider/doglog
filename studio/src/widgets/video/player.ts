@@ -4,6 +4,7 @@ import type { Ref } from 'react';
 export type Player = {
 	/** The fastest playback rate the player supports */
 	readonly maxRate: number;
+	/** The playback position, or the latest requested position while a seek is pending */
 	time: () => number;
 	seek: (time: number) => void;
 	play: () => void;

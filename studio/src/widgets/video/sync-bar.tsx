@@ -15,6 +15,7 @@ export function SyncBar({
 	player,
 	duration,
 	start,
+	canSync,
 	onCancel,
 	onSync,
 }: {
@@ -22,6 +23,7 @@ export function SyncBar({
 	duration: number | undefined;
 	/** Where the video starts (s), only read when Sync mode starts */
 	start: number;
+	canSync: boolean;
 	onCancel: () => void;
 	/** Locks the sync with the video's time (s) */
 	onSync: (videoTime: number) => void;
@@ -88,7 +90,9 @@ export function SyncBar({
 					Cancel
 				</Button>
 				<Tooltip>
-					<TooltipTrigger render={<Button size="sm" onClick={() => onSync(player.current?.time() ?? time)} />}>
+					<TooltipTrigger
+						render={<Button size="sm" disabled={!canSync} onClick={() => onSync(player.current?.time() ?? time)} />}
+					>
 						Sync
 					</TooltipTrigger>
 					<TooltipPopup>Show this moment of the video at the timeline’s cursor</TooltipPopup>

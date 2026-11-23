@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the video widget, which plays a video of a match along with its log, such as the broadcast or a recording from the stands, so teams reviewing a match see what the robot did next to what it logged.
+Define the video widget, which plays a video of a match along with its log or live session, such as the broadcast or a recording from the stands, so teams reviewing a match see what the robot did next to what it logged.
 
 ## Requirements
 
@@ -56,8 +56,8 @@ Outside Sync mode, the video SHALL show the moment lined up with the cursor, and
 #### Scenario: Seek
 
 - **GIVEN** a video synced so 0:00.00 in the log shows 0:10.00 in the video
-- **WHEN** the cursor moves to 0:30.00
-- **THEN** the video shows 0:40.00
+- **WHEN** the user scrubs the timeline to 0:30.00 while paused, even if they reverse direction mid-scrub
+- **THEN** the video shows 0:40.00 without starting playback
 
 #### Scenario: Play faster than YouTube can
 
@@ -76,7 +76,7 @@ When the cursor is before the video starts or after it ends, the widget SHALL sh
 
 ### Requirement: Sync mode
 
-Sync mode SHALL let the user line the video up with the log: the video stops following the timeline and gets its own play button, frame steps, and scrubber under it, while the timeline keeps moving the cursor. Sync MUST lock the video's current moment to the cursor, and Cancel MUST leave the sync as it was. Widget options MUST offer to start Sync mode. Sync mode MUST start where the video was lined up with the cursor, or for a newly added video, at the start or at a YouTube link's timestamp.
+Sync mode SHALL let the user line the video up with the source: the video stops following the timeline and gets its own play button, frame steps, and scrubber under it, while the timeline keeps moving the cursor. Sync MUST lock the video's current moment to the cursor, and Cancel MUST leave the sync as it was. Widget options MUST offer to start Sync mode. Sync mode MUST start where the video was lined up with the cursor, or for a newly added video, at the start or at a YouTube link's timestamp.
 
 #### Scenario: Line up the start of auto
 
@@ -91,11 +91,11 @@ Sync mode SHALL let the user line the video up with the log: the video stops fol
 
 ### Requirement: Fine-tune the sync
 
-Widget options SHALL show the sync as a time in the log and the time in the video shown with it, both editable, with buttons to show the video one frame or 0.1 seconds earlier or later.
+Widget options SHALL show the sync as a time on the timeline and the time in the video shown with it, both editable, with buttons to show the video one frame or 0.1 seconds earlier or later.
 
 #### Scenario: Type the sync
 
-- **WHEN** the user types `1:23` for the log and `4:56` for the video
+- **WHEN** the user types `1:23` for the timeline and `4:56` for the video
 - **THEN** 4:56 in the video is shown when the cursor is at 1:23.00
 
 ### Requirement: Sound
@@ -155,15 +155,15 @@ When a video can't play, the widget SHALL say why and what to do next, and MUST 
 - **WHEN** the computer goes offline
 - **THEN** the widget asks to connect to the internet to play YouTube videos
 
-### Requirement: Logs only
+### Requirement: Live sources
 
-When a live source or no source is shown, the widget SHALL say that videos play with logs, and MUST keep its video and sync.
+The widget SHALL support adding and syncing a video with a live session, including retained data after disconnecting. The sync uses seconds from the start of the shown source. Sync mode MUST NOT lock the sync until the timeline has a cursor. With no source selected, the widget SHALL prompt the user to choose one and MUST keep its video and sync.
 
-#### Scenario: Live
+#### Scenario: Review a disconnected session
 
-- **GIVEN** a video widget playing `qual12.mp4`
-- **WHEN** the user connects to the robot
-- **THEN** the widget says that videos play with logs
+- **GIVEN** the user has disconnected from the robot without clearing the session
+- **WHEN** the user adds a video and syncs it with the retained timeline
+- **THEN** the video follows that timeline without exporting and reopening a log
 
 ### Requirement: YouTube in the desktop app
 

@@ -164,7 +164,7 @@ const nudges = [
 	{ label: '+0.1 s', description: 'Show the video 0.1 seconds later', by: 0.1 },
 ];
 
-/** The moment in the log and the moment in the video that are shown together, with nudges to fine-tune it */
+/** The moment on the timeline and the moment in the video that are shown together, with nudges to fine-tune it */
 export function SyncControl({ paneId, values, setOption }: OptionControlProps) {
 	const source = useSource();
 	if ((values['video'] ?? '') === '') {
@@ -177,7 +177,7 @@ export function SyncControl({ paneId, values, setOption }: OptionControlProps) {
 			<FieldsetLegend className="mb-1 text-sm">Sync</FieldsetLegend>
 			<div className="flex flex-col gap-2">
 				<div className="flex items-center gap-2">
-					<TimeField label="Log" seconds={sync.log} onChange={(log) => set(log, sync.video)} />
+					<TimeField label="Timeline" seconds={sync.log} onChange={(log) => set(log, sync.video)} />
 					<span className="text-muted-foreground">=</span>
 					<TimeField label="Video" seconds={sync.video} onChange={(video) => set(sync.log, video)} />
 				</div>
@@ -198,11 +198,11 @@ export function SyncControl({ paneId, values, setOption }: OptionControlProps) {
 				{/* Sync mode shows its controls under the video, so it closes the options */}
 				<PopoverClose
 					render={<Button variant="outline" size="sm" className="self-start" />}
-					disabled={source?.type !== 'log'}
+					disabled={source === undefined}
 					onClick={() => startSyncing(paneId)}
 				>
 					<MoveHorizontalIcon />
-					Sync with log
+					Sync with timeline
 				</PopoverClose>
 			</div>
 		</Fieldset>

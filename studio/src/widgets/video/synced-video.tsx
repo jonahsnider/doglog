@@ -8,7 +8,7 @@ import { LocalPlayer } from '@/widgets/video/local-player';
 import type { Player, PlayerInfo } from '@/widgets/video/player';
 import { formatSync, type Sync, videoTimeAt, youTubeUrl } from '@/widgets/video/source';
 import { stopSyncing, useMuted, useSyncing } from '@/widgets/video/state';
-import { logTimeAt, useFollowCursor } from '@/widgets/video/follow-cursor';
+import { timelineTimeAt, useFollowCursor } from '@/widgets/video/follow-cursor';
 import { MatchFieldMenu } from '@/widgets/video/match-field-menu';
 import { SyncBar } from '@/widgets/video/sync-bar';
 import { YouTubePlayer } from '@/widgets/video/youtube-player';
@@ -52,8 +52,8 @@ export function SyncedVideo({
 	const muted = useMuted(paneId);
 	const syncing = useSyncing(paneId);
 	const { duration } = info;
-	const logTime = logTimeAt(useCursorTime());
-	const target = logTime === undefined ? undefined : videoTimeAt(logTime, sync);
+	const time = timelineTimeAt(useCursorTime());
+	const target = time === undefined ? undefined : videoTimeAt(time, sync);
 
 	useFollowCursor(player, sync, duration, syncing === undefined);
 
@@ -117,13 +117,14 @@ export function SyncedVideo({
 					player={player}
 					duration={duration}
 					start={syncing.start ?? Math.min(Math.max(target ?? 0, 0), duration ?? Infinity)}
+					canSync={time !== undefined}
 					onCancel={() => stopSyncing(paneId)}
 					onSync={(videoTime) => {
-						const log = logTimeAt(getCursorTime());
+						const log = timelineTimeAt(getCursorTime());
 						if (log !== undefined) {
 							setOption('sync', formatSync({ log, video: videoTime }));
+							stopSyncing(paneId);
 						}
-						stopSyncing(paneId);
 					}}
 				/>
 			)}

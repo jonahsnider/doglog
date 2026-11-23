@@ -203,7 +203,7 @@ export const widgetOptions = {
 			id: 'sync',
 			label: 'Sync',
 			description:
-				'Lines the video up with the log as `<log seconds>=<video seconds>`, ex. `83=296.5` shows 4:56.50 in the video when the cursor is 1:23.00 into the log. Log seconds count from the start of the log, like the timeline shows. Not set, the log and video start together.',
+				'Lines the video up with the timeline as `<source seconds>=<video seconds>`, ex. `83=296.5` shows 4:56.50 in the video when the timeline cursor is at 1:23.00. Source seconds count from the start of the log or live session. Not set, the source and video start together.',
 			pattern: /^\d+(?:\.\d+)?=\d+(?:\.\d+)?$/u,
 			default: '',
 		},
@@ -306,7 +306,7 @@ export const widgetInfos = [
 		id: 'video',
 		name: 'Video',
 		description:
-			"A video of the match that plays along with the log, following the timeline cursor, ex. the broadcast or a recording from the stands. Doesn't take entries: set the `video` and `sync` options. Each video widget has one video, use several for more angles. Videos only play with logs, not live sources.",
+			"A video of the match that follows the timeline cursor for a log or live session, ex. the broadcast or a recording from the stands. Doesn't take entries: set the `video` and `sync` options. Each video widget has one video, use several for more angles.",
 		accepts: [],
 		roles: [],
 		options: Object.values(widgetOptions.video),

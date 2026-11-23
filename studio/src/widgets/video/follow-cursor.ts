@@ -5,8 +5,8 @@ import type { Player } from '@/widgets/video/player';
 import { type Sync, videoTimeAt } from '@/widgets/video/source';
 import { frameLength } from '@/widgets/video/state';
 
-/** The cursor's time in the log (s since its start), `undefined` until the log has data */
-export function logTimeAt(cursor: number | undefined): number | undefined {
+/** The cursor's time (s since the source's start), `undefined` until the source has data */
+export function timelineTimeAt(cursor: number | undefined): number | undefined {
 	const range = getTimeRange();
 	return cursor === undefined || range === undefined ? undefined : (cursor - range.start) / 1_000_000;
 }
@@ -30,11 +30,11 @@ export function useFollowCursor(
 		const follow = () => {
 			const controls = player.current;
 			const { time, playback, speed } = getTimeline();
-			const logNow = logTimeAt(time);
-			if (!controls || logNow === undefined) {
+			const cursor = timelineTimeAt(time);
+			if (!controls || cursor === undefined) {
 				return;
 			}
-			const wanted = videoTimeAt(logNow, { log: syncLog, video: syncVideo });
+			const wanted = videoTimeAt(cursor, { log: syncLog, video: syncVideo });
 			const shown = Math.min(Math.max(wanted, 0), duration ?? Infinity);
 			const inVideo = wanted >= 0 && (duration === undefined || wanted < duration);
 			const drift = Math.abs(controls.time() - shown);
