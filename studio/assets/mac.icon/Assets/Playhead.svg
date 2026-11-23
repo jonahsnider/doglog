@@ -6,9 +6,10 @@
 			<stop offset="75%" stop-color="#fff7f6" stop-opacity="0.625" />
 			<stop offset="100%" stop-color="#fff7f6" stop-opacity="0.25" />
 		</linearGradient>
+		<!-- Everything except the cursor ring's outer circle, so the playhead ends flush with the ring -->
+		<clipPath id="outside-cursor">
+			<path d="M 0,0 H 1024 V 1024 H 0 Z M 768,144 A 112,112 0 0,0 768,368 A 112,112 0 0,0 768,144 Z" clip-rule="evenodd" />
+		</clipPath>
 	</defs>
-	<g stroke="url(#playhead)" stroke-width="48">
-		<line x1="768" y1="0" x2="768" y2="146" />
-		<line x1="768" y1="366" x2="768" y2="1024" />
-	</g>
+	<line x1="768" y1="0" x2="768" y2="1024" stroke="url(#playhead)" stroke-width="48" clip-path="url(#outside-cursor)" />
 </svg>

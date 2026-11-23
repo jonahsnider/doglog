@@ -34,7 +34,7 @@
     {
       "layers" : [
         {
-          "glass" : false,
+          "glass" : true,
           "hidden" : false,
           "image-name" : "Trace.svg",
           "name" : "Trace",
@@ -53,7 +53,7 @@
         "kind" : "neutral",
         "opacity" : 0.3
       },
-      "specular" : false
+      "specular" : true
     },
     {
       "layers" : [
