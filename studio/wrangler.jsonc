@@ -19,7 +19,7 @@
 	},
 	"route": {
 		"custom_domain": true,
-		"pattern": "studio.doglog.dev",
+		"pattern": "doglog.studio",
 	},
 	"workers_dev": false,
 	"$schema": "./node_modules/wrangler/config-schema.json",

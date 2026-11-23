@@ -237,7 +237,7 @@ A project's robot SHALL have a `name`, the glTF binary `model` of the robot's bo
 
 ```jsonc
 {
-	"$schema": "https://studio.doglog.dev/doglog.schema.json",
+	"$schema": "https://doglog.studio/doglog.schema.json",
 	"robot": {
 		"name": "581 2026",
 		"model": "cad/robot.glb",

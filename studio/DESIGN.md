@@ -87,4 +87,4 @@ Durations come from Material's scale. Pick by how far something moves or how muc
 
 ## Checking changes
 
-Run `pnpm check:dev`, which adds a React Doctor scan of changed files to `pnpm check`. Lint rules in `vite.config.ts` enforce parts of this guide: no Tailwind palette or hex colors, only the opacity values above on named theme color classes, durations from the scale, no custom easing curves, and reduced motion through `@/lib/motion`. Check UI changes in the dev server at https://studio.doglog.dev.localhost, in both light and dark.
+Run `pnpm check:dev`, which adds a React Doctor scan of changed files to `pnpm check`. Lint rules in `vite.config.ts` enforce parts of this guide: no Tailwind palette or hex colors, only the opacity values above on named theme color classes, durations from the scale, no custom easing curves, and reduced motion through `@/lib/motion`. Check UI changes in the dev server at https://doglog.studio.localhost, in both light and dark.

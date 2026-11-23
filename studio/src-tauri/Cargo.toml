@@ -5,7 +5,7 @@ description = "Review FRC robot logs and debug robots live"
 authors = ["Jonah Snider"]
 license = "MIT"
 repository = "https://github.com/jonahsnider/doglog"
-homepage = "https://studio.doglog.dev"
+homepage = "https://doglog.studio"
 edition = "2024"
 rust-version = "1.90"
 

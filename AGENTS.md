@@ -22,7 +22,7 @@ DogLog Studio is a web and desktop app for reviewing and analyzing logs.
 
 Ideally, most changes can be validated through the web app.
 
-1. Check if a dev server is already running at `https://studio.doglog.dev.localhost` or `http://localhost:5173`
+1. Check if a dev server is already running at `https://doglog.studio.localhost` or `http://localhost:5173`
 2. If not, start one with `pnpm dev` in the `studio` directory
 3. Open a log by adding `?log=<url>` to the page URL, ex. `?log=/@fs/<absolute path to a .wpilog in this repository>`, since the file picker can't be automated (dev server only, errors are logged to the console)
 4. Interact with the dev server using built-in browser tools

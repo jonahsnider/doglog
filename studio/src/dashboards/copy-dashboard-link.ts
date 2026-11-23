@@ -10,7 +10,7 @@ export function canCopyDashboardLink({ layout }: DashboardContents): boolean {
 
 export async function copyDashboardLink(dashboard: DashboardContents): Promise<void> {
 	try {
-		const origin = import.meta.env.DEV && !STUDIO_DESKTOP ? window.location.origin : 'https://studio.doglog.dev';
+		const origin = import.meta.env.DEV && !STUDIO_DESKTOP ? window.location.origin : 'https://doglog.studio';
 		if (STUDIO_DESKTOP) {
 			const link = await encodeDashboardLink(dashboard);
 			await invoke('plugin:clipboard-manager|write_text', { text: `${origin}/import/${link}` });

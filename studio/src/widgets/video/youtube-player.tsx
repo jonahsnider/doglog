@@ -5,7 +5,7 @@ import { type Player, type PlayerInfo, type PlayerProps, videoClassName } from '
 
 // YouTube only plays videos embedded by a website, which the desktop app's pages aren't on, see `youtube-player.html`
 const playerPage =
-	STUDIO_DESKTOP && !import.meta.env.DEV ? 'https://studio.doglog.dev/youtube-player.html' : '/youtube-player.html';
+	STUDIO_DESKTOP && !import.meta.env.DEV ? 'https://doglog.studio/youtube-player.html' : '/youtube-player.html';
 const playerOrigin = new URL(playerPage, location.href).origin;
 
 /** How often (ms) a YouTube video can seek, it fetches the video again each time */

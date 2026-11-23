@@ -129,7 +129,7 @@
 		}
 	},
 	"portless": {
-		"name": "studio.doglog.dev",
+		"name": "doglog.studio",
 		"script": "dev:app"
 	}
 }
