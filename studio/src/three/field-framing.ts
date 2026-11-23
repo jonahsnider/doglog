@@ -88,6 +88,21 @@ export function framingDistance(
 	return far;
 }
 
+/** Where the camera is, as radians around and above the point it orbits, and meters from it */
+export type Orbit = { target: Vector3; azimuth: number; elevation: number; distance: number };
+
+/** The orbit around `target` that has the camera at `position` */
+export function orbitAround(target: Vector3, position: Vector3): Orbit {
+	const offset = new Vector3().subVectors(position, target);
+	const distance = offset.length();
+	return {
+		target,
+		azimuth: Math.atan2(offset.y, offset.x),
+		elevation: Math.asin(MathUtils.clamp(offset.z / distance, -1, 1)),
+		distance,
+	};
+}
+
 /** Height of the tallest field elements, in meters, for the field's extent in `fieldDepth()` */
 const fieldHeight = 2.5;
 

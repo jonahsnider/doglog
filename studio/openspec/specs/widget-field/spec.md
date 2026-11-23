@@ -501,6 +501,29 @@ In 3D, a robot's or ghost's context menu, on the field or in the legend, SHALL o
 - **AND** the robot drives forward
 - **THEN** the camera moves with the robot, keeping it in the corner
 
+### Requirement: Follow from a driver station
+
+In 3D, a robot's or ghost's context menu SHALL also offer to follow it from any of the six driver stations, marking the robot's own when NetworkTables' FMSInfo logs it. The camera MUST stay at a driver's eye height behind the station and turn smoothly to keep the robot centered, so noise in its pose doesn't shake the view. The chip SHALL name the station. Orbiting, panning, or zooming MUST stop following, moving the camera from where it is.
+
+#### Scenario: Watch from the driver station
+
+- **GIVEN** a log where FMSInfo says the robot is in Red 1
+- **WHEN** the user follows `/Drive/Pose` from the robot's driver station
+- **THEN** the field is seen from behind the red alliance wall, on its scoring table side
+- **AND** the camera turns as the robot drives so it stays in the center of the view
+
+#### Scenario: Zoom to stop following
+
+- **GIVEN** the user follows `/Drive/Pose` from Blue 2
+- **WHEN** the user scrolls the scene
+- **THEN** the camera zooms from Blue 2 and stops following the robot
+
+#### Scenario: Click while following
+
+- **GIVEN** the user follows `/Drive/Pose` from Blue 2
+- **WHEN** the user clicks or right-clicks the scene without dragging
+- **THEN** the camera keeps following the robot from Blue 2
+
 ### Requirement: 3D robots
 
 In 3D, each robot and ghost SHALL be drawn at its pose, including height, pitch, and roll for `Pose3d` entries, as its binding's Robot. Ghosts MUST be drawn see-through, tinted all over in their entry's color with one opacity. Middle-clicking a robot or ghost MUST stop showing its binding, as in 2D.

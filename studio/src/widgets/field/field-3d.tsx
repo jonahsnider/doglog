@@ -1,27 +1,22 @@
 // The field widget in 3D, see `@/three/field-scene`
 import HouseIcon from 'lucide-react/icons/house';
 import XIcon from 'lucide-react/icons/x';
-import { type RefObject, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Vector3 } from 'three';
-import type { MenuEntry } from '@/components/app-context-menu';
+import { Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useDataVersion } from '@/data/data-store';
-import type { Value } from '@/data/samples';
 import { cn } from '@/lib/utils';
-import { useWidgetMenu } from '@/panes/widget-menu';
 import { FieldDrawings, type FieldDrawingProps, type RobotDrawing } from '@/three/field-drawings';
-import { robotPosition } from '@/three/field-poses';
 import { FieldImageFloor, FieldModel, FloorPointer } from '@/three/field-scene';
 import { useRobotProjects } from '@/three/robot-projects';
 import { Scene3d, type Scene3dHandle } from '@/three/scene';
 import { useCursorTime } from '@/timeline/timeline';
-import { bindingLabel } from '@/widgets/bindings';
 import { setCameraMatch, useCameraMatch } from '@/widgets/field/camera-match';
 import { type FieldCoordinates, type FieldPoint, fieldLength, fieldWidth } from '@/widgets/field/geometry';
 import { fieldLegendItems } from '@/widgets/field/legend-items';
 import { CursorPosition, hiddenWhileIdle } from '@/widgets/field/readout';
 import { useCopyPosition } from '@/widgets/field/copy-position';
 import { fieldRobot, isRobotBinding, missingRobotNotes } from '@/widgets/field/robots';
+import { useRobotFollow } from '@/widgets/field/robot-follow';
 import { roles3d } from '@/widgets/field/roles';
 import { Legend } from '@/widgets/legend/legend';
 import { mechanismPlane } from '@/widgets/robot/roles';
@@ -39,45 +34,6 @@ const azimuths: Readonly<Record<string, number>> = {
 };
 
 const isAttached = (binding: WidgetBinding) => binding.role !== undefined && roles3d.has(binding.role.id);
-
-function useRobotFollow(
-	scene: RefObject<Scene3dHandle | null>,
-	bindings: WidgetProps['bindings'],
-	valueOf: (binding: WidgetBinding) => Value | undefined,
-	coordinates: FieldCoordinates,
-	cameraMatched: boolean,
-) {
-	const [followedId, setFollowedId] = useState<string>();
-	const stopFollowing = () => setFollowedId(undefined);
-	const followed = bindings.find((binding) => binding.id === followedId && !binding.hidden && isRobotBinding(binding));
-	// Following stops when the binding is hidden or removed, or the camera is matched to video.
-	if (followedId !== undefined && (followed === undefined || cameraMatched)) {
-		setFollowedId(undefined);
-	}
-	const followedValue = followed && valueOf(followed);
-	const [x, y, z] = followedValue === undefined ? [] : robotPosition(followedValue, coordinates).toArray();
-	const lastFollowed = useRef<string>(undefined);
-	useEffect(() => {
-		// Following another robot starts again from it, instead of moving the camera as far as it is from the last one
-		if (lastFollowed.current !== followedId) {
-			lastFollowed.current = followedId;
-			scene.current?.follow(undefined);
-		}
-		scene.current?.follow(x === undefined ? undefined : new Vector3(x, y, z));
-	}, [scene, followedId, x, y, z]);
-
-	useWidgetMenu((binding): MenuEntry[] =>
-		!cameraMatched && binding && isRobotBinding(binding)
-			? [
-					'separator',
-					binding.id === followedId
-						? { label: 'Stop following', onSelect: stopFollowing }
-						: { label: 'Follow', disabled: binding.hidden, onSelect: () => setFollowedId(binding.id) },
-				]
-			: [],
-	);
-	return { followed, stopFollowing };
-}
 
 export function Field3d({ bindings, options, setOption, paneId }: WidgetProps) {
 	const time = useCursorTime();
@@ -141,7 +97,11 @@ export function Field3d({ bindings, options, setOption, paneId }: WidgetProps) {
 	}
 	const legend = fieldLegendItems(bindings, { view: '3d', time, mechanisms, notes });
 
-	const { followed, stopFollowing } = useRobotFollow(scene, bindings, valueOf, coordinates, cameraMatch !== undefined);
+	const {
+		following,
+		label: followLabel,
+		stopFollowing,
+	} = useRobotFollow(scene, bindings, valueOf, coordinates, cameraMatch !== undefined, time);
 
 	const drawings = bindings.flatMap((binding, index): FieldDrawingProps[] => {
 		const value = valueOf(binding);
@@ -185,7 +145,7 @@ export function Field3d({ bindings, options, setOption, paneId }: WidgetProps) {
 							ref={scene}
 							field={field}
 							label="Robot poses on the 2026 field"
-							following={followed !== undefined}
+							following={following}
 							onStopFollowing={stopFollowing}
 							viewKey={paneId}
 							cameraMatch={cameraMatch}
@@ -204,9 +164,9 @@ export function Field3d({ bindings, options, setOption, paneId }: WidgetProps) {
 							<Legend items={legend} vertical />
 						</div>
 					)}
-					{followed && (
+					{followLabel !== undefined && (
 						<div className="absolute top-1.5 right-1.5 flex max-w-1/2 items-center gap-1 rounded-md bg-background ps-1.5 text-xs capture:invisible">
-							<span className="truncate">Following {bindingLabel(followed)}</span>
+							<span className="truncate">{followLabel}</span>
 							<Button variant="ghost" size="icon-xs" aria-label="Stop following" onClick={stopFollowing}>
 								<XIcon />
 							</Button>

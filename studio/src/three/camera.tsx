@@ -22,9 +22,9 @@ export type Rig = {
 	stop: () => void;
 	/**
 	 * Keep the camera on a moving position, without turning it: each call moves it as far as `position` moved since
-	 * the last. `undefined` stops following.
+	 * the last. With `from`, the camera stays there instead, turned toward `position`. `undefined` stops following.
 	 */
-	follow?: (position: Vector3 | undefined) => void;
+	follow?: (position: Vector3 | undefined, from?: Vector3) => void;
 };
 
 /** The default view's direction, as radians counterclockwise from the robot's front and above the floor: its front right, a little above it */

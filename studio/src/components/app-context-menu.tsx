@@ -24,10 +24,11 @@ export type MenuAction = {
 	onSelect: () => void;
 };
 
-/** Toggling it keeps the menu open */
+/** Toggling it keeps the menu open, unless it's one of several choices that `closeOnClick` */
 export type MenuCheckbox = {
 	label: string;
 	checked: boolean;
+	closeOnClick?: boolean;
 	onCheckedChange: (checked: boolean) => void;
 };
 
@@ -104,7 +105,12 @@ function MenuEntries({ items, close }: { items: readonly MenuEntry[]; close: () 
 
 		if ('checked' in item) {
 			return (
-				<ContextMenuCheckboxItem key={item.label} checked={item.checked} onCheckedChange={item.onCheckedChange}>
+				<ContextMenuCheckboxItem
+					key={item.label}
+					checked={item.checked}
+					closeOnClick={item.closeOnClick ?? false}
+					onCheckedChange={item.onCheckedChange}
+				>
 					{item.label}
 				</ContextMenuCheckboxItem>
 			);

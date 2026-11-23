@@ -16,10 +16,13 @@ import {
 	keepInBounds,
 	minDistance,
 	minElevation,
+	type Orbit,
+	orbitAround,
 	resetElevation,
 	viewCenter,
 	zoomOut,
 } from '@/three/field-framing';
+import { useDriverStationWatch } from '@/three/field-watch';
 import { isControls, turn, useShiftSpeedup } from '@/three/orbit';
 
 /** How many times as fast wheel zoom is as in the robot widget, since the field is much bigger */
@@ -27,7 +30,6 @@ const fieldZoomSpeed = 2;
 /** Meters per second of keyboard movement */
 const keyboardMoveSpeed = 8;
 
-type Orbit = { target: Vector3; azimuth: number; elevation: number; distance: number };
 type Size = { width: number; height: number };
 
 /** The controls pan with the right button, or the left with a modifier, and swap them while Shift is held */
@@ -119,15 +121,7 @@ export function FieldCameraRig({ ref, field, viewKey }: { ref: Ref<Rig>; field: 
 
 	const current = (): Orbit => {
 		const { camera, controls: orbitControls } = get();
-		const target = isControls(orbitControls) ? orbitControls.target.clone() : center();
-		const offset = new Vector3().subVectors(camera.position, target);
-		const distance = offset.length();
-		return {
-			target,
-			azimuth: Math.atan2(offset.y, offset.x),
-			elevation: Math.asin(MathUtils.clamp(offset.z / distance, -1, 1)),
-			distance,
-		};
+		return orbitAround(isControls(orbitControls) ? orbitControls.target.clone() : center(), camera.position);
 	};
 
 	const place = ({ target, azimuth, elevation, distance }: Orbit) => {
@@ -184,6 +178,7 @@ export function FieldCameraRig({ ref, field, viewKey }: { ref: Ref<Rig>; field: 
 	const lastOrbit = useRef(Number.NEGATIVE_INFINITY);
 	/** The position the camera follows, where it was last */
 	const followed = useRef<Vector3>(undefined);
+	const watch = useDriverStationWatch((target, from) => place(orbitAround(target, from)));
 
 	useImperativeHandle(ref, () => ({
 		reset: () => animateTo(resetOrbit()),
@@ -195,10 +190,14 @@ export function FieldCameraRig({ ref, field, viewKey }: { ref: Ref<Rig>; field: 
 				elevation: MathUtils.clamp(Math.atan2(direction.z, horizontal), minElevation, maxElevation),
 			});
 		},
-		follow: (position) => {
+		follow: (position, from) => {
 			const last = followed.current;
 			followed.current = position?.clone();
-			if (position === undefined || (last !== undefined && last.equals(position))) {
+			if (from) {
+				stop();
+			}
+			watch(position, from);
+			if (position === undefined || from !== undefined || (last !== undefined && last.equals(position))) {
 				return;
 			}
 			stop();

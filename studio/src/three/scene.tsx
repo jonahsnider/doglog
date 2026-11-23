@@ -85,7 +85,7 @@ export function Scene3d({
 	ref,
 	label,
 	field,
-	following = false,
+	following,
 	onStopFollowing,
 	viewKey,
 	cameraMatch,
@@ -96,9 +96,9 @@ export function Scene3d({
 	label: string;
 	/** Shows a field with a perspective camera instead of a robot, without the robot's floor grid and view cube */
 	field?: FieldFraming;
-	/** The camera follows a robot, see `Rig.follow`, so it orbits and zooms around it */
-	following?: boolean;
-	/** The user reset the view, which stops following */
+	/** The camera follows a robot, see `Rig.follow`: moving with it, or from a driver station until it's moved */
+	following?: 'robot' | 'driver-station';
+	/** The user reset the view, or moved it while following from a driver station, which stops following */
 	onStopFollowing?: () => void;
 	/** Keeps the field's view while the app is open when the scene is drawn again, ex. the pane's ID */
 	viewKey?: string;
@@ -109,7 +109,7 @@ export function Scene3d({
 	const rig = useRef<Rig>(null);
 	useImperativeHandle(ref, () => ({
 		reset: () => (cameraMatch ? onExitCameraMatch?.() : rig.current?.reset()),
-		follow: (position) => rig.current?.follow?.(position),
+		follow: (position, from) => rig.current?.follow?.(position, from),
 	}));
 	const [cubeHovered, setCubeHovered] = useState(false);
 	const canvas = useSceneCanvas();
@@ -167,13 +167,21 @@ export function Scene3d({
 		event.preventDefault();
 		if (!held.current.has(key)) {
 			held.current.add(key);
+			if (following === 'driver-station') {
+				onStopFollowing?.();
+			}
 			rig.current?.stop();
 			frame.current = frame.current ?? requestAnimationFrame(move(performance.now()));
 		}
 	};
 
 	const [drag, setDrag] = useState<'orbit' | 'pan'>();
-	const rightClick = useRightClickMenu();
+	// Dragging moves the camera, which stops following from a driver station. Clicking doesn't.
+	const rightClick = useRightClickMenu(() => {
+		if (following === 'driver-station' && !cameraMatch) {
+			onStopFollowing?.();
+		}
+	});
 	// The orbit controls keep the browser from focusing the scene on click, so it's focused from script, which the browser
 	// treats like keyboard focus. The focus ring is only shown when the keyboard was used last.
 	const [keyboardFocus, setKeyboardFocus] = useState(false);
@@ -213,7 +221,12 @@ export function Scene3d({
 			}}
 			onPointerCancel={() => setDrag(undefined)}
 			onLostPointerCapture={() => setDrag(undefined)}
-			onWheel={() => rig.current?.stop()}
+			onWheel={() => {
+				rig.current?.stop();
+				if (following === 'driver-station') {
+					onStopFollowing?.();
+				}
+			}}
 			onKeyDown={onKeyDown}
 			onKeyUp={(event) => {
 				shift.current = event.shiftKey;
@@ -251,7 +264,7 @@ export function Scene3d({
 						/>
 					) : (
 						<>
-							<FieldCameraControls field={field} following={following} />
+							<FieldCameraControls field={field} following={following === 'robot'} />
 							<FieldCameraRig ref={rig} field={field} viewKey={viewKey} />
 						</>
 					)}

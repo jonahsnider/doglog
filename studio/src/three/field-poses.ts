@@ -54,3 +54,33 @@ export function anchor(value: unknown, role: string | undefined): Vector3 {
 export function lifted(position: Vector3): Vector3 {
 	return position.z < floorOffset ? position.setZ(floorOffset) : position;
 }
+
+/** One of the six driver stations, numbered 1 to 3 from the drivers' left */
+export type DriverStation = { readonly alliance: 'blue' | 'red'; readonly number: 1 | 2 | 3 };
+
+export const driverStations: readonly DriverStation[] = (['blue', 'red'] as const).flatMap((alliance) =>
+	([1, 2, 3] as const).map((number) => ({ alliance, number })),
+);
+
+export const driverStationLabel = ({ alliance, number }: DriverStation) =>
+	`${alliance === 'blue' ? 'Blue' : 'Red'} ${number}`;
+
+/** Tells driver stations apart, ex. `red-2` */
+export const driverStationKey = ({ alliance, number }: DriverStation) => `${alliance}-${number}`;
+
+/**
+ * The centers of the blue driver stations' glass across the field, 1 to 3, from the field's CAD. They aren't evenly
+ * spaced, the tower is between 2 and 3. Red's are turned a half turn around the field's center.
+ */
+const blueStationYs = [7.115, 5.285, 2.205] as const;
+/** Where drivers' eyes are, this many meters behind the alliance wall and above the carpet */
+const driverEyeDistance = 1;
+const driverEyeHeight = 1.6;
+
+/** Where a driver at `station` sees the field from, in the field's model's coordinates */
+export function driverEye({ alliance, number }: DriverStation): Vector3 {
+	const y = blueStationYs[number - 1]!;
+	return alliance === 'blue'
+		? new Vector3(-driverEyeDistance, y, driverEyeHeight)
+		: new Vector3(fieldLength + driverEyeDistance, fieldWidth - y, driverEyeHeight);
+}
