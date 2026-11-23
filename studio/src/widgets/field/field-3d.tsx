@@ -18,6 +18,7 @@ import { useCopyPosition } from '@/widgets/field/copy-position';
 import { fieldRobot, isRobotBinding, missingRobotNotes } from '@/widgets/field/robots';
 import { useRobotFollow } from '@/widgets/field/robot-follow';
 import { roles3d } from '@/widgets/field/roles';
+import { FollowContext } from '@/widgets/legend/follow-context';
 import { Legend } from '@/widgets/legend/legend';
 import { mechanismPlane } from '@/widgets/robot/roles';
 import { bindingColor } from '@/widgets/series-color';
@@ -95,13 +96,14 @@ export function Field3d({ bindings, options, setOption, paneId }: WidgetProps) {
 			notes.set(binding.id, 'Connect to a robot');
 		}
 	}
-	const legend = fieldLegendItems(bindings, { view: '3d', time, mechanisms, notes });
-
 	const {
+		controls: followControls,
+		legend: followedInLegend,
 		following,
 		label: followLabel,
 		stopFollowing,
 	} = useRobotFollow(scene, bindings, valueOf, coordinates, cameraMatch !== undefined, time);
+	const legend = fieldLegendItems(bindings, { view: '3d', time, mechanisms, notes, followed: followedInLegend });
 
 	const drawings = bindings.flatMap((binding, index): FieldDrawingProps[] => {
 		const value = valueOf(binding);
@@ -161,7 +163,9 @@ export function Field3d({ bindings, options, setOption, paneId }: WidgetProps) {
 					{legend.length > 0 && (
 						// Over the scene's top-left corner, so the scene fills the widget
 						<div className="absolute top-1.5 left-1.5 max-h-1/2 w-fit max-w-1/2 overflow-y-auto rounded-md bg-background px-1.5">
-							<Legend items={legend} vertical />
+							<FollowContext value={followControls}>
+								<Legend items={legend} vertical />
+							</FollowContext>
 						</div>
 					)}
 					{followLabel !== undefined && (

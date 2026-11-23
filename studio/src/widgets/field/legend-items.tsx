@@ -13,7 +13,7 @@ const partsIcon = <BoxesIcon className="size-3.5" />;
 
 /**
  * The field's legend in either view. In 3D, robots and ghosts show the robot they're drawn as, which can be picked
- * there. Parts and mechanisms are marked "3D only" in 2D, and `notes` adds others, ex. a robot that isn't added on this
+ * there, and how the camera follows them. Parts and mechanisms are marked "3D only" in 2D, and `notes` adds others, ex. a robot that isn't added on this
  * device.
  */
 export function fieldLegendItems(
@@ -23,11 +23,14 @@ export function fieldLegendItems(
 		time,
 		mechanisms,
 		notes,
+		followed,
 	}: {
 		view: '2d' | '3d';
 		time: number | undefined;
 		mechanisms: ReadonlyMap<string, Mechanism | undefined>;
 		notes?: ReadonlyMap<string, string>;
+		/** The binding the camera follows and how, see `FollowPicker`. Robots can be followed when it's set or `null`. */
+		followed?: { id: string; key: string } | null | undefined;
 	},
 ): LegendItem[] {
 	return bindings.map((binding, index): LegendItem => {
@@ -44,6 +47,8 @@ export function fieldLegendItems(
 			color: bindingColor(binding, index),
 			...(only3d && { icon: mechanism ? mechanismIcon : partsIcon }),
 			...(view === '3d' && isRobotBinding(binding) && { robot: fieldRobot(binding, bindings) }),
+			...(followed !== undefined &&
+				isRobotBinding(binding) && { follow: followed?.id === binding.id ? followed.key : 'off' }),
 			dimmed: value === undefined,
 			...(note !== undefined && { note }),
 		};

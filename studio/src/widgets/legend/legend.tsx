@@ -7,6 +7,7 @@ import { useBindingDrag, WidgetBindingsContext } from '@/entries/drag';
 import { cn } from '@/lib/utils';
 import { type Connection, type ConnectionDrag, connectionBetween, rowHeight } from '@/widgets/legend/connections';
 import { ConnectionGutter } from '@/widgets/legend/connection-gutter';
+import { FollowPicker } from '@/widgets/legend/follow-picker';
 import { RobotPicker } from '@/widgets/legend/robot-picker';
 import { RoleLabel } from '@/widgets/legend/role-picker';
 import { LegendSwatch } from '@/widgets/legend/swatch';
@@ -21,6 +22,8 @@ export type LegendItem = {
 	note?: string;
 	/** The robot a robot or ghost is drawn as, picked after its role, ex. on the field in 3D */
 	robot?: string;
+	/** How the camera follows the binding's robot, picked after its robot, see `FollowPicker` */
+	follow?: string;
 	/** Has no value at the cursor */
 	dimmed: boolean;
 	error?: string;
@@ -64,6 +67,7 @@ function LegendList({ items, vertical = false, dropRole, roles = true, className
 	const [drag, setDrag] = useState<ConnectionDrag & { from: WidgetBinding; over: Connection | undefined }>();
 
 	const connectable = vertical && items.some((item) => item.binding.connects !== undefined);
+	const followable = items.some((item) => item.follow !== undefined);
 	const bindings = new Map(items.map((item) => [item.binding.id, item.binding]));
 	const colors = new Map(items.map((item) => [item.binding.id, item.color]));
 	const rowOf = (id: string) => items.findIndex((item) => item.binding.id === id);
@@ -111,6 +115,7 @@ function LegendList({ items, vertical = false, dropRole, roles = true, className
 					vertical={vertical}
 					dropRole={dropRole}
 					roles={roles}
+					followable={followable}
 					handle={
 						connectable && item.binding.connects !== undefined ? (
 							// Grabbed anywhere in the row's height, around the small dot it shows
@@ -185,12 +190,15 @@ function LegendEntry({
 	vertical,
 	dropRole,
 	roles,
+	followable,
 	handle,
 }: {
 	item: LegendItem;
 	vertical: boolean;
 	dropRole: string | undefined;
 	roles: boolean;
+	/** Some item can be followed, so the others leave room for its button to keep the pickers in a column */
+	followable: boolean;
 	/** Dragged to connect the binding to another */
 	handle: ReactNode;
 }) {
@@ -222,6 +230,11 @@ function LegendEntry({
 				<RoleLabel binding={binding} onPick={(role) => widget?.setRole(binding.id, role)} />
 			)}
 			{item.robot !== undefined && <RobotPicker binding={binding} robot={item.robot} />}
+			{item.follow === undefined ? (
+				followable && <span className="size-3.5 shrink-0" />
+			) : (
+				<FollowPicker binding={binding} follow={item.follow} />
+			)}
 			{item.note !== undefined && <span className="whitespace-nowrap text-muted-foreground">{item.note}</span>}
 			{item.error !== undefined && <span className="text-destructive-foreground">{item.error}</span>}
 			{handle}

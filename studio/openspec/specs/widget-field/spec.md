@@ -524,6 +524,17 @@ In 3D, a robot's or ghost's context menu SHALL also offer to follow it from any 
 - **WHEN** the user clicks or right-clicks the scene without dragging
 - **THEN** the camera keeps following the robot from Blue 2
 
+### Requirement: Follow from the legend
+
+In 3D, each robot's and ghost's legend row SHALL have a camera button after its robot that opens the same follow choices as its context menu's Follow submenu, with the current one checked and the button highlighted while it's followed. Unchecking the current one MUST stop following. It MUST NOT be shown while the camera is matched to video.
+
+#### Scenario: Follow from the legend
+
+- **GIVEN** a field widget in 3D showing `/Drive/Pose`
+- **WHEN** the user clicks the camera button on its legend row and picks Blue 2
+- **THEN** the camera follows `/Drive/Pose` from Blue 2
+- **AND** the button is highlighted
+
 ### Requirement: 3D robots
 
 In 3D, each robot and ghost SHALL be drawn at its pose, including height, pitch, and roll for `Pose3d` entries, as its binding's Robot. Ghosts MUST be drawn see-through, tinted all over in their entry's color with one opacity. Middle-clicking a robot or ghost MUST stop showing its binding, as in 2D.

@@ -17,6 +17,7 @@ import {
 import type { Scene3dHandle } from '@/three/scene';
 import type { FieldCoordinates } from '@/widgets/field/geometry';
 import { isRobotBinding } from '@/widgets/field/robots';
+import type { FollowControls } from '@/widgets/legend/follow-context';
 import type { WidgetBinding, WidgetProps } from '@/widgets/widget-type';
 
 /**
@@ -96,10 +97,20 @@ export function useRobotFollow(
 			},
 		];
 	});
+	/** For the legend's follow pickers, see `FollowContext` */
+	const controls: FollowControls = {
+		follow: (id, station) => setFollow({ id, ...(station && { from: station }) }),
+		stop: stopFollowing,
+		robotStation: () => robotDriverStation(time),
+	};
 	if (followed === undefined) {
-		return { stopFollowing };
+		// Robots can't be followed while the camera is matched to video
+		return { controls, legend: cameraMatched ? undefined : null, stopFollowing };
 	}
 	return {
+		controls,
+		/** What the legend shows the camera follows, see `fieldLegendItems()` */
+		legend: { id: followed.id, key: from ? driverStationKey(from) : 'robot' },
 		following: from ? ('driver-station' as const) : ('robot' as const),
 		/** Names what the camera follows, for the widget to show */
 		label: `Following ${bindingLabel(followed)}${from ? ` from ${driverStationLabel(from)}` : ''}`,
