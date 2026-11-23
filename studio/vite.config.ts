@@ -349,7 +349,7 @@ export default defineConfig({
 				theme_color: '#591616',
 				start_url: '/',
 				// Lets the installed web app open logs from the OS, in Chromium browsers
-				file_handlers: [{ action: '/', accept: { 'application/octet-stream': ['.wpilog'] } }],
+				file_handlers: [{ action: '/', accept: { 'application/octet-stream': ['.wpilog', '.wpilogxz'] } }],
 			},
 			// Generates icons from public/logo.svg and injects their links into index.html
 			pwaAssets: {
@@ -405,7 +405,7 @@ export default defineConfig({
 	},
 	optimizeDeps: {
 		// The dependency scan doesn't crawl workers. Pre-bundle their dependencies to avoid a reload when first used.
-		include: ['wpilog-parser', 'js-aruco2', 'ml-levenberg-marquardt', 'ml-matrix'],
+		include: ['wpilog-parser', 'xz-decompress', 'js-aruco2', 'ml-levenberg-marquardt', 'ml-matrix'],
 		// Pre-bundling loads Loro's WASM glue code twice, leaving the copy it uses uninitialized
 		exclude: ['loro-crdt'],
 	},

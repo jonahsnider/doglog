@@ -2,15 +2,16 @@ import type { DataSet } from '@/data/data-set';
 import { parseMetadata } from '@/data/data-store';
 import type { LogWorkerMessage, LogWorkerRequest, RestoredLog } from '@/data/log-worker';
 import { Samples } from '@/data/samples';
+import { isXz } from '@/data/xz';
 
 export type LogInput = File | { name: string; contents: ArrayBuffer };
 
+/** Whether a file is a WPILOG file, or an XZ-compressed one (`.wpilogxz`) */
 export async function isWpilog(contents: File | ArrayBuffer): Promise<boolean> {
-	const header =
-		contents instanceof File
-			? await contents.slice(0, 6).text()
-			: new TextDecoder().decode(new Uint8Array(contents, 0, Math.min(contents.byteLength, 6)));
-	return header === 'WPILOG';
+	const header = new Uint8Array(
+		contents instanceof File ? await contents.slice(0, 6).arrayBuffer() : contents.slice(0, 6),
+	);
+	return new TextDecoder().decode(header) === 'WPILOG' || isXz(header);
 }
 
 /** The end of a log's file that couldn't be read */
@@ -44,7 +45,6 @@ export function loadLog(
 	{ onProgress, onLoaded, onError }: LoadLogCallbacks,
 	live = false,
 ): () => void {
-	const size = contents instanceof File ? contents.size : contents.byteLength;
 	const worker = new Worker(new URL('./log-worker.ts', import.meta.url), { type: 'module' });
 	let stopped = false;
 
@@ -85,6 +85,7 @@ export function loadLog(
 					data.gaps.push(...message.gaps);
 					// A partial last record is normal when the robot is turned off, and a little damage only loses about a second at the end
 					if (message.unreadBytes > 64 * 1024) {
+						const { size } = message;
 						const after = message.end - message.start;
 						unread = {
 							percent: Math.ceil((message.unreadBytes / size) * 100),

@@ -54,6 +54,17 @@
 					"identifier": "dev.doglog.studio.wpilog",
 					"conformsTo": ["public.data"]
 				}
+			},
+			{
+				"ext": ["wpilogxz"],
+				"name": "WPILOGXZ",
+				"description": "Compressed WPILOG robot log",
+				"role": "Viewer",
+				"mimeType": "application/x-wpilogxz",
+				"exportedType": {
+					"identifier": "dev.doglog.studio.wpilogxz",
+					"conformsTo": ["public.data"]
+				}
 			}
 		],
 		"android": {

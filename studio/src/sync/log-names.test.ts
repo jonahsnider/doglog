@@ -48,6 +48,11 @@ test('AdvantageKit logs', () => {
 		label: 'CAPH Q12',
 		type: 'qualification',
 	});
+	// Compressed logs
+	expect(parseLogName('akit_26-03-15_14-30-00_caph_q12.wpilogxz')?.match).toEqual({
+		label: 'CAPH Q12',
+		type: 'qualification',
+	});
 	// The event name is left out when the field doesn't send one
 	expect(parseLogName('akit_26-03-15_14-30-00_e4.wpilog')?.match).toEqual({
 		label: 'E4',

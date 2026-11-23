@@ -13,8 +13,20 @@ mod sync;
 mod video;
 mod window_state;
 
-use std::{collections::HashMap, ops::ControlFlow, path::PathBuf, process::ExitCode, sync::Mutex};
-use tauri::{AppHandle, Emitter, Manager, RunEvent, State, WebviewWindow, WindowEvent, ipc::Response, window::Effect};
+use liblzma::bufread::XzDecoder;
+use std::{
+    collections::HashMap,
+    fs::File,
+    io::{BufRead, BufReader, Read},
+    ops::ControlFlow,
+    path::PathBuf,
+    process::ExitCode,
+    sync::Mutex,
+};
+use tauri::{
+    AppHandle, Emitter, Manager, RunEvent, State, WebviewWindow, WindowEvent, async_runtime::spawn_blocking,
+    ipc::Response, window::Effect,
+};
 use tauri_plugin_deep_link::DeepLinkExt;
 
 /// The last log each window was asked to open, by window label, until its frontend takes it
@@ -82,6 +94,34 @@ fn read_file(path: PathBuf) -> Result<Response, String> {
     std::fs::read(path)
         .map(Response::new)
         .map_err(|error| error.to_string())
+}
+
+/// The magic bytes every XZ file starts with, ex. a `.wpilogxz` log
+const XZ_MAGIC: [u8; 6] = [0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x00];
+
+/// Read a log, decompressing it if it's a `.wpilogxz` log, since that's faster here than in the webview
+#[tauri::command]
+async fn read_log(path: PathBuf) -> Result<Response, String> {
+    spawn_blocking(move || {
+        let file = File::open(&path)?;
+        let mut contents = Vec::with_capacity(usize::try_from(file.metadata()?.len()).unwrap_or_default());
+        let mut reader = BufReader::new(file);
+        if reader.fill_buf()?.starts_with(&XZ_MAGIC) {
+            // A robot that loses power cuts the file off, so keep what was decompressed before an error
+            if let Err(error) = XzDecoder::new(reader).read_to_end(&mut contents) {
+                if contents.is_empty() {
+                    return Err(std::io::Error::other(format!("Couldn't decompress it: {error}")));
+                }
+                log::warn!("Couldn't decompress all of {}: {error}", path.display());
+            }
+        } else {
+            reader.read_to_end(&mut contents)?;
+        }
+        Ok(Response::new(contents))
+    })
+    .await
+    .map_err(|error| error.to_string())?
+    .map_err(|error: std::io::Error| error.to_string())
 }
 
 /// Let the webview play the video widget's video at `path` from `asset://`, erroring when it isn't a file. Not added to
@@ -235,6 +275,7 @@ pub fn run() -> ExitCode {
             take_opened_log,
             take_opened_dashboard_link,
             read_file,
+            read_log,
             allow_video,
             #[cfg(any(target_os = "macos", windows))]
             capture::copy_capture,

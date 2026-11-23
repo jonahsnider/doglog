@@ -402,6 +402,9 @@ importers:
       wpilog-parser:
         specifier: 4.3.0
         version: 4.3.0(cac@7.1.0)(commander@14.0.3)
+      xz-decompress:
+        specifier: 0.2.3
+        version: 0.2.3
       zod:
         specifier: 4.6.7
         version: 4.6.7
@@ -9439,6 +9442,10 @@ packages:
 
   xxhash-wasm@1.1.0:
     resolution: {integrity: sha512-147y/6YNh+tlp6nd/2pWq38i9h6mz/EuQ6njIrmW8D1BS5nCqs0P6DG+m6zTGnNz5I+uhZ0SHxBs9BsPrwcKDA==}
+
+  xz-decompress@0.2.3:
+    resolution: {integrity: sha512-O8v6HG8T0PrKBcpyWA13GkSYWFvncwzuzcLx5A7++l3HsE3atmoetXjIxrZ/JV/nbvSZ7WS4+3XvREZuVn+rEA==}
+    engines: {node: '>=16'}
 
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
@@ -19480,6 +19487,8 @@ snapshots:
   xtend@4.0.2: {}
 
   xxhash-wasm@1.1.0: {}
+
+  xz-decompress@0.2.3: {}
 
   yallist@3.1.1: {}
 

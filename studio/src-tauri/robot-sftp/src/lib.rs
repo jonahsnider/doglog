@@ -118,7 +118,7 @@ impl Robot {
                 .map_err(|error| error.to_string())?;
             for entry in entries {
                 let name = entry.file_name();
-                if entry.file_type().is_file() && name.ends_with(".wpilog") {
+                if entry.file_type().is_file() && (name.ends_with(".wpilog") || name.ends_with(".wpilogxz")) {
                     logs.push(RemoteLog {
                         path: format!("{}/{name}", real_dir.trim_end_matches('/')),
                         size: entry.metadata().len(),

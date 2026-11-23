@@ -23,8 +23,8 @@ export interface LogName {
 // The event name is empty when the field doesn't send one, ex. `FRC_20241110_165657__Q68.wpilog`.
 // Match numbers can be 0, ex. practice matches on a practice field.
 const wpilibPattern = /^(?:FRC|WPILIB)_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})(_.*_[PQE]\d+)?\.wpilog$/u;
-// AdvantageKit's WPILOGWriter, ex. `akit_26-03-15_14-30-00_caph_q12.wpilog`
-const advantageKitPattern = /^akit_(\d{2})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})(_.+)?\.wpilog$/u;
+// AdvantageKit's WPILOGWriter, ex. `akit_26-03-15_14-30-00_caph_q12.wpilog`, or `.wpilogxz` when compressed
+const advantageKitPattern = /^akit_(\d{2})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})(_.+)?\.wpilog(?:xz)?$/u;
 const advantageKitMatchPattern = /_[pqe]\d+$/u;
 const matchTypes: Record<string, MatchType> = {
 	P: 'practice',

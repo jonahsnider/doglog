@@ -71,7 +71,7 @@ export const robotBackend: SyncBackend = {
 			return [];
 		}
 
-		const logs = entries.filter((entry) => entry.isFile && entry.name.endsWith('.wpilog'));
+		const logs = entries.filter((entry) => entry.isFile && /\.wpilog(?:xz)?$/u.test(entry.name));
 		return Promise.all(logs.map(async ({ name }) => ({ name, size: (await stat(await join(folder, name))).size })));
 	},
 	createFolder: (folder) => mkdir(folder, { recursive: true }),

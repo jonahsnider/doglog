@@ -27,7 +27,7 @@ pub fn parse_args(version: String) -> ControlFlow<ExitCode, Option<PathBuf>> {
         .args_conflicts_with_subcommands(true)
         .arg(
             Arg::new("log")
-                .help("Path to a .wpilog file to open in a new window")
+                .help("Path to a .wpilog or .wpilogxz file to open in a new window")
                 .value_parser(log_path),
         )
         .subcommand(

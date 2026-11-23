@@ -22,7 +22,8 @@ export function LogDropOverlay() {
 			return;
 		}
 		// Unknown files may be logs, but don't show a log hint over a widget accepting the drag.
-		const log = !event.defaultPrevented && (type === '' || type === 'application/x-wpilog');
+		const log =
+			!event.defaultPrevented && (type === '' || type === 'application/x-wpilog' || type === 'application/x-wpilogxz');
 		if (!event.defaultPrevented) {
 			event.preventDefault();
 			transfer.dropEffect = log ? 'copy' : 'none';

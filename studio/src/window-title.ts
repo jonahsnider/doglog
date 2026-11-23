@@ -30,8 +30,8 @@ export function useWindowTitle(): void {
 	} else if (matchRoute({ to: '/settings' }) !== false) {
 		page = 'Settings';
 	}
-	// Every log is a `.wpilog`, so the extension doesn't tell windows apart
-	const name = source === undefined ? undefined : sourceName(source).replace(/\.wpilog$/iu, '');
+	// Every log is a `.wpilog` or `.wpilogxz`, so the extension doesn't tell windows apart
+	const name = source === undefined ? undefined : sourceName(source).replace(/\.wpilog(?:xz)?$/iu, '');
 	const details = page !== undefined && name !== undefined ? `${page} (${name})` : (page ?? name);
 	let title = 'DogLog Studio';
 	if (details !== undefined) {

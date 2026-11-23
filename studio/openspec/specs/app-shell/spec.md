@@ -97,7 +97,7 @@ The bottom of the sidebar SHALL show a card announcing the newest product update
 
 ### Requirement: Window titles
 
-Each Studio tab and window SHALL be titled after what it shows, so they can be told apart wherever the browser or system lists them: the dashboard's name or the page, then the source's name in parentheses, then "DogLog Studio". Parts that don't apply MUST be left out. Log names MUST leave out their `.wpilog` extension. The macOS desktop app MUST leave out "DogLog Studio", since macOS already groups windows by app. The title MUST update when the dashboard, page, or source changes.
+Each Studio tab and window SHALL be titled after what it shows, so they can be told apart wherever the browser or system lists them: the dashboard's name or the page, then the source's name in parentheses, then "DogLog Studio". Parts that don't apply MUST be left out. Log names MUST leave out their `.wpilog` or `.wpilogxz` extension. The macOS desktop app MUST leave out "DogLog Studio", since macOS already groups windows by app. The title MUST update when the dashboard, page, or source changes.
 
 #### Scenario: Two windows on the same log
 

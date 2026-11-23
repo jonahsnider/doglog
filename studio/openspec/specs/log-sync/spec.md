@@ -65,7 +65,7 @@ Sync SHALL use the robot connection setting shared with Connect, and log in to t
 
 ### Requirement: Which logs sync
 
-Sync SHALL only copy logs with WPILib's or AdvantageKit's file names, and MUST skip logs that haven't been named with a date yet, since they're renamed once the Driver Station connects. The Logs page MUST let the user limit sync to logs from the last number of days, which defaults to 14, and to logs from matches run by the field (practice, qualification, and elimination matches). Changing these MUST NOT delete logs that were already synced.
+Sync SHALL only copy logs with WPILib's or AdvantageKit's file names, including AdvantageKit's compressed `.wpilogxz` logs, and MUST skip logs that haven't been named with a date yet, since they're renamed once the Driver Station connects. The Logs page MUST let the user limit sync to logs from the last number of days, which defaults to 14, and to logs from matches run by the field (practice, qualification, and elimination matches). Changing these MUST NOT delete logs that were already synced.
 
 #### Scenario: Old logs on a USB drive
 

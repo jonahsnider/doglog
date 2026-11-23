@@ -107,12 +107,17 @@ The source control at the top of the sidebar SHALL show the shown source and its
 
 ### Requirement: Open a log file
 
-Users SHALL be able to open a WPILOG file with a file picker or by dropping it anywhere on the app window.
+Users SHALL be able to open a WPILOG file with a file picker or by dropping it anywhere on the app window. Studio MUST also open XZ-compressed WPILOG files (`.wpilogxz`), and MUST show what it could decompress from one that was cut off, ex. by the robot losing power.
 
 #### Scenario: Open with the file picker
 
 - **WHEN** the user chooses Open log and selects a `.wpilog` file
 - **THEN** that log becomes the active source
+
+#### Scenario: Open a compressed log
+
+- **WHEN** the user opens a `.wpilogxz` file
+- **THEN** that log becomes the active source, the same as the `.wpilog` file it was compressed from
 
 #### Scenario: Drag and drop
 

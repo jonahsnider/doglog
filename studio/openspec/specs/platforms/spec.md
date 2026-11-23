@@ -64,7 +64,7 @@ Studio SHALL be available as a desktop app for Windows, macOS, and Linux with ev
 
 ### Requirement: Open logs from the OS
 
-The desktop app SHALL register itself as an app for `.wpilog` files, so opening one from the OS opens it in Studio. The installed web app SHALL do the same in browsers that support file handling, ex. Chrome and Edge.
+The desktop app SHALL register itself as an app for `.wpilog` and `.wpilogxz` files, so opening one from the OS opens it in Studio. The installed web app SHALL do the same in browsers that support file handling, ex. Chrome and Edge.
 
 #### Scenario: Double-click a log
 

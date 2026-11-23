@@ -12,7 +12,7 @@ import {
 import { openLog } from '@/data/source';
 
 async function chooseLogWithDialog(): Promise<void> {
-	const path = await openDialog({ filters: [{ name: 'WPILOG', extensions: ['wpilog'] }] });
+	const path = await openDialog({ filters: [{ name: 'WPILOG', extensions: ['wpilog', 'wpilogxz'] }] });
 	if (path !== null) {
 		await openLogPath(path);
 	}
@@ -23,7 +23,7 @@ async function chooseLogWithPicker(): Promise<void> {
 	let handles: FileSystemFileHandle[];
 	try {
 		handles = await window.showOpenFilePicker!({
-			types: [{ description: 'WPILOG', accept: { 'application/octet-stream': ['.wpilog'] } }],
+			types: [{ description: 'WPILOG', accept: { 'application/octet-stream': ['.wpilog', '.wpilogxz'] } }],
 		});
 	} catch (error) {
 		if (error instanceof DOMException && error.name === 'AbortError') {
@@ -71,7 +71,7 @@ export function chooseLog(): void {
 
 	const input = document.createElement('input');
 	input.type = 'file';
-	input.accept = '.wpilog';
+	input.accept = '.wpilog,.wpilogxz';
 	input.addEventListener('change', () => {
 		const file = input.files?.[0];
 		if (file) {
@@ -103,7 +103,7 @@ export async function openLogPath(path: string, onError?: (message: string) => v
 	const fileName = path.split(/[/\\]/u).at(-1)!;
 	let contents: ArrayBuffer;
 	try {
-		contents = await invoke<ArrayBuffer>('read_file', { path });
+		contents = await invoke<ArrayBuffer>('read_log', { path });
 	} catch (error) {
 		// Ex. a recent log that was moved or deleted
 		removeRecentLog(path);
@@ -134,7 +134,7 @@ export function handleLogFileDrop(event: DragEvent): void {
 	}
 	// Don't let the browser navigate to unhandled files.
 	event.preventDefault();
-	if (/\.wpilog$/iu.test(file.name)) {
+	if (/\.wpilog(?:xz)?$/iu.test(file.name)) {
 		// The handle has to be requested before the event ends.
 		const handle = supportsFileHandles
 			? Array.from(transfer.items)
