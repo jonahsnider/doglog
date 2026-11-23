@@ -255,6 +255,7 @@ pub fn run() -> ExitCode {
             recent_logs::note_recent_log,
             recent_logs::clear_recent_logs,
             relaunch::relaunch,
+            window_state::reveal_window,
             sync::lock_sync,
             sync::list_robot_logs,
             sync::download_robot_log,

@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/react';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
+import { invoke } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -82,7 +83,14 @@ createRoot(document.querySelector('#root')!, {
 	</StrictMode>,
 );
 
-// The window starts hidden and is shown once it's restored, see `window_state.rs`
+// The window starts hidden and is shown once it's restored, then revealed after the first page paints, see
+// `window_state.rs`. Animation frames only run once it's shown, the second one is after the first page painted.
 if (STUDIO_DESKTOP) {
 	void getCurrentWindow().show();
+	const unsubscribe = router.subscribe('onRendered', () => {
+		unsubscribe();
+		requestAnimationFrame(() => {
+			requestAnimationFrame(() => void invoke('reveal_window'));
+		});
+	});
 }

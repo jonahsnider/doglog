@@ -218,7 +218,7 @@ The web app SHALL offer to update to a newer deployed version, the same way the 
 
 ### Requirement: Desktop window size and position
 
-The desktop app SHALL open its window with the size, position, and maximized state of the last closed window. Only the first open window MUST go back to the saved position, other windows MUST open centered with the saved size so they don't cover it. Fullscreen MUST NOT be restored.
+The desktop app SHALL open its window with the size, position, and maximized state of the last closed window. Only the first open window MUST go back to the saved position, other windows MUST open centered with the saved size so they don't cover it. Fullscreen MUST NOT be restored. A window MUST appear already in place with its page drawn, without animating to its size or showing an empty frame first.
 
 #### Scenario: Reopen Studio
 

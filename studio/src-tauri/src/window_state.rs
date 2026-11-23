@@ -22,16 +22,40 @@ pub fn plugin<R: Runtime>() -> TauriPlugin<R> {
 ///
 /// The window starts hidden and the app shows it once it loads, since macOS animates a visible window zooming to fill
 /// the screen when it was maximized. Showing it here would be too early, maximizing is queued on the main thread.
+///
+/// On macOS it's also transparent until `reveal_window`, since the webview doesn't paint while the window is hidden.
+/// Otherwise the window's frame would show for a few frames before its content.
 pub fn restore(window: &WebviewWindow, first_window: bool) {
     let result = if first_window {
         window.restore_state(FLAGS)
     } else {
         center_saved_size(window).and_then(|()| window.restore_state(StateFlags::MAXIMIZED))
     };
+    #[cfg(target_os = "macos")]
+    let result = result.and_then(|()| set_opacity(window, 0.0));
 
     if let Err(error) = result {
         log::warn!("Couldn't restore the window: {error}");
     }
+}
+
+/// Make the window opaque, once the frontend painted after showing it
+#[tauri::command]
+pub fn reveal_window(window: WebviewWindow) -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    set_opacity(&window, 1.0).map_err(|error| error.to_string())?;
+    #[cfg(not(target_os = "macos"))]
+    let _ = window;
+    Ok(())
+}
+
+#[cfg(target_os = "macos")]
+fn set_opacity(window: &WebviewWindow, opacity: f64) -> tauri::Result<()> {
+    window.with_webview(move |webview| {
+        // Tauri provides its live NSWindow on the AppKit thread in with_webview
+        let window = unsafe { &*webview.ns_window().cast::<objc2_app_kit::NSWindow>() };
+        window.setAlphaValue(opacity);
+    })
 }
 
 #[derive(serde::Deserialize)]
