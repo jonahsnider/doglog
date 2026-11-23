@@ -162,7 +162,10 @@ export function Field3d({ bindings, options, setOption, paneId }: WidgetProps) {
 							onExitCameraMatch={exitCameraMatch}
 						>
 							<Suspense fallback={<FieldImageFloor />}>
-								<FieldModel stagedGamePieces={options['stagedGamePieces'] !== 'hidden'} />
+								<FieldModel
+									stagedGamePieces={options['stagedGamePieces'] !== 'hidden'}
+									seeThroughBorder={options['fieldBorder'] === 'see-through'}
+								/>
 							</Suspense>
 							<FieldDrawings coordinates={coordinates} drawings={drawings} />
 							<FloorPointer coordinates={coordinates} onMove={movePointer} />

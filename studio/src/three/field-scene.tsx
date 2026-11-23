@@ -21,6 +21,16 @@ import {
 
 /** Name of the node in the field's model holding the game pieces staged at the start of a match */
 const stagedGamePiecesNode = 'StagedGamePieces';
+/** Name of the node in the field's model holding its perimeter: the guardrails and alliance walls */
+const fieldBorderNode = 'FieldBorder';
+/**
+ * Opacity of the perimeter's clear plastic, like the driver station glass. Clearer than in the CAD, so the field can be
+ * seen through it from behind the driver stations.
+ */
+const glassOpacity = 0.08;
+/** Opacity of the perimeter's other parts when it's see-through, and of its plastic */
+const seeThroughOpacity = 0.12;
+const seeThroughGlassOpacity = 0.03;
 
 // Loads as soon as the field's 3D view is imported, which a field in 2D does in the background
 useGLTF.preload(fieldModel, false, true);
@@ -34,10 +44,26 @@ function accelerateRaycasts(mesh: Mesh): void {
 	mesh.raycast = acceleratedRaycast;
 }
 
-export function FieldModel({ stagedGamePieces }: { stagedGamePieces: boolean }) {
+export function FieldModel({
+	stagedGamePieces,
+	seeThroughBorder,
+}: {
+	stagedGamePieces: boolean;
+	seeThroughBorder: boolean;
+}) {
 	const { scene } = useGLTF(fieldModel, false, true);
 	// Models can only be in one scene, each widget draws its own copy
-	const model = useMemo(() => addAprilTags(scene.clone()), [scene]);
+	const model = useMemo(() => {
+		const copy = addAprilTags(scene.clone());
+		// Each copy's perimeter has its own materials, since each widget can make it see-through
+		copy.getObjectByName(fieldBorderNode)?.traverse((object) => {
+			if (isMesh(object) && object.material instanceof Material) {
+				object.material = object.material.clone();
+				object.material.userData['glass'] = object.material.transparent;
+			}
+		});
+		return copy;
+	}, [scene]);
 	const invalidate = useThree((state) => state.invalidate);
 	useEffect(() => {
 		// Stickers sit a fraction of a millimeter off the parts they're on, closer than the depth buffer can tell apart,
@@ -63,6 +89,25 @@ export function FieldModel({ stagedGamePieces }: { stagedGamePieces: boolean }) 
 			invalidate();
 		}
 	}, [model, stagedGamePieces, invalidate]);
+	useEffect(() => {
+		model.getObjectByName(fieldBorderNode)?.traverse((object) => {
+			if (!isMesh(object) || !(object.material instanceof Material)) {
+				return;
+			}
+			const { material } = object;
+			const glass = material.userData['glass'] === true;
+			if (seeThroughBorder) {
+				material.opacity = glass ? seeThroughGlassOpacity : seeThroughOpacity;
+			} else {
+				material.opacity = glass ? glassOpacity : 1;
+			}
+			material.transparent = material.opacity < 1;
+			// Parts behind see-through ones are still drawn
+			material.depthWrite = !material.transparent;
+			material.needsUpdate = true;
+		});
+		invalidate();
+	}, [model, seeThroughBorder, invalidate]);
 	return <primitive object={model} />;
 }
 

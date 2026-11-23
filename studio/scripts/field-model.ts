@@ -4,7 +4,8 @@
 //
 // The model is written in WPILib 2026's field coordinates: meters, origin at the blue alliance wall's corner on the
 // scoring table side, +X toward red, +Z up. Fasteners and other small hardware are removed, the rest is simplified and
-// compressed, and the game pieces staged at the start of a match are put under one node so the widget can hide them.
+// compressed, and the game pieces staged at the start of a match and the field's perimeter are each put under one node
+// so the widget can hide them or make them see-through.
 import { execFileSync } from 'node:child_process';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -45,6 +46,10 @@ const fieldLength = 16.541;
 const fieldWidth = 8.069;
 /** Node holding the staged game pieces, see `stagedGamePiecesNode` in `@/three/field-scene`. three.js replaces spaces in names. */
 const stagedGamePiecesNode = 'StagedGamePieces';
+/** Node holding the field's perimeter, which the widget can make see-through, see `fieldBorderNode` in `@/three/field-scene` */
+const fieldBorderNode = 'FieldBorder';
+/** The guardrails and alliance walls, with the driver stations */
+const perimeter = /^FE-2026-02: Welded Perimeter Assy/u;
 const gamePiece = /^GE-26900: Fuel/u;
 /** Too small to see on the field, and most of the model's triangles */
 const hardware =
@@ -196,6 +201,7 @@ function regroup(document: Document): Mesh | undefined {
 	}
 	const field = document.createNode('Field');
 	const staged = document.createNode(stagedGamePiecesNode);
+	const border = document.createNode(fieldBorderNode);
 	let removed = 0;
 	let gamePieceMesh: Mesh | undefined;
 	// Drawn without lighting, so it's the same gray as the 2D field's background
@@ -255,6 +261,8 @@ function regroup(document: Document): Mesh | undefined {
 					.setScale([size, size, size]),
 			);
 			node.dispose();
+		} else if (names.some((part) => perimeter.test(part))) {
+			border.addChild(node);
 		} else {
 			field.addChild(node);
 		}
@@ -269,6 +277,7 @@ function regroup(document: Document): Mesh | undefined {
 		.setTranslation([fieldLength / 2, fieldWidth / 2, 0])
 		.setRotation(turned ? [0, 0, 1, 0] : [0, 0, 0, 1])
 		.addChild(field)
+		.addChild(border)
 		.addChild(staged);
 	scene.addChild(root);
 	console.log(`Removed ${removed} hardware parts, ${turned ? 'turned the CAD a half turn' : 'kept the CAD as is'}`);

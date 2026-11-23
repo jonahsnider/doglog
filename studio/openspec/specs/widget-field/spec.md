@@ -385,6 +385,17 @@ In 3D, each of the field's AprilTags SHALL show its 36h11 pattern, readable by A
 - **WHEN** the user zooms in on the side of the blue hub facing the scoring table
 - **THEN** tags 27 and 18 are drawn on it, left to right, each with its ID below it
 
+### Requirement: Field border
+
+In 3D, the driver station glass and the field perimeter's other clear plastic SHALL be clearer than in the field's CAD, so the field can be seen from behind the driver stations. The field widget SHALL have a Field border option, Solid by default, and See-through MUST draw the guardrails and alliance walls, including the driver stations, mostly clear. It MUST only apply in 3D.
+
+#### Scenario: See-through border
+
+- **GIVEN** a field widget in 3D
+- **WHEN** the user picks See-through for Field border
+- **THEN** the guardrails and alliance walls are faint and the field and robots behind them are clearly visible
+- **AND** the hubs, towers, and outposts are drawn as before
+
 ### Requirement: Staged game pieces
 
 The field widget SHALL have a Staged game pieces option, on by default, that draws the game pieces where they're staged at the start of a match. It MUST only apply in 3D.
