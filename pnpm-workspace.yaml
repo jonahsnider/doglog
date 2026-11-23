@@ -72,6 +72,7 @@ overrides:
 patchedDependencies:
   '@ntcore-ts/client@2.0.0': patches/@ntcore-ts__client@2.0.0.patch
   '@tanstack/store': patches/@tanstack__store.patch
+  js-aruco2@2.0.0: patches/js-aruco2@2.0.0.patch
 permissions:
   '@tanstack/react-hotkeys':
     skills: true

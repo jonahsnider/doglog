@@ -404,9 +404,8 @@ export default defineConfig({
 		},
 	},
 	optimizeDeps: {
-		// Only the log worker imports it, which the dependency scan doesn't crawl. Finding it on the first log open reloads
-		// the page, which can lose a log being opened from the `log` search parameter.
-		include: ['wpilog-parser'],
+		// The dependency scan doesn't crawl workers. Pre-bundle their dependencies to avoid a reload when first used.
+		include: ['wpilog-parser', 'js-aruco2', 'ml-levenberg-marquardt', 'ml-matrix'],
 		// Pre-bundling loads Loro's WASM glue code twice, leaving the copy it uses uninitialized
 		exclude: ['loro-crdt'],
 	},

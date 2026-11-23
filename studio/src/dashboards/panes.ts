@@ -41,7 +41,7 @@ import { acceptsDrop, bindsEntries } from '@/widgets/widget-type';
 /** The layout of the dashboard showing a widget, so widgets can follow others, see `WidgetProps.layout` */
 export const DashboardLayoutContext = createContext<PaneNode>(createPane());
 
-/** The dashboard the entry browser adds widgets to */
+/** The dashboard the entry browser or a widget is acting on */
 export const DashboardIdContext = createContext('');
 
 /**

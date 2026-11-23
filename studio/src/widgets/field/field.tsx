@@ -4,6 +4,7 @@ import { useResizeObserver } from 'usehooks-ts';
 import { type Entry, useDataVersion } from '@/data/data-store';
 import { cn } from '@/lib/utils';
 import { useCursorTime } from '@/timeline/timeline';
+import { setCameraMatch } from '@/widgets/field/camera-match';
 import {
 	type FieldBox,
 	type FieldCoordinates,
@@ -48,7 +49,8 @@ export function Field(props: WidgetProps) {
 /** Shorter measurements are dropped as accidental clicks */
 const minMeasurePixels = 8;
 
-function Field2d({ bindings, options, setOption }: WidgetProps) {
+function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
+	useEffect(() => setCameraMatch(paneId, undefined), [paneId]);
 	// three.js and the field's model load in the background, so switching to 3D doesn't wait for them
 	useEffect(() => {
 		const timeout = setTimeout(preloadField3d, preloadDelay);

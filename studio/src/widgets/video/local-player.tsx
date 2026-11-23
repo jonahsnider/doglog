@@ -53,6 +53,28 @@ export function LocalPlayer({ url, muted, ref, onInfo }: PlayerProps & { url: st
 					videoRef.current.playbackRate = rate;
 				}
 			},
+			captureFrame: () => {
+				const video = videoRef.current;
+				if (
+					!video ||
+					video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA ||
+					video.seeking ||
+					pendingSeek.current !== undefined
+				) {
+					return undefined;
+				}
+				const canvas = document.createElement('canvas');
+				// Preserve small tags in wide shots without allocating a full-resolution buffer for very large videos.
+				const scale = Math.min(1, 2560 / Math.max(video.videoWidth, video.videoHeight));
+				canvas.width = Math.round(video.videoWidth * scale);
+				canvas.height = Math.round(video.videoHeight * scale);
+				const context = canvas.getContext('2d');
+				if (context) {
+					context.drawImage(video, 0, 0, canvas.width, canvas.height);
+					return canvas;
+				}
+				return undefined;
+			},
 		}),
 		[],
 	);

@@ -1,4 +1,5 @@
 // A 3D scene in WPILib's robot coordinates (meters, +X forward, +Y left, +Z up), with an orbiting orthographic camera.
+import { PerspectiveCamera } from '@react-three/drei';
 import { Canvas, type RootState, useFrame } from '@react-three/fiber';
 import { type KeyboardEvent, type ReactNode, type Ref, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Vector3 } from 'three';
@@ -12,6 +13,7 @@ import { ResizeWithPane } from '@/three/resize';
 import { type FieldFraming, fieldOfView } from '@/three/field-framing';
 import { ViewCube } from '@/three/view-cube';
 import { useSceneCanvas } from '@/three/use-scene-canvas';
+import type { CameraMatch } from '@/widgets/field/camera-match';
 
 const gridSize = 2.4;
 const gridDivisions = 6;
@@ -76,11 +78,6 @@ if (typeof window !== 'undefined') {
 	);
 }
 
-/**
- * A 3D scene that fills its parent, drawn over the pane's background, with a view cube to look from set directions.
- * Drag to orbit, right-drag to pan, scroll to zoom, and double-click to reset. While it's
- * focused, hold the arrow keys to orbit, W and S to zoom, and A, D, Q, and E to pan. Hold Shift to zoom and pan faster.
- */
 /** Moves the camera of a `Scene3d` from outside it, ex. a reset button in the widget's toolbar */
 export type Scene3dHandle = Pick<Rig, 'reset'> & Required<Pick<Rig, 'follow'>>;
 
@@ -94,6 +91,8 @@ export function Scene3d({
 	following = false,
 	onStopFollowing,
 	viewKey,
+	cameraMatch,
+	onExitCameraMatch,
 	children,
 }: {
 	ref?: Ref<Scene3dHandle>;
@@ -106,11 +105,13 @@ export function Scene3d({
 	onStopFollowing?: () => void;
 	/** Keeps the field's view while the app is open when the scene is drawn again, ex. the pane's ID */
 	viewKey?: string;
+	cameraMatch?: CameraMatch;
+	onExitCameraMatch?: () => void;
 	children: ReactNode;
 }) {
 	const rig = useRef<Rig>(null);
 	useImperativeHandle(ref, () => ({
-		reset: () => rig.current?.reset(),
+		reset: () => (cameraMatch ? onExitCameraMatch?.() : rig.current?.reset()),
 		follow: (position) => rig.current?.follow?.(position),
 	}));
 	const [cubeHovered, setCubeHovered] = useState(false);
@@ -162,7 +163,7 @@ export function Scene3d({
 	const onKeyDown = (event: KeyboardEvent) => {
 		shift.current = event.shiftKey;
 		const key = event.key.toLowerCase();
-		if (event.metaKey || event.ctrlKey || event.altKey || keys[key] === undefined) {
+		if (cameraMatch || event.metaKey || event.ctrlKey || event.altKey || keys[key] === undefined) {
 			return;
 		}
 		// Handled keys don't also step the timeline
@@ -190,7 +191,11 @@ export function Scene3d({
 			// oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Focused for its keyboard controls
 			tabIndex={0}
 			data-capture-pending={drawn ? undefined : ''}
-			aria-label={`${label}. Drag to orbit, scroll or W and S to zoom, A, D, Q, and E to pan, hold Shift to go faster.`}
+			aria-label={
+				cameraMatch
+					? `${label}. Camera matched to video.`
+					: `${label}. Drag to orbit, scroll or W and S to zoom, A, D, Q, and E to pan, hold Shift to go faster.`
+			}
 			className={cn(
 				'relative size-full touch-none overflow-hidden rounded-md outline-none select-none',
 				keyboardFocus && 'ring-2 ring-ring',
@@ -203,7 +208,7 @@ export function Scene3d({
 				event.currentTarget.focus({ preventScroll: true });
 				setKeyboardFocus(false);
 				rig.current?.stop();
-				const next = dragOf(event.nativeEvent);
+				const next = cameraMatch ? undefined : dragOf(event.nativeEvent);
 				setDrag(next);
 				if (next === 'pan') {
 					onStopFollowing?.();
@@ -230,8 +235,12 @@ export function Scene3d({
 				setKeyboardFocus(false);
 			}}
 			onDoubleClick={() => {
-				rig.current?.reset();
-				onStopFollowing?.();
+				if (cameraMatch) {
+					onExitCameraMatch?.();
+				} else {
+					rig.current?.reset();
+					onStopFollowing?.();
+				}
 			}}
 			// Right-dragging pans, so the widget's menu opens when a right-click is released instead
 			onContextMenu={rightClick.onContextMenu}
@@ -239,8 +248,22 @@ export function Scene3d({
 			{field ? (
 				<Canvas {...canvas} camera={{ fov: fieldOfView, up: [0, 0, 1], near: 0.05, far: 200 }}>
 					<ResizeWithPane />
-					<FieldCameraControls field={field} following={following} />
-					<FieldCameraRig ref={rig} field={field} viewKey={viewKey} />
+					{cameraMatch ? (
+						// A separate camera preserves roll and the recorded pose, independent of orbit limits.
+						<PerspectiveCamera
+							makeDefault
+							near={0.05}
+							far={200}
+							position={cameraMatch.position}
+							quaternion={cameraMatch.quaternion}
+							fov={cameraMatch.verticalFov}
+						/>
+					) : (
+						<>
+							<FieldCameraControls field={field} following={following} />
+							<FieldCameraRig ref={rig} field={field} viewKey={viewKey} />
+						</>
+					)}
 					<OnFrame callback={positionLabels} />
 					{children}
 				</Canvas>

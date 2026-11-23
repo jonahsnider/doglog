@@ -13,7 +13,7 @@ import {
 	setBindingRole,
 	toggleBindingHidden,
 } from '@/widgets/bindings';
-import { DashboardLayoutContext, updateLayout } from '@/dashboards/panes';
+import { DashboardIdContext, DashboardLayoutContext, updateLayout } from '@/dashboards/panes';
 import { getEntry } from '@/data/data-store';
 import { formatEntryType } from '@/data/samples';
 import { useSource } from '@/data/source';
@@ -131,7 +131,7 @@ export function WidgetView({
 								</div>
 							}
 						>
-							{content}
+							<DashboardIdContext value={dashboardId}>{content}</DashboardIdContext>
 						</Suspense>
 					</WidgetErrorBoundary>
 				</div>

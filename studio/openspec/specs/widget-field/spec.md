@@ -568,3 +568,13 @@ In 3D, the cursor position SHALL be where the pointer's line of sight meets the 
 - **GIVEN** a field widget in 3D
 - **WHEN** the pointer is over the top of a hub
 - **THEN** the cursor position shows the point on the floor behind it
+
+### Requirement: Camera matched to video
+
+A field widget matched from a video frame SHALL switch to 3D and show the estimated camera position, orientation, field of view, and frame aspect ratio. The camera MUST stay there while the timeline and its drawings update. The match MUST NOT be saved with the dashboard. "Exit camera match" and double-click SHALL return to the ordinary 3D camera, and switching to 2D SHALL clear the match.
+
+#### Scenario: Compare a log with video
+
+- **GIVEN** a field widget matched to a video frame
+- **WHEN** the user scrubs the log
+- **THEN** the drawings update without moving the matched camera

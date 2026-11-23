@@ -9,6 +9,8 @@ export type Player = {
 	play: () => void;
 	pause: () => void;
 	setRate: (rate: number) => void;
+	/** A snapshot of the displayed frame, only available to players that own the video element */
+	captureFrame?: () => HTMLCanvasElement | undefined;
 };
 
 /** What a player found out about its video */

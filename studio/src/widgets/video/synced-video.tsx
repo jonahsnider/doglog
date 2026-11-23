@@ -9,6 +9,7 @@ import type { Player, PlayerInfo } from '@/widgets/video/player';
 import { formatSync, type Sync, videoTimeAt, youTubeUrl } from '@/widgets/video/source';
 import { stopSyncing, useMuted, useSyncing } from '@/widgets/video/state';
 import { logTimeAt, useFollowCursor } from '@/widgets/video/follow-cursor';
+import { MatchFieldMenu } from '@/widgets/video/match-field-menu';
 import { SyncBar } from '@/widgets/video/sync-bar';
 import { YouTubePlayer } from '@/widgets/video/youtube-player';
 
@@ -87,7 +88,10 @@ export function SyncedVideo({
 					{video.kind === 'youtube' ? (
 						<YouTubePlayer id={video.id} muted={muted} ref={player} onInfo={onInfo} />
 					) : (
-						<LocalPlayer url={video.url} muted={muted} ref={player} onInfo={onInfo} />
+						<>
+							<LocalPlayer url={video.url} muted={muted} ref={player} onInfo={onInfo} />
+							<MatchFieldMenu key={video.url} player={player} />
+						</>
 					)}
 				</div>
 				{outside !== undefined && (

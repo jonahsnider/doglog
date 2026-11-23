@@ -167,3 +167,30 @@ The desktop app SHALL play YouTube videos like the web app, even though its page
 
 - **WHEN** the user adds a YouTube link in the desktop app
 - **THEN** the video plays
+
+### Requirement: Match a field view to a video frame
+
+For a local video, the context menu SHALL offer a "Match field view to this frame" submenu with "Use full frame" and "Crop frame…" when a field widget is on the dashboard. Either option SHALL let the user choose a field widget if there are several. The match MUST use at least two known 2026 AprilTags to estimate the camera pose and field of view on the device. It MUST use only the displayed frame and leave the field unchanged if the estimate fails.
+
+#### Scenario: Match a frame
+
+- **GIVEN** a local video showing a frame with clear AprilTags on different field surfaces
+- **WHEN** the user chooses "Use full frame"
+- **THEN** the chosen field widget shows the estimated camera's view in 3D
+
+#### Scenario: Match one view in a split-screen video
+
+- **GIVEN** a local frame showing several camera views and a field widget on its dashboard
+- **WHEN** the user chooses "Crop frame…" and boxes one camera view on the frozen frame
+- **THEN** Studio detects tags only within the crop and uses the crop's center and aspect ratio for the match
+- **AND** the video itself remains uncropped
+
+#### Scenario: Too few tags
+
+- **WHEN** the user tries to match a frame that shows only one known tag
+- **THEN** the field keeps its view and the video asks for a frame with at least two clear tags
+
+#### Scenario: No reliable pose
+
+- **WHEN** the tags in the frame do not give a reliable pose
+- **THEN** the field keeps its view and the video suggests trying another frame
