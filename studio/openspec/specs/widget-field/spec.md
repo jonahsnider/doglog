@@ -393,7 +393,7 @@ In 3D, each of the field's AprilTags SHALL show its 36h11 pattern, readable by A
 
 ### Requirement: Field border
 
-In 3D, the driver station glass and the field perimeter's other clear plastic SHALL be clearer than in the field's CAD, so the field can be seen from behind the driver stations. The field widget SHALL have a Field border option, Solid by default, and See-through MUST draw the guardrails and alliance walls, including the driver stations, mostly clear. It MUST only apply in 3D.
+In 3D, the driver station glass, the field perimeter's other clear plastic, and the human player outpost glass SHALL be clearer than in the field's CAD, so the field can be seen through them. The field widget SHALL have a Field border option, Solid by default, and See-through MUST draw the guardrails and alliance walls, including the driver stations, mostly clear. It MUST only apply in 3D.
 
 #### Scenario: See-through border
 

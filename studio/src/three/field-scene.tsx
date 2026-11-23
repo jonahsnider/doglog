@@ -24,8 +24,7 @@ const stagedGamePiecesNode = 'StagedGamePieces';
 /** Name of the node in the field's model holding its perimeter: the guardrails and alliance walls */
 const fieldBorderNode = 'FieldBorder';
 /**
- * Opacity of the perimeter's clear plastic, like the driver station glass. Clearer than in the CAD, so the field can be
- * seen through it from behind the driver stations.
+ * Opacity of the clear acrylic at the driver stations and human player outposts, so the field can be seen through it.
  */
 const glassOpacity = 0.08;
 /** Opacity of the perimeter's other parts when it's see-through, and of its plastic */
@@ -73,10 +72,16 @@ export function FieldModel({
 				return;
 			}
 			const { material } = object;
-			if (material instanceof Material && material.userData['decal'] === true) {
-				material.polygonOffset = true;
-				material.polygonOffsetFactor = -1;
-				material.polygonOffsetUnits = -4;
+			if (material instanceof Material) {
+				if (material.userData['decal'] === true) {
+					material.polygonOffset = true;
+					material.polygonOffsetFactor = -1;
+					material.polygonOffsetUnits = -4;
+				}
+				// The outpost exchange acrylic sits outside FieldBorder and stays clear in either border mode.
+				if (object.name.startsWith('GE-26010_') && material.transparent) {
+					material.opacity = glassOpacity;
+				}
 			}
 			accelerateRaycasts(object);
 		});
