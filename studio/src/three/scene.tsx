@@ -10,7 +10,7 @@ import { useRightClickMenu } from '@/three/right-click-menu';
 import { useThemeColor } from '@/three/theme';
 import { FieldCameraControls, FieldCameraRig } from '@/three/field-camera';
 import { ResizeWithPane } from '@/three/resize';
-import { type FieldFraming, fieldOfView } from '@/three/field-framing';
+import type { FieldFraming } from '@/three/field-framing';
 import { ViewCube } from '@/three/view-cube';
 import { useSceneCanvas } from '@/three/use-scene-canvas';
 import type { CameraMatch } from '@/widgets/field/camera-match';
@@ -250,7 +250,7 @@ export function Scene3d({
 			onContextMenu={rightClick.onContextMenu}
 		>
 			{field ? (
-				<Canvas {...canvas} camera={{ fov: fieldOfView, up: [0, 0, 1], near: 0.05, far: 200 }}>
+				<Canvas {...canvas} camera={{ fov: field.fov, up: [0, 0, 1], near: 0.05, far: 200 }}>
 					<ResizeWithPane />
 					{cameraMatch ? (
 						// A separate camera preserves roll and the recorded pose, independent of orbit limits.

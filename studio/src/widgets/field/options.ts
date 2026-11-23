@@ -42,6 +42,7 @@ export const fieldOptions: readonly WidgetOption[] = [
 		infer: (_, earlier) => (earlier['coordinates'] === 'center' ? 'red-left' : 'blue-left'),
 	},
 	widgetOptions.field.stagedGamePieces,
+	{ ...widgetOptions.field.fov, dropdown: true },
 ];
 
 /**

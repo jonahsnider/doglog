@@ -4,7 +4,7 @@ import { OrbitControls } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { type AnimationPlaybackControls, animate } from 'motion/react';
 import { type ComponentRef, type Ref, useEffect, useEffectEvent, useImperativeHandle, useRef } from 'react';
-import { MathUtils, Vector2, Vector3 } from 'three';
+import { MathUtils, PerspectiveCamera, Vector2, Vector3 } from 'three';
 import { easing, useMotionTransition } from '@/lib/motion';
 import { maxElevation, type Rig } from '@/three/camera';
 import {
@@ -242,6 +242,15 @@ export function FieldCameraRig({ ref, field, viewKey }: { ref: Ref<Rig>; field: 
 			place(orbit);
 		},
 	}));
+
+	useEffect(() => {
+		const { camera, invalidate } = get();
+		if (camera instanceof PerspectiveCamera) {
+			camera.fov = field.fov;
+			camera.updateProjectionMatrix();
+			invalidate();
+		}
+	}, [get, field.fov]);
 
 	// Frame the field once the controls exist, they move the camera when they're created, and again when the default
 	// view's direction changes

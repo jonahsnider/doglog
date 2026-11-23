@@ -131,6 +131,13 @@ export const widgetOptions = {
 			],
 			default: 'shown',
 		},
+		fov: {
+			kind: 'choice',
+			id: 'fov',
+			label: 'Field of view',
+			choices: ['30', '45', '60', '75', '90'].map((id) => ({ id, label: `${id}°` })),
+			default: '45',
+		},
 	},
 	robot: {
 		view: {
@@ -226,7 +233,7 @@ export const widgetInfos = [
 		id: 'field',
 		name: 'Field',
 		description:
-			"The FRC field, seen from above or in 3D (the `view` option, `2d` or `3d`). Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees. In 3D, a Pose3d[] can place a robot project's `parts` (inferred from names containing `component`), and Mechanism2d entries are drawn on a robot's `side` (XZ, the default), `front` (YZ), or `top` (XY) plane; connect them from a robot or ghost to attach them to it, or they're drawn on the only robot. Each robot and ghost binding can pick its `robot`, as in the robot widget's option, defaulting to the first robot's. The `view` option is inferred as 3D when a parts or mechanism binding is bound. The `coordinates` option is `blue-wall` (WPILib 2026, origin at the blue alliance wall) or `center` (WPILib 2027, origin at the center with +X toward blue), inferred from the WPILib version the robot published. The `orientation` option supports landscape (`blue-left`, `red-left`) and portrait (`blue-top`, `red-top`), and defaults to putting +X on the right, in 3D the camera starts turned the same way. The `stagedGamePieces` option (`shown` or `hidden`) draws the game pieces staged at the start of a match in 3D.",
+			"The FRC field, seen from above or in 3D (the `view` option, `2d` or `3d`). Pose2d and Pose3d can be a `robot`, `ghost` (ex. a setpoint), or `point`; the first pose is the robot and later ones ghosts. Translations are a `point`. Pose and translation arrays are `points` or a `path` (inferred from names like `path` or `trajectory`). Rectangle2d and Ellipse2d (and arrays of them) are a `shape`. A single robot, ghost, or point can be connected to another binding to draw lines from it, ex. from the robot to the AprilTags it sees. In 3D, a Pose3d[] can place a robot project's `parts` (inferred from names containing `component`), and Mechanism2d entries are drawn on a robot's `side` (XZ, the default), `front` (YZ), or `top` (XY) plane; connect them from a robot or ghost to attach them to it, or they're drawn on the only robot. Each robot and ghost binding can pick its `robot`, as in the robot widget's option, defaulting to the first robot's. The `view` option is inferred as 3D when a parts or mechanism binding is bound. The `coordinates` option is `blue-wall` (WPILib 2026, origin at the blue alliance wall) or `center` (WPILib 2027, origin at the center with +X toward blue), inferred from the WPILib version the robot published. The `orientation` option supports landscape (`blue-left`, `red-left`) and portrait (`blue-top`, `red-top`), and defaults to putting +X on the right, in 3D the camera starts turned the same way. The `stagedGamePieces` option (`shown` or `hidden`) draws the game pieces staged at the start of a match in 3D. In 3D, the `fov` option is the camera's vertical field of view in degrees (`30` to `90`, default `45`).",
 		accepts: ['struct', 'struct[]', 'mechanism2d'],
 		roles: Object.values(widgetRoles.field),
 		options: Object.values(widgetOptions.field),

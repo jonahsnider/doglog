@@ -535,6 +535,16 @@ In 3D, each robot's and ghost's legend row SHALL have a camera button after its 
 - **THEN** the camera follows `/Drive/Pose` from Blue 2
 - **AND** the button is highlighted
 
+### Requirement: Field of view
+
+The field widget SHALL have a Field of view option for the 3D camera's vertical field of view: 30°, 45°, 60°, 75°, or 90°, 45° by default. Changing it MUST keep the camera where it is, and the default view MUST frame the field at any field of view. A camera matched from a video frame MUST use the video's field of view instead.
+
+#### Scenario: Narrow field of view
+
+- **GIVEN** a field widget in 3D following `/Drive/Pose` from Blue 2
+- **WHEN** the user picks a 30° field of view
+- **THEN** the robot looks larger, seen from the same place
+
 ### Requirement: 3D robots
 
 In 3D, each robot and ghost SHALL be drawn at its pose, including height, pitch, and roll for `Pose3d` entries, as its binding's Robot. Ghosts MUST be drawn see-through, tinted all over in their entry's color with one opacity. Middle-clicking a robot or ghost MUST stop showing its binding, as in 2D.

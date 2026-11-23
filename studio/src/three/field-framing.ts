@@ -8,10 +8,10 @@ export type FieldFraming = {
 	readonly width: number;
 	/** Radians counterclockwise from +X, of the direction from the field's center to the camera */
 	readonly azimuth: number;
+	/** The camera's vertical field of view in degrees */
+	readonly fov: number;
 };
 
-/** Vertical field of view in degrees */
-export const fieldOfView = 45;
 /** The default view's angle above the floor */
 export const resetElevation = 0.7;
 /** The camera stays above what it orbits by this angle, which keeps it above the floor when that's the floor */
@@ -43,10 +43,10 @@ export const viewCenter = new Vector2(0, 0);
  * canvas of `size`. With perspective, the field's near end takes more of the view than its far end.
  */
 export function framingDistance(
-	{ length, width, azimuth }: FieldFraming,
+	{ length, width, azimuth, fov }: FieldFraming,
 	size: { width: number; height: number },
 ): number {
-	const halfHeight = Math.tan(MathUtils.degToRad(fieldOfView / 2)) / framingMargin;
+	const halfHeight = Math.tan(MathUtils.degToRad(fov / 2)) / framingMargin;
 	const halfWidth = halfHeight * (size.height > 0 ? size.width / size.height : 1);
 	const center = new Vector3(length / 2, width / 2, 0);
 	const direction = new Vector3(

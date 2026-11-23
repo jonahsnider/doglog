@@ -18,6 +18,7 @@ import { useCopyPosition } from '@/widgets/field/copy-position';
 import { fieldRobot, isRobotBinding, missingRobotNotes } from '@/widgets/field/robots';
 import { useRobotFollow } from '@/widgets/field/robot-follow';
 import { roles3d } from '@/widgets/field/roles';
+import { widgetOptions } from '@/widgets/widget-info';
 import { FollowContext } from '@/widgets/legend/follow-context';
 import { Legend } from '@/widgets/legend/legend';
 import { mechanismPlane } from '@/widgets/robot/roles';
@@ -34,6 +35,8 @@ const azimuths: Readonly<Record<string, number>> = {
 	'red-top': Math.PI,
 };
 
+const defaultFov = Number(widgetOptions.field.fov.default);
+
 const isAttached = (binding: WidgetBinding) => binding.role !== undefined && roles3d.has(binding.role.id);
 
 export function Field3d({ bindings, options, setOption, paneId }: WidgetProps) {
@@ -42,7 +45,12 @@ export function Field3d({ bindings, options, setOption, paneId }: WidgetProps) {
 	useDataVersion();
 	const scene = useRef<Scene3dHandle>(null);
 	const field = useMemo(
-		() => ({ length: fieldLength, width: fieldWidth, azimuth: azimuths[options['orientation'] ?? ''] ?? -Math.PI / 2 }),
+		() => ({
+			length: fieldLength,
+			width: fieldWidth,
+			azimuth: azimuths[options['orientation'] ?? ''] ?? -Math.PI / 2,
+			fov: Number(options['fov']) || defaultFov,
+		}),
 		[options],
 	);
 	const coordinates: FieldCoordinates = options['coordinates'] === 'center' ? 'center' : 'blue-wall';
