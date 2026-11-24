@@ -50,3 +50,4 @@ Use `agent-device` or the Safari WebDriver MCP to test on mobile device simulato
 - You may see other changes in the main worktree, try to work around them if possible
   - When committing changes, you can use `HK=0 git commit` to skip pre-commit checks that are failing from other work after you've verified your own changes are correct
   - Assets in `.amp/in` should go in a subfolder per session for organization
+- Use `git twig` to create a worktree for each change you make
