@@ -63,7 +63,7 @@ export function PaneView({
 	pane,
 	closable: closableHere,
 }: PaneNodeProps & { pane: Pane; closable: boolean }) {
-	const allowed = allowedActions(dashboardId, pane.id);
+	const allowed = allowedActions(dashboardId, dashboardLayout, pane.id);
 	const closable = closableHere && allowed.close;
 	const update = (operation: (layout: PaneNode) => PaneNode) => updateLayout(dashboardId, operation);
 	const { widget } = pane;

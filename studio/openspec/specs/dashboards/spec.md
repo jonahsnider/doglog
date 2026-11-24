@@ -462,13 +462,20 @@ A dashboard SHALL be a layout of panes, each holding exactly one widget. Users M
 
 ### Requirement: Pane sizes
 
-Splitting a pane in the same direction as the panes beside it SHALL add a pane to that row or column rather than splitting the pane in two. Panes the user hasn't resized MUST share their row or column's space evenly, while resized panes keep their size, and splitting a resized pane MUST share its size with the new pane. Releasing a divider close to where it would be with the panes beside it sharing their space evenly MUST snap it there.
+Splitting a pane in the same direction as the panes beside it SHALL add a pane to that row or column rather than splitting the pane in two. A split MUST NOT add a fifth pane to a row or column. Panes the user hasn't resized MUST share their row or column's space evenly, while resized panes keep their size, and splitting a resized pane MUST share its size with the new pane. Releasing a divider close to where it would be with the panes beside it sharing their space evenly MUST snap it there.
 
 #### Scenario: Split a pane again
 
 - **GIVEN** a dashboard with one pane
 - **WHEN** the user presses ⌘D three times
 - **THEN** the dashboard has four equal panes side by side
+
+#### Scenario: Split a full column
+
+- **GIVEN** the user has just split a dashboard into four stacked panes
+- **WHEN** the user tries to split any of those panes down again
+- **THEN** Split down is disabled in the pane header and context menu, and its shortcut does nothing
+- **AND** the panes can still be split to the right
 
 #### Scenario: Split a resized pane
 

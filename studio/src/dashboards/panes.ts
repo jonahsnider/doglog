@@ -101,47 +101,42 @@ export function toggleZoom(id: string, paneId: string): void {
 	focusPane(id, paneId);
 }
 
-/** Whether a pane can be split without making panes too small, into a layout its dashboard allows */
-export function canSplit(id: string, paneId: string, direction: SplitDirection): boolean {
-	const layout = getDashboard(id)?.layout;
-	return (
-		layout !== undefined &&
-		canSplitPane(layout, paneId, direction) &&
-		allowsLayout(id, splitPane(layout, paneId, direction))
-	);
-}
-
 /** Whether closing a pane leaves a layout its dashboard allows */
-function canClose(id: string, paneId: string): boolean {
-	const layout = getDashboard(id)?.layout;
-	return layout !== undefined && allowsLayout(id, closePane(layout, paneId));
+function canClose(id: string, layout: PaneNode, paneId: string): boolean {
+	return allowsLayout(id, closePane(layout, paneId));
 }
 
 /** What a pane's dashboard allows doing to it, ex. the Tuning page's tuning pane can't be split, closed, moved, or show another widget */
-export function allowedActions(id: string, paneId: string) {
-	const layout = getDashboard(id)?.layout;
+export function allowedActions(id: string, layout: PaneNode, paneId: string) {
+	const right = allowsLayout(id, splitPane(layout, paneId, 'row'));
+	const down = allowsLayout(id, splitPane(layout, paneId, 'column'));
+	const close = canClose(id, layout, paneId);
 	return {
-		splitRight: canSplit(id, paneId, 'row'),
-		splitDown: canSplit(id, paneId, 'column'),
-		// The dashboard allows splitting it either way, if it's big enough
-		splittable:
-			layout !== undefined &&
-			(['row', 'column'] as const).some((direction) => allowsLayout(id, splitPane(layout, paneId, direction))),
-		close: canClose(id, paneId),
+		splitRight: right && canSplitPane(layout, paneId, 'row'),
+		splitDown: down && canSplitPane(layout, paneId, 'column'),
+		// Show the controls even when the row or column is full
+		splittable: right || down,
+		close,
 		// Dragging a pane takes it out of its place, like closing it
-		move: canClose(id, paneId),
-		changeWidget: layout !== undefined && allowsLayout(id, setPaneWidget(layout, paneId, undefined)),
+		move: close,
+		changeWidget: allowsLayout(id, setPaneWidget(layout, paneId, undefined)),
 	};
 }
 
-/** Split a pane and focus the new pane */
+/** Split a pane and focus the new pane, if the layout has room for it */
 export function splitDashboardPane(id: string, paneId: string, direction: SplitDirection): void {
-	const newPane = createPane();
-	updateDashboard(id, (dashboard) => ({
-		...dashboard,
-		layout: splitPane(dashboard.layout, paneId, direction, newPane),
-		focusedPaneId: newPane.id,
-	}));
+	updateDashboard(id, (dashboard) => {
+		if (!canSplitPane(dashboard.layout, paneId, direction)) {
+			return dashboard;
+		}
+
+		const newPane = createPane();
+		return {
+			...dashboard,
+			layout: splitPane(dashboard.layout, paneId, direction, newPane),
+			focusedPaneId: newPane.id,
+		};
+	});
 }
 
 /** Splits along the longer side of the pane's element, so adding several widgets tiles the dashboard instead of making slivers */
@@ -239,7 +234,7 @@ export function moveDashboardPane(id: string, paneId: string, targetId: string, 
 export function movePaneToNewDashboard(id: string, paneId: string, shared: boolean, index: number): void {
 	const dashboard = getDashboard(id);
 	const pane = dashboard && findPane(dashboard.layout, paneId);
-	if (!dashboard || !pane || (dashboard.layout.kind === 'split' && !canClose(id, paneId))) {
+	if (!dashboard || !pane || (dashboard.layout.kind === 'split' && !canClose(id, dashboard.layout, paneId))) {
 		return;
 	}
 

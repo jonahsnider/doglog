@@ -4,7 +4,7 @@ import { confirm } from '@tauri-apps/plugin-dialog';
 import { useHotkeys } from '@tanstack/react-hotkeys';
 import { type RegisteredRouter, useRouter } from '@tanstack/react-router';
 import { canCopyDashboardLink, copyDashboardLink } from '@/dashboards/copy-dashboard-link';
-import { canSplit, closeFocusedPane, getFocusedPane, splitDashboardPane, toggleZoom } from '@/dashboards/panes';
+import { closeFocusedPane, getFocusedPane, splitDashboardPane, toggleZoom } from '@/dashboards/panes';
 import {
 	createDashboard,
 	type Dashboard,
@@ -149,10 +149,7 @@ function splitFocused(router: RegisteredRouter, direction: SplitDirection): void
 		return;
 	}
 
-	const pane = getFocusedPane(dashboard);
-	if (canSplit(dashboard.id, pane.id, direction)) {
-		splitDashboardPane(dashboard.id, pane.id, direction);
-	}
+	splitDashboardPane(dashboard.id, getFocusedPane(dashboard).id, direction);
 }
 
 function openDashboardAt(router: RegisteredRouter, index: number): void {
