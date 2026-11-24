@@ -141,7 +141,7 @@ A shortcut that only works in one kind of widget SHALL be shown in that widget, 
 - **GIVEN** the user is on macOS
 - **WHEN** the user hovers a field widget
 - **THEN** ⌘C shows next to the cursor position
-- **AND** P shows on the Pencil button in both views
+- **AND** D shows on the Draw button in both views
 - **AND** M and A show on the measuring tool buttons in 2D
 
 ### Requirement: Shortcuts in tooltips

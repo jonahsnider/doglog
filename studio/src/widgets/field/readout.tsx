@@ -4,13 +4,13 @@ import { ControlTooltip } from '@/components/control-tooltip';
 import { InlineShortcut } from '@/components/inline-shortcut';
 import { Toggle } from '@/components/ui/toggle';
 import { cn } from '@/lib/utils';
+import type { FieldTool } from '@/widgets/field/draw';
 import type { FieldPoint } from '@/widgets/field/geometry';
-import type { FieldTool } from '@/widgets/field/pencil';
 
-const tools: readonly { tool: FieldTool; key: 'M' | 'A' | 'P'; label: string; hint: string }[] = [
+const tools: readonly { tool: FieldTool; key: 'M' | 'A' | 'D'; label: string; hint: string }[] = [
 	{ tool: 'distance', key: 'M', label: 'Distance', hint: 'Drag to measure distance, hold Shift to snap to 45°' },
 	{ tool: 'angle', key: 'A', label: 'Angle', hint: 'Drag to measure the angle from +X, hold Shift to snap to 45°' },
-	{ tool: 'pencil', key: 'P', label: 'Pencil', hint: 'Drag to sketch a line on the field' },
+	{ tool: 'draw', key: 'D', label: 'Draw', hint: 'Drag to draw a line on the field' },
 ];
 
 /** Hides controls under the field while it isn't hovered or focused, on devices that can hover */
@@ -80,7 +80,7 @@ export function ToolButtons({
 			)}
 		>
 			{tools
-				.filter((option) => measure || option.tool === 'pencil')
+				.filter((option) => measure || option.tool === 'draw')
 				.map((option) => (
 					<ControlTooltip
 						key={option.tool}

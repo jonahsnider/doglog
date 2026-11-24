@@ -1,6 +1,7 @@
 import { Kbd } from '@/components/ui/kbd';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { cn } from '@/lib/utils';
+import { sceneKeys } from '@/three/scene-keys';
 import type { View } from '@/widgets/view-toggle';
 
 const touchGestures = {
@@ -13,50 +14,53 @@ const touchGestures = {
 } as const;
 
 // Mouse and trackpad share these gestures, so there's no need for separate lists.
-const pointerGestures = {
-	'2d': [
-		['Pan', 'Drag when zoomed'],
-		['Zoom', 'Scroll'],
-		['Reset', 'Double-click'],
-	],
-	'3d': [
-		[
-			'Orbit',
-			<>
-				Drag or <Kbd aria-label="Arrow keys">↑ ↓ ← →</Kbd>
-			</>,
+const pointerGestures = (panRight: string) =>
+	({
+		'2d': [
+			['Pan', 'Drag when zoomed'],
+			['Zoom', 'Scroll'],
+			['Reset', 'Double-click'],
 		],
-		[
-			'Pan',
-			<>
-				<Kbd>Shift</Kbd> + drag or <Kbd>A D Q E</Kbd>
-			</>,
+		'3d': [
+			[
+				'Orbit',
+				<>
+					Drag or <Kbd aria-label="Arrow keys">↑ ↓ ← →</Kbd>
+				</>,
+			],
+			[
+				'Pan',
+				<>
+					<Kbd>Shift</Kbd> + drag or <Kbd>A {panRight} Q E</Kbd>
+				</>,
+			],
+			[
+				'Zoom',
+				<>
+					Scroll or <Kbd>W S</Kbd>
+				</>,
+			],
 		],
-		[
-			'Zoom',
-			<>
-				Scroll or <Kbd>W S</Kbd>
-			</>,
-		],
-	],
-} as const;
+	}) as const;
 
 export function SceneControls({
 	view,
 	visible,
 	disabled = false,
+	scene = 'robot',
 	className,
 }: {
 	view: View;
 	visible: boolean;
 	disabled?: boolean;
+	scene?: keyof typeof sceneKeys;
 	className?: string;
 }) {
 	const touch = useMediaQuery('(pointer: coarse)');
 	if (disabled) {
 		return null;
 	}
-	const gestures = (touch ? touchGestures : pointerGestures)[view];
+	const gestures = (touch ? touchGestures : pointerGestures(sceneKeys[scene].panRight))[view];
 	return (
 		<div
 			className={cn(

@@ -20,7 +20,7 @@ import { fieldRobot, isRobotBinding, missingRobotNotes } from '@/widgets/field/r
 import { useRobotFollow } from '@/widgets/field/robot-follow';
 import { attachedRoles } from '@/widgets/field/roles';
 import { useFieldCameras } from '@/widgets/field/use-field-cameras';
-import { useFloorPencil } from '@/widgets/field/use-floor-pencil';
+import { useFloorDraw } from '@/widgets/field/use-floor-draw';
 import { widgetOptions } from '@/widgets/widget-info';
 import { FollowContext } from '@/widgets/legend/follow-context';
 import { Legend } from '@/widgets/legend/legend';
@@ -67,7 +67,7 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 	const cameraMatched = cameraMatch !== undefined;
 	const [ResetIcon, resetLabel] = cameraMatched ? [XIcon, 'Exit camera match'] : [HouseIcon, 'Reset view'];
 	const showControls = bindings.length === 0 && !cameraMatched;
-	const controls = useSceneControls(showControls);
+	const controls = useSceneControls(showControls, 'field');
 
 	/** The robot under the pointer, so its binding can be removed by middle-clicking it or from the context menu */
 	const [pointed, setPointed] = useState<string>();
@@ -85,7 +85,7 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 		[coordinates],
 	);
 	const projectFloor = useRef<FloorProjection>(null);
-	const pencil = useFloorPencil(projectFloor, movePointer, controls.handlers.onPointerDownCapture);
+	const draw = useFloorDraw(projectFloor, movePointer, controls.handlers.onPointerDownCapture);
 
 	const valueOf = (binding: WidgetBinding) =>
 		binding.hidden || binding.entry === undefined || time === undefined
@@ -176,10 +176,10 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 				>
 					<div
 						ref={sceneElement}
-						className="size-full data-[tool=pencil]:cursor-crosshair"
-						data-tool={pencil.tool}
+						className="size-full data-[tool=draw]:cursor-crosshair"
+						data-tool={draw.tool}
 						{...controls.handlers}
-						{...pencil.handlers}
+						{...draw.handlers}
 						style={
 							cameraMatch && {
 								width: `min(100cqw, calc(100cqh * ${cameraMatch.aspect}))`,
@@ -204,7 +204,7 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 								/>
 							</Suspense>
 							<FieldDrawings coordinates={coordinates} drawings={drawings} />
-							<FloorSketch points={pencil.points} />
+							<FloorSketch points={draw.points} />
 							<FloorPointer ref={projectFloor} onMove={movePointer} />
 						</Scene3d>
 					</div>
@@ -216,7 +216,7 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 								</FollowContext>
 							</div>
 						)}
-						<SceneControls view="3d" visible={controls.visible} disabled={!showControls} />
+						<SceneControls view="3d" visible={controls.visible} disabled={!showControls} scene="field" />
 					</div>
 					{followLabel !== undefined && (
 						<div className="absolute top-1.5 right-1.5 flex max-w-1/2 items-center gap-1 rounded-md bg-background ps-1.5 text-xs capture:invisible">
@@ -230,7 +230,7 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 				<div className="flex h-5 items-center justify-between gap-2 text-muted-foreground text-xs capture:invisible">
 					<CursorPosition pointer={pointer} hovered={overField} copied={copied} />
 					<div className="flex items-center gap-2">
-						<ToolButtons tool={pencil.tool} onToggle={pencil.toggle} measure={false} />
+						<ToolButtons tool={draw.tool} onToggle={draw.toggle} measure={false} />
 						<div className={cn('flex items-center gap-2', !cameraMatch && hiddenWhileIdle)}>
 							<Button
 								variant="ghost"

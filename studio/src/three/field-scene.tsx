@@ -10,6 +10,7 @@ import { gltfLoader } from '@/three/gltf-loader';
 import { isMesh } from '@/three/robot-loading';
 import fieldImage from '@/widgets/field/2026-rebuilt.webp';
 import fieldModel from '@/widgets/field/2026-rebuilt.glb?url';
+import type { DrawPointAt } from '@/widgets/field/draw';
 import {
 	type FieldPoint,
 	fieldLength,
@@ -18,7 +19,6 @@ import {
 	pixelsPerMeterX,
 	pixelsPerMeterY,
 } from '@/widgets/field/geometry';
-import type { PencilPointAt } from '@/widgets/field/pencil';
 
 /** Name of the node in the field's model holding the game pieces staged at the start of a match */
 const stagedGamePiecesNode = 'StagedGamePieces';
@@ -140,7 +140,7 @@ export function FieldImageFloor() {
 	);
 }
 
-/** A temporary pencil stroke on the carpet, in blue-wall coordinates. */
+/** A temporary freehand stroke on the carpet, in blue-wall coordinates. */
 export function FloorSketch({ points }: { points: readonly FieldPoint[] }) {
 	const line = useMemo(() => points.map(({ x, y }) => [x, y, floorOffset] as const), [points]);
 	return line.length > 1 ? (
@@ -151,7 +151,7 @@ export function FloorSketch({ points }: { points: readonly FieldPoint[] }) {
 	) : null;
 }
 
-export type FloorProjection = () => PencilPointAt;
+export type FloorProjection = () => DrawPointAt;
 
 /** Reports the field position under the pointer, where its line of sight meets the floor, if it's on the field */
 export function FloorPointer({

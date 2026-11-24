@@ -4,6 +4,7 @@ import { type Entry, useDataVersion } from '@/data/data-store';
 import { cn } from '@/lib/utils';
 import { useCursorTime } from '@/timeline/timeline';
 import { setCameraMatch } from '@/widgets/field/camera-match';
+import { type FieldTool, useDraw } from '@/widgets/field/draw';
 import {
 	type FieldCoordinates,
 	type FieldPoint,
@@ -17,9 +18,8 @@ import {
 } from '@/widgets/field/geometry';
 import { FieldImage, Minimap } from '@/widgets/field/image';
 import { loadField3d, preloadField3d } from '@/widgets/field/load-3d';
-import { MeasurementDrawing, PencilDrawing } from '@/widgets/field/measure';
+import { DrawStroke, MeasurementDrawing } from '@/widgets/field/measure';
 import { fieldLegendItems } from '@/widgets/field/legend-items';
-import { type FieldTool, usePencil } from '@/widgets/field/pencil';
 import { CursorPosition, hiddenWhileIdle, ToolButtons } from '@/widgets/field/readout';
 import { useCopyPosition2d } from '@/widgets/field/copy-position';
 import { fieldDrawings } from '@/widgets/field/roles';
@@ -81,13 +81,13 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 	const [tool, setTool] = useState<FieldTool>();
 	const [measurement, setMeasurement] = useState<Measurement>();
 	const measuring = useRef(false);
-	const pencil = usePencil();
+	const draw = useDraw();
 
 	const selectTool = (next: FieldTool | undefined) => {
 		setTool(next);
 		setMeasurement(undefined);
 		measuring.current = false;
-		pencil.clear();
+		draw.clear();
 		endPan();
 	};
 	const toggleTool = (next: FieldTool) => selectTool(tool === next ? undefined : next);
@@ -95,7 +95,7 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 	const whileHovered = { enabled: hovered, conflictBehavior: 'allow' } as const;
 	useHotkey('M', () => toggleTool('distance'), whileHovered);
 	useHotkey('A', () => toggleTool('angle'), whileHovered);
-	useHotkey('P', () => toggleTool('pencil'), whileHovered);
+	useHotkey('D', () => toggleTool('draw'), whileHovered);
 	useHotkey('Escape', () => selectTool(undefined), { ...whileHovered, enabled: hovered && tool !== undefined });
 
 	const projectPointer = () => {
@@ -104,7 +104,7 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 	};
 	const cancelDrag = (event: PointerEvent) => {
 		endPan();
-		pencil.cancel(event);
+		draw.cancel(event);
 		if (measuring.current) {
 			measuring.current = false;
 			setMeasurement(undefined);
@@ -170,8 +170,8 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 								return;
 							}
 							const point = projectPointer()(event);
-							if (tool === 'pencil') {
-								pencil.start(event, point);
+							if (tool === 'draw') {
+								draw.start(event, point);
 								return;
 							}
 							event.currentTarget.setPointerCapture(event.pointerId);
@@ -188,8 +188,8 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 							// The minimap only switches sides past the middle, so it doesn't flicker while the pointer is near it
 							const { x } = toFraction(point);
 							setMinimapLeft((current) => (x > 0.6 ? true : x < 0.4 ? false : current));
-							if (pencil.isDrawing(event)) {
-								pencil.move(event, pointAt, fieldPoint);
+							if (draw.isDrawing(event)) {
+								draw.move(event, pointAt, fieldPoint);
 							} else if (measuring.current) {
 								setMeasurement(
 									(current) => current && { ...current, to: event.shiftKey ? snapTo45(current.from, point) : point },
@@ -200,8 +200,8 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 						}}
 						onPointerUp={(event) => {
 							endPan();
-							if (pencil.isDrawing(event)) {
-								pencil.finish(event, projectPointer()(event));
+							if (draw.isDrawing(event)) {
+								draw.finish(event, projectPointer()(event));
 							}
 							if (measuring.current) {
 								measuring.current = false;
@@ -245,7 +245,7 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 											{fieldDrawings(bindings, (binding) => valueOf(binding.entry))}
 											{measurement && <MeasurementDrawing measurement={measurement} />}
 										</g>
-										<PencilDrawing points={pencil.points} />
+										<DrawStroke points={draw.points} />
 									</g>
 								</g>
 							</g>
