@@ -13,6 +13,7 @@ import { cancelSaving, exitVideoExport, exportVideo, setVideoRangeEdge, useVideo
 import { isEnterKey } from '@/lib/keyboard';
 import { formatTime, togglePlayback, useVideoRange, useTimeline } from '@/timeline/timeline';
 import { parseTime } from '@/timeline/parse-time';
+import { ThemedProgressTrack } from '@/timeline/themed-progress-track';
 import { useDashboards } from '@/dashboards/dashboards';
 import { panes, type PaneNode } from '@/panes/layout';
 import { pickedOption } from '@/widgets/options';
@@ -141,7 +142,9 @@ export function VideoExportBar() {
 			) : (
 				<>
 					<span className="text-sm text-muted-foreground">Saving video</span>
-					<Progress value={Math.round(saving * 100)} aria-label="Saving video" className="flex-1" />
+					<Progress value={Math.round(saving * 100)} aria-label="Saving video" className="flex-1">
+						<ThemedProgressTrack />
+					</Progress>
 					<span className="w-10 text-right font-mono text-sm text-muted-foreground tabular-nums">
 						{Math.round(saving * 100)}%
 					</span>

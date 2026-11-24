@@ -29,6 +29,17 @@ The match13 preset MUST retain its `#1a7ccd` seed. Its primary, secondary, and n
 - **AND** primary actions switch from deep blue to bright blue
 - **AND** selected sidebar items stay blue-tinted in both modes
 
+### Requirement: Themed progress decoration
+
+The skiing mascot SHALL ride the leading edge of the progress fill when loading a log or saving a video in the match13 preset. The mascot MUST be decorative and MUST NOT change the progress value, label, or cancellation behavior. Other presets MUST show the standard progress track.
+
+#### Scenario: Reduced motion
+
+- **GIVEN** the match13 preset is selected and reduced motion is enabled
+- **WHEN** Studio shows a progress bar for loading a log or saving a video
+- **THEN** the mascot moves without animation when the progress value changes
+- **AND** the mascot is hidden when progress is indeterminate
+
 ### Requirement: FrogLog palette
 
 FrogLog SHALL use leaf green for its primary palette and soft stream blue for its secondary palette. Both palettes MUST follow the selected light or dark appearance and contrast setting.

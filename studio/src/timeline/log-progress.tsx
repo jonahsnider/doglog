@@ -1,8 +1,9 @@
 import { useIsPresent } from 'motion/react';
 import { Button } from '@/components/ui/button';
-import { Progress, ProgressIndicator, ProgressLabel, ProgressTrack, ProgressValue } from '@/components/ui/progress';
+import { Progress, ProgressLabel, ProgressValue } from '@/components/ui/progress';
 import { closeLog, useLogProgress } from '@/data/source';
 import { useCaptureFrame } from '@/desktop/capture';
+import { ThemedProgressTrack } from '@/timeline/themed-progress-track';
 
 export function LogProgress({ fileName, cancelable }: { fileName: string; cancelable?: boolean }) {
 	const present = useIsPresent();
@@ -22,9 +23,7 @@ export function LogProgress({ fileName, cancelable }: { fileName: string; cancel
 					<ProgressLabel className="max-w-1/3 truncate font-normal text-muted-foreground">
 						Loading {fileName}
 					</ProgressLabel>
-					<ProgressTrack className="h-1 flex-1">
-						<ProgressIndicator />
-					</ProgressTrack>
+					<ThemedProgressTrack className="h-1 flex-1" />
 					{!indeterminate && <ProgressValue className="min-w-10 text-right font-mono text-muted-foreground" />}
 				</Progress>
 				{cancelable === true && (

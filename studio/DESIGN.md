@@ -83,6 +83,7 @@ Durations come from Material's scale. Pick by how far something moves or how muc
 - With the motion library, use `easing` and `useMotionTransition()` from `@/lib/motion`, which mirror the CSS curves and skip animating when the system or the Reduce motion setting reduces motion. Outside React, check `reducesMotion()` instead of the media query.
 - In CSS, use `motion-safe:` and `motion-reduce:` so layout changes happen instantly when reducing motion. `src/index.css` redefines them to follow the Reduce motion setting too, so use them (or `@variant motion-reduce`) instead of the `prefers-reduced-motion` media query.
 - Spinners keep turning, just slower, when reducing motion, since they show that something is still loading. `animate-spin` does this on its own.
+- On the match13 preset, Monte rides the leading edge of the log-loading and video-saving progress fills. Clip the skier at the track's ends so labels and controls stay readable. Keep graph traces and timeline scrubbers undecorated.
 - Show 3D widget canvases as soon as they draw, without an entrance fade.
 - Prefer animating `transform` and `opacity`, which the browser can run without laying out the page again. When a layout property has to animate (ex. pane sizes), keep the content inside at a fixed size with `contain: strict` and clip it, so it isn't laid out again every frame. React Doctor flags layout animations, so explain why one is needed when disabling the rule.
 
