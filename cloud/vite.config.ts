@@ -2,8 +2,7 @@ import svgr from 'vite-plugin-svgr';
 import { voidPlugin } from 'void';
 import { defineConfig, lazyPlugins } from 'vite-plus';
 
-/** Written by Void, see .gitignore */
-const generated = ['.void/', '.void-wrangler.jsonc', '.cloudflare/', 'dist/'];
+const generated = ['.void/', '.void-wrangler.jsonc', '.cloudflare/', 'dist/', 'convex/_generated/'];
 
 export default defineConfig({
 	fmt: {

@@ -22,6 +22,16 @@ allowBuilds:
   sharp: true
   workerd: true
 packageExtensions:
+  # Its test entry point ships TypeScript that imports both packages.
+  '@convex-dev/auth@2.1.0':
+    peerDependencies:
+      convex-test: '*'
+      vite: '*'
+    peerDependenciesMeta:
+      convex-test:
+        optional: true
+      vite:
+        optional: true
   # Its types import from `react`, which only resolves to types if @types/react is linked beside it
   '@dnd-kit/react':
     peerDependencies:

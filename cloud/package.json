@@ -6,11 +6,18 @@
 	"scripts": {
 		"build": "vp build",
 		"check": "void prepare && vp check && tsc",
+		"check:convex": "tsc -p convex",
 		"deploy": "void deploy --platform cloudflare",
-		"dev": "vp dev"
+		"dev": "vp dev",
+		"test:convex": "vp test run --config vitest.config.ts"
+	},
+	"dependencies": {
+		"@convex-dev/auth": "2.1.0",
+		"convex": "1.51.0"
 	},
 	"devDependencies": {
 		"@doglog/studio": "workspace:*",
+		"convex-test": "0.0.73",
 		"typescript": "7.1.0-dev.20261121.1",
 		"vite": "catalog:",
 		"vite-plugin-svgr": "5.2.0",
