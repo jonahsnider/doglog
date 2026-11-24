@@ -65,18 +65,13 @@ context: |
   - Explicit handling for browsers that can't make live NT connections (the connection simply fails).
 
   Future needs (not specced yet):
-  - Mobile layouts.
-  - Usage analytics.
-  - Writing or editing NT values.
   - Comparing multiple logs at once, and multiple simultaneous data sources.
   - Protobuf-encoded entries.
-  - Dashboard import/export.
   - Playback looping and trimming the playback range.
   - A command palette.
   - Field widget robot trails and per-project robot sizes.
   - A robot editor that writes `doglog.jsonc` from one CAD model.
   - DogLog logging the robot project, so Studio matches a log to its project without the user picking it.
-  - More built-in robots, ex. the 2026 KitBot, if FIRST allows redistributing its CAD.
   - Log sync from Systemcore, planned for the 2027 release.
 
   Open questions:
