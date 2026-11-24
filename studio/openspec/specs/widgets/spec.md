@@ -26,6 +26,17 @@ Each widget type SHALL declare the data types it accepts, which MAY be specific 
 - **THEN** the entry is not bound
 - **AND** the user is shown that the type is not accepted
 
+### Requirement: Entry limit
+
+Adding entries MUST NOT grow a widget beyond 30 bindings. Hidden entries, missing entries, and repeated bindings all count. A group that doesn't fit MUST be rejected as a whole, and the user MUST be told why. Existing widgets above the limit MUST keep their bindings and still allow editing, reordering, and removal.
+
+#### Scenario: Move to a full widget
+
+- **GIVEN** a widget with 30 bindings
+- **WHEN** the user drags a compatible entry from another widget onto it
+- **THEN** the entry stays in the original widget
+- **AND** the target widget shows why it can't accept the entry
+
 ### Requirement: Edit entries button
 
 Each widget that accepts entries SHALL have an Edit entries button in its pane header that starts editing its entries in the entry browser, or stops it if it's already being edited. The button MUST show as pressed while its widget is being edited.

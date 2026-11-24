@@ -1,5 +1,6 @@
 import { createContext } from 'react';
-import { addEntries, dropEntry, type EntryDrop, widgetBindings } from '@/widgets/bindings';
+import { toastManager } from '@/components/ui/toast';
+import { addEntries, dropEntry, type EntryDrop, widgetBindings, WidgetEntryLimitError } from '@/widgets/bindings';
 import {
 	createDashboard,
 	type Dashboard,
@@ -45,11 +46,23 @@ export const DashboardLayoutContext = createContext<PaneNode>(createPane());
 export const DashboardIdContext = createContext('');
 
 /**
- * Change a dashboard's pane layout with one of the `@/panes/layout` operations.
+ * Change a dashboard's pane layout from the UI, showing feedback if the widget entry limit rejects the change.
  * @example updateLayout(dashboardId, (layout) => setPaneWidget(layout, paneId, widget))
  */
 export function updateLayout(id: string, update: (layout: PaneNode) => PaneNode): void {
-	updateDashboard(id, (dashboard) => ({ ...dashboard, layout: update(dashboard.layout) }));
+	updateDashboardEntries(id, (dashboard) => ({ ...dashboard, layout: update(dashboard.layout) }));
+}
+
+/** Show limit feedback for user actions without committing a rejected change. */
+function updateDashboardEntries(id: string, update: (dashboard: Dashboard) => Dashboard): void {
+	try {
+		updateDashboard(id, update);
+	} catch (error) {
+		if (!(error instanceof WidgetEntryLimitError)) {
+			throw error;
+		}
+		toastManager.add({ type: 'warning', title: 'Couldn’t add to widget', description: error.message });
+	}
 }
 
 /**
@@ -151,7 +164,7 @@ export function splitDirectionFor(paneId: string): SplitDirection {
  * Does nothing if the focused pane can't be split in either direction.
  */
 export function addDashboardWidget(id: string, widget: Widget): void {
-	updateDashboard(id, (dashboard) => {
+	updateDashboardEntries(id, (dashboard) => {
 		const focused = getFocusedPane(dashboard);
 		const type = getWidgetType(widget.type);
 		// Widgets without entries are only the same when their options are, ex. controllers on the same port

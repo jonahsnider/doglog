@@ -68,6 +68,13 @@ test('layouts with too many panes side by side are rejected', () => {
 	expect(() => createInputLayout(split([pane, pane, pane, pane]), entryOf)).not.toThrow();
 });
 
+test('an agent cannot create a widget with more than 30 bindings', () => {
+	const bindings = Array.from({ length: 31 }, () => ({ entry: '/Arm/Angle' }));
+	expect(() => createInputLayout({ kind: 'pane', widget: { type: 'graph', bindings } }, entryOf)).toThrow(
+		'up to 30 entries',
+	);
+});
+
 test("bindings the user couldn't make are rejected", () => {
 	const graph = getWidgetType('graph')!;
 	const field = getWidgetType('field')!;

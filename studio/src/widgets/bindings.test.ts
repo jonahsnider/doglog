@@ -99,6 +99,32 @@ test('adding entries skips ones the widget already shows', () => {
 	expect(names(addEntries(layout, left, ['/a', '/b']), left)).toEqual(['/a', '/b']);
 });
 
+test('a group must fit after counting hidden and repeated bindings and skipping names already bound', () => {
+	const { layout, left } = twoPanes(
+		Array.from({ length: 29 }, (_, index) => ({ id: String(index), name: '/a', hidden: true })),
+		[],
+	);
+
+	expect(() => addEntries(layout, left, ['/a', '/b', '/c'])).toThrow('up to 30 entries');
+	const filled = addEntries(layout, left, ['/a', '/b', '/b']);
+	expect(names(filled, left)).toEqual([...names(layout, left), '/b']);
+});
+
+test('a full widget rejects incoming drops but still lets its entries be reordered', () => {
+	const filled = Array.from({ length: 30 }, (_, index) => ({ id: `e${index}`, name: `/e${index}` }));
+	const { layout, left, right } = twoPanes([a], filled);
+	const from = { paneId: left, bindingId: a.id };
+
+	expect(() => dropEntry(layout, { name: a.name, from }, { paneId: right })).toThrow('up to 30 entries');
+	expect(names(layout, left)).toEqual([a.name]);
+	const reordered = dropEntry(
+		layout,
+		{ name: '/e0', from: { paneId: right, bindingId: 'e0' } },
+		{ paneId: right, index: 2 },
+	);
+	expect(names(reordered, right)).toEqual(['/e1', '/e2', '/e0', ...filled.slice(3).map(({ name }) => name)]);
+});
+
 test('setting the bound entries removes every binding of the others', () => {
 	const { layout, left } = twoPanes([a, b, { id: 'a2', name: '/a' }], []);
 

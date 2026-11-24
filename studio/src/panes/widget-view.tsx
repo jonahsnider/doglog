@@ -9,9 +9,12 @@ import { Spinner } from '@/components/ui/spinner';
 import {
 	connectBindings,
 	disconnectBindings,
+	maxWidgetEntries,
 	setBindingPick,
 	setBindingRole,
 	toggleBindingHidden,
+	unboundEntryNames,
+	widgetEntryLimitMessage,
 } from '@/widgets/bindings';
 import { DashboardIdContext, DashboardLayoutContext, updateLayout } from '@/dashboards/panes';
 import { getEntry } from '@/data/data-store';
@@ -220,8 +223,10 @@ function DropFeedback({
 function entryDropFeedback(type: WidgetType, dragged: EntryDragData, bindings: readonly WidgetBinding[]) {
 	if (dragged.group) {
 		const names = droppedGroupNames(type, dragged.group);
-		const bound = new Set(bindings.map((binding) => binding.name));
-		const count = names.filter((name) => !bound.has(name)).length;
+		const count = unboundEntryNames(bindings, names).length;
+		if (count > 0 && bindings.length + count > maxWidgetEntries) {
+			return { accepted: false, message: widgetEntryLimitMessage };
+		}
 		return {
 			accepted: count > 0,
 			message:
@@ -236,6 +241,9 @@ function entryDropFeedback(type: WidgetType, dragged: EntryDragData, bindings: r
 	const name = droppedEntryName(type, dragged);
 	const entry = getEntry(name);
 	const accepted = acceptsDrop(type, name, entry);
+	if (accepted && type.optionFromEntry === undefined && bindings.length >= maxWidgetEntries) {
+		return { accepted: false, message: widgetEntryLimitMessage };
+	}
 	return {
 		accepted,
 		message: accepted

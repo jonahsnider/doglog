@@ -173,7 +173,8 @@ export const paneHandlers: Pick<
 		requireDashboard(dashboardId);
 		flushData();
 		const bindingIds: string[] = [];
-		updateLayout(dashboardId, (layout) => {
+		updateDashboard(dashboardId, (dashboard) => {
+			const { layout } = dashboard;
 			const type = requireWidgetType(requirePane(layout, paneId));
 			for (const { entry, role } of bindings) {
 				checkBinding(type, entry, role, getEntry);
@@ -186,7 +187,7 @@ export const paneHandlers: Pick<
 				next = applyBindingInput(next, paneId, binding, input);
 				bindingIds.push(binding.id);
 			}
-			return next;
+			return { ...dashboard, layout: next };
 		});
 		return { bindingIds, dashboard: describeDashboard(dashboardId) };
 	},

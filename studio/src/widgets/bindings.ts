@@ -1,3 +1,4 @@
+// oxlint-disable max-lines -- Binding edits and their saved config share the same invariants.
 import * as z from 'zod';
 import type { Entry } from '@/data/data-store';
 import { createId } from '@/lib/random-id';
@@ -25,6 +26,15 @@ export const bindingSchema = z.object({
 
 export type Binding = z.infer<typeof bindingSchema>;
 
+export const maxWidgetEntries = 30;
+export const widgetEntryLimitMessage = `A widget can have up to ${maxWidgetEntries} entries.`;
+
+export class WidgetEntryLimitError extends Error {
+	constructor() {
+		super(widgetEntryLimitMessage);
+	}
+}
+
 /** Validates a widget's saved config (`Widget.config`), invalid configs have no bound entries */
 const configSchema = z.object({ bindings: z.array(bindingSchema).catch([]) }).catch({ bindings: [] });
 
@@ -42,6 +52,9 @@ export function createWidget(
 	entryNames: readonly string[] = type.defaultEntryNames ?? [],
 	options: Readonly<Record<string, string>> = {},
 ): Widget {
+	if (entryNames.length > maxWidgetEntries) {
+		throw new WidgetEntryLimitError();
+	}
 	const bindings = entryNames.map((name) => createBinding(name));
 	return { type: type.id, config: Object.keys(options).length > 0 ? { bindings, options } : { bindings } };
 }
@@ -56,10 +69,19 @@ function updateBindings(
 		return layout;
 	}
 
+	const bindings = widgetBindings(widget);
+	const next = update(bindings);
+	if (next === bindings) {
+		return layout;
+	}
+	// Existing widgets over the limit can still be edited, just not enlarged.
+	if (next.length > maxWidgetEntries && next.length > bindings.length) {
+		throw new WidgetEntryLimitError();
+	}
 	const config = typeof widget.config === 'object' ? widget.config : {};
 	return setPaneWidget(layout, paneId, {
 		...widget,
-		config: { ...config, bindings: withoutStaleSources(update(widgetBindings(widget))) },
+		config: { ...config, bindings: withoutStaleSources(next) },
 	});
 }
 
@@ -73,16 +95,21 @@ function withoutStaleSources(bindings: readonly Binding[]): Binding[] {
 	});
 }
 
+/** The new names in an entry browser selection or group, in the order they'll be bound */
+export function unboundEntryNames(bindings: readonly Pick<Binding, 'name'>[], names: readonly string[]): string[] {
+	const bound = new Set(bindings.map((binding) => binding.name));
+	return [...new Set(names)].filter((name) => !bound.has(name));
+}
+
 /**
  * Bind the entries a pane's widget doesn't show yet, ex. when an entry is added from the entry browser, where adding it
  * twice is more likely a double-click than on purpose. Returns `layout` itself when they're all bound already.
  */
 export function addEntries(layout: PaneNode, paneId: string, names: readonly string[]): PaneNode {
-	const bound = new Set(widgetBindings(findPane(layout, paneId)?.widget).map((binding) => binding.name));
-	const added = [...new Set(names)].filter((name) => !bound.has(name));
-	return added.length === 0
-		? layout
-		: updateBindings(layout, paneId, (bindings) => [...bindings, ...added.map((name) => createBinding(name))]);
+	return updateBindings(layout, paneId, (bindings) => {
+		const added = unboundEntryNames(bindings, names);
+		return added.length === 0 ? bindings : [...bindings, ...added.map((name) => createBinding(name))];
+	});
 }
 
 /** Bind exactly these entries, like the entry picker's checkboxes: new ones go last, every binding of the others is removed */

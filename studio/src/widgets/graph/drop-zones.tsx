@@ -11,6 +11,7 @@ import {
 	WidgetBindingsContext,
 } from '@/entries/drag';
 import { cn } from '@/lib/utils';
+import { maxWidgetEntries } from '@/widgets/bindings';
 import { type GraphSection, graphRoles, graphSection } from '@/widgets/graph/roles';
 
 /**
@@ -33,7 +34,8 @@ function sectionsOf({ name, field }: EntryDragItem): GraphSection[] {
  * drop the entry on: the left and right halves for its axes, and the bands at the bottom
  */
 export function DropZones({ bandsHeight }: { bandsHeight: number }) {
-	const paneId = use(WidgetBindingsContext)?.paneId ?? '';
+	const widget = use(WidgetBindingsContext);
+	const paneId = widget?.paneId ?? '';
 	const { source, target } = useDragOperation<
 		EntryDragData | EntryDropData,
 		Draggable<EntryDragData>,
@@ -41,7 +43,10 @@ export function DropZones({ bandsHeight }: { bandsHeight: number }) {
 	>();
 	const drop = target?.data;
 	// A group can mix entries that belong on different axes or bands, so let the graph infer each role.
-	const shown = isEntryDrag(source) && !source.data.group && (source.data.paneId === paneId || drop?.paneId === paneId);
+	const shown =
+		isEntryDrag(source) &&
+		!source.data.group &&
+		(source.data.paneId === paneId || (drop?.paneId === paneId && (widget?.bindings.length ?? 0) < maxWidgetEntries));
 	if (!shown) {
 		return undefined;
 	}
