@@ -1,4 +1,4 @@
-import ListPlusIcon from 'lucide-react/icons/list-plus';
+import ListTodoIcon from 'lucide-react/icons/list-todo';
 import { shortcuts } from '@/commands/commands';
 import { updateLayout } from '@/dashboards/panes';
 import { toggleEditing } from '@/entries/editing';
@@ -36,7 +36,7 @@ export function WidgetButtons({
 						pressed={editing}
 						onClick={() => toggleEditing(dashboardId, paneId)}
 					>
-						<ListPlusIcon />
+						<ListTodoIcon aria-hidden />
 					</PaneButton>
 				</span>
 			)}

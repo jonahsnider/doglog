@@ -1,5 +1,5 @@
 import ChevronsUpDownIcon from 'lucide-react/icons/chevrons-up-down';
-import Settings2Icon from 'lucide-react/icons/settings-2';
+import SettingsIcon from 'lucide-react/icons/settings';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { Fieldset, FieldsetLegend } from '@/components/ui/fieldset';
@@ -41,7 +41,7 @@ export function WidgetOptions({ paneId, type, widget, bindings, onOptionChange }
 						/>
 					}
 				>
-					<Settings2Icon />
+					<SettingsIcon aria-hidden />
 				</TooltipTrigger>
 				<TooltipPopup>Widget options</TooltipPopup>
 			</Tooltip>
