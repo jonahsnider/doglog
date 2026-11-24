@@ -1,5 +1,6 @@
 import TriangleAlertIcon from 'lucide-react/icons/triangle-exclamation-point';
-import { useCallback, useRef, useState } from 'react';
+import { type ReactNode, useCallback, useRef, useState } from 'react';
+import { TextMorph } from '@/components/text-morph';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { formatRoughDuration, getCursorTime, togglePlayback, useCursorTime } from '@/timeline/timeline';
 import { WidgetEmpty } from '@/widgets/widget-empty';
@@ -15,10 +16,16 @@ import { YouTubePlayer } from '@/widgets/video/youtube-player';
 
 export type VideoProps = { paneId: string; sync: Sync; setOption: WidgetProps['setOption'] };
 
-/** What the widget says when the cursor is before or after the video, `undefined` while it's in the video */
-function outsideLabel(target: number | undefined, duration: number | undefined): string | undefined {
+/** What the widget says outside the video, `undefined` while it's in the video */
+function outsideLabel(target: number | undefined, duration: number | undefined): ReactNode {
 	if (target !== undefined && target < 0) {
-		return `Starts in ${formatRoughDuration(-target * 1_000_000)}`;
+		// Split the countdown so minutes and seconds roll as numbers, not as a single text label.
+		const [minutes, seconds] = formatRoughDuration(-target * 1_000_000).split(':');
+		return (
+			<span>
+				Starts in <TextMorph>{minutes}</TextMorph>:<TextMorph>{seconds}</TextMorph>
+			</span>
+		);
 	}
 	if (target !== undefined && duration !== undefined && target >= duration) {
 		return 'Ended';
@@ -95,7 +102,7 @@ export function SyncedVideo({
 					)}
 				</div>
 				{outside !== undefined && (
-					<span className="pointer-events-none absolute inset-0 grid place-items-center text-sm font-medium text-white">
+					<span className="pointer-events-none absolute inset-0 grid place-items-center text-sm font-medium text-white tabular-nums">
 						{outside}
 					</span>
 				)}

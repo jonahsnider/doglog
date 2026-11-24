@@ -5,7 +5,7 @@ import { type Hotkey, type UseHotkeyDefinition, useHotkeys } from '@tanstack/rea
 import { Select as SelectPrimitive } from '@base-ui/react/select';
 import { AnimatePresence, domAnimation, LazyMotion, m, useIsPresent } from 'motion/react';
 import { type ReactNode, useRef, useState } from 'react';
-import { TextMorph } from 'torph/react';
+import { TextMorph } from '@/components/text-morph';
 import { Button } from '@/components/ui/button';
 import { Select, SelectItem, SelectPopup } from '@/components/ui/select';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
@@ -135,7 +135,7 @@ function TimelineTrack({
 					onClick={goLive}
 				>
 					<span className={cn('size-2 rounded-full', following ? 'bg-destructive' : 'bg-muted-foreground')} />
-					{following ? 'Live' : 'Go live'}
+					<TextMorph>{following ? 'Live' : 'Go live'}</TextMorph>
 				</Button>
 			)}
 		</div>

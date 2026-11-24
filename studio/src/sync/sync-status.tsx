@@ -10,7 +10,7 @@ import SettingsIcon from 'lucide-react/icons/settings';
 import TriangleAlertIcon from 'lucide-react/icons/triangle-exclamation-point';
 import type { LucideIcon } from 'lucide-react/types';
 import { type ReactNode, useState } from 'react';
-import { TextMorph } from 'torph/react';
+import { TextMorph } from '@/components/text-morph';
 import type { BoardLog } from '@/sync/sync-board';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
@@ -208,7 +208,7 @@ export function SyncStatusPanel({
 	// Top padding keeps the button's hover scale and focus outline clear of the sticky page header
 	return (
 		<section className="flex flex-col items-center gap-10 pt-2 text-center">
-			<div className="flex flex-col items-center gap-4">
+			<div className="flex max-w-full flex-col items-center gap-4">
 				<Tooltip>
 					<TooltipTrigger
 						render={
@@ -233,8 +233,15 @@ export function SyncStatusPanel({
 					</TooltipTrigger>
 					<TooltipPopup>{toggleLabel}</TooltipPopup>
 				</Tooltip>
-				<div className="flex flex-col gap-1">
-					<h2 className="font-heading text-2xl font-semibold">{view.title}</h2>
+				<div className="flex max-w-full flex-col gap-1">
+					<h2 className="font-heading text-2xl font-semibold">
+						<TextMorph
+							className="max-w-full align-bottom wrap-anywhere whitespace-normal! [&>[torph-item]]:max-w-full"
+							numbers={false}
+						>
+							{view.title}
+						</TextMorph>
+					</h2>
 					<p className="text-sm text-muted-foreground tabular-nums">{view.detail}</p>
 				</div>
 				{view.action}

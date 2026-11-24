@@ -1,4 +1,5 @@
 import fnv1a from '@sindresorhus/fnv1a';
+import { TextMorph } from '@/components/text-morph';
 import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount } from '@/components/ui/avatar';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -48,7 +49,11 @@ function PresenceAvatars({ sessions, className }: { sessions: readonly PresentSe
 					<TooltipPopup>{session.active ? session.name : `${session.name} (inactive)`}</TooltipPopup>
 				</Tooltip>
 			))}
-			{shown.length < sessions.length && <AvatarGroupCount>+{sessions.length - shown.length}</AvatarGroupCount>}
+			{shown.length < sessions.length && (
+				<AvatarGroupCount className="tabular-nums">
+					<TextMorph>{`+${sessions.length - shown.length}`}</TextMorph>
+				</AvatarGroupCount>
+			)}
 		</AvatarGroup>
 	);
 }

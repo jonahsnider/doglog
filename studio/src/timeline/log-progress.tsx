@@ -1,4 +1,5 @@
 import { useIsPresent } from 'motion/react';
+import { TextMorph } from '@/components/text-morph';
 import { Button } from '@/components/ui/button';
 import { Progress, ProgressLabel, ProgressValue } from '@/components/ui/progress';
 import { closeLog, useLogProgress } from '@/data/source';
@@ -24,7 +25,11 @@ export function LogProgress({ fileName, cancelable }: { fileName: string; cancel
 						Loading {fileName}
 					</ProgressLabel>
 					<ThemedProgressTrack className="h-1 flex-1" />
-					{!indeterminate && <ProgressValue className="min-w-10 text-right font-mono text-muted-foreground" />}
+					{!indeterminate && (
+						<ProgressValue className="w-10 shrink-0 text-right font-mono text-muted-foreground">
+							{(formatted) => <TextMorph>{formatted}</TextMorph>}
+						</ProgressValue>
+					)}
 				</Progress>
 				{cancelable === true && (
 					<Button variant="ghost" size="sm" onClick={closeLog}>

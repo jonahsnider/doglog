@@ -6,6 +6,7 @@ import RefreshCwIcon from 'lucide-react/icons/refresh-cw';
 import { WhatsNewCard } from '@/changelog/whats-new-card';
 import { shortcuts } from '@/commands/commands';
 import { KeyboardShortcutsDialog } from '@/commands/keyboard-shortcuts-dialog';
+import { TextMorph } from '@/components/text-morph';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { DialogTrigger } from '@/components/ui/dialog';
 import { SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
@@ -95,7 +96,7 @@ export function AppSidebarFooter({
 									) : (
 										<RefreshCwIcon />
 									)}
-									<span>{updateLabel}</span>
+									<TextMorph numbers={false}>{updateLabel}</TextMorph>
 								</TooltipTrigger>
 								<TooltipPopup side="right">
 									<TooltipLabel label={updateLabel} shortcut={shortcuts.update} />

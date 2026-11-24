@@ -3,6 +3,7 @@ import PlayIcon from 'lucide-react/icons/play';
 import TriangleAlertIcon from 'lucide-react/icons/triangle-exclamation-point';
 import { useHotkey } from '@tanstack/react-hotkeys';
 import { useState } from 'react';
+import { TextMorph } from '@/components/text-morph';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
@@ -146,8 +147,8 @@ export function VideoExportBar() {
 					<Progress value={Math.round(saving * 100)} aria-label="Saving video" className="flex-1">
 						<ThemedProgressTrack />
 					</Progress>
-					<span className="w-10 text-right font-mono text-sm text-muted-foreground tabular-nums">
-						{Math.round(saving * 100)}%
+					<span className="w-10 shrink-0 text-right font-mono text-sm text-muted-foreground tabular-nums">
+						<TextMorph>{`${Math.round(saving * 100)}%`}</TextMorph>
 					</span>
 					<Button variant="ghost" size="sm" onClick={cancelSaving}>
 						Cancel

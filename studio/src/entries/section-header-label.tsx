@@ -1,6 +1,7 @@
 import EyeOffIcon from 'lucide-react/icons/eye-off';
 import ListChecksIcon from 'lucide-react/icons/list-checks';
 import PinIcon from 'lucide-react/icons/pin';
+import { TextMorph } from '@/components/text-morph';
 
 const sectionHeaders = {
 	active: { icon: ListChecksIcon, label: 'Active' },
@@ -14,7 +15,7 @@ export function SectionHeaderLabel({ section, count }: { section: keyof typeof s
 		<>
 			<Icon className="size-3.5 shrink-0 text-muted-foreground" />
 			<span className="flex-1 truncate text-start text-xs font-semibold">{label}</span>
-			<span className="text-xs text-muted-foreground tabular-nums">{count}</span>
+			<TextMorph className="text-xs text-muted-foreground tabular-nums">{count}</TextMorph>
 		</>
 	);
 }

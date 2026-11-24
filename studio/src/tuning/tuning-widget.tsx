@@ -255,8 +255,8 @@ function Tunables({ bindings, status }: Pick<WidgetProps, 'bindings'> & { status
 					{status === 'reconnecting' && <Spinner className="size-3" />}
 					<Notes
 						notes={[
-							stagedCount > 0 && { text: `${stagedCount} staged` },
-							stale.size > 0 && { text: `${stale.size} changed`, warning: true },
+							stagedCount > 0 && { text: `${stagedCount} staged`, morphKey: 'staged' },
+							stale.size > 0 && { text: `${stale.size} changed`, morphKey: 'changed', warning: true },
 							!connected && { text: status === 'reconnecting' ? 'Reconnecting' : 'Disconnected' },
 						]}
 					/>

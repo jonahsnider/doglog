@@ -1,4 +1,5 @@
 import { Fragment, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { TextMorph } from '@/components/text-morph';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { inferUnit } from '@/data/units';
@@ -33,7 +34,7 @@ export type Editing = {
 
 export const rowClassName = 'h-8 items-center gap-2 rounded-md px-1.5 hover:bg-foreground/8';
 
-type Note = { text: string; warning?: boolean };
+type Note = { text: string; warning?: boolean; morphKey?: string };
 
 /** Notes about a value or the widget, separated by commas, `false` ones are left out */
 export function Notes({ notes, className }: { notes: readonly (Note | false)[]; className?: string }) {
@@ -41,12 +42,15 @@ export function Notes({ notes, className }: { notes: readonly (Note | false)[]; 
 		<span className={className}>
 			{notes
 				.filter((note) => note !== false)
-				.map((note, index) => (
-					<Fragment key={note.text}>
-						{index > 0 && ', '}
-						<span className={cn(note.warning === true && 'text-warning-foreground')}>{note.text}</span>
-					</Fragment>
-				))}
+				.map(({ text, warning, morphKey }, index) => {
+					const Label = morphKey === undefined ? 'span' : TextMorph;
+					return (
+						<Fragment key={morphKey ?? text}>
+							{index > 0 && ', '}
+							<Label className={cn(warning === true && 'text-warning-foreground')}>{text}</Label>
+						</Fragment>
+					);
+				})}
 		</span>
 	);
 }

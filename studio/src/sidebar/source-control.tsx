@@ -1,8 +1,8 @@
 import { useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
 import ChevronsUpDownIcon from 'lucide-react/icons/chevrons-up-down';
 import { Fragment, useEffect, useId, useState } from 'react';
-import { TextMorph } from 'torph/react';
 import { AppContextMenu, type MenuAction, type MenuEntry } from '@/components/app-context-menu';
+import { TextMorph } from '@/components/text-morph';
 import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuShortcut, MenuTrigger } from '@/components/ui/menu';
 import { SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
