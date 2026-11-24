@@ -347,7 +347,8 @@ export default defineConfig({
 				// The Sentry plugin turns on source maps for workers too, but only removes the main bundle's
 				// Fontsource lists WOFF only as a fallback after WOFF2, so browsers never request it
 				// Only link previewers fetch the Open Graph image
-				globIgnores: ['**/_headers', '**/*.map', '**/*.woff', 'og.png'],
+				// The PWA plugin adds the web manifest itself; a second revision breaks precaching.
+				globIgnores: ['**/_headers', '**/*.map', '**/*.woff', 'og.png', 'manifest.webmanifest'],
 				// Loro's WASM is about 3.6 MB, and dashboards need it to load offline
 				maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
 				cleanupOutdatedCaches: true,
