@@ -1,13 +1,15 @@
+import { Button } from '@astryxdesign/core/Button';
+import { FormLayout } from '@astryxdesign/core/FormLayout';
+import { HStack } from '@astryxdesign/core/Layout';
+import { TextInput } from '@astryxdesign/core/TextInput';
 import { useMutation } from 'convex/react';
 import { ConvexError } from 'convex/values';
 import { type SubmitEvent, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
 import { api } from '../../../cloud/convex/_generated/api.js';
 
 export function CreateTeam() {
 	const createTeam = useMutation(api.teams.create);
+	const [name, setName] = useState('');
 	const [creating, setCreating] = useState(false);
 	const [createError, setCreateError] = useState<string>();
 
@@ -16,16 +18,14 @@ export function CreateTeam() {
 		if (creating) {
 			return;
 		}
-		const value = new FormData(event.currentTarget).get('name');
-		const name = typeof value === 'string' ? value.trim() : '';
-		if (name === '') {
+		if (name.trim() === '') {
 			setCreateError('Enter a team name.');
 			return;
 		}
 		setCreateError(undefined);
 		setCreating(true);
 		try {
-			await createTeam({ name });
+			await createTeam({ name: name.trim() });
 		} catch (error) {
 			setCreateError(
 				error instanceof ConvexError && typeof error.data === 'string'
@@ -37,17 +37,20 @@ export function CreateTeam() {
 	}
 
 	return (
-		<form className="grid gap-3" onSubmit={(event) => void create(event)}>
-			<Field name="name" invalid={createError !== undefined}>
-				<FieldLabel>Team name</FieldLabel>
-				<Input name="name" autoComplete="off" required />
-				<FieldError match role="alert">
-					{createError}
-				</FieldError>
-			</Field>
-			<Button type="submit" className="justify-self-start" loading={creating}>
-				Create team
-			</Button>
+		<form onSubmit={(event) => void create(event)}>
+			<FormLayout>
+				<TextInput
+					label="Team name"
+					value={name}
+					onChange={setName}
+					autoComplete="off"
+					isRequired
+					status={createError === undefined ? undefined : { type: 'error', message: createError }}
+				/>
+				<HStack>
+					<Button type="submit" label="Create team" variant="primary" isLoading={creating} />
+				</HStack>
+			</FormLayout>
 		</form>
 	);
 }

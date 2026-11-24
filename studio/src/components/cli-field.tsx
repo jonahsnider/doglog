@@ -1,9 +1,10 @@
 import { Button } from '@astryxdesign/core/Button';
+import { Code } from '@astryxdesign/core/Code';
+import { VStack } from '@astryxdesign/core/Layout';
+import { Text } from '@astryxdesign/core/Text';
 import { invoke } from '@tauri-apps/api/core';
 import { useEffect, useState } from 'react';
 import { AgentsField } from '@/components/agents-field';
-import { Field, FieldDescription, FieldLabel } from '@/components/ui/field';
-import { FramePanel } from '@/components/ui/frame';
 import { toastManager } from '@/components/toast';
 
 /** Other platforms install the `doglog` command with the app */
@@ -32,7 +33,7 @@ async function installCli(): Promise<boolean> {
 	return true;
 }
 
-/** Settings panels to install the `doglog` command and add Studio to coding agents */
+/** Settings to install the `doglog` command and add Studio to coding agents */
 export function CliField() {
 	if (canInstallCli) {
 		return <CliInstall />;
@@ -53,25 +54,21 @@ function CliInstall() {
 
 	return (
 		<>
-			<FramePanel>
-				<Field name="cli">
-					<FieldLabel>Terminal command</FieldLabel>
-					<div>
-						<Button
-							label={`${status === 'missing' ? 'Install' : 'Reinstall'} doglog command`}
-							size="sm"
-							clickAction={async () => {
-								if (await installCli()) {
-									setStatus('installed');
-								}
-							}}
-						/>
-					</div>
-					<FieldDescription>
-						{cliStatusDescriptions[status]} <code className="font-mono">doglog match.wpilog</code>
-					</FieldDescription>
-				</Field>
-			</FramePanel>
+			<VStack gap={2} hAlign="start">
+				<Text type="label">Terminal command</Text>
+				<Text type="supporting" color="secondary">
+					{cliStatusDescriptions[status]} <Code>doglog match.wpilog</Code>
+				</Text>
+				<Button
+					label={`${status === 'missing' ? 'Install' : 'Reinstall'} doglog command`}
+					size="sm"
+					clickAction={async () => {
+						if (await installCli()) {
+							setStatus('installed');
+						}
+					}}
+				/>
+			</VStack>
 			{/* Agents run the command, so it has to open this copy of Studio */}
 			{status === 'installed' && <AgentsField />}
 		</>

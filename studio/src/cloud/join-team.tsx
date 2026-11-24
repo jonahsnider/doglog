@@ -1,10 +1,12 @@
+import { Banner } from '@astryxdesign/core/Banner';
+import { Button } from '@astryxdesign/core/Button';
+import { HStack, VStack } from '@astryxdesign/core/Layout';
+import { Text } from '@astryxdesign/core/Text';
 import { useNavigate } from '@tanstack/react-router';
 import { useMutation, useQuery } from 'convex/react';
 import type { FunctionReturnType } from 'convex/server';
 import { ConvexError } from 'convex/values';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { FramePanel } from '@/components/ui/frame';
 import { api } from '../../../cloud/convex/_generated/api.js';
 
 type PendingInvites = FunctionReturnType<typeof api.invites.listPending>;
@@ -35,39 +37,35 @@ export function JoinTeam({ invite, pending }: { invite: string | undefined; pend
 
 	if (pending !== undefined && pending.length > 0) {
 		return (
-			<FramePanel className="grid gap-3">
+			<VStack gap={3}>
 				{pending.map(({ id, teamName }) => (
 					<PendingJoin key={id} id={id} teamName={teamName} />
 				))}
-				<p className="text-muted-foreground text-sm">
+				<Text type="supporting" color="secondary">
 					You’ll be added automatically when a teammate opens the Cloud page in DogLog Studio.
-				</p>
-			</FramePanel>
+				</Text>
+			</VStack>
 		);
 	}
 	if (invite === undefined || preview === undefined) {
 		return null;
 	}
 	return (
-		<FramePanel className="grid justify-items-start gap-3">
+		<VStack gap={3} hAlign="start">
 			{preview === null ? (
-				<p role="alert" className="text-sm">
-					This invite link is no longer valid. Ask a team admin for a new one.
-				</p>
+				<Banner
+					status="warning"
+					role="alert"
+					title="This invite link is no longer valid. Ask a team admin for a new one."
+				/>
 			) : (
 				<>
-					<p className="wrap-anywhere text-sm">You’re invited to join {preview.teamName}.</p>
-					<Button loading={joining} onClick={() => void join(invite)}>
-						Join team
-					</Button>
-					{joinError !== undefined && (
-						<p role="alert" className="text-destructive-foreground text-sm">
-							{joinError}
-						</p>
-					)}
+					<Text>You’re invited to join {preview.teamName}.</Text>
+					<Button label="Join team" variant="primary" isLoading={joining} onClick={() => void join(invite)} />
+					{joinError !== undefined && <Banner status="error" role="alert" title={joinError} />}
 				</>
 			)}
-		</FramePanel>
+		</VStack>
 	);
 }
 
@@ -86,26 +84,19 @@ function PendingJoin({ id, teamName }: PendingInvites[number]) {
 	}
 
 	return (
-		<div className="grid gap-1">
-			<div className="flex flex-wrap items-center justify-between gap-2">
-				<p role="status" className="wrap-anywhere min-w-0 text-sm">
-					Waiting to join {teamName}
-				</p>
+		<VStack gap={2}>
+			<HStack hAlign="between" vAlign="center" wrap="wrap" gap={2}>
+				<Text role="status">Waiting to join {teamName}</Text>
 				<Button
-					variant="outline"
+					label={`Cancel join for ${teamName}`}
 					size="sm"
-					aria-label={`Cancel join for ${teamName}`}
-					loading={status === 'canceling'}
+					isLoading={status === 'canceling'}
 					onClick={() => void cancelJoin()}
 				>
 					Cancel join
 				</Button>
-			</div>
-			{status === 'error' && (
-				<p role="alert" className="text-destructive-foreground text-sm">
-					Couldn’t cancel the join. Try again.
-				</p>
-			)}
-		</div>
+			</HStack>
+			{status === 'error' && <Banner status="error" role="alert" title="Couldn’t cancel the join. Try again." />}
+		</VStack>
 	);
 }

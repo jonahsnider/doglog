@@ -8,7 +8,7 @@ Define the Settings page, where users choose the color theme, contrast, visualiz
 
 ### Requirement: Settings sections
 
-Settings SHALL group related settings under titled sections, in this order: Appearance (theme and theme color), Accessibility (contrast, visualization colors, and reduce motion), Robot (robot connection), Sharing (name, while signed out of Cloud), and System (media controls, natural scrolling, the terminal command, and coding agents).
+Settings SHALL group related settings under titled sections, each with a short description beside its settings on wide windows and above them on narrow ones, in this order: Appearance (theme and theme color), Accessibility (contrast, visualization colors, and reduce motion), Robot (robot connection), Sharing (name, while signed out of Cloud), and System (media controls, natural scrolling, the terminal command, and coding agents).
 
 #### Scenario: Find the theme
 
@@ -110,7 +110,7 @@ Settings and UI state MUST be saved on the device and restored when Studio reope
 
 ### Requirement: Theme color setting
 
-Settings SHALL let users choose a theme color preset of Team 581 maroon, match13, FrogLog, Neutral, or Custom, defaulting to Team 581 maroon. Each preset MUST show circular previews of its light and dark colors. When the presets don't fit, the row MUST scroll horizontally rather than shrinking the previews. Custom MUST let users pick any color, defaulting to `#1c1816`, and reset it to the default, and MUST keep the picked color while another preset is selected.
+Settings SHALL let users choose a theme color preset of Team 581 maroon, match13, FrogLog, Neutral, or Custom, defaulting to Team 581 maroon. The presets MUST be listed one per row, each with circular previews of its light and dark colors. Custom MUST let users pick any color, defaulting to `#1c1816`, and reset it to the default, and MUST keep the picked color while another preset is selected.
 
 #### Scenario: Custom color
 

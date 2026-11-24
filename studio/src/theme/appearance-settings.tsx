@@ -1,13 +1,12 @@
 import { Button } from '@astryxdesign/core/Button';
-import { Field as AstryxField } from '@astryxdesign/core/Field';
+import { Code } from '@astryxdesign/core/Code';
+import { Field } from '@astryxdesign/core/Field';
+import { HStack } from '@astryxdesign/core/Layout';
+import { RadioList, RadioListItem } from '@astryxdesign/core/RadioList';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { Selector } from '@astryxdesign/core/Selector';
-import type { ReactNode } from 'react';
-import { Field, FieldControl, FieldLabel } from '@/components/ui/field';
-import { Fieldset, FieldsetLegend } from '@/components/ui/fieldset';
-import { FramePanel } from '@/components/ui/frame';
-import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
-import { cn } from '@/lib/utils';
+import { colorVars, radiusVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { updateSettings, useSettings } from '@/settings';
 import {
 	chartCount,
@@ -21,7 +20,30 @@ import {
 	visualizationPalettes,
 } from '@/theme/choices';
 import { seriesPaletteColors } from '@/theme/series-palette';
-import { defaultCustomColor, type ThemePreviewColors, themePreviewColors } from '@/theme/theme-color';
+import { defaultCustomColor, themePreviewColors } from '@/theme/theme-color';
+import { ThemeModePreview, ThemeSwatch } from '@/theme/theme-preview';
+
+const styles = stylex.create({
+	paletteSwatch: {
+		display: 'block',
+		width: spacingVars['--spacing-3'],
+		aspectRatio: '1',
+		borderRadius: radiusVars['--radius-full'],
+		forcedColorAdjust: 'none',
+	},
+	colorInput: {
+		width: spacingVars['--spacing-12'],
+		height: spacingVars['--spacing-8'],
+		padding: spacingVars['--spacing-0-5'],
+		cursor: 'pointer',
+		backgroundColor: colorVars['--color-background-body'],
+		borderWidth: 1,
+		borderStyle: 'solid',
+		borderColor: colorVars['--color-border-emphasized'],
+		borderRadius: radiusVars['--radius-element'],
+	},
+	fill: (color: string) => ({ backgroundColor: color }),
+});
 
 const themeLabels: Record<Theme, string> = {
 	light: 'Light',
@@ -59,83 +81,71 @@ export function AppearanceSettings() {
 
 	return (
 		<>
-			<FramePanel>
-				<Field name="theme">
-					<Fieldset
-						render={
-							<RadioGroup
-								className="w-full"
-								value={theme}
-								onValueChange={(value: Theme) => updateSettings({ theme: value })}
+			<RadioList
+				label="Theme"
+				orientation="horizontal"
+				value={theme}
+				onChange={(value) => updateSettings({ theme: themes.find((choice) => choice === value) ?? theme })}
+			>
+				{themes.map((value) => (
+					<RadioListItem
+						key={value}
+						value={value}
+						label={themeLabels[value]}
+						align="first-line"
+						description={
+							<ThemeModePreview
+								theme={value}
+								light={themePreviewColors(themePreset, themeColor, false, contrast)}
+								dark={themePreviewColors(themePreset, themeColor, true, contrast)}
 							/>
 						}
-					>
-						<FieldsetLegend className="mb-1 text-sm">Theme</FieldsetLegend>
-						<div className="grid grid-cols-3 gap-3">
-							{themes.map((value) => (
-								<OptionCard key={value} value={value} label={themeLabels[value]}>
-									<div className="relative aspect-16/10">
-										{value === 'system' ? (
-											<>
-												<ThemePreview colors={themePreviewColors(themePreset, themeColor, false, contrast)} />
-												<ThemePreview
-													colors={themePreviewColors(themePreset, themeColor, true, contrast)}
-													className="[clip-path:inset(0_0_0_50%)]"
-												/>
-											</>
-										) : (
-											<ThemePreview colors={themePreviewColors(themePreset, themeColor, value === 'dark', contrast)} />
-										)}
-									</div>
-								</OptionCard>
-							))}
-						</div>
-					</Fieldset>
-				</Field>
-			</FramePanel>
+					/>
+				))}
+			</RadioList>
 
-			<FramePanel className="flex flex-col gap-6">
-				<Field name="themePreset">
-					<Fieldset className="min-w-0 self-stretch">
-						<FieldsetLegend className="mb-4 text-sm">Theme color</FieldsetLegend>
-						<RadioGroup
-							className="relative -m-1 -mb-3 grid auto-cols-[minmax(max-content,1fr)] grid-flow-col gap-2 overflow-x-auto p-1 pb-3 scroll-p-1"
-							value={themePreset}
-							onValueChange={(value: ThemePreset) => updateSettings({ themePreset: value })}
-						>
-							{themePresets.map((value) => (
-								<OptionCard key={value} value={value} label={themePresetLabels[value]}>
-									<div className="flex justify-center gap-2 py-2">
-										<ThemeSwatch colors={themePreviewColors(value, themeColor, false, contrast)} />
-										<ThemeSwatch colors={themePreviewColors(value, themeColor, true, contrast)} />
-									</div>
-								</OptionCard>
-							))}
-						</RadioGroup>
-					</Fieldset>
-				</Field>
+			<RadioList
+				label="Theme color"
+				value={themePreset}
+				onChange={(value) =>
+					updateSettings({ themePreset: themePresets.find((choice) => choice === value) ?? themePreset })
+				}
+			>
+				{themePresets.map((value) => (
+					<RadioListItem
+						key={value}
+						value={value}
+						label={themePresetLabels[value]}
+						endContent={
+							<HStack gap={1}>
+								<ThemeSwatch colors={themePreviewColors(value, themeColor, false, contrast)} />
+								<ThemeSwatch colors={themePreviewColors(value, themeColor, true, contrast)} />
+							</HStack>
+						}
+					/>
+				))}
+			</RadioList>
 
-				{themePreset === 'custom' && (
-					<Field name="themeColor">
-						<FieldLabel>Custom color</FieldLabel>
-						<div className="flex items-center gap-3">
-							<FieldControl
-								type="color"
-								value={themeColor}
-								onValueChange={(value) => updateSettings({ themeColor: value })}
-								className="h-8 w-12 cursor-pointer rounded-lg border border-input bg-background p-0.5 [&::-moz-color-swatch]:rounded-md [&::-moz-color-swatch]:border-none [&::-webkit-color-swatch]:rounded-md [&::-webkit-color-swatch]:border-none [&::-webkit-color-swatch-wrapper]:p-0"
-							/>
-							<span className="font-mono text-sm text-muted-foreground">{themeColor}</span>
-							<Button
-								label="Reset to default"
-								size="sm"
-								isDisabled={themeColor === defaultCustomColor}
-								onClick={() => updateSettings({ themeColor: defaultCustomColor })}
-							/>
-						</div>
-					</Field>
-				)}
-			</FramePanel>
+			{themePreset === 'custom' && (
+				<Field label="Custom color" inputID="theme-color">
+					<HStack gap={3} vAlign="center">
+						<input
+							id="theme-color"
+							type="color"
+							value={themeColor}
+							onChange={(event) => updateSettings({ themeColor: event.currentTarget.value })}
+							{...stylex.props(styles.colorInput)}
+						/>
+						<Code color="secondary">{themeColor}</Code>
+						<Button
+							label="Reset to default"
+							size="sm"
+							isDisabled={themeColor === defaultCustomColor}
+							onClick={() => updateSettings({ themeColor: defaultCustomColor })}
+						/>
+					</HStack>
+				</Field>
+			)}
 		</>
 	);
 }
@@ -144,19 +154,17 @@ export function ContrastSetting() {
 	const { contrast } = useSettings();
 
 	return (
-		<FramePanel>
-			<AstryxField label="Contrast" inputID="contrast" isGroupLabel>
-				<SegmentedControl
-					label="Contrast"
-					value={contrast}
-					onChange={(value) => updateSettings({ contrast: contrasts.find((choice) => choice === value) ?? contrast })}
-				>
-					{contrasts.map((value) => (
-						<SegmentedControlItem key={value} value={value} label={contrastLabels[value]} />
-					))}
-				</SegmentedControl>
-			</AstryxField>
-		</FramePanel>
+		<Field label="Contrast" inputID="contrast" isGroupLabel>
+			<SegmentedControl
+				label="Contrast"
+				value={contrast}
+				onChange={(value) => updateSettings({ contrast: contrasts.find((choice) => choice === value) ?? contrast })}
+			>
+				{contrasts.map((value) => (
+					<SegmentedControlItem key={value} value={value} label={contrastLabels[value]} />
+				))}
+			</SegmentedControl>
+		</Field>
 	);
 }
 
@@ -164,21 +172,19 @@ export function VisualizationPaletteSetting() {
 	const { visualizationPalette } = useSettings();
 
 	return (
-		<FramePanel>
-			<Selector
-				label="Visualization colors"
-				options={visualizationPaletteItems}
-				value={visualizationPalette}
-				onChange={(value) =>
-					updateSettings({
-						visualizationPalette: visualizationPalettes.find((choice) => choice === value) ?? visualizationPalette,
-					})
-				}
-				renderOption={(option) => <PaletteOption value={option.value} />}
-				renderValue={(option) => <PaletteOption value={option.value} />}
-				width={288}
-			/>
-		</FramePanel>
+		<Selector
+			label="Visualization colors"
+			options={visualizationPaletteItems}
+			value={visualizationPalette}
+			onChange={(value) =>
+				updateSettings({
+					visualizationPalette: visualizationPalettes.find((choice) => choice === value) ?? visualizationPalette,
+				})
+			}
+			renderOption={(option) => <PaletteOption value={option.value} />}
+			renderValue={(option) => <PaletteOption value={option.value} />}
+			width={288}
+		/>
 	);
 }
 
@@ -186,10 +192,10 @@ export function VisualizationPaletteSetting() {
 function PaletteOption({ value }: { value: string }) {
 	const palette = visualizationPalettes.find((choice) => choice === value) ?? 'default';
 	return (
-		<span className="flex flex-1 flex-wrap items-center justify-between gap-x-2 gap-y-1">
+		<HStack hAlign="between" vAlign="center" wrap="wrap" gap={2} width="100%">
 			{visualizationPaletteLabels[palette]}
 			<PaletteSwatches palette={palette} />
-		</span>
+		</HStack>
 	);
 }
 
@@ -202,60 +208,10 @@ function PaletteSwatches({ palette }: { palette: VisualizationPalette }) {
 				);
 
 	return (
-		<span aria-hidden="true" className="flex shrink-0 gap-1">
+		<HStack gap={1} aria-hidden="true">
 			{colors.map((color) => (
-				<span key={color} className="size-3 rounded-full forced-color-adjust-none" style={{ backgroundColor: color }} />
+				<span key={color} {...stylex.props(styles.paletteSwatch, styles.fill(color))} />
 			))}
-		</span>
-	);
-}
-
-function OptionCard({ value, label, children }: { value: string; label: string; children: ReactNode }) {
-	return (
-		<RadioPrimitive.Root
-			value={value}
-			className="flex cursor-pointer flex-col gap-2 rounded-xl border bg-card p-2 text-sm text-muted-foreground outline-none transition-[border-color,box-shadow] hover:border-outline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background data-checked:border-primary data-checked:text-foreground data-checked:ring-1 data-checked:ring-primary"
-		>
-			{children}
-			<span className="pb-0.5 text-center">{label}</span>
-		</RadioPrimitive.Root>
-	);
-}
-
-function ThemePreview({ colors, className }: { colors: ThemePreviewColors; className?: string }) {
-	const bar = <div className="h-1.5 rounded-full" style={{ backgroundColor: colors.bar }} />;
-	return (
-		<div
-			aria-hidden
-			className={cn('absolute inset-0 flex overflow-hidden rounded-md border', className)}
-			style={{ backgroundColor: colors.surface, borderColor: colors.border }}
-		>
-			<div
-				className="flex w-1/4 flex-col gap-1 border-r p-1.5"
-				style={{ backgroundColor: colors.sidebar, borderColor: colors.border }}
-			>
-				<div className="mb-1 h-2 rounded-full" style={{ backgroundColor: colors.accent }} />
-				{bar}
-				{bar}
-			</div>
-			<div className="flex flex-1 flex-col gap-1.5 p-2">
-				<div className="w-3/4">{bar}</div>
-				<div className="w-1/2">{bar}</div>
-				<div className="mt-auto ml-auto h-2.5 w-1/3 rounded-full" style={{ backgroundColor: colors.primary }} />
-			</div>
-		</div>
-	);
-}
-
-function ThemeSwatch({ colors }: { colors: ThemePreviewColors }) {
-	return (
-		<div
-			aria-hidden
-			className="aspect-square w-11 rounded-full border shadow-sm"
-			style={{
-				borderColor: colors.border,
-				background: `linear-gradient(45deg, ${colors.accent} 25%, ${colors.primary} 75%)`,
-			}}
-		/>
+		</HStack>
 	);
 }

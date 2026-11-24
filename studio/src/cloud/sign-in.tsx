@@ -1,3 +1,10 @@
+import { Banner } from '@astryxdesign/core/Banner';
+import { Button } from '@astryxdesign/core/Button';
+import { Divider } from '@astryxdesign/core/Divider';
+import { FormLayout } from '@astryxdesign/core/FormLayout';
+import { HStack, VStack } from '@astryxdesign/core/Layout';
+import { Text } from '@astryxdesign/core/Text';
+import { TextInput } from '@astryxdesign/core/TextInput';
 import { useSignInWithApple } from '@convex-dev/auth/methods/apple/react';
 import { useSignInWithGoogle } from '@convex-dev/auth/methods/google/react';
 import { useOauth } from '@convex-dev/auth/methods/oauth/react';
@@ -14,11 +21,6 @@ import {
 	signInWithOauthInBrowser,
 } from '@/cloud/desktop-sign-in';
 import { browserCeremonies } from '@/cloud/passkey-ceremonies';
-import { Button } from '@/components/ui/button';
-import { Field, FieldDescription, FieldLabel } from '@/components/ui/field';
-import { FramePanel } from '@/components/ui/frame';
-import { Input } from '@/components/ui/input';
-import { OrDivider } from '@/widgets/video/options';
 import { api } from '../../../cloud/convex/_generated/api.js';
 
 // The desktop app signs in through Studio's website, since that's where Cloud's passkeys work
@@ -27,21 +29,19 @@ const ceremonies = STUDIO_DESKTOP ? desktopCeremonies : browserCeremonies;
 export function CloudSignIn() {
 	const waiting = useSelector(browserSignInStore);
 	return (
-		<FramePanel className="grid gap-4">
+		<VStack gap={4}>
 			<PasskeySignIn />
-			<OrDivider />
+			<Divider label="or" />
 			<OAuthSignIn />
 			{waiting && (
-				<div className="flex flex-wrap items-center gap-3">
-					<p role="status" className="text-muted-foreground text-sm">
+				<HStack vAlign="center" wrap="wrap" gap={3}>
+					<Text role="status" color="secondary">
 						Finish signing in in your browser.
-					</p>
-					<Button variant="outline" size="sm" onClick={cancelBrowserSignIn}>
-						Cancel
-					</Button>
-				</div>
+					</Text>
+					<Button label="Cancel" size="sm" onClick={cancelBrowserSignIn} />
+				</HStack>
 			)}
-		</FramePanel>
+		</VStack>
 	);
 }
 
@@ -49,15 +49,12 @@ function PasskeySignIn() {
 	const convex = useConvex();
 	const { setSession } = useAuthActions();
 	const [creating, setCreating] = useState(false);
+	const [signUpName, setSignUpName] = useState('');
 	const [pending, setPending] = useState(false);
 	const [error, setError] = useState<string>();
 
 	if (!ceremonies.isSupported()) {
-		return (
-			<p className="text-muted-foreground text-sm">
-				To sign in with a passkey, open Studio over HTTPS in an up-to-date browser.
-			</p>
-		);
+		return <Text color="secondary">To sign in with a passkey, open Studio over HTTPS in an up-to-date browser.</Text>;
 	}
 
 	async function run(displayName?: string) {
@@ -105,10 +102,7 @@ function PasskeySignIn() {
 
 	function submit(event: SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
-		const value = new FormData(event.currentTarget).get('displayName');
-		if (typeof value === 'string') {
-			void run(value);
-		}
+		void run(signUpName);
 	}
 
 	function showSignUp(show: boolean) {
@@ -117,39 +111,34 @@ function PasskeySignIn() {
 	}
 
 	return (
-		<div className="grid gap-3">
+		<VStack gap={3}>
 			{creating ? (
-				<form className="grid gap-3" onSubmit={submit}>
-					<Field name="displayName">
-						<FieldLabel>Display name</FieldLabel>
-						<Input name="displayName" autoComplete="nickname" maxLength={80} disabled={pending} required />
-						<FieldDescription>Your teammates will see this name.</FieldDescription>
-					</Field>
-					<div className="flex flex-wrap gap-2">
-						<Button type="submit" loading={pending}>
-							Create account with a passkey
-						</Button>
-						<Button type="button" variant="outline" disabled={pending} onClick={() => showSignUp(false)}>
-							Back
-						</Button>
-					</div>
+				<form onSubmit={submit}>
+					<FormLayout>
+						<TextInput
+							label="Display name"
+							description="Your teammates will see this name."
+							value={signUpName}
+							onChange={setSignUpName}
+							autoComplete="nickname"
+							maxLength={80}
+							isDisabled={pending}
+							isRequired
+						/>
+						<HStack wrap="wrap" gap={2}>
+							<Button type="submit" label="Create account with a passkey" variant="primary" isLoading={pending} />
+							<Button label="Back" isDisabled={pending} onClick={() => showSignUp(false)} />
+						</HStack>
+					</FormLayout>
 				</form>
 			) : (
-				<div className="flex flex-wrap gap-2">
-					<Button loading={pending} onClick={() => void run()}>
-						Sign in with a passkey
-					</Button>
-					<Button variant="outline" disabled={pending} onClick={() => showSignUp(true)}>
-						Create an account
-					</Button>
-				</div>
+				<HStack wrap="wrap" gap={2}>
+					<Button label="Sign in with a passkey" variant="primary" isLoading={pending} onClick={() => void run()} />
+					<Button label="Create an account" isDisabled={pending} onClick={() => showSignUp(true)} />
+				</HStack>
 			)}
-			{error !== undefined && (
-				<p role="alert" className="text-destructive-foreground text-sm">
-					{error}
-				</p>
-			)}
-		</div>
+			{error !== undefined && <Banner status="error" role="alert" title={error} />}
+		</VStack>
 	);
 }
 
@@ -190,32 +179,24 @@ function OAuthSignIn() {
 
 	const shown = error ?? (flowError === null ? undefined : flowErrors[flowError.error]);
 	return (
-		<div className="grid gap-2">
-			<div className="flex flex-wrap gap-2">
+		<VStack gap={2}>
+			<HStack wrap="wrap" gap={2}>
 				<Button
-					variant="outline"
-					loading={pending === 'Apple'}
-					disabled={pending === 'Google'}
+					label="Continue with Apple"
+					icon={<AppleLight aria-hidden="true" className="fill-current" />}
+					isLoading={pending === 'Apple'}
+					isDisabled={pending === 'Google'}
 					onClick={() => void start('Apple')}
-				>
-					<AppleLight aria-hidden="true" className="fill-current in-data-loading:invisible" />
-					Continue with Apple
-				</Button>
+				/>
 				<Button
-					variant="outline"
-					loading={pending === 'Google'}
-					disabled={pending === 'Apple'}
+					label="Continue with Google"
+					icon={<Google aria-hidden="true" />}
+					isLoading={pending === 'Google'}
+					isDisabled={pending === 'Apple'}
 					onClick={() => void start('Google')}
-				>
-					<Google aria-hidden="true" className="in-data-loading:invisible" />
-					Continue with Google
-				</Button>
-			</div>
-			{shown !== undefined && (
-				<p role="alert" className="text-destructive-foreground text-sm">
-					{shown}
-				</p>
-			)}
-		</div>
+				/>
+			</HStack>
+			{shown !== undefined && <Banner status="error" role="alert" title={shown} />}
+		</VStack>
 	);
 }

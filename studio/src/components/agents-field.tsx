@@ -1,10 +1,10 @@
+import { Button } from '@astryxdesign/core/Button';
+import { CodeBlock } from '@astryxdesign/core/CodeBlock';
+import { HStack, VStack } from '@astryxdesign/core/Layout';
+import { Text } from '@astryxdesign/core/Text';
 import { ClaudeCode, CodexLight, CursorLight, GoogleAntigravity, VisualStudioCode } from '@ridemountainpig/svgl-react';
 import { invoke } from '@tauri-apps/api/core';
-import CopyIcon from 'lucide-react/icons/copy';
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Field, FieldDescription, FieldLabel } from '@/components/ui/field';
-import { FramePanel } from '@/components/ui/frame';
 import { toastManager } from '@/components/toast';
 
 const agentIcons = {
@@ -21,7 +21,7 @@ interface Agent {
 	name: string;
 }
 
-/** Settings panel to add Studio's MCP server to coding agents, needs the `doglog` command */
+/** Setting to add Studio's MCP server to coding agents, needs the `doglog` command */
 export function AgentsField() {
 	const [agents, setAgents] = useState<Agent[]>();
 	// Null when the `doglog` command isn't installed
@@ -37,47 +37,27 @@ export function AgentsField() {
 	}
 
 	return (
-		<FramePanel>
-			<Field name="agents">
-				<FieldLabel>Coding agents</FieldLabel>
-				{agents.length > 0 && (
-					<div className="flex flex-wrap gap-2">
-						{agents.map((agent) => (
-							<AddAgentButton key={agent.id} agent={agent} />
-						))}
-					</div>
-				)}
-				<FieldDescription>
-					Let agents build dashboards for you. Add Studio to others with this MCP config:
-				</FieldDescription>
-				<div className="relative w-full rounded-lg border bg-muted">
-					<pre className="overflow-x-auto p-3 font-mono text-xs select-text">{config}</pre>
-					<Button
-						variant="ghost"
-						size="icon-xs"
-						className="absolute top-2 right-2"
-						aria-label="Copy MCP config"
-						onClick={() => void copyConfig(config)}
-					>
-						<CopyIcon />
-					</Button>
-				</div>
-			</Field>
-		</FramePanel>
+		<VStack gap={2}>
+			<Text type="label">Coding agents</Text>
+			{agents.length > 0 && (
+				<HStack wrap="wrap" gap={2}>
+					{agents.map((agent) => (
+						<AddAgentButton key={agent.id} agent={agent} />
+					))}
+				</HStack>
+			)}
+			<Text type="supporting" color="secondary">
+				Let agents build dashboards for you. Add Studio to others with this MCP config:
+			</Text>
+			<CodeBlock code={config} language="json" hasLanguageLabel={false} size="sm" width="100%" />
+		</VStack>
 	);
-}
-
-async function copyConfig(config: string) {
-	await navigator.clipboard.writeText(config);
-	toastManager.add({ type: 'success', title: 'Copied the MCP config' });
 }
 
 function AddAgentButton({ agent }: { agent: Agent }) {
 	const Icon = agentIcons[agent.id];
-	const [adding, setAdding] = useState(false);
 
 	async function add() {
-		setAdding(true);
 		try {
 			await invoke('install_mcp', { agent: agent.id });
 			// Cursor asks to confirm in its own window
@@ -87,13 +67,14 @@ function AddAgentButton({ agent }: { agent: Agent }) {
 		} catch (error) {
 			toastManager.add({ type: 'error', title: `Couldn't add Studio to ${agent.name}`, description: String(error) });
 		}
-		setAdding(false);
 	}
 
 	return (
-		<Button variant="outline" size="sm" loading={adding} onClick={() => void add()}>
-			<Icon aria-hidden="true" className="brightness-0 in-data-loading:invisible dark:invert" />
-			Add to {agent.name}
-		</Button>
+		<Button
+			label={`Add to ${agent.name}`}
+			size="sm"
+			icon={<Icon aria-hidden="true" className="brightness-0 dark:invert" />}
+			clickAction={add}
+		/>
 	);
 }

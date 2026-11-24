@@ -1,3 +1,10 @@
+import { Banner } from '@astryxdesign/core/Banner';
+import { Button } from '@astryxdesign/core/Button';
+import { Divider } from '@astryxdesign/core/Divider';
+import { FormLayout } from '@astryxdesign/core/FormLayout';
+import { HStack, VStack } from '@astryxdesign/core/Layout';
+import { Text } from '@astryxdesign/core/Text';
+import { TextInput } from '@astryxdesign/core/TextInput';
 import { useAuthActions } from '@convex-dev/auth/react';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { useConvexAuth, useMutation, useQuery } from 'convex/react';
@@ -11,10 +18,6 @@ import { JoinTeam } from '@/cloud/join-team';
 import { CloudSignIn } from '@/cloud/sign-in';
 import { TeamMembers } from '@/cloud/team-members';
 import { TeamPanel } from '@/cloud/team-panel';
-import { Button } from '@/components/ui/button';
-import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
-import { Frame, FramePanel } from '@/components/ui/frame';
-import { Input } from '@/components/ui/input';
 import { UtilityPage, UtilityPageSection } from '@/components/utility-page';
 import { api } from '../../../cloud/convex/_generated/api.js';
 
@@ -36,17 +39,15 @@ function CloudAccount() {
 		return <SignedIn />;
 	}
 	return (
-		<Frame className="max-w-2xl">
+		<UtilityPageSection title="Sign in" description="Share dashboards with your team through DogLog Cloud">
 			{isLoading ? (
-				<FramePanel>
-					<p role="status" className="text-muted-foreground text-sm">
-						Checking Cloud sign-in…
-					</p>
-				</FramePanel>
+				<Text role="status" color="secondary">
+					Checking Cloud sign-in…
+				</Text>
 			) : (
 				<CloudSignIn />
 			)}
-		</Frame>
+		</UtilityPageSection>
 	);
 }
 
@@ -84,46 +85,42 @@ function SignedIn() {
 	}
 
 	return (
-		<div className="flex max-w-2xl flex-col gap-6">
+		<VStack gap={8}>
 			<UtilityPageSection title="Team">
 				{team === null && <JoinTeam invite={invite} pending={pendingInvites} />}
 				{(team !== null || pendingInvites?.length === 0) && <TeamPanel team={team} invite={invite} />}
 				{team && <TeamMembers />}
 			</UtilityPageSection>
 
+			<Divider />
+
 			<UtilityPageSection title="Collaboration">
 				{account && <DisplayName key={account.id} name={account.displayName} />}
 				{team?.role === 'admin' && <InviteLink />}
 			</UtilityPageSection>
 
+			<Divider />
+
 			<UtilityPageSection title="Account">
-				<FramePanel className="flex flex-wrap items-center justify-between gap-3">
-					<div className="grid gap-1">
-						<p className="text-sm">Signed in to DogLog Cloud</p>
-						{account && <AccountEncryption userId={account.id} />}
-					</div>
-					<div className="flex flex-wrap gap-2">
-						<Button variant="outline" loading={signingOut} onClick={() => void endSession()}>
-							Sign out
-						</Button>
-						<ConfirmCloudAction
-							label="Delete account"
-							title="Delete your Cloud account?"
-							description="This permanently deletes your Cloud account and signs you out on all devices. Local dashboards aren’t affected."
-							failureMessage="Couldn’t delete your Cloud account. Try again."
-							destructive
-							disabledReason={deleteAccountDisabledReason}
-							onConfirm={deleteAccount}
-						/>
-					</div>
-					{signOutError && (
-						<p role="alert" className="w-full text-destructive-foreground text-sm">
-							Couldn’t sign out. Try again.
-						</p>
-					)}
-				</FramePanel>
+				<VStack gap={1}>
+					<Text>Signed in to DogLog Cloud</Text>
+					{account && <AccountEncryption userId={account.id} />}
+				</VStack>
+				<HStack wrap="wrap" gap={2}>
+					<Button label="Sign out" isLoading={signingOut} onClick={() => void endSession()} />
+					<ConfirmCloudAction
+						label="Delete account"
+						title="Delete your Cloud account?"
+						description="This permanently deletes your Cloud account and signs you out on all devices. Local dashboards aren’t affected."
+						failureMessage="Couldn’t delete your Cloud account. Try again."
+						destructive
+						disabledReason={deleteAccountDisabledReason}
+						onConfirm={deleteAccount}
+					/>
+				</HStack>
+				{signOutError && <Banner status="error" role="alert" title="Couldn’t sign out. Try again." />}
 			</UtilityPageSection>
-		</div>
+		</VStack>
 	);
 }
 
@@ -156,43 +153,36 @@ function DisplayName({ name }: { name: string | null }) {
 	}
 
 	return (
-		<FramePanel>
-			<form className="grid gap-3" onSubmit={(event) => void save(event)}>
-				<Field name="displayName" invalid={error !== undefined}>
-					<FieldLabel>Display name</FieldLabel>
-					<Input
-						name="displayName"
-						autoComplete="nickname"
-						maxLength={80}
-						value={draft ?? name ?? ''}
-						onChange={(event) => {
-							setDraft(event.currentTarget.value);
-							setSaved(false);
-						}}
-						disabled={saving}
-						required
-					/>
-					<FieldDescription>Your teammates will see this name.</FieldDescription>
-					<FieldError match role="alert">
-						{error}
-					</FieldError>
-				</Field>
-				<div className="flex flex-wrap items-center gap-3">
+		<form onSubmit={(event) => void save(event)}>
+			<FormLayout>
+				<TextInput
+					label="Display name"
+					description="Your teammates will see this name."
+					value={draft ?? name ?? ''}
+					onChange={(value) => {
+						setDraft(value);
+						setSaved(false);
+					}}
+					autoComplete="nickname"
+					maxLength={80}
+					isDisabled={saving}
+					isRequired
+					status={error === undefined ? undefined : { type: 'error', message: error }}
+				/>
+				<HStack vAlign="center" wrap="wrap" gap={3}>
 					<Button
 						type="submit"
-						variant="outline"
-						loading={saving}
-						disabled={draft === undefined || draft.trim() === name}
-					>
-						Save display name
-					</Button>
+						label="Save display name"
+						isLoading={saving}
+						isDisabled={draft === undefined || draft.trim() === name}
+					/>
 					{saved && (
-						<p role="status" className="text-muted-foreground text-sm">
+						<Text role="status" color="secondary">
 							Display name saved.
-						</p>
+						</Text>
 					)}
-				</div>
-			</form>
-		</FramePanel>
+				</HStack>
+			</FormLayout>
+		</form>
 	);
 }

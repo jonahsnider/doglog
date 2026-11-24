@@ -1,8 +1,10 @@
+import { Banner } from '@astryxdesign/core/Banner';
+import { Button } from '@astryxdesign/core/Button';
+import { HStack, StackItem, VStack } from '@astryxdesign/core/Layout';
+import { Text } from '@astryxdesign/core/Text';
+import { TextInput } from '@astryxdesign/core/TextInput';
 import { useMutation, useQuery } from 'convex/react';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { FramePanel } from '@/components/ui/frame';
-import { Input } from '@/components/ui/input';
 import { toastManager } from '@/components/toast';
 import { api } from '../../../cloud/convex/_generated/api.js';
 import { ConfirmCloudAction } from './confirm-cloud-action';
@@ -43,30 +45,26 @@ export function InviteLink() {
 	}
 
 	return (
-		<FramePanel className="grid gap-2">
-			<h3 className="font-heading font-medium text-base">Your invite link</h3>
-			<p className="text-muted-foreground text-sm">Share this link to invite others to collaborate on your team.</p>
+		<VStack gap={2}>
+			<Text type="label">Your invite link</Text>
+			<Text type="supporting" color="secondary">
+				Share this link to invite others to collaborate on your team.
+			</Text>
 			{token === undefined ? (
-				<p role="status" className="text-muted-foreground text-sm">
+				<Text role="status" color="secondary">
 					Loading your invite link…
-				</p>
+				</Text>
 			) : link === undefined ? (
-				<div className="grid justify-items-start gap-2">
-					<Button variant="outline" loading={creating} onClick={() => void create()}>
-						Create invite link
-					</Button>
-					{createFailed && (
-						<p role="alert" className="text-destructive-foreground text-sm">
-							Couldn’t create an invite link. Try again.
-						</p>
-					)}
-				</div>
+				<VStack gap={2} hAlign="start">
+					<Button label="Create invite link" isLoading={creating} onClick={() => void create()} />
+					{createFailed && <Banner status="error" role="alert" title="Couldn’t create an invite link. Try again." />}
+				</VStack>
 			) : (
-				<div className="flex flex-wrap items-center gap-2">
-					<Input readOnly value={link} aria-label="Invite link" className="min-w-0 flex-1 basis-64" />
-					<Button variant="outline" onClick={() => void copyLink(link)}>
-						Copy link
-					</Button>
+				<HStack vAlign="center" wrap="wrap" gap={2}>
+					<StackItem size="fill">
+						<TextInput label="Invite link" isLabelHidden isReadOnly value={link} />
+					</StackItem>
+					<Button label="Copy link" onClick={() => void copyLink(link)} />
 					<ConfirmCloudAction
 						label="Revoke"
 						triggerLabel="Revoke invite link"
@@ -76,8 +74,8 @@ export function InviteLink() {
 						destructive
 						onConfirm={revoke}
 					/>
-				</div>
+				</HStack>
 			)}
-		</FramePanel>
+		</VStack>
 	);
 }

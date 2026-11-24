@@ -1,6 +1,9 @@
+import { Banner } from '@astryxdesign/core/Banner';
+import { Button } from '@astryxdesign/core/Button';
+import { HStack, VStack } from '@astryxdesign/core/Layout';
+import { Text } from '@astryxdesign/core/Text';
 import { type ConvexReactClient, useConvex, useQuery } from 'convex/react';
 import { type RefObject, useEffect, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { api } from '../../../cloud/convex/_generated/api.js';
 import type { Id } from '../../../cloud/convex/_generated/dataModel';
 import {
@@ -14,9 +17,9 @@ import {
 
 function PairingCode({ code }: { code: string }) {
 	return (
-		<p className="font-mono text-2xl tracking-widest">
+		<Text type="code" size="2xl" as="p">
 			{code.slice(0, 3)} {code.slice(3)}
-		</p>
+		</Text>
 	);
 }
 
@@ -48,37 +51,29 @@ export function PairThisDevice({ account, onPaired }: { account: PairingAccount;
 
 	if (state.step === 'idle' || state.step === 'error') {
 		return (
-			<div className="grid justify-items-start gap-2">
-				{state.step === 'error' && (
-					<p role="alert" className="text-destructive-foreground text-sm">
-						{state.message}
-					</p>
-				)}
-				<Button variant="outline" size="sm" onClick={() => void pair()}>
-					Pair this device
-				</Button>
-			</div>
+			<VStack gap={2} hAlign="start">
+				{state.step === 'error' && <Banner status="error" role="alert" title={state.message} />}
+				<Button label="Pair this device" size="sm" onClick={() => void pair()} />
+			</VStack>
 		);
 	}
 	return (
-		<div className="grid justify-items-start gap-2">
-			<p role="status" className="text-sm">
+		<VStack gap={2} hAlign="start">
+			<Text role="status">
 				{state.step === 'waiting'
 					? 'On a device that has your key, open Cloud and choose Approve pairing.'
 					: 'Check that your other device shows this code, then confirm there.'}
-			</p>
+			</Text>
 			{state.step === 'code' && <PairingCode code={state.code} />}
 			<Button
-				variant="outline"
+				label="Cancel"
 				size="sm"
 				onClick={() => {
 					controller.current?.abort();
 					setState({ step: 'idle' });
 				}}
-			>
-				Cancel
-			</Button>
-		</div>
+			/>
+		</VStack>
 	);
 }
 
@@ -151,61 +146,52 @@ export function ApprovePairing({ account }: { account: PairingAccount }) {
 
 	if (state.step === 'idle') {
 		return request && !request.approverKey ? (
-			<div className="grid justify-items-start gap-2">
-				<p role="status" className="text-sm">
-					Another device wants to use your encryption key.
-				</p>
-				<Button size="sm" onClick={() => void approve(request)}>
-					Approve pairing
-				</Button>
-			</div>
+			<VStack gap={2} hAlign="start">
+				<Text role="status">Another device wants to use your encryption key.</Text>
+				<Button label="Approve pairing" variant="primary" size="sm" onClick={() => void approve(request)} />
+			</VStack>
 		) : null;
 	}
 	if (state.step === 'waiting') {
 		return (
-			<div className="grid justify-items-start gap-2">
-				<p role="status" className="text-sm">
-					Waiting for your new device…
-				</p>
-				<Button variant="outline" size="sm" onClick={cancel}>
-					Cancel
-				</Button>
-			</div>
+			<VStack gap={2} hAlign="start">
+				<Text role="status">Waiting for your new device…</Text>
+				<Button label="Cancel" size="sm" onClick={cancel} />
+			</VStack>
 		);
 	}
 	if (state.step === 'code') {
 		return (
-			<div className="grid justify-items-start gap-2">
-				<p role="status" className="text-sm">
-					Pair only if your new device shows this code.
-				</p>
+			<VStack gap={2} hAlign="start">
+				<Text role="status">Pair only if your new device shows this code.</Text>
 				<PairingCode code={state.code} />
-				<div className="flex flex-wrap gap-2">
-					<Button variant="outline" size="sm" disabled={state.sending} onClick={cancel}>
-						Cancel
-					</Button>
-					<Button size="sm" loading={state.sending} onClick={() => void send(state.confirm, state.code)}>
-						Pair device
-					</Button>
-				</div>
-			</div>
+				<HStack wrap="wrap" gap={2}>
+					<Button label="Cancel" size="sm" isDisabled={state.sending} onClick={cancel} />
+					<Button
+						label="Pair device"
+						variant="primary"
+						size="sm"
+						isLoading={state.sending}
+						onClick={() => void send(state.confirm, state.code)}
+					/>
+				</HStack>
+			</VStack>
 		);
 	}
 	if (state.step === 'done') {
 		return (
-			<p role="status" className="text-muted-foreground text-sm">
+			<Text role="status" color="secondary">
 				Your new device is paired.
-			</p>
+			</Text>
 		);
 	}
 	return (
-		<div className="grid justify-items-start gap-2">
-			<p role="alert" className="text-destructive-foreground text-sm">
-				{state.message}
-			</p>
-			<Button variant="outline" size="sm" onClick={() => setState({ step: 'idle' })}>
-				Dismiss
-			</Button>
-		</div>
+		<Banner
+			status="error"
+			role="alert"
+			title={state.message}
+			isDismissable
+			onDismiss={() => setState({ step: 'idle' })}
+		/>
 	);
 }
