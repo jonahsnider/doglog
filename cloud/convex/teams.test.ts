@@ -1,13 +1,11 @@
-import { registerUsername } from '@convex-dev/auth/components/username/test';
 import { registerCore, sessionIdentity } from '@convex-dev/auth/test';
 import { convexTest, type TestConvex } from 'convex-test';
 import { afterEach, expect, test, vi } from 'vite-plus/test';
 import { unwrapTeamKey, wrapTeamKey } from '../../studio/src/cloud/team-key';
-import { api, components, internal } from './_generated/api';
+import { api, components } from './_generated/api';
 import schema from './schema';
 
 const modules = import.meta.glob('./**/*.ts');
-const method = { name: 'usernamePasskey', profile: {} } as const;
 
 afterEach(() => vi.unstubAllEnvs());
 
@@ -19,11 +17,11 @@ function setup() {
 }
 
 async function signIn(t: TestConvex<typeof schema>) {
-	const userId = await t.mutation(internal.users.create, { method });
+	const userId = await t.run((ctx) => ctx.db.insert('users', {}));
 	const tokens = await t.mutation(components.auth.public._internal_dangerous_signIn, {
 		userId,
 		componentPath: 'authPasskey',
-		claims: { method: method.name, profile: method.profile },
+		claims: { method: 'passkey', profile: {} },
 		accessTokenTtlSeconds: 300,
 		refreshInactivityTimeoutSeconds: 3600,
 		sessionMaxLifetimeSeconds: 3600,
@@ -40,7 +38,7 @@ test('team creation requires a signed-in account', async () => {
 
 test('simultaneous creates leave the account as admin of just one team', async () => {
 	const { client, userId } = await signIn(setup());
-	await expect(client.query(api.users.getCurrent)).resolves.toEqual({ id: userId });
+	await expect(client.query(api.users.getCurrent)).resolves.toEqual({ id: userId, displayName: null });
 	const attempts = ['Robodogs', 'Space Dogs'].map(async (name) => ({
 		id: await client.mutation(api.teams.create, { name }),
 		name,
@@ -101,7 +99,7 @@ test('only a solo admin can delete their team and its invite, without deleting t
 	await t.run((ctx) => ctx.db.delete('memberships', membershipId));
 	await admin.mutation(api.teams.remove, { teamId });
 	await expect(admin.query(api.teams.getMine)).resolves.toBeNull();
-	await expect(admin.query(api.users.getCurrent)).resolves.toEqual({ id: adminId });
+	await expect(admin.query(api.users.getCurrent)).resolves.toEqual({ id: adminId, displayName: null });
 	await expect(invitee.query(api.invites.listPending)).resolves.toEqual([]);
 	await expect(invitee.mutation(api.invites.accept, { token })).rejects.toThrow('no longer valid');
 	const newTeamId = await admin.mutation(api.teams.create, { name: 'Space Dogs' });
@@ -325,7 +323,6 @@ test('links are per admin and losing the role permanently invalidates the link',
 
 test('two admins cannot both step down', async () => {
 	const t = setup();
-	registerUsername(t);
 	const { client: first } = await signIn(t);
 	const { client: second, userId } = await signIn(t);
 	const teamId = await first.mutation(api.teams.create, { name: 'Robodogs' });
@@ -349,17 +346,16 @@ test('two admins cannot both step down', async () => {
 
 test('the roster shows only teammates and promotion applies to the selected membership', async () => {
 	const t = setup();
-	registerUsername(t);
-	const { client: admin, userId: adminId } = await signIn(t);
+	const { client: admin } = await signIn(t);
 	const { client: member, userId } = await signIn(t);
-	const { client: outsider, userId: outsiderId } = await signIn(t);
-	for (const [id, username] of [
-		[adminId, 'captain'],
-		[userId, 'driver'],
-		[outsiderId, 'outsider'],
-	] as const) {
-		await t.mutation(components.authUsername.public.setUsername, { userId: id, username });
-	}
+	const { client: outsider } = await signIn(t);
+	await expect(t.mutation(api.users.setDisplayName, { displayName: 'Sam Lee' })).rejects.toThrow('Sign in');
+	await expect(member.mutation(api.users.setDisplayName, { displayName: '   ' })).rejects.toThrow(
+		'Enter a display name',
+	);
+	await admin.mutation(api.users.setDisplayName, { displayName: 'Sam Lee' });
+	await member.mutation(api.users.setDisplayName, { displayName: '  Sam Lee  ' });
+	await outsider.mutation(api.users.setDisplayName, { displayName: 'Outsider' });
 	await expect(t.query(api.teams.listMembers)).resolves.toBeNull();
 	await expect(outsider.query(api.teams.listMembers)).resolves.toBeNull();
 	await outsider.mutation(api.teams.create, { name: 'Other team' });
@@ -368,8 +364,8 @@ test('the roster shows only teammates and promotion applies to the selected memb
 	await expect(member.query(api.teams.listMembers)).resolves.toMatchObject({
 		canPromote: false,
 		members: [
-			{ role: 'admin', username: 'captain', isYou: false },
-			{ id: membershipId, role: 'member', username: 'driver', isYou: true },
+			{ role: 'admin', displayName: 'Sam Lee', isYou: false },
+			{ id: membershipId, role: 'member', displayName: 'Sam Lee', isYou: true },
 		],
 	});
 
@@ -379,11 +375,12 @@ test('the roster shows only teammates and promotion applies to the selected memb
 	});
 	await expect(admin.mutation(api.teams.promote, { membershipId })).rejects.toThrow('not a member');
 	await admin.mutation(api.teams.promote, { membershipId: replacement });
+	await member.mutation(api.users.setDisplayName, { displayName: 'Sam (drive team)' });
 	await expect(member.query(api.teams.listMembers)).resolves.toMatchObject({
 		canPromote: true,
 		members: [
-			{ role: 'admin', username: 'captain', isYou: false },
-			{ id: replacement, role: 'admin', username: 'driver', isYou: true },
+			{ role: 'admin', displayName: 'Sam Lee', isYou: false },
+			{ id: replacement, role: 'admin', displayName: 'Sam (drive team)', isYou: true },
 		],
 	});
 });
@@ -451,7 +448,6 @@ test('pairing attempts expire', async () => {
 
 test('ending a membership drops its grants and the remaining members rotate to a fresh key', async () => {
 	const t = setup();
-	registerUsername(t);
 	const signer = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign']);
 	const signingKey = new Uint8Array(await crypto.subtle.exportKey('pkcs8', signer.privateKey));
 	vi.stubEnv('ATTESTATION_PRIVATE_KEY', btoa(String.fromCharCode(...signingKey)));

@@ -8,6 +8,7 @@
 		"types": ["vite/client", "vite-plugin-pwa/react"],
 		"allowArbitraryExtensions": true,
 		"moduleResolution": "bundler",
+		"customConditions": ["convex-auth-internal-types"],
 		"allowImportingTsExtensions": true,
 		"verbatimModuleSyntax": true,
 		"moduleDetection": "force",

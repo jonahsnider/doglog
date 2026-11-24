@@ -2,7 +2,6 @@ import authApple from '@convex-dev/auth/components/apple/convex.config.js';
 import authGoogle from '@convex-dev/auth/components/google/convex.config.js';
 import auth from '@convex-dev/auth/convex.config.js';
 import passkey from '@convex-dev/auth/components/passkey/convex.config.js';
-import username from '@convex-dev/auth/components/username/convex.config.js';
 import { defineApp } from 'convex/server';
 import { v } from 'convex/values';
 
@@ -24,7 +23,6 @@ const app = defineApp({
 
 app.use(auth);
 app.use(passkey);
-app.use(username);
 app.use(authApple, {
 	httpPrefix: '/oauth/apple',
 	env: {

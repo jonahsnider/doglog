@@ -8,7 +8,7 @@ Define how people edit shared dashboards together over the internet or through a
 
 ### Requirement: Cloud accounts
 
-Cloud accounts SHALL belong to individuals and work in the web and desktop apps. Users SHALL be able to delete their own Cloud account. Signing in MUST NOT be required to use local dashboards or share dashboards on a robot without Cloud.
+Cloud accounts SHALL belong to individuals and work in the web and desktop apps. Users SHALL be able to delete their own Cloud account and edit the display name that teammates see. Display names need not be unique and MUST NOT be used to identify an account at sign-in. Signing in MUST NOT be required to use local dashboards or share dashboards on a robot without Cloud.
 
 #### Scenario: Use Studio without a Cloud account
 
@@ -17,13 +17,19 @@ Cloud accounts SHALL belong to individuals and work in the web and desktop apps.
 
 ### Requirement: Cloud sign-in methods
 
-Studio SHALL offer Sign in with Apple, Sign in with Google, and passkey sign-in. A user MUST be able to create and use an account with only a passkey, without an Apple, Google, school, or team-managed account. DogLog MUST NOT ask for, store, or reset account passwords. A signed-in user still needs their account's encryption credential to open Cloud dashboards.
+Studio SHALL offer Sign in with Apple, Sign in with Google, and passkey sign-in. A user MUST be able to create and use an account with only a passkey, without a username or an Apple, Google, school, or team-managed account. DogLog MUST NOT ask for, store, or reset account passwords. A signed-in user still needs their account's encryption credential to open Cloud dashboards.
 
 #### Scenario: Create an account with just a passkey
 
 - **GIVEN** a user has no Cloud account
-- **WHEN** they register with a passkey
+- **WHEN** they create an account with a display name and a passkey
 - **THEN** they can create and sign in to their Cloud account without connecting an identity provider
+
+#### Scenario: Sign in with a saved passkey
+
+- **GIVEN** a user has saved a passkey for their Cloud account
+- **WHEN** they choose passkey sign-in and select that passkey
+- **THEN** Studio signs them in to the account associated with the passkey without asking for a name
 
 ### Requirement: Desktop sign-in
 

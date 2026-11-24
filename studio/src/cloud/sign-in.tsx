@@ -1,9 +1,11 @@
 import { useSignInWithApple } from '@convex-dev/auth/methods/apple/react';
 import { useSignInWithGoogle } from '@convex-dev/auth/methods/google/react';
 import { useOauth } from '@convex-dev/auth/methods/oauth/react';
-import { createUsernamePasskeyHooks } from '@convex-dev/auth/methods/username-passkey/react-custom';
+import { useAuthActions } from '@convex-dev/auth/react';
 import { AppleLight, Google } from '@ridemountainpig/svgl-react';
 import { useSelector } from '@tanstack/react-store';
+import { useConvex } from 'convex/react';
+import { ConvexError } from 'convex/values';
 import { type SubmitEvent, useState } from 'react';
 import {
 	browserSignInStore,
@@ -11,18 +13,16 @@ import {
 	desktopCeremonies,
 	signInWithOauthInBrowser,
 } from '@/cloud/desktop-sign-in';
-import { browserCeremonies, supportsPasskeys } from '@/cloud/passkey-ceremonies';
+import { browserCeremonies } from '@/cloud/passkey-ceremonies';
 import { Button } from '@/components/ui/button';
-import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
+import { Field, FieldDescription, FieldLabel } from '@/components/ui/field';
 import { FramePanel } from '@/components/ui/frame';
 import { Input } from '@/components/ui/input';
 import { OrDivider } from '@/widgets/video/options';
 import { api } from '../../../cloud/convex/_generated/api.js';
 
 // The desktop app signs in through Studio's website, since that's where Cloud's passkeys work
-const { useSignInWithUsernamePasskey } = createUsernamePasskeyHooks(
-	STUDIO_DESKTOP ? desktopCeremonies : browserCeremonies,
-);
+const ceremonies = STUDIO_DESKTOP ? desktopCeremonies : browserCeremonies;
 
 export function CloudSignIn() {
 	const waiting = useSelector(browserSignInStore);
@@ -46,10 +46,13 @@ export function CloudSignIn() {
 }
 
 function PasskeySignIn() {
-	const { signIn, pending } = useSignInWithUsernamePasskey(api.auth);
+	const convex = useConvex();
+	const { setSession } = useAuthActions();
+	const [creating, setCreating] = useState(false);
+	const [pending, setPending] = useState(false);
 	const [error, setError] = useState<string>();
 
-	if (!STUDIO_DESKTOP && !supportsPasskeys()) {
+	if (!ceremonies.isSupported()) {
 		return (
 			<p className="text-muted-foreground text-sm">
 				To sign in with a passkey, open Studio over HTTPS in an up-to-date browser.
@@ -57,52 +60,96 @@ function PasskeySignIn() {
 		);
 	}
 
-	async function submit(event: SubmitEvent<HTMLFormElement>) {
-		event.preventDefault();
+	async function run(displayName?: string) {
 		if (pending) {
 			return;
 		}
-		const value = new FormData(event.currentTarget).get('username');
-		const username = typeof value === 'string' ? value.trim() : '';
-		if (username === '') {
-			setError('Enter a username.');
-			return;
-		}
 		setError(undefined);
+		setPending(true);
 		try {
-			const result = await signIn({ username });
-			if (result.status !== 'error') {
-				return;
+			const result = await (displayName === undefined ? signIn() : signUp(displayName));
+			if (result?.status === 'complete') {
+				await setSession(result.tokens);
+			} else if (result === undefined) {
+				setError('The passkey prompt was closed or timed out. Try again when you’re ready.');
+			} else if (result.userError.error === 'UNKNOWN_CREDENTIAL') {
+				setError('That passkey isn’t linked to a Cloud account. Try another passkey.');
+			} else {
+				setError('Couldn’t continue with your passkey. Try again.');
 			}
-			switch (result.userError.error) {
-				case 'CEREMONY_ABORTED':
-					setError('The passkey prompt was closed or timed out. Try again when you’re ready.');
-					break;
-				case 'UNKNOWN_CREDENTIAL':
-					setError('That passkey doesn’t match this account. Try another passkey.');
-					break;
-				default:
-					setError('Couldn’t continue with your passkey. Try again.');
+		} catch (cause) {
+			if (cause instanceof DOMException && (cause.name === 'NotAllowedError' || cause.name === 'AbortError')) {
+				setError('The passkey prompt was closed or timed out. Try again when you’re ready.');
+			} else if (cause instanceof ConvexError && typeof cause.data === 'string') {
+				setError(cause.data);
+			} else {
+				setError('Couldn’t continue with your passkey. Try again.');
 			}
-		} catch {
-			setError('Couldn’t reach DogLog Cloud. Check your connection and try again.');
+		}
+		setPending(false);
+	}
+
+	async function signIn() {
+		const options = await convex.mutation(api.auth.startPasskeySignIn, {});
+		const result = await ceremonies.authenticate(options);
+		return result.success ? convex.mutation(api.auth.finishPasskeySignIn, { response: result.response }) : undefined;
+	}
+
+	async function signUp(displayName: string) {
+		const options = await convex.mutation(api.auth.startPasskeySignUp, { displayName });
+		const result = await ceremonies.register(options);
+		return result.success
+			? convex.mutation(api.auth.finishPasskeySignUp, { displayName, response: result.response })
+			: undefined;
+	}
+
+	function submit(event: SubmitEvent<HTMLFormElement>) {
+		event.preventDefault();
+		const value = new FormData(event.currentTarget).get('displayName');
+		if (typeof value === 'string') {
+			void run(value);
 		}
 	}
 
+	function showSignUp(show: boolean) {
+		setError(undefined);
+		setCreating(show);
+	}
+
 	return (
-		<form className="grid gap-3" onSubmit={(event) => void submit(event)}>
-			<Field name="username" invalid={error !== undefined}>
-				<FieldLabel>Username</FieldLabel>
-				<Input name="username" autoComplete="username" autoCapitalize="none" spellCheck={false} required />
-				<FieldDescription>New to Cloud? Choose a username to create an account.</FieldDescription>
-				<FieldError match role="alert">
+		<div className="grid gap-3">
+			{creating ? (
+				<form className="grid gap-3" onSubmit={submit}>
+					<Field name="displayName">
+						<FieldLabel>Display name</FieldLabel>
+						<Input name="displayName" autoComplete="nickname" maxLength={80} disabled={pending} required />
+						<FieldDescription>Your teammates will see this name.</FieldDescription>
+					</Field>
+					<div className="flex flex-wrap gap-2">
+						<Button type="submit" loading={pending}>
+							Create account with a passkey
+						</Button>
+						<Button type="button" variant="outline" disabled={pending} onClick={() => showSignUp(false)}>
+							Back
+						</Button>
+					</div>
+				</form>
+			) : (
+				<div className="flex flex-wrap gap-2">
+					<Button loading={pending} onClick={() => void run()}>
+						Sign in with a passkey
+					</Button>
+					<Button variant="outline" disabled={pending} onClick={() => showSignUp(true)}>
+						Create an account
+					</Button>
+				</div>
+			)}
+			{error !== undefined && (
+				<p role="alert" className="text-destructive-foreground text-sm">
 					{error}
-				</FieldError>
-			</Field>
-			<Button type="submit" className="justify-self-start" loading={pending}>
-				Continue with passkey
-			</Button>
-		</form>
+				</p>
+			)}
+		</div>
 	);
 }
 

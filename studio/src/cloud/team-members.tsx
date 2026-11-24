@@ -21,7 +21,7 @@ export function TeamMembers() {
 			) : (
 				<ul className="divide-y divide-border">
 					{roster.members.map((member) => {
-						const name = member.username ?? 'Unnamed account';
+						const name = member.displayName ?? 'Unnamed account';
 						const isAdmin = member.role === 'admin';
 						const label = isAdmin ? (member.isYou ? 'Step down' : 'Remove admin rights') : 'Make admin';
 						return (

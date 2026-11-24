@@ -3,6 +3,7 @@ import { v } from 'convex/values';
 
 export default defineSchema({
 	users: defineTable({
+		displayName: v.optional(v.string()),
 		encryptionKey: v.optional(v.object({ publicKey: v.bytes(), signature: v.bytes() })),
 	}),
 	// keyVersion is unset until the creator's Studio publishes the first team key. rotationPending is set when a

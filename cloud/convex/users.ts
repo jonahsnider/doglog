@@ -13,10 +13,20 @@ import { api, components, internal } from './_generated/api';
 import { action, env, internalMutation, mutation, query } from './_generated/server';
 import { getMembership } from './teams';
 
-export const create = internalMutation({
-	args: { method: v.object({ name: v.literal('usernamePasskey'), profile: v.object({}) }) },
+export function normalizeDisplayName(value: string) {
+	const name = value.trim();
+	if (name.length === 0 || name.length > 80) {
+		throw new ConvexError('Enter a display name between 1 and 80 characters.');
+	}
+	return name;
+}
+
+export const createWithPasskey = internalMutation({
+	args: {
+		method: v.object({ name: v.literal('passkey'), profile: v.object({ displayName: v.optional(v.string()) }) }),
+	},
 	returns: v.id('users'),
-	handler: (ctx) => ctx.db.insert('users', {}),
+	handler: (ctx, { method }) => ctx.db.insert('users', { displayName: method.profile.displayName }),
 });
 
 // Cloud doesn't need the email or name Apple shares, so they aren't stored
@@ -37,7 +47,18 @@ export const getCurrent = query({
 	handler: async (ctx) => {
 		const userId = await getAuthUserId(ctx);
 		const user = userId ? await ctx.db.get('users', userId) : null;
-		return user ? { id: user._id } : null;
+		return user ? { id: user._id, displayName: user.displayName ?? null } : null;
+	},
+});
+
+export const setDisplayName = mutation({
+	args: { displayName: v.string() },
+	handler: async (ctx, { displayName }) => {
+		const userId = await getAuthUserId(ctx);
+		if (!userId || !(await ctx.db.get('users', userId))) {
+			throw new ConvexError('Sign in to change your display name.');
+		}
+		await ctx.db.patch('users', userId, { displayName: normalizeDisplayName(displayName) });
 	},
 });
 
@@ -53,7 +74,6 @@ export const remove = mutation({
 		}
 
 		await ctx.runMutation(components.authPasskey.registration.deleteUser, { userId });
-		await ctx.runMutation(components.authUsername.public.deleteUsername, { userId });
 		await ctx.runMutation(components.authApple.provider.deleteUser, { userId });
 		await ctx.runMutation(components.authGoogle.provider.deleteUser, { userId });
 		const sessions = await ctx.runQuery(components.auth.public.listSessions, { userId });

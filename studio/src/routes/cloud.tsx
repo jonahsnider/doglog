@@ -1,7 +1,8 @@
 import { useAuthActions } from '@convex-dev/auth/react';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { useConvexAuth, useMutation, useQuery } from 'convex/react';
-import { useState } from 'react';
+import { ConvexError } from 'convex/values';
+import { type SubmitEvent, useState } from 'react';
 import { AccountEncryption } from '@/cloud/account-encryption';
 import { ConfirmCloudAction } from '@/cloud/confirm-cloud-action';
 import { cloudDeploymentUrl } from '@/cloud/deployment';
@@ -11,7 +12,9 @@ import { CloudSignIn } from '@/cloud/sign-in';
 import { TeamMembers } from '@/cloud/team-members';
 import { TeamPanel } from '@/cloud/team-panel';
 import { Button } from '@/components/ui/button';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { Frame, FramePanel } from '@/components/ui/frame';
+import { Input } from '@/components/ui/input';
 import { UtilityPage } from '@/components/utility-page';
 import { api } from '../../../cloud/convex/_generated/api.js';
 
@@ -104,10 +107,81 @@ function SignedIn() {
 					</p>
 				)}
 			</FramePanel>
+			{account && <DisplayName key={account.id} name={account.displayName} />}
 			{team === null && <JoinTeam invite={invite} />}
 			<TeamPanel team={team} invite={invite} />
 			{team?.role === 'admin' && <InviteLink />}
 			{team && <TeamMembers />}
 		</>
+	);
+}
+
+function DisplayName({ name }: { name: string | null }) {
+	const setDisplayName = useMutation(api.users.setDisplayName);
+	const [draft, setDraft] = useState<string>();
+	const [saving, setSaving] = useState(false);
+	const [saved, setSaved] = useState(false);
+	const [error, setError] = useState<string>();
+
+	async function save(event: SubmitEvent<HTMLFormElement>) {
+		event.preventDefault();
+		if (saving || draft === undefined) {
+			return;
+		}
+		setError(undefined);
+		setSaving(true);
+		try {
+			await setDisplayName({ displayName: draft });
+			setDraft(undefined);
+			setSaved(true);
+		} catch (cause) {
+			setError(
+				cause instanceof ConvexError && typeof cause.data === 'string'
+					? cause.data
+					: 'Couldn’t save your display name. Try again.',
+			);
+		}
+		setSaving(false);
+	}
+
+	return (
+		<FramePanel>
+			<form className="grid gap-3" onSubmit={(event) => void save(event)}>
+				<Field name="displayName" invalid={error !== undefined}>
+					<FieldLabel>Display name</FieldLabel>
+					<Input
+						name="displayName"
+						autoComplete="nickname"
+						maxLength={80}
+						value={draft ?? name ?? ''}
+						onChange={(event) => {
+							setDraft(event.currentTarget.value);
+							setSaved(false);
+						}}
+						disabled={saving}
+						required
+					/>
+					<FieldDescription>Your teammates will see this name.</FieldDescription>
+					<FieldError match role="alert">
+						{error}
+					</FieldError>
+				</Field>
+				<div className="flex flex-wrap items-center gap-3">
+					<Button
+						type="submit"
+						variant="outline"
+						loading={saving}
+						disabled={draft === undefined || draft.trim() === name}
+					>
+						Save display name
+					</Button>
+					{saved && (
+						<p role="status" className="text-muted-foreground text-sm">
+							Display name saved.
+						</p>
+					)}
+				</div>
+			</form>
+		</FramePanel>
 	);
 }

@@ -3,6 +3,7 @@
 		"lib": ["ESNext", "DOM"],
 		"module": "ESNext",
 		"moduleResolution": "Bundler",
+		"customConditions": ["convex-auth-internal-types"],
 		"target": "ESNext",
 		"strict": true,
 		"skipLibCheck": true,

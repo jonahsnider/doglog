@@ -1,6 +1,5 @@
 import { getAuthUserId } from '@convex-dev/auth/server';
 import { ConvexError, v } from 'convex/values';
-import { components } from './_generated/api';
 import { deleteTeamDashboards } from './cloudDashboards';
 import type { Doc, Id } from './_generated/dataModel';
 import { type DatabaseReader, mutation, type MutationCtx, query } from './_generated/server';
@@ -186,9 +185,7 @@ export const listMembers = query({
 					id: member._id,
 					role: member.role,
 					isYou: member._id === membership._id,
-					username: await ctx.runQuery(components.authUsername.public.getUsername, {
-						userId: member.userId,
-					}),
+					displayName: (await ctx.db.get('users', member.userId))?.displayName ?? null,
 				})),
 			),
 		};

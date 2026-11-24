@@ -1,7 +1,7 @@
 import type { PasskeyCeremonies } from '@convex-dev/auth/methods/username-passkey/react-custom';
 import * as z from 'zod';
 
-export function supportsPasskeys(): boolean {
+function supportsPasskeys(): boolean {
 	return (
 		globalThis.isSecureContext &&
 		typeof PublicKeyCredential !== 'undefined' &&
