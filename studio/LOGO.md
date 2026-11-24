@@ -30,6 +30,8 @@ Derived from Studio's Team 581 MD3 2025 palette (`src/theme/theme-color.ts`):
 | `assets/mac.icon`    | macOS 26+ app icon (Apple Icon Composer)                          | Layered `Grid.svg` and `Playhead.svg` under Liquid Glass `Trace.svg` and `Cursor.svg`, over `#6b2322 -> #48090b`. `Cursor` is its own group so it floats above the S. Gridlines and playhead stop at the glass edge so they don't show through |
 | `src-tauri/icons/`   | macOS 15 `.icns`, Windows `.ico`/Appx, Linux PNGs                 | Generated from `public/logo.svg` (`pnpm tauri icon public/logo.svg --ios-color "#591616"`); `32x32.png` and `Square30x30Logo.png` rendered from `public/favicon.svg`                                                                           |
 
+Use filled outlines rather than SVG strokes for the glass trace and cursor. The macOS 26 renderer can distort stroked curves and fill the cursor hole, especially in Dark. Keep the outlines aligned with the grid and playhead cutouts.
+
 The Dark icon style fills the glass trace and cursor with `#f9b6b1`, the default Team 581 dark `--md-primary` in `src/index.css`. Other icon styles keep their default colors.
 
 The macOS bundler uses Xcode 26 or later to compile `assets/mac.icon` into `Assets.car`. It keeps `icon.icns` for macOS 15.
