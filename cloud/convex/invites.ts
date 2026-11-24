@@ -33,7 +33,12 @@ export const issue = mutation({
 		if (admin.inviteToken !== undefined) {
 			return admin.inviteToken;
 		}
-		const token = crypto.getRandomValues(new Uint8Array(32)).toBase64({ alphabet: 'base64url', omitPadding: true });
+		// The generated API types pull this server code into Studio's ES2023 type check.
+		const token = (
+			crypto.getRandomValues(new Uint8Array(32)) as Uint8Array & {
+				toBase64(options?: { alphabet?: 'base64' | 'base64url'; omitPadding?: boolean }): string;
+			}
+		).toBase64({ alphabet: 'base64url', omitPadding: true });
 		await ctx.db.patch('memberships', admin._id, { inviteToken: token });
 		return token;
 	},
