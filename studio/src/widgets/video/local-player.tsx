@@ -1,6 +1,8 @@
 import { useImperativeHandle, useRef } from 'react';
 import { type Player, type PlayerProps, videoClassName } from '@/widgets/video/player';
 
+const macDesktop = STUDIO_DESKTOP && navigator.userAgent.includes('Mac');
+
 /** Plays a video file at `url` */
 export function LocalPlayer({ url, muted, ref, onInfo }: PlayerProps & { url: string }) {
 	const videoRef = useRef<HTMLVideoElement>(null);
@@ -46,8 +48,18 @@ export function LocalPlayer({ url, muted, ref, onInfo }: PlayerProps & { url: st
 				}
 			},
 			pause: () => {
-				if (videoRef.current?.paused === false) {
-					videoRef.current.pause();
+				const video = videoRef.current;
+				if (video?.paused === false) {
+					video.pause();
+					// After playback the macOS desktop webview can stop presenting paused seeks. Reset its media state
+					// without starting playback again, keeping the latest requested position across the reload.
+					if (macDesktop) {
+						const time = pendingSeek.current ?? video.currentTime;
+						pendingSeek.current = undefined;
+						setPending(true);
+						video.load();
+						video.currentTime = time;
+					}
 				}
 			},
 			setRate: (rate) => {
@@ -93,18 +105,30 @@ export function LocalPlayer({ url, muted, ref, onInfo }: PlayerProps & { url: st
 			data-capture-pending
 			className={videoClassName}
 			onLoadedMetadata={(event) => onInfo({ duration: event.currentTarget.duration })}
-			onLoadedData={() => setPending(false)}
-			onSeeked={({ currentTarget: video }) => {
-				// A new seek can start before the previous seek's event arrives.
-				if (video.seeking) {
-					return;
-				}
-				const next = pendingSeek.current;
-				pendingSeek.current = undefined;
-				if (next === undefined || next === video.currentTime) {
+			onLoadedData={({ currentTarget: video }) => {
+				if (!video.seeking && pendingSeek.current === undefined) {
 					setPending(false);
+				}
+			}}
+			onSeeked={({ currentTarget: video }) => {
+				const finishSeek = () => {
+					// A new seek can start before the previous seek's event arrives.
+					if (video !== videoRef.current || video.seeking) {
+						return;
+					}
+					const next = pendingSeek.current;
+					pendingSeek.current = undefined;
+					if (next === undefined || next === video.currentTime) {
+						setPending(false);
+					} else {
+						video.currentTime = next;
+					}
+				};
+				if (macDesktop && pendingSeek.current !== undefined) {
+					// Let the webview present this frame before asking for the next seek.
+					requestAnimationFrame(finishSeek);
 				} else {
-					video.currentTime = next;
+					finishSeek();
 				}
 			}}
 			onError={(event) => {
