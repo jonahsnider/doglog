@@ -172,14 +172,14 @@ The dashboards section SHALL always list the user's dashboards, regardless of wh
 
 ### Requirement: Dashboard view chrome
 
-When a dashboard is shown, the main area SHALL show the dashboard's panes, a collapsible entry browser panel on the right, and the timeline bar along the bottom.
+When a dashboard is shown, the main area SHALL show the dashboard's panes and a collapsible entry browser panel on the right.
 
 #### Scenario: Dashboard view with an active source
 
 - **GIVEN** a data source is active
 - **WHEN** the user opens a dashboard
 - **THEN** the dashboard's panes fill the main area
-- **AND** the timeline bar is shown along the bottom of the dashboard area
+- **AND** the timeline bar spans the window below the panes and both sidebars
 
 #### Scenario: Pages hide dashboard chrome
 
@@ -204,6 +204,7 @@ Outside the phone layout, users SHALL be able to collapse the sidebar to a narro
 - **GIVEN** the sidebar is collapsed
 - **WHEN** the user hovers the rail
 - **THEN** the full sidebar slides in over the rail and the dashboard from the window's edge, as an opaque drawer
+- **AND** the drawer's lower edge lines up with the dashboard panes, leaving their gap above the timeline when it is visible
 - **AND** the dashboard layout does not change
 - **AND** the rail stays where it is under the drawer
 - **AND** the rail also peeks when the sidebar collapses under the pointer, even if the pointer stays still

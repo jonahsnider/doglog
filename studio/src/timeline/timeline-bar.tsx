@@ -17,6 +17,7 @@ import { getSourceYear } from '@/timeline/shifts';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { type TimeRange, useTimeRange } from '@/data/data-store';
 import { type Source, useSource } from '@/data/source';
+import { useCaptureFrame } from '@/desktop/capture';
 import { useSize } from '@/hooks/use-size';
 import { easing, useMotionTransition } from '@/lib/motion';
 import { cn } from '@/lib/utils';
@@ -159,6 +160,7 @@ function TimelineControls({
 	const speedTrigger = useRef<HTMLButtonElement>(null);
 	const bar = useRef<HTMLElement>(null);
 	const size = useSize(bar);
+	const capture = useCaptureFrame();
 	const compact = size !== undefined && size.width < 480;
 	const shortcutsEnabled = present && !speedOpen;
 
@@ -176,6 +178,7 @@ function TimelineControls({
 			aria-label="Timeline"
 			inert={!present}
 			className={cn('flex contain-strict', compact ? 'h-22' : 'h-14')}
+			style={capture?.timelinePadding}
 		>
 			<div
 				className={cn(

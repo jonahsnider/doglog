@@ -18,9 +18,15 @@ Studio SHALL have one time cursor shared by every dashboard and widget.
 
 ### Requirement: Timeline bar
 
-When a dashboard is open and a source is active, a timeline bar SHALL be shown along the bottom of the dashboard area, directly on the app's frame rather than on a surface of its own. Dragging or scrolling horizontally along it MUST move the cursor.
+When a dashboard is open and a source is active, the timeline bar SHALL span the bottom of the window below both sidebars, directly on the app's frame rather than on a surface of its own. In video export mode, it SHALL fit below the panes inside the preview instead. Dragging or scrolling horizontally along it MUST move the cursor.
 
-#### Scenario: Scrub on a narrow dashboard
+#### Scenario: Open or resize a sidebar
+
+- **GIVEN** a dashboard is open and playback is paused
+- **WHEN** the app sidebar or entry browser is opened, closed, or resized
+- **THEN** the timeline controls and scrubber stay in place and the playhead does not move
+
+#### Scenario: Scrub on a narrow timeline
 
 - **GIVEN** the timeline is narrower than 480 CSS pixels
 - **THEN** the scrubber has a row below the playback controls, alongside the end time and the live button when present
@@ -30,7 +36,7 @@ When a dashboard is open and a source is active, a timeline bar SHALL be shown a
 
 - **GIVEN** a dashboard is open
 - **WHEN** the first source opens or the last source closes
-- **THEN** the timeline bar slides up from or down past the bottom edge as the panes resize
+- **THEN** the timeline bar slides up from or down past the bottom edge as the panes and sidebars resize
 - **AND** if the system requests reduced motion, the layout changes immediately without sliding
 
 #### Scenario: Scrub

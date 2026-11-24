@@ -119,7 +119,6 @@ function DashboardView() {
 	);
 }
 
-/** The panes with the timeline under them */
 function PanesColumn({ dashboard, dashboards }: { dashboard: Dashboard; dashboards: readonly Dashboard[] }) {
 	const router = useRouter();
 	const exporting = useVideoExport()?.dashboardId === dashboard.id;
@@ -167,7 +166,6 @@ function PanesColumn({ dashboard, dashboards }: { dashboard: Dashboard; dashboar
 	);
 
 	return (
-		// Under the panes rather than the entry browser too, so the entry browser reaches the bottom of the window like the sidebar
 		<div className="flex h-full flex-col">
 			{/* Shown with capture styling in video export mode, so the preview looks like the video */}
 			<div
@@ -183,7 +181,7 @@ function PanesColumn({ dashboard, dashboards }: { dashboard: Dashboard; dashboar
 					))}
 					<DashboardSplitZones dashboard={dashboard} />
 				</section>
-				<TimelineBar />
+				{exporting && <TimelineBar />}
 			</div>
 			{exporting && <VideoExportBar />}
 		</div>

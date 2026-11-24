@@ -34,7 +34,7 @@ A dashboard's sidebar menu SHALL offer Copy image when it contains a widget. A w
 
 - **GIVEN** the collapsed sidebar is temporarily expanded over the open dashboard
 - **WHEN** the user chooses Copy image in that dashboard's sidebar menu
-- **THEN** the image shows the panes and timeline at their current sizes, without the sidebar covering them
+- **THEN** the image shows the panes at their current sizes, with the timeline fitted beneath them and no sidebar covering either
 
 #### Scenario: Copy a graph without zooming it
 

@@ -8,7 +8,11 @@ import { showVideoFrame } from '@/timeline/timeline';
 
 export const canCapture = STUDIO_DESKTOP && '__DOGLOG_CAPTURE__' in window;
 
-type CaptureArea = { bounds: DOMRect; paneIds: Set<string | undefined> };
+type CaptureArea = {
+	bounds: DOMRect;
+	paneIds: Set<string | undefined>;
+	timelinePadding: { paddingLeft: number; paddingRight: number } | undefined;
+};
 
 const frame = createAtom<CaptureArea | undefined>(undefined);
 let capturing = false;
@@ -153,20 +157,34 @@ async function capture(target: HTMLElement, savePath?: string | null): Promise<s
 /** The part of the window that a capture of `target` shows, and the panes in it */
 function captureArea(target: HTMLElement): CaptureArea {
 	const { left, top, right, bottom } = target.getBoundingClientRect();
+	const dashboard = target.dataset['captureDashboard'] !== undefined;
 	// The gap after a dashboard's panes belongs to the entry browser, so include as much as the dashboard pads its start.
-	const end = target.matches('[data-capture-dashboard]')
+	const padding = dashboard
 		? // oxlint-disable-next-line unicorn/prefer-number-coercion -- Computed padding has a `px` suffix.
-			right + Number.parseFloat(getComputedStyle(target).paddingLeft)
-		: right;
+			Number.parseFloat(getComputedStyle(target).paddingLeft)
+		: 0;
+	// The interactive timeline is outside the panes. Video export mode already has its own timeline inside the target.
+	const windowTimeline = dashboard && target.dataset['capturing'] === undefined;
 	const x = Math.max(0, left);
 	const y = Math.max(0, top);
-	const bounds = new DOMRect(x, y, Math.min(innerWidth, end) - x, Math.min(innerHeight, bottom) - y);
+	const bounds = new DOMRect(
+		x,
+		y,
+		Math.min(innerWidth, right + padding) - x,
+		(windowTimeline ? innerHeight : Math.min(innerHeight, bottom)) - y,
+	);
 	const paneIds = new Set(
 		(target.dataset['paneId'] === undefined ? [...target.querySelectorAll<HTMLElement>('[data-pane-id]')] : [target])
 			.filter((pane) => pane.checkVisibility({ visibilityProperty: true }))
 			.map((pane) => pane.dataset['paneId']),
 	);
-	return { bounds, paneIds };
+	return {
+		bounds,
+		paneIds,
+		timelinePadding: windowTimeline
+			? { paddingLeft: x + padding, paddingRight: Math.max(0, innerWidth - right) }
+			: undefined,
+	};
 }
 
 /** `bounds` as fractions of the window, how the native capture takes them */

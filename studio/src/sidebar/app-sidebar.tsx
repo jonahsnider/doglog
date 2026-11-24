@@ -221,9 +221,10 @@ function DesktopAppSidebar() {
 					className={cn(
 						// Transparent on the frame, so it shows the window's backdrop through it when the frame is frosted. Its surface for peeking is below.
 						'group peer absolute start-0 bottom-0 z-20 overflow-hidden bg-transparent duration-200 motion-reduce:transition-none',
-						// Only expanding and collapsing resize it, peeking slides it at its full width by `--peek`, set here since WebKit
-						// doesn't resize the container while it changes there
+						// Peeking slides at full width. Animate `--peek` here so WebKit updates the drawer during the transition.
 						'[--peek:0] data-peeking:[--peek:1]',
+						// Keep the drawer lined up with the panes for the whole slide in and out.
+						'data-peeking:bottom-1.5 in-data-[animation=unpeek]:bottom-1.5',
 						'transition-[box-shadow,--peek] in-data-[animation=collapse]:transition-[width,box-shadow,--peek] in-data-[animation=expand]:transition-[width,box-shadow,--peek]',
 						// Below the title bar's strip, lined up with the main area's panes and pages, which have a gap above them
 						strip ? 'top-10.5' : 'top-0',
