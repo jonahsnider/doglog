@@ -5,6 +5,7 @@ import { findPane, type PaneNode, setPaneWidget, type Widget } from '@/panes/lay
 import { initialOptions } from '@/widgets/options';
 import { acceptsEntry, canConnect, type RoleOption, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
 
+const cameraFov = z.number().min(1).max(179).optional().catch(undefined);
 export const bindingSchema = z.object({
 	/** Tells apart bindings of the same entry, which can be bound more than once */
 	id: z.string(),
@@ -19,6 +20,7 @@ export const bindingSchema = z.object({
 	sources: z.array(z.string()).optional(),
 	/** The robot picked to draw the binding as, ex. a field robot's robot project, the widget picks one otherwise */
 	robot: z.string().optional(),
+	camera: z.object({ name: z.string().optional(), fov: cameraFov }).optional().catch(undefined),
 });
 
 export type Binding = z.infer<typeof bindingSchema>;
@@ -117,8 +119,8 @@ export function setBindingRole(layout: PaneNode, paneId: string, bindingId: stri
 	);
 }
 
-/** Pick a binding's series color or robot, `undefined` lets the widget pick one again */
-export function setBindingPick<K extends 'color' | 'robot'>(
+/** Pick a binding's series color, robot, or camera settings */
+export function setBindingPick<K extends 'color' | 'robot' | 'camera'>(
 	layout: PaneNode,
 	paneId: string,
 	bindingId: string,
@@ -275,6 +277,7 @@ export function resolveBindings(
 			hidden: binding.hidden === true,
 			color: binding.color,
 			robot: binding.robot,
+			...(binding.camera !== undefined && { camera: binding.camera }),
 			connects: undefined,
 			sources: [],
 		};

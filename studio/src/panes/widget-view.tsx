@@ -70,6 +70,8 @@ export function WidgetView({
 				updateLayout(dashboardId, (layout) => setBindingPick(layout, paneId, bindingId, 'color', color)),
 			setRobot: (bindingId, robot) =>
 				updateLayout(dashboardId, (layout) => setBindingPick(layout, paneId, bindingId, 'robot', robot)),
+			setCamera: (bindingId, camera) =>
+				updateLayout(dashboardId, (layout) => setBindingPick(layout, paneId, bindingId, 'camera', camera)),
 		}),
 		[dashboardId, paneId, bindings],
 	);

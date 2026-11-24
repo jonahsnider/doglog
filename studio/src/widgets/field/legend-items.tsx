@@ -13,8 +13,8 @@ const partsIcon = <BoxesIcon className="size-3.5" />;
 
 /**
  * The field's legend in either view. In 3D, robots and ghosts show the robot they're drawn as, which can be picked
- * there, and how the camera follows them. Parts and mechanisms are marked "3D only" in 2D, and `notes` adds others, ex. a robot that isn't added on this
- * device.
+ * there, and how the camera follows them. 3D roles are marked "3D only" in 2D, and `notes` adds others, ex. a robot
+ * that isn't added on this device.
  */
 export function fieldLegendItems(
 	bindings: readonly WidgetBinding[],
@@ -45,7 +45,7 @@ export function fieldLegendItems(
 		return {
 			binding,
 			color: bindingColor(binding, index),
-			...(only3d && { icon: mechanism ? mechanismIcon : partsIcon }),
+			...(only3d && binding.role?.id !== 'camera' && { icon: mechanism ? mechanismIcon : partsIcon }),
 			...(view === '3d' && isRobotBinding(binding) && { robot: fieldRobot(binding, bindings) }),
 			...(followed !== undefined &&
 				isRobotBinding(binding) && { follow: followed?.id === binding.id ? followed.key : 'off' }),

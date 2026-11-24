@@ -9,6 +9,7 @@ function entry(name: string, type: string): Entry {
 
 test.each([
 	['/Drive/Pose', 'struct:Pose2d', ['robot', 'ghost', 'point']],
+	['/Vision/CameraPose', 'struct:Pose3d', ['robot', 'ghost', 'point', 'camera']],
 	['/Vision/TagPoses', 'struct:Pose3d[]', ['points', 'path', 'parts']],
 	['/RealOutputs/FinalComponentPoses', 'struct:Pose3d[]', ['parts', 'points', 'path']],
 	['/PathPlanner/activePath', 'struct:Pose2d[]', ['path', 'points']],

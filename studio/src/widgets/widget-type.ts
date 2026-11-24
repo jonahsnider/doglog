@@ -33,6 +33,8 @@ export type WidgetBinding = {
 	readonly color: number | undefined;
 	/** The robot picked to draw the binding as, ex. a field robot's robot project, see `setBindingPick()` */
 	readonly robot: string | undefined;
+	/** The field camera's advertised name and horizontal field of view in degrees */
+	readonly camera?: { readonly name?: string | undefined; readonly fov?: number | undefined };
 	/** How the binding can be connected to others, see `WidgetType.connects` */
 	readonly connects: Connects | undefined;
 	/** Bindings connected to this one, which the widget draws from, ex. the field draws lines from a robot to seen tags */

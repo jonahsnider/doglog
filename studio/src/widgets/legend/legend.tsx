@@ -20,6 +20,8 @@ export type LegendItem = {
 	icon?: ReactNode;
 	/** Shown dimmed after the name */
 	note?: string;
+	/** Settings or actions specific to this entry's role */
+	controls?: ReactNode;
 	/** The robot a robot or ghost is drawn as, picked with its role, ex. on the field in 3D */
 	robot?: string;
 	/** How the camera follows the binding's robot, picked after its robot, see `FollowPicker` */
@@ -237,6 +239,7 @@ function LegendEntry({
 				<FollowPicker binding={binding} follow={item.follow} />
 			)}
 			{item.note !== undefined && <span className="whitespace-nowrap text-muted-foreground">{item.note}</span>}
+			{item.controls}
 			{item.error !== undefined && <span className="text-destructive-foreground">{item.error}</span>}
 			{handle}
 		</li>

@@ -4,7 +4,9 @@ import { Buffer } from 'node:buffer';
 import { deflateRawSync, inflateRawSync } from 'node:zlib';
 import { LoroDoc } from 'loro-crdt';
 import { expect, test } from 'vite-plus/test';
+import { panes } from '@/panes/layout';
 import { restoreLayout } from '@/panes/layout-snapshot';
+import { setBindingPick, widgetBindings } from '@/widgets/bindings';
 import {
 	DashboardLinkTooLarge,
 	dashboardSnapshot,
@@ -131,6 +133,29 @@ test('dashboard links use ID-free tuples and survive import into a fresh documen
 	expect(snapshotKey(dashboardSnapshot(imported))).toBe(snapshotKey(dashboardSnapshot(original)));
 	const reordered = { ...original, layout: { ...original.layout, children: original.layout.children.toReversed() } };
 	expect(snapshotKey(dashboardSnapshot(reordered))).not.toBe(snapshotKey(snapshot));
+});
+
+test('field cameras keep independent feed names and FOVs through a dashboard link', async () => {
+	const layout = {
+		kind: 'pane',
+		id: 'field',
+		widget: {
+			type: 'field',
+			config: {
+				bindings: [
+					{ id: 'front', name: '/Vision/FrontPose', role: 'camera', camera: { name: 'Front' } },
+					{ id: 'rear', name: '/Vision/RearPose', role: 'camera' },
+				],
+			},
+		},
+	} as const;
+	const edited = setBindingPick(layout, 'field', 'rear', 'camera', { name: 'Rear', fov: 81 });
+	const snapshot = await decodeDashboardLink(await encodeDashboardLink({ name: 'Vision', layout: edited }));
+	const restored = restoreLayout(snapshot.layout);
+	expect(widgetBindings(panes(restored)[0]?.widget)).toMatchObject([
+		{ name: '/Vision/FrontPose', role: 'camera', camera: { name: 'Front' } },
+		{ name: '/Vision/RearPose', role: 'camera', camera: { name: 'Rear', fov: 81 } },
+	]);
 });
 
 test.each([

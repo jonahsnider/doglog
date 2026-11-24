@@ -46,7 +46,7 @@ The field widget SHALL offer these roles, the inferred one first: single poses a
 
 ### Requirement: 3D roles
 
-`Pose3d` arrays SHALL also offer a parts role, inferred instead of points or a path when the last part of their name contains "component" (ignoring case). Mechanisms SHALL offer the robot widget's plane roles, XZ plane first. Parts and mechanisms MUST only be drawn in 3D, and the legend MUST mark them "3D only" in 2D.
+Single `Pose3d` entries SHALL also offer a Camera role. `Pose3d` arrays SHALL offer a parts role, inferred instead of points or a path when the last part of their name contains "component" (ignoring case). Mechanisms SHALL offer the robot widget's plane roles, XZ plane first. Cameras, parts, and mechanisms MUST only be drawn in 3D, and the legend MUST mark them "3D only" in 2D.
 
 #### Scenario: Component poses
 
@@ -70,7 +70,7 @@ In 2D, the field widget SHALL draw the 2026 FRC field from a top-down render, fi
 
 ### Requirement: View
 
-The field widget SHALL have a View option with "2D" and "3D", which it MUST infer: 3D when it has a parts or mechanism binding, and 2D otherwise. A control for the View option SHALL be below the bottom-right corner of the view, shown like the measuring tool buttons, and in 3D a Reset view button MUST take the measuring tools' place. Switching views MUST keep the widget's bindings, roles, connections, colors, and options.
+The field widget SHALL have a View option with "2D" and "3D", which it MUST infer: 3D when it has a camera, parts, or mechanism binding, and 2D otherwise. A control for the View option SHALL be below the bottom-right corner of the view, shown like the measuring tool buttons, and in 3D a Reset view button MUST take the measuring tools' place. Switching views MUST keep the widget's bindings, roles, connections, colors, and options.
 
 #### Scenario: Robot pose
 
@@ -561,6 +561,38 @@ The field widget SHALL have a Field of view option for the 3D camera's vertical 
 - **GIVEN** a field widget in 3D following `/Drive/Pose` from Blue 2
 - **WHEN** the user picks a 30° field of view
 - **THEN** the robot looks larger, seen from the same place
+
+### Requirement: Live feeds on the 3D field
+
+A Camera binding SHALL use its `Pose3d` as the camera's field-relative pose, with +X forward and +Z up in camera coordinates. In 3D, the widget SHALL show the latest frame on a plane 0.5 m forward of the lens, with lines from the lens to the corners. It MUST keep the frame's aspect ratio without cropping or correcting lens distortion.
+
+#### Scenario: Two live cameras
+
+- **GIVEN** two `Pose3d` entries set to Camera with different advertised feeds
+- **WHEN** the 3D field follows live data
+- **THEN** each feed is drawn in front of its own pose
+- **AND** changing one camera's horizontal field of view resizes only that feed's plane and frustum, without moving the field viewer
+
+### Requirement: Camera entry options
+
+A Camera binding's legend options SHALL pick a CameraServer feed by name from those advertised on the selected live connection and set a horizontal field of view, defaulting to 70°. Each binding MUST save its own camera name and field of view with the dashboard, not a stream URL.
+
+#### Scenario: Reopen a shared dashboard
+
+- **GIVEN** a dashboard link with a Camera binding set to `Front` at 81°
+- **WHEN** the recipient connects to a robot that advertises `Front` at a different URL
+- **THEN** Studio uses the newly advertised feed and draws it at 81°
+
+### Requirement: Camera entry availability
+
+The image and frustum MUST only appear while the binding and pane are visible, the timeline follows live data, and both the pose and feed are available. The legend SHALL explain why a configured camera is not showing. Studio MUST NOT record frames or show them in video exports.
+
+#### Scenario: Pause the live timeline
+
+- **GIVEN** a 3D field showing a live camera
+- **WHEN** the user pauses live follow
+- **THEN** the frame and frustum disappear, the legend indicates the feed is live only, and other field drawings remain available
+- **AND** resuming live follow shows the next available frame without changing the saved camera settings
 
 ### Requirement: 3D robots
 

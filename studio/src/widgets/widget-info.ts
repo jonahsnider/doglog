@@ -40,6 +40,7 @@ export const widgetRoles = {
 		point: { id: 'point', label: 'Point' },
 		ghost: { id: 'ghost', label: 'Ghost' },
 		robot: { id: 'robot', label: 'Robot' },
+		camera: { id: 'camera', label: 'Camera' },
 		// Only drawn in 3D, on a robot, like the robot widget's roles
 		parts: { id: 'parts', label: 'Parts' },
 		side: { id: 'side', label: 'XZ plane' },

@@ -5,6 +5,7 @@ import { type ReactNode, useMemo } from 'react';
 import { DoubleSide, SphereGeometry, Vector3 } from 'three';
 import type { Mechanism } from '@/data/mechanism';
 import type { Value } from '@/data/samples';
+import { CameraFrustum, type CameraImage, defaultCameraFov } from '@/three/camera-frustum';
 import {
 	anchor,
 	centerCoordinates,
@@ -152,6 +153,7 @@ function FieldDrawing({
 	sources,
 	cssColor,
 	robot,
+	image,
 	onPoint,
 }: {
 	binding: WidgetBinding;
@@ -160,6 +162,8 @@ function FieldDrawing({
 	cssColor: string;
 	/** Set for robots and ghosts */
 	robot?: RobotDrawing;
+	/** The most recent frame of a live camera binding */
+	image?: CameraImage;
 	/** The pointer moved over or off of the drawing, ex. to remove its binding by middle-clicking it */
 	onPoint: (bindingId: string, pointed: boolean) => void;
 }) {
@@ -177,6 +181,15 @@ function FieldDrawing({
 			>
 				<Robot value={value} color={color} ghost={role === 'ghost'} robot={robot} />
 			</group>
+		);
+	} else if (image) {
+		return (
+			<CameraFrustum
+				pose={fieldPoseMatrix(value)}
+				image={image}
+				fov={binding.camera?.fov ?? defaultCameraFov}
+				color={color}
+			/>
 		);
 	} else if (role === 'point' || role === 'points') {
 		drawing = <Points value={value} color={color} />;

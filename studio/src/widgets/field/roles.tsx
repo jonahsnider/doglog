@@ -26,7 +26,8 @@ const roles = [
 type FieldRoleId = keyof typeof field;
 
 /** Roles only drawn in 3D, on a robot */
-export const roles3d: ReadonlySet<string> = new Set(['parts', 'side', 'front', 'top'] satisfies FieldRoleId[]);
+export const attachedRoles: ReadonlySet<string> = new Set(['parts', 'side', 'front', 'top'] satisfies FieldRoleId[]);
+export const roles3d: ReadonlySet<string> = new Set([...attachedRoles, 'camera']);
 
 /** Every layer, later ones are drawn on top. Connections are drawn from the bindings connected to another, not by a role. */
 const drawOrder = ['shape', 'path', 'connections', 'points', 'point', 'ghost', 'robot'] as const satisfies readonly (
@@ -35,6 +36,7 @@ const drawOrder = ['shape', 'path', 'connections', 'points', 'point', 'ghost', '
 )[];
 
 const pose: readonly FieldRoleId[] = ['robot', 'ghost', 'point'];
+const pose3d: readonly FieldRoleId[] = [...pose, 'camera'];
 const translation: readonly FieldRoleId[] = ['point'];
 const poseArray: readonly FieldRoleId[] = ['points', 'path'];
 const pose3dArray: readonly FieldRoleId[] = ['points', 'path', 'parts'];
@@ -45,7 +47,7 @@ const shape: readonly FieldRoleId[] = ['shape'];
 /** Roles each type can take, the inferred one first */
 const typeRoles: Partial<Record<string, readonly FieldRoleId[]>> = {
 	'struct:Pose2d': pose,
-	'struct:Pose3d': pose,
+	'struct:Pose3d': pose3d,
 	'struct:Pose2d[]': poseArray,
 	'struct:Pose3d[]': pose3dArray,
 	'struct:Translation2d': translation,
