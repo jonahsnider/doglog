@@ -1,15 +1,15 @@
 {
 	// Studio's settings, since routes import Studio's code
-	"extends": ["../studio/tsconfig.app.json", "./.void/tsconfig.json"],
+	"extends": "../studio/tsconfig.app.json",
 	"compilerOptions": {
 		"incremental": true,
 		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
 		"types": ["vite/client"],
-		// Replaces both extended configs' paths, so it has to list them all
 		"paths": {
 			"@/*": ["../studio/src/*"],
 			"void/routes": ["./.void/routes.d.ts"]
 		}
 	},
-	"include": ["routes", "../studio/src/svg.d.ts"]
+	// Include generated declarations without requiring Void's config when Studio imports shared Cloud code.
+	"include": ["routes", ".void/*.d.ts", "../studio/src/svg.d.ts"]
 }
