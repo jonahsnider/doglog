@@ -13,7 +13,7 @@ export function TeamMembers() {
 	}
 	return (
 		<FramePanel className="grid gap-2">
-			<h2 className="font-heading font-medium text-base">Team members</h2>
+			<h3 className="font-heading font-medium text-base">Team members</h3>
 			{roster === undefined ? (
 				<p role="status" className="text-muted-foreground text-sm">
 					Loading team members…

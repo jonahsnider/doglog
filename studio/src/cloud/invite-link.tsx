@@ -44,7 +44,7 @@ export function InviteLink() {
 
 	return (
 		<FramePanel className="grid gap-2">
-			<h2 className="font-heading font-medium text-base">Your invite link</h2>
+			<h3 className="font-heading font-medium text-base">Your invite link</h3>
 			<p className="text-muted-foreground text-sm">
 				Anyone with this link who isn’t on a team can join. It stops working if you revoke it or stop being an admin.
 			</p>

@@ -7,10 +7,10 @@ import { CliField } from '@/components/cli-field';
 import { Button } from '@/components/ui/button';
 import { DialogTrigger } from '@/components/ui/dialog';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
-import { Frame, FrameHeader, FramePanel, FrameTitle } from '@/components/ui/frame';
+import { FramePanel } from '@/components/ui/frame';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { UtilityPage } from '@/components/utility-page';
+import { UtilityPage, UtilityPageSection } from '@/components/utility-page';
 import { getRobotHost } from '@/robot-target';
 import { useAnonymousName } from '@/sharing/identity';
 import { reportsNaturalScrolling, updateSettings, useSettings } from '@/settings';
@@ -37,11 +37,11 @@ function Settings() {
 			}
 		>
 			<div className="flex max-w-2xl flex-1 flex-col gap-6">
-				<SettingsSection title="Appearance">
+				<UtilityPageSection title="Appearance">
 					<AppearanceSettings />
-				</SettingsSection>
+				</UtilityPageSection>
 
-				<SettingsSection title="Accessibility">
+				<UtilityPageSection title="Accessibility">
 					<ContrastSetting />
 
 					<FramePanel>
@@ -56,9 +56,9 @@ function Settings() {
 							<FieldDescription>Skip layout animations, always on when your system reduces motion</FieldDescription>
 						</Field>
 					</FramePanel>
-				</SettingsSection>
+				</UtilityPageSection>
 
-				<SettingsSection title="Robot">
+				<UtilityPageSection title="Robot">
 					<FramePanel>
 						<Field name="robotTarget" invalid={robotTargetInvalid}>
 							<FieldLabel>Robot connection</FieldLabel>
@@ -93,10 +93,10 @@ function Settings() {
 							</FieldDescription>
 						</Field>
 					</FramePanel>
-				</SettingsSection>
+				</UtilityPageSection>
 
 				{!hasCloudAccount && (
-					<SettingsSection title="Sharing">
+					<UtilityPageSection title="Sharing">
 						<FramePanel>
 							<Field name="name">
 								<FieldLabel>Name</FieldLabel>
@@ -109,10 +109,10 @@ function Settings() {
 								<FieldDescription>Shown to others in shared dashboards</FieldDescription>
 							</Field>
 						</FramePanel>
-					</SettingsSection>
+					</UtilityPageSection>
 				)}
 
-				<SettingsSection title="System">
+				<UtilityPageSection title="System">
 					<FramePanel>
 						<Field name="mediaControls">
 							<FieldLabel>
@@ -144,7 +144,7 @@ function Settings() {
 					)}
 
 					<CliField />
-				</SettingsSection>
+				</UtilityPageSection>
 
 				<div className="mt-auto flex flex-col gap-1 pt-10 text-sm text-muted-foreground">
 					<p>
@@ -165,19 +165,6 @@ function Settings() {
 				</div>
 			</div>
 		</UtilityPage>
-	);
-}
-
-function SettingsSection({ title, children }: { title: string; children: ReactNode }) {
-	return (
-		<Frame>
-			<FrameHeader>
-				<FrameTitle>
-					<h2 className="font-heading text-base leading-none">{title}</h2>
-				</FrameTitle>
-			</FrameHeader>
-			{children}
-		</Frame>
 	);
 }
 

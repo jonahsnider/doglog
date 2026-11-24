@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { Frame, FramePanel } from '@/components/ui/frame';
 import { Input } from '@/components/ui/input';
-import { UtilityPage } from '@/components/utility-page';
+import { UtilityPage, UtilityPageSection } from '@/components/utility-page';
 import { api } from '../../../cloud/convex/_generated/api.js';
 
 export const Route = createFileRoute('/cloud')({
@@ -27,29 +27,27 @@ export const Route = createFileRoute('/cloud')({
 });
 
 function CloudPage() {
-	return (
-		<UtilityPage title="Cloud">
-			{cloudDeploymentUrl !== undefined && (
-				<Frame className="max-w-2xl">
-					<CloudAccount />
-				</Frame>
-			)}
-		</UtilityPage>
-	);
+	return <UtilityPage title="Cloud">{cloudDeploymentUrl !== undefined && <CloudAccount />}</UtilityPage>;
 }
 
 function CloudAccount() {
 	const { isLoading, isAuthenticated } = useConvexAuth();
-	if (isLoading) {
-		return (
-			<FramePanel>
-				<p role="status" className="text-muted-foreground text-sm">
-					Checking Cloud sign-in…
-				</p>
-			</FramePanel>
-		);
+	if (!isLoading && isAuthenticated) {
+		return <SignedIn />;
 	}
-	return isAuthenticated ? <SignedIn /> : <CloudSignIn />;
+	return (
+		<Frame className="max-w-2xl">
+			{isLoading ? (
+				<FramePanel>
+					<p role="status" className="text-muted-foreground text-sm">
+						Checking Cloud sign-in…
+					</p>
+				</FramePanel>
+			) : (
+				<CloudSignIn />
+			)}
+		</Frame>
+	);
 }
 
 function SignedIn() {
@@ -73,46 +71,54 @@ function SignedIn() {
 	}
 
 	return (
-		<>
-			<FramePanel className="flex flex-wrap items-center justify-between gap-3">
-				<div className="grid gap-1">
-					<p className="text-sm">Signed in to DogLog Cloud</p>
-					{account && <AccountEncryption userId={account.id} />}
-					{team !== undefined && team !== null && (
-						<p className="text-muted-foreground text-sm">
-							{team.canDelete
-								? 'Delete your team first if you want to delete your account.'
-								: 'You can only delete your account when you’re not on a team.'}
+		<div className="flex max-w-2xl flex-col gap-6">
+			<UtilityPageSection title="Team">
+				{team === null && <JoinTeam invite={invite} />}
+				<TeamPanel team={team} invite={invite} />
+				{team && <TeamMembers />}
+			</UtilityPageSection>
+
+			<UtilityPageSection title="Collaboration">
+				{account && <DisplayName key={account.id} name={account.displayName} />}
+				{team?.role === 'admin' && <InviteLink />}
+			</UtilityPageSection>
+
+			<UtilityPageSection title="Account">
+				<FramePanel className="flex flex-wrap items-center justify-between gap-3">
+					<div className="grid gap-1">
+						<p className="text-sm">Signed in to DogLog Cloud</p>
+						{account && <AccountEncryption userId={account.id} />}
+						{team !== undefined && team !== null && (
+							<p className="text-muted-foreground text-sm">
+								{team.canDelete
+									? 'Delete your team first if you want to delete your account.'
+									: 'You can only delete your account when you’re not on a team.'}
+							</p>
+						)}
+					</div>
+					<div className="flex flex-wrap gap-2">
+						<Button variant="outline" loading={signingOut} onClick={() => void endSession()}>
+							Sign out
+						</Button>
+						{team === null && (
+							<ConfirmCloudAction
+								label="Delete account"
+								title="Delete your Cloud account?"
+								description="This permanently deletes your Cloud account and signs you out on all devices. Local dashboards aren’t affected."
+								failureMessage="Couldn’t delete your Cloud account. Try again."
+								destructive
+								onConfirm={deleteAccount}
+							/>
+						)}
+					</div>
+					{signOutError && (
+						<p role="alert" className="w-full text-destructive-foreground text-sm">
+							Couldn’t sign out. Try again.
 						</p>
 					)}
-				</div>
-				<div className="flex flex-wrap gap-2">
-					<Button variant="outline" loading={signingOut} onClick={() => void endSession()}>
-						Sign out
-					</Button>
-					{team === null && (
-						<ConfirmCloudAction
-							label="Delete account"
-							title="Delete your Cloud account?"
-							description="This permanently deletes your Cloud account and signs you out on all devices. Local dashboards aren’t affected."
-							failureMessage="Couldn’t delete your Cloud account. Try again."
-							destructive
-							onConfirm={deleteAccount}
-						/>
-					)}
-				</div>
-				{signOutError && (
-					<p role="alert" className="w-full text-destructive-foreground text-sm">
-						Couldn’t sign out. Try again.
-					</p>
-				)}
-			</FramePanel>
-			{account && <DisplayName key={account.id} name={account.displayName} />}
-			{team === null && <JoinTeam invite={invite} />}
-			<TeamPanel team={team} invite={invite} />
-			{team?.role === 'admin' && <InviteLink />}
-			{team && <TeamMembers />}
-		</>
+				</FramePanel>
+			</UtilityPageSection>
+		</div>
 	);
 }
 

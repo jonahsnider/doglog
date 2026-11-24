@@ -27,7 +27,7 @@ export function TeamPanel({
 			) : (
 				<div className="flex flex-wrap items-center justify-between gap-3">
 					<div className="grid min-w-0 gap-1">
-						<h2 className="wrap-anywhere font-heading font-medium text-base">{team.name}</h2>
+						<h3 className="wrap-anywhere font-heading font-medium text-base">{team.name}</h3>
 						<p className="text-muted-foreground text-sm">{team.role === 'admin' ? 'Team admin' : 'Team member'}</p>
 						{invite !== undefined && (
 							<p role="status" className="text-sm">

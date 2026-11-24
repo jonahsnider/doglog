@@ -50,6 +50,13 @@ The desktop app SHALL sign in without leaving the app when the OS provides the c
 
 An account MUST belong to at most one team. When Cloud is available, Studio SHALL provide a Cloud page in the sidebar for account and team management. A signed-in user without a team SHALL be able to create one there and become its first admin. Joining an existing team MUST require a valid invite. Accepting an invite MUST NOT switch the account out of its current team. Studio MUST NOT offer a team picker; users switch accounts by signing out on the Cloud page and signing in with another account.
 
+#### Scenario: Find Cloud settings
+
+- **WHEN** a signed-in user opens the Cloud page
+- **THEN** the Team section contains team creation, joining, and membership controls as applicable
+- **AND** the Collaboration section contains display name and invite links for admins
+- **AND** the Account section contains encryption, sign-out, and account deletion when available
+
 #### Scenario: Start a team
 
 - **GIVEN** the signed-in user does not belong to a team

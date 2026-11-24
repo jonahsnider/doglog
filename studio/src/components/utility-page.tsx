@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { dragRegion } from '@/desktop/title-bar';
+import { Frame, FrameHeader, FrameTitle } from './ui/frame';
 
 export function UtilityPage({ title, actions, children }: { title: string; actions?: ReactNode; children: ReactNode }) {
 	return (
@@ -12,5 +13,18 @@ export function UtilityPage({ title, actions, children }: { title: string; actio
 				{children}
 			</div>
 		</div>
+	);
+}
+
+export function UtilityPageSection({ title, children }: { title: string; children: ReactNode }) {
+	return (
+		<Frame>
+			<FrameHeader>
+				<FrameTitle>
+					<h2 className="font-heading text-base leading-none">{title}</h2>
+				</FrameTitle>
+			</FrameHeader>
+			{children}
+		</Frame>
 	);
 }
