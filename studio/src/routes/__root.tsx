@@ -40,6 +40,9 @@ function RootLayout() {
 				<div
 					className={cn(
 						'group/app flex bg-frame [--sidebar-width-icon:2.625rem] [--sidebar-width:17.25rem]',
+						// Give iOS an opaque top edge to extend into the status bar instead of blurring over the app.
+						!STUDIO_DESKTOP &&
+							'[@media(display-mode:standalone)]:supports-[-webkit-touch-callout:none]:sticky [@media(display-mode:standalone)]:supports-[-webkit-touch-callout:none]:top-0',
 						mobile ? 'h-dvh flex-col' : 'h-svh',
 					)}
 				>
