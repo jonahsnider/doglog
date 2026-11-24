@@ -1,11 +1,12 @@
 // The field widget's 3D scene: the field's model, which poses are drawn on, see `@/three/field-drawings`
-import { Line, useGLTF, useTexture } from '@react-three/drei';
-import { useThree } from '@react-three/fiber';
+import { Line, useTexture } from '@react-three/drei';
+import { useLoader, useThree } from '@react-three/fiber';
 import { type Ref, useEffect, useEffectEvent, useImperativeHandle, useMemo } from 'react';
 import { Material, type Mesh, Plane, Raycaster, SRGBColorSpace, Vector2, Vector3 } from 'three';
 import { acceleratedRaycast, MeshBVH } from 'three-mesh-bvh';
 import { addAprilTags } from '@/three/apriltags';
 import { floorOffset } from '@/three/field-poses';
+import { gltfLoader } from '@/three/gltf-loader';
 import { isMesh } from '@/three/robot-loading';
 import fieldImage from '@/widgets/field/2026-rebuilt.webp';
 import fieldModel from '@/widgets/field/2026-rebuilt.glb?url';
@@ -32,7 +33,7 @@ const seeThroughOpacity = 0.12;
 const seeThroughGlassOpacity = 0.03;
 
 // Loads as soon as the field's 3D view is imported, which a field in 2D does in the background
-useGLTF.preload(fieldModel, false, true);
+useLoader.preload(gltfLoader, fieldModel);
 
 /**
  * Finding what's under the pointer, ex. to zoom toward it, only tests the triangles near it instead of all of them.
@@ -50,7 +51,7 @@ export function FieldModel({
 	stagedGamePieces: boolean;
 	seeThroughBorder: boolean;
 }) {
-	const { scene } = useGLTF(fieldModel, false, true);
+	const { scene } = useLoader(gltfLoader, fieldModel);
 	// Models can only be in one scene, each widget draws its own copy
 	const model = useMemo(() => {
 		const copy = addAprilTags(scene.clone());

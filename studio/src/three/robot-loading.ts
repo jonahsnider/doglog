@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Box3, FrontSide, type Material, Mesh, MeshStandardMaterial, type Object3D, Vector3 } from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { gltfLoader } from '@/three/gltf-loader';
 import { RobotConfigError, type RobotConfig, readRobotConfig } from '@/three/robot-config';
 import { ProjectAccessError, projectFileReader, type RobotProject } from '@/three/robot-projects';
 
@@ -14,8 +14,6 @@ export type RobotState =
 	| { readonly status: 'loading' }
 	| { readonly status: 'loaded'; readonly robot: LoadedRobot }
 	| { readonly status: 'error'; readonly message: string; readonly needsAccess: boolean };
-
-const loader = new GLTFLoader();
 
 /** `instanceof Mesh` types a mesh's geometry and material as `any` */
 export function isMesh(object: Object3D): object is Mesh {
@@ -78,7 +76,7 @@ async function loadRobot(project: RobotProject): Promise<LoadedRobot> {
 			throw new RobotConfigError(`${project.name}'s folder doesn't have ${file}`);
 		}
 		try {
-			return prepare((await loader.parseAsync(contents, '')).scene);
+			return prepare((await gltfLoader.parseAsync(contents, '')).scene);
 		} catch (error) {
 			throw new RobotConfigError(`${file} isn't a glTF binary model it can read: ${String(error)}`);
 		}

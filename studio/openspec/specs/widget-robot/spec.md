@@ -272,6 +272,16 @@ A project's robot SHALL have a `name`, the glTF binary `model` of the robot's bo
 - **GIVEN** a robot with an arm part, and no `Pose3d[]` entry bound
 - **THEN** the arm is drawn where the CAD placed it
 
+### Requirement: Compressed models
+
+The 3D widgets SHALL accept glTF binary models with Draco or Meshopt geometry compression and KTX2/Basis Universal textures. The app MUST bundle the decoders for offline use.
+
+#### Scenario: Compressed robot project
+
+- **GIVEN** a robot project whose body and parts use different compression formats
+- **WHEN** the user selects the project in a 3D widget while offline
+- **THEN** the widget draws the body and parts, including their textures
+
 ### Requirement: Flush CAD faces
 
 Where faces of a robot's models overlap in the same plane, the robot widget SHALL draw the smaller part's face, and it MUST NOT flicker between them as the camera moves. Faces behind others MUST NOT show through.
