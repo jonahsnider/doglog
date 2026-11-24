@@ -7,7 +7,8 @@ import {
 	argbFromHex,
 	hexFromArgb,
 } from '@material/material-color-utilities';
-import { chartCount, type Contrast, type ThemePreset } from '@/theme/choices';
+import { chartCount, type Contrast, type ThemePreset, type VisualizationPalette } from '@/theme/choices';
+import { seriesPaletteVariables } from '@/theme/series-palette';
 import { statusColorVariables } from '@/theme/status-color';
 
 /** Team 581 maroon, the hard-coded `--md-*` colors in `index.css` are generated from it */
@@ -211,12 +212,18 @@ export function themeColorVariables(
  * Stylesheet that overrides the default colors in `index.css` with ones generated from the theme color.
  * The doubled selectors win over `:root` and `.dark` in `index.css` regardless of which stylesheet loads last.
  */
-function themeColorCss(themeColor: string, contrast: Contrast, preset: ThemePreset): string {
+function themeColorCss(
+	themeColor: string,
+	contrast: Contrast,
+	preset: ThemePreset,
+	visualizationPalette: VisualizationPalette,
+): string {
 	const seed = presetColors[preset] ?? themeColor;
 	const variables = (dark: boolean) =>
 		themeColorVariables(themeColor, dark, contrast, preset) +
 		chartColorVariables(seed, dark) +
-		statusColorVariables(seed, dark);
+		statusColorVariables(seed, dark) +
+		seriesPaletteVariables(visualizationPalette, dark);
 	return `:root:root{${variables(false)}}:root.dark{${variables(true)}}`;
 }
 
@@ -255,8 +262,13 @@ export function accentColor(preset: ThemePreset, themeColor: string): string {
 const cssStorageKey = 'doglog-studio:theme-color-css';
 
 /** Apply a preset and cache generated colors for `index.html` to use on the next load */
-export function applyThemeColor(themeColor: string, preset: ThemePreset, contrast: Contrast): void {
-	const css = themeColorCss(themeColor, contrast, preset);
+export function applyThemeColor(
+	themeColor: string,
+	preset: ThemePreset,
+	contrast: Contrast,
+	visualizationPalette: VisualizationPalette,
+): void {
+	const css = themeColorCss(themeColor, contrast, preset, visualizationPalette);
 
 	// `index.html` may have added this element already
 	let style = document.querySelector<HTMLStyleElement>('#theme-color');

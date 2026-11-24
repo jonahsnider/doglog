@@ -281,6 +281,12 @@
 	--chart-3: rgb(0 130 91);
 	--chart-4: rgb(0 122 170);
 	--chart-5: rgb(143 87 200);
+	/* Only widget series colors are overridden by the visualization palette. */
+	--series-1: var(--chart-1);
+	--series-2: var(--chart-2);
+	--series-3: var(--chart-3);
+	--series-4: var(--chart-4);
+	--series-5: var(--chart-5);
 	/* Status colors generated from the theme color, see `statusColorVariables()` in src/theme/status-color.ts */
 	--success: rgb(64 164 85);
 	--success-foreground: rgb(0 110 43);

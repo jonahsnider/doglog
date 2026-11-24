@@ -51,7 +51,8 @@ How Studio's UI is built. The OpenSpec specs in `openspec/specs` describe what u
 - FrogLog uses a leaf-green seed and a separate stream-blue secondary palette, so primary actions are green and selected sidebar items are blue.
 - Neutral replaces the accent and neutral palettes with untinted grays, so only status, series, and error colors have a hue. Gray has no hue for them to start from, so they're generated from Tailwind's `blue-500`.
 - Colors are generated from the theme color as a Material Design 3 scheme (`src/theme/theme-color.ts`). When a new color is needed, derive it there too:
-  - Categorical colors (ex. series) rotate the hue in HCT and share one tone, so each contrasts equally with the background.
+  - By default, categorical colors (ex. series) rotate the hue in HCT and share one tone, so each contrasts equally with the background.
+  - Visualization color palettes override only the five widget series colors. Use fixed light and dark colors checked under the corresponding color vision simulation; don't shift them toward the theme color.
   - Semantic colors (ex. success) harmonize a fixed hue toward the theme color. Don't harmonize hue-sensitive colors like warning.
   - Use mid tones (about 60 in light and 70 in dark) for fills, and 40 or 80 for text.
 - Colors that come from robot data are drawn as logged, since teams pick them on purpose: Mechanism2d ligament and background colors. Like the field image, they don't follow the theme.

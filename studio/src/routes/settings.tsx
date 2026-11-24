@@ -14,7 +14,7 @@ import { UtilityPage, UtilityPageSection } from '@/components/utility-page';
 import { getRobotHost } from '@/robot-target';
 import { useAnonymousName } from '@/sharing/identity';
 import { reportsNaturalScrolling, updateSettings, useSettings } from '@/settings';
-import { AppearanceSettings, ContrastSetting } from '@/theme/appearance-settings';
+import { AppearanceSettings, ContrastSetting, VisualizationPaletteSetting } from '@/theme/appearance-settings';
 
 export const Route = createFileRoute('/settings')({
 	component: Settings,
@@ -43,6 +43,7 @@ function Settings() {
 
 				<UtilityPageSection title="Accessibility">
 					<ContrastSetting />
+					<VisualizationPaletteSetting />
 
 					<FramePanel>
 						<Field name="reduceMotion">

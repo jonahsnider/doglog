@@ -2,19 +2,19 @@
 
 ## Purpose
 
-Define the Settings page, where users choose the color theme and contrast, whether to reduce motion, their name, the robot connection target, and whether media controls control playback, with all settings persisted locally on the device. The page also shows which version of Studio is running.
+Define the Settings page, where users choose the color theme, contrast, visualization colors, whether to reduce motion, their name, the robot connection target, and whether media controls control playback, with all settings persisted locally on the device. The page also shows which version of Studio is running.
 
 ## Requirements
 
 ### Requirement: Settings sections
 
-Settings SHALL group related settings under titled sections, in this order: Appearance (theme and theme color), Accessibility (contrast and reduce motion), Robot (robot connection), Sharing (name, while signed out of Cloud), and System (media controls, natural scrolling, the terminal command, and coding agents).
+Settings SHALL group related settings under titled sections, in this order: Appearance (theme and theme color), Accessibility (contrast, visualization colors, and reduce motion), Robot (robot connection), Sharing (name, while signed out of Cloud), and System (media controls, natural scrolling, the terminal command, and coding agents).
 
 #### Scenario: Find the theme
 
 - **WHEN** the user opens Settings
 - **THEN** the theme and theme color settings are under Appearance
-- **AND** the contrast and reduce motion settings are under Accessibility
+- **AND** the contrast, visualization colors, and reduce motion settings are under Accessibility
 
 ### Requirement: Theme setting
 
@@ -139,6 +139,17 @@ Settings SHALL let users choose standard, medium, or high contrast for generated
 - **GIVEN** the Team 581 maroon preset is selected
 - **WHEN** the user selects high contrast
 - **THEN** Studio's light and dark themes are regenerated at high contrast
+
+### Requirement: Visualization colors setting
+
+Settings SHALL let users choose Default, Red–green (protan), Red–green (deutan), or Blue–yellow (tritan) for widget series colors, defaulting to Default. The selected value and each option SHALL show the palette's five series colors for the current appearance, in series order.
+
+#### Scenario: Change visualization colors
+
+- **GIVEN** a graph has a series assigned to color slot 2
+- **WHEN** the user selects Blue–yellow (tritan)
+- **THEN** the series and its legend use slot 2 from the tritan palette
+- **AND** the app theme, contrast, and saved dashboard are unchanged
 
 ### Requirement: Reduce motion setting
 

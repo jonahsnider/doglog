@@ -1,6 +1,8 @@
 import { Contrast, Hct, argbFromHex, lstarFromArgb } from '@material/material-color-utilities';
 import { afterEach, assert, describe, expect, test, vi } from 'vite-plus/test';
+import { themePresets, visualizationPalettes } from '@/theme/choices';
 import css from '../index.css?raw';
+import { seriesPaletteVariables } from './series-palette.ts';
 import {
 	applyThemeColor,
 	chartColorVariables,
@@ -88,17 +90,48 @@ test('switching presets restores the chosen scheme', () => {
 	});
 	vi.stubGlobal('localStorage', { setItem });
 
-	applyThemeColor('#123456', 'custom', 'standard');
+	applyThemeColor('#123456', 'custom', 'standard', 'default');
 	const customCss = style.textContent;
 	expect(customCss).toContain(themeColorVariables('#123456', false, 'standard', 'custom'));
 	expect(customCss).toContain(themeColorVariables('#123456', true, 'standard', 'custom'));
 
-	applyThemeColor('#123456', 'team581', 'standard');
+	applyThemeColor('#123456', 'team581', 'standard', 'default');
 	expect(style.textContent).toContain(themeColorVariables(defaultThemeColor, false, 'standard', 'team581'));
 	expect(style.textContent).toContain(themeColorVariables(defaultThemeColor, true, 'standard', 'team581'));
 
-	applyThemeColor('#123456', 'custom', 'standard');
+	applyThemeColor('#123456', 'custom', 'standard', 'default');
 	expect(style.textContent).toBe(customCss);
+});
+
+test.each(visualizationPalettes.filter((palette) => palette !== 'default'))(
+	'%s changes only the five series colors, with contrast on light and dark surfaces',
+	(palette) => {
+		const style = { textContent: '' };
+		vi.stubGlobal('document', { querySelector: () => style });
+		vi.stubGlobal('localStorage', { setItem: () => {} });
+
+		applyThemeColor(defaultThemeColor, 'team581', 'standard', palette);
+		const themedCss = style.textContent;
+		const seriesDeclaration = /--series-[1-5]:(#[\da-f]{6});/gu;
+		for (const [index, dark] of [false, true].entries()) {
+			const block = themedCss.split('}')[index]!;
+			const colors = Array.from(block.matchAll(seriesDeclaration), ([, color]) => color!);
+			expect(new Set(colors).size).toBe(5);
+			for (const preset of themePresets) {
+				const surface = lstarFromArgb(schemeColors(defaultThemeColor, dark, 'standard', preset)('surface'));
+				for (const color of colors) {
+					expect(Contrast.ratioOfTones(lstarFromArgb(argbFromHex(color)), surface)).toBeGreaterThanOrEqual(3);
+				}
+			}
+		}
+
+		applyThemeColor(defaultThemeColor, 'team581', 'standard', 'default');
+		expect(themedCss.replaceAll(seriesDeclaration, '')).toBe(style.textContent);
+	},
+);
+
+test.each([false, true])('deutan includes a neutral series color instead of another hue (dark: %s)', (dark) => {
+	expect(seriesPaletteVariables('deutan', dark)).toMatch(/--series-[1-5]:#([\da-f]{2})\1\1;/u);
 });
 
 test.each(

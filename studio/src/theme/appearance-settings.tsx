@@ -5,9 +5,21 @@ import { Fieldset, FieldsetLegend } from '@/components/ui/fieldset';
 import { FramePanel } from '@/components/ui/frame';
 import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control';
+import { Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { updateSettings, useSettings } from '@/settings';
-import { type Contrast, contrasts, type Theme, type ThemePreset, themePresets, themes } from '@/theme/choices';
+import {
+	chartCount,
+	type Contrast,
+	contrasts,
+	type Theme,
+	type ThemePreset,
+	themePresets,
+	themes,
+	type VisualizationPalette,
+	visualizationPalettes,
+} from '@/theme/choices';
+import { seriesPaletteColors } from '@/theme/series-palette';
 import { defaultCustomColor, type ThemePreviewColors, themePreviewColors } from '@/theme/theme-color';
 
 const themeLabels: Record<Theme, string> = {
@@ -29,6 +41,17 @@ const contrastLabels: Record<Contrast, string> = {
 	medium: 'Medium',
 	high: 'High',
 };
+
+const visualizationPaletteLabels: Record<VisualizationPalette, string> = {
+	default: 'Default',
+	protan: 'Red–green (protan)',
+	deutan: 'Red–green (deutan)',
+	tritan: 'Blue–yellow (tritan)',
+};
+const visualizationPaletteItems = visualizationPalettes.map((value) => ({
+	value,
+	label: visualizationPaletteLabels[value],
+}));
 
 export function AppearanceSettings() {
 	const { theme, themeColor, themePreset, contrast } = useSettings();
@@ -144,6 +167,61 @@ export function ContrastSetting() {
 				</Fieldset>
 			</Field>
 		</FramePanel>
+	);
+}
+
+export function VisualizationPaletteSetting() {
+	const { visualizationPalette } = useSettings();
+
+	return (
+		<FramePanel>
+			<Field name="visualizationPalette">
+				<FieldLabel>Visualization colors</FieldLabel>
+				<Select
+					items={visualizationPaletteItems}
+					value={visualizationPalette}
+					onValueChange={(value) => {
+						if (value !== null) {
+							updateSettings({ visualizationPalette: value });
+						}
+					}}
+				>
+					<SelectTrigger className="w-72 max-w-full py-1">
+						<span className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-x-2 gap-y-1">
+							<SelectValue className="flex-auto whitespace-normal" />
+							<PaletteSwatches palette={visualizationPalette} />
+						</span>
+					</SelectTrigger>
+					<SelectPopup alignItemWithTrigger={false}>
+						{visualizationPaletteItems.map(({ value, label }) => (
+							<SelectItem key={value} value={value}>
+								<span className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+									{label}
+									<PaletteSwatches palette={value} />
+								</span>
+							</SelectItem>
+						))}
+					</SelectPopup>
+				</Select>
+			</Field>
+		</FramePanel>
+	);
+}
+
+function PaletteSwatches({ palette }: { palette: VisualizationPalette }) {
+	const colors =
+		palette === 'default'
+			? Array.from({ length: chartCount }, (_, index) => `var(--chart-${index + 1})`)
+			: seriesPaletteColors[palette].light.map(
+					(color, index) => `light-dark(${color}, ${seriesPaletteColors[palette].dark[index]})`,
+				);
+
+	return (
+		<span aria-hidden="true" className="flex shrink-0 gap-1">
+			{colors.map((color) => (
+				<span key={color} className="size-3 rounded-full forced-color-adjust-none" style={{ backgroundColor: color }} />
+			))}
+		</span>
 	);
 }
 

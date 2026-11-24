@@ -22,6 +22,7 @@ test('new settings keep the Team 581 default', async () => {
 		themePreset: 'team581',
 		themeColor: '#1c1816',
 		contrast: 'standard',
+		visualizationPalette: 'default',
 		reduceMotion: false,
 		name: '',
 		robotTarget: '',
@@ -41,7 +42,7 @@ test('custom colors survive preset changes and a reload', async () => {
 		updateSettings({ themePreset });
 		expect(settingsStore.get().themeColor).toBe('#123456');
 	}
-	updateSettings({ themePreset: 'froglog' });
+	updateSettings({ themePreset: 'froglog', visualizationPalette: 'tritan' });
 	vi.resetModules();
 	const reloaded = await import('./settings.ts');
 	expect(reloaded.settingsStore.get()).toStrictEqual({
@@ -49,6 +50,7 @@ test('custom colors survive preset changes and a reload', async () => {
 		themePreset: 'froglog',
 		themeColor: '#123456',
 		contrast: 'standard',
+		visualizationPalette: 'tritan',
 		reduceMotion: false,
 		name: '',
 		robotTarget: '',

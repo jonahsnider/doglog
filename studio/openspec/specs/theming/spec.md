@@ -97,7 +97,7 @@ The theme SHALL provide success, info, warning, and test mode status colors, eac
 
 ### Requirement: Series colors
 
-The theme SHALL provide 5 series colors for widgets that color entries, and every series color MUST be distinguishable from the others in both light and dark variants. The series colors MUST be generated from the theme color: the first takes the theme color's hue, the rest are spaced evenly around the hue wheel, and all share one lightness so each contrasts equally with the background.
+The theme SHALL provide 5 distinguishable series colors in light and dark. Default MUST space the hues evenly starting from the theme hue, at the same lightness. Protan, deutan, and tritan MUST use fixed light and dark palettes checked under the corresponding color vision simulation. They MUST NOT change logged colors or the game field.
 
 #### Scenario: Five entries in light theme
 
@@ -107,7 +107,7 @@ The theme SHALL provide 5 series colors for widgets that color entries, and ever
 
 #### Scenario: Themed series colors
 
-- **GIVEN** the match13 preset is selected
+- **GIVEN** the match13 preset and Default visualization colors are selected
 - **WHEN** a widget colors entries
 - **THEN** the first entry is blue, matching match13's theme color
 

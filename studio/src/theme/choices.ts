@@ -9,5 +9,8 @@ export type ThemePreset = (typeof themePresets)[number];
 export const contrasts = ['standard', 'medium', 'high'] as const;
 export type Contrast = (typeof contrasts)[number];
 
-/** Number of `--chart-*` colors, spaced evenly around the hue wheel starting from the theme color's hue */
+export const visualizationPalettes = ['default', 'protan', 'deutan', 'tritan'] as const;
+export type VisualizationPalette = (typeof visualizationPalettes)[number];
+
+/** Number of colors in each series palette */
 export const chartCount = 5;

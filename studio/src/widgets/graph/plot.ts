@@ -23,7 +23,7 @@ export type PlotSeries = {
 /** Range of a y-axis the user zoomed, the axis fits the data in view otherwise */
 export type ManualRanges = Partial<Record<'y' | 'y2', [number, number]>>;
 
-/** Resolves CSS colors like `var(--chart-1)` for drawing on a canvas, read each time so theme changes apply */
+/** Resolves CSS colors like `var(--series-1)` for drawing on a canvas, read each time so theme changes apply */
 function resolveColor(element: Element, color: string): string {
 	const variable = /^var\((--[\w-]+)\)$/u.exec(color)?.[1];
 	return variable === undefined ? color : getComputedStyle(element).getPropertyValue(variable).trim();
