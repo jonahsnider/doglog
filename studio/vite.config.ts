@@ -1,4 +1,5 @@
 // oxlint-disable max-lines -- Most of this is lint config, which is easier to follow in one place
+import { astryxStylex } from '@astryxdesign/build/vite';
 import codspeedPlugin from '@codspeed/vitest-plugin';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
@@ -332,6 +333,8 @@ export default defineConfig({
 		// Only active when CodSpeed runs the benchmarks in CI
 		codspeedPlugin(),
 		tanstackRouter({ target: 'react', autoCodeSplitting: true }),
+		// Compiles Astryx from source, so only the components Studio imports ship their styles, and Studio's own StyleX
+		...astryxStylex(),
 		react({
 			compiler: true,
 			// Leave the registry UI and generated routes alone. Compile both TSX components and TS hooks.

@@ -3,7 +3,7 @@ import { createAtom } from '@tanstack/store';
 import { formatForDisplay, type Hotkey } from '@tanstack/react-hotkeys';
 import { invoke } from '@tauri-apps/api/core';
 import { check } from '@tauri-apps/plugin-updater';
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 
 type Update = {
 	/** The web app can't know the new version until it loads it */

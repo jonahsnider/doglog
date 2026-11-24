@@ -1,4 +1,5 @@
 import { useSelector } from '@tanstack/react-store';
+import { createAtom } from '@tanstack/store';
 import * as z from 'zod';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { contrasts, themePresets, themes, visualizationPalettes } from '@/theme/choices';
@@ -55,6 +56,9 @@ export function updateSettings(changes: Partial<Settings>): void {
 	settingsStore.set((settings) => ({ ...settings, ...changes }));
 }
 
+/** The color mode the theme setting resolves to, following the OS color scheme for `system` */
+export const colorModeStore = createAtom<'light' | 'dark'>('light');
+
 /**
  * Keep the `dark` class on the root element in sync with the theme setting and the OS color scheme, the colors in sync
  * with the color settings, and the `reduce-motion` class in sync with the reduce motion setting
@@ -67,7 +71,9 @@ export function syncTheme(): void {
 	let appliedVisualizationPalette: Settings['visualizationPalette'] | undefined;
 	const applyTheme = () => {
 		const { theme, themeColor, themePreset, contrast, visualizationPalette, reduceMotion } = settingsStore.get();
-		document.documentElement.classList.toggle('dark', theme === 'dark' || (theme === 'system' && darkQuery.matches));
+		const dark = theme === 'dark' || (theme === 'system' && darkQuery.matches);
+		document.documentElement.classList.toggle('dark', dark);
+		colorModeStore.set(dark ? 'dark' : 'light');
 		document.documentElement.classList.toggle('reduce-motion', reduceMotion);
 		// Other settings changes, ex. typing a robot target, don't need the colors regenerated
 		if (

@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 import { DashboardLinkTooLarge, encodeDashboardLink } from '@/dashboards/dashboard-link';
 import type { DashboardContents } from '@/dashboards/doc';
 import { panes } from '@/panes/layout';

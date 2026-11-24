@@ -1,15 +1,13 @@
+import { Button } from '@astryxdesign/core/Button';
+import { Switch } from '@astryxdesign/core/Switch';
+import { TextInput } from '@astryxdesign/core/TextInput';
 import { createFileRoute } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import type { ReactNode } from 'react';
 import { cloudAccountStore } from '@/cloud/session';
 import { aboutDialog } from '@/components/about-dialog-handle';
 import { CliField } from '@/components/cli-field';
-import { Button } from '@/components/ui/button';
-import { DialogTrigger } from '@/components/ui/dialog';
-import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { FramePanel } from '@/components/ui/frame';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { UtilityPage, UtilityPageSection } from '@/components/utility-page';
 import { getRobotHost } from '@/robot-target';
 import { useAnonymousName } from '@/sharing/identity';
@@ -30,11 +28,7 @@ function Settings() {
 	return (
 		<UtilityPage
 			title="Settings"
-			actions={
-				<DialogTrigger handle={aboutDialog} render={<Button variant="outline" />}>
-					About DogLog Studio
-				</DialogTrigger>
-			}
+			actions={<Button label="About DogLog Studio" onClick={() => aboutDialog.open(null)} />}
 		>
 			<div className="flex max-w-2xl flex-1 flex-col gap-6">
 				<UtilityPageSection title="Appearance">
@@ -46,101 +40,75 @@ function Settings() {
 					<VisualizationPaletteSetting />
 
 					<FramePanel>
-						<Field name="reduceMotion">
-							<FieldLabel>
-								<Switch
-									checked={reduceMotion}
-									onCheckedChange={(checked) => updateSettings({ reduceMotion: checked })}
-								/>
-								Reduce motion
-							</FieldLabel>
-							<FieldDescription>Skip layout animations, always on when your system reduces motion</FieldDescription>
-						</Field>
+						<Switch
+							label="Reduce motion"
+							description="Skip layout animations, always on when your system reduces motion"
+							value={reduceMotion}
+							onChange={(checked) => updateSettings({ reduceMotion: checked })}
+						/>
 					</FramePanel>
 				</UtilityPageSection>
 
 				<UtilityPageSection title="Robot">
 					<FramePanel>
-						<Field name="robotTarget" invalid={robotTargetInvalid}>
-							<FieldLabel>Robot connection</FieldLabel>
-							<Input
-								value={robotTarget}
-								onValueChange={(value) => updateSettings({ robotTarget: value })}
-								placeholder="581 or 10.5.81.2"
-								autoComplete="off"
-								spellCheck={false}
-							/>
-							{robotTargetInvalid ? (
-								<FieldError match>Enter a team number or an IP address</FieldError>
-							) : (
-								<FieldDescription>
-									{robotHost === undefined ? 'Team number or IP address of the robot' : `Connect uses ${robotHost}`}
-								</FieldDescription>
-							)}
-						</Field>
+						<TextInput
+							label="Robot connection"
+							description={
+								robotHost === undefined ? 'Team number or IP address of the robot' : `Connect uses ${robotHost}`
+							}
+							value={robotTarget}
+							onChange={(value) => updateSettings({ robotTarget: value })}
+							placeholder="581 or 10.5.81.2"
+							autoComplete="off"
+							hasSpellCheck={false}
+							status={
+								robotTargetInvalid ? { type: 'error', message: 'Enter a team number or an IP address' } : undefined
+							}
+						/>
 					</FramePanel>
 					<FramePanel>
-						<Field name="reduceLiveBandwidth">
-							<FieldLabel>
-								<Switch
-									checked={reduceLiveBandwidth}
-									onCheckedChange={(checked) => updateSettings({ reduceLiveBandwidth: checked })}
-								/>
-								Reduce live bandwidth
-							</FieldLabel>
-							<FieldDescription>
-								Keep dashboard entries responsive and sample other entries about every 2 seconds. Live recordings may
-								miss changes.
-							</FieldDescription>
-						</Field>
+						<Switch
+							label="Reduce live bandwidth"
+							description="Keep dashboard entries responsive and sample other entries about every 2 seconds. Live recordings may miss changes."
+							value={reduceLiveBandwidth}
+							onChange={(checked) => updateSettings({ reduceLiveBandwidth: checked })}
+						/>
 					</FramePanel>
 				</UtilityPageSection>
 
 				{!hasCloudAccount && (
 					<UtilityPageSection title="Sharing">
 						<FramePanel>
-							<Field name="name">
-								<FieldLabel>Name</FieldLabel>
-								<Input
-									value={name}
-									onValueChange={(value) => updateSettings({ name: value })}
-									placeholder={anonymousName}
-									autoComplete="name"
-								/>
-								<FieldDescription>Shown to others in shared dashboards</FieldDescription>
-							</Field>
+							<TextInput
+								label="Name"
+								description="Shown to others in shared dashboards"
+								value={name}
+								onChange={(value) => updateSettings({ name: value })}
+								placeholder={anonymousName}
+								autoComplete="name"
+							/>
 						</FramePanel>
 					</UtilityPageSection>
 				)}
 
 				<UtilityPageSection title="System">
 					<FramePanel>
-						<Field name="mediaControls">
-							<FieldLabel>
-								<Switch
-									checked={mediaControls}
-									onCheckedChange={(checked) => updateSettings({ mediaControls: checked })}
-								/>
-								Media controls
-							</FieldLabel>
-							<FieldDescription>
-								Play, pause, and seek logs with media keys and the system media controls
-							</FieldDescription>
-						</Field>
+						<Switch
+							label="Media controls"
+							description="Play, pause, and seek logs with media keys and the system media controls"
+							value={mediaControls}
+							onChange={(checked) => updateSettings({ mediaControls: checked })}
+						/>
 					</FramePanel>
 
 					{!reportsNaturalScrolling && (
 						<FramePanel>
-							<Field name="naturalScrolling">
-								<FieldLabel>
-									<Switch
-										checked={naturalScrolling}
-										onCheckedChange={(checked) => updateSettings({ naturalScrolling: checked })}
-									/>
-									Natural scrolling
-								</FieldLabel>
-								<FieldDescription>Match your trackpad so scrolling the timeline follows your fingers</FieldDescription>
-							</Field>
+							<Switch
+								label="Natural scrolling"
+								description="Match your trackpad so scrolling the timeline follows your fingers"
+								value={naturalScrolling}
+								onChange={(checked) => updateSettings({ naturalScrolling: checked })}
+							/>
 						</FramePanel>
 					)}
 

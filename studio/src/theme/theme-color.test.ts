@@ -12,6 +12,7 @@ import {
 	themePreviewColors,
 } from './theme-color.ts';
 import { statusColorVariables } from './status-color.ts';
+import { team581Palette } from './team581-theme.ts';
 
 afterEach(() => {
 	vi.unstubAllGlobals();
@@ -66,6 +67,17 @@ describe('themeColorVariables()', () => {
 			Contrast.ratioOfTones(lstarFromArgb(argbFromHex(primary)), lstarFromArgb(argbFromHex(onPrimary))),
 		).toBeGreaterThanOrEqual(ratio);
 	});
+});
+
+// The shared Team 581 Astryx theme has its own copy of the maroon scheme, so other apps don't need this generator
+test.each([
+	[false, 0],
+	[true, 1],
+] as const)('the Team 581 Astryx palette matches the generated maroon scheme (dark: %s)', (dark, mode) => {
+	const generated = `;${themeColorVariables(defaultThemeColor, dark, 'standard', 'team581')}${statusColorVariables(defaultThemeColor, dark)}`;
+	for (const [role, colors] of Object.entries(team581Palette)) {
+		expect(generated).toMatch(new RegExp(`;--(?:md-)?${role}:${colors[mode]};`, 'u'));
+	}
 });
 
 test.each([false, true])('FrogLog uses readable green and blue accents (dark: %s)', (dark) => {

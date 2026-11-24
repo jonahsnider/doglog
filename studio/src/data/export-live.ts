@@ -2,7 +2,7 @@ import { detectPlatform, type Hotkey } from '@tanstack/react-hotkeys';
 import { invoke } from '@tauri-apps/api/core';
 import { save } from '@tauri-apps/plugin-dialog';
 import { revealItemInDir } from '@tauri-apps/plugin-opener';
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 import { getLiveRecording } from '@/data/recording';
 
 /** Exports like saving in other apps, on the web too since saving the page isn't useful */

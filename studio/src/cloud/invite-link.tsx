@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FramePanel } from '@/components/ui/frame';
 import { Input } from '@/components/ui/input';
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 import { api } from '../../../cloud/convex/_generated/api.js';
 import { ConfirmCloudAction } from './confirm-cloud-action';
 import { studioWebsiteOrigin } from './deployment';

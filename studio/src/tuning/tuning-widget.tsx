@@ -5,7 +5,7 @@ import { use, useRef, useState } from 'react';
 import { InlineShortcut } from '@/components/inline-shortcut';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 import { type Entry, useDataVersion } from '@/data/data-store';
 import type { LiveStatus } from '@/data/live-source';
 import { useSource } from '@/data/source';

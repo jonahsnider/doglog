@@ -2,7 +2,7 @@ import { useRouter } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import * as z from 'zod';
 import { cloudAccountStore } from '@/cloud/session';
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { settingsStore } from '@/settings';
 import { displayNameStore } from '@/sharing/identity';

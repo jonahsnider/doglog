@@ -1,4 +1,14 @@
-@import 'tailwindcss';
+/*
+ * Cascade layers, lowest first: resets, Astryx's components and theme, Studio's StyleX, then Tailwind utilities while the
+ * app moves off them. `@astryxdesign/build` declares the first four in `index.html`, so Tailwind's preflight goes in the
+ * reset layer instead of its own `base` layer, which would land above Astryx's components. Astryx's component styles are
+ * compiled from its source by the Vite plugin, so only the components Studio imports ship, and there's no `astryx.css`.
+ */
+@layer reset, astryx-base, astryx-theme, product, theme, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(reset);
+@import '@astryxdesign/core/reset.css';
+@import 'tailwindcss/utilities.css' layer(utilities);
 @import '@fontsource-variable/ibm-plex-sans';
 @import '@fontsource-variable/source-sans-3';
 @import '@fontsource/ibm-plex-mono/400.css';
@@ -430,7 +440,7 @@
 	--fuel-outline: var(--fuel);
 }
 
-@layer base {
+@layer reset {
 	* {
 		@apply border-border outline-ring/50;
 	}

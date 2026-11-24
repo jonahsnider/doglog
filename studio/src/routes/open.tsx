@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { Spinner } from '@/components/ui/spinner';
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 import { buildOpenLogDeepLink, initialLogLabel, normalizeLogUrl } from '@/data/log-url';
 import { type OpenLogUrlError, openLogUrl } from '@/data/open-log-url';
 import { closeLog } from '@/data/source';

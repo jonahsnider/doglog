@@ -1,6 +1,6 @@
 // Live sessions are recorded to WPILOG files in the origin private file system, one per session, so they can be
 // exported and restored after Studio closes. See `@/data/recorder` for what's written.
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 import type { RestoredLog } from '@/data/log-worker';
 import type { RecordingEvent } from '@/data/recorder';
 import type { RecordingWorkerMessage, RecordingWorkerRequest } from '@/data/recording-worker';

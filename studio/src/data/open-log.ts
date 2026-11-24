@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 import { openLogUrl } from '@/data/open-log-url';
 import {
 	addRecentLog,

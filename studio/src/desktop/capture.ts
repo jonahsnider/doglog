@@ -3,7 +3,7 @@ import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import { invoke } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 import { showVideoFrame } from '@/timeline/timeline';
 
 export const canCapture = STUDIO_DESKTOP && '__DOGLOG_CAPTURE__' in window;

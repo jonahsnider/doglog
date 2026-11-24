@@ -1,10 +1,10 @@
+import { Button } from '@astryxdesign/core/Button';
 import { invoke } from '@tauri-apps/api/core';
 import { useEffect, useState } from 'react';
 import { AgentsField } from '@/components/agents-field';
-import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldLabel } from '@/components/ui/field';
 import { FramePanel } from '@/components/ui/frame';
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 
 /** Other platforms install the `doglog` command with the app */
 const canInstallCli = STUDIO_DESKTOP && navigator.userAgent.includes('Mac');
@@ -58,12 +58,14 @@ function CliInstall() {
 					<FieldLabel>Terminal command</FieldLabel>
 					<div>
 						<Button
-							variant="outline"
+							label={`${status === 'missing' ? 'Install' : 'Reinstall'} doglog command`}
 							size="sm"
-							onClick={() => void installCli().then((installed) => installed && setStatus('installed'))}
-						>
-							{status === 'missing' ? 'Install' : 'Reinstall'} doglog command
-						</Button>
+							clickAction={async () => {
+								if (await installCli()) {
+									setStatus('installed');
+								}
+							}}
+						/>
 					</div>
 					<FieldDescription>
 						{cliStatusDescriptions[status]} <code className="font-mono">doglog match.wpilog</code>

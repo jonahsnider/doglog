@@ -5,7 +5,7 @@ import { createAtom } from '@tanstack/store';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { save } from '@tauri-apps/plugin-dialog';
 import { revealItemInDir } from '@tauri-apps/plugin-opener';
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 import { canCopyDashboardLink } from '@/dashboards/copy-dashboard-link';
 import { type Dashboard, getDashboard } from '@/dashboards/dashboards';
 import { dashboardName } from '@/dashboards/label';

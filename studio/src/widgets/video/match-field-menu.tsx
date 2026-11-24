@@ -1,5 +1,5 @@
 import { type RefObject, use, useEffect, useRef, useState } from 'react';
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 import { getDashboard } from '@/dashboards/dashboards';
 import { DashboardIdContext, DashboardLayoutContext, updateLayout } from '@/dashboards/panes';
 import { findPane, panes } from '@/panes/layout';

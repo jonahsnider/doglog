@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 import { addEntries, dropEntry, type EntryDrop, widgetBindings, WidgetEntryLimitError } from '@/widgets/bindings';
 import {
 	createDashboard,

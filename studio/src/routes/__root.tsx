@@ -10,7 +10,7 @@ import { OpenLogUrlDialog } from '@/components/open-log-url-dialog';
 import { useDesktopLinkOffer } from '@/dashboards/open-dashboard-link';
 import { LogDropOverlay } from '@/components/log-drop-overlay';
 import { SidebarInset } from '@/components/ui/sidebar';
-import { ToastProvider } from '@/components/ui/toast';
+import { Toasts } from '@/components/toasts';
 import { useMobileLayout } from '@/lib/mobile-layout';
 import { cn } from '@/lib/utils';
 import { useTitleBarStrip } from '@/desktop/title-bar';
@@ -25,7 +25,7 @@ export const Route = createRootRoute({
 function RootLayout() {
 	useGlobalShortcuts();
 	useWindowTitle();
-	// After ToastProvider's effect subscribes it, since child effects run first
+	// After the toast bridge's effect subscribes it, since child effects run first
 	useDesktopLinkOffer();
 	const matchRoute = useMatchRoute();
 	const dashboard = matchRoute({ to: '/dashboards/$dashboardId' }) !== false;
@@ -38,7 +38,7 @@ function RootLayout() {
 
 	return (
 		<CloudProvider>
-			<ToastProvider>
+			<Toasts>
 				{/* Wraps the whole app, so dashboards and panes can be dragged between the sidebar and the main area */}
 				<DragProvider>
 					<div
@@ -74,7 +74,7 @@ function RootLayout() {
 				<LogDropOverlay />
 				<AboutDialog />
 				<OpenLogUrlDialog />
-			</ToastProvider>
+			</Toasts>
 		</CloudProvider>
 	);
 }

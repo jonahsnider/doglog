@@ -1,4 +1,4 @@
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 import { findConnectTarget, findReachable, isSourceTarget } from '@/data/connect-target';
 import type { DataSet } from '@/data/data-set';
 import { createDataSet } from '@/data/data-store';

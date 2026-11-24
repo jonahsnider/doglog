@@ -2,7 +2,7 @@ import type { RegisteredRouter } from '@tanstack/react-router';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { useEffect } from 'react';
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 
 declare global {
 	interface Navigator {

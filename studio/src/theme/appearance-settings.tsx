@@ -1,11 +1,12 @@
+import { Button } from '@astryxdesign/core/Button';
+import { Field as AstryxField } from '@astryxdesign/core/Field';
+import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
+import { Selector } from '@astryxdesign/core/Selector';
 import type { ReactNode } from 'react';
-import { Button } from '@/components/ui/button';
 import { Field, FieldControl, FieldLabel } from '@/components/ui/field';
 import { Fieldset, FieldsetLegend } from '@/components/ui/fieldset';
 import { FramePanel } from '@/components/ui/frame';
 import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
-import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control';
-import { Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { updateSettings, useSettings } from '@/settings';
 import {
@@ -126,13 +127,11 @@ export function AppearanceSettings() {
 							/>
 							<span className="font-mono text-sm text-muted-foreground">{themeColor}</span>
 							<Button
-								variant="outline"
+								label="Reset to default"
 								size="sm"
-								disabled={themeColor === defaultCustomColor}
+								isDisabled={themeColor === defaultCustomColor}
 								onClick={() => updateSettings({ themeColor: defaultCustomColor })}
-							>
-								Reset to default
-							</Button>
+							/>
 						</div>
 					</Field>
 				)}
@@ -146,26 +145,17 @@ export function ContrastSetting() {
 
 	return (
 		<FramePanel>
-			<Field name="contrast">
-				<Fieldset>
-					<FieldsetLegend className="mb-1 text-sm">Contrast</FieldsetLegend>
-					<SegmentedControl
-						render={
-							<RadioGroup
-								className="flex-row gap-0.5"
-								value={contrast}
-								onValueChange={(value: Contrast) => updateSettings({ contrast: value })}
-							/>
-						}
-					>
-						{contrasts.map((value) => (
-							<SegmentedControlItem key={value} render={<RadioPrimitive.Root value={value} />}>
-								{contrastLabels[value]}
-							</SegmentedControlItem>
-						))}
-					</SegmentedControl>
-				</Fieldset>
-			</Field>
+			<AstryxField label="Contrast" inputID="contrast" isGroupLabel>
+				<SegmentedControl
+					label="Contrast"
+					value={contrast}
+					onChange={(value) => updateSettings({ contrast: contrasts.find((choice) => choice === value) ?? contrast })}
+				>
+					{contrasts.map((value) => (
+						<SegmentedControlItem key={value} value={value} label={contrastLabels[value]} />
+					))}
+				</SegmentedControl>
+			</AstryxField>
 		</FramePanel>
 	);
 }
@@ -175,36 +165,31 @@ export function VisualizationPaletteSetting() {
 
 	return (
 		<FramePanel>
-			<Field name="visualizationPalette">
-				<FieldLabel>Visualization colors</FieldLabel>
-				<Select
-					items={visualizationPaletteItems}
-					value={visualizationPalette}
-					onValueChange={(value) => {
-						if (value !== null) {
-							updateSettings({ visualizationPalette: value });
-						}
-					}}
-				>
-					<SelectTrigger className="w-72 max-w-full py-1">
-						<span className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-x-2 gap-y-1">
-							<SelectValue className="flex-auto whitespace-normal" />
-							<PaletteSwatches palette={visualizationPalette} />
-						</span>
-					</SelectTrigger>
-					<SelectPopup alignItemWithTrigger={false}>
-						{visualizationPaletteItems.map(({ value, label }) => (
-							<SelectItem key={value} value={value}>
-								<span className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-									{label}
-									<PaletteSwatches palette={value} />
-								</span>
-							</SelectItem>
-						))}
-					</SelectPopup>
-				</Select>
-			</Field>
+			<Selector
+				label="Visualization colors"
+				options={visualizationPaletteItems}
+				value={visualizationPalette}
+				onChange={(value) =>
+					updateSettings({
+						visualizationPalette: visualizationPalettes.find((choice) => choice === value) ?? visualizationPalette,
+					})
+				}
+				renderOption={(option) => <PaletteOption value={option.value} />}
+				renderValue={(option) => <PaletteOption value={option.value} />}
+				width={288}
+			/>
 		</FramePanel>
+	);
+}
+
+/** Selector options are strings, so this finds the palette an option's value names */
+function PaletteOption({ value }: { value: string }) {
+	const palette = visualizationPalettes.find((choice) => choice === value) ?? 'default';
+	return (
+		<span className="flex flex-1 flex-wrap items-center justify-between gap-x-2 gap-y-1">
+			{visualizationPaletteLabels[palette]}
+			<PaletteSwatches palette={palette} />
+		</span>
 	);
 }
 

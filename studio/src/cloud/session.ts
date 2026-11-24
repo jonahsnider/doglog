@@ -1,7 +1,7 @@
 // Cloud state the rest of Studio reads, kept free of Convex imports so dashboards can use it without loading Cloud
 import { createAtom } from '@tanstack/store';
 import * as z from 'zod';
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import type { Id } from '../../../cloud/convex/_generated/dataModel';
 

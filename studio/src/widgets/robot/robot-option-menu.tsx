@@ -1,5 +1,5 @@
 import { MenuItem, MenuRadioItem } from '@/components/ui/menu';
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 import { addRobotProject, canAddRobotProjects, removeRobotProject, useRobotProjects } from '@/three/robot-projects';
 
 /** The robots of the projects the user added */

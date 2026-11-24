@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldLabel } from '@/components/ui/field';
 import { FramePanel } from '@/components/ui/frame';
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 
 const agentIcons = {
 	'antigravity-cli': GoogleAntigravity,

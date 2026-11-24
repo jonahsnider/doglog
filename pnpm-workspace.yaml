@@ -18,6 +18,9 @@ peerDependencyRules:
   allowedVersions:
     vite: '*'
 allowBuilds:
+  # Their postinstall scripts only print a suggestion to run `astryx init`
+  '@astryxdesign/cli': false
+  '@astryxdesign/core': false
   esbuild: true
   sharp: true
   workerd: true

@@ -5,7 +5,7 @@ import type { ReactElement } from 'react';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Group, GroupSeparator } from '@/components/ui/group';
 import { Menu, MenuGroup, MenuGroupLabel, MenuItem, MenuLinkItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 
 type Platform = 'macos' | 'windows' | 'linux';
 

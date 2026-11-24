@@ -17,6 +17,7 @@ import { getSources, reopenDevLog, subscribeSource } from './data/source.ts';
 import { syncMediaSession } from './timeline/media-session.ts';
 import { routeTree } from './routeTree.gen.ts';
 import { syncTheme } from './settings.ts';
+import { StudioTheme } from './theme/studio-theme.tsx';
 import { startSharing } from './sharing/sharing.ts';
 import { runLogSync } from './sync/sync.ts';
 import { registerServiceWorker } from './updater.ts';
@@ -132,7 +133,9 @@ createRoot(document.querySelector('#root')!, {
 	onCaughtError: import.meta.env.PROD ? Sentry.reactErrorHandler() : undefined,
 }).render(
 	<StrictMode>
-		<RouterProvider router={router} />
+		<StudioTheme>
+			<RouterProvider router={router} />
+		</StudioTheme>
 	</StrictMode>,
 );
 

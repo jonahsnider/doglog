@@ -1,6 +1,6 @@
 import { Channel, invoke } from '@tauri-apps/api/core';
 import { openUrl } from '@tauri-apps/plugin-opener';
-import { toastManager } from '@/components/ui/toast';
+import { toastManager } from '@/components/toast';
 import { guessLogFileName, initialLogLabel } from '@/data/log-url';
 import type { OpenLogUrlError, OpenLogUrlErrorKind, OpenLogUrlResult } from '@/data/open-log-url';
 import { openLogStream } from '@/data/source';
