@@ -1,3 +1,4 @@
+import { setupApple } from '@convex-dev/auth/methods/apple/server';
 import { setupUsernamePasskey } from '@convex-dev/auth/methods/username-passkey/server';
 import { setupConvexAuth } from '@convex-dev/auth/server';
 import { components, internal } from './_generated/api';
@@ -19,3 +20,8 @@ export const {
 	rpId: studioUrl.hostname,
 	origin: studioUrl.origin,
 }).attachUserCallbacks({ createUser: internal.users.create });
+
+export const { startSignInWithApple, completeSignInWithApple } = setupApple(auth, {
+	component: components.authApple,
+	allowedRedirectOrigins: [studioUrl.origin],
+}).attachUserCallbacks({ createUser: internal.users.createWithApple });

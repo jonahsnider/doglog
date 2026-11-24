@@ -1,3 +1,4 @@
+import { vAppleProfile } from '@convex-dev/auth/methods/apple/server';
 import { getAuthUserId } from '@convex-dev/auth/server';
 import { ConvexError, v } from 'convex/values';
 import {
@@ -13,6 +14,13 @@ import { getMembership } from './teams';
 
 export const create = internalMutation({
 	args: { method: v.object({ name: v.literal('usernamePasskey'), profile: v.object({}) }) },
+	returns: v.id('users'),
+	handler: (ctx) => ctx.db.insert('users', {}),
+});
+
+// Cloud doesn't need the email or name Apple shares, so they aren't stored
+export const createWithApple = internalMutation({
+	args: { method: v.object({ name: v.literal('apple'), profile: vAppleProfile }) },
 	returns: v.id('users'),
 	handler: (ctx) => ctx.db.insert('users', {}),
 });
@@ -39,6 +47,7 @@ export const remove = mutation({
 
 		await ctx.runMutation(components.authPasskey.registration.deleteUser, { userId });
 		await ctx.runMutation(components.authUsername.public.deleteUsername, { userId });
+		await ctx.runMutation(components.authApple.provider.deleteUser, { userId });
 		const sessions = await ctx.runQuery(components.auth.public.listSessions, { userId });
 		await ctx.runMutation(components.auth.public.revokeSessions, {
 			sessionIds: sessions.map((session) => session.sessionId),

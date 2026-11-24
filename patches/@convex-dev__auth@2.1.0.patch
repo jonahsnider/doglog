@@ -1,0 +1,21 @@
+diff --git a/dist/components/apple/constants.js b/dist/components/apple/constants.js
+index b81d1ace88631f235b07f5edcff15958c3515b71..a31a2be578a941ce2a6e8c2acfbfab7014a35fe3 100644
+--- a/dist/components/apple/constants.js
++++ b/dist/components/apple/constants.js
+@@ -10,12 +10,14 @@ export const ISSUER = "https://appleid.apple.com";
+  * on the first authorization. Requesting either scope is also what makes
+  * Apple post the callback rather than redirect to it.
+  */
+-export const SCOPES = ["name", "email"];
++// DogLog Cloud only needs the stable account id, so it asks for no scopes. Without them, Apple redirects to the
++// callback instead of posting it.
++export const SCOPES = [];
+ /**
+  * How Apple delivers the callback. Requesting either of {@link SCOPES} makes
+  * Apple post it as a form rather than redirecting to it.
+  */
+-export const CALLBACK_METHOD = "POST";
++export const CALLBACK_METHOD = "GET";
+ /** The name this provider's accounts are namespaced under in the core. */
+ export const PROVIDER_NAME = "apple";
+ /**

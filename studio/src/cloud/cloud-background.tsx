@@ -23,7 +23,7 @@ export function CloudProvider({ children }: { children: ReactNode }) {
 		return children;
 	}
 	return (
-		<ConvexAuthProvider client={cloudClient} api={api.auth} ambientSignIns={[]}>
+		<ConvexAuthProvider client={cloudClient} api={api.auth}>
 			<CloudBackground />
 			{children}
 		</ConvexAuthProvider>
