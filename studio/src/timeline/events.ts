@@ -50,9 +50,16 @@ function toPeriods(
 	modeAt: (time: number) => RobotMode,
 	range: TimeRange,
 ): readonly ModePeriod[] {
-	const times = [
-		...new Set(sources.flatMap((entry) => [...entry.samples.timestamps.subarray(0, entry.samples.length)])),
-	];
+	const changeTimes = new Set<number>();
+	for (const { samples } of sources) {
+		const { timestamps, values } = samples;
+		for (let i = 0; i < values.length; i++) {
+			if (i === 0 || values[i] !== values[i - 1]) {
+				changeTimes.add(timestamps[i]!);
+			}
+		}
+	}
+	const times = [...changeTimes];
 	times.sort((a, b) => a - b);
 
 	const periods: { mode: RobotMode; start: number; end: number }[] = [];
