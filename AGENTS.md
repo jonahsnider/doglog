@@ -28,7 +28,7 @@ Ideally, most changes can be validated through the web app.
 4. Interact with the dev server using built-in browser tools
    - If built-in browser tools are broken or unavailable, use `agent-browser --session yourfeature` as a fallback
    - Safari WebDriver MCP is available for WebKit specific testing
-	 - `playwright-cli -s=yourfeature` is also an option
+     - `playwright-cli -s=yourfeature` is also an option
 
 ### Testing desktop app
 
