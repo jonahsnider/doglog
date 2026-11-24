@@ -2,7 +2,7 @@
 	"$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
 	"productName": "DogLog Studio",
 	"version": "0.0.0",
-	"identifier": "dev.doglog.studio",
+	"identifier": "studio.doglog",
 	"build": {
 		"frontendDist": "../dist",
 		"devUrl": "http://localhost:5173",
@@ -50,7 +50,7 @@
 				"role": "Viewer",
 				"mimeType": "application/x-wpilog",
 				"exportedType": {
-					"identifier": "dev.doglog.studio.wpilog",
+					"identifier": "studio.doglog.wpilog",
 					"conformsTo": ["public.data"]
 				}
 			},
@@ -61,7 +61,7 @@
 				"role": "Viewer",
 				"mimeType": "application/x-wpilogxz",
 				"exportedType": {
-					"identifier": "dev.doglog.studio.wpilogxz",
+					"identifier": "studio.doglog.wpilogxz",
 					"conformsTo": ["public.data"]
 				}
 			}
