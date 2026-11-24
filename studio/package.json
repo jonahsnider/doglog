@@ -122,7 +122,7 @@
 		"vite-plugin-pwa": "2.0.0",
 		"vite-plugin-svgr": "5.2.0",
 		"vite-plus": "catalog:",
-		"wrangler": "4.166.0",
+		"wrangler": "4.167.0",
 		"ws": "8.23.0"
 	},
 	"devEngines": {
