@@ -336,8 +336,8 @@ importers:
         specifier: 0.1.0-beta.16
         version: 0.1.0-beta.16
       '@ui-sdk/react':
-        specifier: 0.1.0-beta.14
-        version: 0.1.0-beta.14(@types/react@19.3.0)(@ui-sdk/core@0.1.0-beta.16)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: 0.1.0-beta.16
+        version: 0.1.0-beta.16(@types/react@19.3.0)(@ui-sdk/core@0.1.0-beta.16)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       change-case:
         specifier: 5.4.4
         version: 5.4.4
@@ -5514,11 +5514,11 @@ packages:
   '@ui-sdk/core@0.1.0-beta.16':
     resolution: {integrity: sha512-I2GMqOviLS/lYfIj2lTqKLbae0V9uSnysK+bSdbhuw2De8zNvrLZiDTc0qzsPNiZvB/bMmUZJS5UDA5Q2Pq4Ng==}
 
-  '@ui-sdk/react@0.1.0-beta.14':
-    resolution: {integrity: sha512-qfriaLQEd+Iy7+PhAK6d2j3e1Hs6A4lh50+d+6rSAADoBwkQ/jf11SGzfXV5pCuYFGps3Ekz2W4RwtiR6yryjg==}
+  '@ui-sdk/react@0.1.0-beta.16':
+    resolution: {integrity: sha512-pCM1Vb5Dycj05E63kY1CeX/jab9OlfDCGwhs29QtVenX0YrYzSRgkLYaHWscbew2gxVCBwcr8KBkh5BgH9eV+Q==}
     peerDependencies:
       '@types/react': '>=19.2.10'
-      '@ui-sdk/core': ^0.1.0-beta.14
+      '@ui-sdk/core': ^0.1.0-beta.16
       react: '>=19'
       react-dom: '>=19'
     peerDependenciesMeta:
@@ -14233,7 +14233,7 @@ snapshots:
 
   '@ui-sdk/core@0.1.0-beta.16': {}
 
-  '@ui-sdk/react@0.1.0-beta.14(@types/react@19.3.0)(@ui-sdk/core@0.1.0-beta.16)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@ui-sdk/react@0.1.0-beta.16(@types/react@19.3.0)(@ui-sdk/core@0.1.0-beta.16)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@ui-sdk/core': 0.1.0-beta.16
       react: 19.3.1
