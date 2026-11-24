@@ -54,6 +54,7 @@ function SignedIn() {
 	const { signOut } = useAuthActions();
 	const account = useQuery(api.users.getCurrent);
 	const team = useQuery(api.teams.getMine);
+	const pendingInvites = useQuery(api.invites.listPending, team === null ? {} : 'skip');
 	const deleteAccount = useMutation(api.users.remove);
 	const { invite } = Route.useSearch();
 	const [signingOut, setSigningOut] = useState(false);
@@ -73,8 +74,8 @@ function SignedIn() {
 	return (
 		<div className="flex max-w-2xl flex-col gap-6">
 			<UtilityPageSection title="Team">
-				{team === null && <JoinTeam invite={invite} />}
-				<TeamPanel team={team} invite={invite} />
+				{team === null && <JoinTeam invite={invite} pending={pendingInvites} />}
+				{(team !== null || pendingInvites?.length === 0) && <TeamPanel team={team} invite={invite} />}
 				{team && <TeamMembers />}
 			</UtilityPageSection>
 

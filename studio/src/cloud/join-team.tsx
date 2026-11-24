@@ -1,15 +1,17 @@
 import { useNavigate } from '@tanstack/react-router';
 import { useMutation, useQuery } from 'convex/react';
+import type { FunctionReturnType } from 'convex/server';
 import { ConvexError } from 'convex/values';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FramePanel } from '@/components/ui/frame';
 import { api } from '../../../cloud/convex/_generated/api.js';
 
+type PendingInvites = FunctionReturnType<typeof api.invites.listPending>;
+
 // Shown to a signed-in account without a team. Joining finishes when a teammate's Studio shares the team key.
-export function JoinTeam({ invite }: { invite: string | undefined }) {
+export function JoinTeam({ invite, pending }: { invite: string | undefined; pending: PendingInvites | undefined }) {
 	const navigate = useNavigate();
-	const pending = useQuery(api.invites.listPending);
 	const preview = useQuery(api.invites.preview, invite === undefined ? 'skip' : { token: invite });
 	const accept = useMutation(api.invites.accept);
 	const [joining, setJoining] = useState(false);
@@ -33,11 +35,9 @@ export function JoinTeam({ invite }: { invite: string | undefined }) {
 
 	if (pending !== undefined && pending.length > 0) {
 		return (
-			<FramePanel className="grid gap-1">
+			<FramePanel className="grid gap-3">
 				{pending.map(({ id, teamName }) => (
-					<p key={id} role="status" className="wrap-anywhere text-sm">
-						Waiting to join {teamName}
-					</p>
+					<PendingJoin key={id} id={id} teamName={teamName} />
 				))}
 				<p className="text-muted-foreground text-sm">
 					You’ll be added automatically when a teammate opens the Cloud page in DogLog Studio.
@@ -68,5 +68,44 @@ export function JoinTeam({ invite }: { invite: string | undefined }) {
 				</>
 			)}
 		</FramePanel>
+	);
+}
+
+function PendingJoin({ id, teamName }: PendingInvites[number]) {
+	const cancel = useMutation(api.invites.cancel);
+	const [status, setStatus] = useState<'canceling' | 'error'>();
+
+	async function cancelJoin() {
+		setStatus('canceling');
+		try {
+			await cancel({ pendingJoinId: id });
+			setStatus(undefined);
+		} catch {
+			setStatus('error');
+		}
+	}
+
+	return (
+		<div className="grid gap-1">
+			<div className="flex flex-wrap items-center justify-between gap-2">
+				<p role="status" className="wrap-anywhere min-w-0 text-sm">
+					Waiting to join {teamName}
+				</p>
+				<Button
+					variant="outline"
+					size="sm"
+					aria-label={`Cancel join for ${teamName}`}
+					loading={status === 'canceling'}
+					onClick={() => void cancelJoin()}
+				>
+					Cancel join
+				</Button>
+			</div>
+			{status === 'error' && (
+				<p role="alert" className="text-destructive-foreground text-sm">
+					Couldn’t cancel the join. Try again.
+				</p>
+			)}
+		</div>
 	);
 }

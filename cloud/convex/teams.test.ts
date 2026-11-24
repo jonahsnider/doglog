@@ -277,16 +277,28 @@ test('a reusable invite creates private pending joins, not memberships', async (
 		await expect(client.query(api.invites.listPending)).resolves.toEqual([{ id: request, teamName: 'Robodogs' }]);
 		await expect(client.query(api.teams.getMine)).resolves.toBeNull();
 	}
-	const bobTeam = await bob.mutation(api.teams.create, { name: 'Space Dogs' });
-	await expect(bob.query(api.invites.listPending)).resolves.toEqual([]);
-	await expect(bob.mutation(api.invites.accept, { token })).rejects.toThrow('already belong');
-	await expect(bob.query(api.teams.getMine)).resolves.toMatchObject({ id: bobTeam });
+	await expect(bob.mutation(api.teams.create, { name: 'Space Dogs' })).rejects.toThrow('pending team invite');
+	await expect(bob.query(api.invites.listPending)).resolves.toEqual([{ id: bobId, teamName: 'Robodogs' }]);
+	await expect(bob.query(api.teams.getMine)).resolves.toBeNull();
+
+	await bob.mutation(api.invites.cancel, { pendingJoinId: id });
+	await expect(alice.query(api.invites.listPending)).resolves.toEqual([{ id, teamName: 'Robodogs' }]);
+	await alice.mutation(api.invites.cancel, { pendingJoinId: id });
+	await expect(alice.query(api.invites.listPending)).resolves.toEqual([]);
+	await expect(bob.query(api.invites.listPending)).resolves.toEqual([{ id: bobId, teamName: 'Robodogs' }]);
+	await expect(
+		admin.mutation(api.teamKeys.completeJoin, { pendingJoinId: id, keyVersion: 1, wrappedKey: bytes(384) }),
+	).rejects.toThrow('join request ended');
+	await expect(alice.mutation(api.teams.create, { name: 'Alley Dogs' })).resolves.toBeDefined();
 
 	await admin.mutation(api.invites.revoke);
 	await expect(admin.query(api.invites.getMine)).resolves.toBeNull();
 	await expect(admin.mutation(api.invites.issue)).resolves.not.toBe(token);
-	await expect(alice.query(api.invites.listPending)).resolves.toEqual([]);
-	await expect(alice.mutation(api.invites.accept, { token })).rejects.toThrow('no longer valid');
+	await expect(bob.query(api.invites.listPending)).resolves.toEqual([]);
+	await expect(bob.mutation(api.invites.accept, { token })).rejects.toThrow('no longer valid');
+	const bobTeam = await bob.mutation(api.teams.create, { name: 'Space Dogs' });
+	await expect(bob.mutation(api.invites.accept, { token })).rejects.toThrow('already belong');
+	await expect(bob.query(api.teams.getMine)).resolves.toMatchObject({ id: bobTeam });
 });
 
 test('links are per admin and losing the role permanently invalidates the link', async () => {

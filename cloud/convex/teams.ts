@@ -3,6 +3,7 @@ import { ConvexError, v } from 'convex/values';
 import { deleteTeamDashboards } from './cloudDashboards';
 import type { Doc, Id } from './_generated/dataModel';
 import { type DatabaseReader, mutation, type MutationCtx, query } from './_generated/server';
+import { getPendingInvites } from './invites';
 
 export function getMembership(db: DatabaseReader, userId: Id<'users'>) {
 	return db
@@ -52,6 +53,9 @@ export const create = mutation({
 		}
 		if (await getMembership(ctx.db, userId)) {
 			throw new ConvexError('You already belong to a team.');
+		}
+		if ((await getPendingInvites(ctx.db, userId)).length > 0) {
+			throw new ConvexError('You can’t create a team while you have a pending team invite.');
 		}
 		const name = args.name.trim();
 		if (!name) {

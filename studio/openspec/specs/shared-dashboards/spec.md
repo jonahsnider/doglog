@@ -48,7 +48,7 @@ The desktop app SHALL sign in without leaving the app when the OS provides the c
 
 ### Requirement: Team membership
 
-An account MUST belong to at most one team. When Cloud is available, Studio SHALL provide a Cloud page in the sidebar for account and team management. A signed-in user without a team SHALL be able to create one there and become its first admin. Joining an existing team MUST require a valid invite. Accepting an invite MUST NOT switch the account out of its current team. Studio MUST NOT offer a team picker; users switch accounts by signing out on the Cloud page and signing in with another account.
+An account MUST belong to at most one team. When Cloud is available, Studio SHALL offer account and team management on the Cloud page in the sidebar. A signed-in user with neither a team nor a valid pending join SHALL be able to create a team there and become its first admin. Joining a team MUST require a valid invite. Accepting an invite MUST NOT switch the account's team. Studio MUST NOT offer a team picker; users switch accounts by signing out and back in on the Cloud page.
 
 #### Scenario: Find Cloud settings
 
@@ -59,9 +59,16 @@ An account MUST belong to at most one team. When Cloud is available, Studio SHAL
 
 #### Scenario: Start a team
 
-- **GIVEN** the signed-in user does not belong to a team
+- **GIVEN** the signed-in user does not belong to a team and has no valid pending join
 - **WHEN** they create a team in Studio
 - **THEN** they become its first admin
+
+#### Scenario: Wait to join a team
+
+- **GIVEN** the signed-in user has accepted a valid invite and the join is still pending
+- **WHEN** they open the Cloud page
+- **THEN** Studio shows the pending join instead of the team creation form
+- **AND** team creation becomes available again if the invite is revoked and no other valid pending join remains
 
 #### Scenario: Open an invite while already a member
 
@@ -123,7 +130,7 @@ Each admin SHALL be able to create and revoke one reusable invite link with no e
 
 ### Requirement: Pending invite redemption
 
-If no authorized teammate's Studio can unlock the team key, the join SHALL stay pending without granting membership or dashboard access. Studio MUST complete the join automatically when an authorized teammate's Studio can unlock the key, provided the invite is still valid, the account still has no team, and the invitee's account key is verified. Neither person needs to compare a verification code.
+If no authorized teammate's Studio can unlock the team key, the join SHALL stay pending without granting membership or dashboard access. Cloud MUST reject team creation while the account has a valid pending join. Studio MUST complete the join automatically when an authorized teammate's Studio can unlock the key, provided the invite is still valid, the account still has no team, and the invitee's account key is verified. Neither person needs to compare a verification code.
 
 #### Scenario: A teammate comes online after invite acceptance
 
@@ -136,6 +143,16 @@ If no authorized teammate's Studio can unlock the team key, the join SHALL stay 
 - **GIVEN** a join is pending because no authorized teammate's Studio is available
 - **WHEN** the invite is revoked before the handoff can complete
 - **THEN** the account does not join or receive the team key when the handoff is attempted
+
+### Requirement: Cancel a pending join
+
+The invitee SHALL be able to cancel their own pending join without revoking the invite link or affecting other pending joins. Once canceled, the request MUST NOT grant membership or dashboard access.
+
+#### Scenario: Cancel the last pending join
+
+- **GIVEN** a signed-in user has one valid pending join
+- **WHEN** they cancel the join before it completes
+- **THEN** Studio removes the pending join and offers team creation again
 
 ### Requirement: Remove a member
 

@@ -1,5 +1,6 @@
 import { getAuthUserId } from '@convex-dev/auth/server';
 import { ConvexError, v } from 'convex/values';
+import type { Id } from './_generated/dataModel';
 import { type DatabaseReader, mutation, query, type QueryCtx } from './_generated/server';
 import { getMembership } from './teams';
 
@@ -70,6 +71,17 @@ export const accept = mutation({
 	},
 });
 
+export const cancel = mutation({
+	args: { pendingJoinId: v.id('pendingJoins') },
+	handler: async (ctx, { pendingJoinId }) => {
+		const userId = await getAuthUserId(ctx);
+		const pending = await ctx.db.get('pendingJoins', pendingJoinId);
+		if (userId && pending?.userId === userId) {
+			await ctx.db.delete('pendingJoins', pendingJoinId);
+		}
+	},
+});
+
 export const preview = query({
 	args: { token: v.string() },
 	handler: async (ctx, { token }) => {
@@ -78,6 +90,20 @@ export const preview = query({
 	},
 });
 
+export async function getPendingInvites(db: DatabaseReader, userId: Id<'users'>) {
+	const joins = await db
+		.query('pendingJoins')
+		.withIndex('by_user_and_invite', (q) => q.eq('userId', userId))
+		.collect();
+	const teams = await Promise.all(
+		joins.map(async (join) => {
+			const team = await getInvitedTeam(db, join.inviteToken);
+			return team ? [{ id: join._id, teamName: team.name }] : [];
+		}),
+	);
+	return teams.flat();
+}
+
 export const listPending = query({
 	args: {},
 	handler: async (ctx) => {
@@ -85,16 +111,6 @@ export const listPending = query({
 		if (!userId || (await getMembership(ctx.db, userId))) {
 			return [];
 		}
-		const joins = await ctx.db
-			.query('pendingJoins')
-			.withIndex('by_user_and_invite', (q) => q.eq('userId', userId))
-			.collect();
-		const teams = await Promise.all(
-			joins.map(async (join) => {
-				const team = await getInvitedTeam(ctx.db, join.inviteToken);
-				return team ? [{ id: join._id, teamName: team.name }] : [];
-			}),
-		);
-		return teams.flat();
+		return getPendingInvites(ctx.db, userId);
 	},
 });
