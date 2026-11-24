@@ -300,3 +300,6 @@ infer-out/
 
 # TanStack Router
 **/.tanstack/tmp
+
+# Playwright CLI
+.playwright-cli
