@@ -27,6 +27,8 @@ export function useWindowTitle(): void {
 		page = 'Logs';
 	} else if (matchRoute({ to: '/tuning' }) !== false) {
 		page = 'Tuning';
+	} else if (matchRoute({ to: '/cloud' }) !== false) {
+		page = 'Cloud';
 	} else if (matchRoute({ to: '/settings' }) !== false) {
 		page = 'Settings';
 	}

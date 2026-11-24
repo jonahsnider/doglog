@@ -12,18 +12,19 @@ import {
 	writeDashboardDoc,
 	writeSharing,
 } from '@/dashboards/doc';
+import { cloudSessionStore, isCloudScope, requireCloud } from '@/cloud/session';
+import { isShown } from '@/dashboards/scope';
 import { allowsLayout, isUnlisted } from '@/dashboards/unlisted';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { createId } from '@/lib/random-id';
 import { focusedPanesStore, focusPane, zoomedPanesStore, zoomPane } from '@/dashboards/pane-state';
 import { type PaneNode, paneIds } from '@/panes/layout';
 import { restoreLayout, snapshotLayout } from '@/panes/layout-snapshot';
-import { getRobotHost, simulatorHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
 
 export type Dashboard = DashboardContents & {
 	id: string;
-	/** Whether it's shared with everyone connected to the robot, see `shareDashboards()` */
+	/** Whether it's shared with the team in Cloud or everyone connected to the robot, see `shareDashboards()` */
 	shared: boolean;
 	/** The pane the user last interacted with, use `getFocusedPane()` since it can be outdated */
 	focusedPaneId?: string | undefined;
@@ -93,16 +94,6 @@ export function getSharing(id: string): DashboardSharing {
 	return entry.sharing;
 }
 
-/** The robot host that shared dashboards are scoped to, from the robot connection setting. The simulator counts as the robot. */
-export function sharingScope(): string {
-	return getRobotHost(settingsStore.get().robotTarget) ?? simulatorHost;
-}
-
-/** Dashboards on this device, and dashboards shared on the current robot unless someone deleted them */
-function isShown({ scope, deletedAt }: DashboardSharing): boolean {
-	return scope === undefined || (scope === sharingScope() && deletedAt === undefined);
-}
-
 /** Dashboards in sidebar order, shared ones last */
 const store = createAtom<Dashboard[]>([]);
 
@@ -117,6 +108,7 @@ function refresh(): void {
 refresh();
 idsStore.subscribe(refresh);
 settingsStore.subscribe(refresh);
+cloudSessionStore.subscribe(refresh);
 focusedPanesStore.subscribe(refresh);
 zoomedPanesStore.subscribe(refresh);
 
@@ -245,6 +237,15 @@ function setDeletedAt(id: string, deletedAt: number | undefined): void {
  * Shared dashboards are deleted for everyone, and stay in the list hidden so this device keeps telling others.
  */
 export function deleteDashboards(ids: readonly string[]): void {
+	// Closing team dashboards closes them for everyone, which can't be queued until Studio reconnects
+	if (
+		!requireCloud(
+			ids.some((id) => isCloudScope(getSharing(id).scope)),
+			'close team dashboards',
+		)
+	) {
+		return;
+	}
 	const removed = new Set(ids);
 	const openIds = idsStore.get();
 	const closed = openIds.flatMap((id, index) => (removed.has(id) ? [{ id, index }] : []));

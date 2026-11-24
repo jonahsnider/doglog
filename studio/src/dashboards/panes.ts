@@ -13,7 +13,7 @@ import {
 } from '@/dashboards/dashboards';
 import { focusPane, zoomPane } from '@/dashboards/pane-state';
 import { allowsLayout } from '@/dashboards/unlisted';
-import { placeDashboard, shareDashboards } from '@/dashboards/sharing';
+import { canShareDashboards, placeDashboard, shareDashboards } from '@/dashboards/sharing';
 import { getEntry } from '@/data/data-store';
 import {
 	canJoinLayouts,
@@ -260,6 +260,9 @@ export function movePaneToNewDashboard(id: string, paneId: string, shared: boole
 		return;
 	}
 
+	if (shared && !canShareDashboards()) {
+		return;
+	}
 	const created = createDashboard();
 	if (shared) {
 		shareDashboards([created.id]);

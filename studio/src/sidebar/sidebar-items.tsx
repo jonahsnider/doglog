@@ -1,7 +1,9 @@
 import { Link, useMatchRoute } from '@tanstack/react-router';
+import CloudIcon from 'lucide-react/icons/cloud';
 import FolderSyncIcon from 'lucide-react/icons/folder-sync';
 import SettingsIcon from 'lucide-react/icons/settings';
 import SlidersHorizontalIcon from 'lucide-react/icons/sliders-horizontal';
+import { cloudDeploymentUrl } from '@/cloud/deployment';
 import { shortcuts } from '@/commands/commands';
 import { TooltipLabel } from '@/components/tooltip-label';
 import {
@@ -62,6 +64,18 @@ export function SidebarItems({
 								<span>Tuning</span>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
+						{cloudDeploymentUrl !== undefined && (
+							<SidebarMenuItem>
+								<SidebarMenuButton
+									isActive={Boolean(matchRoute({ to: '/cloud' }))}
+									render={<Link to="/cloud" aria-label="Cloud" />}
+									tooltip={{ children: 'Cloud' }}
+								>
+									<CloudIcon aria-hidden />
+									<span>Cloud</span>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+						)}
 						<SidebarMenuItem>
 							<SidebarMenuButton
 								isActive={Boolean(matchRoute({ to: '/settings' }))}

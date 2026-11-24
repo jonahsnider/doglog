@@ -32,12 +32,24 @@ context: |
     key for each dashboard in that key version. Authenticate and encrypt whole Loro updates and snapshots and
     bind them to the dashboard and key version. Joining does not rotate the team key. Ending membership or
     replacing a lost credential does.
+  - Cloud dashboard sync: Web Crypto only, HKDF-SHA-256 for per-dashboard keys and AES-GCM-256 for updates. Cloud
+    stores each dashboard as encrypted Loro updates in Convex with a per-dashboard sequence number, and Studio pulls
+    only updates after the last one it imported. A member's Studio periodically uploads a snapshot that replaces the
+    updates before it, and after a rotation re-uploads one under the current key. Cloud accepts an upload only from
+    the membership the edits were made under and only under the current key version, checked in the same
+    transaction, and rejects uploads while a rotation is pending.
   - Account keys: Each account has a public and private encryption keypair. Cloud can persist the public key and
-    team key copies sealed to verified account public keys. Studio verifies recipient keys independently of Cloud
-    and authenticates grants against team state, binding each grant to its team, recipient, and key version.
-    Pairing transfers the account private key between instances of Studio without exposing it to Cloud.
-  - Cloud trust boundary: Trust the live service to order revocations, key grants, and uploads. Stored data alone
-    cannot authorize a grant. Cloud never holds dashboard decryption keys.
+    team key copies sealed to verified account public keys. Cloud signs attestations binding an account to its
+    public key with a signing key kept outside the database. Do not attest a key solely because it is in storage.
+    Studio verifies the attestation and binds each grant to its team, recipient, and key version. Cloud only
+    stores a grant from a member who holds the current key, and the recipient relies on that check.
+    Pairing transfers the account private key between instances of Studio. Cloud relays pairing messages but
+    is not trusted to verify the receiving device. Studio verifies it through a code comparison on both devices.
+    On the web, keep the wrapped account private key and its non-exportable wrapping key in account- and
+    deployment-scoped IndexedDB storage. Do not require a separate unlock prompt or offer Cloud escrow.
+  - Cloud trust boundary: Trust the live service to attest account keys and order revocations, key grants, and
+    uploads. Stored data alone cannot authorize a grant. Cloud never holds dashboard decryption keys, but a
+    compromised live service can misdirect future grants.
   - Widgets infer how to show entries from entry types, metadata, and names. Widget options override what's inferred
     or pick what can't be; keep them rare so users aren't overloaded.
   - Agent commands live in one Zod registry with no React or DOM imports, so the Rust binary can embed their schemas
@@ -76,9 +88,7 @@ context: |
 
   Open questions:
   - Which sign-in library and browser-to-desktop handoff to use, and how to verify the Apple sign-in setup.
-  - How to verify account-key bindings, authenticate device pairing, and store private keys locally.
-  - How the live Cloud service orders revocations, key grants, and uploads.
-  - Which encrypted sync transport, cryptographic primitives and libraries, and storage to use for Cloud dashboards.
+  - How to store account private keys on desktop.
   - Whether the sidebar's dashboard list fits every page long term, or pages need their own secondary content.
   - The live NT story for Firefox and Safari users of the web app.
   - Per-project defaults for common entries (ex. the robot pose), possibly declared by robot code or `doglog.jsonc`.

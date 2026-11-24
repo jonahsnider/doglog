@@ -9,6 +9,10 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as cloudDashboards from "../cloudDashboards.js";
+import type * as invites from "../invites.js";
+import type * as pairings from "../pairings.js";
+import type * as teamKeys from "../teamKeys.js";
 import type * as teams from "../teams.js";
 import type * as users from "../users.js";
 
@@ -20,6 +24,10 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  cloudDashboards: typeof cloudDashboards;
+  invites: typeof invites;
+  pairings: typeof pairings;
+  teamKeys: typeof teamKeys;
   teams: typeof teams;
   users: typeof users;
 }>;

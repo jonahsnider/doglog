@@ -27,7 +27,7 @@ Studio SHALL offer Sign in with Apple, Sign in with Google, and passkey sign-in.
 
 ### Requirement: Team membership
 
-An account MUST belong to at most one team. A signed-in user without a team SHALL be able to create one in Studio and become its first admin. Joining an existing team MUST require a valid invite. Accepting an invite MUST NOT switch the account out of its current team. Studio MUST NOT offer a team picker; users switch accounts by signing out in Settings and signing in with another account.
+An account MUST belong to at most one team. When Cloud is available, Studio SHALL provide a Cloud page in the sidebar for account and team management. A signed-in user without a team SHALL be able to create one there and become its first admin. Joining an existing team MUST require a valid invite. Accepting an invite MUST NOT switch the account out of its current team. Studio MUST NOT offer a team picker; users switch accounts by signing out on the Cloud page and signing in with another account.
 
 #### Scenario: Start a team
 
@@ -43,13 +43,23 @@ An account MUST belong to at most one team. A signed-in user without a team SHAL
 
 ### Requirement: Dashboard ownership and roles
 
-Dashboards shared in Cloud SHALL belong to the team, not to the member who shared them. Every member MUST be able to see and edit every Cloud dashboard in their team. Admins can promote members to admin. Only admins may manage other accounts' membership, invite links, and robot links. A team MUST NOT have viewer roles or per-dashboard permissions.
+Dashboards shared in Cloud SHALL belong to the team, not to the member who shared them. Every member MUST be able to see and edit every Cloud dashboard in their team. Only admins may manage other accounts' membership, invite links, and robot links. A team MUST NOT have viewer roles or per-dashboard permissions.
 
 #### Scenario: A dashboard's creator leaves
 
 - **GIVEN** a member shared a tuning dashboard in Cloud
 - **WHEN** that member leaves the team or deletes their account
 - **THEN** the dashboard stays shared and the other members can still edit it
+
+### Requirement: Change admin rights
+
+Admins SHALL be able to promote members to admin and remove admin rights from themselves or another admin, as long as the team still has an admin. Losing admin rights does not end membership or change dashboard access.
+
+#### Scenario: The last admin tries to step down
+
+- **GIVEN** a team has one admin
+- **WHEN** that admin tries to step down
+- **THEN** they must make another member an admin first
 
 ### Requirement: Leave or delete a team
 
@@ -85,12 +95,12 @@ Each admin SHALL be able to create and revoke one reusable invite link with no e
 
 ### Requirement: Pending invite redemption
 
-If no authorized team member's Studio is available to complete an invite, the join SHALL stay pending without granting membership or dashboard access. Studio MUST complete the join automatically when an authorized teammate's Studio becomes available, provided the invite is still valid and the account still has no team.
+If no authorized teammate's Studio can unlock the team key, the join SHALL stay pending without granting membership or dashboard access. Studio MUST complete the join automatically when an authorized teammate's Studio can unlock the key, provided the invite is still valid, the account still has no team, and the invitee's account key is verified. Neither person needs to compare a verification code.
 
 #### Scenario: A teammate comes online after invite acceptance
 
-- **GIVEN** a signed-in account without a team has accepted a valid invite and no authorized teammate's Studio is available
-- **WHEN** an authorized teammate's Studio comes online and verifies the invite is still valid
+- **GIVEN** a signed-in account without a team and with a verified account key has accepted a valid invite, but no authorized teammate's Studio can unlock the team key
+- **WHEN** an authorized teammate's Studio comes online, unlocks the key, and verifies the invite is still valid
 - **THEN** the account joins the team and gains dashboard access without another approval
 
 #### Scenario: Revoke a pending invite
@@ -101,7 +111,7 @@ If no authorized team member's Studio is available to complete an invite, the jo
 
 ### Requirement: Remove a member
 
-Ending a membership, by leaving or removal, SHALL end that account's direct access to the team's Cloud dashboards. Cloud MUST reject edits made under that membership if they arrive after it ends, even if the account later rejoins. Ending membership cannot recall copies the person already received and MUST NOT block access they have independently as a robot guest. A former member can join again with a valid invite on the same terms as an account that has never joined.
+Admins SHALL be able to remove any other team member, including another admin. Leaving or removal SHALL end direct access to the team's Cloud dashboards. Cloud MUST reject edits made under an ended membership, even if the account rejoins. Ending membership cannot recall copies already received and MUST NOT block independent access as a robot guest. Former members can join again with a valid invite on the same terms as first-time members.
 
 #### Scenario: Removed while offline
 
@@ -117,33 +127,39 @@ Ending a membership, by leaving or removal, SHALL end that account's direct acce
 
 ### Requirement: Cloud dashboard confidentiality
 
-Studio MUST encrypt dashboard names and entry names before sending data to Cloud. Cloud MUST NOT receive those names or any keys it can use to decrypt them, including through snapshots, edits, derived labels, previews, or diagnostics. Other dashboard data and metadata need not be confidential. Users of the hosted app trust the Studio code served to their devices.
+Studio MUST encrypt dashboard names and entry names before sending data to Cloud. Cloud MUST NOT receive those names or their decryption keys in edits, snapshots, derived labels, previews, or diagnostics. Other dashboard data and metadata need not be confidential. This protection assumes users trust the Studio code they run and the live Cloud service correctly attests account keys and authorizes grants. A compromised live service could misdirect a grant.
 
 #### Scenario: Cloud operator inspects a dashboard
 
 - **GIVEN** a team syncs a named dashboard with entry bindings
-- **WHEN** a Cloud operator inspects the sync traffic, database, backups, or diagnostics
+- **WHEN** an operator inspects the sync traffic, database, backups, or diagnostics without changing the live service or Studio code
 - **THEN** they cannot read its dashboard name or entry names
 
 ### Requirement: Pair Studio on a new device
 
-Members SHALL be able to pair a new Studio with an already-unlocked Studio signed in to the same account to transfer their encryption credential without admin approval. Cloud MUST NOT be able to read the transferred credential.
+Members SHALL be able to pair a new Studio with an already-unlocked Studio signed in to the same account, without admin approval. Both devices MUST display a six-digit verification code computed independently for the pairing attempt. The unlocked device MUST transfer the encryption credential only after the user confirms that the codes match. Cloud MUST NOT be able to read the transferred credential. Each pairing attempt MUST expire and work only once.
 
 #### Scenario: Pair Studio on a new device
 
 - **GIVEN** a team member can open Cloud dashboards on one device
-- **WHEN** they sign in to the same account on another device and confirm pairing on the unlocked device
+- **WHEN** they start pairing on another device signed in to the same account, compare the two codes, and confirm the match on the unlocked device
 - **THEN** they can open the team's dashboards on the new device without admin approval
+
+#### Scenario: Cancel a pairing attempt
+
+- **GIVEN** both devices show a verification code for a pairing attempt
+- **WHEN** the codes differ and the member cancels, or the attempt expires before they confirm
+- **THEN** Studio does not transfer the credential and the member must start a new attempt to pair
 
 ### Requirement: Grant dashboard access to an account
 
-Studio MUST grant dashboard access to accounts, not individual devices. On join, an authorized member's Studio MUST verify the invite is current and the recipient key belongs to the account before sealing the team key to it. The recipient MUST verify the grant came from the team. Stored membership records and public keys alone MUST NOT authorize a grant, and a revoked invite MUST NOT be accepted.
+Studio MUST grant dashboard access to accounts, not devices. Before sealing the team key on join, a member's Studio MUST verify the invite is current and Cloud's attestation that the recipient key belongs to the joining account. Grants MUST be bound to their team, recipient, and key version, and Cloud MUST only accept grants from members holding the current key. Stored records and public keys alone MUST NOT authorize a grant, and a revoked invite MUST NOT be accepted.
 
 #### Scenario: A stored account key is substituted
 
 - **GIVEN** an account uses a valid invite to join a team
-- **WHEN** a stored public key is replaced without a verified binding to that account
-- **THEN** Studio does not encrypt the team key to the substituted key
+- **WHEN** the database returns a different public key without a valid Cloud attestation for that key and account
+- **THEN** Studio does not encrypt the team key to the substituted key or complete the join
 
 #### Scenario: Open retained history after joining
 

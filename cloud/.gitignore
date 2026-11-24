@@ -4,3 +4,5 @@
 .cloudflare/
 .wrangler/
 dist/
+
+.env.local

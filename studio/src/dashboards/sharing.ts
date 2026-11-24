@@ -11,7 +11,6 @@ import {
 	getSharing,
 	idsStore,
 	moveDashboard,
-	sharingScope,
 } from '@/dashboards/dashboards';
 import {
 	type DashboardSharing,
@@ -20,14 +19,17 @@ import {
 	saveDashboardDoc,
 	writeSharing,
 } from '@/dashboards/doc';
+import { currentCloudScope, isCloudScope, requireCloud } from '@/cloud/session';
 import { focusPane, zoomPane } from '@/dashboards/pane-state';
+import { sharingScope } from '@/dashboards/scope';
 import { createId } from '@/lib/random-id';
 
 /** How long a deleted shared dashboard is kept, so devices that weren't connected when it was deleted find out */
 const deletedLifetime = 30 * 24 * 60 * 60 * 1000;
 
-function isExpired({ deletedAt }: DashboardSharing): boolean {
-	return deletedAt !== undefined && Date.now() - deletedAt > deletedLifetime;
+/** Cloud keeps team dashboards, so only robot-only ones expire */
+function isExpired({ scope, deletedAt }: DashboardSharing): boolean {
+	return !isCloudScope(scope) && deletedAt !== undefined && Date.now() - deletedAt > deletedLifetime;
 }
 
 /**
@@ -72,13 +74,26 @@ export function receiveSharedDashboard(id: string, bytes: Uint8Array): void {
 	idsStore.set((ids) => (ids.includes(id) ? ids : [...ids, id]));
 }
 
-/** Share dashboards with everyone connected to the robot */
-export function shareDashboards(ids: readonly string[]): void {
+/** Sharing with a team publishes to Cloud, see `requireCloud()` */
+export function canShareDashboards(): boolean {
+	return requireCloud(currentCloudScope() !== undefined, 'share dashboards with your team');
+}
+
+/**
+ * Share dashboards with the signed-in account's team, or everyone connected to the robot when signed out.
+ * Returns whether they were shared, see `canShareDashboards()`.
+ */
+export function shareDashboards(ids: readonly string[]): boolean {
+	const cloudScope = currentCloudScope();
+	if (!canShareDashboards()) {
+		return false;
+	}
 	for (const id of ids) {
 		const { doc } = getDoc(id);
-		writeSharing(doc, { scope: sharingScope() });
+		writeSharing(doc, { scope: cloudScope ?? sharingScope() });
 		doc.commit();
 	}
+	return true;
 }
 
 /**
@@ -87,7 +102,7 @@ export function shareDashboards(ids: readonly string[]): void {
  */
 function unshareDashboard(id: string): string | undefined {
 	const dashboard = getDashboard(id);
-	if (dashboard?.shared !== true) {
+	if (dashboard?.shared !== true || !requireCloud(isCloudScope(getSharing(id).scope), 'close team dashboards')) {
 		return undefined;
 	}
 
@@ -113,7 +128,9 @@ export function placeDashboard(id: string, shared: boolean, index: number): stri
 
 	let placedId = id;
 	if (shared && !dashboard.shared) {
-		shareDashboards([id]);
+		if (!shareDashboards([id])) {
+			return id;
+		}
 	} else if (!shared && dashboard.shared) {
 		placedId = unshareDashboard(id) ?? id;
 	}

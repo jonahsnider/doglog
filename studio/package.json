@@ -26,6 +26,7 @@
 	},
 	"dependencies": {
 		"@base-ui/react": "1.9.0",
+		"@convex-dev/auth": "2.1.0",
 		"@daypicker/react": "10.0.2",
 		"@dnd-kit/collision": "0.5.3",
 		"@dnd-kit/dom": "0.5.3",
@@ -56,6 +57,7 @@
 		"class-variance-authority": "0.7.1",
 		"clsx": "2.1.1",
 		"convert": "8.2.0",
+		"convex": "1.51.0",
 		"fraction.js": "5.3.4",
 		"fuzzysort": "4.0.2",
 		"idb-keyval": "6.3.0",

@@ -31,6 +31,7 @@ type Env = {
   readonly CONVEX_CLOUD_URL: string;
   readonly CONVEX_SITE_URL: string;
   readonly STUDIO_ORIGIN: string;
+  readonly ATTESTATION_PRIVATE_KEY: string | undefined;
 };
 
 /**
