@@ -301,11 +301,18 @@ The desktop window SHALL NOT be made smaller than 720 by 480 pixels. On a dashbo
 ### Requirement: App icon
 
 The desktop app icon, the installed web app icon, and the browser tab icon SHALL use the DogLog logo.
+On macOS 26 and later, the desktop app SHALL provide a layered app icon that follows the system's icon and widget style.
 
 #### Scenario: Desktop icon
 
 - **WHEN** the user installs the desktop app
 - **THEN** its icon is the DogLog logo
+
+#### Scenario: Dark macOS icon
+
+- **GIVEN** the user has installed the desktop app on macOS 26 or later
+- **WHEN** macOS uses the Dark icon and widget style
+- **THEN** the desktop app uses the dark variant of the layered DogLog icon
 
 #### Scenario: Installed web app
 

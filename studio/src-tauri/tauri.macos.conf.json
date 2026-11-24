@@ -1,0 +1,6 @@
+{
+	"$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+	"bundle": {
+		"icon": ["icons/32x32.png", "icons/icon.icns", "../assets/mac.icon"]
+	}
+}

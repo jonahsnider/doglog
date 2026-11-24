@@ -72,7 +72,6 @@
 		"macOS": {
 			"minimumSystemVersion": "15.0",
 			"files": {
-				"Resources/AppIcon.icon": "../assets/mac.icon",
 				"Resources/bin/doglog": "cli/macos/doglog"
 			}
 		},
