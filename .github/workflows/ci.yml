@@ -253,6 +253,11 @@ jobs:
 
     timeout-minutes: 10
 
+    concurrency:
+      # Overlapping Void deploys see each other's uploads and abort.
+      group: ${{ github.event_name == 'push' && 'cloud-production' || format('cloud-check-{0}', github.run_id) }}
+      cancel-in-progress: false
+
     steps:
       - name: Checkout Git repository
         uses: actions/checkout@v7.0.1
