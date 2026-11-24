@@ -309,14 +309,12 @@ test('links are per admin and losing the role permanently invalidates the link',
 	const { client: otherAdmin } = await signIn(t);
 	await otherAdmin.mutation(api.teams.create, { name: 'Space Dogs' });
 	const teamId = await admin.mutation(api.teams.create, { name: 'Robodogs' });
-	const legacyToken = '0123456789abcdef'.repeat(4);
-	const membershipId = await t.run((ctx) =>
-		ctx.db.insert('memberships', { userId, teamId, role: 'admin', inviteToken: legacyToken }),
-	);
+	const membershipId = await t.run((ctx) => ctx.db.insert('memberships', { userId, teamId, role: 'admin' }));
 	const firstToken = await admin.mutation(api.invites.issue);
-	await expect(second.mutation(api.invites.issue)).resolves.toBe(legacyToken);
-	await expect(t.query(api.invites.preview, { token: legacyToken })).resolves.toEqual({ teamName: 'Robodogs' });
-	await invitee.mutation(api.invites.accept, { token: legacyToken });
+	const secondToken = await second.mutation(api.invites.issue);
+	expect(secondToken).not.toBe(firstToken);
+	await expect(t.query(api.invites.preview, { token: secondToken })).resolves.toEqual({ teamName: 'Robodogs' });
+	await invitee.mutation(api.invites.accept, { token: secondToken });
 
 	await expect(otherAdmin.mutation(api.teams.demote, { membershipId })).rejects.toThrow('not a member of your team');
 	await admin.mutation(api.teams.demote, { membershipId });
@@ -329,7 +327,7 @@ test('links are per admin and losing the role permanently invalidates the link',
 	await expect(second.query(api.teams.getMine)).resolves.toMatchObject({ role: 'member' });
 	await admin.mutation(api.teams.promote, { membershipId });
 	await expect(second.query(api.teams.getMine)).resolves.toMatchObject({ role: 'admin' });
-	await expect(invitee.mutation(api.invites.accept, { token: legacyToken })).rejects.toThrow('no longer valid');
+	await expect(invitee.mutation(api.invites.accept, { token: secondToken })).rejects.toThrow('no longer valid');
 	const replacement = await second.mutation(api.invites.issue);
 	await admin.mutation(api.teams.promote, { membershipId });
 	await expect(second.query(api.invites.getMine)).resolves.toBe(replacement);

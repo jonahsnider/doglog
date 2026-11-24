@@ -124,12 +124,6 @@ Settings SHALL let users choose a theme color preset of Team 581 maroon, match13
 - **WHEN** the user selects Neutral and then Custom again
 - **THEN** the custom color is still blue
 
-#### Scenario: Removed preset
-
-- **GIVEN** a preset that no longer exists is saved
-- **WHEN** Studio loads the settings
-- **THEN** Team 581 maroon is selected and the custom color is kept
-
 #### Scenario: Reset
 
 - **GIVEN** the user picked a custom color

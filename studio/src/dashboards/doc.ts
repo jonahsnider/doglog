@@ -36,7 +36,9 @@ function readData(node: LoroTreeNode): Record<string, unknown> {
 		return {};
 	}
 	const widget = data['widget'];
-	if (isRecord(widget) && Array.isArray(widget['bindings'])) {
+	if (!(node.data.get('widget') instanceof LoroMap)) {
+		delete data['widget'];
+	} else if (isRecord(widget) && Array.isArray(widget['bindings'])) {
 		const { bindings, config, ...rest } = widget;
 		data['widget'] = { ...rest, config: { ...(isRecord(config) ? config : {}), bindings } };
 	}
@@ -44,34 +46,17 @@ function readData(node: LoroTreeNode): Record<string, unknown> {
 }
 
 /**
- * Splits saved before they could hold more than two children kept the first child's share as `ratio`. An even split
- * becomes children sharing the space evenly, and any other ratio becomes their sizes.
- */
-function migrateRatio(data: Record<string, unknown>, children: Record<string, unknown>[]): Record<string, unknown>[] {
-	const { ratio } = data;
-	const [first, second] = children;
-	if (typeof ratio !== 'number' || !first || !second || children.length !== 2 || ratio === 0.5) {
-		return children;
-	}
-	return [
-		{ ...first, size: ratio },
-		{ ...second, size: 1 - ratio },
-	];
-}
-
-/**
  * Peers editing at once can leave splits with one child or none, ex. when two peers close panes in the same split.
  * Every peer reads them the same way: `paneNodeSchema` replaces a split with one child by it, and empty splits are left out.
  */
 function readNode(node: LoroTreeNode): Record<string, unknown> | undefined {
-	const stored = readData(node);
-	const { ratio: _, ...data } = stored;
+	const data = readData(node);
 	if (data['kind'] !== 'split') {
 		return data;
 	}
 
 	const children = (node.children() ?? []).flatMap<Record<string, unknown>>((child) => readNode(child) ?? []);
-	return children.length === 0 ? undefined : { ...data, children: migrateRatio(stored, children) };
+	return children.length === 0 ? undefined : { ...data, children };
 }
 
 /** An empty document has an empty layout with a new pane ID each time, so `writeDashboardDoc()` a layout to new documents */
@@ -91,19 +76,14 @@ export function readDashboardDoc(doc: LoroDoc): DashboardContents {
 }
 
 function writeWidget(data: LoroMap, widget: Widget | undefined): void {
-	const existing = data.get('widget');
 	// Deleting a missing widget would still be a change, which could win over a widget another peer adds at the same time
 	if (widget === undefined) {
-		if (existing !== undefined) {
+		if (data.get('widget') !== undefined) {
 			data.delete('widget');
 		}
 		return;
 	}
 
-	// Older documents store the widget as one value
-	if (existing !== undefined && !(existing instanceof LoroMap)) {
-		data.delete('widget');
-	}
 	const map = data.ensureMergeableMap('widget');
 	const { bindings, ...config } = isRecord(widget.config) ? widget.config : { config: widget.config };
 	setEntries(map, { type: widget.type, config }, 'bindings');

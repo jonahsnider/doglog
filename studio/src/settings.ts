@@ -2,47 +2,36 @@ import { useSelector } from '@tanstack/react-store';
 import * as z from 'zod';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { contrasts, themePresets, themes } from '@/theme/choices';
-import { applyThemeColor, defaultCustomColor, defaultThemeColor } from '@/theme/theme-color';
+import { applyThemeColor, defaultCustomColor } from '@/theme/theme-color';
 
-const settingsSchema = z
-	.object({
-		theme: z.enum(themes).catch('system'),
-		themePreset: z.enum(themePresets).optional().catch('team581'),
-		/** Hex color that the Custom preset's color scheme is generated from */
-		themeColor: z
-			.string()
-			.regex(/^#[\da-f]{6}$/iu)
-			.optional()
-			.catch(undefined),
-		contrast: z.enum(contrasts).catch('standard'),
-		/** Whether to reduce motion even when the system doesn't ask to, see `reducesMotion()` */
-		reduceMotion: z.boolean().catch(false),
-		/** Local sharing name, used when signed out of Cloud */
-		name: z.string().catch(''),
-		/** Team number or IP address, use `getRobotHost()` to get the NT server host */
-		robotTarget: z.string().catch(''),
-		/** Coalesce updates from live topics that aren't used on a dashboard */
-		reduceLiveBandwidth: z.boolean().catch(false),
-		/** Whether media keys and the OS's media controls control log playback */
-		mediaControls: z.boolean().catch(false),
-		/** Whether the timeline bar shows when alerts were active */
-		timelineAlerts: z.boolean().catch(true),
-		/** Whether long disabled stretches are compressed on the timeline and fast-forwarded through during playback */
-		timelineCompress: z.boolean().catch(true),
-		/** Whether the timeline bar shows when the robot's alliance hub was active in 2026 matches */
-		timelineShifts: z.boolean().catch(true),
-		/** Whether the system uses natural scrolling, for browsers that don't report it, see `reportsNaturalScrolling` */
-		naturalScrolling: z.boolean().catch(true),
-	})
-	.transform(({ themePreset, themeColor, ...settings }) => {
-		if (themePreset !== undefined) {
-			return { ...settings, themePreset, themeColor: themeColor ?? defaultCustomColor };
-		}
-		// Older settings only store a theme color, where Team 581 maroon was the default
-		return themeColor === undefined || themeColor.toLowerCase() === defaultThemeColor
-			? { ...settings, themePreset: 'team581' as const, themeColor: defaultCustomColor }
-			: { ...settings, themePreset: 'custom' as const, themeColor };
-	});
+const settingsSchema = z.object({
+	theme: z.enum(themes).catch('system'),
+	themePreset: z.enum(themePresets).catch('team581'),
+	/** Hex color that the Custom preset's color scheme is generated from */
+	themeColor: z
+		.string()
+		.regex(/^#[\da-f]{6}$/iu)
+		.catch(defaultCustomColor),
+	contrast: z.enum(contrasts).catch('standard'),
+	/** Whether to reduce motion even when the system doesn't ask to, see `reducesMotion()` */
+	reduceMotion: z.boolean().catch(false),
+	/** Local sharing name, used when signed out of Cloud */
+	name: z.string().catch(''),
+	/** Team number or IP address, use `getRobotHost()` to get the NT server host */
+	robotTarget: z.string().catch(''),
+	/** Coalesce updates from live topics that aren't used on a dashboard */
+	reduceLiveBandwidth: z.boolean().catch(false),
+	/** Whether media keys and the OS's media controls control log playback */
+	mediaControls: z.boolean().catch(false),
+	/** Whether the timeline bar shows when alerts were active */
+	timelineAlerts: z.boolean().catch(true),
+	/** Whether long disabled stretches are compressed on the timeline and fast-forwarded through during playback */
+	timelineCompress: z.boolean().catch(true),
+	/** Whether the timeline bar shows when the robot's alliance hub was active in 2026 matches */
+	timelineShifts: z.boolean().catch(true),
+	/** Whether the system uses natural scrolling, for browsers that don't report it, see `reportsNaturalScrolling` */
+	naturalScrolling: z.boolean().catch(true),
+});
 
 export type Settings = z.infer<typeof settingsSchema>;
 
