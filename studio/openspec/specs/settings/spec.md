@@ -49,6 +49,16 @@ Settings SHALL let users set the robot connection target as a team number or an 
 - **WHEN** the user enters `10.5.81.2`
 - **THEN** Connect targets `10.5.81.2`
 
+### Requirement: Live bandwidth setting
+
+The Robot section SHALL offer a "Reduce live bandwidth" switch, off by default. It MUST explain that Studio samples background entries about every 2 seconds and that live recordings can miss changes. Changing the switch SHALL apply to the current live session without clearing its history.
+
+#### Scenario: Enable while recording
+
+- **GIVEN** Studio is recording a live session
+- **WHEN** the user enables Reduce live bandwidth
+- **THEN** the recording continues with the same history and new incoming updates
+
 ### Requirement: Media controls setting
 
 Settings SHALL let users turn media controls for log playback on or off, defaulting to off.

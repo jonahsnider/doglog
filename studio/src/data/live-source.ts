@@ -2,6 +2,7 @@ import { StructRegistry } from 'wpilib-struct';
 import type { DataSet } from '@/data/data-set';
 import { type Entry, liveTime, parseMetadata } from '@/data/data-store';
 import { setLiveConnection } from '@/data/live-connection';
+import { prioritizeLiveTopics } from '@/data/live-priority';
 import type { LiveRecording } from '@/data/recording';
 import { isSchemaEntry, isStudioEntry, normalizeEntryName, type Value } from '@/data/samples';
 import type { NtClient, NtValue } from '@/nt/client';
@@ -18,16 +19,17 @@ const idleTimeout = 3_000_000;
 const textDecoder = new TextDecoder();
 
 /**
- * Add every topic and value from `nt` to `data` and `recording`, noting when the connection drops.
+ * Add every topic and received value from `nt` to `data` and `recording`, noting when the connection drops.
  * Reconnects automatically and keeps adding to the same history. Returns a function that disconnects and closes `nt`.
  */
 export function connectLive(
 	nt: NtClient,
 	data: DataSet,
-	recording: LiveRecording,
+	recording: Pick<LiveRecording, 'record'>,
 	onStatus: (status: Exclude<LiveStatus, 'disconnected'>) => void,
 ): () => void {
 	setLiveConnection(nt);
+	const priority = prioritizeLiveTopics(nt);
 	const structs = new StructRegistry();
 	// Struct values that arrived before their schema
 	let pendingStructs: { entry: Entry; timestamp: number; bytes: Uint8Array }[] = [];
@@ -122,7 +124,8 @@ export function connectLive(
 
 	nt.subscribe(
 		'/',
-		{ all: true, periodic: 0.02 },
+		// The server coalesces background values. The priority subscriptions speed up selected topics on this same stream.
+		{ periodic: 2 },
 		{
 			// Topics without values are listed too
 			announce: ({ name: topicName, type, properties }) => {
@@ -133,8 +136,10 @@ export function connectLive(
 				recording.record({ type: 'announce', name, topicType: type, properties, liveTime: liveTime() });
 				if (!isSchemaEntry(name)) {
 					data.addEntry(name, type, undefined, parseMetadata(properties));
+					priority.announce(name, type);
 				}
 			},
+			unannounce: (name) => priority.unannounce(normalizeEntryName(name)),
 			properties: (topicName, update) => {
 				const name = normalizeEntryName(topicName);
 				if (closed || isStudioEntry(name)) {
@@ -173,6 +178,7 @@ export function connectLive(
 					return;
 				}
 
+				priority.value(name, decoded);
 				data.addSample(entry, timestamp, decoded);
 			},
 		},
@@ -193,6 +199,7 @@ export function connectLive(
 
 	return () => {
 		closed = true;
+		priority.close();
 		setLiveConnection(undefined);
 		if (connected) {
 			data.disconnect(liveTime());

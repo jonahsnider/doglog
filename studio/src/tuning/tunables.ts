@@ -8,7 +8,7 @@ import { evaluateExpression, roundNumber, typedFraction } from '@/tuning/express
 import type { RoleOption } from '@/widgets/widget-type';
 
 /** Where WPILib publishes tunables in NetworkTables, including DogLog's, and where DogLog did before 2027 */
-const tunablesPrefixes = ['/Tunables/', '/Tunable/'];
+export const tunablesPrefixes = ['/Tunables/', '/Tunable/'];
 
 type ScalarType = 'double' | 'float' | 'int' | 'boolean' | 'string';
 const scalarTypes = new Set<string>(['double', 'float', 'int', 'boolean', 'string'] satisfies ScalarType[]);

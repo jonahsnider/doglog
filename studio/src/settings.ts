@@ -21,6 +21,8 @@ const settingsSchema = z
 		name: z.string().catch(''),
 		/** Team number or IP address, use `getRobotHost()` to get the NT server host */
 		robotTarget: z.string().catch(''),
+		/** Coalesce updates from live topics that aren't used on a dashboard */
+		reduceLiveBandwidth: z.boolean().catch(false),
 		/** Whether media keys and the OS's media controls control log playback */
 		mediaControls: z.boolean().catch(false),
 		/** Whether the timeline bar shows when alerts were active */

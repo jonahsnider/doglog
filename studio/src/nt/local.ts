@@ -6,6 +6,7 @@ import {
 	NetworkTablesTypeInfos,
 } from '@ntcore-ts/client';
 import type { NtClient, NtListener, NtPublishType, NtSubscribeOptions, NtTopic, NtValue } from '@/nt/client';
+import { liveRate, messenger } from '@/nt/live-rate';
 
 NetworkTables.setLogLevel(LogLevel.WARN);
 
@@ -23,8 +24,6 @@ const typeInfos = {
 	'boolean[]': NetworkTablesTypeInfos.kBooleanArray,
 } satisfies Record<NtPublishType, NetworkTablesTypeInfo>;
 
-type NtInternals = { _client: { messenger: { socket: { getServerTime(): number } } } };
-
 /** One subscription to the server, shared by every listener with the same prefix and options */
 type Subscription = {
 	listeners: Set<NtListener>;
@@ -40,6 +39,7 @@ type Host = {
 	connected: boolean;
 	connectionListeners: Set<(connected: boolean) => void>;
 	subscriptions: Map<string, Subscription>;
+	liveRate: ReturnType<typeof liveRate>;
 	removeConnectionListener: () => void;
 };
 
@@ -127,10 +127,12 @@ export function openLocalNt(hostname: string, port = 5810): NtClient {
 			connected: nt.isRobotConnected(),
 			connectionListeners: new Set(),
 			subscriptions: new Map(),
+			liveRate: liveRate(nt),
 			removeConnectionListener: () => {},
 		};
 		created.removeConnectionListener = nt.addRobotConnectionListener((connected) => {
 			created.connected = connected;
+			created.liveRate.connectedChange(connected);
 			if (!connected) {
 				// The server announces everything again after reconnecting
 				for (const subscription of created.subscriptions.values()) {
@@ -160,10 +162,7 @@ export function openLocalNt(hostname: string, port = 5810): NtClient {
 			if (!host.connected) {
 				return undefined;
 			}
-			// oxlint-disable-next-line typescript/no-unsafe-type-assertion
-			const internals = nt as unknown as NtInternals;
-			// oxlint-disable-next-line no-underscore-dangle
-			return internals._client.messenger.socket.getServerTime();
+			return messenger(nt).socket.getServerTime();
 		},
 		onConnectedChange(listener) {
 			connectionListeners.add(listener);
@@ -210,6 +209,7 @@ export function openLocalNt(hostname: string, port = 5810): NtClient {
 			unsubscribes.add(unsubscribe);
 			return unsubscribe;
 		},
+		setLivePriority: (priority) => host.liveRate.set(client, priority),
 		async publish(name, type) {
 			const topic = nt.createTopic<NtValue>(name, typeInfos[type]);
 			published.set(name, topic);
@@ -246,6 +246,8 @@ export function openLocalNt(hostname: string, port = 5810): NtClient {
 				host.removeConnectionListener();
 				hosts.delete(key);
 				nt.release();
+			} else {
+				host.liveRate.remove(client);
 			}
 		},
 	};

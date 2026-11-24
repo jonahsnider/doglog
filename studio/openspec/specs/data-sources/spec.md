@@ -215,6 +215,23 @@ Users SHALL be able to connect to a robot or simulator over NT4 with a single Co
 - **WHEN** the user chooses Connect
 - **THEN** Studio connects to an NT4 server on localhost
 
+### Requirement: Reduced live bandwidth
+
+When Reduce live bandwidth is on, Studio SHALL ask the server to send only the latest change about every 2 seconds for background topics, and about every 20 ms for dashboard bindings and their source topics, robot status, alerts, and tunables. Topics MUST remain discoverable, and recording MUST keep all updates that Studio receives. With the setting off, Studio SHALL request every change at its normal 20 ms cadence.
+
+#### Scenario: Add and remove a dashboard binding while connected
+
+- **GIVEN** Reduce live bandwidth is on and a topic is updating in the background
+- **WHEN** the user binds one of its fields to a widget
+- **THEN** Studio requests faster updates for the underlying topic without reconnecting
+- **WHEN** the user removes its last binding and no other feature needs faster updates for it
+- **THEN** the topic returns to the background rate without losing its history
+
+#### Scenario: Tabs share a live connection
+
+- **GIVEN** several live sessions share one connection with Reduce live bandwidth on
+- **THEN** the server is asked for faster updates for every topic any of the sessions needs
+
 ### Requirement: Live connection resilience
 
 Studio MUST keep all data received from a live source when the connection drops, and SHALL reconnect automatically. Received data MUST be kept until the user clears the live session or Connect replaces it with another target, including after Studio closes.

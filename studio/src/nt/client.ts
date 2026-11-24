@@ -15,6 +15,9 @@ export type NtListener = {
 
 export type NtSubscribeOptions = { all?: boolean; periodic?: number };
 
+/** Exact topics and prefixes that should update at 20 ms, or every change to every live topic */
+export type NtLivePriority = { topics: string[]; prefixes: string[] } | 'full';
+
 /** NT4 types Studio can publish, by their NT4 type string */
 export type NtPublishType =
 	| 'raw'
@@ -41,6 +44,8 @@ export interface NtClient {
 	 * `listener` first, like the server does for a new subscription. Returns a function that unsubscribes.
 	 */
 	subscribe(prefix: string, options: NtSubscribeOptions, listener: NtListener): () => void;
+	/** Increase the server's update rate for live data already followed by `subscribe()` */
+	setLivePriority(priority: NtLivePriority): void;
 	/** Publish the topic `name`, resolving once the server accepts it */
 	publish(name: string, type: NtPublishType): Promise<void>;
 	/** Set a published topic's value, which must match the type it was published with */

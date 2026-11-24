@@ -19,7 +19,7 @@ export const Route = createFileRoute('/settings')({
 });
 
 function Settings() {
-	const { name, robotTarget, mediaControls, naturalScrolling, reduceMotion } = useSettings();
+	const { name, robotTarget, reduceLiveBandwidth, mediaControls, naturalScrolling, reduceMotion } = useSettings();
 	const anonymousName = useAnonymousName();
 	const robotHost = getRobotHost(robotTarget);
 	const robotTargetInvalid = robotTarget.trim() !== '' && robotHost === undefined;
@@ -73,6 +73,21 @@ function Settings() {
 									{robotHost === undefined ? 'Team number or IP address of the robot' : `Connect uses ${robotHost}`}
 								</FieldDescription>
 							)}
+						</Field>
+					</FramePanel>
+					<FramePanel>
+						<Field name="reduceLiveBandwidth">
+							<FieldLabel>
+								<Switch
+									checked={reduceLiveBandwidth}
+									onCheckedChange={(checked) => updateSettings({ reduceLiveBandwidth: checked })}
+								/>
+								Reduce live bandwidth
+							</FieldLabel>
+							<FieldDescription>
+								Keep dashboard entries responsive and sample other entries about every 2 seconds. Live recordings may
+								miss changes.
+							</FieldDescription>
 						</Field>
 					</FramePanel>
 				</SettingsSection>

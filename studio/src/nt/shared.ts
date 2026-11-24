@@ -108,6 +108,7 @@ export function openSharedNt(host: string): NtClient {
 				}
 			};
 		},
+		setLivePriority: (priority) => send({ type: 'live-priority', client: id, priority }),
 		publish(name, topicType) {
 			const request = nextId++;
 			send({ type: 'publish', client: id, request, name, topicType });
