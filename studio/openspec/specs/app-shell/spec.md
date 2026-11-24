@@ -56,14 +56,20 @@ The sidebar footer SHALL offer Keyboard shortcuts, Download app, and Check for u
 
 ### Requirement: Footer actions on hover
 
-On devices with hover, the sidebar footer actions SHALL stay hidden until the sidebar is hovered, has keyboard focus, or has one of its menus or dialogs open, and MUST keep their space while hidden so the sidebar's other items don't move. An install action for a ready update MUST stay visible.
+On devices with hover, the sidebar footer actions SHALL stay hidden until the sidebar is hovered, has keyboard focus, has one of its menus or dialogs open, or shows the What's new card. The actions MUST keep their space while hidden so the sidebar's other items don't move. An install action for a ready update MUST stay visible.
 
 #### Scenario: Reveal the footer actions
 
-- **GIVEN** the sidebar is expanded and no update is ready
+- **GIVEN** the sidebar is expanded, no update is ready, and the What's new card is hidden
 - **WHEN** the pointer moves over the sidebar
 - **THEN** Keyboard shortcuts, Download app, and Check for updates fade in
 - **AND** they fade out once the pointer leaves, unless one of their menus or dialogs is open
+
+#### Scenario: Show the footer actions with What's new
+
+- **GIVEN** the expanded sidebar shows the What's new card
+- **WHEN** the pointer leaves the sidebar
+- **THEN** the footer actions stay visible below the card
 
 ### Requirement: What's new
 

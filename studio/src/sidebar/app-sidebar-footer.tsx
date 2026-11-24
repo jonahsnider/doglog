@@ -19,6 +19,8 @@ const expandedRow = cn(
 	'transition-opacity duration-150 ease-in motion-reduce:transition-none',
 	// Hidden until the sidebar is hovered or in use, keeping their space so the dashboards don't move. Always shown without hover.
 	'[@media(hover:hover)]:opacity-0 group-hover:opacity-100 group-has-focus-visible:opacity-100 group-has-data-popup-open:opacity-100',
+	// Keep the card and actions together instead of leaving the card above invisible rows.
+	'group-has-[[data-slot=whats-new-card]]:opacity-100',
 	// Fade without removing their space until the sidebar switches to the rail layout
 	'in-data-[animation=collapse]:opacity-0!',
 );
