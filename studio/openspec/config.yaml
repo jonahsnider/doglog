@@ -48,6 +48,10 @@ context: |
     On the web, keep the wrapped account private key and its non-exportable wrapping key in account- and
     deployment-scoped IndexedDB storage. On desktop, keep the wrapping key in the OS credential store instead
     (the `keyring` crate). Do not require a separate unlock prompt or offer Cloud escrow.
+  - Cloud sign-in: Convex Auth. The desktop app uses the OS's native sign-in where there is one (ex. macOS's
+    AuthenticationServices, which needs a signed build with `doglog.studio` as an associated domain). Otherwise it
+    follows RFC 8252: the default browser signs in on doglog.studio and returns the result through `doglog://`,
+    encrypted to a key only the app that started it holds. Sign-in never carries the account private key.
   - Cloud trust boundary: Trust the live service to attest account keys and order revocations, key grants, and
     uploads. Stored data alone cannot authorize a grant. Cloud never holds dashboard decryption keys, but a
     compromised live service can misdirect future grants.
@@ -88,7 +92,7 @@ context: |
   - Log sync from Systemcore, planned for the 2027 release.
 
   Open questions:
-  - Which sign-in library and browser-to-desktop handoff to use, and how to verify the Apple sign-in setup.
+  - How to verify the Apple sign-in setup.
   - Whether the sidebar's dashboard list fits every page long term, or pages need their own secondary content.
   - The live NT story for Firefox and Safari users of the web app.
   - Per-project defaults for common entries (ex. the robot pose), possibly declared by robot code or `doglog.jsonc`.

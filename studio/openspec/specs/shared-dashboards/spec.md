@@ -25,6 +25,21 @@ Studio SHALL offer Sign in with Apple, Sign in with Google, and passkey sign-in.
 - **WHEN** they register with a passkey
 - **THEN** they can create and sign in to their Cloud account without connecting an identity provider
 
+### Requirement: Desktop sign-in
+
+The desktop app SHALL sign in without leaving the app when the OS provides the chosen method, ex. passkeys and Sign in with Apple on macOS. Otherwise, it SHALL open sign-in in the default browser and return the user to the app signed in. A browser sign-in MUST only sign in the app that started it. Passkeys MUST work the same in the web and desktop apps.
+
+#### Scenario: Sign in with a passkey in the macOS app
+
+- **GIVEN** a user created their account with a passkey in the web app
+- **WHEN** they sign in with that passkey in the desktop app on macOS
+- **THEN** they are signed in without a browser opening
+
+#### Scenario: Sign in with Google in the desktop app
+
+- **WHEN** a user chooses Sign in with Google in the desktop app
+- **THEN** Google's sign-in opens in their default browser, and once they finish, the desktop app is signed in to that account
+
 ### Requirement: Team membership
 
 An account MUST belong to at most one team. When Cloud is available, Studio SHALL provide a Cloud page in the sidebar for account and team management. A signed-in user without a team SHALL be able to create one there and become its first admin. Joining an existing team MUST require a valid invite. Accepting an invite MUST NOT switch the account out of its current team. Studio MUST NOT offer a team picker; users switch accounts by signing out on the Cloud page and signing in with another account.
