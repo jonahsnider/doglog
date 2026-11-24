@@ -149,7 +149,7 @@ Hovering the timeline bar's track SHALL show a tooltip of what was happening at 
 
 ### Requirement: Graphs on the timeline
 
-The timeline bar SHALL mark the time hovered in a graph, and while graphs are zoomed in it SHALL mark the time range they show, so it's clear where they are in the whole source.
+The timeline bar SHALL mark the time hovered in a graph, and while graphs or histograms are shown zoomed in it SHALL mark the time range they show, so it's clear where they are in the whole source.
 
 #### Scenario: Zoomed graph
 

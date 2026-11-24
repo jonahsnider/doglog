@@ -217,6 +217,48 @@
 												"properties": {
 													"type": {
 														"type": "string",
+														"const": "histogram"
+													},
+													"bindings": {
+														"description": "Entries to show, in order. Accepted kinds: number. Left out, the widget starts like one the user adds.",
+														"type": "array",
+														"items": {
+															"type": "object",
+															"properties": {
+																"entry": {
+																	"type": "string",
+																	"minLength": 1,
+																	"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
+																},
+																"color": {
+																	"type": "integer",
+																	"minimum": 0,
+																	"maximum": 4,
+																	"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
+																},
+																"hidden": {
+																	"type": "boolean",
+																	"description": "Listed in the legend but not drawn"
+																}
+															},
+															"required": [
+																"entry"
+															],
+															"additionalProperties": false
+														}
+													}
+												},
+												"required": [
+													"type"
+												],
+												"additionalProperties": false,
+												"description": "Histogram: Shows how the values of numeric entries are distributed over the time range graphs show, each entry a series in one histogram, with summary statistics for each."
+											},
+											{
+												"type": "object",
+												"properties": {
+													"type": {
+														"type": "string",
 														"const": "field"
 													},
 													"options": {
@@ -1002,6 +1044,48 @@
 								"properties": {
 									"type": {
 										"type": "string",
+										"const": "histogram"
+									},
+									"bindings": {
+										"description": "Entries to show, in order. Accepted kinds: number. Left out, the widget starts like one the user adds.",
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"entry": {
+													"type": "string",
+													"minLength": 1,
+													"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
+												},
+												"color": {
+													"type": "integer",
+													"minimum": 0,
+													"maximum": 4,
+													"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
+												},
+												"hidden": {
+													"type": "boolean",
+													"description": "Listed in the legend but not drawn"
+												}
+											},
+											"required": [
+												"entry"
+											],
+											"additionalProperties": false
+										}
+									}
+								},
+								"required": [
+									"type"
+								],
+								"additionalProperties": false,
+								"description": "Histogram: Shows how the values of numeric entries are distributed over the time range graphs show, each entry a series in one histogram, with summary statistics for each."
+							},
+							{
+								"type": "object",
+								"properties": {
+									"type": {
+										"type": "string",
 										"const": "field"
 									},
 									"options": {
@@ -1600,6 +1684,20 @@
 										],
 										"additionalProperties": false,
 										"description": "Graph: Plots entries over time. Numbers go on the left or right axis (`left`, `right`), or are shown as colored bands (`discrete`); booleans and strings can only be bands. A number goes on the right axis when its unit measures something else than the left axis's."
+									},
+									{
+										"type": "object",
+										"properties": {
+											"type": {
+												"type": "string",
+												"const": "histogram"
+											}
+										},
+										"required": [
+											"type"
+										],
+										"additionalProperties": false,
+										"description": "Histogram: Shows how the values of numeric entries are distributed over the time range graphs show, each entry a series in one histogram, with summary statistics for each."
 									},
 									{
 										"type": "object",

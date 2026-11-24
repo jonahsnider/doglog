@@ -4,25 +4,12 @@ import { useEventListener } from 'usehooks-ts';
 import { getCursorTime, seek } from '@/timeline/timeline';
 import type { GraphPlot } from '@/widgets/graph/use-graph-drawing';
 import { setHoverTime } from '@/timeline/hover';
-import { getViewRange, panTime, zoomTime } from '@/widgets/graph/view';
+import { type Gesture, scrollTime, wheelListenerOptions } from '@/widgets/graph/scroll';
+import { getViewRange, panTime } from '@/widgets/graph/view';
 import type { TimeRange } from '@/data/data-store';
 import { type BandHover, flipsAt, type LineHover } from '@/widgets/graph/tooltip-side';
 import { emptyAxisRange } from '@/widgets/graph/plot';
 import { zoomedSpan } from '@/widgets/graph/y-range';
-
-const gesturePauseMs = 200;
-/** How much of a scroll gesture's earlier movement counts toward its direction with each event, ex. 0.7 keeps about the last 100 ms */
-const directionMemory = 0.7;
-const wheelListenerOptions = { passive: false };
-
-/** Pixels per wheel delta, which some browsers and mice send in lines or pages */
-function wheelUnit(event: WheelEvent, pageHeight: number): number {
-	return event.deltaMode === WheelEvent.DOM_DELTA_LINE
-		? 16
-		: event.deltaMode === WheelEvent.DOM_DELTA_PAGE
-			? pageHeight
-			: 1;
-}
 
 /** Pointer moves shorter than this are clicks */
 const dragThreshold = 3;
@@ -50,7 +37,7 @@ export function useGraphPointer(
 	bandRowHeight: number,
 ) {
 	const drag = useRef<Drag>(undefined);
-	const gesture = useRef<{ x: number; y: number; at: number }>(undefined);
+	const gesture = useRef<Gesture>(undefined);
 	const [bandHover, setBandHover] = useState<BandHover>();
 	const [pointerAt, setPointerAt] = useState<LineHover>();
 	const [selection, setSelection] = useState<TimeRange>();
@@ -116,29 +103,8 @@ export function useGraphPointer(
 			zoomY(axes, event.clientY, factor);
 			return;
 		}
-		const view = getViewRange();
-		const time = timeAt(event.clientX);
-		if (!view) {
-			return;
-		}
-		// Sideways scrolling pans and vertical scrolling zooms, going by the direction of the last few events. Trackpad
-		// swipes are rarely exactly sideways or vertical, so one stray event doesn't switch, but turning the swipe does.
-		const previous = gesture.current;
-		const fresh = !previous || event.timeStamp - previous.at > gesturePauseMs;
-		const x = (fresh ? 0 : previous.x * directionMemory) + Math.abs(event.deltaX);
-		const y = (fresh ? 0 : previous.y * directionMemory) + Math.abs(event.deltaY);
-		gesture.current = { x, y, at: event.timeStamp };
-		const rect = area.current!.getBoundingClientRect();
-		const unit = wheelUnit(event, rect.height);
-		if (x > y && !event.ctrlKey) {
-			panTime(view, ((event.deltaX * unit) / rect.width) * (view.end - view.start));
-		} else if (time !== undefined && event.deltaY !== 0) {
-			// Capped like UI SDK's canvas viewport, so a mouse wheel's big steps don't jump
-			const zoomDelta = Math.min(Math.max(event.deltaY * unit, -50), 50);
-			zoomTime(time, Math.exp(zoomDelta * (event.ctrlKey ? 0.01 : 0.002)));
-		}
+		scrollTime(event, area.current!.getBoundingClientRect(), gesture);
 	};
-	// React's wheel listeners are passive, so they can't stop the pane from scrolling or the page from zooming
 	useEventListener('wheel', onWheel, body, wheelListenerOptions);
 
 	const snapToCursor = (time: number): number => {

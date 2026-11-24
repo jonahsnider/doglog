@@ -1,5 +1,6 @@
 import BotIcon from 'lucide-react/icons/bot';
 import CameraIcon from 'lucide-react/icons/camera';
+import ChartColumnIcon from 'lucide-react/icons/chart-column';
 import ChartLineIcon from 'lucide-react/icons/chart-line';
 import ClapperboardIcon from 'lucide-react/icons/clapperboard';
 import Gamepad2Icon from 'lucide-react/icons/gamepad-2';
@@ -17,6 +18,7 @@ import type { WidgetTypeId } from '@/widgets/widget-info';
  */
 export const widgetIcons: Record<WidgetTypeId, ComponentType<SVGProps<SVGSVGElement>>> = {
 	graph: ChartLineIcon,
+	histogram: ChartColumnIcon,
 	field: CompetitionFieldIcon,
 	robot: BotIcon,
 	table: TableIcon,

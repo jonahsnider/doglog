@@ -262,7 +262,7 @@ A binding with a color picker on its swatch SHALL also offer a **Color** submenu
 
 ### Requirement: Follow the cursor
 
-Widgets SHALL reflect the global time cursor. Value-style widgets MUST show the latest value at or before the cursor; time-series widgets MUST mark the cursor position. The Camera widget shows only live frames while the timeline is following live data (see widget-camera).
+Value-style widgets SHALL show the latest value at or before the global time cursor, and time-series widgets MUST mark the cursor position. The Histogram widget uses a time range instead of the cursor (see widget-histogram). The Camera widget shows only live frames while the timeline is following live data (see widget-camera).
 
 #### Scenario: Latest value at cursor
 

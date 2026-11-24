@@ -12,6 +12,7 @@ import { Field } from '@/widgets/field/field';
 import { fieldOptions } from '@/widgets/field/options';
 import { fieldConnects, fieldRoles, inferFieldRole } from '@/widgets/field/roles';
 import { Graph } from '@/widgets/graph/graph';
+import { Histogram } from '@/widgets/histogram/histogram';
 import { widgetIcons } from '@/widgets/icons';
 import { graphRoles, inferGraphRole } from '@/widgets/graph/roles';
 import { robotOption } from '@/widgets/robot/robot-option';
@@ -70,6 +71,7 @@ export const widgetTypes: readonly WidgetType[] = [
 		inferRole: inferGraphRole,
 		component: Graph,
 	},
+	{ ...info('histogram'), hotkey: 'H', component: Histogram },
 	{
 		...info('field'),
 		hotkey: 'F',

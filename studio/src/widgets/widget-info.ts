@@ -263,6 +263,15 @@ export const widgetInfos = [
 		options: [],
 	},
 	{
+		id: 'histogram',
+		name: 'Histogram',
+		description:
+			'Shows how the values of numeric entries are distributed over the time range graphs show, each entry a series in one histogram, with summary statistics for each.',
+		accepts: ['number'],
+		roles: [],
+		options: [],
+	},
+	{
 		id: 'field',
 		name: 'Field',
 		description:
