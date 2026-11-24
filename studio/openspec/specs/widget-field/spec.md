@@ -444,6 +444,12 @@ In 3D, the field widget SHALL use a camera with perspective. Dragging MUST orbit
 - **WHEN** the user splits the field widget's pane
 - **THEN** the camera keeps its view
 
+#### Scenario: Return to 3D
+
+- **GIVEN** the user has orbited, panned, or zoomed the 3D camera
+- **WHEN** the user switches to 2D and then back to 3D
+- **THEN** the field is shown from the same viewpoint as before
+
 ### Requirement: 3D keyboard movement speed
 
 Holding W, A, S, D, Q, or E MUST move the camera at a constant speed in meters per second, regardless of its position, unless it reaches a movement limit. Holding Shift MUST double that speed.

@@ -3,7 +3,15 @@
 import { OrbitControls } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { type AnimationPlaybackControls, animate } from 'motion/react';
-import { type ComponentRef, type Ref, useEffect, useEffectEvent, useImperativeHandle, useRef } from 'react';
+import {
+	type ComponentRef,
+	type Ref,
+	useEffect,
+	useEffectEvent,
+	useImperativeHandle,
+	useLayoutEffect,
+	useRef,
+} from 'react';
 import { MathUtils, PerspectiveCamera, Vector2, Vector3 } from 'three';
 import { easing, useMotionTransition } from '@/lib/motion';
 import { maxElevation, type Rig } from '@/three/camera';
@@ -279,18 +287,14 @@ export function FieldCameraRig({ ref, field, viewKey }: { ref: Ref<Rig>; field: 
 			place(reframed(current(), from));
 		}
 	});
-	const keep = useEffectEvent(() => {
+	const keepView = useEffectEvent(() => {
+		moving.current?.stop();
 		if (viewKey !== undefined && framed.current !== undefined) {
 			keptViews.set(viewKey, { orbit: current(), azimuth: framed.current, size: get().size });
 		}
 	});
-	useEffect(
-		() => () => {
-			moving.current?.stop();
-			keep();
-		},
-		[],
-	);
+	// Save before the controls' passive cleanup clears the orbit target from the store.
+	useLayoutEffect(() => () => keepView(), []);
 
 	return null;
 }
