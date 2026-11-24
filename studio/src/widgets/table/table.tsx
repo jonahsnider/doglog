@@ -145,7 +145,7 @@ function ValueRow({
 	const isExpanded = expandable && expanded;
 	return (
 		<TableRow
-			ref={ref}
+			ref={row.depth === 0 ? ref : undefined}
 			// Right-clicking the row offers to remove its binding, middle-clicking removes it
 			data-binding-id={row.binding.id}
 			className={cn(expandable && 'cursor-pointer')}
@@ -161,11 +161,7 @@ function ValueRow({
 					: undefined
 			}
 		>
-			{/* Dragged by the name, so values stay selectable */}
-			<TableCell
-				ref={row.depth === 0 ? handleRef : undefined}
-				className={cn('font-mono text-xs', row.depth === 0 && 'cursor-grab')}
-			>
+			<TableCell className="font-mono text-xs">
 				<div className="flex items-center gap-1" style={{ paddingLeft: `${row.depth * 1.25}rem` }}>
 					{expandable ? (
 						<Button
@@ -174,6 +170,10 @@ function ValueRow({
 							className="-m-1 text-muted-foreground"
 							aria-expanded={isExpanded}
 							aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${row.label}`}
+							onClick={(event) => {
+								event.stopPropagation();
+								onToggle();
+							}}
 						>
 							<ChevronRightIcon className={cn('size-3.5 transition-transform', isExpanded && 'rotate-90')} />
 						</Button>
@@ -183,7 +183,14 @@ function ValueRow({
 							<span className="-m-1 size-7 shrink-0 sm:size-6" />
 						)
 					)}
-					{row.depth === 0 ? <EntryName name={row.label} /> : row.label}
+					{/* Only the name starts a drag, not the expand button or selectable value. */}
+					{row.depth === 0 ? (
+						<span ref={handleRef} className="cursor-grab">
+							<EntryName name={row.label} />
+						</span>
+					) : (
+						row.label
+					)}
 				</div>
 			</TableCell>
 			<TableCell>{row.type !== undefined && <TypeLabel type={row.type} />}</TableCell>

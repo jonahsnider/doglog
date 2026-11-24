@@ -30,3 +30,9 @@ Struct and array values SHALL be expandable to show their individual fields or e
 - **GIVEN** the table shows an expandable row
 - **WHEN** the user clicks anywhere in the row without selecting text
 - **THEN** the row toggles between expanded and collapsed
+
+#### Scenario: Activate the expand button
+
+- **GIVEN** the table shows an expandable row, including a nested field or element
+- **WHEN** the user activates its expand button by pointer or keyboard
+- **THEN** the row toggles once without starting a drag, even if text is selected elsewhere

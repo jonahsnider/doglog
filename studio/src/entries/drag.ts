@@ -1,5 +1,5 @@
 import { type Draggable, PointerActivationConstraints } from '@dnd-kit/dom';
-import { PointerSensor, useDraggable, useDroppable } from '@dnd-kit/react';
+import { KeyboardSensor, PointerSensor, useDraggable, useDroppable } from '@dnd-kit/react';
 import { createContext, use, useCallback, useId } from 'react';
 import { getEntry } from '@/data/data-store';
 import type { EntrySection } from '@/entries/sections';
@@ -62,6 +62,8 @@ export const entryPointerSensor = PointerSensor.configure({
 /** The entry browser's tree uses Space, Enter, and the arrow keys itself, so its rows can't be picked up from the keyboard */
 export const entryRowSensors = [entryPointerSensor];
 
+const bindingSensors = [entryPointerSensor, KeyboardSensor];
+
 /** Drag type of entries, accepted by widgets */
 export const entryDragType = 'entry';
 
@@ -121,6 +123,8 @@ export function useBindingDrag(
 		id,
 		type: entryDragType,
 		disabled: !enabled,
+		// Pass the constraint on the source so other draggables can't reset it in the shared sensor registry.
+		sensors: bindingSensors,
 		data: { name: binding.name, paneId, bindingId: binding.id },
 	});
 	const { ref: dropRef } = useDroppable<EntryDropData>({
