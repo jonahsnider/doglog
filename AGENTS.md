@@ -40,6 +40,10 @@ Testing the desktop app is necessary for some features, but should only be used 
 3. Use the Tauri MCP to interact, falling back to `agent-desktop` if necessary
 4. Once finished, end the `tauri dev` session
 
+### Testing on mobile
+
+Use `agent-device` or the Safari WebDriver MCP to test on mobile device simulators.
+
 ## General development
 
 - Use straight quotes and apostrophes in comments, specs, and agent-facing text such as CLI output and MCP descriptions. Leave Studio UI copy unchanged when applying this rule.
