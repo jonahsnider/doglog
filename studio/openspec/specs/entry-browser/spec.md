@@ -41,6 +41,12 @@ The entry browser SHALL list every entry in the active source as a tree grouped 
 - **WHEN** a new topic is announced
 - **THEN** it appears in the tree
 
+#### Scenario: Narrow rows with long previews
+
+- **GIVEN** an entry has a long name and a long value preview
+- **WHEN** the user narrows the entry browser
+- **THEN** the name and preview truncate as needed without overlapping
+
 ### Requirement: Compact groups
 
 A chain of groups that each only have one group in them SHALL be shown as one row labeled with their names, ex. `Drive/Modules`, including chains left by a search, except for the tops of pinned and hidden groups. Rows without children MUST show their type indicator where the chevron would be.

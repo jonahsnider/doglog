@@ -120,7 +120,8 @@ export const EntryRowView = memo(function EntryRowView({
 			}
 		>
 			<IndentGuides level={level} active={activeGuide} />
-			<TreeItemLabel className="flex h-full min-w-0 flex-1 items-center gap-1.5">
+			{/* Share cramped rows with the preview without letting it take all the space. */}
+			<TreeItemLabel className="flex h-full min-w-[min(7.5rem,65%)] flex-1 items-center gap-1.5 overflow-hidden">
 				<RowIndicator expandable={node.children !== undefined} />
 				{/* Checked while editing instead of having a checkbox of its own, so editing doesn't push the label over */}
 				{entry && <TypeMark type={entry.type} tooltip={markTooltip} checked={editing && bound} checkable={editing} />}
@@ -247,7 +248,7 @@ function RowLabel({
 	unsupported: boolean;
 	bound: boolean;
 }) {
-	const className = cn('min-w-24 flex-1 truncate', unsupported && 'text-muted-foreground', bound && 'text-primary');
+	const className = cn('min-w-0 flex-1 truncate', unsupported && 'text-muted-foreground', bound && 'text-primary');
 	return (
 		<TooltipTrigger handle={markTooltip} payload={node.value} render={<span className={className} />}>
 			{/* The tops of pinned and hidden entries and groups are labeled with their full paths */}
