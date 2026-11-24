@@ -8,6 +8,7 @@ const app = defineApp({
 	env: {
 		STUDIO_ORIGIN: v.string(),
 		// Base64-encoded PKCS#8 P-256 key. Use a separate signing key per deployment.
+		// openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -outform DER | openssl base64 -A
 		ATTESTATION_PRIVATE_KEY: v.optional(v.string()),
 	},
 });
