@@ -6,14 +6,19 @@ import { LoroDoc } from 'loro-crdt';
 import { expect, test, vi } from 'vite-plus/test';
 import { type WebSocket, WebSocketServer } from 'ws';
 import * as z from 'zod';
+import { cloudAccountStore } from '@/cloud/session';
 import { createDashboard, updateDashboard } from '@/dashboards/dashboards';
 import { readDashboardDoc } from '@/dashboards/doc';
 import { shareDashboards } from '@/dashboards/sharing';
 import { openLocalNt } from '@/nt/local';
+import type { NtClient } from '@/nt/client';
+import { settingsStore, updateSettings } from '@/settings';
+import { setViewedDashboard } from './presence';
 import { connectSharing } from './nt-sync.ts';
 
 const binaryFrame = z.tuple([z.number(), z.number(), z.number(), z.union([z.number(), z.instanceof(Uint8Array)])]);
 const controlFrames = z.array(z.object({ method: z.string(), params: z.record(z.string(), z.unknown()) }));
+const noop = () => {};
 
 function serveAfterReconnect(socket: WebSocket, firstPublish: () => void, receive: (name?: string) => void): void {
 	let publisher: number | undefined;
@@ -114,5 +119,63 @@ test('shared edits reach peers after reconnect and a missed publish acknowledgme
 		const closed = once(server, 'close');
 		server.close();
 		await closed;
+	}
+});
+
+test('robot presence switches between the Cloud and local sharing names without reopening the dashboard', async () => {
+	const previousName = settingsStore.get().name;
+	updateSettings({ name: '  Local driver  ' });
+	const { id } = createDashboard();
+	shareDashboards([id]);
+	setViewedDashboard(id);
+	const writes: Parameters<NtClient['setValue']>[] = [];
+	vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] });
+	const disconnect = connectSharing(
+		{
+			isConnected: () => true,
+			serverTime: () => undefined,
+			onConnectedChange: (listener) => {
+				queueMicrotask(() => listener(true));
+				return noop;
+			},
+			subscribe: () => noop,
+			setLivePriority: noop,
+			publish: async () => {},
+			setValue: (...write) => {
+				writes.push(write);
+			},
+			unpublish: noop,
+			close: noop,
+		},
+		noop,
+	);
+	try {
+		await vi.advanceTimersByTimeAsync(500);
+		cloudAccountStore.set({ displayName: null });
+		await vi.advanceTimersByTimeAsync(500);
+		cloudAccountStore.set({ displayName: 'Cloud driver' });
+		await vi.advanceTimersByTimeAsync(500);
+		cloudAccountStore.set({ displayName: 'Cloud coach' });
+		await vi.advanceTimersByTimeAsync(500);
+		cloudAccountStore.set(null);
+		await vi.advanceTimersByTimeAsync(500);
+
+		const presence = z.object({ name: z.string() });
+		const names = writes
+			.filter(([topic]) => topic.startsWith(`/DogLogStudio/${id}/presence/`))
+			.map(([, value]) => presence.parse(JSON.parse(z.string().parse(value))).name);
+		expect(names).toEqual([
+			'Local driver',
+			expect.stringMatching(/^Anonymous /u),
+			'Cloud driver',
+			'Cloud coach',
+			'Local driver',
+		]);
+	} finally {
+		disconnect();
+		vi.useRealTimers();
+		setViewedDashboard(undefined);
+		cloudAccountStore.set(null);
+		updateSettings({ name: previousName });
 	}
 });

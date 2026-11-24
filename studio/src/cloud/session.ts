@@ -8,6 +8,13 @@ import type { Id } from '../../../cloud/convex/_generated/dataModel';
 const idSchema = <Table extends 'users' | 'teams' | 'memberships'>() =>
 	z.custom<Id<Table>>((value) => typeof value === 'string');
 
+/** The signed-in profile, including accounts without a team or a display name. Kept while offline. */
+export const cloudAccountStore = createPersistedAtom(
+	'cloud-account',
+	z.object({ displayName: z.string().nullable() }).nullable(),
+	null,
+);
+
 const sessionSchema = z
 	.object({ userId: idSchema<'users'>(), teamId: idSchema<'teams'>(), membershipId: idSchema<'memberships'>() })
 	.nullable()

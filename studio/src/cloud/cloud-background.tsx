@@ -10,6 +10,7 @@ import { cloudClient } from './deployment';
 import {
 	accountKeyAttemptStore,
 	accountKeyStore,
+	cloudAccountStore,
 	type CloudSession,
 	cloudReadyStore,
 	cloudSessionStore,
@@ -37,6 +38,7 @@ function CloudBackground() {
 	const { isLoading, isAuthenticated } = useConvexAuth();
 	useEffect(() => {
 		if (!isLoading && !isAuthenticated) {
+			cloudAccountStore.set(null);
 			cloudSessionStore.set(null);
 		}
 	}, [isAuthenticated, isLoading]);
@@ -48,6 +50,11 @@ function SignedIn() {
 	const team = useQuery(api.teams.getMine);
 	// Unlocking again, ex. after pairing, starts over with a fresh component
 	const attempt = useSelector(accountKeyAttemptStore);
+	useEffect(() => {
+		if (account !== undefined) {
+			cloudAccountStore.set(account === null ? null : { displayName: account.displayName });
+		}
+	}, [account]);
 	useEffect(() => {
 		if (account === null || team === null) {
 			cloudSessionStore.set(null);

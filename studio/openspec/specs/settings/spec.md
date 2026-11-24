@@ -8,7 +8,7 @@ Define the Settings page, where users choose the color theme and contrast, wheth
 
 ### Requirement: Settings sections
 
-Settings SHALL group related settings under titled sections, in this order: Appearance (theme and theme color), Accessibility (contrast and reduce motion), Robot (robot connection), Sharing (name), and System (media controls, natural scrolling, the terminal command, and coding agents).
+Settings SHALL group related settings under titled sections, in this order: Appearance (theme and theme color), Accessibility (contrast and reduce motion), Robot (robot connection), Sharing (name, while signed out of Cloud), and System (media controls, natural scrolling, the terminal command, and coding agents).
 
 #### Scenario: Find the theme
 
@@ -28,12 +28,18 @@ Settings SHALL let users choose a light, dark, or system color theme, and each o
 
 ### Requirement: Name setting
 
-Settings SHALL let users set the name others see in shared dashboards. While it's blank, it MUST show the anonymous name others see instead.
+Settings SHALL let users who are signed out of Cloud set the name others see in shared dashboards. While it's blank, it MUST show the anonymous name others see instead. While a Cloud account is linked, Settings MUST hide the Sharing section without changing the saved local name.
 
 #### Scenario: Set a name
 
 - **WHEN** the user sets their name to Jonah
 - **THEN** others in shared dashboards see them as Jonah
+
+#### Scenario: Sign out of Cloud
+
+- **GIVEN** the user set a local name before linking a Cloud account
+- **WHEN** they sign out of Cloud
+- **THEN** the Sharing section returns with the saved local name
 
 ### Requirement: Robot connection setting
 

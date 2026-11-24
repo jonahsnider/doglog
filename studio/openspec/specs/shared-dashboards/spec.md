@@ -485,11 +485,17 @@ The bridge SHALL relay dashboard edits, not presence. Cloud and robot viewers MU
 
 ### Requirement: Identity
 
-Others SHALL see each user by the name set in Settings. Users without a name MUST be shown as "Anonymous" followed by a dog breed that stays the same on their device, and the first time they open a shared dashboard they MUST be prompted to set a name.
+Others SHALL see signed-in users by their Cloud display name, including when sharing on a robot. Signed-out users SHALL use the name set in Settings. Users without a name MUST be shown as "Anonymous" followed by a dog breed that stays the same on their device. Signed-out users without a name MUST be prompted to set one the first time they open a shared dashboard.
+
+#### Scenario: Cloud name changes while sharing on a robot
+
+- **GIVEN** a signed-in user is viewing a dashboard shared through a robot
+- **WHEN** they change their Cloud display name
+- **THEN** other robot viewers see the updated name without reopening the dashboard
 
 #### Scenario: No name set
 
-- **GIVEN** the user hasn't set a name
+- **GIVEN** the user is signed out and hasn't set a name
 - **WHEN** they open a shared dashboard for the first time
 - **THEN** they're shown as, ex., "Anonymous Corgi"
 - **AND** a toast offers to set their name

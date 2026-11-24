@@ -17,7 +17,7 @@ const settingsSchema = z
 		contrast: z.enum(contrasts).catch('standard'),
 		/** Whether to reduce motion even when the system doesn't ask to, see `reducesMotion()` */
 		reduceMotion: z.boolean().catch(false),
-		/** Shown to others in shared dashboards, see `getDisplayName()` */
+		/** Local sharing name, used when signed out of Cloud */
 		name: z.string().catch(''),
 		/** Team number or IP address, use `getRobotHost()` to get the NT server host */
 		robotTarget: z.string().catch(''),

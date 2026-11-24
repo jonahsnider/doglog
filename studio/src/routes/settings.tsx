@@ -1,5 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { useSelector } from '@tanstack/react-store';
 import type { ReactNode } from 'react';
+import { cloudAccountStore } from '@/cloud/session';
 import { aboutDialog } from '@/components/about-dialog-handle';
 import { CliField } from '@/components/cli-field';
 import { Button } from '@/components/ui/button';
@@ -20,6 +22,7 @@ export const Route = createFileRoute('/settings')({
 
 function Settings() {
 	const { name, robotTarget, reduceLiveBandwidth, mediaControls, naturalScrolling, reduceMotion } = useSettings();
+	const hasCloudAccount = useSelector(cloudAccountStore, (account) => account !== null);
 	const anonymousName = useAnonymousName();
 	const robotHost = getRobotHost(robotTarget);
 	const robotTargetInvalid = robotTarget.trim() !== '' && robotHost === undefined;
@@ -92,20 +95,22 @@ function Settings() {
 					</FramePanel>
 				</SettingsSection>
 
-				<SettingsSection title="Sharing">
-					<FramePanel>
-						<Field name="name">
-							<FieldLabel>Name</FieldLabel>
-							<Input
-								value={name}
-								onValueChange={(value) => updateSettings({ name: value })}
-								placeholder={anonymousName}
-								autoComplete="name"
-							/>
-							<FieldDescription>Shown to others in shared dashboards</FieldDescription>
-						</Field>
-					</FramePanel>
-				</SettingsSection>
+				{!hasCloudAccount && (
+					<SettingsSection title="Sharing">
+						<FramePanel>
+							<Field name="name">
+								<FieldLabel>Name</FieldLabel>
+								<Input
+									value={name}
+									onValueChange={(value) => updateSettings({ name: value })}
+									placeholder={anonymousName}
+									autoComplete="name"
+								/>
+								<FieldDescription>Shown to others in shared dashboards</FieldDescription>
+							</Field>
+						</FramePanel>
+					</SettingsSection>
+				)}
 
 				<SettingsSection title="System">
 					<FramePanel>

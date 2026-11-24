@@ -4,8 +4,7 @@ import { getFocusedPane } from '@/dashboards/panes';
 import { getSharedDocs, receiveSharedDashboard } from '@/dashboards/sharing';
 import { studioTopicPrefix } from '@/data/samples';
 import type { NtClient } from '@/nt/client';
-import { settingsStore } from '@/settings';
-import { getDisplayName, sessionId, userIdStore } from '@/sharing/identity';
+import { displayNameStore, sessionId, userIdStore } from '@/sharing/identity';
 import { localActivityStore, type Session, sessionsStore } from '@/sharing/presence';
 
 // Topics are `/DogLogStudio/{dashboard ID}/doc/{session ID}`, a snapshot of the dashboard's Loro document,
@@ -200,7 +199,7 @@ export function connectSharing(nt: NtClient, onConnectedChange: (connected: bool
 		}
 
 		const value = JSON.stringify({
-			name: getDisplayName(),
+			name: displayNameStore.get(),
 			// The first pane until another is focused, like keyboard shortcuts
 			paneId: getFocusedPane(dashboard).id,
 			lastActiveAt,
@@ -220,7 +219,7 @@ export function connectSharing(nt: NtClient, onConnectedChange: (connected: bool
 		schedulePresence();
 	});
 	const activitySubscription = localActivityStore.subscribe(schedulePresence);
-	const settingsSubscription = settingsStore.subscribe(schedulePresence);
+	const nameSubscription = displayNameStore.subscribe(schedulePresence);
 	let wasConnected = false;
 	// Notified right away, since the data source or another window might have connected already
 	nt.onConnectedChange((connected) => {
@@ -240,7 +239,7 @@ export function connectSharing(nt: NtClient, onConnectedChange: (connected: bool
 		clearTimeout(presenceTimer);
 		unsubscribeDashboards();
 		activitySubscription.unsubscribe();
-		settingsSubscription.unsubscribe();
+		nameSubscription.unsubscribe();
 		for (const { publisher } of docPublishers.values()) {
 			publisher.close();
 		}
