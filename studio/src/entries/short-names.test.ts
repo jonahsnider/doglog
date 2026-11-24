@@ -15,3 +15,12 @@ test('segments that would shorten the same as another beside them are kept in fu
 	expect(ambiguousSegments('/Robot/Swerve/Speed', names)).toEqual(new Set([6]));
 	expect(ambiguousSegments('/Robot/Arm/Angle', names)).toEqual(new Set());
 });
+
+test('hyphenated segments clash only when the letters after the hyphens also match', () => {
+	const left = '/Robot/front-left/Speed';
+	const right = '/Robot/front-right/Angle';
+	const lower = '/Robot/front-lower/Voltage';
+
+	expect(ambiguousSegments(left, [left, right, lower])).toEqual(new Set([6]));
+	expect(ambiguousSegments(right, [left, right, lower])).toEqual(new Set());
+});

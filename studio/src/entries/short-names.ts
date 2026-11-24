@@ -1,6 +1,8 @@
-/** A segment shortened to its first letter and capitals, like fish shortens paths, ex. `RealOutputs` to `RO` */
+/** Capture the lowercase runs hidden in a shortened name, keeping the first letter after each slash or hyphen. */
+export const hiddenNameLetters = /(?<!^|[/-])([a-z]+)/gu;
+
 function abbreviate(segment: string): string {
-	return segment.replaceAll(/(?<!^)[a-z]+/gu, '');
+	return segment.replaceAll(hiddenNameLetters, '');
 }
 
 /**

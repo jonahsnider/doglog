@@ -1,6 +1,6 @@
 import { HighlightedText } from '@/components/highlighted-text';
 import { cn } from '@/lib/utils';
-import { ambiguousSegments, distinctSegments, lastSegmentsStart } from '@/entries/short-names';
+import { ambiguousSegments, distinctSegments, hiddenNameLetters, lastSegmentsStart } from '@/entries/short-names';
 
 /**
  * Prefixes shortened to their slashes and capital letters, like fish shortens paths, ex. `/Robot/Arm/Angle` is shown
@@ -88,11 +88,15 @@ function Shortened({
 	offset: number;
 	common: boolean;
 }) {
-	// Runs of lowercase letters are hidden, except a segment's first letter, ex. `/RealOutputs` is split into `/R`, `eal`, `O`, `utputs`
-	const parts = text.matchAll(/(?<hidden>(?<!^|\/)[a-z]+)|(?:[^a-z]|(?<=^|\/)[a-z])+/gu);
-	return Array.from(parts, ({ 0: part, index, groups }) => {
-		const start = offset + index;
-		if (groups?.['hidden'] === undefined) {
+	let next = offset;
+	// The captured runs land at odd indexes, between the parts that stay visible.
+	return text.split(hiddenNameLetters).map((part, index) => {
+		const start = next;
+		next += part.length;
+		if (part === '') {
+			return null;
+		}
+		if (index % 2 === 0) {
 			return common ? (
 				<HighlightedText key={start} text={part} ranges={ranges} offset={start} />
 			) : (

@@ -292,6 +292,11 @@ When a legend has no room for an entry's full name, it SHALL also shorten the fi
 - **GIVEN** a narrow field legend bound to `/Robot/Localization/EstimatedPose`
 - **THEN** the legend shows `/R/L/EstimatedPose` with `/R` and the slashes dimmed, but not `L`
 
+#### Scenario: Collapsed hyphenated segment
+
+- **GIVEN** a narrow legend bound to `/Robot/front-left/EstimatedPose`
+- **THEN** the legend keeps each hyphen and the first letter after it, showing `/R/f-l/EstimatedPose`
+
 #### Scenario: Scroll the rest of the name
 
 - **GIVEN** a legend too narrow for `/R/L/EstimatedPose`
