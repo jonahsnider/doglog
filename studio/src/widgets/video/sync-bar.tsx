@@ -1,7 +1,7 @@
+import ChevronLeftIcon from 'lucide-react/icons/chevron-left';
+import ChevronRightIcon from 'lucide-react/icons/chevron-right';
 import PauseIcon from 'lucide-react/icons/pause';
 import PlayIcon from 'lucide-react/icons/play';
-import StepBackIcon from 'lucide-react/icons/step-back';
-import StepForwardIcon from 'lucide-react/icons/step-forward';
 import { type ReactNode, type RefObject, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -69,10 +69,10 @@ export function SyncBar({
 				{playing ? <PauseIcon /> : <PlayIcon />}
 			</SyncBarButton>
 			<SyncBarButton label="Previous frame" onClick={() => seek((player.current?.time() ?? time) - frameLength)}>
-				<StepBackIcon />
+				<ChevronLeftIcon />
 			</SyncBarButton>
 			<SyncBarButton label="Next frame" onClick={() => seek((player.current?.time() ?? time) + frameLength)}>
-				<StepForwardIcon />
+				<ChevronRightIcon />
 			</SyncBarButton>
 			<span className="font-mono text-xs text-muted-foreground tabular-nums">{formatTime(time * 1_000_000, 0)}</span>
 			<Slider
@@ -93,7 +93,7 @@ export function SyncBar({
 					<TooltipTrigger
 						render={<Button size="sm" disabled={!canSync} onClick={() => onSync(player.current?.time() ?? time)} />}
 					>
-						Sync
+						Save
 					</TooltipTrigger>
 					<TooltipPopup>Show this moment of the video at the timeline’s cursor</TooltipPopup>
 				</Tooltip>

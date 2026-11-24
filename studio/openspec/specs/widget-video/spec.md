@@ -76,12 +76,12 @@ When the cursor is before the video starts or after it ends, the widget SHALL sh
 
 ### Requirement: Sync mode
 
-Sync mode SHALL let the user line the video up with the source: the video stops following the timeline and gets its own play button, frame steps, and scrubber under it, while the timeline keeps moving the cursor. Sync MUST lock the video's current moment to the cursor, and Cancel MUST leave the sync as it was. Widget options MUST offer to start Sync mode. Sync mode MUST start where the video was lined up with the cursor, or for a newly added video, at the start or at a YouTube link's timestamp.
+Sync mode SHALL let the user line the video up with the source: the video stops following the timeline and gets its own play button, frame steps, and scrubber under it, while the timeline keeps moving the cursor. Save MUST lock the video's current moment to the cursor, and Cancel MUST leave the sync as it was. Widget options MUST offer to start Sync mode. Sync mode MUST start where the video was lined up with the cursor, or for a newly added video, at the start or at a YouTube link's timestamp.
 
 #### Scenario: Line up the start of auto
 
 - **GIVEN** a video widget in Sync mode
-- **WHEN** the user moves the cursor to the start of auto, scrubs the video to when the field starts auto, and presses Sync
+- **WHEN** the user moves the cursor to the start of auto, scrubs the video to when the field starts auto, and presses Save
 - **THEN** the video and the log show auto starting together
 
 #### Scenario: Link with a timestamp
