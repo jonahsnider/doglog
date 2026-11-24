@@ -248,7 +248,7 @@ export function Console({ bindings }: WidgetProps) {
 				role="log"
 			>
 				{count === 0 ? (
-					<p className="p-2 text-muted-foreground italic">{emptyText}</p>
+					<p className="p-2 text-muted-foreground">{emptyText}</p>
 				) : (
 					<div className="relative" style={{ height: virtualizer.getTotalSize() }}>
 						{virtualizer.getVirtualItems().map((item) => (
