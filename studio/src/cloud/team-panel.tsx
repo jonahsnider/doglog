@@ -52,7 +52,7 @@ export function TeamPanel({
 							key={team.id}
 							label="Delete team"
 							title={`Delete ${team.name}?`}
-							description="This permanently deletes the team and its Cloud dashboards and invalidates its invite links. You’ll keep your Cloud account and local dashboards."
+							description="This permanently deletes the team and all saved Cloud dashboards. Your Cloud account and local dashboards aren’t affected."
 							failureMessage="Couldn’t delete the team. Try again."
 							destructive
 							disabledReason={
