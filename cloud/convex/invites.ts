@@ -32,9 +32,7 @@ export const issue = mutation({
 		if (admin.inviteToken !== undefined) {
 			return admin.inviteToken;
 		}
-		const token = Array.from(crypto.getRandomValues(new Uint8Array(32)), (byte) =>
-			byte.toString(16).padStart(2, '0'),
-		).join('');
+		const token = crypto.getRandomValues(new Uint8Array(32)).toBase64({ alphabet: 'base64url', omitPadding: true });
 		await ctx.db.patch('memberships', admin._id, { inviteToken: token });
 		return token;
 	},
