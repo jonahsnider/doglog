@@ -17,7 +17,7 @@
 	},
 	"devDependencies": {
 		"@doglog/studio": "workspace:*",
-		"convex-test": "0.0.73",
+		"convex-test": "0.0.74",
 		"typescript": "7.1.0-dev.20261123.1",
 		"vite": "catalog:",
 		"vite-plugin-svgr": "5.2.0",
