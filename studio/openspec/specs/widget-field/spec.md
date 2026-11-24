@@ -288,12 +288,18 @@ The Field legend row's context menu SHALL offer **Connect to…** next to **Disc
 
 ### Requirement: Connections in the legend
 
-The field legend SHALL draw each connection to the right of its rows, as straight lines with right angles from the source's handle to the target's, in the target's color, with each source in its own lane so links don't overlap. Hovering a link MUST highlight it and fill the handles at its ends, and clicking it MUST remove the connection. Right-clicking a row SHALL offer to disconnect it from each binding it's connected to.
+The legend SHALL draw right-angled links to the right of the rows, from handle to handle, in the target's color. Vertically overlapping links MUST use separate lanes, with shorter spans routed first. Disjoint spans MAY share a lane. Hovering a vertical segment MUST highlight its link and fill both handles. Clicking it MUST remove only that link. A row's context menu SHALL offer to disconnect each of its links.
+
+#### Scenario: Separate links from the same robot
+
+- **GIVEN** `/Drive/Pose` is connected to `/Robot/Components` on the next row and `/Vision/SeenTags` two rows below
+- **THEN** the link to `/Vision/SeenTags` bends farther out than the link to `/Robot/Components`
+- **AND** either link can be removed without removing the other
 
 #### Scenario: Remove a connection
 
 - **GIVEN** `/Drive/Pose` is connected to `/Vision/SeenTags`
-- **WHEN** the user clicks the link between them in the legend
+- **WHEN** the user clicks the link's vertical segment in the legend
 - **THEN** the lines from the robot to the seen tags aren't drawn
 
 ### Requirement: Draw order
@@ -716,6 +722,13 @@ Parts and mechanism bindings SHALL be drawn on the robots or ghosts they're conn
 - **GIVEN** a field widget showing `/Drive/Pose` as a robot and `/Drive/Setpoint` as a ghost
 - **WHEN** the user drags the handle of `/Robot/SetpointComponents`, as parts, onto `/Drive/Setpoint`
 - **THEN** the ghost's parts are moved by `/Robot/SetpointComponents`
+
+#### Scenario: Attach parts to an already linked robot
+
+- **GIVEN** `/Drive/Pose` is a robot connected to `/Vision/SeenTags`
+- **WHEN** the user drags between the handles of `/Drive/Pose` and `/Robot/Components`, as parts, in either direction
+- **THEN** `/Robot/Components` is attached to the robot
+- **AND** the connection to `/Vision/SeenTags` is kept
 
 ### Requirement: 3D drawings
 

@@ -11,10 +11,7 @@ import {
 	handleInset,
 } from '@/widgets/legend/connections';
 
-/**
- * Links each source's handle to its targets' handles with straight lines and right angles, one lane per source.
- * Clicking a link removes it.
- */
+/** Links legend handles with right angles. Clicking a link's lane removes the link. */
 export function ConnectionGutter({
 	rows,
 	connections,
@@ -35,18 +32,29 @@ export function ConnectionGutter({
 	onRemove: (connection: Connection) => void;
 	drag: ConnectionDrag | undefined;
 }) {
-	const lanes = assignLanes(connections, rowOf);
+	const { lanes, count } = assignLanes(connections, rowOf);
+	const drop = drag?.over;
+	const existing =
+		drop &&
+		connections.find(
+			({ sourceId, targetId }) =>
+				(sourceId === drop.sourceId && targetId === drop.targetId) ||
+				(sourceId === drop.targetId && targetId === drop.sourceId),
+		);
+	// Route a snapped preview with the saved links, but keep the gutter width fixed under the pointer.
+	const routed = drop && !existing ? assignLanes([...connections, drop], rowOf).lanes : lanes;
+	const preview = existing ?? drop;
 	const isHovered = ({ sourceId, targetId }: Connection) =>
 		hovered?.sourceId === sourceId && hovered.targetId === targetId;
-	const width = laneGap * (lanes.size + 1);
+	const width = laneGap * (count + 1);
 	return (
 		<svg className="shrink-0 overflow-visible" width={width} height={rows * rowHeight} aria-hidden>
-			{/* The hovered link is drawn last, on top of the ones it shares a lane with */}
+			{/* Draw the hovered link above any lines it crosses. */}
 			{connections
 				.toSorted((a, b) => Number(isHovered(a)) - Number(isHovered(b)))
 				.map((connection) => {
 					const { sourceId, targetId, color } = connection;
-					const x = laneGap * (lanes.get(sourceId)! + 1);
+					const x = laneGap * (routed.get(connection)! + 1);
 					const sourceY = rowCenter(rowOf(sourceId));
 					const targetY = rowCenter(rowOf(targetId));
 					const d = `M ${-handleInset} ${sourceY} H ${x} V ${targetY} H ${-handleInset}`;
@@ -65,17 +73,17 @@ export function ConnectionGutter({
 								d={d}
 								fill="none"
 								stroke={hoveredLink ? undefined : color}
-								className={cn(hoveredLink && 'stroke-destructive')}
+								className={cn('pointer-events-none', hoveredLink && 'stroke-destructive')}
 								strokeWidth={hoveredLink ? 3 : 2}
 								strokeLinejoin="round"
 							/>
-							{/* A wider invisible line, so links are easy to click */}
-							<path d={d} fill="none" stroke="transparent" strokeWidth={10} />
+							{/* Only the vertical segment is clickable; links can share a horizontal segment. */}
+							<line x1={x} x2={x} y1={sourceY} y2={targetY} stroke="transparent" strokeWidth={10} />
 							{hoveredLink && <RemoveMark x={x} y={(sourceY + targetY) / 2} />}
 						</g>
 					);
 				})}
-			{drag && <DragPreview drag={drag} lane={lanes.get(drag.sourceId) ?? lanes.size} />}
+			{drag && <DragPreview drag={drag} lane={(preview && routed.get(preview)) ?? count} />}
 		</svg>
 	);
 }
@@ -108,7 +116,7 @@ function DragPreview({ drag, lane }: { drag: ConnectionDrag; lane: number }) {
 			<path
 				d={d}
 				fill="none"
-				stroke={drag.toRow === undefined ? undefined : drag.color}
+				stroke={drag.over?.color}
 				className={cn(drag.toRow === undefined && 'stroke-foreground')}
 				strokeWidth={2}
 				strokeDasharray={drag.toRow === undefined ? '3 3' : undefined}

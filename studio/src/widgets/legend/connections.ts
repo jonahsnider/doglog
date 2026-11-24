@@ -2,8 +2,8 @@ import { canConnect, type WidgetBinding } from '@/widgets/widget-type';
 
 /** Height of each row of a vertical legend, so connections can be drawn between rows without measuring them */
 export const rowHeight = 24;
-/** Space between the handles and the first lane, and between lanes */
-export const laneGap = 8;
+/** Leave room between lanes for their hit areas and remove marks. */
+export const laneGap = 12;
 /** The handles' centers are this far left of the gutter */
 export const handleInset = 6;
 
@@ -26,15 +26,23 @@ export function connectionBetween(
 	return canConnect(to, from) ? { source: to, target: from } : undefined;
 }
 
-/** Each source gets its own lane, the ones spanning the fewest rows nearest the handles so links cross less */
-export function assignLanes(connections: readonly Connection[], rowOf: (id: string) => number): Map<string, number> {
-	const spans = new Map<string, { min: number; max: number }>();
-	for (const { sourceId, targetId } of connections) {
-		const span = spans.get(sourceId) ?? { min: rowOf(sourceId), max: rowOf(sourceId) };
-		spans.set(sourceId, { min: Math.min(span.min, rowOf(targetId)), max: Math.max(span.max, rowOf(targetId)) });
+/** Route short links first to avoid crossing their longer neighbors, and reuse lanes between disjoint spans. */
+export function assignLanes(connections: readonly Connection[], rowOf: (id: string) => number) {
+	const spans = connections.map((connection) => {
+		const source = rowOf(connection.sourceId);
+		const target = rowOf(connection.targetId);
+		return { connection, min: Math.min(source, target), max: Math.max(source, target) };
+	});
+	spans.sort((a, b) => a.max - a.min - (b.max - b.min) || a.min - b.min);
+	const occupied: (typeof spans)[] = [];
+	const lanes = new Map<Connection, number>();
+	for (const span of spans) {
+		const free = occupied.findIndex((lane) => lane.every((other) => span.min > other.max || span.max < other.min));
+		const lane = free === -1 ? occupied.length : free;
+		(occupied[lane] ??= []).push(span);
+		lanes.set(span.connection, lane);
 	}
-	const sources = [...spans.entries()].toSorted(([, a], [, b]) => a.max - a.min - (b.max - b.min));
-	return new Map(sources.map(([id], lane) => [id, lane]));
+	return { lanes, count: occupied.length };
 }
 
 export const rowCenter = (row: number) => row * rowHeight + rowHeight / 2;
@@ -42,12 +50,10 @@ export const rowCenter = (row: number) => row * rowHeight + rowHeight / 2;
 /** A connection being dragged out of a handle */
 export type ConnectionDrag = {
 	fromRow: number;
-	/** The binding the connection would be drawn from, whose lane it's drawn in */
-	sourceId: string;
 	/** The row it would connect to if dropped, where it snaps to */
 	toRow: number | undefined;
-	/** The color of the connection it would make if dropped, the target's */
-	color: string | undefined;
+	/** The connection it would make if dropped */
+	over: Connection | undefined;
 	/** The pointer's position in the viewport */
 	x: number;
 	y: number;

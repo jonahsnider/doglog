@@ -65,8 +65,7 @@ function LegendList({ items, vertical = false, dropRole, roles = true, className
 	const list = useRef<HTMLUListElement>(null);
 	const gutter = useRef<HTMLDivElement>(null);
 	const [hovered, setHovered] = useState<Connection>();
-	/** The connection being dragged out of a handle, `over` is the binding it would connect to if dropped */
-	const [drag, setDrag] = useState<ConnectionDrag & { from: WidgetBinding; over: Connection | undefined }>();
+	const [drag, setDrag] = useState<ConnectionDrag & { from: WidgetBinding }>();
 
 	const connectable = vertical && items.some((item) => item.binding.connects !== undefined);
 	const followable = items.some((item) => item.follow !== undefined);
@@ -89,9 +88,7 @@ function LegendList({ items, vertical = false, dropRole, roles = true, className
 		return {
 			from,
 			fromRow: rowOf(from.id),
-			sourceId: connection?.source.id ?? from.id,
 			toRow: connection && rowOf(to.id),
-			color: connection && colors.get(connection.target.id),
 			x: event.clientX,
 			y: event.clientY,
 			originX: rect.left,
@@ -121,10 +118,10 @@ function LegendList({ items, vertical = false, dropRole, roles = true, className
 					followable={followable}
 					handle={
 						connectable && item.binding.connects !== undefined ? (
-							// Grabbed anywhere in the row's height, around the small dot it shows
+							// Position the handle above existing links so it stays draggable at their ends.
 							<span
 								className={cn(
-									'-me-[6px] flex shrink-0 touch-none p-[6px]',
+									'relative -me-[6px] flex shrink-0 touch-none p-[6px]',
 									drag?.from.id === item.binding.id ? 'cursor-grabbing' : 'cursor-crosshair',
 								)}
 								title="Drag to another entry to connect them"
