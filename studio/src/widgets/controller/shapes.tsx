@@ -14,7 +14,7 @@ const trigger = {
 };
 const bumper = {
 	// The top edge shows above the body's shoulder, the rest is tucked behind the body
-	path: 'M 44 78 C 56 56 80 42 110 41 C 130 41 146 45 158 50 L 156 62 C 140 57 126 55 110 55 C 84 56 64 64 52 80 Z',
+	path: 'M 44 78 C 56 56 80 42 110 41 C 130 41 146 45 158 50 L 156 62 L 52 80 Z',
 	label: [110, 46.5] as Point,
 };
 
