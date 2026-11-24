@@ -140,7 +140,7 @@ jobs:
     name: Studio Rust
 
     # Check against the same WebKitGTK and system libraries as the Linux AppImage build.
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-26.04
 
     timeout-minutes: 15
 
