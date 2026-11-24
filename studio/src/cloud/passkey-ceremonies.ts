@@ -12,7 +12,7 @@ export function supportsPasskeys(): boolean {
 }
 
 // Only the fields Cloud accepts, unknown ones are stripped
-const registrationResponse = z.object({
+export const registrationResponse = z.object({
 	id: z.string(),
 	rawId: z.string(),
 	response: z.object({
@@ -23,7 +23,7 @@ const registrationResponse = z.object({
 	type: z.literal('public-key'),
 });
 
-const authenticationResponse = z.object({
+export const authenticationResponse = z.object({
 	id: z.string(),
 	rawId: z.string(),
 	response: z.object({

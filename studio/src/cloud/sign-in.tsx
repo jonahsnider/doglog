@@ -1,7 +1,14 @@
 import { useSignInWithApple, useOauth } from '@convex-dev/auth/methods/apple/react';
 import { createUsernamePasskeyHooks } from '@convex-dev/auth/methods/username-passkey/react-custom';
 import { AppleLight } from '@ridemountainpig/svgl-react';
+import { useSelector } from '@tanstack/react-store';
 import { type SubmitEvent, useState } from 'react';
+import {
+	browserSignInStore,
+	cancelBrowserSignIn,
+	desktopCeremonies,
+	signInWithAppleInBrowser,
+} from '@/cloud/desktop-sign-in';
 import { browserCeremonies, supportsPasskeys } from '@/cloud/passkey-ceremonies';
 import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
@@ -10,14 +17,28 @@ import { Input } from '@/components/ui/input';
 import { OrDivider } from '@/widgets/video/options';
 import { api } from '../../../cloud/convex/_generated/api.js';
 
-const { useSignInWithUsernamePasskey } = createUsernamePasskeyHooks(browserCeremonies);
+// The desktop app signs in through Studio's website, since that's where Cloud's passkeys work
+const { useSignInWithUsernamePasskey } = createUsernamePasskeyHooks(
+	STUDIO_DESKTOP ? desktopCeremonies : browserCeremonies,
+);
 
 export function CloudSignIn() {
+	const waiting = useSelector(browserSignInStore);
 	return (
 		<FramePanel className="grid gap-4">
 			<PasskeySignIn />
 			<OrDivider />
 			<AppleSignIn />
+			{waiting && (
+				<div className="flex flex-wrap items-center gap-3">
+					<p role="status" className="text-muted-foreground text-sm">
+						Finish signing in in your browser.
+					</p>
+					<Button variant="outline" size="sm" onClick={cancelBrowserSignIn}>
+						Cancel
+					</Button>
+				</div>
+			)}
 		</FramePanel>
 	);
 }
@@ -26,7 +47,7 @@ function PasskeySignIn() {
 	const { signIn, pending } = useSignInWithUsernamePasskey(api.auth);
 	const [error, setError] = useState<string>();
 
-	if (!supportsPasskeys()) {
+	if (!STUDIO_DESKTOP && !supportsPasskeys()) {
 		return (
 			<p className="text-muted-foreground text-sm">
 				To sign in with a passkey, open Studio over HTTPS in an up-to-date browser.
@@ -94,34 +115,38 @@ function AppleSignIn() {
 	const { signIn } = useSignInWithApple(api.auth);
 	const { flowError } = useOauth();
 	const [pending, setPending] = useState(false);
-	const [startError, setStartError] = useState(false);
+	const [error, setError] = useState<string>();
 
 	async function start() {
-		setStartError(false);
+		setError(undefined);
 		setPending(true);
-		const leaving = await signIn().then(
-			(result) => result.status === 'redirect',
-			() => false,
+		const outcome = STUDIO_DESKTOP
+			? await signInWithAppleInBrowser(signIn)
+			: await signIn().then(
+					(result) => (result.status === 'redirect' ? 'leaving' : 'unavailable'),
+					() => 'unavailable' as const,
+				);
+		// On the web, stays loading while the page leaves for Apple's sign-in, which returns here when it's done
+		setPending(outcome === 'leaving');
+		setError(
+			outcome === 'leaving' || outcome === undefined
+				? undefined
+				: outcome === 'unavailable'
+					? 'Couldn’t start signing in with Apple. Try again.'
+					: flowErrors[outcome.error],
 		);
-		// Stays loading while the page leaves for Apple's sign-in, which returns here when it's done
-		setPending(leaving);
-		setStartError(!leaving);
 	}
 
-	const error = startError
-		? 'Couldn’t start signing in with Apple. Try again.'
-		: flowError === null
-			? undefined
-			: flowErrors[flowError.error];
+	const shown = error ?? (flowError === null ? undefined : flowErrors[flowError.error]);
 	return (
 		<div className="grid gap-2">
 			<Button variant="outline" className="justify-self-start" loading={pending} onClick={() => void start()}>
 				<AppleLight aria-hidden="true" className="fill-current in-data-loading:invisible" />
 				Continue with Apple
 			</Button>
-			{error !== undefined && (
+			{shown !== undefined && (
 				<p role="alert" className="text-destructive-foreground text-sm">
-					{error}
+					{shown}
 				</p>
 			)}
 		</div>

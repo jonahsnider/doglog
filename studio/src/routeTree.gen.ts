@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CloudRouteImport } from './routes/cloud'
+import { Route as DesktopSignInRouteImport } from './routes/desktop-sign-in'
 import { Route as LogsRouteImport } from './routes/logs'
 import { Route as OpenRouteImport } from './routes/open'
 import { Route as SettingsRouteImport } from './routes/settings'
@@ -26,6 +27,11 @@ const IndexRoute = IndexRouteImport.update({
 const CloudRoute = CloudRouteImport.update({
   id: '/cloud',
   path: '/cloud',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesktopSignInRoute = DesktopSignInRouteImport.update({
+  id: '/desktop-sign-in',
+  path: '/desktop-sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LogsRoute = LogsRouteImport.update({
@@ -62,6 +68,7 @@ const ImportLinkRoute = ImportLinkRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cloud': typeof CloudRoute
+  '/desktop-sign-in': typeof DesktopSignInRoute
   '/logs': typeof LogsRoute
   '/open': typeof OpenRoute
   '/settings': typeof SettingsRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cloud': typeof CloudRoute
+  '/desktop-sign-in': typeof DesktopSignInRoute
   '/logs': typeof LogsRoute
   '/open': typeof OpenRoute
   '/settings': typeof SettingsRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/cloud': typeof CloudRoute
+  '/desktop-sign-in': typeof DesktopSignInRoute
   '/logs': typeof LogsRoute
   '/open': typeof OpenRoute
   '/settings': typeof SettingsRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/cloud'
+    | '/desktop-sign-in'
     | '/logs'
     | '/open'
     | '/settings'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/cloud'
+    | '/desktop-sign-in'
     | '/logs'
     | '/open'
     | '/settings'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/cloud'
+    | '/desktop-sign-in'
     | '/logs'
     | '/open'
     | '/settings'
@@ -126,6 +138,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CloudRoute: typeof CloudRoute
+  DesktopSignInRoute: typeof DesktopSignInRoute
   LogsRoute: typeof LogsRoute
   OpenRoute: typeof OpenRoute
   SettingsRoute: typeof SettingsRoute
@@ -148,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/cloud'
       fullPath: '/cloud'
       preLoaderRoute: typeof CloudRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/desktop-sign-in': {
+      id: '/desktop-sign-in'
+      path: '/desktop-sign-in'
+      fullPath: '/desktop-sign-in'
+      preLoaderRoute: typeof DesktopSignInRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/logs': {
@@ -198,6 +218,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CloudRoute: CloudRoute,
+  DesktopSignInRoute: DesktopSignInRoute,
   LogsRoute: LogsRoute,
   OpenRoute: OpenRoute,
   SettingsRoute: SettingsRoute,

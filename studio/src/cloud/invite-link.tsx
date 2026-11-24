@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { toastManager } from '@/components/ui/toast';
 import { api } from '../../../cloud/convex/_generated/api.js';
 import { ConfirmCloudAction } from './confirm-cloud-action';
+import { studioWebsiteOrigin } from './deployment';
 
 async function copyLink(link: string) {
 	try {
@@ -36,7 +37,7 @@ export function InviteLink() {
 
 	let link: string | undefined;
 	if (typeof token === 'string') {
-		const url = new URL('/cloud', location.origin);
+		const url = new URL('/cloud', STUDIO_DESKTOP ? studioWebsiteOrigin : location.origin);
 		url.searchParams.set('invite', token);
 		link = url.href;
 	}

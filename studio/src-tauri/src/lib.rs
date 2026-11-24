@@ -4,6 +4,7 @@ mod camera_stream;
 mod capture;
 mod cli;
 mod cloud_keychain;
+mod cloud_sign_in;
 mod live_export;
 mod log_url;
 #[cfg(desktop)]
@@ -92,6 +93,7 @@ fn handle_deep_link(app: &AppHandle, url: &tauri::Url) {
             // Before the frontend is listening this is dropped, it takes the link when it starts instead
             let _ = app.emit_to(label, "dashboard-link-opened", ());
         }
+        Some("sign-in") => cloud_sign_in::forward_link(app, url),
         Some("open") => {
             let target_url = url
                 .query_pairs()
@@ -307,6 +309,7 @@ pub fn run() -> ExitCode {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_deep_link::init())
+        .plugin(cloud_sign_in::plugin())
         .plugin(window_state::plugin())
         .manage(OpenedLog::default())
         .manage(WindowHasSource::default())
