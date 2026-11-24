@@ -36,7 +36,18 @@ export function TeamPanel({
 						)}
 						<TeamKeyStatus />
 					</div>
-					{team.canDelete && (
+					<div className="flex flex-wrap gap-2">
+						{team.canLeave && (
+							<ConfirmCloudAction
+								key={`leave-${team.id}`}
+								label="Leave team"
+								title={`Leave ${team.name}?`}
+								description="You’ll lose access to the team’s Cloud dashboards. Your Cloud account and local dashboards aren’t affected. You can rejoin later with an invite link."
+								failureMessage="Couldn’t leave the team. Try again."
+								destructive
+								onConfirm={leaveTeam}
+							/>
+						)}
 						<ConfirmCloudAction
 							key={team.id}
 							label="Delete team"
@@ -44,20 +55,16 @@ export function TeamPanel({
 							description="This permanently deletes the team and its Cloud dashboards and invalidates its invite links. You’ll keep your Cloud account and local dashboards."
 							failureMessage="Couldn’t delete the team. Try again."
 							destructive
+							disabledReason={
+								team.canDelete
+									? undefined
+									: team.role === 'admin'
+										? 'You must be the only member to delete the team.'
+										: 'Only team admins can delete the team.'
+							}
 							onConfirm={() => deleteTeam({ teamId: team.id })}
 						/>
-					)}
-					{team.canLeave && (
-						<ConfirmCloudAction
-							key={`leave-${team.id}`}
-							label="Leave team"
-							title={`Leave ${team.name}?`}
-							description="You’ll lose access to the team’s Cloud dashboards. Your Cloud account and local dashboards aren’t affected. You can rejoin later with an invite link."
-							failureMessage="Couldn’t leave the team. Try again."
-							destructive
-							onConfirm={leaveTeam}
-						/>
-					)}
+					</div>
 				</div>
 			)}
 		</FramePanel>

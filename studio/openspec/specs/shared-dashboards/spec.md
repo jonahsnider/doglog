@@ -55,7 +55,7 @@ An account MUST belong to at most one team. When Cloud is available, Studio SHAL
 - **WHEN** a signed-in user opens the Cloud page
 - **THEN** the Team section contains team creation, joining, and membership controls as applicable
 - **AND** the Collaboration section contains display name and invite links for admins
-- **AND** the Account section contains encryption, sign-out, and account deletion when available
+- **AND** the Account section contains encryption, sign-out, and account deletion controls
 
 #### Scenario: Start a team
 
@@ -99,6 +99,12 @@ Admins SHALL be able to promote members to admin and remove admin rights from th
 ### Requirement: Leave or delete a team
 
 A member SHALL be able to leave their team without deleting their account. Deleting an account MUST NOT delete dashboards owned by a team. Before leaving or deleting their account, the last admin MUST make another member an admin or, if alone, delete the team. An admin SHALL be able to delete the team and its Cloud dashboards only when they are its sole remaining member.
+
+#### Scenario: Deletion is unavailable
+
+- **WHEN** a signed-in user cannot delete their account or cannot delete the team they belong to
+- **THEN** the corresponding delete button remains visible and disabled
+- **AND** hovering, focusing, or tapping the button explains why deletion is unavailable without opening a confirmation dialog
 
 #### Scenario: The last admin tries to leave
 

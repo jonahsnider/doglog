@@ -59,6 +59,18 @@ function SignedIn() {
 	const { invite } = Route.useSearch();
 	const [signingOut, setSigningOut] = useState(false);
 	const [signOutError, setSignOutError] = useState(false);
+	let deleteAccountDisabledReason: string | undefined;
+	if (team === undefined) {
+		deleteAccountDisabledReason = 'Checking your team membership…';
+	} else if (team !== null) {
+		if (team.canDelete) {
+			deleteAccountDisabledReason = 'Delete your team first.';
+		} else if (team.canLeave) {
+			deleteAccountDisabledReason = 'Leave your team first.';
+		} else {
+			deleteAccountDisabledReason = 'Make another member an admin, then leave your team.';
+		}
+	}
 
 	async function endSession() {
 		setSignOutError(false);
@@ -89,28 +101,20 @@ function SignedIn() {
 					<div className="grid gap-1">
 						<p className="text-sm">Signed in to DogLog Cloud</p>
 						{account && <AccountEncryption userId={account.id} />}
-						{team !== undefined && team !== null && (
-							<p className="text-muted-foreground text-sm">
-								{team.canDelete
-									? 'Delete your team first if you want to delete your account.'
-									: 'You can only delete your account when you’re not on a team.'}
-							</p>
-						)}
 					</div>
 					<div className="flex flex-wrap gap-2">
 						<Button variant="outline" loading={signingOut} onClick={() => void endSession()}>
 							Sign out
 						</Button>
-						{team === null && (
-							<ConfirmCloudAction
-								label="Delete account"
-								title="Delete your Cloud account?"
-								description="This permanently deletes your Cloud account and signs you out on all devices. Local dashboards aren’t affected."
-								failureMessage="Couldn’t delete your Cloud account. Try again."
-								destructive
-								onConfirm={deleteAccount}
-							/>
-						)}
+						<ConfirmCloudAction
+							label="Delete account"
+							title="Delete your Cloud account?"
+							description="This permanently deletes your Cloud account and signs you out on all devices. Local dashboards aren’t affected."
+							failureMessage="Couldn’t delete your Cloud account. Try again."
+							destructive
+							disabledReason={deleteAccountDisabledReason}
+							onConfirm={deleteAccount}
+						/>
 					</div>
 					{signOutError && (
 						<p role="alert" className="w-full text-destructive-foreground text-sm">
