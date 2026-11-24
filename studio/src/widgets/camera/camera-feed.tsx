@@ -25,38 +25,52 @@ export function CameraFeed({
 			<div className={cn('min-h-0 flex-1', status !== 'live' && 'hidden')}>
 				<canvas ref={canvas} role="img" aria-label={`Live view from ${name}`} className="size-full object-contain" />
 			</div>
-			{status === 'live' ? (
-				<div className="shrink-0" role="status">
-					{reconnecting && <p className="px-2 py-1.5 text-xs text-muted-foreground">Reconnecting to robot data…</p>}
-				</div>
-			) : status === 'loading' || (reconnecting && !urls) ? (
-				<div className="flex h-full items-center justify-center gap-2 text-sm text-muted-foreground" role="status">
-					<Spinner className="size-4" />
-					{reconnecting ? 'Reconnecting to robot…' : 'Connecting to camera…'}
-				</div>
-			) : status === 'permission' ? (
-				<WidgetEmpty
-					icon={<CameraIcon aria-hidden />}
-					title="Allow camera access"
-					description="Your browser needs permission to reach the camera on your local network."
-				>
-					<Button variant="outline" size="sm" onClick={requestAccess}>
-						Allow access
-					</Button>
-				</WidgetEmpty>
-			) : (
-				<WidgetEmpty
-					icon={<CameraIcon aria-hidden />}
-					title="Camera feed unavailable"
-					description={
-						STUDIO_DESKTOP
-							? 'Check that the camera is connected. Studio will keep trying.'
-							: status === 'denied'
-								? 'Allow local network access in your browser’s site settings, or open Studio on desktop.'
-								: 'Check the camera connection and local network permission, or open Studio on desktop.'
-					}
-				/>
-			)}
+			<CameraFeedStatus
+				status={reconnecting && !urls && status !== 'live' ? 'loading' : status}
+				reconnecting={reconnecting}
+				requestAccess={requestAccess}
+			/>
 		</div>
 	);
+}
+
+function CameraFeedStatus({
+	status,
+	reconnecting,
+	requestAccess,
+}: ReturnType<typeof useCameraFeed> & { reconnecting: boolean }) {
+	if (status === 'live') {
+		return (
+			<div className="shrink-0" role="status">
+				{reconnecting && <p className="px-2 py-1.5 text-xs text-muted-foreground">Reconnecting to robot data…</p>}
+			</div>
+		);
+	}
+	if (status === 'loading') {
+		return (
+			<div className="flex h-full items-center justify-center gap-2 text-sm text-muted-foreground" role="status">
+				<Spinner className="size-4" />
+				{reconnecting ? 'Reconnecting to robot…' : 'Connecting to camera…'}
+			</div>
+		);
+	}
+	if (status === 'permission') {
+		return (
+			<WidgetEmpty
+				icon={<CameraIcon aria-hidden />}
+				title="Allow camera access"
+				description="Your browser needs permission to reach the camera on your local network."
+			>
+				<Button variant="outline" size="sm" onClick={requestAccess}>
+					Allow access
+				</Button>
+			</WidgetEmpty>
+		);
+	}
+	const description = STUDIO_DESKTOP
+		? 'Check that the camera is connected. Studio will keep trying.'
+		: status === 'denied'
+			? 'Allow local network access in your browser’s site settings, or open Studio on desktop.'
+			: 'Check the camera connection and local network permission, or open Studio on desktop.';
+	return <WidgetEmpty icon={<CameraIcon aria-hidden />} title="Camera feed unavailable" description={description} />;
 }

@@ -25,9 +25,9 @@ async function playCamera(
 	while (!lifetime.aborted) {
 		let failure: FeedStatus = 'unavailable';
 		for (const url of advertised()) {
-			// oxlint-disable-next-line no-await-in-loop -- Try one address at a time, without opening extra streams.
-			const permission = await cameraPermission(url);
-			if (lifetime.aborted || !advertised().includes(url)) {
+			// react-doctor-disable-next-line react-doctor/async-await-in-loop -- Check permission only for the address being tried.
+			const permission = await cameraPermission(url); // oxlint-disable-line no-await-in-loop -- Try one address at a time.
+			if (lifetime.aborted || !canPlay(url, false)) {
 				break;
 			}
 			if (permission === 'denied') {
@@ -102,10 +102,11 @@ async function playCamera(
 		if (!lifetime.aborted) {
 			setStatus(failure);
 			const backoff = AbortSignal.any([lifetime, AbortSignal.timeout(retryDelay)]);
-			// oxlint-disable-next-line no-await-in-loop -- Back off between rounds of connection attempts.
-			await new Promise<void>((resolve) => {
+			const waitForBackoff = new Promise<void>((resolve) => {
 				backoff.addEventListener('abort', () => resolve(), { once: true });
 			});
+			// react-doctor-disable-next-line react-doctor/async-await-in-loop -- Do not retry until the backoff ends.
+			await waitForBackoff; // oxlint-disable-line no-await-in-loop -- Wait before retrying.
 		}
 	}
 }

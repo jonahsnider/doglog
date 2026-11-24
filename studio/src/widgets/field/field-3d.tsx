@@ -1,23 +1,15 @@
 // The field widget in 3D, see `@/three/field-scene`
-import { useSelector } from '@tanstack/react-store';
 import HouseIcon from 'lucide-react/icons/house';
 import XIcon from 'lucide-react/icons/x';
-import { Suspense, use, useCallback, useMemo, useRef, useState } from 'react';
+import { Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { zoomedPanesStore } from '@/dashboards/pane-state';
-import { DashboardIdContext } from '@/dashboards/panes';
-import { cameraStreams } from '@/data/camera-streams';
 import { useDataVersion } from '@/data/data-store';
-import { useSource } from '@/data/source-store';
 import { cn } from '@/lib/utils';
-import { findPane } from '@/panes/layout';
-import type { CameraImage } from '@/three/camera-frustum';
 import { FieldDrawings, type FieldDrawingProps, type RobotDrawing } from '@/three/field-drawings';
 import { FieldImageFloor, FieldModel, FloorPointer } from '@/three/field-scene';
 import { useRobotProjects } from '@/three/robot-projects';
 import { Scene3d, type Scene3dHandle } from '@/three/scene';
-import { useCursorTime, useLiveFollow, useVideoRange } from '@/timeline/timeline';
-import { FieldCameraEntry } from '@/widgets/field/camera-entry';
+import { useCursorTime } from '@/timeline/timeline';
 import { setCameraMatch, useCameraMatch } from '@/widgets/field/camera-match';
 import { type FieldCoordinates, type FieldPoint, fieldLength, fieldWidth } from '@/widgets/field/geometry';
 import { fieldLegendItems } from '@/widgets/field/legend-items';
@@ -26,6 +18,7 @@ import { useCopyPosition } from '@/widgets/field/copy-position';
 import { fieldRobot, isRobotBinding, missingRobotNotes } from '@/widgets/field/robots';
 import { useRobotFollow } from '@/widgets/field/robot-follow';
 import { attachedRoles } from '@/widgets/field/roles';
+import { useFieldCameras } from '@/widgets/field/use-field-cameras';
 import { widgetOptions } from '@/widgets/widget-info';
 import { FollowContext } from '@/widgets/legend/follow-context';
 import { Legend } from '@/widgets/legend/legend';
@@ -51,14 +44,6 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 	const time = useCursorTime();
 	// Values at the cursor change as samples arrive
 	useDataVersion();
-	const activeSource = useSource();
-	const followingLive = useLiveFollow();
-	const videoRange = useVideoRange();
-	const streams = useSelector(cameraStreams);
-	const dashboardId = use(DashboardIdContext);
-	const zoomed = useSelector(zoomedPanesStore, (panes) => panes[dashboardId]);
-	const paneVisible = zoomed === undefined || zoomed === paneId || !findPane(layout, zoomed);
-	const [images, setImages] = useState<ReadonlyMap<string, CameraImage>>(() => new Map());
 	const scene = useRef<Scene3dHandle>(null);
 	const field = useMemo(
 		() => ({
@@ -127,59 +112,12 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 		label: followLabel,
 		stopFollowing,
 	} = useRobotFollow(scene, bindings, valueOf, coordinates, cameraMatch !== undefined, time);
-	const cameraImages = new Map<string, CameraImage>();
-	const legend = fieldLegendItems(bindings, { view: '3d', time, mechanisms, notes, followed: followedInLegend });
-	for (const item of legend) {
-		const { binding } = item;
-		if (binding.role?.id !== 'camera') {
-			continue;
-		}
-		const name = binding.camera?.name;
-		const urls = name === undefined ? undefined : streams.get(name);
-		const key = JSON.stringify([binding.id, activeSource?.type === 'live' ? activeSource.host : null, name]);
-		let note: string | undefined;
-		if (binding.hidden || !paneVisible) {
-			note = 'Hidden';
-		} else if (name === undefined) {
-			note = 'Choose feed';
-		} else if (
-			activeSource?.type !== 'live' ||
-			activeSource.status === 'disconnected' ||
-			!followingLive ||
-			videoRange !== undefined
-		) {
-			note = 'Live only';
-		} else if (activeSource.status !== 'connected') {
-			note = 'Connecting to robot…';
-		} else if (valueOf(binding) === undefined) {
-			note = 'No pose';
-		} else if (urls === undefined) {
-			note = 'Feed not advertised';
-		}
-		const image = note === undefined ? images.get(key) : undefined;
-		if (image) {
-			cameraImages.set(binding.id, image);
-		}
-		item.controls = (
-			<FieldCameraEntry
-				key={key}
-				binding={binding}
-				urls={urls}
-				note={note}
-				onImage={(next) =>
-					setImages((current) => {
-						const updated = new Map(current);
-						if (next) {
-							updated.set(key, next);
-						} else {
-							updated.delete(key);
-						}
-						return updated;
-					})
-				}
-			/>
-		);
-	}
+	const { legend, cameraImages } = useFieldCameras({
+		items: fieldLegendItems(bindings, { view: '3d', time, mechanisms, notes, followed: followedInLegend }),
+		paneId,
+		layout,
+		hasPose: (binding) => valueOf(binding) !== undefined,
+	});
 
 	const drawings = bindings.flatMap((binding, index): FieldDrawingProps[] => {
 		const value = valueOf(binding);
