@@ -1,4 +1,4 @@
-import { numberField, structField } from '@/data/struct-fields';
+import { numberField, quaternionYaw, structField } from '@/data/struct-fields';
 
 /** Field-relative position in meters, with `heading` in radians counterclockwise from +X, `undefined` for translations */
 export type Pose = { x: number; y: number; heading: number | undefined };
@@ -12,16 +12,12 @@ export function readPose(value: unknown): Pose {
 		x: numberField(translation, 'x'),
 		y: numberField(translation, 'y'),
 		heading:
-			rotation === undefined ? undefined : quaternion === undefined ? numberField(rotation, 'value') : yaw(quaternion),
+			rotation === undefined
+				? undefined
+				: quaternion === undefined
+					? numberField(rotation, 'value')
+					: quaternionYaw(quaternion),
 	};
-}
-
-function yaw(quaternion: unknown): number {
-	const w = numberField(quaternion, 'w');
-	const x = numberField(quaternion, 'x');
-	const y = numberField(quaternion, 'y');
-	const z = numberField(quaternion, 'z');
-	return Math.atan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z));
 }
 
 /** A Rectangle2d or Ellipse2d, with its half-widths along its own X and Y axes */

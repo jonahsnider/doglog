@@ -117,9 +117,31 @@ An array's row SHALL show its value at the cursor when it fits in the row, and M
 - **GIVEN** `/Drive/ModuleStates` has four modules at the cursor
 - **THEN** its row shows `4 items`
 
+### Requirement: Compact struct previews
+
+Known geometry and swerve structs SHALL show space-separated values with muted labels, up to two decimal places, and angles in degrees. `Pose3d` MUST show only X, Y, and yaw; `Rotation3d` MUST show only yaw. Compact previews MUST require matching schemas for the entire struct, including nested and omitted fields. Other structs MUST keep their existing previews. Field rows and bindings MUST stay unchanged.
+
+#### Scenario: Compact pose
+
+- **GIVEN** `/Drive/Pose` has the expected `Pose2d`, `Translation2d`, and `Rotation2d` schemas
+- **AND** its position is (12.34, 0) and its rotation is 56 degrees at the cursor
+- **THEN** its row shows `x=12.34 y=0 θ=56°`
+
+#### Scenario: 3D pose projected to the same preview
+
+- **GIVEN** `/Drive/Pose` has the expected `Pose3d` and nested schemas
+- **AND** its position is (12.34, 0, 2.5) and its yaw is -60 degrees at the cursor
+- **THEN** its row shows `x=12.34 y=0 θ=-60°`
+- **AND** expanding the pose still shows its full translation and rotation fields
+
+#### Scenario: Different nested schema
+
+- **GIVEN** `/Drive/Pose` uses the expected `Pose2d` schema but its `Rotation2d` schema declares `float value` instead of `double value`
+- **THEN** its row shows named fields instead of the compact preview
+
 ### Requirement: Structs with one field
 
-A struct with one field, like a Java enum logged as a struct or a `Rotation2d`, SHALL be shown as one row with the field's value instead of listing the field under it, nested as deep as single fields go. The row MUST still be the struct entry, except that dropping it on a widget that can't show the struct but can show the field, double-clicking it, and adding it from its context menu MUST use the field.
+A struct with one field, like a Java enum logged as a struct or a `Rotation2d`, SHALL be shown as one row with its compact preview or the field's value instead of listing the field under it, nested as deep as single fields go. The row MUST still be the struct entry, except that dropping it on a widget that can't show the struct but can show the field, double-clicking it, and adding it from its context menu MUST use the field.
 
 #### Scenario: Enum logged as a struct
 

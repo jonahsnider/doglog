@@ -11,3 +11,12 @@ export function numberField(struct: unknown, name: string): number {
 	const value = structField(struct, name);
 	return typeof value === 'number' ? value : 0;
 }
+
+/** Yaw in radians of a logged rotation's quaternion. */
+export function quaternionYaw(quaternion: unknown): number {
+	const w = numberField(quaternion, 'w');
+	const x = numberField(quaternion, 'x');
+	const y = numberField(quaternion, 'y');
+	const z = numberField(quaternion, 'z');
+	return Math.atan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z));
+}

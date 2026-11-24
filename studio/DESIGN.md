@@ -33,6 +33,7 @@ How Studio's UI is built. The OpenSpec specs in `openspec/specs` describe what u
 - In the phone layout, put the sidebar and entry browser toggles at opposite ends of a top bar instead of reserving rails. Use full-screen sheets with an opaque `bg-sidebar` surface and a close button; keep the docked layout preferences separate.
 - Keep pane header controls visible in the phone layout. When the timeline itself is narrow, give the scrubber a row below the playback controls so the track has room to drag.
 - Fonts: IBM Plex Sans for UI text (`font-sans`), Source Sans 3 for headings and titles like the title bar's app name, pane titles, and section labels (`font-heading`), and IBM Plex Mono for code, entry values, and keyboard shortcuts (`font-mono`). Numbers are tabular everywhere so changing values don't shift.
+- Give compact struct previews more room than generic values so coordinates and angles fit on one line, without overlapping the entry name. Separate values with spaces and mute their labels, not their numbers.
 - Text isn't selectable by default, like a native app. Add `select-text` to content people would copy, like console messages and table values, not to labels or controls.
 - Label the cursor-to-hover time difference on a bracket between the graph's two time markers. Keep the value tooltip separate so the measurement reads on the time axis without repeating either timestamp.
 

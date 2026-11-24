@@ -130,7 +130,7 @@ export const EntryRowView = memo(function EntryRowView({
 				{containsBound && <ContainsBoundMark />}
 			</TreeItemLabel>
 			{node.children && <GroupMark path={node.value} tooltip={markTooltip} />}
-			{shown && <EntryRowValue entry={shown} tooltip={markTooltip} />}
+			{entry && <EntryRowValue entry={entry} field={field} tooltip={markTooltip} />}
 		</AppContextMenu>
 	);
 });

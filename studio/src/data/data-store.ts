@@ -1,6 +1,7 @@
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import { useSyncExternalStore } from 'react';
+import type { StructDeclaration } from 'wpilib-struct';
 import * as z from 'zod';
 import { DataSet } from '@/data/data-set';
 import type { EntryKind } from '@/data/entry-kind';
@@ -139,6 +140,10 @@ export function getEntries(): readonly Entry[] {
 /** @public */
 export function getEntry(name: string): Entry | undefined {
 	return active.entries.get(name);
+}
+
+export function getStructSchemas(): ReadonlyMap<string, readonly StructDeclaration[]> {
+	return active.structSchemas;
 }
 
 /** @public */

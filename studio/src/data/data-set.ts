@@ -17,6 +17,8 @@ export type EntriesSnapshot = { readonly list: readonly Entry[]; readonly map: R
  */
 export class DataSet {
 	readonly entries = new Map<string, Entry>();
+	/** Struct schemas by struct name, ex. `Pose2d` */
+	readonly structSchemas: Map<string, readonly StructDeclaration[]>;
 	/** When the live session, or the live session a log recorded, was disconnected, sorted. Gaps still going on aren't included. */
 	readonly gaps: TimeRange[] = [];
 	/** When the live connection dropped, `undefined` while connected */
@@ -30,8 +32,6 @@ export class DataSet {
 	private sampleCount = 0;
 	// `.type` entries whose group hasn't been checked for a Mechanism2d yet, see `addMechanismEntries()`
 	private readonly uncheckedTypeEntries = new Set<Entry>();
-	// Struct schemas by struct name, ex. `Pose2d`, see `addFieldEntries()`
-	private readonly structSchemas = new Map<string, readonly StructDeclaration[]>();
 	// Logged arrays, how many of their samples were checked, and the longest value in them
 	private readonly arrays = new Map<Entry, { checked: number; length: number }>();
 	// Struct entries whose fields haven't been added yet, until their schema arrives
@@ -42,8 +42,9 @@ export class DataSet {
 	// Called with the data set when it changes, so the changes are published by the next frame
 	private readonly scheduleFlush: (data: DataSet) => void;
 
-	constructor(scheduleFlush: (data: DataSet) => void) {
+	constructor(scheduleFlush: (data: DataSet) => void, structSchemas?: DataSet['structSchemas']) {
 		this.scheduleFlush = scheduleFlush;
+		this.structSchemas = new Map(structSchemas);
 	}
 
 	/** Add an entry, or replace it with an empty entry if its type changed. Updates the entry's metadata when `metadata` is given. */
@@ -85,7 +86,7 @@ export class DataSet {
 	/** Add a struct schema, so entries of that struct get an entry for each field */
 	addStructSchema(name: string, fields: readonly StructDeclaration[]): void {
 		this.structSchemas.set(name, fields);
-		this.scheduleFlush(this);
+		this.changed();
 	}
 
 	/** Add a sample to an entry's history, dropping the oldest history once it gets too large */
@@ -150,7 +151,7 @@ export class DataSet {
 
 	/** Copy the displayed history for replay while the live data set keeps receiving and dropping samples. */
 	copyForReplay(): DataSet {
-		const replay = new DataSet(() => {});
+		const replay = new DataSet(() => {}, this.structSchemas);
 		const histories = new Map<Samples, Samples>();
 		const list = this.snapshot.list.map((entry) => {
 			let copy: Entry;
