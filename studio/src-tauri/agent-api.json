@@ -694,6 +694,21 @@
 																		"type": "null"
 																	}
 																]
+															},
+															"axisValues": {
+																"description": "Show axis values, `off` by default. `null` goes back to inferring it or the default.",
+																"anyOf": [
+																	{
+																		"type": "string",
+																		"enum": [
+																			"off",
+																			"on"
+																		]
+																	},
+																	{
+																		"type": "null"
+																	}
+																]
 															}
 														},
 														"additionalProperties": false
@@ -1521,6 +1536,21 @@
 														"type": "null"
 													}
 												]
+											},
+											"axisValues": {
+												"description": "Show axis values, `off` by default. `null` goes back to inferring it or the default.",
+												"anyOf": [
+													{
+														"type": "string",
+														"enum": [
+															"off",
+															"on"
+														]
+													},
+													{
+														"type": "null"
+													}
+												]
 											}
 										},
 										"additionalProperties": false
@@ -1941,6 +1971,21 @@
 																"enum": [
 																	"xbox",
 																	"playstation"
+																]
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"axisValues": {
+														"description": "Show axis values, `off` by default. `null` goes back to inferring it or the default.",
+														"anyOf": [
+															{
+																"type": "string",
+																"enum": [
+																	"off",
+																	"on"
 																]
 															},
 															{

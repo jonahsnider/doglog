@@ -188,6 +188,16 @@ export const widgetOptions = {
 			],
 			default: 'xbox',
 		},
+		axisValues: {
+			kind: 'choice',
+			id: 'axisValues',
+			label: 'Show axis values',
+			choices: [
+				{ id: 'off', label: 'Off' },
+				{ id: 'on', label: 'On' },
+			],
+			default: 'off',
+		},
 	},
 	video: {
 		video: {

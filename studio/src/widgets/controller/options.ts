@@ -33,6 +33,7 @@ export const controllerOptions: readonly WidgetOption[] = [
 		...widgetOptions.controller.layout,
 		infer: (_, earlier) => inferLayout(findController(Number(earlier['controller']), getEntry)),
 	},
+	widgetOptions.controller.axisValues,
 ];
 
 export const controllerOptionFromEntry: WidgetType['optionFromEntry'] = (name) => {

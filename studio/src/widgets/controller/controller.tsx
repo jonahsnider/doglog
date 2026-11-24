@@ -8,6 +8,12 @@ import { Dpad, FaceButtons, MenuButton, Shoulder, Stick } from '@/widgets/contro
 import { WidgetEmpty } from '@/widgets/widget-empty';
 import type { WidgetProps } from '@/widgets/widget-type';
 
+const stickValue = new Intl.NumberFormat('en-US', {
+	minimumFractionDigits: 2,
+	maximumFractionDigits: 2,
+	signDisplay: 'exceptZero',
+});
+
 export function Controller({ options }: WidgetProps) {
 	const source = useSource();
 	// Controllers are found by entry name, they change when entries are added
@@ -35,9 +41,10 @@ export function Controller({ options }: WidgetProps) {
 	const shape = layouts[layout];
 	const state = readController(controller!, layout, time);
 	const { axes, pressed } = state;
-	return (
+	const showAxisValues = options['axisValues'] === 'on';
+	const drawing = (
 		<svg
-			className="size-full p-3"
+			className={showAxisValues ? 'min-h-16 w-full' : 'size-full p-3'}
 			viewBox={`0 0 ${width} ${height}`}
 			role="img"
 			aria-label={`Controller ${port}`}
@@ -78,5 +85,43 @@ export function Controller({ options }: WidgetProps) {
 			<Dpad center={shape.dpad} state={state} />
 			<FaceButtons center={shape.face} glyphs={shape.faceGlyphs} state={state} />
 		</svg>
+	);
+	if (!showAxisValues) {
+		return drawing;
+	}
+
+	return (
+		<div className="@container flex size-full flex-col items-center justify-center-safe gap-2 overflow-auto p-3">
+			{drawing}
+			<dl className="grid w-full max-w-64 shrink-0 grid-cols-2 gap-x-3 border-t pt-2 text-xs @md:max-w-72 @md:text-sm @2xl:max-w-80 @2xl:text-base">
+				{(
+					[
+						['Left', axes.leftX, axes.leftY, shape.triggers[0], axes.leftTrigger],
+						['Right', axes.rightX, axes.rightY, shape.triggers[1], axes.rightTrigger],
+					] as const
+				).map(([side, x, y, trigger, value]) => (
+					<div key={side}>
+						<dt className="font-medium">{side}</dt>
+						<dd className="flex flex-wrap gap-x-2 text-muted-foreground">
+							<span className="whitespace-nowrap">
+								X{' '}
+								<span className="inline-block min-w-[5ch] text-end font-mono text-foreground">
+									{stickValue.format(x)}
+								</span>
+							</span>
+							<span className="whitespace-nowrap">
+								Y{' '}
+								<span className="inline-block min-w-[5ch] text-end font-mono text-foreground">
+									{stickValue.format(y)}
+								</span>
+							</span>
+						</dd>
+						<dd className="text-muted-foreground">
+							{trigger} <span className="font-mono text-foreground">{value.toFixed(2)}</span>
+						</dd>
+					</div>
+				))}
+			</dl>
+		</div>
 	);
 }

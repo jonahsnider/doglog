@@ -98,6 +98,17 @@ The controller widget SHALL draw pressed buttons, bumpers, and D-pad directions 
 - **GIVEN** controller 0's POV is 45° at the cursor
 - **THEN** D-pad up and right are drawn pressed
 
+### Requirement: Axis values
+
+The controller widget SHALL offer a Show axis values option, off by default. When on, a footer below the drawing MUST show the X and Y values of each stick and the value of each trigger at the cursor, grouped by side. It MUST show the same axis values as the drawing, to two decimal places, using the trigger labels for the selected layout.
+
+#### Scenario: Read the axes while scrubbing
+
+- **GIVEN** Show axis values is on and the left stick is at X = 0.04 and Y = -0.02 at the cursor
+- **THEN** the left column shows X +0.04 and Y -0.02
+- **WHEN** the cursor moves to a sample with different axis values
+- **THEN** the footer updates with the drawing
+
 ### Requirement: Missing controller
 
 When the source has no entries for the shown controller, or only empty values because nothing was plugged in, the controller widget SHALL show the shared no-data message instead of a controller.
