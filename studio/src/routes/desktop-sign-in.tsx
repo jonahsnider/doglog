@@ -22,7 +22,7 @@ const passkeyRequest = z.discriminatedUnion('ceremony', [
 ]);
 type PasskeyRequest = z.infer<typeof passkeyRequest> & { key: string };
 
-type SignInRequest = PasskeyRequest | { ceremony: 'apple'; key: string; result: { code: string } | { error: string } };
+type SignInRequest = PasskeyRequest | { ceremony: 'oauth'; key: string; result: { code: string } | { error: string } };
 
 function parseJson(text: string | null): unknown {
 	try {
@@ -38,11 +38,10 @@ function readRequest(): SignInRequest | undefined {
 	if (key === null) {
 		return undefined;
 	}
-	// Apple's sign-in returns here with these from Convex Auth
 	const code = params.get('convexAuthCode');
 	const error = params.get('convexAuthError');
 	if (code !== null || error !== null) {
-		return { ceremony: 'apple', key, result: code === null ? { error: error ?? '' } : { code } };
+		return { ceremony: 'oauth', key, result: code === null ? { error: error ?? '' } : { code } };
 	}
 	const passkey = passkeyRequest.safeParse(parseJson(new URLSearchParams(location.hash.slice(1)).get('passkey')));
 	return passkey.success ? { ...passkey.data, key } : undefined;
@@ -57,7 +56,7 @@ function DesktopSignIn() {
 	const [link, setLink] = useState<string>();
 
 	useEffect(() => {
-		if (request?.ceremony !== 'apple') {
+		if (request?.ceremony !== 'oauth') {
 			return undefined;
 		}
 		let active = true;
@@ -95,7 +94,7 @@ function DesktopSignIn() {
 			</SignInMessage>
 		);
 	}
-	if (request.ceremony === 'apple') {
+	if (request.ceremony === 'oauth') {
 		return <SignInMessage icon={<Spinner />} title="Returning to DogLog Studio" />;
 	}
 	return <PasskeyPrompt request={request} onDone={setLink} />;

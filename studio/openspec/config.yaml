@@ -52,7 +52,7 @@ context: |
     AuthenticationServices, which needs a signed build with `doglog.studio` as an associated domain). Otherwise it
     follows RFC 8252: the default browser signs in on doglog.studio and returns the result through `doglog://`,
     encrypted to a key only the app that started it holds. Sign-in never carries the account private key.
-    Apple sign-in requests no scopes (a pnpm patch to Convex Auth), since Cloud only needs the account ID.
+    A pnpm patch to Convex Auth avoids requesting email and profile scopes, since Cloud only needs the account ID.
   - Cloud trust boundary: Trust the live service to attest account keys and order revocations, key grants, and
     uploads. Stored data alone cannot authorize a grant. Cloud never holds dashboard decryption keys, but a
     compromised live service can misdirect future grants.

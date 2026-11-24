@@ -1,4 +1,5 @@
 import authApple from '@convex-dev/auth/components/apple/convex.config.js';
+import authGoogle from '@convex-dev/auth/components/google/convex.config.js';
 import auth from '@convex-dev/auth/convex.config.js';
 import passkey from '@convex-dev/auth/components/passkey/convex.config.js';
 import username from '@convex-dev/auth/components/username/convex.config.js';
@@ -16,6 +17,8 @@ const app = defineApp({
 		AUTH_APPLE_TEAM_ID: v.string(),
 		AUTH_APPLE_KEY_ID: v.string(),
 		AUTH_APPLE_PRIVATE_KEY: v.string(),
+		AUTH_GOOGLE_CLIENT_ID: v.string(),
+		AUTH_GOOGLE_CLIENT_SECRET: v.string(),
 	},
 });
 
@@ -29,6 +32,13 @@ app.use(authApple, {
 		TEAM_ID: app.env.AUTH_APPLE_TEAM_ID,
 		KEY_ID: app.env.AUTH_APPLE_KEY_ID,
 		PRIVATE_KEY: app.env.AUTH_APPLE_PRIVATE_KEY,
+	},
+});
+app.use(authGoogle, {
+	httpPrefix: '/oauth/google',
+	env: {
+		CLIENT_ID: app.env.AUTH_GOOGLE_CLIENT_ID,
+		CLIENT_SECRET: app.env.AUTH_GOOGLE_CLIENT_SECRET,
 	},
 });
 

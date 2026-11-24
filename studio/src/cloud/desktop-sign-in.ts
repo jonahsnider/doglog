@@ -1,5 +1,5 @@
 // The desktop app's side of signing in through Studio's website, see sign-in-handoff.ts
-import type { OauthFlowError, useSignInWithApple } from '@convex-dev/auth/methods/apple/react';
+import type { OauthFlowError, UseOauthSignInReturn } from '@convex-dev/auth/methods/oauth/react';
 import type { PasskeyCeremonies } from '@convex-dev/auth/methods/username-passkey/react-custom';
 import { createAtom } from '@tanstack/store';
 import { listen } from '@tauri-apps/api/event';
@@ -84,15 +84,15 @@ export const desktopCeremonies = {
 	},
 } satisfies PasskeyCeremonies;
 
-const appleResult = z.union([z.object({ code: z.string() }), z.object({ error: z.string() })]);
+const oauthResult = z.union([z.object({ code: z.string() }), z.object({ error: z.string() })]);
 
 /**
- * Signs in with Apple in the browser. Convex Auth saves the flow here and navigates to Apple, which the app opens in
- * the browser instead. Apple returns to the sign-in page, which sends the code back here to finish signing in.
+ * Convex Auth saves the flow here and navigates to the provider, which the app opens in the default browser instead.
+ * The browser returns the code to the app, so it never signs in to Cloud itself.
  * Resolves with why it failed, `unavailable` if it couldn't start, or `undefined` once signed in or canceled.
  */
-export async function signInWithAppleInBrowser(
-	signIn: ReturnType<typeof useSignInWithApple>['signIn'],
+export async function signInWithOauthInBrowser(
+	signIn: UseOauthSignInReturn['signIn'],
 ): Promise<OauthFlowError | 'unavailable' | undefined> {
 	try {
 		const result = await signInInBrowser(async (key) => {
@@ -101,7 +101,7 @@ export async function signInWithAppleInBrowser(
 				throw started.userError.cause;
 			}
 		});
-		const parsed = appleResult.safeParse(result);
+		const parsed = oauthResult.safeParse(result);
 		if (!parsed.success) {
 			return undefined;
 		}

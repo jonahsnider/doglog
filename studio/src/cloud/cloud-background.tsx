@@ -17,7 +17,7 @@ import {
 } from './session';
 import { useTeamKey } from './team-keys';
 
-// The desktop sign-in page sends Apple's sign-in code to the desktop app, so the website mustn't redeem it itself
+// The desktop sign-in page sends the OAuth code to the app, so the website mustn't redeem it itself.
 const ambientSignIns = location.pathname === '/desktop-sign-in' ? [] : undefined;
 
 /** Signs in to Cloud for the whole app, and keeps the team's keys and dashboards available while signed in */

@@ -35,6 +35,8 @@ type Env = {
   readonly AUTH_APPLE_KEY_ID: string;
   readonly AUTH_APPLE_PRIVATE_KEY: string;
   readonly AUTH_APPLE_TEAM_ID: string;
+  readonly AUTH_GOOGLE_CLIENT_ID: string;
+  readonly AUTH_GOOGLE_CLIENT_SECRET: string;
   readonly STUDIO_ORIGIN: string;
 };
 

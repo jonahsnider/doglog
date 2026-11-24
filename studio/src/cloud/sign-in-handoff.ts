@@ -1,6 +1,5 @@
-// The desktop app can't run passkey ceremonies or Apple's sign-in for doglog.studio, so the browser runs them on
-// `/desktop-sign-in` and returns the result through a `doglog://sign-in` link. The result is encrypted to a key only the
-// app that started the sign-in holds, so another app that receives the link can't use it.
+// The browser returns passkey responses and OAuth codes through a `doglog://sign-in` link. The result is encrypted
+// to a key only the app that started the sign-in holds, so another app that receives the link can't use it.
 
 const ecdh = { name: 'ECDH', namedCurve: 'P-256' };
 const info = new TextEncoder().encode('doglog-desktop-sign-in-v1');

@@ -19,3 +19,21 @@ index b81d1ace88631f235b07f5edcff15958c3515b71..a31a2be578a941ce2a6e8c2acfbfab70
  /** The name this provider's accounts are namespaced under in the core. */
  export const PROVIDER_NAME = "apple";
  /**
+diff --git a/dist/components/google/constants.js b/dist/components/google/constants.js
+index 58722808803f39ac63a375e28f40c62e48c890c1..7b151fa6c02ac1791a3da338df40eed726d84615 100644
+--- a/dist/components/google/constants.js
++++ b/dist/components/google/constants.js
+@@ -14,11 +14,8 @@ export const TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token";
+  * given account has the same `sub` either way.
+  */
+ export const ISSUERS = ["https://accounts.google.com", "accounts.google.com"];
+-/**
+- * What the sign-in asks for. `openid` is what makes Google return the
+- * id_token the profile is built from.
+- */
+-export const SCOPES = ["openid", "email", "profile"];
++/** Cloud only needs the account ID in the ID token. */
++export const SCOPES = ["openid"];
+ /** The name this provider's accounts are namespaced under in the core. */
+ export const PROVIDER_NAME = "google";
+ //# sourceMappingURL=constants.js.map

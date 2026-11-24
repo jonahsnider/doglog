@@ -1,13 +1,15 @@
-import { useSignInWithApple, useOauth } from '@convex-dev/auth/methods/apple/react';
+import { useSignInWithApple } from '@convex-dev/auth/methods/apple/react';
+import { useSignInWithGoogle } from '@convex-dev/auth/methods/google/react';
+import { useOauth } from '@convex-dev/auth/methods/oauth/react';
 import { createUsernamePasskeyHooks } from '@convex-dev/auth/methods/username-passkey/react-custom';
-import { AppleLight } from '@ridemountainpig/svgl-react';
+import { AppleLight, Google } from '@ridemountainpig/svgl-react';
 import { useSelector } from '@tanstack/react-store';
 import { type SubmitEvent, useState } from 'react';
 import {
 	browserSignInStore,
 	cancelBrowserSignIn,
 	desktopCeremonies,
-	signInWithAppleInBrowser,
+	signInWithOauthInBrowser,
 } from '@/cloud/desktop-sign-in';
 import { browserCeremonies, supportsPasskeys } from '@/cloud/passkey-ceremonies';
 import { Button } from '@/components/ui/button';
@@ -28,7 +30,7 @@ export function CloudSignIn() {
 		<FramePanel className="grid gap-4">
 			<PasskeySignIn />
 			<OrDivider />
-			<AppleSignIn />
+			<OAuthSignIn />
 			{waiting && (
 				<div className="flex flex-wrap items-center gap-3">
 					<p role="status" className="text-muted-foreground text-sm">
@@ -108,31 +110,33 @@ const flowErrors = {
 	ACCESS_DENIED: 'Sign-in was canceled.',
 	EXPIRED: 'Sign-in took too long. Try again.',
 	INVALID_FLOW: 'Couldn’t finish signing in. Start again from this page.',
-	OTHER_ERROR: 'Couldn’t sign in with Apple. Try again.',
+	OTHER_ERROR: 'Couldn’t finish signing in. Try again.',
 };
 
-function AppleSignIn() {
-	const { signIn } = useSignInWithApple(api.auth);
+function OAuthSignIn() {
+	const { signIn: signInWithApple } = useSignInWithApple(api.auth);
+	const { signIn: signInWithGoogle } = useSignInWithGoogle(api.auth);
 	const { flowError } = useOauth();
-	const [pending, setPending] = useState(false);
+	const [pending, setPending] = useState<'Apple' | 'Google'>();
 	const [error, setError] = useState<string>();
 
-	async function start() {
+	async function start(provider: 'Apple' | 'Google') {
+		const signIn = provider === 'Apple' ? signInWithApple : signInWithGoogle;
 		setError(undefined);
-		setPending(true);
+		setPending(provider);
 		const outcome = STUDIO_DESKTOP
-			? await signInWithAppleInBrowser(signIn)
+			? await signInWithOauthInBrowser(signIn)
 			: await signIn().then(
 					(result) => (result.status === 'redirect' ? 'leaving' : 'unavailable'),
 					() => 'unavailable' as const,
 				);
-		// On the web, stays loading while the page leaves for Apple's sign-in, which returns here when it's done
-		setPending(outcome === 'leaving');
+		// The browser leaves this page before coming back with the result.
+		setPending(outcome === 'leaving' ? provider : undefined);
 		setError(
 			outcome === 'leaving' || outcome === undefined
 				? undefined
 				: outcome === 'unavailable'
-					? 'Couldn’t start signing in with Apple. Try again.'
+					? `Couldn’t start signing in with ${provider}. Try again.`
 					: flowErrors[outcome.error],
 		);
 	}
@@ -140,10 +144,26 @@ function AppleSignIn() {
 	const shown = error ?? (flowError === null ? undefined : flowErrors[flowError.error]);
 	return (
 		<div className="grid gap-2">
-			<Button variant="outline" className="justify-self-start" loading={pending} onClick={() => void start()}>
-				<AppleLight aria-hidden="true" className="fill-current in-data-loading:invisible" />
-				Continue with Apple
-			</Button>
+			<div className="flex flex-wrap gap-2">
+				<Button
+					variant="outline"
+					loading={pending === 'Apple'}
+					disabled={pending === 'Google'}
+					onClick={() => void start('Apple')}
+				>
+					<AppleLight aria-hidden="true" className="fill-current in-data-loading:invisible" />
+					Continue with Apple
+				</Button>
+				<Button
+					variant="outline"
+					loading={pending === 'Google'}
+					disabled={pending === 'Apple'}
+					onClick={() => void start('Google')}
+				>
+					<Google aria-hidden="true" className="in-data-loading:invisible" />
+					Continue with Google
+				</Button>
+			</div>
 			{shown !== undefined && (
 				<p role="alert" className="text-destructive-foreground text-sm">
 					{shown}
