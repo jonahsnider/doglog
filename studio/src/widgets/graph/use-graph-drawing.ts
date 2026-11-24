@@ -190,7 +190,6 @@ export function useGraphDrawing(
 		const fitted = (now: number) => series.map((line) => !line.hidden || isFading(lineFades.get(line.id)!, now));
 		let wasFading = false;
 
-		// Eases the y-axes and fades lines without working out the lines again, they're already in view
 		const animate = perFrame(() => {
 			if (plot) {
 				const now = performance.now();
@@ -198,9 +197,10 @@ export function useGraphDrawing(
 				let easing = false;
 				plot.batch(() => {
 					easing = setYRanges(plot, current.targets, current.manual, animations.current, now);
+					// uPlot's faceted line paths otherwise stay cached when only y2 changes.
+					plot.redraw(true);
 				});
 				if (!fading && wasFading) {
-					// Lines that faded out stop being fitted
 					full.schedule();
 				}
 				wasFading = fading;

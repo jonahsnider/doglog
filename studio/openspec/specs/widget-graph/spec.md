@@ -61,6 +61,7 @@ Where many samples fall in one pixel column, the line SHALL span their minimum a
 
 - **WHEN** the user zooms in until samples are far apart
 - **THEN** each logged sample has a dot
+- **AND** dots stay on their lines as either y-axis adjusts during zooming or panning
 
 ### Requirement: Discrete bands
 
