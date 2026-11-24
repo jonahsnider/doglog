@@ -126,8 +126,14 @@ fn open_log_url_deep_link(app: &AppHandle, url: String) {
             let _ = window.unminimize();
             let _ = window.set_focus();
         }
-    } else if let Err(error) = new_window::create(app, Some(OpenedLogTarget::Url(url))) {
-        log::error!("Couldn't open a window: {error}");
+    } else {
+        // On macOS the deep-link callback holds Tauri's plugin lock, which creating a webview also needs.
+        let app = app.clone();
+        tauri::async_runtime::spawn(async move {
+            if let Err(error) = new_window::create(&app, Some(OpenedLogTarget::Url(url))) {
+                log::error!("Couldn't open a window: {error}");
+            }
+        });
     }
 }
 
