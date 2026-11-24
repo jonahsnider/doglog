@@ -12,7 +12,7 @@
 	"scripts": {
 		"format": "oxfmt --check",
 		"format:write": "oxfmt",
-		"knip": "knip"
+		"knip": "pnpm --filter @doglog/cloud exec void prepare && knip"
 	},
 	"devDependencies": {
 		"@astrojs/compiler-rs": "0.5.3",
