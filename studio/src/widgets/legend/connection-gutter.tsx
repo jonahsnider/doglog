@@ -62,7 +62,7 @@ export function ConnectionGutter({
 					return (
 						<g
 							key={`${sourceId}-${targetId}`}
-							className="cursor-pointer"
+							className="pointer-events-auto cursor-pointer"
 							opacity={hidden(sourceId) || hidden(targetId) ? 0.4 : undefined}
 							onPointerEnter={() => onHover(connection)}
 							onPointerLeave={() => onHover(undefined)}

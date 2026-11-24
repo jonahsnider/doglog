@@ -118,10 +118,9 @@ function LegendList({ items, vertical = false, dropRole, roles = true, className
 					followable={followable}
 					handle={
 						connectable && item.binding.connects !== undefined ? (
-							// Position the handle above existing links so it stays draggable at their ends.
 							<span
 								className={cn(
-									'relative -me-[6px] flex shrink-0 touch-none p-[6px]',
+									'-me-[6px] flex shrink-0 touch-none p-[6px]',
 									drag?.from.id === item.binding.id ? 'cursor-grabbing' : 'cursor-crosshair',
 								)}
 								title="Drag to another entry to connect them"
@@ -166,7 +165,8 @@ function LegendList({ items, vertical = false, dropRole, roles = true, className
 	return (
 		<div className="flex w-fit max-w-full">
 			{legend}
-			<div ref={gutter} className="flex">
+			{/* Paint above the handles without taking pointer events from their hit areas. */}
+			<div ref={gutter} className="pointer-events-none relative flex">
 				<ConnectionGutter
 					rows={items.length}
 					connections={connections}
