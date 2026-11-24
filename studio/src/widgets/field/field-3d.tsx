@@ -1,19 +1,21 @@
 // The field widget in 3D, see `@/three/field-scene`
+import { useHotkey } from '@tanstack/react-hotkeys';
 import HouseIcon from 'lucide-react/icons/house';
 import XIcon from 'lucide-react/icons/x';
-import { Suspense, useCallback, useMemo, useRef, useState } from 'react';
+import { type DOMAttributes, type RefObject, Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useDataVersion } from '@/data/data-store';
 import { cn } from '@/lib/utils';
 import { FieldDrawings, type FieldDrawingProps, type RobotDrawing } from '@/three/field-drawings';
-import { FieldImageFloor, FieldModel, FloorPointer } from '@/three/field-scene';
+import { FieldImageFloor, FieldModel, FloorPointer, type FloorProjection, FloorSketch } from '@/three/field-scene';
 import { useRobotProjects } from '@/three/robot-projects';
 import { Scene3d, type Scene3dHandle } from '@/three/scene';
 import { useCursorTime } from '@/timeline/timeline';
 import { setCameraMatch, useCameraMatch } from '@/widgets/field/camera-match';
-import { type FieldCoordinates, type FieldPoint, fieldLength, fieldWidth } from '@/widgets/field/geometry';
+import { type FieldCoordinates, type FieldPoint, fieldLength, fieldWidth, toBlueWall } from '@/widgets/field/geometry';
 import { fieldLegendItems } from '@/widgets/field/legend-items';
-import { CursorPosition, hiddenWhileIdle } from '@/widgets/field/readout';
+import { usePencil } from '@/widgets/field/pencil';
+import { CursorPosition, hiddenWhileIdle, ToolButtons } from '@/widgets/field/readout';
 import { useCopyPosition } from '@/widgets/field/copy-position';
 import { fieldRobot, isRobotBinding, missingRobotNotes } from '@/widgets/field/robots';
 import { useRobotFollow } from '@/widgets/field/robot-follow';
@@ -40,6 +42,60 @@ const defaultFov = Number(widgetOptions.field.fov.default);
 
 const isAttached = (binding: WidgetBinding) => binding.role !== undefined && attachedRoles.has(binding.role.id);
 
+function useFloorPencil(
+	projectFloor: RefObject<FloorProjection | null>,
+	onMove: (point: FieldPoint | undefined) => void,
+) {
+	const [hovered, setHovered] = useState(false);
+	const [active, setActive] = useState(false);
+	const pencil = usePencil();
+	const toggle = () => {
+		setActive(!active);
+		pencil.clear();
+	};
+	const whileHovered = { enabled: hovered, conflictBehavior: 'allow' } as const;
+	useHotkey('P', toggle, whileHovered);
+	useHotkey('Escape', toggle, { ...whileHovered, enabled: hovered && active });
+
+	const handlers: DOMAttributes<HTMLDivElement> = {
+		onPointerEnter: () => setHovered(true),
+		onPointerLeave: () => {
+			setHovered(false);
+			onMove(undefined);
+		},
+		onPointerDownCapture: (event) => {
+			if (active && event.button === 0) {
+				// Take the drag before the scene's camera controls can start orbiting.
+				event.stopPropagation();
+				pencil.start(event, projectFloor.current?.()(event));
+			}
+		},
+		onDoubleClickCapture: (event) => {
+			if (active) {
+				event.stopPropagation();
+			}
+		},
+		onPointerMove: (event) => {
+			if (pencil.isDrawing(event)) {
+				const pointAt = projectFloor.current?.();
+				if (pointAt) {
+					const point = pointAt(event);
+					pencil.move(event, pointAt, point);
+					onMove(point);
+				}
+			}
+		},
+		onPointerUp: (event) => {
+			if (pencil.isDrawing(event)) {
+				pencil.finish(event, projectFloor.current?.()(event));
+			}
+		},
+		onPointerCancel: pencil.cancel,
+		onLostPointerCapture: pencil.cancel,
+	};
+	return { tool: active ? ('pencil' as const) : undefined, points: pencil.points, toggle, handlers };
+}
+
 export function Field3d({ bindings, options, setOption, paneId, layout }: WidgetProps) {
 	const time = useCursorTime();
 	// Values at the cursor change as samples arrive
@@ -65,13 +121,18 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 	const [pointer, setPointer] = useState<FieldPoint>();
 	const [overField, setOverField] = useState(false);
 	const copied = useCopyPosition(pointer, overField);
-	const movePointer = useCallback((point: FieldPoint | undefined) => {
-		// The last position stays shown while it fades out
-		if (point) {
-			setPointer(point);
-		}
-		setOverField(point !== undefined);
-	}, []);
+	const movePointer = useCallback(
+		(point: FieldPoint | undefined) => {
+			// The last position stays shown while it fades out
+			if (point) {
+				setPointer(toBlueWall(point, coordinates));
+			}
+			setOverField(point !== undefined);
+		},
+		[coordinates],
+	);
+	const projectFloor = useRef<FloorProjection>(null);
+	const pencil = useFloorPencil(projectFloor, movePointer);
 
 	const valueOf = (binding: WidgetBinding) =>
 		binding.hidden || binding.entry === undefined || time === undefined
@@ -151,7 +212,9 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 					data-binding-id={pointed}
 				>
 					<div
-						className="size-full"
+						className="size-full data-[tool=pencil]:cursor-crosshair"
+						data-tool={pencil.tool}
+						{...pencil.handlers}
 						style={
 							cameraMatch && {
 								width: `min(100cqw, calc(100cqh * ${cameraMatch.aspect}))`,
@@ -176,7 +239,8 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 								/>
 							</Suspense>
 							<FieldDrawings coordinates={coordinates} drawings={drawings} />
-							<FloorPointer coordinates={coordinates} onMove={movePointer} />
+							<FloorSketch points={pencil.points} />
+							<FloorPointer ref={projectFloor} onMove={movePointer} />
 						</Scene3d>
 					</div>
 					{legend.length > 0 && (
@@ -198,20 +262,23 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 				</div>
 				<div className="flex h-5 items-center justify-between gap-2 text-muted-foreground text-xs capture:invisible">
 					<CursorPosition pointer={pointer} hovered={overField} copied={copied} />
-					<div className={cn('flex items-center gap-2', !cameraMatch && hiddenWhileIdle)}>
-						<Button
-							variant="ghost"
-							size="xs"
-							className="h-5 sm:h-5"
-							onClick={() => {
-								stopFollowing();
-								scene.current?.reset();
-							}}
-						>
-							{cameraMatch ? <XIcon /> : <HouseIcon />}
-							{cameraMatch ? 'Exit camera match' : 'Reset view'}
-						</Button>
-						<ViewToggle compact view="3d" onChange={(view) => setOption('view', view)} />
+					<div className="flex items-center gap-2">
+						<ToolButtons tool={pencil.tool} onToggle={pencil.toggle} measure={false} />
+						<div className={cn('flex items-center gap-2', !cameraMatch && hiddenWhileIdle)}>
+							<Button
+								variant="ghost"
+								size="xs"
+								className="h-5 sm:h-5"
+								onClick={() => {
+									stopFollowing();
+									scene.current?.reset();
+								}}
+							>
+								{cameraMatch ? <XIcon /> : <HouseIcon />}
+								{cameraMatch ? 'Exit camera match' : 'Reset view'}
+							</Button>
+							<ViewToggle compact view="3d" onChange={(view) => setOption('view', view)} />
+						</div>
 					</div>
 				</div>
 			</div>

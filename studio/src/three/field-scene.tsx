@@ -1,23 +1,23 @@
 // The field widget's 3D scene: the field's model, which poses are drawn on, see `@/three/field-drawings`
-import { useGLTF, useTexture } from '@react-three/drei';
+import { Line, useGLTF, useTexture } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
-import { useEffect, useEffectEvent, useMemo } from 'react';
+import { type Ref, useEffect, useEffectEvent, useImperativeHandle, useMemo } from 'react';
 import { Material, type Mesh, Plane, Raycaster, SRGBColorSpace, Vector2, Vector3 } from 'three';
 import { acceleratedRaycast, MeshBVH } from 'three-mesh-bvh';
 import { addAprilTags } from '@/three/apriltags';
+import { floorOffset } from '@/three/field-poses';
 import { isMesh } from '@/three/robot-loading';
 import fieldImage from '@/widgets/field/2026-rebuilt.webp';
 import fieldModel from '@/widgets/field/2026-rebuilt.glb?url';
 import {
-	type FieldCoordinates,
 	type FieldPoint,
 	fieldLength,
 	fieldWidth,
 	image,
 	pixelsPerMeterX,
 	pixelsPerMeterY,
-	toBlueWall,
 } from '@/widgets/field/geometry';
+import type { PencilPointAt } from '@/widgets/field/pencil';
 
 /** Name of the node in the field's model holding the game pieces staged at the start of a match */
 const stagedGamePiecesNode = 'StagedGamePieces';
@@ -139,12 +139,25 @@ export function FieldImageFloor() {
 	);
 }
 
+/** A temporary pencil stroke on the carpet, in blue-wall coordinates. */
+export function FloorSketch({ points }: { points: readonly FieldPoint[] }) {
+	const line = useMemo(() => points.map(({ x, y }) => [x, y, floorOffset] as const), [points]);
+	return line.length > 1 ? (
+		<>
+			<Line points={line} color="black" lineWidth={6} depthWrite={false} />
+			<Line points={line} color="white" lineWidth={3} renderOrder={1} />
+		</>
+	) : null;
+}
+
+export type FloorProjection = () => PencilPointAt;
+
 /** Reports the field position under the pointer, where its line of sight meets the floor, if it's on the field */
 export function FloorPointer({
-	coordinates,
+	ref,
 	onMove,
 }: {
-	coordinates: FieldCoordinates;
+	ref: Ref<FloorProjection>;
 	onMove: (point: FieldPoint | undefined) => void;
 }) {
 	const get = useThree((state) => state.get);
@@ -152,23 +165,29 @@ export function FloorPointer({
 		const connected: unknown = state.events.connected;
 		return connected instanceof HTMLElement ? connected : state.gl.domElement;
 	});
-	// Converting between the coordinates and the blue wall's is the same both ways
-	const report = useEffectEvent((hit: Vector3 | undefined) =>
-		onMove(hit && toBlueWall({ x: hit.x, y: hit.y }, coordinates)),
-	);
-	useEffect(() => {
+	const project = useMemo<FloorProjection>(() => {
 		const raycaster = new Raycaster();
 		const floor = new Plane(new Vector3(0, 0, 1), 0);
-		const move = (event: PointerEvent) => {
+		const ndc = new Vector2();
+		const position = new Vector3();
+		return () => {
 			const { left, top, width, height } = element.getBoundingClientRect();
-			raycaster.setFromCamera(
-				new Vector2(((event.clientX - left) / width) * 2 - 1, 1 - ((event.clientY - top) / height) * 2),
-				get().camera,
-			);
-			const hit = raycaster.ray.intersectPlane(floor, new Vector3());
-			const onField = hit !== null && hit.x >= 0 && hit.x <= fieldLength && hit.y >= 0 && hit.y <= fieldWidth;
-			report(onField ? hit : undefined);
+			const { camera } = get();
+			return ({ clientX, clientY }) => {
+				raycaster.setFromCamera(
+					ndc.set(((clientX - left) / width) * 2 - 1, 1 - ((clientY - top) / height) * 2),
+					camera,
+				);
+				const hit = raycaster.ray.intersectPlane(floor, position);
+				const onField = hit !== null && hit.x >= 0 && hit.x <= fieldLength && hit.y >= 0 && hit.y <= fieldWidth;
+				return onField ? { x: hit.x, y: hit.y } : undefined;
+			};
 		};
+	}, [element, get]);
+	useImperativeHandle(ref, () => project, [project]);
+	const report = useEffectEvent(onMove);
+	useEffect(() => {
+		const move = (event: PointerEvent) => report(project()(event));
 		const leave = () => report(undefined);
 		element.addEventListener('pointermove', move);
 		element.addEventListener('pointerleave', leave);
@@ -176,6 +195,6 @@ export function FloorPointer({
 			element.removeEventListener('pointermove', move);
 			element.removeEventListener('pointerleave', leave);
 		};
-	}, [element, get]);
+	}, [element, project]);
 	return null;
 }

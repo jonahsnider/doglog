@@ -1,14 +1,16 @@
-// The row under the field widget: the cursor position and the measuring tool buttons
+// The row under the field widget: the cursor position and tool buttons
 import { useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { ControlTooltip } from '@/components/control-tooltip';
 import { InlineShortcut } from '@/components/inline-shortcut';
 import { Toggle } from '@/components/ui/toggle';
 import { cn } from '@/lib/utils';
-import type { FieldPoint, MeasureTool } from '@/widgets/field/geometry';
+import type { FieldPoint } from '@/widgets/field/geometry';
+import type { FieldTool } from '@/widgets/field/pencil';
 
-const tools: readonly { tool: MeasureTool; key: 'M' | 'A'; label: string; hint: string }[] = [
+const tools: readonly { tool: FieldTool; key: 'M' | 'A' | 'P'; label: string; hint: string }[] = [
 	{ tool: 'distance', key: 'M', label: 'Distance', hint: 'Drag to measure distance, hold Shift to snap to 45°' },
 	{ tool: 'angle', key: 'A', label: 'Angle', hint: 'Drag to measure the angle from +X, hold Shift to snap to 45°' },
+	{ tool: 'pencil', key: 'P', label: 'Pencil', hint: 'Drag to sketch a line on the field' },
 ];
 
 /** Hides controls under the field while it isn't hovered or focused, on devices that can hover */
@@ -64,9 +66,11 @@ export function CursorPosition({
 export function ToolButtons({
 	tool,
 	onToggle,
+	measure = true,
 }: {
-	tool: MeasureTool | undefined;
-	onToggle: (tool: MeasureTool) => void;
+	tool: FieldTool | undefined;
+	onToggle: (tool: FieldTool) => void;
+	measure?: boolean;
 }) {
 	return (
 		<div
@@ -75,24 +79,28 @@ export function ToolButtons({
 				tool === undefined && hiddenWhileIdle,
 			)}
 		>
-			{tools.map((option) => (
-				<ControlTooltip
-					key={option.tool}
-					label={option.hint}
-					render={
-						<Toggle
-							className="h-5 gap-1 rounded-md border-0 px-1 text-xs sm:h-5 sm:text-xs"
-							pressed={tool === option.tool}
-							onPressedChange={() => onToggle(option.tool)}
-						/>
-					}
-				>
-					<>
-						<InlineShortcut className="h-4 min-w-4">{option.key}</InlineShortcut>
-						{option.label}
-					</>
-				</ControlTooltip>
-			))}
+			{tools
+				.filter((option) => measure || option.tool === 'pencil')
+				.map((option) => (
+					<ControlTooltip
+						key={option.tool}
+						label={option.hint}
+						shortcut={option.key}
+						render={
+							<Toggle
+								className="h-5 gap-1 rounded-md border-0 px-1 text-xs sm:h-5 sm:text-xs"
+								aria-keyshortcuts={option.key}
+								pressed={tool === option.tool}
+								onPressedChange={() => onToggle(option.tool)}
+							/>
+						}
+					>
+						<>
+							<InlineShortcut className="h-4 min-w-4">{option.key}</InlineShortcut>
+							{option.label}
+						</>
+					</ControlTooltip>
+				))}
 		</div>
 	);
 }

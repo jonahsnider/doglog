@@ -10,7 +10,6 @@ import {
 	type FieldCoordinates,
 	type FieldPoint,
 	type Measurement,
-	type MeasureTool,
 	coordinatesTransform,
 	fieldLayout,
 	measurementLabel,
@@ -20,8 +19,9 @@ import {
 } from '@/widgets/field/geometry';
 import { FieldImage, Minimap } from '@/widgets/field/image';
 import { loadField3d, preloadField3d } from '@/widgets/field/load-3d';
-import { MeasurementDrawing } from '@/widgets/field/measure';
+import { MeasurementDrawing, PencilDrawing } from '@/widgets/field/measure';
 import { fieldLegendItems } from '@/widgets/field/legend-items';
+import { type FieldTool, usePencil } from '@/widgets/field/pencil';
 import { CursorPosition, hiddenWhileIdle, ToolButtons } from '@/widgets/field/readout';
 import { useCopyPosition } from '@/widgets/field/copy-position';
 import { fieldDrawings } from '@/widgets/field/roles';
@@ -77,36 +77,46 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 	useResizeObserver({ ref: legendRef, onResize: measure });
 	const { view, area } = fieldLayout(bounds, box);
 	const clipId = useId();
-	const { svgRef, zoom, active, transform, toContent, startPan, movePan, endPan, reset } = useFieldZoom(bounds, view);
+	const { svgRef, zoom, active, transform, contentPointAt, startPan, movePan, endPan, reset } = useFieldZoom(
+		bounds,
+		view,
+	);
 	/** Field position under the pointer, the last one while it's not over the field so the readout can fade out */
 	const [pointer, setPointer] = useState<FieldPoint>();
 	const [hovered, setHovered] = useState(false);
 	const [minimapLeft, setMinimapLeft] = useState(false);
 	const copied = useCopyPosition(pointer, hovered);
-	const [tool, setTool] = useState<MeasureTool>();
+	const [tool, setTool] = useState<FieldTool>();
 	const [measurement, setMeasurement] = useState<Measurement>();
 	const measuring = useRef(false);
+	const pencil = usePencil();
 
-	const toggleTool = (next: MeasureTool) => {
-		setTool((current) => (current === next ? undefined : next));
+	const selectTool = (next: FieldTool | undefined) => {
+		setTool(next);
 		setMeasurement(undefined);
+		measuring.current = false;
+		pencil.clear();
+		endPan();
 	};
+	const toggleTool = (next: FieldTool) => selectTool(tool === next ? undefined : next);
 	// Every field widget registers these, but only the hovered one is enabled
 	const whileHovered = { enabled: hovered, conflictBehavior: 'allow' } as const;
 	useHotkey('M', () => toggleTool('distance'), whileHovered);
 	useHotkey('A', () => toggleTool('angle'), whileHovered);
-	useHotkey(
-		'Escape',
-		() => {
-			setTool(undefined);
-			setMeasurement(undefined);
-		},
-		{ ...whileHovered, enabled: hovered && (tool !== undefined || measurement !== undefined) },
-	);
+	useHotkey('P', () => toggleTool('pencil'), whileHovered);
+	useHotkey('Escape', () => selectTool(undefined), { ...whileHovered, enabled: hovered && tool !== undefined });
 
-	const fieldPointAt = (event: PointerEvent) => {
-		const content = toContent(event.clientX, event.clientY);
-		return toBlueWall(field.fromSvg(content), coordinates);
+	const projectPointer = () => {
+		const toContent = contentPointAt();
+		return (event: Pick<PointerEvent, 'clientX' | 'clientY'>) => field.fromSvg(toContent(event));
+	};
+	const cancelDrag = (event: PointerEvent) => {
+		endPan();
+		pencil.cancel(event);
+		if (measuring.current) {
+			measuring.current = false;
+			setMeasurement(undefined);
+		}
 	};
 	/** Where a field point is in the field's box, as fractions of its width and height */
 	const toFraction = (point: FieldPoint) => {
@@ -166,19 +176,28 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 								startPan(event);
 								return;
 							}
+							const point = projectPointer()(event);
+							if (tool === 'pencil') {
+								pencil.start(event, point);
+								return;
+							}
 							event.currentTarget.setPointerCapture(event.pointerId);
 							measuring.current = true;
-							const point = fieldPointAt(event);
-							setMeasurement({ tool, from: point, to: point });
+							const position = toBlueWall(point, coordinates);
+							setMeasurement({ tool, from: position, to: position });
 						}}
 						onPointerMove={(event) => {
-							const point = fieldPointAt(event);
+							const pointAt = projectPointer();
+							const fieldPoint = pointAt(event);
+							const point = toBlueWall(fieldPoint, coordinates);
 							setPointer(point);
 							setHovered(true);
 							// The minimap only switches sides past the middle, so it doesn't flicker while the pointer is near it
 							const { x } = toFraction(point);
 							setMinimapLeft((current) => (x > 0.6 ? true : x < 0.4 ? false : current));
-							if (measuring.current) {
+							if (pencil.isDrawing(event)) {
+								pencil.move(event, pointAt, fieldPoint);
+							} else if (measuring.current) {
 								setMeasurement(
 									(current) => current && { ...current, to: event.shiftKey ? snapTo45(current.from, point) : point },
 								);
@@ -186,8 +205,11 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 								movePan(event);
 							}
 						}}
-						onPointerUp={() => {
+						onPointerUp={(event) => {
 							endPan();
+							if (pencil.isDrawing(event)) {
+								pencil.finish(event, projectPointer()(event));
+							}
 							if (measuring.current) {
 								measuring.current = false;
 								// A click, or a drag too short to see, measures nothing
@@ -201,13 +223,9 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 								);
 							}
 						}}
-						onPointerCancel={() => {
-							endPan();
-							if (measuring.current) {
-								measuring.current = false;
-								setMeasurement(undefined);
-							}
-						}}
+						onPointerCancel={cancelDrag}
+						onLostPointerCapture={cancelDrag}
+						onPointerEnter={() => setHovered(true)}
 						onPointerLeave={() => setHovered(false)}
 						onDoubleClick={() => {
 							if (tool === undefined) {
@@ -234,6 +252,7 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 											{fieldDrawings(bindings, (binding) => valueOf(binding.entry))}
 											{measurement && <MeasurementDrawing measurement={measurement} />}
 										</g>
+										<PencilDrawing points={pencil.points} />
 									</g>
 								</g>
 							</g>

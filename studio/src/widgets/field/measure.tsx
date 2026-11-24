@@ -1,5 +1,5 @@
-// Distance and angle measurements on the field widget, in field meters with +Y up
-import { angleOf, arcRadius, type Measurement, strokeWidth } from '@/widgets/field/geometry';
+// Tool drawings on the 2D field, in field meters with +Y up
+import { angleOf, arcRadius, type FieldPoint, type Measurement, strokeWidth } from '@/widgets/field/geometry';
 
 /** A white line with a dark outline, readable on every part of the field */
 function OutlinedPath({ d, dashed = false }: { d: string; dashed?: boolean }) {
@@ -13,11 +13,26 @@ function OutlinedPath({ d, dashed = false }: { d: string; dashed?: boolean }) {
 				strokeOpacity={0.6}
 				strokeWidth={strokeWidth * 2}
 				strokeLinecap="round"
+				strokeLinejoin="round"
 				strokeDasharray={dash}
 			/>
-			<path d={d} fill="none" stroke="white" strokeWidth={strokeWidth} strokeLinecap="round" strokeDasharray={dash} />
+			<path
+				d={d}
+				fill="none"
+				stroke="white"
+				strokeWidth={strokeWidth}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeDasharray={dash}
+			/>
 		</>
 	);
+}
+
+export function PencilDrawing({ points }: { points: readonly FieldPoint[] }) {
+	return points.length > 1 ? (
+		<OutlinedPath d={`M ${points.map(({ x, y }) => `${x.toFixed(4)} ${y.toFixed(4)}`).join(' ')}`} />
+	) : null;
 }
 
 export function MeasurementDrawing({ measurement }: { measurement: Measurement }) {

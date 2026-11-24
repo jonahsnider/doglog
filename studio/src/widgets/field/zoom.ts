@@ -111,10 +111,13 @@ export function useFieldZoom(bounds: Bounds, view = bounds) {
 		zoom,
 		active,
 		transform: `translate(${zoom.x} ${zoom.y}) scale(${zoom.scale})`,
-		/** The zoomed content's point under a client position, in SVG user units */
-		toContent: (clientX: number, clientY: number) => {
-			const point = toUser(svgRef.current, clientX, clientY);
-			return { x: (point.x - zoom.x) / zoom.scale, y: (point.y - zoom.y) / zoom.scale };
+		/** Snapshot the transform once for all the pointer samples in an event. */
+		contentPointAt: () => {
+			const inverse = svgRef.current.getScreenCTM()!.inverse();
+			return ({ clientX, clientY }: Pick<PointerEvent, 'clientX' | 'clientY'>) => {
+				const point = new DOMPoint(clientX, clientY).matrixTransform(inverse);
+				return { x: (point.x - zoom.x) / zoom.scale, y: (point.y - zoom.y) / zoom.scale };
+			};
 		},
 		startPan: (event: PointerEvent) => {
 			event.currentTarget.setPointerCapture(event.pointerId);

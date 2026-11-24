@@ -372,6 +372,22 @@ Holding Shift while dragging a measurement SHALL snap its line to the nearest mu
 - **WHEN** the user presses `M` and drags from (2, 2) toward (5, 2.3) while holding Shift
 - **THEN** the line ends level with (2, 2), at about (5.01, 2)
 
+### Requirement: Pencil tool
+
+In 2D and 3D, the Pencil button below the view SHALL toggle freehand drawing and show its `P` shortcut. Pressing `P` while the pointer is over the view MUST also toggle it. While Pencil is active, a primary drag MUST draw a freehand line on the field instead of panning or orbiting. The line SHALL stay anchored to the field as the view moves and SHALL NOT be saved with the dashboard.
+
+#### Scenario: Sketch on the field
+
+- **WHEN** the user presses `P` and drags along a curved route on the field
+- **THEN** a line follows the route as they draw and stays visible after they release
+
+#### Scenario: Replace or clear a sketch
+
+- **GIVEN** Pencil is active and a line is visible
+- **WHEN** the user draws again
+- **THEN** the new line replaces the previous one
+- **AND** toggling Pencil off, pressing Escape over the view, or switching views clears the line and restores the normal drag behavior
+
 ### Requirement: 3D field
 
 In 3D, the field widget SHALL draw a 3D model of the same season's field as 2D, from FIRST's official field CAD, with its field elements, tape lines, and AprilTags. The carpet SHALL be the same neutral gray as the 2D field's background in every theme, and the space around the field MUST use the pane's background. The scene SHALL use the robot widget's lighting: soft, fixed as the camera moves, and low-gloss, keeping the model's colors.
