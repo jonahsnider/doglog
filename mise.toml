@@ -2,7 +2,7 @@
 hk = { version = "2.14.0", workflow = "release.yml" }
 java = "temurin-25"
 pkl = "0.33.1"
-uv = "0.13.9"
+uv = "0.13.10"
 
 [settings]
 idiomatic_version_file_enable_tools = ["node", "pnpm", "python", "rust"]
