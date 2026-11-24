@@ -41,11 +41,19 @@ Adding entries MUST NOT grow a widget beyond 30 bindings. Hidden entries, missin
 
 Each widget that accepts entries SHALL have an Edit entries button in its pane header that starts editing its entries in the entry browser, or stops it if it's already being edited. The button MUST show as pressed while its widget is being edited.
 
+The shared "No entries" state SHALL have an Add entries button that opens the entry browser to edit that widget's entries. The button MUST show the Edit entries shortcut except in the phone layout.
+
 #### Scenario: Start editing
 
 - **GIVEN** a console widget
 - **WHEN** the user presses its Edit entries button
 - **THEN** the entry browser edits the console's entries
+
+#### Scenario: Add entries to an empty widget
+
+- **GIVEN** a table with no bound entries and a collapsed entry browser
+- **WHEN** the user presses Add entries in the table's empty state
+- **THEN** the entry browser opens to edit the table's entries and focuses its search box
 
 #### Scenario: Notepad
 

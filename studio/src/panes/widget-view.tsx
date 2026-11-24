@@ -1,9 +1,12 @@
 import type { Draggable, Droppable } from '@dnd-kit/dom';
 import { useDragOperation, useDroppable } from '@dnd-kit/react';
+import { useFormatForDisplay } from '@tanstack/react-hotkeys';
 import DatabaseIcon from 'lucide-react/icons/database';
 import ListPlusIcon from 'lucide-react/icons/list-plus';
 import TriangleAlertIcon from 'lucide-react/icons/triangle-exclamation-point';
 import { Component, type CSSProperties, type ReactNode, Suspense, use, useCallback, useMemo } from 'react';
+import { shortcuts } from '@/commands/shortcuts';
+import { InlineShortcut } from '@/components/inline-shortcut';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import {
@@ -30,6 +33,7 @@ import {
 	type WidgetBindings,
 	WidgetBindingsContext,
 } from '@/entries/drag';
+import { startEditing } from '@/entries/editing';
 import { cn } from '@/lib/utils';
 import { WidgetEmpty } from '@/widgets/widget-empty';
 import { setWidgetOption } from '@/widgets/options';
@@ -51,6 +55,7 @@ export function WidgetView({
 }) {
 	const source = useSource();
 	const dashboardLayout = use(DashboardLayoutContext);
+	const formatForDisplay = useFormatForDisplay();
 	// Accepts every entry so rejected ones can explain why they can't be dropped. Entries from this widget are reordered by dropping them on each other instead.
 	const { ref } = useDroppable<EntryDropData>({
 		id: paneId,
@@ -100,10 +105,21 @@ export function WidgetView({
 	} else if (bindings.length === 0) {
 		content = (
 			<WidgetEmpty
-				icon={<ListPlusIcon />}
+				icon={<ListPlusIcon aria-hidden />}
 				title="No entries"
-				description="Drag entries here from the entry browser, or use Edit entries."
-			/>
+				description="Drag entries here from the entry browser."
+			>
+				<Button
+					data-edit-entries
+					className="capture:invisible"
+					variant="outline"
+					size="sm"
+					onClick={() => startEditing(dashboardId, paneId)}
+				>
+					Add entries
+					<InlineShortcut>{formatForDisplay(shortcuts.editEntries)}</InlineShortcut>
+				</Button>
+			</WidgetEmpty>
 		);
 	} else if (!source) {
 		content = <WidgetEmpty icon={<DatabaseIcon />} title="No data" description="Open a log or connect to a robot." />;
