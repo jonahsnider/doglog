@@ -143,5 +143,5 @@ function LocalVideo({ name, choose, ...props }: VideoProps & { name: string; cho
 			</WidgetEmpty>
 		);
 	}
-	return <SyncedVideo {...props} video={{ kind: 'file', url: local.url }} replace={choose} />;
+	return <SyncedVideo key={local.url} {...props} video={{ kind: 'file', url: local.url }} replace={choose} />;
 }

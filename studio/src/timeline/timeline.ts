@@ -2,11 +2,13 @@ import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import { createContext } from 'react';
 import * as z from 'zod';
-import { getGaps, getTimeRange, subscribeData, type TimeRange } from '@/data/data-store';
+import { getTimeRange, subscribeData, type TimeRange } from '@/data/data-store';
 import type { Source } from '@/data/source';
 import { createPersistedAtom } from '@/lib/persisted-store';
-import { settingsStore } from '@/settings';
-import { type CompressedSpan, getCompressedSpans, getModePeriods } from '@/timeline/events';
+import { type CompressedSpan, getActiveCompressedSpans, rateInSpan } from '@/timeline/events';
+import { type PlaybackClock, timeFromVideo, videoClockAt } from '@/timeline/playback-clock';
+
+export { formatRoughDuration, formatTime } from '@/timeline/format-time';
 
 /** `following` keeps the cursor on the newest data, it's only used by live sources */
 type Playback = 'paused' | 'playing' | 'following';
@@ -16,6 +18,12 @@ export type Timeline = {
 	readonly time: number | undefined;
 	readonly playback: Playback;
 	readonly speed: number;
+	/** How fast the cursor will move during playback, including compressed spans and export previews. */
+	readonly playbackRate: number;
+	/** Changes when the cursor is moved explicitly rather than advancing with playback. */
+	readonly seekRevision: number;
+	/** The local video driving playback, if the current portion of the log has one. */
+	readonly playbackClock: PlaybackClock | undefined;
 	readonly live: boolean;
 	/** The range of the video being exported, which the cursor stays in. `undefined` outside video export mode. */
 	readonly videoRange: TimeRange | undefined;
@@ -31,6 +39,9 @@ const store = createAtom<Timeline>({
 	time: undefined,
 	playback: 'paused',
 	speed: 1,
+	playbackRate: 1,
+	seekRevision: 0,
+	playbackClock: undefined,
 	live: false,
 	videoRange: undefined,
 });
@@ -60,8 +71,17 @@ export function getCursorRange(): TimeRange | undefined {
 	return store.get().videoRange ?? getTimeRange();
 }
 
-function update(changes: Partial<Timeline>): void {
-	store.set((timeline) => ({ ...timeline, ...changes }));
+function update(changes: Partial<Timeline>, spans?: readonly CompressedSpan[]): void {
+	const next = { ...store.get(), ...changes };
+	const { playback, time, speed, videoRange } = next;
+	const range = playback === 'playing' && !videoRange ? getTimeRange() : undefined;
+	const compressed =
+		time !== undefined && range !== undefined
+			? (spans ?? getActiveCompressedSpans(range)).find((span) => span.start <= time && time < span.end)
+			: undefined;
+	const playbackClock =
+		range && !next.live && !compressed && time !== undefined ? videoClockAt(time - range.start, speed) : undefined;
+	store.set({ ...next, playbackRate: rateInSpan(videoRange ? 1 : speed, compressed), playbackClock });
 
 	const playing = store.get().playback === 'playing';
 	if (playing && frame === undefined) {
@@ -73,17 +93,9 @@ function update(changes: Partial<Timeline>): void {
 	}
 }
 
-/** About how long (ms) playback takes to fast-forward through a compressed disabled span */
-const compressedPlaybackTime = 1500;
-
-/** Long idle spans of the active source that are compressed on the timeline, empty when compression is turned off */
-export function getActiveCompressedSpans(range: TimeRange): CompressedSpan[] {
-	return settingsStore.get().timelineCompress ? getCompressedSpans(getModePeriods(range), getGaps()) : [];
-}
-
 function tick(now: number): void {
 	frame = undefined;
-	const { time, speed, live, videoRange } = store.get();
+	const { time, speed, live, videoRange, playbackClock } = store.get();
 	const sourceRange = getTimeRange();
 	const range = videoRange ?? sourceRange;
 	if (time === undefined || range === undefined || sourceRange === undefined) {
@@ -93,22 +105,18 @@ function tick(now: number): void {
 
 	const elapsed = Math.max(0, now - lastFrameTime);
 	lastFrameTime = now;
-	// A video previews at the source's own timing, like it's saved
-	let next = time + elapsed * 1000 * (videoRange ? 1 : speed);
-	// Fast-forward through compressed spans, stopping at their end so the time kept after them isn't skipped too
-	const compressed = videoRange
-		? undefined
-		: getActiveCompressedSpans(sourceRange).find((span) => span.start <= time && time < span.end);
-	if (compressed) {
-		const fastForward = time + (elapsed / compressedPlaybackTime) * (compressed.end - compressed.start);
-		next = Math.min(Math.max(next, fastForward), compressed.end);
-	}
+	// Exports preview at the source's own timing. With compression, stop at the span end without skipping past it.
+	const spans = videoRange ? [] : getActiveCompressedSpans(sourceRange);
+	const compressed = spans.find((span) => span.start <= time && time < span.end);
+	const rate = rateInSpan(videoRange ? 1 : speed, compressed);
+	const driven = compressed ? undefined : timeFromVideo(playbackClock, time, sourceRange.start, spans);
+	const next = driven ?? Math.min(time + elapsed * 1000 * rate, compressed?.end ?? Infinity);
 
 	if (next >= range.end) {
 		update({ time: range.end, playback: live && !videoRange ? 'following' : 'paused' });
 	} else {
 		frame = requestAnimationFrame(tick);
-		update({ time: next });
+		update({ time: next }, spans);
 	}
 }
 
@@ -225,8 +233,9 @@ export function seek(time: number): void {
 	if (range === undefined || savingVideo) {
 		return;
 	}
-	const { playback } = store.get();
-	update({ time: clamp(time, range), playback: playback === 'following' ? 'paused' : playback });
+	const current = store.get();
+	const playback = current.playback === 'following' ? 'paused' : current.playback;
+	update({ time: clamp(time, range), playback, seekRevision: current.seekRevision + 1 });
 }
 
 /** Stop following live data without moving the cursor, ex. when the user pans or scrolls a graph back in time. @public */
@@ -282,19 +291,4 @@ export function changeSpeed(direction: 1 | -1): void {
 	if (next !== undefined) {
 		update({ speed: next });
 	}
-}
-
-/** Format a time (µs) as minutes and seconds since the start of the source, ex. `0:02.50` or `1:05.00` */
-export function formatTime(time: number, start: number): string {
-	// Round to hundredths first so 59.999 s becomes 1:00.00 instead of 0:60.00
-	const hundredths = Math.round((time - start) / 10_000);
-	const minutes = Math.floor(hundredths / 6000);
-	const seconds = ((hundredths % 6000) / 100).toFixed(2).padStart(5, '0');
-	return `${minutes}:${seconds}`;
-}
-
-/** Format a rough duration (µs) as minutes and whole seconds, ex. `3:49` */
-export function formatRoughDuration(duration: number): string {
-	const seconds = Math.round(duration / 1_000_000);
-	return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 }

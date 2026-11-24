@@ -59,6 +59,13 @@ Outside Sync mode, the video SHALL show the moment lined up with the cursor, and
 - **WHEN** the user scrubs the timeline to 0:30.00 while paused, even if they reverse direction mid-scrub
 - **THEN** the video shows 0:40.00 without starting playback
 
+#### Scenario: Play a log with one local video
+
+- **GIVEN** the dashboard is showing one synced local video during regular log playback at a speed the video supports
+- **WHEN** the video starts or waits for another frame
+- **THEN** the timeline holds until the video presents the next frame, without pausing the video or seeking to make it catch up
+- **AND** the timeline advances on its own again outside the video's time range or when a second video is shown
+
 #### Scenario: Play faster than YouTube can
 
 - **GIVEN** a YouTube video, which plays at most twice as fast

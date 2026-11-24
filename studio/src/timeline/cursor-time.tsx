@@ -5,8 +5,9 @@ import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import type { TimeRange } from '@/data/data-store';
 import { isEnterKey } from '@/lib/keyboard';
 import { cn } from '@/lib/utils';
-import { formatTime, getActiveCompressedSpans, seek, TimelineCursorContext } from '@/timeline/timeline';
+import { getActiveCompressedSpans } from '@/timeline/events';
 import { parseTime } from '@/timeline/parse-time';
+import { formatTime, seek, TimelineCursorContext } from '@/timeline/timeline';
 
 /** Field for typing a time to move the cursor to, shown in place of the current time after clicking it */
 function TimeInput({ initialText, start, onDone }: { initialText: string; start: number; onDone: () => void }) {

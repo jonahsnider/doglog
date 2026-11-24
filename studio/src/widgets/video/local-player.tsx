@@ -1,4 +1,4 @@
-import { useImperativeHandle, useRef } from 'react';
+import { useEffect, useImperativeHandle, useRef } from 'react';
 import { type Player, type PlayerProps, videoClassName } from '@/widgets/video/player';
 
 const macDesktop = STUDIO_DESKTOP && navigator.userAgent.includes('Mac');
@@ -8,12 +8,30 @@ export function LocalPlayer({ url, muted, ref, onInfo }: PlayerProps & { url: st
 	const videoRef = useRef<HTMLVideoElement>(null);
 	// Where to seek once the current seek is done, so fast scrubbing doesn't queue up seeks
 	const pendingSeek = useRef<number>(undefined);
+	const presentedTime = useRef<number>(undefined);
+
+	useEffect(() => {
+		presentedTime.current = undefined;
+		const video = videoRef.current;
+		if (!video?.requestVideoFrameCallback) {
+			return undefined;
+		}
+		const onFrame: VideoFrameRequestCallback = (_, { mediaTime }) => {
+			if (!video.seeking && pendingSeek.current === undefined) {
+				presentedTime.current = mediaTime;
+			}
+			frame = video.requestVideoFrameCallback(onFrame);
+		};
+		let frame = video.requestVideoFrameCallback(onFrame);
+		return () => video.cancelVideoFrameCallback(frame);
+	}, []);
 
 	// Captures wait for the frame being seeked to. Set on the element right away, the seek event comes after a capture checks.
 	const setPending = (pending: boolean) => {
 		const video = videoRef.current;
 		if (video) {
 			if (pending) {
+				presentedTime.current = undefined;
 				video.dataset['capturePending'] = '';
 			} else {
 				delete video.dataset['capturePending'];
@@ -26,8 +44,21 @@ export function LocalPlayer({ url, muted, ref, onInfo }: PlayerProps & { url: st
 		(): Player => ({
 			// Chromium and WebKit play up to 16×, but the audio cuts out above 4× and fewer frames are decoded
 			maxRate: 8,
+			// The media clock can take several hundred milliseconds to start after play or seek.
+			// Seeking again during that lag can restart the delay rather than catch up.
+			playbackSeekTolerance: 0.75,
 			// Compare against the newest request so reversing a scrub can replace an already queued seek.
 			time: () => pendingSeek.current ?? videoRef.current?.currentTime ?? 0,
+			playbackTime: () => {
+				const video = videoRef.current;
+				if (!video?.requestVideoFrameCallback || (video.paused && !video.ended)) {
+					return undefined;
+				}
+				if (video.seeking || pendingSeek.current !== undefined) {
+					return null;
+				}
+				return video.ended ? video.duration : (presentedTime.current ?? null);
+			},
 			seek: (time) => {
 				const video = videoRef.current;
 				if (!video) {
@@ -121,11 +152,12 @@ export function LocalPlayer({ url, muted, ref, onInfo }: PlayerProps & { url: st
 					if (next === undefined || next === video.currentTime) {
 						setPending(false);
 					} else {
+						setPending(true);
 						video.currentTime = next;
 					}
 				};
-				if (macDesktop && pendingSeek.current !== undefined) {
-					// Let the webview present this frame before asking for the next seek.
+				if (macDesktop && video.paused && pendingSeek.current !== undefined) {
+					// Give the webview a rendering turn when scrubbing, without delaying playback seeks.
 					requestAnimationFrame(finishSeek);
 				} else {
 					finishSeek();

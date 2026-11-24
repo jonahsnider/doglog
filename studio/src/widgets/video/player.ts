@@ -4,8 +4,12 @@ import type { Ref } from 'react';
 export type Player = {
 	/** The fastest playback rate the player supports */
 	readonly maxRate: number;
+	/** How long (s at 1x) the player can lag during continuous playback before seeking to catch up. */
+	readonly playbackSeekTolerance?: number;
 	/** The playback position, or the latest requested position while a seek is pending */
 	time: () => number;
+	/** The presented frame's time, `null` while waiting, `undefined` if this player can't drive playback. */
+	playbackTime?: () => number | null | undefined;
 	seek: (time: number) => void;
 	play: () => void;
 	pause: () => void;

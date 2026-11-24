@@ -55,7 +55,7 @@ export function SyncedVideo({
 	const time = timelineTimeAt(useCursorTime());
 	const target = time === undefined ? undefined : videoTimeAt(time, sync);
 
-	useFollowCursor(player, sync, duration, syncing === undefined);
+	useFollowCursor(player, sync, duration, syncing === undefined && !info.error);
 
 	if (info.error) {
 		return (

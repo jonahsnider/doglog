@@ -1,4 +1,5 @@
-import { type Entry, getEntry, type TimeRange } from '@/data/data-store';
+import { type Entry, getEntry, getGaps, type TimeRange } from '@/data/data-store';
+import { settingsStore } from '@/settings';
 
 export type RobotMode = 'disabled' | 'auto' | 'teleop' | 'test' | 'estop';
 
@@ -202,6 +203,16 @@ const compressionMargin = 2_000_000;
 
 /** A span of time (µs) shown compressed on the timeline */
 export type CompressedSpan = { readonly start: number; readonly end: number };
+
+/** Long idle spans of the active source that are compressed on the timeline, empty when compression is turned off */
+export function getActiveCompressedSpans(range: TimeRange): CompressedSpan[] {
+	return settingsStore.get().timelineCompress ? getCompressedSpans(getModePeriods(range), getGaps()) : [];
+}
+
+/** Playback fast-forwards through a compressed span in about 1.5 seconds. */
+export function rateInSpan(speed: number, span: CompressedSpan | undefined): number {
+	return span ? Math.max(speed, (span.end - span.start) / 1_500_000) : speed;
+}
 
 /**
  * The long stretches of a source where the robot was disabled or the live session was disconnected (`gaps`), minus a
