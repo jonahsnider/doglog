@@ -1,5 +1,8 @@
 schema: spec-driven
 
+# When editing, keep info concise since this is read very frequently
+# Avoid adding information specific to a single feature, this should be meant for high-level guidelines/decisions
+# Ideally information is obvious from looking at the code, we should only add things here if they can't be communicated through the actual source
 context: |
   Product: DogLog Studio is an all-in-one app for FRC teams to review robot logs and debug robots live.
   It works with any WPILOG file or NetworkTables 4 (NT4) source, not only DogLog. Where it costs nothing,
