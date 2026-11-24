@@ -321,7 +321,7 @@ On macOS 26 and later, the desktop app SHALL provide a layered app icon that fol
 
 ### Requirement: About dialog
 
-Studio SHALL offer an About dialog from Settings on every platform and from the app menu on macOS. The dialog SHALL show the app logo, running version, short commit hash when built from Git, copyright, a short description, and a bulleted list of contributors and what they contributed.
+Studio SHALL offer an About dialog from Settings on every platform and from the app menu on macOS. The dialog SHALL show the app logo, running version, short commit hash when built from Git, copyright, a short description, and a bulleted list of contributors and what they contributed. The dialog's text SHALL be selectable for copying.
 
 #### Scenario: Open About from the macOS app menu
 

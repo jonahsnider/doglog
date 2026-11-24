@@ -5,7 +5,7 @@ import { bundle } from '../../src-tauri/tauri.conf.json';
 export function AboutDialog() {
 	return (
 		<Dialog handle={aboutDialog}>
-			<DialogPopup className="max-w-md" bottomStickOnMobile={false}>
+			<DialogPopup className="max-w-md select-text" bottomStickOnMobile={false}>
 				<DialogHeader className="items-center text-center">
 					<img src="/logo.svg" alt="" width={64} height={64} />
 					<DialogTitle>DogLog Studio</DialogTitle>
