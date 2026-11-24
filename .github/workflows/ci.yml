@@ -189,6 +189,11 @@ jobs:
 
     timeout-minutes: 10
 
+    concurrency:
+      # Don't interleave production Convex deploys and their Studio web publishes.
+      group: ${{ github.event_name == 'push' && 'studio-production' || format('studio-check-{0}', github.run_id) }}
+      cancel-in-progress: false
+
     steps:
       - name: Checkout Git repository
         uses: actions/checkout@v7.0.1
@@ -225,11 +230,20 @@ jobs:
       - name: Knip
         run: pnpm knip
       - name: Build
+        if: github.event_name == 'pull_request'
         run: pnpm build
         working-directory: studio
         env:
-          # Only builds that deploy upload source maps to Sentry
-          SENTRY_AUTH_TOKEN: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.SENTRY_AUTH_TOKEN || '' }}
+          VITE_CONVEX_URL: https://convex.doglog.studio
+      - name: Build Studio and deploy Convex to production
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: >-
+          pnpm exec convex deploy --typecheck enable --cmd-url-env-var-name VITE_CONVEX_URL
+          --cmd 'env -u CONVEX_DEPLOY_KEY pnpm --dir ../studio build'
+        working-directory: cloud
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       - name: Publish Studio to Cloudflare Workers
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: cloudflare/wrangler-action@v4.1.3

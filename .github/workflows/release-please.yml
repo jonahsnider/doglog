@@ -204,6 +204,7 @@ jobs:
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          VITE_CONVEX_URL: https://convex.doglog.studio
         with:
           projectPath: studio
           # Using the ID instead of the tag keeps the release notes from release-please

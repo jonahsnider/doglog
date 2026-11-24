@@ -319,6 +319,16 @@ export default defineConfig({
 		],
 	},
 	plugins: lazyPlugins(() => [
+		{
+			name: 'require-convex-url',
+			apply: 'build',
+			configResolved({ env }) {
+				const url: unknown = env['VITE_CONVEX_URL'];
+				if (typeof url !== 'string' || url.trim() === '') {
+					throw new Error('Set VITE_CONVEX_URL to a Convex deployment URL before building Studio.');
+				}
+			},
+		},
 		// Only active when CodSpeed runs the benchmarks in CI
 		codspeedPlugin(),
 		tanstackRouter({ target: 'react', autoCodeSplitting: true }),

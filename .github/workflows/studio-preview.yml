@@ -137,6 +137,7 @@ jobs:
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          VITE_CONVEX_URL: https://convex.doglog.studio
         with:
           projectPath: studio
           releaseId: ${{ needs.release.outputs.id }}
