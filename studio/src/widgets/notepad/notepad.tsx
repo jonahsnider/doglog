@@ -79,7 +79,7 @@ export function Notepad() {
 			</div>
 			<textarea
 				aria-label="Notes"
-				placeholder="Write notes in Markdown"
+				placeholder="Write something..."
 				spellCheck={false}
 				className="min-w-0 resize-none overflow-hidden text-transparent caret-foreground outline-none selection:bg-primary/16 placeholder:text-muted-foreground"
 				value={notes}
