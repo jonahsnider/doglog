@@ -2,20 +2,12 @@
 import { Line } from '@react-three/drei';
 import type { ThreeEvent } from '@react-three/fiber';
 import { type ReactNode, useMemo } from 'react';
-import { DoubleSide, SphereGeometry, Vector3 } from 'three';
+import { DoubleSide, Vector3 } from 'three';
 import type { Mechanism } from '@/data/mechanism';
 import type { Value } from '@/data/samples';
 import { CameraFrustum, type CameraImage, defaultCameraFov } from '@/three/camera-frustum';
-import {
-	anchor,
-	centerCoordinates,
-	fieldPoseMatrix,
-	floorOffset,
-	identity,
-	isPose,
-	items,
-	lifted,
-} from '@/three/field-poses';
+import { FieldPoints } from '@/three/field-points';
+import { anchor, centerCoordinates, fieldPoseMatrix, floorOffset, identity, items, lifted } from '@/three/field-poses';
 import { Mechanism3d, type MechanismPlane } from '@/three/mechanism-3d';
 import { poseMatrix } from '@/three/poses';
 import { useLoadedRobot } from '@/three/robot-loading';
@@ -26,49 +18,12 @@ import { useThemeColor } from '@/three/theme';
 import { readShape } from '@/widgets/field/data';
 import type { FieldCoordinates } from '@/widgets/field/geometry';
 import { defaultRobot } from '@/widgets/field/robots';
+import { bindingColor } from '@/widgets/series-color';
 import type { WidgetBinding } from '@/widgets/widget-type';
 
-/** Points are spheres this many meters across */
-const pointRadius = 0.05;
-const headingLength = 0.3;
 const lineWidth = 2.5;
-/** Paths and connections are lines on their own, so they're drawn thicker than headings and outlines */
+/** Paths and connections are lines on their own, so they're drawn thicker than shape outlines */
 const wideLineWidth = 5;
-const sphere = new SphereGeometry(pointRadius, 16, 12);
-
-/** Where each point is drawn, with the end of its heading line if it's a pose */
-function markers(value: Value): { center: Vector3; heading: Vector3 | undefined }[] {
-	return items(value).map((item) => {
-		const matrix = fieldPoseMatrix(item);
-		return {
-			center: new Vector3().setFromMatrixPosition(matrix),
-			heading: isPose(item) ? new Vector3(headingLength, 0, 0).applyMatrix4(matrix) : undefined,
-		};
-	});
-}
-
-function Points({ value, color }: { value: Value; color: string }) {
-	// Values only change when the cursor moves to another sample
-	const points = useMemo(() => markers(value), [value]);
-	return points.map(({ center, heading }, index) => (
-		// oxlint-disable-next-line react/no-array-index-key -- Array items don't have IDs
-		<group key={index}>
-			<mesh geometry={sphere} position={center}>
-				<meshStandardMaterial color={color} />
-			</mesh>
-			{heading && <Line points={[center, heading]} color={color} lineWidth={lineWidth} />}
-			{center.z > pointRadius && (
-				<Line
-					points={[center, center.clone().setZ(floorOffset)]}
-					color={color}
-					lineWidth={1}
-					transparent
-					opacity={0.4}
-				/>
-			)}
-		</group>
-	));
-}
 
 function Path({ value, color }: { value: Value; color: string }) {
 	const points = useMemo(
@@ -151,7 +106,7 @@ function FieldDrawing({
 	binding,
 	value,
 	sources,
-	cssColor,
+	bindingIndex,
 	robot,
 	image,
 	onPoint,
@@ -159,7 +114,7 @@ function FieldDrawing({
 	binding: WidgetBinding;
 	value: Value;
 	sources: readonly { binding: WidgetBinding; value: Value }[];
-	cssColor: string;
+	bindingIndex: number;
 	/** Set for robots and ghosts */
 	robot?: RobotDrawing;
 	/** The most recent frame of a live camera binding */
@@ -167,7 +122,7 @@ function FieldDrawing({
 	/** The pointer moved over or off of the drawing, ex. to remove its binding by middle-clicking it */
 	onPoint: (bindingId: string, pointed: boolean) => void;
 }) {
-	const color = useThemeColor(cssColor);
+	const color = useThemeColor(bindingColor(binding, bindingIndex));
 	const role = binding.role?.id;
 	let drawing: ReactNode = null;
 	if (robot) {
@@ -192,7 +147,7 @@ function FieldDrawing({
 			/>
 		);
 	} else if (role === 'point' || role === 'points') {
-		drawing = <Points value={value} color={color} />;
+		drawing = <FieldPoints value={value} color={color} cssOutline={bindingColor(binding, bindingIndex, 'outline')} />;
 	} else if (role === 'path') {
 		drawing = <Path value={value} color={color} />;
 	} else if (role === 'shape') {

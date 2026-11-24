@@ -226,7 +226,12 @@ In 2D, each robot SHALL be drawn as a 0.9 m square centered on its pose, rotated
 
 ### Requirement: Points and paths
 
-In 2D, each point SHALL be drawn as a dot, with a short line toward its heading if it's a pose. `Translation3d` entries MUST be drawn at their X and Y position, ignoring height. A path entry MUST be drawn as a line through its points in order. Lines SHALL keep the same on-screen width at any widget size.
+In 2D, each point SHALL be drawn as a 0.25 m dot in its binding's color. A pose point SHALL also have a solid arrow attached to the dot and pointing along its yaw. Both SHALL have a thin tonal outline derived from the binding's color. `Pose3d` and `Translation3d` entries MUST be drawn at their X and Y position, ignoring height. A path entry MUST be drawn as a line through its points in order. Lines SHALL keep the same on-screen width at any widget size.
+
+#### Scenario: Turned pose point
+
+- **GIVEN** a `Pose2d` entry drawn as a point with a 90° rotation in the default field orientation
+- **THEN** its attached arrow points toward the top of the widget
 
 #### Scenario: Empty array
 
@@ -738,12 +743,33 @@ Parts and mechanism bindings SHALL be drawn on the robots or ghosts they're conn
 
 ### Requirement: 3D drawings
 
-In 3D, 2D types SHALL be drawn on the floor, and `Pose3d` and `Translation3d` points and paths at their height. Points MUST be spheres about 10 cm across, with a faint line down to the floor when above it, and pose points MUST show their full 3D heading. Shapes and paths on the floor MUST be drawn just above it, so they don't flicker into it. Lines SHALL keep the same on-screen width, as in 2D. Connections MUST run between the drawn positions, from a robot's center.
+In 3D, 2D types SHALL be drawn on the floor, and `Pose3d` and `Translation3d` points and paths at their height. Shapes and paths on the floor MUST be drawn just above it, so they don't flicker into it. Lines SHALL keep the same on-screen width, as in 2D. Connections MUST run between the drawn positions, from a robot's center.
+
+#### Scenario: Path on the carpet
+
+- **GIVEN** a `Translation2d[]` entry drawn as a path
+- **THEN** its line follows the carpet without flickering into it
+
+### Requirement: 3D point markers
+
+3D points MUST be 0.25 m dots in their binding's color. Floor dots MUST rest on the carpet at their position. Elevated dots SHALL have a faint line down to the floor. Pose points MUST have an attached, solid arrow pointing along their full 3D heading. Dots and arrows SHALL use the same thin tonal outline color as in 2D. The arrow SHALL have a fixed size in the scene and foreshorten with the view.
 
 #### Scenario: Game piece in the air
 
 - **GIVEN** a `Translation3d` point at (4, 4, 1.5)
-- **THEN** a sphere is drawn 1.5 m above (4, 4), with a line down to the floor
+- **THEN** an outlined dot is drawn 1.5 m above (4, 4), with a line down to the floor
+- **AND** it appears larger on screen as the camera moves closer
+
+#### Scenario: Pose point on the floor
+
+- **GIVEN** a `Pose3d` point on the floor
+- **WHEN** the user orbits around it
+- **THEN** its heading arrow stays attached to the dot
+
+#### Scenario: Pitched pose point
+
+- **GIVEN** a `Pose3d` point whose forward direction is pitched up
+- **THEN** the arrow points up along that direction rather than lying flat on the field
 
 ### Requirement: Hidden drawings
 

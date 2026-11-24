@@ -26,7 +26,6 @@ import { FollowContext } from '@/widgets/legend/follow-context';
 import { Legend } from '@/widgets/legend/legend';
 import { mechanismPlane } from '@/widgets/robot/roles';
 import { SceneControls } from '@/widgets/scene-controls';
-import { bindingColor } from '@/widgets/series-color';
 import { useMechanisms } from '@/widgets/use-mechanisms';
 import { useSceneControls } from '@/widgets/use-scene-controls';
 import { ViewToggle } from '@/widgets/view-toggle';
@@ -158,7 +157,7 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 				binding,
 				value,
 				sources,
-				cssColor: bindingColor(binding, index),
+				bindingIndex: index,
 				...(isRobotBinding(binding) && { robot: robotDrawing(binding) }),
 				...(image && { image }),
 				onPoint: (id, on) => setPointed((current) => (on ? id : current === id ? undefined : current)),

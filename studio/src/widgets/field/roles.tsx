@@ -7,11 +7,11 @@ import { Connections, Markers, Path, Robot, Shapes } from '@/widgets/field/shape
 import { widgetRoles } from '@/widgets/widget-info';
 import type { Connects, RoleOption, WidgetBinding } from '@/widgets/widget-type';
 
-type Draw = (value: Value, color: string) => ReactNode;
+type Draw = (value: Value, color: string, outline: string) => ReactNode;
 
 const items = (value: Value): readonly unknown[] => (Array.isArray(value) ? value : [value]);
 const poses = (value: Value) => items(value).map((item) => readPose(item));
-const points: Draw = (value, color) => <Markers poses={poses(value)} color={color} />;
+const points: Draw = (value, color, outline) => <Markers poses={poses(value)} color={color} outline={outline} />;
 
 const field = widgetRoles.field;
 const roles = [
@@ -125,7 +125,7 @@ export function fieldDrawings(
 		layers[drawOrder.indexOf(role.id)]!.push(
 			// Right-clicking a drawing offers to remove its binding, middle-clicking removes it
 			<g key={binding.id} data-binding-id={binding.id}>
-				{role.draw(value, color)}
+				{role.draw(value, color, bindingColor(binding, index, 'outline'))}
 			</g>,
 		);
 		for (const source of binding.sources) {

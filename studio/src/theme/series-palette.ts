@@ -1,3 +1,4 @@
+import { Hct, argbFromHex, hexFromArgb } from '@material/material-color-utilities';
 import type { VisualizationPalette } from '@/theme/choices';
 
 // Fixed light and dark palettes checked under color vision simulation.
@@ -19,11 +20,19 @@ export const seriesPaletteColors = {
 	},
 } satisfies Record<Exclude<VisualizationPalette, 'default'>, Record<'light' | 'dark', readonly string[]>>;
 
+/** Pick a Material 3 tonal palette step at least one 10-tone step away from the fill. */
+export function seriesOutlineVariable(slot: number, color: string): string {
+	const { hue, chroma, tone } = Hct.fromInt(argbFromHex(color));
+	// Go lighter below tone 20 so the outline doesn't collapse to tone 0 (black).
+	const outlineTone = tone < 20 ? 10 * Math.ceil(tone / 10 + 1) : 10 * Math.floor(tone / 10 - 1);
+	return `--series-outline-${slot}:${hexFromArgb(Hct.from(hue, chroma, outlineTone).toInt())};`;
+}
+
 /** Override widget series colors only; Default uses the theme colors defined in index.css. */
 export function seriesPaletteVariables(palette: VisualizationPalette, dark: boolean): string {
 	return palette === 'default'
 		? ''
 		: seriesPaletteColors[palette][dark ? 'dark' : 'light']
-				.map((color, index) => `--series-${index + 1}:${color};`)
+				.map((color, index) => `--series-${index + 1}:${color};${seriesOutlineVariable(index + 1, color)}`)
 				.join('');
 }

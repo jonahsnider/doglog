@@ -136,6 +136,16 @@ export function wpilibCoordinates(version: unknown): FieldCoordinates {
 /** Stroke width of lines on the field in meters, so they zoom with the field like robots do */
 export const strokeWidth = 0.08;
 
+/** Shared 2D and 3D marker proportions. The diameter is in meters; everything else is in dot diameters. */
+export const pointMarker = {
+	diameter: 0.25,
+	outlineWidth: 0.05,
+	shaftRadius: 0.11,
+	shaftLength: 1.36,
+	arrowheadRadius: 0.34,
+	arrowLength: 2.1,
+} as const;
+
 export function toDegrees(radians: number): number {
 	return (radians * 180) / Math.PI;
 }

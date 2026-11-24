@@ -1,13 +1,13 @@
 // SVG shapes for the field widget, drawn in field meters with +Y up
 import { type Pose, readShape } from '@/widgets/field/data';
-import { strokeWidth, toDegrees } from '@/widgets/field/geometry';
+import { pointMarker, strokeWidth, toDegrees } from '@/widgets/field/geometry';
 
 /** Bumper footprint of a typical robot */
 const robotHalf = 0.45;
 /** Drawn a little thicker than real bumpers so they read at small sizes */
 const bumperWidth = 0.1;
-const markerRadius = 0.12;
-const markerHeadingLength = 0.3;
+const { diameter, outlineWidth, shaftRadius, shaftLength, arrowheadRadius, arrowLength } = pointMarker;
+const markerRadius = diameter * (0.5 - outlineWidth);
 
 /**
  * A robot like AdvantageScope draws one: bumpers in the entry's color around a dark body, with a white arrow toward its
@@ -34,26 +34,30 @@ export function Robot({ pose, color, ghost = false }: { pose: Pose; color: strin
 	);
 }
 
-/** Every pose of a markers entry as a dot with a line toward its heading if it has one, drawn as one path each */
-export function Markers({ poses, color }: { poses: Pose[]; color: string }) {
-	const dots = poses
-		.map(
-			({ x, y }) =>
-				`M ${x + markerRadius} ${y} A ${markerRadius} ${markerRadius} 0 1 0 ${x - markerRadius} ${y} A ${markerRadius} ${markerRadius} 0 1 0 ${x + markerRadius} ${y}`,
-		)
-		.join(' ');
-	const headings = poses
-		.map(({ x, y, heading }) =>
-			heading === undefined
-				? ''
-				: `M ${x} ${y} L ${x + Math.cos(heading) * markerHeadingLength} ${y + Math.sin(heading) * markerHeadingLength}`,
-		)
+export function Markers({ poses, color, outline }: { poses: Pose[]; color: string; outline: string }) {
+	const path = poses
+		.map(({ x, y, heading }) => {
+			const dot = `M ${x + markerRadius} ${y} A ${markerRadius} ${markerRadius} 0 1 0 ${x - markerRadius} ${y} A ${markerRadius} ${markerRadius} 0 1 0 ${x + markerRadius} ${y} Z`;
+			if (heading === undefined) {
+				return dot;
+			}
+			const cos = Math.cos(heading) * diameter;
+			const sin = Math.sin(heading) * diameter;
+			const at = (along: number, across: number) =>
+				`${x + along * cos - across * sin} ${y + along * sin + across * cos}`;
+			// Wind both subpaths the same way so the fill covers the overlap, including the stroke at the join.
+			return `${dot} M ${at(0, shaftRadius)} L ${at(shaftLength, shaftRadius)} ${at(shaftLength, arrowheadRadius)} ${at(arrowLength, 0)} ${at(shaftLength, -arrowheadRadius)} ${at(shaftLength, -shaftRadius)} ${at(0, -shaftRadius)} Z`;
+		})
 		.join(' ');
 	return (
-		<>
-			<path d={headings} stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
-			<path d={dots} fill={color} />
-		</>
+		<path
+			d={path}
+			fill={color}
+			stroke={outline}
+			strokeWidth={2 * outlineWidth * diameter}
+			strokeLinejoin="round"
+			paintOrder="stroke"
+		/>
 	);
 }
 

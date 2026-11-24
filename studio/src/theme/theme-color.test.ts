@@ -104,7 +104,7 @@ test('switching presets restores the chosen scheme', () => {
 });
 
 test.each(visualizationPalettes.filter((palette) => palette !== 'default'))(
-	'%s changes only the five series colors, with contrast on light and dark surfaces',
+	'%s changes only the series fills and outlines, with fill contrast on light and dark surfaces',
 	(palette) => {
 		const style = { textContent: '' };
 		vi.stubGlobal('document', { querySelector: () => style });
@@ -113,10 +113,22 @@ test.each(visualizationPalettes.filter((palette) => palette !== 'default'))(
 		applyThemeColor(defaultThemeColor, 'team581', 'standard', palette);
 		const themedCss = style.textContent;
 		const seriesDeclaration = /--series-[1-5]:(#[\da-f]{6});/gu;
+		const outlineDeclaration = /--series-outline-([1-5]):(#[\da-f]{6});/gu;
 		for (const [index, dark] of [false, true].entries()) {
 			const block = themedCss.split('}')[index]!;
 			const colors = Array.from(block.matchAll(seriesDeclaration), ([, color]) => color!);
 			expect(new Set(colors).size).toBe(5);
+			// The first five are the default outlines; the overrides must follow them.
+			const outlines = Array.from(block.matchAll(outlineDeclaration)).slice(5);
+			expect(outlines).toHaveLength(5);
+			for (const [, slot, color] of outlines) {
+				const fillTone = lstarFromArgb(argbFromHex(colors[Number(slot) - 1]!));
+				const outlineTone = lstarFromArgb(argbFromHex(color!));
+				const difference = Math.abs(fillTone - outlineTone);
+				expect(difference).toBeGreaterThan(9.5);
+				expect(difference).toBeLessThan(20.5);
+				expect(outlineTone / 10).toBeCloseTo(Math.round(outlineTone / 10), 1);
+			}
 			for (const preset of themePresets) {
 				const surface = lstarFromArgb(schemeColors(defaultThemeColor, dark, 'standard', preset)('surface'));
 				for (const color of colors) {
@@ -126,12 +138,20 @@ test.each(visualizationPalettes.filter((palette) => palette !== 'default'))(
 		}
 
 		applyThemeColor(defaultThemeColor, 'team581', 'standard', 'default');
-		expect(themedCss.replaceAll(seriesDeclaration, '')).toBe(style.textContent);
+		expect(themedCss.replaceAll(seriesDeclaration, '').replaceAll(outlineDeclaration, '')).toBe(
+			style.textContent.replaceAll(outlineDeclaration, ''),
+		);
 	},
 );
 
 test.each([false, true])('deutan includes a neutral series color instead of another hue (dark: %s)', (dark) => {
 	expect(seriesPaletteVariables('deutan', dark)).toMatch(/--series-[1-5]:#([\da-f]{2})\1\1;/u);
+});
+
+test('the near-black deutan fill uses a lighter tone 20 outline', () => {
+	const outline = seriesPaletteVariables('deutan', false).match(/--series-outline-4:(#[\da-f]{6});/u)?.[1];
+	assert.isDefined(outline);
+	expect(lstarFromArgb(argbFromHex(outline))).toBeCloseTo(20, 0);
 });
 
 test.each(

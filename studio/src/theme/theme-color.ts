@@ -8,7 +8,7 @@ import {
 	hexFromArgb,
 } from '@material/material-color-utilities';
 import { chartCount, type Contrast, type ThemePreset, type VisualizationPalette } from '@/theme/choices';
-import { seriesPaletteVariables } from '@/theme/series-palette';
+import { seriesOutlineVariable, seriesPaletteVariables } from '@/theme/series-palette';
 import { statusColorVariables } from '@/theme/status-color';
 
 /** Team 581 maroon, the hard-coded `--md-*` colors in `index.css` are generated from it */
@@ -180,16 +180,18 @@ export function schemeColors(
 }
 
 /**
- * Generate chart colors for a theme color as `--chart-*` CSS variable declarations.
+ * Generate chart colors and their series outlines for a theme color.
  * They share one HCT tone so every color contrasts equally with the background, only the hue changes.
  */
 export function chartColorVariables(themeColor: string, dark: boolean): string {
 	const { hue } = Hct.fromInt(argbFromHex(themeColor));
-	return Array.from(
-		{ length: chartCount },
-		(_, index) =>
-			`--chart-${index + 1}:${hexFromArgb(Hct.from((hue + (index * 360) / chartCount) % 360, 60, dark ? 72 : 48).toInt())};`,
-	).join('');
+	const colors = Array.from({ length: chartCount }, (_, index) =>
+		hexFromArgb(Hct.from((hue + (index * 360) / chartCount) % 360, 60, dark ? 72 : 48).toInt()),
+	);
+	return (
+		colors.map((color, index) => `--chart-${index + 1}:${color};`).join('') +
+		colors.map((color, index) => seriesOutlineVariable(index + 1, color)).join('')
+	);
 }
 
 /** Generate the preset's MD3 tonal spot scheme (2025 spec) as `--md-*` CSS variable declarations */
