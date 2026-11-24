@@ -312,7 +312,7 @@ On macOS 26 and later, the desktop app SHALL provide a layered app icon that fol
 
 - **GIVEN** the user has installed the desktop app on macOS 26 or later
 - **WHEN** macOS uses the Dark icon and widget style
-- **THEN** the desktop app uses the dark variant of the layered DogLog icon
+- **THEN** the desktop app uses the dark variant of the layered DogLog icon, with a light red trace and cursor that stand out against the dark background
 
 #### Scenario: Installed web app
 

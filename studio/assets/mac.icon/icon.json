@@ -10,6 +10,14 @@
     {
       "layers" : [
         {
+          "fill-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "srgb:0.97647,0.71373,0.69412,1.00000"
+              }
+            }
+          ],
           "glass" : true,
           "hidden" : false,
           "image-name" : "Cursor.svg",
@@ -34,6 +42,14 @@
     {
       "layers" : [
         {
+          "fill-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "srgb:0.97647,0.71373,0.69412,1.00000"
+              }
+            }
+          ],
           "glass" : true,
           "hidden" : false,
           "image-name" : "Trace.svg",
