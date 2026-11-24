@@ -288,7 +288,7 @@ The Field legend row's context menu SHALL offer **Connect to…** next to **Disc
 
 ### Requirement: Connections in the legend
 
-The legend SHALL draw right-angled links to the right of the rows, from handle to handle, in the target's color. Vertically overlapping links MUST use separate lanes, with shorter spans routed first. Disjoint spans MAY share a lane. Hovering a vertical segment MUST highlight its link and fill both handles. Clicking it MUST remove only that link. A row's context menu SHALL offer to disconnect each of its links.
+The legend SHALL draw right-angled links to the right of the rows, over the handles and up to their centers, in the target's color. Links MUST NOT block drags from the handles. Vertically overlapping links MUST use separate lanes, with shorter spans routed first. Disjoint spans MAY share a lane. Hovering a vertical segment MUST highlight its link and fill both handles. Clicking it MUST remove only that link. A row's context menu SHALL offer to disconnect each of its links.
 
 #### Scenario: Separate links from the same robot
 
