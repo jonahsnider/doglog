@@ -22,16 +22,26 @@ context: |
   - Core logic is TypeScript. Rust only where the desktop app needs it (ex. SSH for log sync, the `doglog` CLI).
   - Charts use a temporary library until Base UI charts ship, kept behind the widget contract so it can be swapped.
   - Zod validates all persisted and external data.
-  - Shared dashboards are Loro CRDT documents. Peers are the source of truth; the robot's NT4 server only relays, so
-    sharing works without internet.
+  - Shared dashboards use one Loro CRDT document per dashboard, with an identity independent of robot addresses.
+    For robot-only sharing, peers hold the documents and the robot's NT4 server only relays. A signed-in team
+    member's Studio can relay its Cloud dashboards over NT4 to explicitly linked robots.
+  - Cloud dashboard encryption: Studio generates a random shared team key and derives a separate AES encryption
+    key for each dashboard in that key version. Authenticate and encrypt whole Loro updates and snapshots and
+    bind them to the dashboard and key version. Joining does not rotate the team key. Ending membership or
+    replacing a lost credential does.
+  - Account keys: Each account has a public and private encryption keypair. Cloud can persist the public key and
+    team key copies sealed to verified account public keys. Studio verifies recipient keys independently of Cloud
+    and authenticates grants against team state, binding each grant to its team, recipient, and key version.
+    Pairing transfers the account private key between instances of Studio without exposing it to Cloud.
+  - Cloud trust boundary: Trust the live service to order revocations, key grants, and uploads. Stored data alone
+    cannot authorize a grant. Cloud never holds dashboard decryption keys.
   - Widgets infer how to show entries from entry types, metadata, and names. Widget options override what's inferred
     or pick what can't be; keep them rare so users aren't overloaded.
   - Agent commands live in one Zod registry with no React or DOM imports, so the Rust binary can embed their schemas
     and answer `doglog --help` and MCP `tools/list` without a window. The web app exposes them over WebMCP; desktop
     windows over a per-user local socket that `doglog mcp` relays to. No network listener.
-  - Studio's website is static files. A small Worker in `worker/` runs only for dashboard links (`/import/*`) to give
-    them Open Graph tags; `cloud/`, a Void app at cloud.doglog.dev, draws their preview images and will host the
-    future Cloud backend. Both read the link with Studio's own code from `src/link-previews/`.
+  - Studio's website is static files. Cloud dashboard links replace snapshot URLs and their preview renderer.
+    Previews use public metadata only and do not decode dashboard contents.
   - YouTube only plays embedded videos for pages on a website, so the desktop app's video widget loads
     `public/youtube-player.html` from doglog.studio and controls it with messages.
   - The 3D field model is converted from FIRST's official STEP file each season by a checked-in script, which runs
@@ -53,11 +63,11 @@ context: |
 
   Future needs (not specced yet):
   - Mobile layouts.
-  - Accounts, cloud sync, or usage analytics.
+  - Usage analytics.
   - Writing or editing NT values.
   - Comparing multiple logs at once, and multiple simultaneous data sources.
   - Protobuf-encoded entries.
-  - Managed sync service for dashboards; dashboard import/export.
+  - Dashboard import/export.
   - Playback looping and trimming the playback range.
   - A command palette.
   - Field widget robot trails and per-project robot sizes.
@@ -67,6 +77,10 @@ context: |
   - Log sync from Systemcore, planned for the 2027 release.
 
   Open questions:
+  - Which sign-in library and browser-to-desktop handoff to use, and how to verify the Apple sign-in setup.
+  - How to verify account-key bindings, authenticate device pairing, and store private keys locally.
+  - How the live Cloud service orders revocations, key grants, and uploads.
+  - Which encrypted sync transport, cryptographic primitives and libraries, and storage to use for Cloud dashboards.
   - Whether the sidebar's dashboard list fits every page long term, or pages need their own secondary content.
   - The live NT story for Firefox and Safari users of the web app.
   - Per-project defaults for common entries (ex. the robot pose), possibly declared by robot code or `doglog.jsonc`.

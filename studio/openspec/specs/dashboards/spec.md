@@ -276,7 +276,7 @@ Dropping a pane on the sidebar's dashboards SHALL move it into a new dashboard. 
 
 ### Requirement: Close a dashboard
 
-Closing a dashboard SHALL remove it from the sidebar without asking for confirmation, since it can be reopened. Closing a shared dashboard deletes it for everyone (see the shared-dashboards spec). Like browser tabs, middle-clicking a dashboard in the sidebar SHALL close it.
+Closing a dashboard SHALL remove it from the sidebar without asking for confirmation, since it can be reopened. Closing a shared dashboard requires an active sharing connection and removes it for everyone (see the shared-dashboards spec). Like browser tabs, middle-clicking a dashboard in the sidebar SHALL close it where closing is available.
 
 #### Scenario: Close a dashboard
 
@@ -605,28 +605,28 @@ Dashboards and closed dashboards MUST be shared by every open Studio tab or wind
 
 ### Requirement: Dashboard context menu
 
-Right-clicking a dashboard in the sidebar SHALL open a context menu with Rename, Duplicate, Close dashboard, Close other dashboards, and Close dashboards below. The menu SHALL show Copy link only if at least one pane contains a widget. Copy link, Copy image, and Export video, when available, MUST appear in the same group, separate from other commands. A dashboard selected along with others SHALL show the selection's menu instead.
+Right-clicking a dashboard in the sidebar SHALL open a context menu with Rename, Duplicate, Close dashboard, Close other dashboards, and Close dashboards below. The menu SHALL offer Copy link only for Cloud dashboards. Copy link, Copy image, and Export video, when available, MUST appear in the same group, separate from other commands. A dashboard selected along with others SHALL show the selection's menu instead.
 
 #### Scenario: Close from the context menu
 
 - **WHEN** the user right-clicks a dashboard and chooses Close dashboard
 - **THEN** it is closed the same way as any other dashboard close
 
-### Requirement: Dashboard links
+### Requirement: Cloud dashboard links
 
-Copy link SHALL copy a Studio URL containing a snapshot of the dashboard's saved name, pane layout, widget settings, and bindings by entry name, in its path so link previews can show the dashboard (see `link-previews`). The URL MUST NOT include log data or turn on robot sharing. Opening the link SHALL open an editable local dashboard without requiring confirmation, and MUST NOT leave the link in the browser's history.
+For a Cloud dashboard, Copy link SHALL copy a stable link to the shared dashboard. The link MUST identify the dashboard by its opaque ID and MUST NOT contain dashboard contents or decryption keys. Opening it MUST NOT grant team membership or dashboard access. Studio MUST NOT generate or import dashboard snapshot URLs or publish a local or robot-only dashboard as a side effect of copying a link.
 
-#### Scenario: Open a link to a dashboard already saved locally
+#### Scenario: Open a Cloud dashboard link
 
-- **GIVEN** a local dashboard has the same saved name and layout as the link, including widget settings and bindings
-- **WHEN** the recipient opens the link
-- **THEN** Studio opens the existing dashboard instead of adding a copy, even if its internal IDs differ
+- **GIVEN** a member copies a link to their team's Cloud dashboard
+- **WHEN** a teammate with access opens it
+- **THEN** Studio opens the shared dashboard without creating a local copy
 
-#### Scenario: Open a link after editing the imported dashboard
+#### Scenario: Open a Cloud dashboard link without access
 
-- **GIVEN** the recipient edited the dashboard they imported from a link and no identical local dashboard remains
-- **WHEN** the recipient opens the same link again
-- **THEN** Studio adds the original snapshot as a new local dashboard without changing the edited one
+- **GIVEN** a person is not a member of the team that owns a Cloud dashboard
+- **WHEN** they open its link
+- **THEN** Studio does not open the dashboard, reveal its protected data, or join the team for them
 
 #### Scenario: Open an invalid or unsupported link
 
@@ -635,7 +635,7 @@ Copy link SHALL copy a Studio URL containing a snapshot of the dashboard's saved
 
 ### Requirement: Open dashboard links in the desktop app
 
-The desktop app SHALL register itself as the handler for `doglog://import/<link>` URLs, which open the dashboard the same way as its Studio URL. Opening a dashboard link in a desktop browser SHALL also offer to open it in the desktop app. Browsers that do nothing when no app handles the URL SHALL ask right away. Other browsers show an error to users without the desktop app, so they MUST only ask after the user chooses Open in a toast. Mobile browsers MUST NOT offer it.
+The desktop app SHALL open Cloud dashboard links subject to the same access checks as the web app. Opening a Cloud dashboard link in a desktop browser SHALL also offer to open it in the desktop app. Browsers that do nothing when no app handles the URL SHALL ask right away. Other browsers show an error to users without the desktop app, so they MUST only ask after the user chooses Open in a toast. Mobile browsers MUST NOT offer it.
 
 #### Scenario: Open a link in the browser with the desktop app installed
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define what chat apps and social sites show when someone shares a Studio link, so a shared dashboard link shows which dashboard it opens before anyone clicks it.
+Define what chat apps and social sites show when someone shares a Studio link. Cloud dashboard previews do not reveal dashboard contents.
 
 ## Requirements
 
@@ -17,68 +17,18 @@ Every Studio page SHALL have a link preview with the title "DogLog Studio", a sh
 
 #### Scenario: Share an invalid dashboard link
 
-- **WHEN** someone shares a dashboard link whose snapshot can't be read
+- **WHEN** someone shares an invalid or unsupported dashboard link
 - **THEN** the preview is the generic one
 
-### Requirement: Dashboard link preview
+### Requirement: Cloud dashboard link preview
 
-A dashboard link's preview SHALL show the dashboard's name as its title, or the name Studio suggests from its entries when it has none, with the description "Open this dashboard in DogLog Studio." Its image MUST show Studio's logo and name, the dashboard's name, and a wireframe of its panes in their layout and proportions., each with its widget's icon and title like a pane header.
+A Cloud dashboard link SHALL use one built-in Studio preview image with no option to disable or customize it. The preview text MAY include public team information such as the team name. The preview MUST NOT expose the dashboard name, entry names, layout, widget settings, or bindings.
 
-#### Scenario: Empty pane
+#### Scenario: Paste a Cloud dashboard link into a chat
 
-- **GIVEN** a dashboard with an empty pane
-- **WHEN** someone shares its link
-- **THEN** the image shows that pane blank, without suggesting data the link doesn't have, ex. placeholder graph lines
-
-#### Scenario: Named dashboard
-
-- **GIVEN** a dashboard named "Auto tuning" with a graph beside a field
-- **WHEN** someone shares its link
-- **THEN** the preview's title is "Auto tuning"
-- **AND** its image shows a Graph pane beside a Field pane
-
-#### Scenario: Unnamed dashboard
-
-- **GIVEN** an unnamed dashboard that the sidebar shows as "Drive & Elevator"
-- **WHEN** someone shares its link
-- **THEN** the preview's title is "Drive & Elevator"
-
-#### Scenario: Long names
-
-- **WHEN** a dashboard's name or a pane's entries name doesn't fit on one line
-- **THEN** it wraps onto more lines instead of being cut off
-
-#### Scenario: Narrow pane
-
-- **WHEN** a pane is too narrow for its widget's icon and title
-- **THEN** the pane leaves them out instead of cutting off the title
-
-### Requirement: Pane contents
-
-Each pane in a dashboard link's image SHALL show a name for the entries its widget shows, named the way dashboards are, centered vertically and lined up with its header on the left. Widgets without entries, or with only their type's default entries, MUST show their icon in the pane's middle instead, since their header already describes them.
-
-#### Scenario: Pane contents
-
-- **GIVEN** a graph of `/Robot/Drive/Speed` and `/Robot/Elevator/Height` beside a notepad
-- **WHEN** someone shares the dashboard's link
-- **THEN** the image's Graph pane shows "Drive & Elevator" halfway down, lined up with its header
-- **AND** the Notepad pane shows the notepad icon in its middle
-
-### Requirement: Fitting pane contents
-
-A pane's entries name SHALL shrink to fit below its header without touching it or being cut off. Panes with room MAY show it larger, but MUST NOT wrap it onto more lines to do so. When it doesn't fit even at its smallest size, the pane MUST leave out its header to make room, and show its widget's icon if that's still not enough. Panes too short to show that icon at a recognizable size MUST leave it out.
-
-#### Scenario: Short pane
-
-- **GIVEN** a dashboard with a short pane whose entries' name wraps onto two lines at the usual size
-- **WHEN** someone shares its link
-- **THEN** the image shows the name smaller, below the pane's header and inside the pane
-
-#### Scenario: Large pane
-
-- **GIVEN** a dashboard with a large pane whose entries' name fits on one line at the usual size
-- **WHEN** someone shares its link
-- **THEN** the image shows the name larger, still on one line
+- **GIVEN** a Cloud dashboard named "Auto tuning" has a graph bound to `/Robot/Drive/Speed`
+- **WHEN** a chat app fetches the preview without signing in
+- **THEN** it sees the built-in image, without the dashboard name, entry name, or pane layout
 
 ### Requirement: Preview appearance
 
@@ -92,12 +42,12 @@ Preview images SHALL be 1200 by 630 pixels, in dark mode with the default theme 
 
 ### Requirement: Privacy
 
-Link previews SHALL be made from the link alone. Dashboard links MUST NOT be stored or logged by the servers that make their previews, so a shared dashboard only exists on the devices that open it.
+Link previews SHALL be made from public metadata without decrypting dashboard data. Dashboard links MUST NOT be stored or logged by the servers that make their previews. Opening a Cloud dashboard link MUST NOT publish a dashboard to Cloud or a robot.
 
 #### Scenario: Preview a link
 
 - **WHEN** a chat app fetches a dashboard link's preview
-- **THEN** the preview is made without storing the dashboard anywhere
+- **THEN** the preview is made without decrypting the dashboard or logging the link
 
 ### Requirement: Fresh previews
 
