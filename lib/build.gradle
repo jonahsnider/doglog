@@ -80,7 +80,7 @@ dependencies {
 	implementation "org.wpilib.ntcore:ntcore-java:$wpilibVersion"
 	implementation "org.wpilib.wpimath:wpimath-java:$wpilibVersion"
 
-	compileOnly "us.hebi.quickbuf:quickbuf-runtime:1.4"
+	compileOnly "us.hebi.quickbuf:quickbuf-runtime:1.5"
 	compileOnly "com.google.errorprone:error_prone_annotations:2.50.0"
 
 	errorprone "com.google.errorprone:error_prone_core:2.50.0"
