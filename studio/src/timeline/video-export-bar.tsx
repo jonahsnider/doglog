@@ -11,6 +11,7 @@ import { TooltipLabel } from '@/components/tooltip-label';
 import { useTimeRange } from '@/data/data-store';
 import { cancelSaving, exitVideoExport, exportVideo, setVideoRangeEdge, useVideoExport } from '@/desktop/video-export';
 import { isEnterKey } from '@/lib/keyboard';
+import { formatDuration } from '@/timeline/format-time';
 import { formatTime, togglePlayback, useVideoRange, useTimeline } from '@/timeline/timeline';
 import { parseTime } from '@/timeline/parse-time';
 import { ThemedProgressTrack } from '@/timeline/themed-progress-track';
@@ -106,7 +107,7 @@ export function VideoExportBar() {
 					<VideoRangeField key={`start-${startText}`} label="Start" edge="start" text={startText} start={range.start} />
 					<VideoRangeField key={`end-${endText}`} label="End" edge="end" text={endText} start={range.start} />
 					<span className="font-mono text-sm text-muted-foreground tabular-nums">
-						{formatTime(videoRange.end, videoRange.start)} long
+						{formatDuration(videoRange.end - videoRange.start)} long
 					</span>
 					<Tooltip>
 						<TooltipTrigger

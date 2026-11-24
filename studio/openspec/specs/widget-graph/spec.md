@@ -172,7 +172,7 @@ Hovering the graph SHALL show a tooltip diagonally off the pointer, toward the m
 
 ### Requirement: Time offset from the cursor
 
-The hovered graph SHALL draw a bracket between the global cursor and the hover line with the signed time offset in seconds. The bracket MUST only appear when both marks are visible and separate, and MUST be hidden when a drag measurement is shown. The tooltip MUST NOT repeat the offset.
+The hovered graph SHALL draw a bracket between the global cursor and the hover line with the signed time offset. The bracket MUST only appear when both marks are visible and separate, and MUST be hidden when a drag measurement is shown. The tooltip MUST NOT repeat the offset. Both the offset and drag measurement duration SHALL display seconds below a minute and minutes and seconds once rounded to a minute or more.
 
 #### Scenario: Compare a hovered time with the cursor
 

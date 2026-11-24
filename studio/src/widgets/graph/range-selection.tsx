@@ -1,8 +1,9 @@
 import { useSyncExternalStore } from 'react';
 import { type Entry, subscribeData, type TimeRange } from '@/data/data-store';
 import { EntryName } from '@/entries/entry-name';
+import { formatDuration } from '@/timeline/format-time';
 import type { SeriesUnit } from '@/widgets/graph/axis-units';
-import { changeAcross, formatDuration } from '@/widgets/graph/format';
+import { changeAcross } from '@/widgets/graph/format';
 import { useViewRange } from '@/widgets/graph/view';
 import { bindingColor } from '@/widgets/series-color';
 import type { WidgetBinding } from '@/widgets/widget-type';

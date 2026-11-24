@@ -117,7 +117,7 @@ The open dashboard's sidebar menu SHALL offer Export video… when it contains a
 
 ### Requirement: Set a video's range in video export mode
 
-The user SHALL be able to set a video's start and end on the timeline with draggable handles or typed timestamps. The range MUST be within the available history and at least 1 second long, unless the available history is shorter.
+The user SHALL be able to set a video's start and end on the timeline with draggable handles or typed timestamps. The range MUST be within the available history and at least 1 second long, unless the available history is shorter. The clip length SHALL display seconds below a minute and minutes and seconds once rounded to a minute or more.
 
 #### Scenario: Trim a video without a graph
 

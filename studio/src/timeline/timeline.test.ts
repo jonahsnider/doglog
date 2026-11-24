@@ -1,8 +1,19 @@
 import { afterEach, expect, test, vi } from 'vite-plus/test';
 import { DataSet } from '@/data/data-set';
 import { setActiveData } from '@/data/data-store';
+import { formatDuration } from './format-time';
 import { registerPlaybackVideo } from './playback-clock';
 import { getTimeline, resetTimeline, seek, setSpeed, setVideoRange, togglePlayback } from './timeline';
+
+test.each([
+	[42_000, '0.042 s'],
+	[1_500_000, '1.50 s'],
+	[59_994_000, '59.99 s'],
+	[59_995_000, '1:00.00'],
+	[65_250_000, '1:05.25'],
+])('formats %i microseconds as %s', (duration, label) => {
+	expect(formatDuration(duration)).toBe(label);
+});
 
 afterEach(() => {
 	setActiveData(undefined);

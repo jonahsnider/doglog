@@ -4,10 +4,10 @@ import type uPlot from 'uplot';
 import { type Entry, getGaps, getTimeRange, subscribeData } from '@/data/data-store';
 import type { Size } from '@/hooks/use-size';
 import { settingsStore } from '@/settings';
+import { formatDuration } from '@/timeline/format-time';
 import { getCursorTime, subscribeTimeline } from '@/timeline/timeline';
 import { drawBands, placeGaps } from '@/widgets/graph/bands';
 import type { BandPalette, ColorAssignments } from '@/widgets/graph/colors';
-import { formatDuration } from '@/widgets/graph/format';
 import {
 	createPlot,
 	drawPlot,

@@ -7,6 +7,15 @@ export function formatTime(time: number, start: number): string {
 	return `${minutes}:${seconds}`;
 }
 
+/** Format a duration (µs) as seconds below a minute, ex. `1.50 s`, or as clock time, ex. `1:05.25` */
+export function formatDuration(duration: number): string {
+	if (Math.round(duration / 10_000) >= 6000) {
+		return formatTime(duration, 0);
+	}
+	const seconds = duration / 1_000_000;
+	return `${seconds.toFixed(seconds < 0.1 ? 3 : 2)} s`;
+}
+
 /** Format a rough duration (µs) as minutes and whole seconds, ex. `3:49` */
 export function formatRoughDuration(duration: number): string {
 	const seconds = Math.round(duration / 1_000_000);
