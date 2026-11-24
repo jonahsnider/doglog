@@ -188,7 +188,7 @@ export function DashboardItem({
 	const pathname = useLocation({ select: (location) => location.pathname });
 	const active = present && pathname === `/dashboards/${dashboard.id}`;
 	const [renaming, setRenaming] = useState(false);
-	const copy = useDashboardCopyItems(dashboard, router);
+	const copy = useDashboardCopyItems(dashboard, router, active);
 	const { setItem, handleRef, isDragSource } = useDashboardSortable(dashboard, sectionIndex, renaming, present);
 	// Closed while the dashboard is dragged, since the trigger moves with the pointer and the preview would follow it
 	const [previewOpen, setPreviewOpen] = useState(false);

@@ -15,12 +15,6 @@ type Point = { x: number; y: number };
 export type FrameCrop = Point & { width: number; height: number };
 
 const minSide = 16;
-const arrows: Record<string, Point | undefined> = {
-	ArrowLeft: { x: -1, y: 0 },
-	ArrowRight: { x: 1, y: 0 },
-	ArrowUp: { x: 0, y: -1 },
-	ArrowDown: { x: 0, y: 1 },
-};
 
 function bounds(a: Point, b: Point): FrameCrop {
 	return {
@@ -45,25 +39,21 @@ export function CameraMatchCrop({
 }) {
 	const { width, height } = frame;
 	const hint = useId();
-	const preview = useRef<HTMLButtonElement>(null);
 	const pointerStart = useRef<Point>(undefined);
 	const [draft, setDraft] = useState<FrameCrop>();
 	const [crop, setCrop] = useState<FrameCrop>();
 	const [corner, setCorner] = useState<Point>();
-	const [cursor, setCursor] = useState<Point>();
-	const marker = cursor ?? corner;
 	const drawPreview = useCallback(
 		(canvas: HTMLCanvasElement | null) => {
 			canvas?.getContext('2d')?.drawImage(frame, 0, 0);
 		},
 		[frame],
 	);
-	const shown = draft ?? (corner && cursor ? bounds(corner, cursor) : crop);
+	const shown = draft ?? crop;
 	const selected = crop && !draft && !corner && crop.width >= minSide && crop.height >= minSide ? crop : undefined;
-	const center = { x: Math.round(width / 2), y: Math.round(height / 2) };
 	const xPercent = (x: number) => `${(100 * x) / width}%`;
 	const yPercent = (y: number) => `${(100 * y) / height}%`;
-	const pointAt = (event: PointerEvent<HTMLButtonElement>): Point => {
+	const pointAt = (event: PointerEvent<HTMLDivElement>): Point => {
 		const rect = event.currentTarget.getBoundingClientRect();
 		return {
 			x: clampPixel(((event.clientX - rect.left) / rect.width) * width, width),
@@ -89,24 +79,19 @@ export function CameraMatchCrop({
 				}
 			}}
 		>
-			<DialogPopup className="max-w-4xl" initialFocus={preview}>
+			<DialogPopup className="max-w-4xl">
 				<DialogHeader>
 					<DialogTitle>Crop to one camera view</DialogTitle>
 					<DialogDescription>Only tags in the cropped area are used.</DialogDescription>
 				</DialogHeader>
 				<DialogPanel>
-					<button
-						ref={preview}
-						type="button"
-						aria-label="Select crop on video frame"
-						aria-describedby={hint}
-						className="relative mx-auto block touch-none cursor-crosshair overflow-hidden rounded-md outline-none select-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+					<div
+						className="relative mx-auto touch-none cursor-crosshair overflow-hidden rounded-md select-none"
 						style={{ width: `min(100%, ${((width / height) * 58).toString()}dvh)` }}
 						onPointerDown={(event) => {
 							if (event.isPrimary && event.button === 0) {
 								event.currentTarget.setPointerCapture(event.pointerId);
 								pointerStart.current = pointAt(event);
-								setCursor(undefined);
 							}
 						}}
 						onPointerMove={(event) => {
@@ -133,29 +118,14 @@ export function CameraMatchCrop({
 								setDraft(undefined);
 							}
 						}}
-						onKeyDown={(event) => {
-							const step = arrows[event.key];
-							if (step) {
-								event.preventDefault();
-								const scale = event.shiftKey ? 0.1 : 0.01;
-								setCursor(({ x, y } = center) => ({
-									x: clampPixel(x + step.x * Math.max(1, Math.round(width * scale)), width),
-									y: clampPixel(y + step.y * Math.max(1, Math.round(height * scale)), height),
-								}));
-							}
-						}}
-						onClick={(event) => {
-							if (event.detail === 0) {
-								const point = cursor ?? center;
-								setCursor(point);
-								pickCorner(point);
-							}
-						}}
 					>
 						<canvas
 							ref={drawPreview}
 							width={width}
 							height={height}
+							role="img"
+							aria-label="Video frame to crop"
+							aria-describedby={hint}
 							className="pointer-events-none block h-auto w-full"
 						/>
 						{shown && (
@@ -169,16 +139,16 @@ export function CameraMatchCrop({
 								}}
 							/>
 						)}
-						{marker && (
+						{corner && (
 							<span
 								className="pointer-events-none absolute size-3 -translate-1/2 rounded-full border-2 border-white bg-black"
-								style={{ left: xPercent(marker.x), top: yPercent(marker.y) }}
+								style={{ left: xPercent(corner.x), top: yPercent(corner.y) }}
 							/>
 						)}
-					</button>
-					<span id={hint} className="sr-only">
-						Use arrow keys to move and Enter to pick a corner.
-					</span>
+					</div>
+					<p id={hint} className="mt-2 text-center text-muted-foreground text-sm">
+						Drag a box or select two opposite corners.
+					</p>
 					<span className="sr-only" role="status">
 						{selected ? 'Crop selected.' : corner ? 'Pick the opposite corner.' : ''}
 					</span>

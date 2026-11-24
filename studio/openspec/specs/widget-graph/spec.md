@@ -102,6 +102,21 @@ The graph SHALL show a legend at the top, with left axis entries on the left and
 - **GIVEN** the graph only shows boolean entries
 - **THEN** it shows their bands and the time axis without a plot
 
+### Requirement: Graph controls in the empty state
+
+The graph's **No entries** message SHALL show a short guide to seeking, measuring, panning, and zooming below the instructions for adding entries, without requiring the user to open it. The guide MUST NOT appear in the pane menu or when the graph has any bound entries, even if the current source has no data for them.
+
+#### Scenario: Learn the controls before adding an entry
+
+- **GIVEN** a graph with no bound entries
+- **THEN** the **No entries** message shows how to seek, measure a range, pan, and zoom without any interaction
+
+#### Scenario: Add the first entry
+
+- **GIVEN** a graph showing the **No entries** message
+- **WHEN** the user adds an entry
+- **THEN** the guide is no longer shown
+
 ### Requirement: Fade hidden lines
 
 Hiding or showing a plotted entry SHALL fade its line out or in, instantly when the system is set to reduce motion. A hidden line MUST stay in place while it fades out, and its axis MUST only ease to fit the other lines once it has.
@@ -266,7 +281,7 @@ Each y-axis SHALL fit the data in view, but MUST NOT span less than 5% of its en
 #### Scenario: Reset view
 
 - **GIVEN** the user zoomed a graph's time and y-axes
-- **WHEN** the user picks Reset view from the graph's context menu
+- **WHEN** the user picks **Reset view** next to **Change widget** in the graph's pane menu or context menu
 - **THEN** the y-axes fit the data in view again
 - **AND** all graphs show the whole log, or the newest 30 seconds of a live source
 

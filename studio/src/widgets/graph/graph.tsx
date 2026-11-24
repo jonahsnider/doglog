@@ -82,17 +82,18 @@ export function Graph({ bindings }: WidgetProps) {
 	// The timeline bar marks the time graphs show
 	useGraphShown();
 	const graph = useGraphDrawing(elements, series, bandEntries, palette, assignments, plotTop);
-	useWidgetMenu(() => [
-		'separator',
-		{
-			label: 'Reset view',
-			onSelect: () => {
-				graph.current.setManual('y');
-				graph.current.setManual('y2');
-				resetView();
+	useWidgetMenu(() => ({
+		actions: [
+			{
+				label: 'Reset view',
+				onSelect: () => {
+					graph.current.setManual('y');
+					graph.current.setManual('y2');
+					resetView();
+				},
 			},
-		},
-	]);
+		],
+	}));
 	const body = useRef<HTMLDivElement>(null!);
 	const { bandHover, pointerAt, selection, pinned, handlers } = useGraphPointer(
 		body,

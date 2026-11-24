@@ -60,6 +60,16 @@ The shared "No entries" state SHALL have an Add entries button that opens the en
 - **GIVEN** a notepad
 - **THEN** its pane header has no Edit entries button
 
+### Requirement: Group widget commands in the pane menu
+
+The pane actions and context menus SHALL put commands for the widget as a whole next to **Change widget**. Commands that depend on the right-clicked binding or scene position MUST stay with the contextual commands.
+
+#### Scenario: Reset a graph from the pane menu
+
+- **GIVEN** a graph showing data
+- **WHEN** the user opens its pane actions menu
+- **THEN** **Reset view** is directly below **Change widget**, without a separator between them
+
 ### Requirement: Edit entries from the context menu
 
 A widget's context menu SHALL offer Edit entries and to remove a bound entry. Right-clicking the part of a widget that shows an entry, such as a table row, MUST offer to remove that entry directly; elsewhere, bound entries MUST be listed as checkboxes in an "Entries" submenu, with their role when it's shown in the legend. Middle-clicking the part of a widget that shows an entry SHALL remove it, and only that binding of an entry bound more than once.
@@ -128,6 +138,18 @@ The part of a widget that shows an entry, such as a table row or swerve legend i
 
 - **WHEN** the user drags a table row and drops it outside any widget
 - **THEN** the table is unchanged
+
+### Requirement: Move a binding from its context menu
+
+A binding's context menu SHALL offer **Move to…** with other widgets on the current dashboard that can bind the entry. It MUST omit the submenu when no destination qualifies and distinguish widgets with the same title. Picking a destination MUST append the binding there and remove it from the original widget, with the same effect as dropping it on the destination widget. Dragging MUST still work.
+
+#### Scenario: Move a binding without dragging
+
+- **GIVEN** a graph shows `/Intake/HasPiece` and the dashboard has a table and a video widget
+- **WHEN** the user opens **Move to…** from the graph binding's context menu
+- **THEN** the menu lists the table, but not the graph or the video widget
+- **WHEN** the user selects the table
+- **THEN** the binding is appended to the table and removed from the graph
 
 ### Requirement: Roles
 
@@ -226,6 +248,17 @@ Bindings SHALL be colored automatically by default. Right-clicking a binding's s
 - **WHEN** the user right-clicks the swatch next to `/Vision/EstimatedPose` and picks a green color
 - **THEN** `/Vision/EstimatedPose` and its swatch are green
 - **AND** `/Drive/Pose` keeps its color
+
+### Requirement: Pick a color from the binding context menu
+
+A binding with a color picker on its swatch SHALL also offer a **Color** submenu in its context menu. The submenu MUST offer the same **Auto** and chart color choices and indicate the current selection. Picking a color through either route MUST update the same saved setting without changing the binding's visibility. Bindings without a color picker MUST NOT show this submenu.
+
+#### Scenario: Restore the automatic color from the row
+
+- **GIVEN** a binding whose color was set from its swatch picker
+- **WHEN** the user right-clicks its legend name and chooses **Color** > **Auto**
+- **THEN** the binding returns to its automatic color
+- **AND** the swatch picker also shows **Auto** selected
 
 ### Requirement: Follow the cursor
 

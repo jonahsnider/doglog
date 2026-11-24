@@ -100,7 +100,7 @@ export function MatchFieldMenu({ player }: { player: RefObject<Player | null> })
 		const disabled = cancel.current !== undefined;
 		const [only, other] = fields;
 		if (!only) {
-			return [];
+			return {};
 		}
 		const item = (label: string, cropped: boolean) =>
 			other
@@ -112,14 +112,15 @@ export function MatchFieldMenu({ player }: { player: RefObject<Player | null> })
 						})),
 					}
 				: { label, onSelect: () => capture(only.id, cropped) };
-		return [
-			'separator',
-			{
-				label: 'Match field view to this frame',
-				disabled,
-				items: [item('Use full frame', false), item('Crop frame…', true)],
-			},
-		];
+		return {
+			actions: [
+				{
+					label: 'Match field view to this frame',
+					disabled,
+					items: [item('Use full frame', false), item('Crop frame…', true)],
+				},
+			],
+		};
 	});
 
 	if (selection) {

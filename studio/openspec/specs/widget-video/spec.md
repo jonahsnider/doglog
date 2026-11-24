@@ -207,3 +207,13 @@ For a local video, the context menu SHALL offer a "Match field view to this fram
 
 - **WHEN** the tags in the frame do not give a reliable pose
 - **THEN** the field keeps its view and the video suggests trying another frame
+
+### Requirement: Crop frame controls
+
+The crop dialog SHALL show visible instructions below the preview: "Drag a box or select two opposite corners." Users MUST be able to drag a rectangle or click or tap two opposite corners. The preview MUST NOT provide an arrow-key cursor or keyboard commands to place crop corners.
+
+#### Scenario: Crop by selecting corners
+
+- **GIVEN** the crop preview is open
+- **WHEN** the user taps two opposite corners far enough apart to form a valid crop
+- **THEN** the preview shows the crop between those corners and enables "Match field view"

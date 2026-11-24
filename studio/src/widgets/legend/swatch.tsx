@@ -79,6 +79,7 @@ export function LegendSwatch({ item }: { item: LegendItem }) {
 				className="-m-[6px] flex h-6 shrink-0 cursor-pointer items-center rounded-full p-[6px] outline-none focus-visible:ring-2 focus-visible:ring-ring"
 				aria-label={`${binding.hidden ? 'Show' : 'Hide'} ${binding.name}`}
 				aria-pressed={!binding.hidden}
+				data-binding-color={item.icon === undefined ? '' : undefined}
 				// Clicking doesn't focus it, so Space plays or pauses instead of toggling it again
 				onMouseDown={(event) => event.preventDefault()}
 				onClick={() => widget?.toggleHidden(binding.id)}

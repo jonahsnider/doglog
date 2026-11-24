@@ -1,4 +1,3 @@
-import { detectPlatform } from '@tanstack/react-hotkeys';
 import type { RegisteredRouter } from '@tanstack/react-router';
 import { useSyncExternalStore } from 'react';
 import type { MenuAction } from '@/components/app-context-menu';
@@ -11,10 +10,13 @@ import { canCapture, copyDashboardImage } from '@/desktop/capture';
 import { canExportVideo, startVideoExport } from '@/desktop/video-export';
 
 /** The copy and export section of a dashboard's sidebar menu, with a leading separator when present */
-export function useDashboardCopyItems(dashboard: Dashboard, router: RegisteredRouter): (MenuAction | 'separator')[] {
+export function useDashboardCopyItems(
+	dashboard: Dashboard,
+	router: RegisteredRouter,
+	active: boolean,
+): (MenuAction | 'separator')[] {
 	const source = useSource();
-	const open = router.state.location.pathname === `/dashboards/${dashboard.id}`;
-	const canExport = useSyncExternalStore(subscribeData, () => open && canExportVideo(dashboard, source));
+	const canExport = useSyncExternalStore(subscribeData, () => active && canExportVideo(dashboard, source));
 	if (!canCopyDashboardLink(dashboard)) {
 		return [];
 	}
@@ -23,9 +25,11 @@ export function useDashboardCopyItems(dashboard: Dashboard, router: RegisteredRo
 		{ label: 'Copy link', shortcut: shortcuts.copyDashboardLink, onSelect: () => void copyDashboardLink(dashboard) },
 	];
 	if (STUDIO_DESKTOP && canCapture) {
-		const onSelect = () => void copyDashboardImage(router, dashboard.id);
-		const showShortcut = detectPlatform() === 'mac' || open;
-		items.push({ label: 'Copy image', onSelect, ...(showShortcut && { shortcut: shortcuts.copyDashboardImage }) });
+		items.push({
+			label: 'Copy image',
+			onSelect: () => void copyDashboardImage(router, dashboard.id),
+			...(active && { shortcut: shortcuts.copyDashboardImage }),
+		});
 	}
 	if (canExport) {
 		items.push({

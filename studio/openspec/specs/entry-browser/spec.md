@@ -575,3 +575,31 @@ Right-clicking an entry SHALL open a context menu with Add to dashboard, Copy na
 
 - **WHEN** the user right-clicks a bindable entry and chooses Add to dashboard
 - **THEN** it is added the same way as double-clicking it
+
+### Requirement: Add an entry to a specific widget
+
+The entry row's menu SHALL offer **Add to widget…** alongside **Add to dashboard**. The submenu SHALL list existing widgets on the current dashboard that can bind the entry, distinguishing widgets with the same title, and MUST be omitted when none qualify. Selecting a widget MUST bind the entry there as if dropped on the widget, without creating a pane or changing other widgets.
+
+#### Scenario: Choose a destination for an entry
+
+- **GIVEN** the dashboard has a graph, a table, and a video widget
+- **WHEN** the user opens **Add to widget…** for the numeric entry `/Arm/Angle`
+- **THEN** the graph and table are listed, but the video widget is not
+- **WHEN** the user selects the table
+- **THEN** `/Arm/Angle` is added to the table without changing the graph
+
+### Requirement: Entry row actions button
+
+The row's `…` button SHALL open the same actions as the context menu. On devices that support hover, it SHALL show while the row is hovered, focused, or its menu is open. On devices without hover, it SHALL always show. The button SHALL NOT add a tab stop to the tree.
+
+#### Scenario: Open actions while editing
+
+- **GIVEN** the entry browser is editing a widget's entries
+- **WHEN** the user clicks the `…` button on an unchecked entry or collapsed group
+- **THEN** the row's actions open without changing its checked or expanded state
+
+#### Scenario: Open actions with the keyboard
+
+- **WHEN** the user presses Shift+F10 or the Menu key on a focused row
+- **THEN** the row's actions open
+- **AND** dismissing the menu with Escape returns focus to that row

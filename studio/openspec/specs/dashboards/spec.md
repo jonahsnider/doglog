@@ -298,7 +298,7 @@ Closing a dashboard SHALL remove it from the sidebar without asking for confirma
 
 ### Requirement: Close several dashboards
 
-Like browser tabs, a dashboard's menus SHALL offer to close every other dashboard, or every dashboard below it in the sidebar. Each option MUST be disabled when there's nothing for it to close. Hovering the Dashboards label in the sidebar SHALL reveal a button to close every dashboard in that section, hidden when there are none. It MUST leave shared dashboards open, and it MUST keep the open dashboard until it's the last one left in the section, so a second click closes it too.
+Like browser tabs, a dashboard's menus SHALL offer to close every other dashboard, or every dashboard below it in the sidebar. Each option MUST be disabled when there's nothing for it to close. **Close all** in the Dashboards section menu MUST leave shared dashboards open and keep the open dashboard until it's the last one left in the section, so choosing it again closes that dashboard too.
 
 #### Scenario: Close other dashboards
 
@@ -315,7 +315,7 @@ Like browser tabs, a dashboard's menus SHALL offer to close every other dashboar
 #### Scenario: Close all dashboards
 
 - **GIVEN** a dashboard in the Dashboards section is open
-- **WHEN** the user hovers the Dashboards label in the expanded sidebar and chooses Close all
+- **WHEN** the user opens the Dashboards section menu and chooses Close all
 - **THEN** every other dashboard in the section is closed together
 - **AND** shared dashboards stay open
 - **WHEN** the user chooses Close all again
@@ -619,6 +619,16 @@ Right-clicking a dashboard in the sidebar SHALL open a context menu with Rename,
 - **WHEN** the user right-clicks a dashboard and chooses Close dashboard
 - **THEN** it is closed the same way as any other dashboard close
 
+### Requirement: Dashboards section menu
+
+Right-clicking the Dashboards heading or blank space in the dashboard list SHALL open a section menu. The heading's `…` button MUST open the same menu, replacing the standalone **Close all** button. The menu SHALL group **New dashboard** and **Reopen closed dashboard** first, then the sidebar toggle, and **Close all** last. Reopen and Close all MUST be disabled when there's nothing to reopen or close. Right-clicking a dashboard MUST still open its own menu.
+
+#### Scenario: Reopen the last closed dashboard from an empty list
+
+- **GIVEN** the user closed the last dashboard
+- **WHEN** the user opens the Dashboards heading's `…` menu and chooses **Reopen closed dashboard**
+- **THEN** the closed dashboard reopens without requiring a shortcut
+
 ### Requirement: Cloud dashboard links
 
 For a Cloud dashboard, Copy link SHALL copy a stable link to the shared dashboard. The link MUST identify the dashboard by its opaque ID and MUST NOT contain dashboard contents or decryption keys. Opening it MUST NOT grant team membership or dashboard access. Studio MUST NOT generate or import dashboard snapshot URLs or publish a local or robot-only dashboard as a side effect of copying a link.
@@ -691,7 +701,13 @@ A pane's header buttons, like Edit entries, split, and close, SHALL always be sh
 
 ### Requirement: Pane context menu
 
-Right-clicking a pane SHALL open a context menu with Split right, Split down, Zoom pane (Restore pane while zoomed), Change widget (Add widget in an empty pane), Edit entries, and Close.
+Right-clicking a pane SHALL open a context menu with Split right, Split down, Zoom pane (Restore pane while zoomed), Change widget (Add widget in an empty pane), Edit entries, and Close. The pane header's `…` button SHALL offer the same pane-wide actions, including actions supplied by its widget. Actions that depend on a specific binding remain in that binding's context menu or row controls.
+
+#### Scenario: Change widget from the pane header
+
+- **GIVEN** a pane shows a console
+- **WHEN** the user opens the `…` button and chooses Change widget, then Graph
+- **THEN** the pane shows a graph without requiring a right-click
 
 #### Scenario: Split from the context menu
 

@@ -79,6 +79,23 @@ In 2D, scrolling or pinching over the mechanism SHALL zoom in and out around the
 - **WHEN** the user double-clicks it
 - **THEN** the whole canvas is shown again
 
+### Requirement: Robot controls reference
+
+An unbound 3D Robot SHALL show a controls reference above its bottom controls. It MUST use the same [labels, input variants, and layout rules](../widget-field/spec.md#requirement-field-controls-reference) and [timing](../widget-field/spec.md#requirement-field-controls-reference-timing) as Field. It MUST NOT show in 2D, with any bound entries, or during capture.
+
+#### Scenario: Learn the default 3D view
+
+- **WHEN** the user creates a robot widget without binding any entries
+- **THEN** the quick reference explains the 3D controls above the bottom controls
+- **WHEN** the user starts orbiting the robot
+- **THEN** the reference fades out, without blocking the drag
+
+#### Scenario: Switch to 2D
+
+- **WHEN** the user switches the Robot widget to 2D
+- **THEN** it does not show the navigation reference, even in the empty state
+- **AND** the 2D/3D toggle stays available
+
 ### Requirement: 3D scene
 
 In 3D, the robot widget SHALL draw the robot at the origin, in WPILib's robot coordinates: the origin is the robot's center on the floor, +X points forward, +Y left, and +Z up. Distances in robot configs, poses, and mechanisms MUST be in meters. The scene SHALL show a 2.4 m grid on the floor, labeled "+X front" and "+Y left", over the pane's background, and its colors MUST follow the theme.

@@ -1,13 +1,16 @@
 import { useParams, useRouter } from '@tanstack/react-router';
+import { useSelector } from '@tanstack/react-store';
 import PlusIcon from 'lucide-react/icons/plus';
 import { AnimatePresence, domAnimation, LazyMotion } from 'motion/react';
 import { TextMorph } from 'torph/react';
-import { type MouseEvent, type ReactNode, useRef } from 'react';
-import { SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { type ComponentProps, type MouseEvent, type SyntheticEvent, useRef } from 'react';
+import { AppActionMenu, AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
+import { Button } from '@/components/ui/button';
+import { SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { DropPlaceholder } from '@/sidebar/drop-placeholder';
-import { newDashboard, shortcuts } from '@/commands/commands';
-import { type Dashboard, deleteDashboards, useDashboards } from '@/dashboards/dashboards';
+import { newDashboard, reopenDashboard, shortcuts } from '@/commands/commands';
+import { closedStore, type Dashboard, deleteDashboards, useDashboards } from '@/dashboards/dashboards';
 import { DashboardItem } from '@/sidebar/dashboard-item';
 import { useDragging, useNewDashboardDrop } from '@/sidebar/drag';
 import { type DashboardSelection, useDashboardSelection } from '@/sidebar/selection';
@@ -17,34 +20,76 @@ import { useSettings } from '@/settings';
 import { useRecentlyConnected, useSharingHost } from '@/sharing/sharing';
 import { type LiveSource, useSources } from '@/data/source';
 
-function isEmptySpace(event: MouseEvent): boolean {
-	return event.target instanceof Element && !event.target.closest('[data-sidebar="menu-item"]');
+function isEmptySpace(target: EventTarget): boolean {
+	return target instanceof Element && !target.closest('[data-sidebar="menu-item"]');
+}
+
+function stopPropagation(event: SyntheticEvent): void {
+	event.stopPropagation();
+}
+
+function preserveRowMenu(event: SyntheticEvent<HTMLElement>): void {
+	// Rows normally handle their own menu. When renaming, also keep the section trigger from replacing the browser's menu.
+	if (
+		!(event.target instanceof Element) ||
+		!event.currentTarget.contains(event.target) ||
+		!isEmptySpace(event.target)
+	) {
+		event.stopPropagation();
+	}
 }
 
 export function SidebarDashboards() {
 	const router = useRouter();
 	const dashboards = useDashboards();
 	const selection = useDashboardSelection(dashboards);
+	const { dashboardId } = useParams({ strict: false });
+	const { open, isMobile, toggleSidebar } = useSidebar();
+	const canReopen = useSelector(closedStore, (groups) => groups.length > 0);
+	const local = dashboards.filter((dashboard) => !dashboard.shared);
+	const others = local.filter((dashboard) => dashboard.id !== dashboardId);
+	const menuItems: MenuEntry[] = [
+		{ label: 'New dashboard', shortcut: shortcuts.newDashboard, onSelect: () => newDashboard(router) },
+		{
+			label: 'Reopen closed dashboard',
+			shortcut: shortcuts.reopenDashboard,
+			disabled: !canReopen,
+			onSelect: () => reopenDashboard(router),
+		},
+		'separator',
+		{
+			label: isMobile ? 'Hide sidebar' : open ? 'Collapse sidebar' : 'Expand sidebar',
+			shortcut: shortcuts.toggleSidebar,
+			onSelect: toggleSidebar,
+		},
+		'separator',
+		{
+			label: 'Close all',
+			disabled: local.length === 0,
+			// Keep the open dashboard until it's the last one left, so a second selection closes it too.
+			onSelect: () => deleteDashboards((others.length > 0 ? others : local).map((dashboard) => dashboard.id)),
+		},
+	];
 	const props: SectionProps = {
 		dashboards,
 		selection,
 		onClick: (event) => {
-			if (isEmptySpace(event)) {
+			if (isEmptySpace(event.target)) {
 				selection.clear();
 			}
 		},
 		onDoubleClick: (event) => {
-			if (isEmptySpace(event)) {
+			if (isEmptySpace(event.target)) {
 				newDashboard(router, 'bottom');
 			}
 		},
 	};
 	return (
-		<>
+		<AppContextMenu items={menuItems} render={<div className="flex flex-1 flex-col gap-2" />}>
 			{/* Dragged dashboards and panes are dropped by `DragProvider` */}
-			<LocalDashboards {...props} />
+			<LocalDashboards {...props} menuItems={menuItems} />
 			<SharedDashboards {...props} />
-		</>
+		</AppContextMenu>
 	);
 }
 
@@ -102,9 +147,9 @@ function sharingStatus(
 }
 
 /** A muted label starting a section. The collapsed sidebar hides its text but keeps its space, so nothing moves. */
-function SectionLabel({ label, children }: { label: string; children?: ReactNode }) {
+function SectionLabel({ label, children, ...props }: Omit<ComponentProps<'div'>, 'className'> & { label: string }) {
 	return (
-		<div className="group/label my-1 flex h-8 items-center px-2 text-xs text-muted-foreground">
+		<div className="group/label my-1 flex h-8 items-center px-2 text-xs text-muted-foreground" {...props}>
 			<span
 				className="me-2 font-heading text-sm font-medium group-data-[collapsible=icon]:hidden"
 				data-sidebar-label=""
@@ -133,8 +178,10 @@ function SharedDashboards(props: SectionProps) {
 			className="-mt-2 flex-1 pt-0"
 			onClick={props.onClick}
 			onDoubleClick={props.onDoubleClick}
+			onContextMenu={preserveRowMenu}
+			onTouchStart={preserveRowMenu}
 		>
-			<SectionLabel label="Shared">
+			<SectionLabel label="Shared" onContextMenu={stopPropagation} onTouchStart={stopPropagation}>
 				{/* `TextMorph` doesn't animate to or from no text, so the status grows out of nothing. Only "Disconnected" is ever hidden. */}
 				{/* It's remounted when shown, so it doesn't morph from the hidden "Disconnected", and numbers are off so addresses aren't morphed like decimals */}
 				<span
@@ -165,27 +212,35 @@ function SharedDashboards(props: SectionProps) {
 	);
 }
 
-function LocalDashboards(props: SectionProps) {
+function LocalDashboards(props: SectionProps & { menuItems: readonly MenuEntry[] }) {
 	const router = useRouter();
 	const { ref, listRef, items } = useSectionItems(props, false);
 	const dragging = useDragging();
-	const { dashboardId } = useParams({ strict: false });
-	const local = props.dashboards.filter((dashboard) => !dashboard.shared);
-	const others = local.filter((dashboard) => dashboard.id !== dashboardId);
 
 	return (
-		<SidebarGroup ref={ref} className="pb-0" onClick={props.onClick} onDoubleClick={props.onDoubleClick}>
+		<SidebarGroup
+			ref={ref}
+			className="pb-0"
+			onClick={props.onClick}
+			onDoubleClick={props.onDoubleClick}
+			onContextMenu={preserveRowMenu}
+			onTouchStart={preserveRowMenu}
+		>
 			<SectionLabel label="Dashboards">
-				{local.length > 0 && (
-					<button
-						type="button"
-						className="-me-1.5 ms-auto rounded-md px-1.5 whitespace-nowrap text-muted-foreground opacity-0 outline-hidden ring-sidebar-ring group-hover/label:opacity-100 group-data-[collapsible=icon]:hidden hover:text-sidebar-foreground focus-visible:opacity-100 focus-visible:ring-2"
-						// Keeps the open dashboard until it's the last one left, so a second click closes it too
-						onClick={() => deleteDashboards((others.length > 0 ? others : local).map((dashboard) => dashboard.id))}
-					>
-						Close all
-					</button>
-				)}
+				<AppActionMenu
+					items={() => props.menuItems}
+					label="Dashboard section actions"
+					button={
+						<Button
+							variant="ghost"
+							size="icon-xs"
+							aria-label="Dashboard section actions"
+							className="ms-auto text-muted-foreground [@media(hover:hover)]:opacity-0 group-focus-within/label:opacity-100 group-hover/label:opacity-100 group-data-[collapsible=icon]:hidden data-popup-open:opacity-100"
+							onClick={stopPropagation}
+							onDoubleClick={stopPropagation}
+						/>
+					}
+				/>
 			</SectionLabel>
 			{/* Tooltips and previews would open on the dashboards the pointer passes over */}
 			<SidebarMenu ref={listRef} className={cn(dragging && 'pointer-events-none')}>

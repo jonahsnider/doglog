@@ -28,7 +28,7 @@ export function RobotPicker({ binding, robot }: { binding: WidgetBinding; robot:
 		<Menu>
 			<MenuTrigger
 				className="-mx-1 flex min-w-0 shrink-0 cursor-pointer items-center gap-0.5 rounded-sm px-1 text-muted-foreground outline-none hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring data-popup-open:bg-accent data-popup-open:text-accent-foreground"
-				aria-label={`Draw ${binding.name} as`}
+				aria-label={`Show ${binding.name} as`}
 			>
 				<span className="truncate">
 					{choices.find((choice) => choice.id === robot)?.label ?? robot}
@@ -38,7 +38,7 @@ export function RobotPicker({ binding, robot }: { binding: WidgetBinding; robot:
 			</MenuTrigger>
 			<MenuPopup align="end">
 				<MenuGroup>
-					<MenuGroupLabel>Draw as</MenuGroupLabel>
+					<MenuGroupLabel>Show as</MenuGroupLabel>
 					<MenuRadioGroup
 						value={binding.role?.id ?? null}
 						onValueChange={(role: string) => widget?.setRole(binding.id, role)}

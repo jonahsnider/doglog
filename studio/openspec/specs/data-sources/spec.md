@@ -46,7 +46,13 @@ Each window SHALL have at most one open log and one live session, and MUST show 
 
 ### Requirement: Source control
 
-The source control at the top of the sidebar SHALL show the shown source and its state, and MUST offer actions to open a log and to connect. While a log is shown, it MUST also show the live session's connection state with a status dot.
+The source control at the top of the sidebar SHALL show the shown source and its state, and MUST offer actions to open a log and to connect. While a log is shown, it MUST also show the live session's connection state with a status dot. If a log is open, users MUST be able to close it from the source control without affecting the live session, if any.
+
+#### Scenario: Close the only log
+
+- **GIVEN** a log is open without a live session
+- **WHEN** the user chooses Close log from the source control's dropdown or context menu
+- **THEN** the log closes and the source control shows No data source
 
 #### Scenario: Log source shown
 

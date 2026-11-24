@@ -51,7 +51,7 @@ A dashboard's sidebar menu SHALL offer Copy image when it contains a widget. A w
 
 ### Requirement: Copy a dashboard image with the keyboard
 
-With no dashboard menu open, ⌘C (Ctrl+C on Windows) SHALL copy the open dashboard's image when it contains a widget, unless a text field is focused, text is selected, or a widget handles the shortcut. On macOS, ⌘C in a dashboard menu SHALL select that menu's Copy image action when present.
+⌘C (Ctrl+C on Windows) SHALL copy the active dashboard's image when it contains a widget, unless a text field is focused, text is selected, or a widget handles the shortcut. Opening another dashboard's sidebar menu MUST NOT retarget the shortcut. Only the active dashboard's sidebar menu SHALL show the shortcut hint next to Copy image.
 
 #### Scenario: Copy the dashboard image with the keyboard
 
@@ -59,11 +59,12 @@ With no dashboard menu open, ⌘C (Ctrl+C on Windows) SHALL copy the open dashbo
 - **WHEN** the user presses the copy shortcut with no selected text, focused text field, or widget handling the shortcut
 - **THEN** the clipboard receives the same image as choosing Copy image in the dashboard's sidebar menu
 
-#### Scenario: Copy another dashboard from its open menu on macOS
+#### Scenario: Compare Copy image hints in the sidebar menus
 
-- **GIVEN** the user opens the sidebar menu for another dashboard that contains a widget on macOS
-- **WHEN** the user presses ⌘C
-- **THEN** Studio opens and copies the dashboard whose menu was open, rather than the dashboard that was previously open
+- **GIVEN** two dashboards contain widgets on a platform with capture support
+- **WHEN** the user opens the sidebar menu for each dashboard in turn without switching dashboards
+- **THEN** both menus offer Copy image
+- **AND** only the active dashboard's menu shows the copy shortcut hint
 
 #### Scenario: Copy a text selection
 

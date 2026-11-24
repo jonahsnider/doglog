@@ -14,6 +14,7 @@ import { type ConnectTarget, findConnectTarget, isSourceTarget } from '@/data/co
 import { canExportLive, exportLive, exportLiveShortcut } from '@/data/export-live';
 import {
 	closeLive,
+	closeLog,
 	disconnect,
 	type LiveSource,
 	showSource,
@@ -182,6 +183,8 @@ function ActionItem({ action }: { action: MenuAction }) {
 	);
 }
 
+const closeLogAction: MenuAction = { label: 'Close log', onSelect: closeLog };
+
 export function SourceControl() {
 	const sources = useSources();
 	// Re-render when the log's entries load, so its match is read
@@ -211,6 +214,7 @@ export function SourceControl() {
 			: []),
 		{ label: 'Open log', shortcut: shortcuts.openLog, onSelect: chooseLog },
 		{ label: 'Open from URL…', shortcut: shortcuts.openLogUrl, onSelect: openLogUrlPrompt },
+		...(log ? [closeLogAction] : []),
 		'separator',
 		...exportActions(live).flatMap((action): MenuEntry[] => [action, 'separator']),
 		...liveActions(sources, connectTarget, true),
@@ -242,6 +246,7 @@ export function SourceControl() {
 						<MenuShortcut>{formatForDisplay(shortcuts.openLogUrl)}</MenuShortcut>
 					</MenuItem>
 					{(STUDIO_DESKTOP || supportsFileHandles) && <OpenRecentMenu />}
+					{log && !live && <ActionItem action={closeLogAction} />}
 					<MenuSeparator />
 					{exportActions(live).map((action) => (
 						<Fragment key={action.label}>

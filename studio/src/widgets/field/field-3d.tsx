@@ -1,11 +1,11 @@
 // The field widget in 3D, see `@/three/field-scene`
-import { useHotkey } from '@tanstack/react-hotkeys';
 import HouseIcon from 'lucide-react/icons/house';
 import XIcon from 'lucide-react/icons/x';
-import { type DOMAttributes, type RefObject, Suspense, useCallback, useMemo, useRef, useState } from 'react';
+import { Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useDataVersion } from '@/data/data-store';
 import { cn } from '@/lib/utils';
+import { useWidgetMenu } from '@/panes/widget-menu';
 import { FieldDrawings, type FieldDrawingProps, type RobotDrawing } from '@/three/field-drawings';
 import { FieldImageFloor, FieldModel, FloorPointer, type FloorProjection, FloorSketch } from '@/three/field-scene';
 import { useRobotProjects } from '@/three/robot-projects';
@@ -14,19 +14,21 @@ import { useCursorTime } from '@/timeline/timeline';
 import { setCameraMatch, useCameraMatch } from '@/widgets/field/camera-match';
 import { type FieldCoordinates, type FieldPoint, fieldLength, fieldWidth, toBlueWall } from '@/widgets/field/geometry';
 import { fieldLegendItems } from '@/widgets/field/legend-items';
-import { usePencil } from '@/widgets/field/pencil';
 import { CursorPosition, hiddenWhileIdle, ToolButtons } from '@/widgets/field/readout';
 import { useCopyPosition } from '@/widgets/field/copy-position';
 import { fieldRobot, isRobotBinding, missingRobotNotes } from '@/widgets/field/robots';
 import { useRobotFollow } from '@/widgets/field/robot-follow';
 import { attachedRoles } from '@/widgets/field/roles';
 import { useFieldCameras } from '@/widgets/field/use-field-cameras';
+import { useFloorPencil } from '@/widgets/field/use-floor-pencil';
 import { widgetOptions } from '@/widgets/widget-info';
 import { FollowContext } from '@/widgets/legend/follow-context';
 import { Legend } from '@/widgets/legend/legend';
 import { mechanismPlane } from '@/widgets/robot/roles';
+import { SceneControls } from '@/widgets/scene-controls';
 import { bindingColor } from '@/widgets/series-color';
 import { useMechanisms } from '@/widgets/use-mechanisms';
+import { useSceneControls } from '@/widgets/use-scene-controls';
 import { ViewToggle } from '@/widgets/view-toggle';
 import type { WidgetBinding, WidgetProps } from '@/widgets/widget-type';
 
@@ -42,65 +44,12 @@ const defaultFov = Number(widgetOptions.field.fov.default);
 
 const isAttached = (binding: WidgetBinding) => binding.role !== undefined && attachedRoles.has(binding.role.id);
 
-function useFloorPencil(
-	projectFloor: RefObject<FloorProjection | null>,
-	onMove: (point: FieldPoint | undefined) => void,
-) {
-	const [hovered, setHovered] = useState(false);
-	const [active, setActive] = useState(false);
-	const pencil = usePencil();
-	const toggle = () => {
-		setActive(!active);
-		pencil.clear();
-	};
-	const whileHovered = { enabled: hovered, conflictBehavior: 'allow' } as const;
-	useHotkey('P', toggle, whileHovered);
-	useHotkey('Escape', toggle, { ...whileHovered, enabled: hovered && active });
-
-	const handlers: DOMAttributes<HTMLDivElement> = {
-		onPointerEnter: () => setHovered(true),
-		onPointerLeave: () => {
-			setHovered(false);
-			onMove(undefined);
-		},
-		onPointerDownCapture: (event) => {
-			if (active && event.button === 0) {
-				// Take the drag before the scene's camera controls can start orbiting.
-				event.stopPropagation();
-				pencil.start(event, projectFloor.current?.()(event));
-			}
-		},
-		onDoubleClickCapture: (event) => {
-			if (active) {
-				event.stopPropagation();
-			}
-		},
-		onPointerMove: (event) => {
-			if (pencil.isDrawing(event)) {
-				const pointAt = projectFloor.current?.();
-				if (pointAt) {
-					const point = pointAt(event);
-					pencil.move(event, pointAt, point);
-					onMove(point);
-				}
-			}
-		},
-		onPointerUp: (event) => {
-			if (pencil.isDrawing(event)) {
-				pencil.finish(event, projectFloor.current?.()(event));
-			}
-		},
-		onPointerCancel: pencil.cancel,
-		onLostPointerCapture: pencil.cancel,
-	};
-	return { tool: active ? ('pencil' as const) : undefined, points: pencil.points, toggle, handlers };
-}
-
 export function Field3d({ bindings, options, setOption, paneId, layout }: WidgetProps) {
 	const time = useCursorTime();
 	// Values at the cursor change as samples arrive
 	useDataVersion();
 	const scene = useRef<Scene3dHandle>(null);
+	const sceneElement = useRef<HTMLDivElement>(null);
 	const field = useMemo(
 		() => ({
 			length: fieldLength,
@@ -115,12 +64,16 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 	const projects = useRobotProjects();
 	const cameraMatch = useCameraMatch(paneId);
 	const exitCameraMatch = () => setCameraMatch(paneId, undefined);
+	const cameraMatched = cameraMatch !== undefined;
+	const [ResetIcon, resetLabel] = cameraMatched ? [XIcon, 'Exit camera match'] : [HouseIcon, 'Reset view'];
+	const showControls = bindings.length === 0 && !cameraMatched;
+	const controls = useSceneControls(showControls);
 
 	/** The robot under the pointer, so its binding can be removed by middle-clicking it or from the context menu */
 	const [pointed, setPointed] = useState<string>();
 	const [pointer, setPointer] = useState<FieldPoint>();
 	const [overField, setOverField] = useState(false);
-	const copied = useCopyPosition(pointer, overField);
+	const { copied, copyMenuItems } = useCopyPosition(pointer, overField);
 	const movePointer = useCallback(
 		(point: FieldPoint | undefined) => {
 			// The last position stays shown while it fades out
@@ -132,7 +85,7 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 		[coordinates],
 	);
 	const projectFloor = useRef<FloorProjection>(null);
-	const pencil = useFloorPencil(projectFloor, movePointer);
+	const pencil = useFloorPencil(projectFloor, movePointer, controls.handlers.onPointerDownCapture);
 
 	const valueOf = (binding: WidgetBinding) =>
 		binding.hidden || binding.entry === undefined || time === undefined
@@ -172,7 +125,17 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 		following,
 		label: followLabel,
 		stopFollowing,
-	} = useRobotFollow(scene, bindings, valueOf, coordinates, cameraMatch !== undefined, time);
+		followMenuItems,
+	} = useRobotFollow(scene, bindings, valueOf, coordinates, cameraMatched, time);
+	useWidgetMenu((binding, target, point) => ({
+		contextual: [
+			...copyMenuItems(sceneElement.current, target, point, (origin) => {
+				const position = projectFloor.current?.()(origin);
+				return position && toBlueWall(position, coordinates);
+			}),
+			...followMenuItems(binding),
+		],
+	}));
 	const { legend, cameraImages } = useFieldCameras({
 		items: fieldLegendItems(bindings, { view: '3d', time, mechanisms, notes, followed: followedInLegend }),
 		paneId,
@@ -212,8 +175,10 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 					data-binding-id={pointed}
 				>
 					<div
+						ref={sceneElement}
 						className="size-full data-[tool=pencil]:cursor-crosshair"
 						data-tool={pencil.tool}
+						{...controls.handlers}
 						{...pencil.handlers}
 						style={
 							cameraMatch && {
@@ -243,14 +208,16 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 							<FloorPointer ref={projectFloor} onMove={movePointer} />
 						</Scene3d>
 					</div>
-					{legend.length > 0 && (
-						// Over the scene's top-left corner, so the scene fills the widget
-						<div className="absolute top-1.5 left-1.5 max-h-1/2 w-fit max-w-1/2 overflow-y-auto rounded-md bg-background px-1.5">
-							<FollowContext value={followControls}>
-								<Legend items={legend} vertical />
-							</FollowContext>
-						</div>
-					)}
+					<div className="pointer-events-none absolute inset-0 flex flex-col">
+						{legend.length > 0 && (
+							<div className="pointer-events-auto mt-1.5 ms-1.5 max-h-1/2 w-fit max-w-1/2 shrink-0 overflow-y-auto rounded-md bg-background px-1.5">
+								<FollowContext value={followControls}>
+									<Legend items={legend} vertical />
+								</FollowContext>
+							</div>
+						)}
+						<SceneControls view="3d" visible={controls.visible} disabled={!showControls} />
+					</div>
 					{followLabel !== undefined && (
 						<div className="absolute top-1.5 right-1.5 flex max-w-1/2 items-center gap-1 rounded-md bg-background ps-1.5 text-xs capture:invisible">
 							<span className="truncate">{followLabel}</span>
@@ -270,12 +237,13 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 								size="xs"
 								className="h-5 sm:h-5"
 								onClick={() => {
+									controls.input();
 									stopFollowing();
 									scene.current?.reset();
 								}}
 							>
-								{cameraMatch ? <XIcon /> : <HouseIcon />}
-								{cameraMatch ? 'Exit camera match' : 'Reset view'}
+								<ResetIcon />
+								{resetLabel}
 							</Button>
 							<ViewToggle compact view="3d" onChange={(view) => setOption('view', view)} />
 						</div>

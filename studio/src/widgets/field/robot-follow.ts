@@ -4,7 +4,6 @@ import { Vector3 } from 'three';
 import type { MenuEntry } from '@/components/app-context-menu';
 import { getEntry } from '@/data/data-store';
 import type { Value } from '@/data/samples';
-import { useWidgetMenu } from '@/panes/widget-menu';
 import { bindingLabel } from '@/widgets/bindings';
 import {
 	type DriverStation,
@@ -70,7 +69,7 @@ export function useRobotFollow(
 		scene.current?.follow(x === undefined ? undefined : new Vector3(x, y, z), from && driverEye(from));
 	}, [scene, lastFollowed, follow, from, x, y, z]);
 
-	useWidgetMenu((binding): MenuEntry[] => {
+	const followMenuItems = (binding: WidgetBinding | undefined): MenuEntry[] => {
 		// Hidden robots can't be followed
 		if (cameraMatched || !binding || binding.hidden || !isRobotBinding(binding)) {
 			return [];
@@ -96,7 +95,7 @@ export function useRobotFollow(
 				],
 			},
 		];
-	});
+	};
 	/** For the legend's follow pickers, see `FollowContext` */
 	const controls: FollowControls = {
 		follow: (id, station) => setFollow({ id, ...(station && { from: station }) }),
@@ -105,7 +104,7 @@ export function useRobotFollow(
 	};
 	if (followed === undefined) {
 		// Robots can't be followed while the camera is matched to video
-		return { controls, legend: cameraMatched ? undefined : null, stopFollowing };
+		return { controls, legend: cameraMatched ? undefined : null, stopFollowing, followMenuItems };
 	}
 	return {
 		controls,
@@ -115,5 +114,6 @@ export function useRobotFollow(
 		/** Names what the camera follows, for the widget to show */
 		label: `Following ${bindingLabel(followed)}${from ? ` from ${driverStationLabel(from)}` : ''}`,
 		stopFollowing,
+		followMenuItems,
 	};
 }

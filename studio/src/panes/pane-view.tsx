@@ -1,14 +1,21 @@
 import XIcon from 'lucide-react/icons/x';
 import { useMemo, useState } from 'react';
 import { AddWidgetPrompt } from '@/panes/add-widget-prompt';
-import { AppContextMenu, type MenuCheckbox, type MenuEntry } from '@/components/app-context-menu';
+import {
+	AppActionMenu,
+	AppContextMenu,
+	type MenuCheckbox,
+	type MenuEntry,
+	type MenuPoint,
+} from '@/components/app-context-menu';
+import { Button } from '@/components/ui/button';
 import { WidgetButtons } from '@/panes/widget-buttons';
 import { PaneButton } from '@/panes/pane-button';
 import { PaneTitle } from '@/panes/pane-title';
 import { PaneLayoutButtons } from '@/panes/pane-layout-buttons';
 import { splitMenuItems } from '@/panes/split-menu';
 import { PaneDropIndicator } from '@/panes/pane-drop-indicator';
-import { Toolbar } from '@/components/ui/toolbar';
+import { Toolbar, ToolbarButton } from '@/components/ui/toolbar';
 import { WidgetView } from '@/panes/widget-view';
 import { shortcuts } from '@/commands/commands';
 import { allowedActions, closeDashboardPane, splitDashboardPane, toggleZoom, updateLayout } from '@/dashboards/panes';
@@ -21,24 +28,23 @@ import { getEntry, useEntries } from '@/data/data-store';
 import {
 	bindingLabel,
 	changeWidgetType,
-	disconnectBindings,
 	createWidget,
 	type Binding,
 	removeBinding,
 	resolveBindings,
 	restoreBinding,
-	setBindingRole,
 	widgetBindings,
 } from '@/widgets/bindings';
 import { useMobileLayout } from '@/lib/mobile-layout';
 import { cn } from '@/lib/utils';
 import { usePaneDrag } from '@/panes/drag';
+import { bindingMenuItems } from '@/panes/binding-menu';
 import { widgetMenuItems } from '@/panes/widget-menu';
 import { type Pane, type PaneNode, setPaneWidget, type SplitDirection } from '@/panes/layout';
 import { getWidgetType, widgetTypes } from '@/widgets/registry';
 import { PanePresence } from '@/sharing/presence-avatars';
 import { initialOptions, optionValues } from '@/widgets/options';
-import { bindsEntries, type WidgetBinding, type WidgetType, widgetTitle } from '@/widgets/widget-type';
+import { bindsEntries, type WidgetType, widgetTitle } from '@/widgets/widget-type';
 
 export type PaneNodeProps = {
 	dashboardId: string;
@@ -73,17 +79,16 @@ export function PaneView({
 		const byName = new Map(entries.map((entry) => [entry.name, entry]));
 		return type ? resolveBindings(type, widgetBindings(widget), (name) => byName.get(name)) : [];
 	}, [entries, type, widget]);
-	/** The bindings when the context menu opened, so the ones removed from it stay listed and can be restored */
+	/** The bindings when either menu opened, so the ones removed from it stay listed and can be restored */
 	const [menuBindings, setMenuBindings] = useState<Binding[]>();
+	const onMenuOpenChange = (open: boolean) => setMenuBindings(open ? widgetBindings(widget) : undefined);
 	const mobile = useMobileLayout();
 	const options = useMemo(
 		() => (type ? optionValues(type, widget, bindings, mobile) : {}),
 		[type, widget, bindings, mobile],
 	);
 	const { dragRef, isDragging, dropRef, isDropTarget } = usePaneDrag(dashboardId, pane, allowed.move);
-	// Video export mode keeps the layout it previews, widgets stay usable
 	const exporting = useVideoExport() !== undefined;
-
 	const setWidget = (newType: WidgetType) =>
 		update((layout) =>
 			setPaneWidget(layout, pane.id, createWidget(newType, undefined, initialOptions(newType, layout))),
@@ -95,58 +100,21 @@ export function PaneView({
 	const focused = pane.id === focusedPaneId;
 	const zoomed = pane.id === zoomedPaneId;
 	const zoom = () => toggleZoom(dashboardId, pane.id);
-
 	const editing = useEditingPane(dashboardId, pane.id);
 	const focus = (target: EventTarget) => {
 		focusPane(dashboardId, pane.id);
 		focusEditingPane(dashboardId, pane.id, type !== undefined && bindsEntries(type), target);
 	};
-
 	const remove = (bindingId: string) => update((layout) => removeBinding(layout, pane.id, bindingId));
 
-	/** Disconnects the binding from the others it's connected to either way, ex. a robot from the tags it sees */
-	const disconnectItems = (binding: WidgetBinding | undefined): MenuEntry[] => {
-		const connections =
-			binding === undefined
-				? []
-				: bindings.flatMap((target) =>
-						target.sources
-							.filter((source) => source.id === binding.id || target.id === binding.id)
-							.map((source) => ({ source, target })),
-					);
-		return connections.length === 0
-			? []
-			: [
-					{
-						label: 'Disconnect',
-						items: connections.map(({ source, target }) => ({
-							label: `${bindingLabel(source)} → ${bindingLabel(target)}`,
-							onSelect: () => update((layout) => disconnectBindings(layout, pane.id, source.id, target.id)),
-						})),
-					},
-				];
-	};
-
-	/** Picks what the binding is drawn as, ex. on a graph's right axis */
-	const roleItems = (binding: WidgetBinding | undefined): MenuEntry[] =>
-		binding === undefined || binding.roles.length < 2
-			? []
-			: [
-					'separator',
-					...binding.roles.map((role): MenuCheckbox => ({
-						label: role.label,
-						checked: role.id === binding.role?.id,
-						onCheckedChange: () => update((layout) => setBindingRole(layout, pane.id, binding.id, role.id)),
-					})),
-				];
-
-	const menuItems = (target: Element): MenuEntry[] => {
+	const menuItems = (target: Element, point?: MenuPoint): MenuEntry[] => {
 		const targetId = bindingIdAt(target);
 		const targetBinding = bindings.find((binding) => binding.id === targetId);
-		const captureTarget = canCapture && widget !== undefined ? target.closest('[data-pane-id]') : null;
+		const captureTarget = STUDIO_DESKTOP && canCapture && widget ? target.closest('[data-pane-id]') : null;
 		const listed = menuBindings ?? widgetBindings(widget);
 		const listedLabels = type ? resolveBindings(type, listed, getEntry).map((binding) => bindingLabel(binding)) : [];
 		const boundIds = new Set(bindings.map((binding) => binding.id));
+		const { actions = [], contextual = [] } = widgetMenuItems(pane.id, targetBinding, target, point);
 		return [
 			...splitMenuItems(allowed, split),
 			{
@@ -166,6 +134,7 @@ export function PaneView({
 					onSelect: () => (widget === undefined ? setWidget(other) : changeWidget(other)),
 				})),
 			},
+			...actions,
 			{
 				label: 'Edit entries',
 				shortcut: shortcuts.editEntries,
@@ -184,12 +153,9 @@ export function PaneView({
 						})),
 					}
 				: { label: `Remove ${bindingLabel(targetBinding)}`, onSelect: () => remove(targetBinding.id) },
-			...disconnectItems(targetBinding),
-			...roleItems(targetBinding),
-			...widgetMenuItems(pane.id, targetBinding),
-			...(STUDIO_DESKTOP && captureTarget
-				? [{ label: 'Copy image', onSelect: () => void copyImage(captureTarget) }]
-				: []),
+			...(targetBinding ? bindingMenuItems(dashboardId, pane, bindings, targetBinding, target) : []),
+			...contextual,
+			...(captureTarget ? [{ label: 'Copy image', onSelect: () => void copyImage(captureTarget) }] : []),
 			'separator',
 			{ label: 'Close', shortcut: shortcuts.close, disabled: !closable, onSelect: close },
 		];
@@ -199,7 +165,7 @@ export function PaneView({
 		<AppContextMenu
 			items={menuItems}
 			disabled={exporting}
-			onOpenChange={(open) => setMenuBindings(open ? widgetBindings(widget) : undefined)}
+			onOpenChange={onMenuOpenChange}
 			render={
 				<div
 					ref={dropRef}
@@ -274,6 +240,14 @@ export function PaneView({
 						onSplit={split}
 						onZoom={zoom}
 					/>
+					{!exporting && (
+						<AppActionMenu
+							items={menuItems}
+							label="Pane actions"
+							onOpenChange={onMenuOpenChange}
+							button={<ToolbarButton render={<Button variant="ghost" size="icon-xs" />} aria-label="Pane actions" />}
+						/>
+					)}
 					{closable && (
 						<PaneButton label="Close pane" shortcut={shortcuts.close} onClick={close}>
 							<XIcon />

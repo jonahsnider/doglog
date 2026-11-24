@@ -58,6 +58,11 @@ async function saveProjects(projects: readonly RobotProject[]): Promise<void> {
 	await loadProjects();
 }
 
+/** Projects already loaded by the 3D widget, read when its legend menu opens. */
+export function getRobotProjects(): readonly RobotProject[] {
+	return projectsStore.get() ?? [];
+}
+
 /** The projects the user added, `undefined` while they load */
 export function useRobotProjects(): readonly RobotProject[] | undefined {
 	useEffect(startLoading, []);

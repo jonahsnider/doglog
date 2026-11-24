@@ -108,6 +108,7 @@ function LegendList({ items, vertical = false, dropRole, roles = true, className
 	const legend = (
 		<ul
 			ref={list}
+			data-binding-legend
 			className={cn('flex text-sm', vertical ? 'min-w-0 flex-1 flex-col' : 'flex-wrap gap-x-3 gap-y-1', className)}
 		>
 			{items.map((item) => (
@@ -218,6 +219,7 @@ function LegendEntry({
 			style={vertical ? { height: rowHeight } : undefined}
 			// Right-clicking the item offers to remove its binding, middle-clicking removes it
 			data-binding-id={binding.id}
+			data-robot-model={item.robot}
 		>
 			<LegendSwatch item={item} />
 			{/* Dragged by the name to reorder it, so its handle can be dragged to connect it */}

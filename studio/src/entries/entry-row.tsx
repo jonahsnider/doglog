@@ -1,8 +1,9 @@
 import { useDraggable, useDroppable } from '@dnd-kit/react';
 import { TreeItem, TreeItemIndicator, TreeItemLabel } from '@ui-sdk/react/tree';
 import ChevronRightIcon from 'lucide-react/icons/chevron-right';
-import { memo, use, useCallback } from 'react';
-import { AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
+import { memo, use, useCallback, useRef } from 'react';
+import { AppActionMenu, AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
+import { Button } from '@/components/ui/button';
 import { EntryName } from '@/entries/entry-name';
 import { SectionHeaderLabel } from '@/entries/section-header-label';
 import { HighlightedText } from '@/components/highlighted-text';
@@ -79,10 +80,13 @@ export const EntryRowView = memo(function EntryRowView({
 		disabled: section === 'active',
 		data: { section },
 	});
+	const rowElement = useRef<HTMLElement>(null);
+	const actionsButton = useRef<HTMLButtonElement>(null);
 	const ref = useCallback(
 		(element: Element | null) => {
 			dragRef(element);
 			dropRef(element);
+			rowElement.current = element instanceof HTMLElement ? element : null;
 		},
 		[dragRef, dropRef],
 	);
@@ -102,7 +106,10 @@ export const EntryRowView = memo(function EntryRowView({
 		);
 	}
 
-	const menuItems = (): MenuEntry[] => [...entryMenuItems(entry, add), ...sectionMenuItems(node.value, section)];
+	const menuItems = (): MenuEntry[] => [
+		...entryMenuItems(dashboardId, entry, field, add),
+		...sectionMenuItems(node.value, section),
+	];
 
 	return (
 		<AppContextMenu
@@ -115,6 +122,16 @@ export const EntryRowView = memo(function EntryRowView({
 					ref={ref}
 					className={cn(className, 'group/entry-row cursor-grab active:cursor-grabbing')}
 					style={style}
+					aria-keyshortcuts="Shift+F10"
+					onKeyDown={(event) => {
+						if (
+							event.target === event.currentTarget &&
+							(event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10'))
+						) {
+							event.preventDefault();
+							actionsButton.current?.click();
+						}
+					}}
 					onDoubleClick={editing ? undefined : add}
 				/>
 			}
@@ -131,6 +148,26 @@ export const EntryRowView = memo(function EntryRowView({
 			</TreeItemLabel>
 			{node.children && <GroupMark path={node.value} tooltip={markTooltip} />}
 			{entry && <EntryRowValue entry={entry} field={field} tooltip={markTooltip} />}
+			<AppActionMenu
+				items={menuItems}
+				label="Entry actions"
+				shortcut="Shift+F10"
+				finalFocus={rowElement}
+				button={
+					<Button
+						ref={actionsButton}
+						variant="ghost"
+						size="icon-xs"
+						aria-label={`Actions for ${node.value}`}
+						className="-me-1.5 shrink-0 [@media(hover:hover)]:opacity-0 group-focus-within/entry-row:opacity-100 group-hover/entry-row:opacity-100 data-popup-open:opacity-100"
+						// The tree stays one tab stop; Shift+F10 opens the menu from the focused row.
+						tabIndex={-1}
+						onPointerDown={(event) => event.stopPropagation()}
+						onClick={(event) => event.stopPropagation()}
+						onDoubleClick={(event) => event.stopPropagation()}
+					/>
+				}
+			/>
 		</AppContextMenu>
 	);
 });

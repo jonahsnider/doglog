@@ -1,12 +1,10 @@
 import { useHotkey } from '@tanstack/react-hotkeys';
 import { lazy, type PointerEvent, Suspense, useEffect, useId, useRef, useState } from 'react';
-import { useResizeObserver } from 'usehooks-ts';
 import { type Entry, useDataVersion } from '@/data/data-store';
 import { cn } from '@/lib/utils';
 import { useCursorTime } from '@/timeline/timeline';
 import { setCameraMatch } from '@/widgets/field/camera-match';
 import {
-	type FieldBox,
 	type FieldCoordinates,
 	type FieldPoint,
 	type Measurement,
@@ -23,11 +21,14 @@ import { MeasurementDrawing, PencilDrawing } from '@/widgets/field/measure';
 import { fieldLegendItems } from '@/widgets/field/legend-items';
 import { type FieldTool, usePencil } from '@/widgets/field/pencil';
 import { CursorPosition, hiddenWhileIdle, ToolButtons } from '@/widgets/field/readout';
-import { useCopyPosition } from '@/widgets/field/copy-position';
+import { useCopyPosition2d } from '@/widgets/field/copy-position';
 import { fieldDrawings } from '@/widgets/field/roles';
+import { useFieldBox } from '@/widgets/field/use-field-box';
 import { useFieldZoom } from '@/widgets/field/zoom';
 import { Legend } from '@/widgets/legend/legend';
+import { SceneControls } from '@/widgets/scene-controls';
 import { useMechanisms } from '@/widgets/use-mechanisms';
+import { useSceneControls } from '@/widgets/use-scene-controls';
 import { ViewToggle } from '@/widgets/view-toggle';
 import type { WidgetProps } from '@/widgets/widget-type';
 
@@ -63,18 +64,7 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 	// Values at the cursor change as samples arrive
 	useDataVersion();
 
-	const boxRef = useRef<HTMLDivElement>(null!);
-	const legendRef = useRef<HTMLDivElement>(null!);
-	const [box, setBox] = useState<FieldBox>({ width: 0, height: 0, legendWidth: 0, legendHeight: 0 });
-	const measure = () =>
-		setBox({
-			width: boxRef.current.clientWidth,
-			height: boxRef.current.clientHeight,
-			legendWidth: legendRef.current.offsetWidth,
-			legendHeight: legendRef.current.offsetHeight,
-		});
-	useResizeObserver({ ref: boxRef, onResize: measure });
-	useResizeObserver({ ref: legendRef, onResize: measure });
+	const { box, boxRef, legendRef } = useFieldBox();
 	const { view, area } = fieldLayout(bounds, box);
 	const clipId = useId();
 	const { svgRef, zoom, active, transform, contentPointAt, startPan, movePan, endPan, reset } = useFieldZoom(
@@ -85,7 +75,9 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 	const [pointer, setPointer] = useState<FieldPoint>();
 	const [hovered, setHovered] = useState(false);
 	const [minimapLeft, setMinimapLeft] = useState(false);
-	const copied = useCopyPosition(pointer, hovered);
+	const { copied, fieldRef } = useCopyPosition2d(pointer, hovered, boxRef, field, coordinates);
+	const unbound = bindings.length === 0;
+	const controls = useSceneControls(unbound);
 	const [tool, setTool] = useState<FieldTool>();
 	const [measurement, setMeasurement] = useState<Measurement>();
 	const measuring = useRef(false);
@@ -168,6 +160,7 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 							'absolute inset-0 touch-none overflow-hidden',
 							tool === undefined ? zoom.scale > 1 && 'cursor-grab active:cursor-grabbing' : 'cursor-crosshair',
 						)}
+						{...controls.handlers}
 						onPointerDown={(event) => {
 							if (event.button !== 0) {
 								return;
@@ -244,7 +237,7 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 								<rect {...bounds} />
 							</clipPath>
 							{/* The field is cut off at the view's margin, so the driver stations don't show in the spare room */}
-							<g transform={transform} clipPath={`url(#${clipId})`}>
+							<g ref={fieldRef} transform={transform} clipPath={`url(#${clipId})`}>
 								<g transform={field.transform}>
 									<FieldImage />
 									<g transform="scale(1 -1)">
@@ -280,6 +273,7 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 					>
 						<Legend items={legend} vertical />
 					</div>
+					{unbound && <SceneControls view="2d" visible={controls.visible} className="absolute inset-0" />}
 				</div>
 				<div className="flex h-5 items-center justify-between gap-2 text-muted-foreground text-xs capture:invisible">
 					<CursorPosition pointer={pointer} hovered={hovered} copied={copied} />

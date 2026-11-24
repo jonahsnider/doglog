@@ -14,7 +14,7 @@ export function WidgetEmpty({
 	children?: ReactNode;
 }) {
 	return (
-		<Empty className="h-full py-6 md:py-6">
+		<Empty className="min-h-full py-6 md:py-6">
 			<EmptyHeader>
 				<EmptyMedia variant="icon">{icon}</EmptyMedia>
 				<EmptyTitle>{title}</EmptyTitle>

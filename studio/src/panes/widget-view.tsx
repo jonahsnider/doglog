@@ -35,6 +35,7 @@ import {
 } from '@/entries/drag';
 import { startEditing } from '@/entries/editing';
 import { cn } from '@/lib/utils';
+import { GraphControls } from '@/widgets/graph/graph-controls';
 import { WidgetEmpty } from '@/widgets/widget-empty';
 import { setWidgetOption } from '@/widgets/options';
 import { acceptsDrop, type OptionValues, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
@@ -119,6 +120,7 @@ export function WidgetView({
 					Add entries
 					<InlineShortcut>{formatForDisplay(shortcuts.editEntries)}</InlineShortcut>
 				</Button>
+				{type.id === 'graph' && <GraphControls />}
 			</WidgetEmpty>
 		);
 	} else if (!source) {

@@ -165,6 +165,34 @@ In 2D, scrolling or pinching over the field SHALL zoom in and out around the poi
 - **WHEN** the user double-clicks the field
 - **THEN** the whole field is shown again
 
+### Requirement: Field controls reference
+
+An unbound Field SHALL show a compact, non-interactive controls reference in the lower-left of the scene. It MUST use short labels: touch gestures for a coarse primary pointer, or one set for mouse and trackpad otherwise. It MUST NOT show with any bound entries, during capture, or during a video camera match. It MAY be hidden if too narrow to read.
+
+#### Scenario: Read the reference in 3D
+
+- **GIVEN** the quick reference is visible in 3D
+- **THEN** it describes how to orbit, pan, and zoom
+- **AND** when the primary pointer is not coarse, it shows keyboard shortcuts as keycaps without a focus instruction
+
+#### Scenario: Read the reference on a touch device
+
+- **GIVEN** the quick reference is visible and the primary pointer is coarse
+- **THEN** it shows touch gestures without mouse, trackpad, or keyboard hints
+
+### Requirement: Field controls reference timing
+
+For an unbound Field, the reference SHALL appear on creation and once more after about three seconds without input following a scene interaction. It SHALL fade out as soon as interaction resumes or after about five seconds on screen, whichever comes first. It MUST NOT reappear repeatedly while idle, react to incoming data or playback alone, or animate when reduced motion is enabled.
+
+#### Scenario: Learn while exploring
+
+- **WHEN** the user creates a Field widget without binding entries
+- **THEN** the reference appears without needing any entries or pointer input
+- **WHEN** the user starts dragging the view
+- **THEN** the reference fades away
+- **WHEN** the user stops interacting for about three seconds
+- **THEN** the reference appears briefly, then fades away without repeating
+
 ### Requirement: Minimap
 
 In 2D, while the user zooms or pans a zoomed-in field, a minimap of the whole field SHALL appear in the top-right corner beside or under the legend, outlining the part that's shown, and MUST fade out shortly after they stop. While the pointer is on the right side of the field, the minimap MUST move to the top-left corner so it doesn't cover what the user is zooming into, and it MUST NOT switch sides while the pointer is near the middle.
@@ -247,6 +275,17 @@ Each field legend row of a binding that can be connected SHALL have a handle on 
 - **WHEN** the user drags the handle of `/Vision/SeenTags` onto `/Drive/Pose`
 - **THEN** lines are drawn from the robot to each seen tag
 
+### Requirement: Connect from the legend context menu
+
+The Field legend row's context menu SHALL offer **Connect to…** next to **Disconnect** when both are available. It SHALL list only other rows that would produce a new valid connection by dragging from that row. Choosing a row MUST create the same connection, in the same direction, as dragging. The submenu MUST be omitted if there are no valid choices. Dragging the connection handle MUST still work.
+
+#### Scenario: Connect without dragging
+
+- **GIVEN** the Field shows `/Drive/Pose` as a robot and `/Vision/SeenTags` as points
+- **WHEN** the user right-clicks `/Vision/SeenTags` in the legend and chooses **Connect to…** > `/Drive/Pose`
+- **THEN** lines are drawn from the robot to the points
+- **AND** that connection is no longer offered under **Connect to…**
+
 ### Requirement: Connections in the legend
 
 The field legend SHALL draw each connection to the right of its rows, as straight lines with right angles from the source's handle to the target's, in the target's color, with each source in its own lane so links don't overlap. Hovering a link MUST highlight it and fill the handles at its ends, and clicking it MUST remove the connection. Right-clicking a row SHALL offer to disconnect it from each binding it's connected to.
@@ -319,6 +358,16 @@ The field widget SHALL show the field position under the pointer, in meters, bel
 
 - **GIVEN** the pointer is over the center of the field
 - **WHEN** the user presses ⌘C
+- **THEN** `8.27, 4.03` is copied
+
+### Requirement: Copy coordinates from the field menu
+
+When a right-click or long-press opens the field view's context menu over a valid field position in 2D or 3D, the menu SHALL offer "Copy coordinates". It MUST copy the position where the menu opened in the same `x, y` format as the shortcut. The item MUST be omitted if the menu opens without a valid position.
+
+#### Scenario: Copy the point where the menu opened
+
+- **GIVEN** the user opens the field view's context menu over the center of the field
+- **WHEN** the user moves the pointer to "Copy coordinates" and selects it
 - **THEN** `8.27, 4.03` is copied
 
 ### Requirement: Measuring tool buttons
@@ -640,6 +689,17 @@ In 3D, each robot and ghost binding's legend row SHALL pick its role and Robot i
 - **GIVEN** a field widget showing `/Drive/Pose` as the robot "581 2026"
 - **WHEN** the user picks "Swerve drivebase" in the legend row of `/Opponent/Pose`
 - **THEN** `/Drive/Pose` is still drawn as "581 2026"
+
+### Requirement: Appearance in the legend context menu
+
+The Field legend row's context menu SHALL offer **Show as** when the binding has multiple valid roles. Its choices MUST be single-select and indicate the current role. In 3D, robots and ghosts SHALL also offer an adjacent **Robot model** submenu with the same choices and current selection as their legend dropdown. The dropdown's role section SHALL also be labeled **Show as**. These menus MUST affect only the selected binding.
+
+#### Scenario: Draw a robot pose as a point
+
+- **GIVEN** the Field shows `/Drive/Pose` as a robot
+- **WHEN** the user right-clicks its legend row and chooses **Show as** > **Point**
+- **THEN** the binding is drawn as a point rather than a robot
+- **AND** **Point** is now the selected role
 
 ### Requirement: Parts and mechanisms on robots
 
