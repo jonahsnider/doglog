@@ -46,7 +46,8 @@ context: |
     Pairing transfers the account private key between instances of Studio. Cloud relays pairing messages but
     is not trusted to verify the receiving device. Studio verifies it through a code comparison on both devices.
     On the web, keep the wrapped account private key and its non-exportable wrapping key in account- and
-    deployment-scoped IndexedDB storage. Do not require a separate unlock prompt or offer Cloud escrow.
+    deployment-scoped IndexedDB storage. On desktop, keep the wrapping key in the OS credential store instead
+    (the `keyring` crate). Do not require a separate unlock prompt or offer Cloud escrow.
   - Cloud trust boundary: Trust the live service to attest account keys and order revocations, key grants, and
     uploads. Stored data alone cannot authorize a grant. Cloud never holds dashboard decryption keys, but a
     compromised live service can misdirect future grants.
@@ -88,7 +89,6 @@ context: |
 
   Open questions:
   - Which sign-in library and browser-to-desktop handoff to use, and how to verify the Apple sign-in setup.
-  - How to store account private keys on desktop.
   - Whether the sidebar's dashboard list fits every page long term, or pages need their own secondary content.
   - The live NT story for Firefox and Safari users of the web app.
   - Per-project defaults for common entries (ex. the robot pose), possibly declared by robot code or `doglog.jsonc`.

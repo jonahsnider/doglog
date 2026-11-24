@@ -3,6 +3,7 @@ mod camera_stream;
 #[cfg(any(target_os = "macos", windows))]
 mod capture;
 mod cli;
+mod cloud_keychain;
 mod live_export;
 mod log_url;
 #[cfg(desktop)]
@@ -343,6 +344,7 @@ pub fn run() -> ExitCode {
         })
         .invoke_handler(tauri::generate_handler![
             take_opened_log,
+            cloud_keychain::cloud_account_wrapping_key,
             set_window_has_source,
             take_opened_dashboard_link,
             read_file,

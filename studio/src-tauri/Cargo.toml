@@ -54,6 +54,8 @@ tauri-plugin-single-instance = { version = "2", features = ["deep-link"] }
 reqwest = { version = "0.13", default-features = false, features = ["rustls-no-provider"] }
 # Bundles liblzma instead of linking the system's, which macOS and Windows don't have
 liblzma = { version = "0.4", features = ["static"] }
+# Keeps the Cloud account key's wrapping key in the OS credential store
+keyring = { version = "4.2", default-features = false, features = ["v1"] }
 
 # Unoptimized, decompressing a large `.wpilogxz` log takes a few times longer
 [profile.dev.package.liblzma-sys]
