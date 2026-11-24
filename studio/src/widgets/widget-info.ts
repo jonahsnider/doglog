@@ -208,6 +208,28 @@ export const widgetOptions = {
 			default: '',
 		},
 	},
+	camera: {
+		camera: {
+			kind: 'text',
+			id: 'camera',
+			label: 'Camera',
+			description: 'The name advertised by the live camera, not its stream URL.',
+			pattern: /\S/u,
+			default: '',
+		},
+		rotation: {
+			kind: 'choice',
+			id: 'rotation',
+			label: 'Rotation',
+			choices: [
+				{ id: '0', label: '0°' },
+				{ id: '90', label: '90°' },
+				{ id: '180', label: '180°' },
+				{ id: '270', label: '270°' },
+			],
+			default: '0',
+		},
+	},
 } as const satisfies Record<string, Record<string, WidgetOptionInfo>>;
 
 export type WidgetInfo = {
@@ -310,6 +332,15 @@ export const widgetInfos = [
 		accepts: [],
 		roles: [],
 		options: Object.values(widgetOptions.video),
+	},
+	{
+		id: 'camera',
+		name: 'Camera',
+		description: 'Shows a live robot camera feed while following live data. Does not take entries or record frames.',
+		accepts: [],
+		roles: [],
+		options: Object.values(widgetOptions.camera),
+		title: ({ camera = '' }) => (camera === '' ? 'Camera' : camera),
 	},
 ] as const satisfies readonly WidgetInfo[];
 

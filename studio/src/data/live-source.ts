@@ -1,4 +1,5 @@
 import { StructRegistry } from 'wpilib-struct';
+import { clearCameraStreams, updateCameraStreams } from '@/data/camera-streams';
 import type { DataSet } from '@/data/data-set';
 import { type Entry, liveTime, parseMetadata } from '@/data/data-store';
 import { setLiveConnection } from '@/data/live-connection';
@@ -111,6 +112,7 @@ export function connectLive(
 			data.connect(connectedAt);
 			recording.record({ type: 'connected', liveTime: connectedAt, serverTime });
 		} else if (wasConnected) {
+			clearCameraStreams();
 			// The connection is dropped a while after the server went quiet, which is when it really dropped. That's the
 			// newest value's time while the robot sends data, and at most the idle timeout earlier otherwise.
 			const droppedAt = Math.max(connectedAt, newestValueAt, liveTime() - idleTimeout);
@@ -139,7 +141,12 @@ export function connectLive(
 					priority.announce(name, type);
 				}
 			},
-			unannounce: (name) => priority.unannounce(normalizeEntryName(name)),
+			unannounce: (name) => {
+				priority.unannounce(normalizeEntryName(name));
+				if (!closed) {
+					updateCameraStreams(name, undefined);
+				}
+			},
 			properties: (topicName, update) => {
 				const name = normalizeEntryName(topicName);
 				if (closed || isStudioEntry(name)) {
@@ -162,6 +169,9 @@ export function connectLive(
 				const name = normalizeEntryName(topicName);
 				if (closed || isStudioEntry(name)) {
 					return;
+				}
+				if (type === 'string[]') {
+					updateCameraStreams(topicName, value);
 				}
 				recording.record({ type: 'value', name, topicType: type, value, serverTime });
 				if (isSchemaEntry(name)) {
@@ -201,6 +211,7 @@ export function connectLive(
 		closed = true;
 		priority.close();
 		setLiveConnection(undefined);
+		clearCameraStreams();
 		if (connected) {
 			data.disconnect(liveTime());
 		}

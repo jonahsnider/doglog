@@ -54,7 +54,10 @@ export function optionValues(
 /** The options a newly added widget starts with in `layout`, see `WidgetOption.initial` */
 export function initialOptions(type: WidgetType, layout: PaneNode): Record<string, string> {
 	return Object.fromEntries(
-		(type.options ?? []).flatMap((option) => (option.initial ? [[option.id, option.initial(layout)]] : [])),
+		(type.options ?? []).flatMap((option) => {
+			const value = option.initial?.(layout);
+			return value === undefined ? [] : [[option.id, value]];
+		}),
 	);
 }
 

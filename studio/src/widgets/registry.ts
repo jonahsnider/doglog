@@ -3,6 +3,7 @@ import { lazy } from 'react';
 import { createWidget } from '@/widgets/bindings';
 import type { Entry } from '@/data/data-store';
 import type { Widget } from '@/panes/layout';
+import { cameraOption } from '@/widgets/camera/camera-option';
 import { Console } from '@/widgets/console/console';
 import { Controller } from '@/widgets/controller/controller';
 import { controllerPort } from '@/widgets/controller/data';
@@ -20,7 +21,7 @@ import { swerveRoles } from '@/widgets/swerve/data';
 import { TableWidget } from '@/widgets/table/table';
 import { videoOptions } from '@/widgets/video/video-options';
 import { arrayLayouts, inferArrayLayout, isTunable } from '@/tuning/tunables';
-import { type WidgetInfo, widgetInfos, type WidgetTypeId } from '@/widgets/widget-info';
+import { type WidgetInfo, widgetInfos, widgetOptions, type WidgetTypeId } from '@/widgets/widget-info';
 import type { WidgetType } from '@/widgets/widget-type';
 
 /** The parts of a widget type agents and link previews know about too, see `@/widgets/widget-info` */
@@ -36,6 +37,7 @@ function info(
 const loadRobot = async () => ({ default: (await import('@/widgets/robot/robot')).Robot });
 const loadNotepad = async () => ({ default: (await import('@/widgets/notepad/notepad')).Notepad });
 const loadVideo = async () => ({ default: (await import('@/widgets/video/video')).Video });
+const loadCamera = async () => ({ default: (await import('@/widgets/camera/camera')).Camera });
 const loadTuning = async () => ({ default: (await import('@/tuning/tuning-widget')).TuningWidget });
 
 const tunableRoles = [{ id: 'tunable', label: 'Tunable' }] as const;
@@ -111,6 +113,13 @@ export const widgetTypes: readonly WidgetType[] = [
 		options: videoOptions,
 		preload: loadVideo,
 		component: lazy(loadVideo),
+	},
+	{
+		...info('camera'),
+		rendersEmpty: true,
+		options: [cameraOption, widgetOptions.camera.rotation],
+		preload: loadCamera,
+		component: lazy(loadCamera),
 	},
 ];
 

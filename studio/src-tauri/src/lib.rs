@@ -1,4 +1,5 @@
 mod agent;
+mod camera_stream;
 #[cfg(any(target_os = "macos", windows))]
 mod capture;
 mod cli;
@@ -309,6 +310,7 @@ pub fn run() -> ExitCode {
         .manage(OpenedLog::default())
         .manage(WindowHasSource::default())
         .manage(OpenedDashboardLink::default())
+        .manage(camera_stream::ActiveCameraStreams::default())
         .manage(log_url::ActiveUrlDownloads::default())
         .manage(sync::RobotConnection::default())
         .manage(sync::CancelDownload::default())
@@ -327,6 +329,7 @@ pub fn run() -> ExitCode {
                 agent::window::close(app, window.label());
                 #[cfg(any(target_os = "macos", windows))]
                 video::cancel_window_video(app, window.label());
+                camera_stream::cancel_for_window(app, window.label());
                 log_url::cancel_for_window(app, window.label());
                 app.state::<OpenedLog>().0.lock().unwrap().remove(window.label());
                 app.state::<WindowHasSource>().0.lock().unwrap().remove(window.label());
@@ -345,6 +348,9 @@ pub fn run() -> ExitCode {
             read_file,
             read_log,
             allow_video,
+            camera_stream::start_camera_stream,
+            camera_stream::read_camera_stream,
+            camera_stream::close_camera_stream,
             log_url::start_log_url,
             log_url::cancel_log_url,
             #[cfg(any(target_os = "macos", windows))]

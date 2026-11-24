@@ -212,7 +212,7 @@ export function changeWidgetType(
 ): PaneNode {
 	const kept = widgetBindings(findPane(layout, paneId)?.widget).filter(({ name }) => {
 		const entry = entryOf(name);
-		return entry === undefined || acceptsEntry(type, entry);
+		return entry === undefined ? type.accepts.length > 0 : acceptsEntry(type, entry);
 	});
 	return setPaneWidget(
 		layout,

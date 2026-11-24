@@ -719,6 +719,55 @@
 												],
 												"additionalProperties": false,
 												"description": "Video: A video of the match that follows the timeline cursor for a log or live session, ex. the broadcast or a recording from the stands. Doesn't take entries: set the `video` and `sync` options. Each video widget has one video, use several for more angles."
+											},
+											{
+												"type": "object",
+												"properties": {
+													"type": {
+														"type": "string",
+														"const": "camera"
+													},
+													"options": {
+														"type": "object",
+														"properties": {
+															"camera": {
+																"description": "Camera: The name advertised by the live camera, not its stream URL. `null` unsets it.",
+																"anyOf": [
+																	{
+																		"type": "string",
+																		"pattern": "\\S"
+																	},
+																	{
+																		"type": "null"
+																	}
+																]
+															},
+															"rotation": {
+																"description": "Rotation, `0` by default. `null` goes back to inferring it or the default.",
+																"anyOf": [
+																	{
+																		"type": "string",
+																		"enum": [
+																			"0",
+																			"90",
+																			"180",
+																			"270"
+																		]
+																	},
+																	{
+																		"type": "null"
+																	}
+																]
+															}
+														},
+														"additionalProperties": false
+													}
+												},
+												"required": [
+													"type"
+												],
+												"additionalProperties": false,
+												"description": "Camera: Shows a live robot camera feed while following live data. Does not take entries or record frames."
 											}
 										]
 									},
@@ -1454,6 +1503,55 @@
 								],
 								"additionalProperties": false,
 								"description": "Video: A video of the match that follows the timeline cursor for a log or live session, ex. the broadcast or a recording from the stands. Doesn't take entries: set the `video` and `sync` options. Each video widget has one video, use several for more angles."
+							},
+							{
+								"type": "object",
+								"properties": {
+									"type": {
+										"type": "string",
+										"const": "camera"
+									},
+									"options": {
+										"type": "object",
+										"properties": {
+											"camera": {
+												"description": "Camera: The name advertised by the live camera, not its stream URL. `null` unsets it.",
+												"anyOf": [
+													{
+														"type": "string",
+														"pattern": "\\S"
+													},
+													{
+														"type": "null"
+													}
+												]
+											},
+											"rotation": {
+												"description": "Rotation, `0` by default. `null` goes back to inferring it or the default.",
+												"anyOf": [
+													{
+														"type": "string",
+														"enum": [
+															"0",
+															"90",
+															"180",
+															"270"
+														]
+													},
+													{
+														"type": "null"
+													}
+												]
+											}
+										},
+										"additionalProperties": false
+									}
+								},
+								"required": [
+									"type"
+								],
+								"additionalProperties": false,
+								"description": "Camera: Shows a live robot camera feed while following live data. Does not take entries or record frames."
 							}
 						]
 					}
@@ -1817,6 +1915,55 @@
 										],
 										"additionalProperties": false,
 										"description": "Video: A video of the match that follows the timeline cursor for a log or live session, ex. the broadcast or a recording from the stands. Doesn't take entries: set the `video` and `sync` options. Each video widget has one video, use several for more angles."
+									},
+									{
+										"type": "object",
+										"properties": {
+											"type": {
+												"type": "string",
+												"const": "camera"
+											},
+											"options": {
+												"type": "object",
+												"properties": {
+													"camera": {
+														"description": "Camera: The name advertised by the live camera, not its stream URL. `null` unsets it.",
+														"anyOf": [
+															{
+																"type": "string",
+																"pattern": "\\S"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"rotation": {
+														"description": "Rotation, `0` by default. `null` goes back to inferring it or the default.",
+														"anyOf": [
+															{
+																"type": "string",
+																"enum": [
+																	"0",
+																	"90",
+																	"180",
+																	"270"
+																]
+															},
+															{
+																"type": "null"
+															}
+														]
+													}
+												},
+												"additionalProperties": false
+											}
+										},
+										"required": [
+											"type"
+										],
+										"additionalProperties": false,
+										"description": "Camera: Shows a live robot camera feed while following live data. Does not take entries or record frames."
 									}
 								]
 							},

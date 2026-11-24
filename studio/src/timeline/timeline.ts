@@ -162,6 +162,8 @@ export function useTimeline(): Timeline {
 	return useSelector(store);
 }
 
+export const useLiveFollow = () => useSelector(store, ({ playback }) => playback === 'following');
+
 /** The cursor time (µs), `undefined` until the source has data. @public */
 export function useCursorTime(): number | undefined {
 	return useSelector(store, (timeline) => timeline.time);

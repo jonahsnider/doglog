@@ -66,7 +66,7 @@ export type WidgetOption = WidgetOptionInfo & {
 	 */
 	readonly infer?: (bindings: readonly WidgetBinding[], earlier: OptionValues, mobile: boolean) => string | undefined;
 	/** The choice a newly added widget starts with in `layout`, as if it was picked, ex. a controller not shown yet */
-	readonly initial?: (layout: PaneNode) => string;
+	readonly initial?: (layout: PaneNode) => string | undefined;
 	/** Show fixed choices in a dropdown when they don't fit in a single segmented row. */
 	readonly dropdown?: true;
 	/**
@@ -186,5 +186,5 @@ export function acceptsDrop(type: WidgetType, name: string, entry: Entry | undef
 	if (type.optionFromEntry) {
 		return type.optionFromEntry(name) !== undefined;
 	}
-	return entry === undefined || acceptsEntry(type, entry);
+	return entry === undefined ? bindsEntries(type) : acceptsEntry(type, entry);
 }

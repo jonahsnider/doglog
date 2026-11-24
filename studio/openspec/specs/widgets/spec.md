@@ -183,7 +183,7 @@ A widget MAY declare a few options to override what it infers from its entries o
 
 #### Scenario: Invalid saved option
 
-- **GIVEN** a dashboard saved with an option value the widget doesn't have
+- **GIVEN** a dashboard saved with an option value the widget no longer supports
 - **THEN** the widget uses the option's inferred choice or its default
 
 ### Requirement: Auto options
@@ -210,7 +210,7 @@ Bindings SHALL be colored automatically by default. Right-clicking a binding's s
 
 ### Requirement: Follow the cursor
 
-Widgets SHALL reflect the global time cursor. Value-style widgets MUST show the latest value at or before the cursor; time-series widgets MUST mark the cursor position.
+Widgets SHALL reflect the global time cursor. Value-style widgets MUST show the latest value at or before the cursor; time-series widgets MUST mark the cursor position. The Camera widget shows only live frames while the timeline is following live data (see widget-camera).
 
 #### Scenario: Latest value at cursor
 
