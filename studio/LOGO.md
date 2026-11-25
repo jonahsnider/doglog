@@ -34,4 +34,8 @@ Use filled outlines rather than SVG strokes for the glass trace and cursor. The 
 
 The Dark icon style fills the glass trace and cursor with `#f9b6b1`, the default Team 581 dark `--md-primary` in `src/index.css`. Other icon styles keep their default colors.
 
-The macOS bundler uses Xcode 26 or later to compile `assets/mac.icon` into `Assets.car`. It keeps `icon.icns` for macOS 15.
+The macOS bundle hook uses Xcode 26 or later to compile `assets/mac.icon` and `assets/LogBadges.xcassets` into one `Assets.car`. The bundle also keeps `icon.icns`.
+
+## Log file icons
+
+Finder draws the folded page and extension label. `assets/LogBadges.xcassets` supplies only the [WPILib extension logo](https://github.com/wpilibsuite/vscode-wpilib/blob/main/vscode-wpilib/resources/wpilib-icon.svg) and the [CTRE site icon](https://store.ctr-electronics.com/cdn/shop/files/android-chrome-512x512.png) as badges. Windows and Linux use their default file icons.

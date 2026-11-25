@@ -49,10 +49,7 @@
 				"description": "WPILOG robot log",
 				"role": "Viewer",
 				"mimeType": "application/x-wpilog",
-				"exportedType": {
-					"identifier": "studio.doglog.wpilog",
-					"conformsTo": ["public.data"]
-				}
+				"contentTypes": ["studio.doglog.wpilog"]
 			},
 			{
 				"ext": ["wpilogxz"],
@@ -60,10 +57,7 @@
 				"description": "Compressed WPILOG robot log",
 				"role": "Viewer",
 				"mimeType": "application/x-wpilogxz",
-				"exportedType": {
-					"identifier": "studio.doglog.wpilogxz",
-					"conformsTo": ["public.data"]
-				}
+				"contentTypes": ["studio.doglog.wpilogxz"]
 			},
 			{
 				"ext": ["hoot"],
@@ -71,10 +65,7 @@
 				"description": "CTRE Phoenix 6 signal log",
 				"role": "Viewer",
 				"mimeType": "application/x-hoot",
-				"exportedType": {
-					"identifier": "studio.doglog.hoot",
-					"conformsTo": ["public.data"]
-				}
+				"contentTypes": ["studio.doglog.hoot"]
 			}
 		],
 		"android": {
@@ -88,8 +79,10 @@
 		},
 		"linux": {
 			"deb": {
+				"depends": ["shared-mime-info"],
 				"files": {
-					"/usr/bin/doglog": "cli/linux/doglog"
+					"/usr/bin/doglog": "cli/linux/doglog",
+					"/usr/share/mime/packages/doglog-studio.xml": "mime/doglog-studio.xml"
 				}
 			}
 		}

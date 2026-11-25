@@ -4,5 +4,77 @@
 <dict>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>DogLog Studio connects to your robot over the local network to show live data.</string>
+	<key>CFBundleIconName</key>
+	<string>mac</string>
+	<!-- Tauri generates the Viewer associations. Declare the types here so macOS can badge them. -->
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>studio.doglog.wpilog</string>
+			<key>UTTypeDescription</key>
+			<string>WPILOG robot log</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>wpilog</string>
+				<key>public.mime-type</key>
+				<string>application/x-wpilog</string>
+			</dict>
+			<key>UTTypeIcons</key>
+			<dict>
+				<key>UTTypeIconBadgeName</key>
+				<string>WPILib</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>studio.doglog.wpilogxz</string>
+			<key>UTTypeDescription</key>
+			<string>Compressed WPILOG robot log</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>wpilogxz</string>
+				<key>public.mime-type</key>
+				<string>application/x-wpilogxz</string>
+			</dict>
+			<key>UTTypeIcons</key>
+			<dict>
+				<key>UTTypeIconBadgeName</key>
+				<string>WPILib</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>studio.doglog.hoot</string>
+			<key>UTTypeDescription</key>
+			<string>CTRE Phoenix 6 signal log</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>hoot</string>
+				<key>public.mime-type</key>
+				<string>application/x-hoot</string>
+			</dict>
+			<key>UTTypeIcons</key>
+			<dict>
+				<key>UTTypeIconBadgeName</key>
+				<string>CTRE</string>
+			</dict>
+		</dict>
+	</array>
 </dict>
 </plist>

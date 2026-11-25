@@ -64,7 +64,13 @@ Studio SHALL be available as a desktop app for Windows, macOS, and Linux with ev
 
 ### Requirement: Open logs from the OS
 
-The desktop app SHALL register itself as an app for `.wpilog` and `.wpilogxz` files, so opening one from the OS opens it in Studio. The installed web app SHALL do the same in browsers that support file handling, ex. Chrome and Edge.
+The desktop app SHALL register itself as an app for `.wpilog`, `.wpilogxz`, and `.hoot` files, so opening one from the OS opens it in Studio. The installed web app SHALL do the same in browsers that support file handling, ex. Chrome and Edge.
+
+#### Scenario: Log icons in Finder
+
+- **GIVEN** Studio is installed on macOS
+- **WHEN** Finder displays a log using Studio's file association instead of a thumbnail or another app's icon
+- **THEN** macOS draws the document icon with a WPILib badge for `.wpilog` and `.wpilogxz`, or a CTRE badge for `.hoot`
 
 #### Scenario: Double-click a log
 

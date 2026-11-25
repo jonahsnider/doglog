@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+	<mime-type type="application/x-wpilog">
+		<comment>WPILOG robot log</comment>
+		<glob pattern="*.wpilog"/>
+	</mime-type>
+	<mime-type type="application/x-wpilogxz">
+		<comment>Compressed WPILOG robot log</comment>
+		<glob pattern="*.wpilogxz"/>
+	</mime-type>
+	<mime-type type="application/x-hoot">
+		<comment>HOOT robot log</comment>
+		<glob pattern="*.hoot"/>
+	</mime-type>
+</mime-info>

@@ -1,6 +1,9 @@
 {
 	"$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+	"build": {
+		"beforeBundleCommand": "sh scripts/compile-macos-assets.sh"
+	},
 	"bundle": {
-		"icon": ["icons/32x32.png", "icons/icon.icns", "../assets/mac.icon"]
+		"icon": ["icons/32x32.png", "icons/icon.icns", "target/macos-assets/Assets.car"]
 	}
 }
