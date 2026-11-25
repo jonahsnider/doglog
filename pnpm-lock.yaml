@@ -223,7 +223,7 @@ importers:
     dependencies:
       '@convex-dev/auth':
         specifier: 2.1.0
-        version: 2.1.0(patch_hash=2795270d477ebca7fc94626ff8788b4e6c58f387add3bd08776229e56851365e)(@standard-schema/spec@1.1.0)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@voidzero-dev/vite-plus-core@8.3.8000)(convex-test@0.0.74(convex@1.51.0(react@19.3.1)))(convex@1.51.0(react@19.3.1))(hono@4.13.19)(prettier@3.10.1)(react@19.3.1)(typescript@7.1.0-dev.20261123.1)(zod@4.6.7)
+        version: 2.1.0(patch_hash=2795270d477ebca7fc94626ff8788b4e6c58f387add3bd08776229e56851365e)(@standard-schema/spec@1.1.0)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@voidzero-dev/vite-plus-core@8.3.8000)(convex-test@0.0.75(convex@1.51.0(react@19.3.1)))(convex@1.51.0(react@19.3.1))(hono@4.13.19)(prettier@3.10.1)(react@19.3.1)(typescript@7.1.0-dev.20261123.1)(zod@4.6.7)
       convex:
         specifier: 1.51.0
         version: 1.51.0(react@19.3.1)
@@ -232,8 +232,8 @@ importers:
         specifier: workspace:*
         version: link:../studio
       convex-test:
-        specifier: 0.0.74
-        version: 0.0.74(convex@1.51.0(react@19.3.1))
+        specifier: 0.0.75
+        version: 0.0.75(convex@1.51.0(react@19.3.1))
       typescript:
         specifier: 7.1.0-dev.20261123.1
         version: 7.1.0-dev.20261123.1
@@ -263,7 +263,7 @@ importers:
         version: 1.9.0(@date-fns/tz@1.5.0)(@types/react@19.3.0)(date-fns@4.4.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@convex-dev/auth':
         specifier: 2.1.0
-        version: 2.1.0(patch_hash=2795270d477ebca7fc94626ff8788b4e6c58f387add3bd08776229e56851365e)(@standard-schema/spec@1.1.0)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@voidzero-dev/vite-plus-core@8.3.8000)(convex-test@0.0.74(convex@1.51.0(react@19.3.1)))(convex@1.51.0(react@19.3.1))(hono@4.13.19)(prettier@3.10.1)(react@19.3.1)(typescript@7.1.0-dev.20261123.1)(zod@4.6.7)
+        version: 2.1.0(patch_hash=2795270d477ebca7fc94626ff8788b4e6c58f387add3bd08776229e56851365e)(@standard-schema/spec@1.1.0)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@voidzero-dev/vite-plus-core@8.3.8000)(convex-test@0.0.75(convex@1.51.0(react@19.3.1)))(convex@1.51.0(react@19.3.1))(hono@4.13.19)(prettier@3.10.1)(react@19.3.1)(typescript@7.1.0-dev.20261123.1)(zod@4.6.7)
       '@daypicker/react':
         specifier: 10.0.2
         version: 10.0.2(@types/react@19.3.0)(react@19.3.1)
@@ -6446,8 +6446,8 @@ packages:
       zod:
         optional: true
 
-  convex-test@0.0.74:
-    resolution: {integrity: sha512-Z9roEKRvSyggZiWHik0wUP24lairo5vRk2Qgw1sqEY4dJ/vFFDbJG2NdSPATDiEdKAq5qfUk6kZTissHYbM19A==}
+  convex-test@0.0.75:
+    resolution: {integrity: sha512-gdy/Hbk9ElB0cc8YDMUsNaI1b1sJlCAkgg1e8nUAzMHuJQWjrErs53IFsyWHene+Grbhi/S9s8lK5WE81/CFoA==}
     peerDependencies:
       convex: ^1.46.0
 
@@ -11235,7 +11235,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@convex-dev/auth@2.1.0(patch_hash=2795270d477ebca7fc94626ff8788b4e6c58f387add3bd08776229e56851365e)(@standard-schema/spec@1.1.0)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@voidzero-dev/vite-plus-core@8.3.8000)(convex-test@0.0.74(convex@1.51.0(react@19.3.1)))(convex@1.51.0(react@19.3.1))(hono@4.13.19)(prettier@3.10.1)(react@19.3.1)(typescript@7.1.0-dev.20261123.1)(zod@4.6.7)':
+  '@convex-dev/auth@2.1.0(patch_hash=2795270d477ebca7fc94626ff8788b4e6c58f387add3bd08776229e56851365e)(@standard-schema/spec@1.1.0)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@voidzero-dev/vite-plus-core@8.3.8000)(convex-test@0.0.75(convex@1.51.0(react@19.3.1)))(convex@1.51.0(react@19.3.1))(hono@4.13.19)(prettier@3.10.1)(react@19.3.1)(typescript@7.1.0-dev.20261123.1)(zod@4.6.7)':
     dependencies:
       '@convex-dev/batch-worker': 0.3.6(@standard-schema/spec@1.1.0)(convex@1.51.0(react@19.3.1))(hono@4.13.19)(prettier@3.10.1)(react@19.3.1)(typescript@7.1.0-dev.20261123.1)(zod@4.6.7)
       '@convex-dev/rate-limiter': 0.3.2(convex@1.51.0(react@19.3.1))(react@19.3.1)
@@ -11246,7 +11246,7 @@ snapshots:
       jose: 5.10.0
       password-hash-wasm: 0.0.0
     optionalDependencies:
-      convex-test: 0.0.74(convex@1.51.0(react@19.3.1))
+      convex-test: 0.0.75(convex@1.51.0(react@19.3.1))
       react: 19.3.1
       vite: '@voidzero-dev/vite-plus-core@8.3.8000(@types/node@26.6.6)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(typescript@7.1.0-dev.20261123.1)(yaml@2.9.1)'
     transitivePeerDependencies:
@@ -15920,7 +15920,7 @@ snapshots:
       typescript: 7.1.0-dev.20261123.1
       zod: 4.6.7
 
-  convex-test@0.0.74(convex@1.51.0(react@19.3.1)):
+  convex-test@0.0.75(convex@1.51.0(react@19.3.1)):
     dependencies:
       convex: 1.51.0(react@19.3.1)
 
