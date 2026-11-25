@@ -2507,12 +2507,13 @@
 						]
 					},
 					"themePreset": {
-						"description": "Theme color: DogLog maroon (`doglog`), match13 blue, FrogLog green and blue (`froglog`), `neutral` gray, or `custom` for `themeColor`",
+						"description": "Theme color: DogLog maroon (`doglog`), match13 blue, FrogLog green and blue (`froglog`), HogLog pastel pink (`hoglog`), `neutral` gray, or `custom` for `themeColor`",
 						"type": "string",
 						"enum": [
 							"doglog",
 							"match13",
 							"froglog",
+							"hoglog",
 							"neutral",
 							"custom"
 						]

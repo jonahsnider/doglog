@@ -25,6 +25,15 @@ export const defaultCustomColor = '#1c1816';
 
 const frogLogGreen = '#79b748';
 
+/**
+ * HogLog's colors in each mode, from MD3's tonal spot scheme (2025 spec) for `#ffbbcc`: its primary as the accent, its
+ * secondary container for selected items, and neutrals as tinted as its surfaces, near gray in dark mode
+ */
+const hogLog = {
+	light: { accent: '#894d5e', neutral: '#f4c1cd', selected: '#ffd9e1' },
+	dark: { accent: '#f4b6c5', neutral: '#847376', selected: '#4e343b' },
+};
+
 registerMode(modeRgb);
 registerMode(modeLrgb);
 const oklch = registerMode(modeOklch);
@@ -49,6 +58,10 @@ const presetSeeds: Record<ThemePreset, (themeColor: string, dark: boolean) => Th
 			? { accent: '#29a3f6', neutral: '#000000', ...statusSeeds, recipe }
 			: { accent: '#135ab0', neutral: '#e2efff', ...statusSeeds, recipe },
 	froglog: () => ({ accent: frogLogGreen, neutral: tintedGray(frogLogGreen), ...statusSeeds, recipe }),
+	hoglog: (_, dark) => {
+		const { accent, neutral } = hogLog[dark ? 'dark' : 'light'];
+		return { accent, neutral, ...statusSeeds, recipe };
+	},
 	// Untinted grays, so only status, series, and error colors have a hue
 	neutral: () => ({ accent: '#5e5e5e', neutral: '#6b6b6b', ...statusSeeds, recipe }),
 	custom: (themeColor) => ({ accent: themeColor, neutral: tintedGray(themeColor), ...statusSeeds, recipe }),
@@ -136,6 +149,9 @@ export function themeColors(
 	);
 	if (preset === 'froglog') {
 		tokens['--color-accent-muted'] = frogLogBlue[mode]![dark ? 30 : 85]!;
+	}
+	if (preset === 'hoglog') {
+		tokens['--color-accent-muted'] = hogLog[mode].selected;
 	}
 	if (highContrast) {
 		applyHighContrast(tokens, seeds.neutral!, dark);

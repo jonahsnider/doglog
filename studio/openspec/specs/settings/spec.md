@@ -110,7 +110,7 @@ Settings and UI state MUST be saved on the device and restored when Studio reope
 
 ### Requirement: Theme color setting
 
-Settings SHALL let users choose a theme color preset of DogLog, match13, FrogLog, Neutral, or Custom, defaulting to DogLog. The presets MUST be shown as cards side by side when they fit, each with circular previews of its light and dark colors. Custom MUST let users pick any color, defaulting to `#1c1816`, and reset it to the default, and MUST keep the picked color while another preset is selected.
+Settings SHALL let users choose a theme color preset of DogLog, match13, FrogLog, HogLog, Neutral, or Custom, defaulting to DogLog. The presets MUST be shown as cards side by side when they fit, each with circular previews of its light and dark colors. Custom MUST let users pick any color, defaulting to `#1c1816`, and reset it to the default, and MUST keep the picked color while another preset is selected.
 
 #### Scenario: Custom color
 

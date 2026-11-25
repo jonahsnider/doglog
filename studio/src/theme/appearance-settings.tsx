@@ -54,7 +54,7 @@ const styles = stylex.create({
 	presetCards: {
 		display: 'grid',
 		// Just fits both swatches, so every preset fits in a row of the settings page
-		gridTemplateColumns: 'repeat(auto-fill, minmax(7rem, 1fr))',
+		gridTemplateColumns: 'repeat(auto-fill, minmax(5.5rem, 1fr))',
 		gap: spacingVars['--spacing-2'],
 	},
 	card: {
@@ -113,6 +113,7 @@ const themePresetLabels: Record<ThemePreset, string> = {
 	doglog: 'DogLog',
 	match13: 'match13',
 	froglog: 'FrogLog',
+	hoglog: 'HogLog',
 	neutral: 'Neutral',
 	custom: 'Custom',
 };

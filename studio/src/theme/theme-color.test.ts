@@ -1,3 +1,4 @@
+import { modeOklch, useMode as registerMode } from 'culori/fn';
 import { afterEach, expect, test, vi } from 'vite-plus/test';
 import { themePresets, visualizationPalettes } from '@/theme/choices';
 import { seriesOutline, seriesPaletteColors, seriesPaletteVariables } from './series-palette.ts';
@@ -31,6 +32,8 @@ function contrastRatio(a: string, b: string): number {
 
 /** CIE L* of a `#rrggbb` color */
 const lstar = (color: string) => 116 * Math.cbrt(luminance(color)) - 16;
+
+const oklch = registerMode(modeOklch);
 
 const channels = (color: string) => [1, 3, 5].map((index) => Number.parseInt(color.slice(index, index + 2), 16));
 
@@ -73,6 +76,11 @@ test.each([false, true])('FrogLog uses a green accent and blue selected items (d
 	const [selectedRed, selectedGreen, selectedBlue] = channels(tokens['--color-accent-muted']!);
 	expect(accentGreen).toBeGreaterThan(Math.max(accentRed!, accentBlue!));
 	expect(selectedBlue).toBeGreaterThan(Math.max(selectedRed!, selectedGreen!));
+});
+
+test.each(['--color-background-body', '--color-background-surface'])('HogLog dark %s is near gray', (token) => {
+	// MD3's tonal spot surfaces for the same pink reach 0.017 OKLCH chroma
+	expect(oklch(themeColors(defaultThemeColor, true, false, 'hoglog').tokens[token])!.c).toBeLessThan(0.02);
 });
 
 test.each(

@@ -60,6 +60,17 @@ FrogLog SHALL use leaf green (`#79b748`) for its accent and soft stream blue (`#
 - **WHEN** the user views Studio in light or dark mode
 - **THEN** primary actions use green and selected sidebar items use blue
 
+### Requirement: HogLog palette
+
+HogLog SHALL follow MD3's tonal spot scheme (2025 spec) for `#ffbbcc`: its primary as the accent, its secondary container for selected items, and neutrals tinted like its surfaces. Light surfaces MUST be visibly pink, and dark surfaces MUST stay near gray rather than a saturated pink.
+
+#### Scenario: HogLog colors
+
+- **GIVEN** HogLog is selected
+- **WHEN** the user switches from light to dark mode
+- **THEN** surfaces switch from pale pink to a pink-tinted charcoal
+- **AND** primary actions switch from deep rose to pastel pink
+
 ### Requirement: Neutral colors
 
 The Neutral preset SHALL generate its colors from gray accent and neutral seeds, so surfaces, borders, and primary actions have no hue.

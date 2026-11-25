@@ -55,7 +55,7 @@ const styles = stylex.create({
 	},
 	swatch: {
 		display: 'block',
-		width: spacingVars['--spacing-11'],
+		width: spacingVars['--spacing-8'],
 		aspectRatio: '1',
 		borderWidth: 1,
 		borderStyle: 'solid',
