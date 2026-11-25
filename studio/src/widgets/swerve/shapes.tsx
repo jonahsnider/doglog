@@ -1,5 +1,23 @@
 // SVG shapes for the swerve widget, drawn in robot-frame coordinates
+import { colorVars, typographyVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
+import type { Value } from '@/data/samples';
+import { numberField } from '@/data/struct-fields';
 import { chassisHalf, headSize, move, type Point, strokeWidth, toSvg } from '@/widgets/swerve/geometry';
+
+const styles = stylex.create({
+	label: {
+		fill: colorVars['--color-text-secondary'],
+		fontFamily: typographyVars['--font-family-code'],
+	},
+	wheel: {
+		fill: colorVars['--color-background-muted'],
+		stroke: colorVars['--color-text-secondary'],
+	},
+});
+
+/** Largest rotation arc, for the fastest rotation in an entry's history */
+const maxSweep = (Math.PI * 3) / 2;
 
 function ArrowHead({ tip, angle, color }: { tip: Point; angle: number; color: string }) {
 	const back = move(tip, angle, -headSize);
@@ -35,7 +53,7 @@ export function Arrow({ from, angle, length, color }: { from: Point; angle: numb
 }
 
 /** Counterclockwise arc from the robot's front for positive `sweep` (radians) */
-export function RotationArc({ radius, sweep, color }: { radius: number; sweep: number; color: string }) {
+function RotationArc({ radius, sweep, color }: { radius: number; sweep: number; color: string }) {
 	if (Math.abs(sweep) < 0.01) {
 		return null;
 	}
@@ -73,7 +91,7 @@ export function ModuleLabel({
 			textAnchor="middle"
 			dominantBaseline="central"
 			fontSize={0.09}
-			className="fill-muted-foreground font-mono"
+			{...stylex.props(styles.label)}
 		>
 			{label}
 		</text>
@@ -92,12 +110,47 @@ export function Wheel({ position, angle, color }: { position: Point; angle: numb
 			rx={0.02}
 			// The wheel is drawn pointing up (the robot's front), counterclockwise robot angles are negative SVG rotations
 			transform={`translate(${x} ${y}) rotate(${(-angle * 180) / Math.PI})`}
-			className={color === undefined ? 'fill-muted stroke-muted-foreground' : undefined}
+			{...stylex.props(color === undefined && styles.wheel)}
 			fill={color}
 			fillOpacity={color === undefined ? undefined : 0.3}
 			stroke={color}
 			strokeOpacity={color === undefined ? undefined : 0.8}
 			strokeWidth={strokeWidth / 2}
 		/>
+	);
+}
+
+export function ChassisSpeeds({
+	value,
+	fieldRelative,
+	heading,
+	maxOmega,
+	arrowLength,
+	arcRadius,
+	color,
+}: {
+	value: Value;
+	fieldRelative: boolean;
+	/** Robot heading, turns field-relative speeds into the robot frame */
+	heading: number;
+	maxOmega: number;
+	arrowLength: (speed: number) => number;
+	arcRadius: number;
+	color: string;
+}) {
+	const vx = numberField(value, 'vx');
+	const vy = numberField(value, 'vy');
+	const speed = Math.hypot(vx, vy);
+	// Without a heading entry the heading is 0, so field +X points up like the robot's front
+	const angle = Math.atan2(vy, vx) - (fieldRelative ? heading : 0);
+	return (
+		<g>
+			{speed > 0 && <Arrow from={[0, 0]} angle={angle} length={arrowLength(speed)} color={color} />}
+			<RotationArc
+				radius={arcRadius}
+				sweep={maxOmega > 0 ? (numberField(value, 'omega') / maxOmega) * maxSweep : 0}
+				color={color}
+			/>
+		</g>
 	);
 }

@@ -1,5 +1,13 @@
+import {
+	colorVars,
+	fontWeightVars,
+	radiusVars,
+	spacingVars,
+	typeScaleVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
 import type { Draggable, Droppable } from '@dnd-kit/dom';
 import { useDragOperation, useDroppable } from '@dnd-kit/react';
+import * as stylex from '@stylexjs/stylex';
 import { use } from 'react';
 import { getEntry } from '@/data/data-store';
 import {
@@ -10,9 +18,57 @@ import {
 	isEntryDrag,
 	WidgetBindingsContext,
 } from '@/entries/drag';
-import { cn } from '@/lib/utils';
 import { maxWidgetEntries } from '@/widgets/bindings';
 import { type GraphSection, graphRoles, graphSection } from '@/widgets/graph/roles';
+
+const styles = stylex.create({
+	zones: {
+		pointerEvents: 'none',
+		position: 'absolute',
+		inset: 0,
+		zIndex: 20,
+		display: 'flex',
+		flexDirection: 'column',
+		padding: spacingVars['--spacing-1'],
+	},
+	row: {
+		display: 'flex',
+	},
+	fill: {
+		flex: 1,
+	},
+	axes: {
+		minHeight: 0,
+	},
+	zone: {
+		margin: spacingVars['--spacing-1'],
+		display: 'flex',
+		minWidth: 0,
+		flex: 1,
+		borderRadius: radiusVars['--radius-element'],
+		backgroundColor: colorVars['--color-background-surface'],
+	},
+	label: {
+		display: 'flex',
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center',
+		borderRadius: radiusVars['--radius-element'],
+		borderWidth: 2,
+		borderStyle: 'dashed',
+		borderColor: colorVars['--color-border-emphasized'],
+		fontSize: typeScaleVars['--text-label-size'],
+		lineHeight: typeScaleVars['--text-label-leading'],
+		fontWeight: fontWeightVars['--font-weight-medium'],
+		color: colorVars['--color-text-secondary'],
+	},
+	active: {
+		borderStyle: 'solid',
+		borderColor: colorVars['--color-accent'],
+		backgroundColor: `color-mix(in srgb, ${colorVars['--color-accent']} 10%, transparent)`,
+		color: colorVars['--color-text-accent'],
+	},
+});
 
 /**
  * The sections a dragged entry can be shown in, ex. strings can only be bands. Rows showing a struct's only field go
@@ -59,14 +115,14 @@ export function DropZones({ bandsHeight }: { bandsHeight: number }) {
 		);
 	const plottable = sections.includes('left');
 	return (
-		<div className="pointer-events-none absolute inset-0 z-20 flex flex-col p-1">
+		<div {...stylex.props(styles.zones)}>
 			{plottable && (
-				<div className="flex min-h-0 flex-1">
+				<div {...stylex.props(styles.row, styles.fill, styles.axes)}>
 					{zone('left', 'Left axis')}
 					{zone('right', 'Right axis')}
 				</div>
 			)}
-			<div className={cn('flex', !plottable && 'flex-1')} style={{ height: Math.max(bandsHeight, 48) }}>
+			<div {...stylex.props(styles.row, !plottable && styles.fill)} style={{ height: Math.max(bandsHeight, 48) }}>
 				{zone('discrete', 'Bands')}
 			</div>
 		</div>
@@ -99,15 +155,8 @@ function Zone({
 		data: { paneId, role: section },
 	});
 	return (
-		<div ref={ref} className="m-1 flex min-w-0 flex-1 rounded-md bg-background">
-			<div
-				className={cn(
-					'flex flex-1 items-center justify-center rounded-md border-2 border-dashed border-outline text-sm font-medium text-muted-foreground',
-					active && 'border-solid border-primary bg-primary/10 text-primary',
-				)}
-			>
-				{label}
-			</div>
+		<div ref={ref} {...stylex.props(styles.zone)}>
+			<div {...stylex.props(styles.label, active && styles.active)}>{label}</div>
 		</div>
 	);
 }

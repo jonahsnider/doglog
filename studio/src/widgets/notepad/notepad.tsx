@@ -1,3 +1,5 @@
+import { colorVars, spacingVars, typeScaleVars, typographyVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { createCssVariablesTheme, createHighlighterCoreSync, type ThemedToken } from 'shiki/core';
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
 import markdown from 'shiki/langs/markdown.mjs';
@@ -19,10 +21,10 @@ function setNotes(notes: string): void {
 // Colors that aren't set here inherit the text color
 const theme = createCssVariablesTheme({
 	variableDefaults: {
-		'token-link': 'var(--color-primary)',
-		'token-string': 'var(--color-success-foreground)',
-		'token-keyword': 'var(--color-muted-foreground)',
-		'token-comment': 'var(--color-muted-foreground)',
+		'token-link': 'var(--color-text-accent)',
+		'token-string': 'var(--color-text-success)',
+		'token-keyword': 'var(--color-text-secondary)',
+		'token-comment': 'var(--color-text-secondary)',
 	},
 });
 theme.tokenColors!.push({ scope: 'markup.strikethrough', settings: { fontStyle: 'strikethrough' } });
@@ -32,6 +34,37 @@ const highlighter = createHighlighterCoreSync({
 	themes: [theme],
 	langs: [markdown],
 	engine: createJavaScriptRegexEngine(),
+});
+
+const styles = stylex.create({
+	notepad: {
+		display: 'grid',
+		minHeight: '100%',
+		gridTemplateColumns: 'minmax(0, 1fr)',
+		padding: spacingVars['--spacing-2'],
+		fontFamily: typographyVars['--font-family-code'],
+		fontSize: typeScaleVars['--text-supporting-size'],
+		lineHeight: '1.25rem',
+		overflowWrap: 'break-word',
+		whiteSpace: 'pre-wrap',
+	},
+	layer: {
+		gridArea: '1 / 1',
+	},
+	field: {
+		minWidth: 0,
+		resize: 'none',
+		overflow: 'hidden',
+		color: 'transparent',
+		caretColor: colorVars['--color-text-primary'],
+		outline: 'none',
+		'::selection': {
+			backgroundColor: `color-mix(in srgb, ${colorVars['--color-accent']} 16%, transparent)`,
+		},
+		'::placeholder': {
+			color: colorVars['--color-text-secondary'],
+		},
+	},
 });
 
 /** Shiki's `FontStyle` flags, it's a const enum so it can't be imported */
@@ -61,8 +94,8 @@ export function Notepad() {
 	return (
 		// The highlighted text sizes the cell, and the transparent text field on top of it takes the input.
 		// Monospace, so bold and italic text stays the same width as the text field's.
-		<div className="grid min-h-full grid-cols-1 p-2 font-mono text-xs leading-5 wrap-break-word whitespace-pre-wrap *:[grid-area:1/1]">
-			<div aria-hidden>
+		<div {...stylex.props(styles.notepad)}>
+			<div aria-hidden {...stylex.props(styles.layer)}>
 				{lines.map((line, lineIndex) => (
 					// oxlint-disable-next-line react/no-array-index-key -- Lines have no identity besides their position
 					<Fragment key={lineIndex}>
@@ -81,7 +114,7 @@ export function Notepad() {
 				aria-label="Notes"
 				placeholder="Write something..."
 				spellCheck={false}
-				className="min-w-0 resize-none overflow-hidden text-transparent caret-foreground outline-none selection:bg-primary/16 placeholder:text-muted-foreground"
+				{...stylex.props(styles.layer, styles.field)}
 				value={notes}
 				onChange={(event) => setNotes(event.target.value)}
 			/>

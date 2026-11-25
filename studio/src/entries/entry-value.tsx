@@ -1,13 +1,42 @@
+import { colorVars, typeScaleVars, typographyVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
+import * as stylex from '@stylexjs/stylex';
 import BanIcon from 'lucide-react/icons/ban';
 import { Fragment } from 'react';
 import { type Entry, getStructSchemas, useDataVersion } from '@/data/data-store';
 import { formatValue } from '@/data/format-value';
 import { formatStructPreview } from '@/entries/struct-preview';
-import { cn } from '@/lib/utils';
 import { useCursorTime } from '@/timeline/timeline';
 
-/** Characters that fit in the value's `max-w-28`, IBM Plex Mono is 0.6em wide per character at `text-xs` */
+const styles = stylex.create({
+	value: {
+		flexShrink: 1,
+		minWidth: 0,
+		overflow: 'hidden',
+		textOverflow: 'ellipsis',
+		whiteSpace: 'nowrap',
+		textAlign: 'right',
+		fontFamily: typographyVars['--font-family-code'],
+		fontSize: typeScaleVars['--text-supporting-size'],
+		lineHeight: '1rem',
+		fontVariantNumeric: 'tabular-nums',
+		maxWidth: '7rem',
+	},
+	preview: {
+		maxWidth: '66.666667%',
+	},
+	muted: {
+		color: colorVars['--color-text-secondary'],
+	},
+	unsupported: {
+		flexShrink: 0,
+		width: 14,
+		height: 14,
+		color: colorVars['--color-icon-secondary'],
+	},
+});
+
+/** Characters that fit in the value's max width of 7rem, IBM Plex Mono is 0.6em wide per character at 12px */
 const maxValueLength = 15;
 
 function EntryValue({ entry, field }: { entry: Entry; field: Entry | undefined }) {
@@ -21,17 +50,11 @@ function EntryValue({ entry, field }: { entry: Entry; field: Entry | undefined }
 	const count = Array.isArray(value) && text.length > maxValueLength;
 
 	return (
-		<span
-			className={cn(
-				'min-w-0 shrink truncate text-right font-mono text-xs tabular-nums',
-				preview === undefined ? 'max-w-28' : 'max-w-2/3',
-				count && 'text-muted-foreground',
-			)}
-		>
+		<span {...stylex.props(styles.value, preview !== undefined && styles.preview, count && styles.muted)}>
 			{preview?.map(({ label, value: formatted }, index) => (
 				<Fragment key={label}>
 					{index > 0 ? ' ' : ''}
-					<span className="text-muted-foreground">{label}=</span>
+					<span {...stylex.props(styles.muted)}>{label}=</span>
 					{formatted}
 				</Fragment>
 			)) ?? (count ? `${value.length} ${value.length === 1 ? 'item' : 'items'}` : text)}
@@ -45,7 +68,7 @@ const unsupportedLabel = "Unsupported type, can't be shown in widgets";
 export function EntryRowValue({ entry, field }: { entry: Entry; field: Entry | undefined }) {
 	return (field ?? entry).kind === 'unsupported' ? (
 		<Tooltip content={unsupportedLabel}>
-			<BanIcon role="img" className="size-3.5 shrink-0 text-muted-foreground" aria-label={unsupportedLabel} />
+			<BanIcon role="img" {...stylex.props(styles.unsupported)} aria-label={unsupportedLabel} />
 		</Tooltip>
 	) : (
 		<EntryValue entry={entry} field={field} />

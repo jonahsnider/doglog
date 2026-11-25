@@ -1,0 +1,4 @@
+/* Captures and video export mode's preview show the dashboard on the window's background */
+[data-capture-dashboard]:where([data-capturing], [data-capturing] *) {
+	background-color: var(--color-background-body);
+}

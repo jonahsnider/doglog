@@ -1,5 +1,6 @@
 import { useEffect, useImperativeHandle, useRef } from 'react';
-import { type Player, type PlayerProps, videoClassName } from '@/widgets/video/player';
+import * as stylex from '@stylexjs/stylex';
+import { type Player, type PlayerProps, videoStyles } from '@/widgets/video/player';
 
 const macDesktop = STUDIO_DESKTOP && navigator.userAgent.includes('Mac');
 
@@ -134,7 +135,7 @@ export function LocalPlayer({ url, muted, ref, onInfo }: PlayerProps & { url: st
 			disablePictureInPicture
 			preload="auto"
 			data-capture-pending
-			className={videoClassName}
+			{...stylex.props(videoStyles.fit)}
 			onLoadedMetadata={(event) => onInfo({ duration: event.currentTarget.duration })}
 			onLoadedData={({ currentTarget: video }) => {
 				if (!video.seeking && pendingSeek.current === undefined) {

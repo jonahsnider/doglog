@@ -1,7 +1,8 @@
+import { spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { useHotkey } from '@tanstack/react-hotkeys';
 import { lazy, type PointerEvent, Suspense, useEffect, useId, useRef, useState } from 'react';
 import { type Entry, useDataVersion } from '@/data/data-store';
-import { cn } from '@/lib/utils';
 import { useCursorTime } from '@/timeline/timeline';
 import { setCameraMatch } from '@/widgets/field/camera-match';
 import {
@@ -17,20 +18,35 @@ import {
 } from '@/widgets/field/geometry';
 import { FieldImage, Minimap } from '@/widgets/field/image';
 import { loadField3d, preloadField3d } from '@/widgets/field/load-3d';
-import { MeasurementDrawing, PencilDrawing } from '@/widgets/field/measure';
-import { fieldLegendItems } from '@/widgets/field/legend-items';
+import { MeasurementDrawing, MeasurementLabel, PencilDrawing } from '@/widgets/field/measure';
 import { type FieldTool, usePencil } from '@/widgets/field/pencil';
-import { CursorPosition, hiddenWhileIdle, ToolButtons } from '@/widgets/field/readout';
+import { FieldLegend } from '@/widgets/field/field-legend';
+import { fieldLegendItems } from '@/widgets/field/legend-items';
+import { fieldMarker } from './markers.stylex';
+import { IdleHidden, Readout } from '@/widgets/field/readout';
 import { useCopyPosition2d } from '@/widgets/field/copy-position';
 import { fieldDrawings } from '@/widgets/field/roles';
 import { useFieldBox } from '@/widgets/field/use-field-box';
 import { useFieldZoom } from '@/widgets/field/zoom';
-import { Legend } from '@/widgets/legend/legend';
 import { SceneControls } from '@/widgets/scene-controls';
 import { useMechanisms } from '@/widgets/use-mechanisms';
 import { useSceneControls } from '@/widgets/use-scene-controls';
 import { ViewToggle } from '@/widgets/view-toggle';
 import type { WidgetProps } from '@/widgets/widget-type';
+
+const styles = stylex.create({
+	root: { height: '100%', padding: spacingVars['--spacing-2'], containerType: 'size' },
+	landscape: { containerName: 'field-landscape' },
+	portrait: { containerName: 'field-portrait' },
+	column: { display: 'flex', height: '100%', flexDirection: 'column', gap: spacingVars['--spacing-1'] },
+	stage: { position: 'relative', minHeight: 0, flex: 1 },
+	box: { position: 'absolute', inset: 0, overflow: 'hidden', touchAction: 'none' },
+	pannable: { cursor: { default: 'grab', ':active': 'grabbing' } },
+	measuring: { cursor: 'crosshair' },
+	svg: { display: 'block', width: '100%', height: '100%' },
+	area: { pointerEvents: 'none', position: 'absolute' },
+	controls: { position: 'absolute', inset: 0 },
+});
 
 const Field3d = lazy(loadField3d);
 /** Milliseconds after a field appears in 2D that its 3D view starts loading, so it doesn't slow down opening the log */
@@ -146,20 +162,12 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 	return (
 		// The legend floats over the top-left corner, wide when it's above the field and tall when the widget is wider
 		// than the field and has room beside it. The field fits beside or under it, and zooms in under it.
-		<div
-			className={cn(
-				'group/field h-full p-2 [container-type:size]',
-				vertical ? '[container-name:field-portrait]' : '[container-name:field-landscape]',
-			)}
-		>
-			<div className="flex h-full flex-col gap-1">
-				<div className="relative min-h-0 flex-1">
+		<div {...stylex.props(fieldMarker, styles.root, vertical ? styles.portrait : styles.landscape)}>
+			<div {...stylex.props(styles.column)}>
+				<div {...stylex.props(styles.stage)}>
 					<div
 						ref={boxRef}
-						className={cn(
-							'absolute inset-0 touch-none overflow-hidden',
-							tool === undefined ? zoom.scale > 1 && 'cursor-grab active:cursor-grabbing' : 'cursor-crosshair',
-						)}
+						{...stylex.props(styles.box, tool === undefined ? zoom.scale > 1 && styles.pannable : styles.measuring)}
 						{...controls.handlers}
 						onPointerDown={(event) => {
 							if (event.button !== 0) {
@@ -228,7 +236,7 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 					>
 						<svg
 							ref={svgRef}
-							className="block size-full"
+							{...stylex.props(styles.svg)}
 							viewBox={`${view.x} ${view.y} ${view.width} ${view.height}`}
 							role="img"
 							aria-label="Robot poses on the 2026 field"
@@ -250,38 +258,21 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 								</g>
 							</g>
 						</svg>
-						{label && (
-							<div
-								className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded-sm bg-popover px-1.5 py-0.5 font-mono text-popover-foreground text-xs tabular-nums shadow-sm"
-								style={toPercent(label.at)}
-							>
-								{label.text}
-							</div>
-						)}
-						<div className="pointer-events-none absolute" style={area}>
+						{label && <MeasurementLabel text={label.text} position={toPercent(label.at)} />}
+						<div {...stylex.props(styles.area)} style={area}>
 							<Minimap shown={shown} visible={zoom.scale > 1 && active} left={minimapLeft} field={field} />
 						</div>
 					</div>
-					{/* Opaque so it's readable over the zoomed field, it matches the pane until then */}
-					<div
-						ref={legendRef}
-						className={cn(
-							'absolute top-0 left-0 max-h-[33%] w-max max-w-full overflow-y-auto rounded-ee-lg bg-background pe-2 pb-2 transition-shadow field-aside:max-h-full field-aside:max-w-[33cqw]',
-							legend.length === 0 && 'hidden',
-							underLegend && 'shadow-lg',
-						)}
-					>
-						<Legend items={legend} vertical />
-					</div>
-					{unbound && <SceneControls view="2d" visible={controls.visible} className="absolute inset-0" />}
+					<FieldLegend ref={legendRef} items={legend} isUnderZoom={underLegend} />
+					{unbound && (
+						<SceneControls view="2d" visible={controls.visible} className={stylex.props(styles.controls).className} />
+					)}
 				</div>
-				<div className="flex min-h-7 items-center justify-between gap-2 text-muted-foreground text-xs capture-invisible">
-					<CursorPosition pointer={pointer} hovered={hovered} copied={copied} />
-					<div className="flex items-center gap-2">
-						<ToolButtons tool={tool} onToggle={toggleTool} />
-						<ViewToggle className={hiddenWhileIdle} view="2d" onChange={(next) => setOption('view', next)} />
-					</div>
-				</div>
+				<Readout pointer={pointer} hovered={hovered} copied={copied} tool={tool} onToggle={toggleTool}>
+					<IdleHidden>
+						<ViewToggle view="2d" onChange={(next) => setOption('view', next)} />
+					</IdleHidden>
+				</Readout>
 			</div>
 		</div>
 	);

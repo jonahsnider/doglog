@@ -1,9 +1,22 @@
+import { spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useRef } from 'react';
 import { Separator } from 'react-resizable-panels';
 import { updateLayout } from '@/dashboards/panes';
-import { cn } from '@/lib/utils';
 import { linkedDividers, resetLinked } from '@/panes/divider-snap';
 import { resetDivider, type SplitDirection } from '@/panes/layout';
+import './split-divider.css';
+
+const styles = stylex.create({
+	divider: {
+		position: 'relative',
+		zIndex: 10,
+		outline: 'none',
+	},
+	row: { width: spacingVars['--spacing-1-5'] },
+	column: { height: spacingVars['--spacing-1-5'] },
+	hidden: { display: 'none' },
+});
 
 /** The hovered and dragged dividers with their states, and the dividers highlighted since dragging them moves those too */
 let highlighted: { sources: HTMLElement[]; states: string[]; links: HTMLElement[] } = {
@@ -104,16 +117,9 @@ export function SplitDivider({
 			// Disabled dividers don't get the hover and active highlights, and the not-allowed cursor is replaced so they don't look interactive
 			disabled={locked}
 			style={locked ? { cursor: 'auto' } : undefined}
-			// The gap between panes, with a line in the middle while it's hovered or dragged. The `after` pseudo-element
-			// widens it to the library's 10px hit area so double-clicks land on it.
-			className={cn(
-				'relative z-10 outline-none before:absolute before:rounded-full before:transition-colors focus-visible:before:bg-ring data-[separator=active]:before:bg-ring data-[separator=hover]:before:bg-ring data-snap-guide:before:bg-ring data-linked:before:bg-ring',
-				'after:absolute',
-				hidden && 'hidden',
-				row
-					? 'w-1.5 before:inset-y-1 before:inset-x-0.5 after:inset-y-0 after:-inset-x-0.5'
-					: 'h-1.5 before:inset-x-1 before:inset-y-0.5 after:inset-x-0 after:-inset-y-0.5',
-			)}
+			// The gap between panes, with a line in the middle while it's hovered or dragged, see `split-divider.css`
+			data-pane-divider={direction}
+			className={stylex.props(styles.divider, row ? styles.row : styles.column, hidden && styles.hidden).className}
 			onDoubleClick={(event) => {
 				if (!locked) {
 					const resetLinks = event.altKey ? undefined : resetLinked(event.currentTarget);

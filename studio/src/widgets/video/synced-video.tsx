@@ -1,3 +1,5 @@
+import { fontWeightVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import TriangleAlertIcon from 'lucide-react/icons/triangle-exclamation-point';
 import { type ReactNode, useCallback, useRef, useState } from 'react';
 import { TextMorph } from '@/components/text-morph';
@@ -13,6 +15,26 @@ import { timelineTimeAt, useFollowCursor } from '@/widgets/video/follow-cursor';
 import { MatchFieldMenu } from '@/widgets/video/match-field-menu';
 import { SyncBar } from '@/widgets/video/sync-bar';
 import { YouTubePlayer } from '@/widgets/video/youtube-player';
+
+const styles = stylex.create({
+	root: { display: 'flex', height: '100%', flexDirection: 'column' },
+	stage: { position: 'relative', minHeight: 0, flex: 1, backgroundColor: 'black' },
+	frame: { width: '100%', height: '100%' },
+	dimmed: { opacity: 0.38 },
+	outside: {
+		pointerEvents: 'none',
+		position: 'absolute',
+		inset: 0,
+		display: 'grid',
+		placeItems: 'center',
+		color: 'white',
+		fontSize: typeScaleVars['--text-label-size'],
+		fontWeight: fontWeightVars['--font-weight-medium'],
+		fontVariantNumeric: 'tabular-nums',
+		lineHeight: '1.25rem',
+	},
+	playPause: { position: 'absolute', inset: 0, cursor: 'default' },
+});
 
 export type VideoProps = { paneId: string; sync: Sync; setOption: WidgetProps['setOption'] };
 
@@ -77,10 +99,10 @@ export function SyncedVideo({
 
 	const outside = syncing ? undefined : outsideLabel(target, duration);
 	return (
-		<div className="flex h-full flex-col">
-			<div className="relative min-h-0 flex-1 bg-black">
+		<div {...stylex.props(styles.root)}>
+			<div {...stylex.props(styles.stage)}>
 				{/* The first or last frame, dimmed */}
-				<div className={outside === undefined ? 'size-full' : 'size-full opacity-38'}>
+				<div {...stylex.props(styles.frame, outside !== undefined && styles.dimmed)}>
 					{video.kind === 'youtube' ? (
 						<YouTubePlayer id={video.id} muted={muted} ref={player} onInfo={onInfo} />
 					) : (
@@ -90,18 +112,14 @@ export function SyncedVideo({
 						</>
 					)}
 				</div>
-				{outside !== undefined && (
-					<span className="pointer-events-none absolute inset-0 grid place-items-center text-sm font-medium text-white tabular-nums">
-						{outside}
-					</span>
-				)}
+				{outside !== undefined && <span {...stylex.props(styles.outside)}>{outside}</span>}
 				{/* Clicking the video plays and pauses like the timeline. Not focusable, Space already plays and pauses everywhere. */}
 				{!syncing && (
 					<button
 						type="button"
 						tabIndex={-1}
 						aria-label="Play or pause"
-						className="absolute inset-0 cursor-default"
+						{...stylex.props(styles.playPause)}
 						onMouseDown={(event) => event.preventDefault()}
 						onClick={togglePlayback}
 					/>

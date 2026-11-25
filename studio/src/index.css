@@ -497,8 +497,8 @@
 }
 /* Opaque in captures, including a video's edge past the dashboard it shows */
 [data-frosted-frame]:not([data-capturing], [data-saving-video])
-	.bg-frame:not(:where([data-capturing], [data-capturing] *)) {
-	background-color: color-mix(in srgb, var(--frame) 75%, transparent);
+	[data-app-frame]:not(:where([data-capturing], [data-capturing] *)) {
+	background-color: color-mix(in srgb, var(--color-background-body) 75%, transparent);
 }
 /* Keep overlays that live outside the captured panes out of the image without moving the dashboard. */
 [data-capturing] :is([data-sidebar='sidebar'], [data-sidebar='rail-copy'], .astryx-layer, .astryx-toast) {
@@ -525,9 +525,11 @@
 
 /* Older webviews don't report reduced transparency; their native backdrop handles it. */
 @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
-	[data-frosted-frame] body,
-	[data-frosted-frame] .bg-frame {
+	[data-frosted-frame] body {
 		background-color: revert-layer;
+	}
+	[data-frosted-frame] [data-app-frame] {
+		background-color: var(--color-background-body);
 	}
 }
 

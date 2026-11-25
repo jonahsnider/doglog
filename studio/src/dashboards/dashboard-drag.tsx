@@ -1,4 +1,13 @@
+import {
+	colorVars,
+	fontWeightVars,
+	radiusVars,
+	shadowVars,
+	spacingVars,
+	typeScaleVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
 import { pointerIntersection } from '@dnd-kit/collision';
+import * as stylex from '@stylexjs/stylex';
 import { useDragOperation, useDroppable } from '@dnd-kit/react';
 import PanelLeftIcon from 'lucide-react/icons/panel-left';
 import PanelRightIcon from 'lucide-react/icons/panel-right';
@@ -6,8 +15,71 @@ import { AnimatePresence, domAnimation, LazyMotion, m } from 'motion/react';
 import { easing, useMotionTransition } from '@/lib/motion';
 import { dashboardDragType, isDashboardDrag, type SplitZoneData } from '@/dashboards/drag';
 import { type Dashboard, useDashboards } from '@/dashboards/dashboards';
-import { cn } from '@/lib/utils';
 import { canJoinLayouts } from '@/panes/layout';
+import './dashboard-drag.css';
+
+const narrow = '@container (width < 20rem)';
+
+const styles = stylex.create({
+	zones: {
+		pointerEvents: 'none',
+		position: 'absolute',
+		inset: spacingVars['--spacing-4'],
+		zIndex: 50,
+		display: 'flex',
+		gap: spacingVars['--spacing-2'],
+		containerType: 'inline-size',
+	},
+	side: {
+		display: { default: 'flex', '@container (width < 3rem)': 'none' },
+		flex: 1,
+		alignItems: 'center',
+		minWidth: 0,
+	},
+	right: { justifyContent: 'flex-end' },
+	zone: {
+		width: '11rem',
+		minWidth: 0,
+		height: 'min(20rem, 70%)',
+		paddingBlock: spacingVars['--spacing-2'],
+		paddingInline: { default: spacingVars['--spacing-2'], [narrow]: 0 },
+		borderRadius: 16,
+		borderWidth: 1,
+		borderStyle: 'solid',
+		borderColor: colorVars['--color-border'],
+		backgroundColor: colorVars['--color-background-popover'],
+		boxShadow: shadowVars['--shadow-high'],
+	},
+	disabled: { opacity: 0.5 },
+	target: {
+		display: 'flex',
+		flexDirection: 'column',
+		alignItems: 'center',
+		justifyContent: 'center',
+		gap: spacingVars['--spacing-2'],
+		width: '100%',
+		height: '100%',
+		paddingInline: { default: spacingVars['--spacing-3'], [narrow]: 0 },
+		borderRadius: radiusVars['--radius-container'],
+		borderWidth: 2,
+		borderStyle: 'dashed',
+		borderColor: colorVars['--color-border'],
+		textAlign: 'center',
+		overflowWrap: { default: null, [narrow]: 'anywhere' },
+		fontSize: typeScaleVars['--text-label-size'],
+		lineHeight: typeScaleVars['--text-label-leading'],
+		fontWeight: fontWeightVars['--font-weight-medium'],
+		color: colorVars['--color-text-secondary'],
+		transition:
+			'color 150ms var(--ease-in-out), background-color 150ms var(--ease-in-out), border-color 150ms var(--ease-in-out)',
+	},
+	over: {
+		borderColor: colorVars['--color-accent'],
+		backgroundColor: `color-mix(in srgb, ${colorVars['--color-accent']} 10%, transparent)`,
+		color: colorVars['--color-text-accent'],
+	},
+	icon: { width: 20, height: 20 },
+});
 
 /** Dragging another dashboard over the open one shows zones to add it as a left or right split */
 export function DashboardSplitZones({ dashboard }: { dashboard: Dashboard }) {
@@ -20,15 +92,15 @@ export function DashboardSplitZones({ dashboard }: { dashboard: Dashboard }) {
 	const disabled = dragged !== undefined && !canJoinLayouts([dashboard.layout, dragged.layout]);
 
 	return (
-		// Inset past the peeking sidebar's overhang. The collapsed rail already takes up space in the layout.
-		<div className="pointer-events-none absolute inset-4 z-50 flex gap-2 group-has-data-peeking/app:left-[calc(1rem+var(--sidebar-width)-var(--sidebar-width-icon))] @container">
+		// Inset past the peeking sidebar's overhang, see `dashboard-drag.css`
+		<div data-split-zones {...stylex.props(styles.zones)}>
 			<LazyMotion features={domAnimation} strict>
 				<AnimatePresence>
 					{dragged &&
 						(['left', 'right'] as const).map((side) => (
 							<m.div
 								key={side}
-								className={cn('flex min-w-0 flex-1 items-center @max-[3rem]:hidden', side === 'right' && 'justify-end')}
+								{...stylex.props(styles.side, side === 'right' && styles.right)}
 								initial={{ opacity: 0, x: side === 'left' ? -16 : 16 }}
 								animate={{ opacity: 1, x: 0 }}
 								exit={{ opacity: 0, x: side === 'left' ? -16 : 16, transition: exitTransition }}
@@ -65,20 +137,9 @@ function SplitZone({
 	const Icon = side === 'left' ? PanelLeftIcon : PanelRightIcon;
 
 	return (
-		<div
-			ref={ref}
-			className={cn(
-				'h-[min(20rem,70%)] w-44 min-w-0 rounded-2xl border bg-popover p-2 shadow-lg @max-xs:px-0',
-				disabled && 'opacity-50',
-			)}
-		>
-			<div
-				className={cn(
-					'flex size-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-3 text-center text-sm font-medium text-muted-foreground transition-colors @max-xs:px-0 @max-xs:wrap-anywhere',
-					isDropTarget && 'border-primary bg-primary/10 text-primary',
-				)}
-			>
-				<Icon className="size-5" />
+		<div ref={ref} {...stylex.props(styles.zone, disabled && styles.disabled)}>
+			<div {...stylex.props(styles.target, isDropTarget && styles.over)}>
+				<Icon {...stylex.props(styles.icon)} />
 				{disabled ? 'Too many side by side panes' : side === 'left' ? 'Add left split' : 'Add right split'}
 			</div>
 		</div>

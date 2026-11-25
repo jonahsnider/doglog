@@ -1,4 +1,6 @@
 import { LinkProvider } from '@astryxdesign/core/Link';
+import { colorVars, radiusVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { Outlet, createRootRoute, useMatchRoute } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import { useGlobalShortcuts } from '@/commands/commands';
@@ -14,11 +16,79 @@ import { useDesktopLinkOffer } from '@/dashboards/open-dashboard-link';
 import { LogDropOverlay } from '@/components/log-drop-overlay';
 import { Toasts } from '@/components/toasts';
 import { useMobileLayout } from '@/lib/mobile-layout';
-import { cn } from '@/lib/utils';
 import { useTitleBarStrip } from '@/desktop/title-bar';
 import { sidebarAnimationStore } from '@/sidebar/sidebar';
 import { TimelineBar } from '@/timeline/timeline-bar';
 import { useWindowTitle } from '@/window-title';
+
+const styles = stylex.create({
+	frame: {
+		'--sidebar-width': '17.25rem',
+		'--sidebar-width-icon': '2.625rem',
+		display: 'flex',
+		flexDirection: 'column',
+		height: '100svh',
+		backgroundColor: colorVars['--color-background-body'],
+	},
+	mobileFrame: {
+		height: '100dvh',
+	},
+	// Gives iOS an opaque top edge to extend into the status bar instead of blurring over the app
+	webFrame: {
+		position: {
+			default: null,
+			'@media (display-mode: standalone)': { '@supports (-webkit-touch-callout: none)': 'sticky' },
+		},
+		top: { default: null, '@media (display-mode: standalone)': { '@supports (-webkit-touch-callout: none)': 0 } },
+	},
+	body: {
+		display: 'flex',
+		flex: 1,
+		minHeight: 0,
+	},
+	mobileBody: {
+		flexDirection: 'column',
+	},
+	contents: {
+		display: 'contents',
+	},
+	main: {
+		position: 'relative',
+		display: 'flex',
+		flex: 1,
+		flexDirection: 'column',
+		width: '100%',
+		minWidth: 0,
+		overflow: 'hidden',
+	},
+	// Pages have a gap around them, dashboards have it inside
+	page: {
+		margin: '0.375rem',
+		borderRadius: radiusVars['--radius-element'],
+		backgroundColor: colorVars['--color-background-surface'],
+	},
+	mobilePanes: {
+		minHeight: 0,
+		paddingInlineEnd: '0.375rem',
+	},
+	mobilePage: {
+		width: 'auto',
+		minHeight: 0,
+	},
+	// Below the title bar's strip, lined up with the rail
+	belowStripPanes: {
+		marginTop: '2.25rem',
+	},
+	belowStripPage: {
+		marginTop: '2.625rem',
+	},
+	// Moves below the strip before the sidebar collapses, and back up after it expands
+	animated: {
+		transitionDuration: 'calc(150ms * var(--motion-scale))',
+		transitionProperty: 'margin',
+		transitionTimingFunction: 'var(--ease-in-out)',
+	},
+});
 
 export const Route = createRootRoute({
 	component: RootLayout,
@@ -45,27 +115,20 @@ function RootLayout() {
 					{/* Wraps the whole app, so dashboards and panes can be dragged between the sidebar and the main area */}
 					<DragProvider>
 						<div
-							className={cn(
-								'group/app flex flex-col bg-frame [--sidebar-width-icon:2.625rem] [--sidebar-width:17.25rem]',
-								// Give iOS an opaque top edge to extend into the status bar instead of blurring over the app.
-								!STUDIO_DESKTOP &&
-									'[@media(display-mode:standalone)]:supports-[-webkit-touch-callout:none]:sticky [@media(display-mode:standalone)]:supports-[-webkit-touch-callout:none]:top-0',
-								mobile ? 'h-dvh' : 'h-svh',
-							)}
+							data-app-frame=""
+							{...stylex.props(styles.frame, mobile && styles.mobileFrame, !STUDIO_DESKTOP && styles.webFrame)}
 						>
-							<div className={cn('flex min-h-0 flex-1', mobile && 'flex-col')}>
-								<div inert={exporting} className="contents">
+							<div {...stylex.props(styles.body, mobile && styles.mobileBody)}>
+								<div inert={exporting} {...stylex.props(styles.contents)}>
 									<AppSidebar mobile={mobile} />
 								</div>
 								<main
-									className={cn(
-										'relative flex w-full min-w-0 flex-1 flex-col overflow-hidden',
-										panes ? 'bg-transparent' : 'm-1.5 rounded-lg bg-(--color-background-surface)',
-										mobile && (panes ? 'min-h-0 pe-1.5' : 'min-h-0 w-auto'),
-										// Below the title bar's strip, lined up with the rail. Pages have a gap around them, dashboards have it inside.
-										strip && (panes ? 'mt-9' : 'mt-10.5'),
-										// Moves below the strip before the sidebar collapses, and back up after it expands
-										animation && 'transition-[margin] duration-150 motion-reduce:transition-none',
+									{...stylex.props(
+										styles.main,
+										!panes && styles.page,
+										mobile && (panes ? styles.mobilePanes : styles.mobilePage),
+										strip && (panes ? styles.belowStripPanes : styles.belowStripPage),
+										animation !== undefined && styles.animated,
 									)}
 								>
 									<Outlet />

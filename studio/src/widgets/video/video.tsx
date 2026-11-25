@@ -1,3 +1,11 @@
+import {
+	colorVars,
+	fontWeightVars,
+	radiusVars,
+	spacingVars,
+	typeScaleVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import ClapperboardIcon from 'lucide-react/icons/clapperboard';
 import FileVideoIcon from 'lucide-react/icons/file-video';
 import TriangleAlertIcon from 'lucide-react/icons/triangle-exclamation-point';
@@ -11,6 +19,35 @@ import { useAddVideo } from '@/widgets/video/use-add-video';
 import { useLocalVideo } from '@/widgets/video/local-files';
 import { parseSync, parseVideo } from '@/widgets/video/source';
 import { SyncedVideo, type VideoProps } from '@/widgets/video/synced-video';
+
+const styles = stylex.create({
+	root: { position: 'relative', height: '100%' },
+	dropZone: {
+		pointerEvents: 'none',
+		position: 'absolute',
+		inset: spacingVars['--spacing-1'],
+		display: 'grid',
+		alignItems: 'start',
+		justifyItems: 'center',
+		padding: spacingVars['--spacing-2'],
+		borderWidth: 2,
+		borderStyle: 'dashed',
+		borderColor: colorVars['--color-accent'],
+		borderRadius: radiusVars['--radius-element'],
+		backgroundColor: `color-mix(in srgb, ${colorVars['--color-accent']} 8%, transparent)`,
+	},
+	dropLabel: {
+		paddingInline: spacingVars['--spacing-3'],
+		paddingBlock: spacingVars['--spacing-1-5'],
+		borderRadius: radiusVars['--radius-full'],
+		backgroundColor: colorVars['--color-accent'],
+		color: colorVars['--color-on-accent'],
+		textAlign: 'center',
+		fontSize: typeScaleVars['--text-label-size'],
+		fontWeight: fontWeightVars['--font-weight-medium'],
+		lineHeight: '1.25rem',
+	},
+});
 
 /** A video of the match that follows the timeline, see `widget-video` in the specs */
 export function Video({ options, setOption, paneId }: WidgetProps) {
@@ -57,11 +94,11 @@ export function Video({ options, setOption, paneId }: WidgetProps) {
 			);
 	}
 	return (
-		<div {...dropProps} className="relative h-full">
+		<div {...dropProps} {...stylex.props(styles.root)}>
 			{content}
 			{draggingVideo && (
-				<div className="pointer-events-none absolute inset-1 grid items-start justify-items-center rounded-lg border-2 border-dashed border-primary bg-primary/8 p-2">
-					<span className="rounded-full bg-primary px-3 py-1.5 text-center text-sm font-medium text-primary-foreground">
+				<div {...stylex.props(styles.dropZone)}>
+					<span {...stylex.props(styles.dropLabel)}>
 						{video === undefined ? 'Drop to add video' : 'Drop to replace video'}
 					</span>
 				</div>

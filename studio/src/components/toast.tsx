@@ -1,6 +1,8 @@
 import { Button } from '@astryxdesign/core/Button';
 import { Spinner } from '@astryxdesign/core/Spinner';
+import { colorVars, fontWeightVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import type { ShowToastFn, ToastDismissFn } from '@astryxdesign/core/Toast';
+import * as stylex from '@stylexjs/stylex';
 import CircleAlertIcon from 'lucide-react/icons/circle-alert';
 import CircleCheckIcon from 'lucide-react/icons/circle-check';
 import InfoIcon from 'lucide-react/icons/info';
@@ -20,11 +22,44 @@ export interface ToastOptions {
 	timeout?: number;
 }
 
+const styles = stylex.create({
+	body: {
+		display: 'flex',
+		gap: spacingVars['--spacing-2'],
+	},
+	// As tall as a line of the title, so the icon lines up with it
+	iconLine: {
+		display: 'flex',
+		alignItems: 'center',
+		height: '1lh',
+	},
+	icon: {
+		flexShrink: 0,
+		width: 16,
+		height: 16,
+	},
+	info: { color: colorVars['--color-icon-info'] },
+	success: { color: colorVars['--color-icon-success'] },
+	warning: { color: colorVars['--color-icon-warning'] },
+	text: {
+		display: 'flex',
+		flexDirection: 'column',
+		gap: spacingVars['--spacing-0-5'],
+	},
+	title: {
+		fontWeight: fontWeightVars['--font-weight-medium'],
+	},
+	description: {
+		userSelect: 'text',
+		opacity: 0.8,
+	},
+});
+
 const icons: Record<ToastType, ReactNode> = {
-	info: <InfoIcon className="size-4 shrink-0 text-info" />,
-	success: <CircleCheckIcon className="size-4 shrink-0 text-success" />,
-	warning: <TriangleAlertIcon className="size-4 shrink-0 text-warning" />,
-	error: <CircleAlertIcon className="size-4 shrink-0" />,
+	info: <InfoIcon {...stylex.props(styles.icon, styles.info)} />,
+	success: <CircleCheckIcon {...stylex.props(styles.icon, styles.success)} />,
+	warning: <TriangleAlertIcon {...stylex.props(styles.icon, styles.warning)} />,
+	error: <CircleAlertIcon {...stylex.props(styles.icon)} />,
 	loading: <Spinner size="sm" />,
 };
 
@@ -44,11 +79,11 @@ function showToast(id: string, { type = 'info', title, description, actionProps,
 		isAutoHide: type !== 'error' && type !== 'loading' && timeout !== 0,
 		...(timeout !== undefined && timeout > 0 && { autoHideDuration: timeout }),
 		body: (
-			<span className="flex gap-2">
-				<span className="flex h-lh items-center">{icons[type]}</span>
-				<span className="flex flex-col gap-0.5">
-					<span className="font-medium">{title}</span>
-					{description !== undefined && <span className="select-text opacity-80">{description}</span>}
+			<span {...stylex.props(styles.body)}>
+				<span {...stylex.props(styles.iconLine)}>{icons[type]}</span>
+				<span {...stylex.props(styles.text)}>
+					<span {...stylex.props(styles.title)}>{title}</span>
+					{description !== undefined && <span {...stylex.props(styles.description)}>{description}</span>}
 				</span>
 			</span>
 		),

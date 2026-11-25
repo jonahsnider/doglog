@@ -1,3 +1,5 @@
+import { Text } from '@astryxdesign/core/Text';
+import { colorVars, radiusVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { Toolbar } from '@astryxdesign/core/Toolbar';
 import * as stylex from '@stylexjs/stylex';
 import XIcon from 'lucide-react/icons/x';
@@ -36,15 +38,16 @@ import {
 	widgetBindings,
 } from '@/widgets/bindings';
 import { useMobileLayout } from '@/lib/mobile-layout';
-import { cn } from '@/lib/utils';
 import { usePaneDrag } from '@/panes/drag';
 import { bindingMenuItems } from '@/panes/binding-menu';
 import { widgetMenuItems } from '@/panes/widget-menu';
 import { type Pane, type PaneNode, setPaneWidget, type SplitDirection } from '@/panes/layout';
+import { paneMarker } from './markers.stylex';
 import { getWidgetType, widgetTypes } from '@/widgets/registry';
 import { PanePresence } from '@/sharing/presence-avatars';
 import { initialOptions, optionValues } from '@/widgets/options';
 import { bindsEntries, type WidgetType, widgetTitle } from '@/widgets/widget-type';
+import './pane-view.css';
 
 export type PaneNodeProps = {
 	dashboardId: string;
@@ -61,16 +64,36 @@ const bindingIdAt = (target: EventTarget) =>
 	target instanceof Element ? target.closest<HTMLElement>('[data-binding-id]')?.dataset['bindingId'] : undefined;
 
 const styles = stylex.create({
-	// The menu wraps the pane, which fills its place in the layout
-	fill: {
-		width: '100%',
-		height: '100%',
+	// The pane and the menu wrapping it fill its place in the layout
+	fill: { width: '100%', height: '100%' },
+	pane: {
+		position: 'relative',
+		display: 'flex',
+		flexDirection: 'column',
+		overflow: 'hidden',
+		borderRadius: radiusVars['--radius-element'],
+		backgroundColor: colorVars['--color-background-surface'],
+		transition: 'opacity 150ms var(--ease-in-out)',
 	},
-	// The pane header has its own padding
-	controls: {
-		padding: 0,
+	dragged: { opacity: 0.4 },
+	header: {
+		display: 'flex',
 		flexShrink: 0,
+		alignItems: 'center',
+		gap: spacingVars['--spacing-0-5'],
+		height: 36,
+		paddingInline: spacingVars['--spacing-2'],
+		transition: 'background-color 150ms var(--ease-in-out)',
 	},
+	// Marks the widget whose entries the entry browser is editing
+	editing: { backgroundColor: `color-mix(in srgb, ${colorVars['--color-accent']} 12%, transparent)` },
+	title: { display: 'flex', flex: 1, minWidth: 0 },
+	// The pane header has its own padding
+	controls: { flexShrink: 0, padding: 0, transition: 'opacity 100ms var(--ease-in-out)' },
+	// Shown while the pane is hovered, and always while it's focused or without hover
+	hiddenControls: { opacity: { default: 0, [stylex.when.ancestor(':hover', paneMarker)]: 1 } },
+	content: { flex: 1, minHeight: 0 },
+	unknown: { padding: spacingVars['--spacing-3'] },
 });
 
 export function PaneView({
@@ -184,10 +207,7 @@ export function PaneView({
 		>
 			<div
 				ref={dropRef}
-				className={cn(
-					'group/pane relative flex size-full flex-col overflow-hidden rounded-lg bg-background transition-opacity',
-					isDragging && 'opacity-40',
-				)}
+				{...stylex.props(paneMarker, styles.fill, styles.pane, isDragging && styles.dragged)}
 				// Lets `addDashboardWidget()` pick a split direction from the pane's size
 				data-pane-id={pane.id}
 				data-zoom-filling={pane.id === zoomFillingPaneId || undefined}
@@ -204,11 +224,8 @@ export function PaneView({
 			>
 				<div
 					{...dragRegion}
-					className={cn(
-						'flex h-9 shrink-0 items-center gap-0.5 px-2 transition-colors',
-						// Marks the widget whose entries the entry browser is editing
-						editing && 'bg-primary/12 capture:bg-transparent capture:transition-none',
-					)}
+					{...stylex.props(styles.header, editing && styles.editing)}
+					data-pane-header
 					// Middle-clicking the header closes the pane, like a browser tab
 					onAuxClick={(event) => {
 						if (event.button === 1 && closable) {
@@ -216,7 +233,7 @@ export function PaneView({
 						}
 					}}
 				>
-					<span className="flex min-w-0 flex-1">
+					<span {...stylex.props(styles.title)}>
 						<PaneTitle
 							dragRef={dragRef}
 							movable={allowed.move}
@@ -231,11 +248,8 @@ export function PaneView({
 						label="Pane controls"
 						size="sm"
 						gap={0.5}
-						xstyle={styles.controls}
-						className={cn(
-							'capture-invisible transition-opacity duration-100',
-							!mobile && !focused && 'opacity-0 group-hover/pane:opacity-100',
-						)}
+						xstyle={[styles.controls, !mobile && !focused && styles.hiddenControls]}
+						className="capture-invisible"
 						endContent={
 							<>
 								{type && (
@@ -267,13 +281,15 @@ export function PaneView({
 						}
 					/>
 				</div>
-				<div className="min-h-0 flex-1">
+				<div {...stylex.props(styles.content)}>
 					{widget === undefined ? (
 						<AddWidgetPrompt onAdd={setWidget} focused={focused} />
 					) : type ? (
 						<WidgetView dashboardId={dashboardId} paneId={pane.id} type={type} bindings={bindings} options={options} />
 					) : (
-						<p className="p-3 text-sm text-muted-foreground">Unknown widget type {widget.type}.</p>
+						<Text as="p" color="secondary" xstyle={styles.unknown}>
+							Unknown widget type {widget.type}.
+						</Text>
 					)}
 				</div>
 				{isDropTarget && <PaneDropIndicator layout={dashboardLayout} paneId={pane.id} />}

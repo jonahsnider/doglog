@@ -345,9 +345,6 @@ importers:
       change-case:
         specifier: 5.4.4
         version: 5.4.4
-      clsx:
-        specifier: 2.1.1
-        version: 2.1.1
       convert:
         specifier: 8.2.0
         version: 8.2.0
@@ -402,9 +399,6 @@ importers:
       shiki:
         specifier: 4.6.0
         version: 4.6.0
-      tailwind-merge:
-        specifier: 3.7.1
-        version: 3.7.1
       takumi-js:
         specifier: 2.22.1
         version: 2.22.1(csstype@3.2.3)(react@19.3.1)
@@ -9439,9 +9433,6 @@ packages:
     peerDependenciesMeta:
       '@eslint/css':
         optional: true
-
-  tailwind-merge@3.7.1:
-    resolution: {integrity: sha512-v7y4BV4FUlO8exj/4M5UXKeoowDiuugVUg3tkMNIyOUCOHy5xp8+5aWQeXCtZ2491sUV1YPsVeM9EveZ6/xuZQ==}
 
   tailwindcss@4.3.5:
     resolution: {integrity: sha512-FcQk9BuffmEHJP2G0XmB2SplU1aLTI7j07Kunk+U74Ny+XiWOtzXz9aujFZ/avntw1e2cOv/3PkgzflQ7gX2vQ==}
@@ -20005,8 +19996,6 @@ snapshots:
   tagged-tag@1.0.0: {}
 
   tailwind-csstree@0.3.3: {}
-
-  tailwind-merge@3.7.1: {}
 
   tailwindcss@4.3.5: {}
 

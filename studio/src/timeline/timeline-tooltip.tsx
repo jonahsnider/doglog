@@ -1,20 +1,89 @@
 import { Text } from '@astryxdesign/core/Text';
+import { colorVars, fontWeightVars, radiusVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode, useRef, useState } from 'react';
-import { alertColors, modeColors, modeLabels, shiftColor } from '@/timeline/colors';
-import { cn } from '@/lib/utils';
+import { alertFills, modeFills, modeLabels } from '@/timeline/colors';
 import { formatRoughDuration, formatTime } from '@/timeline/timeline';
 import type { TimeRange } from '@/data/data-store';
 import type { UnreadEnd } from '@/data/log-source';
 import type { AlertSpan, ModePeriod } from '@/timeline/events';
 import type { MatchShift } from '@/timeline/shifts';
 
+const styles = stylex.create({
+	// The popup balances text, which wraps alerts into narrow lines, so they wrap normally up to a wider width
+	content: {
+		display: 'flex',
+		flexDirection: 'column',
+		width: 'max-content',
+		maxWidth: '28rem',
+		paddingBlock: spacingVars['--spacing-0-5'],
+		textWrap: 'pretty',
+	},
+	items: {
+		gap: spacingVars['--spacing-2'],
+	},
+	heading: {
+		display: 'flex',
+		alignItems: 'baseline',
+		gap: spacingVars['--spacing-4'],
+	},
+	label: {
+		display: 'flex',
+		flex: 1,
+		alignItems: 'baseline',
+		gap: spacingVars['--spacing-1-5'],
+		minWidth: 0,
+		fontWeight: fontWeightVars['--font-weight-medium'],
+	},
+	unreadLabel: {
+		minWidth: null,
+	},
+	dot: (color: string) => ({
+		flexShrink: 0,
+		width: 8,
+		height: 8,
+		borderRadius: radiusVars['--radius-full'],
+		backgroundColor: color,
+		translate: '0 1px',
+	}),
+	shift: {
+		boxShadow: 'inset 0 0 0 1px var(--fuel-outline)',
+	},
+	time: {
+		flexShrink: 0,
+	},
+	range: {
+		paddingInlineStart: '0.875rem',
+	},
+	alerts: {
+		display: 'flex',
+		flexDirection: 'column',
+		gap: spacingVars['--spacing-1-5'],
+	},
+	separated: {
+		paddingTop: spacingVars['--spacing-2'],
+		borderTopWidth: 1,
+		borderTopStyle: 'solid',
+		borderTopColor: colorVars['--color-border'],
+	},
+	numbers: {
+		fontVariantNumeric: 'tabular-nums',
+	},
+	anchor: {
+		position: 'absolute',
+		insetBlock: 0,
+		width: 0,
+		pointerEvents: 'none',
+	},
+});
+
 const maxListedAlerts = 5;
 
 /** Secondary text that follows the tooltip's inverted surface, which the app's own muted color doesn't */
 function Muted({ block, children }: { block?: boolean; children: ReactNode }) {
 	return (
-		<Text type="inherit" color="secondary" display={block === true ? 'block' : 'inline'} className="tabular-nums">
+		<Text type="inherit" color="secondary" display={block === true ? 'block' : 'inline'} xstyle={styles.numbers}>
 			{children}
 		</Text>
 	);
@@ -25,6 +94,7 @@ const minProgressDuration = 2_000_000;
 
 function TooltipItem({
 	color,
+	shift = false,
 	label,
 	from,
 	to,
@@ -32,6 +102,8 @@ function TooltipItem({
 	start,
 }: {
 	color: string;
+	/** Outlined like the timeline's hub shifts */
+	shift?: boolean;
 	label: string;
 	from: number;
 	to: number;
@@ -41,12 +113,12 @@ function TooltipItem({
 	const length = formatTime(to, from);
 	return (
 		<div>
-			<div className="flex items-baseline gap-4">
-				<div className="flex min-w-0 flex-1 items-baseline gap-1.5 font-medium">
-					<span className={cn('size-2 shrink-0 translate-y-px rounded-full', color)} />
+			<div {...stylex.props(styles.heading)}>
+				<div {...stylex.props(styles.label)}>
+					<span {...stylex.props(styles.dot(color), shift && styles.shift)} />
 					{label}
 				</div>
-				<span className="shrink-0">
+				<span {...stylex.props(styles.time)}>
 					<Muted>
 						{to - from >= minProgressDuration
 							? `${formatTime(Math.min(Math.max(hoverTime, from), to), from)} / ${length}`
@@ -54,7 +126,7 @@ function TooltipItem({
 					</Muted>
 				</span>
 			</div>
-			<div className="ps-3.5">
+			<div {...stylex.props(styles.range)}>
 				<Muted block>
 					{formatTime(from, start)} – {formatTime(to, start)}
 				</Muted>
@@ -82,11 +154,11 @@ export function HoverTooltip({
 	start: number;
 }) {
 	return (
-		// The popup balances text, which wraps alerts into narrow lines, so they wrap normally up to a wider width
-		<div className="flex w-max max-w-md flex-col gap-2 py-0.5 text-pretty">
+		<div {...stylex.props(styles.content, styles.items)}>
 			{period && (
 				<TooltipItem
-					color={('mode' in period ? modeColors[period.mode] : undefined) ?? 'bg-input'}
+					// The track's color, which the tooltip's inverted surface changes `--color-border` from
+					color={('mode' in period ? modeFills[period.mode] : undefined) ?? 'var(--md-outline-variant)'}
 					label={`${'mode' in period ? modeLabels[period.mode] : 'Disconnected'}${compressed ? ' (skipped)' : ''}`}
 					from={period.start}
 					to={period.end}
@@ -96,7 +168,8 @@ export function HoverTooltip({
 			)}
 			{shift && (
 				<TooltipItem
-					color={shiftColor}
+					color="var(--fuel)"
+					shift
 					label={`Hub active (${shift.name.toLowerCase()})`}
 					from={shift.start}
 					to={shift.end}
@@ -105,11 +178,11 @@ export function HoverTooltip({
 				/>
 			)}
 			{alerts.length > 0 && (
-				<ul className={cn('flex flex-col gap-1.5', (period ?? shift) && 'border-t border-(--color-border) pt-2')}>
+				<ul {...stylex.props(styles.alerts, (period ?? shift) !== undefined && styles.separated)}>
 					{alerts.slice(0, maxListedAlerts).map((alert) => (
 						<li key={`${alert.start}:${alert.level}:${alert.text}`}>
 							<TooltipItem
-								color={alertColors[alert.level]}
+								color={alertFills[alert.level]}
 								label={alert.text}
 								from={alert.start}
 								to={alert.end}
@@ -132,15 +205,15 @@ export function HoverTooltip({
 /** The unreadable end of a log, which has no times, so it shows about how long it would have lasted and how much of the file it is */
 export function UnreadTooltip({ percent, duration, after }: UnreadEnd) {
 	return (
-		<div className="flex w-max max-w-md flex-col py-0.5">
-			<div className="flex items-baseline gap-4">
-				<div className="flex flex-1 items-baseline gap-1.5 font-medium">
-					<span className="size-2 shrink-0 translate-y-px rounded-full bg-destructive" />
+		<div {...stylex.props(styles.content)}>
+			<div {...stylex.props(styles.heading)}>
+				<div {...stylex.props(styles.label, styles.unreadLabel)}>
+					<span {...stylex.props(styles.dot('var(--color-error)'))} />
 					Couldn’t be read
 				</div>
 				<Muted>estimated {formatRoughDuration(duration)}</Muted>
 			</div>
-			<div className="ps-3.5">
+			<div {...stylex.props(styles.range)}>
 				<Muted block>
 					The last {percent}% of the file, after {formatTime(after, 0)}
 				</Muted>
@@ -162,7 +235,7 @@ export function ScrubberTooltip({ x, content }: { x: number | undefined; content
 	}
 	return (
 		<>
-			<span ref={anchor} className="pointer-events-none absolute inset-y-0 w-0" style={{ left: shown?.x ?? 0 }} />
+			<span ref={anchor} {...stylex.props(styles.anchor)} style={{ left: shown?.x ?? 0 }} />
 			<Tooltip anchorRef={anchor} isOpen={content !== undefined} content={content ?? shown?.content} />
 		</>
 	);

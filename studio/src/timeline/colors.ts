@@ -1,11 +1,12 @@
 import type { AlertLevel, RobotMode } from '@/timeline/events';
 
-export const modeColors: Record<RobotMode, string | undefined> = {
+/** The robot's modes' colors, none while it's disabled */
+export const modeFills: Record<RobotMode, string | undefined> = {
 	disabled: undefined,
-	auto: 'bg-success',
-	teleop: 'bg-info',
-	test: 'bg-test-mode',
-	estop: 'bg-destructive',
+	auto: 'var(--color-success)',
+	teleop: 'var(--color-info)',
+	test: 'var(--test-mode)',
+	estop: 'var(--color-error)',
 };
 
 export const modeLabels: Record<RobotMode, string> = {
@@ -16,6 +17,4 @@ export const modeLabels: Record<RobotMode, string> = {
 	estop: 'E-stopped',
 };
 
-export const alertColors: Record<AlertLevel, string> = { error: 'bg-destructive', warning: 'bg-warning' };
-
-export const shiftColor = 'bg-fuel ring-1 ring-fuel-outline ring-inset';
+export const alertFills: Record<AlertLevel, string> = { error: 'var(--color-error)', warning: 'var(--color-warning)' };

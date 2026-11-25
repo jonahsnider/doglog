@@ -1,0 +1,4 @@
+/* Past the peeking sidebar's overhang. The collapsed rail already takes up space in the layout. */
+:root:has([data-peeking]) [data-split-zones] {
+	left: calc(var(--spacing-4) + var(--sidebar-width) - var(--sidebar-width-icon));
+}

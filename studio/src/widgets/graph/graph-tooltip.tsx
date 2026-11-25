@@ -1,5 +1,12 @@
-import { type ReactNode, use, useSyncExternalStore } from 'react';
-import { createPortal } from 'react-dom';
+import {
+	colorVars,
+	fontWeightVars,
+	radiusVars,
+	spacingVars,
+	typographyVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
+import { use, useSyncExternalStore } from 'react';
 import { type Entry, subscribeData, useTimeRange } from '@/data/data-store';
 import { formatValue } from '@/data/format-value';
 import { useCaptureFrame } from '@/desktop/capture';
@@ -13,61 +20,59 @@ import type { SeriesUnit } from '@/widgets/graph/axis-units';
 import { bandAt, bandHeight, bandTop, changesIn, rowHeight } from '@/widgets/graph/bands';
 import { bandColor, type BandPalette, type ColorAssignments } from '@/widgets/graph/colors';
 import { formatInUnit } from '@/widgets/graph/format';
+import { type Offset, Popup } from '@/widgets/graph/popup';
 import type { BandHover, LineHover, PointerAt } from '@/widgets/graph/tooltip-side';
 import { useViewRange } from '@/widgets/graph/view';
 import { bindingColor } from '@/widgets/series-color';
 import type { WidgetBinding } from '@/widgets/widget-type';
 
-/** Where the area between the y-axes and the top of the graph are in the window */
-type Offset = { left: number; top: number };
-
-const windowMargin = 4;
-
-/**
- * Beside the pointer, on whichever side of the graph has more room, as wide as its content, with its top at `top`, or
- * its bottom when `above`. Drawn over the whole window so other panes don't cut it off, and moved over the pointer only
- * when it would go past the window's edge.
- */
-function Popup({
-	at,
-	top,
-	above = false,
-	offset,
-	bounds,
-	children,
-}: {
-	at: PointerAt;
-	top: number;
-	above?: boolean;
-	offset: Offset;
-	bounds?: DOMRect | undefined;
-	children: ReactNode;
-}) {
-	const left = offset.left + at.x + (at.flip ? -12 : 12);
-	const y = offset.top + top;
-	const rightEdge = bounds ? `${bounds.right}px` : '100vw';
-	const bottomEdge = bounds ? `${bounds.bottom}px` : '100vh';
-	const minX = (bounds?.left ?? 0) + windowMargin - left;
-	const minY = (bounds?.top ?? 0) + windowMargin - y;
-	return createPortal(
-		<div
-			className="pointer-events-none fixed z-50 w-max rounded-md border bg-popover px-2 py-1.5 text-xs whitespace-nowrap text-popover-foreground shadow-md"
-			style={{
-				left,
-				top: y,
-				translate: `clamp(${minX}px, ${at.flip ? '-100%' : '0px'}, calc(${rightEdge} - ${left + windowMargin}px - 100%)) clamp(${minY}px, ${above ? '-100%' : '0px'}, calc(${bottomEdge} - ${y + windowMargin}px - 100%))`,
-				...(bounds && {
-					maxWidth: bounds.width - windowMargin * 2,
-					maxHeight: bounds.height - windowMargin * 2,
-					overflow: 'hidden',
-				}),
-			}}
-		>
-			{children}
-		</div>,
-		document.body,
-	);
-}
+const styles = stylex.create({
+	header: {
+		marginBottom: spacingVars['--spacing-1'],
+		color: colorVars['--color-text-secondary'],
+		fontVariantNumeric: 'tabular-nums',
+	},
+	values: {
+		display: 'grid',
+		gridTemplateColumns: 'auto minmax(0, auto) auto',
+		alignItems: 'center',
+		columnGap: spacingVars['--spacing-2'],
+		rowGap: spacingVars['--spacing-0-5'],
+	},
+	row: {
+		display: 'contents',
+	},
+	dot: {
+		width: 8,
+		height: 8,
+		borderRadius: radiusVars['--radius-full'],
+	},
+	name: {
+		maxWidth: '16rem',
+		overflow: 'hidden',
+		textOverflow: 'ellipsis',
+		whiteSpace: 'nowrap',
+		fontFamily: typographyVars['--font-family-code'],
+	},
+	value: {
+		// Wide enough for most values, so the tooltip rarely resizes as they change
+		minWidth: '10ch',
+		textAlign: 'end',
+		fontFamily: typographyVars['--font-family-code'],
+		fontVariantNumeric: 'tabular-nums',
+	},
+	bandValue: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: spacingVars['--spacing-2'],
+		fontFamily: typographyVars['--font-family-code'],
+		fontWeight: fontWeightVars['--font-weight-medium'],
+	},
+	bandTime: {
+		color: colorVars['--color-text-secondary'],
+		fontVariantNumeric: 'tabular-nums',
+	},
+});
 
 /** The hovered time and the robot's mode then, ex. `0:12.34 · Teleop` */
 function TimeHeader({ time }: { time: number }) {
@@ -77,7 +82,7 @@ function TimeHeader({ time }: { time: number }) {
 	}
 	const period = getModePeriods(range).findLast((item) => item.start <= time && time <= item.end);
 	return (
-		<div className="mb-1 text-muted-foreground tabular-nums">
+		<div {...stylex.props(styles.header)}>
 			{formatTime(time, range.start)}
 			{period && ` · ${modeLabels[period.mode]}`}
 		</div>
@@ -185,12 +190,12 @@ function LineTooltip({ at, time, top, above, plotted, units, offset, bounds }: L
 	return (
 		<Popup at={at} top={top} above={above} offset={offset} bounds={bounds}>
 			<TimeHeader time={time} />
-			<div className="grid grid-cols-[auto_minmax(0,auto)_auto] items-center gap-x-2 gap-y-0.5">
+			<div {...stylex.props(styles.values)}>
 				{plotted.map((binding, index) => {
 					return binding.hidden ? null : (
-						<div key={binding.id} className="contents">
-							<span className="size-2 rounded-full" style={{ background: bindingColor(binding, index) }} />
-							<span className="max-w-64 truncate font-mono">
+						<div key={binding.id} {...stylex.props(styles.row)}>
+							<span {...stylex.props(styles.dot)} style={{ background: bindingColor(binding, index) }} />
+							<span {...stylex.props(styles.name)}>
 								<EntryName name={binding.name} />
 							</span>
 							<LineValue entry={binding.entry} time={time} unit={units.get(binding.id)!} />
@@ -204,12 +209,7 @@ function LineTooltip({ at, time, top, above, plotted, units, offset, bounds }: L
 
 function LineValue({ entry, time, unit }: { entry: Entry | undefined; time: number; unit: SeriesUnit }) {
 	const value = useSyncExternalStore(subscribeData, () => entry?.samples.valueAt(time));
-	return (
-		// Wide enough for most values, so the tooltip rarely resizes as they change
-		<span className="min-w-[10ch] text-end font-mono tabular-nums">
-			{value === undefined ? '—' : formatInUnit(value, unit)}
-		</span>
-	);
+	return <span {...stylex.props(styles.value)}>{value === undefined ? '—' : formatInUnit(value, unit)}</span>;
 }
 
 /** The hovered band's value and time range, or how many times the value changes within the hovered pixel */
@@ -237,13 +237,11 @@ function BandTooltip({
 	const color = changes > 1 ? undefined : bandColor(assignments, palette, entry, band.value, 'lookup');
 	return (
 		<Popup at={hover} top={hover.top + hover.row * rowHeight + bandTop + bandHeight + 4} offset={offset}>
-			<div className="flex items-center gap-2 font-mono font-medium">
-				{color !== undefined && (
-					<span aria-hidden="true" className="size-2 rounded-full" style={{ background: color }} />
-				)}
+			<div {...stylex.props(styles.bandValue)}>
+				{color !== undefined && <span aria-hidden="true" {...stylex.props(styles.dot)} style={{ background: color }} />}
 				{changes > 1 ? `${changes} changes` : formatValue(band.value)}
 			</div>
-			<div className="text-muted-foreground tabular-nums">
+			<div {...stylex.props(styles.bandTime)}>
 				{changes > 1
 					? `${formatTime(from, range.start)} - ${formatTime(to, range.start)}`
 					: `${formatTime(band.start, range.start)} - ${formatTime(band.end, range.start)}`}

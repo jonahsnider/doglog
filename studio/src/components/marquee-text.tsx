@@ -1,11 +1,24 @@
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { reducesMotion } from '@/lib/motion';
-import { cn } from '@/lib/utils';
 
 /** Scroll speed in pixels per second */
 const speed = 80;
 /** How long to wait at each end before scrolling back, in milliseconds */
 const pause = 500;
+
+const styles = stylex.create({
+	text: {
+		display: 'block',
+		overflow: 'hidden',
+		whiteSpace: 'nowrap',
+		textOverflow: 'ellipsis',
+	},
+	// The ellipsis would cover the end of the text while it's scrolled into view
+	scrolling: {
+		textOverflow: 'clip',
+	},
+});
 
 /** Truncates `children` to one line, and scrolls back and forth to show the rest while hovered */
 export function MarqueeText({ className, children }: { className?: string; children: ReactNode }) {
@@ -43,11 +56,12 @@ export function MarqueeText({ className, children }: { className?: string; child
 		};
 	}, [hovered]);
 
+	const sx = stylex.props(styles.text, hovered && styles.scrolling);
 	return (
 		<span
 			ref={ref}
-			// The ellipsis would cover the end of the text while it's scrolled into view
-			className={cn('block overflow-hidden whitespace-nowrap', hovered ? 'text-clip' : 'text-ellipsis', className)}
+			{...sx}
+			className={className === undefined ? sx.className : `${sx.className} ${className}`}
 			onPointerEnter={() => setHovered(true)}
 			onPointerLeave={() => setHovered(false)}
 		>

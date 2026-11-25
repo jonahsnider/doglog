@@ -1,10 +1,46 @@
+import { radiusVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
 import { fieldBackground, type FieldView, image, pixelsPerMeterX, pixelsPerMeterY } from '@/widgets/field/geometry';
 import type { Bounds } from '@/widgets/field/zoom';
 // Rendered from the official field CAD by Cameron (Juniormunk) on Chief Delphi, without the background or fuel:
 // https://www.chiefdelphi.com/t/2026-rebuilt-high-resolution-field-image/510611
 import fieldImage from '@/widgets/field/2026-rebuilt.webp';
+
+const styles = stylex.create({
+	minimap: {
+		pointerEvents: 'none',
+		position: 'absolute',
+		top: spacingVars['--spacing-2'],
+		width: '25%',
+		overflow: 'hidden',
+		containerType: 'size',
+		borderRadius: radiusVars['--radius-inner'],
+		// A dark ring and shadow, so it stands out from the field under it
+		boxShadow: '0 0 0 1px rgb(0 0 0 / 0.6), 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5)',
+		transitionProperty: 'opacity',
+	},
+	left: { left: spacingVars['--spacing-2'] },
+	right: { right: spacingVars['--spacing-2'] },
+	shown: {
+		opacity: 1,
+		transitionDuration: 'calc(150ms * var(--motion-scale))',
+		transitionTimingFunction: 'var(--ease-out)',
+	},
+	hidden: {
+		opacity: 0,
+		transitionDuration: 'calc(100ms * var(--motion-scale))',
+		transitionTimingFunction: 'var(--ease-in)',
+	},
+	image: { display: 'block', width: '100%', height: '100%' },
+	outline: {
+		position: 'absolute',
+		borderWidth: 1.5,
+		borderStyle: 'solid',
+		borderColor: 'white',
+		backgroundColor: 'rgb(255 255 255 / 0.2)',
+	},
+});
 
 /** The field image on its background, in SVG coordinates */
 export function FieldImage() {
@@ -27,7 +63,7 @@ export function FieldImage() {
  * `x` and `y` are the corner's insets from the minimap's sides, as fractions of its size.
  */
 function outlineRadius(x: number, y: number): string {
-	return `max(2px, var(--radius-sm) - max(${x * 100}cqw, ${y * 100}cqh))`;
+	return `max(2px, var(--radius-inner) - max(${x * 100}cqw, ${y * 100}cqh))`;
 }
 
 /**
@@ -54,21 +90,17 @@ export function Minimap({
 
 	return (
 		<div
-			className={cn(
-				'pointer-events-none absolute top-2 w-1/4 overflow-hidden rounded-sm shadow-black/50 shadow-lg ring-1 ring-black/60 transition-opacity [container-type:size] motion-reduce:transition-none',
-				left ? 'left-2' : 'right-2',
-				visible ? 'opacity-100 duration-150 ease-out' : 'opacity-0 duration-100 ease-in',
-			)}
+			{...stylex.props(styles.minimap, left ? styles.left : styles.right, visible ? styles.shown : styles.hidden)}
 			style={{ aspectRatio }}
 			aria-hidden
 		>
-			<svg className="block size-full" viewBox={viewBox}>
+			<svg {...stylex.props(styles.image)} viewBox={viewBox}>
 				<g transform={transform}>
 					<FieldImage />
 				</g>
 			</svg>
 			<div
-				className="absolute border-[1.5px] border-white bg-white/20"
+				{...stylex.props(styles.outline)}
 				style={{
 					left: `${insetLeft * 100}%`,
 					top: `${insetTop * 100}%`,

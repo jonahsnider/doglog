@@ -1,13 +1,12 @@
-import { Tooltip } from '@astryxdesign/core/Tooltip';
+import { colorVars, radiusVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { useDraggable, useDroppable } from '@dnd-kit/react';
-import { TreeItem, TreeItemIndicator, TreeItemLabel } from '@ui-sdk/react/tree';
+import { TreeItem, TreeItemLabel } from '@ui-sdk/react/tree';
 import ChevronRightIcon from 'lucide-react/icons/chevron-right';
 import { memo, use, useCallback, useRef } from 'react';
 import { AppActionMenu, AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { openContextMenu } from '@/components/open-context-menu';
-import { EntryName } from '@/entries/entry-name';
 import { SectionHeaderLabel } from '@/entries/section-header-label';
-import { HighlightedText } from '@/components/highlighted-text';
 import { type GroupCheck, GroupCheckbox, GroupMark, TypeMark } from '@/entries/value-marks';
 import { EntryRowValue } from '@/entries/entry-value';
 import { entryMenuItems } from '@/entries/entry-menu';
@@ -15,12 +14,89 @@ import { addDashboardWidget, DashboardIdContext } from '@/dashboards/panes';
 import type { EntryDragData, EntryDragItem, EntrySectionDropData } from '@/entries/drag';
 import { entryDragType, entryRowDragType, entryRowSensors } from '@/entries/drag';
 import { sectionMenuItems } from '@/entries/sections';
-import type { EntryTreeNode, EntryTreeRow } from '@/entries/tree';
-import { cn } from '@/lib/utils';
+import type { EntryTreeRow } from '@/entries/tree';
+import { ContainsBoundMark, IndentGuides, RowIndicator, RowLabel } from '@/entries/entry-row-parts';
+import { entryRowMarker } from './markers.stylex';
 import { defaultWidget } from '@/widgets/registry';
 
 /** Rows have a fixed height so only the rows in view need to be rendered */
 export const rowHeight = 28;
+
+const styles = stylex.create({
+	// Inset and rounded like the sidebar's items, with the leading icons lined up with the search box's
+	row: {
+		position: 'absolute',
+		insetInline: spacingVars['--spacing-2'],
+		display: 'flex',
+		alignItems: 'center',
+		gap: spacingVars['--spacing-1-5'],
+		borderRadius: radiusVars['--radius-element'],
+		paddingInlineEnd: '0.625rem',
+		fontSize: typeScaleVars['--text-label-size'],
+		lineHeight: typeScaleVars['--text-label-leading'],
+		outline: 'none',
+		backgroundColor: {
+			default: null,
+			':hover': colorVars['--color-overlay-hover'],
+			':focus-visible': colorVars['--color-overlay-hover'],
+		},
+	},
+	// Square while dropping on its section, so the section's rows highlight as one block
+	dropTarget: {
+		borderRadius: 0,
+		backgroundColor: {
+			default: `color-mix(in srgb, ${colorVars['--color-accent']} 8%, transparent)`,
+			':hover': colorVars['--color-overlay-hover'],
+			':focus-visible': colorVars['--color-overlay-hover'],
+		},
+	},
+	entry: {
+		cursor: { default: 'grab', ':active': 'grabbing' },
+	},
+	sticky: {
+		cursor: 'pointer',
+		textAlign: 'start',
+	},
+	stickySlot: {
+		position: 'absolute',
+		insetInline: 0,
+		overflow: 'hidden',
+	},
+	label: {
+		display: 'flex',
+		flex: 1,
+		alignItems: 'center',
+		gap: spacingVars['--spacing-1-5'],
+		height: '100%',
+		minWidth: 0,
+	},
+	// Share cramped rows with the preview without letting it take all the space
+	entryLabel: {
+		minWidth: 'min(7.5rem, 65%)',
+		overflow: 'hidden',
+	},
+	actions: {
+		flexShrink: 0,
+		marginInlineEnd: '-0.375rem',
+		opacity: {
+			default: 0,
+			'@media (hover: none)': 1,
+			':is([aria-expanded=true])': 1,
+			[stylex.when.ancestor(':hover', entryRowMarker)]: 1,
+			[stylex.when.ancestor(':focus-within', entryRowMarker)]: 1,
+		},
+	},
+	chevron: {
+		flexShrink: 0,
+		width: 16,
+		height: 16,
+	},
+	expandedChevron: {
+		color: colorVars['--color-icon-secondary'],
+		transform: 'rotate(90deg)',
+	},
+});
+
 // Memoized so rows don't re-render when the cursor moves, only their values do
 export const EntryRowView = memo(function EntryRowView({
 	row,
@@ -81,15 +157,19 @@ export const EntryRowView = memo(function EntryRowView({
 		},
 		[dragRef, dropRef],
 	);
-	// Square while dropping on its section, so the section's rows highlight as one block
-	const className = cn(rowClassName, dropTarget && 'rounded-none bg-primary/8');
 	const style = rowStyle(top, level);
 
 	if (header) {
 		return (
 			// Without the drag ref, headers don't get dnd-kit's drag handle attributes
-			<TreeItem value={node.value} data-value={node.value} ref={dropRef} className={className} style={style}>
-				<TreeItemLabel className="flex h-full min-w-0 flex-1 items-center gap-1.5">
+			<TreeItem
+				value={node.value}
+				data-value={node.value}
+				ref={dropRef}
+				{...stylex.props(styles.row, dropTarget && styles.dropTarget)}
+				style={style}
+			>
+				<TreeItemLabel {...stylex.props(styles.label)}>
 					<RowIndicator expandable={node.children !== undefined} />
 					<SectionHeaderLabel section="pinned" count={node.children?.length ?? 0} />
 				</TreeItemLabel>
@@ -109,7 +189,7 @@ export const EntryRowView = memo(function EntryRowView({
 				// Tells the tree which row has focus, see `EntryRows`
 				data-value={node.value}
 				ref={ref}
-				className={cn(className, 'group/entry-row cursor-grab active:cursor-grabbing')}
+				{...stylex.props(entryRowMarker, styles.row, dropTarget && styles.dropTarget, styles.entry)}
 				style={style}
 				aria-keyshortcuts="Shift+F10"
 				onKeyDown={(event) => {
@@ -124,8 +204,7 @@ export const EntryRowView = memo(function EntryRowView({
 				onDoubleClick={editing ? undefined : add}
 			>
 				<IndentGuides level={level} active={activeGuide} />
-				{/* Share cramped rows with the preview without letting it take all the space. */}
-				<TreeItemLabel className="flex h-full min-w-[min(7.5rem,65%)] flex-1 items-center gap-1.5 overflow-hidden">
+				<TreeItemLabel {...stylex.props(styles.label, styles.entryLabel)}>
 					<RowIndicator expandable={node.children !== undefined} />
 					{/* Checked while editing instead of having a checkbox of its own, so editing doesn't push the label over */}
 					{entry && <TypeMark type={entry.type} checked={editing && bound} checkable={editing} />}
@@ -143,7 +222,7 @@ export const EntryRowView = memo(function EntryRowView({
 					// The tree stays one tab stop; Shift+F10 opens the menu from the focused row.
 					isFocusable={false}
 					finalFocus={rowElement}
-					triggerClassName="-me-1.5 shrink-0 [@media(hover:hover)]:opacity-0 group-focus-within/entry-row:opacity-100 group-hover/entry-row:opacity-100 aria-expanded:opacity-100"
+					triggerClassName={stylex.props(styles.actions).className}
 				/>
 			</TreeItem>
 		</AppContextMenu>
@@ -179,16 +258,16 @@ export function StickyRow({
 	const { entry } = node;
 	return (
 		// Clipped to its slot, so a row being pushed out slides under the one above it without a background to hide it
-		<div className="absolute inset-x-0 overflow-hidden" style={{ top: slot, height: rowHeight }}>
+		<div {...stylex.props(styles.stickySlot)} style={{ top: slot, height: rowHeight }}>
 			<button
 				type="button"
 				tabIndex={-1}
-				className={cn(rowClassName, 'cursor-pointer text-start')}
+				{...stylex.props(styles.row, styles.sticky)}
 				style={rowStyle(top - slot, level)}
 				onClick={onClick}
 			>
 				<IndentGuides level={level} active={activeGuide} />
-				<ChevronRightIcon className="size-4 shrink-0 rotate-90 text-muted-foreground" />
+				<ChevronRightIcon {...stylex.props(styles.chevron, styles.expandedChevron)} />
 				{node.section === undefined ? (
 					<>
 						{entry && <TypeMark type={entry.type} checked={checked} />}
@@ -204,76 +283,6 @@ export function StickyRow({
 	);
 }
 
-// Inset and rounded like the sidebar's items, with the leading icons lined up with the search box's
-const rowClassName =
-	'absolute inset-x-2 flex items-center gap-1.5 rounded-lg pe-2.5 text-sm outline-none hover:bg-accent focus-visible:bg-accent';
-
 function rowStyle(top: number, level: number) {
 	return { top, height: rowHeight, paddingInlineStart: 10 + (level - 1) * 12 };
-}
-
-/**
- * A line under each ancestor's chevron, so deep rows can be followed up to their groups. They're shown while hovering
- * the entry browser, except the `active` group's, which is always shown and stands out.
- */
-function IndentGuides({ level, active }: { level: number; active: number | undefined }) {
-	return (
-		level > 1 && (
-			<>
-				<span
-					aria-hidden
-					className="pointer-events-none absolute inset-y-0 start-4.25 bg-[repeating-linear-gradient(to_right,var(--color-border)_0_1px,transparent_1px_12px)] opacity-0 transition-opacity duration-100 group-hover/entry-browser:opacity-100"
-					style={{ width: (level - 1) * 12 - 11 }}
-				/>
-				{active !== undefined && (
-					<span
-						aria-hidden
-						className="pointer-events-none absolute inset-y-0 w-px bg-outline"
-						style={{ insetInlineStart: 17 + (active - 1) * 12 }}
-					/>
-				)}
-			</>
-		)
-	);
-}
-
-function ContainsBoundMark() {
-	return <span role="img" aria-label="Has active entries" className="size-1.5 shrink-0 rounded-full bg-primary" />;
-}
-
-/** Chevron of rows with children. Leaves show their type mark in its place. */
-function RowIndicator({ expandable }: { expandable: boolean }) {
-	return (
-		expandable && (
-			<TreeItemIndicator className="shrink-0 text-muted-foreground transition-transform data-expanded:rotate-90">
-				<ChevronRightIcon className="size-4" />
-			</TreeItemIndicator>
-		)
-	);
-}
-
-function RowLabel({
-	node,
-	highlights,
-	unsupported,
-	bound,
-}: {
-	node: EntryTreeNode;
-	highlights: readonly number[] | undefined;
-	unsupported: boolean;
-	bound: boolean;
-}) {
-	const className = cn('min-w-0 flex-1 truncate', unsupported && 'text-muted-foreground', bound && 'text-primary');
-	return (
-		<Tooltip content={node.value} hasHoverIndication={false}>
-			<span className={className}>
-				{/* The tops of pinned and hidden entries and groups are labeled with their full paths */}
-				{node.label === node.value ? (
-					<EntryName name={node.value} ranges={highlights} />
-				) : (
-					<HighlightedText text={node.label} ranges={highlights} />
-				)}
-			</span>
-		</Tooltip>
-	);
 }

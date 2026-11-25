@@ -1,4 +1,6 @@
+import { colorVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
+import * as stylex from '@stylexjs/stylex';
 import BinaryIcon from 'lucide-react/icons/binary';
 import BoxIcon from 'lucide-react/icons/box';
 import BoxesIcon from 'lucide-react/icons/boxes';
@@ -17,7 +19,55 @@ import { TreeItemCheckbox } from '@ui-sdk/react/tree';
 import type { EntryKind } from '@/data/entry-kind';
 import { formatEntryType, getEntryKind } from '@/data/samples';
 import { knownGroup } from '@/entries/known-groups';
-import { cn } from '@/lib/utils';
+import { entryRowMarker } from './markers.stylex';
+
+const styles = stylex.create({
+	mark: {
+		display: 'flex',
+		flexShrink: 0,
+		alignItems: 'center',
+		justifyContent: 'center',
+		width: 16,
+		height: 16,
+		color: colorVars['--color-icon-secondary'],
+	},
+	checked: {
+		borderRadius: '0.25rem',
+		backgroundColor: colorVars['--color-accent'],
+		color: colorVars['--color-on-accent'],
+	},
+	unchecked: {
+		borderWidth: 1,
+		borderStyle: 'solid',
+		borderRadius: '0.25rem',
+		borderColor: colorVars['--color-border-emphasized'],
+	},
+	checkIcon: {
+		width: 12,
+		height: 12,
+	},
+	icon: {
+		width: 14,
+		height: 14,
+	},
+	// Gives way to the empty checkbox while its row is hovered or focused
+	checkableIcon: {
+		display: {
+			default: null,
+			[stylex.when.ancestor(':hover', entryRowMarker)]: 'none',
+			[stylex.when.ancestor(':focus-visible', entryRowMarker)]: 'none',
+		},
+	},
+	emptyCheckbox: {
+		display: {
+			default: 'none',
+			[stylex.when.ancestor(':hover', entryRowMarker)]: 'block',
+			[stylex.when.ancestor(':focus-visible', entryRowMarker)]: 'block',
+		},
+		width: 16,
+		height: 16,
+	},
+});
 
 const kindIcons: Record<EntryKind, LucideIcon> = {
 	number: HashIcon,
@@ -56,28 +106,14 @@ export function TypeMark({
 			<span
 				role="img"
 				aria-label={`Type: ${formatEntryType(type)}`}
-				className={cn(
-					'flex size-4 shrink-0 items-center justify-center',
-					checked ? 'rounded-[.25rem] bg-primary text-primary-foreground' : 'text-muted-foreground',
-				)}
+				{...stylex.props(styles.mark, checked && styles.checked)}
 			>
 				{checked ? (
-					<CheckIcon aria-hidden className="size-3" strokeWidth={3} />
+					<CheckIcon aria-hidden {...stylex.props(styles.checkIcon)} strokeWidth={3} />
 				) : (
 					<>
-						<EntryTypeIcon
-							type={type}
-							className={cn(
-								'size-3.5',
-								checkable && 'group-hover/entry-row:hidden group-focus-visible/entry-row:hidden',
-							)}
-						/>
-						{checkable && (
-							<span
-								aria-hidden
-								className="hidden size-4 rounded-[.25rem] border border-outline group-hover/entry-row:block group-focus-visible/entry-row:block"
-							/>
-						)}
+						<EntryTypeIcon type={type} {...stylex.props(styles.icon, checkable && styles.checkableIcon)} />
+						{checkable && <span aria-hidden {...stylex.props(styles.unchecked, styles.emptyCheckbox)} />}
 					</>
 				)}
 			</span>
@@ -96,22 +132,19 @@ export function GroupCheckbox({ check, sticky = false }: { check: GroupCheck | u
 	if (check === undefined) {
 		return null;
 	}
-	const className = cn(
-		'flex size-4 shrink-0 items-center justify-center rounded-[.25rem]',
-		check === 'unchecked' ? 'border border-outline' : 'bg-primary text-primary-foreground',
-	);
+	const sx = stylex.props(styles.mark, check === 'unchecked' ? styles.unchecked : styles.checked);
 	const icon =
 		check === 'unchecked' ? undefined : check === 'checked' ? (
-			<CheckIcon aria-hidden className="size-3" strokeWidth={3} />
+			<CheckIcon aria-hidden {...stylex.props(styles.checkIcon)} strokeWidth={3} />
 		) : (
-			<MinusIcon aria-hidden className="size-3" strokeWidth={3} />
+			<MinusIcon aria-hidden {...stylex.props(styles.checkIcon)} strokeWidth={3} />
 		);
 	return sticky ? (
-		<span aria-hidden className={className}>
+		<span aria-hidden {...sx}>
 			{icon}
 		</span>
 	) : (
-		<TreeItemCheckbox className={className}>{icon}</TreeItemCheckbox>
+		<TreeItemCheckbox {...sx}>{icon}</TreeItemCheckbox>
 	);
 }
 
@@ -128,12 +161,8 @@ export function GroupMark({ path }: { path: string }) {
 	const { name, icon: Icon } = group;
 	return (
 		<Tooltip content={name}>
-			<span
-				role="img"
-				aria-label={name}
-				className="flex size-4 shrink-0 items-center justify-center text-muted-foreground"
-			>
-				<Icon aria-hidden className="size-3.5" />
+			<span role="img" aria-label={name} {...stylex.props(styles.mark)}>
+				<Icon aria-hidden {...stylex.props(styles.icon)} />
 			</span>
 		</Tooltip>
 	);

@@ -31,6 +31,8 @@ const styles = stylex.create({
 	active: {
 		color: colorVars['--color-text-primary'],
 	},
+	// Shrinks once the row's name, which shrinks much faster, has given up its room
+	shrinkable: { flexShrink: 0.01 },
 });
 
 /**
@@ -42,6 +44,7 @@ export function LegendMenu({
 	trigger,
 	isActive = false,
 	isDisabled = false,
+	isShrinkable = false,
 	onOpenChange,
 	children,
 }: {
@@ -51,6 +54,8 @@ export function LegendMenu({
 	/** Shows the trigger in the primary text color, ex. while following */
 	isActive?: boolean;
 	isDisabled?: boolean;
+	/** Lets the trigger shrink in a narrow legend, its `trigger` truncates its own text */
+	isShrinkable?: boolean;
 	onOpenChange?: (open: boolean) => void;
 	children: ReactNode;
 }) {
@@ -80,7 +85,7 @@ export function LegendMenu({
 					aria-label={label}
 					disabled={isDisabled}
 					data-legend-menu=""
-					{...stylex.props(styles.trigger, isActive && styles.active)}
+					{...stylex.props(styles.trigger, isActive && styles.active, isShrinkable && styles.shrinkable)}
 				>
 					{trigger}
 				</button>

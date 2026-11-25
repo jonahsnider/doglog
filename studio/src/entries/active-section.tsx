@@ -1,9 +1,32 @@
 import { useMemo } from 'react';
 import { Divider } from '@astryxdesign/core/Divider';
+import { spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import type { EditedWidget } from '@/entries/edited-widget';
 import { EntryRows } from '@/entries/entry-browser-rows';
 import { SectionHeaderLabel } from '@/entries/section-header-label';
 import { type EntryTreeNode, entryTreeView } from '@/entries/tree';
+
+const styles = stylex.create({
+	section: {
+		display: 'flex',
+		flexDirection: 'column',
+		flexShrink: 0,
+		minHeight: 0,
+		maxHeight: '33.333333%',
+	},
+	header: {
+		display: 'flex',
+		flexShrink: 0,
+		alignItems: 'center',
+		gap: spacingVars['--spacing-1-5'],
+		height: 28,
+		paddingInline: '1.125rem',
+	},
+	rows: {
+		minHeight: 0,
+	},
+});
 
 /**
  * The entries the edited widget showed when editing it started, listed again at the top of the entry browser.
@@ -24,15 +47,15 @@ export function ActiveSection({
 	}
 
 	return (
-		<section aria-label="Active entries" className="flex max-h-1/3 min-h-0 shrink-0 flex-col">
-			<div className="flex h-7 shrink-0 items-center gap-1.5 px-4.5">
+		<section aria-label="Active entries" {...stylex.props(styles.section)}>
+			<div {...stylex.props(styles.header)}>
 				{/* Counts matches while searching */}
 				<SectionHeaderLabel section="active" count={view.items.length} />
 			</div>
 			<EntryRows
 				view={view}
 				label="Active entries"
-				className="min-h-0"
+				xstyle={styles.rows}
 				dropSection={undefined}
 				edited={edited}
 				// Its rows are all entries, there's nothing to expand

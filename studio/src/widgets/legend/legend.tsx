@@ -1,17 +1,51 @@
+import { colorVars, radiusVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { shallow } from '@tanstack/store';
 import { memo, type PointerEvent, type ReactNode, use, useRef, useState } from 'react';
-import { useResizeObserver } from 'usehooks-ts';
-import { EntryName } from '@/entries/entry-name';
-import { MarqueeText } from '@/components/marquee-text';
-import { useBindingDrag, WidgetBindingsContext } from '@/entries/drag';
-import { cn } from '@/lib/utils';
-import { type Connection, type ConnectionDrag, connectionBetween, rowHeight } from '@/widgets/legend/connections';
+import { WidgetBindingsContext } from '@/entries/drag';
+import { type Connection, type ConnectionDrag, connectionBetween } from '@/widgets/legend/connections';
 import { ConnectionGutter } from '@/widgets/legend/connection-gutter';
-import { FollowPicker } from '@/widgets/legend/follow-picker';
-import { RobotPicker } from '@/widgets/legend/robot-picker';
-import { RoleLabel } from '@/widgets/legend/role-picker';
-import { LegendSwatch } from '@/widgets/legend/swatch';
+import { LegendEntry } from '@/widgets/legend/legend-entry';
+import { legendEntryMarker } from './markers.stylex';
 import type { WidgetBinding } from '@/widgets/widget-type';
+
+const styles = stylex.create({
+	list: {
+		display: 'flex',
+		fontSize: typeScaleVars['--text-label-size'],
+		lineHeight: '1.25rem',
+	},
+	vertical: { minWidth: 0, flex: 1, flexDirection: 'column' },
+	wrapping: { flexWrap: 'wrap', columnGap: spacingVars['--spacing-3'], rowGap: spacingVars['--spacing-1'] },
+	// As wide as the widest row, so handles stay near the names
+	connectable: { display: 'flex', width: 'fit-content', maxWidth: '100%' },
+	// Paints above the handles without taking pointer events from their hit areas
+	gutter: { pointerEvents: 'none', position: 'relative', display: 'flex' },
+	handle: {
+		display: 'flex',
+		flexShrink: 0,
+		marginInlineEnd: -6,
+		padding: 6,
+		touchAction: 'none',
+		cursor: 'crosshair',
+	},
+	dragging: { cursor: 'grabbing' },
+	handleDot: {
+		width: spacingVars['--spacing-3'],
+		height: spacingVars['--spacing-3'],
+		borderWidth: 2,
+		borderStyle: 'solid',
+		borderColor: {
+			default: colorVars['--color-border-emphasized'],
+			[stylex.when.ancestor(':hover', legendEntryMarker)]: colorVars['--color-text-primary'],
+		},
+		borderRadius: radiusVars['--radius-full'],
+		transitionProperty: 'color, background-color, border-color',
+		transitionDuration: '150ms',
+		transitionTimingFunction: 'var(--ease-in-out)',
+	},
+	draggedDot: { borderColor: colorVars['--color-text-primary'] },
+});
 
 export type LegendItem = {
 	binding: WidgetBinding;
@@ -40,6 +74,7 @@ type LegendProps = {
 	dropRole?: string;
 	/** Shows each item's role, which can be picked there. Roles can also be picked from the item's context menu. */
 	roles?: boolean;
+	/** Merged with the list's styles, ex. to size it in a row of legends */
 	className?: string;
 };
 
@@ -102,11 +137,12 @@ function LegendList({ items, vertical = false, dropRole, roles = true, className
 	};
 	const highlighted = drag?.over ?? hovered;
 
+	const listProps = stylex.props(styles.list, vertical ? styles.vertical : styles.wrapping);
 	const legend = (
 		<ul
 			ref={list}
 			data-binding-legend
-			className={cn('flex text-sm', vertical ? 'min-w-0 flex-1 flex-col' : 'flex-wrap gap-x-3 gap-y-1', className)}
+			className={className === undefined ? listProps.className : `${listProps.className} ${className}`}
 		>
 			{items.map((item) => (
 				<LegendEntry
@@ -119,10 +155,7 @@ function LegendList({ items, vertical = false, dropRole, roles = true, className
 					handle={
 						connectable && item.binding.connects !== undefined ? (
 							<span
-								className={cn(
-									'-me-[6px] flex shrink-0 touch-none p-[6px]',
-									drag?.from.id === item.binding.id ? 'cursor-grabbing' : 'cursor-crosshair',
-								)}
+								{...stylex.props(styles.handle, drag?.from.id === item.binding.id && styles.dragging)}
 								title="Drag to another entry to connect them"
 								onPointerDown={(event) => {
 									event.preventDefault();
@@ -140,10 +173,7 @@ function LegendList({ items, vertical = false, dropRole, roles = true, className
 								onPointerCancel={() => setDrag(undefined)}
 							>
 								<span
-									className={cn(
-										'size-3 rounded-full border-2 border-outline transition-colors group-hover/legend-entry:border-foreground',
-										drag?.from.id === item.binding.id && 'border-foreground',
-									)}
+									{...stylex.props(styles.handleDot, drag?.from.id === item.binding.id && styles.draggedDot)}
 									style={
 										highlighted?.sourceId === item.binding.id || highlighted?.targetId === item.binding.id
 											? { borderColor: highlighted.color, background: highlighted.color }
@@ -161,12 +191,10 @@ function LegendList({ items, vertical = false, dropRole, roles = true, className
 	if (!connectable) {
 		return legend;
 	}
-	// As wide as the widest row, so handles stay near the names
 	return (
-		<div className="flex w-fit max-w-full">
+		<div {...stylex.props(styles.connectable)}>
 			{legend}
-			{/* Paint above the handles without taking pointer events from their hit areas. */}
-			<div ref={gutter} className="pointer-events-none relative flex">
+			<div ref={gutter} {...stylex.props(styles.gutter)}>
 				<ConnectionGutter
 					rows={items.length}
 					connections={connections}
@@ -182,97 +210,5 @@ function LegendList({ items, vertical = false, dropRole, roles = true, className
 				/>
 			</div>
 		</div>
-	);
-}
-
-function LegendEntry({
-	item,
-	vertical,
-	dropRole,
-	roles,
-	followable,
-	handle,
-}: {
-	item: LegendItem;
-	vertical: boolean;
-	dropRole: string | undefined;
-	roles: boolean;
-	/** Some item can be followed, so the others leave room for its button to keep the pickers in a column */
-	followable: boolean;
-	/** Dragged to connect the binding to another */
-	handle: ReactNode;
-}) {
-	const { binding } = item;
-	const widget = use(WidgetBindingsContext);
-	const { ref, handleRef } = useBindingDrag(binding, { orientation: vertical ? 'vertical' : 'horizontal', dropRole });
-	return (
-		<li
-			ref={ref}
-			className={cn(
-				'group/legend-entry flex min-w-0 items-center gap-1.5',
-				item.dimmed && !binding.hidden && 'opacity-50',
-			)}
-			// Rows are the same height, so connections can be drawn between them
-			style={vertical ? { height: rowHeight } : undefined}
-			// Right-clicking the item offers to remove its binding, middle-clicking removes it
-			data-binding-id={binding.id}
-			data-robot-model={item.robot}
-		>
-			<LegendSwatch item={item} />
-			{/* Dragged by the name to reorder it, so its handle can be dragged to connect it */}
-			<span
-				ref={handleRef}
-				className={cn('min-w-0 cursor-grab py-0.5 font-mono', binding.hidden && 'text-muted-foreground')}
-			>
-				<LegendName name={binding.name} distinctFrom={item.distinctFrom} />
-			</span>
-			{vertical && <span className="flex-1" />}
-			{/* Robots pick their role with their robot */}
-			{roles && binding.roleLabel !== undefined && item.robot === undefined && (
-				<RoleLabel binding={binding} onPick={(role) => widget?.setRole(binding.id, role)} />
-			)}
-			{item.robot !== undefined && <RobotPicker binding={binding} robot={item.robot} />}
-			{item.follow === undefined ? (
-				followable && <span className="size-3.5 shrink-0" />
-			) : (
-				<FollowPicker binding={binding} follow={item.follow} />
-			)}
-			{item.note !== undefined && <span className="whitespace-nowrap text-muted-foreground">{item.note}</span>}
-			{item.controls}
-			{item.error !== undefined && <span className="text-destructive-foreground">{item.error}</span>}
-			{handle}
-		</li>
-	);
-}
-
-/**
- * The entry's name, which collapses its first segment after common prefixes when it doesn't fit, or the segments that
- * don't tell it apart from `distinctFrom`, and scrolls on hover when it still doesn't
- */
-function LegendName({ name, distinctFrom }: { name: string; distinctFrom: readonly string[] | undefined }) {
-	const full = useRef<HTMLSpanElement>(null!);
-	const [collapsed, setCollapsed] = useState(false);
-
-	useResizeObserver({
-		ref: full,
-		onResize: () => {
-			// Can run after it's unmounted, ex. when the field widget switches to 3D
-			const element: HTMLSpanElement | null = full.current;
-			if (element !== null) {
-				setCollapsed(element.scrollWidth > element.clientWidth);
-			}
-		},
-	});
-
-	return (
-		<span className="grid grid-cols-[minmax(0,auto)]">
-			{/* Never shown, so the legend stays as wide as the full name, and it's expanded again once there's room */}
-			<span ref={full} className="invisible h-0 overflow-hidden whitespace-nowrap [grid-area:1/1]">
-				<EntryName name={name} />
-			</span>
-			<MarqueeText className="[grid-area:1/1]">
-				<EntryName name={name} collapsed={collapsed} distinctFrom={collapsed ? distinctFrom : undefined} />
-			</MarqueeText>
-		</span>
 	);
 }

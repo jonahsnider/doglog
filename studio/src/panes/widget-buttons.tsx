@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import ListTodoIcon from 'lucide-react/icons/list-todo';
 import { shortcuts } from '@/commands/commands';
 import { updateLayout } from '@/dashboards/panes';
@@ -7,6 +8,10 @@ import { PaneButton } from '@/panes/pane-button';
 import { WidgetOptions } from '@/panes/widget-options';
 import { setWidgetOption } from '@/widgets/options';
 import { bindsEntries, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
+
+const styles = stylex.create({
+	contents: { display: 'contents' },
+});
 
 /** A pane header's buttons for its widget: Edit entries, and Widget options for widgets with options */
 export function WidgetButtons({
@@ -29,7 +34,7 @@ export function WidgetButtons({
 		<>
 			{bindsEntries(type) && (
 				// Marked so pressing it doesn't also switch editing to this pane, see `focusEditingPane()`
-				<span data-edit-entries className="contents">
+				<span data-edit-entries {...stylex.props(styles.contents)}>
 					<PaneButton
 						label={editing ? 'Stop editing entries' : 'Edit entries'}
 						shortcut={shortcuts.editEntries}

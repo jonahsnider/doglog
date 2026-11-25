@@ -1,7 +1,63 @@
+import {
+	colorVars,
+	fontWeightVars,
+	radiusVars,
+	spacingVars,
+	typeScaleVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { Shortcut } from '@/components/shortcut';
 import { useMediaQuery } from '@/hooks/use-media-query';
-import { cn } from '@/lib/utils';
 import type { View } from '@/widgets/view-toggle';
+
+const styles = stylex.create({
+	container: {
+		pointerEvents: 'none',
+		containerType: 'inline-size',
+		display: 'flex',
+		minHeight: 0,
+		flex: 1,
+		alignItems: 'flex-end',
+		overflow: 'hidden',
+	},
+	panel: {
+		display: { default: null, '@container (width < 9rem)': 'none' },
+		maxWidth: '100%',
+		borderRadius: radiusVars['--radius-element'],
+		borderWidth: 1,
+		borderStyle: 'solid',
+		borderColor: colorVars['--color-border'],
+		backgroundColor: colorVars['--color-background-popover'],
+		paddingInline: spacingVars['--spacing-2'],
+		paddingBlock: spacingVars['--spacing-1'],
+		color: colorVars['--color-text-primary'],
+		fontSize: typeScaleVars['--text-supporting-size'],
+		lineHeight: '1rem',
+		transitionProperty: 'opacity',
+		transitionDuration: 'calc(150ms * var(--motion-scale))',
+		transitionTimingFunction: 'var(--ease-out)',
+	},
+	hidden: {
+		opacity: 0,
+		transitionDuration: 'calc(100ms * var(--motion-scale))',
+		transitionTimingFunction: 'var(--ease-in)',
+	},
+	list: {
+		display: 'grid',
+		gridTemplateColumns: 'auto minmax(0, 1fr)',
+		alignItems: 'baseline',
+		columnGap: spacingVars['--spacing-2'],
+		rowGap: spacingVars['--spacing-0-5'],
+	},
+	row: {
+		gridColumn: 'span 2',
+		display: 'grid',
+		gridTemplateColumns: 'subgrid',
+	},
+	action: {
+		fontWeight: fontWeightVars['--font-weight-medium'],
+	},
+});
 
 const touchGestures = {
 	'2d': [['Pan', 'Drag when zoomed']],
@@ -59,27 +115,18 @@ export function SceneControls({
 		return null;
 	}
 	const gestures = (touch ? touchGestures : pointerGestures)[view];
+	const container = stylex.props(styles.container);
 	return (
 		<div
-			className={cn(
-				'pointer-events-none @container flex min-h-0 flex-1 items-end overflow-hidden capture:hidden',
-				className,
-			)}
+			{...container}
+			className={`${container.className} capture-hidden${className === undefined ? '' : ` ${className}`}`}
 			aria-hidden={!visible}
 		>
-			<div
-				className={cn(
-					'max-w-full rounded-md border border-border bg-popover px-2 py-1 text-popover-foreground text-xs @max-[9rem]:hidden motion-safe:transition-opacity',
-					visible ? 'opacity-100 ease-out' : 'opacity-0 duration-100 ease-in',
-				)}
-			>
-				<dl
-					aria-label={`${view.toUpperCase()} view controls`}
-					className="grid grid-cols-[auto_minmax(0,1fr)] items-baseline gap-x-2 gap-y-0.5 [&_kbd]:h-4"
-				>
+			<div {...stylex.props(styles.panel, !visible && styles.hidden)}>
+				<dl aria-label={`${view.toUpperCase()} view controls`} {...stylex.props(styles.list)}>
 					{gestures.map(([action, input]) => (
-						<div key={action} className="col-span-2 grid grid-cols-subgrid">
-							<dt className="font-medium">{action}</dt>
+						<div key={action} {...stylex.props(styles.row)}>
+							<dt {...stylex.props(styles.action)}>{action}</dt>
 							<dd>{input}</dd>
 						</div>
 					))}

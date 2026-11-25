@@ -1,4 +1,6 @@
+import { spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { useDragDropMonitor } from '@dnd-kit/react';
+import * as stylex from '@stylexjs/stylex';
 import { useHotkey } from '@tanstack/react-hotkeys';
 import { Navigate, createFileRoute, useLocation, useRouter } from '@tanstack/react-router';
 import { Activity, useEffect, useState } from 'react';
@@ -15,7 +17,6 @@ import { VideoExportBar } from '@/timeline/video-export-bar';
 import { EntryBrowser } from '@/entries/entry-browser';
 import { TimelineBar } from '@/timeline/timeline-bar';
 import { type Dashboard, getDashboard, useDashboards } from '@/dashboards/dashboards';
-import { cn } from '@/lib/utils';
 import { isPaneDrag } from '@/panes/drag';
 import { panes } from '@/panes/layout';
 import { minNodeSize } from '@/panes/pane-size';
@@ -25,6 +26,29 @@ import { resolveBindings, widgetBindings } from '@/widgets/bindings';
 import { preloadField3d } from '@/widgets/field/load-3d';
 import { optionValues } from '@/widgets/options';
 import { getWidgetType } from '@/widgets/registry';
+import './dashboards.$dashboardId.css';
+
+const styles = stylex.create({
+	fill: { height: '100%' },
+	movingPane: { pointerEvents: 'none' },
+	column: { display: 'flex', flexDirection: 'column', height: '100%' },
+	capture: {
+		display: 'flex',
+		flex: 1,
+		flexDirection: 'column',
+		minHeight: 0,
+		paddingInlineStart: spacingVars['--spacing-1-5'],
+		paddingTop: spacingVars['--spacing-1-5'],
+	},
+	panes: {
+		position: 'relative',
+		isolation: 'isolate',
+		flex: 1,
+		minWidth: 0,
+		minHeight: 0,
+		marginBottom: spacingVars['--spacing-1-5'],
+	},
+});
 
 declare module '@tanstack/react-router' {
 	interface HistoryState {
@@ -106,8 +130,8 @@ function DashboardView() {
 	}
 
 	return (
-		<div className={cn('h-full', movingPane && 'pointer-events-none')}>
-			<Group orientation="horizontal" className="h-full">
+		<div {...stylex.props(styles.fill, movingPane && styles.movingPane)}>
+			<Group orientation="horizontal" {...stylex.props(styles.fill)}>
 				{/* Widening the entry browser stops at the panes' minimum size on desktop, where the window is kept big enough for
 				    it. A smaller browser window shrinks the panes before the entry browser. */}
 				<Panel minSize={STUDIO_DESKTOP ? minNodeSize(dashboard.layout, 'row') : '7rem'} style={{ overflow: 'hidden' }}>
@@ -166,14 +190,14 @@ function PanesColumn({ dashboard, dashboards }: { dashboard: Dashboard; dashboar
 	);
 
 	return (
-		<div className="flex h-full flex-col">
+		<div {...stylex.props(styles.column)}>
 			{/* Shown with capture styling in video export mode, so the preview looks like the video */}
 			<div
 				data-capture-dashboard={dashboard.id}
 				data-capturing={exporting ? '' : undefined}
-				className="flex min-h-0 flex-1 flex-col ps-1.5 pt-1.5 capture:bg-frame"
+				{...stylex.props(styles.capture)}
 			>
-				<section aria-label="Panes" className="relative isolate mb-1.5 min-h-0 min-w-0 flex-1">
+				<section aria-label="Panes" {...stylex.props(styles.panes)}>
 					{(parked ? [dashboard, parked] : [dashboard]).map((item) => (
 						<Activity key={item.id} mode={item.id === dashboard.id ? 'visible' : 'hidden'}>
 							<DashboardPanes dashboard={item} />

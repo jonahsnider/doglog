@@ -1,4 +1,14 @@
+import {
+	colorVars,
+	fontWeightVars,
+	radiusVars,
+	shadowVars,
+	spacingVars,
+	typeScaleVars,
+	typographyVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
 import { Feedback } from '@dnd-kit/dom';
+import * as stylex from '@stylexjs/stylex';
 import { DragDropProvider, DragOverlay, KeyboardSensor } from '@dnd-kit/react';
 import { isSortable } from '@dnd-kit/react/sortable';
 import LayoutDashboardIcon from 'lucide-react/icons/layout-dashboard';
@@ -12,6 +22,44 @@ import { moveDashboardToSection } from '@/dashboards/sharing';
 import { entryPointerSensor, isEntryDrag, isEntryRowDrag } from '@/entries/drag';
 import { isNewDashboardDrop, isPaneDrag, isPaneDrop, nearestSide, type PaneDragData } from '@/panes/drag';
 import { getWidgetType } from '@/widgets/registry';
+
+const styles = stylex.create({
+	preview: {
+		width: 'max-content',
+		borderWidth: 1,
+		borderStyle: 'solid',
+		borderColor: colorVars['--color-border'],
+		backgroundColor: colorVars['--color-background-popover'],
+		color: colorVars['--color-text-primary'],
+		fontSize: typeScaleVars['--text-supporting-size'],
+		lineHeight: '1rem',
+	},
+	entry: {
+		maxWidth: '20rem',
+		overflow: 'hidden',
+		textOverflow: 'ellipsis',
+		whiteSpace: 'nowrap',
+		borderRadius: radiusVars['--radius-element'],
+		paddingBlock: spacingVars['--spacing-1'],
+		paddingInline: spacingVars['--spacing-2'],
+		fontFamily: typographyVars['--font-family-code'],
+		boxShadow: shadowVars['--shadow-med'],
+	},
+	pane: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: spacingVars['--spacing-1-5'],
+		borderRadius: radiusVars['--radius-element'],
+		paddingBlock: spacingVars['--spacing-2'],
+		paddingInline: spacingVars['--spacing-3'],
+		fontWeight: fontWeightVars['--font-weight-medium'],
+		boxShadow: shadowVars['--shadow-high'],
+	},
+	icon: {
+		width: 14,
+		height: 14,
+	},
+});
 
 /** Sensors of entries, dashboards and panes use their own */
 const sensors = [entryPointerSensor, KeyboardSensor];
@@ -74,7 +122,7 @@ export function DragProvider({ children }: { children: ReactNode }) {
 						<PanePreview data={source.data} />
 					) : (
 						(isEntryDrag(source) || isEntryRowDrag(source)) && (
-							<div className="w-max max-w-80 truncate rounded-md border bg-popover px-2 py-1 font-mono text-xs text-popover-foreground shadow-md">
+							<div {...stylex.props(styles.preview, styles.entry)}>
 								<EntryName name={source.data.name} />
 							</div>
 						)
@@ -94,8 +142,8 @@ function PanePreview({ data }: { data: PaneDragData }) {
 	const type = data.widgetType === undefined ? undefined : getWidgetType(data.widgetType);
 	const Icon = type?.icon ?? LayoutDashboardIcon;
 	return (
-		<div className="flex w-max items-center gap-1.5 rounded-lg border bg-popover px-3 py-2 text-xs font-medium text-popover-foreground shadow-lg">
-			<Icon className="size-3.5" />
+		<div {...stylex.props(styles.preview, styles.pane)}>
+			<Icon {...stylex.props(styles.icon)} />
 			{type?.name ?? 'Empty pane'}
 		</div>
 	);

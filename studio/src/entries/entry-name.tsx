@@ -1,6 +1,44 @@
+import { colorVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { HighlightedText } from '@/components/highlighted-text';
-import { cn } from '@/lib/utils';
+import { commonPrefixMarker, entryNameMarker, nameSegmentMarker } from './markers.stylex';
 import { ambiguousSegments, distinctSegments, hiddenNameLetters, lastSegmentsStart } from '@/entries/short-names';
+
+const styles = stylex.create({
+	dimmed: {
+		color: colorVars['--color-text-secondary'],
+	},
+	// Animating the column from 0fr to 1fr grows the text to its own width
+	shortened: {
+		display: 'inline-grid',
+		verticalAlign: 'bottom',
+		transitionProperty: 'grid-template-columns',
+		transitionDuration: 'calc(150ms * var(--motion-scale))',
+		transitionTimingFunction: 'var(--ease-in-out)',
+	},
+	inCommonPrefix: {
+		gridTemplateColumns: { default: '0fr', [stylex.when.ancestor(':hover', commonPrefixMarker)]: '1fr' },
+		transitionDelay: {
+			default: null,
+			[stylex.when.ancestor(':hover', commonPrefixMarker)]: 'calc(300ms * var(--motion-scale))',
+		},
+	},
+	inSegment: {
+		gridTemplateColumns: {
+			default: '0fr',
+			[stylex.when.ancestor(':hover', nameSegmentMarker)]: '1fr',
+			[stylex.when.ancestor(':has([data-common-prefix]:hover)', entryNameMarker)]: '1fr',
+		},
+		transitionDelay: {
+			default: null,
+			[stylex.when.ancestor(':hover', nameSegmentMarker)]: 'calc(300ms * var(--motion-scale))',
+			[stylex.when.ancestor(':has([data-common-prefix]:hover)', entryNameMarker)]: 'calc(300ms * var(--motion-scale))',
+		},
+	},
+	clip: {
+		overflow: 'hidden',
+	},
+});
 
 /**
  * Prefixes shortened to their slashes and capital letters, like fish shortens paths, ex. `/Robot/Arm/Angle` is shown
@@ -50,10 +88,10 @@ export function EntryName({
 
 	return (
 		<span>
-			<span className="group/entry-name">
+			<span {...stylex.props(entryNameMarker)}>
 				{common !== '' && (
 					// Dimmed, a collapsed segment is as important as the rest of the name
-					<span data-common-prefix className="group/common text-muted-foreground">
+					<span data-common-prefix {...stylex.props(commonPrefixMarker, styles.dimmed)}>
 						<Shortened text={common} ranges={ranges} offset={0} common />
 					</span>
 				)}
@@ -62,7 +100,7 @@ export function EntryName({
 					return full.has(start) ? (
 						<DimmedSlashes key={start} text={segment} ranges={ranges} offset={start} />
 					) : (
-						<span key={start} className="group/segment">
+						<span key={start} {...stylex.props(nameSegmentMarker)}>
 							<Shortened text={segment} ranges={ranges} offset={start} common={false} />
 						</span>
 					);
@@ -104,17 +142,8 @@ function Shortened({
 			);
 		}
 		return (
-			// Animating the column from 0fr to 1fr grows the text to its own width
-			<span
-				key={start}
-				className={cn(
-					'inline-grid grid-cols-[0fr] align-bottom transition-[grid-template-columns] motion-reduce:transition-none',
-					common
-						? 'group-hover/common:grid-cols-[1fr] group-hover/common:delay-300'
-						: 'group-hover/segment:grid-cols-[1fr] group-hover/segment:delay-300 group-has-[[data-common-prefix]:hover]/entry-name:grid-cols-[1fr] group-has-[[data-common-prefix]:hover]/entry-name:delay-300',
-				)}
-			>
-				<span className="overflow-hidden">
+			<span key={start} {...stylex.props(styles.shortened, common ? styles.inCommonPrefix : styles.inSegment)}>
+				<span {...stylex.props(styles.clip)}>
 					<HighlightedText text={part} ranges={ranges} offset={start} />
 				</span>
 			</span>
@@ -126,7 +155,7 @@ function DimmedSlashes({ text, ranges, offset }: { text: string; ranges: Ranges;
 	return Array.from(text.matchAll(/\/+|[^/]+/gu), ({ 0: part, index: start }) => {
 		const highlighted = <HighlightedText key={start} text={part} ranges={ranges} offset={offset + start} />;
 		return part.startsWith('/') ? (
-			<span key={start} className="text-muted-foreground">
+			<span key={start} {...stylex.props(styles.dimmed)}>
 				{highlighted}
 			</span>
 		) : (

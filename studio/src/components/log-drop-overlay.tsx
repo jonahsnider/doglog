@@ -1,8 +1,44 @@
+import {
+	colorVars,
+	fontWeightVars,
+	radiusVars,
+	spacingVars,
+	typeScaleVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import FileUpIcon from 'lucide-react/icons/file-up';
 import { useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 import { draggedFileType, handleLogFileDrop, isLogFile } from '@/data/open-log';
 import { useDraggedFile } from '@/desktop/file-drop';
+
+const styles = stylex.create({
+	overlay: {
+		pointerEvents: 'none',
+		position: 'fixed',
+		inset: spacingVars['--spacing-2'],
+		zIndex: 50,
+		display: 'flex',
+		flexDirection: 'column',
+		alignItems: 'center',
+		justifyContent: 'center',
+		gap: spacingVars['--spacing-2'],
+		borderRadius: radiusVars['--radius-container'],
+		borderWidth: 2,
+		borderStyle: 'dashed',
+		borderColor: colorVars['--color-accent'],
+		backgroundColor: `color-mix(in srgb, ${colorVars['--color-accent']} 8%, transparent)`,
+		fontSize: typeScaleVars['--text-label-size'],
+		lineHeight: typeScaleVars['--text-label-leading'],
+		fontWeight: fontWeightVars['--font-weight-medium'],
+		backdropFilter: 'blur(4px)',
+	},
+	icon: {
+		width: 24,
+		height: 24,
+		color: colorVars['--color-icon-accent'],
+	},
+});
 
 /** Covers the window while a potential log file is dragged over it */
 export function LogDropOverlay() {
@@ -52,8 +88,8 @@ export function LogDropOverlay() {
 	}
 
 	return (
-		<div className="pointer-events-none fixed inset-2 z-50 flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary bg-primary/8 text-sm font-medium backdrop-blur-xs">
-			<FileUpIcon className="size-6 text-primary" />
+		<div {...stylex.props(styles.overlay)}>
+			<FileUpIcon {...stylex.props(styles.icon)} />
 			Drop to open log
 		</div>
 	);

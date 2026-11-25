@@ -1,19 +1,84 @@
+import { colorVars, radiusVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { useHotkeys } from '@tanstack/react-hotkeys';
 import { type PointerEvent, use, useMemo, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
-import { alertColors, modeColors, shiftColor } from '@/timeline/colors';
+import { alertFills } from '@/timeline/colors';
 import { HoverTooltip, ScrubberTooltip, UnreadTooltip } from '@/timeline/timeline-tooltip';
 import { setHoverTime } from '@/timeline/hover';
 import { GraphMarks, ScrubberPosition } from '@/timeline/timeline-marks';
+import { ScrubberBar } from '@/timeline/scrubber-bar';
 import { getGaps, type TimeRange, useEntries } from '@/data/data-store';
 import type { UnreadEnd } from '@/data/log-source';
-import { cn } from '@/lib/utils';
 import { settingsStore } from '@/settings';
 import { formatTime, getCursorTime, seek, TimelineCursorContext } from '@/timeline/timeline';
 import { seekHotkeys } from '@/timeline/seek';
 import { getAlertSpans, getCompressedSpans, getModePeriods } from '@/timeline/events';
 import { getActiveShifts } from '@/timeline/shifts';
 import { createTimeScale } from '@/timeline/scale';
+import { scrubberMarker } from './markers.stylex';
+
+const styles = stylex.create({
+	slider: {
+		display: 'flex',
+		flex: 1,
+		alignItems: 'center',
+		height: '100%',
+		minWidth: 0,
+		paddingInline: spacingVars['--spacing-2'],
+		cursor: 'pointer',
+		touchAction: 'none',
+		userSelect: 'none',
+		outline: 'none',
+	},
+	// `--track-offset` moves the track, and the marks centered on it, away from the alerts above it and the shifts below it
+	track: {
+		position: 'relative',
+		width: '100%',
+		height: '1.5rem',
+		'--track-offset': '-50%',
+	},
+	lowered: { '--track-offset': 'calc(-50% + 0.25rem)' },
+	raised: { '--track-offset': 'calc(-50% - 0.25rem)' },
+	alert: {
+		position: 'absolute',
+		top: 0,
+		height: 6,
+		borderRadius: radiusVars['--radius-full'],
+	},
+	shift: {
+		position: 'absolute',
+		bottom: 0,
+		height: 6,
+		paddingInline: 1,
+	},
+	shiftFill: {
+		width: '100%',
+		height: '100%',
+		borderRadius: radiusVars['--radius-full'],
+		backgroundColor: 'var(--fuel)',
+		boxShadow: 'inset 0 0 0 1px var(--fuel-outline)',
+	},
+	playhead: {
+		position: 'absolute',
+		top: '50%',
+		width: 14,
+		height: 14,
+		borderWidth: 2,
+		borderStyle: 'solid',
+		borderColor: colorVars['--color-accent'],
+		borderRadius: radiusVars['--radius-full'],
+		backgroundColor: colorVars['--color-background-surface'],
+		boxShadow: {
+			default: null,
+			[stylex.when.ancestor(':focus-visible', scrubberMarker)]: '0 0 0 3px var(--focus-outline-color)',
+		},
+		translate: '-50% var(--track-offset)',
+		transitionProperty: 'translate',
+		transitionDuration: 'calc(150ms * var(--motion-scale))',
+		transitionTimingFunction: 'var(--ease-in-out)',
+	},
+});
 
 /**
  * Live sources are shown at least one FRC match long (2026: 20 s auto, 2 min 20 s teleop),
@@ -82,12 +147,7 @@ export function Scrubber({
 
 	const shifts = useMemo(() => (showShifts ? getActiveShifts(periods, year) : []), [showShifts, periods, year]);
 	// The track moves away from the alerts above it and the shifts below it, the shifts only make room in matches
-	const trackOffset =
-		showAlerts === shifts.length > 0
-			? '-translate-y-1/2'
-			: showAlerts
-				? 'translate-y-[calc(-50%+0.25rem)]'
-				: 'translate-y-[calc(-50%-0.25rem)]';
+	const trackOffset = showAlerts === shifts.length > 0 ? undefined : showAlerts ? styles.lowered : styles.raised;
 
 	const hoverAt = (event: PointerEvent): Hover => {
 		const rect = track.current!.getBoundingClientRect();
@@ -170,7 +230,7 @@ export function Scrubber({
 			aria-valuemax={duration / 1_000_000}
 			aria-valuenow={(time - range.start) / 1_000_000}
 			aria-valuetext={formatTime(time, range.start)}
-			className="group flex h-full min-w-0 flex-1 cursor-pointer touch-none items-center px-2 outline-none select-none"
+			{...stylex.props(scrubberMarker, styles.slider)}
 			onPointerDown={(event) => {
 				if (event.button === 0) {
 					// WebKit starts a text selection when dragging out of the slider despite `select-none`.
@@ -194,88 +254,42 @@ export function Scrubber({
 				setHoverTime(undefined);
 			}}
 		>
-			<div ref={track} className="relative h-6 w-full">
+			<div ref={track} {...stylex.props(styles.track, trackOffset)}>
 				{alerts.map((alert) => (
 					<div
 						key={`${alert.start}:${alert.level}:${alert.text}`}
-						className={cn('absolute top-0 h-1.5 rounded-full', alertColors[alert.level])}
+						{...stylex.props(styles.alert)}
 						style={{
 							left: `${toPercent(alert.start)}%`,
 							width: `max(0.375rem, ${toPercent(alert.end) - toPercent(alert.start)}%)`,
+							backgroundColor: alertFills[alert.level],
 						}}
 					/>
 				))}
 
-				<div
-					className={cn(
-						'absolute inset-x-0 top-1/2 h-2 overflow-hidden rounded-full bg-muted transition-[translate] motion-reduce:transition-none',
-						trackOffset,
-					)}
-				>
-					<div className="absolute inset-y-0 left-0 bg-input" style={{ width: `${toPercent(range.end)}%` }} />
-					{periods.length === 0 ? (
-						<ScrubberPosition toPercent={toPercent} className="absolute inset-y-0 left-0 bg-primary" property="width" />
-					) : (
-						periods.map((period) => {
-							const color = modeColors[period.mode];
-							return color === undefined ? null : (
-								<div
-									key={period.start}
-									className={cn('absolute inset-y-0', color)}
-									style={{
-										left: `${toPercent(period.start)}%`,
-										width: `${toPercent(period.end) - toPercent(period.start)}%`,
-									}}
-								/>
-							);
-						})
-					)}
-					{/* Disconnected spans break the track since nothing was received, wide enough that short drops stand out */}
-					{gaps.map((gap) => (
-						<div
-							key={gap.start}
-							className="absolute inset-y-0 min-w-0.75 bg-frame"
-							style={{ left: `${toPercent(gap.start)}%`, width: `${toPercent(gap.end) - toPercent(gap.start)}%` }}
-						/>
-					))}
-					{/* The unreadable end of a log, hatched since its length is an estimate */}
-					{unread !== undefined && (
-						<div
-							className="absolute inset-y-0 right-0 bg-destructive/16 bg-[image:repeating-linear-gradient(-45deg,var(--color-destructive)_0_2px,transparent_2px_4px)]"
-							style={{ left: `${toPercent(range.end)}%` }}
-						/>
-					)}
-					{/* Compressed spans are hatched so it's clear they aren't to scale */}
-					{compressed.map((span) => (
-						<div
-							key={span.start}
-							className="absolute inset-y-0 bg-frame bg-[image:repeating-linear-gradient(-45deg,var(--color-input)_0_2px,transparent_2px_4px)]"
-							style={{ left: `${toPercent(span.start)}%`, width: `${toPercent(span.end) - toPercent(span.start)}%` }}
-						/>
-					))}
-				</div>
+				<ScrubberBar
+					toPercent={toPercent}
+					end={range.end}
+					periods={periods}
+					gaps={gaps}
+					unread={unread !== undefined}
+					compressed={compressed}
+				/>
 
 				{/* Gaps between shifts mark where they change, ex. the transition shift and shift 1 */}
 				{shifts.map((shift) => (
 					<div
 						key={shift.start}
-						className="absolute bottom-0 h-1.5 px-px"
+						{...stylex.props(styles.shift)}
 						style={{ left: `${toPercent(shift.start)}%`, width: `${toPercent(shift.end) - toPercent(shift.start)}%` }}
 					>
-						<div className={cn('size-full rounded-full', shiftColor)} />
+						<div {...stylex.props(styles.shiftFill)} />
 					</div>
 				))}
 
-				<GraphMarks scale={scale} hoverTime={hover && timeAt(hover)} trackOffset={trackOffset} />
+				<GraphMarks scale={scale} hoverTime={hover && timeAt(hover)} />
 
-				<ScrubberPosition
-					toPercent={toPercent}
-					property="left"
-					className={cn(
-						'absolute top-1/2 size-3.5 -translate-x-1/2 rounded-full border-2 border-primary bg-background transition-[translate] group-focus-visible:ring-[3px] group-focus-visible:ring-ring motion-reduce:transition-none',
-						trackOffset,
-					)}
-				/>
+				<ScrubberPosition toPercent={toPercent} property="left" xstyle={styles.playhead} />
 				<ScrubberTooltip x={hover?.x} content={tooltip} />
 			</div>
 		</div>

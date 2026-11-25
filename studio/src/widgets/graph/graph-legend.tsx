@@ -1,8 +1,45 @@
+import { colorVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { axisWidth } from '@/widgets/graph/plot';
 import { graphSection } from '@/widgets/graph/roles';
 import { Legend, type LegendItem } from '@/widgets/legend/legend';
 import { bindingColor } from '@/widgets/series-color';
 import type { WidgetBinding } from '@/widgets/widget-type';
+
+const styles = stylex.create({
+	legends: {
+		display: 'flex',
+		maxHeight: '30%',
+		flexShrink: 0,
+		alignItems: 'flex-start',
+		columnGap: spacingVars['--spacing-6'],
+		overflowY: 'auto',
+		paddingInline: spacingVars['--spacing-2'],
+		paddingTop: spacingVars['--spacing-2'],
+		paddingBottom: spacingVars['--spacing-3'],
+	},
+	side: {
+		minWidth: 0,
+		flex: 1,
+		maxWidth: 'max-content',
+	},
+	right: {
+		marginInlineStart: 'auto',
+		justifyContent: 'flex-end',
+	},
+	unit: {
+		pointerEvents: 'none',
+		position: 'absolute',
+		top: spacingVars['--spacing-0-5'],
+		overflow: 'hidden',
+		textOverflow: 'ellipsis',
+		whiteSpace: 'nowrap',
+		paddingInline: spacingVars['--spacing-2'],
+		fontSize: typeScaleVars['--text-supporting-size'],
+		lineHeight: '1rem',
+		color: colorVars['--color-text-secondary'],
+	},
+});
 
 /**
  * Left axis entries on the left and right axis entries on the right, named by the last segments that tell them apart
@@ -23,10 +60,17 @@ export function GraphLegend({ plotted }: { plotted: readonly WidgetBinding[] }) 
 	return items.length === 0 ? undefined : (
 		// Each side takes up to half the width and wraps within it, or more when the other side is shorter. Long legends
 		// scroll, so the plot keeps most of the widget.
-		<div className="flex max-h-[30%] shrink-0 items-start gap-x-6 overflow-y-auto px-2 pt-2 pb-3">
-			{left.length > 0 && <Legend items={left} dropRole="left" roles={false} className="min-w-0 flex-1 max-w-max" />}
+		<div {...stylex.props(styles.legends)}>
+			{left.length > 0 && (
+				<Legend items={left} dropRole="left" roles={false} className={stylex.props(styles.side).className} />
+			)}
 			{right.length > 0 && (
-				<Legend items={right} dropRole="right" roles={false} className="ms-auto min-w-0 flex-1 max-w-max justify-end" />
+				<Legend
+					items={right}
+					dropRole="right"
+					roles={false}
+					className={stylex.props(styles.side, styles.right).className}
+				/>
 			)}
 		</div>
 	);
@@ -36,7 +80,7 @@ export function GraphLegend({ plotted }: { plotted: readonly WidgetBinding[] }) 
 export function AxisUnit({ label, side }: { label: string | undefined; side: 'left' | 'right' }) {
 	return label === undefined ? undefined : (
 		<span
-			className="pointer-events-none absolute top-0.5 truncate px-2 text-xs text-muted-foreground"
+			{...stylex.props(styles.unit)}
 			style={{ width: axisWidth, [side]: 0, textAlign: side === 'left' ? 'right' : 'left' }}
 		>
 			{label}

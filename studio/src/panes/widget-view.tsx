@@ -1,42 +1,33 @@
-import type { Draggable, Droppable } from '@dnd-kit/dom';
-import { useDragOperation, useDroppable } from '@dnd-kit/react';
+import { useDroppable } from '@dnd-kit/react';
+import * as stylex from '@stylexjs/stylex';
 import DatabaseIcon from 'lucide-react/icons/database';
 import ListPlusIcon from 'lucide-react/icons/list-plus';
 import TriangleAlertIcon from 'lucide-react/icons/triangle-exclamation-point';
-import { Component, type CSSProperties, type ReactNode, Suspense, use, useCallback, useMemo } from 'react';
+import { Component, type ReactNode, Suspense, use, useCallback, useMemo } from 'react';
 import { shortcuts } from '@/commands/shortcuts';
 import { InlineShortcut } from '@/components/shortcut';
 import { Button } from '@astryxdesign/core/Button';
 import {
 	connectBindings,
 	disconnectBindings,
-	maxWidgetEntries,
 	setBindingPick,
 	setBindingRole,
 	toggleBindingHidden,
-	unboundEntryNames,
-	widgetEntryLimitMessage,
 } from '@/widgets/bindings';
 import { DashboardIdContext, DashboardLayoutContext, updateLayout } from '@/dashboards/panes';
-import { getEntry } from '@/data/data-store';
-import { formatEntryType } from '@/data/samples';
 import { useSource } from '@/data/source';
-import {
-	droppedEntryName,
-	droppedGroupNames,
-	type EntryDragData,
-	type EntryDropData,
-	entryDragType,
-	isEntryDrag,
-	type WidgetBindings,
-	WidgetBindingsContext,
-} from '@/entries/drag';
+import { type EntryDropData, entryDragType, type WidgetBindings, WidgetBindingsContext } from '@/entries/drag';
 import { startEditing } from '@/entries/editing';
-import { cn } from '@/lib/utils';
+import { DropFeedback } from '@/panes/drop-feedback';
 import { GraphControls } from '@/widgets/graph/graph-controls';
 import { WidgetEmpty, WidgetLoading } from '@/widgets/widget-empty';
 import { setWidgetOption } from '@/widgets/options';
-import { acceptsDrop, type OptionValues, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
+import type { OptionValues, WidgetBinding, WidgetType } from '@/widgets/widget-type';
+
+const styles = stylex.create({
+	view: { position: 'relative', height: '100%' },
+	scroller: { height: '100%', overflow: 'auto' },
+});
 
 /** Renders a widget with its bindings, handles the shared empty and "no data" states, and shows where dragged entries will be dropped */
 export function WidgetView({
@@ -138,9 +129,9 @@ export function WidgetView({
 	}
 
 	return (
-		<div ref={ref} className="relative h-full">
+		<div ref={ref} {...stylex.props(styles.view)}>
 			<WidgetBindingsContext value={widgetBindings}>
-				<div className="h-full overflow-auto">
+				<div {...stylex.props(styles.scroller)}>
 					{/* A widget that crashes only replaces itself, and tries again when its entries or options change */}
 					<WidgetErrorBoundary resetKey={bindings}>
 						<Suspense
@@ -181,108 +172,4 @@ class WidgetErrorBoundary extends Component<{ resetKey: unknown; children: React
 			</WidgetEmpty>
 		);
 	}
-}
-
-function DropFeedback({
-	paneId,
-	type,
-	bindings,
-}: {
-	paneId: string;
-	type: WidgetType;
-	bindings: readonly WidgetBinding[];
-}) {
-	const { source, target } = useDragOperation<
-		EntryDragData | EntryDropData,
-		Draggable<EntryDragData>,
-		Droppable<EntryDropData>
-	>();
-	const drop = target?.data;
-	// Panes dragged over the widget show their own feedback
-	const dragged = drop?.paneId === paneId && isEntryDrag(source) ? source.data : undefined;
-	if (!dragged) {
-		return undefined;
-	}
-
-	if (drop?.index !== undefined) {
-		const from = bindings.findIndex((binding) => binding.id === dragged.bindingId);
-		return <ReorderIndicator from={from} drop={drop} element={target?.element} />;
-	}
-	// Parts of a widget that set the dropped entry's role, ex. a graph's right axis, highlight themselves
-	if (drop?.role !== undefined) {
-		return undefined;
-	}
-
-	const { accepted, message } = entryDropFeedback(type, dragged, bindings);
-	return (
-		<div
-			className={cn(
-				'pointer-events-none absolute inset-1 flex items-center justify-center rounded-lg border-2 border-dashed p-4 text-center text-sm font-medium backdrop-blur-xs',
-				accepted
-					? 'border-primary bg-primary/8 text-foreground'
-					: 'border-destructive bg-destructive/8 text-destructive-foreground',
-			)}
-		>
-			{message}
-		</div>
-	);
-}
-
-function entryDropFeedback(type: WidgetType, dragged: EntryDragData, bindings: readonly WidgetBinding[]) {
-	if (dragged.group) {
-		const names = droppedGroupNames(type, dragged.group);
-		const count = unboundEntryNames(bindings, names).length;
-		if (count > 0 && bindings.length + count > maxWidgetEntries) {
-			return { accepted: false, message: widgetEntryLimitMessage };
-		}
-		return {
-			accepted: count > 0,
-			message:
-				count > 0
-					? `Drop to add ${count} ${count === 1 ? 'entry' : 'entries'}`
-					: names.length === 0
-						? `${type.name} doesn't accept any entries in this group`
-						: `${type.name} already shows all compatible entries in this group`,
-		};
-	}
-	// A single entry can be bound again, ex. to draw a pose as a robot and a ghost
-	const name = droppedEntryName(type, dragged);
-	const entry = getEntry(name);
-	const accepted = acceptsDrop(type, name, entry);
-	if (accepted && type.optionFromEntry === undefined && bindings.length >= maxWidgetEntries) {
-		return { accepted: false, message: widgetEntryLimitMessage };
-	}
-	return {
-		accepted,
-		message: accepted
-			? `Drop to show ${name}`
-			: entry
-				? `${type.name} doesn't accept ${formatEntryType(entry.type)} entries`
-				: `${type.name} doesn't accept ${name}`,
-	};
-}
-
-function ReorderIndicator({
-	from,
-	drop,
-	element,
-}: {
-	from: number;
-	drop: EntryDropData;
-	element: Element | undefined;
-}) {
-	const index = drop.index!;
-	if (element === undefined || from === index) {
-		return undefined;
-	}
-
-	// The dragged entry takes the hovered entry's position, so it goes after entries below it and before entries above it
-	const after = from < index;
-	const rect = element.getBoundingClientRect();
-	// Fixed, so it's placed by the hovered element's viewport position no matter how the widget scrolls or nests it
-	const style: CSSProperties =
-		drop.orientation === 'horizontal'
-			? { left: (after ? rect.right : rect.left) - 1, top: rect.top, width: 2, height: rect.height }
-			: { left: rect.left, top: (after ? rect.bottom : rect.top) - 1, width: rect.width, height: 2 };
-	return <div className="pointer-events-none fixed z-10 rounded-full bg-primary" style={style} />;
 }

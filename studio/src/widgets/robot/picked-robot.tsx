@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode, useMemo } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import type { Entry } from '@/data/data-store';
@@ -8,6 +9,10 @@ import { allowProjectAccess, useRobotProject } from '@/three/robot-projects';
 import { SwerveDrivebase } from '@/three/swerve-drivebase';
 import { useCursorTime } from '@/timeline/timeline';
 import { defaultRobot } from '@/widgets/robot/robot-option';
+
+const styles = stylex.create({
+	message: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+});
 
 /**
  * The robot the Robot option picked, with its parts placed by the `parts` entry's poses at the cursor. When it can't be
@@ -37,7 +42,7 @@ export function usePickedRobot(
 			robot: <SwerveDrivebase />,
 			note: (
 				<>
-					<span className="truncate">{state.message}</span>
+					<span {...stylex.props(styles.message)}>{state.message}</span>
 					{state.needsAccess && project && (
 						<Button
 							label="Allow access"

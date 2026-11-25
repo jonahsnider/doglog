@@ -1,0 +1,182 @@
+/*
+ * The desktop sidebar's frame and its animation steps, see `AppSidebar` and `sidebarAnimationStore`. The steps are set
+ * as `data-animation` on the frame, which the sidebar, its surface, the rail's copy, and the title bar follow.
+ */
+
+/* Reserves the sidebar's space in the layout, so peeking doesn't resize the dashboard */
+[data-sidebar-frame] {
+	position: relative;
+	flex-shrink: 0;
+	inline-size: var(--sidebar-width);
+
+	&[data-collapsed] {
+		inline-size: var(--sidebar-width-icon);
+	}
+	/* Resizes the main area along with the sidebar, like the timeline sliding up resizes the panes */
+	&[data-animation] {
+		transition: inline-size calc(200ms * var(--motion-scale)) var(--ease-in-out);
+	}
+	/* The main area moves below the title bar's strip before the sidebar collapses */
+	&[data-animation='enter-strip'] {
+		inline-size: var(--sidebar-width);
+	}
+}
+
+[data-sidebar-frame] > [data-sidebar='sidebar'] {
+	/* Peeking slides at full width. `--peek` is animated here so WebKit updates the drawer during the transition. */
+	--peek: 0;
+
+	position: absolute;
+	inset-block: 0;
+	inset-inline-start: 0;
+	z-index: 20;
+	display: flex;
+	flex-direction: column;
+	inline-size: var(--sidebar-width);
+	overflow: hidden;
+	/* On the frame like the rest of the app's base, rounded for when it peeks over the panes */
+	border-start-end-radius: var(--radius-element);
+	border-end-end-radius: var(--radius-element);
+	/* Transparent on the frame, so it shows the window's backdrop through it when it's frosted. Its surface for peeking is below. */
+	color: var(--color-text-secondary);
+	/* Its width as it animates, for the menu buttons' corners, see `index.css` */
+	container-type: inline-size;
+	transition-property: box-shadow, --peek;
+	transition-duration: calc(200ms * var(--motion-scale));
+	transition-timing-function: var(--ease-in-out);
+
+	/* Below the title bar's strip, lined up with the main area's panes and pages, which have a gap above them */
+	[data-strip] > & {
+		inset-block-start: 2.625rem;
+	}
+	&[data-icon-only] {
+		inline-size: var(--sidebar-width-icon);
+	}
+	:is([data-animation='collapse'], [data-animation='expand']) > & {
+		transition-property: inline-size, box-shadow, --peek;
+	}
+	/* Floats over the rail and the panes while it peeks, sliding in from the window's edge. Its shadow fades as it leaves. */
+	&[data-peeking] {
+		--peek: 1;
+
+		box-shadow: var(--shadow-high);
+	}
+	/* Kept lined up with the panes for the whole slide in and out */
+	&[data-peeking],
+	[data-animation='unpeek'] > & {
+		inset-block-end: 0.375rem;
+		translate: calc((var(--peek) - 1) * 100%) 0;
+	}
+	[data-animation='unpeek'] > & {
+		inline-size: var(--sidebar-width);
+	}
+	/* Stays put until the main area is below the strip, then collapses */
+	[data-animation='enter-strip'] > & {
+		inset-block-start: 0;
+		inline-size: var(--sidebar-width);
+	}
+	/* Toggling with the keyboard skips the animation */
+	&[data-instant] {
+		transition: none;
+	}
+}
+
+/* Its surface while it floats over the rail and the panes, wiped away behind the panes as it expands from there */
+[data-sidebar-surface] {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background-color: var(--color-background-body);
+	opacity: 0;
+	pointer-events: none;
+
+	[data-peeking] > &,
+	:is([data-animation='unpeek'], [data-animation='expand']) > [data-sidebar='sidebar'] > & {
+		opacity: 1;
+	}
+	[data-animation='expand'] > [data-sidebar='sidebar'] > & {
+		clip-path: inset(0 0 0 calc((1 - var(--peek)) * (var(--sidebar-width) + 0.375rem)));
+	}
+}
+
+/* Like sliding panes, the content keeps its full width and is clipped, so it isn't laid out again every frame while the sidebar's width animates */
+[data-sidebar-content] {
+	display: flex;
+	flex-direction: column;
+	flex-shrink: 0;
+	block-size: 100%;
+	inline-size: var(--sidebar-width);
+	contain: strict;
+
+	[data-collapsible='icon'] > & {
+		inline-size: var(--sidebar-width-icon);
+	}
+}
+
+/* The rail as it was when peeking started, under the sidebar while it's out, see `peek()` */
+[data-sidebar='rail-copy'] {
+	position: absolute;
+	inset-block: 0;
+	inset-inline-start: 0;
+	z-index: 10;
+	inline-size: var(--sidebar-width-icon);
+	overflow: hidden;
+	color: var(--color-text-secondary);
+	visibility: hidden;
+	pointer-events: none;
+
+	[data-strip] > & {
+		inset-block-start: 2.625rem;
+	}
+	[data-peeking] ~ &,
+	[data-animation='unpeek'] > & {
+		visibility: visible;
+	}
+}
+
+/*
+ * The sidebar toggle beside the macOS traffic lights, then the app's name and Back and Forward when there's room. The
+ * top padding lines the buttons up with the pane headers, which are below the dashboard's gap, and keeps the window
+ * draggable from its top edge.
+ */
+[data-title-bar] {
+	/* Peeking slides the sidebar in and out at its full width, with `--peek` like it, see `index.css` */
+	--peek: 0;
+
+	position: absolute;
+	inset-block-start: 0;
+	inset-inline-start: 0;
+	z-index: 30;
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-0-5);
+	block-size: 2.625rem;
+	padding-block-start: var(--spacing-1-5);
+	/* The toggle lines up with the rail's icons, unless it's after the traffic lights */
+	padding-inline: var(--spacing-3) var(--spacing-2);
+	/* Clipped to the sidebar as it animates, so the name doesn't cover the main area, sized and animated like it */
+	inline-size: var(--sidebar-width);
+	overflow: hidden;
+	transition: --peek calc(200ms * var(--motion-scale)) var(--ease-in-out);
+
+	&[data-traffic-lights] {
+		padding-inline-start: 5.5625rem;
+	}
+	&[data-icon-only] {
+		inline-size: var(--sidebar-width-icon);
+	}
+	/* Stays at the sidebar's full width while peeking fades out */
+	[data-animation='unpeek'] > &[data-icon-only] {
+		inline-size: var(--sidebar-width);
+	}
+	&[data-peek] {
+		--peek: 1;
+	}
+	/* Spans the window in its own strip, see `useTitleBarStrip()` */
+	&[data-strip] {
+		inline-size: 100vw;
+	}
+	:is([data-animation='collapse'], [data-animation='expand']) > & {
+		transition-property: inline-size;
+	}
+}

@@ -1,3 +1,6 @@
+import { colorVars, spacingVars, typeScaleVars, typographyVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useEventListener } from 'usehooks-ts';
 import { type Entry, subscribeData, type TimeRange } from '@/data/data-store';
@@ -17,6 +20,77 @@ import { bindingColor } from '@/widgets/series-color';
 import type { WidgetBinding, WidgetProps } from '@/widgets/widget-type';
 
 type Range = readonly [number, number];
+
+const styles = stylex.create({
+	histogram: {
+		display: 'flex',
+		height: '100%',
+		flexDirection: 'column',
+	},
+	summary: {
+		maxHeight: '30%',
+		flexShrink: 0,
+		overflow: 'auto',
+		paddingInline: spacingVars['--spacing-2'],
+		paddingTop: spacingVars['--spacing-2'],
+		paddingBottom: spacingVars['--spacing-3'],
+	},
+	table: {
+		width: '100%',
+		fontSize: typeScaleVars['--text-label-size'],
+		lineHeight: '1.25rem',
+	},
+	headings: {
+		fontSize: typeScaleVars['--text-supporting-size'],
+		lineHeight: '1rem',
+		color: colorVars['--color-text-secondary'],
+	},
+	heading: {
+		fontWeight: 'normal',
+	},
+	entryHeading: {
+		textAlign: 'start',
+	},
+	cell: {
+		paddingInlineStart: spacingVars['--spacing-4'],
+		textAlign: 'end',
+	},
+	entry: {
+		width: '100%',
+		maxWidth: 0,
+		minWidth: '6rem',
+		paddingBlock: spacingVars['--spacing-0-5'],
+	},
+	metric: {
+		fontFamily: typographyVars['--font-family-code'],
+		whiteSpace: 'nowrap',
+		fontVariantNumeric: 'tabular-nums',
+		userSelect: 'text',
+	},
+	empty: {
+		whiteSpace: 'nowrap',
+		color: colorVars['--color-text-secondary'],
+	},
+	body: {
+		display: 'flex',
+		minHeight: 0,
+		flex: 1,
+		flexDirection: 'column',
+	},
+	noSamples: {
+		display: 'flex',
+		minHeight: '6rem',
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center',
+		fontSize: typeScaleVars['--text-label-size'],
+		lineHeight: '1.25rem',
+		color: colorVars['--color-text-secondary'],
+	},
+	timeAxis: {
+		paddingTop: spacingVars['--spacing-1-5'],
+	},
+});
 type Series = { binding: WidgetBinding; entry: Entry; unit: SeriesUnit; color: string };
 
 /** Keep the same snapshot until a series gains or loses samples in the selected range */
@@ -141,17 +215,17 @@ export function Histogram({ bindings }: WidgetProps) {
 	);
 
 	return (
-		<div className="flex h-full flex-col">
+		<div {...stylex.props(styles.histogram)}>
 			{bindings.length > 0 && (
-				<div className="max-h-[30%] shrink-0 overflow-auto px-2 pt-2 pb-3">
-					<table className="w-full text-sm" aria-label="Summary">
+				<div {...stylex.props(styles.summary)}>
+					<table {...stylex.props(styles.table)} aria-label="Summary">
 						<thead>
-							<tr className="text-xs text-muted-foreground">
-								<th scope="col" className="text-start font-normal">
-									<span className="sr-only">Entry</span>
+							<tr {...stylex.props(styles.headings)}>
+								<th scope="col" {...stylex.props(styles.heading, styles.entryHeading)}>
+									<VisuallyHidden>Entry</VisuallyHidden>
 								</th>
 								{metrics.map(([label, key]) => (
-									<th key={key} scope="col" className="ps-4 text-end font-normal">
+									<th key={key} scope="col" {...stylex.props(styles.heading, styles.cell)}>
 										{label}
 									</th>
 								))}
@@ -162,7 +236,7 @@ export function Histogram({ bindings }: WidgetProps) {
 								const analysis = analyses[series.findIndex((item) => item.binding === binding)];
 								return (
 									<tr key={binding.id}>
-										<td className="w-full max-w-0 min-w-24 py-0.5">
+										<td {...stylex.props(styles.entry)}>
 											<Legend
 												items={[
 													{
@@ -177,19 +251,19 @@ export function Histogram({ bindings }: WidgetProps) {
 											/>
 										</td>
 										{binding.entry === undefined ? (
-											<td colSpan={metrics.length} className="ps-4 text-end">
+											<td colSpan={metrics.length} {...stylex.props(styles.cell)}>
 												<NoData />
 											</td>
 										) : binding.hidden ? (
 											<td colSpan={metrics.length} aria-label="Hidden" />
 										) : analysis ? (
 											metrics.map(([, key]) => (
-												<td key={key} className="ps-4 text-end font-mono whitespace-nowrap tabular-nums select-text">
+												<td key={key} {...stylex.props(styles.cell, styles.metric)}>
 													{key === 'count' ? analysis.count.toLocaleString() : formatValue(analysis[key])}
 												</td>
 											))
 										) : (
-											<td colSpan={metrics.length} className="ps-4 text-end whitespace-nowrap text-muted-foreground">
+											<td colSpan={metrics.length} {...stylex.props(styles.cell, styles.empty)}>
 												No samples in range
 											</td>
 										)}
@@ -200,15 +274,15 @@ export function Histogram({ bindings }: WidgetProps) {
 					</table>
 				</div>
 			)}
-			<div ref={body} className="flex min-h-0 flex-1 flex-col">
+			<div ref={body} {...stylex.props(styles.body)}>
 				{histogram ? (
 					<HistogramPlot series={plotSeries} unit={axes.y} histogram={histogram} range={range} onZoom={changeZoom} />
 				) : (
-					<div className="flex min-h-24 flex-1 items-center justify-center text-sm text-muted-foreground">
+					<div {...stylex.props(styles.noSamples)}>
 						{series.some((item) => !item.binding.hidden) && 'No samples in range'}
 					</div>
 				)}
-				<div ref={timeAxis} className="pt-1.5">
+				<div ref={timeAxis} {...stylex.props(styles.timeAxis)}>
 					<TimeAxis leftInset={axisWidth} rightInset={valueAxisEnd(axes.y)} />
 				</div>
 			</div>

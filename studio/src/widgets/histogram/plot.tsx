@@ -1,4 +1,7 @@
 import 'uplot/dist/uPlot.min.css';
+import './plot.css';
+import { colorVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useLayoutEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import uPlot from 'uplot';
@@ -6,7 +9,8 @@ import { formatValue } from '@/data/format-value';
 import { settingsStore } from '@/settings';
 import { axisWidth } from '@/widgets/graph/plot';
 import type { histogramBins } from '@/widgets/histogram/data';
-import { binCount, binLabel, binValues, type PlotSeries, valueAxisEnd } from '@/widgets/histogram/format';
+import { HistogramBins } from '@/widgets/histogram/bins';
+import { type PlotSeries, valueAxisEnd } from '@/widgets/histogram/format';
 
 type Histogram = ReturnType<typeof histogramBins>;
 type Range = readonly [number, number];
@@ -31,6 +35,39 @@ const heights: uPlot.Series.BarsPathBuilderDisplay = {
 		},
 	},
 };
+const styles = stylex.create({
+	figure: {
+		position: 'relative',
+		minHeight: '6rem',
+		minWidth: 0,
+		flex: 1,
+		cursor: 'crosshair',
+		touchAction: 'none',
+	},
+	chart: {
+		position: 'absolute',
+		inset: 0,
+	},
+	note: {
+		pointerEvents: 'none',
+		position: 'absolute',
+		fontSize: typeScaleVars['--text-supporting-size'],
+		color: colorVars['--color-text-secondary'],
+	},
+	outside: {
+		top: spacingVars['--spacing-0-5'],
+		right: spacingVars['--spacing-2'],
+		lineHeight: '1rem',
+		fontVariantNumeric: 'tabular-nums',
+	},
+	unit: {
+		right: 0,
+		bottom: 0,
+		paddingTop: spacingVars['--spacing-1'],
+		lineHeight: 1,
+	},
+});
+
 const bars = uPlot.paths.bars!({ size: [1], disp: heights });
 const singleBar = uPlot.paths.bars!({ size: [1, 32], disp: heights });
 
@@ -184,95 +221,26 @@ export function HistogramPlot({
 	const outside = histogram.outside.reduce((total, count) => total + count, 0);
 
 	return (
-		<figure
-			className="relative min-h-24 min-w-0 flex-1 cursor-crosshair touch-none"
-			aria-label={`Histogram of ${series.map((item) => item.name).join(', ')}`}
-		>
-			{/* uPlot's stylesheet isn't layered, so it overrides utilities without `!` */}
-			<div
-				className="absolute inset-0 [&_.u-select]:border-x! [&_.u-select]:border-primary! [&_.u-select]:bg-primary/10!"
-				ref={mount}
-			/>
-			{range && (
-				<span className="pointer-events-none absolute top-0.5 right-2 text-xs text-muted-foreground tabular-nums">
-					{outside.toLocaleString()} outside view
-				</span>
-			)}
+		<figure {...stylex.props(styles.figure)} aria-label={`Histogram of ${series.map((item) => item.name).join(', ')}`}>
+			<div {...stylex.props(styles.chart)} data-histogram-plot ref={mount} />
+			{range && <span {...stylex.props(styles.note, styles.outside)}>{outside.toLocaleString()} outside view</span>}
 			{unit !== undefined && (
 				// The value axis's unit after its last label, like a graph's unit at the end of its y-axis
-				<span
-					className="pointer-events-none absolute right-0 bottom-0 pt-1 text-xs leading-none text-muted-foreground"
-					style={{ height: xAxisHeight }}
-				>
+				<span {...stylex.props(styles.note, styles.unit)} style={{ height: xAxisHeight }}>
 					{unit}
 				</span>
 			)}
 			{plot &&
 				createPortal(
-					<div
-						className="absolute inset-0 flex capture:hidden"
-						onPointerLeave={(event) => {
-							if (event.pointerType !== 'touch') {
-								setActive(undefined);
-							}
-						}}
-					>
-						{bins.map((bin, index) => (
-							<button
-								// oxlint-disable-next-line react/no-array-index-key -- Keep focus on the same column as live bin edges change.
-								key={index}
-								type="button"
-								className="min-w-0 flex-1 cursor-crosshair hover:bg-foreground/8 focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring"
-								aria-label={binLabel(bin, unit, series, index === bins.length - 1)}
-								tabIndex={index === Math.min(tabStop, bins.length - 1) ? 0 : -1}
-								onPointerEnter={(event) => {
-									if (event.pointerType !== 'touch') {
-										setActive(index);
-									}
-								}}
-								onPointerDown={() => setActive(index)}
-								onFocus={(event) => {
-									setTabStop(index);
-									if (event.currentTarget.matches(':focus-visible')) {
-										setActive(index);
-									}
-								}}
-								onBlur={() => setActive((current) => (current === index ? undefined : current))}
-								onKeyDown={(event) => {
-									if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-										event.preventDefault();
-										event.stopPropagation();
-										const next =
-											event.currentTarget[event.key === 'ArrowLeft' ? 'previousElementSibling' : 'nextElementSibling'];
-										if (next instanceof HTMLButtonElement) {
-											next.focus();
-										}
-									}
-								}}
-							/>
-						))}
-						{activeIndex !== undefined && (
-							<div
-								className="pointer-events-none absolute top-1 z-10 w-max rounded-md border bg-popover px-2 py-1.5 text-xs whitespace-nowrap text-popover-foreground shadow-md"
-								// Beside the bin, on the side with more room
-								style={
-									activeIndex < bins.length / 2
-										? { left: `${(activeIndex / bins.length) * 100}%` }
-										: { right: `${(1 - (activeIndex + 1) / bins.length) * 100}%` }
-								}
-							>
-								<div className="font-medium tabular-nums">{binValues(bins[activeIndex]!, unit, '–')}</div>
-								{series.map((item, index) => (
-									<div key={item.id} className="flex items-center gap-1.5 text-muted-foreground tabular-nums">
-										{series.length > 1 && (
-											<span className="size-2 shrink-0 rounded-full" style={{ background: item.color }} />
-										)}
-										{binCount(bins[activeIndex]!.counts[index]!, item.total)}
-									</div>
-								))}
-							</div>
-						)}
-					</div>,
+					<HistogramBins
+						bins={bins}
+						unit={unit}
+						series={series}
+						active={activeIndex}
+						setActive={setActive}
+						tabStop={tabStop}
+						setTabStop={setTabStop}
+					/>,
 					plot.over,
 				)}
 		</figure>

@@ -1,0 +1,5 @@
+/* Captures leave out the highlight of the pane whose entries are being edited */
+[data-pane-header]:where([data-capturing], [data-capturing] *) {
+	background-color: transparent;
+	transition: none;
+}

@@ -1,3 +1,5 @@
+import { colorVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import CompassIcon from 'lucide-react/icons/compass';
 import type { ReactNode } from 'react';
 import type { Value } from '@/data/samples';
@@ -10,11 +12,35 @@ import { readPose } from '@/widgets/field/data';
 import { fieldXAxisAngle } from '@/widgets/field/options';
 import { historyMax, isSpeeds, type Module, readModules, swerveRole } from '@/widgets/swerve/data';
 import { chassisHalf, move, type Point, strokeWidth } from '@/widgets/swerve/geometry';
-import { Arrow, Line, ModuleLabel, RotationArc, Wheel } from '@/widgets/swerve/shapes';
+import { Arrow, ChassisSpeeds, Line, ModuleLabel, Wheel } from '@/widgets/swerve/shapes';
 import type { WidgetProps } from '@/widgets/widget-type';
 import type { PaneNode } from '@/panes/layout';
 import { Legend, type LegendItem } from '@/widgets/legend/legend';
 import { bindingColor } from '@/widgets/series-color';
+
+const styles = stylex.create({
+	swerve: {
+		display: 'flex',
+		height: '100%',
+		flexDirection: 'column',
+		gap: spacingVars['--spacing-2'],
+		padding: spacingVars['--spacing-2'],
+	},
+	drawing: {
+		minHeight: 0,
+		width: '100%',
+		flex: 1,
+	},
+	chassis: {
+		stroke: colorVars['--color-border'],
+	},
+	headingIcon: {
+		width: 14,
+		height: 14,
+		flexShrink: 0,
+		color: colorVars['--color-icon-secondary'],
+	},
+});
 
 // Sizes in robot-frame meters-like units: the chassis is 1 wide, the view leaves room for arrows when it's rotated
 /** Modules sit inside the chassis, like a real robot's */
@@ -25,8 +51,6 @@ const baseArrow = 0.2;
 const fullArrow = 0.55;
 const positionLine = 0.25;
 const viewHalf = 1.1;
-/** Largest rotation arc, for the fastest rotation in an entry's history */
-const maxSweep = (Math.PI * 3) / 2;
 
 /** Front-left, front-right, back-left, back-right, matching WPILib's usual module order */
 const modulePositions: readonly Point[] = [
@@ -36,42 +60,7 @@ const modulePositions: readonly Point[] = [
 	[-moduleOffset, -moduleOffset],
 ];
 const moduleLabels = ['FL', 'FR', 'BL', 'BR'];
-const headingIcon = <CompassIcon className="size-3.5 shrink-0 text-muted-foreground" />;
-
-function ChassisSpeeds({
-	value,
-	fieldRelative,
-	heading,
-	maxOmega,
-	arrowLength,
-	arcRadius,
-	color,
-}: {
-	value: Value;
-	fieldRelative: boolean;
-	/** Robot heading, turns field-relative speeds into the robot frame */
-	heading: number;
-	maxOmega: number;
-	arrowLength: (speed: number) => number;
-	arcRadius: number;
-	color: string;
-}) {
-	const vx = numberField(value, 'vx');
-	const vy = numberField(value, 'vy');
-	const speed = Math.hypot(vx, vy);
-	// Without a heading entry the heading is 0, so field +X points up like the robot's front
-	const angle = Math.atan2(vy, vx) - (fieldRelative ? heading : 0);
-	return (
-		<g>
-			{speed > 0 && <Arrow from={[0, 0]} angle={angle} length={arrowLength(speed)} color={color} />}
-			<RotationArc
-				radius={arcRadius}
-				sweep={maxOmega > 0 ? (numberField(value, 'omega') / maxOmega) * maxSweep : 0}
-				color={color}
-			/>
-		</g>
-	);
-}
+const headingIcon = <CompassIcon {...stylex.props(styles.headingIcon)} />;
 
 /** Arrows for module states or lines for module positions, optionally over translucent wheels in the entry's color */
 function ModuleLayer({
@@ -261,10 +250,10 @@ export function Swerve({ bindings, layout }: WidgetProps) {
 	}
 
 	return (
-		<div className="flex h-full flex-col gap-2 p-2">
+		<div {...stylex.props(styles.swerve)}>
 			<Legend items={legend} />
 			<svg
-				className="min-h-0 w-full flex-1"
+				{...stylex.props(styles.drawing)}
 				viewBox={`${-viewHalf} ${-viewHalf} ${viewHalf * 2} ${viewHalf * 2}`}
 				role="img"
 				aria-label="Swerve drive"
@@ -278,7 +267,7 @@ export function Swerve({ bindings, layout }: WidgetProps) {
 						height={chassisHalf * 2}
 						rx={0.04}
 						fill="none"
-						className="stroke-border"
+						{...stylex.props(styles.chassis)}
 						strokeWidth={strokeWidth}
 					/>
 					{/* Earlier entries draw on top of later ones */}

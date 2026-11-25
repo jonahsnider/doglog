@@ -1,0 +1,5 @@
+/* uPlot's drag selection, tinted like a graph's measured range. uPlot's stylesheet isn't layered, so this isn't either. */
+[data-histogram-plot] .u-select {
+	border-inline: 1px solid var(--color-accent);
+	background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+}

@@ -1,0 +1,7 @@
+/* Agents' logos in one color, black or white to match the theme */
+[data-agent-icon] {
+	filter: brightness(0);
+}
+:where(.dark) [data-agent-icon] {
+	filter: brightness(0) invert(1);
+}

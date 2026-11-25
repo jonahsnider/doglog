@@ -1,0 +1,10 @@
+/* Captures leave out the button and field, and show the time as text in their place */
+[data-capture-time] {
+	display: none;
+}
+:where([data-capturing], [data-capturing] *) [data-capture-time] {
+	display: inline;
+}
+:where([data-capturing], [data-capturing] *) [data-capture-transparent] {
+	opacity: 0;
+}

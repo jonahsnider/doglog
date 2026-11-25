@@ -6,6 +6,7 @@ import { ClaudeCode, CodexLight, CursorLight, GoogleAntigravity, VisualStudioCod
 import { invoke } from '@tauri-apps/api/core';
 import { useEffect, useState } from 'react';
 import { toastManager } from '@/components/toast';
+import './agents-field.css';
 
 const agentIcons = {
 	'antigravity-cli': GoogleAntigravity,
@@ -73,7 +74,7 @@ function AddAgentButton({ agent }: { agent: Agent }) {
 		<Button
 			label={`Add to ${agent.name}`}
 			size="sm"
-			icon={<Icon aria-hidden="true" className="brightness-0 dark:invert" />}
+			icon={<Icon aria-hidden="true" data-agent-icon />}
 			clickAction={add}
 		/>
 	);

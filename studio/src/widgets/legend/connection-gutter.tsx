@@ -1,6 +1,7 @@
 // Connections between a vertical legend's bindings, drawn like a flowchart in a gutter to the right of its rows
+import { colorVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { createPortal } from 'react-dom';
-import { cn } from '@/lib/utils';
 import {
 	assignLanes,
 	type Connection,
@@ -10,6 +11,24 @@ import {
 	rowHeight,
 	handleInset,
 } from '@/widgets/legend/connections';
+
+const styles = stylex.create({
+	gutter: { flexShrink: 0, overflow: 'visible' },
+	link: { pointerEvents: 'auto', cursor: 'pointer' },
+	line: { pointerEvents: 'none' },
+	removing: { stroke: colorVars['--color-error'] },
+	removeBackground: { fill: colorVars['--color-background-surface'] },
+	// Drawn over the whole page, without blocking finding the row under the pointer when it's dropped
+	preview: {
+		pointerEvents: 'none',
+		position: 'fixed',
+		inset: 0,
+		zIndex: 50,
+		width: '100%',
+		height: '100%',
+	},
+	unsnapped: { stroke: colorVars['--color-text-primary'] },
+});
 
 /** Links legend handles with right angles. Clicking a link's lane removes the link. */
 export function ConnectionGutter({
@@ -48,7 +67,7 @@ export function ConnectionGutter({
 		hovered?.sourceId === sourceId && hovered.targetId === targetId;
 	const width = laneGap * (count + 1);
 	return (
-		<svg className="shrink-0 overflow-visible" width={width} height={rows * rowHeight} aria-hidden>
+		<svg {...stylex.props(styles.gutter)} width={width} height={rows * rowHeight} aria-hidden>
 			{/* Draw the hovered link above any lines it crosses. */}
 			{connections
 				.toSorted((a, b) => Number(isHovered(a)) - Number(isHovered(b)))
@@ -62,7 +81,7 @@ export function ConnectionGutter({
 					return (
 						<g
 							key={`${sourceId}-${targetId}`}
-							className="pointer-events-auto cursor-pointer"
+							{...stylex.props(styles.link)}
 							opacity={hidden(sourceId) || hidden(targetId) ? 0.4 : undefined}
 							onPointerEnter={() => onHover(connection)}
 							onPointerLeave={() => onHover(undefined)}
@@ -73,7 +92,7 @@ export function ConnectionGutter({
 								d={d}
 								fill="none"
 								stroke={hoveredLink ? undefined : color}
-								className={cn('pointer-events-none', hoveredLink && 'stroke-destructive')}
+								{...stylex.props(styles.line, hoveredLink && styles.removing)}
 								strokeWidth={hoveredLink ? 3 : 2}
 								strokeLinejoin="round"
 							/>
@@ -91,8 +110,8 @@ export function ConnectionGutter({
 /** An X in a circle on the middle of a hovered link's lane, fits in the space right of the last lane */
 function RemoveMark({ x, y }: { x: number; y: number }) {
 	return (
-		<g className="stroke-destructive" strokeWidth={1.5} strokeLinecap="round">
-			<circle cx={x} cy={y} r={5.5} className="fill-background" />
+		<g {...stylex.props(styles.removing)} strokeWidth={1.5} strokeLinecap="round">
+			<circle cx={x} cy={y} r={5.5} {...stylex.props(styles.removeBackground)} />
 			<path d={`M ${x - 2} ${y - 2} L ${x + 2} ${y + 2} M ${x + 2} ${y - 2} L ${x - 2} ${y + 2}`} />
 		</g>
 	);
@@ -111,13 +130,12 @@ function DragPreview({ drag, lane }: { drag: ConnectionDrag; lane: number }) {
 			? `M ${handleX} ${fromY} H ${Math.max(laneX, drag.x)} V ${drag.y} H ${drag.x}`
 			: `M ${handleX} ${fromY} H ${laneX} V ${drag.originY + rowCenter(drag.toRow)} H ${handleX}`;
 	return createPortal(
-		// Doesn't block finding the row under the pointer when it's dropped
-		<svg className="pointer-events-none fixed inset-0 z-50 size-full" aria-hidden>
+		<svg {...stylex.props(styles.preview)} aria-hidden>
 			<path
 				d={d}
 				fill="none"
 				stroke={drag.over?.color}
-				className={cn(drag.toRow === undefined && 'stroke-foreground')}
+				{...stylex.props(drag.toRow === undefined && styles.unsnapped)}
 				strokeWidth={2}
 				strokeDasharray={drag.toRow === undefined ? '3 3' : undefined}
 				strokeLinejoin="round"

@@ -3,8 +3,9 @@ import HouseIcon from 'lucide-react/icons/house';
 import XIcon from 'lucide-react/icons/x';
 import { Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { IconButton } from '@astryxdesign/core/IconButton';
+import { colorVars, radiusVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { useDataVersion } from '@/data/data-store';
-import { cn } from '@/lib/utils';
 import { useWidgetMenu } from '@/panes/widget-menu';
 import { FieldDrawings, type FieldDrawingProps, type RobotDrawing } from '@/three/field-drawings';
 import { FieldImageFloor, FieldModel, FloorPointer, type FloorProjection, FloorSketch } from '@/three/field-scene';
@@ -14,7 +15,8 @@ import { useCursorTime } from '@/timeline/timeline';
 import { setCameraMatch, useCameraMatch } from '@/widgets/field/camera-match';
 import { type FieldCoordinates, type FieldPoint, fieldLength, fieldWidth, toBlueWall } from '@/widgets/field/geometry';
 import { fieldLegendItems } from '@/widgets/field/legend-items';
-import { CursorPosition, hiddenWhileIdle, ToolButtons } from '@/widgets/field/readout';
+import { fieldMarker } from './markers.stylex';
+import { IdleHidden, Readout } from '@/widgets/field/readout';
 import { useCopyPosition } from '@/widgets/field/copy-position';
 import { fieldRobot, isRobotBinding, missingRobotNotes } from '@/widgets/field/robots';
 import { useRobotFollow } from '@/widgets/field/robot-follow';
@@ -30,6 +32,45 @@ import { useMechanisms } from '@/widgets/use-mechanisms';
 import { useSceneControls } from '@/widgets/use-scene-controls';
 import { ViewToggle } from '@/widgets/view-toggle';
 import type { WidgetBinding, WidgetProps } from '@/widgets/widget-type';
+
+const styles = stylex.create({
+	root: { height: '100%', padding: spacingVars['--spacing-2'] },
+	column: { display: 'flex', height: '100%', flexDirection: 'column', gap: spacingVars['--spacing-1'] },
+	stage: { position: 'relative', minHeight: 0, flex: 1 },
+	// Fits the scene to the matched camera's aspect ratio
+	matched: { display: 'grid', placeItems: 'center', containerType: 'size' },
+	scene: { width: '100%', height: '100%' },
+	drawing: { cursor: 'crosshair' },
+	overlay: { pointerEvents: 'none', position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column' },
+	legend: {
+		pointerEvents: 'auto',
+		flexShrink: 0,
+		width: 'fit-content',
+		maxWidth: '50%',
+		maxHeight: '50%',
+		marginTop: spacingVars['--spacing-1-5'],
+		marginInlineStart: spacingVars['--spacing-1-5'],
+		overflowY: 'auto',
+		paddingInline: spacingVars['--spacing-1-5'],
+		borderRadius: radiusVars['--radius-element'],
+		backgroundColor: colorVars['--color-background-surface'],
+	},
+	followBadge: {
+		position: 'absolute',
+		top: spacingVars['--spacing-1-5'],
+		right: spacingVars['--spacing-1-5'],
+		display: 'flex',
+		maxWidth: '50%',
+		alignItems: 'center',
+		gap: spacingVars['--spacing-1'],
+		paddingInlineStart: spacingVars['--spacing-1-5'],
+		borderRadius: radiusVars['--radius-element'],
+		backgroundColor: colorVars['--color-background-surface'],
+		fontSize: typeScaleVars['--text-supporting-size'],
+		lineHeight: '1rem',
+	},
+	followLabel: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+});
 
 /** Where the default view looks from for each orientation, the 2D view's bottom edge, in radians from +X */
 const azimuths: Readonly<Record<string, number>> = {
@@ -165,18 +206,15 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 		];
 	});
 
+	const followBadge = stylex.props(styles.followBadge);
 	return (
-		<div className="group/field h-full p-2">
-			<div className="flex h-full flex-col gap-1">
+		<div {...stylex.props(fieldMarker, styles.root)}>
+			<div {...stylex.props(styles.column)}>
 				{/* Marks the robot under the pointer, see `bindingIdAt()` in the pane */}
-				<div
-					className={cn('relative min-h-0 flex-1', cameraMatch && 'grid place-items-center [container-type:size]')}
-					data-binding-id={pointed}
-				>
+				<div {...stylex.props(styles.stage, cameraMatched && styles.matched)} data-binding-id={pointed}>
 					<div
 						ref={sceneElement}
-						className="size-full data-[tool=pencil]:cursor-crosshair"
-						data-tool={pencil.tool}
+						{...stylex.props(styles.scene, pencil.tool === 'pencil' && styles.drawing)}
 						{...controls.handlers}
 						{...pencil.handlers}
 						style={
@@ -207,9 +245,9 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 							<FloorPointer ref={projectFloor} onMove={movePointer} />
 						</Scene3d>
 					</div>
-					<div className="pointer-events-none absolute inset-0 flex flex-col">
+					<div {...stylex.props(styles.overlay)}>
 						{legend.length > 0 && (
-							<div className="pointer-events-auto mt-1.5 ms-1.5 max-h-1/2 w-fit max-w-1/2 shrink-0 overflow-y-auto rounded-md bg-background px-1.5">
+							<div {...stylex.props(styles.legend)}>
 								<FollowContext value={followControls}>
 									<Legend items={legend} vertical />
 								</FollowContext>
@@ -218,33 +256,36 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 						<SceneControls view="3d" visible={controls.visible} disabled={!showControls} />
 					</div>
 					{followLabel !== undefined && (
-						<div className="absolute top-1.5 right-1.5 flex max-w-1/2 items-center gap-1 rounded-md bg-background ps-1.5 text-xs capture-invisible">
-							<span className="truncate">{followLabel}</span>
+						<div className={`${followBadge.className} capture-invisible`}>
+							<span {...stylex.props(styles.followLabel)}>{followLabel}</span>
 							<IconButton label="Stop following" icon={<XIcon />} variant="ghost" size="sm" onClick={stopFollowing} />
 						</div>
 					)}
 				</div>
-				<div className="flex min-h-7 items-center justify-between gap-2 text-muted-foreground text-xs capture-invisible">
-					<CursorPosition pointer={pointer} hovered={overField} copied={copied} />
-					<div className="flex items-center gap-2">
-						<ToolButtons tool={pencil.tool} onToggle={pencil.toggle} measure={false} />
-						<div className={cn('flex items-center gap-2', !cameraMatch && hiddenWhileIdle)}>
-							<IconButton
-								label={resetLabel}
-								tooltip={resetLabel}
-								icon={<ResetIcon />}
-								variant="ghost"
-								size="sm"
-								onClick={() => {
-									controls.input();
-									stopFollowing();
-									scene.current?.reset();
-								}}
-							/>
-							<ViewToggle view="3d" onChange={(view) => setOption('view', view)} />
-						</div>
-					</div>
-				</div>
+				<Readout
+					pointer={pointer}
+					hovered={overField}
+					copied={copied}
+					tool={pencil.tool}
+					onToggle={pencil.toggle}
+					measure={false}
+				>
+					<IdleHidden isShown={cameraMatched}>
+						<IconButton
+							label={resetLabel}
+							tooltip={resetLabel}
+							icon={<ResetIcon />}
+							variant="ghost"
+							size="sm"
+							onClick={() => {
+								controls.input();
+								stopFollowing();
+								scene.current?.reset();
+							}}
+						/>
+						<ViewToggle view="3d" onChange={(view) => setOption('view', view)} />
+					</IdleHidden>
+				</Readout>
 			</div>
 		</div>
 	);

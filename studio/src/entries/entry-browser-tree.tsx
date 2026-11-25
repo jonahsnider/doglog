@@ -1,4 +1,6 @@
 import { TextInput } from '@astryxdesign/core/TextInput';
+import { colorVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import type { Draggable, Droppable } from '@dnd-kit/dom';
 import { useDragDropMonitor, useDragOperation } from '@dnd-kit/react';
 import { useSelector } from '@tanstack/react-store';
@@ -28,8 +30,53 @@ import {
 } from '@/entries/tree';
 import { isEnterKey } from '@/lib/keyboard';
 import { useMobileLayout } from '@/lib/mobile-layout';
+import { entrySearchMarker } from './markers.stylex';
 import { acceptsEntry, type WidgetType } from '@/widgets/widget-type';
-import './entry-browser.css';
+
+const styles = stylex.create({
+	// The header's height leaves room above, so less top padding keeps the gaps around the search box even
+	search: {
+		flexShrink: 0,
+		paddingInline: spacingVars['--spacing-2'],
+		paddingTop: spacingVars['--spacing-1'],
+		paddingBottom: spacingVars['--spacing-2'],
+	},
+	field: {
+		position: 'relative',
+	},
+	// The search shortcut sits at the end of the empty field, and gives way once it's focused
+	shortcut: {
+		position: 'absolute',
+		insetBlock: 0,
+		insetInlineEnd: spacingVars['--spacing-1-5'],
+		display: { default: 'flex', [stylex.when.ancestor(':focus-within', entrySearchMarker)]: 'none' },
+		alignItems: 'center',
+		pointerEvents: 'none',
+	},
+	rows: {
+		flex: 1,
+		minHeight: 0,
+	},
+	message: {
+		flex: 1,
+		paddingBlock: spacingVars['--spacing-2'],
+		paddingInline: spacingVars['--spacing-3'],
+		color: colorVars['--color-text-secondary'],
+		fontSize: typeScaleVars['--text-label-size'],
+		lineHeight: typeScaleVars['--text-label-leading'],
+	},
+	note: {
+		flexShrink: 0,
+		paddingBlock: spacingVars['--spacing-2'],
+		paddingInline: spacingVars['--spacing-3'],
+		borderTopWidth: 1,
+		borderTopStyle: 'solid',
+		borderTopColor: colorVars['--color-border'],
+		color: colorVars['--color-text-secondary'],
+		fontSize: typeScaleVars['--text-supporting-size'],
+		lineHeight: '1rem',
+	},
+});
 
 /** Search requests already handled, so a remounted search box doesn't focus itself again */
 let handledSearchFocus = 0;
@@ -107,9 +154,8 @@ export function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 
 	return (
 		<>
-			{/* The header's height leaves room above, so less top padding keeps the gaps around the search box even */}
-			<div className="shrink-0 px-2 pt-1 pb-2">
-				<div className="entry-search">
+			<div {...stylex.props(styles.search)}>
+				<div {...stylex.props(entrySearchMarker, styles.field)}>
 					<TextInput
 						ref={searchRef}
 						type="search"
@@ -130,7 +176,7 @@ export function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 						}}
 					/>
 					{!mobile && query === '' && (
-						<span aria-hidden className="entry-search-shortcut">
+						<span aria-hidden {...stylex.props(styles.shortcut)}>
 							<Shortcut hotkey={shortcuts.searchEntries} />
 						</span>
 					)}
@@ -141,7 +187,7 @@ export function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 				<EntryRows
 					view={view}
 					label="Entries"
-					className="min-h-0 flex-1"
+					xstyle={styles.rows}
 					dropSection={dropTarget}
 					edited={edited}
 					onExpandedChange={(next) => {
@@ -153,7 +199,7 @@ export function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 					}}
 				/>
 			) : (
-				<p className="flex-1 px-3 py-2 text-sm text-muted-foreground">{message}</p>
+				<p {...stylex.props(styles.message)}>{message}</p>
 			)}
 			{(sectioned.hidden.length > 0 || dragging) && (
 				<HiddenSection
@@ -166,9 +212,7 @@ export function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 				/>
 			)}
 			{editedType && entries.length > 0 && entries.length < allEntries.length && (
-				<p className="shrink-0 border-t px-3 py-2 text-xs text-muted-foreground">
-					{hiddenEntriesNote(allEntries, entries, editedType)}
-				</p>
+				<p {...stylex.props(styles.note)}>{hiddenEntriesNote(allEntries, entries, editedType)}</p>
 			)}
 		</>
 	);

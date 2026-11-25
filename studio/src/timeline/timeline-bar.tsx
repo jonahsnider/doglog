@@ -1,8 +1,7 @@
-import { Button } from '@astryxdesign/core/Button';
 import { DropdownMenu, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@astryxdesign/core/DropdownMenu';
 import { Icon } from '@astryxdesign/core/Icon';
 import { IconButton } from '@astryxdesign/core/IconButton';
-import { colorVars, radiusVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
 import * as stylex from '@stylexjs/stylex';
 import ChevronsUpDownIcon from 'lucide-react/icons/chevrons-up-down';
@@ -15,20 +14,15 @@ import { TextMorph } from '@/components/text-morph';
 import { CursorTime } from '@/timeline/cursor-time';
 import { LogProgress } from '@/timeline/log-progress';
 import { TimelineOptions } from '@/timeline/timeline-options';
-import { Scrubber } from '@/timeline/timeline-scrubber';
-import { getSourceYear } from '@/timeline/shifts';
+import { TimelineTrack } from '@/timeline/timeline-track';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { type TimeRange, useTimeRange } from '@/data/data-store';
 import { type Source, useSource } from '@/data/source';
 import { useCaptureFrame } from '@/desktop/capture';
 import { useSize } from '@/hooks/use-size';
 import { easing, useMotionTransition } from '@/lib/motion';
-import { cn } from '@/lib/utils';
-import { useSettings } from '@/settings';
 import {
 	changeSpeed,
-	formatTime,
-	goLive,
 	playbackSpeeds,
 	setSpeed,
 	step,
@@ -38,6 +32,7 @@ import {
 	useTimeline,
 } from '@/timeline/timeline';
 import { seekHotkeys, skip } from '@/timeline/seek';
+import './fade-in.css';
 
 const hotkeys: UseHotkeyDefinition[] = [
 	{ hotkey: 'Space', callback: togglePlayback, options: { requireReset: true } },
@@ -56,14 +51,32 @@ const hotkeys: UseHotkeyDefinition[] = [
 ];
 
 const styles = stylex.create({
-	liveDot: {
-		width: 8,
-		height: 8,
-		borderRadius: radiusVars['--radius-full'],
-		backgroundColor: colorVars['--color-icon-secondary'],
+	speed: {
+		fontVariantNumeric: 'tabular-nums',
 	},
-	following: {
-		backgroundColor: colorVars['--color-error'],
+	bar: {
+		display: 'flex',
+		height: '3.5rem',
+		contain: 'strict',
+	},
+	compactBar: {
+		height: '5.5rem',
+	},
+	controls: {
+		display: 'flex',
+		flex: 1,
+		alignItems: 'center',
+		gap: spacingVars['--spacing-1'],
+		minWidth: 0,
+		paddingInline: spacingVars['--spacing-2'],
+	},
+	compactControls: {
+		flexWrap: 'wrap',
+		rowGap: 0,
+	},
+	present: {
+		flexShrink: 0,
+		overflow: 'clip',
 	},
 });
 
@@ -82,57 +95,6 @@ function ControlButton({
 		<Tooltip content={<TooltipLabel label={label} shortcut={shortcut} />}>
 			<IconButton label={label} icon={icon} variant="ghost" className="capture-hidden" onClick={onClick} />
 		</Tooltip>
-	);
-}
-
-function TimelineTrack({
-	compact,
-	range,
-	source,
-	timeline,
-}: {
-	compact: boolean;
-	range: TimeRange | undefined;
-	source: Source;
-	timeline: Timeline;
-}) {
-	const { time, playback, live, videoRange } = timeline;
-	const { timelineAlerts, timelineCompress, timelineShifts } = useSettings();
-	const following = playback === 'following';
-	return (
-		<div className={cn('flex min-w-0 items-center', compact ? 'h-11 basis-full' : 'h-full flex-1 gap-1')}>
-			<TimelineCursorContext value={time}>
-				{range && time !== undefined ? (
-					<Scrubber
-						range={range}
-						// Frozen live history doesn't need room to grow.
-						live={live && !videoRange}
-						showAlerts={timelineAlerts}
-						showShifts={timelineShifts}
-						compress={timelineCompress}
-						year={getSourceYear(source)}
-						unread={source.type === 'log' ? source.unread : undefined}
-					/>
-				) : (
-					<div className="mx-2 h-1 flex-1 rounded-full bg-input" />
-				)}
-			</TimelineCursorContext>
-			<span className="me-1.5 font-mono text-sm text-muted-foreground tabular-nums">
-				{range ? formatTime(range.end, range.start) : '-'}
-			</span>
-			{live && (
-				<Button
-					label={following ? 'Live' : 'Go live'}
-					variant={following ? 'ghost' : 'secondary'}
-					icon={<span {...stylex.props(styles.liveDot, following && styles.following)} />}
-					className="capture-hidden"
-					isDisabled={following}
-					onClick={goLive}
-				>
-					<TextMorph>{following ? 'Live' : 'Go live'}</TextMorph>
-				</Button>
-			)}
-		</div>
 	);
 }
 
@@ -168,16 +130,10 @@ function TimelineControls({
 			ref={bar}
 			aria-label="Timeline"
 			inert={!present}
-			className={cn('flex contain-strict', compact ? 'h-22' : 'h-14')}
+			{...stylex.props(styles.bar, compact && styles.compactBar)}
 			style={capture?.timelinePadding}
 		>
-			<div
-				className={cn(
-					'flex min-w-0 flex-1 items-center gap-1 px-2',
-					compact && 'flex-wrap gap-y-0',
-					fadeIn && 'transition-opacity duration-300 starting:opacity-0',
-				)}
-			>
+			<div data-fade-in={fadeIn || undefined} {...stylex.props(styles.controls, compact && styles.compactControls)}>
 				<ControlButton
 					label={playback === 'paused' ? 'Play' : 'Pause'}
 					shortcut="Space"
@@ -194,7 +150,7 @@ function TimelineControls({
 							endContent: <Icon icon={ChevronsUpDownIcon} size="sm" />,
 							// Just the number, so it rolls by place value instead of morphing as a word
 							children: (
-								<span className="tabular-nums">
+								<span {...stylex.props(styles.speed)}>
 									<TextMorph as="span">{speed}</TextMorph>x
 								</span>
 							),
@@ -246,7 +202,7 @@ export function TimelineBar() {
 			<AnimatePresence initial={false}>
 				{source && (
 					<m.div
-						className="shrink-0 overflow-clip"
+						{...stylex.props(styles.present)}
 						// The panes resize with the bar while its fixed-height contents slide past the bottom edge.
 						// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Makes room for the bar as it slides in
 						initial={{ height: 0 }}

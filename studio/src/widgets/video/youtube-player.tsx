@@ -1,12 +1,36 @@
 import { useEffect, useEffectEvent, useImperativeHandle, useRef, useState } from 'react';
+import {
+	colorVars,
+	fontWeightVars,
+	radiusVars,
+	spacingVars,
+	typeScaleVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import * as z from 'zod';
-import { cn } from '@/lib/utils';
-import { type Player, type PlayerInfo, type PlayerProps, videoClassName } from '@/widgets/video/player';
+import { type Player, type PlayerInfo, type PlayerProps, videoStyles } from '@/widgets/video/player';
 
 // YouTube only plays videos embedded by a website, which the desktop app's pages aren't on, see `youtube-player.html`
 const playerPage =
 	STUDIO_DESKTOP && !import.meta.env.DEV ? 'https://doglog.studio/youtube-player.html' : '/youtube-player.html';
 const playerOrigin = new URL(playerPage, location.href).origin;
+
+const styles = stylex.create({
+	frame: { pointerEvents: 'none', borderWidth: 0 },
+	thumbnail: { position: 'absolute', inset: 0, display: 'block' },
+	badge: {
+		position: 'absolute',
+		bottom: spacingVars['--spacing-2'],
+		left: spacingVars['--spacing-2'],
+		paddingInline: spacingVars['--spacing-1-5'],
+		paddingBlock: spacingVars['--spacing-0-5'],
+		borderRadius: radiusVars['--radius-element'],
+		backgroundColor: colorVars['--color-background-surface'],
+		fontSize: typeScaleVars['--text-supporting-size'],
+		fontWeight: fontWeightVars['--font-weight-medium'],
+		lineHeight: '1rem',
+	},
+});
 
 /** How often (ms) a YouTube video can seek, it fetches the video again each time */
 const seekInterval = 150;
@@ -159,6 +183,8 @@ export function YouTubePlayer({ id, muted, ref, onInfo }: PlayerProps & { id: st
 
 	useEffect(() => controller.setMuted(muted), [controller, muted]);
 
+	const frame = stylex.props(videoStyles.fit, styles.frame);
+	const thumbnail = stylex.props(styles.thumbnail);
 	return (
 		<>
 			{/* oxlint-disable-next-line react/iframe-missing-sandbox -- YouTube's player needs scripts and its own origin, which leaves a sandbox nothing to limit */}
@@ -169,21 +195,19 @@ export function YouTubePlayer({ id, muted, ref, onInfo }: PlayerProps & { id: st
 				allow="autoplay; encrypted-media"
 				referrerPolicy="strict-origin-when-cross-origin"
 				// Clicks go to the widget, which plays and pauses Studio
-				className={cn(videoClassName, 'pointer-events-none border-0 saving-video:invisible')}
+				className={`${frame.className} saving-video-invisible`}
 			/>
 			{/* YouTube can't show a given frame on time, so saved videos show its thumbnail instead */}
-			<div className="absolute inset-0 hidden saving-video:block">
+			<div className={`${thumbnail.className} saving-video-only`}>
 				<img
 					src={`https://i.ytimg.com/vi/${encodeURIComponent(id)}/hqdefault.jpg`}
 					alt=""
 					data-capture-pending={thumbnailLoaded ? undefined : ''}
-					className={videoClassName}
+					{...stylex.props(videoStyles.fit)}
 					onLoad={() => setThumbnailLoaded(true)}
 					onError={() => setThumbnailLoaded(true)}
 				/>
-				<span className="absolute bottom-2 left-2 rounded-md bg-background px-1.5 py-0.5 text-xs font-medium">
-					YouTube video
-				</span>
+				<span {...stylex.props(styles.badge)}>YouTube video</span>
 			</div>
 		</>
 	);

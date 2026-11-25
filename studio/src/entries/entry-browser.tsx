@@ -1,7 +1,16 @@
 import { Drawer, DrawerHeader } from '@astryxdesign/core/Drawer';
 import { IconButton } from '@astryxdesign/core/IconButton';
 import { Layout } from '@astryxdesign/core/Layout';
+import {
+	colorVars,
+	fontWeightVars,
+	radiusVars,
+	spacingVars,
+	typeScaleVars,
+	typographyVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
+import * as stylex from '@stylexjs/stylex';
 import { useHotkey } from '@tanstack/react-hotkeys';
 import { useSelector } from '@tanstack/react-store';
 import PanelRightOpenIcon from 'lucide-react/icons/panel-right-open';
@@ -25,7 +34,97 @@ import {
 } from '@/entries/editing';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { dragRegion } from '@/desktop/title-bar';
+import { entryBrowserMarker } from './markers.stylex';
 import * as z from 'zod';
+
+const styles = stylex.create({
+	// Sits in the app header without taking space from the dashboard's panels
+	mobileToggle: {
+		position: 'fixed',
+		insetInlineEnd: spacingVars['--spacing-2'],
+		top: 2,
+		zIndex: 30,
+	},
+	// The tree scrolls its rows itself, under its search box
+	mobileContent: {
+		display: 'flex',
+		flexDirection: 'column',
+		height: '100%',
+		minHeight: 0,
+	},
+	// As wide as the collapsed sidebar, with the toggle centered like its toggle and where it is in the header below, so it
+	// doesn't move when toggled
+	collapsed: {
+		flexShrink: 0,
+		marginInlineStart: spacingVars['--spacing-1-5'],
+		paddingInlineStart: spacingVars['--spacing-1-5'],
+		paddingInlineEnd: spacingVars['--spacing-3'],
+		paddingTop: spacingVars['--spacing-3'],
+		paddingBottom: spacingVars['--spacing-1-5'],
+	},
+	separator: {
+		position: 'relative',
+		zIndex: 10,
+		width: '0.375rem',
+		outline: 'none',
+		'::before': {
+			content: "''",
+			position: 'absolute',
+			insetInline: '0.125rem',
+			insetBlock: spacingVars['--spacing-1'],
+			borderRadius: radiusVars['--radius-full'],
+			backgroundColor: {
+				default: null,
+				':focus-visible': 'var(--focus-outline-color)',
+				':is([data-separator=active])': 'var(--focus-outline-color)',
+				':is([data-separator=hover])': 'var(--focus-outline-color)',
+			},
+			transitionProperty: 'background-color',
+			transitionDuration: '150ms',
+			transitionTimingFunction: 'var(--ease-in-out)',
+		},
+		// Covers the library's 10px hit area so double-clicks land on the separator
+		'::after': {
+			content: "''",
+			position: 'absolute',
+			insetBlock: 0,
+			insetInline: '-0.125rem',
+		},
+	},
+	browser: {
+		display: 'flex',
+		flexDirection: 'column',
+		height: '100%',
+		overflow: 'hidden',
+	},
+	// The padding lines up the header with the panes and their gap
+	header: {
+		display: 'flex',
+		flexShrink: 0,
+		alignItems: 'center',
+		gap: spacingVars['--spacing-1'],
+		height: '2.625rem',
+		paddingInlineStart: spacingVars['--spacing-2'],
+		paddingInlineEnd: spacingVars['--spacing-3'],
+		paddingTop: spacingVars['--spacing-1-5'],
+	},
+	title: {
+		flex: 1,
+		fontFamily: typographyVars['--font-family-heading'],
+		fontSize: typeScaleVars['--text-label-size'],
+		lineHeight: typeScaleVars['--text-label-leading'],
+		fontWeight: fontWeightVars['--font-weight-medium'],
+	},
+	editingTitle: {
+		minWidth: 0,
+		overflow: 'hidden',
+		textOverflow: 'ellipsis',
+		whiteSpace: 'nowrap',
+	},
+	entriesTitle: {
+		color: colorVars['--color-text-secondary'],
+	},
+});
 
 const defaultWidthPx = 320;
 const widthPxStore = createPersistedAtom('entry-browser-width', z.number().positive(), defaultWidthPx, {
@@ -52,13 +151,12 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 		const title = edited ? `Editing ${edited.type.name}` : 'Entry browser';
 		return (
 			<DashboardIdContext value={dashboard.id}>
-				{/* Sits in the app header without taking space from the dashboard's panels. */}
 				<IconButton
 					label="Show entry browser"
 					icon={<PanelRightOpenIcon />}
 					variant="ghost"
 					size="lg"
-					className="fixed end-2 top-0.5 z-30"
+					xstyle={styles.mobileToggle}
 					onClick={() => setEntryBrowserOpen(true)}
 				/>
 				<Drawer
@@ -70,8 +168,7 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 					<Layout
 						header={<DrawerHeader title={title} onOpenChange={setEntryBrowserOpen} />}
 						content={
-							// The tree scrolls its rows itself, under its search box
-							<div className="flex h-full min-h-0 flex-col">
+							<div {...stylex.props(styles.mobileContent)}>
 								<EntryTree edited={edited} />
 							</div>
 						}
@@ -83,21 +180,19 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 
 	if (!open) {
 		return (
-			// As wide as the collapsed sidebar, with the toggle centered like its toggle and where it is in the header below, so it
-			// doesn't move when toggled
-			<aside aria-label="Entry browser" inert={exporting} className="ms-1.5 shrink-0 ps-1.5 pe-3 pt-3 pb-1.5">
+			<aside aria-label="Entry browser" inert={exporting} {...stylex.props(styles.collapsed)}>
 				<ToggleButton open={false} />
 			</aside>
 		);
 	}
 
+	const separator = stylex.props(styles.separator);
 	return (
 		<DashboardIdContext value={dashboard.id}>
 			<Separator
 				aria-label="Resize entry browser"
 				disabled={exporting}
-				// Covers the library's 10px hit area so double-clicks land on the separator
-				className="relative z-10 w-1.5 outline-none before:absolute before:inset-x-0.5 before:inset-y-1 before:rounded-full before:transition-colors after:absolute after:inset-y-0 after:-inset-x-0.5 focus-visible:before:bg-ring data-[separator=active]:before:bg-ring data-[separator=hover]:before:bg-ring capture:before:hidden"
+				className={`${separator.className} capture-invisible`}
 				// The built-in reset would use the saved width
 				disableDoubleClick
 				onDoubleClick={() => panelRef.current?.resize(defaultWidthPx)}
@@ -112,11 +207,7 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 			>
 				{/* Not selectable, so double-clicking or dragging rows doesn't select their labels */}
 				{/* A sidebar like the one on the left, on the frame instead of its own surface */}
-				<aside
-					aria-label="Entry browser"
-					inert={exporting}
-					className="group/entry-browser flex h-full flex-col overflow-hidden"
-				>
+				<aside aria-label="Entry browser" inert={exporting} {...stylex.props(entryBrowserMarker, styles.browser)}>
 					<EntryBrowserHeader edited={edited} />
 					<EntryTree edited={edited} />
 				</aside>
@@ -127,18 +218,17 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 
 function EntryBrowserHeader({ edited }: { edited: EditedWidget | undefined }) {
 	return (
-		// The padding lines up the header with the panes and their gap.
-		<div {...dragRegion} className="flex h-10.5 shrink-0 items-center gap-1 ps-2 pe-3 pt-1.5">
+		<div {...dragRegion} {...stylex.props(styles.header)}>
 			{edited ? (
 				<>
-					<h2 className="min-w-0 flex-1 truncate font-heading text-sm font-medium">Editing {edited.type.name}</h2>
+					<h2 {...stylex.props(styles.title, styles.editingTitle)}>Editing {edited.type.name}</h2>
 					<Tooltip content={<TooltipLabel label="Stop editing" shortcut="Escape" />}>
 						<IconButton label="Stop editing" icon={<XIcon />} variant="ghost" size="sm" onClick={stopEditing} />
 					</Tooltip>
 				</>
 			) : (
 				<>
-					<h2 className="flex-1 font-heading text-sm font-medium text-muted-foreground">Entries</h2>
+					<h2 {...stylex.props(styles.title, styles.entriesTitle)}>Entries</h2>
 					<ToggleButton open />
 				</>
 			)}

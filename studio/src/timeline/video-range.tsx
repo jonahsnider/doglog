@@ -1,28 +1,69 @@
+import { colorVars, radiusVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { useTimeRange } from '@/data/data-store';
 import { setVideoRangeEdge } from '@/desktop/video-export';
-import { cn } from '@/lib/utils';
 import type { TimeScale } from '@/timeline/scale';
 import { useVideoRange } from '@/timeline/timeline';
+
+// Centered on the track with `--track-offset`, see `Scrubber`
+const styles = stylex.create({
+	range: {
+		position: 'absolute',
+		top: '50%',
+		height: 20,
+		borderRadius: radiusVars['--radius-inner'],
+		backgroundColor: `color-mix(in srgb, ${colorVars['--color-accent']} 12%, transparent)`,
+		boxShadow: `inset 0 0 0 2px ${colorVars['--color-accent']}`,
+		translate: '0 var(--track-offset)',
+		pointerEvents: 'none',
+	},
+	tick: {
+		position: 'absolute',
+		top: '50%',
+		width: 2,
+		height: 20,
+		borderRadius: radiusVars['--radius-full'],
+		backgroundColor: colorVars['--color-accent'],
+		translate: '-50% var(--track-offset)',
+		pointerEvents: 'none',
+	},
+	handle: {
+		position: 'absolute',
+		top: '50%',
+		zIndex: 10,
+		width: 8,
+		height: 20,
+		borderWidth: 2,
+		borderStyle: 'solid',
+		borderColor: colorVars['--color-background-surface'],
+		borderRadius: radiusVars['--radius-full'],
+		backgroundColor: colorVars['--color-accent'],
+		translate: '-50% var(--track-offset)',
+		cursor: 'ew-resize',
+		touchAction: 'none',
+	},
+});
 
 /**
  * The range of the video being exported on the timeline, with handles to drag its start and end. The video's frames show
  * ticks at its start and end instead, unless it's the whole log. They're centered on the track, which moves to make room
  * for the marks above and below it.
  */
-export function VideoRange({ scale: { toPercent, toTime }, trackOffset }: { scale: TimeScale; trackOffset: string }) {
+export function VideoRange({ scale: { toPercent, toTime } }: { scale: TimeScale }) {
 	const videoRange = useVideoRange();
 	const range = useTimeRange();
 	if (!videoRange) {
 		return null;
 	}
 	const wholeLog = range !== undefined && videoRange.start <= range.start && videoRange.end >= range.end;
+	const box = stylex.props(styles.range);
+	const tick = stylex.props(styles.tick);
+	const handle = stylex.props(styles.handle);
 	return (
 		<>
 			<div
-				className={cn(
-					'pointer-events-none absolute top-1/2 h-5 rounded-sm bg-primary/12 ring-2 ring-primary ring-inset saving-video:hidden',
-					trackOffset,
-				)}
+				{...box}
+				className={`${box.className} saving-video-hidden`}
 				style={{
 					left: `${toPercent(videoRange.start)}%`,
 					width: `${toPercent(videoRange.end) - toPercent(videoRange.start)}%`,
@@ -32,10 +73,8 @@ export function VideoRange({ scale: { toPercent, toTime }, trackOffset }: { scal
 				(['start', 'end'] as const).map((edge) => (
 					<div
 						key={`${edge}-tick`}
-						className={cn(
-							'pointer-events-none absolute top-1/2 hidden h-5 w-0.5 -translate-x-1/2 rounded-full bg-primary saving-video:block',
-							trackOffset,
-						)}
+						{...tick}
+						className={`${tick.className} saving-video-only`}
 						style={{ left: `${toPercent(videoRange[edge])}%` }}
 					/>
 				))}
@@ -43,10 +82,8 @@ export function VideoRange({ scale: { toPercent, toTime }, trackOffset }: { scal
 				<div
 					key={edge}
 					aria-hidden
-					className={cn(
-						'absolute top-1/2 z-10 h-5 w-2 -translate-x-1/2 cursor-ew-resize touch-none rounded-full border-2 border-background bg-primary saving-video:hidden',
-						trackOffset,
-					)}
+					{...handle}
+					className={`${handle.className} saving-video-hidden`}
 					style={{ left: `${toPercent(videoRange[edge])}%` }}
 					onPointerDown={(event) => {
 						if (event.button === 0) {

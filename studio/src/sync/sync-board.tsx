@@ -1,8 +1,16 @@
 import { Text } from '@astryxdesign/core/Text';
+import {
+	colorVars,
+	fontWeightVars,
+	radiusVars,
+	spacingVars,
+	typeScaleVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
+import { focusOutlineProps } from '@astryxdesign/core/utils/focusOutline.stylex';
 import fnv1a from '@sindresorhus/fnv1a';
+import * as stylex from '@stylexjs/stylex';
 import type { LucideIcon } from 'lucide-react/types';
-import { cn } from '@/lib/utils';
 import { dateTimeFormat, formatSize, logLabel } from '@/sync/format';
 import { type MatchType, parseLogName } from '@/sync/log-names';
 import { matchIcons } from '@/sync/match-icons';
@@ -15,6 +23,97 @@ export interface BoardLog {
 	saved: number;
 	state: 'synced' | 'copying' | 'queued' | 'over-limit';
 }
+
+const pulse = stylex.keyframes({ '50%': { opacity: 0.5 } });
+
+const styles = stylex.create({
+	board: { display: 'flex', flexDirection: 'column', gap: spacingVars['--spacing-5'] },
+	days: {
+		display: 'flex',
+		flexWrap: 'wrap',
+		columnGap: spacingVars['--spacing-6'],
+		rowGap: spacingVars['--spacing-5'],
+	},
+	day: { display: 'flex', flexDirection: 'column', gap: spacingVars['--spacing-2'] },
+	small: {
+		fontSize: typeScaleVars['--text-supporting-size'],
+		lineHeight: '1rem',
+		color: colorVars['--color-text-secondary'],
+	},
+	dayName: { margin: 0, fontWeight: 'inherit' },
+	list: { margin: 0, padding: 0, listStyle: 'none' },
+	squares: {
+		display: 'grid',
+		gridTemplateColumns: 'repeat(6, minmax(0, 1fr))',
+		gap: spacingVars['--spacing-1-5'],
+		width: 'fit-content',
+	},
+	legend: {
+		display: 'flex',
+		flexWrap: 'wrap',
+		columnGap: spacingVars['--spacing-4'],
+		rowGap: spacingVars['--spacing-1'],
+	},
+	legendItem: { display: 'flex', alignItems: 'center', gap: spacingVars['--spacing-1-5'] },
+	swatch: { width: 12, height: 12, borderRadius: 3 },
+	legendIcon: { width: 12, height: 12 },
+	square: {
+		position: 'relative',
+		display: 'grid',
+		gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+		width: 32,
+		height: 32,
+		padding: 0,
+		overflow: 'hidden',
+		borderStyle: 'none',
+		borderRadius: radiusVars['--radius-element'],
+		backgroundColor: 'transparent',
+		color: colorVars['--color-icon-secondary'],
+		outlineOffset: 2,
+	},
+	synced: {
+		cursor: 'pointer',
+		backgroundColor: {
+			default: colorVars['--color-accent'],
+			':hover': `color-mix(in srgb, ${colorVars['--color-on-accent']} 8%, ${colorVars['--color-accent']})`,
+		},
+		color: colorVars['--color-on-accent'],
+	},
+	copying: {
+		backgroundColor: colorVars['--color-background-muted'],
+		boxShadow: `0 0 0 1px ${colorVars['--color-accent']}`,
+	},
+	queued: { backgroundColor: colorVars['--color-background-muted'] },
+	overLimit: {
+		borderWidth: 1,
+		borderStyle: 'dashed',
+		borderColor: colorVars['--color-border-emphasized'],
+	},
+	cell: { position: 'relative', overflow: 'hidden' },
+	filledCell: { backgroundColor: colorVars['--color-accent'], color: colorVars['--color-on-accent'] },
+	// The next cell to fill pulses while the log is copied
+	nextCell: {
+		'::before': {
+			content: '""',
+			position: 'absolute',
+			inset: 0,
+			backgroundColor: colorVars['--color-background-surface'],
+			animationName: pulse,
+			animationDuration: 'calc(2s * var(--motion-scale))',
+			animationTimingFunction: 'cubic-bezier(0.4, 0, 0.6, 1)',
+			animationIterationCount: 'infinite',
+		},
+	},
+	// The centered icon spans four cells; each clips and colors its own quadrant
+	cellIcon: { position: 'absolute', width: '200%', height: '200%' },
+	top: { top: 0 },
+	bottom: { top: '-100%' },
+	start: { insetInlineStart: 0 },
+	end: { insetInlineStart: '-100%' },
+	matchIcon: { position: 'absolute', inset: 0, width: 16, height: 16, margin: 'auto' },
+	details: { display: 'flex', flexDirection: 'column' },
+	detailsLabel: { fontWeight: fontWeightVars['--font-weight-medium'] },
+});
 
 const dayFormat = new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
 
@@ -57,12 +156,12 @@ export function SyncBoard({ logs, onOpen }: { logs: BoardLog[]; onOpen: (name: s
 	const matchTypes = new Set(logs.map((log) => parseLogName(log.name)?.match?.type));
 
 	return (
-		<div className="flex flex-col gap-5">
-			<div className="flex flex-wrap gap-x-6 gap-y-5">
+		<div {...stylex.props(styles.board)}>
+			<div {...stylex.props(styles.days)}>
 				{byDay(logs).map(({ day, logs: dayLogs }) => (
-					<section key={day.toDateString()} className="flex flex-col gap-2">
-						<h3 className="text-xs text-muted-foreground">{dayFormat.format(day)}</h3>
-						<ul className="grid w-fit grid-cols-6 gap-1.5">
+					<section key={day.toDateString()} {...stylex.props(styles.day)}>
+						<h3 {...stylex.props(styles.small, styles.dayName)}>{dayFormat.format(day)}</h3>
+						<ul {...stylex.props(styles.list, styles.squares)}>
 							{dayLogs.map((log) => (
 								<li key={log.name}>
 									<LogSquare log={log} onOpen={onOpen} />
@@ -73,16 +172,16 @@ export function SyncBoard({ logs, onOpen }: { logs: BoardLog[]; onOpen: (name: s
 				))}
 			</div>
 
-			<ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+			<ul {...stylex.props(styles.list, styles.legend, styles.small)}>
 				{shows('synced') && (
-					<li className="flex items-center gap-1.5">
-						<span className="size-3 rounded-[3px] bg-primary" />
+					<li {...stylex.props(styles.legendItem)}>
+						<span {...stylex.props(styles.swatch, styles.filledCell)} />
 						Synced
 					</li>
 				)}
 				{(shows('queued') || shows('copying')) && (
-					<li className="flex items-center gap-1.5">
-						<span className="size-3 rounded-[3px] bg-muted" />
+					<li {...stylex.props(styles.legendItem)}>
+						<span {...stylex.props(styles.swatch, styles.queued)} />
 						On the robot
 					</li>
 				)}
@@ -91,15 +190,15 @@ export function SyncBoard({ logs, onOpen }: { logs: BoardLog[]; onOpen: (name: s
 					.map((type) => {
 						const { icon: Icon, label } = matchIcons[type];
 						return (
-							<li key={type} className="flex items-center gap-1.5">
-								<Icon className="size-3" />
+							<li key={type} {...stylex.props(styles.legendItem)}>
+								<Icon {...stylex.props(styles.legendIcon)} />
 								{label}
 							</li>
 						);
 					})}
 				{shows('over-limit') && (
-					<li className="flex items-center gap-1.5">
-						<span className="size-3 rounded-[3px] border border-dashed border-outline" />
+					<li {...stylex.props(styles.legendItem)}>
+						<span {...stylex.props(styles.swatch, styles.overLimit)} />
 						Over the storage limit
 					</li>
 				)}
@@ -108,12 +207,11 @@ export function SyncBoard({ logs, onOpen }: { logs: BoardLog[]; onOpen: (name: s
 	);
 }
 
-const squareClasses: Record<BoardLog['state'], string> = {
-	synced:
-		'cursor-pointer bg-primary text-primary-foreground before:absolute before:inset-0 hover:before:bg-primary-foreground/8',
-	copying: 'bg-muted ring-1 ring-primary',
-	queued: 'bg-muted',
-	'over-limit': 'border border-dashed border-outline',
+const squareStyles: Record<BoardLog['state'], stylex.StyleXStyles> = {
+	synced: styles.synced,
+	copying: styles.copying,
+	queued: styles.queued,
+	'over-limit': styles.overLimit,
 };
 
 /** The cells of a log that's waiting or being copied, the next one pulses while it's copied */
@@ -122,22 +220,19 @@ function Cells({ log, icon: Icon }: { log: BoardLog; icon: LucideIcon | undefine
 	return logCells(log.name).map(({ row, column, order }) => (
 		<span
 			key={`${row}:${column}`}
-			className={cn(
-				'relative overflow-hidden',
-				order < filled && 'bg-primary text-primary-foreground',
-				order === filled &&
-					log.state === 'copying' &&
-					'before:absolute before:inset-0 before:bg-background motion-safe:before:animate-pulse',
+			{...stylex.props(
+				styles.cell,
+				order < filled && styles.filledCell,
+				order === filled && log.state === 'copying' && styles.nextCell,
 			)}
 		>
-			{/* The centered icon spans four cells; each clips and colors its own quadrant. */}
 			{Icon && row > 0 && row < 3 && column > 0 && column < 3 && (
 				<Icon
 					aria-hidden
-					className={cn(
-						'absolute size-[200%]',
-						row === 1 ? 'top-0' : '-top-full',
-						column === 1 ? 'start-0' : '-start-full',
+					{...stylex.props(
+						styles.cellIcon,
+						row === 1 ? styles.top : styles.bottom,
+						column === 1 ? styles.start : styles.end,
 					)}
 				/>
 			)}
@@ -148,8 +243,8 @@ function Cells({ log, icon: Icon }: { log: BoardLog; icon: LucideIcon | undefine
 function LogDetails({ log, label, matchType }: { log: BoardLog; label: string; matchType: MatchType | undefined }) {
 	const size = log.state === 'copying' ? `${formatSize(log.saved)} of ${formatSize(log.size)}` : formatSize(log.size);
 	return (
-		<div className="flex flex-col">
-			<span className="font-medium">
+		<div {...stylex.props(styles.details)}>
+			<span {...stylex.props(styles.detailsLabel)}>
 				{matchType ? `${label}, ${matchIcons[matchType].label.toLowerCase()}` : label}
 			</span>
 			<Text color="secondary">{`${stateText[log.state]}, ${size}`}</Text>
@@ -169,15 +264,12 @@ function LogSquare({ log, onOpen }: { log: BoardLog; onOpen: (name: string) => v
 				type="button"
 				aria-label={`${label}, ${stateText[log.state]}`}
 				onClick={log.state === 'synced' ? () => onOpen(log.name) : undefined}
-				className={cn(
-					'relative grid size-8 grid-cols-4 overflow-hidden rounded-md text-muted-foreground outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
-					squareClasses[log.state],
-				)}
+				{...focusOutlineProps.focusVisible(styles.square, squareStyles[log.state])}
 			>
 				{log.state === 'copying' || log.state === 'queued' ? (
 					<Cells log={log} icon={MatchIcon} />
 				) : (
-					MatchIcon && <MatchIcon aria-hidden className="absolute inset-0 m-auto size-4" />
+					MatchIcon && <MatchIcon aria-hidden {...stylex.props(styles.matchIcon)} />
 				)}
 			</button>
 		</Tooltip>

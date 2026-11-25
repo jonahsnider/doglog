@@ -1,5 +1,33 @@
 // Tool drawings on the 2D field, in field meters with +Y up
+import {
+	colorVars,
+	radiusVars,
+	shadowVars,
+	spacingVars,
+	typeScaleVars,
+	typographyVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
+import type { CSSProperties } from 'react';
 import { angleOf, arcRadius, type FieldPoint, type Measurement, strokeWidth } from '@/widgets/field/geometry';
+
+const styles = stylex.create({
+	label: {
+		pointerEvents: 'none',
+		position: 'absolute',
+		transform: 'translate(-50%, -50%)',
+		paddingInline: spacingVars['--spacing-1-5'],
+		paddingBlock: spacingVars['--spacing-0-5'],
+		borderRadius: radiusVars['--radius-inner'],
+		backgroundColor: colorVars['--color-background-popover'],
+		boxShadow: shadowVars['--shadow-low'],
+		color: colorVars['--color-text-primary'],
+		fontFamily: typographyVars['--font-family-code'],
+		fontSize: typeScaleVars['--text-supporting-size'],
+		fontVariantNumeric: 'tabular-nums',
+		lineHeight: '1rem',
+	},
+});
 
 /** A white line with a dark outline, readable on every part of the field */
 function OutlinedPath({ d, dashed = false }: { d: string; dashed?: boolean }) {
@@ -52,5 +80,14 @@ export function MeasurementDrawing({ measurement }: { measurement: Measurement }
 			<OutlinedPath d={arc} />
 			<OutlinedPath d={line} />
 		</>
+	);
+}
+
+/** A measurement's value, over the field at `position` */
+export function MeasurementLabel({ text, position }: { text: string; position: CSSProperties }) {
+	return (
+		<div {...stylex.props(styles.label)} style={position}>
+			{text}
+		</div>
 	);
 }

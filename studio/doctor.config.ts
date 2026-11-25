@@ -6,7 +6,6 @@ export default defineConfig({
 			'src/routeTree.gen.ts',
 			// shadcn files are copied in from a registry
 			'src/hooks/use-media-query.ts',
-			'src/lib/utils.ts',
 			// Rust build output, the crypto libraries' test keys look like leaked secrets
 			'src-tauri/target/**',
 		],

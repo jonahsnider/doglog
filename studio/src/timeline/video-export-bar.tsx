@@ -7,6 +7,8 @@ import { IconButton } from '@astryxdesign/core/IconButton';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
 import { HStack } from '@astryxdesign/core/Layout';
 import { Text } from '@astryxdesign/core/Text';
+import { colorVars, spacingVars, typeScaleVars, typographyVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { useTimeRange } from '@/data/data-store';
 import { cancelSaving, exitVideoExport, exportVideo, setVideoRangeEdge, useVideoExport } from '@/desktop/video-export';
@@ -19,6 +21,48 @@ import { panes, type PaneNode } from '@/panes/layout';
 import { pickedOption } from '@/widgets/options';
 import { parseVideo } from '@/widgets/video/source';
 import { widgetOptions } from '@/widgets/widget-info';
+
+const styles = stylex.create({
+	toolbar: {
+		display: 'flex',
+		flexShrink: 0,
+		alignItems: 'center',
+		gap: spacingVars['--spacing-3'],
+		height: '2.5rem',
+		paddingInlineStart: spacingVars['--spacing-3'],
+		paddingInlineEnd: spacingVars['--spacing-1-5'],
+		paddingBottom: spacingVars['--spacing-1-5'],
+	},
+	duration: {
+		color: colorVars['--color-text-secondary'],
+		fontFamily: typographyVars['--font-family-code'],
+		fontSize: typeScaleVars['--text-label-size'],
+		lineHeight: typeScaleVars['--text-label-leading'],
+		fontVariantNumeric: 'tabular-nums',
+	},
+	spacer: {
+		flex: 1,
+	},
+	warning: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: spacingVars['--spacing-1-5'],
+		minWidth: 0,
+		color: colorVars['--color-text-warning'],
+		fontSize: typeScaleVars['--text-label-size'],
+		lineHeight: typeScaleVars['--text-label-leading'],
+	},
+	warningIcon: {
+		flexShrink: 0,
+		width: 16,
+		height: 16,
+	},
+	warningText: {
+		overflow: 'hidden',
+		textOverflow: 'ellipsis',
+		whiteSpace: 'nowrap',
+	},
+});
 
 /** Whether a layout has a video widget playing a YouTube video, which saved videos show as a thumbnail */
 function hasYouTubeVideo(layout: PaneNode | undefined): boolean {
@@ -83,15 +127,13 @@ export function VideoExportBar() {
 	const endText = formatTime(videoRange.end, range.start);
 
 	return (
-		<div role="toolbar" aria-label="Export video" className="flex h-10 shrink-0 items-center gap-3 ps-3 pe-1.5 pb-1.5">
+		<div role="toolbar" aria-label="Export video" {...stylex.props(styles.toolbar)}>
 			{saving === undefined ? (
 				<>
 					{/* Remounted when the range changes, so they show the new times */}
 					<VideoRangeField key={`start-${startText}`} label="Start" edge="start" text={startText} start={range.start} />
 					<VideoRangeField key={`end-${endText}`} label="End" edge="end" text={endText} start={range.start} />
-					<span className="font-mono text-sm text-muted-foreground tabular-nums">
-						{formatDuration(videoRange.end - videoRange.start)} long
-					</span>
+					<span {...stylex.props(styles.duration)}>{formatDuration(videoRange.end - videoRange.start)} long</span>
 					<Tooltip
 						content={<TooltipLabel label={playback === 'paused' ? 'Preview' : 'Pause preview'} shortcut="Space" />}
 					>
@@ -102,11 +144,11 @@ export function VideoExportBar() {
 							onClick={togglePlayback}
 						/>
 					</Tooltip>
-					<div className="flex-1" />
+					<div {...stylex.props(styles.spacer)} />
 					{youTube && (
-						<span className="flex min-w-0 items-center gap-1.5 text-sm text-warning-foreground">
-							<TriangleAlertIcon className="size-4 shrink-0" />
-							<span className="truncate">YouTube videos are saved as their thumbnail</span>
+						<span {...stylex.props(styles.warning)}>
+							<TriangleAlertIcon {...stylex.props(styles.warningIcon)} />
+							<span {...stylex.props(styles.warningText)}>YouTube videos are saved as their thumbnail</span>
 						</span>
 					)}
 					<Button label="Cancel" variant="ghost" onClick={() => exitVideoExport()} />

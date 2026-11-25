@@ -2,18 +2,27 @@ import { defaultRangeExtractor, type Range, useVirtualizer } from '@tanstack/rea
 import { Tree } from '@ui-sdk/react/tree';
 import { Fragment, useCallback, useMemo, useRef, useState } from 'react';
 import { Divider } from '@astryxdesign/core/Divider';
+import { spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { EntryRowView, rowHeight, StickyRow } from '@/entries/entry-row';
 import type { EntrySection } from '@/entries/sections';
 import { changedCheckbox, type EditedWidget, groupEntries } from '@/entries/edited-widget';
 import type { GroupCheck } from '@/entries/value-marks';
 import { ancestorGroups, type EntryTreeNode, type EntryTreeRow, type EntryTreeView } from '@/entries/tree';
-import { cn } from '@/lib/utils';
+
+const styles = stylex.create({
+	container: { position: 'relative', display: 'flex', flexDirection: 'column' },
+	scroller: { minHeight: 0, overflowY: 'auto', paddingBottom: spacingVars['--spacing-2'] },
+	tree: { position: 'relative' },
+	divider: { position: 'absolute', insetInline: 0 },
+	sticky: { position: 'absolute', insetInline: 0, top: 0, zIndex: 10 },
+});
 
 /** Only renders the rows scrolled into view, logs can have thousands of entries */
 export function EntryRows({
 	view,
 	label,
-	className,
+	xstyle,
 	dropSection,
 	edited,
 	onExpandedChange,
@@ -21,7 +30,7 @@ export function EntryRows({
 	view: EntryTreeView;
 	label: string;
 	/** Sizes the scrolling container */
-	className: string;
+	xstyle: stylex.StyleXStyles;
 	/** The section a row dragged from the entry browser would be moved to */
 	dropSection: EntrySection | undefined;
 	/** The widget whose entries are being edited, its entries get checkboxes that bind them */
@@ -81,10 +90,10 @@ export function EntryRows({
 	const stickyHeight = sticky.length > 0 ? Math.max(...sticky.map(({ top }) => top + rowHeight)) : 0;
 
 	return (
-		<div className={cn('relative flex flex-col', className)}>
+		<div {...stylex.props(styles.container, xstyle)}>
 			<div
 				ref={container}
-				className="min-h-0 overflow-y-auto pb-2"
+				{...stylex.props(styles.scroller)}
 				// Hides the rows scrolled under the pinned groups, which have no background so they match the frame even when it's translucent
 				style={
 					stickyHeight > 0
@@ -148,7 +157,7 @@ export function EntryRows({
 							}
 						}
 					}}
-					className="relative"
+					{...stylex.props(styles.tree)}
 					style={{ height: virtualizer.getTotalSize() }}
 				>
 					{virtualizer.getVirtualItems().map((item) => {
@@ -156,7 +165,7 @@ export function EntryRows({
 						return (
 							<Fragment key={row.item.value}>
 								{row.section === 'main' && rows[item.index - 1]?.section === 'pinned' && (
-									<Divider aria-hidden className="absolute inset-x-0" style={{ top: item.start }} />
+									<Divider aria-hidden xstyle={styles.divider} style={{ top: item.start }} />
 								)}
 								<EntryRowView
 									row={row}
@@ -182,7 +191,7 @@ export function EntryRows({
 				// doesn't hide them, which is why scrolling over them is passed on to it.
 				<div
 					aria-hidden
-					className="absolute inset-x-0 top-0 z-10"
+					{...stylex.props(styles.sticky)}
 					style={{ height: stickyHeight }}
 					onWheel={(event) => container.current?.scrollBy({ top: event.deltaY })}
 				>

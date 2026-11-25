@@ -1,12 +1,109 @@
 // The row under the field widget: the cursor position and tool buttons
 import { HStack } from '@astryxdesign/core/Layout';
+import {
+	colorVars,
+	fontWeightVars,
+	radiusVars,
+	spacingVars,
+	typeScaleVars,
+	typographyVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
 import { ToggleButton } from '@astryxdesign/core/ToggleButton';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
+import * as stylex from '@stylexjs/stylex';
+import type { ReactNode } from 'react';
 import { InlineShortcut } from '@/components/shortcut';
 import { TooltipLabel } from '@/components/tooltip-label';
-import { cn } from '@/lib/utils';
 import type { FieldPoint } from '@/widgets/field/geometry';
 import type { FieldTool } from '@/widgets/field/pencil';
+import { fieldMarker } from './markers.stylex';
+
+const styles = stylex.create({
+	row: {
+		display: 'flex',
+		minHeight: '1.75rem',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		gap: spacingVars['--spacing-2'],
+		color: colorVars['--color-text-secondary'],
+		fontSize: typeScaleVars['--text-supporting-size'],
+		lineHeight: '1rem',
+	},
+	group: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: spacingVars['--spacing-2'],
+	},
+	tools: {
+		display: 'flex',
+		gap: spacingVars['--spacing-1'],
+	},
+	fades: {
+		transitionProperty: 'opacity',
+		transitionDuration: 'calc(150ms * var(--motion-scale))',
+		transitionTimingFunction: 'var(--ease-in-out)',
+	},
+	// Hides controls under the field while it isn't hovered or focused, on devices that can hover
+	hiddenWhileIdle: {
+		opacity: {
+			default: null,
+			'@media (hover: hover)': {
+				default: 0,
+				[stylex.when.ancestor(':hover', fieldMarker)]: 1,
+				[stylex.when.ancestor(':focus-within', fieldMarker)]: 1,
+			},
+		},
+		transitionDuration: {
+			default: 'calc(150ms * var(--motion-scale))',
+			'@media (hover: hover)': {
+				default: 'calc(100ms * var(--motion-scale))',
+				[stylex.when.ancestor(':hover', fieldMarker)]: 'calc(150ms * var(--motion-scale))',
+				[stylex.when.ancestor(':focus-within', fieldMarker)]: 'calc(150ms * var(--motion-scale))',
+			},
+		},
+	},
+	position: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: spacingVars['--spacing-1-5'],
+	},
+	hidden: {
+		opacity: 0,
+		transitionDuration: 'calc(100ms * var(--motion-scale))',
+	},
+	readout: {
+		display: 'grid',
+		marginInlineStart: `calc(-1 * ${spacingVars['--spacing-1']})`,
+		paddingInline: spacingVars['--spacing-1'],
+		paddingBlock: spacingVars['--spacing-0-5'],
+		borderRadius: radiusVars['--radius-element'],
+		transitionProperty: 'background-color, color',
+		transitionDuration: '150ms',
+		transitionTimingFunction: 'var(--ease-in-out)',
+	},
+	copied: {
+		backgroundColor: colorVars['--color-overlay-hover'],
+		color: colorVars['--color-text-primary'],
+	},
+	// Both stay rendered so the label keeps the position's width while they cross-fade
+	label: {
+		gridArea: '1 / 1',
+		transitionProperty: 'opacity',
+		transitionDuration: '150ms',
+		transitionTimingFunction: 'var(--ease-in-out)',
+	},
+	coordinates: {
+		fontFamily: typographyVars['--font-family-code'],
+		fontVariantNumeric: 'tabular-nums',
+	},
+	copiedText: {
+		textAlign: 'center',
+		fontWeight: fontWeightVars['--font-weight-medium'],
+	},
+	faded: {
+		opacity: 0,
+	},
+});
 
 const tools: readonly { tool: FieldTool; key: 'M' | 'A' | 'P'; label: string; hint: string }[] = [
 	{ tool: 'distance', key: 'M', label: 'Distance', hint: 'Drag to measure distance, hold Shift to snap to 45°' },
@@ -14,11 +111,45 @@ const tools: readonly { tool: FieldTool; key: 'M' | 'A' | 'P'; label: string; hi
 	{ tool: 'pencil', key: 'P', label: 'Pencil', hint: 'Drag to sketch a line on the field' },
 ];
 
-/** Hides controls under the field while it isn't hovered or focused, on devices that can hover */
-export const hiddenWhileIdle =
-	'transition-opacity duration-150 motion-reduce:transition-none [@media(hover:hover)]:group-[:not(:hover,:focus-within)]/field:opacity-0 [@media(hover:hover)]:group-[:not(:hover,:focus-within)]/field:duration-100';
+/**
+ * The row under the field, left out of copied images: the cursor position, then the tool buttons and `children`.
+ * `measure` adds the measuring tools to the pencil.
+ */
+export function Readout({
+	pointer,
+	hovered,
+	copied,
+	tool,
+	onToggle,
+	measure = true,
+	children,
+}: {
+	pointer: FieldPoint | undefined;
+	hovered: boolean;
+	copied: boolean;
+	tool: FieldTool | undefined;
+	onToggle: (tool: FieldTool) => void;
+	measure?: boolean;
+	children: ReactNode;
+}) {
+	const row = stylex.props(styles.row);
+	return (
+		<div className={`${row.className} capture-invisible`}>
+			<CursorPosition pointer={pointer} hovered={hovered} copied={copied} />
+			<div {...stylex.props(styles.group)}>
+				<ToolButtons tool={tool} onToggle={onToggle} measure={measure} />
+				{children}
+			</div>
+		</div>
+	);
+}
 
-export function CursorPosition({
+/** Controls under the field, hidden while it isn't hovered or focused unless `isShown` */
+export function IdleHidden({ isShown = false, children }: { isShown?: boolean; children: ReactNode }) {
+	return <div {...stylex.props(styles.group, !isShown && [styles.fades, styles.hiddenWhileIdle])}>{children}</div>;
+}
+
+function CursorPosition({
 	pointer,
 	hovered,
 	copied,
@@ -28,42 +159,19 @@ export function CursorPosition({
 	copied: boolean;
 }) {
 	return (
-		<span
-			className={cn(
-				'flex items-center gap-1.5 transition-opacity duration-150 motion-reduce:transition-none',
-				hovered || copied ? 'opacity-100' : 'opacity-0 duration-100',
-			)}
-		>
-			<span
-				className={cn(
-					'-ms-1 grid rounded-md px-1 py-0.5 transition-[background-color,color] duration-150',
-					copied && 'bg-accent text-accent-foreground',
-				)}
-			>
-				{/* Both stay rendered so the label keeps the position's width while they cross-fade */}
-				<span
-					className={cn(
-						'font-mono tabular-nums transition-opacity duration-150 [grid-area:1/1]',
-						copied && 'opacity-0',
-					)}
-				>
+		<span {...stylex.props(styles.position, styles.fades, !hovered && !copied && styles.hidden)}>
+			<span {...stylex.props(styles.readout, copied && styles.copied)}>
+				<span {...stylex.props(styles.label, styles.coordinates, copied && styles.faded)}>
 					{pointer && `X ${pointer.x.toFixed(2)} m  Y ${pointer.y.toFixed(2)} m`}
 				</span>
-				<span
-					className={cn(
-						'text-center font-medium transition-opacity duration-150 [grid-area:1/1]',
-						!copied && 'opacity-0',
-					)}
-				>
-					Copied
-				</span>
+				<span {...stylex.props(styles.label, styles.copiedText, !copied && styles.faded)}>Copied</span>
 			</span>
 			<InlineShortcut hotkey="Mod+C" />
 		</span>
 	);
 }
 
-export function ToolButtons({
+function ToolButtons({
 	tool,
 	onToggle,
 	measure = true,
@@ -73,12 +181,7 @@ export function ToolButtons({
 	measure?: boolean;
 }) {
 	return (
-		<div
-			className={cn(
-				'flex gap-1 transition-opacity duration-150 motion-reduce:transition-none',
-				tool === undefined && hiddenWhileIdle,
-			)}
-		>
+		<div {...stylex.props(styles.tools, styles.fades, tool === undefined && styles.hiddenWhileIdle)}>
 			{tools
 				.filter((option) => measure || option.tool === 'pencil')
 				.map((option) => (

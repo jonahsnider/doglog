@@ -2,11 +2,15 @@ import { Button } from '@astryxdesign/core/Button';
 import { DropdownMenu, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@astryxdesign/core/DropdownMenu';
 import { Icon } from '@astryxdesign/core/Icon';
 import { IconButton } from '@astryxdesign/core/IconButton';
+import { fontWeightVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import ChevronsUpDownIcon from 'lucide-react/icons/chevrons-up-down';
 import PlusIcon from 'lucide-react/icons/plus';
 import XIcon from 'lucide-react/icons/x';
 import { useState } from 'react';
-import { type Editing, Notes, rowClassName, SectionHeading, ValueField } from '@/tuning/tunable-rows';
+import { arrayRowMarker } from './markers.stylex';
+import { type Editing, Notes, SectionHeading, ValueField } from '@/tuning/tunable-rows';
+import { tunableStyles } from '@/tuning/tunable-styles';
 import {
 	arrayLayouts,
 	currentValue,
@@ -18,6 +22,36 @@ import {
 	type Tunable,
 } from '@/tuning/tunables';
 import type { RoleOption } from '@/widgets/widget-type';
+
+const styles = stylex.create({
+	notes: { fontWeight: fontWeightVars['--font-weight-normal'] },
+	row: { display: 'flex' },
+	index: { flex: 1 },
+	field: { flexShrink: 1, width: '7.5rem', minWidth: 0 },
+	// Shown while the row is hovered or in use, and always without hover, like the pane controls
+	remove: {
+		display: 'flex',
+		flexShrink: 0,
+		justifyContent: 'center',
+		width: '3.75rem',
+		opacity: {
+			default: null,
+			'@media (hover: hover)': {
+				default: 0,
+				[stylex.when.ancestor(':hover', arrayRowMarker)]: 1,
+				[stylex.when.ancestor(':focus-within', arrayRowMarker)]: 1,
+			},
+		},
+		transition: 'opacity 100ms var(--ease-in-out)',
+	},
+	add: {
+		display: 'flex',
+		justifyContent: 'flex-end',
+		paddingInlineStart: spacingVars['--spacing-1-5'],
+		paddingInlineEnd: '4.25rem',
+		paddingTop: spacingVars['--spacing-1'],
+	},
+});
 
 const addLabels: Record<string, string> = { list: 'Add value', pairs: 'Add pair', triplets: 'Add triplet' };
 
@@ -62,7 +96,7 @@ export function ArrayTunable({
 			<SectionHeading table={tunable.table === '' ? tunable.label : `${tunable.table}/${tunable.label}`} title={name}>
 				{/* No unit, its name's is usually only one column's, ex. a distance to RPM map */}
 				<Notes
-					className="tunable-code truncate font-normal"
+					xstyle={[tunableStyles.code, tunableStyles.truncate, styles.notes]}
 					notes={[
 						texts.length % size !== 0 && {
 							text: `${texts.length} values aren't whole ${layout?.label.toLowerCase()}`,
@@ -95,12 +129,12 @@ export function ArrayTunable({
 				</DropdownMenu>
 			</SectionHeading>
 			{rows.map((start, row) => (
-				<div key={start} className={`group/row flex ${rowClassName}`}>
-					<span className="tunable-code flex-1">{row}</span>
+				<div key={start} {...stylex.props(arrayRowMarker, tunableStyles.row, styles.row)}>
+					<span {...stylex.props(tunableStyles.code, styles.index)}>{row}</span>
 					{texts.slice(start, start + size).map((text, offset) => {
 						const index = start + offset;
 						return (
-							<div key={index} className="w-30 min-w-0 shrink">
+							<div key={index} {...stylex.props(styles.field)}>
 								<ValueField
 									tunable={tunable}
 									editing={editing}
@@ -115,8 +149,7 @@ export function ArrayTunable({
 							</div>
 						);
 					})}
-					{/* Shown while the row is hovered or in use, and always without hover, like the pane controls */}
-					<span className="flex w-15 shrink-0 justify-center transition-opacity duration-100 group-focus-within/row:opacity-100 group-hover/row:opacity-100 [@media(hover:hover)]:opacity-0">
+					<span {...stylex.props(styles.remove)}>
 						{tunable.mutable && (
 							<IconButton
 								label={`Remove ${layout?.id === 'list' ? 'value' : 'row'} ${row}`}
@@ -130,7 +163,7 @@ export function ArrayTunable({
 				</div>
 			))}
 			{tunable.mutable && (
-				<div className="flex justify-end px-1.5 pe-17 pt-1">
+				<div {...stylex.props(styles.add)}>
 					<Button
 						label={addLabels[layout?.id ?? 'list']!}
 						icon={<PlusIcon />}

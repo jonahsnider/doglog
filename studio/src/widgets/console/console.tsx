@@ -10,6 +10,7 @@ import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/Segme
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { ToggleButton, ToggleButtonGroup } from '@astryxdesign/core/ToggleButton';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
+import { colorVars, spacingVars, typeScaleVars, typographyVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { type ReactNode, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { AppContextMenu } from '@/components/app-context-menu';
@@ -37,9 +38,22 @@ import './console.css';
 const rowHeight = 20;
 
 const styles = stylex.create({
-	selectable: {
-		userSelect: 'text',
-	},
+	root: { display: 'flex', height: '100%', flexDirection: 'column' },
+	toolbar: { display: 'flex', flexShrink: 0, flexWrap: 'wrap', alignItems: 'center', gap: spacingVars['--spacing-2'] },
+	toolbarPadding: { padding: spacingVars['--spacing-2'] },
+	filter: { minWidth: '14rem', flex: 1 },
+	count: { fontVariantNumeric: 'tabular-nums' },
+	steps: { display: 'flex', flexShrink: 0, alignItems: 'center' },
+	log: { minHeight: 0, flex: 1, overflow: 'auto', paddingBlock: spacingVars['--spacing-1'], lineHeight: '1rem' },
+	code: { fontFamily: typographyVars['--font-family-code'], fontSize: typeScaleVars['--text-supporting-size'] },
+	empty: { padding: spacingVars['--spacing-2'] },
+	rows: { position: 'relative' },
+	selectable: { userSelect: 'text' },
+	message: { position: 'absolute', insetInline: 0, top: 0, display: 'flex', gap: spacingVars['--spacing-3'] },
+	messagePadding: { paddingInline: spacingVars['--spacing-2'], paddingBlock: spacingVars['--spacing-0-5'] },
+	time: { flexShrink: 0, minWidth: '9ch', textAlign: 'right', fontVariantNumeric: 'tabular-nums', userSelect: 'none' },
+	secondary: { color: colorVars['--color-text-secondary'] },
+	text: { minWidth: 0, overflowWrap: 'break-word', whiteSpace: 'pre-wrap' },
 });
 
 const minimumLevelLabels: Record<MessageLevel, string> = { info: 'All', warning: 'Warnings', error: 'Errors' };
@@ -154,9 +168,9 @@ export function Console({ bindings }: WidgetProps) {
 	}
 
 	return (
-		<div className="flex h-full flex-col">
-			<div className="capture-invisible flex shrink-0 flex-wrap items-center gap-2 p-2">
-				<div className="min-w-56 flex-1">
+		<div {...stylex.props(styles.root)}>
+			<div className={`${stylex.props(styles.toolbar, styles.toolbarPadding).className} capture-invisible`}>
+				<div {...stylex.props(styles.filter)}>
 					<InputGroup label="Console" isLabelHidden size="sm">
 						<TextInput
 							type="search"
@@ -177,7 +191,7 @@ export function Console({ bindings }: WidgetProps) {
 							}}
 						/>
 						{filtering && pattern !== null && (
-							<InputGroupText className="console-count">
+							<InputGroupText xstyle={styles.count}>
 								{count} of {messages.texts.length}
 							</InputGroupText>
 						)}
@@ -201,7 +215,7 @@ export function Console({ bindings }: WidgetProps) {
 						<ToggleButton key={option} value={option} label={label} icon={icon} isIconOnly />
 					))}
 				</ToggleButtonGroup>
-				<div className="flex shrink-0 items-center">
+				<div {...stylex.props(styles.steps)}>
 					{(
 						[
 							{ label: 'Previous message', shortcut: 'Shift+Enter', target: previousTime, icon: <ChevronUpIcon /> },
@@ -234,13 +248,13 @@ export function Console({ bindings }: WidgetProps) {
 			<div
 				ref={scrollElement}
 				onScroll={handleScroll}
-				className="min-h-0 flex-1 overflow-auto py-1 font-mono text-xs select-text"
+				{...stylex.props(styles.log, styles.code, styles.selectable)}
 				role="log"
 			>
 				{count === 0 ? (
-					<p className="p-2 text-muted-foreground">{emptyText}</p>
+					<p {...stylex.props(styles.empty, styles.secondary)}>{emptyText}</p>
 				) : (
-					<div className="relative" style={{ height: virtualizer.getTotalSize() }}>
+					<div {...stylex.props(styles.rows)} style={{ height: virtualizer.getTotalSize() }}>
 						{virtualizer.getVirtualItems().map((item) => (
 							<AppContextMenu
 								key={item.key}
@@ -262,13 +276,14 @@ export function Console({ bindings }: WidgetProps) {
 									// Stop flashing once it's done or the user found the message, so it doesn't replay when the row remounts
 									onAnimationEnd={() => setFlashTime(undefined)}
 									onPointerEnter={() => setFlashTime(undefined)}
-									className="console-message absolute inset-x-0 top-0 flex gap-3 px-2 py-0.5 leading-4"
+									data-console-message
+									{...stylex.props(styles.message, styles.messagePadding)}
 									style={{ transform: `translateY(${item.start}px)` }}
 								>
-									<span className="min-w-[9ch] shrink-0 text-right text-muted-foreground tabular-nums select-none">
+									<span {...stylex.props(styles.time, styles.secondary)}>
 										{formatTime(messages.times[item.index]!, range?.start ?? 0)}
 									</span>
-									<span className="min-w-0 break-words whitespace-pre-wrap">
+									<span {...stylex.props(styles.text)}>
 										<HighlightedText
 											text={messages.texts[item.index]!}
 											ranges={pattern ? matchRanges(messages.texts[item.index]!, pattern) : undefined}

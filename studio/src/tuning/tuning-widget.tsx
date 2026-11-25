@@ -1,26 +1,27 @@
 import { Button } from '@astryxdesign/core/Button';
 import { Spinner } from '@astryxdesign/core/Spinner';
+import { colorVars, spacingVars, textSizeVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { useHotkey } from '@tanstack/react-hotkeys';
 import { useSelector } from '@tanstack/react-store';
 import SlidersHorizontalIcon from 'lucide-react/icons/sliders-horizontal';
 import { use, useRef, useState } from 'react';
 import { InlineShortcut } from '@/components/shortcut';
 import { toastManager } from '@/components/toast';
-import { type Entry, useDataVersion } from '@/data/data-store';
+import { useDataVersion } from '@/data/data-store';
 import type { LiveStatus } from '@/data/live-source';
 import { useSource } from '@/data/source';
 import { WidgetBindingsContext } from '@/entries/drag';
 import { startEditing } from '@/entries/editing';
 import { tuningDashboardId } from '@/tuning/dashboard';
 import { ArrayTunable } from '@/tuning/array-tunable';
+import { listSections } from '@/tuning/sections';
 import { type Editing, Notes, ScalarRow, SectionHeading } from '@/tuning/tunable-rows';
 import {
 	applyTunables,
 	committedDraft,
-	compareTables,
 	currentValue,
 	type Draft,
-	findTunables,
 	parseDraft,
 	previousStore,
 	sameTunableValue,
@@ -28,9 +29,37 @@ import {
 	type TunableValue,
 } from '@/tuning/tunables';
 import { WidgetEmpty, WidgetLoading } from '@/widgets/widget-empty';
-import type { WidgetBinding, WidgetProps } from '@/widgets/widget-type';
+import type { WidgetProps } from '@/widgets/widget-type';
 
 const applyShortcut = 'Mod+Enter';
+
+const styles = stylex.create({
+	panel: { display: 'flex', flexDirection: 'column', height: '100%', outline: 'none' },
+	values: {
+		flex: 1,
+		minHeight: 0,
+		overflowY: 'auto',
+		paddingInline: spacingVars['--spacing-1-5'],
+		paddingBottom: spacingVars['--spacing-2'],
+	},
+	footer: {
+		display: 'flex',
+		flexShrink: 0,
+		alignItems: 'center',
+		gap: spacingVars['--spacing-2'],
+		paddingBlock: spacingVars['--spacing-2'],
+		paddingInline: spacingVars['--spacing-3'],
+	},
+	status: {
+		display: 'flex',
+		flex: 1,
+		alignItems: 'center',
+		gap: spacingVars['--spacing-1-5'],
+		fontSize: textSizeVars['--font-size-sm'],
+		fontVariantNumeric: 'tabular-nums',
+		color: colorVars['--color-text-secondary'],
+	},
+});
 
 /** Staged values, with the robot's value when each was staged */
 type Staged = Readonly<Record<string, { value: TunableValue; base: TunableValue | undefined }>>;
@@ -76,47 +105,6 @@ export function TuningWidget({ bindings }: WidgetProps) {
 		return <WidgetLoading label="Connecting to robot…" />;
 	}
 	return <Tunables bindings={bindings} status={source.status} />;
-}
-
-type Section =
-	| { key: string; array: false; tunables: Tunable[] }
-	/** `binding` picks how the array is edited */
-	| { key: string; array: true; tunable: Tunable; binding: WidgetBinding };
-
-/** Where a tunable is listed: its table, or for an array, its own section at its path */
-function sectionKey(tunable: Tunable): string {
-	if (!tunable.array) {
-		return tunable.table;
-	}
-	return tunable.table === '' ? tunable.label : `${tunable.table}/${tunable.label}`;
-}
-
-/** The bound tunables, in sections ordered like `compareTables()` */
-function listSections(bindings: readonly WidgetBinding[]): { tunables: Tunable[]; sections: Section[] } {
-	// An entry can be bound more than once, its first binding is used
-	const firstBindings = new Map<string, WidgetBinding & { entry: Entry }>();
-	for (const binding of bindings) {
-		if (binding.entry !== undefined && !firstBindings.has(binding.name)) {
-			firstBindings.set(binding.name, { ...binding, entry: binding.entry });
-		}
-	}
-	const tunables = findTunables([...firstBindings.values()].map(({ entry }) => entry)).toSorted(
-		(a, b) =>
-			compareTables(sectionKey(a), sectionKey(b)) || a.label.localeCompare(b.label, undefined, { numeric: true }),
-	);
-	const sections: Section[] = [];
-	for (const tunable of tunables) {
-		const key = sectionKey(tunable);
-		const last = sections.at(-1);
-		if (tunable.array) {
-			sections.push({ key, array: true, tunable, binding: firstBindings.get(tunable.entry.name)! });
-		} else if (last?.array === false && last.key === key) {
-			last.tunables.push(tunable);
-		} else {
-			sections.push({ key, array: false, tunables: [tunable] });
-		}
-	}
-	return { tunables, sections };
 }
 
 function Tunables({ bindings, status }: Pick<WidgetProps, 'bindings'> & { status: LiveStatus }) {
@@ -229,8 +217,8 @@ function Tunables({ bindings, status }: Pick<WidgetProps, 'bindings'> & { status
 
 	return (
 		// Focusable so clicking anywhere in the panel lets its shortcut work
-		<div ref={panelRef} tabIndex={-1} className="flex h-full flex-col outline-none">
-			<div className="min-h-0 flex-1 overflow-y-auto px-1.5 pb-2">
+		<div ref={panelRef} tabIndex={-1} {...stylex.props(styles.panel)}>
+			<div {...stylex.props(styles.values)}>
 				{sections.map((section) =>
 					section.array ? (
 						<ArrayTunable
@@ -250,8 +238,8 @@ function Tunables({ bindings, status }: Pick<WidgetProps, 'bindings'> & { status
 					),
 				)}
 			</div>
-			<div className="flex shrink-0 items-center gap-2 px-3 py-2">
-				<span className="tunable-status">
+			<div {...stylex.props(styles.footer)}>
+				<span {...stylex.props(styles.status)}>
 					{status === 'reconnecting' && <Spinner size="sm" aria-label="Reconnecting" />}
 					<Notes
 						notes={[

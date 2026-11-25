@@ -1,12 +1,17 @@
 import { DropdownMenuCheckboxItem, DropdownMenuDivider, DropdownMenuGroup } from '@astryxdesign/core/DropdownMenu';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
+import * as stylex from '@stylexjs/stylex';
 import VideoIcon from 'lucide-react/icons/video';
 import { use, useState } from 'react';
-import { cn } from '@/lib/utils';
 import { FollowContext } from '@/widgets/legend/follow-context';
 import { LegendMenu } from '@/widgets/legend/legend-menu';
 import { type DriverStation, driverStationKey, driverStationLabel, driverStations } from '@/three/field-poses';
 import type { WidgetBinding } from '@/widgets/widget-type';
+
+const styles = stylex.create({
+	icon: { width: 14, height: 14, marginBlock: 2 },
+	following: { fill: 'currentColor' },
+});
 
 /**
  * Picks how the camera follows a robot or ghost. `follow` is `robot` while the camera moves with it, a driver
@@ -36,7 +41,7 @@ export function FollowPicker({ binding, follow }: { binding: WidgetBinding; foll
 						setRobotStation(controls?.robotStation());
 					}
 				}}
-				trigger={<VideoIcon className={cn('size-3.5 my-0.5', following && 'fill-current')} />}
+				trigger={<VideoIcon {...stylex.props(styles.icon, following && styles.following)} />}
 			>
 				<DropdownMenuCheckboxItem
 					label="Follow"

@@ -7,7 +7,7 @@ const styles = stylex.create({
 	preview: {
 		display: 'block',
 		position: 'relative',
-		width: '7.5rem',
+		width: 'min(7.5rem, 18vw)',
 		aspectRatio: '16 / 10',
 		marginBlockStart: spacingVars['--spacing-1'],
 	},

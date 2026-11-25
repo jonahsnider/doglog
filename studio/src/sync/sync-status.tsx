@@ -1,5 +1,16 @@
 import { Button } from '@astryxdesign/core/Button';
+import {
+	colorVars,
+	fontWeightVars,
+	radiusVars,
+	spacingVars,
+	textSizeVars,
+	typeScaleVars,
+	typographyVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
+import { focusOutlineProps } from '@astryxdesign/core/utils/focusOutline.stylex';
+import * as stylex from '@stylexjs/stylex';
 import AppWindowIcon from 'lucide-react/icons/app-window';
 import CheckIcon from 'lucide-react/icons/check';
 import HourglassIcon from 'lucide-react/icons/hourglass';
@@ -10,51 +21,131 @@ import RefreshCwIcon from 'lucide-react/icons/refresh-cw';
 import SettingsIcon from 'lucide-react/icons/settings';
 import TriangleAlertIcon from 'lucide-react/icons/triangle-exclamation-point';
 import type { LucideIcon } from 'lucide-react/types';
-import { type ReactNode, useState } from 'react';
+import type { ReactNode } from 'react';
 import { TextMorph } from '@/components/text-morph';
 import type { BoardLog } from '@/sync/sync-board';
-import { cn } from '@/lib/utils';
 import { formatSize, logLabel } from '@/sync/format';
+import { syncToggleMarker } from './markers.stylex';
+import { SyncTimeline } from '@/sync/sync-timeline';
 import { type SyncStatus, syncNow } from '@/sync/sync';
 import { updateSyncSettings } from '@/sync/sync-settings';
+import './sync-status.css';
 
 const minutesFormat = new Intl.NumberFormat(undefined, { style: 'unit', unit: 'minute', unitDisplay: 'long' });
 
-const steps = ['Connect to the robot', 'Copy new logs', 'Up to date'];
-/** How long the timeline takes to fill in or empty each step */
-const stepMs = 250;
-
 type Tone = 'active' | 'success' | 'warning' | 'error' | 'idle';
 
-const toneIcon: Record<Tone, string> = {
-	active: 'bg-primary text-primary-foreground',
-	success: 'bg-success/10 text-success-foreground',
-	warning: 'bg-warning/10 text-warning-foreground',
-	error: 'bg-destructive/10 text-destructive-foreground',
-	idle: 'bg-muted text-muted-foreground',
+const toneColors: Record<Tone, string> = {
+	active: colorVars['--color-accent'],
+	success: colorVars['--color-success'],
+	warning: colorVars['--color-warning'],
+	error: colorVars['--color-error'],
+	idle: colorVars['--color-text-secondary'],
 };
 
-const toneLine: Record<Tone, string> = {
-	active: 'bg-primary',
-	success: 'bg-success',
-	warning: 'bg-warning',
-	error: 'bg-destructive',
-	idle: 'bg-muted-foreground',
-};
+const spin = stylex.keyframes({ to: { transform: 'rotate(360deg)' } });
 
-const toneRing: Record<Tone, string> = {
-	active: 'ring-primary/16',
-	success: 'ring-success/16',
-	warning: 'ring-warning/16',
-	error: 'ring-destructive/16',
-	idle: 'ring-muted-foreground/16',
-};
+const styles = stylex.create({
+	section: {
+		display: 'flex',
+		flexDirection: 'column',
+		alignItems: 'center',
+		gap: spacingVars['--spacing-10'],
+		paddingTop: spacingVars['--spacing-2'],
+		textAlign: 'center',
+	},
+	summary: {
+		display: 'flex',
+		flexDirection: 'column',
+		alignItems: 'center',
+		gap: spacingVars['--spacing-4'],
+		maxWidth: '100%',
+	},
+	toggle: {
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		width: 80,
+		height: 80,
+		padding: 0,
+		borderStyle: 'none',
+		borderRadius: radiusVars['--radius-full'],
+		cursor: 'pointer',
+		outlineOffset: 4,
+		scale: { default: null, ':hover': 1.05, ':active': 0.95 },
+		transitionProperty: 'background-color, color, scale',
+		transitionDuration: 'calc(200ms * var(--motion-scale))',
+		transitionTimingFunction: 'var(--ease-in-out)',
+	},
+	icon: { width: 36, height: 36 },
+	// The status's icon makes way for the toggle's while the button is hovered or focused
+	statusIcon: {
+		display: {
+			default: null,
+			[stylex.when.ancestor(':hover', syncToggleMarker)]: 'none',
+			[stylex.when.ancestor(':focus-visible', syncToggleMarker)]: 'none',
+		},
+	},
+	toggleIcon: {
+		display: {
+			default: 'none',
+			[stylex.when.ancestor(':hover', syncToggleMarker)]: 'block',
+			[stylex.when.ancestor(':focus-visible', syncToggleMarker)]: 'block',
+		},
+	},
+	// Slows down instead of stopping when reducing motion, so it still shows that sync is working
+	spinning: {
+		animationName: spin,
+		animationDuration: 'calc(8s - 5s * var(--motion-scale))',
+		animationTimingFunction: 'linear',
+		animationIterationCount: 'infinite',
+	},
+	text: {
+		display: 'flex',
+		flexDirection: 'column',
+		gap: spacingVars['--spacing-1'],
+		maxWidth: '100%',
+	},
+	title: {
+		margin: 0,
+		fontFamily: typographyVars['--font-family-heading'],
+		fontSize: textSizeVars['--font-size-2xl'],
+		lineHeight: '2rem',
+		fontWeight: fontWeightVars['--font-weight-semibold'],
+	},
+	detail: {
+		margin: 0,
+		fontSize: typeScaleVars['--text-label-size'],
+		lineHeight: typeScaleVars['--text-label-leading'],
+		color: colorVars['--color-text-secondary'],
+		fontVariantNumeric: 'tabular-nums',
+	},
+	error: { display: 'block', fontSize: typeScaleVars['--text-supporting-size'], lineHeight: '1rem' },
+});
+
+// The status icon's background and color
+const toneStyles = stylex.create({
+	active: { backgroundColor: colorVars['--color-accent'], color: colorVars['--color-on-accent'] },
+	success: {
+		backgroundColor: `color-mix(in srgb, ${colorVars['--color-success']} 10%, transparent)`,
+		color: colorVars['--color-text-success'],
+	},
+	warning: {
+		backgroundColor: `color-mix(in srgb, ${colorVars['--color-warning']} 10%, transparent)`,
+		color: colorVars['--color-text-warning'],
+	},
+	error: {
+		backgroundColor: `color-mix(in srgb, ${colorVars['--color-error']} 10%, transparent)`,
+		color: colorVars['--color-text-error'],
+	},
+	idle: { backgroundColor: colorVars['--color-background-muted'], color: colorVars['--color-icon-secondary'] },
+});
 
 interface StatusView {
 	icon: LucideIcon;
 	spin?: boolean;
 	tone: Tone;
-	/** Index in `steps` sync is on */
+	/** The step of `SyncTimeline` sync is on */
 	step: number;
 	title: string;
 	detail: ReactNode;
@@ -109,7 +200,7 @@ function viewFor(status: SyncStatus, syncedCount: number, days: number, stoppedS
 				detail: (
 					<>
 						Trying {status.host}
-						{status.error !== undefined && <span className="block text-xs">{status.error}</span>}
+						{status.error !== undefined && <span {...stylex.props(styles.error)}>{status.error}</span>}
 					</>
 				),
 			};
@@ -174,105 +265,36 @@ export function SyncStatusPanel({
 	const waiting = boardLogs.some((log) => log.state === 'queued' || log.state === 'copying');
 	const view = viewFor(status, syncedCount, days, waiting || syncedCount === 0 ? 1 : 2);
 	const { icon: Icon, tone, step } = view;
-	// The step sync was on before, so the timeline fills in or empties one step at a time from there
-	const [moved, setMoved] = useState({ from: step, to: step });
-	if (moved.to !== step) {
-		setMoved({ from: moved.to, to: step });
-	}
-	const { from } = moved;
 	const ToggleIcon = enabled ? PauseIcon : PlayIcon;
 	const toggleLabel = enabled ? 'Pause sync' : 'Resume sync';
-	const advancing = step > from;
-	/** Whether moving from `from` to `step` fills in or empties step `index` */
-	const changes = (index: number) => index > Math.min(from, step) && index <= Math.max(from, step);
-	/** When the line into step `index` starts changing, after the lines before it when filling in or after it when emptying */
-	const lineDelay = (index: number) => (changes(index) ? (advancing ? index - from - 1 : from - index) * stepMs : 0);
-	/** When step `index`'s circle changes: once the line reaches it when filling in, before the line empties otherwise */
-	const circleDelay = (index: number) => lineDelay(index) + (changes(index) && advancing ? stepMs : 0);
 
 	// Top padding keeps the button's hover scale and focus outline clear of the sticky page header
 	return (
-		<section className="flex flex-col items-center gap-10 pt-2 text-center">
-			<div className="flex max-w-full flex-col items-center gap-4">
+		<section {...stylex.props(styles.section)}>
+			<div {...stylex.props(styles.summary)}>
 				<Tooltip content={toggleLabel}>
 					<button
 						type="button"
 						aria-label={toggleLabel}
 						onClick={() => updateSyncSettings({ enabled: !enabled })}
-						className={cn(
-							'group flex size-20 cursor-pointer items-center justify-center rounded-full outline-offset-4 transition-[background-color,color,scale] duration-200 hover:scale-105 focus-visible:outline-2 focus-visible:outline-ring active:scale-95 motion-reduce:transition-none',
-							toneIcon[tone],
-						)}
+						{...focusOutlineProps.focusVisible(syncToggleMarker, styles.toggle, toneStyles[tone])}
 					>
-						<Icon
-							className={cn(
-								'size-9 group-hover:hidden group-focus-visible:hidden',
-								view.spin === true && 'animate-spin [animation-duration:3s] motion-reduce:[animation-duration:8s]',
-							)}
-						/>
-						<ToggleIcon className="hidden size-9 group-hover:block group-focus-visible:block" />
+						<Icon {...stylex.props(styles.icon, styles.statusIcon, view.spin === true && styles.spinning)} />
+						<ToggleIcon {...stylex.props(styles.icon, styles.toggleIcon)} />
 					</button>
 				</Tooltip>
-				<div className="flex max-w-full flex-col gap-1">
-					<h2 className="font-heading text-2xl font-semibold">
-						<TextMorph
-							className="max-w-full align-bottom wrap-anywhere whitespace-normal! [&>[torph-item]]:max-w-full"
-							numbers={false}
-						>
+				<div {...stylex.props(styles.text)}>
+					<h2 {...stylex.props(styles.title)}>
+						<TextMorph data-sync-title numbers={false}>
 							{view.title}
 						</TextMorph>
 					</h2>
-					<p className="text-sm text-muted-foreground tabular-nums">{view.detail}</p>
+					<p {...stylex.props(styles.detail)}>{view.detail}</p>
 				</div>
 				{view.action}
 			</div>
 
-			<ol className="flex w-full">
-				{steps.map((label, index) => {
-					const reached = index <= step;
-					const current = index === step;
-					return (
-						<li
-							key={label}
-							aria-current={current ? 'step' : undefined}
-							className="relative flex flex-1 flex-col items-center gap-3"
-						>
-							{index > 0 && (
-								// The line from the previous step to this one, filling in from the left when sync gets here
-								<span className="absolute top-2.5 right-1/2 h-1 w-full overflow-hidden bg-border">
-									<span
-										className={cn(
-											'block size-full origin-left transition-[scale,background-color] ease-linear motion-reduce:transition-none',
-											toneLine[tone],
-											!reached && 'scale-x-0',
-										)}
-										// Color changes right away, filling waits for the steps before it
-										style={{ transitionDuration: `${stepMs}ms`, transitionDelay: `${lineDelay(index)}ms, 0ms` }}
-									/>
-								</span>
-							)}
-							{current && view.spin === true && (
-								<span
-									className={cn(
-										'absolute top-0 size-6 rounded-full opacity-40 motion-safe:animate-ping',
-										toneLine[tone],
-									)}
-								/>
-							)}
-							<span
-								className={cn(
-									// Above the line to the next step
-									'relative z-10 size-6 rounded-full border-4 transition-[background-color,border-color,box-shadow] motion-reduce:transition-none',
-									reached ? cn('border-transparent', toneLine[tone]) : 'border-border bg-background',
-									current && cn('ring-[6px]', toneRing[tone]),
-								)}
-								style={{ transitionDuration: `${stepMs}ms`, transitionDelay: `${circleDelay(index)}ms` }}
-							/>
-							<span className={cn('text-sm', current ? 'font-medium' : 'text-muted-foreground')}>{label}</span>
-						</li>
-					);
-				})}
-			</ol>
+			<SyncTimeline step={step} color={toneColors[tone]} active={view.spin === true} />
 		</section>
 	);
 }

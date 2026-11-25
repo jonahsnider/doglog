@@ -1,7 +1,13 @@
+import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 import type { Mechanism } from '@/data/mechanism';
-import { cn } from '@/lib/utils';
 import { useFieldZoom } from '@/widgets/field/zoom';
+
+const styles = stylex.create({
+	canvas: { position: 'relative', overflow: 'hidden', touchAction: 'none' },
+	pannable: { cursor: { default: 'grab', ':active': 'grabbing' } },
+	svg: { display: 'block', width: '100%', height: '100%' },
+});
 
 /** A mechanism's canvas fit to the widget, which zooms and pans like the field */
 export function MechanismCanvas({ mechanism }: { mechanism: Mechanism }) {
@@ -11,7 +17,7 @@ export function MechanismCanvas({ mechanism }: { mechanism: Mechanism }) {
 
 	return (
 		<div
-			className={cn('relative touch-none overflow-hidden', zoom.scale > 1 && 'cursor-grab active:cursor-grabbing')}
+			{...stylex.props(styles.canvas, zoom.scale > 1 && styles.pannable)}
 			style={{ width: `min(100cqw, 100cqh * ${width / height})`, aspectRatio: `${width} / ${height}` }}
 			onPointerDown={(event) => {
 				if (event.button === 0) {
@@ -27,7 +33,7 @@ export function MechanismCanvas({ mechanism }: { mechanism: Mechanism }) {
 		>
 			<svg
 				ref={svgRef}
-				className="block size-full"
+				{...stylex.props(styles.svg)}
 				viewBox={`0 0 ${width} ${height}`}
 				role="img"
 				aria-label="Mechanism"

@@ -1,5 +1,6 @@
+import { colorVars, fontWeightVars, typographyVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { useId } from 'react';
-import { cn } from '@/lib/utils';
 import type { ControllerButton, ControllerState } from '@/widgets/controller/data';
 import { type LayoutShape, type Point, width } from '@/widgets/controller/layouts';
 
@@ -27,13 +28,28 @@ const stickTravel = stickWell - stickCap;
 const dpadArm = { half: 8, reach: 24, corner: 3 };
 const dpadWell = 31;
 
-/** Buttons stand out from the body, the wells around sticks and the D-pad sink into it */
-const raised = 'fill-surface-bright stroke-border';
-const recessed = 'fill-frame stroke-border';
-const pressedFill = 'fill-primary stroke-primary';
+const styles = stylex.create({
+	/** Buttons stand out from the body, the wells around sticks and the D-pad sink into it */
+	raised: { fill: 'var(--md-surface-bright)', stroke: colorVars['--color-border'] },
+	recessed: { fill: colorVars['--color-background-body'], stroke: colorVars['--color-border'] },
+	pressed: { fill: colorVars['--color-accent'], stroke: colorVars['--color-accent'] },
+	shell: { fill: colorVars['--color-background-muted'], stroke: colorVars['--color-border'] },
+	outline: { fill: 'none', stroke: colorVars['--color-border'] },
+	accentFill: { fill: colorVars['--color-accent'] },
+	accentStroke: { stroke: colorVars['--color-accent'] },
+	glyph: { fill: 'none', stroke: colorVars['--color-text-secondary'] },
+	glyphPressed: { stroke: colorVars['--color-on-accent'] },
+	mark: { fill: colorVars['--color-text-secondary'] },
+	markPressed: { fill: colorVars['--color-on-accent'] },
+	label: {
+		pointerEvents: 'none',
+		fontFamily: typographyVars['--font-family-body'],
+		fontWeight: fontWeightVars['--font-weight-semibold'],
+	},
+});
+
 /** Draws the left side's shoulder controls on the right */
 const mirror = `matrix(-1 0 0 1 ${width} 0)`;
-const glyphColor = (pressed: boolean) => (pressed ? 'stroke-primary-foreground' : 'stroke-muted-foreground');
 
 const faceButtons: readonly (readonly [ControllerButton, Point])[] = [
 	['faceUp', [0, -1]],
@@ -64,10 +80,7 @@ function Label({ at, pressed, size = 10, children }: { at: Point; pressed: boole
 			fontSize={size}
 			textAnchor="middle"
 			dominantBaseline="central"
-			className={cn(
-				'pointer-events-none font-sans font-semibold',
-				pressed ? 'fill-primary-foreground' : 'fill-muted-foreground',
-			)}
+			{...stylex.props(styles.label, styles.mark, pressed && styles.markPressed)}
 		>
 			{children}
 		</text>
@@ -90,7 +103,7 @@ export function FaceButtons({
 		const symbol = symbolPaths[glyph];
 		return (
 			<g key={button}>
-				<circle cx={at[0]} cy={at[1]} r={faceRadius} className={pressed ? pressedFill : raised} />
+				<circle cx={at[0]} cy={at[1]} r={faceRadius} {...stylex.props(pressed ? styles.pressed : styles.raised)} />
 				{symbol === undefined ? (
 					<Label at={at} pressed={pressed} size={11}>
 						{glyph}
@@ -101,7 +114,7 @@ export function FaceButtons({
 						transform={`translate(${at[0]} ${at[1]})`}
 						strokeLinejoin="round"
 						strokeLinecap="round"
-						className={cn('fill-none', glyphColor(pressed))}
+						{...stylex.props(styles.glyph, pressed && styles.glyphPressed)}
 					/>
 				)}
 			</g>
@@ -122,8 +135,8 @@ export function Dpad({ center: [cx, cy], state }: { center: Point; state: Contro
 	].join(' ');
 	return (
 		<g transform={`translate(${cx} ${cy})`}>
-			<circle r={dpadWell} className={recessed} />
-			<path d={outline} strokeLinejoin="round" className={raised} />
+			<circle r={dpadWell} {...stylex.props(styles.recessed)} />
+			<path d={outline} strokeLinejoin="round" {...stylex.props(styles.raised)} />
 			{dpadDirections.map(([direction, [dx, dy]]) => {
 				const pressed = state.pressed.has(direction);
 				// Arms point up before rotating, so one shape serves every direction
@@ -137,12 +150,12 @@ export function Dpad({ center: [cx, cy], state }: { center: Point; state: Contro
 								width={h * 2 - 3}
 								height={r - h - 1.5}
 								rx={c - 1}
-								className="fill-primary"
+								{...stylex.props(styles.accentFill)}
 							/>
 						)}
 						<path
 							d={`M 0 ${-r + 6} L 3.5 ${-r + 11} H -3.5 Z`}
-							className={pressed ? 'fill-primary-foreground' : 'fill-muted-foreground'}
+							{...stylex.props(styles.mark, pressed && styles.markPressed)}
 						/>
 					</g>
 				);
@@ -162,20 +175,20 @@ export function Stick({ center, x, y, pressed }: { center: Point; x: number; y: 
 				cx={center[0]}
 				cy={center[1]}
 				r={stickWell}
-				className={cn('fill-frame', pressed ? 'stroke-primary' : 'stroke-border')}
+				{...stylex.props(styles.recessed, pressed && styles.accentStroke)}
 			/>
 			{/* Crosshairs show where the stick rests, so small pushes are visible */}
 			<path
 				d={`M ${center[0] - guide} ${center[1]} H ${center[0] + guide} M ${center[0]} ${center[1] - guide} V ${center[1] + guide}`}
 				strokeWidth={1}
-				className="stroke-border"
+				{...stylex.props(styles.outline)}
 			/>
-			<circle cx={cap[0]} cy={cap[1]} r={stickCap} className={pressed ? pressedFill : raised} />
+			<circle cx={cap[0]} cy={cap[1]} r={stickCap} {...stylex.props(pressed ? styles.pressed : styles.raised)} />
 			<circle
 				cx={cap[0]}
 				cy={cap[1]}
 				r={stickCap - 5}
-				className={cn('fill-none', pressed ? 'stroke-primary-foreground' : 'stroke-border')}
+				{...stylex.props(styles.outline, pressed && styles.glyphPressed)}
 			/>
 		</g>
 	);
@@ -203,7 +216,7 @@ export function Shoulder({
 				<clipPath id={clipId}>
 					<path d={trigger.path} />
 				</clipPath>
-				<path d={trigger.path} strokeLinejoin="round" className="fill-muted stroke-border" />
+				<path d={trigger.path} strokeLinejoin="round" {...stylex.props(styles.shell)} />
 				{pressed > 0 && (
 					<rect
 						x={trigger.outer}
@@ -211,15 +224,11 @@ export function Shoulder({
 						width={pressed * (trigger.inner - trigger.outer)}
 						height={36}
 						clipPath={`url(#${clipId})`}
-						className="fill-primary"
+						{...stylex.props(styles.accentFill)}
 					/>
 				)}
-				<path d={trigger.path} strokeLinejoin="round" className="fill-none stroke-border" />
-				<path
-					d={bumper.path}
-					strokeLinejoin="round"
-					className={bumperPressed ? pressedFill : 'fill-muted stroke-border'}
-				/>
+				<path d={trigger.path} strokeLinejoin="round" {...stylex.props(styles.outline)} />
+				<path d={bumper.path} strokeLinejoin="round" {...stylex.props(bumperPressed ? styles.pressed : styles.shell)} />
 			</g>
 			<Label at={[labelX(trigger.label[0]), trigger.label[1]]} pressed={false} size={9}>
 				{triggerLabel}
@@ -250,22 +259,22 @@ export function MenuButton({
 	pressed: boolean;
 	label: string;
 }) {
-	const className = pressed ? pressedFill : raised;
+	const surface = stylex.props(pressed ? styles.pressed : styles.raised);
 	return shape === 'circle' ? (
 		<g>
 			<title>{label}</title>
-			<circle cx={cx} cy={cy} r={8} className={className} />
+			<circle cx={cx} cy={cy} r={8} {...surface} />
 			<path
 				d={menuIcons[button]}
 				transform={`translate(${cx} ${cy})`}
 				strokeWidth={1.2}
 				strokeLinejoin="round"
 				strokeLinecap="round"
-				className={cn('fill-none', glyphColor(pressed))}
+				{...stylex.props(styles.glyph, pressed && styles.glyphPressed)}
 			/>
 		</g>
 	) : (
-		<rect x={cx - 4} y={cy - 8} width={8} height={16} rx={4} className={className}>
+		<rect x={cx - 4} y={cy - 8} width={8} height={16} rx={4} {...surface}>
 			<title>{label}</title>
 		</rect>
 	);

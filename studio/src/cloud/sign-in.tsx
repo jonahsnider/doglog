@@ -10,6 +10,7 @@ import { useSignInWithGoogle } from '@convex-dev/auth/methods/google/react';
 import { useOauth } from '@convex-dev/auth/methods/oauth/react';
 import { useAuthActions } from '@convex-dev/auth/react';
 import { AppleLight, Google } from '@ridemountainpig/svgl-react';
+import * as stylex from '@stylexjs/stylex';
 import { useSelector } from '@tanstack/react-store';
 import { useConvex } from 'convex/react';
 import { ConvexError } from 'convex/values';
@@ -22,6 +23,11 @@ import {
 } from '@/cloud/desktop-sign-in';
 import { browserCeremonies } from '@/cloud/passkey-ceremonies';
 import { api } from '../../../cloud/convex/_generated/api.js';
+
+const styles = stylex.create({
+	// Apple's logo follows the text color
+	apple: { fill: 'currentColor' },
+});
 
 /** The longest display name the server accepts */
 export const displayNameMaxLength = 80;
@@ -185,7 +191,7 @@ function OAuthSignIn() {
 			<HStack wrap="wrap" gap={2}>
 				<Button
 					label="Continue with Apple"
-					icon={<AppleLight aria-hidden="true" className="fill-current" />}
+					icon={<AppleLight aria-hidden="true" {...stylex.props(styles.apple)} />}
 					isLoading={pending === 'Apple'}
 					isDisabled={pending === 'Google'}
 					onClick={() => void start('Apple')}

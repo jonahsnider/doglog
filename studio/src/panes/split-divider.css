@@ -1,0 +1,34 @@
+/* A line in the middle of the gap between panes, while the divider is hovered, dragged, focused, or moves with one that is */
+[data-pane-divider]::before {
+	content: '';
+	position: absolute;
+	border-radius: var(--radius-full);
+	transition: background-color 150ms var(--ease-in-out);
+}
+[data-pane-divider]:is(
+		:focus-visible,
+		[data-separator='hover'],
+		[data-separator='active'],
+		[data-snap-guide],
+		[data-linked]
+	)::before {
+	background-color: var(--focus-outline-color);
+}
+/* Widens it to the library's 10px hit area, so double-clicks land on it */
+[data-pane-divider]::after {
+	content: '';
+	position: absolute;
+}
+
+[data-pane-divider='row']::before {
+	inset: var(--spacing-1) var(--spacing-0-5);
+}
+[data-pane-divider='row']::after {
+	inset: 0 calc(var(--spacing-0-5) * -1);
+}
+[data-pane-divider='column']::before {
+	inset: var(--spacing-0-5) var(--spacing-1);
+}
+[data-pane-divider='column']::after {
+	inset: calc(var(--spacing-0-5) * -1) 0;
+}

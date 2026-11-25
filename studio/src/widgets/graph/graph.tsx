@@ -1,6 +1,6 @@
 import 'uplot/dist/uPlot.min.css';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { cn } from '@/lib/utils';
 import { useSettings } from '@/settings';
 import { accentColor } from '@/theme/theme-color';
 import { seriesUnits } from '@/widgets/graph/axis-units';
@@ -9,9 +9,9 @@ import { DropZones } from '@/widgets/graph/drop-zones';
 import { rowHeight } from '@/widgets/graph/bands';
 import { bandPalette, type ColorAssignments } from '@/widgets/graph/colors';
 import { AxisUnit, GraphLegend } from '@/widgets/graph/graph-legend';
+import { GraphOverlay } from '@/widgets/graph/graph-overlay';
 import { GraphTooltip } from '@/widgets/graph/graph-tooltip';
 import { axisWidth, edgeInset, type PlotSeries } from '@/widgets/graph/plot';
-import { RangeSelection } from '@/widgets/graph/range-selection';
 import { graphSection } from '@/widgets/graph/roles';
 import { TimeAxis } from '@/widgets/graph/time-axis';
 import { type GraphElements, useGraphDrawing } from '@/widgets/graph/use-graph-drawing';
@@ -20,6 +20,41 @@ import { resetView, useGraphShown } from '@/widgets/graph/view';
 import { useWidgetMenu } from '@/panes/widget-menu';
 import { bindingColor } from '@/widgets/series-color';
 import type { WidgetProps } from '@/widgets/widget-type';
+
+const styles = stylex.create({
+	graph: {
+		display: 'flex',
+		height: '100%',
+		flexDirection: 'column',
+	},
+	body: {
+		position: 'relative',
+		display: 'flex',
+		minHeight: 0,
+		flex: 1,
+		flexDirection: 'column',
+		cursor: 'crosshair',
+		touchAction: 'none',
+	},
+	plot: {
+		minHeight: '6rem',
+		flex: 1,
+		overflow: 'hidden',
+		contain: 'strict',
+	},
+	bands: {
+		position: 'relative',
+		flexShrink: 0,
+	},
+	bandsCanvas: {
+		pointerEvents: 'none',
+		position: 'absolute',
+		top: 0,
+	},
+	spacer: {
+		flex: 1,
+	},
+});
 
 export function Graph({ bindings }: WidgetProps) {
 	const settings = useSettings();
@@ -150,11 +185,11 @@ export function Graph({ bindings }: WidgetProps) {
 	}, [measureOrigin, pinned]);
 
 	return (
-		<div className="flex h-full flex-col">
+		<div {...stylex.props(styles.graph)}>
 			<GraphLegend plotted={plotted} />
 			<div
 				ref={body}
-				className="relative flex min-h-0 flex-1 cursor-crosshair touch-none flex-col"
+				{...stylex.props(styles.body)}
 				{...handlers}
 				onPointerDownCapture={measureOrigin}
 				onPointerMoveCapture={measureOrigin}
@@ -162,18 +197,18 @@ export function Graph({ bindings }: WidgetProps) {
 				{hasPlot && (
 					// Contained so uPlot resizing its elements, then measuring, doesn't lay out the whole page again every frame
 					// while panes resize
-					<div ref={plotRef} className="min-h-24 flex-1 overflow-hidden contain-strict" />
+					<div ref={plotRef} {...stylex.props(styles.plot)} />
 				)}
 				{hasPlot && <AxisUnit label={units.axes.y} side="left" />}
 				{hasRight && <AxisUnit label={units.axes.y2} side="right" />}
-				<div className="relative shrink-0" style={{ height: discrete.length * rowHeight }}>
+				<div {...stylex.props(styles.bands)} style={{ height: discrete.length * rowHeight }}>
 					{discrete.map((binding, row) => (
 						<BandRow key={binding.id} binding={binding} row={row} insets={insets} />
 					))}
 					<canvas
 						ref={bandsRef}
 						// Canvases don't stretch between `left` and `right` like other elements, so set the width
-						className="pointer-events-none absolute top-0"
+						{...stylex.props(styles.bandsCanvas)}
 						style={{
 							left: insets.left,
 							width: `calc(100% - ${insets.left + insets.right}px)`,
@@ -181,43 +216,22 @@ export function Graph({ bindings }: WidgetProps) {
 						}}
 					/>
 				</div>
-				{!hasPlot && <div className="flex-1" />}
-				<div
-					ref={areaRef}
-					className="pointer-events-none absolute inset-y-0"
-					style={{ left: insets.left, right: insets.right }}
-				>
-					<div ref={gapsRef} />
-					{selection && <RangeSelection selection={selection} plotted={plotted} units={units.units} />}
-					<div
-						ref={hoverLineRef}
-						hidden
-						className="absolute inset-y-0 w-px -translate-x-1/2 bg-muted-foreground capture:invisible"
-					/>
-					<div ref={cursorLineRef} hidden className="absolute inset-y-0 w-px -translate-x-1/2 bg-foreground" />
-					<div ref={hoverDotsRef} className="absolute top-0 left-0 capture:invisible">
-						{series.map((line) => (
-							<div
-								key={line.id}
-								hidden
-								className="absolute -top-1 -left-1 size-2 rounded-full ring-2 ring-background"
-								style={{ background: line.color }}
-							/>
-						))}
-					</div>
-					{/* The 2px end strokes extend 1px to either side of each time marker. */}
-					<div
-						ref={hoverDeltaRef}
-						hidden
-						className={cn(
-							'absolute h-2 before:absolute before:inset-y-0 before:-inset-x-px before:border-x-2 before:border-b-2 before:border-primary capture:invisible',
-							(!pointerAt || selection) && 'hidden',
-						)}
-						style={{ bottom: (hasPlot ? discrete.length * rowHeight : 0) + 8 }}
-					>
-						<span className="absolute bottom-full left-1/2 w-max translate-x-(--delta-label-shift) rounded-sm border border-primary bg-background px-1.5 text-xs font-medium text-foreground tabular-nums" />
-					</div>
-				</div>
+				{!hasPlot && <div {...stylex.props(styles.spacer)} />}
+				<GraphOverlay
+					areaRef={areaRef}
+					gapsRef={gapsRef}
+					hoverLineRef={hoverLineRef}
+					cursorLineRef={cursorLineRef}
+					hoverDotsRef={hoverDotsRef}
+					hoverDeltaRef={hoverDeltaRef}
+					series={series}
+					selection={selection}
+					plotted={plotted}
+					units={units.units}
+					insets={insets}
+					deltaHidden={!pointerAt || selection !== undefined}
+					deltaBottom={(hasPlot ? discrete.length * rowHeight : 0) + 8}
+				/>
 				<GraphTooltip
 					bandHover={bandHover}
 					bandEntry={bandHover && discrete[bandHover.row]?.entry}

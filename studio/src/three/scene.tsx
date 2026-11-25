@@ -1,10 +1,12 @@
 // A 3D scene in WPILib's robot coordinates (meters, +X forward, +Y left, +Z up), with an orbiting orthographic camera.
+import { colorVars, radiusVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { PerspectiveCamera } from '@react-three/drei';
 import { Canvas, type RootState, useFrame } from '@react-three/fiber';
 import { type KeyboardEvent, type ReactNode, type Ref, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import * as stylex from '@stylexjs/stylex';
 import { Vector3 } from 'three';
-import { cn } from '@/lib/utils';
 import { CameraControls, CameraRig, cameraDistance, type Rig } from '@/three/camera';
+import { cameraKeys } from '@/three/camera-keys';
 import { shiftSpeedup } from '@/three/orbit';
 import { useRightClickMenu } from '@/three/right-click-menu';
 import { useThemeColor } from '@/three/theme';
@@ -14,6 +16,18 @@ import type { FieldFraming } from '@/three/field-framing';
 import { ViewCube } from '@/three/view-cube';
 import { useSceneCanvas } from '@/three/use-scene-canvas';
 import type { CameraMatch } from '@/widgets/field/camera-match';
+
+const styles = stylex.create({
+	scene: { position: 'relative', width: '100%', height: '100%', overflow: 'hidden', touchAction: 'none' },
+	frame: { borderRadius: radiusVars['--radius-element'], outline: 'none', userSelect: 'none' },
+	keyboardFocus: { outline: '2px solid var(--focus-outline-color)' },
+	hidden: { opacity: 0 },
+	orbit: { cursor: 'grabbing' },
+	pan: { cursor: 'move' },
+	pointing: { cursor: 'pointer' },
+	label: { pointerEvents: 'none', position: 'absolute', top: 0, left: 0, whiteSpace: 'nowrap', lineHeight: '1rem' },
+	labelText: { color: colorVars['--color-text-secondary'], fontSize: typeScaleVars['--text-supporting-size'] },
+});
 
 const gridSize = 2.4;
 const gridDivisions = 6;
@@ -34,21 +48,6 @@ function OnFrame({ callback }: { callback: (state: RootState) => void }) {
 	useFrame(callback);
 	return null;
 }
-
-/** Radians per second of keyboard orbiting */
-const orbitSpeed = 1.5;
-const keys: Partial<Record<string, (rig: Rig, seconds: number, speed: number) => void>> = {
-	arrowleft: (rig, seconds) => rig.orbit(-orbitSpeed * seconds, 0),
-	arrowright: (rig, seconds) => rig.orbit(orbitSpeed * seconds, 0),
-	arrowup: (rig, seconds) => rig.orbit(0, orbitSpeed * seconds),
-	arrowdown: (rig, seconds) => rig.orbit(0, -orbitSpeed * seconds),
-	w: (rig, seconds, speed) => rig.zoom(seconds * speed),
-	s: (rig, seconds, speed) => rig.zoom(-seconds * speed),
-	a: (rig, seconds, speed) => rig.pan(-seconds * speed, 0),
-	d: (rig, seconds, speed) => rig.pan(seconds * speed, 0),
-	q: (rig, seconds, speed) => rig.pan(0, -seconds * speed),
-	e: (rig, seconds, speed) => rig.pan(0, seconds * speed),
-};
 
 function dragOf(event: PointerEvent): 'orbit' | 'pan' | undefined {
 	if (event.button === 2 || (event.button === 0 && (event.ctrlKey || event.metaKey || event.shiftKey))) {
@@ -140,7 +139,7 @@ export function Scene3d({
 	const move = (last: number) => (now: number) => {
 		for (const key of held.current) {
 			if (rig.current) {
-				keys[key]?.(rig.current, (now - last) / 1000, shift.current ? shiftSpeedup : 1);
+				cameraKeys[key]?.(rig.current, (now - last) / 1000, shift.current ? shiftSpeedup : 1);
 			}
 		}
 		frame.current = held.current.size > 0 ? requestAnimationFrame(move(now)) : undefined;
@@ -160,7 +159,7 @@ export function Scene3d({
 	const onKeyDown = (event: KeyboardEvent) => {
 		shift.current = event.shiftKey;
 		const key = event.key.toLowerCase();
-		if (cameraMatch || event.metaKey || event.ctrlKey || event.altKey || keys[key] === undefined) {
+		if (cameraMatch || event.metaKey || event.ctrlKey || event.altKey || cameraKeys[key] === undefined) {
 			return;
 		}
 		// Handled keys don't also step the timeline
@@ -198,13 +197,13 @@ export function Scene3d({
 					? `${label}. Camera matched to video.`
 					: `${label}. Drag to orbit, scroll or W and S to zoom, A, D, Q, and E to pan, hold Shift to go faster.`
 			}
-			className={cn(
-				'relative size-full touch-none overflow-hidden rounded-md outline-none select-none',
-				keyboardFocus && 'ring-2 ring-ring',
-				!drawn && 'opacity-0',
-				drag === 'orbit' && 'cursor-grabbing',
-				drag === 'pan' && 'cursor-move',
-				drag === undefined && cubeHovered && 'cursor-pointer',
+			{...stylex.props(
+				styles.scene,
+				styles.frame,
+				keyboardFocus && styles.keyboardFocus,
+				!drawn && styles.hidden,
+				drag !== undefined && styles[drag],
+				drag === undefined && cubeHovered && styles.pointing,
 			)}
 			onPointerDown={(event) => {
 				event.currentTarget.focus({ preventScroll: true });
@@ -288,7 +287,7 @@ export function Scene3d({
 							ref={(element) => {
 								labels.current[index] = element;
 							}}
-							className="pointer-events-none absolute top-0 left-0 whitespace-nowrap text-muted-foreground text-xs"
+							{...stylex.props(styles.label, styles.labelText)}
 						>
 							{text}
 						</span>

@@ -1,3 +1,5 @@
+import { colorVars, radiusVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import BoxesIcon from 'lucide-react/icons/boxes';
 import DatabaseIcon from 'lucide-react/icons/database';
 import HouseIcon from 'lucide-react/icons/house';
@@ -22,8 +24,68 @@ import { type View, ViewToggle } from '@/widgets/view-toggle';
 import { WidgetEmpty } from '@/widgets/widget-empty';
 import type { WidgetBinding, WidgetProps } from '@/widgets/widget-type';
 
-const mechanismIcon = <SplineIcon className="size-3.5" />;
-const partsIcon = <BoxesIcon className="size-3.5" />;
+const styles = stylex.create({
+	root: { height: '100%', padding: spacingVars['--spacing-2'] },
+	stage: {
+		position: 'relative',
+		display: 'flex',
+		width: '100%',
+		height: '100%',
+		alignItems: 'center',
+		justifyContent: 'center',
+		containerType: 'size',
+	},
+	view: { display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' },
+	overlay: {
+		pointerEvents: 'none',
+		position: 'absolute',
+		inset: 0,
+		display: 'flex',
+		flexDirection: 'column',
+		paddingInline: spacingVars['--spacing-1-5'],
+		paddingBottom: spacingVars['--spacing-10'],
+	},
+	legend: {
+		pointerEvents: 'auto',
+		flexShrink: 0,
+		width: 'fit-content',
+		maxWidth: '50%',
+		maxHeight: '50%',
+		marginTop: spacingVars['--spacing-1-5'],
+		overflowY: 'auto',
+		paddingInline: spacingVars['--spacing-1-5'],
+		borderRadius: radiusVars['--radius-element'],
+		backgroundColor: colorVars['--color-background-surface'],
+	},
+	// Along the bottom, letting drags between the controls through to the 3D view
+	controls: {
+		pointerEvents: 'none',
+		position: 'absolute',
+		insetInline: spacingVars['--spacing-1-5'],
+		bottom: spacingVars['--spacing-1-5'],
+		display: 'flex',
+		alignItems: 'flex-end',
+		gap: spacingVars['--spacing-2'],
+	},
+	control: { pointerEvents: 'auto' },
+	note: {
+		display: 'flex',
+		minWidth: 0,
+		alignItems: 'center',
+		gap: spacingVars['--spacing-2'],
+		paddingInline: spacingVars['--spacing-1-5'],
+		borderRadius: radiusVars['--radius-element'],
+		backgroundColor: colorVars['--color-background-surface'],
+		color: colorVars['--color-text-secondary'],
+		fontSize: typeScaleVars['--text-supporting-size'],
+		lineHeight: '1rem',
+	},
+	reset: { marginInlineStart: 'auto' },
+	icon: { width: 14, height: 14 },
+});
+
+const mechanismIcon = <SplineIcon {...stylex.props(styles.icon)} />;
+const partsIcon = <BoxesIcon {...stylex.props(styles.icon)} />;
 
 function isMechanism(binding: WidgetBinding): boolean {
 	return binding.entry?.kind === 'mechanism2d';
@@ -91,9 +153,9 @@ export function Robot({ bindings, options, setOption }: WidgetProps) {
 	const mechanism2d = shown2d && mechanisms.get(shown2d.name);
 
 	return (
-		<div data-capture-pending={view === '3d' && loading ? '' : undefined} className="h-full p-2">
-			<div className="relative flex size-full items-center justify-center [container-type:size]">
-				<div className="flex size-full items-center justify-center" {...(view === '3d' && controls.handlers)}>
+		<div data-capture-pending={view === '3d' && loading ? '' : undefined} {...stylex.props(styles.root)}>
+			<div {...stylex.props(styles.stage)}>
+				<div {...stylex.props(styles.view)} {...(view === '3d' && controls.handlers)}>
 					{view === '3d' ? (
 						<Scene3d ref={scene} label="Robot">
 							{robot}
@@ -110,17 +172,17 @@ export function Robot({ bindings, options, setOption }: WidgetProps) {
 						<Empty2d mechanism={shown2d} />
 					)}
 				</div>
-				<div className="pointer-events-none absolute inset-0 flex flex-col px-1.5 pb-10">
+				<div {...stylex.props(styles.overlay)}>
 					{legend.length > 0 && (
-						<div className="pointer-events-auto mt-1.5 max-h-1/2 w-fit max-w-1/2 shrink-0 overflow-y-auto rounded-md bg-background px-1.5">
+						<div {...stylex.props(styles.legend)}>
 							<Legend items={legend} vertical roles={view === '3d'} />
 						</div>
 					)}
 					{unbound && view === '3d' && <SceneControls view="3d" visible={controls.visible} />}
 				</div>
-				{/* Along the bottom, letting drags between the controls through to the 3D view */}
-				<div className="pointer-events-none absolute inset-x-1.5 bottom-1.5 flex items-end gap-2 *:pointer-events-auto">
+				<div {...stylex.props(styles.controls)}>
 					<ViewToggle
+						className={stylex.props(styles.control).className}
 						view={view}
 						onChange={(next) => {
 							controls.input();
@@ -128,16 +190,15 @@ export function Robot({ bindings, options, setOption }: WidgetProps) {
 						}}
 					/>
 					{view === '3d' && robotNote !== undefined && (
-						<span className="flex min-w-0 items-center gap-2 rounded-md bg-background px-1.5 text-muted-foreground text-xs">
-							{robotNote}
-						</span>
+						<span {...stylex.props(styles.control, styles.note)}>{robotNote}</span>
 					)}
 					{view === '3d' && (
 						<Button
 							label="Reset view"
 							icon={<HouseIcon />}
 							size="sm"
-							className="ms-auto capture-invisible"
+							xstyle={[styles.control, styles.reset]}
+							className="capture-invisible"
 							onClick={() => {
 								controls.input();
 								scene.current?.reset();

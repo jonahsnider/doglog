@@ -2,6 +2,8 @@ import ChevronLeftIcon from 'lucide-react/icons/chevron-left';
 import ChevronRightIcon from 'lucide-react/icons/chevron-right';
 import PauseIcon from 'lucide-react/icons/pause';
 import PlayIcon from 'lucide-react/icons/play';
+import { colorVars, spacingVars, typeScaleVars, typographyVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode, type RefObject, useEffect, useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { IconButton } from '@astryxdesign/core/IconButton';
@@ -9,6 +11,26 @@ import { Slider } from '@astryxdesign/core/Slider';
 import { formatTime } from '@/timeline/timeline';
 import type { Player } from '@/widgets/video/player';
 import { frameLength } from '@/widgets/video/state';
+
+const styles = stylex.create({
+	bar: {
+		display: 'flex',
+		flexWrap: 'wrap',
+		alignItems: 'center',
+		columnGap: spacingVars['--spacing-2'],
+		rowGap: spacingVars['--spacing-1'],
+		padding: spacingVars['--spacing-2'],
+	},
+	time: {
+		color: colorVars['--color-text-secondary'],
+		fontFamily: typographyVars['--font-family-code'],
+		fontSize: typeScaleVars['--text-supporting-size'],
+		fontVariantNumeric: 'tabular-nums',
+		lineHeight: '1rem',
+	},
+	scrubber: { minWidth: '6rem', flex: 1 },
+	actions: { display: 'flex', alignItems: 'center', gap: spacingVars['--spacing-1'] },
+});
 
 /** Sync mode's controls under the video: its own playback and scrubber, and buttons to lock or cancel the sync */
 export function SyncBar({
@@ -64,7 +86,7 @@ export function SyncBar({
 	};
 
 	return (
-		<div role="toolbar" aria-label="Sync video" className="flex flex-wrap items-center gap-x-2 gap-y-1 p-2">
+		<div role="toolbar" aria-label="Sync video" {...stylex.props(styles.bar)}>
 			<SyncBarButton
 				label={playing ? 'Pause video' : 'Play video'}
 				icon={playing ? <PauseIcon /> : <PlayIcon />}
@@ -80,8 +102,8 @@ export function SyncBar({
 				icon={<ChevronRightIcon />}
 				onClick={() => seek((player.current?.time() ?? time) + frameLength)}
 			/>
-			<span className="font-mono text-xs text-muted-foreground tabular-nums">{formatTime(time * 1_000_000, 0)}</span>
-			<div className="min-w-24 flex-1">
+			<span {...stylex.props(styles.time)}>{formatTime(time * 1_000_000, 0)}</span>
+			<div {...stylex.props(styles.scrubber)}>
 				<Slider
 					label="Video time"
 					isLabelHidden
@@ -95,7 +117,7 @@ export function SyncBar({
 					onChange={(value: number) => seek(value)}
 				/>
 			</div>
-			<div className="flex items-center gap-1">
+			<div {...stylex.props(styles.actions)}>
 				<Button label="Cancel" variant="ghost" size="sm" onClick={onCancel} />
 				<Button
 					label="Save"

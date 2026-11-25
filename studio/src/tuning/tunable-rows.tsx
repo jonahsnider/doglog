@@ -1,9 +1,18 @@
 import { Switch } from '@astryxdesign/core/Switch';
 import { TextInput } from '@astryxdesign/core/TextInput';
+import {
+	colorVars,
+	fontWeightVars,
+	spacingVars,
+	textSizeVars,
+	typographyVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { Fragment, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { TextMorph } from '@/components/text-morph';
 import { inferUnit } from '@/data/units';
 import { roundText } from '@/tuning/expression';
+import { tunableStyles } from '@/tuning/tunable-styles';
 import {
 	currentValue,
 	defaultValue,
@@ -32,14 +41,48 @@ export type Editing = {
 	commit: (tunable: Tunable) => void;
 };
 
-export const rowClassName = 'tunable-row';
+const styles = stylex.create({
+	warning: { color: colorVars['--color-text-warning'] },
+	switch: { justifySelf: 'end' },
+	field: {
+		fontFamily: typographyVars['--font-family-code'],
+		fontVariantNumeric: 'tabular-nums',
+	},
+	// Staged values stand out from what the robot has
+	changed: { borderColor: colorVars['--color-accent'] },
+	scalarRow: {
+		display: 'grid',
+		gridTemplateColumns: 'minmax(0, 1fr) auto 7.5rem 3.75rem',
+	},
+	heading: {
+		position: 'sticky',
+		top: 0,
+		zIndex: 1,
+		display: 'flex',
+		alignItems: 'center',
+		gap: spacingVars['--spacing-2'],
+		margin: 0,
+		paddingTop: spacingVars['--spacing-3'],
+		paddingInline: spacingVars['--spacing-1-5'],
+		paddingBottom: spacingVars['--spacing-1'],
+		backgroundColor: colorVars['--color-background-surface'],
+		fontFamily: typographyVars['--font-family-heading'],
+		fontSize: textSizeVars['--font-size-base'],
+		fontWeight: fontWeightVars['--font-weight-semibold'],
+	},
+	path: { flex: 1, minWidth: 0 },
+	parents: {
+		fontWeight: fontWeightVars['--font-weight-medium'],
+		color: colorVars['--color-text-secondary'],
+	},
+});
 
 type Note = { text: string; warning?: boolean; morphKey?: string };
 
 /** Notes about a value or the widget, separated by commas, `false` ones are left out */
-export function Notes({ notes, className }: { notes: readonly (Note | false)[]; className?: string }) {
+export function Notes({ notes, xstyle }: { notes: readonly (Note | false)[]; xstyle?: stylex.StyleXStyles }) {
 	return (
-		<span className={className}>
+		<span {...stylex.props(xstyle)}>
 			{notes
 				.filter((note) => note !== false)
 				.map(({ text, warning, morphKey }, index) => {
@@ -47,7 +90,7 @@ export function Notes({ notes, className }: { notes: readonly (Note | false)[]; 
 					return (
 						<Fragment key={morphKey ?? text}>
 							{index > 0 && ', '}
-							<Label className={warning === true ? 'tunable-warning' : undefined}>{text}</Label>
+							<Label {...stylex.props(warning === true && styles.warning)}>{text}</Label>
 						</Fragment>
 					);
 				})}
@@ -92,7 +135,7 @@ export function ValueField({
 	}, [focused]);
 	if (tunable.scalarType === 'boolean') {
 		return (
-			<div className="justify-self-end">
+			<div {...stylex.props(styles.switch)}>
 				<Switch
 					label={label}
 					isLabelHidden
@@ -122,9 +165,10 @@ export function ValueField({
 			placeholder={placeholder}
 			isDisabled={!tunable.mutable}
 			hasSpellCheck={false}
-			containerClassName="tunable-field"
+			containerXstyle={styles.field}
 			// An invalid value shows as invalid instead
-			controlClassName={changed && value !== undefined ? 'tunable-field-changed' : undefined}
+			controlXstyle={changed && value !== undefined && styles.changed}
+			data-tunable-field
 			value={focused || tunable.scalarType === 'string' ? text : roundText(text)}
 			onChange={onTextChange}
 			onFocus={(event) => {
@@ -164,12 +208,12 @@ export function ScalarRow({ tunable, editing }: { tunable: Tunable; editing: Edi
 		tunable.scalarType === 'string' || tunable.scalarType === 'boolean' ? undefined : inferUnit(tunable.entry);
 	const applied = formatTunableValue(current, { rounded: true });
 	return (
-		<div className={`grid grid-cols-[minmax(0,1fr)_auto_7.5rem_3.75rem] ${rowClassName}`}>
-			<span className="truncate" title={name}>
+		<div {...stylex.props(tunableStyles.row, styles.scalarRow)}>
+			<span title={name} {...stylex.props(tunableStyles.truncate)}>
 				{tunable.label}
 			</span>
 			<Notes
-				className="tunable-code"
+				xstyle={tunableStyles.code}
 				notes={[
 					isExpression(tunable, text, value) && { text: `= ${formatTunableValue(value, { rounded: true })}` },
 					isStaged &&
@@ -189,7 +233,7 @@ export function ScalarRow({ tunable, editing }: { tunable: Tunable; editing: Edi
 				placeholder={formatTunableValue(defaultValue(tunable))}
 				onTextChange={(next) => editing.edit(tunable, next)}
 			/>
-			<span className="tunable-code truncate">{unit?.label}</span>
+			<span {...stylex.props(tunableStyles.code, tunableStyles.truncate)}>{unit?.label}</span>
 		</div>
 	);
 }
@@ -198,9 +242,9 @@ export function ScalarRow({ tunable, editing }: { tunable: Tunable; editing: Edi
 export function SectionHeading({ table, title, children }: { table: string; title?: string; children?: ReactNode }) {
 	const segments = table.split('/');
 	return (
-		<h3 className="tunable-section-heading" title={title}>
-			<span className="tunable-section-path">
-				{segments.length > 1 && <span className="tunable-section-parents">{segments.slice(0, -1).join(' / ')} / </span>}
+		<h3 title={title} {...stylex.props(styles.heading)}>
+			<span {...stylex.props(styles.path, tunableStyles.truncate)}>
+				{segments.length > 1 && <span {...stylex.props(styles.parents)}>{segments.slice(0, -1).join(' / ')} / </span>}
 				{segments.at(-1)}
 			</span>
 			{children}

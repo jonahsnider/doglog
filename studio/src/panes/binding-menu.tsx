@@ -1,3 +1,5 @@
+import { radiusVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import type { MenuEntry } from '@/components/app-context-menu';
 import { updateLayout } from '@/dashboards/panes';
 import { widgetDestinationItems } from '@/entries/entry-menu';
@@ -17,6 +19,15 @@ import { seriesColor } from '@/widgets/series-color';
 import { widgetOptions } from '@/widgets/widget-info';
 import type { WidgetBinding } from '@/widgets/widget-type';
 
+const styles = stylex.create({
+	swatch: {
+		width: 12,
+		height: 12,
+		borderRadius: radiusVars['--radius-full'],
+	},
+	color: (color: string) => ({ backgroundColor: color }),
+});
+
 const roleMenuLabels: Partial<Record<string, string>> = {
 	graph: 'Placement',
 	robot: 'Mechanism plane',
@@ -28,7 +39,7 @@ const colorChoices = [
 	...Array.from({ length: chartCount }, (_, index) => ({
 		value: String(index),
 		label: `Color ${index + 1}`,
-		icon: <span aria-hidden className="size-3 rounded-full" style={{ background: seriesColor(index) }} />,
+		icon: <span aria-hidden {...stylex.props(styles.swatch, styles.color(seriesColor(index)))} />,
 	})),
 ];
 

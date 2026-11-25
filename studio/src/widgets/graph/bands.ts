@@ -66,7 +66,13 @@ export function placeGaps(container: HTMLDivElement, gaps: readonly TimeRange[],
 	const visible = gaps.filter((gap) => gap.end > view.start && gap.start < view.end);
 	while (container.childElementCount < visible.length) {
 		const span = document.createElement('div');
-		span.className = 'absolute inset-y-0 left-0 bg-muted-foreground/12';
+		Object.assign(span.style, {
+			position: 'absolute',
+			top: '0',
+			bottom: '0',
+			left: '0',
+			backgroundColor: 'color-mix(in srgb, var(--color-text-secondary) 12%, transparent)',
+		});
 		container.append(span);
 	}
 	while (container.childElementCount > visible.length) {

@@ -4,6 +4,7 @@ import { VStack } from '@astryxdesign/core/Layout';
 import { NumberInput } from '@astryxdesign/core/NumberInput';
 import { Popover } from '@astryxdesign/core/Popover';
 import { Text } from '@astryxdesign/core/Text';
+import * as stylex from '@stylexjs/stylex';
 import Settings2Icon from 'lucide-react/icons/settings-2';
 import { use, useRef, useState } from 'react';
 import { WidgetBindingsContext } from '@/entries/drag';
@@ -11,6 +12,11 @@ import { CameraPicker } from '@/widgets/camera/options';
 import { useCameraFeed } from '@/widgets/camera/use-camera-feed';
 import { defaultCameraFov, type CameraImage } from '@/three/camera-frustum';
 import type { WidgetBinding } from '@/widgets/widget-type';
+
+const styles = stylex.create({
+	status: { display: 'flex', minWidth: 0 },
+	options: { flexShrink: 0 },
+});
 
 export function FieldCameraEntry({
 	binding,
@@ -52,7 +58,7 @@ export function FieldCameraEntry({
 		}[status];
 	return (
 		<>
-			<span className="flex min-w-0" role="status">
+			<span {...stylex.props(styles.status)} role="status">
 				<Text type="supporting" color="secondary" display="block" maxLines={1}>
 					{label}
 				</Text>
@@ -108,7 +114,7 @@ export function FieldCameraEntry({
 					icon={<Settings2Icon />}
 					variant="ghost"
 					size="sm"
-					className="shrink-0"
+					xstyle={styles.options}
 				/>
 			</Popover>
 		</>

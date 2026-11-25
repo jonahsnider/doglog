@@ -4,6 +4,7 @@ import {
 	DropdownMenuRadioGroup,
 	DropdownMenuRadioItem,
 } from '@astryxdesign/core/DropdownMenu';
+import * as stylex from '@stylexjs/stylex';
 import ChevronDownIcon from 'lucide-react/icons/chevron-down';
 import { use } from 'react';
 import { WidgetBindingsContext } from '@/entries/drag';
@@ -13,6 +14,11 @@ import { widgetOptions } from '@/widgets/widget-info';
 import type { WidgetBinding } from '@/widgets/widget-type';
 
 const { choices } = widgetOptions.robot.robot;
+
+const styles = stylex.create({
+	label: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+	chevron: { flexShrink: 0, width: 12, height: 12 },
+});
 
 /**
  * Picks the binding's role and the robot it's drawn as in one menu, ex. `581 Comp Bot (ghost)`, with the robot
@@ -24,13 +30,15 @@ export function RobotPicker({ binding, robot }: { binding: WidgetBinding; robot:
 	return (
 		<LegendMenu
 			label={`Show ${binding.name} as`}
+			// The robot's name is truncated in narrow legends, ex. the field's in 3D, instead of overflowing it
+			isShrinkable
 			trigger={
 				<>
-					<span className="truncate">
+					<span {...stylex.props(styles.label)}>
 						{choices.find((choice) => choice.id === robot)?.label ?? robot}
 						{binding.role?.id === 'ghost' && ' (ghost)'}
 					</span>
-					<ChevronDownIcon className="size-3 shrink-0" />
+					<ChevronDownIcon {...stylex.props(styles.chevron)} />
 				</>
 			}
 		>

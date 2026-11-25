@@ -1,5 +1,6 @@
 import type { Draggable, Droppable } from '@dnd-kit/dom';
 import { useDragDropMonitor } from '@dnd-kit/react';
+import * as stylex from '@stylexjs/stylex';
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Group, type Layout, useGroupRef } from 'react-resizable-panels';
 import { PaneView, type PaneNodeProps } from '@/panes/pane-view';
@@ -21,6 +22,10 @@ import { dividerSize, minNodeSize, minPaneSizeIn } from '@/panes/pane-size';
 import { SplitPanel, type SplitPanelAnimation } from '@/panes/split-panel';
 import { closingSplit, percentages, type SplitAnimation, splitAnimation } from '@/panes/split-animation';
 import { useZoomAnimation } from '@/panes/zoom-animation';
+
+const styles = stylex.create({
+	panes: { height: '100%' },
+});
 
 export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 	const { layout } = dashboard;
@@ -53,7 +58,7 @@ export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 	});
 
 	return (
-		<div ref={container} className="h-full" data-dashboard-panes data-zooming={zooming || undefined}>
+		<div ref={container} {...stylex.props(styles.panes)} data-dashboard-panes data-zooming={zooming || undefined}>
 			<DashboardLayoutContext value={layout}>
 				<PaneNodeView
 					dashboardId={dashboard.id}

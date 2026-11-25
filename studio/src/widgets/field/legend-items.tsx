@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import BoxesIcon from 'lucide-react/icons/boxes';
 import SplineIcon from 'lucide-react/icons/spline';
 import type { Mechanism } from '@/data/mechanism';
@@ -7,9 +8,13 @@ import type { LegendItem } from '@/widgets/legend/legend';
 import { bindingColor } from '@/widgets/series-color';
 import type { WidgetBinding } from '@/widgets/widget-type';
 
+const styles = stylex.create({
+	icon: { width: 14, height: 14 },
+});
+
 // Like the robot widget's legend, parts and mechanisms aren't drawn in the binding's color
-const mechanismIcon = <SplineIcon className="size-3.5" />;
-const partsIcon = <BoxesIcon className="size-3.5" />;
+const mechanismIcon = <SplineIcon {...stylex.props(styles.icon)} />;
+const partsIcon = <BoxesIcon {...stylex.props(styles.icon)} />;
 
 /**
  * The field's legend in either view. In 3D, robots and ghosts show the robot they're drawn as, which can be picked

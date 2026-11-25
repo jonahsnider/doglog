@@ -1,3 +1,13 @@
+import {
+	colorVars,
+	fontWeightVars,
+	radiusVars,
+	shadowVars,
+	spacingVars,
+	typeScaleVars,
+	typographyVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { useSyncExternalStore } from 'react';
 import { type Entry, subscribeData, type TimeRange } from '@/data/data-store';
 import { EntryName } from '@/entries/entry-name';
@@ -7,6 +17,71 @@ import { changeAcross } from '@/widgets/graph/format';
 import { useViewRange } from '@/widgets/graph/view';
 import { bindingColor } from '@/widgets/series-color';
 import type { WidgetBinding } from '@/widgets/widget-type';
+
+const styles = stylex.create({
+	selection: {
+		pointerEvents: 'none',
+		position: 'absolute',
+		top: 0,
+		bottom: 0,
+		borderInlineWidth: 1,
+		borderBlockWidth: 0,
+		borderStyle: 'solid',
+		borderColor: colorVars['--color-accent'],
+		backgroundColor: `color-mix(in srgb, ${colorVars['--color-accent']} 10%, transparent)`,
+	},
+	label: {
+		position: 'absolute',
+		top: spacingVars['--spacing-1'],
+		left: '50%',
+		zIndex: 10,
+		translate: '-50% 0',
+		borderRadius: radiusVars['--radius-element'],
+		borderWidth: 1,
+		borderStyle: 'solid',
+		borderColor: colorVars['--color-border'],
+		backgroundColor: colorVars['--color-background-popover'],
+		paddingInline: spacingVars['--spacing-2'],
+		paddingBlock: spacingVars['--spacing-1-5'],
+		fontSize: typeScaleVars['--text-supporting-size'],
+		lineHeight: '1rem',
+		whiteSpace: 'nowrap',
+		color: colorVars['--color-text-primary'],
+		boxShadow: shadowVars['--shadow-med'],
+	},
+	duration: {
+		fontWeight: fontWeightVars['--font-weight-medium'],
+		fontVariantNumeric: 'tabular-nums',
+	},
+	changes: {
+		display: 'grid',
+		gridTemplateColumns: 'auto minmax(0, auto) auto',
+		alignItems: 'center',
+		columnGap: spacingVars['--spacing-2'],
+		rowGap: spacingVars['--spacing-0-5'],
+		marginTop: { default: spacingVars['--spacing-1'], ':empty': 0 },
+	},
+	row: {
+		display: 'contents',
+	},
+	dot: {
+		width: 8,
+		height: 8,
+		borderRadius: radiusVars['--radius-full'],
+	},
+	name: {
+		maxWidth: '16rem',
+		overflow: 'hidden',
+		textOverflow: 'ellipsis',
+		whiteSpace: 'nowrap',
+		fontFamily: typographyVars['--font-family-code'],
+	},
+	change: {
+		textAlign: 'end',
+		fontFamily: typographyVars['--font-family-code'],
+		fontVariantNumeric: 'tabular-nums',
+	},
+});
 
 /** The range selected to measure, labeled with its duration and each plotted entry's change across it */
 export function RangeSelection({
@@ -29,13 +104,10 @@ export function RangeSelection({
 		return undefined;
 	}
 	return (
-		<div
-			className="pointer-events-none absolute inset-y-0 border-x border-primary bg-primary/10"
-			style={{ left: `${left * 100}%`, width: `${(right - left) * 100}%` }}
-		>
-			<div className="absolute top-1 left-1/2 z-10 -translate-x-1/2 rounded-md border bg-popover px-2 py-1.5 text-xs whitespace-nowrap text-popover-foreground shadow-md">
-				<div className="font-medium tabular-nums">{formatDuration(selection.end - selection.start)}</div>
-				<div className="grid grid-cols-[auto_minmax(0,auto)_auto] items-center gap-x-2 gap-y-0.5 not-empty:mt-1">
+		<div {...stylex.props(styles.selection)} style={{ left: `${left * 100}%`, width: `${(right - left) * 100}%` }}>
+			<div {...stylex.props(styles.label)}>
+				<div {...stylex.props(styles.duration)}>{formatDuration(selection.end - selection.start)}</div>
+				<div {...stylex.props(styles.changes)}>
 					{plotted.map((binding, index) =>
 						binding.entry && !binding.hidden ? (
 							<SelectionChange
@@ -66,12 +138,12 @@ function SelectionChange({
 }) {
 	const change = useSyncExternalStore(subscribeData, () => changeAcross(entry, selection, unit));
 	return change === undefined ? undefined : (
-		<div className="contents">
-			<span className="size-2 rounded-full" style={{ background: color }} />
-			<span className="max-w-64 truncate font-mono">
+		<div {...stylex.props(styles.row)}>
+			<span {...stylex.props(styles.dot)} style={{ background: color }} />
+			<span {...stylex.props(styles.name)}>
 				<EntryName name={entry.name} />
 			</span>
-			<span className="text-end font-mono tabular-nums">Δ {change}</span>
+			<span {...stylex.props(styles.change)}>Δ {change}</span>
 		</div>
 	);
 }

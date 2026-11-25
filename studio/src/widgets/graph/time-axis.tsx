@@ -1,8 +1,10 @@
+import { colorVars, radiusVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { memo, useRef, useState } from 'react';
 import { useResizeObserver } from 'usehooks-ts';
 import { useTimeRange } from '@/data/data-store';
-import { cn } from '@/lib/utils';
-import { modeColors } from '@/timeline/colors';
+
+import { modeFills } from '@/timeline/colors';
 import { getActiveCompressedSpans, getModePeriods } from '@/timeline/events';
 import { useSettings } from '@/settings';
 import { formatTick, timeTicks } from '@/widgets/graph/ticks';
@@ -10,6 +12,52 @@ import { useViewRange } from '@/widgets/graph/view';
 
 /** Labels closer than this to an edge are aligned to it instead of centered, so they aren't cut off */
 const edgeLabelPixels = 24;
+
+const styles = stylex.create({
+	axis: {
+		position: 'relative',
+		height: '1.5rem',
+		flexShrink: 0,
+	},
+	fill: {
+		position: 'absolute',
+		inset: 0,
+	},
+	strip: {
+		position: 'absolute',
+		insetInline: 0,
+		top: 0,
+		height: 4,
+		overflow: 'hidden',
+		borderRadius: radiusVars['--radius-full'],
+		backgroundColor: colorVars['--color-background-muted'],
+	},
+	span: {
+		position: 'absolute',
+		top: 0,
+		bottom: 0,
+	},
+
+	compressed: {
+		backgroundColor: colorVars['--color-background-surface'],
+		backgroundImage: `repeating-linear-gradient(-45deg, ${colorVars['--color-border']} 0 2px, transparent 2px 4px)`,
+	},
+	tick: {
+		position: 'absolute',
+		top: 6,
+		fontSize: typeScaleVars['--text-supporting-size'],
+		lineHeight: '1rem',
+		whiteSpace: 'nowrap',
+		color: colorVars['--color-text-secondary'],
+		fontVariantNumeric: 'tabular-nums',
+	},
+	center: {
+		translate: '-50% 0',
+	},
+	end: {
+		translate: '-100% 0',
+	},
+});
 
 /** The robot's mode in the timeline's colors, with the spans it compresses hatched, then times labeled like the timeline */
 export const TimeAxis = memo(function TimeAxis({ leftInset, rightInset }: { leftInset: number; rightInset: number }) {
@@ -32,28 +80,20 @@ export const TimeAxis = memo(function TimeAxis({ leftInset, rightInset }: { left
 		return right <= left ? undefined : { left: `${left}%`, width: `${right - left}%` };
 	};
 	return (
-		<div className="relative h-6 shrink-0" style={{ marginLeft: leftInset, marginRight: rightInset }}>
-			<div ref={element} className="absolute inset-0">
-				<div className="absolute inset-x-0 top-0 h-1 overflow-hidden rounded-full bg-muted">
+		<div {...stylex.props(styles.axis)} style={{ marginLeft: leftInset, marginRight: rightInset }}>
+			<div ref={element} {...stylex.props(styles.fill)}>
+				<div {...stylex.props(styles.strip)}>
 					{periods.map((period) => {
-						const color = modeColors[period.mode];
+						const color = modeFills[period.mode];
 						const style = placed(period.start, period.end);
 						return color === undefined || !style ? null : (
-							<div key={period.start} className={cn('absolute inset-y-0', color)} style={style} />
+							<div key={period.start} {...stylex.props(styles.span)} style={{ ...style, backgroundColor: color }} />
 						);
 					})}
 					{/* Like the timeline, so it's clear which spans it skips through */}
 					{compressed.map((span) => {
 						const style = placed(span.start, span.end);
-						return (
-							style && (
-								<div
-									key={span.start}
-									className="absolute inset-y-0 bg-background bg-[image:repeating-linear-gradient(-45deg,var(--color-input)_0_2px,transparent_2px_4px)]"
-									style={style}
-								/>
-							)
-						);
+						return style && <div key={span.start} {...stylex.props(styles.span, styles.compressed)} style={style} />;
 					})}
 				</div>
 				{ticks?.times.map((time) => {
@@ -62,11 +102,7 @@ export const TimeAxis = memo(function TimeAxis({ leftInset, rightInset }: { left
 					return (
 						<span
 							key={time}
-							className={cn(
-								'absolute top-1.5 text-xs whitespace-nowrap text-muted-foreground tabular-nums',
-								align === 'center' && '-translate-x-1/2',
-								align === 'end' && '-translate-x-full',
-							)}
+							{...stylex.props(styles.tick, align === 'center' && styles.center, align === 'end' && styles.end)}
 							style={{ left: x }}
 						>
 							{formatTick(time, range!.start, ticks.spacing)}

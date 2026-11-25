@@ -1,15 +1,17 @@
 import { Avatar } from '@astryxdesign/core/Avatar';
 import { AvatarGroup, AvatarGroupOverflow } from '@astryxdesign/core/AvatarGroup';
 import fnv1a from '@sindresorhus/fnv1a';
+import { spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { TextMorph } from '@/components/text-morph';
-import { cn } from '@/lib/utils';
 import { type PresentSession, usePresence } from '@/sharing/presence';
 import { chartCount } from '@/theme/choices';
 import { seriesColor } from '@/widgets/series-color';
 import './presence-avatars.css';
 
 const styles = stylex.create({
+	group: { display: 'flex' },
+	pane: { marginInlineEnd: spacingVars['--spacing-1'] },
 	// Each user's color follows the theme and contrasts equally with the background, see presence-avatars.css
 	color: (color: string) => ({
 		backgroundColor: color,
@@ -34,21 +36,31 @@ function userColor(userId: string): string {
 }
 
 /** Other users in a shared dashboard or pane. Sessions other than each user's active one are grayed out. */
-function PresenceAvatars({ sessions, className }: { sessions: readonly PresentSession[]; className?: string }) {
+function PresenceAvatars({
+	sessions,
+	xstyle,
+	className,
+}: {
+	sessions: readonly PresentSession[];
+	xstyle?: stylex.StyleXStyles;
+	/** Global hooks, ex. `capture-invisible` */
+	className?: string;
+}) {
 	if (sessions.length === 0) {
 		return null;
 	}
 
 	// One more avatar would take the count's place
 	const shown = sessions.length > maxShown + 1 ? sessions.slice(0, maxShown) : sessions;
+	const sx = stylex.props(styles.group, xstyle);
 	return (
-		<div className={cn('flex', className)}>
+		<div {...sx} className={className === undefined ? sx.className : `${sx.className} ${className}`}>
 			<AvatarGroup size="xsm">
 				{shown.map((session) => (
 					<Avatar
 						key={session.sessionId}
 						name={session.name}
-						className="presence-avatar"
+						data-presence-avatar
 						tooltip={session.active ? session.name : `${session.name} (inactive)`}
 						xstyle={[styles.avatar, styles.color(userColor(session.userId)), !session.active && styles.inactive]}
 					/>
@@ -68,11 +80,11 @@ function PresenceAvatars({ sessions, className }: { sessions: readonly PresentSe
 /** Other users whose last interaction in a shared dashboard was with this pane */
 export function PanePresence({ dashboardId, paneId }: { dashboardId: string; paneId: string }) {
 	const sessions = usePresence(dashboardId).filter((session) => session.paneId === paneId);
-	return <PresenceAvatars sessions={sessions} className="capture-invisible me-1" />;
+	return <PresenceAvatars sessions={sessions} xstyle={styles.pane} className="capture-invisible" />;
 }
 
 /** Other users in a shared dashboard, once each, active if any of their sessions in it is */
-export function DashboardPresence({ dashboardId, className }: { dashboardId: string; className?: string }) {
+export function DashboardPresence({ dashboardId }: { dashboardId: string }) {
 	const sessions = usePresence(dashboardId);
 	const users = new Map<string, PresentSession>();
 	for (const session of sessions) {
@@ -81,5 +93,5 @@ export function DashboardPresence({ dashboardId, className }: { dashboardId: str
 			users.set(session.userId, session);
 		}
 	}
-	return <PresenceAvatars sessions={[...users.values()]} className={className} />;
+	return <PresenceAvatars sessions={[...users.values()]} />;
 }

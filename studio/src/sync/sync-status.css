@@ -1,0 +1,10 @@
+/* Long titles wrap, the text morph keeps its text on one line otherwise */
+[torph-root][data-sync-title] {
+	max-width: 100%;
+	vertical-align: bottom;
+	white-space: normal;
+	overflow-wrap: anywhere;
+}
+[data-sync-title] > [torph-item] {
+	max-width: 100%;
+}

@@ -1,9 +1,31 @@
 import { HStack } from '@astryxdesign/core/Layout';
 import { ProgressBar } from '@astryxdesign/core/ProgressBar';
 import { Text } from '@astryxdesign/core/Text';
+import * as stylex from '@stylexjs/stylex';
 import { TextMorph } from '@/components/text-morph';
 import { useSettings } from '@/settings';
 import './themed-progress-bar.css';
+
+const styles = stylex.create({
+	bar: {
+		flex: 1,
+		minWidth: 0,
+	},
+	label: {
+		maxWidth: '33%',
+	},
+	track: {
+		flex: 1,
+		minWidth: 0,
+	},
+	// Fits 100% without the row moving as the number changes
+	value: {
+		flexShrink: 0,
+		width: '2.5rem',
+		textAlign: 'end',
+		fontVariantNumeric: 'tabular-nums',
+	},
+});
 
 /**
  * A progress bar with its label and percentage on the same row, so it fits in the timeline bar and Monte has room to
@@ -12,11 +34,11 @@ import './themed-progress-bar.css';
 export function ThemedProgressBar({ label, value }: { label: string; value: number | undefined }) {
 	const { themePreset } = useSettings();
 	return (
-		<HStack gap={3} vAlign="center" className="themed-progress-bar">
-			<Text type="supporting" color="secondary" maxLines={1} className="themed-progress-bar-label">
+		<HStack gap={3} vAlign="center" xstyle={styles.bar}>
+			<Text type="supporting" color="secondary" maxLines={1} xstyle={styles.label}>
 				{label}
 			</Text>
-			<div className="themed-progress-bar-track" data-mascot={themePreset === 'match13' || undefined}>
+			<div data-progress-mascot={themePreset === 'match13' || undefined} {...stylex.props(styles.track)}>
 				<ProgressBar
 					label={label}
 					isLabelHidden
@@ -25,7 +47,7 @@ export function ThemedProgressBar({ label, value }: { label: string; value: numb
 				/>
 			</div>
 			{value !== undefined && (
-				<Text type="code" color="secondary" className="themed-progress-bar-value">
+				<Text type="code" color="secondary" xstyle={styles.value}>
 					<TextMorph>{`${Math.round(value * 100)}%`}</TextMorph>
 				</Text>
 			)}

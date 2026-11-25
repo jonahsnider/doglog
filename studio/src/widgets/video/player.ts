@@ -1,3 +1,4 @@
+import * as stylex from '@stylexjs/stylex';
 import type { Ref } from 'react';
 
 /** Controls for a playing video, times in seconds */
@@ -32,5 +33,7 @@ export type PlayerProps = {
 	onInfo: (info: PlayerInfo) => void;
 };
 
-/** How a video fits its pane */
-export const videoClassName = 'size-full object-contain';
+export const videoStyles = stylex.create({
+	/** How a video fits its pane */
+	fit: { width: '100%', height: '100%', objectFit: 'contain' },
+});

@@ -1,7 +1,73 @@
+import {
+	colorVars,
+	fontWeightVars,
+	radiusVars,
+	spacingVars,
+	textSizeVars,
+	typeScaleVars,
+	typographyVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
+import { focusOutlineProps } from '@astryxdesign/core/utils/focusOutline.stylex';
+import * as stylex from '@stylexjs/stylex';
 import LayoutDashboardIcon from 'lucide-react/icons/layout-dashboard';
 import MoveIcon from 'lucide-react/icons/move';
-import { cn } from '@/lib/utils';
+import { paneTitleMarker } from './markers.stylex';
 import { bindsEntries, type WidgetType } from '@/widgets/widget-type';
+
+const styles = stylex.create({
+	title: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: spacingVars['--spacing-1-5'],
+		minWidth: 0,
+		marginInlineStart: `calc(${spacingVars['--spacing-1']} * -1)`,
+		paddingBlock: spacingVars['--spacing-0-5'],
+		paddingInline: spacingVars['--spacing-1'],
+		borderRadius: radiusVars['--radius-element'],
+		fontSize: typeScaleVars['--text-supporting-size'],
+		lineHeight: '1rem',
+		fontWeight: fontWeightVars['--font-weight-medium'],
+		color: colorVars['--color-text-secondary'],
+		transitionProperty: 'color, background-color',
+		transitionDuration: '100ms',
+		transitionTimingFunction: 'var(--ease-in-out)',
+	},
+	movable: {
+		backgroundColor: { default: null, ':hover': colorVars['--color-overlay-hover'] },
+		color: { default: colorVars['--color-text-secondary'], ':hover': colorVars['--color-text-primary'] },
+	},
+	dragged: {
+		backgroundColor: colorVars['--color-overlay-hover'],
+		color: colorVars['--color-text-primary'],
+	},
+	icon: {
+		flexShrink: 0,
+		width: 14,
+		height: 14,
+	},
+	// The widget's icon makes way for the move icon while the title is hovered or dragged
+	movableIcon: {
+		display: { default: null, [stylex.when.ancestor(':hover', paneTitleMarker)]: 'none' },
+	},
+	moveIcon: {
+		display: { default: 'none', [stylex.when.ancestor(':hover', paneTitleMarker)]: 'block' },
+	},
+	draggedIcon: {
+		display: 'none',
+	},
+	draggedMoveIcon: {
+		display: 'block',
+	},
+	// Source Sans 3 is smaller than IBM Plex Sans, so it's a size up, keeping the line height so the header doesn't grow
+	name: {
+		overflow: 'hidden',
+		textOverflow: 'ellipsis',
+		whiteSpace: 'nowrap',
+		fontFamily: typographyVars['--font-family-heading'],
+		fontSize: textSizeVars['--font-size-base'],
+		lineHeight: '1rem',
+	},
+});
 
 /**
  * Panes are dragged by their title, which shows a move icon and a background while hovered or dragged. Empty panes, which have no name, get one too so they can be dragged.
@@ -27,24 +93,21 @@ export function PaneTitle({
 	return (
 		<span
 			ref={dragRef}
-			data-dragging={isDragging || undefined}
 			onDoubleClick={type && bindsEntries(type) ? onEdit : undefined}
-			className={cn(
-				'group/title -ms-1 flex min-w-0 items-center gap-1.5 rounded-md px-1 py-0.5 text-xs font-medium text-muted-foreground outline-none transition-colors duration-100 focus-visible:ring-2 focus-visible:ring-ring',
-				movable &&
-					'hover:bg-accent hover:text-accent-foreground data-dragging:bg-accent data-dragging:text-accent-foreground',
+			{...focusOutlineProps.focusVisible(
+				paneTitleMarker,
+				styles.title,
+				movable && styles.movable,
+				movable && isDragging && styles.dragged,
 			)}
 		>
 			{Icon && (
 				<Icon
-					className={cn('size-3.5 shrink-0', movable && 'group-hover/title:hidden group-data-dragging/title:hidden')}
+					{...stylex.props(styles.icon, movable && styles.movableIcon, movable && isDragging && styles.draggedIcon)}
 				/>
 			)}
-			{movable && (
-				<MoveIcon className="hidden size-3.5 shrink-0 group-hover/title:block group-data-dragging/title:block" />
-			)}
-			{/* Source Sans 3 is smaller than IBM Plex Sans, so it's a size up, keeping the line height so the header doesn't grow */}
-			<span className="truncate font-heading text-sm/4">{name ?? 'Empty pane'}</span>
+			{movable && <MoveIcon {...stylex.props(styles.icon, styles.moveIcon, isDragging && styles.draggedMoveIcon)} />}
+			<span {...stylex.props(styles.name)}>{name ?? 'Empty pane'}</span>
 		</span>
 	);
 }
