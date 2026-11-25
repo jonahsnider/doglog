@@ -129,7 +129,7 @@ export function MenuEntries({ items, elements }: { items: readonly MenuEntry[]; 
 			);
 		}
 
-		const shortcut = item.shortcut ?? item.accessKey?.toUpperCase();
+		const shortcut = item.shortcut ?? (item.accessKey === undefined ? undefined : { key: item.accessKey });
 		return (
 			<DropdownMenuItem
 				key={item.label}

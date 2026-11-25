@@ -102,11 +102,9 @@ export function WidgetView({
 					label="Add entries"
 					data-edit-entries
 					className="capture-invisible"
+					endContent={<InlineShortcut hotkey={shortcuts.editEntries} />}
 					onClick={() => startEditing(dashboardId, paneId)}
-				>
-					Add entries
-					<InlineShortcut hotkey={shortcuts.editEntries} />
-				</Button>
+				/>
 				{type.id === 'graph' && <GraphControls />}
 			</WidgetEmpty>
 		);

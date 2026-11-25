@@ -2,13 +2,13 @@ import { Dialog, DialogHeader } from '@astryxdesign/core/Dialog';
 import { HStack, Layout, LayoutContent, VStack } from '@astryxdesign/core/Layout';
 import { List, ListItem } from '@astryxdesign/core/List';
 import { Text } from '@astryxdesign/core/Text';
-import { colorVars, radiusVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden';
 import * as stylex from '@stylexjs/stylex';
 import { useSelector } from '@tanstack/react-store';
 import { dashboardShortcut, redoAlternate, shortcuts } from '@/commands/commands';
 import { keyboardShortcutsDialogOpen } from '@/commands/keyboard-shortcuts-dialog-handle';
-import { Shortcut } from '@/components/shortcut';
+import { Kbd, Shortcut } from '@/components/shortcut';
 import { exportLiveShortcut } from '@/data/export-live';
 import { canCapture } from '@/desktop/capture';
 import { useSettings } from '@/settings';
@@ -178,21 +178,6 @@ const styles = stylex.create({
 		breakInside: 'avoid',
 		marginBottom: spacingVars['--spacing-4'],
 	},
-	// Kbd only shows key names, so media keys get a badge that matches its keys
-	iconKey: {
-		display: 'inline-flex',
-		alignItems: 'center',
-		gap: spacingVars['--spacing-0-5'],
-		height: spacingVars['--spacing-5'],
-		paddingInline: spacingVars['--spacing-1'],
-		borderRadius: radiusVars['--radius-inner'],
-		backgroundColor: colorVars['--color-neutral'],
-		borderBottomWidth: '2px',
-		borderBottomStyle: 'solid',
-		borderBottomColor: colorVars['--color-border-emphasized'],
-		color: colorVars['--color-text-primary'],
-		fontSize: typeScaleVars['--text-supporting-size'],
-	},
 });
 
 function KeyView({ shortcutKey }: { shortcutKey: Key }) {
@@ -200,10 +185,10 @@ function KeyView({ shortcutKey }: { shortcutKey: Key }) {
 		return <Shortcut hotkey={shortcutKey} />;
 	}
 	return (
-		<kbd {...stylex.props(styles.iconKey)}>
+		<Kbd>
 			<VisuallyHidden>{shortcutKey.name}</VisuallyHidden>
 			{shortcutKey.icon}
-		</kbd>
+		</Kbd>
 	);
 }
 
