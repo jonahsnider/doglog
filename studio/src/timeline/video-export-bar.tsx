@@ -2,20 +2,18 @@ import PauseIcon from 'lucide-react/icons/pause';
 import PlayIcon from 'lucide-react/icons/play';
 import TriangleAlertIcon from 'lucide-react/icons/triangle-exclamation-point';
 import { useHotkey } from '@tanstack/react-hotkeys';
-import { useState } from 'react';
-import { TextMorph } from '@/components/text-morph';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Progress } from '@/components/ui/progress';
-import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
+import { Button } from '@astryxdesign/core/Button';
+import { IconButton } from '@astryxdesign/core/IconButton';
+import { Tooltip } from '@astryxdesign/core/Tooltip';
+import { HStack } from '@astryxdesign/core/Layout';
+import { Text } from '@astryxdesign/core/Text';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { useTimeRange } from '@/data/data-store';
 import { cancelSaving, exitVideoExport, exportVideo, setVideoRangeEdge, useVideoExport } from '@/desktop/video-export';
-import { isEnterKey } from '@/lib/keyboard';
 import { formatDuration } from '@/timeline/format-time';
 import { formatTime, togglePlayback, useVideoRange, useTimeline } from '@/timeline/timeline';
-import { parseTime } from '@/timeline/parse-time';
-import { ThemedProgressTrack } from '@/timeline/themed-progress-track';
+import { ThemedProgressBar } from '@/timeline/themed-progress-bar';
+import { TimeField } from '@/timeline/time-field';
 import { useDashboards } from '@/dashboards/dashboards';
 import { panes, type PaneNode } from '@/panes/layout';
 import { pickedOption } from '@/widgets/options';
@@ -42,40 +40,24 @@ function VideoRangeField({
 	text: string;
 	start: number;
 }) {
-	const [invalid, setInvalid] = useState(false);
 	return (
-		<label className="flex items-center gap-1.5 text-sm text-muted-foreground">
-			{label}
-			<Input
-				size="sm"
-				className="w-22 font-mono tabular-nums [&>input]:text-right"
-				aria-invalid={invalid || undefined}
-				defaultValue={text}
-				onFocus={(event) => event.currentTarget.select()}
-				onChange={() => setInvalid(false)}
-				onBlur={(event) => {
-					const parsed = event.currentTarget.value === text ? undefined : parseTime(event.currentTarget.value, start);
-					if (parsed === undefined) {
-						event.currentTarget.value = text;
-						setInvalid(false);
-					} else {
-						setVideoRangeEdge(edge, parsed);
-					}
-				}}
-				onKeyDown={(event) => {
-					if (isEnterKey(event)) {
-						if (parseTime(event.currentTarget.value, start) === undefined) {
-							setInvalid(true);
-						} else {
-							event.currentTarget.blur();
+		<HStack gap={1.5} vAlign="center">
+			<Text type="supporting" color="secondary" aria-hidden>
+				{label}
+			</Text>
+			<div style={{ width: 88 }}>
+				<TimeField
+					label={label}
+					text={text}
+					start={start}
+					onCommit={(time) => {
+						if (time !== undefined) {
+							setVideoRangeEdge(edge, time);
 						}
-					} else if (event.key === 'Escape') {
-						event.currentTarget.value = text;
-						event.currentTarget.blur();
-					}
-				}}
-			/>
-		</label>
+					}}
+				/>
+			</div>
+		</HStack>
 	);
 }
 
@@ -110,22 +92,15 @@ export function VideoExportBar() {
 					<span className="font-mono text-sm text-muted-foreground tabular-nums">
 						{formatDuration(videoRange.end - videoRange.start)} long
 					</span>
-					<Tooltip>
-						<TooltipTrigger
-							render={
-								<Button
-									variant="ghost"
-									size="icon-sm"
-									aria-label={playback === 'paused' ? 'Preview' : 'Pause preview'}
-									onClick={togglePlayback}
-								/>
-							}
-						>
-							{playback === 'paused' ? <PlayIcon /> : <PauseIcon />}
-						</TooltipTrigger>
-						<TooltipPopup>
-							<TooltipLabel label={playback === 'paused' ? 'Preview' : 'Pause preview'} shortcut="Space" />
-						</TooltipPopup>
+					<Tooltip
+						content={<TooltipLabel label={playback === 'paused' ? 'Preview' : 'Pause preview'} shortcut="Space" />}
+					>
+						<IconButton
+							label={playback === 'paused' ? 'Preview' : 'Pause preview'}
+							icon={playback === 'paused' ? <PlayIcon /> : <PauseIcon />}
+							variant="ghost"
+							onClick={togglePlayback}
+						/>
 					</Tooltip>
 					<div className="flex-1" />
 					{youTube && (
@@ -134,25 +109,13 @@ export function VideoExportBar() {
 							<span className="truncate">YouTube videos are saved as their thumbnail</span>
 						</span>
 					)}
-					<Button variant="ghost" size="sm" onClick={() => exitVideoExport()}>
-						Cancel
-					</Button>
-					<Button size="sm" onClick={() => void exportVideo()}>
-						Save video…
-					</Button>
+					<Button label="Cancel" variant="ghost" onClick={() => exitVideoExport()} />
+					<Button label="Save video…" variant="primary" onClick={() => void exportVideo()} />
 				</>
 			) : (
 				<>
-					<span className="text-sm text-muted-foreground">Saving video</span>
-					<Progress value={Math.round(saving * 100)} aria-label="Saving video" className="flex-1">
-						<ThemedProgressTrack />
-					</Progress>
-					<span className="w-10 shrink-0 text-right font-mono text-sm text-muted-foreground tabular-nums">
-						<TextMorph>{`${Math.round(saving * 100)}%`}</TextMorph>
-					</span>
-					<Button variant="ghost" size="sm" onClick={cancelSaving}>
-						Cancel
-					</Button>
+					<ThemedProgressBar label="Saving video" value={saving} />
+					<Button label="Cancel" variant="ghost" onClick={cancelSaving} />
 				</>
 			)}
 		</div>

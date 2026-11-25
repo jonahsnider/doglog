@@ -685,3 +685,10 @@
 		transform: translateX(385%);
 	}
 }
+
+/* Controls left out of copied images, and of the dashboard video export mode previews. Above Astryx's components, so it hides them too. */
+@layer product {
+	.capture-hidden:where([data-capturing], [data-capturing] *) {
+		display: none;
+	}
+}

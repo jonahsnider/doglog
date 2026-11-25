@@ -1,0 +1,8 @@
+/* Times line up by place value, right-aligned like the timeline's other times */
+.time-field {
+	font-family: var(--font-family-code);
+	font-variant-numeric: tabular-nums;
+}
+.time-field input {
+	text-align: end;
+}

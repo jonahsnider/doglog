@@ -154,6 +154,25 @@ export const team581Theme = defineTheme({
 
 		...team581ColorTokens((role, dark) => team581Palette[role][dark ? 1 : 0]),
 	},
+	// Tooltips paint the inverted surface with surface-colored text, but leave the secondary colors for the normal surface
+	components: {
+		tooltip: {
+			base: {
+				'--color-text-secondary': 'color-mix(in srgb, var(--color-background-surface) 72%, transparent)',
+				'--color-icon-secondary': 'color-mix(in srgb, var(--color-background-surface) 72%, transparent)',
+				'--color-border': 'color-mix(in srgb, var(--color-background-surface) 16%, transparent)',
+			},
+		},
+	},
+	// Bigger controls for fingers, so touch targets come from the theme instead of each control
+	adaptations: {
+		rules: [
+			{
+				when: { pointer: 'coarse' },
+				value: { tokens: { '--size-element-sm': '36px', '--size-element-md': '40px', '--size-element-lg': '44px' } },
+			},
+		],
+	},
 	onDark: { tokens: invertedTokens('dark') },
 	onLight: { tokens: invertedTokens('light') },
 });

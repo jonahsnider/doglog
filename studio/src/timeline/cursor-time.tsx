@@ -1,52 +1,11 @@
 import FastForwardIcon from 'lucide-react/icons/fast-forward';
 import { type ComponentPropsWithRef, use, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip } from '@astryxdesign/core/Tooltip';
 import type { TimeRange } from '@/data/data-store';
-import { isEnterKey } from '@/lib/keyboard';
 import { cn } from '@/lib/utils';
 import { getActiveCompressedSpans } from '@/timeline/events';
-import { parseTime } from '@/timeline/parse-time';
+import { TimeField } from '@/timeline/time-field';
 import { formatTime, seek, TimelineCursorContext } from '@/timeline/timeline';
-
-/** Field for typing a time to move the cursor to, shown in place of the current time after clicking it */
-function TimeInput({ initialText, start, onDone }: { initialText: string; start: number; onDone: () => void }) {
-	const [invalid, setInvalid] = useState(false);
-	return (
-		<Input
-			size="sm"
-			// Insets the text as far as the time button does (a 1px border plus padding, past the edge by as much), so it doesn't shift when focused
-			className="-me-1 w-[calc(100%+--spacing(1))] shrink-0 capture:opacity-0 [&>input]:px-[calc(--spacing(1)-1px)] [&>input]:text-right"
-			aria-label="Go to time"
-			aria-invalid={invalid || undefined}
-			defaultValue={initialText}
-			autoFocus
-			onFocus={(event) => event.currentTarget.select()}
-			onChange={() => setInvalid(false)}
-			onBlur={(event) => {
-				const text = event.currentTarget.value;
-				// Seeking to the time it already showed would round the cursor to the hundredth
-				const parsed = text === initialText ? undefined : parseTime(text, start);
-				if (parsed !== undefined) {
-					seek(parsed);
-				}
-				onDone();
-			}}
-			onKeyDown={(event) => {
-				if (isEnterKey(event)) {
-					if (parseTime(event.currentTarget.value, start) === undefined) {
-						setInvalid(true);
-					} else {
-						event.currentTarget.blur();
-					}
-				} else if (event.key === 'Escape') {
-					event.currentTarget.value = initialText;
-					event.currentTarget.blur();
-				}
-			}}
-		/>
-	);
-}
 
 /** The time changes every tick; the tooltip around this button doesn't need to. */
 function CursorTimeButton({
@@ -96,24 +55,38 @@ export function CursorTime({ range }: { range: TimeRange | undefined }) {
 			{editText === undefined ? (
 				<>
 					{/* Always rendered so it can fade in and out, its tooltip only works while it's shown */}
-					<Tooltip disabled={!skipped}>
-						<TooltipTrigger
-							render={<span />}
+					<Tooltip
+						isEnabled={skipped}
+						content="The robot was disabled or disconnected, playback fast-forwards through this"
+					>
+						<span
 							className={cn('transition-opacity duration-300 capture:invisible', !skipped && 'opacity-0')}
 							aria-label="Skipped idle time"
 							aria-hidden={!skipped}
 						>
 							<FastForwardIcon className="size-3.5 text-muted-foreground" />
-						</TooltipTrigger>
-						<TooltipPopup>The robot was disabled or disconnected, playback fast-forwards through this</TooltipPopup>
+						</span>
 					</Tooltip>
-					<Tooltip>
-						<TooltipTrigger render={<CursorTimeButton start={range.start} onEdit={setEditText} />} />
-						<TooltipPopup>Go to time</TooltipPopup>
+					<Tooltip content="Go to time">
+						<CursorTimeButton start={range.start} onEdit={setEditText} />
 					</Tooltip>
 				</>
 			) : (
-				<TimeInput initialText={editText} start={range.start} onDone={() => setEditText(undefined)} />
+				// Reaches past the time as far as the button's padding does, so the text doesn't shift when it's focused
+				<span className="-me-1 w-[calc(100%+--spacing(1))] shrink-0 capture:opacity-0">
+					<TimeField
+						label="Go to time"
+						text={editText}
+						start={range.start}
+						hasAutoFocus
+						onCommit={(typed) => {
+							if (typed !== undefined) {
+								seek(typed);
+							}
+							setEditText(undefined);
+						}}
+					/>
+				</span>
 			)}
 		</span>
 	);

@@ -1,0 +1,59 @@
+.themed-progress-bar {
+	min-width: 0;
+	flex: 1;
+}
+.themed-progress-bar-label {
+	max-width: 33%;
+}
+.themed-progress-bar-track {
+	min-width: 0;
+	flex: 1;
+}
+/* Fits 100% without the row moving as the number changes */
+.themed-progress-bar-value {
+	width: 2.5rem;
+	flex-shrink: 0;
+	text-align: end;
+	font-variant-numeric: tabular-nums;
+}
+
+/* Monte sticks out above the track, which only clips the fill at its ends */
+.themed-progress-bar-track[data-mascot] .astryx-progress-bar-track {
+	overflow: visible;
+	clip-path: inset(-1.5rem 0 0);
+}
+
+/*
+ * The fill spans the track and slides by its filled share, so Monte sits on its leading edge. The clamp keeps Monte
+ * inside the track at either end, in the fill's coordinates.
+ */
+.themed-progress-bar-track[data-mascot] .astryx-progress-bar-fill::after {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	inset-inline-start: clamp(
+		calc(100% - var(--_progress-bar-fill, 100%)),
+		calc(100% - 0.75rem),
+		calc(200% - var(--_progress-bar-fill, 100%) - 1.5rem)
+	);
+	width: 1.5rem;
+	height: 1.5rem;
+	background-color: var(--color-accent);
+	mask: url('../theme/monte.svg') center / contain no-repeat;
+	pointer-events: none;
+}
+
+/* The indeterminate fill pulses in place with reduced motion, so there's no edge to ride */
+@media (prefers-reduced-motion: reduce) {
+	.themed-progress-bar-track[data-mascot]
+		.astryx-progress-bar-track:not([aria-valuenow])
+		.astryx-progress-bar-fill::after {
+		display: none;
+	}
+}
+.reduce-motion
+	.themed-progress-bar-track[data-mascot]
+	.astryx-progress-bar-track:not([aria-valuenow])
+	.astryx-progress-bar-fill::after {
+	display: none;
+}

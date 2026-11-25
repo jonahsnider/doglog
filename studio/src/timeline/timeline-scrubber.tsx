@@ -1,9 +1,8 @@
 import { useHotkeys } from '@tanstack/react-hotkeys';
 import { type PointerEvent, use, useMemo, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
-import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { alertColors, modeColors, shiftColor } from '@/timeline/colors';
-import { HoverTooltip, UnreadTooltip } from '@/timeline/timeline-tooltip';
+import { HoverTooltip, ScrubberTooltip, UnreadTooltip } from '@/timeline/timeline-tooltip';
 import { setHoverTime } from '@/timeline/hover';
 import { GraphMarks, ScrubberPosition } from '@/timeline/timeline-marks';
 import { getGaps, type TimeRange, useEntries } from '@/data/data-store';
@@ -137,11 +136,6 @@ export function Scrubber({
 		) : undefined;
 	};
 	const tooltip = hover === undefined ? undefined : tooltipAt(hover);
-	// Where the tooltip was last shown, so it keeps its contents while fading out instead of shrinking to nothing
-	const [shownHover, setShownHover] = useState<Hover>();
-	if (hover !== undefined && tooltip !== undefined && (hover.x !== shownHover?.x || hover.width !== shownHover.width)) {
-		setShownHover(hover);
-	}
 
 	// Scrolling moves the cursor a fixed time per pixel, so it's as precise in a long log as a short one,
 	// following the fingers whichever way the system scrolls.
@@ -200,99 +194,90 @@ export function Scrubber({
 				setHoverTime(undefined);
 			}}
 		>
-			<Tooltip open={tooltip !== undefined} trackCursorAxis="x" disableHoverablePopup>
-				<TooltipTrigger
-					// The slider handles focus and keyboard input, the tooltip is only for pointers
-					render={<div ref={track} tabIndex={-1} className="relative h-6 w-full" />}
+			<div ref={track} className="relative h-6 w-full">
+				{alerts.map((alert) => (
+					<div
+						key={`${alert.start}:${alert.level}:${alert.text}`}
+						className={cn('absolute top-0 h-1.5 rounded-full', alertColors[alert.level])}
+						style={{
+							left: `${toPercent(alert.start)}%`,
+							width: `max(0.375rem, ${toPercent(alert.end) - toPercent(alert.start)}%)`,
+						}}
+					/>
+				))}
+
+				<div
+					className={cn(
+						'absolute inset-x-0 top-1/2 h-2 overflow-hidden rounded-full bg-muted transition-[translate] motion-reduce:transition-none',
+						trackOffset,
+					)}
 				>
-					{alerts.map((alert) => (
+					<div className="absolute inset-y-0 left-0 bg-input" style={{ width: `${toPercent(range.end)}%` }} />
+					{periods.length === 0 ? (
+						<ScrubberPosition toPercent={toPercent} className="absolute inset-y-0 left-0 bg-primary" property="width" />
+					) : (
+						periods.map((period) => {
+							const color = modeColors[period.mode];
+							return color === undefined ? null : (
+								<div
+									key={period.start}
+									className={cn('absolute inset-y-0', color)}
+									style={{
+										left: `${toPercent(period.start)}%`,
+										width: `${toPercent(period.end) - toPercent(period.start)}%`,
+									}}
+								/>
+							);
+						})
+					)}
+					{/* Disconnected spans break the track since nothing was received, wide enough that short drops stand out */}
+					{gaps.map((gap) => (
 						<div
-							key={`${alert.start}:${alert.level}:${alert.text}`}
-							className={cn('absolute top-0 h-1.5 rounded-full', alertColors[alert.level])}
-							style={{
-								left: `${toPercent(alert.start)}%`,
-								width: `max(0.375rem, ${toPercent(alert.end) - toPercent(alert.start)}%)`,
-							}}
+							key={gap.start}
+							className="absolute inset-y-0 min-w-0.75 bg-frame"
+							style={{ left: `${toPercent(gap.start)}%`, width: `${toPercent(gap.end) - toPercent(gap.start)}%` }}
 						/>
 					))}
-
-					<div
-						className={cn(
-							'absolute inset-x-0 top-1/2 h-2 overflow-hidden rounded-full bg-muted transition-[translate] motion-reduce:transition-none',
-							trackOffset,
-						)}
-					>
-						<div className="absolute inset-y-0 left-0 bg-input" style={{ width: `${toPercent(range.end)}%` }} />
-						{periods.length === 0 ? (
-							<ScrubberPosition
-								toPercent={toPercent}
-								className="absolute inset-y-0 left-0 bg-primary"
-								property="width"
-							/>
-						) : (
-							periods.map((period) => {
-								const color = modeColors[period.mode];
-								return color === undefined ? null : (
-									<div
-										key={period.start}
-										className={cn('absolute inset-y-0', color)}
-										style={{
-											left: `${toPercent(period.start)}%`,
-											width: `${toPercent(period.end) - toPercent(period.start)}%`,
-										}}
-									/>
-								);
-							})
-						)}
-						{/* Disconnected spans break the track since nothing was received, wide enough that short drops stand out */}
-						{gaps.map((gap) => (
-							<div
-								key={gap.start}
-								className="absolute inset-y-0 min-w-0.75 bg-frame"
-								style={{ left: `${toPercent(gap.start)}%`, width: `${toPercent(gap.end) - toPercent(gap.start)}%` }}
-							/>
-						))}
-						{/* The unreadable end of a log, hatched since its length is an estimate */}
-						{unread !== undefined && (
-							<div
-								className="absolute inset-y-0 right-0 bg-destructive/16 bg-[image:repeating-linear-gradient(-45deg,var(--color-destructive)_0_2px,transparent_2px_4px)]"
-								style={{ left: `${toPercent(range.end)}%` }}
-							/>
-						)}
-						{/* Compressed spans are hatched so it's clear they aren't to scale */}
-						{compressed.map((span) => (
-							<div
-								key={span.start}
-								className="absolute inset-y-0 bg-frame bg-[image:repeating-linear-gradient(-45deg,var(--color-input)_0_2px,transparent_2px_4px)]"
-								style={{ left: `${toPercent(span.start)}%`, width: `${toPercent(span.end) - toPercent(span.start)}%` }}
-							/>
-						))}
-					</div>
-
-					{/* Gaps between shifts mark where they change, ex. the transition shift and shift 1 */}
-					{shifts.map((shift) => (
+					{/* The unreadable end of a log, hatched since its length is an estimate */}
+					{unread !== undefined && (
 						<div
-							key={shift.start}
-							className="absolute bottom-0 h-1.5 px-px"
-							style={{ left: `${toPercent(shift.start)}%`, width: `${toPercent(shift.end) - toPercent(shift.start)}%` }}
-						>
-							<div className={cn('size-full rounded-full', shiftColor)} />
-						</div>
+							className="absolute inset-y-0 right-0 bg-destructive/16 bg-[image:repeating-linear-gradient(-45deg,var(--color-destructive)_0_2px,transparent_2px_4px)]"
+							style={{ left: `${toPercent(range.end)}%` }}
+						/>
+					)}
+					{/* Compressed spans are hatched so it's clear they aren't to scale */}
+					{compressed.map((span) => (
+						<div
+							key={span.start}
+							className="absolute inset-y-0 bg-frame bg-[image:repeating-linear-gradient(-45deg,var(--color-input)_0_2px,transparent_2px_4px)]"
+							style={{ left: `${toPercent(span.start)}%`, width: `${toPercent(span.end) - toPercent(span.start)}%` }}
+						/>
 					))}
+				</div>
 
-					<GraphMarks scale={scale} hoverTime={hover && timeAt(hover)} trackOffset={trackOffset} />
+				{/* Gaps between shifts mark where they change, ex. the transition shift and shift 1 */}
+				{shifts.map((shift) => (
+					<div
+						key={shift.start}
+						className="absolute bottom-0 h-1.5 px-px"
+						style={{ left: `${toPercent(shift.start)}%`, width: `${toPercent(shift.end) - toPercent(shift.start)}%` }}
+					>
+						<div className={cn('size-full rounded-full', shiftColor)} />
+					</div>
+				))}
 
-					<ScrubberPosition
-						toPercent={toPercent}
-						property="left"
-						className={cn(
-							'absolute top-1/2 size-3.5 -translate-x-1/2 rounded-full border-2 border-primary bg-background transition-[translate] group-focus-visible:ring-[3px] group-focus-visible:ring-ring motion-reduce:transition-none',
-							trackOffset,
-						)}
-					/>
-				</TooltipTrigger>
-				<TooltipPopup>{tooltip ?? (shownHover && tooltipAt(shownHover))}</TooltipPopup>
-			</Tooltip>
+				<GraphMarks scale={scale} hoverTime={hover && timeAt(hover)} trackOffset={trackOffset} />
+
+				<ScrubberPosition
+					toPercent={toPercent}
+					property="left"
+					className={cn(
+						'absolute top-1/2 size-3.5 -translate-x-1/2 rounded-full border-2 border-primary bg-background transition-[translate] group-focus-visible:ring-[3px] group-focus-visible:ring-ring motion-reduce:transition-none',
+						trackOffset,
+					)}
+				/>
+				<ScrubberTooltip x={hover?.x} content={tooltip} />
+			</div>
 		</div>
 	);
 }

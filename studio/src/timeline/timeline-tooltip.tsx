@@ -1,3 +1,6 @@
+import { Text } from '@astryxdesign/core/Text';
+import { Tooltip } from '@astryxdesign/core/Tooltip';
+import { type ReactNode, useRef, useState } from 'react';
 import { alertColors, modeColors, modeLabels, shiftColor } from '@/timeline/colors';
 import { cn } from '@/lib/utils';
 import { formatRoughDuration, formatTime } from '@/timeline/timeline';
@@ -7,6 +10,15 @@ import type { AlertSpan, ModePeriod } from '@/timeline/events';
 import type { MatchShift } from '@/timeline/shifts';
 
 const maxListedAlerts = 5;
+
+/** Secondary text that follows the tooltip's inverted surface, which the app's own muted color doesn't */
+function Muted({ block, children }: { block?: boolean; children: ReactNode }) {
+	return (
+		<Text type="inherit" color="secondary" display={block === true ? 'block' : 'inline'} className="tabular-nums">
+			{children}
+		</Text>
+	);
+}
 
 /** Spans at least this long (µs) show how far into them the hovered time is, shorter ones only show their length */
 const minProgressDuration = 2_000_000;
@@ -34,14 +46,18 @@ function TooltipItem({
 					<span className={cn('size-2 shrink-0 translate-y-px rounded-full', color)} />
 					{label}
 				</div>
-				<span className="shrink-0 text-muted-foreground tabular-nums">
-					{to - from >= minProgressDuration
-						? `${formatTime(Math.min(Math.max(hoverTime, from), to), from)} / ${length}`
-						: length}
+				<span className="shrink-0">
+					<Muted>
+						{to - from >= minProgressDuration
+							? `${formatTime(Math.min(Math.max(hoverTime, from), to), from)} / ${length}`
+							: length}
+					</Muted>
 				</span>
 			</div>
-			<div className="ps-3.5 text-muted-foreground tabular-nums">
-				{formatTime(from, start)} – {formatTime(to, start)}
+			<div className="ps-3.5">
+				<Muted block>
+					{formatTime(from, start)} – {formatTime(to, start)}
+				</Muted>
 			</div>
 		</div>
 	);
@@ -89,7 +105,7 @@ export function HoverTooltip({
 				/>
 			)}
 			{alerts.length > 0 && (
-				<ul className={cn('flex flex-col gap-1.5', (period ?? shift) && 'border-t pt-2')}>
+				<ul className={cn('flex flex-col gap-1.5', (period ?? shift) && 'border-t border-(--color-border) pt-2')}>
 					{alerts.slice(0, maxListedAlerts).map((alert) => (
 						<li key={`${alert.start}:${alert.level}:${alert.text}`}>
 							<TooltipItem
@@ -103,7 +119,9 @@ export function HoverTooltip({
 						</li>
 					))}
 					{alerts.length > maxListedAlerts && (
-						<li className="text-muted-foreground">{alerts.length - maxListedAlerts} more</li>
+						<li>
+							<Muted>{alerts.length - maxListedAlerts} more</Muted>
+						</li>
 					)}
 				</ul>
 			)}
@@ -120,11 +138,32 @@ export function UnreadTooltip({ percent, duration, after }: UnreadEnd) {
 					<span className="size-2 shrink-0 translate-y-px rounded-full bg-destructive" />
 					Couldn’t be read
 				</div>
-				<span className="text-muted-foreground tabular-nums">estimated {formatRoughDuration(duration)}</span>
+				<Muted>estimated {formatRoughDuration(duration)}</Muted>
 			</div>
-			<div className="ps-3.5 text-muted-foreground tabular-nums">
-				The last {percent}% of the file, after {formatTime(after, 0)}
+			<div className="ps-3.5">
+				<Muted block>
+					The last {percent}% of the file, after {formatTime(after, 0)}
+				</Muted>
 			</div>
 		</div>
+	);
+}
+
+/**
+ * The hover tooltip, anchored to the pointer's spot on the track. The slider handles focus and keys, so it's only for
+ * pointers. It keeps the last contents and spot while it fades out, instead of shrinking to nothing.
+ */
+export function ScrubberTooltip({ x, content }: { x: number | undefined; content: ReactNode | undefined }) {
+	const anchor = useRef<HTMLSpanElement>(null);
+	const [shown, setShown] = useState<{ x: number; content: ReactNode }>();
+	// The contents are a new element every render, so only a new spot updates them
+	if (x !== undefined && content !== undefined && x !== shown?.x) {
+		setShown({ x, content });
+	}
+	return (
+		<>
+			<span ref={anchor} className="pointer-events-none absolute inset-y-0 w-0" style={{ left: shown?.x ?? 0 }} />
+			<Tooltip anchorRef={anchor} isOpen={content !== undefined} content={content ?? shown?.content} />
+		</>
 	);
 }

@@ -1,14 +1,17 @@
+import { Button } from '@astryxdesign/core/Button';
+import { DropdownMenu, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@astryxdesign/core/DropdownMenu';
+import { Icon } from '@astryxdesign/core/Icon';
+import { IconButton } from '@astryxdesign/core/IconButton';
+import { colorVars, radiusVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { Tooltip } from '@astryxdesign/core/Tooltip';
+import * as stylex from '@stylexjs/stylex';
 import ChevronsUpDownIcon from 'lucide-react/icons/chevrons-up-down';
 import PauseIcon from 'lucide-react/icons/pause';
 import PlayIcon from 'lucide-react/icons/play';
 import { type Hotkey, type UseHotkeyDefinition, useHotkeys } from '@tanstack/react-hotkeys';
-import { Select as SelectPrimitive } from '@base-ui/react/select';
 import { AnimatePresence, domAnimation, LazyMotion, m, useIsPresent } from 'motion/react';
 import { type ReactNode, useRef, useState } from 'react';
 import { TextMorph } from '@/components/text-morph';
-import { Button } from '@/components/ui/button';
-import { Select, SelectItem, SelectPopup } from '@/components/ui/select';
-import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { CursorTime } from '@/timeline/cursor-time';
 import { LogProgress } from '@/timeline/log-progress';
 import { TimelineOptions } from '@/timeline/timeline-options';
@@ -36,16 +39,6 @@ import {
 } from '@/timeline/timeline';
 import { seekHotkeys, skip } from '@/timeline/seek';
 
-const speedItems = playbackSpeeds.map((speed) => ({ value: speed, label: `${speed}x` }));
-
-// YouTube's < and > (Shift+comma and Shift+period on US keyboards) also work, the brackets are shown in the UI
-const speedHotkeys: UseHotkeyDefinition[] = [
-	{ hotkey: '[', callback: () => changeSpeed(-1) },
-	{ hotkey: ']', callback: () => changeSpeed(1) },
-	{ hotkey: '<', callback: () => changeSpeed(-1) },
-	{ hotkey: '>', callback: () => changeSpeed(1) },
-];
-
 const hotkeys: UseHotkeyDefinition[] = [
 	{ hotkey: 'Space', callback: togglePlayback, options: { requireReset: true } },
 	...seekHotkeys,
@@ -55,38 +48,39 @@ const hotkeys: UseHotkeyDefinition[] = [
 	{ hotkey: 'L', callback: () => skip(10) },
 	{ hotkey: ',', callback: () => step(-1) },
 	{ hotkey: '.', callback: () => step(1) },
-	...speedHotkeys,
+	// YouTube's < and > (Shift+comma and Shift+period on US keyboards) also work, the brackets are shown in the UI
+	{ hotkey: '[', callback: () => changeSpeed(-1) },
+	{ hotkey: ']', callback: () => changeSpeed(1) },
+	{ hotkey: '<', callback: () => changeSpeed(-1) },
+	{ hotkey: '>', callback: () => changeSpeed(1) },
 ];
+
+const styles = stylex.create({
+	liveDot: {
+		width: 8,
+		height: 8,
+		borderRadius: radiusVars['--radius-full'],
+		backgroundColor: colorVars['--color-icon-secondary'],
+	},
+	following: {
+		backgroundColor: colorVars['--color-error'],
+	},
+});
 
 function ControlButton({
 	label,
 	shortcut,
+	icon,
 	onClick,
-	children,
 }: {
 	label: string;
 	shortcut: Hotkey;
+	icon: ReactNode;
 	onClick: () => void;
-	children: ReactNode;
 }) {
 	return (
-		<Tooltip>
-			<TooltipTrigger
-				render={
-					<Button
-						variant="ghost"
-						size="icon-sm"
-						className="pointer-coarse:size-11 capture:hidden"
-						aria-label={label}
-						onClick={onClick}
-					/>
-				}
-			>
-				{children}
-			</TooltipTrigger>
-			<TooltipPopup>
-				<TooltipLabel label={label} shortcut={shortcut} />
-			</TooltipPopup>
+		<Tooltip content={<TooltipLabel label={label} shortcut={shortcut} />}>
+			<IconButton label={label} icon={icon} variant="ghost" className="capture-hidden" onClick={onClick} />
 		</Tooltip>
 	);
 }
@@ -128,13 +122,13 @@ function TimelineTrack({
 			</span>
 			{live && (
 				<Button
-					variant={following ? 'ghost' : 'outline'}
-					size="sm"
-					className="pointer-coarse:h-11 capture:hidden"
-					disabled={following}
+					label={following ? 'Live' : 'Go live'}
+					variant={following ? 'ghost' : 'secondary'}
+					icon={<span {...stylex.props(styles.liveDot, following && styles.following)} />}
+					className="capture-hidden"
+					isDisabled={following}
 					onClick={goLive}
 				>
-					<span className={cn('size-2 rounded-full', following ? 'bg-destructive' : 'bg-muted-foreground')} />
 					<TextMorph>{following ? 'Live' : 'Go live'}</TextMorph>
 				</Button>
 			)}
@@ -157,7 +151,6 @@ function TimelineControls({
 	const { time, playback, speed } = timeline;
 	const [speedOpen, setSpeedOpen] = useState(false);
 	const [optionsOpen, setOptionsOpen] = useState(false);
-	const speedTrigger = useRef<HTMLButtonElement>(null);
 	const bar = useRef<HTMLElement>(null);
 	const size = useSize(bar);
 	const capture = useCaptureFrame();
@@ -165,10 +158,8 @@ function TimelineControls({
 	const shortcutsEnabled = present && !speedOpen;
 
 	// Skips keys used by a focused text field, button, or menu, and keys already handled, ex. by a pane divider.
-	// The speed list and options menu use keys like the arrows and Space themselves, so the shortcuts are off while they're open.
+	// The speed and options menus use keys like the arrows and Space themselves, so the shortcuts are off while they're open.
 	useHotkeys(hotkeys, { ignoreDefaultPrevented: true, enabled: shortcutsEnabled && !optionsOpen });
-	// The focused speed button skips printable keys as typeahead, so its own shortcuts are given to it directly
-	useHotkeys(speedHotkeys, { target: speedTrigger, enabled: shortcutsEnabled });
 
 	const optionsMenu = <TimelineOptions key="options" compact={compact} onOpenChange={setOptionsOpen} />;
 
@@ -187,55 +178,42 @@ function TimelineControls({
 					fadeIn && 'transition-opacity duration-300 starting:opacity-0',
 				)}
 			>
-				<ControlButton label={playback === 'paused' ? 'Play' : 'Pause'} shortcut="Space" onClick={togglePlayback}>
-					{playback === 'paused' ? <PlayIcon /> : <PauseIcon />}
-				</ControlButton>
-				<Select
-					items={speedItems}
-					value={speed}
-					onValueChange={(value) => {
-						if (value !== null) {
-							setSpeed(value);
-						}
-					}}
-					onOpenChange={setSpeedOpen}
-				>
-					<Tooltip>
-						<TooltipTrigger
-							render={
-								// A ghost button like its neighbors, since it's rarely used and a bordered select stands out
-								<SelectPrimitive.Trigger
-									ref={speedTrigger}
-									aria-label="Playback speed"
-									// Same inset as the icon buttons, so the gaps between controls look even
-									render={
-										<Button
-											variant="ghost"
-											size="sm"
-											className="px-1.5 tabular-nums pointer-coarse:h-11 capture:hidden"
-										/>
-									}
-								/>
-							}
+				<ControlButton
+					label={playback === 'paused' ? 'Play' : 'Pause'}
+					shortcut="Space"
+					icon={playback === 'paused' ? <PlayIcon /> : <PauseIcon />}
+					onClick={togglePlayback}
+				/>
+				<Tooltip content={<TooltipLabel label="Playback speed" shortcut={['[', ']']} />}>
+					<DropdownMenu
+						// A ghost button like its neighbors, since it's rarely used and a bordered select stands out
+						button={{
+							label: 'Playback speed',
+							variant: 'ghost',
+							className: 'capture-hidden',
+							endContent: <Icon icon={ChevronsUpDownIcon} size="sm" />,
+							// Just the number, so it rolls by place value instead of morphing as a word
+							children: (
+								<span className="tabular-nums">
+									<TextMorph as="span">{speed}</TextMorph>x
+								</span>
+							),
+						}}
+						hasChevron={false}
+						placement="above"
+						onOpenChange={setSpeedOpen}
+					>
+						<DropdownMenuRadioGroup
+							label="Playback speed"
+							value={String(speed)}
+							onChange={(value) => setSpeed(Number(value))}
 						>
-							{/* Just the number, so it rolls by place value instead of morphing as a word */}
-							<span>
-								<TextMorph as="span">{speed}</TextMorph>x
-							</span>
-							<ChevronsUpDownIcon />
-						</TooltipTrigger>
-						<TooltipPopup>
-							<TooltipLabel label="Playback speed" shortcut={['[', ']']} />
-						</TooltipPopup>
-					</Tooltip>
-					<SelectPopup>
-						{speedItems.map((item) => (
-							<SelectItem key={item.value} value={item.value}>
-								{item.label}
-							</SelectItem>
-						))}
-					</SelectPopup>
-				</Select>
+							{playbackSpeeds.map((value) => (
+								<DropdownMenuRadioItem key={value} value={String(value)} label={`${value}x`} />
+							))}
+						</DropdownMenuRadioGroup>
+					</DropdownMenu>
+				</Tooltip>
 
 				<TimelineCursorContext value={time}>
 					<CursorTime range={range} />

@@ -1,9 +1,12 @@
+import { DropdownMenu, DropdownMenuCheckboxItem } from '@astryxdesign/core/DropdownMenu';
 import SlidersHorizontalIcon from 'lucide-react/icons/sliders-horizontal';
-import { Button } from '@/components/ui/button';
-import { Menu, MenuCheckboxItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
-import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
+import * as stylex from '@stylexjs/stylex';
 import { updateSettings, useSettings } from '@/settings';
+
+const styles = stylex.create({
+	// Ends the first row when the controls wrap
+	compact: { marginInlineStart: 'auto' },
+});
 
 export function TimelineOptions({
 	compact,
@@ -14,46 +17,36 @@ export function TimelineOptions({
 }) {
 	const { timelineAlerts, timelineCompress, timelineShifts } = useSettings();
 	return (
-		<Menu onOpenChange={onOpenChange}>
-			<Tooltip>
-				<TooltipTrigger
-					render={
-						<MenuTrigger
-							render={
-								<Button
-									variant="ghost"
-									size="icon-sm"
-									className={cn('pointer-coarse:size-11 capture:hidden', compact && 'ms-auto')}
-									aria-label="Timeline options"
-								/>
-							}
-						/>
-					}
-				>
-					<SlidersHorizontalIcon />
-				</TooltipTrigger>
-				<TooltipPopup>Timeline options</TooltipPopup>
-			</Tooltip>
-			<MenuPopup align="end">
-				<MenuCheckboxItem
-					checked={timelineAlerts}
-					onCheckedChange={(checked) => updateSettings({ timelineAlerts: checked })}
-				>
-					Show alerts
-				</MenuCheckboxItem>
-				<MenuCheckboxItem
-					checked={timelineShifts}
-					onCheckedChange={(checked) => updateSettings({ timelineShifts: checked })}
-				>
-					Show active hub shifts
-				</MenuCheckboxItem>
-				<MenuCheckboxItem
-					checked={timelineCompress}
-					onCheckedChange={(checked) => updateSettings({ timelineCompress: checked })}
-				>
-					Skip idle time
-				</MenuCheckboxItem>
-			</MenuPopup>
-		</Menu>
+		<DropdownMenu
+			button={{
+				label: 'Timeline options',
+				isIconOnly: true,
+				icon: <SlidersHorizontalIcon />,
+				variant: 'ghost',
+				tooltip: 'Timeline options',
+			}}
+			hasChevron={false}
+			alignment="end"
+			placement="above"
+			onOpenChange={onOpenChange}
+			className="capture-hidden"
+			xstyle={compact && styles.compact}
+		>
+			<DropdownMenuCheckboxItem
+				label="Show alerts"
+				value={timelineAlerts}
+				onChange={(checked) => updateSettings({ timelineAlerts: checked })}
+			/>
+			<DropdownMenuCheckboxItem
+				label="Show active hub shifts"
+				value={timelineShifts}
+				onChange={(checked) => updateSettings({ timelineShifts: checked })}
+			/>
+			<DropdownMenuCheckboxItem
+				label="Skip idle time"
+				value={timelineCompress}
+				onChange={(checked) => updateSettings({ timelineCompress: checked })}
+			/>
+		</DropdownMenu>
 	);
 }
