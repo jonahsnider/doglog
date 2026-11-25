@@ -170,6 +170,12 @@ export const settingsSchema = z.strictObject({
 		.boolean()
 		.optional()
 		.describe("Whether to skip animations even when the system doesn't ask to reduce motion"),
+	reduceTransparency: z
+		.boolean()
+		.optional()
+		.describe(
+			"Whether the desktop app's window frame is solid even when the system doesn't ask to reduce transparency",
+		),
 	name: z
 		.string()
 		.optional()

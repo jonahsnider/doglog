@@ -14,7 +14,7 @@ import { CliField } from '@/components/cli-field';
 import { UtilityPage, UtilityPageSection } from '@/components/utility-page';
 import { getRobotHost } from '@/robot-target';
 import { useAnonymousName } from '@/sharing/identity';
-import { reportsNaturalScrolling, updateSettings, useSettings } from '@/settings';
+import { hasFrostedFrame, reportsNaturalScrolling, updateSettings, useSettings } from '@/settings';
 import { AppearanceSettings, VisualizationPaletteSetting } from '@/theme/appearance-settings';
 
 export const Route = createFileRoute('/settings')({
@@ -22,8 +22,16 @@ export const Route = createFileRoute('/settings')({
 });
 
 function Settings() {
-	const { name, robotTarget, reduceLiveBandwidth, mediaControls, naturalScrolling, reduceMotion, highContrast } =
-		useSettings();
+	const {
+		name,
+		robotTarget,
+		reduceLiveBandwidth,
+		mediaControls,
+		naturalScrolling,
+		reduceMotion,
+		reduceTransparency,
+		highContrast,
+	} = useSettings();
 	const hasCloudAccount = useSelector(cloudAccountStore, (account) => account !== null);
 	const anonymousName = useAnonymousName();
 	const robotHost = getRobotHost(robotTarget);
@@ -55,6 +63,14 @@ function Settings() {
 						value={reduceMotion}
 						onChange={(checked) => updateSettings({ reduceMotion: checked })}
 					/>
+					{hasFrostedFrame && (
+						<Switch
+							label="Reduce transparency"
+							description="Solid window background, always on when your system reduces transparency"
+							value={reduceTransparency}
+							onChange={(checked) => updateSettings({ reduceTransparency: checked })}
+						/>
+					)}
 				</UtilityPageSection>
 
 				<Divider />

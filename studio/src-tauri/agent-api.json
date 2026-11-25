@@ -2530,6 +2530,10 @@
 						"description": "Whether to skip animations even when the system doesn't ask to reduce motion",
 						"type": "boolean"
 					},
+					"reduceTransparency": {
+						"description": "Whether the desktop app's window frame is solid even when the system doesn't ask to reduce transparency",
+						"type": "boolean"
+					},
 					"name": {
 						"description": "The user's name, shown to others in shared dashboards. Blank shows an anonymous name.",
 						"type": "string"

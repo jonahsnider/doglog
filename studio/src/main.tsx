@@ -16,7 +16,7 @@ import { restoreLive } from './data/restore-live.ts';
 import { getSources, reopenDevLog, subscribeSource } from './data/source.ts';
 import { syncMediaSession } from './timeline/media-session.ts';
 import { routeTree } from './routeTree.gen.ts';
-import { syncTheme } from './settings.ts';
+import { hasFrostedFrame, syncTheme } from './settings.ts';
 import { StudioTheme } from './theme/studio-theme.tsx';
 import { startSharing } from './sharing/sharing.ts';
 import { runLogSync } from './sync/sync.ts';
@@ -79,7 +79,7 @@ syncTheme();
 syncMediaSession();
 startSharing();
 if (STUDIO_DESKTOP) {
-	if ('__DOGLOG_FROSTED_FRAME__' in window) {
+	if (hasFrostedFrame) {
 		document.documentElement.dataset['frostedFrame'] = '';
 	}
 	void handleOpenedLogFiles();

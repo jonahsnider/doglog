@@ -138,6 +138,14 @@
 		background-color: var(--color-background-body);
 	}
 }
+.reduce-transparency[data-frosted-frame] {
+	body {
+		background-color: revert-layer;
+	}
+	[data-app-frame] {
+		background-color: var(--color-background-body);
+	}
+}
 
 /*
  * Menu buttons stay rounded as the sidebar's edge passes over them, instead of being cut straight by it, by clipping

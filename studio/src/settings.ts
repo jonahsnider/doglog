@@ -18,6 +18,8 @@ const settingsSchema = z.object({
 	visualizationPalette: z.enum(visualizationPalettes).catch('default'),
 	/** Whether to reduce motion even when the system doesn't ask to, see `reducesMotion()` */
 	reduceMotion: z.boolean().catch(false),
+	/** Whether to use a solid window frame even when the system doesn't ask to reduce transparency */
+	reduceTransparency: z.boolean().catch(false),
 	/** Local sharing name, used when signed out of Cloud */
 	name: z.string().catch(''),
 	/** Team number or IP address, use `getRobotHost()` to get the NT server host */
@@ -42,6 +44,9 @@ export type Settings = z.infer<typeof settingsSchema>;
 export const reportsNaturalScrolling =
 	typeof WheelEvent !== 'undefined' && 'webkitDirectionInvertedFromDevice' in WheelEvent.prototype;
 
+/** The desktop app shows a native backdrop through the window frame, so reducing transparency only matters there */
+export const hasFrostedFrame = STUDIO_DESKTOP && '__DOGLOG_FROSTED_FRAME__' in window;
+
 /**
  * Use `settingsStore.get()` to read settings outside React, ex. when connecting to a robot.
  * `index.html` also reads the theme from this storage key before render, keep them in sync.
@@ -62,7 +67,7 @@ export const colorModeStore = createAtom<'light' | 'dark'>('light');
 
 /**
  * Keep the `dark` class on the root element in sync with the theme setting and the OS color scheme, the colors in sync
- * with the color settings, and the `reduce-motion` class in sync with the reduce motion setting
+ * with the color settings, and the `reduce-motion` and `reduce-transparency` classes in sync with their settings
  */
 export function syncTheme(): void {
 	const darkQuery = matchMedia('(prefers-color-scheme: dark)');
@@ -71,11 +76,13 @@ export function syncTheme(): void {
 	let appliedHighContrast: boolean | undefined;
 	let appliedVisualizationPalette: Settings['visualizationPalette'] | undefined;
 	const applyTheme = () => {
-		const { theme, themeColor, themePreset, highContrast, visualizationPalette, reduceMotion } = settingsStore.get();
+		const { theme, themeColor, themePreset, highContrast, visualizationPalette, reduceMotion, reduceTransparency } =
+			settingsStore.get();
 		const dark = theme === 'dark' || (theme === 'system' && darkQuery.matches);
 		document.documentElement.classList.toggle('dark', dark);
 		colorModeStore.set(dark ? 'dark' : 'light');
 		document.documentElement.classList.toggle('reduce-motion', reduceMotion);
+		document.documentElement.classList.toggle('reduce-transparency', reduceTransparency);
 		// Other settings changes, ex. typing a robot target, don't need the colors regenerated
 		if (
 			themeColor !== appliedThemeColor ||

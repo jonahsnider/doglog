@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Define the Settings page, where users choose the color theme, high contrast, visualization colors, whether to reduce motion, their name, the robot connection target, and whether media controls control playback, with all settings persisted locally on the device. The page also shows which version of Studio is running.
+Define the Settings page, where users choose the color theme, high contrast, visualization colors, whether to reduce motion and transparency, their name, the robot connection target, and whether media controls control playback, with all settings persisted locally on the device. The page also shows which version of Studio is running.
 
 ## Requirements
 
 ### Requirement: Settings sections
 
-Settings SHALL group related settings under titled sections, each with a short description beside its settings on wide windows and above them on narrow ones, in this order: Appearance (theme and theme color), Accessibility (high contrast, visualization colors, and reduce motion), Robot (robot connection), Sharing (name, while signed out of Cloud), and System (media controls, natural scrolling, the terminal command, and coding agents).
+Settings SHALL group related settings under titled sections, each with a short description beside its settings on wide windows and above them on narrow ones, in this order: Appearance (theme and theme color), Accessibility (high contrast, visualization colors, reduce motion, and reduce transparency on desktop), Robot (robot connection), Sharing (name, while signed out of Cloud), and System (media controls, natural scrolling, the terminal command, and coding agents).
 
 #### Scenario: Find the theme
 
@@ -167,6 +167,21 @@ Settings SHALL let users turn reduce motion on or off, defaulting to off. While 
 - **AND** reduce motion is off in Settings
 - **WHEN** the user splits a pane
 - **THEN** the new pane appears at its full size without animating
+
+### Requirement: Reduce transparency setting
+
+Settings SHALL let users turn reduce transparency on or off, defaulting to off, wherever Studio shows a native window backdrop. While it's on, the window frame MUST be solid as it is when the system requests reduced transparency. While it's off, Studio MUST still follow the system.
+
+#### Scenario: Reduce transparency without the system setting
+
+- **GIVEN** Studio shows a native window backdrop and the system isn't set to reduce transparency
+- **WHEN** the user turns reduce transparency on
+- **THEN** the window frame becomes solid in the current theme
+
+#### Scenario: No native backdrop
+
+- **WHEN** Studio runs without a native window backdrop, ex. in a browser
+- **THEN** Settings doesn't show reduce transparency
 
 ### Requirement: Version info
 
