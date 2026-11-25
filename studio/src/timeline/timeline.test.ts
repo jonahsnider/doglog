@@ -1,3 +1,4 @@
+// oxlint-disable landmines/no-test-doubles -- Tests run without a DOM, so they provide the browser globals themselves
 import { afterEach, expect, test, vi } from 'vite-plus/test';
 import { DataSet } from '@/data/data-set';
 import { setActiveData } from '@/data/data-store';

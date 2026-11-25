@@ -1,17 +1,23 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vite-plus/test';
+// oxlint-disable landmines/no-test-doubles -- Tests run without a DOM, so they provide the browser globals themselves
+import { afterAll, beforeAll, beforeEach, expect, test, vi } from 'vite-plus/test';
 
 const storage = new Map<string, string>();
 
-beforeEach(() => {
-	vi.resetModules();
-	storage.clear();
+beforeAll(async () => {
 	vi.stubGlobal('localStorage', {
 		getItem: (key: string) => storage.get(key) ?? null,
 		setItem: (key: string, value: string) => storage.set(key, value),
 	});
+	// Tests reload the module, load it once up front so the first test's budget doesn't include a cold load
+	await import('./settings.ts');
 });
 
-afterEach(() => {
+beforeEach(() => {
+	vi.resetModules();
+	storage.clear();
+});
+
+afterAll(() => {
 	vi.unstubAllGlobals();
 });
 

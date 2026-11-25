@@ -1,3 +1,4 @@
+// oxlint-disable landmines/no-test-doubles -- Tests run without a DOM, so they provide the browser globals themselves
 import { modeOklch, useMode as registerMode } from 'culori/fn';
 import { afterEach, expect, test, vi } from 'vite-plus/test';
 import { themePresets, visualizationPalettes } from '@/theme/choices';

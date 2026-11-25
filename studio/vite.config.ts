@@ -133,10 +133,8 @@ export default defineConfig({
 			'jsx-a11y/prefer-tag-over-role': 'off',
 			// Only used to focus inputs opened by a user action, ex. renaming a dashboard
 			'jsx-a11y/no-autofocus': 'off',
-			// Rationale belongs next to the code it explains
-			'landmines-style/no-comments': 'off',
-			// Return types document functions and catch mistakes at the definition
-			'landmines-types/no-explicit-return-types': 'off',
+			// Expected rejections, ex. a blocked autoplay or canceling a finished stream, are discarded on purpose
+			'landmines/no-silent-catch': 'off',
 			// Duplicates React Doctor's `react-hooks-js/incompatible-library`, and the two tools' suppression comments can't both
 			// sit directly above the same line
 			'react/incompatible-library': 'off',
@@ -199,7 +197,9 @@ export default defineConfig({
 			'vitest/no-identical-title': 'error',
 			'vitest/prefer-to-be': 'error',
 			'vitest/prefer-to-have-length': 'error',
-			'landmines-testing/no-flake-masking': [
+			'landmines/colocated-tests': 'error',
+			'landmines/test-file-names': 'error',
+			'landmines/no-flake-masking': [
 				'error',
 				// CodSpeed runs benchmarks under Valgrind, which is far slower than the default timeout allows
 				{ allow: { 'src/data/parse-log.bench.ts': 1, 'src/data/samples.bench.ts': 1 } },
