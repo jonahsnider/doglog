@@ -3,19 +3,18 @@ import CaseSensitiveIcon from 'lucide-react/icons/case-sensitive';
 import ChevronDownIcon from 'lucide-react/icons/chevron-down';
 import ChevronUpIcon from 'lucide-react/icons/chevron-up';
 import RegexIcon from 'lucide-react/icons/regex';
-import SearchIcon from 'lucide-react/icons/search';
 import WholeWordIcon from 'lucide-react/icons/whole-word';
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { IconButton } from '@astryxdesign/core/IconButton';
+import { InputGroup, InputGroupText } from '@astryxdesign/core/InputGroup';
+import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
+import { TextInput } from '@astryxdesign/core/TextInput';
+import { ToggleButton, ToggleButtonGroup } from '@astryxdesign/core/ToggleButton';
+import { Tooltip } from '@astryxdesign/core/Tooltip';
+import { type ReactNode, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { AppContextMenu } from '@/components/app-context-menu';
 import { HighlightedText } from '@/components/highlighted-text';
-import { ControlTooltip } from '@/components/control-tooltip';
-import { Button } from '@/components/ui/button';
-import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
-import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
-import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control';
-import { Toggle } from '@/components/ui/toggle';
+import { TooltipLabel } from '@/components/tooltip-label';
 import { isEnterKey } from '@/lib/keyboard';
-import { cn } from '@/lib/utils';
 import { useDataVersion, useTimeRange } from '@/data/data-store';
 import { formatTime, seek, stopFollowing, useCursorTime, useTimeline } from '@/timeline/timeline';
 import {
@@ -31,23 +30,18 @@ import {
 	stepTime,
 } from '@/widgets/console/messages';
 import type { WidgetProps } from '@/widgets/widget-type';
+import './console.css';
 
 /** Height of a one line message (px), messages are never shorter so measuring them only moves later rows down */
 const rowHeight = 20;
 
 const minimumLevelLabels: Record<MessageLevel, string> = { info: 'All', warning: 'Warnings', error: 'Errors' };
 
-const levelClassNames: Record<MessageLevel, string> = {
-	info: 'hover:bg-accent data-popup-open:bg-accent',
-	warning: 'bg-warning/8 text-warning-foreground hover:bg-warning/16 data-popup-open:bg-warning/16',
-	error: 'bg-destructive/8 text-destructive-foreground hover:bg-destructive/16 data-popup-open:bg-destructive/16',
-};
-
-const searchToggles = [
+const searchToggles: readonly { option: keyof SearchOptions; label: string; icon: ReactNode }[] = [
 	{ option: 'caseSensitive', label: 'Match case', icon: <CaseSensitiveIcon /> },
 	{ option: 'wholeWord', label: 'Match whole word', icon: <WholeWordIcon /> },
 	{ option: 'regex', label: 'Use regular expression', icon: <RegexIcon /> },
-] as const;
+];
 
 const noMessages: ConsoleMessages = { ids: new Uint32Array(), times: new Float64Array(), texts: [], levels: [] };
 
@@ -154,50 +148,52 @@ export function Console({ bindings }: WidgetProps) {
 
 	return (
 		<div className="flex h-full flex-col">
-			<div className="flex shrink-0 flex-wrap gap-2 p-2 capture:invisible">
-				<InputGroup className="min-w-56 flex-1">
-					<InputGroupAddon>
-						<SearchIcon />
-					</InputGroupAddon>
-					<InputGroupInput
-						type="search"
-						aria-label="Filter messages"
-						aria-invalid={pattern === null || undefined}
-						placeholder="Filter messages"
-						size="sm"
-						value={filter}
-						onChange={(event) => setFilter(event.target.value)}
-						onKeyDown={(event) => {
-							if (isEnterKey(event)) {
-								event.preventDefault();
-								seekMessage(event.shiftKey ? previousTime : nextTime);
-							}
-						}}
-					/>
-					<InputGroupAddon align="inline-end" className="gap-0.5 has-[>button]:-me-1.5">
+			<div className="capture-invisible flex shrink-0 flex-wrap items-center gap-2 p-2">
+				<div className="min-w-56 flex-1">
+					<InputGroup label="Console" isLabelHidden size="sm">
+						<TextInput
+							type="search"
+							label="Filter messages"
+							isLabelHidden
+							startIcon="search"
+							placeholder="Filter messages"
+							// The message list says so too, so its message is only on the status icon
+							status={pattern === null ? { type: 'error', message: 'Invalid regular expression' } : undefined}
+							statusVariant="tooltip"
+							value={filter}
+							onChange={setFilter}
+							onKeyDown={(event) => {
+								if (isEnterKey(event)) {
+									event.preventDefault();
+									seekMessage(event.shiftKey ? previousTime : nextTime);
+								}
+							}}
+						/>
 						{filtering && pattern !== null && (
-							<InputGroupText className="me-1 text-xs tabular-nums">
+							<InputGroupText className="console-count">
 								{count} of {messages.texts.length}
 							</InputGroupText>
 						)}
-						{searchToggles.map(({ option, label, icon }) => (
-							<ControlTooltip
-								key={option}
-								label={label}
-								render={
-									<Toggle
-										className="h-6 min-w-6 rounded-md px-0.5 sm:h-6 sm:min-w-6"
-										aria-label={label}
-										pressed={options[option]}
-										onPressedChange={(pressed) => setOptions({ ...options, [option]: pressed })}
-									/>
-								}
-							>
-								{icon}
-							</ControlTooltip>
-						))}
-					</InputGroupAddon>
-				</InputGroup>
+					</InputGroup>
+				</div>
+				<ToggleButtonGroup
+					label="Filter options"
+					type="multiple"
+					size="sm"
+					value={searchToggles.filter(({ option }) => options[option]).map(({ option }) => option)}
+					onChange={(value) => {
+						const pressed = new Set(value);
+						setOptions({
+							caseSensitive: pressed.has('caseSensitive'),
+							wholeWord: pressed.has('wholeWord'),
+							regex: pressed.has('regex'),
+						});
+					}}
+				>
+					{searchToggles.map(({ option, label, icon }) => (
+						<ToggleButton key={option} value={option} label={label} icon={icon} isIconOnly />
+					))}
+				</ToggleButtonGroup>
 				<div className="flex shrink-0 items-center">
 					{(
 						[
@@ -205,39 +201,26 @@ export function Console({ bindings }: WidgetProps) {
 							{ label: 'Next message', shortcut: 'Enter', target: nextTime, icon: <ChevronDownIcon /> },
 						] as const
 					).map(({ label, shortcut, target, icon }) => (
-						<ControlTooltip
-							key={label}
-							label={label}
-							shortcut={shortcut}
-							render={
-								<Button
-									variant="ghost"
-									size="icon-xs"
-									aria-label={label}
-									disabled={target === undefined}
-									onClick={() => seekMessage(target)}
-								/>
-							}
-						>
-							{icon}
-						</ControlTooltip>
+						<Tooltip key={label} content={<TooltipLabel label={label} shortcut={shortcut} />}>
+							<IconButton
+								label={label}
+								icon={icon}
+								variant="ghost"
+								size="sm"
+								isDisabled={target === undefined}
+								onClick={() => seekMessage(target)}
+							/>
+						</Tooltip>
 					))}
 				</div>
 				<SegmentedControl
+					label="Minimum level"
 					size="sm"
-					aria-label="Minimum level"
-					render={
-						<RadioGroup
-							className="shrink-0 flex-row gap-0.5"
-							value={minimumLevel}
-							onValueChange={(value: MessageLevel) => setMinimumLevel(value)}
-						/>
-					}
+					value={minimumLevel}
+					onChange={(value) => setMinimumLevel(messageLevels.find((level) => level === value) ?? 'info')}
 				>
 					{messageLevels.map((level) => (
-						<SegmentedControlItem key={level} render={<RadioPrimitive.Root value={level} />}>
-							{minimumLevelLabels[level]}
-						</SegmentedControlItem>
+						<SegmentedControlItem key={level} value={level} label={minimumLevelLabels[level]} />
 					))}
 				</SegmentedControl>
 			</div>
@@ -268,10 +251,8 @@ export function Console({ bindings }: WidgetProps) {
 										// Stop flashing once it's done or the user found the message, so it doesn't replay when the row remounts
 										onAnimationEnd={() => setFlashTime(undefined)}
 										onPointerEnter={() => setFlashTime(undefined)}
-										className={cn(
-											'absolute inset-x-0 top-0 flex gap-3 px-2 py-0.5 leading-4 data-flash:animate-highlight-fade',
-											levelClassNames[messages.levels[item.index]!],
-										)}
+										data-level={messages.levels[item.index]}
+										className="console-message absolute inset-x-0 top-0 flex gap-3 px-2 py-0.5 leading-4"
 										style={{ transform: `translateY(${item.start}px)` }}
 									/>
 								}

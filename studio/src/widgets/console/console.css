@@ -1,0 +1,33 @@
+.console-count {
+	font-variant-numeric: tabular-nums;
+}
+
+/* Rows tint by level, and darken on hover and while their context menu is open */
+.console-message:hover,
+.console-message[data-popup-open] {
+	background-color: var(--color-overlay-hover);
+}
+.console-message[data-level='warning'] {
+	background-color: color-mix(in srgb, var(--color-warning) 8%, transparent);
+	color: var(--color-text-warning);
+}
+.console-message[data-level='error'] {
+	background-color: color-mix(in srgb, var(--color-error) 8%, transparent);
+	color: var(--color-text-error);
+}
+.console-message[data-level='warning']:is(:hover, [data-popup-open]) {
+	background-color: var(--color-warning-muted);
+}
+.console-message[data-level='error']:is(:hover, [data-popup-open]) {
+	background-color: var(--color-error-muted);
+}
+
+/* Messages just stepped to briefly tint to show where to look, then fade back to their own background */
+.console-message[data-flash] {
+	animation: console-message-flash 1.5s ease-in;
+}
+@keyframes console-message-flash {
+	from {
+		background-color: color-mix(in srgb, var(--color-accent) 20%, transparent);
+	}
+}
