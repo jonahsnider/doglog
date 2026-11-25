@@ -54,5 +54,5 @@ Keep feature behavior and functionality in `openspec/specs`.
   - In CSS and StyleX, multiply durations by `--motion-scale` (ex. `calc(var(--duration-fast) * var(--motion-scale))`)
   - With the motion library, use `duration`, `easing`, and `useMotionTransition()` from `@/lib/motion`
   - Outside React, check `reducesMotion()`
-- Use `TextMorph` from `@/components/text-morph` for changing counts, progress numbers, and short state labels
-  - Avoid for values that change quickly or should immediately reflect current state (ex. tooltips on a graph)
+- Use `TextMorph` from `@/components/text-morph` for changing counts and short state labels
+  - Avoid for values that change quickly or should immediately reflect current state (ex. tooltips on a graph, progress bar percentages)

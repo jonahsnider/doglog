@@ -2,7 +2,6 @@ import { HStack } from '@astryxdesign/core/Layout';
 import { ProgressBar } from '@astryxdesign/core/ProgressBar';
 import { Text } from '@astryxdesign/core/Text';
 import * as stylex from '@stylexjs/stylex';
-import { TextMorph } from '@/components/text-morph';
 import { useSettings } from '@/settings';
 import './themed-progress-bar.css';
 
@@ -52,7 +51,7 @@ export function ThemedProgressBar({ label, value }: { label: string; value: numb
 			</div>
 			{value !== undefined && (
 				<Text type="code" color="secondary" xstyle={styles.value}>
-					<TextMorph>{`${Math.round(value * 100)}%`}</TextMorph>
+					{Math.round(value * 100)}%
 				</Text>
 			)}
 		</HStack>
