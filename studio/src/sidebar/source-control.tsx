@@ -176,7 +176,8 @@ function SourceTrigger({ sources, trigger }: { sources: Sources; trigger: Dropdo
 
 	return (
 		<Tooltip
-			content={<span {...stylex.props(styles.tooltip)}>{description}</span>}
+			// The tooltip can still be visible while the sidebar starts peeking.
+			content={<span {...stylex.props(styles.tooltip)}>{description || `${name}: ${detail}`}</span>}
 			placement="end"
 			isEnabled={collapsed || fileName !== undefined}
 		>
