@@ -9,6 +9,7 @@ DogLog Studio is a web and desktop app for reviewing and analyzing logs.
 
 ## DogLog Studio
 
+- Studio is pre-launch, so don't concern yourself with backwards compatibility or migration paths
 - We use OpenSpec to describe features and expectations for the app
 - Our workflow is fairly standard, but we don't use their change tracking feature
 - When making changes to the app, consider if spec documents should be added or updated
