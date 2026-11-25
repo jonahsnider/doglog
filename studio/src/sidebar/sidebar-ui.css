@@ -70,8 +70,8 @@
 	}
 }
 
-/* Leaves room for the action at the end of the row */
-[data-sidebar='menu-item']:has([data-sidebar='menu-action']) [data-sidebar='menu-button'] {
+/* Leaves room for the action at the end of the row. `:where` keeps it below the rail's square, which hides the action. */
+:where([data-sidebar='menu-item']:has([data-sidebar='menu-action'])) [data-sidebar='menu-button'] {
 	padding-inline-end: var(--spacing-8);
 }
 
