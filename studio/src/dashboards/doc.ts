@@ -140,7 +140,12 @@ export function writeDashboardDoc(doc: LoroDoc, { name, layout }: DashboardConte
 
 /**
  * Delete the nodes that weren't written, children before their parents.
- * Undoing the deletion of a parent alone duplicates the items in its children's mergeable lists.
+ *
+ * Deleting a parent also deletes its children, but loro-crdt 1.19.0 and 1.19.1 (not 1.18) have a bug where undoing that
+ * restores the contents of the children's mergeable lists and text twice. Closing a pane and undoing it would duplicate
+ * the bindings of the pane next to it, as real edits that get saved and synced. Undo restores nodes correctly when each
+ * one was deleted on its own. This deletes the same nodes as deleting parents alone, since `writeNode()` already moved
+ * the nodes that are kept out of them.
  */
 function deleteUnwritten(tree: LoroTree, written: ReadonlySet<string>, node: LoroTreeNode): void {
 	for (const child of node.children() ?? []) {
