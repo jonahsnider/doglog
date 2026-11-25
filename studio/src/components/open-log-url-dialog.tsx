@@ -1,22 +1,16 @@
+import { Button } from '@astryxdesign/core/Button';
+import { Code } from '@astryxdesign/core/Code';
+import { Dialog, DialogHeader } from '@astryxdesign/core/Dialog';
+import { HStack, Layout, LayoutContent, LayoutFooter, VStack } from '@astryxdesign/core/Layout';
+import { TextInput } from '@astryxdesign/core/TextInput';
+import { useSelector } from '@tanstack/react-store';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { useRef, useState } from 'react';
-import { openLogUrlDialog } from '@/components/open-log-url-dialog-handle';
-import { Button } from '@/components/ui/button';
-import {
-	Dialog,
-	DialogClose,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogPanel,
-	DialogPopup,
-	DialogTitle,
-} from '@/components/ui/dialog';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
+import { openLogUrlDialogOpen } from '@/components/open-log-url-dialog-handle';
 import { type OpenLogUrlError, openLogUrl } from '@/data/open-log-url';
 
 export function OpenLogUrlDialog() {
+	const open = useSelector(openLogUrlDialogOpen);
 	const [value, setValue] = useState('');
 	const [submitting, setSubmitting] = useState(false);
 	const [error, setError] = useState<OpenLogUrlError>();
@@ -49,7 +43,7 @@ export function OpenLogUrlDialog() {
 				if (result.ok) {
 					setValue('');
 					setError(undefined);
-					openLogUrlDialog.close();
+					openLogUrlDialogOpen.set(false);
 				} else if (result.error.kind !== 'aborted') {
 					setError(result.error);
 				}
@@ -64,71 +58,72 @@ export function OpenLogUrlDialog() {
 	};
 
 	const offerBrowser = STUDIO_DESKTOP && (error?.kind === 'html' || error?.kind === 'auth') && error.url !== undefined;
+	const setOpen = (next: boolean) => {
+		if (!next) {
+			reset();
+		}
+		openLogUrlDialogOpen.set(next);
+	};
 
 	return (
-		<Dialog
-			handle={openLogUrlDialog}
-			onOpenChange={(open) => {
-				if (!open) {
-					reset();
-				}
-			}}
-		>
-			<DialogPopup className="max-w-md" bottomStickOnMobile={false}>
-				<form className="contents" onSubmit={handleSubmit}>
-					<DialogHeader>
-						<DialogTitle>Open log from URL</DialogTitle>
-						<DialogDescription>
-							Enter the URL of a <span className="font-mono">.wpilog</span> or{' '}
-							<span className="font-mono">.wpilogxz</span> file.
-						</DialogDescription>
-					</DialogHeader>
-					<DialogPanel>
-						<Field invalid={error !== undefined}>
-							<FieldLabel>Log URL</FieldLabel>
-							<Input
-								autoFocus
-								type="text"
-								inputMode="url"
-								autoComplete="url"
-								spellCheck={false}
-								placeholder="https://example.com/match.wpilog"
-								value={value}
-								disabled={submitting}
-								onChange={(event) => {
-									setValue(event.target.value);
-									if (error !== undefined) {
-										setError(undefined);
-									}
-								}}
-							/>
-							{error !== undefined && (
-								<FieldError match>
-									<span>{error.message}</span>
-									{offerBrowser && (
-										<>
-											{' '}
-											<button
-												type="button"
-												className="underline underline-offset-2 hover:text-foreground"
-												onClick={() => void openUrl(error.url!)}
-											>
-												Open in browser
-											</button>
-										</>
-									)}
-								</FieldError>
-							)}
-						</Field>
-					</DialogPanel>
-					<DialogFooter>
-						<DialogClose render={<Button variant="ghost" />}>Cancel</DialogClose>
-						<Button type="submit" disabled={submitting || value.trim() === ''}>
-							{submitting ? 'Opening…' : 'Open'}
-						</Button>
-					</DialogFooter>
-				</form>
-			</DialogPopup>
+		<Dialog isOpen={open} onOpenChange={setOpen} purpose="form" width={448}>
+			<form onSubmit={handleSubmit}>
+				<Layout
+					height="auto"
+					header={
+						<DialogHeader
+							title="Open log from URL"
+							subtitle={
+								<>
+									Enter the URL of a <Code>.wpilog</Code> or <Code>.wpilogxz</Code> file.
+								</>
+							}
+							onOpenChange={setOpen}
+						/>
+					}
+					content={
+						<LayoutContent>
+							<VStack gap={2} hAlign="start">
+								<TextInput
+									label="Log URL"
+									hasAutoFocus
+									inputMode="url"
+									autoComplete="url"
+									hasSpellCheck={false}
+									placeholder="https://example.com/match.wpilog"
+									value={value}
+									isDisabled={submitting}
+									width="100%"
+									status={error === undefined ? undefined : { type: 'error', message: error.message }}
+									onChange={(next) => {
+										setValue(next);
+										if (error !== undefined) {
+											setError(undefined);
+										}
+									}}
+								/>
+								{offerBrowser && (
+									<Button label="Open in browser" variant="ghost" size="sm" onClick={() => void openUrl(error.url!)} />
+								)}
+							</VStack>
+						</LayoutContent>
+					}
+					footer={
+						<LayoutFooter>
+							<HStack gap={2} hAlign="end">
+								<Button label="Cancel" variant="ghost" onClick={() => setOpen(false)} />
+								<Button
+									type="submit"
+									label="Open"
+									variant="primary"
+									isLoading={submitting}
+									isDisabled={value.trim() === ''}
+								/>
+							</HStack>
+						</LayoutFooter>
+					}
+				/>
+			</form>
 		</Dialog>
 	);
 }

@@ -15,7 +15,7 @@ import {
 	reopenClosedDashboards,
 	undoDashboard,
 } from '@/dashboards/dashboards';
-import { openLogUrlDialog } from '@/components/open-log-url-dialog-handle';
+import { openLogUrlDialogOpen } from '@/components/open-log-url-dialog-handle';
 import { goInHistory } from '@/commands/history';
 import {
 	dashboardNumbers,
@@ -169,7 +169,7 @@ function openLogs(router: RegisteredRouter): void {
 
 /** Open the dialog for loading a log from an HTTP(S) URL */
 export function openLogUrlPrompt(): void {
-	openLogUrlDialog.open(null);
+	openLogUrlDialogOpen.set(true);
 }
 
 /** Connect to the robot target from Settings, or the simulator */

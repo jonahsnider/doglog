@@ -9,7 +9,7 @@ import { TextInput } from '@astryxdesign/core/TextInput';
 import { createFileRoute } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import { cloudAccountStore } from '@/cloud/session';
-import { aboutDialog } from '@/components/about-dialog-handle';
+import { aboutDialogOpen } from '@/components/about-dialog-handle';
 import { CliField } from '@/components/cli-field';
 import { UtilityPage, UtilityPageSection } from '@/components/utility-page';
 import { getRobotHost } from '@/robot-target';
@@ -31,7 +31,7 @@ function Settings() {
 	return (
 		<UtilityPage
 			title="Settings"
-			actions={<Button label="About DogLog Studio" onClick={() => aboutDialog.open(null)} />}
+			actions={<Button label="About DogLog Studio" onClick={() => aboutDialogOpen.set(true)} />}
 		>
 			<VStack gap={8}>
 				<UtilityPageSection title="Appearance" description="How Studio looks">

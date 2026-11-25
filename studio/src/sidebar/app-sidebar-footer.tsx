@@ -5,10 +5,9 @@ import KeyboardIcon from 'lucide-react/icons/keyboard';
 import RefreshCwIcon from 'lucide-react/icons/refresh-cw';
 import { WhatsNewCard } from '@/changelog/whats-new-card';
 import { shortcuts } from '@/commands/commands';
-import { KeyboardShortcutsDialog } from '@/commands/keyboard-shortcuts-dialog';
+import { keyboardShortcutsDialogOpen } from '@/commands/keyboard-shortcuts-dialog-handle';
 import { TextMorph } from '@/components/text-morph';
 import { TooltipLabel } from '@/components/tooltip-label';
-import { DialogTrigger } from '@/components/ui/dialog';
 import { SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Spinner } from '@/components/ui/spinner';
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
@@ -41,71 +40,71 @@ export function AppSidebarFooter({
 	return (
 		<SidebarFooter>
 			<WhatsNewCard onShow={onShow} />
-			<KeyboardShortcutsDialog>
-				{(expanded || update) && (
-					<SidebarMenu className="text-muted-foreground">
-						{expanded && (
-							<>
-								<SidebarMenuItem className={expandedRow} inert={closing}>
-									<Tooltip>
-										<DialogTrigger render={<TooltipTrigger render={<SidebarMenuButton size="sm" />} />}>
-											<KeyboardIcon />
-											<span>Keyboard shortcuts</span>
-										</DialogTrigger>
-										<TooltipPopup side="right">
-											<TooltipLabel label="Keyboard shortcuts" shortcut={shortcuts.keyboardShortcuts} />
-										</TooltipPopup>
-									</Tooltip>
-								</SidebarMenuItem>
-								<SidebarMenuItem className={expandedRow} inert={closing}>
-									<DownloadMenu
-										trigger={
-											<SidebarMenuButton
-												size="sm"
-												className="data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground"
-											>
-												<DownloadIcon />
-												<span>Download app</span>
-												<ChevronDownIcon className="ms-auto" />
-											</SidebarMenuButton>
-										}
-									/>
-								</SidebarMenuItem>
-							</>
-						)}
-						<SidebarMenuItem className={update ? undefined : expandedRow} inert={closing && !update}>
-							<Tooltip>
-								<TooltipTrigger
-									render={
+			{(expanded || update) && (
+				<SidebarMenu className="text-muted-foreground">
+					{expanded && (
+						<>
+							<SidebarMenuItem className={expandedRow} inert={closing}>
+								<Tooltip>
+									<TooltipTrigger
+										render={<SidebarMenuButton size="sm" onClick={() => keyboardShortcutsDialogOpen.set(true)} />}
+									>
+										<KeyboardIcon />
+										<span>Keyboard shortcuts</span>
+									</TooltipTrigger>
+									<TooltipPopup side="right">
+										<TooltipLabel label="Keyboard shortcuts" shortcut={shortcuts.keyboardShortcuts} />
+									</TooltipPopup>
+								</Tooltip>
+							</SidebarMenuItem>
+							<SidebarMenuItem className={expandedRow} inert={closing}>
+								<DownloadMenu
+									trigger={
 										<SidebarMenuButton
 											size="sm"
-											disabled={installing}
-											className={cn(
-												// The rail's 32px square overhangs the row's 28px, so its icon stays put when the sidebar peeks
-												'group-data-[collapsible=icon]:-my-0.5',
-												update && 'text-sidebar-foreground',
-											)}
-											onClick={() => void (update ? installUpdate(update.update) : checkForUpdateManually())}
-										/>
+											className="data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground"
+										>
+											<DownloadIcon />
+											<span>Download app</span>
+											<ChevronDownIcon className="ms-auto" />
+										</SidebarMenuButton>
 									}
-								>
-									{installing ? (
-										<Spinner aria-hidden />
-									) : update ? (
-										<CircleArrowUpIcon className="text-sidebar-primary" />
-									) : (
-										<RefreshCwIcon />
-									)}
-									<TextMorph numbers={false}>{updateLabel}</TextMorph>
-								</TooltipTrigger>
-								<TooltipPopup side="right">
-									<TooltipLabel label={updateLabel} shortcut={shortcuts.update} />
-								</TooltipPopup>
-							</Tooltip>
-						</SidebarMenuItem>
-					</SidebarMenu>
-				)}
-			</KeyboardShortcutsDialog>
+								/>
+							</SidebarMenuItem>
+						</>
+					)}
+					<SidebarMenuItem className={update ? undefined : expandedRow} inert={closing && !update}>
+						<Tooltip>
+							<TooltipTrigger
+								render={
+									<SidebarMenuButton
+										size="sm"
+										disabled={installing}
+										className={cn(
+											// The rail's 32px square overhangs the row's 28px, so its icon stays put when the sidebar peeks
+											'group-data-[collapsible=icon]:-my-0.5',
+											update && 'text-sidebar-foreground',
+										)}
+										onClick={() => void (update ? installUpdate(update.update) : checkForUpdateManually())}
+									/>
+								}
+							>
+								{installing ? (
+									<Spinner aria-hidden />
+								) : update ? (
+									<CircleArrowUpIcon className="text-sidebar-primary" />
+								) : (
+									<RefreshCwIcon />
+								)}
+								<TextMorph numbers={false}>{updateLabel}</TextMorph>
+							</TooltipTrigger>
+							<TooltipPopup side="right">
+								<TooltipLabel label={updateLabel} shortcut={shortcuts.update} />
+							</TooltipPopup>
+						</Tooltip>
+					</SidebarMenuItem>
+				</SidebarMenu>
+			)}
 		</SidebarFooter>
 	);
 }

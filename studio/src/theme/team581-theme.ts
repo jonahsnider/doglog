@@ -84,7 +84,8 @@ export function team581ColorTokens(
 
 		'--color-error': role('error'),
 		'--color-on-error': role('on-error'),
-		'--color-error-muted': role('error-container'),
+		// Muted status fills are tints like the other statuses, since the generated error container is a saturated orange
+		'--color-error-muted': alpha('error', 16),
 		'--color-on-error-muted': role('on-error-container'),
 		'--color-text-error': role('error'),
 		'--color-background-error-inverted': role('error'),

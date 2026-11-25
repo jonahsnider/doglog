@@ -1,15 +1,23 @@
+import { Dialog, DialogHeader } from '@astryxdesign/core/Dialog';
+import { HStack, Layout, LayoutContent, VStack } from '@astryxdesign/core/Layout';
+import { List, ListItem } from '@astryxdesign/core/List';
+import { Text } from '@astryxdesign/core/Text';
+import { colorVars, radiusVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden';
+import * as stylex from '@stylexjs/stylex';
+import { useSelector } from '@tanstack/react-store';
 import { dashboardShortcut, redoAlternate, shortcuts } from '@/commands/commands';
-import { Dialog, DialogHeader, DialogPanel, DialogPopup, DialogTitle } from '@/components/ui/dialog';
-import { Kbd } from '@/components/ui/kbd';
+import { keyboardShortcutsDialogOpen } from '@/commands/keyboard-shortcuts-dialog-handle';
+import { Shortcut } from '@/components/shortcut';
 import { exportLiveShortcut } from '@/data/export-live';
 import { canCapture } from '@/desktop/capture';
 import { useSettings } from '@/settings';
-import { type Hotkey, useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
+import { type Hotkey, useHotkey } from '@tanstack/react-hotkeys';
 import PauseIcon from 'lucide-react/icons/pause';
 import PlayIcon from 'lucide-react/icons/play';
 import SkipBackIcon from 'lucide-react/icons/skip-back';
 import SkipForwardIcon from 'lucide-react/icons/skip-forward';
-import { type ReactNode, useId, useState } from 'react';
+import { Fragment, type ReactNode } from 'react';
 
 /** A key without a hotkey, like a media key, shown with icons */
 interface IconKey {
@@ -30,7 +38,7 @@ function isKeyPair(key: Key | KeyPair): key is KeyPair {
 	return Array.isArray(key);
 }
 
-interface Shortcut {
+interface ShortcutRow {
 	label: string;
 	/** Alternative shortcuts, or the first and last of a range. Alternative pairs go on separate lines. */
 	keys: readonly (Key | KeyPair)[];
@@ -40,7 +48,7 @@ interface Shortcut {
 
 const sections: {
 	title: string;
-	shortcuts: Shortcut[];
+	shortcuts: ShortcutRow[];
 	/** Only shown while the media controls setting is on */
 	mediaControls?: boolean;
 }[] = [
@@ -140,8 +148,8 @@ const sections: {
 						name: 'Play/pause',
 						icon: (
 							<>
-								<PlayIcon />
-								<PauseIcon />
+								<PlayIcon size="1em" />
+								<PauseIcon size="1em" />
 							</>
 						),
 					},
@@ -151,8 +159,8 @@ const sections: {
 				label: 'Previous / next section',
 				keys: [
 					[
-						{ name: 'Previous track', icon: <SkipBackIcon /> },
-						{ name: 'Next track', icon: <SkipForwardIcon /> },
+						{ name: 'Previous track', icon: <SkipBackIcon size="1em" /> },
+						{ name: 'Next track', icon: <SkipForwardIcon size="1em" /> },
 					],
 				],
 			},
@@ -160,70 +168,123 @@ const sections: {
 	},
 ];
 
-/** Lists app-wide keyboard shortcuts, opened from the sidebar or with its own shortcut. Widgets show their own. */
-export function KeyboardShortcutsDialog({ children }: { children: ReactNode }) {
-	const [open, setOpen] = useState(false);
-	const sectionId = useId();
-	const formatForDisplay = useFormatForDisplay();
-	const { mediaControls } = useSettings();
-	useHotkey(shortcuts.keyboardShortcuts, () => setOpen((value) => !value), { requireReset: true });
+const styles = stylex.create({
+	// Sections flow down two columns once the dialog has room, without splitting a section across them
+	columns: {
+		columnWidth: '18rem',
+		columnGap: spacingVars['--spacing-8'],
+	},
+	section: {
+		breakInside: 'avoid',
+		marginBottom: spacingVars['--spacing-4'],
+	},
+	// Kbd only shows key names, so media keys get a badge that matches its keys
+	iconKey: {
+		display: 'inline-flex',
+		alignItems: 'center',
+		gap: spacingVars['--spacing-0-5'],
+		height: spacingVars['--spacing-5'],
+		paddingInline: spacingVars['--spacing-1'],
+		borderRadius: radiusVars['--radius-inner'],
+		backgroundColor: colorVars['--color-neutral'],
+		borderBottomWidth: '2px',
+		borderBottomStyle: 'solid',
+		borderBottomColor: colorVars['--color-border-emphasized'],
+		color: colorVars['--color-text-primary'],
+		fontSize: typeScaleVars['--text-supporting-size'],
+	},
+});
 
-	const keyName = (key: Key | KeyPair): string =>
-		isKeyPair(key) ? `${keyName(key[0])}/${keyName(key[1])}` : isIconKey(key) ? key.name : formatForDisplay(key);
-	const renderKey = (key: Key) =>
-		isIconKey(key) ? <Kbd aria-label={key.name}>{key.icon}</Kbd> : <Kbd>{formatForDisplay(key)}</Kbd>;
+function KeyView({ shortcutKey }: { shortcutKey: Key }) {
+	if (!isIconKey(shortcutKey)) {
+		return <Shortcut hotkey={shortcutKey} />;
+	}
+	return (
+		<kbd {...stylex.props(styles.iconKey)}>
+			<VisuallyHidden>{shortcutKey.name}</VisuallyHidden>
+			{shortcutKey.icon}
+		</kbd>
+	);
+}
+
+function keyName(key: Key | KeyPair): string {
+	if (isKeyPair(key)) {
+		return `${keyName(key[0])}/${keyName(key[1])}`;
+	}
+	return isIconKey(key) ? key.name : String(key);
+}
+
+/** A label's keys, with each alternative pair on its own line */
+function ShortcutKeys({ shortcut }: { shortcut: ShortcutRow }) {
+	const lines = shortcut.keys.some(isKeyPair) ? shortcut.keys.map((key) => [key]) : [shortcut.keys];
+	return (
+		<VStack gap={1} hAlign="end">
+			{lines.map((line, lineIndex) => (
+				<HStack key={keyName(line[0]!)} gap={1} vAlign="center">
+					{lineIndex > 0 && <Separator>or</Separator>}
+					{line.map((key, index) => (
+						<Fragment key={keyName(key)}>
+							{index > 0 && <Separator>{shortcut.separator ?? 'or'}</Separator>}
+							{isKeyPair(key) ? (
+								<>
+									<KeyView shortcutKey={key[0]} />
+									<Separator>/</Separator>
+									<KeyView shortcutKey={key[1]} />
+								</>
+							) : (
+								<KeyView shortcutKey={key} />
+							)}
+						</Fragment>
+					))}
+				</HStack>
+			))}
+		</VStack>
+	);
+}
+
+function Separator({ children }: { children: ReactNode }) {
+	return (
+		<Text type="supporting" color="secondary">
+			{children}
+		</Text>
+	);
+}
+
+const setOpen = (next: boolean) => keyboardShortcutsDialogOpen.set(next);
+
+/** Lists app-wide keyboard shortcuts, opened from the sidebar or with its own shortcut. Widgets show their own. */
+export function KeyboardShortcutsDialog() {
+	const open = useSelector(keyboardShortcutsDialogOpen);
+	const { mediaControls } = useSettings();
+	useHotkey(shortcuts.keyboardShortcuts, () => setOpen(!keyboardShortcutsDialogOpen.get()), { requireReset: true });
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
-			{children}
-			<DialogPopup className="max-w-3xl">
-				<DialogHeader>
-					<DialogTitle>Keyboard shortcuts</DialogTitle>
-				</DialogHeader>
-				<DialogPanel className="gap-x-10 sm:columns-2">
-					{sections
-						.filter((section) => mediaControls || section.mediaControls !== true)
-						.map((section, sectionIndex) => (
-							<section
-								key={section.title}
-								className="mb-6 break-inside-avoid last:mb-0"
-								aria-labelledby={`${sectionId}-${sectionIndex}`}
-							>
-								<h3 id={`${sectionId}-${sectionIndex}`} className="mb-2 font-medium text-muted-foreground text-xs">
-									{section.title}
-								</h3>
-								<dl className="flex flex-col gap-2 text-sm">
-									{section.shortcuts.map((shortcut) => (
-										<div key={shortcut.label} className="flex items-start justify-between gap-4">
-											<dt>{shortcut.label}</dt>
-											<dd className="flex shrink-0 flex-col items-end gap-1 text-muted-foreground text-xs">
-												{(shortcut.keys.some(isKeyPair) ? shortcut.keys.map((key) => [key]) : [shortcut.keys]).map(
-													(line, lineIndex) => (
-														<span key={keyName(line[0]!)} className="flex items-center gap-1">
-															{lineIndex > 0 && 'or'}
-															{line.map((key, index) => (
-																<span key={keyName(key)} className="flex items-center gap-1">
-																	{index > 0 && (shortcut.separator ?? 'or')}
-																	{isKeyPair(key) ? (
-																		<>
-																			{renderKey(key[0])}/{renderKey(key[1])}
-																		</>
-																	) : (
-																		renderKey(key)
-																	)}
-																</span>
-															))}
-														</span>
-													),
-												)}
-											</dd>
-										</div>
-									))}
-								</dl>
-							</section>
-						))}
-				</DialogPanel>
-			</DialogPopup>
+		<Dialog isOpen={open} onOpenChange={setOpen} width={768}>
+			<Layout
+				header={<DialogHeader title="Keyboard shortcuts" onOpenChange={setOpen} />}
+				content={
+					<LayoutContent>
+						<div {...stylex.props(styles.columns)}>
+							{sections
+								.filter((section) => mediaControls || section.mediaControls !== true)
+								.map((section) => (
+									<div key={section.title} {...stylex.props(styles.section)}>
+										<List header={section.title} density="compact" edge="flush">
+											{section.shortcuts.map((shortcut) => (
+												<ListItem
+													key={shortcut.label}
+													label={shortcut.label}
+													align="first-line"
+													endContent={<ShortcutKeys shortcut={shortcut} />}
+												/>
+											))}
+										</List>
+									</div>
+								))}
+						</div>
+					</LayoutContent>
+				}
+			/>
 		</Dialog>
 	);
 }

@@ -13,7 +13,7 @@ import {
 	undoOrRedo,
 } from '@/commands/commands';
 import { goInHistory } from '@/commands/history';
-import { aboutDialog } from '@/components/about-dialog-handle';
+import { aboutDialogOpen } from '@/components/about-dialog-handle';
 import { canExportLive, exportLive } from '@/data/export-live';
 import { chooseLog } from '@/data/open-log';
 import { subscribeSource } from '@/data/source';
@@ -39,7 +39,7 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 			{
 				text: 'DogLog Studio',
 				items: [
-					{ text: 'About DogLog Studio', action: () => aboutDialog.open(null) },
+					{ text: 'About DogLog Studio', action: () => aboutDialogOpen.set(true) },
 					{ text: 'Check for Updates…', action: () => void checkForUpdateManually() },
 					separator,
 					{ text: 'Settings…', accelerator: 'CmdOrCtrl+,', action: () => openSettings(router) },

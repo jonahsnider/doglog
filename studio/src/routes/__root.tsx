@@ -5,6 +5,7 @@ import { useGlobalShortcuts } from '@/commands/commands';
 import { AppSidebar } from '@/sidebar/app-sidebar';
 import { useVideoExport } from '@/desktop/video-export';
 import { CloudProvider } from '@/cloud/cloud-background';
+import { KeyboardShortcutsDialog } from '@/commands/keyboard-shortcuts-dialog';
 import { AboutDialog } from '@/components/about-dialog';
 import { DragProvider } from '@/components/drag-provider';
 import { OpenLogUrlDialog } from '@/components/open-log-url-dialog';
@@ -77,6 +78,7 @@ function RootLayout() {
 					<LogDropOverlay />
 					<AboutDialog />
 					<OpenLogUrlDialog />
+					<KeyboardShortcutsDialog />
 				</Toasts>
 			</CloudProvider>
 		</LinkProvider>
