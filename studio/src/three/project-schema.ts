@@ -23,31 +23,38 @@ const modelPath = z
 	)
 	.describe('A glTF binary (.glb) file, relative to the project folder');
 
+const robot = z
+	.strictObject({
+		name: z
+			.string()
+			.min(1)
+			.describe("Shown in DogLog Studio's Robot option, and used to find the robot on other devices"),
+		model: modelPath.describe("The robot's body, a glTF binary (.glb) file relative to the project folder"),
+		mount: transform
+			.optional()
+			.describe("Moves every model from the CAD's coordinates to the robot's, whose origin is its center on the floor"),
+		parts: z
+			.array(
+				z.strictObject({
+					model: modelPath,
+					origin: transform
+						.optional()
+						.describe("The pose of the part's pivot in robot coordinates, where the CAD placed it"),
+				}),
+			)
+			.optional()
+			.describe('Parts moved by a Pose3d[] entry, the pose at each index places the part at the same index'),
+	})
+	.describe('A robot to show in DogLog Studio');
+
 export const projectSchema = z.strictObject({
 	$schema: z.string().optional(),
-	robot: z
-		.strictObject({
-			name: z
-				.string()
-				.min(1)
-				.describe("Shown in DogLog Studio's Robot option, and used to find the robot on other devices"),
-			model: modelPath.describe("The robot's body, a glTF binary (.glb) file relative to the project folder"),
-			mount: transform
-				.optional()
-				.describe(
-					"Moves every model from the CAD's coordinates to the robot's, whose origin is its center on the floor",
-				),
-			parts: z
-				.array(
-					z.strictObject({
-						model: modelPath,
-						origin: transform
-							.optional()
-							.describe("The pose of the part's pivot in robot coordinates, where the CAD placed it"),
-					}),
-				)
-				.optional()
-				.describe('Parts moved by a Pose3d[] entry, the pose at each index places the part at the same index'),
-		})
-		.describe('A robot to show in DogLog Studio'),
+	robots: z
+		.array(robot)
+		.min(1)
+		.refine(
+			(robots) => new Set(robots.map(({ name }) => name)).size === robots.length,
+			'each robot needs a different name',
+		)
+		.describe('The robots to show in DogLog Studio, ex. a competition robot and its practice robot'),
 });

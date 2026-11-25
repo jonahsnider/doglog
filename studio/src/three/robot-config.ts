@@ -44,7 +44,7 @@ function describeIssue(issue: z.core.$ZodIssue, file: string): string {
 	return path === '' ? `${file}: ${message}` : `${path} in ${file}: ${message}`;
 }
 
-function readDogLogConfig(text: string, file: string): RobotConfig {
+function readDogLogConfig(text: string, file: string): RobotConfig[] {
 	const errors: ParseError[] = [];
 	const json: unknown = parse(text, errors, { allowTrailingComma: true });
 	const [error] = errors;
@@ -58,17 +58,18 @@ function readDogLogConfig(text: string, file: string): RobotConfig {
 		throw new RobotConfigError(describeIssue(result.error.issues[0]!, file));
 	}
 
-	const { robot } = result.data;
-	const mount = transformMatrix(robot.mount);
-	return {
-		name: robot.name,
-		body: { file: robot.model, transform: mount },
-		parts: (robot.parts ?? []).map((part) => ({
-			file: part.model,
-			rest: mount,
-			zero: transformMatrix(part.origin).invert().multiply(mount),
-		})),
-	};
+	return result.data.robots.map((robot) => {
+		const mount = transformMatrix(robot.mount);
+		return {
+			name: robot.name,
+			body: { file: robot.model, transform: mount },
+			parts: (robot.parts ?? []).map((part) => ({
+				file: part.model,
+				rest: mount,
+				zero: transformMatrix(part.origin).invert().multiply(mount),
+			})),
+		};
+	});
 }
 
 // AdvantageScope ignores fields it doesn't understand, so this does too
@@ -98,7 +99,7 @@ function advantageScopeMatrix(steps: z.infer<typeof rotations>, [px, py, pz]: z.
 	return new Matrix4().compose(new Vector3(px, py, pz), rotation, new Vector3(1, 1, 1));
 }
 
-function readAdvantageScopeConfig(text: string): RobotConfig {
+function readAdvantageScopeConfig(text: string): RobotConfig[] {
 	let json: unknown;
 	try {
 		json = JSON.parse(text);
@@ -112,19 +113,21 @@ function readAdvantageScopeConfig(text: string): RobotConfig {
 
 	const config = result.data;
 	const base = advantageScopeMatrix(config.rotations, config.position);
-	return {
-		name: config.name,
-		body: { file: 'model.glb', transform: base },
-		parts: config.components.map((component, index) => ({
-			file: `model_${index}.glb`,
-			rest: base,
-			zero: advantageScopeMatrix(component.zeroedRotations, component.zeroedPosition),
-		})),
-	};
+	return [
+		{
+			name: config.name,
+			body: { file: 'model.glb', transform: base },
+			parts: config.components.map((component, index) => ({
+				file: `model_${index}.glb`,
+				rest: base,
+				zero: advantageScopeMatrix(component.zeroedRotations, component.zeroedPosition),
+			})),
+		},
+	];
 }
 
-/** Read a robot project's config, throws a `RobotConfigError` saying what's wrong when it can't */
-export async function readRobotConfig(read: ReadProjectFile): Promise<RobotConfig> {
+/** Read the robots in a project's config, throws a `RobotConfigError` saying what's wrong when it can't */
+export async function readRobotConfigs(read: ReadProjectFile): Promise<RobotConfig[]> {
 	const [jsonc, json, advantageScope] = await Promise.all(
 		['doglog.jsonc', 'doglog.json', 'config.json'].map((file) => read(file)),
 	);

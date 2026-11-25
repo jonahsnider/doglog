@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Box3, FrontSide, type Material, Mesh, MeshStandardMaterial, type Object3D, Vector3 } from 'three';
 import { gltfLoader } from '@/three/gltf-loader';
-import { RobotConfigError, type RobotConfig, readRobotConfig } from '@/three/robot-config';
+import { RobotConfigError, type RobotConfig, readRobotConfigs } from '@/three/robot-config';
 import { ProjectAccessError, projectFileReader, type RobotProject } from '@/three/robot-projects';
 
 export type LoadedRobot = {
@@ -69,7 +69,10 @@ function prepare(model: Object3D): Object3D {
 
 async function loadRobot(project: RobotProject): Promise<LoadedRobot> {
 	const read = projectFileReader(project);
-	const config = await readRobotConfig(read);
+	const config = (await readRobotConfigs(read)).find(({ name }) => name === project.name);
+	if (config === undefined) {
+		throw new RobotConfigError(`${project.name} isn't in its project's config anymore`);
+	}
 	const load = async (file: string) => {
 		const contents = await read(file);
 		if (contents === undefined) {

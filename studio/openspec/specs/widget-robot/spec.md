@@ -198,7 +198,7 @@ In 3D, the center of a mechanism canvas's bottom edge SHALL be at the robot's or
 
 ### Requirement: Robot
 
-The robot widget SHALL have a Robot option, which MUST default to "Swerve drivebase": a 0.9 m square frame with bumpers and four swerve modules, drawn without a model. Its other choices SHALL be the robots of the projects the user added. The option's menu MUST offer "Add project…" and "Remove project" for the picked robot. Robots MUST only be drawn in 3D.
+The robot widget SHALL have a Robot option, which MUST default to "Swerve drivebase": a 0.9 m square frame with bumpers and four swerve modules, drawn without a model. Its other choices SHALL be the robots of the projects the user added. The option's menu MUST offer "Add project…", and "Remove project" to remove the picked robot's project with all its robots. Robots MUST only be drawn in 3D.
 
 #### Scenario: Default robot
 
@@ -208,7 +208,7 @@ The robot widget SHALL have a Robot option, which MUST default to "Swerve driveb
 #### Scenario: Add a project
 
 - **WHEN** the user picks "Add project…" from the Robot option and chooses a robot project's folder
-- **THEN** the project's robot is added to the Robot option's choices and picked
+- **THEN** the project's robots are added to the Robot option's choices, and its first robot is picked
 
 #### Scenario: Robot not added on this device
 
@@ -218,13 +218,23 @@ The robot widget SHALL have a Robot option, which MUST default to "Swerve driveb
 
 ### Requirement: Robot projects
 
-A robot project SHALL be a folder with a `doglog.jsonc` or `doglog.json` file in it, and `doglog.jsonc` MUST be used when both are present. Both MUST allow comments and trailing commas, and a published JSON schema MUST describe them so editors can validate them. A project's robot MUST be read from the `robot` key, and project files MUST be read where they are, so changes to them are used the next time the robot is loaded without adding the project again.
+A robot project SHALL be a folder with a `doglog.jsonc` or `doglog.json` file in it, and `doglog.jsonc` MUST be used when both are present. Both MUST allow comments and trailing commas, and a published JSON schema MUST describe them so editors can validate them. Project files MUST be read where they are, so changes to them are used the next time the robot is loaded without adding the project again.
 
 #### Scenario: Robot code repository
 
 - **GIVEN** a robot project with `doglog.jsonc` next to `build.gradle`, and models in a `cad` folder
 - **WHEN** the user adds the project
 - **THEN** its robot is drawn using the models in `cad`
+
+### Requirement: Several robots in a project
+
+A project's robots SHALL be read from the `robots` array, and each robot MUST have a different name. Adding a project again MUST replace the robots it added before.
+
+#### Scenario: Competition and practice robots
+
+- **GIVEN** a `doglog.jsonc` with a competition robot and a practice robot
+- **WHEN** the user adds the project
+- **THEN** both robots are added to the Robot option's choices
 
 ### Requirement: Robot projects on the web
 
@@ -244,26 +254,28 @@ A robot project whose files aren't valid SHALL NOT be drawn, and the widget MUST
 
 #### Scenario: Unknown key
 
-- **GIVEN** a `doglog.jsonc` whose robot has a `colour` key
-- **THEN** the widget says `robot.colour` in `doglog.jsonc` isn't a known key
+- **GIVEN** a `doglog.jsonc` whose first robot has a `colour` key
+- **THEN** the widget says `robots.0.colour` in `doglog.jsonc` isn't a known key
 - **AND** the swerve drivebase is drawn
 
 ### Requirement: Robot config
 
-A project's robot SHALL have a `name`, the glTF binary `model` of the robot's body, an optional `mount`, and an optional list of `parts`, each with its own `model` and `origin`. Model paths MUST be relative to the project's folder. `mount` MUST move every model from the CAD's coordinates into the robot's, and each part's `origin` MUST be the pose of its pivot in the robot's coordinates, where the CAD placed it.
+Each of a project's robots SHALL have a `name`, the glTF binary `model` of the robot's body, an optional `mount`, and an optional list of `parts`, each with its own `model` and `origin`. Model paths MUST be relative to the project's folder. `mount` MUST move every model from the CAD's coordinates into the robot's, and each part's `origin` MUST be the pose of its pivot in the robot's coordinates, where the CAD placed it.
 
 ```jsonc
 {
 	"$schema": "https://doglog.studio/doglog.schema.json",
-	"robot": {
-		"name": "581 2026",
-		"model": "cad/robot.glb",
-		"mount": { "z": 0.05, "roll": 90 },
-		"parts": [
-			{ "model": "cad/elevator.glb", "origin": { "x": 0.1, "z": 0.2 } },
-			{ "model": "cad/arm.glb", "origin": { "x": 0.1, "z": 0.9 } },
-		],
-	},
+	"robots": [
+		{
+			"name": "581 2026",
+			"model": "cad/robot.glb",
+			"mount": { "z": 0.05, "roll": 90 },
+			"parts": [
+				{ "model": "cad/elevator.glb", "origin": { "x": 0.1, "z": 0.2 } },
+				{ "model": "cad/arm.glb", "origin": { "x": 0.1, "z": 0.9 } },
+			],
+		},
+	],
 }
 ```
 

@@ -401,7 +401,7 @@
 																	]
 																},
 																"robot": {
-																	"description": "A robot or ghost's robot in 3D: `swerve` (the built-in swerve drivebase) or the name of a robot project the user added on their device. Left out, it's the first robot's.",
+																	"description": "A robot or ghost's robot in 3D: `swerve` (the built-in swerve drivebase) or the name of a robot from a project the user added on their device. Left out, it's the first robot's.",
 																	"type": "string",
 																	"minLength": 1
 																},
@@ -512,7 +512,7 @@
 													"type"
 												],
 												"additionalProperties": false,
-												"description": "Robot: The robot in 2D or 3D. Mechanism2d entries are drawn on a plane of the robot: `side` (XZ, the default), `front` (YZ), or `top` (XY). A Pose3d[] entry places the parts of a robot project's CAD model (`parts`). The `view` option defaults to 2D when only a mechanism is bound. The `robot` option is `swerve` (the built-in swerve drivebase) or the name of a robot project the user added on their device."
+												"description": "Robot: The robot in 2D or 3D. Mechanism2d entries are drawn on a plane of the robot: `side` (XZ, the default), `front` (YZ), or `top` (XY). A Pose3d[] entry places the parts of a robot project's CAD model (`parts`). The `view` option defaults to 2D when only a mechanism is bound. The `robot` option is `swerve` (the built-in swerve drivebase) or the name of a robot from a project the user added on their device."
 											},
 											{
 												"type": "object",
@@ -1243,7 +1243,7 @@
 													]
 												},
 												"robot": {
-													"description": "A robot or ghost's robot in 3D: `swerve` (the built-in swerve drivebase) or the name of a robot project the user added on their device. Left out, it's the first robot's.",
+													"description": "A robot or ghost's robot in 3D: `swerve` (the built-in swerve drivebase) or the name of a robot from a project the user added on their device. Left out, it's the first robot's.",
 													"type": "string",
 													"minLength": 1
 												},
@@ -1354,7 +1354,7 @@
 									"type"
 								],
 								"additionalProperties": false,
-								"description": "Robot: The robot in 2D or 3D. Mechanism2d entries are drawn on a plane of the robot: `side` (XZ, the default), `front` (YZ), or `top` (XY). A Pose3d[] entry places the parts of a robot project's CAD model (`parts`). The `view` option defaults to 2D when only a mechanism is bound. The `robot` option is `swerve` (the built-in swerve drivebase) or the name of a robot project the user added on their device."
+								"description": "Robot: The robot in 2D or 3D. Mechanism2d entries are drawn on a plane of the robot: `side` (XZ, the default), `front` (YZ), or `top` (XY). A Pose3d[] entry places the parts of a robot project's CAD model (`parts`). The `view` option defaults to 2D when only a mechanism is bound. The `robot` option is `swerve` (the built-in swerve drivebase) or the name of a robot from a project the user added on their device."
 							},
 							{
 								"type": "object",
@@ -1890,7 +1890,7 @@
 											"type"
 										],
 										"additionalProperties": false,
-										"description": "Robot: The robot in 2D or 3D. Mechanism2d entries are drawn on a plane of the robot: `side` (XZ, the default), `front` (YZ), or `top` (XY). A Pose3d[] entry places the parts of a robot project's CAD model (`parts`). The `view` option defaults to 2D when only a mechanism is bound. The `robot` option is `swerve` (the built-in swerve drivebase) or the name of a robot project the user added on their device."
+										"description": "Robot: The robot in 2D or 3D. Mechanism2d entries are drawn on a plane of the robot: `side` (XZ, the default), `front` (YZ), or `top` (XY). A Pose3d[] entry places the parts of a robot project's CAD model (`parts`). The `view` option defaults to 2D when only a mechanism is bound. The `robot` option is `swerve` (the built-in swerve drivebase) or the name of a robot from a project the user added on their device."
 									},
 									{
 										"type": "object",
@@ -2295,12 +2295,12 @@
 						"description": "Listed in the legend but not drawn"
 					},
 					"robot": {
-						"description": "A robot or ghost's robot in 3D: `swerve` (the built-in swerve drivebase) or the name of a robot project the user added on their device. `null` uses the first robot's again.",
+						"description": "A robot or ghost's robot in 3D: `swerve` (the built-in swerve drivebase) or the name of a robot from a project the user added on their device. `null` uses the first robot's again.",
 						"anyOf": [
 							{
 								"type": "string",
 								"minLength": 1,
-								"description": "A robot or ghost's robot in 3D: `swerve` (the built-in swerve drivebase) or the name of a robot project the user added on their device"
+								"description": "A robot or ghost's robot in 3D: `swerve` (the built-in swerve drivebase) or the name of a robot from a project the user added on their device"
 							},
 							{
 								"type": "null"

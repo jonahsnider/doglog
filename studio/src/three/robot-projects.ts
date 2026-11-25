@@ -8,6 +8,7 @@ import { open as openDialog } from '@tauri-apps/plugin-dialog';
 import { get, set } from 'idb-keyval';
 import type { ReadProjectFile } from '@/three/robot-config';
 
+/** A robot in a project the user added, a project with several robots has an entry for each */
 export type RobotProject = {
 	/** The robot's name from its config, robots are picked by name so shared dashboards work on other devices */
 	readonly name: string;
@@ -20,13 +21,25 @@ export type RobotProject = {
 const storageKey = 'doglog-studio:robot-projects';
 const projectsStore = createAtom<readonly RobotProject[] | undefined>(undefined);
 
-function isSameProject(a: RobotProject, b: RobotProject): Promise<boolean> {
-	if (a.name !== b.name || a.path !== b.path) {
+function isSameFolder(a: RobotProject, b: RobotProject): Promise<boolean> {
+	if (a.path !== b.path) {
 		return Promise.resolve(false);
 	}
 	return a.handle === undefined || b.handle === undefined
 		? Promise.resolve(a.handle === b.handle)
 		: a.handle.isSameEntry(b.handle);
+}
+
+function isSameProject(a: RobotProject, b: RobotProject): Promise<boolean> {
+	return a.name === b.name ? isSameFolder(a, b) : Promise.resolve(false);
+}
+
+/** The saved projects without the robots of `project`'s folder, or with the same names as `names` */
+async function savedProjectsWithout(project: RobotProject, names: readonly string[] = []): Promise<RobotProject[]> {
+	const saved = (await get<RobotProject[]>(storageKey)) ?? [];
+	const same = await Promise.all(saved.map((other) => isSameFolder(other, project)));
+	const replaced = new Set(names);
+	return saved.filter((other, index) => same[index] === false && !replaced.has(other.name));
 }
 
 async function loadProjects(): Promise<void> {
@@ -123,7 +136,10 @@ export async function allowProjectAccess(project: RobotProject): Promise<boolean
 	return (await project.handle?.requestPermission({ mode: 'read' })) === 'granted';
 }
 
-/** Pick a project folder and add its robot, replacing a project with the same robot. Returns the robot's name. */
+/**
+ * Pick a project folder and add its robots, replacing robots with the same names and the folder's robots from when it
+ * was added before. Returns the first robot's name.
+ */
 export async function addRobotProject(): Promise<string | undefined> {
 	let project: Omit<RobotProject, 'name'>;
 	if (STUDIO_DESKTOP) {
@@ -143,16 +159,19 @@ export async function addRobotProject(): Promise<string | undefined> {
 		}
 	}
 
-	const { readRobotConfig } = await import('@/three/robot-config');
-	const { name } = await readRobotConfig(projectFileReader({ name: '', ...project }));
-	const others = ((await get<RobotProject[]>(storageKey)) ?? []).filter((other) => other.name !== name);
+	const { readRobotConfigs } = await import('@/three/robot-config');
+	const names = (await readRobotConfigs(projectFileReader({ name: '', ...project }))).map(({ name }) => name);
+	const others = await savedProjectsWithout({ name: '', ...project }, names);
 	// Removed first so a project added again is a new object, and its models load again with any changes
 	await saveProjects(others);
-	await saveProjects([...others, { name, ...project }]);
-	return name;
+	await saveProjects([...others, ...names.map((name) => ({ name, ...project }))]);
+	return names[0];
 }
 
+/** Remove the project of the robot named `name`, with all its robots */
 export async function removeRobotProject(name: string): Promise<void> {
-	const projects = (await get<RobotProject[]>(storageKey)) ?? [];
-	await saveProjects(projects.filter((project) => project.name !== name));
+	const project = getRobotProjects().find((other) => other.name === name);
+	if (project !== undefined) {
+		await saveProjects(await savedProjectsWithout(project));
+	}
 }
