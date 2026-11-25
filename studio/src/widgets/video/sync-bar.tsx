@@ -3,9 +3,9 @@ import ChevronRightIcon from 'lucide-react/icons/chevron-right';
 import PauseIcon from 'lucide-react/icons/pause';
 import PlayIcon from 'lucide-react/icons/play';
 import { type ReactNode, type RefObject, useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
+import { Button } from '@astryxdesign/core/Button';
+import { IconButton } from '@astryxdesign/core/IconButton';
+import { Slider } from '@astryxdesign/core/Slider';
 import { formatTime } from '@/timeline/timeline';
 import type { Player } from '@/widgets/video/player';
 import { frameLength } from '@/widgets/video/state';
@@ -65,50 +65,51 @@ export function SyncBar({
 
 	return (
 		<div role="toolbar" aria-label="Sync video" className="flex flex-wrap items-center gap-x-2 gap-y-1 p-2">
-			<SyncBarButton label={playing ? 'Pause video' : 'Play video'} onClick={() => setPlaying(!playing)}>
-				{playing ? <PauseIcon /> : <PlayIcon />}
-			</SyncBarButton>
-			<SyncBarButton label="Previous frame" onClick={() => seek((player.current?.time() ?? time) - frameLength)}>
-				<ChevronLeftIcon />
-			</SyncBarButton>
-			<SyncBarButton label="Next frame" onClick={() => seek((player.current?.time() ?? time) + frameLength)}>
-				<ChevronRightIcon />
-			</SyncBarButton>
-			<span className="font-mono text-xs text-muted-foreground tabular-nums">{formatTime(time * 1_000_000, 0)}</span>
-			<Slider
-				aria-label="Video time"
-				className="min-w-24 flex-1"
-				min={0}
-				max={duration ?? 0}
-				step={0.01}
-				disabled={duration === undefined}
-				value={time}
-				onValueChange={(value) => seek(typeof value === 'number' ? value : (value[0] ?? 0))}
+			<SyncBarButton
+				label={playing ? 'Pause video' : 'Play video'}
+				icon={playing ? <PauseIcon /> : <PlayIcon />}
+				onClick={() => setPlaying(!playing)}
 			/>
+			<SyncBarButton
+				label="Previous frame"
+				icon={<ChevronLeftIcon />}
+				onClick={() => seek((player.current?.time() ?? time) - frameLength)}
+			/>
+			<SyncBarButton
+				label="Next frame"
+				icon={<ChevronRightIcon />}
+				onClick={() => seek((player.current?.time() ?? time) + frameLength)}
+			/>
+			<span className="font-mono text-xs text-muted-foreground tabular-nums">{formatTime(time * 1_000_000, 0)}</span>
+			<div className="min-w-24 flex-1">
+				<Slider
+					label="Video time"
+					isLabelHidden
+					valueDisplay="none"
+					width="100%"
+					min={0}
+					max={duration ?? 0}
+					step={0.01}
+					isDisabled={duration === undefined}
+					value={time}
+					onChange={(value: number) => seek(value)}
+				/>
+			</div>
 			<div className="flex items-center gap-1">
-				<Button variant="ghost" size="sm" onClick={onCancel}>
-					Cancel
-				</Button>
-				<Tooltip>
-					<TooltipTrigger
-						render={<Button size="sm" disabled={!canSync} onClick={() => onSync(player.current?.time() ?? time)} />}
-					>
-						Save
-					</TooltipTrigger>
-					<TooltipPopup>Show this moment of the video at the timeline’s cursor</TooltipPopup>
-				</Tooltip>
+				<Button label="Cancel" variant="ghost" size="sm" onClick={onCancel} />
+				<Button
+					label="Save"
+					variant="primary"
+					size="sm"
+					tooltip="Show this moment of the video at the timeline’s cursor"
+					isDisabled={!canSync}
+					onClick={() => onSync(player.current?.time() ?? time)}
+				/>
 			</div>
 		</div>
 	);
 }
 
-function SyncBarButton({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) {
-	return (
-		<Tooltip>
-			<TooltipTrigger render={<Button variant="ghost" size="icon-sm" aria-label={label} onClick={onClick} />}>
-				{children}
-			</TooltipTrigger>
-			<TooltipPopup>{label}</TooltipPopup>
-		</Tooltip>
-	);
+function SyncBarButton({ label, icon, onClick }: { label: string; icon: ReactNode; onClick: () => void }) {
+	return <IconButton label={label} tooltip={label} icon={icon} variant="ghost" size="sm" onClick={onClick} />;
 }

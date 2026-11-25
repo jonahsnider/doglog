@@ -92,6 +92,8 @@ export type OptionControlProps = {
 	readonly values: OptionValues;
 	/** Picks an option's value, `undefined` unsets it */
 	readonly setOption: (id: string, value: string | undefined) => void;
+	/** Closes the widget options, ex. for a control that continues in the widget */
+	readonly closeOptions: () => void;
 };
 
 export type OptionMenu = {

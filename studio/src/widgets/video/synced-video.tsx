@@ -1,7 +1,7 @@
 import TriangleAlertIcon from 'lucide-react/icons/triangle-exclamation-point';
 import { type ReactNode, useCallback, useRef, useState } from 'react';
 import { TextMorph } from '@/components/text-morph';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button } from '@astryxdesign/core/Button';
 import { formatRoughDuration, getCursorTime, togglePlayback, useCursorTime } from '@/timeline/timeline';
 import { WidgetEmpty } from '@/widgets/widget-empty';
 import type { WidgetProps } from '@/widgets/widget-type';
@@ -68,20 +68,9 @@ export function SyncedVideo({
 		return (
 			<WidgetEmpty icon={<TriangleAlertIcon />} title={info.error.title} description={info.error.description}>
 				{video.kind === 'youtube' && (
-					<a
-						href={youTubeUrl(video.id)}
-						target="_blank"
-						rel="noreferrer"
-						className={buttonVariants({ variant: 'outline', size: 'sm' })}
-					>
-						Open on YouTube
-					</a>
+					<Button label="Open on YouTube" href={youTubeUrl(video.id)} target="_blank" rel="noreferrer" />
 				)}
-				{replace && (
-					<Button variant="outline" size="sm" onClick={replace}>
-						Choose another file…
-					</Button>
-				)}
+				{replace && <Button label="Choose another file…" onClick={replace} />}
 			</WidgetEmpty>
 		);
 	}

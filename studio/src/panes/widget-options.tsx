@@ -11,7 +11,7 @@ import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/Segme
 import { Selector } from '@astryxdesign/core/Selector';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
 import SettingsIcon from 'lucide-react/icons/settings';
-import { type ReactNode, useId } from 'react';
+import { type ReactNode, useId, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ToolbarButton } from '@/components/ui/toolbar';
 import { useMobileLayout } from '@/lib/mobile-layout';
@@ -35,8 +35,11 @@ export function WidgetOptions({ paneId, type, widget, bindings, onOptionChange }
 	const { options = [] } = type;
 	const mobile = useMobileLayout();
 	const values = optionValues(type, widget, bindings, mobile);
+	const [open, setOpen] = useState(false);
 	return (
 		<Popover
+			isOpen={open}
+			onOpenChange={setOpen}
 			label="Widget options"
 			alignment="end"
 			width={320}
@@ -45,7 +48,13 @@ export function WidgetOptions({ paneId, type, widget, bindings, onOptionChange }
 					{options.map((option) =>
 						option.kind === 'text' ? (
 							option.control && (
-								<option.control key={option.id} paneId={paneId} values={values} setOption={onOptionChange} />
+								<option.control
+									key={option.id}
+									paneId={paneId}
+									values={values}
+									setOption={onOptionChange}
+									closeOptions={() => setOpen(false)}
+								/>
 							)
 						) : option.menu ? (
 							<MenuOptionControl

@@ -1,19 +1,17 @@
 // The video widget's option controls, loaded with the registry. The widget itself is lazy, see `./video`.
+import { Button } from '@astryxdesign/core/Button';
+import { Divider } from '@astryxdesign/core/Divider';
+import { HStack, VStack } from '@astryxdesign/core/Layout';
+import { Switch } from '@astryxdesign/core/Switch';
+import { Text } from '@astryxdesign/core/Text';
+import { TextInput } from '@astryxdesign/core/TextInput';
 import FileVideoIcon from 'lucide-react/icons/file-video';
 import MoveHorizontalIcon from 'lucide-react/icons/move-horizontal';
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Field, FieldLabel } from '@/components/ui/field';
-import { Fieldset, FieldsetLegend } from '@/components/ui/fieldset';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { PopoverClose } from '@/components/ui/popover';
-import { Separator } from '@/components/ui/separator';
-import { Switch } from '@/components/ui/switch';
+import { useRef, useState } from 'react';
 import { useSource } from '@/data/source';
 import { isEnterKey } from '@/lib/keyboard';
 import { formatTime } from '@/timeline/timeline';
-import { parseTime } from '@/timeline/parse-time';
+import { TimeField } from '@/timeline/time-field';
 import type { OptionControlProps } from '@/widgets/widget-type';
 import { chooseVideoFile } from '@/widgets/video/local-files';
 import { formatSync, parseSync, parseVideo } from '@/widgets/video/source';
@@ -21,19 +19,12 @@ import { frameLength, setMuted, startSyncing, stopSyncing, useMuted } from '@/wi
 
 /** Sets apart two ways to pick a video, ex. a YouTube link or a file */
 export function OrDivider() {
-	return (
-		<div className="flex items-center gap-2 text-xs text-muted-foreground">
-			<Separator className="flex-1" />
-			or
-			<Separator className="flex-1" />
-		</div>
-	);
+	return <Divider label="or" />;
 }
 
 /** The video's link or file name, which can be replaced or removed, and whether it plays sound on this device */
 export function VideoControl({ paneId, values, setOption }: OptionControlProps) {
 	const value = values['video'] ?? '';
-	const [invalid, setInvalid] = useState(false);
 	const muted = useMuted(paneId);
 	const replace = (name: string | undefined, start = 0) => {
 		if (name !== undefined) {
@@ -42,74 +33,98 @@ export function VideoControl({ paneId, values, setOption }: OptionControlProps) 
 		}
 	};
 	return (
-		<Field name="video" className="items-stretch gap-1">
-			<FieldLabel className="font-semibold">Video</FieldLabel>
-			<Input
-				// Remounted when the video changes, so it shows the new one
-				key={value}
-				size="sm"
-				placeholder="YouTube link"
-				defaultValue={value}
-				aria-invalid={invalid || undefined}
-				onFocus={(event) => event.currentTarget.select()}
-				onChange={() => setInvalid(false)}
-				onBlur={(event) => {
-					const text = event.currentTarget.value.trim();
-					const video = parseVideo(text);
-					if (text === value) {
-						return;
-					}
-					if (video?.kind === 'youtube') {
-						replace(text, video.start);
-					} else {
-						event.currentTarget.value = value;
-					}
-				}}
-				onKeyDown={(event) => {
-					if (isEnterKey(event)) {
-						const text = event.currentTarget.value.trim();
-						if (text === value || parseVideo(text)?.kind === 'youtube') {
-							event.currentTarget.blur();
-						} else {
-							setInvalid(true);
-						}
-					} else if (event.key === 'Escape') {
-						event.currentTarget.value = value;
-						event.currentTarget.blur();
-					}
-				}}
-			/>
+		<VStack gap={2}>
+			{/* Remounted when the video changes, so it shows the new one */}
+			<VideoLinkField key={value} value={value} onReplace={replace} />
 			<OrDivider />
-			<div className="flex gap-1">
-				<Button variant="outline" size="sm" onClick={() => void chooseVideoFile(paneId).then((name) => replace(name))}>
-					<FileVideoIcon />
-					Choose file…
-				</Button>
+			<HStack gap={1}>
+				<Button
+					label="Choose file…"
+					icon={<FileVideoIcon />}
+					size="sm"
+					onClick={() => void chooseVideoFile(paneId).then((name) => replace(name))}
+				/>
 				{value !== '' && (
 					<Button
+						label="Remove"
 						variant="ghost"
 						size="sm"
 						onClick={() => {
 							stopSyncing(paneId);
 							setOption('video', undefined);
 						}}
-					>
-						Remove
-					</Button>
+					/>
 				)}
-			</div>
-			{value !== '' && (
-				<Label className="mt-1 gap-2 text-sm font-normal">
-					<Switch checked={!muted} onCheckedChange={(on) => setMuted(paneId, !on)} />
-					Play sound
-				</Label>
-			)}
-		</Field>
+			</HStack>
+			{value !== '' && <Switch label="Play sound" value={!muted} onChange={(on) => setMuted(paneId, !on)} />}
+		</VStack>
 	);
 }
 
-/** A time in seconds, typed like the timeline shows times */
-function TimeField({
+/** The video's YouTube link, which replaces the video when it's changed to another link */
+function VideoLinkField({
+	value,
+	onReplace,
+}: {
+	value: string;
+	onReplace: (link: string, start: number | undefined) => void;
+}) {
+	const [text, setText] = useState(value);
+	const [invalid, setInvalid] = useState(false);
+	const canceled = useRef(false);
+	return (
+		<TextInput
+			label="Video"
+			size="sm"
+			width="100%"
+			placeholder="YouTube link"
+			inputMode="url"
+			hasSpellCheck={false}
+			value={text}
+			status={invalid ? { type: 'error', message: 'That isn’t a YouTube video’s link.' } : undefined}
+			onChange={(next) => {
+				setText(next);
+				setInvalid(false);
+			}}
+			onFocus={(event) => {
+				if (event.target instanceof HTMLInputElement) {
+					event.target.select();
+				}
+			}}
+			onBlur={() => {
+				const trimmed = text.trim();
+				const video = parseVideo(trimmed);
+				const wasCanceled = canceled.current;
+				canceled.current = false;
+				if (trimmed === value) {
+					return;
+				}
+				if (video?.kind === 'youtube' && !wasCanceled) {
+					onReplace(trimmed, video.start);
+				} else {
+					setText(value);
+					setInvalid(false);
+				}
+			}}
+			onKeyDown={(event) => {
+				if (isEnterKey(event)) {
+					const trimmed = text.trim();
+					if (trimmed === value || parseVideo(trimmed)?.kind === 'youtube') {
+						event.currentTarget.blur();
+					} else {
+						setInvalid(true);
+					}
+				} else if (event.key === 'Escape') {
+					canceled.current = true;
+					event.currentTarget.blur();
+				}
+			}}
+		/>
+	);
+}
+
+/** A time in seconds from the start of the log or video */
+function SecondsField({
 	label,
 	seconds,
 	onChange,
@@ -119,41 +134,26 @@ function TimeField({
 	onChange: (seconds: number) => void;
 }) {
 	const text = formatTime(seconds * 1_000_000, 0);
-	const [invalid, setInvalid] = useState(false);
 	return (
-		<label className="flex items-center gap-1.5 text-sm text-muted-foreground">
-			{label}
-			<Input
-				key={text}
-				size="sm"
-				className="w-22 font-mono tabular-nums [&>input]:text-right"
-				aria-invalid={invalid || undefined}
-				defaultValue={text}
-				onFocus={(event) => event.currentTarget.select()}
-				onChange={() => setInvalid(false)}
-				onBlur={(event) => {
-					const parsed = parseTime(event.currentTarget.value, 0);
-					if (parsed === undefined || event.currentTarget.value === text) {
-						event.currentTarget.value = text;
-						setInvalid(false);
-					} else {
-						onChange(parsed / 1_000_000);
-					}
-				}}
-				onKeyDown={(event) => {
-					if (isEnterKey(event)) {
-						if (parseTime(event.currentTarget.value, 0) === undefined) {
-							setInvalid(true);
-						} else {
-							event.currentTarget.blur();
+		<HStack gap={1.5} vAlign="center">
+			<Text type="supporting" color="secondary" aria-hidden>
+				{label}
+			</Text>
+			<div style={{ width: 88 }}>
+				{/* Remounted when the time changes, so it shows the new one */}
+				<TimeField
+					key={text}
+					label={`${label} time`}
+					text={text}
+					start={0}
+					onCommit={(time) => {
+						if (time !== undefined) {
+							onChange(time / 1_000_000);
 						}
-					} else if (event.key === 'Escape') {
-						event.currentTarget.value = text;
-						event.currentTarget.blur();
-					}
-				}}
-			/>
-		</label>
+					}}
+				/>
+			</div>
+		</HStack>
 	);
 }
 
@@ -165,7 +165,7 @@ const nudges = [
 ];
 
 /** The moment on the timeline and the moment in the video that are shown together, with nudges to fine-tune it */
-export function SyncControl({ paneId, values, setOption }: OptionControlProps) {
+export function SyncControl({ paneId, values, setOption, closeOptions }: OptionControlProps) {
 	const source = useSource();
 	if ((values['video'] ?? '') === '') {
 		return undefined;
@@ -173,38 +173,38 @@ export function SyncControl({ paneId, values, setOption }: OptionControlProps) {
 	const sync = parseSync(values['sync'] ?? '');
 	const set = (log: number, video: number) => setOption('sync', formatSync({ log, video }));
 	return (
-		<Fieldset>
-			<FieldsetLegend className="mb-1 text-sm">Sync</FieldsetLegend>
-			<div className="flex flex-col gap-2">
-				<div className="flex items-center gap-2">
-					<TimeField label="Timeline" seconds={sync.log} onChange={(log) => set(log, sync.video)} />
-					<span className="text-muted-foreground">=</span>
-					<TimeField label="Video" seconds={sync.video} onChange={(video) => set(sync.log, video)} />
-				</div>
-				<div className="flex gap-1">
-					{nudges.map((nudge) => (
-						<Button
-							key={nudge.label}
-							variant="outline"
-							size="xs"
-							aria-label={nudge.description}
-							title={nudge.description}
-							onClick={() => set(sync.log, sync.video + nudge.by)}
-						>
-							{nudge.label}
-						</Button>
-					))}
-				</div>
-				{/* Sync mode shows its controls under the video, so it closes the options */}
-				<PopoverClose
-					render={<Button variant="outline" size="sm" className="self-start" />}
-					disabled={source === undefined}
-					onClick={() => startSyncing(paneId)}
-				>
-					<MoveHorizontalIcon />
-					Sync with timeline
-				</PopoverClose>
-			</div>
-		</Fieldset>
+		<VStack gap={2}>
+			<Text type="label">Sync</Text>
+			<HStack gap={2} vAlign="center">
+				<SecondsField label="Timeline" seconds={sync.log} onChange={(log) => set(log, sync.video)} />
+				<Text color="secondary">=</Text>
+				<SecondsField label="Video" seconds={sync.video} onChange={(video) => set(sync.log, video)} />
+			</HStack>
+			<HStack gap={1} wrap="wrap">
+				{nudges.map((nudge) => (
+					<Button
+						key={nudge.label}
+						label={nudge.label}
+						aria-label={nudge.description}
+						tooltip={nudge.description}
+						size="sm"
+						onClick={() => set(sync.log, sync.video + nudge.by)}
+					/>
+				))}
+			</HStack>
+			<HStack>
+				<Button
+					label="Sync with timeline"
+					icon={<MoveHorizontalIcon />}
+					size="sm"
+					isDisabled={source === undefined}
+					onClick={() => {
+						// Sync mode shows its controls under the video, so it closes the options
+						closeOptions();
+						startSyncing(paneId);
+					}}
+				/>
+			</HStack>
+		</VStack>
 	);
 }

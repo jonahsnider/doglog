@@ -1,8 +1,9 @@
+import { Button } from '@astryxdesign/core/Button';
+import { VStack } from '@astryxdesign/core/Layout';
+import { TextInput } from '@astryxdesign/core/TextInput';
 import ClapperboardIcon from 'lucide-react/icons/clapperboard';
 import FileVideoIcon from 'lucide-react/icons/file-video';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { isEnterKey } from '@/lib/keyboard';
 import { WidgetEmpty } from '@/widgets/widget-empty';
 import type { WidgetProps } from '@/widgets/widget-type';
@@ -15,6 +16,7 @@ export function AddVideo({
 	setOption,
 	choose,
 }: Pick<WidgetProps, 'paneId' | 'setOption'> & { choose: () => void }) {
+	const [text, setText] = useState('');
 	const [invalid, setInvalid] = useState(false);
 	const addLink = (link: string) => {
 		const video = parseVideo(link);
@@ -32,33 +34,37 @@ export function AddVideo({
 			title="Add a video"
 			description="Paste a YouTube link, or choose or drop a video file, ex. the broadcast or a recording from the stands."
 		>
-			<div className="flex w-full max-w-72 flex-col gap-2">
-				<Input
+			<VStack gap={2} width="100%">
+				<TextInput
+					label="YouTube link"
+					isLabelHidden
 					size="sm"
-					aria-label="YouTube link"
+					width="100%"
 					placeholder="YouTube link"
-					aria-invalid={invalid || undefined}
-					onChange={() => setInvalid(false)}
+					inputMode="url"
+					hasSpellCheck={false}
+					value={text}
+					status={invalid ? { type: 'error', message: 'That isn’t a YouTube video’s link.' } : undefined}
+					onChange={(next) => {
+						setText(next);
+						setInvalid(false);
+					}}
 					onPaste={(event) => {
-						const text = event.clipboardData.getData('text');
-						if (isYouTubeLink(text)) {
+						const pasted = event.clipboardData.getData('text');
+						if (isYouTubeLink(pasted)) {
 							event.preventDefault();
-							addLink(text);
+							addLink(pasted);
 						}
 					}}
 					onKeyDown={(event) => {
 						if (isEnterKey(event)) {
-							addLink(event.currentTarget.value);
+							addLink(text);
 						}
 					}}
 				/>
-				{invalid && <p className="text-xs text-destructive-foreground">That isn’t a YouTube video’s link.</p>}
 				<OrDivider />
-				<Button variant="outline" size="sm" onClick={choose}>
-					<FileVideoIcon />
-					Choose file…
-				</Button>
-			</div>
+				<Button label="Choose file…" icon={<FileVideoIcon />} onClick={choose} />
+			</VStack>
 		</WidgetEmpty>
 	);
 }
