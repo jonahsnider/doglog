@@ -2,10 +2,17 @@ import { Button } from '@astryxdesign/core/Button';
 import { Code } from '@astryxdesign/core/Code';
 import { Field } from '@astryxdesign/core/Field';
 import { HStack } from '@astryxdesign/core/Layout';
-import { RadioList, RadioListItem } from '@astryxdesign/core/RadioList';
 import { Selector } from '@astryxdesign/core/Selector';
-import { colorVars, radiusVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import {
+	colorVars,
+	durationVars,
+	radiusVars,
+	spacingVars,
+	typeScaleVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
+import { focusOutlineProps } from '@astryxdesign/core/utils/focusOutline.stylex';
 import * as stylex from '@stylexjs/stylex';
+import type { ReactNode } from 'react';
 import { updateSettings, useSettings } from '@/settings';
 import {
 	type Theme,
@@ -39,6 +46,61 @@ const styles = stylex.create({
 		borderRadius: radiusVars['--radius-element'],
 	},
 	fill: (color: string) => ({ backgroundColor: color }),
+	themeCards: {
+		display: 'grid',
+		gridTemplateColumns: 'repeat(3, 1fr)',
+		gap: spacingVars['--spacing-3'],
+	},
+	presetCards: {
+		display: 'grid',
+		// Just fits both swatches, so every preset fits in a row of the settings page
+		gridTemplateColumns: 'repeat(auto-fill, minmax(7rem, 1fr))',
+		gap: spacingVars['--spacing-2'],
+	},
+	card: {
+		display: 'flex',
+		position: 'relative',
+		flexDirection: 'column',
+		gap: spacingVars['--spacing-2'],
+		padding: spacingVars['--spacing-2'],
+		cursor: 'pointer',
+		color: {
+			default: colorVars['--color-text-secondary'],
+			':has(:checked)': colorVars['--color-text-primary'],
+		},
+		fontSize: typeScaleVars['--text-label-size'],
+		textAlign: 'center',
+		backgroundColor: colorVars['--color-background-card'],
+		borderWidth: 1,
+		borderStyle: 'solid',
+		borderColor: {
+			default: colorVars['--color-border'],
+			':hover': colorVars['--color-border-emphasized'],
+			':has(:checked)': colorVars['--color-accent'],
+		},
+		borderRadius: radiusVars['--radius-container'],
+		boxShadow: {
+			default: 'none',
+			':has(:checked)': `inset 0 0 0 1px ${colorVars['--color-accent']}`,
+		},
+		transitionProperty: 'border-color, box-shadow, color',
+		transitionDuration: `calc(${durationVars['--duration-fast']} * var(--motion-scale))`,
+	},
+	swatches: {
+		display: 'flex',
+		justifyContent: 'center',
+		gap: spacingVars['--spacing-1'],
+		paddingBlock: spacingVars['--spacing-2'],
+	},
+	hiddenInput: {
+		position: 'absolute',
+		width: 1,
+		height: 1,
+		margin: -1,
+		overflow: 'hidden',
+		clipPath: 'inset(50%)',
+		whiteSpace: 'nowrap',
+	},
 });
 
 const themeLabels: Record<Theme, string> = {
@@ -48,7 +110,7 @@ const themeLabels: Record<Theme, string> = {
 };
 
 const themePresetLabels: Record<ThemePreset, string> = {
-	team581: 'Team 581 maroon',
+	team581: 'DogLog',
 	match13: 'match13',
 	froglog: 'FrogLog',
 	neutral: 'Neutral',
@@ -71,50 +133,40 @@ export function AppearanceSettings() {
 
 	return (
 		<>
-			<RadioList
-				label="Theme"
-				orientation="horizontal"
-				value={theme}
-				onChange={(value) => updateSettings({ theme: themes.find((choice) => choice === value) ?? theme })}
-			>
+			<CardGroup label="Theme" name="theme" xstyle={styles.themeCards}>
 				{themes.map((value) => (
-					<RadioListItem
+					<OptionCard
 						key={value}
-						value={value}
+						name="theme"
 						label={themeLabels[value]}
-						align="first-line"
-						description={
-							<ThemeModePreview
-								theme={value}
-								light={themePreviewColors(themePreset, themeColor, false, highContrast)}
-								dark={themePreviewColors(themePreset, themeColor, true, highContrast)}
-							/>
-						}
-					/>
+						isChecked={theme === value}
+						onCheck={() => updateSettings({ theme: value })}
+					>
+						<ThemeModePreview
+							theme={value}
+							light={themePreviewColors(themePreset, themeColor, false, highContrast)}
+							dark={themePreviewColors(themePreset, themeColor, true, highContrast)}
+						/>
+					</OptionCard>
 				))}
-			</RadioList>
+			</CardGroup>
 
-			<RadioList
-				label="Theme color"
-				value={themePreset}
-				onChange={(value) =>
-					updateSettings({ themePreset: themePresets.find((choice) => choice === value) ?? themePreset })
-				}
-			>
+			<CardGroup label="Theme color" name="theme-preset" xstyle={styles.presetCards}>
 				{themePresets.map((value) => (
-					<RadioListItem
+					<OptionCard
 						key={value}
-						value={value}
+						name="theme-preset"
 						label={themePresetLabels[value]}
-						endContent={
-							<HStack gap={1}>
-								<ThemeSwatch colors={themePreviewColors(value, themeColor, false, highContrast)} />
-								<ThemeSwatch colors={themePreviewColors(value, themeColor, true, highContrast)} />
-							</HStack>
-						}
-					/>
+						isChecked={themePreset === value}
+						onCheck={() => updateSettings({ themePreset: value })}
+					>
+						<span {...stylex.props(styles.swatches)}>
+							<ThemeSwatch colors={themePreviewColors(value, themeColor, false, highContrast)} />
+							<ThemeSwatch colors={themePreviewColors(value, themeColor, true, highContrast)} />
+						</span>
+					</OptionCard>
 				))}
-			</RadioList>
+			</CardGroup>
 
 			{themePreset === 'custom' && (
 				<Field label="Custom color" inputID="theme-color">
@@ -137,6 +189,52 @@ export function AppearanceSettings() {
 				</Field>
 			)}
 		</>
+	);
+}
+
+/**
+ * Choices shown as cards with a preview, which Astryx has no single-choice component for. Each card is a native radio,
+ * so the group gets arrow key navigation and one tab stop.
+ */
+function CardGroup({
+	label,
+	name,
+	xstyle,
+	children,
+}: {
+	label: string;
+	name: string;
+	xstyle: stylex.StyleXStyles;
+	children: ReactNode;
+}) {
+	return (
+		<Field label={label} inputID={name} labelID={`${name}-label`} isGroupLabel>
+			<div role="radiogroup" aria-labelledby={`${name}-label`} {...stylex.props(xstyle)}>
+				{children}
+			</div>
+		</Field>
+	);
+}
+
+function OptionCard({
+	name,
+	label,
+	isChecked,
+	onCheck,
+	children,
+}: {
+	name: string;
+	label: string;
+	isChecked: boolean;
+	onCheck: () => void;
+	children: ReactNode;
+}) {
+	return (
+		<label {...focusOutlineProps.focusWithin(styles.card)}>
+			<input type="radio" name={name} checked={isChecked} onChange={onCheck} {...stylex.props(styles.hiddenInput)} />
+			{children}
+			{label}
+		</label>
 	);
 }
 

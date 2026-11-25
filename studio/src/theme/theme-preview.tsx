@@ -1,4 +1,4 @@
-import { radiusVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { radiusVars, shadowVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import type { Theme } from '@/theme/choices';
 import type { ThemePreviewColors } from '@/theme/theme-color';
@@ -7,9 +7,7 @@ const styles = stylex.create({
 	preview: {
 		display: 'block',
 		position: 'relative',
-		width: 'min(7.5rem, 18vw)',
 		aspectRatio: '16 / 10',
-		marginBlockStart: spacingVars['--spacing-1'],
 	},
 	previewFrame: {
 		position: 'absolute',
@@ -57,15 +55,20 @@ const styles = stylex.create({
 	},
 	swatch: {
 		display: 'block',
-		width: spacingVars['--spacing-6'],
+		width: spacingVars['--spacing-11'],
 		aspectRatio: '1',
 		borderWidth: 1,
 		borderStyle: 'solid',
 		borderRadius: radiusVars['--radius-full'],
+		boxShadow: shadowVars['--shadow-low'],
+		// The border is translucent, so the gradient has to reach under it instead of repeating there
+		backgroundOrigin: 'border-box',
 	},
 	fill: (color: string) => ({ backgroundColor: color }),
 	edge: (color: string) => ({ borderColor: color }),
-	gradient: (from: string, to: string) => ({ backgroundImage: `linear-gradient(45deg, ${from} 25%, ${to} 75%)` }),
+	gradient: (from: string, to: string) => ({
+		backgroundImage: `linear-gradient(in oklch 45deg, ${from} 25%, ${to} 75%)`,
+	}),
 	width: (width: string) => ({ width }),
 });
 
@@ -118,7 +121,7 @@ export function ThemeSwatch({ colors }: { colors: ThemePreviewColors }) {
 	return (
 		<span
 			aria-hidden="true"
-			{...stylex.props(styles.swatch, styles.edge(colors.border), styles.gradient(colors.accent, colors.primary))}
+			{...stylex.props(styles.swatch, styles.edge(colors.border), styles.gradient(...colors.swatch))}
 		/>
 	);
 }

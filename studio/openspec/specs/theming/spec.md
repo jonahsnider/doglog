@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define Studio's visual identity: Astryx color tokens generated from a preset's seed colors (Team 581 maroon by default) or from untinted grays, available in both light and dark variants, and consistent motion.
+Define Studio's visual identity: Astryx color tokens generated from a preset's seed colors (the DogLog preset by default) or from untinted grays, available in both light and dark variants, and consistent motion.
 
 ## Requirements
 

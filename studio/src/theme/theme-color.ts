@@ -8,7 +8,7 @@ import type { ThemePreset, VisualizationPalette } from '@/theme/choices';
 import { seriesPaletteVariables, shade } from '@/theme/series-palette';
 import { statusSeeds, team581Seeds } from '@/theme/team581-colors';
 
-/** Team 581 maroon, the Team 581 theme's accent */
+/** Team 581 maroon, the DogLog theme's accent */
 export const defaultThemeColor = team581Seeds.accent;
 
 /** Default for the Custom preset, `hsl(20deg 12% 9.8%)` */
@@ -220,6 +220,11 @@ export interface ThemePreviewColors {
 	border: string;
 	primary: string;
 	accent: string;
+	/**
+	 * The theme color swatch's gradient, a tint to a shade of the accent. The accent and its muted tint are too far apart in
+	 * tone for a smooth gradient, so both ends come from the accent's ramp at closer tones.
+	 */
+	swatch: [string, string];
 }
 
 export function themePreviewColors(
@@ -236,6 +241,7 @@ export function themePreviewColors(
 		border: tokens['--color-border']!,
 		primary: tokens['--color-accent']!,
 		accent: tokens['--color-accent-muted']!,
+		swatch: [shade(tokens['--color-accent']!, dark ? 30 : 80), shade(tokens['--color-accent']!, dark ? 70 : 40)],
 	};
 }
 

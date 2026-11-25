@@ -110,7 +110,7 @@ Settings and UI state MUST be saved on the device and restored when Studio reope
 
 ### Requirement: Theme color setting
 
-Settings SHALL let users choose a theme color preset of Team 581 maroon, match13, FrogLog, Neutral, or Custom, defaulting to Team 581 maroon. The presets MUST be listed one per row, each with circular previews of its light and dark colors. Custom MUST let users pick any color, defaulting to `#1c1816`, and reset it to the default, and MUST keep the picked color while another preset is selected.
+Settings SHALL let users choose a theme color preset of DogLog, match13, FrogLog, Neutral, or Custom, defaulting to DogLog. The presets MUST be shown as cards side by side when they fit, each with circular previews of its light and dark colors. Custom MUST let users pick any color, defaulting to `#1c1816`, and reset it to the default, and MUST keep the picked color while another preset is selected.
 
 #### Scenario: Custom color
 
@@ -136,7 +136,7 @@ Settings SHALL offer a "High contrast" switch, off by default. It MUST explain t
 
 #### Scenario: High contrast
 
-- **GIVEN** the Team 581 maroon preset is selected
+- **GIVEN** the DogLog preset is selected
 - **WHEN** the user turns on High contrast
 - **THEN** Studio's light and dark themes use high contrast colors
 
