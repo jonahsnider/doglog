@@ -334,8 +334,8 @@ importers:
         specifier: 2.14.1
         version: 2.14.1
       '@team581/astryx-theme':
-        specifier: 1.0.0
-        version: 1.0.0(@astryxdesign/cli@0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2))(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(lucide-react@1.79.0(@types/react@19.3.1)(react@19.3.1))(react@19.3.1)
+        specifier: 1.0.1
+        version: 1.0.1(@astryxdesign/cli@0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2))(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(lucide-react@1.79.0(@types/react@19.3.1)(react@19.3.1))(react@19.3.1)
       '@ui-sdk/core':
         specifier: 0.1.0-beta.17
         version: 0.1.0-beta.17
@@ -5335,8 +5335,8 @@ packages:
   '@tauri-apps/plugin-updater@2.14.1':
     resolution: {integrity: sha512-Hr7nlBm1wT6xbwzjZ/S36YULazu8MNlj5vvOwMl47fXI7HTa5Bjl1PbDEwVHaZTAKzE1VZsUy35UqnbrQxmYQw==}
 
-  '@team581/astryx-theme@1.0.0':
-    resolution: {integrity: sha512-XB/likCD6lIMre61ydiYPdm8MOTrZEvSEaamth+6hbhrjvyjmR/toBIF/IocCEBEpjHO0pQi2k5U1BrK/YCIKg==}
+  '@team581/astryx-theme@1.0.1':
+    resolution: {integrity: sha512-nTdyWVypYc+xNm+xfzsCBauLIYtLCiKLFiYK7ufYOE7z5B6jXywq7ZKwyA0Y/fC+VtJCA6xXLkSa7Fy2UildTw==}
     peerDependencies:
       '@astryxdesign/cli': '>=0.7.4'
       '@astryxdesign/core': ^0.7.17
@@ -14531,7 +14531,7 @@ snapshots:
     dependencies:
       '@tauri-apps/api': 2.12.5
 
-  '@team581/astryx-theme@1.0.0(@astryxdesign/cli@0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2))(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(lucide-react@1.79.0(@types/react@19.3.1)(react@19.3.1))(react@19.3.1)':
+  '@team581/astryx-theme@1.0.1(@astryxdesign/cli@0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2))(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(lucide-react@1.79.0(@types/react@19.3.1)(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@astryxdesign/core': 0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@fontsource-variable/ibm-plex-sans': 5.3.0
