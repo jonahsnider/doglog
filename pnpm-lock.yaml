@@ -367,8 +367,8 @@ importers:
         specifier: 3.3.1
         version: 3.3.1
       loro-crdt:
-        specifier: 1.18.0
-        version: 1.18.0
+        specifier: 1.19.0
+        version: 1.19.0
       lucide-react:
         specifier: 1.78.0
         version: 1.78.0(@types/react@19.3.0)(react@19.3.1)
@@ -7999,8 +7999,8 @@ packages:
   longest-streak@3.1.0:
     resolution: {integrity: sha512-9Ri+o0JYgehTaVBBDoMqIl8GXtbWg711O3srftcHhZ0dqnETqLaoIK0x17fUw9rFSlK/0NlsKe0Ahhyl5pXE2g==}
 
-  loro-crdt@1.18.0:
-    resolution: {integrity: sha512-e/96j7B6MUMVc+AilrY6c/Q4+0uNGhBIqhRosadqeEM1d9+IMpxYKy2mL22NIj6ILuZfP0fF5cYTkipxgbddHg==}
+  loro-crdt@1.19.0:
+    resolution: {integrity: sha512-qnZHOows6wkRlLZcyG3QOrOnvFXVDRQeJo4Dw24rKcTva1EU6QERkRwKCxKLnGC/aM05pI19d5RIHdaW1zdWcg==}
 
   lower-case@2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
@@ -17926,7 +17926,7 @@ snapshots:
 
   longest-streak@3.1.0: {}
 
-  loro-crdt@1.18.0: {}
+  loro-crdt@1.19.0: {}
 
   lower-case@2.0.2:
     dependencies:
