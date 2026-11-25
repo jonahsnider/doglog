@@ -21,8 +21,22 @@ import { useRecentlyConnected, useSharingHost } from '@/sharing/sharing';
 import { type LiveSource, useSources } from '@/data/source';
 import { useSidebar } from '@/sidebar/sidebar-context';
 import { SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/sidebar/sidebar-ui';
+import { sectionLabelMarker } from './markers.stylex';
 
 const styles = stylex.create({
+	// Shown while its label is hovered or focused, or its menu is open, on devices with hover
+	sectionAction: {
+		marginInlineStart: 'auto',
+		opacity: {
+			default: 1,
+			'@media (hover: hover)': {
+				default: 0,
+				':is([aria-expanded=true])': 1,
+				[stylex.when.ancestor(':hover', sectionLabelMarker)]: 1,
+				[stylex.when.ancestor(':focus-within', sectionLabelMarker)]: 1,
+			},
+		},
+	},
 	// Fills the rest of the sidebar, so right-clicking anywhere under the dashboards opens their menu
 	sections: {
 		display: 'flex',
@@ -262,7 +276,7 @@ function LocalDashboards(props: SectionProps & { menuItems: readonly MenuEntry[]
 				<AppActionMenu
 					items={() => props.menuItems}
 					label="Dashboard section actions"
-					triggerClassName="sidebar-section-action"
+					triggerXstyle={styles.sectionAction}
 				/>
 			</SectionLabel>
 			{/* Tooltips and previews would open on the dashboards the pointer passes over */}

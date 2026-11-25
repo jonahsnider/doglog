@@ -1,6 +1,7 @@
 import { colorVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import type { ComponentProps } from 'react';
+import { sectionLabelMarker } from './markers.stylex';
 
 const styles = stylex.create({
 	label: {
@@ -26,7 +27,7 @@ export function SectionLabel({
 	...props
 }: Omit<ComponentProps<'div'>, 'className'> & { label: string }) {
 	return (
-		<div data-sidebar="group-label" {...props} {...stylex.props(styles.label)}>
+		<div data-sidebar="group-label" {...props} {...stylex.props(styles.label, sectionLabelMarker)}>
 			<span data-sidebar-label="" {...stylex.props(styles.labelText)}>
 				{label}
 			</span>

@@ -1,4 +1,5 @@
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
+import type { StyleXStyles } from '@stylexjs/stylex';
 
 export type View = '2d' | '3d';
 
@@ -6,11 +7,11 @@ export type View = '2d' | '3d';
 export function ViewToggle({
 	view,
 	onChange,
-	className,
+	xstyle,
 }: {
 	view: View;
 	onChange: (view: View) => void;
-	className?: string;
+	xstyle?: StyleXStyles;
 }) {
 	return (
 		<SegmentedControl
@@ -18,7 +19,8 @@ export function ViewToggle({
 			size="sm"
 			value={view}
 			onChange={(value) => onChange(value === '2d' ? '2d' : '3d')}
-			className={className === undefined ? 'capture-invisible' : `capture-invisible ${className}`}
+			className="capture-invisible"
+			xstyle={xstyle}
 		>
 			<SegmentedControlItem value="2d" label="2D" />
 			<SegmentedControlItem value="3d" label="3D" />

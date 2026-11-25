@@ -264,9 +264,7 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 						</div>
 					</div>
 					<FieldLegend ref={legendRef} items={legend} isUnderZoom={underLegend} />
-					{unbound && (
-						<SceneControls view="2d" visible={controls.visible} className={stylex.props(styles.controls).className} />
-					)}
+					{unbound && <SceneControls view="2d" visible={controls.visible} xstyle={styles.controls} />}
 				</div>
 				<Readout pointer={pointer} hovered={hovered} copied={copied} tool={tool} onToggle={toggleTool}>
 					<IdleHidden>

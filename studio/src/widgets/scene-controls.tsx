@@ -103,25 +103,21 @@ export function SceneControls({
 	view,
 	visible,
 	disabled = false,
-	className,
+	xstyle,
 }: {
 	view: View;
 	visible: boolean;
 	disabled?: boolean;
-	className?: string;
+	xstyle?: stylex.StyleXStyles;
 }) {
 	const touch = useMediaQuery('(pointer: coarse)');
 	if (disabled) {
 		return null;
 	}
 	const gestures = (touch ? touchGestures : pointerGestures)[view];
-	const container = stylex.props(styles.container);
+	const container = stylex.props(styles.container, xstyle);
 	return (
-		<div
-			{...container}
-			className={`${container.className} capture-hidden${className === undefined ? '' : ` ${className}`}`}
-			aria-hidden={!visible}
-		>
+		<div {...container} className={`${container.className} capture-hidden`} aria-hidden={!visible}>
 			<div {...stylex.props(styles.panel, !visible && styles.hidden)}>
 				<dl aria-label={`${view.toUpperCase()} view controls`} {...stylex.props(styles.list)}>
 					{gestures.map(([action, input]) => (

@@ -74,8 +74,8 @@ type LegendProps = {
 	dropRole?: string;
 	/** Shows each item's role, which can be picked there. Roles can also be picked from the item's context menu. */
 	roles?: boolean;
-	/** Merged with the list's styles, ex. to size it in a row of legends */
-	className?: string;
+	/** Merged with the list's styles, ex. to size it in a row of legends. Keep it the same object between renders. */
+	xstyle?: stylex.StyleXStyles;
 };
 
 /**
@@ -89,13 +89,13 @@ export const Legend = memo(
 		previous.vertical === next.vertical &&
 		previous.dropRole === next.dropRole &&
 		previous.roles === next.roles &&
-		previous.className === next.className &&
+		previous.xstyle === next.xstyle &&
 		(previous.items === next.items ||
 			(previous.items.length === next.items.length &&
 				previous.items.every((item, index) => shallow(item, next.items[index])))),
 );
 
-function LegendList({ items, vertical = false, dropRole, roles = true, className }: LegendProps) {
+function LegendList({ items, vertical = false, dropRole, roles = true, xstyle }: LegendProps) {
 	const widget = use(WidgetBindingsContext);
 	const list = useRef<HTMLUListElement>(null);
 	const gutter = useRef<HTMLDivElement>(null);
@@ -137,12 +137,11 @@ function LegendList({ items, vertical = false, dropRole, roles = true, className
 	};
 	const highlighted = drag?.over ?? hovered;
 
-	const listProps = stylex.props(styles.list, vertical ? styles.vertical : styles.wrapping);
 	const legend = (
 		<ul
 			ref={list}
 			data-binding-legend
-			className={className === undefined ? listProps.className : `${listProps.className} ${className}`}
+			{...stylex.props(styles.list, vertical ? styles.vertical : styles.wrapping, xstyle)}
 		>
 			{items.map((item) => (
 				<LegendEntry

@@ -182,7 +182,7 @@ export function Robot({ bindings, options, setOption }: WidgetProps) {
 				</div>
 				<div {...stylex.props(styles.controls)}>
 					<ViewToggle
-						className={stylex.props(styles.control).className}
+						xstyle={styles.control}
 						view={view}
 						onChange={(next) => {
 							controls.input();

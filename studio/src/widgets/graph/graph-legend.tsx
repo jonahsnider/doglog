@@ -41,6 +41,8 @@ const styles = stylex.create({
 	},
 });
 
+const rightSide = [styles.side, styles.right];
+
 /**
  * Left axis entries on the left and right axis entries on the right, named by the last segments that tell them apart
  * when their full names don't fit. Values are shown in the hover tooltip, and entries are moved between axes by dragging
@@ -61,17 +63,8 @@ export function GraphLegend({ plotted }: { plotted: readonly WidgetBinding[] }) 
 		// Each side takes up to half the width and wraps within it, or more when the other side is shorter. Long legends
 		// scroll, so the plot keeps most of the widget.
 		<div {...stylex.props(styles.legends)}>
-			{left.length > 0 && (
-				<Legend items={left} dropRole="left" roles={false} className={stylex.props(styles.side).className} />
-			)}
-			{right.length > 0 && (
-				<Legend
-					items={right}
-					dropRole="right"
-					roles={false}
-					className={stylex.props(styles.side, styles.right).className}
-				/>
-			)}
+			{left.length > 0 && <Legend items={left} dropRole="left" roles={false} xstyle={styles.side} />}
+			{right.length > 0 && <Legend items={right} dropRole="right" roles={false} xstyle={rightSide} />}
 		</div>
 	);
 }

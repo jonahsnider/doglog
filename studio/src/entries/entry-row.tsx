@@ -222,7 +222,7 @@ export const EntryRowView = memo(function EntryRowView({
 					// The tree stays one tab stop; Shift+F10 opens the menu from the focused row.
 					isFocusable={false}
 					finalFocus={rowElement}
-					triggerClassName={stylex.props(styles.actions).className}
+					triggerXstyle={styles.actions}
 				/>
 			</TreeItem>
 		</AppContextMenu>

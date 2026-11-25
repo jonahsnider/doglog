@@ -21,7 +21,7 @@ const styles = stylex.create({
 });
 
 /** Truncates `children` to one line, and scrolls back and forth to show the rest while hovered */
-export function MarqueeText({ className, children }: { className?: string; children: ReactNode }) {
+export function MarqueeText({ xstyle, children }: { xstyle?: stylex.StyleXStyles; children: ReactNode }) {
 	const ref = useRef<HTMLSpanElement>(null);
 	const [hovered, setHovered] = useState(false);
 
@@ -56,12 +56,10 @@ export function MarqueeText({ className, children }: { className?: string; child
 		};
 	}, [hovered]);
 
-	const sx = stylex.props(styles.text, hovered && styles.scrolling);
 	return (
 		<span
 			ref={ref}
-			{...sx}
-			className={className === undefined ? sx.className : `${sx.className} ${className}`}
+			{...stylex.props(styles.text, hovered && styles.scrolling, xstyle)}
 			onPointerEnter={() => setHovered(true)}
 			onPointerLeave={() => setHovered(false)}
 		>

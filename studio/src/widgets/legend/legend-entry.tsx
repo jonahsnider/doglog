@@ -123,7 +123,7 @@ function LegendName({ name, distinctFrom }: { name: string; distinctFrom: readon
 			<span ref={full} {...stylex.props(styles.fullName)}>
 				<EntryName name={name} />
 			</span>
-			<MarqueeText className={stylex.props(styles.shownName).className}>
+			<MarqueeText xstyle={styles.shownName}>
 				<EntryName name={name} collapsed={collapsed} distinctFrom={collapsed ? distinctFrom : undefined} />
 			</MarqueeText>
 		</span>

@@ -220,7 +220,7 @@ export function AppContextMenu({
 }
 
 /**
- * The same actions as a context menu, from an ellipsis button. `triggerClassName` styles the button, which has
+ * The same actions as a context menu, from an ellipsis button. `triggerXstyle` styles the button, which has
  * `aria-expanded` while the menu is open.
  */
 export function AppActionMenu({
@@ -228,7 +228,7 @@ export function AppActionMenu({
 	label,
 	accessibleLabel = label,
 	shortcut,
-	triggerClassName,
+	triggerXstyle,
 	isFocusable = true,
 	finalFocus,
 	onOpenChange,
@@ -239,7 +239,7 @@ export function AppActionMenu({
 	/** The button's name, when it needs to say more than its tooltip, ex. which row it's for */
 	accessibleLabel?: string;
 	shortcut?: Hotkey;
-	triggerClassName?: string;
+	triggerXstyle?: StyleXStyles;
 	/** Leaves the button out of the tab order, ex. when its row opens the menu from the keyboard instead */
 	isFocusable?: boolean;
 	/** Where focus goes when the menu closes instead of the button, ex. its row */
@@ -276,7 +276,7 @@ export function AppActionMenu({
 						icon={<EllipsisIcon />}
 						variant="ghost"
 						size="sm"
-						className={triggerClassName}
+						xstyle={triggerXstyle}
 						tabIndex={isFocusable ? undefined : -1}
 						// Inside rows that do something else when pressed, ex. entries that are dragged and added on double-click
 						onPointerDown={(event) => {

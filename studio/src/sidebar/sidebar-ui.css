@@ -98,17 +98,6 @@
 	visibility: hidden;
 }
 
-/* The Dashboards section's menu button, shown while its label is hovered or focused on devices with hover */
-.sidebar-section-action {
-	margin-inline-start: auto;
-
-	@media (hover: hover) {
-		[data-sidebar='group-label']:not(:hover, :focus-within) &:not([aria-expanded='true']) {
-			opacity: 0;
-		}
-	}
-}
-
 /* Section labels keep their space in the rail, so the dashboards don't move */
 [data-collapsible='icon'] [data-sidebar='group-label'] > * {
 	display: none;
