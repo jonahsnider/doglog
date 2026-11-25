@@ -3,20 +3,10 @@ import * as stylex from '@stylexjs/stylex';
 import { createCssVariablesTheme, createHighlighterCoreSync, type ThemedToken } from 'shiki/core';
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
 import markdown from 'shiki/langs/markdown.mjs';
-import { type CSSProperties, Fragment, useSyncExternalStore } from 'react';
-import { createPersistedDoc } from '@/lib/persisted-store';
-
-/** Notes are shared by every notepad, and kept when they're closed */
-const doc = createPersistedDoc('notepad');
-const notesText = doc.getText('notes');
-
-const subscribe = (onChange: () => void) => notesText.subscribe(onChange);
-const getNotes = () => notesText.toString();
-
-function setNotes(notes: string): void {
-	notesText.update(notes);
-	doc.commit();
-}
+import { type CSSProperties, Fragment, use, useSyncExternalStore } from 'react';
+import { getDoc } from '@/dashboards/dashboards';
+import { getDashboardNotes, setDashboardNotes } from '@/dashboards/doc';
+import { DashboardIdContext } from '@/dashboards/panes';
 
 // Colors that aren't set here inherit the text color
 const theme = createCssVariablesTheme({
@@ -55,9 +45,11 @@ const styles = stylex.create({
 		minWidth: 0,
 		resize: 'none',
 		overflow: 'hidden',
+		backgroundColor: 'transparent',
 		color: 'transparent',
 		caretColor: colorVars['--color-text-primary'],
-		outline: 'none',
+		outline: { default: 'none', ':focus-visible': `1px solid ${colorVars['--color-accent']}` },
+		outlineOffset: -1,
 		'::selection': {
 			backgroundColor: `color-mix(in srgb, ${colorVars['--color-accent']} 16%, transparent)`,
 		},
@@ -88,7 +80,13 @@ function tokenStyle(token: ThemedToken): CSSProperties {
 
 /** Markdown notes, highlighted like a code editor instead of rendered */
 export function Notepad() {
-	const notes = useSyncExternalStore(subscribe, getNotes);
+	const dashboardId = use(DashboardIdContext);
+	const { doc } = getDoc(dashboardId);
+	const text = getDashboardNotes(doc);
+	const notes = useSyncExternalStore(
+		(onChange) => text.subscribe(onChange),
+		() => text.toString(),
+	);
 	const lines = highlighter.codeToTokensBase(notes, { lang: 'markdown', theme: theme.name! });
 
 	return (
@@ -116,7 +114,7 @@ export function Notepad() {
 				spellCheck={false}
 				{...stylex.props(styles.layer, styles.field)}
 				value={notes}
-				onChange={(event) => setNotes(event.target.value)}
+				onChange={(event) => setDashboardNotes(doc, event.target.value)}
 			/>
 		</div>
 	);

@@ -231,12 +231,12 @@ Agents SHALL be able to read and change every setting on the Settings page.
 
 ### Requirement: Out of scope for agents
 
-Agents SHALL NOT be able to read or write notepad text or control playback. Agents can add notepad panes, which then show the shared notepad.
+Agents SHALL NOT be able to read or write notepad text or control playback. Agents can add notepad panes, which then show the dashboard's notes.
 
 #### Scenario: Add a notepad
 
 - **WHEN** an agent adds a notepad pane
-- **THEN** the pane shows the same notes as every other notepad
+- **THEN** the pane shows the same notes as the other notepads on that dashboard
 
 ### Requirement: Platform-specific commands
 

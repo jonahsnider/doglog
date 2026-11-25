@@ -1,6 +1,13 @@
 import { LoroDoc, UndoManager } from 'loro-crdt';
 import { expect, test } from 'vite-plus/test';
-import { type DashboardContents, readDashboardDoc, writeDashboardDoc } from './doc.ts';
+import {
+	type DashboardContents,
+	getDashboardNotes,
+	loadDashboardDoc,
+	readDashboardDoc,
+	setDashboardNotes,
+	writeDashboardDoc,
+} from './doc.ts';
 import { closePane, createPane, firstPane, paneIds, resizeSplit, setPaneWidget, splitPane } from '../panes/layout.ts';
 
 const graph = { type: 'line-graph', config: { bindings: [{ id: 'arm', name: '/Arm/Angle' }] } };
@@ -112,4 +119,35 @@ test('peers splitting the same pane at once end up with the same valid layout', 
 
 	write(doc, { layout });
 	expect(readDashboardDoc(doc).layout).toEqual(layout);
+});
+
+test('concurrent Notepad edits travel in dashboard updates and merge', () => {
+	const doc = new LoroDoc();
+	const pane = { ...createPane(), widget: { type: 'notepad', config: {} } };
+	write(doc, { layout: pane });
+	setDashboardNotes(doc, 'Arm kP: 0.2\nWrist kD: 0.05');
+	const baseline = doc.oplogVersion();
+	const peer = doc.fork();
+
+	setDashboardNotes(doc, 'Arm kP: 0.7\nWrist kD: 0.05');
+	setDashboardNotes(peer, 'Arm kP: 0.2\nWrist kD: 0.11');
+	peer.import(doc.export({ mode: 'update', from: baseline }));
+	doc.import(peer.export({ mode: 'update', from: baseline }));
+
+	expect(getDashboardNotes(doc).toString()).toBe('Arm kP: 0.7\nWrist kD: 0.11');
+	expect(getDashboardNotes(peer).toString()).toBe('Arm kP: 0.7\nWrist kD: 0.11');
+	expect(readDashboardDoc(peer).layout).toEqual(pane);
+});
+
+test('closing and undoing a Notepad pane leaves the dashboard notes intact', () => {
+	const pane = { ...createPane(), widget: { type: 'notepad', config: {} } };
+	const dashboard = loadDashboardDoc('notepad-layout-undo', () => undefined, { layout: pane });
+	const { doc } = dashboard;
+	setDashboardNotes(doc, 'Try a lower kP');
+	write(doc, { layout: setPaneWidget(pane, pane.id, undefined) });
+	expect(getDashboardNotes(doc).toString()).toBe('Try a lower kP');
+	expect(dashboard.travel('undo')).not.toBe(false);
+	expect(readDashboardDoc(doc).layout).toEqual(pane);
+	expect(dashboard.travel('undo')).toBe(false);
+	expect(getDashboardNotes(doc).toString()).toBe('Try a lower kP');
 });

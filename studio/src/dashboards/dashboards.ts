@@ -5,6 +5,7 @@ import {
 	type DashboardContents,
 	type DashboardDoc,
 	type DashboardSharing,
+	copyDashboardNotes,
 	deleteDashboardDoc,
 	loadDashboardDoc,
 	readDashboardDoc,
@@ -148,7 +149,8 @@ export function duplicateDashboards(ids: readonly string[]): string[] {
 		if (dashboard) {
 			const copyId = createId();
 			// Saves its document before its ID, so other windows find it
-			getDoc(copyId, { name: dashboard.name, layout: restoreLayout(snapshotLayout(dashboard.layout)) });
+			const { doc } = getDoc(copyId, { name: dashboard.name, layout: restoreLayout(snapshotLayout(dashboard.layout)) });
+			copyDashboardNotes(getDoc(id).doc, doc);
 			copies.set(id, copyId);
 		}
 	}

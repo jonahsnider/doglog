@@ -732,7 +732,7 @@
 													"type"
 												],
 												"additionalProperties": false,
-												"description": "Notepad: Notes the user types, the same notes in every notepad. Doesn't take entries."
+												"description": "Notepad: Notes the user types, shared by the notepads on one dashboard. Doesn't take entries."
 											},
 											{
 												"type": "object",
@@ -1574,7 +1574,7 @@
 									"type"
 								],
 								"additionalProperties": false,
-								"description": "Notepad: Notes the user types, the same notes in every notepad. Doesn't take entries."
+								"description": "Notepad: Notes the user types, shared by the notepads on one dashboard. Doesn't take entries."
 							},
 							{
 								"type": "object",
@@ -2015,7 +2015,7 @@
 											"type"
 										],
 										"additionalProperties": false,
-										"description": "Notepad: Notes the user types, the same notes in every notepad. Doesn't take entries."
+										"description": "Notepad: Notes the user types, shared by the notepads on one dashboard. Doesn't take entries."
 									},
 									{
 										"type": "object",

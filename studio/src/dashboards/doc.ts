@@ -1,4 +1,12 @@
-import { type LoroDoc, LoroMap, type LoroTree, type LoroTreeNode, UndoManager, type Value } from 'loro-crdt';
+import {
+	type LoroDoc,
+	LoroMap,
+	type LoroText,
+	type LoroTree,
+	type LoroTreeNode,
+	UndoManager,
+	type Value,
+} from 'loro-crdt';
 import { setEntries, writeList } from '@/lib/loro';
 import { createPersistedDoc, removeStorage, saveDoc } from '@/lib/persisted-store';
 import { createPane, type PaneNode, paneNodeSchema, type Widget } from '@/panes/layout';
@@ -185,6 +193,25 @@ export function writeSharing(doc: LoroDoc, sharing: DashboardSharing): void {
 	setEntries(getSharing(doc), sharing);
 }
 
+const notesOrigin = 'notepad';
+
+/** Notes belong to the dashboard, not to a pane or its layout. */
+export function getDashboardNotes(doc: LoroDoc): LoroText {
+	return doc.getText('notes');
+}
+
+export function setDashboardNotes(doc: LoroDoc, notes: string): void {
+	getDashboardNotes(doc).update(notes);
+	doc.commit({ origin: notesOrigin });
+}
+
+export function copyDashboardNotes(from: LoroDoc, to: LoroDoc): void {
+	const notes = getDashboardNotes(from).toString();
+	if (notes !== '') {
+		setDashboardNotes(to, notes);
+	}
+}
+
 export type DashboardDoc = {
 	readonly doc: LoroDoc;
 	/**
@@ -227,6 +254,8 @@ export function loadDashboardDoc(
 			poppedFocus = value;
 		},
 	});
+	// Typing in the notepad uses the text field's undo, not the dashboard's layout undo.
+	undoManager.addExcludeOriginPrefix(notesOrigin);
 
 	return {
 		doc,

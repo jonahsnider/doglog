@@ -24,9 +24,9 @@ The notepad SHALL style Markdown with syntax highlighting instead of rendering i
 - **WHEN** the user types `**kP** = 0.4`
 - **THEN** `kP` is bold and the asterisks are still shown
 
-### Requirement: Shared notes
+### Requirement: Dashboard notes
 
-Every notepad SHALL show the same notes, which MUST be saved, follow edits made in other windows, and be kept when notepads or dashboards are closed.
+Notepads on the same dashboard SHALL show the same notes. Notes MUST be saved with the dashboard, follow edits in other windows, and be kept when notepads or dashboards are closed and reopened. Notepads on different dashboards MUST NOT share a text document.
 
 #### Scenario: Reload
 
@@ -37,5 +37,20 @@ Every notepad SHALL show the same notes, which MUST be saved, follow edits made 
 #### Scenario: Another dashboard
 
 - **GIVEN** a notepad with notes
-- **WHEN** the user adds a notepad to another dashboard
-- **THEN** it shows the same notes
+- **WHEN** the user adds a notepad to a dashboard that has no notes
+- **THEN** the new notepad is blank
+
+### Requirement: Notes follow dashboard sharing
+
+Notes SHALL sync through the dashboard's sharing connection and stay on this device for a private dashboard. Cloud MUST store and relay notes as part of the encrypted dashboard document.
+
+#### Scenario: Edit a team dashboard
+
+- **GIVEN** two teammates have the same Cloud dashboard open
+- **WHEN** one teammate edits the notes
+- **THEN** the other teammate sees the edits
+
+#### Scenario: Make a shared dashboard private
+
+- **WHEN** the user makes a shared dashboard private
+- **THEN** the private copy keeps the notes and further edits to the copy do not sync to teammates

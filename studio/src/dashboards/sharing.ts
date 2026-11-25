@@ -14,6 +14,7 @@ import {
 } from '@/dashboards/dashboards';
 import {
 	type DashboardSharing,
+	copyDashboardNotes,
 	deleteDashboardDoc,
 	readSharing,
 	saveDashboardDoc,
@@ -108,7 +109,8 @@ function unshareDashboard(id: string): string | undefined {
 
 	const copyId = createId();
 	// Same pane IDs, so the focused and zoomed panes carry over
-	getDoc(copyId, { name: dashboard.name, layout: dashboard.layout });
+	const { doc } = getDoc(copyId, { name: dashboard.name, layout: dashboard.layout });
+	copyDashboardNotes(getDoc(id).doc, doc);
 	focusPane(copyId, dashboard.focusedPaneId);
 	zoomPane(copyId, dashboard.zoomedPaneId);
 	idsStore.set((ids) => ids.flatMap((other) => (other === id ? [copyId, id] : [other])));

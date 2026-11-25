@@ -339,7 +339,7 @@ export const widgetInfos = [
 	{
 		id: 'notepad',
 		name: 'Notepad',
-		description: "Notes the user types, the same notes in every notepad. Doesn't take entries.",
+		description: "Notes the user types, shared by the notepads on one dashboard. Doesn't take entries.",
 		accepts: [],
 		roles: [],
 		options: [],
