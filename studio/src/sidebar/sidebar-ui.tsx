@@ -9,6 +9,8 @@ import { RouterLink } from '@/components/router-link';
 import { useSidebar } from '@/sidebar/sidebar-context';
 import './sidebar-ui.css';
 
+// Styled like Astryx's `SideNavItem`, since `SideNav` can't peek over the panes or animate in the steps this sidebar does
+
 const styles = stylex.create({
 	section: {
 		display: 'flex',

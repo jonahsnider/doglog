@@ -154,7 +154,10 @@ export type WidgetType = {
 	readonly rendersEmpty?: boolean;
 	/** Entries bound to a newly added widget, ex. the console's `/console` and `/messages` */
 	readonly defaultEntryNames?: readonly string[];
-	/** Settings shown in the widget options, see `WidgetOption` */
+	/**
+	 * Settings shown in the widget options, see `WidgetOption`. Widgets don't build their own settings UI or pane header
+	 * buttons. Settings for one binding, ex. a camera's feed, go on its legend row instead.
+	 */
 	readonly options?: readonly WidgetOption[];
 	/**
 	 * Picks an option from an entry dropped on the widget instead of binding it, ex. the controller shows the dropped

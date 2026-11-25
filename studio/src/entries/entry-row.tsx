@@ -229,7 +229,10 @@ export const EntryRowView = memo(function EntryRowView({
 	);
 });
 
-/** Ancestors of the rows at the top of the list, pinned there while their children scroll under them */
+/**
+ * Ancestors of the rows at the top of the list, pinned there while their children scroll under them. They have no
+ * background, shadow, or fade, since the frame behind them can be translucent; the rows under them are hidden instead.
+ */
 export function StickyRow({
 	row,
 	slot,

@@ -22,6 +22,7 @@ import { SyncedVideo, type VideoProps } from '@/widgets/video/synced-video';
 
 const styles = stylex.create({
 	root: { position: 'relative', height: '100%' },
+	// Stays inside the widget without blurring the dashboard, the window-wide drop hint is for opening logs
 	dropZone: {
 		pointerEvents: 'none',
 		position: 'absolute',
