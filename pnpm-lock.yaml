@@ -533,8 +533,8 @@ importers:
         specifier: 0.9.23
         version: 0.9.23(@opentelemetry/core@2.12.1(@opentelemetry/api@1.9.1))(eslint@10.15.0(jiti@2.7.0)(supports-color@10.2.2))(react@19.3.1)(supports-color@10.2.2)(vite-plus@1.8.0(@astrojs/compiler-rs@0.5.3)(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.1)(@vitest/ui@5.1.1)(@voidzero-dev/vite-plus-core@8.3.8001)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(typescript@7.1.0-dev.20261124.1)(vitest@5.1.1)(yaml@2.9.1))
       sentry:
-        specifier: 0.50.0
-        version: 0.50.0
+        specifier: 0.51.0
+        version: 0.51.0
       typescript:
         specifier: 7.1.0-dev.20261124.1
         version: 7.1.0-dev.20261124.1
@@ -9025,6 +9025,11 @@ packages:
 
   sentry@0.50.0:
     resolution: {integrity: sha512-2BCdoK4xO3mN4c0QTXaMtJBJ9rjL5v1VawaV7Wd605hVWVrpZTipLbjGHEFavS8IliI0W68TGi8CuScbHALPjA==}
+    engines: {node: '>=20.0'}
+    hasBin: true
+
+  sentry@0.51.0:
+    resolution: {integrity: sha512-yN0YWR+16DgMpBcJgTQmdEXl+/fn++m19TV7ONBUwWIHsy5BsMLH7bjwa3N5dBSPOqfsjV8lq67cPMjxISNPYg==}
     engines: {node: '>=20.0'}
     hasBin: true
 
@@ -19357,6 +19362,8 @@ snapshots:
   semver@7.8.5: {}
 
   sentry@0.50.0: {}
+
+  sentry@0.51.0: {}
 
   serialize-javascript@7.1.4: {}
 
