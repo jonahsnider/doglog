@@ -1,23 +1,23 @@
 import { useHotkey } from '@tanstack/react-hotkeys';
 import { type DOMAttributes, type RefObject, useState } from 'react';
 import type { FloorProjection } from '@/three/field-scene';
-import { useDraw } from '@/widgets/field/draw';
 import type { FieldPoint } from '@/widgets/field/geometry';
+import { usePencil } from '@/widgets/field/pencil';
 
-export function useFloorDraw(
+export function useFloorPencil(
 	projectFloor: RefObject<FloorProjection | null>,
 	onMove: (point: FieldPoint | undefined) => void,
 	onPointerDown: DOMAttributes<HTMLDivElement>['onPointerDownCapture'],
 ) {
 	const [hovered, setHovered] = useState(false);
 	const [active, setActive] = useState(false);
-	const draw = useDraw();
+	const pencil = usePencil();
 	const toggle = () => {
 		setActive(!active);
-		draw.clear();
+		pencil.clear();
 	};
 	const whileHovered = { enabled: hovered, conflictBehavior: 'allow' } as const;
-	useHotkey('D', toggle, whileHovered);
+	useHotkey('P', toggle, whileHovered);
 	useHotkey('Escape', toggle, { ...whileHovered, enabled: hovered && active });
 
 	const handlers: DOMAttributes<HTMLDivElement> = {
@@ -31,7 +31,7 @@ export function useFloorDraw(
 			if (active && event.button === 0) {
 				// Take the drag before the scene's camera controls can start orbiting.
 				event.stopPropagation();
-				draw.start(event, projectFloor.current?.()(event));
+				pencil.start(event, projectFloor.current?.()(event));
 			}
 		},
 		onDoubleClickCapture: (event) => {
@@ -40,22 +40,22 @@ export function useFloorDraw(
 			}
 		},
 		onPointerMove: (event) => {
-			if (draw.isDrawing(event)) {
+			if (pencil.isDrawing(event)) {
 				const pointAt = projectFloor.current?.();
 				if (pointAt) {
 					const point = pointAt(event);
-					draw.move(event, pointAt, point);
+					pencil.move(event, pointAt, point);
 					onMove(point);
 				}
 			}
 		},
 		onPointerUp: (event) => {
-			if (draw.isDrawing(event)) {
-				draw.finish(event, projectFloor.current?.()(event));
+			if (pencil.isDrawing(event)) {
+				pencil.finish(event, projectFloor.current?.()(event));
 			}
 		},
-		onPointerCancel: draw.cancel,
-		onLostPointerCapture: draw.cancel,
+		onPointerCancel: pencil.cancel,
+		onLostPointerCapture: pencil.cancel,
 	};
-	return { tool: active ? ('draw' as const) : undefined, points: draw.points, toggle, handlers };
+	return { tool: active ? ('pencil' as const) : undefined, points: pencil.points, toggle, handlers };
 }

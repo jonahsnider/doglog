@@ -29,7 +29,7 @@ function OutlinedPath({ d, dashed = false }: { d: string; dashed?: boolean }) {
 	);
 }
 
-export function DrawStroke({ points }: { points: readonly FieldPoint[] }) {
+export function PencilDrawing({ points }: { points: readonly FieldPoint[] }) {
 	return points.length > 1 ? (
 		<OutlinedPath d={`M ${points.map(({ x, y }) => `${x.toFixed(4)} ${y.toFixed(4)}`).join(' ')}`} />
 	) : null;

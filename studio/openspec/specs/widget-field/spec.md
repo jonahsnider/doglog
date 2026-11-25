@@ -432,27 +432,21 @@ Holding Shift while dragging a measurement SHALL snap its line to the nearest mu
 - **WHEN** the user presses `M` and drags from (2, 2) toward (5, 2.3) while holding Shift
 - **THEN** the line ends level with (2, 2), at about (5.01, 2)
 
-### Requirement: Draw tool
+### Requirement: Pencil tool
 
-In 2D and 3D, the Draw button below the view SHALL toggle freehand drawing and show its `D` shortcut. Pressing `D` while the pointer is over the view MUST also toggle it. While Draw is active, a primary drag MUST draw a freehand line on the field instead of panning or orbiting. The line SHALL stay anchored to the field as the view moves and SHALL NOT be saved with the dashboard.
+In 2D and 3D, the Pencil button below the view SHALL toggle freehand drawing and show its `P` shortcut. Pressing `P` while the pointer is over the view MUST also toggle it. While Pencil is active, a primary drag MUST draw a freehand line on the field instead of panning or orbiting. The line SHALL stay anchored to the field as the view moves and SHALL NOT be saved with the dashboard.
 
 #### Scenario: Sketch on the field
 
-- **WHEN** the user presses `D` and drags along a curved route on the field
+- **WHEN** the user presses `P` and drags along a curved route on the field
 - **THEN** a line follows the route as they draw and stays visible after they release
-
-#### Scenario: Draw with the 3D view focused
-
-- **GIVEN** the 3D field has keyboard focus and the pointer is over it
-- **WHEN** the user presses `D`
-- **THEN** Draw toggles without moving the camera
 
 #### Scenario: Replace or clear a sketch
 
-- **GIVEN** Draw is active and a line is visible
+- **GIVEN** Pencil is active and a line is visible
 - **WHEN** the user draws again
 - **THEN** the new line replaces the previous one
-- **AND** toggling Draw off, pressing Escape over the view, or switching views clears the line and restores the normal drag behavior
+- **AND** toggling Pencil off, pressing Escape over the view, or switching views clears the line and restores the normal drag behavior
 
 ### Requirement: 3D field
 
@@ -512,7 +506,7 @@ The app MUST bundle the 3D field model for offline use. When opening a dashboard
 
 ### Requirement: 3D camera
 
-The 3D field SHALL use a perspective camera. Dragging MUST orbit, right-dragging MUST pan, and scrolling or pinching MUST zoom. Keyboard controls MUST match the robot widget's except that `F` pans right. Double-clicking and the Reset view button SHALL reset the camera, animating unless the system reduces motion. Right-clicking without dragging MUST open the context menu. The view MUST persist while the app is open, but MUST NOT be saved with the dashboard.
+In 3D, the field widget SHALL use a camera with perspective. Dragging MUST orbit, right-dragging MUST pan, and scrolling or pinching MUST zoom, with the robot widget's keyboard controls and faster zoom and pan with Shift. Double-clicking and the Reset view button SHALL reset the camera, animating unless the system reduces motion. Right-clicking without dragging MUST open the context menu. The camera MUST keep its view while the app is open, but MUST NOT be saved with the dashboard.
 
 #### Scenario: Reset the camera
 
@@ -534,11 +528,11 @@ The 3D field SHALL use a perspective camera. Dragging MUST orbit, right-dragging
 
 ### Requirement: 3D keyboard movement speed
 
-Holding W, A, S, F, Q, or E MUST move the camera at a constant speed in meters per second, regardless of its position, unless it reaches a movement limit. Holding Shift MUST double that speed.
+Holding W, A, S, D, Q, or E MUST move the camera at a constant speed in meters per second, regardless of its position, unless it reaches a movement limit. Holding Shift MUST double that speed.
 
 #### Scenario: Move sideways from near and far views
 
-- **WHEN** the user holds F for the same amount of time from a zoomed-in and a zoomed-out view without reaching a movement limit
+- **WHEN** the user holds D for the same amount of time from a zoomed-in and a zoomed-out view without reaching a movement limit
 - **THEN** the camera travels the same distance in meters in both views
 
 ### Requirement: 3D default view

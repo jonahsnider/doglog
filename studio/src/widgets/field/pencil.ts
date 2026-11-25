@@ -2,11 +2,11 @@ import { getStrokePoints } from 'perfect-freehand';
 import { type PointerEvent, useMemo, useRef, useState } from 'react';
 import type { FieldPoint, MeasureTool } from '@/widgets/field/geometry';
 
-export type FieldTool = MeasureTool | 'draw';
-export type DrawPointAt = (event: Pick<PointerEvent, 'clientX' | 'clientY'>) => FieldPoint | undefined;
+export type FieldTool = MeasureTool | 'pencil';
+export type PencilPointAt = (event: Pick<PointerEvent, 'clientX' | 'clientY'>) => FieldPoint | undefined;
 
 /** One temporary freehand stroke, in blue-wall field coordinates in either view. */
-export function useDraw() {
+export function usePencil() {
 	const [samples, setSamples] = useState<readonly FieldPoint[]>([]);
 	const pointer = useRef<number>(undefined);
 	const points = useMemo(() => {
@@ -49,7 +49,7 @@ export function useDraw() {
 			}
 		},
 		isDrawing: (event: PointerEvent) => pointer.current === event.pointerId,
-		move: (event: PointerEvent, pointAt: DrawPointAt, point: FieldPoint | undefined) => {
+		move: (event: PointerEvent, pointAt: PencilPointAt, point: FieldPoint | undefined) => {
 			const batch = event.nativeEvent.getCoalescedEvents?.();
 			extend(batch?.length ? batch.map((sample) => pointAt(sample)) : [point]);
 		},

@@ -1,11 +1,10 @@
 import { type DOMAttributes, useEffect, useEffectEvent, useRef, useState } from 'react';
-import { sceneKeys } from '@/three/scene-keys';
 
 const idleMs = 3000;
 const visibleMs = 5000;
 
 /** Shows the reference once on mount and once per stretch of input, not on camera or data updates. */
-export function useSceneControls(enabled = true, scene: keyof typeof sceneKeys = 'robot') {
+export function useSceneControls(enabled = true) {
 	const [visible, setVisible] = useState(enabled);
 	const idle = useRef<ReturnType<typeof setTimeout>>(undefined);
 	const pointers = useRef(new Set<number>());
@@ -85,7 +84,7 @@ export function useSceneControls(enabled = true, scene: keyof typeof sceneKeys =
 						!event.metaKey &&
 						!event.ctrlKey &&
 						!event.altKey &&
-						Object.hasOwn(sceneKeys[scene].actions, event.key.toLowerCase())
+						/^(Arrow(Up|Down|Left|Right)|[WASDQE])$/iu.test(event.key)
 					) {
 						keys.current.add(event.code);
 						input();

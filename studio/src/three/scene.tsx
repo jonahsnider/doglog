@@ -11,7 +11,6 @@ import { useThemeColor } from '@/three/theme';
 import { FieldCameraControls, FieldCameraRig } from '@/three/field-camera';
 import { ResizeWithPane } from '@/three/resize';
 import type { FieldFraming } from '@/three/field-framing';
-import { sceneKeys } from '@/three/scene-keys';
 import { ViewCube } from '@/three/view-cube';
 import { useSceneCanvas } from '@/three/use-scene-canvas';
 import type { CameraMatch } from '@/widgets/field/camera-match';
@@ -35,6 +34,21 @@ function OnFrame({ callback }: { callback: (state: RootState) => void }) {
 	useFrame(callback);
 	return null;
 }
+
+/** Radians per second of keyboard orbiting */
+const orbitSpeed = 1.5;
+const keys: Partial<Record<string, (rig: Rig, seconds: number, speed: number) => void>> = {
+	arrowleft: (rig, seconds) => rig.orbit(-orbitSpeed * seconds, 0),
+	arrowright: (rig, seconds) => rig.orbit(orbitSpeed * seconds, 0),
+	arrowup: (rig, seconds) => rig.orbit(0, orbitSpeed * seconds),
+	arrowdown: (rig, seconds) => rig.orbit(0, -orbitSpeed * seconds),
+	w: (rig, seconds, speed) => rig.zoom(seconds * speed),
+	s: (rig, seconds, speed) => rig.zoom(-seconds * speed),
+	a: (rig, seconds, speed) => rig.pan(-seconds * speed, 0),
+	d: (rig, seconds, speed) => rig.pan(seconds * speed, 0),
+	q: (rig, seconds, speed) => rig.pan(0, -seconds * speed),
+	e: (rig, seconds, speed) => rig.pan(0, seconds * speed),
+};
 
 function dragOf(event: PointerEvent): 'orbit' | 'pan' | undefined {
 	if (event.button === 2 || (event.button === 0 && (event.ctrlKey || event.metaKey || event.shiftKey))) {
@@ -120,7 +134,6 @@ export function Scene3d({
 		}
 	};
 
-	const { panRight, actions: keys } = sceneKeys[field ? 'field' : 'robot'];
 	const held = useRef(new Set<string>());
 	const shift = useRef(false);
 	const frame = useRef<number>(undefined);
@@ -183,7 +196,7 @@ export function Scene3d({
 			aria-label={
 				cameraMatch
 					? `${label}. Camera matched to video.`
-					: `${label}. Drag to orbit, scroll or W and S to zoom, A, ${panRight}, Q, and E to pan, hold Shift to go faster.`
+					: `${label}. Drag to orbit, scroll or W and S to zoom, A, D, Q, and E to pan, hold Shift to go faster.`
 			}
 			className={cn(
 				'relative size-full touch-none overflow-hidden rounded-md outline-none select-none',
