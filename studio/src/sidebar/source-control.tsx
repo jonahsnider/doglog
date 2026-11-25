@@ -221,45 +221,47 @@ export function SourceControl() {
 	];
 
 	return (
-		<AppContextMenu items={menuItems} render={<SidebarMenuItem />}>
-			<Menu
-				onOpenChange={(open) => {
-					if (open) {
-						checkConnectTarget();
-					}
-				}}
-			>
-				<SourceTrigger {...sources} />
-				<MenuPopup align="start" className="w-(--anchor-width) min-w-56">
-					{live && log && (
-						<>
-							<SourceSwitcher live={live} log={log} shown={shown} />
-							<MenuSeparator />
-						</>
-					)}
-					<MenuItem onClick={chooseLog}>
-						Open log
-						<MenuShortcut>{formatForDisplay(shortcuts.openLog)}</MenuShortcut>
-					</MenuItem>
-					<MenuItem onClick={openLogUrlPrompt}>
-						Open from URL…
-						<MenuShortcut>{formatForDisplay(shortcuts.openLogUrl)}</MenuShortcut>
-					</MenuItem>
-					{(STUDIO_DESKTOP || supportsFileHandles) && <OpenRecentMenu />}
-					{log && !live && <ActionItem action={closeLogAction} />}
-					<MenuSeparator />
-					{exportActions(live).map((action) => (
-						<Fragment key={action.label}>
-							<ActionItem action={action} />
-							<MenuSeparator />
-						</Fragment>
-					))}
-					{/* The switcher goes back to the live session */}
-					{liveActions(sources, connectTarget, false).map((action) => (
-						<ActionItem key={action.label} action={action} />
-					))}
-				</MenuPopup>
-			</Menu>
-		</AppContextMenu>
+		<SidebarMenuItem>
+			<AppContextMenu items={menuItems} label="Source actions">
+				<Menu
+					onOpenChange={(open) => {
+						if (open) {
+							checkConnectTarget();
+						}
+					}}
+				>
+					<SourceTrigger {...sources} />
+					<MenuPopup align="start" className="w-(--anchor-width) min-w-56">
+						{live && log && (
+							<>
+								<SourceSwitcher live={live} log={log} shown={shown} />
+								<MenuSeparator />
+							</>
+						)}
+						<MenuItem onClick={chooseLog}>
+							Open log
+							<MenuShortcut>{formatForDisplay(shortcuts.openLog)}</MenuShortcut>
+						</MenuItem>
+						<MenuItem onClick={openLogUrlPrompt}>
+							Open from URL…
+							<MenuShortcut>{formatForDisplay(shortcuts.openLogUrl)}</MenuShortcut>
+						</MenuItem>
+						{(STUDIO_DESKTOP || supportsFileHandles) && <OpenRecentMenu />}
+						{log && !live && <ActionItem action={closeLogAction} />}
+						<MenuSeparator />
+						{exportActions(live).map((action) => (
+							<Fragment key={action.label}>
+								<ActionItem action={action} />
+								<MenuSeparator />
+							</Fragment>
+						))}
+						{/* The switcher goes back to the live session */}
+						{liveActions(sources, connectTarget, false).map((action) => (
+							<ActionItem key={action.label} action={action} />
+						))}
+					</MenuPopup>
+				</Menu>
+			</AppContextMenu>
+		</SidebarMenuItem>
 	);
 }

@@ -1,23 +1,22 @@
-import { type HotkeyChord, useFormatForDisplay } from '@tanstack/react-hotkeys';
-import EllipsisIcon from 'lucide-react/icons/ellipsis';
-import { type ComponentProps, type ReactElement, type ReactNode, useState } from 'react';
-import { useEventListener } from 'usehooks-ts';
-import { ControlTooltip } from '@/components/control-tooltip';
-import { ContextMenu, ContextMenuPopup, ContextMenuTrigger } from '@/components/ui/context-menu';
+import { ContextMenu } from '@astryxdesign/core/ContextMenu';
 import {
-	Menu,
-	MenuCheckboxItem,
-	MenuItem,
-	MenuPopup,
-	MenuRadioGroup,
-	MenuRadioItem,
-	MenuSeparator,
-	MenuShortcut,
-	MenuSub,
-	MenuSubPopup,
-	MenuSubTrigger,
-	MenuTrigger,
-} from '@/components/ui/menu';
+	DropdownMenu,
+	DropdownMenuCheckboxItem,
+	DropdownMenuDivider,
+	DropdownMenuItem,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
+	DropdownMenuSubMenu,
+} from '@astryxdesign/core/DropdownMenu';
+import { IconButton } from '@astryxdesign/core/IconButton';
+import { Tooltip } from '@astryxdesign/core/Tooltip';
+import type { StyleXStyles } from '@stylexjs/stylex';
+import type { Hotkey, HotkeyChord } from '@tanstack/react-hotkeys';
+import EllipsisIcon from 'lucide-react/icons/ellipsis';
+import { type ReactNode, type RefObject, useRef, useState } from 'react';
+import { useEventListener } from 'usehooks-ts';
+import { Shortcut } from '@/components/shortcut';
+import { TooltipLabel } from '@/components/tooltip-label';
 
 export type MenuAction = {
 	label: string;
@@ -51,19 +50,11 @@ type Submenu = {
 export type MenuEntry = MenuAction | MenuCheckbox | Submenu | 'separator';
 export type MenuPoint = Readonly<Pick<MouseEvent, 'clientX' | 'clientY'>>;
 
-type AppContextMenuProps = {
-	/** Or a function of the right-clicked element, for menus that depend on what's under the pointer */
-	items: readonly MenuEntry[] | ((target: Element, point?: MenuPoint) => readonly MenuEntry[]);
-	/** The element that opens the menu when right-clicked, it's rendered with `children` */
-	render: ReactElement;
-	children?: ReactNode;
-	/** Shows the browser's own context menu instead */
-	disabled?: boolean;
-	onOpenChange?: (open: boolean) => void;
-};
-
-/** Selects a submenu's items by their access keys, while it's mounted */
-function AccessKeys({ items, close }: { items: readonly MenuEntry[]; close: () => void }) {
+/**
+ * Selects a submenu's items by their access keys, while it's mounted. Selecting clicks the item, so the menu closes
+ * like it does for any other pick.
+ */
+function AccessKeys({ items, elements }: { items: readonly MenuEntry[]; elements: Map<string, HTMLElement> }) {
 	// Capture so the menu's typeahead and the app's shortcuts don't also handle the key.
 	useEventListener(
 		'keydown',
@@ -79,11 +70,11 @@ function AccessKeys({ items, close }: { items: readonly MenuEntry[]; close: () =
 					!(other.disabled ?? false) &&
 					other.accessKey?.toLowerCase() === event.key.toLowerCase(),
 			);
-			if (item) {
+			const element = item && elements.get(item.label);
+			if (element) {
 				event.preventDefault();
 				event.stopPropagation();
-				close();
-				item.onSelect();
+				element.click();
 			}
 		},
 		undefined,
@@ -93,156 +84,215 @@ function AccessKeys({ items, close }: { items: readonly MenuEntry[]; close: () =
 	return null;
 }
 
-function MenuEntries({ items, close }: { items: readonly MenuEntry[]; close: () => void }) {
-	const formatForDisplay = useFormatForDisplay();
+function SubmenuEntries({ items }: { items: readonly MenuEntry[] }) {
+	const [elements] = useState(() => new Map<string, HTMLElement>());
+	return (
+		<>
+			<AccessKeys items={items} elements={elements} />
+			<MenuEntries items={items} elements={elements} />
+		</>
+	);
+}
 
+function MenuEntries({ items, elements }: { items: readonly MenuEntry[]; elements?: Map<string, HTMLElement> }) {
 	return items.map((item, index, all) => {
 		if (item === 'separator') {
 			const previous = all[index - 1];
-			return <MenuSeparator key={`after ${typeof previous === 'object' ? previous.label : ''}`} />;
+			return <DropdownMenuDivider key={`after ${typeof previous === 'object' ? previous.label : ''}`} />;
 		}
 
 		if ('items' in item || 'choices' in item) {
 			return (
-				<MenuSub key={item.label}>
-					<MenuSubTrigger disabled={item.disabled ?? false}>{item.label}</MenuSubTrigger>
-					<MenuSubPopup>
-						{'choices' in item ? (
-							<MenuRadioGroup value={item.value} onValueChange={item.onValueChange}>
-								{item.choices.map(({ value, label, icon }) => (
-									<MenuRadioItem key={value} value={value} label={label} closeOnClick>
-										{icon === undefined ? (
-											label
-										) : (
-											<span className="flex items-center gap-2">
-												{icon}
-												{label}
-											</span>
-										)}
-									</MenuRadioItem>
-								))}
-							</MenuRadioGroup>
-						) : (
-							<>
-								<AccessKeys items={item.items} close={close} />
-								<MenuEntries items={item.items} close={close} />
-							</>
-						)}
-					</MenuSubPopup>
-				</MenuSub>
+				<DropdownMenuSubMenu key={item.label} label={item.label} isDisabled={item.disabled ?? false}>
+					{'choices' in item ? (
+						<DropdownMenuRadioGroup label={item.label} value={item.value ?? undefined} onChange={item.onValueChange}>
+							{item.choices.map(({ value, label, icon }) => (
+								<DropdownMenuRadioItem key={value} value={value} label={label} icon={icon} />
+							))}
+						</DropdownMenuRadioGroup>
+					) : (
+						<SubmenuEntries items={item.items} />
+					)}
+				</DropdownMenuSubMenu>
 			);
 		}
 
 		if ('checked' in item) {
 			return (
-				<MenuCheckboxItem
+				<DropdownMenuCheckboxItem
 					key={item.label}
-					checked={item.checked}
-					closeOnClick={item.closeOnClick ?? false}
-					onCheckedChange={item.onCheckedChange}
-				>
-					{item.label}
-				</MenuCheckboxItem>
+					label={item.label}
+					value={item.checked}
+					hasCloseOnSelect={item.closeOnClick ?? false}
+					onChange={item.onCheckedChange}
+				/>
 			);
 		}
 
+		const shortcut = item.shortcut ?? item.accessKey?.toUpperCase();
 		return (
-			<MenuItem key={item.label} disabled={item.disabled ?? false} onClick={item.onSelect}>
-				{item.label}
-				{item.shortcut === undefined ? (
-					item.accessKey !== undefined && <MenuShortcut>{item.accessKey.toUpperCase()}</MenuShortcut>
-				) : (
-					<MenuShortcut>{formatForDisplay(item.shortcut)}</MenuShortcut>
-				)}
-			</MenuItem>
+			<DropdownMenuItem
+				key={item.label}
+				ref={
+					elements &&
+					((element: HTMLElement | null) => {
+						if (element) {
+							elements.set(item.label, element);
+						} else {
+							elements.delete(item.label);
+						}
+					})
+				}
+				label={item.label}
+				isDisabled={item.disabled ?? false}
+				endContent={shortcut === undefined ? undefined : <Shortcut hotkey={shortcut} />}
+				onClick={item.onSelect}
+			/>
 		);
 	});
 }
 
-function menuPoint(event: Event): MenuPoint | undefined {
-	const pointer =
-		typeof TouchEvent !== 'undefined' && event instanceof TouchEvent
-			? event.touches[0]
-			: event instanceof MouseEvent && (event.button === 2 || event.ctrlKey)
-				? event
-				: undefined;
-	return pointer && { clientX: pointer.clientX, clientY: pointer.clientY };
+/** Where the menu was opened with a pointer, `undefined` when it was opened from the keyboard */
+function menuPoint(event: React.MouseEvent | React.TouchEvent): MenuPoint | undefined {
+	if ('touches' in event) {
+		return event.touches[0];
+	}
+	return event.button === 2 || event.ctrlKey ? { clientX: event.clientX, clientY: event.clientY } : undefined;
 }
 
-/** A right-click menu for `render` */
-export function AppContextMenu({ items, render, children, disabled = false, onOpenChange }: AppContextMenuProps) {
+/**
+ * A right-click (or long-press) menu for `children`, which are wrapped in an element that has `data-menu-open` while
+ * it's open. `triggerXstyle` lays out that element, ex. filling the parent.
+ */
+export function AppContextMenu({
+	items,
+	children,
+	label = 'Context menu',
+	disabled = false,
+	inline = false,
+	triggerXstyle,
+	onOpenChange,
+}: {
+	/** Or a function of the right-clicked element, for menus that depend on what's under the pointer */
+	items: readonly MenuEntry[] | ((target: Element, point?: MenuPoint) => readonly MenuEntry[]);
+	children: ReactNode;
+	label?: string;
+	/** Shows the browser's own context menu instead */
+	disabled?: boolean;
+	/** Wraps `children` in a `span`, for inline content */
+	inline?: boolean;
+	triggerXstyle?: StyleXStyles | StyleXStyles[];
+	onOpenChange?: (open: boolean) => void;
+}) {
 	const [origin, setOrigin] = useState<{ target: Element; point: MenuPoint | undefined }>();
 	const [open, setOpen] = useState(false);
-	const changeOpen = (newOpen: boolean) => {
-		setOpen(newOpen);
-		onOpenChange?.(newOpen);
+	const remember = (event: React.MouseEvent | React.TouchEvent) => {
+		if (typeof items === 'function' && event.target instanceof Element) {
+			setOrigin({ target: event.target, point: menuPoint(event) });
+		}
 	};
-	const close = () => changeOpen(false);
+
+	let entries: readonly MenuEntry[] = [];
+	if (typeof items !== 'function') {
+		entries = items;
+	} else if (origin) {
+		entries = items(origin.target, origin.point);
+	}
 
 	return (
 		<ContextMenu
-			disabled={disabled}
-			open={open}
-			onOpenChange={(next, { event }) => {
-				if (typeof items === 'function') {
-					setOrigin(
-						next && event.target instanceof Element ? { target: event.target, point: menuPoint(event) } : undefined,
-					);
-				}
-				changeOpen(next);
+			label={label}
+			isDisabled={disabled}
+			triggerAs={inline ? 'span' : 'div'}
+			triggerXstyle={triggerXstyle}
+			data-menu-open={open ? '' : undefined}
+			onContextMenu={remember}
+			onTouchStart={remember}
+			onOpenChange={(next) => {
+				setOpen(next);
+				onOpenChange?.(next);
 			}}
+			menuContent={open && <MenuEntries items={entries} />}
 		>
-			<ContextMenuTrigger render={render}>{children}</ContextMenuTrigger>
-			<ContextMenuPopup align="start" side="bottom" sideOffset={0}>
-				{open && (
-					<MenuEntries
-						items={typeof items === 'function' ? (origin ? items(origin.target, origin.point) : []) : items}
-						close={close}
-					/>
-				)}
-			</ContextMenuPopup>
+			{children}
 		</ContextMenu>
 	);
 }
 
-/** The same actions as a context menu, anchored to a visible MenuTrigger. */
+/**
+ * The same actions as a context menu, from an ellipsis button. `triggerClassName` styles the button, which has
+ * `aria-expanded` while the menu is open.
+ */
 export function AppActionMenu({
 	items,
 	label,
+	accessibleLabel = label,
 	shortcut,
-	button,
+	triggerClassName,
+	isFocusable = true,
 	finalFocus,
 	onOpenChange,
-}: Pick<AppContextMenuProps, 'onOpenChange'> & {
+}: {
 	items: (trigger: Element) => readonly MenuEntry[];
+	/** Shown in the button's tooltip */
 	label: string;
-	shortcut?: ComponentProps<typeof ControlTooltip>['shortcut'];
-	button: ReactElement;
-	finalFocus?: ComponentProps<typeof MenuPopup>['finalFocus'];
+	/** The button's name, when it needs to say more than its tooltip, ex. which row it's for */
+	accessibleLabel?: string;
+	shortcut?: Hotkey;
+	triggerClassName?: string;
+	/** Leaves the button out of the tab order, ex. when its row opens the menu from the keyboard instead */
+	isFocusable?: boolean;
+	/** Where focus goes when the menu closes instead of the button, ex. its row */
+	finalFocus?: RefObject<HTMLElement | null>;
+	onOpenChange?: (open: boolean) => void;
 }) {
-	const [trigger, setTrigger] = useState<Element>();
-	const close = () => {
-		setTrigger(undefined);
-		onOpenChange?.(false);
-	};
+	const trigger = useRef<HTMLElement>(null);
+	/** The button, while the menu is open */
+	const [openFrom, setOpenFrom] = useState<HTMLElement>();
 	return (
-		<Menu
-			open={trigger !== undefined}
-			onOpenChange={(open, details) => {
-				if (open && details.trigger) {
-					setTrigger(details.trigger);
-					onOpenChange?.(true);
-				} else if (!open) {
-					close();
+		<DropdownMenu
+			alignment="end"
+			onOpenChange={(next) => {
+				setOpenFrom(next ? (trigger.current ?? undefined) : undefined);
+				onOpenChange?.(next);
+				if (!next && finalFocus) {
+					// After the menu returns focus to the button
+					requestAnimationFrame(() => {
+						if (document.activeElement === trigger.current) {
+							finalFocus.current?.focus();
+						}
+					});
 				}
 			}}
+			renderTrigger={(props) => (
+				<Tooltip content={<TooltipLabel label={label} shortcut={shortcut} />} isEnabled={openFrom === undefined}>
+					<IconButton
+						{...props}
+						ref={(element: HTMLElement | null) => {
+							props.ref(element);
+							trigger.current = element;
+						}}
+						label={accessibleLabel}
+						icon={<EllipsisIcon />}
+						variant="ghost"
+						size="sm"
+						className={triggerClassName}
+						tabIndex={isFocusable ? undefined : -1}
+						// Inside rows that do something else when pressed, ex. entries that are dragged and added on double-click
+						onPointerDown={(event) => {
+							props.onPointerDown(event);
+							event.stopPropagation();
+						}}
+						onClick={(event) => {
+							props.onClick(event);
+							event.stopPropagation();
+						}}
+						onDoubleClick={(event) => event.stopPropagation()}
+					/>
+				</Tooltip>
+			)}
 		>
-			<ControlTooltip label={label} shortcut={shortcut} render={<MenuTrigger render={button} />}>
-				<EllipsisIcon />
-			</ControlTooltip>
-			<MenuPopup align="end" finalFocus={finalFocus} onClick={(event) => event.stopPropagation()}>
-				{trigger && <MenuEntries items={items(trigger)} close={close} />}
-			</MenuPopup>
-		</Menu>
+			{openFrom && <MenuEntries items={items(openFrom)} />}
+		</DropdownMenu>
 	);
 }

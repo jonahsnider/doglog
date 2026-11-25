@@ -1,3 +1,5 @@
+import { Toolbar } from '@astryxdesign/core/Toolbar';
+import * as stylex from '@stylexjs/stylex';
 import XIcon from 'lucide-react/icons/x';
 import { useMemo, useState } from 'react';
 import { AddWidgetPrompt } from '@/panes/add-widget-prompt';
@@ -8,14 +10,12 @@ import {
 	type MenuEntry,
 	type MenuPoint,
 } from '@/components/app-context-menu';
-import { Button } from '@/components/ui/button';
 import { WidgetButtons } from '@/panes/widget-buttons';
 import { PaneButton } from '@/panes/pane-button';
 import { PaneTitle } from '@/panes/pane-title';
 import { PaneLayoutButtons } from '@/panes/pane-layout-buttons';
 import { splitMenuItems } from '@/panes/split-menu';
 import { PaneDropIndicator } from '@/panes/pane-drop-indicator';
-import { Toolbar, ToolbarButton } from '@/components/ui/toolbar';
 import { WidgetView } from '@/panes/widget-view';
 import { shortcuts } from '@/commands/commands';
 import { allowedActions, closeDashboardPane, splitDashboardPane, toggleZoom, updateLayout } from '@/dashboards/panes';
@@ -59,6 +59,19 @@ export type PaneNodeProps = {
 // Widgets mark the elements that show a binding, ex. a table row
 const bindingIdAt = (target: EventTarget) =>
 	target instanceof Element ? target.closest<HTMLElement>('[data-binding-id]')?.dataset['bindingId'] : undefined;
+
+const styles = stylex.create({
+	// The menu wraps the pane, which fills its place in the layout
+	fill: {
+		width: '100%',
+		height: '100%',
+	},
+	// The pane header has its own padding
+	controls: {
+		padding: 0,
+		flexShrink: 0,
+	},
+});
 
 export function PaneView({
 	dashboardId,
@@ -164,107 +177,107 @@ export function PaneView({
 	return (
 		<AppContextMenu
 			items={menuItems}
+			label="Pane actions"
 			disabled={exporting}
 			onOpenChange={onMenuOpenChange}
-			render={
-				<div
-					ref={dropRef}
-					className={cn(
-						'group/pane relative flex size-full flex-col overflow-hidden rounded-lg bg-background transition-opacity',
-						isDragging && 'opacity-40',
-					)}
-					// Lets `addDashboardWidget()` pick a split direction from the pane's size
-					data-pane-id={pane.id}
-					data-zoom-filling={pane.id === zoomFillingPaneId || undefined}
-					// Capturing, so clicks that widgets handle themselves still focus the pane, right-clicks included
-					onPointerDownCapture={(event) => focus(event.target)}
-					onFocusCapture={(event) => focus(event.target)}
-					// Middle-clicking a binding removes it
-					onAuxClick={(event) => {
-						const bindingId = event.button === 1 ? bindingIdAt(event.target) : undefined;
-						if (bindingId !== undefined) {
-							remove(bindingId);
-						}
-					}}
-				/>
-			}
+			triggerXstyle={styles.fill}
 		>
 			<div
-				{...dragRegion}
+				ref={dropRef}
 				className={cn(
-					'flex h-9 shrink-0 items-center gap-0.5 px-2 transition-colors',
-					// Marks the widget whose entries the entry browser is editing
-					editing && 'bg-primary/12 capture:bg-transparent capture:transition-none',
+					'group/pane relative flex size-full flex-col overflow-hidden rounded-lg bg-background transition-opacity',
+					isDragging && 'opacity-40',
 				)}
-				// Middle-clicking the header closes the pane, like a browser tab
+				// Lets `addDashboardWidget()` pick a split direction from the pane's size
+				data-pane-id={pane.id}
+				data-zoom-filling={pane.id === zoomFillingPaneId || undefined}
+				// Capturing, so clicks that widgets handle themselves still focus the pane, right-clicks included
+				onPointerDownCapture={(event) => focus(event.target)}
+				onFocusCapture={(event) => focus(event.target)}
+				// Middle-clicking a binding removes it
 				onAuxClick={(event) => {
-					if (event.button === 1 && closable) {
-						close();
+					const bindingId = event.button === 1 ? bindingIdAt(event.target) : undefined;
+					if (bindingId !== undefined) {
+						remove(bindingId);
 					}
 				}}
 			>
-				<span className="flex min-w-0 flex-1">
-					<PaneTitle
-						dragRef={dragRef}
-						movable={allowed.move}
-						isDragging={isDragging}
-						type={type}
-						name={type ? widgetTitle(type, options) : widget?.type}
-						onEdit={() => startEditing(dashboardId, pane.id)}
-					/>
-				</span>
-				<PanePresence dashboardId={dashboardId} paneId={pane.id} />
-				<Toolbar
-					aria-label="Pane controls"
+				<div
+					{...dragRegion}
 					className={cn(
-						'items-center gap-0.5 rounded-none border-0 bg-transparent p-0 transition-opacity duration-100 capture:invisible',
-						!mobile && !focused && 'opacity-0 group-hover/pane:opacity-100',
+						'flex h-9 shrink-0 items-center gap-0.5 px-2 transition-colors',
+						// Marks the widget whose entries the entry browser is editing
+						editing && 'bg-primary/12 capture:bg-transparent capture:transition-none',
 					)}
+					// Middle-clicking the header closes the pane, like a browser tab
+					onAuxClick={(event) => {
+						if (event.button === 1 && closable) {
+							close();
+						}
+					}}
 				>
-					{type && (
-						<WidgetButtons
-							dashboardId={dashboardId}
-							paneId={pane.id}
+					<span className="flex min-w-0 flex-1">
+						<PaneTitle
+							dragRef={dragRef}
+							movable={allowed.move}
+							isDragging={isDragging}
 							type={type}
-							widget={widget}
-							bindings={bindings}
-							editing={editing}
+							name={type ? widgetTitle(type, options) : widget?.type}
+							onEdit={() => startEditing(dashboardId, pane.id)}
 						/>
-					)}
-					<PaneLayoutButtons
-						splittable={allowed.splittable}
-						canSplitRight={allowed.splitRight}
-						canSplitDown={allowed.splitDown}
-						canZoom={dashboardLayout.kind === 'split'}
-						zoomed={zoomed}
-						onSplit={split}
-						onZoom={zoom}
+					</span>
+					<PanePresence dashboardId={dashboardId} paneId={pane.id} />
+					<Toolbar
+						label="Pane controls"
+						size="sm"
+						gap={0.5}
+						xstyle={styles.controls}
+						className={cn(
+							'capture-invisible transition-opacity duration-100',
+							!mobile && !focused && 'opacity-0 group-hover/pane:opacity-100',
+						)}
+						endContent={
+							<>
+								{type && (
+									<WidgetButtons
+										dashboardId={dashboardId}
+										paneId={pane.id}
+										type={type}
+										widget={widget}
+										bindings={bindings}
+										editing={editing}
+									/>
+								)}
+								<PaneLayoutButtons
+									splittable={allowed.splittable}
+									canSplitRight={allowed.splitRight}
+									canSplitDown={allowed.splitDown}
+									canZoom={dashboardLayout.kind === 'split'}
+									zoomed={zoomed}
+									onSplit={split}
+									onZoom={zoom}
+								/>
+								{!exporting && <AppActionMenu items={menuItems} label="Pane actions" onOpenChange={onMenuOpenChange} />}
+								{closable && (
+									<PaneButton label="Close pane" shortcut={shortcuts.close} onClick={close}>
+										<XIcon />
+									</PaneButton>
+								)}
+							</>
+						}
 					/>
-					{!exporting && (
-						<AppActionMenu
-							items={menuItems}
-							label="Pane actions"
-							onOpenChange={onMenuOpenChange}
-							button={<ToolbarButton render={<Button variant="ghost" size="icon-xs" />} aria-label="Pane actions" />}
-						/>
+				</div>
+				<div className="min-h-0 flex-1">
+					{widget === undefined ? (
+						<AddWidgetPrompt onAdd={setWidget} focused={focused} />
+					) : type ? (
+						<WidgetView dashboardId={dashboardId} paneId={pane.id} type={type} bindings={bindings} options={options} />
+					) : (
+						<p className="p-3 text-sm text-muted-foreground">Unknown widget type {widget.type}.</p>
 					)}
-					{closable && (
-						<PaneButton label="Close pane" shortcut={shortcuts.close} onClick={close}>
-							<XIcon />
-						</PaneButton>
-					)}
-				</Toolbar>
+				</div>
+				{isDropTarget && <PaneDropIndicator layout={dashboardLayout} paneId={pane.id} />}
 			</div>
-			<div className="min-h-0 flex-1">
-				{widget === undefined ? (
-					<AddWidgetPrompt onAdd={setWidget} focused={focused} />
-				) : type ? (
-					<WidgetView dashboardId={dashboardId} paneId={pane.id} type={type} bindings={bindings} options={options} />
-				) : (
-					<p className="p-3 text-sm text-muted-foreground">Unknown widget type {widget.type}.</p>
-				)}
-			</div>
-			{isDropTarget && <PaneDropIndicator layout={dashboardLayout} paneId={pane.id} />}
 		</AppContextMenu>
 	);
 }

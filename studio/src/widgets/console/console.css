@@ -4,7 +4,7 @@
 
 /* Rows tint by level, and darken on hover and while their context menu is open */
 .console-message:hover,
-.console-message[data-popup-open] {
+[data-menu-open] > .console-message {
 	background-color: var(--color-overlay-hover);
 }
 .console-message[data-level='warning'] {
@@ -15,10 +15,10 @@
 	background-color: color-mix(in srgb, var(--color-error) 8%, transparent);
 	color: var(--color-text-error);
 }
-.console-message[data-level='warning']:is(:hover, [data-popup-open]) {
+.console-message[data-level='warning']:is(:hover, [data-menu-open] > *) {
 	background-color: var(--color-warning-muted);
 }
-.console-message[data-level='error']:is(:hover, [data-popup-open]) {
+.console-message[data-level='error']:is(:hover, [data-menu-open] > *) {
 	background-color: var(--color-error-muted);
 }
 

@@ -1,10 +1,11 @@
+import { IconButton } from '@astryxdesign/core/IconButton';
+import { ToggleButton } from '@astryxdesign/core/ToggleButton';
+import { Tooltip } from '@astryxdesign/core/Tooltip';
 import type { Hotkey } from '@tanstack/react-hotkeys';
 import type { ReactNode } from 'react';
-import { Button } from '@/components/ui/button';
-import { ToolbarButton } from '@/components/ui/toolbar';
-import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { TooltipLabel } from '@/components/tooltip-label';
 
+/** A button in a pane's toolbar, with its shortcut in its tooltip */
 export function PaneButton({
 	label,
 	shortcut,
@@ -16,36 +17,26 @@ export function PaneButton({
 	label: string;
 	shortcut?: Hotkey;
 	disabled?: boolean;
-	/** For toggles, shown in the primary color while on */
+	/** Makes it a toggle, shown pressed while on */
 	pressed?: boolean;
 	onClick: () => void;
+	/** The icon */
 	children: ReactNode;
 }) {
 	return (
-		<Tooltip>
-			<TooltipTrigger
-				render={
-					<ToolbarButton
-						render={
-							<Button
-								variant="ghost"
-								size="icon-xs"
-								// Toolbar buttons stay focusable while disabled for their tooltips, so they aren't natively `:disabled`
-								className="aria-pressed:bg-secondary aria-pressed:text-secondary-foreground aria-pressed:hover:bg-secondary data-disabled:cursor-default data-disabled:bg-transparent data-disabled:opacity-64"
-							/>
-						}
-						aria-label={label}
-						aria-pressed={pressed}
-						disabled={disabled}
-						onClick={onClick}
-					/>
-				}
-			>
-				{children}
-			</TooltipTrigger>
-			<TooltipPopup>
-				<TooltipLabel label={label} shortcut={shortcut} />
-			</TooltipPopup>
+		<Tooltip content={<TooltipLabel label={label} shortcut={shortcut} />}>
+			{pressed === undefined ? (
+				<IconButton label={label} icon={children} variant="ghost" isDisabled={disabled} onClick={onClick} />
+			) : (
+				<ToggleButton
+					label={label}
+					icon={children}
+					isIconOnly
+					isPressed={pressed}
+					isDisabled={disabled}
+					onPressedChange={onClick}
+				/>
+			)}
 		</Tooltip>
 	);
 }

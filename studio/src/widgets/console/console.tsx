@@ -10,6 +10,7 @@ import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/Segme
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { ToggleButton, ToggleButtonGroup } from '@astryxdesign/core/ToggleButton';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
+import * as stylex from '@stylexjs/stylex';
 import { type ReactNode, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { AppContextMenu } from '@/components/app-context-menu';
 import { HighlightedText } from '@/components/highlighted-text';
@@ -34,6 +35,12 @@ import './console.css';
 
 /** Height of a one line message (px), messages are never shorter so measuring them only moves later rows down */
 const rowHeight = 20;
+
+const styles = stylex.create({
+	selectable: {
+		userSelect: 'text',
+	},
+});
 
 const minimumLevelLabels: Record<MessageLevel, string> = { info: 'All', warning: 'Warnings', error: 'Errors' };
 
@@ -237,35 +244,37 @@ export function Console({ bindings }: WidgetProps) {
 						{virtualizer.getVirtualItems().map((item) => (
 							<AppContextMenu
 								key={item.key}
+								label="Message actions"
+								// Messages stay selectable to copy part of them
+								triggerXstyle={styles.selectable}
 								items={[
 									{
 										label: 'Copy message',
 										onSelect: () => void navigator.clipboard.writeText(messages.texts[item.index]!),
 									},
 								]}
-								render={
-									<div
-										ref={virtualizer.measureElement}
-										data-index={item.index}
-										data-flash={messages.times[item.index] === flashTime || undefined}
-										// Stop flashing once it's done or the user found the message, so it doesn't replay when the row remounts
-										onAnimationEnd={() => setFlashTime(undefined)}
-										onPointerEnter={() => setFlashTime(undefined)}
-										data-level={messages.levels[item.index]}
-										className="console-message absolute inset-x-0 top-0 flex gap-3 px-2 py-0.5 leading-4"
-										style={{ transform: `translateY(${item.start}px)` }}
-									/>
-								}
 							>
-								<span className="min-w-[9ch] shrink-0 text-right text-muted-foreground tabular-nums select-none">
-									{formatTime(messages.times[item.index]!, range?.start ?? 0)}
-								</span>
-								<span className="min-w-0 break-words whitespace-pre-wrap">
-									<HighlightedText
-										text={messages.texts[item.index]!}
-										ranges={pattern ? matchRanges(messages.texts[item.index]!, pattern) : undefined}
-									/>
-								</span>
+								<div
+									ref={virtualizer.measureElement}
+									data-index={item.index}
+									data-level={messages.levels[item.index]}
+									data-flash={messages.times[item.index] === flashTime || undefined}
+									// Stop flashing once it's done or the user found the message, so it doesn't replay when the row remounts
+									onAnimationEnd={() => setFlashTime(undefined)}
+									onPointerEnter={() => setFlashTime(undefined)}
+									className="console-message absolute inset-x-0 top-0 flex gap-3 px-2 py-0.5 leading-4"
+									style={{ transform: `translateY(${item.start}px)` }}
+								>
+									<span className="min-w-[9ch] shrink-0 text-right text-muted-foreground tabular-nums select-none">
+										{formatTime(messages.times[item.index]!, range?.start ?? 0)}
+									</span>
+									<span className="min-w-0 break-words whitespace-pre-wrap">
+										<HighlightedText
+											text={messages.texts[item.index]!}
+											ranges={pattern ? matchRanges(messages.texts[item.index]!, pattern) : undefined}
+										/>
+									</span>
+								</div>
 							</AppContextMenu>
 						))}
 					</div>

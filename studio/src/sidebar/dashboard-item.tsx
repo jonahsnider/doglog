@@ -208,82 +208,78 @@ export function DashboardItem({
 		: dashboardMenu({ dashboard, dashboards, index, selection, router, copy, rename: () => setRenaming(true) });
 
 	return (
-		// The input keeps the browser's menu while renaming
-		<AppContextMenu
-			items={menuItems}
-			render={
-				<MotionSidebarMenuItem
-					ref={setItem}
-					// Lets `useNewDashboardDrop()` find where a dropped pane goes
-					data-dashboard-index={sectionIndex}
-					// The new row covers its neighbor while it slides down. The negative margin cancels the gap at zero height.
-					// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Moves the dashboards below
-					initial={appear && { height: 0, marginBottom: '-0.25rem', zIndex: 1, '--row-cover': 'var(--frame)' }}
-					// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Moves the dashboards below
-					animate={{ height: 'auto', marginBottom: '0rem', opacity: 1, zIndex: 'auto', '--row-cover': 'transparent' }}
-					// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Moves the dashboards below
-					exit={{ height: 0, marginBottom: '-0.25rem', opacity: 0, overflow: 'hidden', transition: rowExit }}
-					transition={{ ...transition, zIndex: afterEntry, '--row-cover': afterEntry }}
-				/>
-			}
-			disabled={renaming}
+		<MotionSidebarMenuItem
+			ref={setItem}
+			// Lets `useNewDashboardDrop()` find where a dropped pane goes
+			data-dashboard-index={sectionIndex}
+			// The new row covers its neighbor while it slides down. The negative margin cancels the gap at zero height.
+			// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Moves the dashboards below
+			initial={appear && { height: 0, marginBottom: '-0.25rem', zIndex: 1, '--row-cover': 'var(--frame)' }}
+			// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Moves the dashboards below
+			animate={{ height: 'auto', marginBottom: '0rem', opacity: 1, zIndex: 'auto', '--row-cover': 'transparent' }}
+			// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Moves the dashboards below
+			exit={{ height: 0, marginBottom: '-0.25rem', opacity: 0, overflow: 'hidden', transition: rowExit }}
+			transition={{ ...transition, zIndex: afterEntry, '--row-cover': afterEntry }}
 		>
-			<m.div
-				// Only fill the wrapper while it covers another row or is dragged. Otherwise the sidebar paints the surface.
-				className={cn('rounded-lg', isDragSource ? 'bg-frame' : 'bg-(--row-cover)')}
-				initial={false}
-				animate={{ y: '0%' }}
-				exit={{ y: '-100%', transition: exitTransition }}
-				transition={transition}
-			>
-				{renaming ? (
-					<RenameInput dashboard={dashboard} icon={Icon} onDone={() => setRenaming(false)} />
-				) : (
-					<>
-						<PreviewCard open={previewOpen} onOpenChange={(open) => setPreviewOpen(open && !isDragSource)}>
-							<PreviewCardTrigger
-								render={
-									<SidebarMenuButton
-										isActive={active}
-										className={cn(
-											selection.isSelected(dashboard) && 'bg-sidebar-accent text-sidebar-accent-foreground',
-										)}
-										render={<Link to="/dashboards/$dashboardId" params={{ dashboardId: dashboard.id }} />}
-										onClick={(event) => {
-											// Instead of opening the link in a new tab or window
-											if (selection.click(event, dashboard)) {
-												event.preventDefault();
-											}
-										}}
-										ref={handleRef}
-										// Keeps the link a link, dnd-kit makes drag handles without a role into buttons
-										role="link"
-										onDoubleClick={() => setRenaming(true)}
-										// Closes the dashboard like a browser tab, instead of opening the link in a new one
-										onAuxClick={(event) => {
-											if (event.button === 1) {
-												event.preventDefault();
-												deleteDashboard(dashboard.id);
-											}
-										}}
-										tooltip={{ children: <TooltipLabel label={name} shortcut={shortcut} /> }}
-									/>
-								}
-							>
-								<Icon />
-								<span>{name}</span>
-							</PreviewCardTrigger>
-							{/* Only previews other dashboards, the selected one is already on screen. A single empty pane has nothing to preview. */}
-							{present && !active && !isEmpty(dashboard) && (
-								<PreviewCardPopup side="right" align="start" className="w-auto p-2">
-									<DashboardPreview layout={dashboard.layout} />
-								</PreviewCardPopup>
-							)}
-						</PreviewCard>
-						<ItemEnd dashboard={dashboard} shortcut={shortcut} menuItems={menuItems} />
-					</>
-				)}
-			</m.div>
-		</AppContextMenu>
+			{/* The input keeps the browser's menu while renaming */}
+			<AppContextMenu items={menuItems} label="Dashboard actions" disabled={renaming}>
+				<m.div
+					// Only fill the wrapper while it covers another row or is dragged. Otherwise the sidebar paints the surface.
+					className={cn('rounded-lg', isDragSource ? 'bg-frame' : 'bg-(--row-cover)')}
+					initial={false}
+					animate={{ y: '0%' }}
+					exit={{ y: '-100%', transition: exitTransition }}
+					transition={transition}
+				>
+					{renaming ? (
+						<RenameInput dashboard={dashboard} icon={Icon} onDone={() => setRenaming(false)} />
+					) : (
+						<>
+							<PreviewCard open={previewOpen} onOpenChange={(open) => setPreviewOpen(open && !isDragSource)}>
+								<PreviewCardTrigger
+									render={
+										<SidebarMenuButton
+											isActive={active}
+											className={cn(
+												selection.isSelected(dashboard) && 'bg-sidebar-accent text-sidebar-accent-foreground',
+											)}
+											render={<Link to="/dashboards/$dashboardId" params={{ dashboardId: dashboard.id }} />}
+											onClick={(event) => {
+												// Instead of opening the link in a new tab or window
+												if (selection.click(event, dashboard)) {
+													event.preventDefault();
+												}
+											}}
+											ref={handleRef}
+											// Keeps the link a link, dnd-kit makes drag handles without a role into buttons
+											role="link"
+											onDoubleClick={() => setRenaming(true)}
+											// Closes the dashboard like a browser tab, instead of opening the link in a new one
+											onAuxClick={(event) => {
+												if (event.button === 1) {
+													event.preventDefault();
+													deleteDashboard(dashboard.id);
+												}
+											}}
+											tooltip={{ children: <TooltipLabel label={name} shortcut={shortcut} /> }}
+										/>
+									}
+								>
+									<Icon />
+									<span>{name}</span>
+								</PreviewCardTrigger>
+								{/* Only previews other dashboards, the selected one is already on screen. A single empty pane has nothing to preview. */}
+								{present && !active && !isEmpty(dashboard) && (
+									<PreviewCardPopup side="right" align="start" className="w-auto p-2">
+										<DashboardPreview layout={dashboard.layout} />
+									</PreviewCardPopup>
+								)}
+							</PreviewCard>
+							<ItemEnd dashboard={dashboard} shortcut={shortcut} menuItems={menuItems} />
+						</>
+					)}
+				</m.div>
+			</AppContextMenu>
+		</MotionSidebarMenuItem>
 	);
 }

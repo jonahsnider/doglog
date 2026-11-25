@@ -4,7 +4,7 @@ import { TreeItem, TreeItemIndicator, TreeItemLabel } from '@ui-sdk/react/tree';
 import ChevronRightIcon from 'lucide-react/icons/chevron-right';
 import { memo, use, useCallback, useRef } from 'react';
 import { AppActionMenu, AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
-import { Button } from '@/components/ui/button';
+import { openContextMenu } from '@/components/open-context-menu';
 import { EntryName } from '@/entries/entry-name';
 import { SectionHeaderLabel } from '@/entries/section-header-label';
 import { HighlightedText } from '@/components/highlighted-text';
@@ -73,7 +73,6 @@ export const EntryRowView = memo(function EntryRowView({
 		data: { section },
 	});
 	const rowElement = useRef<HTMLElement>(null);
-	const actionsButton = useRef<HTMLButtonElement>(null);
 	const ref = useCallback(
 		(element: Element | null) => {
 			dragRef(element);
@@ -104,62 +103,49 @@ export const EntryRowView = memo(function EntryRowView({
 	];
 
 	return (
-		<AppContextMenu
-			items={menuItems}
-			render={
-				<TreeItem
-					value={node.value}
-					// Tells the tree which row has focus, see `EntryRows`
-					data-value={node.value}
-					ref={ref}
-					className={cn(className, 'group/entry-row cursor-grab active:cursor-grabbing')}
-					style={style}
-					aria-keyshortcuts="Shift+F10"
-					onKeyDown={(event) => {
-						if (
-							event.target === event.currentTarget &&
-							(event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10'))
-						) {
-							event.preventDefault();
-							actionsButton.current?.click();
-						}
-					}}
-					onDoubleClick={editing ? undefined : add}
+		<AppContextMenu items={menuItems} label="Entry actions">
+			<TreeItem
+				value={node.value}
+				// Tells the tree which row has focus, see `EntryRows`
+				data-value={node.value}
+				ref={ref}
+				className={cn(className, 'group/entry-row cursor-grab active:cursor-grabbing')}
+				style={style}
+				aria-keyshortcuts="Shift+F10"
+				onKeyDown={(event) => {
+					if (
+						event.target === event.currentTarget &&
+						(event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10'))
+					) {
+						event.preventDefault();
+						openContextMenu(event.currentTarget);
+					}
+				}}
+				onDoubleClick={editing ? undefined : add}
+			>
+				<IndentGuides level={level} active={activeGuide} />
+				{/* Share cramped rows with the preview without letting it take all the space. */}
+				<TreeItemLabel className="flex h-full min-w-[min(7.5rem,65%)] flex-1 items-center gap-1.5 overflow-hidden">
+					<RowIndicator expandable={node.children !== undefined} />
+					{/* Checked while editing instead of having a checkbox of its own, so editing doesn't push the label over */}
+					{entry && <TypeMark type={entry.type} checked={editing && bound} checkable={editing} />}
+					<GroupCheckbox check={groupCheck} />
+					<RowLabel node={node} highlights={highlights} unsupported={unsupported} bound={bound} />
+					{containsBound && <ContainsBoundMark />}
+				</TreeItemLabel>
+				{node.children && <GroupMark path={node.value} />}
+				{entry && <EntryRowValue entry={entry} field={field} />}
+				<AppActionMenu
+					items={menuItems}
+					label="Entry actions"
+					accessibleLabel={`Actions for ${node.value}`}
+					shortcut="Shift+F10"
+					// The tree stays one tab stop; Shift+F10 opens the menu from the focused row.
+					isFocusable={false}
+					finalFocus={rowElement}
+					triggerClassName="-me-1.5 shrink-0 [@media(hover:hover)]:opacity-0 group-focus-within/entry-row:opacity-100 group-hover/entry-row:opacity-100 aria-expanded:opacity-100"
 				/>
-			}
-		>
-			<IndentGuides level={level} active={activeGuide} />
-			{/* Share cramped rows with the preview without letting it take all the space. */}
-			<TreeItemLabel className="flex h-full min-w-[min(7.5rem,65%)] flex-1 items-center gap-1.5 overflow-hidden">
-				<RowIndicator expandable={node.children !== undefined} />
-				{/* Checked while editing instead of having a checkbox of its own, so editing doesn't push the label over */}
-				{entry && <TypeMark type={entry.type} checked={editing && bound} checkable={editing} />}
-				<GroupCheckbox check={groupCheck} />
-				<RowLabel node={node} highlights={highlights} unsupported={unsupported} bound={bound} />
-				{containsBound && <ContainsBoundMark />}
-			</TreeItemLabel>
-			{node.children && <GroupMark path={node.value} />}
-			{entry && <EntryRowValue entry={entry} field={field} />}
-			<AppActionMenu
-				items={menuItems}
-				label="Entry actions"
-				shortcut="Shift+F10"
-				finalFocus={rowElement}
-				button={
-					<Button
-						ref={actionsButton}
-						variant="ghost"
-						size="icon-xs"
-						aria-label={`Actions for ${node.value}`}
-						className="-me-1.5 shrink-0 [@media(hover:hover)]:opacity-0 group-focus-within/entry-row:opacity-100 group-hover/entry-row:opacity-100 data-popup-open:opacity-100"
-						// The tree stays one tab stop; Shift+F10 opens the menu from the focused row.
-						tabIndex={-1}
-						onPointerDown={(event) => event.stopPropagation()}
-						onClick={(event) => event.stopPropagation()}
-						onDoubleClick={(event) => event.stopPropagation()}
-					/>
-				}
-			/>
+			</TreeItem>
 		</AppContextMenu>
 	);
 });

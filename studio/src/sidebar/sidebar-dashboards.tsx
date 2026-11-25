@@ -1,3 +1,5 @@
+import { spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { useParams, useRouter } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import PlusIcon from 'lucide-react/icons/plus';
@@ -5,7 +7,6 @@ import { AnimatePresence, domAnimation, LazyMotion } from 'motion/react';
 import { type ComponentProps, type MouseEvent, type SyntheticEvent, useRef } from 'react';
 import { AppActionMenu, AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { TextMorph } from '@/components/text-morph';
-import { Button } from '@/components/ui/button';
 import { SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { DropPlaceholder } from '@/sidebar/drop-placeholder';
@@ -19,6 +20,16 @@ import { simulatorHost } from '@/robot-target';
 import { useSettings } from '@/settings';
 import { useRecentlyConnected, useSharingHost } from '@/sharing/sharing';
 import { type LiveSource, useSources } from '@/data/source';
+
+const styles = stylex.create({
+	// Fills the rest of the sidebar, so right-clicking anywhere under the dashboards opens their menu
+	sections: {
+		display: 'flex',
+		flex: 1,
+		flexDirection: 'column',
+		gap: spacingVars['--spacing-2'],
+	},
+});
 
 function isEmptySpace(target: EventTarget): boolean {
 	return target instanceof Element && !target.closest('[data-sidebar="menu-item"]');
@@ -85,7 +96,7 @@ export function SidebarDashboards() {
 		},
 	};
 	return (
-		<AppContextMenu items={menuItems} render={<div className="flex flex-1 flex-col gap-2" />}>
+		<AppContextMenu items={menuItems} label="Dashboard section actions" triggerXstyle={styles.sections}>
 			{/* Dragged dashboards and panes are dropped by `DragProvider` */}
 			<LocalDashboards {...props} menuItems={menuItems} />
 			<SharedDashboards {...props} />
@@ -230,16 +241,7 @@ function LocalDashboards(props: SectionProps & { menuItems: readonly MenuEntry[]
 				<AppActionMenu
 					items={() => props.menuItems}
 					label="Dashboard section actions"
-					button={
-						<Button
-							variant="ghost"
-							size="icon-xs"
-							aria-label="Dashboard section actions"
-							className="ms-auto text-muted-foreground [@media(hover:hover)]:opacity-0 group-focus-within/label:opacity-100 group-hover/label:opacity-100 group-data-[collapsible=icon]:hidden data-popup-open:opacity-100"
-							onClick={stopPropagation}
-							onDoubleClick={stopPropagation}
-						/>
-					}
+					triggerClassName="ms-auto [@media(hover:hover)]:opacity-0 group-focus-within/label:opacity-100 group-hover/label:opacity-100 group-data-[collapsible=icon]:hidden aria-expanded:opacity-100"
 				/>
 			</SectionLabel>
 			{/* Tooltips and previews would open on the dashboards the pointer passes over */}

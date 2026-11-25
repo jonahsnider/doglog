@@ -1,3 +1,4 @@
+import { IconButton } from '@astryxdesign/core/IconButton';
 import {
 	DropdownMenu,
 	DropdownMenuDivider,
@@ -9,11 +10,8 @@ import { VStack } from '@astryxdesign/core/Layout';
 import { Popover } from '@astryxdesign/core/Popover';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { Selector } from '@astryxdesign/core/Selector';
-import { Tooltip } from '@astryxdesign/core/Tooltip';
 import SettingsIcon from 'lucide-react/icons/settings';
 import { type ReactNode, useId, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { ToolbarButton } from '@/components/ui/toolbar';
 import { useMobileLayout } from '@/lib/mobile-layout';
 import type { Widget } from '@/panes/layout';
 import { inferredOption, optionValues, pickedOption } from '@/widgets/options';
@@ -77,12 +75,7 @@ export function WidgetOptions({ paneId, type, widget, bindings, onOptionChange }
 				</VStack>
 			}
 		>
-			<Tooltip content="Widget options">
-				{/* Still the pane toolbar's own button, so it keeps the toolbar's arrow key navigation */}
-				<ToolbarButton render={<Button variant="ghost" size="icon-xs" />} aria-label="Widget options">
-					<SettingsIcon aria-hidden />
-				</ToolbarButton>
-			</Tooltip>
+			<IconButton label="Widget options" tooltip="Widget options" icon={<SettingsIcon />} variant="ghost" />
 		</Popover>
 	);
 }
