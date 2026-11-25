@@ -194,7 +194,7 @@ When a dashboard is shown, the main area SHALL show the dashboard's panes and a 
 
 ### Requirement: Collapsible sidebar
 
-Outside the phone layout, users SHALL be able to collapse the sidebar to a narrow icon-only rail and expand it again. An icon-only toggle button at the top of the sidebar MUST stay in place in both states, named by a tooltip with its keyboard shortcut. Hovering the collapsed rail MUST temporarily expand it over the dashboard without resizing the dashboard, and the collapsed state MUST persist.
+Outside the phone layout, users SHALL be able to collapse the sidebar to a narrow icon-only rail and expand it again. An icon-only toggle button at the top of the sidebar MUST stay in place in both states, named by a tooltip with its keyboard shortcut. Hovering the collapsed rail MUST temporarily expand it over the dashboard without resizing the dashboard, and the collapsed state MUST persist. Since touch can't hover, tapping the rail outside its buttons MUST expand it the same way.
 
 #### Scenario: Collapse for more space
 
@@ -222,6 +222,14 @@ Outside the phone layout, users SHALL be able to collapse the sidebar to a narro
 - **THEN** it immediately starts sliding back out past the window's edge, uncovering the rail
 - **AND** the uncovered rail already shows changes made while peeking, like a newly selected page or dashboard
 
+#### Scenario: Peek with touch
+
+- **GIVEN** the sidebar is collapsed on a tablet
+- **WHEN** the user taps the rail between its buttons
+- **THEN** the full sidebar slides in over the rail like it does on hover
+- **WHEN** the user taps outside the sidebar, or a page or dashboard in it
+- **THEN** it slides back out, and stays out even though the browser still treats the tapped spot as hovered
+
 #### Scenario: Remember collapsed state
 
 - **GIVEN** the user collapsed the sidebar
@@ -245,6 +253,28 @@ Studio on the web SHALL use the phone layout in viewports narrower than 800 CSS 
 - **THEN** the sidebar slides in from the edge its toggle is on and has a button to close it
 - **WHEN** the user navigates to another page or dashboard
 - **THEN** the sidebar closes, revealing the selected destination
+
+### Requirement: Swipe to close panels
+
+Panels that slide in over Studio, like the sidebar and entry browser in the phone layout and the sync settings, SHALL close when swiped toward the edge they came from, following the finger without moving past that edge. Swipes MUST start on the panel or the scrim beside it, never at the screen's edge, which browsers and installed web apps use to go back. Vertical swipes MUST still scroll, a mouse drag MUST NOT move the panel, and each panel MUST also have a close button.
+
+#### Scenario: Swipe the sidebar closed on a phone
+
+- **GIVEN** the sidebar is open in the phone layout
+- **WHEN** the user flicks it toward the edge it came from
+- **THEN** it slides out from where the finger left it
+
+#### Scenario: Change your mind mid-swipe
+
+- **GIVEN** the entry browser is open in the phone layout
+- **WHEN** the user drags it less than halfway toward its edge and lets go slowly
+- **THEN** it slides back and stays open, instantly when reducing motion
+
+#### Scenario: Slow swipe past halfway
+
+- **GIVEN** the sync settings are open on a touch device
+- **WHEN** the user slowly drags them more than halfway toward their edge and lets go
+- **THEN** they close
 
 ### Requirement: Navigation history
 

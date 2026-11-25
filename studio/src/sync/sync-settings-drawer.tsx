@@ -9,7 +9,8 @@ import { Switch } from '@astryxdesign/core/Switch';
 import { Text } from '@astryxdesign/core/Text';
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
 import SettingsIcon from 'lucide-react/icons/settings';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { useSwipeToClose } from '@/hooks/use-swipe-to-close';
 import { getRobotHost } from '@/robot-target';
 import { useSettings } from '@/settings';
 import { addDemoMatch, resetDemo, updateDemo, useDemo } from '@/sync/demo';
@@ -19,10 +20,12 @@ import { updateSyncSettings, useSyncSettings } from '@/sync/sync-settings';
 /** A button that opens the log sync settings in a drawer */
 export function SyncSettingsDrawer() {
 	const [open, setOpen] = useState(false);
+	const drawerRef = useRef<HTMLDialogElement>(null);
+	useSwipeToClose(drawerRef, { isOpen: open, side: 'end', onClose: () => setOpen(false) });
 	return (
 		<>
 			<Button label="Sync settings" variant="ghost" size="sm" icon={<SettingsIcon />} onClick={() => setOpen(true)} />
-			<Drawer isOpen={open} onOpenChange={setOpen} label="Sync settings">
+			<Drawer ref={drawerRef} isOpen={open} onOpenChange={setOpen} label="Sync settings">
 				<Layout
 					header={<DrawerHeader title="Sync settings" subtitle={<RobotSummary />} onOpenChange={setOpen} />}
 					content={

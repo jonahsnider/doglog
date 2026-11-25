@@ -18,6 +18,7 @@ import { useHotkey } from '@tanstack/react-hotkeys';
 import { useSelector } from '@tanstack/react-store';
 import PanelRightOpenIcon from 'lucide-react/icons/panel-right-open';
 import XIcon from 'lucide-react/icons/x';
+import { useRef } from 'react';
 import { Panel, Separator, usePanelRef } from 'react-resizable-panels';
 import { ToggleButton } from '@/entries/entry-browser-toggle';
 import { EntryTree } from '@/entries/entry-browser-tree';
@@ -25,6 +26,7 @@ import { type EditedWidget, useEditedWidget } from '@/entries/edited-widget';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { shortcuts } from '@/commands/commands';
 import { useMobileLayout } from '@/lib/mobile-layout';
+import { useSwipeToClose } from '@/hooks/use-swipe-to-close';
 import type { Dashboard } from '@/dashboards/dashboards';
 import { DashboardIdContext } from '@/dashboards/panes';
 import { useVideoExport } from '@/desktop/video-export';
@@ -147,6 +149,8 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 		conflictBehavior: 'allow',
 	});
 	const panelRef = usePanelRef();
+	const drawerRef = useRef<HTMLDialogElement>(null);
+	useSwipeToClose(drawerRef, { isOpen: mobile && open, side: 'end', onClose: () => setEntryBrowserOpen(false) });
 	// Video export mode keeps the dashboard it previews as it is
 	const exporting = useVideoExport() !== undefined;
 
@@ -163,6 +167,7 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 					onClick={() => setEntryBrowserOpen(true)}
 				/>
 				<Drawer
+					ref={drawerRef}
 					isOpen={open}
 					onOpenChange={setEntryBrowserOpen}
 					label={title}

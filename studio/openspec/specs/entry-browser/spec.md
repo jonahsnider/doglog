@@ -310,12 +310,12 @@ In the phone layout (see app-shell), the entry browser SHALL start closed regard
 - **GIVEN** the user is viewing a dashboard in the phone layout
 - **WHEN** the user taps the entry browser toggle
 - **THEN** the entry browser covers the viewport without a resize divider
-- **WHEN** the user taps the close button
+- **WHEN** the user taps the close button, or swipes the entry browser toward the edge it came from (see app-shell)
 - **THEN** the dashboard is shown again
 
 ### Requirement: Drag to bind
 
-Users SHALL be able to drag entries from the entry browser onto widgets to bind them. Dropping a group that isn't an entry itself SHALL bind the entries under it that the widget can show, including those under collapsed branches. It MUST honor the current search filter, skip entries the widget already shows, and bind the rest in one undoable change.
+Users SHALL be able to drag entries from the entry browser onto widgets to bind them. With touch, a row MUST only be picked up after it's held, so swiping over rows scrolls or closes the entry browser instead. Dropping a group that isn't an entry itself SHALL bind the entries under it that the widget can show, including those under collapsed branches. It MUST honor the current search filter, skip entries the widget already shows, and bind the rest in one undoable change.
 
 #### Scenario: Drag an entry
 

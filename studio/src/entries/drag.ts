@@ -53,8 +53,12 @@ export type EntryDropData = EntryDrop & {
 };
 
 export const entryPointerSensor = PointerSensor.configure({
-	// Start once the pointer moves, so clicking a group still expands it
-	activationConstraints: [new PointerActivationConstraints.Distance({ value: 5 })],
+	// Start once the pointer moves, so clicking a group still expands it. Touch waits for a hold like dnd-kit's default,
+	// so swiping over rows, like to close the entry browser on phones, doesn't pick them up.
+	activationConstraints: (event) =>
+		event.pointerType === 'touch'
+			? [new PointerActivationConstraints.Delay({ value: 250, tolerance: 5 })]
+			: [new PointerActivationConstraints.Distance({ value: 5 })],
 	// Rows for entries with children are mostly the expand button, allow dragging by it
 	preventActivation: () => false,
 });
