@@ -184,8 +184,8 @@ settings:
 catalogs:
   default:
     three-mesh-bvh:
-      specifier: 0.9.18
-      version: 0.9.18
+      specifier: 0.10.0
+      version: 0.10.0
     vite:
       specifier: npm:@voidzero-dev/vite-plus-core@8.3.8001
       version: 8.3.8001
@@ -195,7 +195,7 @@ catalogs:
 
 overrides:
   '@sentry/bundler-plugins>sentry': 0.50.0
-  '@react-three/drei>three-mesh-bvh': 0.9.18
+  '@react-three/drei>three-mesh-bvh': 0.10.0
 
 packageExtensionsChecksum: sha256-OxAKNAr6Las4d5pj+Dw/QVb3MWbKIx3U1a12i1ItCTA=
 
@@ -413,7 +413,7 @@ importers:
         version: 0.187.0
       three-mesh-bvh:
         specifier: 'catalog:'
-        version: 0.9.18(@types/three@0.187.0)(three@0.187.0)
+        version: 0.10.0(@types/three@0.187.0)(three@0.187.0)
       torph:
         specifier: 0.1.4
         version: 0.1.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -9317,8 +9317,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  three-mesh-bvh@0.9.18:
-    resolution: {integrity: sha512-S76hOBnsSG4jsuEyCu98K63klONG4NwJANabPY1LUD5l7oUgu2xtKC0IwnX/XyPzo4YZ1D7ZU+gHVA479UdQmA==}
+  three-mesh-bvh@0.10.0:
+    resolution: {integrity: sha512-QHKCD67pgd7YkAcPa4rvuPJjeUm1shFKcFSW8QqnJ0t2uhwi+yyadLpDWI8t0VQsivfFjhVCYvf6rVk9Z0R1gQ==}
     peerDependencies:
       '@types/three': '*'
       three: '>= 0.159.0'
@@ -13842,7 +13842,7 @@ snapshots:
       stats.js: 0.17.0
       suspend-react: 0.1.3(react@19.3.1)
       three: 0.187.0
-      three-mesh-bvh: 0.9.18(@types/three@0.187.0)(three@0.187.0)
+      three-mesh-bvh: 0.10.0(@types/three@0.187.0)(three@0.187.0)
       three-stdlib: 2.36.1(@types/three@0.187.0)(three@0.187.0)
       troika-three-text: 0.52.5(three@0.187.0)
       tunnel-rat: 0.1.2(@types/react@19.3.0)(react@19.3.1)
@@ -19777,7 +19777,7 @@ snapshots:
       commander: 2.20.3
       source-map-support: 0.5.21
 
-  three-mesh-bvh@0.9.18(@types/three@0.187.0)(three@0.187.0):
+  three-mesh-bvh@0.10.0(@types/three@0.187.0)(three@0.187.0):
     dependencies:
       '@types/three': 0.187.0
       three: 0.187.0

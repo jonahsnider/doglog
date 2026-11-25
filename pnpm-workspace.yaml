@@ -9,7 +9,7 @@ packages:
   - 'studio'
   - 'web'
 catalog:
-  three-mesh-bvh: 0.9.18
+  three-mesh-bvh: 0.10.0
   vite: npm:@voidzero-dev/vite-plus-core@8.3.8001
   vite-plus: 1.8.0
 peerDependencyRules:
