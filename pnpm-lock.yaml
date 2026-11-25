@@ -194,7 +194,7 @@ catalogs:
       version: 1.8.0
 
 overrides:
-  '@sentry/bundler-plugins>sentry': 0.50.0
+  '@sentry/bundler-plugins>sentry': 0.51.0
   '@react-three/drei>three-mesh-bvh': 0.10.0
 
 packageExtensionsChecksum: sha256-OxAKNAr6Las4d5pj+Dw/QVb3MWbKIx3U1a12i1ItCTA=
@@ -9028,6 +9028,11 @@ packages:
     engines: {node: '>=20.0'}
     hasBin: true
 
+  sentry@0.51.0:
+    resolution: {integrity: sha512-yN0YWR+16DgMpBcJgTQmdEXl+/fn++m19TV7ONBUwWIHsy5BsMLH7bjwa3N5dBSPOqfsjV8lq67cPMjxISNPYg==}
+    engines: {node: '>=20.0'}
+    hasBin: true
+
   serialize-javascript@7.1.4:
     resolution: {integrity: sha512-FqlEuoTq/zRmA4Lg6aOqyH3lCHbUtCB0bmHCeFniX2GBdDqMJM3FwdvEhlE5Pim1dlt2FfBdVPmUNNiGhhKqpw==}
     engines: {node: '>=20.0.0'}
@@ -14056,7 +14061,7 @@ snapshots:
       glob: 14.0.6
       magic-string: 1.4.5
       oxc-parser: 0.152.0
-      sentry: 0.50.0
+      sentry: 0.51.0
     optionalDependencies:
       rollup: 4.68.3
 
@@ -19357,6 +19362,8 @@ snapshots:
   semver@7.8.5: {}
 
   sentry@0.50.0: {}
+
+  sentry@0.51.0: {}
 
   serialize-javascript@7.1.4: {}
 
