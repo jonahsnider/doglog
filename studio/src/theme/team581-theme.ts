@@ -146,6 +146,8 @@ export const team581Theme = defineTheme({
 		'--ease-entrance': 'cubic-bezier(0, 0, 0, 1)',
 		'--ease-exit': 'cubic-bezier(0.3, 0, 1, 1)',
 		'--duration-exit': '200ms',
+		// Only Spinner reads it, for one turn. The duration scale above would make that 225ms, which feels frantic.
+		'--duration-slow-min': '1000ms',
 
 		'--radius-inner': '6px',
 		'--radius-element': '8px',
