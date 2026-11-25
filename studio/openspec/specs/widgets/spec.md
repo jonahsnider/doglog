@@ -62,12 +62,12 @@ The shared "No entries" state SHALL have an Add entries button that opens the en
 
 ### Requirement: Group widget commands in the pane menu
 
-The pane actions and context menus SHALL put commands for the widget as a whole next to **Change widget**. Commands that depend on the right-clicked binding or scene position MUST stay with the contextual commands.
+The pane context menu SHALL put commands for the widget as a whole next to **Change widget**. Commands that depend on the right-clicked binding or scene position MUST stay with the contextual commands.
 
 #### Scenario: Reset a graph from the pane menu
 
 - **GIVEN** a graph showing data
-- **WHEN** the user opens its pane actions menu
+- **WHEN** the user right-clicks it
 - **THEN** **Reset view** is directly below **Change widget**, without a separator between them
 
 ### Requirement: Edit entries from the context menu

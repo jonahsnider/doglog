@@ -5,13 +5,7 @@ import * as stylex from '@stylexjs/stylex';
 import XIcon from 'lucide-react/icons/x';
 import { useMemo, useState } from 'react'; // oxlint-disable studio/no-manual-memo -- React Compiler doesn't memoize `bindings` or `options` on its own
 import { AddWidgetPrompt } from '@/panes/add-widget-prompt';
-import {
-	AppActionMenu,
-	AppContextMenu,
-	type MenuCheckbox,
-	type MenuEntry,
-	type MenuPoint,
-} from '@/components/app-context-menu';
+import { AppContextMenu, type MenuCheckbox, type MenuEntry, type MenuPoint } from '@/components/app-context-menu';
 import { WidgetButtons } from '@/panes/widget-buttons';
 import { PaneButton } from '@/panes/pane-button';
 import { PaneTitle } from '@/panes/pane-title';
@@ -116,7 +110,7 @@ export function PaneView({
 		const byName = new Map(entries.map((entry) => [entry.name, entry]));
 		return type ? resolveBindings(type, widgetBindings(widget), (name) => byName.get(name)) : [];
 	}, [entries, type, widget]);
-	/** The bindings when either menu opened, so the ones removed from it stay listed and can be restored */
+	/** The bindings when the menu opened, so the ones removed from it stay listed and can be restored */
 	const [menuBindings, setMenuBindings] = useState<Binding[]>();
 	const onMenuOpenChange = (open: boolean) => setMenuBindings(open ? widgetBindings(widget) : undefined);
 	const mobile = useMobileLayout();
@@ -272,7 +266,6 @@ export function PaneView({
 									onSplit={split}
 									onZoom={zoom}
 								/>
-								{!exporting && <AppActionMenu items={menuItems} label="Pane actions" onOpenChange={onMenuOpenChange} />}
 								{closable && (
 									<PaneButton label="Close pane" shortcut={shortcuts.close} onClick={close}>
 										<XIcon />

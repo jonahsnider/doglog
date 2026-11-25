@@ -701,13 +701,7 @@ A pane's header buttons, like Edit entries, split, and close, SHALL always be sh
 
 ### Requirement: Pane context menu
 
-Right-clicking a pane SHALL open a context menu with Split right, Split down, Zoom pane (Restore pane while zoomed), Change widget (Add widget in an empty pane), Edit entries, and Close. The pane header's `…` button SHALL offer the same pane-wide actions, including actions supplied by its widget. Actions that depend on a specific binding remain in that binding's context menu or row controls.
-
-#### Scenario: Change widget from the pane header
-
-- **GIVEN** a pane shows a console
-- **WHEN** the user opens the `…` button and chooses Change widget, then Graph
-- **THEN** the pane shows a graph without requiring a right-click
+Right-clicking or long-pressing a pane SHALL open a context menu with Split right, Split down, Zoom pane (Restore pane while zoomed), Change widget (Add widget in an empty pane), Edit entries, and Close, plus actions supplied by its widget. The pane header MUST NOT have a button that opens this menu.
 
 #### Scenario: Split from the context menu
 
