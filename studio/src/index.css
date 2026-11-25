@@ -66,6 +66,20 @@
 	--default-transition-duration: 150ms;
 	--default-transition-timing-function: var(--ease-in-out);
 }
+/*
+ * 0 when motion is reduced by the system or the reduce motion setting, 1 otherwise. Styles multiply their transition
+ * and animation durations by it, ex. `calc(200ms * var(--motion-scale))`.
+ */
+:root {
+	--motion-scale: 1;
+
+	@media (prefers-reduced-motion: reduce) {
+		--motion-scale: 0;
+	}
+	&.reduce-motion {
+		--motion-scale: 0;
+	}
+}
 /* Spinners slow down instead of stopping when reducing motion, so they still show that something is loading */
 :root {
 	@variant motion-reduce {
@@ -636,5 +650,15 @@
 	}
 	.capture-invisible:where([data-capturing], [data-capturing] *) {
 		visibility: hidden;
+	}
+	/* The frames of a video being saved leave out video export mode's own controls, or show stand-ins for them */
+	.saving-video-hidden:where([data-saving-video] *) {
+		display: none;
+	}
+	.saving-video-invisible:where([data-saving-video] *) {
+		visibility: hidden;
+	}
+	.saving-video-only:not(:where([data-saving-video] *)) {
+		display: none;
 	}
 }
