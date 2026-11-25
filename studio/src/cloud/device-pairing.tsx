@@ -44,7 +44,7 @@ export function PairThisDevice({ account, onPaired }: { account: PairingAccount;
 			onPaired();
 		} catch (error) {
 			if (!current.signal.aborted) {
-				setState({ step: 'error', message: errorMessage(error, 'Couldn’t pair this device. Try again.') });
+				setState({ step: 'error', message: errorMessage(error, 'Couldn’t get approval. Try again.') });
 			}
 		}
 	}
@@ -53,7 +53,7 @@ export function PairThisDevice({ account, onPaired }: { account: PairingAccount;
 		return (
 			<VStack gap={2} hAlign="start">
 				{state.step === 'error' && <Banner status="error" role="alert" title={state.message} />}
-				<Button label="Pair this device" size="sm" onClick={() => void pair()} />
+				<Button label="Request approval" size="sm" onClick={() => void pair()} />
 			</VStack>
 		);
 	}
@@ -61,7 +61,7 @@ export function PairThisDevice({ account, onPaired }: { account: PairingAccount;
 		<VStack gap={2} hAlign="start">
 			<Text role="status">
 				{state.step === 'waiting'
-					? 'On a device that has your key, open Cloud and choose Approve pairing.'
+					? 'On a device you’re already signed in on, open Cloud and choose Approve.'
 					: 'Check that your other device shows this code, then confirm there.'}
 			</Text>
 			{state.step === 'code' && <PairingCode code={state.code} />}
@@ -122,7 +122,7 @@ export function ApprovePairing({ account }: { account: PairingAccount }) {
 				attempt.current = null;
 				setState({
 					step: 'error',
-					message: errorMessage(error, 'Couldn’t approve pairing. Start again on your new device.'),
+					message: errorMessage(error, 'Couldn’t approve the sign-in. Start again on your new device.'),
 				});
 			}
 		}
@@ -147,8 +147,8 @@ export function ApprovePairing({ account }: { account: PairingAccount }) {
 	if (state.step === 'idle') {
 		return request && !request.approverKey ? (
 			<VStack gap={2} hAlign="start">
-				<Text role="status">Another device wants to use your encryption key.</Text>
-				<Button label="Approve pairing" variant="primary" size="sm" onClick={() => void approve(request)} />
+				<Text role="status">A new sign-in is waiting for your approval.</Text>
+				<Button label="Approve" variant="primary" size="sm" onClick={() => void approve(request)} />
 			</VStack>
 		) : null;
 	}
@@ -163,12 +163,12 @@ export function ApprovePairing({ account }: { account: PairingAccount }) {
 	if (state.step === 'code') {
 		return (
 			<VStack gap={2} hAlign="start">
-				<Text role="status">Pair only if your new device shows this code.</Text>
+				<Text role="status">Approve only if your new device shows this code.</Text>
 				<PairingCode code={state.code} />
 				<HStack wrap="wrap" gap={2}>
 					<Button label="Cancel" size="sm" isDisabled={state.sending} onClick={cancel} />
 					<Button
-						label="Pair device"
+						label="Approve sign-in"
 						variant="primary"
 						size="sm"
 						isLoading={state.sending}
@@ -181,7 +181,7 @@ export function ApprovePairing({ account }: { account: PairingAccount }) {
 	if (state.step === 'done') {
 		return (
 			<Text role="status" color="secondary">
-				Your new device is paired.
+				Your new device is approved.
 			</Text>
 		);
 	}

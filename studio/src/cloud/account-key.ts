@@ -126,7 +126,7 @@ export async function exportAccountKey(deployment: string, userId: string, regis
 	const { key, additionalData } = storage(deployment, userId);
 	const stored = await get<StoredAccountKey>(key);
 	if (!stored || !sameBytes(stored.publicKey, registeredPublicKey)) {
-		throw new Error('This browser doesn’t have your account’s encryption key.');
+		throw new Error('This device doesn’t have your account’s encryption key.');
 	}
 	return crypto.subtle.exportKey('pkcs8', await unseal(key, stored, additionalData, true));
 }

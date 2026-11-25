@@ -23,8 +23,8 @@ export function AccountEncryption({ userId }: { userId: Id<'users'> }) {
 		<VStack gap={2} hAlign="start">
 			<Text role="status" type="supporting" color="secondary">
 				{status === 'loading' && 'Checking your encryption key…'}
-				{status === 'ready' && 'Encryption key available in this browser.'}
-				{status === 'missing' && 'Your account’s encryption key is not available in this browser.'}
+				{status === 'ready' && 'When you sign in on another device, approve it here.'}
+				{status === 'missing' && 'Approve this sign-in from a device you’re already signed in on.'}
 			</Text>
 			{account && status === 'missing' && <PairThisDevice account={account} onPaired={retryAccountKey} />}
 			{account && status === 'ready' && <ApprovePairing account={account} />}
