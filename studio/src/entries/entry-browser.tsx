@@ -7,6 +7,7 @@ import {
 	easeVars,
 	fontWeightVars,
 	radiusVars,
+	sizeVars,
 	spacingVars,
 	typeScaleVars,
 	typographyVars,
@@ -40,11 +41,11 @@ import { entryBrowserMarker } from './markers.stylex';
 import * as z from 'zod';
 
 const styles = stylex.create({
-	// Sits in the app header without taking space from the dashboard's panels
+	// Sits in the app header without taking space from the dashboard's panels, centered in its 48px like the sidebar toggle
 	mobileToggle: {
 		position: 'fixed',
 		insetInlineEnd: spacingVars['--spacing-2'],
-		top: 2,
+		top: `calc((48px - ${sizeVars['--size-element-lg']}) / 2)`,
 		zIndex: 30,
 	},
 	// The tree scrolls its rows itself, under its search box
