@@ -82,7 +82,7 @@ function MobileAppSidebar() {
 				/>
 				<span {...stylex.props(styles.mobileName)}>DogLog Studio</span>
 			</header>
-			<MobileNav isOpen={open} onOpenChange={setOpen} header="DogLog Studio" label="Sidebar">
+			<MobileNav isOpen={open} onOpenChange={setOpen} side="start" header="DogLog Studio" label="Sidebar">
 				<div data-sidebar="sidebar" {...stylex.props(styles.mobileSidebar)}>
 					<SidebarItems />
 				</div>

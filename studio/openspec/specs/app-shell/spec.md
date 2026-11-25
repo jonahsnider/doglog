@@ -234,7 +234,7 @@ Outside the phone layout, users SHALL be able to collapse the sidebar to a narro
 - **THEN** it collapses or expands without animating
 - **AND** toggling it by clicking still animates
 
-### Requirement: Full-screen sidebar on phones
+### Requirement: Sidebar on phones
 
 Studio on the web SHALL use the phone layout in viewports narrower than 800 CSS pixels, or shorter than 480 CSS pixels when the primary pointer is coarse, as on a phone in landscape. In that layout, the sidebar MUST start closed regardless of the saved docked layout. Its toggle MUST stay in the top bar without reserving a rail beside the main area. Opening or closing it MUST NOT change the saved docked layout.
 
@@ -242,7 +242,7 @@ Studio on the web SHALL use the phone layout in viewports narrower than 800 CSS 
 
 - **GIVEN** Studio is using the phone layout
 - **WHEN** the user taps the sidebar toggle
-- **THEN** the sidebar covers the viewport and has a button to close it
+- **THEN** the sidebar slides in from the edge its toggle is on and has a button to close it
 - **WHEN** the user navigates to another page or dashboard
 - **THEN** the sidebar closes, revealing the selected destination
 
