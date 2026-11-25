@@ -1,25 +1,36 @@
+import { Avatar } from '@astryxdesign/core/Avatar';
+import { AvatarGroup, AvatarGroupOverflow } from '@astryxdesign/core/AvatarGroup';
 import fnv1a from '@sindresorhus/fnv1a';
+import * as stylex from '@stylexjs/stylex';
 import { TextMorph } from '@/components/text-morph';
-import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount } from '@/components/ui/avatar';
-import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { type PresentSession, usePresence } from '@/sharing/presence';
+import { chartCount } from '@/theme/choices';
+import { seriesColor } from '@/widgets/series-color';
+import './presence-avatars.css';
 
-/** Chart colors, so each user's color follows the theme and contrasts equally with the background */
-const userColors = ['bg-chart-1', 'bg-chart-2', 'bg-chart-3', 'bg-chart-4', 'bg-chart-5'] as const;
+const styles = stylex.create({
+	// Each user's color follows the theme and contrasts equally with the background, see presence-avatars.css
+	color: (color: string) => ({
+		backgroundColor: color,
+	}),
+	avatar: {
+		transitionProperty: 'opacity, filter',
+		transitionDuration: '150ms',
+	},
+	inactive: {
+		opacity: 0.4,
+		filter: 'grayscale(1)',
+	},
+	count: {
+		fontVariantNumeric: 'tabular-nums',
+	},
+});
 
 const maxShown = 3;
 
 function userColor(userId: string): string {
-	return userColors[Number(fnv1a(userId, { size: 32 }) % BigInt(userColors.length))] ?? userColors[0];
-}
-
-/** Splits names into characters as people see them, ex. a whole emoji */
-const segmenter = new Intl.Segmenter();
-
-function initial(name: string): string {
-	const [first] = segmenter.segment(name.trim());
-	return first?.segment.toUpperCase() ?? '?';
+	return seriesColor(Number(fnv1a(userId, { size: 32 }) % BigInt(chartCount)));
 }
 
 /** Other users in a shared dashboard or pane. Sessions other than each user's active one are grayed out. */
@@ -31,37 +42,33 @@ function PresenceAvatars({ sessions, className }: { sessions: readonly PresentSe
 	// One more avatar would take the count's place
 	const shown = sessions.length > maxShown + 1 ? sessions.slice(0, maxShown) : sessions;
 	return (
-		<AvatarGroup className={cn('[--avatar-size:--spacing(5)]', className)}>
-			{shown.map((session) => (
-				<Tooltip key={session.sessionId}>
-					<TooltipTrigger
-						render={
-							<Avatar
-								aria-label={session.name}
-								className={cn('transition-opacity', !session.active && 'opacity-40 grayscale')}
-							/>
-						}
-					>
-						<AvatarFallback className={cn('text-primary-foreground', userColor(session.userId))}>
-							{initial(session.name)}
-						</AvatarFallback>
-					</TooltipTrigger>
-					<TooltipPopup>{session.active ? session.name : `${session.name} (inactive)`}</TooltipPopup>
-				</Tooltip>
-			))}
-			{shown.length < sessions.length && (
-				<AvatarGroupCount className="tabular-nums">
-					<TextMorph>{`+${sessions.length - shown.length}`}</TextMorph>
-				</AvatarGroupCount>
-			)}
-		</AvatarGroup>
+		<div className={cn('flex', className)}>
+			<AvatarGroup size="xsm">
+				{shown.map((session) => (
+					<Avatar
+						key={session.sessionId}
+						name={session.name}
+						className="presence-avatar"
+						tooltip={session.active ? session.name : `${session.name} (inactive)`}
+						xstyle={[styles.avatar, styles.color(userColor(session.userId)), !session.active && styles.inactive]}
+					/>
+				))}
+				{shown.length < sessions.length && (
+					<AvatarGroupOverflow count={sessions.length - shown.length}>
+						<span {...stylex.props(styles.count)}>
+							<TextMorph>{`+${sessions.length - shown.length}`}</TextMorph>
+						</span>
+					</AvatarGroupOverflow>
+				)}
+			</AvatarGroup>
+		</div>
 	);
 }
 
 /** Other users whose last interaction in a shared dashboard was with this pane */
 export function PanePresence({ dashboardId, paneId }: { dashboardId: string; paneId: string }) {
 	const sessions = usePresence(dashboardId).filter((session) => session.paneId === paneId);
-	return <PresenceAvatars sessions={sessions} className="me-1 capture:invisible" />;
+	return <PresenceAvatars sessions={sessions} className="capture-invisible me-1" />;
 }
 
 /** Other users in a shared dashboard, once each, active if any of their sessions in it is */

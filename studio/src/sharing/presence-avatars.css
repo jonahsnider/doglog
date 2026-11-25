@@ -1,0 +1,5 @@
+/* Avatar paints its initials on a fallback that covers the avatar's own background, which holds the user's color */
+.presence-avatar .astryx-avatar-fallback {
+	background-color: transparent;
+	color: var(--color-on-accent);
+}

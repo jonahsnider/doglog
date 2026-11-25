@@ -1,6 +1,7 @@
+import { Text } from '@astryxdesign/core/Text';
+import { Tooltip } from '@astryxdesign/core/Tooltip';
 import fnv1a from '@sindresorhus/fnv1a';
 import type { LucideIcon } from 'lucide-react/types';
-import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { dateTimeFormat, formatSize, logLabel } from '@/sync/format';
 import { type MatchType, parseLogName } from '@/sync/log-names';
@@ -151,10 +152,8 @@ function LogDetails({ log, label, matchType }: { log: BoardLog; label: string; m
 			<span className="font-medium">
 				{matchType ? `${label}, ${matchIcons[matchType].label.toLowerCase()}` : label}
 			</span>
-			<span className="text-muted-foreground">{`${stateText[log.state]}, ${size}`}</span>
-			{label !== dateTimeFormat.format(log.date) && (
-				<span className="text-muted-foreground">{dateTimeFormat.format(log.date)}</span>
-			)}
+			<Text color="secondary">{`${stateText[log.state]}, ${size}`}</Text>
+			{label !== dateTimeFormat.format(log.date) && <Text color="secondary">{dateTimeFormat.format(log.date)}</Text>}
 		</div>
 	);
 }
@@ -165,29 +164,22 @@ function LogSquare({ log, onOpen }: { log: BoardLog; onOpen: (name: string) => v
 	const MatchIcon = matchType && matchIcons[matchType].icon;
 
 	return (
-		<Tooltip>
-			<TooltipTrigger
-				render={
-					<button
-						type="button"
-						aria-label={`${label}, ${stateText[log.state]}`}
-						onClick={log.state === 'synced' ? () => onOpen(log.name) : undefined}
-						className={cn(
-							'relative grid size-8 grid-cols-4 overflow-hidden rounded-md text-muted-foreground outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
-							squareClasses[log.state],
-						)}
-					/>
-				}
+		<Tooltip content={<LogDetails log={log} label={label} matchType={matchType} />}>
+			<button
+				type="button"
+				aria-label={`${label}, ${stateText[log.state]}`}
+				onClick={log.state === 'synced' ? () => onOpen(log.name) : undefined}
+				className={cn(
+					'relative grid size-8 grid-cols-4 overflow-hidden rounded-md text-muted-foreground outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring',
+					squareClasses[log.state],
+				)}
 			>
 				{log.state === 'copying' || log.state === 'queued' ? (
 					<Cells log={log} icon={MatchIcon} />
 				) : (
 					MatchIcon && <MatchIcon aria-hidden className="absolute inset-0 m-auto size-4" />
 				)}
-			</TooltipTrigger>
-			<TooltipPopup>
-				<LogDetails log={log} label={label} matchType={matchType} />
-			</TooltipPopup>
+			</button>
 		</Tooltip>
 	);
 }

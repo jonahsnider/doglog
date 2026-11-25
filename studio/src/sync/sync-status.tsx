@@ -1,4 +1,5 @@
-import { Link } from '@tanstack/react-router';
+import { Button } from '@astryxdesign/core/Button';
+import { Tooltip } from '@astryxdesign/core/Tooltip';
 import AppWindowIcon from 'lucide-react/icons/app-window';
 import CheckIcon from 'lucide-react/icons/check';
 import HourglassIcon from 'lucide-react/icons/hourglass';
@@ -12,8 +13,6 @@ import type { LucideIcon } from 'lucide-react/types';
 import { type ReactNode, useState } from 'react';
 import { TextMorph } from '@/components/text-morph';
 import type { BoardLog } from '@/sync/sync-board';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { formatSize, logLabel } from '@/sync/format';
 import { type SyncStatus, syncNow } from '@/sync/sync';
@@ -90,11 +89,7 @@ function viewFor(status: SyncStatus, syncedCount: number, days: number, stoppedS
 				step: 0,
 				title: 'Set your team number to sync logs',
 				detail: 'Sync uses the same robot as Connect',
-				action: (
-					<Button variant="outline" render={<Link to="/settings" />}>
-						Open Settings
-					</Button>
-				),
+				action: <Button label="Open Settings" href="/settings" />,
 			};
 		case 'other-window':
 			return {
@@ -149,12 +144,7 @@ function viewFor(status: SyncStatus, syncedCount: number, days: number, stoppedS
 				step: 2,
 				title: 'Up to date',
 				detail: `${count(syncedCount, 'log')} from the last ${count(days, 'day')}`,
-				action: (
-					<Button variant="outline" onClick={syncNow}>
-						<RefreshCwIcon />
-						Sync now
-					</Button>
-				),
+				action: <Button label="Sync now" icon={<RefreshCwIcon />} onClick={syncNow} />,
 			};
 		default:
 			return {
@@ -163,12 +153,7 @@ function viewFor(status: SyncStatus, syncedCount: number, days: number, stoppedS
 				step: 1,
 				title: 'Couldn’t sync logs',
 				detail: status.message,
-				action: (
-					<Button variant="outline" onClick={syncNow}>
-						<RefreshCwIcon />
-						Try again
-					</Button>
-				),
+				action: <Button label="Try again" icon={<RefreshCwIcon />} onClick={syncNow} />,
 			};
 	}
 }
@@ -209,19 +194,15 @@ export function SyncStatusPanel({
 	return (
 		<section className="flex flex-col items-center gap-10 pt-2 text-center">
 			<div className="flex max-w-full flex-col items-center gap-4">
-				<Tooltip>
-					<TooltipTrigger
-						render={
-							<button
-								type="button"
-								aria-label={toggleLabel}
-								onClick={() => updateSyncSettings({ enabled: !enabled })}
-								className={cn(
-									'group flex size-20 cursor-pointer items-center justify-center rounded-full outline-offset-4 transition-[background-color,color,scale] duration-200 hover:scale-105 focus-visible:outline-2 focus-visible:outline-ring active:scale-95 motion-reduce:transition-none',
-									toneIcon[tone],
-								)}
-							/>
-						}
+				<Tooltip content={toggleLabel}>
+					<button
+						type="button"
+						aria-label={toggleLabel}
+						onClick={() => updateSyncSettings({ enabled: !enabled })}
+						className={cn(
+							'group flex size-20 cursor-pointer items-center justify-center rounded-full outline-offset-4 transition-[background-color,color,scale] duration-200 hover:scale-105 focus-visible:outline-2 focus-visible:outline-ring active:scale-95 motion-reduce:transition-none',
+							toneIcon[tone],
+						)}
 					>
 						<Icon
 							className={cn(
@@ -230,8 +211,7 @@ export function SyncStatusPanel({
 							)}
 						/>
 						<ToggleIcon className="hidden size-9 group-hover:block group-focus-visible:block" />
-					</TooltipTrigger>
-					<TooltipPopup>{toggleLabel}</TooltipPopup>
+					</button>
 				</Tooltip>
 				<div className="flex max-w-full flex-col gap-1">
 					<h2 className="font-heading text-2xl font-semibold">
