@@ -455,8 +455,8 @@ importers:
         specifier: 6.1.1
         version: 6.1.1(@types/node@26.6.6)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.1)(@vitest/ui@5.1.1)(@voidzero-dev/vite-plus-core@8.3.8001)(debug@4.4.3(supports-color@10.2.2))(supports-color@10.2.2)(tinybench@6.2.3)(typescript@7.1.0-dev.20261124.1)(vitest@5.1.1)
       '@fission-ai/openspec':
-        specifier: 2.1.1
-        version: 2.1.1(@types/node@26.6.6)
+        specifier: 2.2.0
+        version: 2.2.0(@types/node@26.6.6)
       '@gltf-transform/core':
         specifier: 4.5.1
         version: 4.5.1
@@ -2669,8 +2669,8 @@ packages:
   '@expressive-code/plugin-text-markers@0.44.2':
     resolution: {integrity: sha512-SNI7EgUSiADqbqUzzMbj1ZeC/r2pa5eg3KyFOGAd3a7EsIA4qzjXQLp+ODWQtHVDKFCdGs4J3ovSJUqvKIK96g==}
 
-  '@fission-ai/openspec@2.1.1':
-    resolution: {integrity: sha512-GQv1xU4uLrTVJ6MfOKNIxo/BgEk+e8C/XBmjTfzd/W3LNh4v2UMAsfTdn8mjHdjDA/KjfGstwUhZedQW4hdcZQ==}
+  '@fission-ai/openspec@2.2.0':
+    resolution: {integrity: sha512-tSLMp9NhjF8zqNI53lZcaeVOFxE25pmMA7WZDsHZbK1Rds4R6nXeCm3mSxvBN1DdiDbKPBHuEkoJrBzF3PVacA==}
     engines: {node: '>=22.20.0'}
     hasBin: true
 
@@ -12565,7 +12565,7 @@ snapshots:
     dependencies:
       '@expressive-code/core': 0.44.2
 
-  '@fission-ai/openspec@2.1.1(@types/node@26.6.6)':
+  '@fission-ai/openspec@2.2.0(@types/node@26.6.6)':
     dependencies:
       '@inquirer/core': 12.1.0(@types/node@26.6.6)
       '@inquirer/prompts': 8.8.0(@types/node@26.6.6)
