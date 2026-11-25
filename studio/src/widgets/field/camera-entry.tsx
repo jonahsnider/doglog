@@ -1,9 +1,11 @@
+import { Button } from '@astryxdesign/core/Button';
+import { IconButton } from '@astryxdesign/core/IconButton';
+import { VStack } from '@astryxdesign/core/Layout';
+import { NumberInput } from '@astryxdesign/core/NumberInput';
+import { Popover } from '@astryxdesign/core/Popover';
+import { Text } from '@astryxdesign/core/Text';
 import Settings2Icon from 'lucide-react/icons/settings-2';
 import { use, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Field, FieldLabel } from '@/components/ui/field';
-import { NumberField, NumberFieldGroup, NumberFieldInput } from '@/components/ui/number-field';
-import { Popover, PopoverDescription, PopoverPopup, PopoverTitle, PopoverTrigger } from '@/components/ui/popover';
 import { WidgetBindingsContext } from '@/entries/drag';
 import { CameraPicker } from '@/widgets/camera/options';
 import { useCameraFeed } from '@/widgets/camera/use-camera-feed';
@@ -50,63 +52,64 @@ export function FieldCameraEntry({
 		}[status];
 	return (
 		<>
-			<span className="min-w-0 truncate text-muted-foreground text-xs" role="status" title={label}>
-				{label}
+			<span className="flex min-w-0" role="status">
+				<Text type="supporting" color="secondary" display="block" maxLines={1}>
+					{label}
+				</Text>
 			</span>
-			<Popover>
-				<PopoverTrigger
-					render={<Button variant="ghost" size="icon-xs" className="shrink-0" />}
-					aria-label={`Camera options for ${binding.name}`}
-				>
-					<Settings2Icon />
-				</PopoverTrigger>
-				<PopoverPopup align="end" className="w-60 capture:invisible">
-					<div className="flex flex-col gap-3">
-						<PopoverTitle>Camera options</PopoverTitle>
-						<Field>
-							<FieldLabel>Camera feed</FieldLabel>
-							<CameraPicker
-								value={settings?.name}
-								onChange={(name) => widget?.setCamera(binding.id, { ...settings, name })}
-							/>
-						</Field>
-						<Field>
-							<FieldLabel>Horizontal FOV (°)</FieldLabel>
-							<NumberField
-								value={settings?.fov ?? defaultCameraFov}
-								min={1}
-								max={179}
-								onValueCommitted={(fov) => widget?.setCamera(binding.id, { ...settings, fov: fov ?? undefined })}
-							>
-								<NumberFieldGroup>
-									<NumberFieldInput />
-								</NumberFieldGroup>
-							</NumberField>
-						</Field>
+			<Popover
+				label="Camera options"
+				alignment="end"
+				width={240}
+				content={
+					<VStack gap={3}>
+						<CameraPicker
+							hasLabel
+							value={settings?.name}
+							onChange={(name) => widget?.setCamera(binding.id, { ...settings, name })}
+						/>
+						<NumberInput
+							label="Horizontal FOV"
+							size="sm"
+							units="°"
+							width="100%"
+							min={1}
+							max={179}
+							value={settings?.fov ?? defaultCameraFov}
+							onChange={(fov) => widget?.setCamera(binding.id, { ...settings, fov })}
+						/>
 						{note === undefined && status === 'permission' && (
 							<>
-								<PopoverDescription>Allow local network access to reach this camera.</PopoverDescription>
-								<Button variant="outline" size="sm" onClick={requestAccess}>
-									Allow access
-								</Button>
+								<Text type="supporting" color="secondary">
+									Allow local network access to reach this camera.
+								</Text>
+								<Button label="Allow access" size="sm" onClick={requestAccess} />
 							</>
 						)}
 						{note === undefined && !STUDIO_DESKTOP && (status === 'denied' || status === 'unavailable') && (
-							<PopoverDescription>
+							<Text type="supporting" color="secondary">
 								Check the camera connection and local network permission, or open Studio on desktop.
-							</PopoverDescription>
+							</Text>
 						)}
 						{settings?.name !== undefined && (
 							<Button
+								label="Clear feed"
 								variant="ghost"
 								size="sm"
 								onClick={() => widget?.setCamera(binding.id, { ...settings, name: undefined })}
-							>
-								Clear feed
-							</Button>
+							/>
 						)}
-					</div>
-				</PopoverPopup>
+					</VStack>
+				}
+			>
+				<IconButton
+					label={`Camera options for ${binding.name}`}
+					tooltip="Camera options"
+					icon={<Settings2Icon />}
+					variant="ghost"
+					size="sm"
+					className="shrink-0"
+				/>
 			</Popover>
 		</>
 	);
