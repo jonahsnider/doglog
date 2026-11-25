@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Oxlint's JS plugins reserve a 4 GiB block of virtual memory per thread. Orbs have under 4 GiB of RAM
+# and no swap, so the default heuristic overcommit rejects it and linting panics in oxc_allocator.
+# Always allowing overcommit only affects reservations, the memory is committed lazily as it's used.
+sudo sysctl -qw vm.overcommit_memory=1
