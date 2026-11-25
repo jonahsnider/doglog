@@ -1,10 +1,10 @@
+import { Button } from '@astryxdesign/core/Button';
+import { Spinner } from '@astryxdesign/core/Spinner';
 import { useHotkey } from '@tanstack/react-hotkeys';
 import { useSelector } from '@tanstack/react-store';
 import SlidersHorizontalIcon from 'lucide-react/icons/sliders-horizontal';
 import { use, useRef, useState } from 'react';
 import { InlineShortcut } from '@/components/shortcut';
-import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
 import { toastManager } from '@/components/toast';
 import { type Entry, useDataVersion } from '@/data/data-store';
 import type { LiveStatus } from '@/data/live-source';
@@ -27,7 +27,7 @@ import {
 	type Tunable,
 	type TunableValue,
 } from '@/tuning/tunables';
-import { WidgetEmpty } from '@/widgets/widget-empty';
+import { WidgetEmpty, WidgetLoading } from '@/widgets/widget-empty';
 import type { WidgetBinding, WidgetProps } from '@/widgets/widget-type';
 
 const applyShortcut = 'Mod+Enter';
@@ -63,14 +63,17 @@ function showApplyError(error: unknown): void {
 export function TuningWidget({ bindings }: WidgetProps) {
 	const source = useSource();
 	// Until the live session first connects, there's nothing to tune
-	if (source?.type !== 'live' || source.status === 'connecting') {
-		const connecting = source?.type === 'live';
+	if (source?.type !== 'live') {
 		return (
-			<div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center text-sm text-muted-foreground">
-				{connecting && <Spinner className="size-8" />}
-				{connecting ? 'Connecting' : 'Connect to a robot for tuning'}
-			</div>
+			<WidgetEmpty
+				icon={<SlidersHorizontalIcon aria-hidden />}
+				title="Live connection required"
+				description="Connect to a robot to tune its values."
+			/>
 		);
+	}
+	if (source.status === 'connecting') {
+		return <WidgetLoading label="Connecting to robot…" />;
 	}
 	return <Tunables bindings={bindings} status={source.status} />;
 }
@@ -218,9 +221,7 @@ function Tunables({ bindings, status }: Pick<WidgetProps, 'bindings'> & { status
 				}
 			>
 				{paneId !== undefined && (
-					<Button size="sm" variant="outline" onClick={() => startEditing(tuningDashboardId, paneId)}>
-						Edit entries
-					</Button>
+					<Button label="Edit entries" size="sm" onClick={() => startEditing(tuningDashboardId, paneId)} />
 				)}
 			</WidgetEmpty>
 		);
@@ -250,8 +251,8 @@ function Tunables({ bindings, status }: Pick<WidgetProps, 'bindings'> & { status
 				)}
 			</div>
 			<div className="flex shrink-0 items-center gap-2 px-3 py-2">
-				<span className="flex flex-1 items-center gap-1.5 text-xs text-muted-foreground tabular-nums">
-					{status === 'reconnecting' && <Spinner className="size-3" />}
+				<span className="tunable-status">
+					{status === 'reconnecting' && <Spinner size="sm" aria-label="Reconnecting" />}
 					<Notes
 						notes={[
 							stagedCount > 0 && { text: `${stagedCount} staged`, morphKey: 'staged' },
@@ -260,13 +261,22 @@ function Tunables({ bindings, status }: Pick<WidgetProps, 'bindings'> & { status
 						]}
 					/>
 				</span>
-				<Button variant="ghost" size="sm" disabled={stagedCount === 0 && !hasInvalid} onClick={discard}>
-					Discard
-				</Button>
-				<Button size="sm" disabled={stagedCount === 0 || applying || !connected} onClick={apply}>
-					{stale.size > 0 ? 'Apply anyway' : 'Apply'}
-					<InlineShortcut hotkey={applyShortcut} />
-				</Button>
+				<Button
+					label="Discard"
+					variant="ghost"
+					size="sm"
+					isDisabled={stagedCount === 0 && !hasInvalid}
+					onClick={discard}
+				/>
+				<Button
+					label={stale.size > 0 ? 'Apply anyway' : 'Apply'}
+					variant="primary"
+					size="sm"
+					isDisabled={stagedCount === 0 || !connected}
+					isLoading={applying}
+					endContent={<InlineShortcut hotkey={applyShortcut} />}
+					onClick={apply}
+				/>
 			</div>
 		</div>
 	);

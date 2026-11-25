@@ -1,9 +1,8 @@
+import { Switch } from '@astryxdesign/core/Switch';
+import { TextInput } from '@astryxdesign/core/TextInput';
 import { Fragment, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { TextMorph } from '@/components/text-morph';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { inferUnit } from '@/data/units';
-import { cn } from '@/lib/utils';
 import { roundText } from '@/tuning/expression';
 import {
 	currentValue,
@@ -17,6 +16,7 @@ import {
 	type TunableScalar,
 	type TunableValue,
 } from '@/tuning/tunables';
+import './tuning.css';
 
 /** The tuning widget's staged values and drafts, and how to change them */
 export type Editing = {
@@ -32,7 +32,7 @@ export type Editing = {
 	commit: (tunable: Tunable) => void;
 };
 
-export const rowClassName = 'h-8 items-center gap-2 rounded-md px-1.5 hover:bg-foreground/8';
+export const rowClassName = 'tunable-row';
 
 type Note = { text: string; warning?: boolean; morphKey?: string };
 
@@ -47,15 +47,13 @@ export function Notes({ notes, className }: { notes: readonly (Note | false)[]; 
 					return (
 						<Fragment key={morphKey ?? text}>
 							{index > 0 && ', '}
-							<Label className={cn(warning === true && 'text-warning-foreground')}>{text}</Label>
+							<Label className={warning === true ? 'tunable-warning' : undefined}>{text}</Label>
 						</Fragment>
 					);
 				})}
 		</span>
 	);
 }
-
-const inputClassName = 'font-mono [&_input]:text-end [&_input]:tabular-nums';
 
 /**
  * The field of a value, or of one of an array's elements, its number rounded until it's focused. `onFocused` focuses
@@ -94,17 +92,20 @@ export function ValueField({
 	}, [focused]);
 	if (tunable.scalarType === 'boolean') {
 		return (
-			<Switch
-				className="justify-self-end"
-				aria-label={label}
-				checked={value === true}
-				disabled={!tunable.mutable}
-				onCheckedChange={(checked) => onTextChange(String(checked))}
-			/>
+			<div className="justify-self-end">
+				<Switch
+					label={label}
+					isLabelHidden
+					size="sm"
+					value={value === true}
+					isDisabled={!tunable.mutable}
+					onChange={(checked) => onTextChange(String(checked))}
+				/>
+			</div>
 		);
 	}
 	return (
-		<Input
+		<TextInput
 			ref={
 				onFocused &&
 				((element) => {
@@ -112,17 +113,25 @@ export function ValueField({
 					onFocused();
 				})
 			}
+			label={label}
+			isLabelHidden
 			size="sm"
-			aria-label={label}
-			aria-invalid={value === undefined}
+			width="100%"
+			status={value === undefined ? { type: 'error', message: 'Invalid value' } : undefined}
+			statusVariant="tooltip"
 			placeholder={placeholder}
-			disabled={!tunable.mutable}
-			spellCheck={false}
-			className={cn(inputClassName, changed && 'border-primary')}
+			isDisabled={!tunable.mutable}
+			hasSpellCheck={false}
+			containerClassName="tunable-field"
+			// An invalid value shows as invalid instead
+			controlClassName={changed && value !== undefined ? 'tunable-field-changed' : undefined}
 			value={focused || tunable.scalarType === 'string' ? text : roundText(text)}
-			onChange={(event) => onTextChange(event.target.value)}
+			onChange={onTextChange}
 			onFocus={(event) => {
-				const input = event.currentTarget;
+				const input = event.target;
+				if (!(input instanceof HTMLInputElement)) {
+					return;
+				}
 				const selectedAll = input.selectionStart === 0 && input.selectionEnd === input.value.length;
 				selectWhenShown.current = selectedAll ? input : null;
 				setFocused(true);
@@ -155,12 +164,12 @@ export function ScalarRow({ tunable, editing }: { tunable: Tunable; editing: Edi
 		tunable.scalarType === 'string' || tunable.scalarType === 'boolean' ? undefined : inferUnit(tunable.entry);
 	const applied = formatTunableValue(current, { rounded: true });
 	return (
-		<div className={cn('grid grid-cols-[minmax(0,1fr)_auto_7.5rem_3.75rem]', rowClassName)}>
-			<span className="truncate text-sm" title={name}>
+		<div className={`grid grid-cols-[minmax(0,1fr)_auto_7.5rem_3.75rem] ${rowClassName}`}>
+			<span className="truncate" title={name}>
 				{tunable.label}
 			</span>
 			<Notes
-				className="font-mono text-xs text-muted-foreground tabular-nums"
+				className="tunable-code"
 				notes={[
 					isExpression(tunable, text, value) && { text: `= ${formatTunableValue(value, { rounded: true })}` },
 					isStaged &&
@@ -180,7 +189,7 @@ export function ScalarRow({ tunable, editing }: { tunable: Tunable; editing: Edi
 				placeholder={formatTunableValue(defaultValue(tunable))}
 				onTextChange={(next) => editing.edit(tunable, next)}
 			/>
-			<span className="truncate font-mono text-xs text-muted-foreground">{unit?.label}</span>
+			<span className="tunable-code truncate">{unit?.label}</span>
 		</div>
 	);
 }
@@ -189,14 +198,9 @@ export function ScalarRow({ tunable, editing }: { tunable: Tunable; editing: Edi
 export function SectionHeading({ table, title, children }: { table: string; title?: string; children?: ReactNode }) {
 	const segments = table.split('/');
 	return (
-		<h3
-			className="sticky top-0 z-10 flex items-center gap-2 bg-background px-1.5 pt-3 pb-1 font-heading text-base/6 font-semibold"
-			title={title}
-		>
-			<span className="min-w-0 flex-1 truncate">
-				{segments.length > 1 && (
-					<span className="font-medium text-muted-foreground">{segments.slice(0, -1).join(' / ')} / </span>
-				)}
+		<h3 className="tunable-section-heading" title={title}>
+			<span className="tunable-section-path">
+				{segments.length > 1 && <span className="tunable-section-parents">{segments.slice(0, -1).join(' / ')} / </span>}
 				{segments.at(-1)}
 			</span>
 			{children}

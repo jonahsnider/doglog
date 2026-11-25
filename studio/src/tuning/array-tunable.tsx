@@ -1,11 +1,11 @@
-import { Select as SelectPrimitive } from '@base-ui/react/select';
+import { Button } from '@astryxdesign/core/Button';
+import { DropdownMenu, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@astryxdesign/core/DropdownMenu';
+import { Icon } from '@astryxdesign/core/Icon';
+import { IconButton } from '@astryxdesign/core/IconButton';
 import ChevronsUpDownIcon from 'lucide-react/icons/chevrons-up-down';
 import PlusIcon from 'lucide-react/icons/plus';
 import XIcon from 'lucide-react/icons/x';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Select, SelectItem, SelectPopup, SelectValue } from '@/components/ui/select';
-import { cn } from '@/lib/utils';
 import { type Editing, Notes, rowClassName, SectionHeading, ValueField } from '@/tuning/tunable-rows';
 import {
 	arrayLayouts,
@@ -62,7 +62,7 @@ export function ArrayTunable({
 			<SectionHeading table={tunable.table === '' ? tunable.label : `${tunable.table}/${tunable.label}`} title={name}>
 				{/* No unit, its name's is usually only one column's, ex. a distance to RPM map */}
 				<Notes
-					className="truncate font-mono text-xs font-normal text-muted-foreground tabular-nums"
+					className="tunable-code truncate font-normal"
 					notes={[
 						texts.length % size !== 0 && {
 							text: `${texts.length} values aren't whole ${layout?.label.toLowerCase()}`,
@@ -71,37 +71,32 @@ export function ArrayTunable({
 						name in previous && { text: `was ${formatTunableValue(previous[name], { rounded: true })}` },
 					]}
 				/>
-				<Select
-					items={arrayLayouts.map(({ id, label }) => ({ value: id, label }))}
-					value={layout?.id ?? arrayLayouts[0].id}
-					onValueChange={(value) => {
-						if (value !== null) {
-							onLayoutChange(value);
-						}
+				<DropdownMenu
+					// A ghost button like the timeline's speed, so it doesn't compete with the fields below
+					button={{
+						label: `Edit ${tunable.label} as`,
+						variant: 'ghost',
+						size: 'sm',
+						endContent: <Icon icon={ChevronsUpDownIcon} size="sm" />,
+						children: (layout ?? arrayLayouts[0]).label,
 					}}
+					hasChevron={false}
+					alignment="end"
 				>
-					{/* A ghost button like the timeline's speed, so it doesn't compete with the fields below */}
-					<SelectPrimitive.Trigger
-						aria-label={`Edit ${tunable.label} as`}
-						render={
-							<Button variant="ghost" size="xs" className="shrink-0 font-sans font-normal text-muted-foreground" />
-						}
+					<DropdownMenuRadioGroup
+						label={`Edit ${tunable.label} as`}
+						value={layout?.id ?? arrayLayouts[0].id}
+						onChange={onLayoutChange}
 					>
-						<SelectValue />
-						<ChevronsUpDownIcon />
-					</SelectPrimitive.Trigger>
-					<SelectPopup>
 						{arrayLayouts.map(({ id, label }) => (
-							<SelectItem key={id} value={id}>
-								{label}
-							</SelectItem>
+							<DropdownMenuRadioItem key={id} value={id} label={label} />
 						))}
-					</SelectPopup>
-				</Select>
+					</DropdownMenuRadioGroup>
+				</DropdownMenu>
 			</SectionHeading>
 			{rows.map((start, row) => (
-				<div key={start} className={cn('group/row flex', rowClassName)}>
-					<span className="flex-1 font-mono text-xs text-muted-foreground tabular-nums">{row}</span>
+				<div key={start} className={`group/row flex ${rowClassName}`}>
+					<span className="tunable-code flex-1">{row}</span>
 					{texts.slice(start, start + size).map((text, offset) => {
 						const index = start + offset;
 						return (
@@ -123,14 +118,13 @@ export function ArrayTunable({
 					{/* Shown while the row is hovered or in use, and always without hover, like the pane controls */}
 					<span className="flex w-15 shrink-0 justify-center transition-opacity duration-100 group-focus-within/row:opacity-100 group-hover/row:opacity-100 [@media(hover:hover)]:opacity-0">
 						{tunable.mutable && (
-							<Button
+							<IconButton
+								label={`Remove ${layout?.id === 'list' ? 'value' : 'row'} ${row}`}
+								icon={<XIcon />}
 								variant="ghost"
-								size="icon-xs"
-								aria-label={`Remove ${layout?.id === 'list' ? 'value' : 'row'} ${row}`}
+								size="sm"
 								onClick={() => edit(texts.toSpliced(start, size))}
-							>
-								<XIcon />
-							</Button>
+							/>
 						)}
 					</span>
 				</div>
@@ -138,18 +132,17 @@ export function ArrayTunable({
 			{tunable.mutable && (
 				<div className="flex justify-end px-1.5 pe-17 pt-1">
 					<Button
+						label={addLabels[layout?.id ?? 'list']!}
+						icon={<PlusIcon />}
 						variant="ghost"
-						size="xs"
+						size="sm"
 						onClick={() => {
 							// Numbers start empty so they're typed in, which a valid default would skip
 							const blank = tunable.scalarType === 'boolean' ? 'false' : '';
 							setAdded(texts.length);
 							edit([...texts, ...Array.from({ length: size }, () => blank)]);
 						}}
-					>
-						<PlusIcon />
-						{addLabels[layout?.id ?? 'list']}
-					</Button>
+					/>
 				</div>
 			)}
 		</section>
