@@ -5,10 +5,7 @@
  */
 @layer reset, astryx-base, astryx-theme, product;
 @import '@astryxdesign/core/reset.css';
-@import '@fontsource-variable/ibm-plex-sans';
-@import '@fontsource-variable/source-sans-3';
-@import '@fontsource/ibm-plex-mono/400.css';
-@import '@fontsource/ibm-plex-mono/500.css';
+@import '@team581/astryx-theme/themes/team581.fonts.css';
 /* Bold and italic text in the notepad */
 @import '@fontsource/ibm-plex-mono/600.css';
 @import '@fontsource/ibm-plex-mono/400-italic.css';

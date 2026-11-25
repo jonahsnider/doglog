@@ -1,7 +1,7 @@
 import { base64ToUint8Array, stringToBase64 } from 'uint8array-extras';
 import type { RenderOptions } from 'takumi-js';
 import { themePalette } from '@astryxdesign/core/palette';
-import { doglogSeeds } from '@/theme/doglog-colors';
+import { team581Seeds } from '@team581/astryx-theme/colors';
 import plexSansUrl from '@fontsource-variable/ibm-plex-sans/files/ibm-plex-sans-latin-wght-normal.woff2?inline';
 import sourceSansUrl from '@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2?inline';
 import logo from '../../public/logo.svg?raw';
@@ -9,8 +9,8 @@ import logo from '../../public/logo.svg?raw';
 /** Facebook and LinkedIn's recommended size, X crops it to 2:1 from the center */
 export const previewImageSize = { width: 1200, height: 630 } as const;
 
-// Previews can't know the viewer's theme, so they always use the DogLog theme in dark mode
-const { tokens } = themePalette(doglogSeeds);
+// Previews can't know the viewer's theme, so they always use the DogLog preset in dark mode
+const { tokens } = themePalette(team581Seeds);
 export const colors = {
 	frame: tokens['--color-background-body']![1],
 	pane: tokens['--color-background-surface']![1],

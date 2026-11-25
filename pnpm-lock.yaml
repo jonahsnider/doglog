@@ -333,6 +333,9 @@ importers:
       '@tauri-apps/plugin-updater':
         specifier: 2.14.1
         version: 2.14.1
+      '@team581/astryx-theme':
+        specifier: 1.0.0
+        version: 1.0.0(@astryxdesign/cli@0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2))(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(lucide-react@1.79.0(@types/react@19.3.0)(react@19.3.1))(react@19.3.1)
       '@ui-sdk/core':
         specifier: 0.1.0-beta.16
         version: 0.1.0-beta.16
@@ -5329,6 +5332,17 @@ packages:
 
   '@tauri-apps/plugin-updater@2.14.1':
     resolution: {integrity: sha512-Hr7nlBm1wT6xbwzjZ/S36YULazu8MNlj5vvOwMl47fXI7HTa5Bjl1PbDEwVHaZTAKzE1VZsUy35UqnbrQxmYQw==}
+
+  '@team581/astryx-theme@1.0.0':
+    resolution: {integrity: sha512-XB/likCD6lIMre61ydiYPdm8MOTrZEvSEaamth+6hbhrjvyjmR/toBIF/IocCEBEpjHO0pQi2k5U1BrK/YCIKg==}
+    peerDependencies:
+      '@astryxdesign/cli': '>=0.7.4'
+      '@astryxdesign/core': ^0.7.17
+      lucide-react: ^1.0.0
+      react: ^19.0.0
+    peerDependenciesMeta:
+      '@astryxdesign/cli':
+        optional: true
 
   '@team581/starlight-theme@1.1.0':
     resolution: {integrity: sha512-S8mi0/YOrliM+8pfzao7z9nIBrViwHeubVc3l4XKDh8xVAxhPkym5gBwrh0TKvb8Mkk29QjgyDcCQ/PPKUkQ2Q==}
@@ -14507,6 +14521,17 @@ snapshots:
   '@tauri-apps/plugin-updater@2.14.1':
     dependencies:
       '@tauri-apps/api': 2.12.5
+
+  '@team581/astryx-theme@1.0.0(@astryxdesign/cli@0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2))(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(lucide-react@1.79.0(@types/react@19.3.0)(react@19.3.1))(react@19.3.1)':
+    dependencies:
+      '@astryxdesign/core': 0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@fontsource-variable/ibm-plex-sans': 5.3.0
+      '@fontsource-variable/source-sans-3': 5.3.1
+      '@fontsource/ibm-plex-mono': 5.3.0
+      lucide-react: 1.79.0(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
+    optionalDependencies:
+      '@astryxdesign/cli': 0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2)
 
   '@team581/starlight-theme@1.1.0(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))':
     dependencies:

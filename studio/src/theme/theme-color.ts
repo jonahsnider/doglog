@@ -13,12 +13,12 @@ import {
 	wcagContrast,
 	wcagLuminance,
 } from 'culori/fn';
+import { statusSeeds, team581Seeds } from '@team581/astryx-theme/colors';
 import type { ThemePreset, VisualizationPalette } from '@/theme/choices';
 import { seriesPaletteVariables, shade } from '@/theme/series-palette';
-import { statusSeeds, doglogSeeds } from '@/theme/doglog-colors';
 
-/** The DogLog theme's maroon accent */
-export const defaultThemeColor = doglogSeeds.accent;
+/** The DogLog preset's maroon accent, Team 581's */
+export const defaultThemeColor = team581Seeds.accent;
 
 /** Default for the Custom preset, `hsl(20deg 12% 9.8%)` */
 export const defaultCustomColor = '#1c1816';
@@ -42,7 +42,7 @@ const recipe = 'astryx-oklch-v2';
 
 /** The seeds of each preset's Astryx palette in a color mode */
 const presetSeeds: Record<ThemePreset, (themeColor: string, dark: boolean) => ThemePaletteInput> = {
-	doglog: () => doglogSeeds,
+	doglog: () => team581Seeds,
 	// match13.com's blue accents and icy panels in light mode, its sky-400 on black overlays in dark mode
 	match13: (_, dark) =>
 		dark
@@ -159,11 +159,11 @@ export function themeColors(
 }
 
 /** The color tokens every generated palette sets, which Studio's Astryx theme reads from CSS variables */
-export const themeColorTokenNames = Object.keys(cachedPalette(doglogSeeds).tokens);
+export const themeColorTokenNames = Object.keys(cachedPalette(team581Seeds).tokens);
 
 /** The parts and style keys whose secondary text palettes lift */
 export const liftedParts: Record<string, string[]> = Object.fromEntries(
-	Object.entries(cachedPalette(doglogSeeds).components).map(([part, styles]) => [part, Object.keys(styles)]),
+	Object.entries(cachedPalette(team581Seeds).components).map(([part, styles]) => [part, Object.keys(styles)]),
 );
 
 /** The variable Studio's Astryx theme reads a generated color token from, ex. `--studio-color-accent` */

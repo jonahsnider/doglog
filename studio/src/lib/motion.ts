@@ -1,12 +1,12 @@
 import { resolveThemeTokens } from '@astryxdesign/core/theme/tokens';
 import { useSelector } from '@tanstack/react-store';
+import { team581Theme } from '@team581/astryx-theme/themes/team581';
 // oxlint-disable-next-line eslint/no-restricted-imports -- This module implements useMotionTransition().
 import { type Transition, useReducedMotion } from 'motion/react';
 import { settingsStore } from '@/settings';
-import { doglogTheme } from '@/theme/doglog-theme';
 
 // Motion tokens are the same in light and dark
-const tokens = resolveThemeTokens(doglogTheme, { mode: 'light' });
+const tokens = resolveThemeTokens(team581Theme, { mode: 'light' });
 
 function curve(token: string): [number, number, number, number] {
 	const [x1 = 0, y1 = 0, x2 = 1, y2 = 1] = tokens[token]!.slice('cubic-bezier('.length, -1).split(',').map(Number);

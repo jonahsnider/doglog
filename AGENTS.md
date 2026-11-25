@@ -15,6 +15,7 @@ DogLog Studio is a web and desktop app for reviewing and analyzing logs.
 - When making changes to the app, consider if spec documents should be added or updated
 - Do not mention specific products when writing comments/specs, only exception is if it's explicitly necessary (ex. "support AdvantageScope JSON")
 - Follow `studio/DESIGN.md` for UI patterns (components, styling, color, motion), and update it when a pattern changes
+  - Patterns shared by every Team 581 app live in the `team581-design` skill from `@team581/astryx-theme`, change those there instead
 - Run `pnpm check:dev` in `studio` to check your changes, it adds a React Doctor scan of changed files to `pnpm check`
   - If React Doctor fails from unstaged changes run a plain `pnpm check`
 - When finishing a particularly impressive feature, ask if `studio/src/changelog/changelog.ts` should be updated to mention it

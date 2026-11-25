@@ -1,20 +1,18 @@
 import { Theme, defineTheme } from '@astryxdesign/core/theme';
 import { useSelector } from '@tanstack/react-store';
+import { team581Theme } from '@team581/astryx-theme/themes/team581';
 import type { ReactNode } from 'react';
 import { colorModeStore } from '@/settings';
-import { studioIcons } from '@/theme/studio-icons';
-import { doglogTheme } from '@/theme/doglog-theme';
 import { liftVariable, liftedParts, themeColorTokenNames, themeColorVariable } from '@/theme/theme-color';
 
 /**
- * DogLog's theme with colors generated for the theme color setting, applied as CSS variables that already switch with
+ * Team 581's theme with colors generated for the theme color setting, applied as CSS variables that already switch with
  * the color mode, see `applyThemeColor()` in `@/theme/theme-color`. Presets, contrast levels, and custom colors restyle
  * every component without redefining the theme.
  */
 const studioTheme = defineTheme({
 	name: 'doglog-studio',
-	extends: doglogTheme,
-	icons: studioIcons,
+	extends: team581Theme,
 	tokens: {
 		...Object.fromEntries(themeColorTokenNames.map((token) => [token, `var(${themeColorVariable(token)})`])),
 		// Studio is a dense desktop app, so small controls match its 24px toolbar buttons
@@ -25,7 +23,7 @@ const studioTheme = defineTheme({
 			part,
 			Object.fromEntries(
 				styles.map((style) => {
-					// Per mode, to replace the DogLog palette's lifts rather than lose to them
+					// Per mode, to replace the Team 581 palette's lifts rather than lose to them
 					const lift = { '--color-text-secondary': `var(${liftVariable(part, style)})` };
 					return [style, { '@light': lift, '@dark': lift }];
 				}),
