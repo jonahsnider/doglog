@@ -14,6 +14,7 @@ import SettingsIcon from 'lucide-react/icons/settings';
 import { type ReactNode, useId, useState } from 'react';
 import { useMobileLayout } from '@/lib/mobile-layout';
 import type { Widget } from '@/panes/layout';
+import { paneIconSize } from '@/panes/pane-button';
 import { inferredOption, optionValues, pickedOption } from '@/widgets/options';
 import type { OptionMenu, WidgetBinding, WidgetOption, WidgetType } from '@/widgets/widget-type';
 
@@ -75,7 +76,12 @@ export function WidgetOptions({ paneId, type, widget, bindings, onOptionChange }
 				</VStack>
 			}
 		>
-			<IconButton label="Widget options" tooltip="Widget options" icon={<SettingsIcon />} variant="ghost" />
+			<IconButton
+				label="Widget options"
+				tooltip="Widget options"
+				icon={<SettingsIcon size={paneIconSize} aria-hidden />}
+				variant="ghost"
+			/>
 		</Popover>
 	);
 }

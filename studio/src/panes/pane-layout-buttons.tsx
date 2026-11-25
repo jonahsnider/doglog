@@ -33,17 +33,15 @@ export function PaneLayoutButtons({
 						shortcut={shortcuts.splitRight}
 						disabled={!canSplitRight}
 						onClick={() => onSplit('row')}
-					>
-						<Columns2Icon />
-					</PaneButton>
+						icon={Columns2Icon}
+					/>
 					<PaneButton
 						label="Split down"
 						shortcut={shortcuts.splitDown}
 						disabled={!canSplitDown}
 						onClick={() => onSplit('column')}
-					>
-						<Rows2Icon />
-					</PaneButton>
+						icon={Rows2Icon}
+					/>
 				</>
 			)}
 			<PaneButton
@@ -52,9 +50,8 @@ export function PaneLayoutButtons({
 				disabled={!canZoom}
 				pressed={zoomed}
 				onClick={onZoom}
-			>
-				{zoomed ? <Minimize2Icon /> : <Maximize2Icon />}
-			</PaneButton>
+				icon={zoomed ? Minimize2Icon : Maximize2Icon}
+			/>
 		</>
 	);
 }

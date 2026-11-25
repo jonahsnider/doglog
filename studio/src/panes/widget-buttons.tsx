@@ -40,9 +40,8 @@ export function WidgetButtons({
 						shortcut={shortcuts.editEntries}
 						pressed={editing}
 						onClick={() => toggleEditing(dashboardId, paneId)}
-					>
-						<ListTodoIcon aria-hidden />
-					</PaneButton>
+						icon={ListTodoIcon}
+					/>
 				</span>
 			)}
 			{(type.options?.length ?? 0) > 0 && (
