@@ -1,3 +1,7 @@
+import { Drawer, DrawerHeader } from '@astryxdesign/core/Drawer';
+import { IconButton } from '@astryxdesign/core/IconButton';
+import { Layout } from '@astryxdesign/core/Layout';
+import { Tooltip } from '@astryxdesign/core/Tooltip';
 import { useHotkey } from '@tanstack/react-hotkeys';
 import { useSelector } from '@tanstack/react-store';
 import PanelRightOpenIcon from 'lucide-react/icons/panel-right-open';
@@ -6,9 +10,6 @@ import { Panel, Separator, usePanelRef } from 'react-resizable-panels';
 import { ToggleButton } from '@/entries/entry-browser-toggle';
 import { EntryTree } from '@/entries/entry-browser-tree';
 import { type EditedWidget, useEditedWidget } from '@/entries/edited-widget';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetPopup, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { shortcuts } from '@/commands/commands';
 import { useMobileLayout } from '@/lib/mobile-layout';
@@ -48,26 +49,34 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 	const exporting = useVideoExport() !== undefined;
 
 	if (mobile) {
+		const title = edited ? `Editing ${edited.type.name}` : 'Entry browser';
 		return (
 			<DashboardIdContext value={dashboard.id}>
-				<Sheet open={open} onOpenChange={setEntryBrowserOpen}>
-					{/* Sits in the app header without taking space from the dashboard's panels. */}
-					<SheetTrigger
-						render={<Button variant="ghost" size="icon-xl" aria-label="Show entry browser" />}
-						className="fixed end-2 top-0.5 z-30"
-					>
-						<PanelRightOpenIcon />
-					</SheetTrigger>
-					<SheetPopup
-						className="w-full max-w-none border-0 bg-sidebar text-sidebar-foreground motion-reduce:transition-none"
-						closeProps={{ 'aria-label': edited ? 'Stop editing' : 'Hide entry browser' }}
-					>
-						<SheetTitle className="flex h-12 shrink-0 items-center ps-3 pe-14 text-base">
-							{edited ? `Editing ${edited.type.name}` : 'Entry browser'}
-						</SheetTitle>
-						<EntryTree edited={edited} />
-					</SheetPopup>
-				</Sheet>
+				{/* Sits in the app header without taking space from the dashboard's panels. */}
+				<IconButton
+					label="Show entry browser"
+					icon={<PanelRightOpenIcon />}
+					variant="ghost"
+					size="lg"
+					className="fixed end-2 top-0.5 z-30"
+					onClick={() => setEntryBrowserOpen(true)}
+				/>
+				<Drawer
+					isOpen={open}
+					onOpenChange={setEntryBrowserOpen}
+					label={title}
+					experimental={{ isFullWidthOnMobile: true }}
+				>
+					<Layout
+						header={<DrawerHeader title={title} onOpenChange={setEntryBrowserOpen} />}
+						content={
+							// The tree scrolls its rows itself, under its search box
+							<div className="flex h-full min-h-0 flex-col">
+								<EntryTree edited={edited} />
+							</div>
+						}
+					/>
+				</Drawer>
 			</DashboardIdContext>
 		);
 	}
@@ -123,15 +132,8 @@ function EntryBrowserHeader({ edited }: { edited: EditedWidget | undefined }) {
 			{edited ? (
 				<>
 					<h2 className="min-w-0 flex-1 truncate font-heading text-sm font-medium">Editing {edited.type.name}</h2>
-					<Tooltip>
-						<TooltipTrigger
-							render={<Button variant="ghost" size="icon-xs" aria-label="Stop editing" onClick={stopEditing} />}
-						>
-							<XIcon />
-						</TooltipTrigger>
-						<TooltipPopup>
-							<TooltipLabel label="Stop editing" shortcut="Escape" />
-						</TooltipPopup>
+					<Tooltip content={<TooltipLabel label="Stop editing" shortcut="Escape" />}>
+						<IconButton label="Stop editing" icon={<XIcon />} variant="ghost" size="sm" onClick={stopEditing} />
 					</Tooltip>
 				</>
 			) : (

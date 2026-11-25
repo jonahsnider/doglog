@@ -1,10 +1,9 @@
+import { TextInput } from '@astryxdesign/core/TextInput';
 import type { Draggable, Droppable } from '@dnd-kit/dom';
 import { useDragDropMonitor, useDragOperation } from '@dnd-kit/react';
 import { useSelector } from '@tanstack/react-store';
-import SearchIcon from 'lucide-react/icons/search';
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { shortcuts } from '@/commands/commands';
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { Shortcut } from '@/components/shortcut';
 import { type Entry, useEntries } from '@/data/data-store';
 import { useSource } from '@/data/source';
@@ -13,7 +12,6 @@ import type { EntryDragData, EntrySectionDropData } from '@/entries/drag';
 import { type EditedWidget, hiddenEntriesNote } from '@/entries/edited-widget';
 import { searchFocusStore } from '@/entries/editing';
 import { EntryRows } from '@/entries/entry-browser-rows';
-import { EntryRowsTooltip } from '@/entries/entry-row';
 import { HiddenSection } from '@/entries/hidden-section';
 import { useSearchExpansion } from '@/entries/search-expansion';
 import { entryPlacementsStore, moveToSection } from '@/entries/sections';
@@ -31,6 +29,7 @@ import {
 import { isEnterKey } from '@/lib/keyboard';
 import { useMobileLayout } from '@/lib/mobile-layout';
 import { acceptsEntry, type WidgetType } from '@/widgets/widget-type';
+import './entry-browser.css';
 
 /** Search requests already handled, so a remounted search box doesn't focus itself again */
 let handledSearchFocus = 0;
@@ -110,18 +109,18 @@ export function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 		<>
 			{/* The header's height leaves room above, so less top padding keeps the gaps around the search box even */}
 			<div className="shrink-0 px-2 pt-1 pb-2">
-				<InputGroup>
-					<InputGroupAddon>
-						<SearchIcon />
-					</InputGroupAddon>
-					<InputGroupInput
+				<div className="entry-search">
+					<TextInput
 						ref={searchRef}
 						type="search"
-						aria-label="Search entries"
+						label="Search entries"
+						isLabelHidden
+						startIcon="search"
 						placeholder="Search entries"
 						size="sm"
+						width="100%"
 						value={query}
-						onChange={(event) => setQuery(event.target.value)}
+						onChange={setQuery}
 						onKeyDown={(event) => {
 							// Binds or unbinds the first match, even if its group is collapsed
 							const first = results.highlights && results.rows.find((row) => row.item.entry)?.item.entry;
@@ -131,13 +130,12 @@ export function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 						}}
 					/>
 					{!mobile && query === '' && (
-						<InputGroupAddon align="inline-end" className="in-[[data-slot=input-group]:has(input:focus)]:hidden">
+						<span aria-hidden className="entry-search-shortcut">
 							<Shortcut hotkey={shortcuts.searchEntries} />
-						</InputGroupAddon>
+						</span>
 					)}
-				</InputGroup>
+				</div>
 			</div>
-			<EntryRowsTooltip />
 			{edited && <ActiveSection nodes={activeNodes} query={deferredQuery} edited={edited} />}
 			{message === undefined ? (
 				<EntryRows

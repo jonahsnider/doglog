@@ -1,7 +1,7 @@
 import { useDroppable } from '@dnd-kit/react';
 import ChevronRightIcon from 'lucide-react/icons/chevron-right';
 import { useMemo, useState } from 'react';
-import { Separator as Divider } from '@/components/ui/separator';
+import { Divider } from '@astryxdesign/core/Divider';
 import type { EditedWidget } from '@/entries/edited-widget';
 import type { EntrySectionDropData } from '@/entries/drag';
 import { EntryRows } from '@/entries/entry-browser-rows';

@@ -1,7 +1,7 @@
 import { defaultRangeExtractor, type Range, useVirtualizer } from '@tanstack/react-virtual';
 import { Tree } from '@ui-sdk/react/tree';
 import { Fragment, useCallback, useMemo, useRef, useState } from 'react';
-import { Separator } from '@/components/ui/separator';
+import { Divider } from '@astryxdesign/core/Divider';
 import { EntryRowView, rowHeight, StickyRow } from '@/entries/entry-row';
 import type { EntrySection } from '@/entries/sections';
 import { changedCheckbox, type EditedWidget, groupEntries } from '@/entries/edited-widget';
@@ -156,7 +156,7 @@ export function EntryRows({
 						return (
 							<Fragment key={row.item.value}>
 								{row.section === 'main' && rows[item.index - 1]?.section === 'pinned' && (
-									<Separator aria-hidden className="absolute inset-x-0" style={{ top: item.start }} />
+									<Divider aria-hidden className="absolute inset-x-0" style={{ top: item.start }} />
 								)}
 								<EntryRowView
 									row={row}

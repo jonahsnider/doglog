@@ -1,7 +1,6 @@
+import { Tooltip } from '@astryxdesign/core/Tooltip';
 import BanIcon from 'lucide-react/icons/ban';
 import { Fragment } from 'react';
-import { TooltipTrigger } from '@/components/ui/tooltip';
-import type { MarkTooltipHandle } from '@/entries/value-marks';
 import { type Entry, getStructSchemas, useDataVersion } from '@/data/data-store';
 import { formatValue } from '@/data/format-value';
 import { formatStructPreview } from '@/entries/struct-preview';
@@ -43,21 +42,11 @@ function EntryValue({ entry, field }: { entry: Entry; field: Entry | undefined }
 const unsupportedLabel = "Unsupported type, can't be shown in widgets";
 
 /** An entry's value at the cursor, or a mark for entries of unsupported types */
-export function EntryRowValue({
-	entry,
-	field,
-	tooltip,
-}: {
-	entry: Entry;
-	field: Entry | undefined;
-	tooltip: MarkTooltipHandle;
-}) {
+export function EntryRowValue({ entry, field }: { entry: Entry; field: Entry | undefined }) {
 	return (field ?? entry).kind === 'unsupported' ? (
-		<TooltipTrigger
-			handle={tooltip}
-			payload={unsupportedLabel}
-			render={<BanIcon role="img" className="size-3.5 shrink-0 text-muted-foreground" aria-label={unsupportedLabel} />}
-		/>
+		<Tooltip content={unsupportedLabel}>
+			<BanIcon role="img" className="size-3.5 shrink-0 text-muted-foreground" aria-label={unsupportedLabel} />
+		</Tooltip>
 	) : (
 		<EntryValue entry={entry} field={field} />
 	);

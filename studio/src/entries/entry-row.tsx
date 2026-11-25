@@ -1,3 +1,4 @@
+import { Tooltip } from '@astryxdesign/core/Tooltip';
 import { useDraggable, useDroppable } from '@dnd-kit/react';
 import { TreeItem, TreeItemIndicator, TreeItemLabel } from '@ui-sdk/react/tree';
 import ChevronRightIcon from 'lucide-react/icons/chevron-right';
@@ -7,8 +8,7 @@ import { Button } from '@/components/ui/button';
 import { EntryName } from '@/entries/entry-name';
 import { SectionHeaderLabel } from '@/entries/section-header-label';
 import { HighlightedText } from '@/components/highlighted-text';
-import { TooltipCreateHandle, TooltipTrigger } from '@/components/ui/tooltip';
-import { type GroupCheck, GroupCheckbox, GroupMark, MarkTooltip, TypeMark } from '@/entries/value-marks';
+import { type GroupCheck, GroupCheckbox, GroupMark, TypeMark } from '@/entries/value-marks';
 import { EntryRowValue } from '@/entries/entry-value';
 import { entryMenuItems } from '@/entries/entry-menu';
 import { addDashboardWidget, DashboardIdContext } from '@/dashboards/panes';
@@ -21,14 +21,6 @@ import { defaultWidget } from '@/widgets/registry';
 
 /** Rows have a fixed height so only the rows in view need to be rendered */
 export const rowHeight = 28;
-/** Shared by the type, boolean, and unsupported marks of every row */
-const markTooltip = TooltipCreateHandle<string>();
-
-/** Tooltip of the rows' type, boolean, and unsupported marks, rendered once for every `EntryRows` */
-export function EntryRowsTooltip() {
-	return <MarkTooltip handle={markTooltip} />;
-}
-
 // Memoized so rows don't re-render when the cursor moves, only their values do
 export const EntryRowView = memo(function EntryRowView({
 	row,
@@ -141,13 +133,13 @@ export const EntryRowView = memo(function EntryRowView({
 			<TreeItemLabel className="flex h-full min-w-[min(7.5rem,65%)] flex-1 items-center gap-1.5 overflow-hidden">
 				<RowIndicator expandable={node.children !== undefined} />
 				{/* Checked while editing instead of having a checkbox of its own, so editing doesn't push the label over */}
-				{entry && <TypeMark type={entry.type} tooltip={markTooltip} checked={editing && bound} checkable={editing} />}
+				{entry && <TypeMark type={entry.type} checked={editing && bound} checkable={editing} />}
 				<GroupCheckbox check={groupCheck} />
 				<RowLabel node={node} highlights={highlights} unsupported={unsupported} bound={bound} />
 				{containsBound && <ContainsBoundMark />}
 			</TreeItemLabel>
-			{node.children && <GroupMark path={node.value} tooltip={markTooltip} />}
-			{entry && <EntryRowValue entry={entry} field={field} tooltip={markTooltip} />}
+			{node.children && <GroupMark path={node.value} />}
+			{entry && <EntryRowValue entry={entry} field={field} />}
 			<AppActionMenu
 				items={menuItems}
 				label="Entry actions"
@@ -213,7 +205,7 @@ export function StickyRow({
 				<ChevronRightIcon className="size-4 shrink-0 rotate-90 text-muted-foreground" />
 				{node.section === undefined ? (
 					<>
-						{entry && <TypeMark type={entry.type} tooltip={markTooltip} checked={checked} />}
+						{entry && <TypeMark type={entry.type} checked={checked} />}
 						<GroupCheckbox check={groupCheck} sticky />
 						<RowLabel node={node} highlights={highlights} unsupported={entry?.kind === 'unsupported'} bound={bound} />
 						{containsBound && <ContainsBoundMark />}
@@ -287,13 +279,15 @@ function RowLabel({
 }) {
 	const className = cn('min-w-0 flex-1 truncate', unsupported && 'text-muted-foreground', bound && 'text-primary');
 	return (
-		<TooltipTrigger handle={markTooltip} payload={node.value} render={<span className={className} />}>
-			{/* The tops of pinned and hidden entries and groups are labeled with their full paths */}
-			{node.label === node.value ? (
-				<EntryName name={node.value} ranges={highlights} />
-			) : (
-				<HighlightedText text={node.label} ranges={highlights} />
-			)}
-		</TooltipTrigger>
+		<Tooltip content={node.value} hasHoverIndication={false}>
+			<span className={className}>
+				{/* The tops of pinned and hidden entries and groups are labeled with their full paths */}
+				{node.label === node.value ? (
+					<EntryName name={node.value} ranges={highlights} />
+				) : (
+					<HighlightedText text={node.label} ranges={highlights} />
+				)}
+			</span>
+		</Tooltip>
 	);
 }

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Separator as Divider } from '@/components/ui/separator';
+import { Divider } from '@astryxdesign/core/Divider';
 import type { EditedWidget } from '@/entries/edited-widget';
 import { EntryRows } from '@/entries/entry-browser-rows';
 import { SectionHeaderLabel } from '@/entries/section-header-label';
