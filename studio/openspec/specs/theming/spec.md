@@ -29,13 +29,13 @@ Studio SHALL use the palette generator's own mapping unless the High contrast se
 
 ### Requirement: match13 palette
 
-The match13 preset MUST use accent `#135ab0` and neutral `#e2efff` in light mode, and the site's `sky-400` (`#29a3f6`) accent with a `#000000` neutral in dark mode.
+The match13 preset MUST use accent `#135ab0` and neutral `#e2efff` in light mode, and the site's `sky-400` (`#29a3f6`) accent with its `#111827` card color as the neutral in dark mode. Selected items MUST use the site's `#cddff8` sticky header color in light mode and `#273e55` panel color in dark mode.
 
 #### Scenario: match13 colors
 
 - **GIVEN** the match13 preset is selected
 - **WHEN** the user switches from light to dark mode
-- **THEN** the surfaces switch from pale blue to near-black charcoal
+- **THEN** the surfaces switch from pale blue to navy
 - **AND** primary actions switch from deep blue to bright blue
 - **AND** selected sidebar items stay blue-tinted in both modes
 

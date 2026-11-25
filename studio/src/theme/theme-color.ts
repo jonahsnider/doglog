@@ -52,10 +52,10 @@ const recipe = 'astryx-oklch-v2';
 /** The seeds of each preset's Astryx palette in a color mode */
 const presetSeeds: Record<ThemePreset, (themeColor: string, dark: boolean) => ThemePaletteInput> = {
 	doglog: () => team581Seeds,
-	// match13.com's blue accents and icy panels in light mode, its sky-400 on black overlays in dark mode
+	// match13.com's blue accents and icy panels in light mode, its sky-400 on navy cards in dark mode
 	match13: (_, dark) =>
 		dark
-			? { accent: '#29a3f6', neutral: '#000000', ...statusSeeds, recipe }
+			? { accent: '#29a3f6', neutral: '#111827', ...statusSeeds, recipe }
 			: { accent: '#135ab0', neutral: '#e2efff', ...statusSeeds, recipe },
 	froglog: () => ({ accent: frogLogGreen, neutral: tintedGray(frogLogGreen), ...statusSeeds, recipe }),
 	hoglog: (_, dark) => {
@@ -149,6 +149,10 @@ export function themeColors(
 	);
 	if (preset === 'froglog') {
 		tokens['--color-accent-muted'] = frogLogBlue[mode]![dark ? 30 : 85]!;
+	}
+	if (preset === 'match13') {
+		// match13.com's sticky headers in light mode and panels in dark mode
+		tokens['--color-accent-muted'] = dark ? '#273e55' : '#cddff8';
 	}
 	if (preset === 'hoglog') {
 		tokens['--color-accent-muted'] = hogLog[mode].selected;
