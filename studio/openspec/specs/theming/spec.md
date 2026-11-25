@@ -52,7 +52,7 @@ FrogLog SHALL use leaf green for its primary palette and soft stream blue for it
 
 ### Requirement: Neutral colors
 
-The Neutral preset SHALL generate its scheme from untinted gray palettes in place of the primary, secondary, neutral, and neutral variant palettes, so surfaces, borders, and primary actions have no hue. Its series, status, and band colors MUST be generated from Tailwind's blue, since gray has no hue to start from.
+The Neutral preset SHALL generate its scheme from untinted gray palettes in place of the primary, secondary, neutral, and neutral variant palettes, so surfaces, borders, and primary actions have no hue. Its series, status, and band colors MUST be generated from a fixed blue, since gray has no hue to start from.
 
 #### Scenario: Neutral primary actions
 

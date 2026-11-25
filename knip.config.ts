@@ -28,7 +28,6 @@ const config: KnipConfig = {
 			entry: [
 				// Knip has no React Doctor plugin
 				'doctor.config.ts',
-				'src/hooks/use-media-query.ts',
 				// Run by hand once a season
 				'scripts/field-model.ts',
 			],

@@ -3,7 +3,7 @@ import { useSelector } from '@tanstack/react-store';
 import { type Transition, useReducedMotion } from 'motion/react';
 import { settingsStore } from '@/settings';
 
-/** The Material 3 curves behind Tailwind's `ease-*` classes in `index.css`, for the motion library */
+/** The Material 3 curves behind the `--ease-*` variables in `index.css`, for the motion library */
 export const easing = {
 	/** Standard, for things that move within the screen */
 	inOut: [0.2, 0, 0, 1],

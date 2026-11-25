@@ -4,8 +4,6 @@ export default defineConfig({
 	ignore: {
 		files: [
 			'src/routeTree.gen.ts',
-			// shadcn files are copied in from a registry
-			'src/hooks/use-media-query.ts',
 			// Rust build output, the crypto libraries' test keys look like leaked secrets
 			'src-tauri/target/**',
 		],
@@ -41,7 +39,6 @@ export default defineConfig({
 		'react-doctor/no-reduced-motion-content-removal': 'warn',
 		'react-doctor/no-skipped-heading-level': 'warn',
 		'react-doctor/no-unbounded-animation-frame-loop': 'warn',
-		'react-doctor/no-ungated-tailwind-animation': 'warn',
 		'react-doctor/no-usememo-simple-expression': 'warn',
 		'react-doctor/prefer-module-scope-pure-function': 'warn',
 		'react-doctor/prefer-module-scope-static-value': 'warn',

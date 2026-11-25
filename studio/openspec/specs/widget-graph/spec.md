@@ -85,7 +85,7 @@ Each discrete entry SHALL show its name above a row with a band per period of un
 
 ### Requirement: Band colors
 
-String values SHALL use colors whose hues are spaced evenly around the hue wheel starting from the theme color's hue (Tailwind's blue for the Neutral preset). True uses the theme's success color, and false uses a near-gray tinted with the theme color. Band colors MUST share one lightness that keeps black value labels readable on every band in both light and dark variants.
+String values SHALL use colors whose hues are spaced evenly around the hue wheel starting from the theme color's hue (a fixed blue for the Neutral preset). True uses the theme's success color, and false uses a near-gray tinted with the theme color. Band colors MUST share one lightness that keeps black value labels readable on every band in both light and dark variants.
 
 #### Scenario: Theme color changes
 
