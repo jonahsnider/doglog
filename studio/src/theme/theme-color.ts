@@ -4,6 +4,15 @@ import {
 	generateTonalPalette,
 	themePalette,
 } from '@astryxdesign/core/palette';
+import {
+	formatHex,
+	modeLrgb,
+	modeOklch,
+	modeRgb,
+	useMode as registerMode,
+	wcagContrast,
+	wcagLuminance,
+} from 'culori/fn';
 import type { ThemePreset, VisualizationPalette } from '@/theme/choices';
 import { seriesPaletteVariables, shade } from '@/theme/series-palette';
 import { statusSeeds, doglogSeeds } from '@/theme/doglog-colors';
@@ -16,15 +25,17 @@ export const defaultCustomColor = '#1c1816';
 
 const frogLogGreen = '#79b748';
 
-/** A gray with a color's hue and lightness, for a neutral seed: the color mixed most of the way to its own luminance */
+registerMode(modeRgb);
+registerMode(modeLrgb);
+const oklch = registerMode(modeOklch);
+
+/**
+ * A gray with a color's hue and lightness, for a neutral seed: the color at no more than 0.018 OKLCH chroma, the tint of
+ * Astryx's warm and cool neutral profiles. Astryx's neutral ramp takes its hue and chroma from the seed.
+ */
 function tintedGray(color: string): string {
-	const [red, green, blue] = [1, 3, 5].map((index) => Number.parseInt(color.slice(index, index + 2), 16));
-	const gray = 0.2126 * red! + 0.7152 * green! + 0.0722 * blue!;
-	const channel = (value: number) =>
-		Math.round(gray + (value - gray) * 0.15)
-			.toString(16)
-			.padStart(2, '0');
-	return `#${channel(red!)}${channel(green!)}${channel(blue!)}`;
+	const { l, c, h } = oklch(color)!;
+	return formatHex({ mode: 'oklch', l, c: Math.min(c, 0.018), h });
 }
 
 const recipe = 'astryx-oklch-v2';
@@ -66,21 +77,6 @@ const frogLogBlue = generateTonalPalette({
 	families: [{ id: 'blue', seed: '#9ed8f7' }],
 }).palette['blue']!;
 
-/** WCAG relative luminance of a `#rrggbb` color */
-function luminance(color: string): number {
-	const [red, green, blue] = [1, 3, 5].map((index) => {
-		const channel = Number.parseInt(color.slice(index, index + 2), 16) / 255;
-		return channel <= 0.040_45 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
-	});
-	return 0.2126 * red! + 0.7152 * green! + 0.0722 * blue!;
-}
-
-/** WCAG contrast ratio of two `#rrggbb` colors */
-function contrastRatio(a: string, b: string): number {
-	const [light, dark] = [luminance(a), luminance(b)].toSorted((x, y) => y - x);
-	return (light! + 0.05) / (dark! + 0.05);
-}
-
 /**
  * Make text, icons, and borders stronger on the palette's neutral ramp, as Astryx's tone-based color generator does
  * for high contrast: secondary text and icons 10 stops toward contrast, the translucent border twice as opaque, and the
@@ -100,7 +96,7 @@ function applyHighContrast(tokens: Record<string, string>, neutralSeed: string, 
 
 	for (const token of ['--color-text-secondary', '--color-icon-secondary']) {
 		// The palette generates its ramp with its other seeds, so it's close to this one but not always equal
-		const distance = (stop: number) => Math.abs(luminance(ramp[stop]!) - luminance(tokens[token]!));
+		const distance = (stop: number) => Math.abs(wcagLuminance(ramp[stop]!) - wcagLuminance(tokens[token]!));
 		const nearest = stops.reduce((closest, stop) => (distance(stop) < distance(closest) ? stop : closest));
 		tokens[token] = ramp[Math.min(100, Math.max(0, nearest + 10 * toward))]!;
 	}
@@ -110,7 +106,7 @@ function applyHighContrast(tokens: Record<string, string>, neutralSeed: string, 
 	tokens['--color-border'] = `${border.slice(0, 7)}${alpha.toString(16).padStart(2, '0')}`;
 
 	const surfaces = [tokens['--color-background-body']!, tokens['--color-background-surface']!];
-	const readable = (stop: number) => surfaces.every((surface) => contrastRatio(ramp[stop]!, surface) >= 3);
+	const readable = (stop: number) => surfaces.every((surface) => wcagContrast(ramp[stop]!, surface) >= 3);
 	let stop = 50;
 	while (!readable(stop) && stop !== (dark ? 100 : 0)) {
 		stop += 5 * toward;
@@ -147,7 +143,7 @@ export function themeColors(
 
 	// Lifted text keeps its own contrast, unless high contrast made secondary text stronger still
 	const secondary = tokens['--color-text-secondary']!;
-	const stronger = (color: string) => (dark === luminance(color) > luminance(secondary) ? color : secondary);
+	const stronger = (color: string) => (dark === wcagLuminance(color) > wcagLuminance(secondary) ? color : secondary);
 	const lifts = Object.fromEntries(
 		Object.entries(liftedParts).map(([part, styles]) => [
 			part,
