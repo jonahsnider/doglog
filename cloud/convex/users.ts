@@ -10,7 +10,8 @@ import {
 	importAccountPublicKey,
 } from '../account-key';
 import { api, components, internal } from './_generated/api';
-import { action, env, internalMutation, mutation, query } from './_generated/server';
+import type { Doc } from './_generated/dataModel';
+import { action, env, internalMutation, type MutationCtx, mutation, type QueryCtx, query } from './_generated/server';
 import { getMembership } from './teams';
 
 export function normalizeDisplayName(value: string) {
@@ -29,17 +30,26 @@ export const createWithPasskey = internalMutation({
 	handler: (ctx, { method }) => ctx.db.insert('users', { displayName: method.profile.displayName }),
 });
 
+// Called for an identity Apple or Google hasn't signed in before. Returns the account linking it, see `finishLinking`.
+async function createOrLink(ctx: MutationCtx, provider: { apple: true } | { google: true }) {
+	const link = await ctx.db
+		.query('oauthLinks')
+		.withIndex('by_finishing', (q) => q.eq('finishing', true))
+		.unique();
+	return link?.userId ?? (await ctx.db.insert('users', provider));
+}
+
 // Cloud doesn't need the email or name Apple shares, so they aren't stored
 export const createWithApple = internalMutation({
 	args: { method: v.object({ name: v.literal('apple'), profile: vAppleProfile }) },
 	returns: v.id('users'),
-	handler: (ctx) => ctx.db.insert('users', {}),
+	handler: (ctx) => createOrLink(ctx, { apple: true }),
 });
 
 export const createWithGoogle = internalMutation({
 	args: { method: v.object({ name: v.literal('google'), profile: vGoogleProfile }) },
 	returns: v.id('users'),
-	handler: (ctx) => ctx.db.insert('users', {}),
+	handler: (ctx) => createOrLink(ctx, { google: true }),
 });
 
 export const getCurrent = query({
@@ -48,6 +58,64 @@ export const getCurrent = query({
 		const userId = await getAuthUserId(ctx);
 		const user = userId ? await ctx.db.get('users', userId) : null;
 		return user ? { id: user._id, displayName: user.displayName ?? null } : null;
+	},
+});
+
+async function listSignInMethods(ctx: QueryCtx, user: Doc<'users'>) {
+	const passkeys = await ctx.runQuery(components.authPasskey.registration.listPasskeys, { userId: user._id });
+	return {
+		passkeys: passkeys.map(({ passkeyId, name }) => ({ id: passkeyId, name: name ?? null })),
+		apple: user.apple === true,
+		google: user.google === true,
+	};
+}
+
+/** Throws unless the account can still sign in without the method being removed */
+async function requireOtherSignInMethod(ctx: MutationCtx) {
+	const userId = await getAuthUserId(ctx);
+	const user = userId ? await ctx.db.get('users', userId) : null;
+	if (!user) {
+		throw new ConvexError('Sign in to remove a way to sign in.');
+	}
+	const methods = await listSignInMethods(ctx, user);
+	if (methods.passkeys.length + Number(methods.apple) + Number(methods.google) <= 1) {
+		throw new ConvexError('Add another way to sign in before removing this one.');
+	}
+	return user._id;
+}
+
+export const getSignInMethods = query({
+	args: {},
+	handler: async (ctx) => {
+		const userId = await getAuthUserId(ctx);
+		const user = userId ? await ctx.db.get('users', userId) : null;
+		return user ? listSignInMethods(ctx, user) : null;
+	},
+});
+
+export const removePasskey = mutation({
+	args: { passkeyId: v.string() },
+	handler: async (ctx, { passkeyId }) => {
+		const userId = await requireOtherSignInMethod(ctx);
+		const removed = await ctx.runMutation(components.authPasskey.registration.deletePasskey, { userId, passkeyId });
+		if (!removed.success) {
+			throw new ConvexError('That passkey was already removed.');
+		}
+	},
+});
+
+export const unlink = mutation({
+	args: { provider: v.union(v.literal('apple'), v.literal('google')) },
+	handler: async (ctx, { provider }) => {
+		const userId = await requireOtherSignInMethod(ctx);
+		const user = await ctx.db.get('users', userId);
+		if (!user?.[provider]) {
+			throw new ConvexError(`${provider === 'apple' ? 'Apple' : 'Google'} is already unlinked.`);
+		}
+		// Removes every identity from that provider linked to the account
+		const component = provider === 'apple' ? components.authApple : components.authGoogle;
+		await ctx.runMutation(component.provider.deleteUser, { userId });
+		await ctx.db.patch('users', userId, { [provider]: undefined });
 	},
 });
 
@@ -84,6 +152,10 @@ export const remove = mutation({
 		const pendingJoins = ctx.db.query('pendingJoins').withIndex('by_user_and_invite', (q) => q.eq('userId', userId));
 		for await (const pending of pendingJoins) {
 			await ctx.db.delete('pendingJoins', pending._id);
+		}
+		const links = ctx.db.query('oauthLinks').withIndex('by_user', (q) => q.eq('userId', userId));
+		for await (const link of links) {
+			await ctx.db.delete('oauthLinks', link._id);
 		}
 		const pairings = ctx.db.query('pairings').withIndex('by_user', (q) => q.eq('userId', userId));
 		for await (const pairing of pairings) {

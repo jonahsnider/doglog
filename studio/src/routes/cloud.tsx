@@ -3,12 +3,15 @@ import { Button } from '@astryxdesign/core/Button';
 import { Divider } from '@astryxdesign/core/Divider';
 import { FormLayout } from '@astryxdesign/core/FormLayout';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
+import { ListItem } from '@astryxdesign/core/List';
 import { Text } from '@astryxdesign/core/Text';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useAuthActions } from '@convex-dev/auth/react';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { useConvexAuth, useMutation, useQuery } from 'convex/react';
 import { ConvexError } from 'convex/values';
+import LogOutIcon from 'lucide-react/icons/log-out';
+import Trash2Icon from 'lucide-react/icons/trash-2';
 import { type SubmitEvent, useState } from 'react';
 import { AccountEncryption } from '@/cloud/account-encryption';
 import { ConfirmCloudAction } from '@/cloud/confirm-cloud-action';
@@ -16,8 +19,10 @@ import { cloudDeploymentUrl } from '@/cloud/deployment';
 import { InviteLink } from '@/cloud/invite-link';
 import { JoinTeam } from '@/cloud/join-team';
 import { CloudSignIn, displayNameMaxLength } from '@/cloud/sign-in';
+import { SignInMethods } from '@/cloud/sign-in-methods';
 import { TeamMembers } from '@/cloud/team-members';
 import { TeamPanel } from '@/cloud/team-panel';
+import { SettingsGroup } from '@/components/settings-group';
 import { UtilityPage, UtilityPageSection } from '@/components/utility-page';
 import { api } from '../../../cloud/convex/_generated/api.js';
 
@@ -106,18 +111,34 @@ function SignedIn() {
 					<Text>Signed in to DogLog Cloud</Text>
 					{account && <AccountEncryption userId={account.id} />}
 				</VStack>
-				<HStack wrap="wrap" gap={2}>
-					<Button label="Sign out" isLoading={signingOut} onClick={() => void endSession()} />
-					<ConfirmCloudAction
-						label="Delete account"
-						title="Delete your Cloud account?"
-						description="This permanently deletes your Cloud account and signs you out on all devices. Local dashboards aren’t affected."
-						failureMessage="Couldn’t delete your Cloud account. Try again."
-						destructive
-						disabledReason={deleteAccountDisabledReason}
-						onConfirm={deleteAccount}
+				<SignInMethods />
+				<SettingsGroup>
+					<ListItem
+						startContent={<LogOutIcon aria-hidden="true" size={20} />}
+						label="Sign out"
+						description="Local dashboards stay on this device."
+						endContent={<Button label="Sign out" isLoading={signingOut} onClick={() => void endSession()} />}
 					/>
-				</HStack>
+				</SettingsGroup>
+				<SettingsGroup>
+					<ListItem
+						startContent={<Trash2Icon aria-hidden="true" size={20} />}
+						label="Delete account"
+						description="This can’t be undone."
+						endContent={
+							<ConfirmCloudAction
+								label="Delete account"
+								variant="destructive"
+								title="Delete your Cloud account?"
+								description="This permanently deletes your Cloud account and signs you out on all devices. Local dashboards aren’t affected."
+								failureMessage="Couldn’t delete your Cloud account. Try again."
+								destructive
+								disabledReason={deleteAccountDisabledReason}
+								onConfirm={deleteAccount}
+							/>
+						}
+					/>
+				</SettingsGroup>
 				{signOutError && <Banner status="error" role="alert" title="Couldn’t sign out. Try again." />}
 			</UtilityPageSection>
 		</VStack>

@@ -15,13 +15,8 @@ import { useSelector } from '@tanstack/react-store';
 import { useConvex } from 'convex/react';
 import { ConvexError } from 'convex/values';
 import { type SubmitEvent, useState } from 'react';
-import {
-	browserSignInStore,
-	cancelBrowserSignIn,
-	desktopCeremonies,
-	signInWithOauthInBrowser,
-} from '@/cloud/desktop-sign-in';
-import { browserCeremonies } from '@/cloud/passkey-ceremonies';
+import { browserSignInStore, cancelBrowserSignIn } from '@/cloud/desktop-sign-in';
+import { ceremonies, oauthErrorMessage, runOauthSignIn } from '@/cloud/sign-in-flows';
 import { api } from '../../../cloud/convex/_generated/api.js';
 
 const styles = stylex.create({
@@ -31,9 +26,6 @@ const styles = stylex.create({
 
 /** The longest display name the server accepts */
 export const displayNameMaxLength = 80;
-
-// The desktop app signs in through Studio's website, since that's where Cloud's passkeys work
-const ceremonies = STUDIO_DESKTOP ? desktopCeremonies : browserCeremonies;
 
 export function CloudSignIn() {
 	const waiting = useSelector(browserSignInStore);
@@ -150,13 +142,6 @@ function PasskeySignIn() {
 	);
 }
 
-const flowErrors = {
-	ACCESS_DENIED: 'Sign-in was canceled.',
-	EXPIRED: 'Sign-in took too long. Try again.',
-	INVALID_FLOW: 'Couldn’t finish signing in. Start again from this page.',
-	OTHER_ERROR: 'Couldn’t finish signing in. Try again.',
-};
-
 function OAuthSignIn() {
 	const { signIn: signInWithApple } = useSignInWithApple(api.auth);
 	const { signIn: signInWithGoogle } = useSignInWithGoogle(api.auth);
@@ -165,27 +150,15 @@ function OAuthSignIn() {
 	const [error, setError] = useState<string>();
 
 	async function start(provider: 'Apple' | 'Google') {
-		const signIn = provider === 'Apple' ? signInWithApple : signInWithGoogle;
 		setError(undefined);
 		setPending(provider);
-		const outcome = STUDIO_DESKTOP
-			? await signInWithOauthInBrowser(signIn)
-			: await signIn().then(
-					(result) => (result.status === 'redirect' ? 'leaving' : 'unavailable'),
-					() => 'unavailable' as const,
-				);
+		const outcome = await runOauthSignIn(provider === 'Apple' ? signInWithApple : signInWithGoogle, provider);
 		// The browser leaves this page before coming back with the result.
 		setPending(outcome === 'leaving' ? provider : undefined);
-		setError(
-			outcome === 'leaving' || outcome === undefined
-				? undefined
-				: outcome === 'unavailable'
-					? `Couldn’t start signing in with ${provider}. Try again.`
-					: flowErrors[outcome.error],
-		);
+		setError(outcome === 'leaving' ? undefined : outcome);
 	}
 
-	const shown = error ?? (flowError === null ? undefined : flowErrors[flowError.error]);
+	const shown = error ?? (flowError === null ? undefined : oauthErrorMessage(flowError));
 	return (
 		<VStack gap={2}>
 			<HStack wrap="wrap" gap={2}>

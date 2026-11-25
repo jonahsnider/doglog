@@ -37,3 +37,21 @@ index 58722808803f39ac63a375e28f40c62e48c890c1..7b151fa6c02ac1791a3da338df40eed7
  /** The name this provider's accounts are namespaced under in the core. */
  export const PROVIDER_NAME = "google";
  //# sourceMappingURL=constants.js.map
+diff --git a/package.json b/package.json
+index 66d00c8a1a7a2385e9c3dd200a5fef836c6a237b..6a2e10e3094b1e7daffe2d4bd99185be568daf2e 100644
+--- a/package.json
++++ b/package.json
+@@ -170,6 +170,13 @@
+       "types": "./dist/methods/username-passkey/react.d.ts",
+       "default": "./dist/methods/username-passkey/react.js"
+     },
++    "./methods/username-passkey/aaguids": {
++      "convex-auth-internal-types": {
++        "types": "./dist/internal-types/methods/username-passkey/aaguids.d.ts"
++      },
++      "types": "./dist/methods/username-passkey/aaguids.d.ts",
++      "default": "./dist/methods/username-passkey/aaguids.js"
++    },
+     "./methods/username-passkey/react-custom": {
+       "convex-auth-internal-types": {
+         "types": "./dist/internal-types/methods/username-passkey/react-custom.d.ts"

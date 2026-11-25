@@ -1,10 +1,13 @@
 import { setupApple } from '@convex-dev/auth/methods/apple/server';
+import type { SignInComplete, SignInError } from '@convex-dev/auth';
 import { setupGoogle } from '@convex-dev/auth/methods/google/server';
+import { defaultPasskeyName } from '@convex-dev/auth/methods/username-passkey/aaguids';
 import type { WireCreationOptions, WireRequestOptions } from '@convex-dev/auth/methods/username-passkey/react-custom';
-import { setupConvexAuth } from '@convex-dev/auth/server';
-import { v } from 'convex/values';
-import { components, internal } from './_generated/api';
-import { env, mutation } from './_generated/server';
+import { getAuthUserId, setupConvexAuth } from '@convex-dev/auth/server';
+import type { FunctionReference } from 'convex/server';
+import { ConvexError, v } from 'convex/values';
+import { api, components, internal } from './_generated/api';
+import { env, type MutationCtx, mutation } from './_generated/server';
 import { normalizeDisplayName } from './users';
 
 const studioUrl = new URL(env.STUDIO_ORIGIN);
@@ -24,6 +27,14 @@ const { authMutation }: ReturnType<typeof bindPasskey> = bindPasskey({
 });
 
 const credential = { id: v.string(), rawId: v.string(), type: v.literal('public-key') };
+const registrationResponse = v.object({
+	...credential,
+	response: v.object({
+		clientDataJSON: v.string(),
+		attestationObject: v.string(),
+		transports: v.optional(v.array(v.string())),
+	}),
+});
 
 function base64Url(bytes: ArrayBuffer) {
 	return btoa(String.fromCharCode(...new Uint8Array(bytes)))
@@ -32,40 +43,56 @@ function base64Url(bytes: ArrayBuffer) {
 		.replace(/=+$/, '');
 }
 
+function creationOptions(
+	registration: {
+		challenge: ArrayBuffer;
+		userHandle: ArrayBuffer;
+		excludeCredentials: { id: ArrayBuffer; transports?: string[] }[];
+	},
+	name: string,
+): WireCreationOptions {
+	return {
+		rp: { id: studioUrl.hostname, name: 'DogLog Studio' },
+		user: { id: base64Url(registration.userHandle), name, displayName: name },
+		challenge: base64Url(registration.challenge),
+		pubKeyCredParams: [-7, -257].map((alg) => ({ type: 'public-key', alg })),
+		timeout: passkeyTimeout,
+		excludeCredentials: registration.excludeCredentials.map(({ id, transports }) => ({
+			id: base64Url(id),
+			type: 'public-key',
+			...(transports && { transports }),
+		})),
+		authenticatorSelection: { residentKey: 'required', requireResidentKey: true, userVerification: 'required' },
+		attestation: 'none',
+		extensions: {},
+	};
+}
+
+async function requireUser(ctx: MutationCtx) {
+	const userId = await getAuthUserId(ctx);
+	const user = userId ? await ctx.db.get('users', userId) : null;
+	if (!user) {
+		throw new ConvexError('Sign in to add a way to sign in.');
+	}
+	return user;
+}
+
 export const startPasskeySignUp = mutation({
 	args: { displayName: v.string() },
 	handler: async (ctx, args) => {
 		const displayName = normalizeDisplayName(args.displayName);
 		const { challenge, userHandle } = await ctx.runMutation(passkey.registration.startRegistrationForNewUser, {});
-		return {
-			rp: { id: studioUrl.hostname, name: 'DogLog Studio' },
-			user: { id: base64Url(userHandle), name: displayName, displayName },
-			challenge: base64Url(challenge),
-			pubKeyCredParams: [-7, -257].map((alg) => ({ type: 'public-key', alg })),
-			timeout: passkeyTimeout,
-			excludeCredentials: [],
-			authenticatorSelection: { residentKey: 'required', requireResidentKey: true, userVerification: 'required' },
-			attestation: 'none',
-			extensions: {},
-		} satisfies WireCreationOptions;
+		return creationOptions({ challenge, userHandle, excludeCredentials: [] }, displayName);
 	},
 });
 
 export const finishPasskeySignUp = authMutation({
-	args: {
-		displayName: v.string(),
-		response: v.object({
-			...credential,
-			response: v.object({
-				clientDataJSON: v.string(),
-				attestationObject: v.string(),
-				transports: v.optional(v.array(v.string())),
-			}),
-		}),
-	},
+	args: { displayName: v.string(), response: registrationResponse },
 	handler: async (ctx, args) => {
 		const displayName = normalizeDisplayName(args.displayName);
-		const registration = { ...expectedSite, response: { ...args.response, clientExtensionResults: {} } };
+		const response = { ...args.response, clientExtensionResults: {} };
+		// The passkey provider's name, ex. Google Password Manager, from its AAGUID
+		const registration = { ...expectedSite, response, name: defaultPasskeyName(response) };
 		const checked = await ctx.runQuery(passkey.registration.checkRegistrationForNewUser, registration);
 		if (!checked.success) {
 			return { status: 'error', userError: checked.userError } as const;
@@ -132,6 +159,122 @@ export const finishPasskeySignIn = authMutation({
 		});
 		return { status: 'complete', tokens } as const;
 	},
+});
+
+// Adding a passkey to an account needs no other passkey, unlike Convex Auth's username recipe, since the account may
+// only have Apple or Google
+export const startAddingPasskey = mutation({
+	args: {},
+	handler: async (ctx): Promise<WireCreationOptions> => {
+		const user = await requireUser(ctx);
+		const registration = await ctx.runMutation(passkey.registration.startRegistrationForExistingUser, {
+			verifiedUserId: user._id,
+		});
+		// Passkey managers list the passkey under this name
+		return creationOptions(registration, user.displayName ?? 'DogLog Cloud account');
+	},
+});
+
+export const finishAddingPasskey = mutation({
+	args: { response: registrationResponse },
+	handler: async (ctx, args) => {
+		const user = await requireUser(ctx);
+		const response = { ...args.response, clientExtensionResults: {} };
+		const saved = await ctx.runMutation(passkey.registration._internal_dangerous_finishRegistrationForExistingUser, {
+			...expectedSite,
+			verifiedUserId: user._id,
+			response,
+			name: defaultPasskeyName(response),
+		});
+		return saved.success ? null : saved.userError;
+	},
+});
+
+async function sha256Hex(text: string) {
+	const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+	return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
+type StartOauth = FunctionReference<'mutation', 'public', { redirectTo: string }, { redirect: string; state: string }>;
+type CompleteOauth = FunctionReference<
+	'mutation',
+	'public',
+	{ code: string; state: string },
+	SignInComplete | SignInError<{ error: 'INVALID_CODE' }>
+>;
+
+// Linking Apple or Google runs the provider's own sign-in, remembering which account started it under the flow's state
+async function startLinking(
+	ctx: MutationCtx,
+	start: StartOauth,
+	redirectTo: string,
+): Promise<StartOauth['_returnType']> {
+	const user = await requireUser(ctx);
+	const earlier = ctx.db.query('oauthLinks').withIndex('by_user', (q) => q.eq('userId', user._id));
+	for await (const link of earlier) {
+		await ctx.db.delete('oauthLinks', link._id);
+	}
+	const started = await ctx.runMutation(start, { redirectTo });
+	await ctx.db.insert('oauthLinks', { userId: user._id, stateHash: await sha256Hex(started.state) });
+	return started;
+}
+
+/**
+ * Finishes the provider's sign-in as the account that started linking. For an identity the provider hasn't seen, its
+ * `createUser` callback finds the link marked `finishing` and returns that account instead of a new one. The mark is
+ * removed before this transaction commits, so the callback never sees another sign-in's link.
+ */
+async function finishLinking(
+	ctx: MutationCtx,
+	complete: CompleteOauth,
+	provider: 'apple' | 'google',
+	args: { code: string; state: string },
+): Promise<CompleteOauth['_returnType']> {
+	const stateHash = await sha256Hex(args.state);
+	const link = await ctx.db
+		.query('oauthLinks')
+		.withIndex('by_state_hash', (q) => q.eq('stateHash', stateHash))
+		.unique();
+	if (!link) {
+		throw new ConvexError('Couldn’t finish linking. Start again from the Cloud page.');
+	}
+	await ctx.db.patch('oauthLinks', link._id, { finishing: true });
+	const result = await ctx.runMutation(complete, args);
+	await ctx.db.delete('oauthLinks', link._id);
+	if (result.status === 'complete') {
+		if (result.tokens.userId !== link.userId) {
+			// Rolls back the other account's session
+			throw new ConvexError(
+				`That ${provider === 'apple' ? 'Apple' : 'Google'} account already signs in to a different Cloud account.`,
+			);
+		}
+		await ctx.db.patch('users', link.userId, provider === 'apple' ? { apple: true } : { google: true });
+	}
+	return result;
+}
+
+export const startLinkingApple = mutation({
+	args: { redirectTo: v.string() },
+	handler: (ctx, args): Promise<StartOauth['_returnType']> =>
+		startLinking(ctx, api.auth.startSignInWithApple, args.redirectTo),
+});
+
+export const completeLinkingApple = mutation({
+	args: { code: v.string(), state: v.string() },
+	handler: (ctx, args): Promise<CompleteOauth['_returnType']> =>
+		finishLinking(ctx, api.auth.completeSignInWithApple, 'apple', args),
+});
+
+export const startLinkingGoogle = mutation({
+	args: { redirectTo: v.string() },
+	handler: (ctx, args): Promise<StartOauth['_returnType']> =>
+		startLinking(ctx, api.auth.startSignInWithGoogle, args.redirectTo),
+});
+
+export const completeLinkingGoogle = mutation({
+	args: { code: v.string(), state: v.string() },
+	handler: (ctx, args): Promise<CompleteOauth['_returnType']> =>
+		finishLinking(ctx, api.auth.completeSignInWithGoogle, 'google', args),
 });
 
 export const { startSignInWithApple, completeSignInWithApple } = setupApple(auth, {

@@ -31,6 +31,28 @@ Studio SHALL offer Sign in with Apple, Sign in with Google, and passkey sign-in.
 - **WHEN** they choose passkey sign-in and select that passkey
 - **THEN** Studio signs them in to the account associated with the passkey without asking for a name
 
+### Requirement: Linked sign-in methods
+
+A signed-in user SHALL be able to add passkeys and link Apple and Google to their account, so any of them signs in to the same account. Adding a passkey MUST NOT require an existing one. Users SHALL be able to see each passkey, remove passkeys, and unlink Apple and Google, but MUST NOT be able to remove their account's last way to sign in. An Apple or Google account that already signs in to a different Cloud account MUST NOT be linked, and that account MUST be unchanged.
+
+#### Scenario: Link Google to a passkey account
+
+- **GIVEN** a user created their account with a passkey
+- **WHEN** they link Google from the Cloud page and later choose Sign in with Google
+- **THEN** Studio signs them in to the same account
+
+#### Scenario: Link an Apple or Google account used by another account
+
+- **GIVEN** a Google account already signs in to a different Cloud account
+- **WHEN** a user tries to link that Google account
+- **THEN** Studio says it belongs to a different account and neither account changes
+
+#### Scenario: Remove the last way to sign in
+
+- **GIVEN** an account can only sign in with Google
+- **WHEN** the user tries to unlink Google
+- **THEN** Studio asks them to add another way to sign in first and Google stays linked
+
 ### Requirement: Desktop sign-in
 
 The desktop app SHALL sign in without leaving the app when the OS provides the chosen method, ex. passkeys and Sign in with Apple on macOS. Otherwise, it SHALL open sign-in in the default browser and return the user to the app signed in. A browser sign-in MUST only sign in the app that started it. Passkeys MUST work the same in the web and desktop apps.
@@ -55,7 +77,7 @@ An account MUST belong to at most one team. When Cloud is available, Studio SHAL
 - **WHEN** a signed-in user opens the Cloud page
 - **THEN** the Team section contains team creation, joining, and membership controls as applicable
 - **AND** the Collaboration section contains display name and invite links for admins
-- **AND** the Account section contains encryption, sign-out, and account deletion controls
+- **AND** the Account section contains encryption, sign-in methods, sign-out, and account deletion controls
 
 #### Scenario: Start a team
 

@@ -1,5 +1,5 @@
 import { AlertDialog } from '@astryxdesign/core/AlertDialog';
-import { Button } from '@astryxdesign/core/Button';
+import { Button, type ButtonVariant } from '@astryxdesign/core/Button';
 import { ConvexError } from 'convex/values';
 import { useState } from 'react';
 import { toastManager } from '@/components/toast';
@@ -13,10 +13,13 @@ export function ConfirmCloudAction({
 	failureMessage,
 	destructive = false,
 	disabledReason,
+	variant,
 	onConfirm,
 }: {
 	label: string;
 	triggerLabel?: string;
+	/** The trigger button's style */
+	variant?: ButtonVariant;
 	title: string;
 	description: string;
 	failureMessage: string;
@@ -45,6 +48,7 @@ export function ConfirmCloudAction({
 		<>
 			<Button
 				label={triggerLabel ?? label}
+				variant={variant}
 				isDisabled={disabledReason !== undefined}
 				tooltip={disabledReason}
 				onClick={() => setOpen(true)}

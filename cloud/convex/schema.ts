@@ -5,7 +5,20 @@ export default defineSchema({
 	users: defineTable({
 		displayName: v.optional(v.string()),
 		encryptionKey: v.optional(v.object({ publicKey: v.bytes(), signature: v.bytes() })),
+		// Set once the account signs up with or links the provider
+		apple: v.optional(v.literal(true)),
+		google: v.optional(v.literal(true)),
 	}),
+	// An Apple or Google sign-in started to link the provider to an account, found by the hash of the flow's state.
+	// finishing is only set inside the transaction that finishes it, see `finishLinking`.
+	oauthLinks: defineTable({
+		userId: v.id('users'),
+		stateHash: v.string(),
+		finishing: v.optional(v.literal(true)),
+	})
+		.index('by_state_hash', ['stateHash'])
+		.index('by_user', ['userId'])
+		.index('by_finishing', ['finishing']),
 	// keyVersion is unset until the creator's Studio publishes the first team key. rotationPending is set when a
 	// membership ends, until a remaining member's Studio publishes a fresh key.
 	teams: defineTable({

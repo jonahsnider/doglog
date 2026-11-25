@@ -135,7 +135,7 @@ function PasskeyPrompt({ request, onDone }: { request: PasskeyRequest; onDone: (
 			title="Sign in to DogLog Studio"
 			description={
 				request.ceremony === 'register'
-					? 'Create a passkey for your new Cloud account in the desktop app.'
+					? 'Create a passkey for your Cloud account in the desktop app.'
 					: 'Use your passkey to sign in to Cloud in the desktop app.'
 			}
 		>
