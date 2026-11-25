@@ -3,6 +3,7 @@ import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } f
 import {
 	colorVars,
 	durationVars,
+	easeVars,
 	sizeVars,
 	spacingVars,
 	textSizeVars,
@@ -61,6 +62,7 @@ const styles = stylex.create({
 	chevron: {
 		transitionProperty: 'rotate',
 		transitionDuration: durationVars['--duration-fast'],
+		transitionTimingFunction: easeVars['--ease-standard'],
 	},
 	chevronExpanded: {
 		rotate: '90deg',

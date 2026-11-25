@@ -3,7 +3,7 @@ import { type RegisteredRouter, useLocation, useRouter } from '@tanstack/react-r
 import LayoutDashboardIcon from 'lucide-react/icons/layout-dashboard';
 import { useSortable } from '@dnd-kit/react/sortable';
 import { m, useIsPresent } from 'motion/react';
-import { easing, useMotionTransition } from '@/lib/motion';
+import { duration, easing, useMotionTransition } from '@/lib/motion';
 import { useState } from 'react';
 import { HoverCard } from '@astryxdesign/core/HoverCard';
 import { colorVars, radiusVars } from '@astryxdesign/core/theme/tokens.stylex';
@@ -166,8 +166,8 @@ export function DashboardItem({
 	if (isDragSource && previewOpen) {
 		setPreviewOpen(false);
 	}
-	const transition = useMotionTransition({ duration: 0.2, ease: easing.out });
-	const exitTransition = useMotionTransition({ duration: 0.15, ease: easing.in });
+	const transition = useMotionTransition({ duration: duration.fastMax, ease: easing.entrance });
+	const exitTransition = useMotionTransition({ duration: duration.exit, ease: easing.exit });
 	const afterEntry = { type: false as const, delay: transition.duration ?? 0 };
 	// Dashboards dragged to the other section are hidden right away, so only the gap they leave closes
 	const rowExit = isDragSource ? { ...exitTransition, opacity: { duration: 0 } } : exitTransition;

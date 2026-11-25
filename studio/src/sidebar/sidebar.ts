@@ -1,5 +1,6 @@
 import { createAtom } from '@tanstack/store';
 import * as z from 'zod';
+import { duration } from '@/lib/motion';
 import { createPersistedAtom } from '@/lib/persisted-store';
 
 /** Whether the sidebar only shows icons */
@@ -20,10 +21,10 @@ export function isCollapsing(animation: SidebarAnimation | undefined): boolean {
 	return animation === 'enter-strip' || animation === 'collapse' || animation === 'unpeek';
 }
 
-/** How long the sidebar takes to expand, like its `duration-200` */
-const resizeDuration = 200;
-/** How long the main area takes to move to or from below the title bar's strip, like its `duration-150` */
-const stripDuration = 150;
+/** How long the sidebar takes to expand, like its width transition */
+const resizeDuration = duration.fastMax * 1000;
+/** How long the main area takes to move to or from below the title bar's strip */
+const stripDuration = duration.fast * 1000;
 let animationTimer: ReturnType<typeof setTimeout> | undefined;
 
 /** Plays each timed step in order. AppSidebar clears an untimed final step when its width transitions finish. */

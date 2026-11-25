@@ -14,7 +14,7 @@
 	}
 	/* Resizes the main area along with the sidebar, like the timeline sliding up resizes the panes */
 	&[data-animation] {
-		transition: inline-size calc(200ms * var(--motion-scale)) var(--ease-in-out);
+		transition: inline-size calc(var(--duration-fast-max) * var(--motion-scale)) var(--ease-move);
 	}
 	/* The main area moves below the title bar's strip before the sidebar collapses */
 	&[data-animation='enter-strip'] {
@@ -42,8 +42,8 @@
 	/* Its width as it animates, for the menu buttons' corners, see `index.css` */
 	container-type: inline-size;
 	transition-property: box-shadow, --peek;
-	transition-duration: calc(200ms * var(--motion-scale));
-	transition-timing-function: var(--ease-in-out);
+	transition-duration: calc(var(--duration-fast-max) * var(--motion-scale));
+	transition-timing-function: var(--ease-move);
 
 	/* Below the title bar's strip, lined up with the main area's panes and pages, which have a gap above them */
 	[data-strip] > & {
@@ -157,7 +157,7 @@
 	/* Clipped to the sidebar as it animates, so the name doesn't cover the main area, sized and animated like it */
 	inline-size: var(--sidebar-width);
 	overflow: hidden;
-	transition: --peek calc(200ms * var(--motion-scale)) var(--ease-in-out);
+	transition: --peek calc(var(--duration-fast-max) * var(--motion-scale)) var(--ease-move);
 
 	&[data-traffic-lights] {
 		padding-inline-start: 5.5625rem;

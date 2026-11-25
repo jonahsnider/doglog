@@ -1,4 +1,11 @@
-import { colorVars, radiusVars, shadowVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import {
+	colorVars,
+	durationVars,
+	easeVars,
+	radiusVars,
+	shadowVars,
+	spacingVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import type { Ref } from 'react';
 import { Legend, type LegendItem } from '@/widgets/legend/legend';
@@ -27,8 +34,8 @@ const styles = stylex.create({
 		borderEndEndRadius: radiusVars['--radius-element'],
 		backgroundColor: colorVars['--color-background-surface'],
 		transitionProperty: 'box-shadow',
-		transitionDuration: '150ms',
-		transitionTimingFunction: 'var(--ease-in-out)',
+		transitionDuration: durationVars['--duration-fast'],
+		transitionTimingFunction: easeVars['--ease-standard'],
 	},
 	empty: { display: 'none' },
 	underZoom: { boxShadow: shadowVars['--shadow-med'] },

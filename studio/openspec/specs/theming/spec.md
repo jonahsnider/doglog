@@ -113,7 +113,7 @@ The theme SHALL provide 5 distinguishable series colors in light and dark. Defau
 
 ### Requirement: Motion
 
-Studio SHALL animate with one set of Material Design 3 easing curves and durations, so similar changes move the same way everywhere. Things moving within the screen MUST use the standard curve, things entering MUST decelerate, and things leaving MUST accelerate and finish sooner.
+Studio SHALL animate with the design system's easing curves and durations, so similar changes move the same way everywhere. State changes MUST use the standard curve, things moving within the screen the move curve, and things entering the entrance curve. Things leaving MUST accelerate on the exit curve.
 
 #### Scenario: Close a pane
 

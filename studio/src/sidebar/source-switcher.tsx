@@ -10,7 +10,7 @@ import { useLayoutEffect, useRef } from 'react';
 import { shortcuts } from '@/commands/commands';
 import { Shortcut } from '@/components/shortcut';
 import { closeLive, closeLog, type Source, showSource } from '@/data/source';
-import { easing, useMotionTransition } from '@/lib/motion';
+import { duration, easing, useMotionTransition } from '@/lib/motion';
 import { SourceIcon } from '@/sidebar/source-icon';
 import { sourceLabels } from '@/sidebar/source-labels';
 
@@ -89,7 +89,7 @@ const styles = stylex.create({
 function ShownIndicator({ index }: { index: number }) {
 	const [scope, animate] = useAnimate<HTMLDivElement>();
 	const shadow = useRef<HTMLDivElement>(null);
-	const transition = useMotionTransition({ duration: 0.25, ease: easing.inOut });
+	const transition = useMotionTransition({ duration: duration.mediumMin, ease: easing.move });
 	const shownIndex = useRef(index);
 
 	// Before painting, so it's under the shown source as soon as the menu opens

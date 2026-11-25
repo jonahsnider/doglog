@@ -1,5 +1,7 @@
 import {
 	colorVars,
+	durationVars,
+	easeVars,
 	fontWeightVars,
 	radiusVars,
 	spacingVars,
@@ -34,13 +36,13 @@ const styles = stylex.create({
 		fontSize: typeScaleVars['--text-supporting-size'],
 		lineHeight: '1rem',
 		transitionProperty: 'opacity',
-		transitionDuration: 'calc(150ms * var(--motion-scale))',
-		transitionTimingFunction: 'var(--ease-out)',
+		transitionDuration: `calc(${durationVars['--duration-fast']} * var(--motion-scale))`,
+		transitionTimingFunction: easeVars['--ease-entrance'],
 	},
 	hidden: {
 		opacity: 0,
-		transitionDuration: 'calc(100ms * var(--motion-scale))',
-		transitionTimingFunction: 'var(--ease-in)',
+		transitionDuration: `calc(${durationVars['--duration-exit']} * var(--motion-scale))`,
+		transitionTimingFunction: easeVars['--ease-exit'],
 	},
 	list: {
 		display: 'grid',

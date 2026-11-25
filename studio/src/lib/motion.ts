@@ -1,17 +1,43 @@
+import { resolveThemeTokens } from '@astryxdesign/core/theme/tokens';
 import { useSelector } from '@tanstack/react-store';
 // oxlint-disable-next-line eslint/no-restricted-imports -- This module implements useMotionTransition().
 import { type Transition, useReducedMotion } from 'motion/react';
 import { settingsStore } from '@/settings';
+import { team581Theme } from '@/theme/team581-theme';
 
-/** The Material 3 curves behind the `--ease-*` variables in `index.css`, for the motion library */
+// Motion tokens are the same in light and dark
+const tokens = resolveThemeTokens(team581Theme, { mode: 'light' });
+
+function curve(token: string): [number, number, number, number] {
+	const [x1 = 0, y1 = 0, x2 = 1, y2 = 1] = tokens[token]!.slice('cubic-bezier('.length, -1).split(',').map(Number);
+	return [x1, y1, x2, y2];
+}
+
+function seconds(token: string): number {
+	return Number(tokens[token]!.slice(0, -'ms'.length)) / 1000;
+}
+
+/** Astryx's `--ease-*` tokens, for the motion library */
 export const easing = {
-	/** Standard, for things that move within the screen */
-	inOut: [0.2, 0, 0, 1],
-	/** Standard decelerate, for things entering the screen */
-	out: [0, 0, 0, 1],
-	/** Standard accelerate, for things leaving the screen */
-	in: [0.3, 0, 1, 1],
-} as const satisfies Record<string, [number, number, number, number]>;
+	/** `--ease-standard`, for state changes */
+	standard: curve('--ease-standard'),
+	/** `--ease-entrance`, for things arriving */
+	entrance: curve('--ease-entrance'),
+	/** `--ease-move`, for things moving on screen */
+	move: curve('--ease-move'),
+	/** `--ease-exit`, for things leaving */
+	exit: curve('--ease-exit'),
+} as const;
+
+/** Astryx's `--duration-*` tokens in seconds, for the motion library */
+export const duration = {
+	fastMin: seconds('--duration-fast-min'),
+	fast: seconds('--duration-fast'),
+	fastMax: seconds('--duration-fast-max'),
+	mediumMin: seconds('--duration-medium-min'),
+	medium: seconds('--duration-medium'),
+	exit: seconds('--duration-exit'),
+} as const;
 
 /** Whether to skip animations, because the system or the reduce motion setting asks to */
 export function reducesMotion(): boolean {

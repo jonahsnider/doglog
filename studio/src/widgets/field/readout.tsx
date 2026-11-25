@@ -2,6 +2,8 @@
 import { HStack } from '@astryxdesign/core/Layout';
 import {
 	colorVars,
+	durationVars,
+	easeVars,
 	fontWeightVars,
 	radiusVars,
 	spacingVars,
@@ -40,8 +42,8 @@ const styles = stylex.create({
 	},
 	fades: {
 		transitionProperty: 'opacity',
-		transitionDuration: 'calc(150ms * var(--motion-scale))',
-		transitionTimingFunction: 'var(--ease-in-out)',
+		transitionDuration: `calc(${durationVars['--duration-fast']} * var(--motion-scale))`,
+		transitionTimingFunction: easeVars['--ease-standard'],
 	},
 	// Hides controls under the field while it isn't hovered or focused, on devices that can hover
 	hiddenWhileIdle: {
@@ -54,11 +56,12 @@ const styles = stylex.create({
 			},
 		},
 		transitionDuration: {
-			default: 'calc(150ms * var(--motion-scale))',
+			default: `calc(${durationVars['--duration-fast']} * var(--motion-scale))`,
 			'@media (hover: hover)': {
-				default: 'calc(100ms * var(--motion-scale))',
-				[stylex.when.ancestor(':hover', fieldMarker)]: 'calc(150ms * var(--motion-scale))',
-				[stylex.when.ancestor(':focus-within', fieldMarker)]: 'calc(150ms * var(--motion-scale))',
+				default: `calc(${durationVars['--duration-exit']} * var(--motion-scale))`,
+				[stylex.when.ancestor(':hover', fieldMarker)]: `calc(${durationVars['--duration-fast']} * var(--motion-scale))`,
+				[stylex.when.ancestor(':focus-within', fieldMarker)]:
+					`calc(${durationVars['--duration-fast']} * var(--motion-scale))`,
 			},
 		},
 	},
@@ -69,7 +72,7 @@ const styles = stylex.create({
 	},
 	hidden: {
 		opacity: 0,
-		transitionDuration: 'calc(100ms * var(--motion-scale))',
+		transitionDuration: `calc(${durationVars['--duration-exit']} * var(--motion-scale))`,
 	},
 	readout: {
 		display: 'grid',
@@ -78,8 +81,8 @@ const styles = stylex.create({
 		paddingBlock: spacingVars['--spacing-0-5'],
 		borderRadius: radiusVars['--radius-element'],
 		transitionProperty: 'background-color, color',
-		transitionDuration: '150ms',
-		transitionTimingFunction: 'var(--ease-in-out)',
+		transitionDuration: durationVars['--duration-fast'],
+		transitionTimingFunction: easeVars['--ease-standard'],
 	},
 	copied: {
 		backgroundColor: colorVars['--color-overlay-hover'],
@@ -89,8 +92,8 @@ const styles = stylex.create({
 	label: {
 		gridArea: '1 / 1',
 		transitionProperty: 'opacity',
-		transitionDuration: '150ms',
-		transitionTimingFunction: 'var(--ease-in-out)',
+		transitionDuration: durationVars['--duration-fast'],
+		transitionTimingFunction: easeVars['--ease-standard'],
 	},
 	coordinates: {
 		fontFamily: typographyVars['--font-family-code'],

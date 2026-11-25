@@ -2,7 +2,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { DropdownMenu, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@astryxdesign/core/DropdownMenu';
 import { Icon } from '@astryxdesign/core/Icon';
 import { IconButton } from '@astryxdesign/core/IconButton';
-import { fontWeightVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { durationVars, easeVars, fontWeightVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import ChevronsUpDownIcon from 'lucide-react/icons/chevrons-up-down';
 import PlusIcon from 'lucide-react/icons/plus';
@@ -42,7 +42,7 @@ const styles = stylex.create({
 				[stylex.when.ancestor(':focus-within', arrayRowMarker)]: 1,
 			},
 		},
-		transition: 'opacity 100ms var(--ease-in-out)',
+		transition: `opacity ${durationVars['--duration-fast-min']} ${easeVars['--ease-standard']}`,
 	},
 	add: {
 		display: 'flex',

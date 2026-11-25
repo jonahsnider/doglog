@@ -3,6 +3,8 @@ import { IconButton } from '@astryxdesign/core/IconButton';
 import { Layout } from '@astryxdesign/core/Layout';
 import {
 	colorVars,
+	durationVars,
+	easeVars,
 	fontWeightVars,
 	radiusVars,
 	spacingVars,
@@ -80,8 +82,8 @@ const styles = stylex.create({
 				':is([data-separator=hover])': 'var(--focus-outline-color)',
 			},
 			transitionProperty: 'background-color',
-			transitionDuration: '150ms',
-			transitionTimingFunction: 'var(--ease-in-out)',
+			transitionDuration: durationVars['--duration-fast'],
+			transitionTimingFunction: easeVars['--ease-standard'],
 		},
 		// Covers the library's 10px hit area so double-clicks land on the separator
 		'::after': {

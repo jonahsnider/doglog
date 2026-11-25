@@ -1,7 +1,7 @@
 import { Avatar } from '@astryxdesign/core/Avatar';
 import { AvatarGroup, AvatarGroupOverflow } from '@astryxdesign/core/AvatarGroup';
 import fnv1a from '@sindresorhus/fnv1a';
-import { spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { durationVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { TextMorph } from '@/components/text-morph';
 import { type PresentSession, usePresence } from '@/sharing/presence';
@@ -18,7 +18,7 @@ const styles = stylex.create({
 	}),
 	avatar: {
 		transitionProperty: 'opacity, filter',
-		transitionDuration: '150ms',
+		transitionDuration: durationVars['--duration-fast'],
 	},
 	inactive: {
 		opacity: 0.4,

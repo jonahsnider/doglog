@@ -1,4 +1,4 @@
-import { colorVars, radiusVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { colorVars, durationVars, easeVars, radiusVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
 import * as stylex from '@stylexjs/stylex';
 import { TreeItemIndicator } from '@ui-sdk/react/tree';
@@ -17,8 +17,8 @@ const styles = stylex.create({
 		backgroundImage: `repeating-linear-gradient(to right, ${colorVars['--color-border']} 0 1px, transparent 1px 12px)`,
 		opacity: { default: 0, [stylex.when.ancestor(':hover', entryBrowserMarker)]: 1 },
 		transitionProperty: 'opacity',
-		transitionDuration: '100ms',
-		transitionTimingFunction: 'var(--ease-in-out)',
+		transitionDuration: durationVars['--duration-fast-min'],
+		transitionTimingFunction: easeVars['--ease-standard'],
 	},
 	activeGuide: {
 		position: 'absolute',
@@ -39,8 +39,8 @@ const styles = stylex.create({
 		color: colorVars['--color-icon-secondary'],
 		transform: { default: null, ':is([data-expanded])': 'rotate(90deg)' },
 		transitionProperty: 'transform',
-		transitionDuration: '150ms',
-		transitionTimingFunction: 'var(--ease-in-out)',
+		transitionDuration: durationVars['--duration-fast'],
+		transitionTimingFunction: easeVars['--ease-standard'],
 	},
 	chevron: {
 		flexShrink: 0,

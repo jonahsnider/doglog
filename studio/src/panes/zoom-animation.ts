@@ -1,11 +1,11 @@
 import { animate } from 'motion/mini';
 import { type RefObject, useLayoutEffect, useState } from 'react';
 import { findPane, type PaneNode } from '@/panes/layout';
-import { easing, useMotionTransition } from '@/lib/motion';
+import { duration, easing, useMotionTransition } from '@/lib/motion';
 
-// Panes leaving are quicker and accelerate
-const zoomInTransition = { duration: 0.2, ease: easing.in };
-const zoomOutTransition = { duration: 0.25, ease: easing.inOut };
+// Panes leave on the exit timing and slide back in as an entrance
+const zoomInTransition = { duration: duration.exit, ease: easing.exit };
+const zoomOutTransition = { duration: duration.mediumMin, ease: easing.entrance };
 
 /** A pane zooming in to fill the dashboard, or out as the others are restored */
 export type Zoom = { paneId: string; zoomingIn: boolean };
@@ -67,10 +67,10 @@ export function useZoomAnimation(
 			return `translate(${x}px, ${y}px)`;
 		});
 
-		const { duration, ease } = zoom.zoomingIn ? zoomIn : zoomOut;
+		const transition = zoom.zoomingIn ? zoomIn : zoomOut;
 		const animations = panes.map((pane, index) => {
 			const away = offsets[index] ?? 'none';
-			return animate(pane, { transform: zoom.zoomingIn ? ['none', away] : [away, 'none'] }, { duration, ease });
+			return animate(pane, { transform: zoom.zoomingIn ? ['none', away] : [away, 'none'] }, transition);
 		});
 		let stopped = false;
 		void Promise.all(animations).then(() => {

@@ -13,7 +13,7 @@ import {
 	useRef,
 } from 'react';
 import { MathUtils, PerspectiveCamera, Vector2, Vector3 } from 'three';
-import { easing, useMotionTransition } from '@/lib/motion';
+import { duration, easing, useMotionTransition } from '@/lib/motion';
 import { maxElevation, type Rig } from '@/three/camera';
 import {
 	aim,
@@ -122,7 +122,7 @@ export function FieldCameraRig({ ref, field, viewKey }: { ref: Ref<Rig>; field: 
 	// three.js objects are changed in place, outside of React's state
 	const get = useThree((state) => state.get);
 	const controls = useThree((state) => state.controls);
-	const transition = useMotionTransition({ duration: 0.3, ease: easing.inOut });
+	const transition = useMotionTransition({ duration: duration.medium, ease: easing.move });
 	const moving = useRef<AnimationPlaybackControls>(undefined);
 
 	const center = () => new Vector3(field.length / 2, field.width / 2, 0);

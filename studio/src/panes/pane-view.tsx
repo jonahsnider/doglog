@@ -1,5 +1,5 @@
 import { Text } from '@astryxdesign/core/Text';
-import { colorVars, radiusVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { colorVars, durationVars, easeVars, radiusVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { Toolbar } from '@astryxdesign/core/Toolbar';
 import * as stylex from '@stylexjs/stylex';
 import XIcon from 'lucide-react/icons/x';
@@ -63,6 +63,7 @@ export type PaneNodeProps = {
 const bindingIdAt = (target: EventTarget) =>
 	target instanceof Element ? target.closest<HTMLElement>('[data-binding-id]')?.dataset['bindingId'] : undefined;
 
+const showControls = `opacity ${durationVars['--duration-fast-min']} ${easeVars['--ease-standard']}`;
 const styles = stylex.create({
 	// The pane and the menu wrapping it fill its place in the layout
 	fill: { width: '100%', height: '100%' },
@@ -73,7 +74,7 @@ const styles = stylex.create({
 		overflow: 'hidden',
 		borderRadius: radiusVars['--radius-element'],
 		backgroundColor: colorVars['--color-background-surface'],
-		transition: 'opacity 150ms var(--ease-in-out)',
+		transition: `opacity ${durationVars['--duration-fast']} ${easeVars['--ease-standard']}`,
 	},
 	dragged: { opacity: 0.4 },
 	header: {
@@ -83,13 +84,13 @@ const styles = stylex.create({
 		gap: spacingVars['--spacing-0-5'],
 		height: 36,
 		paddingInline: spacingVars['--spacing-2'],
-		transition: 'background-color 150ms var(--ease-in-out)',
+		transition: `background-color ${durationVars['--duration-fast']} ${easeVars['--ease-standard']}`,
 	},
 	// Marks the widget whose entries the entry browser is editing
 	editing: { backgroundColor: `color-mix(in srgb, ${colorVars['--color-accent']} 12%, transparent)` },
 	title: { display: 'flex', flex: 1, minWidth: 0 },
 	// The pane header has its own padding
-	controls: { flexShrink: 0, padding: 0, transition: 'opacity 100ms var(--ease-in-out)' },
+	controls: { flexShrink: 0, padding: 0, transition: showControls },
 	// Shown while the pane is hovered, and always while it's focused or without hover
 	hiddenControls: { opacity: { default: 0, [stylex.when.ancestor(':hover', paneMarker)]: 1 } },
 	content: { flex: 1, minHeight: 0 },

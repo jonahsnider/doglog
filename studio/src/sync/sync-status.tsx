@@ -1,6 +1,9 @@
+// oxlint-disable max-lines -- The sync status's states, toggle, and their styles are kept together
 import { Button } from '@astryxdesign/core/Button';
 import {
 	colorVars,
+	durationVars,
+	easeVars,
 	fontWeightVars,
 	radiusVars,
 	spacingVars,
@@ -74,8 +77,8 @@ const styles = stylex.create({
 		outlineOffset: 4,
 		scale: { default: null, ':hover': 1.05, ':active': 0.95 },
 		transitionProperty: 'background-color, color, scale',
-		transitionDuration: 'calc(200ms * var(--motion-scale))',
-		transitionTimingFunction: 'var(--ease-in-out)',
+		transitionDuration: `calc(${durationVars['--duration-fast-max']} * var(--motion-scale))`,
+		transitionTimingFunction: easeVars['--ease-standard'],
 	},
 	icon: { width: 36, height: 36 },
 	// The status's icon makes way for the toggle's while the button is hovered or focused

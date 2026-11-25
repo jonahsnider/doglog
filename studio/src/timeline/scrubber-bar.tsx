@@ -1,4 +1,4 @@
-import { colorVars, radiusVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { colorVars, durationVars, easeVars, radiusVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import type { TimeRange } from '@/data/data-store';
 import { modeFills } from '@/timeline/colors';
@@ -16,8 +16,8 @@ const styles = stylex.create({
 		backgroundColor: colorVars['--color-background-muted'],
 		translate: '0 var(--track-offset)',
 		transitionProperty: 'translate',
-		transitionDuration: 'calc(150ms * var(--motion-scale))',
-		transitionTimingFunction: 'var(--ease-in-out)',
+		transitionDuration: `calc(${durationVars['--duration-fast']} * var(--motion-scale))`,
+		transitionTimingFunction: easeVars['--ease-move'],
 	},
 	data: {
 		position: 'absolute',

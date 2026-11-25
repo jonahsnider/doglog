@@ -1,5 +1,7 @@
 import {
 	colorVars,
+	durationVars,
+	easeVars,
 	fontWeightVars,
 	radiusVars,
 	spacingVars,
@@ -29,8 +31,8 @@ const styles = stylex.create({
 		fontWeight: fontWeightVars['--font-weight-medium'],
 		color: colorVars['--color-text-secondary'],
 		transitionProperty: 'color, background-color',
-		transitionDuration: '100ms',
-		transitionTimingFunction: 'var(--ease-in-out)',
+		transitionDuration: durationVars['--duration-fast-min'],
+		transitionTimingFunction: easeVars['--ease-standard'],
 	},
 	movable: {
 		backgroundColor: { default: null, ':hover': colorVars['--color-overlay-hover'] },

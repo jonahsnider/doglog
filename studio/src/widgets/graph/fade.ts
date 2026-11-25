@@ -1,9 +1,9 @@
 // Fading lines in and out as they're shown and hidden, so they don't pop
 import { cubicBezier } from 'motion';
-import { easing, reducesMotion } from '@/lib/motion';
+import { duration, easing, reducesMotion } from '@/lib/motion';
 
-const fadeMs = 150;
-const ease = cubicBezier(...easing.inOut);
+const fadeMs = duration.fast * 1000;
+const ease = cubicBezier(...easing.standard);
 
 /** A line's opacity heading from `from` to `to` since `start` */
 export type Fade = { from: number; to: number; start: number };

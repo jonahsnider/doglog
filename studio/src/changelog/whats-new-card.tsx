@@ -5,7 +5,7 @@ import SparklesIcon from 'lucide-react/icons/sparkles';
 import XIcon from 'lucide-react/icons/x';
 import { AnimatePresence, domAnimation, LazyMotion, m } from 'motion/react';
 import { dismissUpdate, useUnseenUpdate } from '@/changelog/changelog';
-import { easing, useMotionTransition } from '@/lib/motion';
+import { duration, easing, useMotionTransition } from '@/lib/motion';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/sidebar/sidebar-ui';
 
 const styles = stylex.create({
@@ -52,7 +52,7 @@ const styles = stylex.create({
  */
 export function WhatsNewCard({ onShow }: { onShow: () => void }) {
 	const update = useUnseenUpdate();
-	const transition = useMotionTransition({ duration: 0.1, ease: easing.in });
+	const transition = useMotionTransition({ duration: duration.exit, ease: easing.exit });
 
 	return (
 		<>

@@ -3,7 +3,7 @@
 	content: '';
 	position: absolute;
 	border-radius: var(--radius-full);
-	transition: background-color 150ms var(--ease-in-out);
+	transition: background-color var(--duration-fast) var(--ease-standard);
 }
 [data-pane-divider]:is(
 		:focus-visible,

@@ -1,5 +1,7 @@
 import {
 	colorVars,
+	durationVars,
+	easeVars,
 	fontWeightVars,
 	radiusVars,
 	shadowVars,
@@ -12,7 +14,7 @@ import { useDragOperation, useDroppable } from '@dnd-kit/react';
 import PanelLeftIcon from 'lucide-react/icons/panel-left';
 import PanelRightIcon from 'lucide-react/icons/panel-right';
 import { AnimatePresence, domAnimation, LazyMotion, m } from 'motion/react';
-import { easing, useMotionTransition } from '@/lib/motion';
+import { duration, easing, useMotionTransition } from '@/lib/motion';
 import { dashboardDragType, isDashboardDrag, type SplitZoneData } from '@/dashboards/drag';
 import { type Dashboard, useDashboards } from '@/dashboards/dashboards';
 import { canJoinLayouts } from '@/panes/layout';
@@ -70,8 +72,7 @@ const styles = stylex.create({
 		lineHeight: typeScaleVars['--text-label-leading'],
 		fontWeight: fontWeightVars['--font-weight-medium'],
 		color: colorVars['--color-text-secondary'],
-		transition:
-			'color 150ms var(--ease-in-out), background-color 150ms var(--ease-in-out), border-color 150ms var(--ease-in-out)',
+		transition: `color ${durationVars['--duration-fast']} ${easeVars['--ease-standard']}, background-color ${durationVars['--duration-fast']} ${easeVars['--ease-standard']}, border-color ${durationVars['--duration-fast']} ${easeVars['--ease-standard']}`,
 	},
 	over: {
 		borderColor: colorVars['--color-accent'],
@@ -86,8 +87,8 @@ export function DashboardSplitZones({ dashboard }: { dashboard: Dashboard }) {
 	const { source } = useDragOperation();
 	const draggedId = isDashboardDrag(source) ? source.data.dashboardId : undefined;
 	const dragged = useDashboards().find(({ id }) => id === draggedId && id !== dashboard.id);
-	const transition = useMotionTransition({ duration: 0.15, ease: easing.out });
-	const exitTransition = useMotionTransition({ duration: 0.1, ease: easing.in });
+	const transition = useMotionTransition({ duration: duration.fast, ease: easing.entrance });
+	const exitTransition = useMotionTransition({ duration: duration.exit, ease: easing.exit });
 
 	const disabled = dragged !== undefined && !canJoinLayouts([dashboard.layout, dragged.layout]);
 

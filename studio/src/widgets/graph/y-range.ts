@@ -1,7 +1,7 @@
 // How each y-axis fits the data: to what's in view, but never zoomed in so far that tiny noise fills the graph
 import { cubicBezier } from 'motion';
 import type { Samples } from '@/data/samples';
-import { easing, reducesMotion } from '@/lib/motion';
+import { duration, easing, reducesMotion } from '@/lib/motion';
 
 export type Range = [min: number, max: number];
 
@@ -15,8 +15,8 @@ const maxZoomOut = 100;
 const maxZoomIn = 1e-3;
 /** Zooming in also stops at this share of the axis's values, finer steps can't be told apart and the labels repeat */
 const minRelativeSpan = 1e-9;
-const animationMs = 200;
-const ease = cubicBezier(...easing.inOut);
+const animationMs = duration.fastMax * 1000;
+const ease = cubicBezier(...easing.move);
 
 type Extent = { first: number; checked: number; min: number; max: number };
 const extents = new WeakMap<Samples, Extent>();

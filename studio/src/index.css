@@ -15,20 +15,8 @@
 @import '@fontsource/ibm-plex-mono/600-italic.css';
 
 /*
- * Material 3 motion, see DESIGN.md. `src/lib/motion.ts` mirrors these for the motion library.
- * https://m3.material.io/styles/motion/easing-and-duration/tokens-specs
- */
-:root {
-	/* Standard, for things that move within the screen */
-	--ease-in-out: cubic-bezier(0.2, 0, 0, 1);
-	/* Standard decelerate, for things entering the screen */
-	--ease-out: cubic-bezier(0, 0, 0, 1);
-	/* Standard accelerate, for things leaving the screen */
-	--ease-in: cubic-bezier(0.3, 0, 1, 1);
-}
-/*
  * 0 when motion is reduced by the system or the reduce motion setting, 1 otherwise. Styles multiply their transition
- * and animation durations by it, ex. `calc(200ms * var(--motion-scale))`.
+ * and animation durations by it, ex. `calc(var(--duration-fast) * var(--motion-scale))`.
  */
 :root {
 	--motion-scale: 1;
@@ -317,10 +305,10 @@
 	opacity: 0;
 }
 [data-animation='collapse'] :is([data-sidebar='menu-button'] > :not(svg, :has(svg)), [data-sidebar-label]) {
-	transition: opacity 150ms var(--ease-in);
+	transition: opacity var(--duration-exit) var(--ease-exit);
 }
 [data-animation='expand'] :is([data-sidebar='menu-button'] > :not(svg, :has(svg)), [data-sidebar-label]) {
-	transition: opacity 200ms var(--ease-out);
+	transition: opacity var(--duration-fast-max) var(--ease-entrance);
 
 	/* Labels the rail hides, and the app's name, are shown again as it starts */
 	@starting-style {
@@ -333,12 +321,12 @@
  * (`--split-from`) to the ones the library sets inline, see `SplitView`
  */
 [data-split-animation] {
-	animation: split-resize calc(250ms * var(--motion-scale)) var(--ease-in-out);
+	animation: split-resize calc(var(--duration-medium-min) * var(--motion-scale)) var(--ease-move);
 }
 /* Closing is quicker and accelerates, every child needs the same timing to add up to the split */
 [data-split-closing] {
-	animation-duration: calc(200ms * var(--motion-scale));
-	animation-timing-function: var(--ease-in);
+	animation-duration: calc(var(--duration-exit) * var(--motion-scale));
+	animation-timing-function: var(--ease-exit);
 }
 /* Held at the end until the closed pane is removed */
 [data-split-animation='leave'] {

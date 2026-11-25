@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { type AnimationPlaybackControls, animate } from 'motion/react';
 import { type ComponentRef, type Ref, useEffect, useImperativeHandle, useRef } from 'react';
 import { type Camera, Vector3 } from 'three';
-import { easing, useMotionTransition } from '@/lib/motion';
+import { duration, easing, useMotionTransition } from '@/lib/motion';
 import { isControls, turn, useShiftSpeedup } from '@/three/orbit';
 
 /** Moves the camera of the scene it's in, see `CameraRig` */
@@ -103,7 +103,7 @@ export function CameraRig({ ref }: { ref: Ref<Rig> }) {
 	// three.js objects are changed in place, outside of React's state
 	const get = useThree((state) => state.get);
 	const controls = useThree((state) => state.controls);
-	const transition = useMotionTransition({ duration: 0.3, ease: easing.inOut });
+	const transition = useMotionTransition({ duration: duration.medium, ease: easing.move });
 	const moving = useRef<AnimationPlaybackControls>(undefined);
 
 	const current = (): Orbit => {

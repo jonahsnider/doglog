@@ -2,6 +2,8 @@ import FastForwardIcon from 'lucide-react/icons/fast-forward';
 import { type ComponentPropsWithRef, use, useState } from 'react';
 import {
 	colorVars,
+	durationVars,
+	easeVars,
 	radiusVars,
 	spacingVars,
 	typeScaleVars,
@@ -44,8 +46,8 @@ const styles = stylex.create({
 	skippedMark: {
 		opacity: 0,
 		transitionProperty: 'opacity',
-		transitionDuration: '300ms',
-		transitionTimingFunction: 'var(--ease-in-out)',
+		transitionDuration: durationVars['--duration-medium'],
+		transitionTimingFunction: easeVars['--ease-standard'],
 	},
 	visible: {
 		opacity: 1,
@@ -65,8 +67,8 @@ const styles = stylex.create({
 		cursor: 'pointer',
 		backgroundColor: { default: null, ':hover': colorVars['--color-overlay-hover'] },
 		transitionProperty: 'background-color',
-		transitionDuration: '150ms',
-		transitionTimingFunction: 'var(--ease-in-out)',
+		transitionDuration: durationVars['--duration-fast'],
+		transitionTimingFunction: easeVars['--ease-standard'],
 	},
 	// Reaches past the time as far as the button's padding does, so the text doesn't shift when it's focused
 	field: {

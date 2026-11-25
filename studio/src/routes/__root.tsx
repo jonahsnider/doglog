@@ -1,5 +1,5 @@
 import { LinkProvider } from '@astryxdesign/core/Link';
-import { colorVars, radiusVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { colorVars, durationVars, easeVars, radiusVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { Outlet, createRootRoute, useMatchRoute } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
@@ -84,9 +84,9 @@ const styles = stylex.create({
 	},
 	// Moves below the strip before the sidebar collapses, and back up after it expands
 	animated: {
-		transitionDuration: 'calc(150ms * var(--motion-scale))',
+		transitionDuration: `calc(${durationVars['--duration-fast']} * var(--motion-scale))`,
 		transitionProperty: 'margin',
-		transitionTimingFunction: 'var(--ease-in-out)',
+		transitionTimingFunction: easeVars['--ease-move'],
 	},
 });
 

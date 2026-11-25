@@ -1,8 +1,8 @@
 /* Fades in when it's added, ex. the timeline's controls replacing the log's progress */
 [data-fade-in] {
 	transition-property: opacity;
-	transition-duration: 300ms;
-	transition-timing-function: var(--ease-in-out);
+	transition-duration: var(--duration-medium);
+	transition-timing-function: var(--ease-entrance);
 }
 /* After a moment, so small logs that load instantly don't flash it */
 [data-fade-in='delayed'] {

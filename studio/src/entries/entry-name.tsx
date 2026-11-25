@@ -1,4 +1,4 @@
-import { colorVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { colorVars, durationVars, easeVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { HighlightedText } from '@/components/highlighted-text';
 import { commonPrefixMarker, entryNameMarker, nameSegmentMarker } from './markers.stylex';
@@ -13,8 +13,8 @@ const styles = stylex.create({
 		display: 'inline-grid',
 		verticalAlign: 'bottom',
 		transitionProperty: 'grid-template-columns',
-		transitionDuration: 'calc(150ms * var(--motion-scale))',
-		transitionTimingFunction: 'var(--ease-in-out)',
+		transitionDuration: `calc(${durationVars['--duration-fast']} * var(--motion-scale))`,
+		transitionTimingFunction: easeVars['--ease-move'],
 	},
 	inCommonPrefix: {
 		gridTemplateColumns: { default: '0fr', [stylex.when.ancestor(':hover', commonPrefixMarker)]: '1fr' },

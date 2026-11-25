@@ -134,11 +134,7 @@
 }
 
 [data-expanded-row] {
-	transition: opacity 150ms ease-in;
-
-	@media (prefers-reduced-motion: reduce) {
-		transition: none;
-	}
+	transition: opacity calc(var(--duration-fast) * var(--motion-scale)) var(--ease-standard);
 
 	/* Hidden until the sidebar is hovered or in use, or shows the What's new card that they stay with */
 	@media (hover: hover) {

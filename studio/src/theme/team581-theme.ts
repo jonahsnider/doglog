@@ -138,15 +138,8 @@ export const team581Theme = defineTheme({
 		heading: { family: 'Source Sans 3 Variable', fallbacks: 'system-ui, sans-serif', weight: 'semibold' },
 		code: { family: 'IBM Plex Mono', fallbacks: 'ui-monospace, monospace' },
 	},
-	// Material 3 motion: standard, decelerate, and accelerate curves, with durations from Material's scale
-	motion: { fast: 150, medium: 250, slow: 300, ratio: 0.75 },
 	tokens: {
-		'--ease-standard': 'cubic-bezier(0.2, 0, 0, 1)',
-		'--ease-move': 'cubic-bezier(0.2, 0, 0, 1)',
-		'--ease-entrance': 'cubic-bezier(0, 0, 0, 1)',
-		'--ease-exit': 'cubic-bezier(0.3, 0, 1, 1)',
-		'--duration-exit': '200ms',
-		// Only Spinner reads it, for one turn. The duration scale above would make that 225ms, which feels frantic.
+		// Only Spinner reads it, for one turn a second instead of Astryx's quicker spin
 		'--duration-slow-min': '1000ms',
 
 		'--radius-inner': '6px',

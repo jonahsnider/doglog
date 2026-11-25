@@ -1,4 +1,4 @@
-import { colorVars, radiusVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { colorVars, durationVars, easeVars, radiusVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useHotkeys } from '@tanstack/react-hotkeys';
 import { type PointerEvent, use, useMemo, useRef, useState } from 'react';
@@ -75,8 +75,8 @@ const styles = stylex.create({
 		},
 		translate: '-50% var(--track-offset)',
 		transitionProperty: 'translate',
-		transitionDuration: 'calc(150ms * var(--motion-scale))',
-		transitionTimingFunction: 'var(--ease-in-out)',
+		transitionDuration: `calc(${durationVars['--duration-fast']} * var(--motion-scale))`,
+		transitionTimingFunction: easeVars['--ease-move'],
 	},
 });
 

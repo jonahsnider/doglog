@@ -1,4 +1,4 @@
-import { radiusVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { durationVars, easeVars, radiusVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 import { fieldBackground, type FieldView, image, pixelsPerMeterX, pixelsPerMeterY } from '@/widgets/field/geometry';
@@ -24,13 +24,13 @@ const styles = stylex.create({
 	right: { right: spacingVars['--spacing-2'] },
 	shown: {
 		opacity: 1,
-		transitionDuration: 'calc(150ms * var(--motion-scale))',
-		transitionTimingFunction: 'var(--ease-out)',
+		transitionDuration: `calc(${durationVars['--duration-fast']} * var(--motion-scale))`,
+		transitionTimingFunction: easeVars['--ease-entrance'],
 	},
 	hidden: {
 		opacity: 0,
-		transitionDuration: 'calc(100ms * var(--motion-scale))',
-		transitionTimingFunction: 'var(--ease-in)',
+		transitionDuration: `calc(${durationVars['--duration-exit']} * var(--motion-scale))`,
+		transitionTimingFunction: easeVars['--ease-exit'],
 	},
 	image: { display: 'block', width: '100%', height: '100%' },
 	outline: {

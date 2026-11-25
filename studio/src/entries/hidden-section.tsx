@@ -2,7 +2,7 @@ import { useDroppable } from '@dnd-kit/react';
 import ChevronRightIcon from 'lucide-react/icons/chevron-right';
 import { useMemo, useState } from 'react';
 import { Divider } from '@astryxdesign/core/Divider';
-import { colorVars, radiusVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { colorVars, durationVars, easeVars, radiusVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import type { EditedWidget } from '@/entries/edited-widget';
 import type { EntrySectionDropData } from '@/entries/drag';
@@ -43,8 +43,8 @@ const styles = stylex.create({
 		height: 16,
 		color: colorVars['--color-icon-secondary'],
 		transitionProperty: 'transform',
-		transitionDuration: '150ms',
-		transitionTimingFunction: 'var(--ease-in-out)',
+		transitionDuration: durationVars['--duration-fast'],
+		transitionTimingFunction: easeVars['--ease-standard'],
 	},
 	open: {
 		transform: 'rotate(90deg)',

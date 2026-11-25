@@ -20,7 +20,7 @@ import { type TimeRange, useTimeRange } from '@/data/data-store';
 import { type Source, useSource } from '@/data/source';
 import { useCaptureFrame } from '@/desktop/capture';
 import { useSize } from '@/hooks/use-size';
-import { easing, useMotionTransition } from '@/lib/motion';
+import { duration, easing, useMotionTransition } from '@/lib/motion';
 import {
 	changeSpeed,
 	playbackSpeeds,
@@ -189,8 +189,8 @@ export function TimelineBar() {
 	const range = useTimeRange();
 	const timeline = useTimeline();
 	const loading = source?.type === 'log' && source.status === 'loading';
-	const enter = useMotionTransition({ duration: 0.3, ease: easing.out });
-	const exit = useMotionTransition({ duration: 0.2, ease: easing.in });
+	const enter = useMotionTransition({ duration: duration.medium, ease: easing.entrance });
+	const exit = useMotionTransition({ duration: duration.exit, ease: easing.exit });
 	// Only fade the controls in when they replace the progress, not every time a dashboard is opened
 	const [showedProgress, setShowedProgress] = useState(false);
 	if (loading && !showedProgress) {

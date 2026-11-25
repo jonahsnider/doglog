@@ -2,6 +2,7 @@ import { Heading } from '@astryxdesign/core/Text';
 import {
 	colorVars,
 	durationVars,
+	easeVars,
 	focusVars,
 	radiusVars,
 	spacingVars,
@@ -68,6 +69,7 @@ const styles = stylex.create({
 		outlineOffset: focusVars['--focus-outline-offset'],
 		transitionProperty: 'border-color, color',
 		transitionDuration: durationVars['--duration-fast'],
+		transitionTimingFunction: easeVars['--ease-standard'],
 	},
 	preview: {
 		display: { default: 'flex', [compact]: 'contents' },

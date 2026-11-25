@@ -1,4 +1,11 @@
-import { colorVars, radiusVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import {
+	colorVars,
+	durationVars,
+	easeVars,
+	radiusVars,
+	spacingVars,
+	typeScaleVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { shallow } from '@tanstack/store';
 import { memo, type PointerEvent, type ReactNode, use, useRef, useState } from 'react';
@@ -41,8 +48,8 @@ const styles = stylex.create({
 		},
 		borderRadius: radiusVars['--radius-full'],
 		transitionProperty: 'color, background-color, border-color',
-		transitionDuration: '150ms',
-		transitionTimingFunction: 'var(--ease-in-out)',
+		transitionDuration: durationVars['--duration-fast'],
+		transitionTimingFunction: easeVars['--ease-standard'],
 	},
 	draggedDot: { borderColor: colorVars['--color-text-primary'] },
 });

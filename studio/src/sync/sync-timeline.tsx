@@ -1,5 +1,6 @@
 import {
 	colorVars,
+	easeVars,
 	fontWeightVars,
 	radiusVars,
 	spacingVars,
@@ -78,7 +79,7 @@ const styles = stylex.create({
 		borderColor: colorVars['--color-border'],
 		backgroundColor: colorVars['--color-background-surface'],
 		transitionProperty: 'background-color, border-color, box-shadow',
-		transitionTimingFunction: 'var(--ease-in-out)',
+		transitionTimingFunction: easeVars['--ease-standard'],
 	},
 	reached: (color: string) => ({ borderColor: 'transparent', backgroundColor: color }),
 	current: (color: string) => ({ boxShadow: `0 0 0 6px ${color}` }),

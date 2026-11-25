@@ -1,4 +1,4 @@
-import { colorVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { colorVars, durationVars, easeVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useParams, useRouter } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
@@ -59,9 +59,9 @@ const styles = stylex.create({
 		gridTemplateColumns: '1fr',
 		minWidth: 0,
 		marginInlineStart: 'auto',
-		transitionDuration: { default: '200ms', '@media (prefers-reduced-motion: reduce)': '0s' },
+		transitionDuration: `calc(${durationVars['--duration-fast-max']} * var(--motion-scale))`,
 		transitionProperty: 'grid-template-columns, opacity',
-		transitionTimingFunction: 'ease-in-out',
+		transitionTimingFunction: easeVars['--ease-move'],
 	},
 	statusHidden: {
 		gridTemplateColumns: '0fr',
