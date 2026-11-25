@@ -439,6 +439,13 @@ When part of a log can't be read, Studio MUST load every record before the damag
 - **THEN** every record before the damage is available
 - **AND** Studio warns that the last 66% of the file is unreadable, and an estimate of how long that is after 1:59.42, from the rate the rest of the log was written
 
+#### Scenario: Value that can't be decoded
+
+- **GIVEN** a log with a struct value that doesn't match its schema, or a struct schema that can't be parsed
+- **WHEN** the user opens it
+- **THEN** only the values that can't be decoded are missing
+- **AND** every record after them is still available
+
 #### Scenario: Unreadable log
 
 - **WHEN** the user opens a log that's empty, or so damaged that none of its entries can be read

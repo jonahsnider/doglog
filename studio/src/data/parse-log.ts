@@ -57,9 +57,10 @@ const textDecoder = new TextDecoder();
 
 /**
  * Records for entries that were never started are damage, ex. leftover data in blocks the file system reserved but
- * never wrote, so nothing after them is read.
+ * never wrote, so nothing after them is read. A value that can't be decoded, ex. a struct value shorter than its schema,
+ * is a `raw` record instead, so one bad value doesn't hide the rest of the log.
  */
-export const logParseOptions = { strict: true } as const satisfies DecodeRecordsOptions;
+export const logParseOptions = { strict: true, invalidValues: 'raw' } as const satisfies DecodeRecordsOptions;
 const structSchemaPrefix = '/.schema/struct:';
 
 function toValue(record: DataRecord, entryType: string): Value | undefined {
@@ -69,7 +70,7 @@ function toValue(record: DataRecord, entryType: string): Value | undefined {
 		case 'int64[]':
 			return record.payload.map(Number);
 		case 'raw':
-			// JSON entries are text, other raw entries (msgpack, etc.) are unsupported
+			// JSON entries are text. Values that couldn't be decoded, and other raw entries (msgpack, etc.), are unsupported.
 			return entryType === 'json' ? textDecoder.decode(record.payload) : undefined;
 		case 'protobuf':
 			// Not supported yet

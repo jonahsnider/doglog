@@ -80,6 +80,22 @@ test('values set before the log started are values at its start, and the log sti
 	);
 });
 
+test("a value that doesn't match its struct schema is skipped, and later records are still loaded", () => {
+	const tail = [
+		record(0, 0n, startPayload(200, '/.schema/struct:Pair', 'structschema')),
+		record(200, 0n, new TextEncoder().encode('double a;double b')),
+		record(0, 0n, startPayload(201, '/Pair', 'struct:Pair')),
+		record(0, 0n, startPayload(202, '/After', 'double')),
+		// 4 bytes, but the schema needs 16
+		record(201, 1_000n, new Uint8Array(4)),
+		record(202, 2_000n, double(3)),
+	];
+	const { entries } = parse(withTail(new Uint8Array(tail.flatMap((bytes) => Array.from(bytes)))));
+
+	expect(entries.get('/Pair')?.samples.length).toBe(0);
+	expect(entries.get('/After')?.samples.values).toEqual([3]);
+});
+
 test('a log with no readable entries throws', () => {
 	const bytes = new Uint8Array(76);
 	bytes.set(log.subarray(0, 12));
