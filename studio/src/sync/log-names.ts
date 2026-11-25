@@ -17,6 +17,8 @@ export interface LogName {
 	event?: string;
 	/** The match the log is from, `undefined` for logs from outside a match */
 	match: Match | undefined;
+	/** The CAN bus a Phoenix 6 log is from */
+	canBus?: 'roboRIO' | 'CANivore';
 }
 
 // WPILib's DataLogManager, ex. `FRC_20260315_143000_CAPH_Q12.wpilog`
@@ -26,6 +28,9 @@ const wpilibPattern = /^(?:FRC|WPILIB)_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2
 // AdvantageKit's WPILOGWriter, ex. `akit_26-03-15_14-30-00_caph_q12.wpilog`, or `.wpilogxz` when compressed
 const advantageKitPattern = /^akit_(\d{2})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})(_.+)?\.wpilog(?:xz)?$/u;
 const advantageKitMatchPattern = /_[pqe]\d+$/u;
+// Phoenix 6's signal logger, the CANivore's serial number or `rio` followed by when it started, ex. `rio_2026-11-06_18-39-11.hoot`
+// Match logs start with the event and match, ex. `mttd_Q51_rio_2026-11-08_01-20-41.hoot`
+const hootPattern = /^(?:((?:[^_]*_)?[PQE]\d+)_)?([^_]+)_(\d{4})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})\.hoot$/u;
 const matchTypes: Record<string, MatchType> = {
 	P: 'practice',
 	Q: 'qualification',
@@ -40,23 +45,29 @@ const matchTypes: Record<string, MatchType> = {
 export function parseLogName(name: string): LogName | undefined {
 	const wpilib = wpilibPattern.exec(name);
 	const advantageKit = wpilib ? undefined : advantageKitPattern.exec(name);
-	const match = wpilib ?? advantageKit;
-	if (!match) {
+	const hoot = wpilib || advantageKit ? undefined : hootPattern.exec(name);
+	// The date's parts, then what follows it, ex. `_CAPH_Q12`
+	const groups =
+		(wpilib ?? advantageKit)?.slice(1) ??
+		(hoot && [...hoot.slice(3), hoot[1] === undefined ? undefined : `_${hoot[1]}`]);
+	if (!groups) {
 		return undefined;
 	}
+	// Running more than one CANivore is rare, so they aren't told apart by serial number
+	const canBus = hoot && { canBus: hoot[2] === 'rio' ? ('roboRIO' as const) : ('CANivore' as const) };
 
-	const part = (group: number) => Number(match[group]);
-	const [month, day, hour, minute, second] = [part(2), part(3), part(4), part(5), part(6)];
-	// Both name logs with the robot's clock, which is UTC on a roboRIO
-	const date = new Date(Date.UTC((wpilib ? 0 : 2000) + part(1), month - 1, day, hour, minute, second));
+	const part = (index: number) => Number(groups[index]);
+	const [month, day, hour, minute, second] = [part(1), part(2), part(3), part(4), part(5)];
+	// They all name logs with the robot's clock, which is UTC on a roboRIO
+	const date = new Date(Date.UTC((advantageKit ? 2000 : 0) + part(0), month - 1, day, hour, minute, second));
 	if (date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day || hour > 23 || minute > 59 || second > 59) {
 		// Don't display invalid timestamps as normalized dates
 		return undefined;
 	}
 
-	const suffix = match[7];
+	const suffix = groups[6];
 	if (suffix === undefined) {
-		return { date, match: undefined };
+		return { date, match: undefined, ...canBus };
 	}
 	if (advantageKit && !advantageKitMatchPattern.test(suffix)) {
 		return { date, event: suffix.slice(1).toUpperCase(), match: undefined };
@@ -65,7 +76,7 @@ export function parseLogName(name: string): LogName | undefined {
 	const parts = suffix.split('_').filter(Boolean);
 	const label = parts.join(' ').toUpperCase();
 	// The last part is the match, ex. `Q12`
-	return { date, match: { label, type: matchTypes[parts.at(-1)![0]!.toUpperCase()]! } };
+	return { date, match: { label, type: matchTypes[parts.at(-1)![0]!.toUpperCase()]! }, ...canBus };
 }
 
 // Where logs keep the Driver Station's match info: NetworkTables' FMSInfo when NT is logged, or AdvantageKit's inputs

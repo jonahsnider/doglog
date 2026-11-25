@@ -66,6 +66,30 @@ test('AdvantageKit logs', () => {
 	});
 });
 
+test('Phoenix 6 logs', () => {
+	expect(parseLogName('rio_2026-11-06_18-39-11.hoot')).toEqual({
+		date: new Date('2026-11-06T18:39:11Z'),
+		match: undefined,
+		canBus: 'roboRIO',
+	});
+	// From a CANivore, named by its serial number
+	expect(parseLogName('FE21E64A394C4853202020500F0D18FF_2026-11-06_18-39-11.hoot')).toEqual({
+		date: new Date('2026-11-06T18:39:11Z'),
+		match: undefined,
+		canBus: 'CANivore',
+	});
+	expect(parseLogName('mttd_Q51_rio_2026-11-08_01-20-41.hoot')).toEqual({
+		date: new Date('2026-11-08T01:20:41Z'),
+		match: { label: 'MTTD Q51', type: 'qualification' },
+		canBus: 'roboRIO',
+	});
+	expect(parseLogName('mttd_E3_FE21E64A394C4853202020500F0D18FF_2026-11-08_01-20-41.hoot')).toEqual({
+		date: new Date('2026-11-08T01:20:41Z'),
+		match: { label: 'MTTD E3', type: 'elimination' },
+		canBus: 'CANivore',
+	});
+});
+
 test('logs that will be renamed once they have a date', () => {
 	expect(parseLogName('FRC_TBD_3f2a9c0d1e4b5a6c.wpilog')).toBeUndefined();
 	expect(parseLogName('WPILIB_TBD_4b89630e99127056.wpilog')).toBeUndefined();
@@ -74,6 +98,7 @@ test('logs that will be renamed once they have a date', () => {
 
 test('other files', () => {
 	expect(parseLogName('FRC_20260315_143000.hoot')).toBeUndefined();
+	expect(parseLogName('rio_2026-02-30_18-39-11.hoot')).toBeUndefined();
 	expect(parseLogName('match.wpilog')).toBeUndefined();
 	expect(parseLogName('FRC_20260230_143000.wpilog')).toBeUndefined();
 	expect(parseLogName('WPILIB_20261118_126035.wpilog')).toBeUndefined();

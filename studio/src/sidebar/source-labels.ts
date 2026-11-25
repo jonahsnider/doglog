@@ -34,11 +34,14 @@ export function sourceLabels(source: Source | undefined) {
 	}
 	const date = dateTimeFormat.format(parsed.date);
 	const label = match?.label ?? parsed.event;
-	return {
-		name: label ?? date,
-		detail: label === undefined ? statusLabels.loaded : date,
-		matchType: match?.type,
-	};
+	let detail = label === undefined ? statusLabels.loaded : date;
+	if (parsed.canBus !== undefined) {
+		// Ex. `roboRIO HOOT`, or `CANivore HOOT · Nov 8, 2026, 1:20 AM` for a match
+		// The bus goes first since it's what tells a match's logs apart, and the date may not fit
+		const hoot = `${parsed.canBus} HOOT`;
+		detail = label === undefined ? hoot : `${hoot} · ${date}`;
+	}
+	return { name: label ?? date, detail, matchType: match?.type };
 }
 
 /** The live session's color for its state, for its icon and the dot on the log's */

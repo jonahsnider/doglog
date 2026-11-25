@@ -71,6 +71,12 @@ The source control at the top of the sidebar SHALL show the shown source and its
 - **THEN** the source control shows the local date and time instead of the filename
 - **AND** if the filename names an event but no match, the event appears above the date and time
 
+#### Scenario: HOOT log source shown
+
+- **GIVEN** the user opened `mttd_Q51_rio_2026-11-08_01-20-41.hoot`
+- **THEN** the source control shows `MTTD Q51` with the local date and time and `roboRIO HOOT`, for the CAN bus it's from
+- **AND** a log named by a CANivore's serial number, ex. `FE21E64A394C4853202020500F0D18FF_2026-11-06_18-39-11.hoot`, shows `CANivore HOOT` under the date and time
+
 #### Scenario: Renamed match log source shown
 
 - **GIVEN** the user opened `qual12.wpilog`, a renamed log with the Driver Station's match info for qualification 12 at `CAPH`
