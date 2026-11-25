@@ -8,9 +8,9 @@ import { aboutDialogOpen } from '@/components/about-dialog-handle';
 import { bundle } from '../../src-tauri/tauri.conf.json';
 
 const thanks = [
-	{ name: 'Saikiran Ramanan and Simon P', reason: 'Early testing and feedback' },
+	{ name: 'Saikiran Ramanan, Simon P, and the 581 software team', reason: 'Early testing and feedback' },
 	{ name: 'Chris Lawson', reason: 'ntcore-ts' },
-	{ name: 'Connor Horn', reason: 'Moral support' },
+	{ name: 'Connor Horn', reason: 'Angel investor' },
 	{ name: 'Eugene Fang', reason: 'He knows what he did' },
 ];
 
