@@ -72,14 +72,15 @@ packageExtensions:
 minimumReleaseAgeExclude:
   - starlight-changelogs@0.7.0
   - '@team581/starlight-theme@1.0.0'
-  - wpilib-struct@1.0.2
-  - wpilog-parser@4.2.1
+  - wpilib-struct@1.0.2 || 1.1.1
+  - wpilog-parser@4.2.1 || 4.4.1
   - '@ui-sdk/core@0.1.0-beta.5'
   - '@ui-sdk/react@0.1.0-beta.5'
   - sentry@0.50.0
   - '@ntcore-ts/client@2.0.0'
   - '@team581/astryx-theme@1.0.0'
   - hoot-parser@1.0.0 || 1.1.0
+  - wpilib-protobuf@1.0.1
 overrides:
   # The Sentry Vite plugin's upload step in sentry 0.49 doesn't recognize debug IDs in backtick strings, which Vite+'s
   # minifier produces, so it injects a second one into the uploaded copy and every stack frame maps one line off

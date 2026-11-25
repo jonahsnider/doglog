@@ -427,11 +427,11 @@ importers:
         specifier: 3.1.1
         version: 3.1.1(@types/react@19.3.0)(react@19.3.1)
       wpilib-struct:
-        specifier: 1.1.0
-        version: 1.1.0
+        specifier: 1.1.1
+        version: 1.1.1
       wpilog-parser:
-        specifier: 4.3.0
-        version: 4.3.0(cac@7.1.0)(commander@14.0.3)
+        specifier: 4.4.1
+        version: 4.4.1(cac@7.1.0)(commander@14.0.3)
       xz-decompress:
         specifier: 0.2.3
         version: 0.2.3
@@ -1638,6 +1638,9 @@ packages:
     resolution: {integrity: sha512-fGs5d/7jBIPkYmXkhm9unoEfDuRZ5r66NLxbr+6c8bm0f7ywgPHgW3HJ9L7fKvyqhw49ePtbT4vkWREju8/U6w==}
     cpu: [x64]
     os: [win32]
+
+  '@bufbuild/protobuf@2.17.0':
+    resolution: {integrity: sha512-hcPkSz6D7MiTU/5VBBhK+kxaYDoOdQ6yJRFJ3kS8Nydp+VZXfg1vrpABKPNod8bXMufsVCmiUJVIKFzCzta4uw==}
 
   '@cacheable/memory@2.2.0':
     resolution: {integrity: sha512-CTLKqLItRCEixEAewD3/j9DB3/o96gpTPD4eJ1v+DGOlxZRZncRQkGYqqnAGCscYd6RNeXfGeiuCphsPtqyIfQ==}
@@ -10006,11 +10009,14 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
 
-  wpilib-struct@1.1.0:
-    resolution: {integrity: sha512-gTmtqlNR1EEiktiEklFHjxpnWisyGbxerCh9JyR4cqpXCPchX+G+mzIRJo5DWnAbo2MMwKoxFAC8mvcXBhffKQ==}
+  wpilib-protobuf@1.0.1:
+    resolution: {integrity: sha512-QCBotK3HwNab2sl0jQbZJYV/HyxbfVlSaU94ANFGLHqnX4Tx9Ksk6sNaTn8qbcY4lymi8cr+4GERUC+5UVxuIg==}
 
-  wpilog-parser@4.3.0:
-    resolution: {integrity: sha512-QT+UCZUdgyTvsCgyHuLNFEHlXBFxCFhc3vtrxAeW1S+XK2zTipwj/OMkRaEXVFlMC4JB53R5had9k3KGqegGFA==}
+  wpilib-struct@1.1.1:
+    resolution: {integrity: sha512-8E3FEJgqp9221XV5UUlx4Gy/ci4o2Hcr/kmC+CiXjcltwg9YACwbKqT7rq7qn75BjHr01oIBWOaeAtRVRYEEcg==}
+
+  wpilog-parser@4.4.1:
+    resolution: {integrity: sha512-ZagBmeJw9erUHlgFaB0DkrTXzwiV54pm5dvdeKDRviFPdnq2X22JqJFgsvMEI1X1BHdKiEvf/hasTh7MUO1AXw==}
     hasBin: true
 
   wrangler@4.168.0:
@@ -11493,6 +11499,8 @@ snapshots:
 
   '@bruits/satteri-win32-x64-msvc@0.11.6':
     optional: true
+
+  '@bufbuild/protobuf@2.17.0': {}
 
   '@cacheable/memory@2.2.0':
     dependencies:
@@ -13051,7 +13059,7 @@ snapshots:
     dependencies:
       '@msgpack/msgpack': 3.1.3
       protobufjs: 8.8.1
-      wpilib-struct: 1.1.0
+      wpilib-struct: 1.1.1
       zod: 4.6.7
 
   '@opentelemetry/api-logs@0.220.0':
@@ -17497,7 +17505,7 @@ snapshots:
 
   hoot-parser@1.1.0:
     dependencies:
-      wpilib-struct: 1.1.0
+      wpilib-struct: 1.1.1
 
   html-escaper@3.0.3: {}
 
@@ -20746,16 +20754,21 @@ snapshots:
       '@cloudflare/workerd-linux-arm64': 1.20261123.1
       '@cloudflare/workerd-windows-64': 1.20261123.1
 
-  wpilib-struct@1.1.0: {}
+  wpilib-protobuf@1.0.1:
+    dependencies:
+      '@bufbuild/protobuf': 2.17.0
 
-  wpilog-parser@4.3.0(cac@7.1.0)(commander@14.0.3):
+  wpilib-struct@1.1.1: {}
+
+  wpilog-parser@4.4.1(cac@7.1.0)(commander@14.0.3):
     dependencies:
       '@bomb.sh/tab': 0.0.23(cac@7.1.0)(commander@14.0.3)
       '@drizzle-team/brocli': 0.12.1
       '@toon-format/toon': 4.4.0
       nostics: 1.4.0
       osc-status: 1.0.0
-      wpilib-struct: 1.1.0
+      wpilib-protobuf: 1.0.1
+      wpilib-struct: 1.1.1
     transitivePeerDependencies:
       - cac
       - citty

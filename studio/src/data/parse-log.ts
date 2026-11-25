@@ -3,6 +3,7 @@ import {
 	ControlRecordType,
 	type DataRecord,
 	type DecodedRecord,
+	type DecodeRecordsOptions,
 	isDataRecord,
 	parseDataLog,
 	parseStructSpecification,
@@ -53,6 +54,12 @@ export type ParsedLog = {
 };
 
 const textDecoder = new TextDecoder();
+
+/**
+ * Records for entries that were never started are damage, ex. leftover data in blocks the file system reserved but
+ * never wrote, so nothing after them is read.
+ */
+export const logParseOptions = { strict: true } as const satisfies DecodeRecordsOptions;
 const structSchemaPrefix = '/.schema/struct:';
 
 function toValue(record: DataRecord, entryType: string): Value | undefined {
@@ -62,8 +69,11 @@ function toValue(record: DataRecord, entryType: string): Value | undefined {
 		case 'int64[]':
 			return record.payload.map(Number);
 		case 'raw':
-			// JSON entries are text, other raw entries (protobuf, msgpack, etc.) are unsupported
+			// JSON entries are text, other raw entries (msgpack, etc.) are unsupported
 			return entryType === 'json' ? textDecoder.decode(record.payload) : undefined;
+		case 'protobuf':
+			// Not supported yet
+			return undefined;
 		default:
 			return record.payload;
 	}
@@ -248,7 +258,7 @@ export type OnRecord = (end: number, timestamp: number) => void;
 export function parseLog(bytes: Uint8Array, onProgress: (progress: number) => void, onRecord?: OnRecord): ParsedLog {
 	const accumulator = new LogAccumulator();
 	// Unwritten blocks hold leftover data, not zeros, which reads as records for entries that were never started
-	const records = parseDataLog(bytes, { strict: true });
+	const records = parseDataLog(bytes, logParseOptions);
 	let percent = 0;
 	// The end of the last record read, since `records.bytesRead` skips to the end of the file when the last record is cut off
 	let readBytes = records.bytesRead;
