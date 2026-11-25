@@ -31,6 +31,9 @@ const styles = stylex.create({
 		touchAction: 'none',
 		userSelect: 'none',
 	},
+	hint: {
+		textAlign: 'center',
+	},
 	canvas: {
 		display: 'block',
 		width: '100%',
@@ -188,7 +191,7 @@ export function CameraMatchCrop({
 									/>
 								)}
 							</div>
-							<Text id={hint} type="supporting" color="secondary" align="center">
+							<Text id={hint} type="supporting" color="secondary" display="block" xstyle={styles.hint}>
 								Drag a box or select two opposite corners.
 							</Text>
 							<VisuallyHidden role="status">

@@ -15,7 +15,7 @@ import { ConfirmCloudAction } from '@/cloud/confirm-cloud-action';
 import { cloudDeploymentUrl } from '@/cloud/deployment';
 import { InviteLink } from '@/cloud/invite-link';
 import { JoinTeam } from '@/cloud/join-team';
-import { CloudSignIn } from '@/cloud/sign-in';
+import { CloudSignIn, displayNameMaxLength } from '@/cloud/sign-in';
 import { TeamMembers } from '@/cloud/team-members';
 import { TeamPanel } from '@/cloud/team-panel';
 import { UtilityPage, UtilityPageSection } from '@/components/utility-page';
@@ -160,11 +160,10 @@ function DisplayName({ name }: { name: string | null }) {
 					description="Your teammates will see this name."
 					value={draft ?? name ?? ''}
 					onChange={(value) => {
-						setDraft(value);
+						setDraft(value.slice(0, displayNameMaxLength));
 						setSaved(false);
 					}}
 					autoComplete="nickname"
-					maxLength={80}
 					isDisabled={saving}
 					isRequired
 					status={error === undefined ? undefined : { type: 'error', message: error }}

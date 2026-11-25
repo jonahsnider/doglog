@@ -1,5 +1,5 @@
 import { TextInput } from '@astryxdesign/core/TextInput';
-import { type FocusEvent, type KeyboardEvent, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { isEnterKey } from '@/lib/keyboard';
 import { parseTime } from '@/timeline/parse-time';
 import './time-field.css';
@@ -41,7 +41,11 @@ export function TimeField({
 				setValue(next);
 				setInvalid(false);
 			}}
-			onFocus={(event: FocusEvent<HTMLInputElement>) => event.currentTarget.select()}
+			onFocus={(event) => {
+				if (event.target instanceof HTMLInputElement) {
+					event.target.select();
+				}
+			}}
 			onBlur={() => {
 				// The same time it already showed would round to the hundredth
 				const time = canceled.current || value === text ? undefined : parseTime(value, start);
@@ -52,7 +56,7 @@ export function TimeField({
 				}
 				onCommit(time);
 			}}
-			onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {
+			onKeyDown={(event) => {
 				if (isEnterKey(event)) {
 					if (parseTime(value, start) === undefined) {
 						setInvalid(true);

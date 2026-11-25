@@ -42,6 +42,9 @@ packageExtensions:
   usehooks-ts:
     peerDependencies:
       '@types/react': '*'
+  '@astryxdesign/core':
+    peerDependencies:
+      '@types/react': '*'
   # Their types also import from `three`, which has no types of its own
   '@react-three/fiber':
     peerDependencies:

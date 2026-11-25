@@ -23,6 +23,9 @@ import {
 import { browserCeremonies } from '@/cloud/passkey-ceremonies';
 import { api } from '../../../cloud/convex/_generated/api.js';
 
+/** The longest display name the server accepts */
+export const displayNameMaxLength = 80;
+
 // The desktop app signs in through Studio's website, since that's where Cloud's passkeys work
 const ceremonies = STUDIO_DESKTOP ? desktopCeremonies : browserCeremonies;
 
@@ -119,9 +122,8 @@ function PasskeySignIn() {
 							label="Display name"
 							description="Your teammates will see this name."
 							value={signUpName}
-							onChange={setSignUpName}
+							onChange={(value) => setSignUpName(value.slice(0, displayNameMaxLength))}
 							autoComplete="nickname"
-							maxLength={80}
 							isDisabled={pending}
 							isRequired
 						/>
