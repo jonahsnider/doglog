@@ -72,8 +72,9 @@ export function HiddenSection({
 }) {
 	const [open, setOpen] = useState(false);
 	const [expanded, setExpanded] = useState<string[]>([]);
+	// oxlint-disable-next-line studio/no-manual-memo -- Without it, React Compiler also reruns this when search groups are toggled
 	const results = useMemo(() => entryTreeView(nodes, expanded, query, 'hidden'), [nodes, expanded, query]);
-	const view = useMemo(() => toggleSearchGroups(results, searchToggled, 'hidden'), [results, searchToggled]);
+	const view = toggleSearchGroups(results, searchToggled, 'hidden');
 	const { ref } = useDroppable<EntrySectionDropData>({
 		id: 'hidden',
 		accept: (source) => source.data['section'] !== undefined,

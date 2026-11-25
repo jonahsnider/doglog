@@ -3,7 +3,7 @@ import * as stylex from '@stylexjs/stylex';
 import DatabaseIcon from 'lucide-react/icons/database';
 import ListPlusIcon from 'lucide-react/icons/list-plus';
 import TriangleAlertIcon from 'lucide-react/icons/triangle-exclamation-point';
-import { Component, type ReactNode, Suspense, use, useCallback, useMemo } from 'react';
+import { Component, type ReactNode, Suspense, use } from 'react';
 import { shortcuts } from '@/commands/shortcuts';
 import { InlineShortcut } from '@/components/shortcut';
 import { Button } from '@astryxdesign/core/Button';
@@ -51,32 +51,25 @@ export function WidgetView({
 		accept: (draggable) => draggable.type === entryDragType && draggable.data['paneId'] !== paneId,
 		data: { paneId },
 	});
-	const widgetBindings = useMemo(
-		(): WidgetBindings => ({
-			paneId,
-			bindings,
-			setRole: (bindingId, role) =>
-				updateLayout(dashboardId, (layout) => setBindingRole(layout, paneId, bindingId, role)),
-			connect: (sourceId, targetId) =>
-				updateLayout(dashboardId, (layout) => connectBindings(layout, paneId, sourceId, targetId)),
-			disconnect: (sourceId, targetId) =>
-				updateLayout(dashboardId, (layout) => disconnectBindings(layout, paneId, sourceId, targetId)),
-			toggleHidden: (bindingId) =>
-				updateLayout(dashboardId, (layout) => toggleBindingHidden(layout, paneId, bindingId)),
-			setColor: (bindingId, color) =>
-				updateLayout(dashboardId, (layout) => setBindingPick(layout, paneId, bindingId, 'color', color)),
-			setRobot: (bindingId, robot) =>
-				updateLayout(dashboardId, (layout) => setBindingPick(layout, paneId, bindingId, 'robot', robot)),
-			setCamera: (bindingId, camera) =>
-				updateLayout(dashboardId, (layout) => setBindingPick(layout, paneId, bindingId, 'camera', camera)),
-		}),
-		[dashboardId, paneId, bindings],
-	);
-	const setOption = useCallback(
-		(id: string, value: string | undefined) =>
-			updateLayout(dashboardId, (layout) => setWidgetOption(layout, paneId, id, value)),
-		[dashboardId, paneId],
-	);
+	const widgetBindings: WidgetBindings = {
+		paneId,
+		bindings,
+		setRole: (bindingId, role) =>
+			updateLayout(dashboardId, (layout) => setBindingRole(layout, paneId, bindingId, role)),
+		connect: (sourceId, targetId) =>
+			updateLayout(dashboardId, (layout) => connectBindings(layout, paneId, sourceId, targetId)),
+		disconnect: (sourceId, targetId) =>
+			updateLayout(dashboardId, (layout) => disconnectBindings(layout, paneId, sourceId, targetId)),
+		toggleHidden: (bindingId) => updateLayout(dashboardId, (layout) => toggleBindingHidden(layout, paneId, bindingId)),
+		setColor: (bindingId, color) =>
+			updateLayout(dashboardId, (layout) => setBindingPick(layout, paneId, bindingId, 'color', color)),
+		setRobot: (bindingId, robot) =>
+			updateLayout(dashboardId, (layout) => setBindingPick(layout, paneId, bindingId, 'robot', robot)),
+		setCamera: (bindingId, camera) =>
+			updateLayout(dashboardId, (layout) => setBindingPick(layout, paneId, bindingId, 'camera', camera)),
+	};
+	const setOption = (id: string, value: string | undefined) =>
+		updateLayout(dashboardId, (layout) => setWidgetOption(layout, paneId, id, value));
 	const names = new Set(bindings.map((binding) => binding.name));
 	const widget = (
 		<type.component

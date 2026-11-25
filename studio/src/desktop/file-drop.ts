@@ -3,7 +3,7 @@
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import { getCurrentWebview } from '@tauri-apps/api/webview';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 /** An element files can be dropped on, which takes them before the window does */
 type DropTarget = {
@@ -78,13 +78,10 @@ export function useFileDropTarget(accepts: (name: string) => boolean, drop: (pat
 	const [target] = useState<DropTarget>(() => ({ accepts, drop: (path) => latestDrop.current(path) }));
 	const over = useSelector(dragStore, (drag) => drag?.target === target);
 	// Removed elements don't need to be unregistered, they're never under the pointer and the map doesn't keep them
-	const ref = useCallback(
-		(element: Element | null) => {
-			if (element) {
-				targets.set(element, target);
-			}
-		},
-		[target],
-	);
+	const ref = (element: Element | null) => {
+		if (element) {
+			targets.set(element, target);
+		}
+	};
 	return { ref, over };
 }

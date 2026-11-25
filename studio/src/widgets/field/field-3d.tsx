@@ -1,7 +1,7 @@
 // The field widget in 3D, see `@/three/field-scene`
 import HouseIcon from 'lucide-react/icons/house';
 import XIcon from 'lucide-react/icons/x';
-import { Suspense, useCallback, useMemo, useRef, useState } from 'react';
+import { Suspense, useRef, useState } from 'react';
 import { IconButton } from '@astryxdesign/core/IconButton';
 import { colorVars, radiusVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
@@ -31,7 +31,7 @@ import { SceneControls } from '@/widgets/scene-controls';
 import { useMechanisms } from '@/widgets/use-mechanisms';
 import { useSceneControls } from '@/widgets/use-scene-controls';
 import { ViewToggle } from '@/widgets/view-toggle';
-import type { WidgetBinding, WidgetProps } from '@/widgets/widget-type';
+import type { OptionValues, WidgetBinding, WidgetProps } from '@/widgets/widget-type';
 
 const styles = stylex.create({
 	root: { height: '100%', padding: spacingVars['--spacing-2'] },
@@ -82,6 +82,16 @@ const azimuths: Readonly<Record<string, number>> = {
 
 const defaultFov = Number(widgetOptions.field.fov.default);
 
+/** The field the scene draws, seen from the orientation and field of view in the widget's options */
+function sceneField(options: OptionValues) {
+	return {
+		length: fieldLength,
+		width: fieldWidth,
+		azimuth: azimuths[options['orientation'] ?? ''] ?? -Math.PI / 2,
+		fov: Number(options['fov']) || defaultFov,
+	};
+}
+
 const isAttached = (binding: WidgetBinding) => binding.role !== undefined && attachedRoles.has(binding.role.id);
 
 export function Field3d({ bindings, options, setOption, paneId, layout }: WidgetProps) {
@@ -90,15 +100,7 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 	useDataVersion();
 	const scene = useRef<Scene3dHandle>(null);
 	const sceneElement = useRef<HTMLDivElement>(null);
-	const field = useMemo(
-		() => ({
-			length: fieldLength,
-			width: fieldWidth,
-			azimuth: azimuths[options['orientation'] ?? ''] ?? -Math.PI / 2,
-			fov: Number(options['fov']) || defaultFov,
-		}),
-		[options],
-	);
+	const field = sceneField(options);
 	const coordinates: FieldCoordinates = options['coordinates'] === 'center' ? 'center' : 'blue-wall';
 	const mechanisms = useMechanisms(bindings);
 	const projects = useRobotProjects();
@@ -114,16 +116,13 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 	const [pointer, setPointer] = useState<FieldPoint>();
 	const [overField, setOverField] = useState(false);
 	const { copied, copyMenuItems } = useCopyPosition(pointer, overField);
-	const movePointer = useCallback(
-		(point: FieldPoint | undefined) => {
-			// The last position stays shown while it fades out
-			if (point) {
-				setPointer(toBlueWall(point, coordinates));
-			}
-			setOverField(point !== undefined);
-		},
-		[coordinates],
-	);
+	const movePointer = (point: FieldPoint | undefined) => {
+		// The last position stays shown while it fades out
+		if (point) {
+			setPointer(toBlueWall(point, coordinates));
+		}
+		setOverField(point !== undefined);
+	};
 	const projectFloor = useRef<FloorProjection>(null);
 	const pencil = useFloorPencil(projectFloor, movePointer, controls.handlers.onPointerDownCapture);
 

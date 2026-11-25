@@ -13,6 +13,7 @@ export function useMechanisms(bindings: readonly WidgetBinding[]): ReadonlyMap<s
 	const names = [
 		...new Set(bindings.flatMap((binding) => (binding.entry?.kind === 'mechanism2d' ? [binding.name] : []))),
 	].join('\n');
+	// oxlint-disable-next-line studio/no-manual-memo -- Without it, React Compiler reruns this whenever `time` changes
 	const layouts = useMemo(
 		() => (names === '' ? [] : names.split('\n').map((name) => [name, mechanismLayout(name, entries)] as const)),
 		[names, entries],

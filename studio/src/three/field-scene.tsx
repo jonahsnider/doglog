@@ -53,17 +53,14 @@ export function FieldModel({
 }) {
 	const { scene } = useLoader(gltfLoader, fieldModel);
 	// Models can only be in one scene, each widget draws its own copy
-	const model = useMemo(() => {
-		const copy = addAprilTags(scene.clone());
-		// Each copy's perimeter has its own materials, since each widget can make it see-through
-		copy.getObjectByName(fieldBorderNode)?.traverse((object) => {
-			if (isMesh(object) && object.material instanceof Material) {
-				object.material = object.material.clone();
-				object.material.userData['glass'] = object.material.transparent;
-			}
-		});
-		return copy;
-	}, [scene]);
+	const model = addAprilTags(scene.clone());
+	// Each copy's perimeter has its own materials, since each widget can make it see-through
+	model.getObjectByName(fieldBorderNode)?.traverse((object) => {
+		if (isMesh(object) && object.material instanceof Material) {
+			object.material = object.material.clone();
+			object.material.userData['glass'] = object.material.transparent;
+		}
+	});
 	const invalidate = useThree((state) => state.invalidate);
 	useEffect(() => {
 		// Stickers sit a fraction of a millimeter off the parts they're on, closer than the depth buffer can tell apart,
@@ -142,7 +139,7 @@ export function FieldImageFloor() {
 
 /** A temporary pencil stroke on the carpet, in blue-wall coordinates. */
 export function FloorSketch({ points }: { points: readonly FieldPoint[] }) {
-	const line = useMemo(() => points.map(({ x, y }) => [x, y, floorOffset] as const), [points]);
+	const line = points.map(({ x, y }) => [x, y, floorOffset] as const);
 	return line.length > 1 ? (
 		<>
 			<Line points={line} color="black" lineWidth={6} depthWrite={false} />
@@ -166,6 +163,7 @@ export function FloorPointer({
 		const connected: unknown = state.events.connected;
 		return connected instanceof HTMLElement ? connected : state.gl.domElement;
 	});
+	// oxlint-disable-next-line studio/no-manual-memo -- Effects depend on it, and `react-hooks/exhaustive-deps` can't tell that React Compiler memoizes it
 	const project = useMemo<FloorProjection>(() => {
 		const raycaster = new Raycaster();
 		const floor = new Plane(new Vector3(0, 0, 1), 0);

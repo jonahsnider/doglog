@@ -3,7 +3,7 @@ import * as stylex from '@stylexjs/stylex';
 import { createCssVariablesTheme, createHighlighterCoreSync, type ThemedToken } from 'shiki/core';
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
 import markdown from 'shiki/langs/markdown.mjs';
-import { type CSSProperties, Fragment, useMemo, useSyncExternalStore } from 'react';
+import { type CSSProperties, Fragment, useSyncExternalStore } from 'react';
 import { createPersistedDoc } from '@/lib/persisted-store';
 
 /** Notes are shared by every notepad, and kept when they're closed */
@@ -89,7 +89,7 @@ function tokenStyle(token: ThemedToken): CSSProperties {
 /** Markdown notes, highlighted like a code editor instead of rendered */
 export function Notepad() {
 	const notes = useSyncExternalStore(subscribe, getNotes);
-	const lines = useMemo(() => highlighter.codeToTokensBase(notes, { lang: 'markdown', theme: theme.name! }), [notes]);
+	const lines = highlighter.codeToTokensBase(notes, { lang: 'markdown', theme: theme.name! });
 
 	return (
 		// The highlighted text sizes the cell, and the transparent text field on top of it takes the input.

@@ -81,15 +81,13 @@ const styles = stylex.create({
 /** Search requests already handled, so a remounted search box doesn't focus itself again */
 let handledSearchFocus = 0;
 
+// react-doctor-disable-next-line react-doctor/no-high-complexity-react-function -- Its branches were inside useMemo() callbacks, which React Doctor doesn't count, until React Compiler took over memoizing them
 export function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 	const mobile = useMobileLayout();
 	const source = useSource();
 	const allEntries = useEntries();
 	const editedType = edited?.type;
-	const entries = useMemo(
-		() => (editedType ? allEntries.filter((entry) => acceptsEntry(editedType, entry)) : allEntries),
-		[allEntries, editedType],
-	);
+	const entries = editedType ? allEntries.filter((entry) => acceptsEntry(editedType, entry)) : allEntries;
 	const [query, setQuery] = useState('');
 	const searchRef = useRef<HTMLInputElement>(null);
 	const searchFocus = useSelector(searchFocusStore);
@@ -125,9 +123,10 @@ export function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 		},
 	});
 
-	const tree = useMemo(() => buildEntryTree(entries), [entries]);
+	const tree = buildEntryTree(entries);
 	// Empty sections are shown while dragging so rows can be dropped in them
 	const dragging = draggedFrom !== undefined;
+	// oxlint-disable-next-line studio/no-manual-memo -- Without it, React Compiler also reruns this when groups are toggled or another widget is edited
 	const sectioned = useMemo(() => sectionEntryTree(tree, placements, dragging), [tree, placements, dragging]);
 	if (session?.paneId !== edited?.paneId) {
 		setSession(edited && { paneId: edited.paneId, names: edited.bound });
@@ -136,18 +135,17 @@ export function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 			setToggled(toggledGroups(sectioned.items, expanded));
 		}
 	}
-	const activeNodes = useMemo((): EntryTreeNode[] => {
-		const byName = new Map(entries.map((entry) => [entry.name, entry]));
-		return (session?.names ?? []).flatMap((name) => {
-			const entry = byName.get(name);
-			return entry ? [{ value: name, label: name, entry }] : [];
-		});
-	}, [session, entries]);
+	const byName = new Map(entries.map((entry) => [entry.name, entry]));
+	const activeNodes = (session?.names ?? []).flatMap((name): EntryTreeNode[] => {
+		const entry = byName.get(name);
+		return entry ? [{ value: name, label: name, entry }] : [];
+	});
+	// oxlint-disable-next-line studio/no-manual-memo -- Without it, React Compiler also reruns this while entries are dragged
 	const results = useMemo(
 		() => entryTreeView(sectioned.items, expandedGroups(sectioned.items, toggled), deferredQuery),
 		[sectioned, toggled, deferredQuery],
 	);
-	const view = useMemo(() => toggleSearchGroups(results, searchToggled), [results, searchToggled]);
+	const view = toggleSearchGroups(results, searchToggled);
 	const dropTarget = dropSection === draggedFrom ? undefined : dropSection;
 
 	const message = emptyMessage(source !== undefined, allEntries, entries, editedType, results);

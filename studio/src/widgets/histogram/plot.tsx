@@ -2,7 +2,7 @@ import 'uplot/dist/uPlot.min.css';
 import './plot.css';
 import { colorVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
-import { useCallback, useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import uPlot from 'uplot';
 import { formatValue } from '@/data/format-value';
@@ -95,110 +95,104 @@ export function HistogramPlot({
 	// Recreates the chart only when the series' colors change, not on every render
 	const colors = series.map((item) => item.color).join(' ');
 
-	const zoom = useCallback(
-		(next: Range | undefined) => {
-			setActive(undefined);
-			onZoom(next);
-		},
-		[onZoom],
-	);
+	const zoom = (next: Range | undefined) => {
+		setActive(undefined);
+		onZoom(next);
+	};
 
-	const mount = useCallback(
-		(target: HTMLDivElement | null) => {
-			if (!target) {
-				return undefined;
-			}
-			const colorList = colors.split(' ');
-			const css = (variable: string) => () => getComputedStyle(target).getPropertyValue(variable).trim();
-			const font = `12px ${getComputedStyle(target).fontFamily}`;
-			const axis = { font, stroke: css('--color-text-secondary'), ticks: { show: false }, gap: 4 };
-			const chart = new uPlot(
-				{
-					width: target.clientWidth,
-					height: target.clientHeight,
-					padding: [plotTop, valueAxisEnd(unit), 0, 0],
-					legend: { show: false },
-					cursor: {
-						x: false,
-						y: false,
-						points: { show: false },
-						drag: { x: true, y: false, dist: 6, setScale: false },
-						// uPlot normally ignores mouse events within children of the plot, including our bin buttons.
-						bind: {
-							mousedown: (_plot, _target, handle) => (event) => (event.button === 0 ? handle(event) : null),
-							mousemove: (_plot, _target, handle) => handle,
-						},
-					},
-					scales: { x: { time: false, auto: false }, y: { auto: false } },
-					axes: [
-						{
-							...axis,
-							size: xAxisHeight,
-							grid: { show: false },
-							values: (_plot, ticks) => ticks.map((tick) => formatValue(tick)),
-						},
-						{
-							...axis,
-							size: axisWidth,
-							filter: (_plot, ticks) => ticks.map((tick) => (tick !== null && Number.isInteger(tick) ? tick : null)),
-							// Faint like a graph's, so they don't compete with the data
-							grid: {
-								stroke: () => `color-mix(in oklab, ${css('--color-border')()} 45%, transparent)`,
-								width: 1,
-							},
-							values: (_plot, ticks) => ticks.map((tick) => (tick === null ? '' : tick.toLocaleString())),
-						},
-					],
-					series: [
-						{},
-						...colorList.map((color) => ({
-							fill: css(color.slice(4, -1)),
-							width: 0,
-							// Overlapping series show through each other
-							alpha: colorList.length > 1 ? 0.6 : 1,
-							points: { show: false },
-							paths: (self: uPlot, index: number, start: number, end: number) =>
-								(self.data[0].length === 1 ? singleBar : bars)(self, index, start, end),
-						})),
-					],
-					hooks: {
-						setSelect: [
-							(self) => {
-								const { left, width } = self.select;
-								self.setSelect({ left: 0, top: 0, width: 0, height: 0 }, false);
-								const start = self.posToVal(left, 'x');
-								const end = self.posToVal(left + width, 'x');
-								if (start < end && self.data[0].length > 1) {
-									zoom([start, end]);
-								}
-							},
-						],
+	const mount = (target: HTMLDivElement | null) => {
+		if (!target) {
+			return undefined;
+		}
+		const colorList = colors.split(' ');
+		const css = (variable: string) => () => getComputedStyle(target).getPropertyValue(variable).trim();
+		const font = `12px ${getComputedStyle(target).fontFamily}`;
+		const axis = { font, stroke: css('--color-text-secondary'), ticks: { show: false }, gap: 4 };
+		const chart = new uPlot(
+			{
+				width: target.clientWidth,
+				height: target.clientHeight,
+				padding: [plotTop, valueAxisEnd(unit), 0, 0],
+				legend: { show: false },
+				cursor: {
+					x: false,
+					y: false,
+					points: { show: false },
+					drag: { x: true, y: false, dist: 6, setScale: false },
+					// uPlot normally ignores mouse events within children of the plot, including our bin buttons.
+					bind: {
+						mousedown: (_plot, _target, handle) => (event) => (event.button === 0 ? handle(event) : null),
+						mousemove: (_plot, _target, handle) => handle,
 					},
 				},
-				[[], ...colorList.map(() => [])],
-				target,
-			);
-			setPlot(chart);
-			chart.ctx.canvas.setAttribute('aria-hidden', 'true');
-			const resize = new ResizeObserver(() => {
-				if (target.clientWidth > 0 && target.clientHeight > 0) {
-					chart.setSize({ width: target.clientWidth, height: target.clientHeight });
-				}
-			});
-			resize.observe(target);
-			const redraw = () => chart.redraw(true, true);
-			const settings = settingsStore.subscribe(redraw);
-			const systemTheme = matchMedia('(prefers-color-scheme: dark)');
-			systemTheme.addEventListener('change', redraw);
-			return () => {
-				resize.disconnect();
-				settings.unsubscribe();
-				systemTheme.removeEventListener('change', redraw);
-				chart.destroy();
-			};
-		},
-		[colors, unit, zoom],
-	);
+				scales: { x: { time: false, auto: false }, y: { auto: false } },
+				axes: [
+					{
+						...axis,
+						size: xAxisHeight,
+						grid: { show: false },
+						values: (_plot, ticks) => ticks.map((tick) => formatValue(tick)),
+					},
+					{
+						...axis,
+						size: axisWidth,
+						filter: (_plot, ticks) => ticks.map((tick) => (tick !== null && Number.isInteger(tick) ? tick : null)),
+						// Faint like a graph's, so they don't compete with the data
+						grid: {
+							stroke: () => `color-mix(in oklab, ${css('--color-border')()} 45%, transparent)`,
+							width: 1,
+						},
+						values: (_plot, ticks) => ticks.map((tick) => (tick === null ? '' : tick.toLocaleString())),
+					},
+				],
+				series: [
+					{},
+					...colorList.map((color) => ({
+						fill: css(color.slice(4, -1)),
+						width: 0,
+						// Overlapping series show through each other
+						alpha: colorList.length > 1 ? 0.6 : 1,
+						points: { show: false },
+						paths: (self: uPlot, index: number, start: number, end: number) =>
+							(self.data[0].length === 1 ? singleBar : bars)(self, index, start, end),
+					})),
+				],
+				hooks: {
+					setSelect: [
+						(self) => {
+							const { left, width } = self.select;
+							self.setSelect({ left: 0, top: 0, width: 0, height: 0 }, false);
+							const start = self.posToVal(left, 'x');
+							const end = self.posToVal(left + width, 'x');
+							if (start < end && self.data[0].length > 1) {
+								zoom([start, end]);
+							}
+						},
+					],
+				},
+			},
+			[[], ...colorList.map(() => [])],
+			target,
+		);
+		setPlot(chart);
+		chart.ctx.canvas.setAttribute('aria-hidden', 'true');
+		const resize = new ResizeObserver(() => {
+			if (target.clientWidth > 0 && target.clientHeight > 0) {
+				chart.setSize({ width: target.clientWidth, height: target.clientHeight });
+			}
+		});
+		resize.observe(target);
+		const redraw = () => chart.redraw(true, true);
+		const settings = settingsStore.subscribe(redraw);
+		const systemTheme = matchMedia('(prefers-color-scheme: dark)');
+		systemTheme.addEventListener('change', redraw);
+		return () => {
+			resize.disconnect();
+			settings.unsubscribe();
+			systemTheme.removeEventListener('change', redraw);
+			chart.destroy();
+		};
+	};
 
 	useLayoutEffect(() => {
 		// A chart replaced for other series is drawn once it's mounted

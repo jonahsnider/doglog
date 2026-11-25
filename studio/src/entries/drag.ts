@@ -1,6 +1,6 @@
 import { type Draggable, PointerActivationConstraints } from '@dnd-kit/dom';
 import { KeyboardSensor, PointerSensor, useDraggable, useDroppable } from '@dnd-kit/react';
-import { createContext, use, useCallback, useId } from 'react';
+import { createContext, use, useId } from 'react';
 import { getEntry } from '@/data/data-store';
 import type { EntrySection } from '@/entries/sections';
 import type { EntryDrop } from '@/widgets/bindings';
@@ -141,12 +141,9 @@ export function useBindingDrag(
 			role: dropRole,
 		},
 	});
-	const ref = useCallback(
-		(element: Element | null) => {
-			dragRef(element);
-			dropRef(element);
-		},
-		[dragRef, dropRef],
-	);
+	const ref = (element: Element | null) => {
+		dragRef(element);
+		dropRef(element);
+	};
 	return { ref, handleRef };
 }

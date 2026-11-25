@@ -1,7 +1,7 @@
 // Poses drawn on the field's 3D scene, see `@/three/field-poses`
 import { Line } from '@react-three/drei';
 import type { ThreeEvent } from '@react-three/fiber';
-import { type ReactNode, useMemo } from 'react';
+import type { ReactNode } from 'react';
 import { DoubleSide, Vector3 } from 'three';
 import type { Mechanism } from '@/data/mechanism';
 import type { Value } from '@/data/samples';
@@ -25,11 +25,13 @@ const lineWidth = 2.5;
 /** Paths and connections are lines on their own, so they're drawn thicker than shape outlines */
 const wideLineWidth = 5;
 
+/** Where each of a path's poses is, lifted off the carpet */
+function pathPoints(value: Value): Vector3[] {
+	return items(value).map((item) => lifted(new Vector3().setFromMatrixPosition(fieldPoseMatrix(item))));
+}
+
 function Path({ value, color }: { value: Value; color: string }) {
-	const points = useMemo(
-		() => items(value).map((item) => lifted(new Vector3().setFromMatrixPosition(fieldPoseMatrix(item)))),
-		[value],
-	);
+	const points = pathPoints(value);
 	return points.length >= 2 ? <Line points={points} color={color} lineWidth={wideLineWidth} /> : null;
 }
 
@@ -85,7 +87,7 @@ function Robot({
 }) {
 	const project = useRobotProject(name === defaultRobot ? '' : name);
 	const { state } = useLoadedRobot(name === defaultRobot ? undefined : (project ?? undefined));
-	const poses = useMemo(() => (Array.isArray(parts) ? parts.map((pose) => poseMatrix(pose)) : []), [parts]);
+	const poses = Array.isArray(parts) ? parts.map((pose) => poseMatrix(pose)) : [];
 	const opacity = ghost ? ghostOpacity : 1;
 	return (
 		<group matrix={fieldPoseMatrix(value)} matrixAutoUpdate={false}>

@@ -125,6 +125,7 @@ function useFaceTexture(text: string, color: string): CanvasTexture | undefined 
 
 /** Soft shading that doesn't need lights: lit from the top left of the screen, darker toward the edges */
 function useMatcap(): CanvasTexture {
+	// oxlint-disable-next-line studio/no-manual-memo -- Effects depend on it, and `react-hooks/exhaustive-deps` can't tell that React Compiler memoizes it
 	const matcap = useMemo(() => {
 		const canvas = document.createElement('canvas');
 		canvas.width = 64;

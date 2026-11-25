@@ -43,6 +43,7 @@ function markers(value: Value) {
 }
 
 export function FieldPoints({ value, color, cssOutline }: { value: Value; color: string; cssOutline: string }) {
+	// oxlint-disable-next-line studio/no-manual-memo -- React Compiler doesn't memoize this on its own
 	const points = useMemo(() => markers(value), [value]);
 	const outline = useThemeColor(cssOutline);
 	return (

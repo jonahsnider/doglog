@@ -129,15 +129,12 @@ export function RobotModel({
 	ghost?: string;
 }) {
 	// Models can only be in one scene, each robot draws its own copy. Ghosts share their geometry instead.
-	const body = useMemo(() => (ghost === undefined ? drawnCopy(robot.body) : robot.body), [robot, ghost]);
-	const parts = useMemo(
-		() =>
-			robot.parts.map((model, index) => ({
-				model: ghost === undefined ? drawnCopy(model) : model,
-				config: robot.config.parts[index]!,
-			})),
-		[robot, ghost],
-	);
+	const body = ghost === undefined ? drawnCopy(robot.body) : robot.body;
+	const parts = robot.parts.map((model, index) => ({
+		model: ghost === undefined ? drawnCopy(model) : model,
+		config: robot.config.parts[index]!,
+	}));
+	// oxlint-disable-next-line studio/no-manual-memo -- Without it, React Compiler copies the parts' meshes again whenever `poses` changes
 	const placements = useMemo(
 		() =>
 			parts.map(({ config }, index) => {

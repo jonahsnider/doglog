@@ -3,7 +3,7 @@ import { colorVars, durationVars, easeVars, radiusVars, spacingVars } from '@ast
 import { Toolbar } from '@astryxdesign/core/Toolbar';
 import * as stylex from '@stylexjs/stylex';
 import XIcon from 'lucide-react/icons/x';
-import { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react'; // oxlint-disable studio/no-manual-memo -- React Compiler doesn't memoize `bindings` or `options` on its own
 import { AddWidgetPrompt } from '@/panes/add-widget-prompt';
 import {
 	AppActionMenu,

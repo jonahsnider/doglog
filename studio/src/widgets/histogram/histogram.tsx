@@ -1,7 +1,7 @@
 import { colorVars, spacingVars, typeScaleVars, typographyVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden';
 import * as stylex from '@stylexjs/stylex';
-import { useCallback, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useEventListener } from 'usehooks-ts';
 import { type Entry, subscribeData, type TimeRange } from '@/data/data-store';
 import { formatValue } from '@/data/format-value';
@@ -133,20 +133,20 @@ export function Histogram({ bindings }: WidgetProps) {
 	// The time range graphs show, which the timeline marks while it's zoomed in
 	const time = useViewRange();
 	useGraphShown();
+	// oxlint-disable-next-line studio/no-manual-memo -- React Compiler doesn't memoize this on its own
 	const names = useMemo(() => bindings.map((binding) => binding.name), [bindings]);
 	// Entries measuring the same thing are converted to the first one's unit, like on a graph's axis
+	// oxlint-disable-next-line studio/no-manual-memo -- React Compiler skips the component without it
 	const { units, axes } = useMemo(() => seriesUnits(bindings), [bindings]);
-	const series = useMemo(
-		() =>
-			bindings.flatMap((binding, index): Series[] =>
-				binding.entry
-					? [{ binding, entry: binding.entry, unit: units.get(binding.id)!, color: bindingColor(binding, index) }]
-					: [],
-			),
-		[bindings, units],
+	const series = bindings.flatMap((binding, index): Series[] =>
+		binding.entry
+			? [{ binding, entry: binding.entry, unit: units.get(binding.id)!, color: bindingColor(binding, index) }]
+			: [],
 	);
+	// oxlint-disable-next-line studio/no-manual-memo -- Without it, React Compiler rebuilds `series` whenever `time` changes
 	const snapshot = useMemo(() => analysesSnapshot(series, time), [series, time]);
 	const analyses = useSyncExternalStore(subscribeData, snapshot);
+	// oxlint-disable-next-line studio/no-manual-memo -- React Compiler doesn't memoize this on its own
 	const shown = useMemo(
 		() =>
 			series.flatMap((item, index) => {
@@ -162,30 +162,21 @@ export function Histogram({ bindings }: WidgetProps) {
 		zoom?.entries.length === series.length && zoom.entries.every((entry, index) => entry === series[index]!.entry)
 			? zoom.range
 			: undefined;
-	const changeZoom = useCallback(
-		(next: Range | undefined) => setZoom(next && { entries: series.map((item) => item.entry), range: next }),
-		[series],
-	);
-	const histogram = useMemo(
-		() =>
-			shown.length > 0
-				? histogramBins(
-						shown.map((item) => item.analysis),
-						range,
-					)
-				: undefined,
-		[shown, range],
-	);
-	const plotSeries = useMemo(
-		() =>
-			shown.map((item) => ({
-				id: item.binding.id,
-				name: item.binding.name,
-				color: item.color,
-				total: item.analysis.count,
-			})),
-		[shown],
-	);
+	const changeZoom = (next: Range | undefined) =>
+		setZoom(next && { entries: series.map((item) => item.entry), range: next });
+	const histogram =
+		shown.length > 0
+			? histogramBins(
+					shown.map((item) => item.analysis),
+					range,
+				)
+			: undefined;
+	const plotSeries = shown.map((item) => ({
+		id: item.binding.id,
+		name: item.binding.name,
+		color: item.color,
+		total: item.analysis.count,
+	}));
 	useWidgetMenu(() => ({
 		actions: [
 			{

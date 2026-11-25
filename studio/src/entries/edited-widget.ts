@@ -35,6 +35,7 @@ export function useEditedWidget(dashboard: Dashboard): EditedWidget | undefined 
 	}, [stale]);
 
 	const widget = pane?.widget;
+	// oxlint-disable-next-line studio/no-manual-memo -- React Compiler doesn't memoize this on its own
 	return useMemo(() => {
 		if (edited === undefined || editing === undefined) {
 			return undefined;

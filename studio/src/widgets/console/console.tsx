@@ -1,4 +1,4 @@
-import { useVirtualizer } from '@tanstack/react-virtual';
+import { useVirtualizer } from '@tanstack/react-virtual'; // oxlint-disable studio/no-manual-memo -- React Compiler skips this component, because of `useVirtualizer()` and the `react-hooks/exhaustive-deps` suppression
 import CaseSensitiveIcon from 'lucide-react/icons/case-sensitive';
 import ChevronDownIcon from 'lucide-react/icons/chevron-down';
 import ChevronUpIcon from 'lucide-react/icons/chevron-up';

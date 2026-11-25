@@ -5,7 +5,7 @@ import { Text } from '@astryxdesign/core/Text';
 import { radiusVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden';
 import * as stylex from '@stylexjs/stylex';
-import { type PointerEvent, useCallback, useId, useRef, useState } from 'react';
+import { type PointerEvent, useId, useRef, useState } from 'react';
 
 type Point = { x: number; y: number };
 export type FrameCrop = Point & { width: number; height: number };
@@ -81,12 +81,9 @@ export function CameraMatchCrop({
 	const [draft, setDraft] = useState<FrameCrop>();
 	const [crop, setCrop] = useState<FrameCrop>();
 	const [corner, setCorner] = useState<Point>();
-	const drawPreview = useCallback(
-		(canvas: HTMLCanvasElement | null) => {
-			canvas?.getContext('2d')?.drawImage(frame, 0, 0);
-		},
-		[frame],
-	);
+	const drawPreview = (canvas: HTMLCanvasElement | null) => {
+		canvas?.getContext('2d')?.drawImage(frame, 0, 0);
+	};
 	const shown = draft ?? crop;
 	const selected = crop && !draft && !corner && crop.width >= minSide && crop.height >= minSide ? crop : undefined;
 	const xPercent = (x: number) => `${(100 * x) / width}%`;

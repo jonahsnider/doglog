@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { Divider } from '@astryxdesign/core/Divider';
 import { spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
@@ -41,7 +40,7 @@ export function ActiveSection({
 	query: string;
 	edited: EditedWidget;
 }) {
-	const view = useMemo(() => entryTreeView(nodes, [], query, 'active'), [nodes, query]);
+	const view = entryTreeView(nodes, [], query, 'active');
 	if (view.items.length === 0) {
 		return null;
 	}

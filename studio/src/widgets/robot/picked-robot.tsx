@@ -26,6 +26,7 @@ export function usePickedRobot(
 	const project = useRobotProject(name === defaultRobot ? '' : name);
 	const { state, retry } = useLoadedRobot(name === defaultRobot ? undefined : (project ?? undefined));
 	const value = parts && time !== undefined ? parts.samples.valueAt(time) : undefined;
+	// oxlint-disable-next-line studio/no-manual-memo -- Without it, React Compiler reruns this whenever `time` changes, not just when the value does
 	const poses = useMemo(() => (Array.isArray(value) ? value.map((pose) => poseMatrix(pose)) : []), [value]);
 
 	if (name === defaultRobot) {

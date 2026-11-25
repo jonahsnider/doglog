@@ -1,5 +1,5 @@
 import { getStrokePoints } from 'perfect-freehand';
-import { type PointerEvent, useMemo, useRef, useState } from 'react';
+import { type PointerEvent, useRef, useState } from 'react';
 import type { FieldPoint, MeasureTool } from '@/widgets/field/geometry';
 
 export type FieldTool = MeasureTool | 'pencil';
@@ -9,16 +9,14 @@ export type PencilPointAt = (event: Pick<PointerEvent, 'clientX' | 'clientY'>) =
 export function usePencil() {
 	const [samples, setSamples] = useState<readonly FieldPoint[]>([]);
 	const pointer = useRef<number>(undefined);
-	const points = useMemo(() => {
-		if (samples.length < 2) {
-			return [];
-		}
-		// Keep even short marks at high zoom. Pass the actual last point through so the tip stays under the pointer.
-		return getStrokePoints(
-			samples.map(({ x, y }) => [x, y]),
-			{ size: 0, streamline: 0.65, last: true },
-		).map(({ point: [x, y] }) => ({ x, y }));
-	}, [samples]);
+	// Keep even short marks at high zoom. Pass the actual last point through so the tip stays under the pointer.
+	const points =
+		samples.length < 2
+			? []
+			: getStrokePoints(
+					samples.map(({ x, y }) => [x, y]),
+					{ size: 0, streamline: 0.65, last: true },
+				).map(({ point: [x, y] }) => ({ x, y }));
 
 	const clear = () => {
 		pointer.current = undefined;

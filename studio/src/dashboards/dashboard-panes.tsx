@@ -1,7 +1,7 @@
 import type { Draggable, Droppable } from '@dnd-kit/dom';
 import { useDragDropMonitor } from '@dnd-kit/react';
 import * as stylex from '@stylexjs/stylex';
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { Group, type Layout, useGroupRef } from 'react-resizable-panels';
 import { PaneView, type PaneNodeProps } from '@/panes/pane-view';
 import {
@@ -151,42 +151,34 @@ function SplitView({
 	const minSizes = split.children.map((child) => minSize(child, split.direction, paneSize));
 	// Every child is as small as it can be, so the dividers can't move (within a pixel of rounding)
 	const locked = extent !== undefined && extent - minSizes.reduce((sum, size) => sum + size, 0) - dividersSize < 1;
-	const minimum = useCallback(
-		(child: PaneNode) =>
-			extent === undefined ? 0 : minSize(child, split.direction, paneSize) / Math.max(extent - dividersSize, 1),
-		[extent, dividersSize, split.direction, paneSize],
-	);
+	const minimum = (child: PaneNode) =>
+		extent === undefined ? 0 : minSize(child, split.direction, paneSize) / Math.max(extent - dividersSize, 1);
 
 	// The shares the children end at, a closing pane ends at nothing
-	const targets = useMemo(
-		() =>
-			animation?.kind === 'close'
-				? {
-						...percentages(
-							{ ...split, children: split.children.filter((child) => child.id !== animation.childId) },
-							minimum,
-						),
-						[animation.childId]: 0,
-					}
-				: percentages(split, minimum),
-		[split, animation, minimum],
-	);
-	const from = useMemo(() => animation && percentages(animation.split, minimum), [animation, minimum]);
+	const targets =
+		animation?.kind === 'close'
+			? {
+					...percentages(
+						{ ...split, children: split.children.filter((child) => child.id !== animation.childId) },
+						minimum,
+					),
+					[animation.childId]: 0,
+				}
+			: percentages(split, minimum);
+	const from = animation && percentages(animation.split, minimum);
 	// The group's layout. A closing pane keeps its share there while CSS shrinks it away, since lowering its `minSize` so it
 	// could reach nothing only reaches the group after this layout is fitted to the old one. The others end in the
 	// proportions they have without it, which is all that shows once it's gone.
-	const groupLayout = useMemo(() => {
-		if (animation?.kind !== 'close') {
-			return targets;
-		}
+	let groupLayout = targets;
+	if (animation?.kind === 'close') {
 		const kept = from?.[animation.childId] ?? 0;
-		return Object.fromEntries(
+		groupLayout = Object.fromEntries(
 			Object.entries(targets).map(([id, share]) => [
 				id,
 				id === animation.childId ? kept : (share * (100 - kept)) / 100,
 			]),
 		);
-	}, [animation, from, targets]);
+	}
 	const moving = animation ? split.children.findIndex((child) => child.id === animation.childId) : -1;
 
 	const panelAnimation = (childId: string, index: number): SplitPanelAnimation | undefined => {
@@ -209,6 +201,7 @@ function SplitView({
 
 	// The group only reads `defaultLayout` when it mounts, so new sizes are applied here, once it knows every child's panel
 	const pendingLayout = useRef<Layout>(undefined);
+	// oxlint-disable-next-line studio/no-manual-memo -- Effects depend on it, and `react-hooks/exhaustive-deps` can't tell that React Compiler memoizes it
 	const applyLayout = useCallback(() => {
 		const layout = pendingLayout.current;
 		const current = groupRef.current?.getLayout();

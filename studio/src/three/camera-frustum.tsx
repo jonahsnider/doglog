@@ -1,6 +1,6 @@
 import { Line } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { type CanvasTexture, DoubleSide, LinearFilter, MathUtils, type Matrix4, SRGBColorSpace } from 'three';
 
 /** The stock low-distortion lens on a common global-shutter USB camera. */
@@ -38,31 +38,29 @@ export function CameraFrustum({
 
 	const halfWidth = imageDistance * Math.tan(MathUtils.degToRad(fov) / 2);
 	const halfHeight = halfWidth * (height / width);
-	const points = useMemo(() => {
-		const lens = [0, 0, 0] as const;
-		const topLeft = [imageDistance, halfWidth, halfHeight] as const;
-		const topRight = [imageDistance, -halfWidth, halfHeight] as const;
-		const bottomLeft = [imageDistance, halfWidth, -halfHeight] as const;
-		const bottomRight = [imageDistance, -halfWidth, -halfHeight] as const;
-		return [
-			lens,
-			topLeft,
-			lens,
-			topRight,
-			lens,
-			bottomLeft,
-			lens,
-			bottomRight,
-			topLeft,
-			topRight,
-			topRight,
-			bottomRight,
-			bottomRight,
-			bottomLeft,
-			bottomLeft,
-			topLeft,
-		];
-	}, [halfWidth, halfHeight]);
+	const lens = [0, 0, 0] as const;
+	const topLeft = [imageDistance, halfWidth, halfHeight] as const;
+	const topRight = [imageDistance, -halfWidth, halfHeight] as const;
+	const bottomLeft = [imageDistance, halfWidth, -halfHeight] as const;
+	const bottomRight = [imageDistance, -halfWidth, -halfHeight] as const;
+	const points = [
+		lens,
+		topLeft,
+		lens,
+		topRight,
+		lens,
+		bottomLeft,
+		lens,
+		bottomRight,
+		topLeft,
+		topRight,
+		topRight,
+		bottomRight,
+		bottomRight,
+		bottomLeft,
+		bottomLeft,
+		topLeft,
+	];
 	return (
 		<group matrix={pose} matrixAutoUpdate={false}>
 			{/* The lens looks along +X. Image right is -Y and image up is +Z. */}

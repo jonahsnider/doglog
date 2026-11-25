@@ -3,7 +3,7 @@ import * as stylex from '@stylexjs/stylex';
 import { useDraggable, useDroppable } from '@dnd-kit/react';
 import { TreeItem, TreeItemLabel } from '@ui-sdk/react/tree';
 import ChevronRightIcon from 'lucide-react/icons/chevron-right';
-import { memo, use, useCallback, useRef } from 'react';
+import { memo, use, useRef } from 'react';
 import { AppActionMenu, AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { openContextMenu } from '@/components/open-context-menu';
 import { SectionHeaderLabel } from '@/entries/section-header-label';
@@ -149,14 +149,11 @@ export const EntryRowView = memo(function EntryRowView({
 		data: { section },
 	});
 	const rowElement = useRef<HTMLElement>(null);
-	const ref = useCallback(
-		(element: Element | null) => {
-			dragRef(element);
-			dropRef(element);
-			rowElement.current = element instanceof HTMLElement ? element : null;
-		},
-		[dragRef, dropRef],
-	);
+	const ref = (element: Element | null) => {
+		dragRef(element);
+		dropRef(element);
+		rowElement.current = element instanceof HTMLElement ? element : null;
+	};
 	const style = rowStyle(top, level);
 
 	if (header) {

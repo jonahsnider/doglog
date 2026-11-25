@@ -115,6 +115,7 @@ export default defineConfig({
 				},
 			],
 			'vite-plus/prefer-vite-plus-imports': 'error',
+			'studio/no-manual-memo': 'error',
 
 			// Too noisy or opinionated
 			// The automatic JSX runtime doesn't need React in scope
@@ -257,6 +258,7 @@ export default defineConfig({
 				name: 'vite-plus',
 				specifier: 'vite-plus/oxlint-plugin',
 			},
+			'./oxlint-plugin.ts',
 		],
 	},
 	plugins: lazyPlugins(() => [

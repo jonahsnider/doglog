@@ -1,5 +1,4 @@
 import * as stylex from '@stylexjs/stylex';
-import { useMemo } from 'react';
 import type { Mechanism } from '@/data/mechanism';
 import { useFieldZoom } from '@/widgets/field/zoom';
 
@@ -12,7 +11,7 @@ const styles = stylex.create({
 /** A mechanism's canvas fit to the widget, which zooms and pans like the field */
 export function MechanismCanvas({ mechanism }: { mechanism: Mechanism }) {
 	const { width, height, backgroundColor, lines } = mechanism;
-	const bounds = useMemo(() => ({ x: 0, y: 0, width, height }), [width, height]);
+	const bounds = { x: 0, y: 0, width, height };
 	const { svgRef, zoom, transform, startPan, movePan, endPan, reset } = useFieldZoom(bounds);
 
 	return (

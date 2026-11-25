@@ -1,7 +1,7 @@
 import { fontWeightVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import TriangleAlertIcon from 'lucide-react/icons/triangle-exclamation-point';
-import { type ReactNode, useCallback, useRef, useState } from 'react';
+import { type ReactNode, useRef, useState } from 'react';
 import { TextMorph } from '@/components/text-morph';
 import { Button } from '@astryxdesign/core/Button';
 import { formatRoughDuration, getCursorTime, togglePlayback, useCursorTime } from '@/timeline/timeline';
@@ -69,15 +69,12 @@ export function SyncedVideo({
 }) {
 	const player = useRef<Player>(null);
 	const [info, setInfo] = useState<PlayerInfo>({});
-	const onInfo = useCallback(
-		(next: PlayerInfo) =>
-			setInfo((previous) => {
-				const merged = { ...previous, ...next };
-				// YouTube reports the duration several times a second
-				return merged.duration === previous.duration && merged.error === previous.error ? previous : merged;
-			}),
-		[],
-	);
+	const onInfo = (next: PlayerInfo) =>
+		setInfo((previous) => {
+			const merged = { ...previous, ...next };
+			// YouTube reports the duration several times a second
+			return merged.duration === previous.duration && merged.error === previous.error ? previous : merged;
+		});
 	const muted = useMuted(paneId);
 	const syncing = useSyncing(paneId);
 	const { duration } = info;

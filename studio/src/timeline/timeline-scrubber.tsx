@@ -1,3 +1,4 @@
+// oxlint-disable studio/no-manual-memo -- React Compiler skips Scrubber without `compressed`, and doesn't memoize the others on its own
 import { colorVars, durationVars, easeVars, radiusVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useHotkeys } from '@tanstack/react-hotkeys';
@@ -128,7 +129,7 @@ export function Scrubber({
 	const shownDuration = live ? Math.max(duration, minLiveDuration) : duration + (unread?.duration ?? 0);
 
 	// The range changes whenever data does
-	const periods = useMemo(() => getModePeriods(range), [range]);
+	const periods = getModePeriods(range);
 	// Changed in place, gaps are added along with a new range
 	const gaps = getGaps();
 	const compressed = useMemo(() => (compress ? getCompressedSpans(periods, gaps) : []), [compress, periods, gaps]);

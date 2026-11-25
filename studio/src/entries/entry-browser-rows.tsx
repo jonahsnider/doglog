@@ -1,4 +1,4 @@
-import { defaultRangeExtractor, type Range, useVirtualizer } from '@tanstack/react-virtual';
+import { defaultRangeExtractor, type Range, useVirtualizer } from '@tanstack/react-virtual'; // oxlint-disable studio/no-manual-memo -- React Compiler skips this component because of `useVirtualizer()`
 import { Tree } from '@ui-sdk/react/tree';
 import { Fragment, useCallback, useMemo, useRef, useState } from 'react';
 import { Divider } from '@astryxdesign/core/Divider';

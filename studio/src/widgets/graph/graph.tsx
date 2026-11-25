@@ -57,30 +57,27 @@ const styles = stylex.create({
 export function Graph({ bindings }: WidgetProps) {
 	const [assignments] = useState<ColorAssignments>(() => new Map());
 
+	// oxlint-disable-next-line studio/no-manual-memo -- React Compiler skips the component without it
 	const { plotted, discrete } = useMemo(() => {
 		const lines = bindings.filter((binding) => graphSection(binding.role) !== 'discrete');
 		return { plotted: lines, discrete: bindings.filter((binding) => graphSection(binding.role) === 'discrete') };
 	}, [bindings]);
-	const units = useMemo(() => seriesUnits(plotted), [plotted]);
-	const series = useMemo(
-		() =>
-			plotted.flatMap((binding, index): PlotSeries[] =>
-				binding.entry
-					? [
-							{
-								id: binding.id,
-								entry: binding.entry,
-								axis: graphSection(binding.role) === 'right' ? 'y2' : 'y',
-								color: bindingColor(binding, index),
-								hidden: binding.hidden,
-								convert: units.units.get(binding.id)!.convert,
-							},
-						]
-					: [],
-			),
-		[plotted, units],
+	const units = seriesUnits(plotted);
+	const series = plotted.flatMap((binding, index): PlotSeries[] =>
+		binding.entry
+			? [
+					{
+						id: binding.id,
+						entry: binding.entry,
+						axis: graphSection(binding.role) === 'right' ? 'y2' : 'y',
+						color: bindingColor(binding, index),
+						hidden: binding.hidden,
+						convert: units.units.get(binding.id)!.convert,
+					},
+				]
+			: [],
 	);
-	const bandEntries = useMemo(() => discrete.map((binding) => binding.entry), [discrete]);
+	const bandEntries = discrete.map((binding) => binding.entry);
 	const hasPlot = plotted.length > 0;
 	const hasRight = series.some((line) => line.axis === 'y2');
 	const insets = { left: hasPlot ? axisWidth : edgeInset, right: hasRight ? axisWidth : edgeInset };
@@ -94,19 +91,16 @@ export function Graph({ bindings }: WidgetProps) {
 	const hoverDeltaRef = useRef<HTMLDivElement>(null);
 	const hoverDotsRef = useRef<HTMLDivElement>(null);
 	// Refs never change, so drawing only starts over when the entries or palette do
-	const elements = useMemo(
-		(): GraphElements => ({
-			plot: plotRef,
-			bands: bandsRef,
-			area: areaRef,
-			gaps: gapsRef,
-			cursorLine: cursorLineRef,
-			hoverLine: hoverLineRef,
-			hoverDelta: hoverDeltaRef,
-			hoverDots: hoverDotsRef,
-		}),
-		[],
-	);
+	const elements: GraphElements = {
+		plot: plotRef,
+		bands: bandsRef,
+		area: areaRef,
+		gaps: gapsRef,
+		cursorLine: cursorLineRef,
+		hoverLine: hoverLineRef,
+		hoverDelta: hoverDeltaRef,
+		hoverDots: hoverDotsRef,
+	};
 	// Unit labels go above the y-axes
 	const plotTop = units.axes.y === undefined && units.axes.y2 === undefined ? edgeInset : 20;
 	// The timeline bar marks the time graphs show
@@ -137,6 +131,7 @@ export function Graph({ bindings }: WidgetProps) {
 	 * drawn over the whole window. `undefined` while hidden, ex. by another pane that's zoomed.
 	 */
 	const [origin, setOrigin] = useState<{ left: number; top: number; width: number }>();
+	// oxlint-disable-next-line studio/no-manual-memo -- Effects depend on it, and `react-hooks/exhaustive-deps` can't tell that React Compiler memoizes it
 	const measureOrigin = useCallback(() => {
 		if (!body.current.checkVisibility()) {
 			setOrigin(undefined);
