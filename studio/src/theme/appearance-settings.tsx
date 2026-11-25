@@ -3,15 +3,11 @@ import { Code } from '@astryxdesign/core/Code';
 import { Field } from '@astryxdesign/core/Field';
 import { HStack } from '@astryxdesign/core/Layout';
 import { RadioList, RadioListItem } from '@astryxdesign/core/RadioList';
-import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { Selector } from '@astryxdesign/core/Selector';
 import { colorVars, radiusVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { updateSettings, useSettings } from '@/settings';
 import {
-	chartCount,
-	type Contrast,
-	contrasts,
 	type Theme,
 	type ThemePreset,
 	themePresets,
@@ -59,12 +55,6 @@ const themePresetLabels: Record<ThemePreset, string> = {
 	custom: 'Custom',
 };
 
-const contrastLabels: Record<Contrast, string> = {
-	standard: 'Standard',
-	medium: 'Medium',
-	high: 'High',
-};
-
 const visualizationPaletteLabels: Record<VisualizationPalette, string> = {
 	default: 'Default',
 	protan: 'Red–green (protan)',
@@ -77,7 +67,7 @@ const visualizationPaletteItems = visualizationPalettes.map((value) => ({
 }));
 
 export function AppearanceSettings() {
-	const { theme, themeColor, themePreset, contrast } = useSettings();
+	const { theme, themeColor, themePreset, highContrast } = useSettings();
 
 	return (
 		<>
@@ -96,8 +86,8 @@ export function AppearanceSettings() {
 						description={
 							<ThemeModePreview
 								theme={value}
-								light={themePreviewColors(themePreset, themeColor, false, contrast)}
-								dark={themePreviewColors(themePreset, themeColor, true, contrast)}
+								light={themePreviewColors(themePreset, themeColor, false, highContrast)}
+								dark={themePreviewColors(themePreset, themeColor, true, highContrast)}
 							/>
 						}
 					/>
@@ -118,8 +108,8 @@ export function AppearanceSettings() {
 						label={themePresetLabels[value]}
 						endContent={
 							<HStack gap={1}>
-								<ThemeSwatch colors={themePreviewColors(value, themeColor, false, contrast)} />
-								<ThemeSwatch colors={themePreviewColors(value, themeColor, true, contrast)} />
+								<ThemeSwatch colors={themePreviewColors(value, themeColor, false, highContrast)} />
+								<ThemeSwatch colors={themePreviewColors(value, themeColor, true, highContrast)} />
 							</HStack>
 						}
 					/>
@@ -147,24 +137,6 @@ export function AppearanceSettings() {
 				</Field>
 			)}
 		</>
-	);
-}
-
-export function ContrastSetting() {
-	const { contrast } = useSettings();
-
-	return (
-		<Field label="Contrast" inputID="contrast" isGroupLabel>
-			<SegmentedControl
-				label="Contrast"
-				value={contrast}
-				onChange={(value) => updateSettings({ contrast: contrasts.find((choice) => choice === value) ?? contrast })}
-			>
-				{contrasts.map((value) => (
-					<SegmentedControlItem key={value} value={value} label={contrastLabels[value]} />
-				))}
-			</SegmentedControl>
-		</Field>
 	);
 }
 
@@ -200,12 +172,9 @@ function PaletteOption({ value }: { value: string }) {
 }
 
 function PaletteSwatches({ palette }: { palette: VisualizationPalette }) {
-	const colors =
-		palette === 'default'
-			? Array.from({ length: chartCount }, (_, index) => `var(--chart-${index + 1})`)
-			: seriesPaletteColors[palette].light.map(
-					(color, index) => `light-dark(${color}, ${seriesPaletteColors[palette].dark[index]})`,
-				);
+	const colors = seriesPaletteColors[palette].light.map(
+		(color, index) => `light-dark(${color}, ${seriesPaletteColors[palette].dark[index]})`,
+	);
 
 	return (
 		<HStack gap={1} aria-hidden="true">

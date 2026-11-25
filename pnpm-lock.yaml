@@ -282,9 +282,6 @@ importers:
       '@fontsource/ibm-plex-mono':
         specifier: 5.3.0
         version: 5.3.0
-      '@material/material-color-utilities':
-        specifier: 0.4.0
-        version: 0.4.0
       '@ntcore-ts/client':
         specifier: 2.0.0
         version: 2.0.0(patch_hash=a811b3789e62cd74e466c2abf81d4ac45bffdd3f18e8c2671d341fcb063c4643)
@@ -3085,9 +3082,6 @@ packages:
         optional: true
       react:
         optional: true
-
-  '@material/material-color-utilities@0.4.0':
-    resolution: {integrity: sha512-dlq6VExJReb8dhjj3a/yTigr3ncNwoFmL5Iy2ENtbDX03EmNeOEdZ+vsaGrj7RTuO+mB7L58II4LCsl4NpM8uw==}
 
   '@mediapipe/tasks-vision@0.10.17':
     resolution: {integrity: sha512-CZWV/q6TTe8ta61cZXjfnnHsfWIdFhms03M9T7Cnd5y2mdpylJM0rF1qRq+wsQVRMLz1OYPVEBU9ph2Bx8cxrg==}
@@ -12902,8 +12896,6 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
       react: 19.3.1
-
-  '@material/material-color-utilities@0.4.0': {}
 
   '@mediapipe/tasks-vision@0.10.17': {}
 

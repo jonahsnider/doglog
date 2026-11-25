@@ -1,232 +1,216 @@
 import {
-	Contrast as MaterialContrast,
-	DynamicScheme,
-	Hct,
-	TonalPalette,
-	Variant,
-	argbFromHex,
-	hexFromArgb,
-} from '@material/material-color-utilities';
-import { chartCount, type Contrast, type ThemePreset, type VisualizationPalette } from '@/theme/choices';
-import { seriesOutlineVariable, seriesPaletteVariables } from '@/theme/series-palette';
-import { statusColorVariables } from '@/theme/status-color';
+	type ThemePalette,
+	type ThemePaletteInput,
+	generateTonalPalette,
+	themePalette,
+} from '@astryxdesign/core/palette';
+import type { ThemePreset, VisualizationPalette } from '@/theme/choices';
+import { seriesPaletteVariables, shade } from '@/theme/series-palette';
+import { statusSeeds, team581Seeds } from '@/theme/team581-colors';
 
-/** Team 581 maroon, the hard-coded `--md-*` colors in `index.css` are generated from it */
-export const defaultThemeColor = '#591616';
+/** Team 581 maroon, the Team 581 theme's accent */
+export const defaultThemeColor = team581Seeds.accent;
 
 /** Default for the Custom preset, `hsl(20deg 12% 9.8%)` */
 export const defaultCustomColor = '#1c1816';
 
 const frogLogGreen = '#79b748';
 
-/** MD3 contrast levels matching the Material Theme Builder's options */
-const contrastLevels: Record<Contrast, number> = {
-	standard: 0,
-	medium: 0.5,
-	high: 1,
+/** A gray with a color's hue and lightness, for a neutral seed: the color mixed most of the way to its own luminance */
+function tintedGray(color: string): string {
+	const [red, green, blue] = [1, 3, 5].map((index) => Number.parseInt(color.slice(index, index + 2), 16));
+	const gray = 0.2126 * red! + 0.7152 * green! + 0.0722 * blue!;
+	const channel = (value: number) =>
+		Math.round(gray + (value - gray) * 0.15)
+			.toString(16)
+			.padStart(2, '0');
+	return `#${channel(red!)}${channel(green!)}${channel(blue!)}`;
+}
+
+const recipe = 'astryx-oklch-v2';
+
+/** The seeds of each preset's Astryx palette in a color mode */
+const presetSeeds: Record<ThemePreset, (themeColor: string, dark: boolean) => ThemePaletteInput> = {
+	team581: () => team581Seeds,
+	// match13.com's blue accents and icy panels in light mode, its sky-400 on black overlays in dark mode
+	match13: (_, dark) =>
+		dark
+			? { accent: '#29a3f6', neutral: '#000000', ...statusSeeds, recipe }
+			: { accent: '#135ab0', neutral: '#e2efff', ...statusSeeds, recipe },
+	froglog: () => ({ accent: frogLogGreen, neutral: tintedGray(frogLogGreen), ...statusSeeds, recipe }),
+	// Untinted grays, so only status, series, and error colors have a hue
+	neutral: () => ({ accent: '#5e5e5e', neutral: '#6b6b6b', ...statusSeeds, recipe }),
+	custom: (themeColor) => ({ accent: themeColor, neutral: tintedGray(themeColor), ...statusSeeds, recipe }),
 };
+
+/** Generated palettes by their seeds, since the settings' previews ask for every preset's on each render */
+const palettes = new Map<string, ThemePalette>();
+function cachedPalette(seeds: ThemePaletteInput): ThemePalette {
+	const key = JSON.stringify(seeds);
+	let palette = palettes.get(key);
+	if (!palette) {
+		// Dragging the custom color's picker makes a palette for each color it passes
+		if (palettes.size > 32) {
+			palettes.clear();
+		}
+		palette = themePalette(seeds);
+		palettes.set(key, palette);
+	}
+	return palette;
+}
+
+/** FrogLog's soft stream blue, for selected items instead of a tint of its green */
+const frogLogBlue = generateTonalPalette({
+	recipe,
+	modeStrategy: 'light-and-dark',
+	families: [{ id: 'blue', seed: '#9ed8f7' }],
+}).palette['blue']!;
+
+/** WCAG relative luminance of a `#rrggbb` color */
+function luminance(color: string): number {
+	const [red, green, blue] = [1, 3, 5].map((index) => {
+		const channel = Number.parseInt(color.slice(index, index + 2), 16) / 255;
+		return channel <= 0.040_45 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+	});
+	return 0.2126 * red! + 0.7152 * green! + 0.0722 * blue!;
+}
+
+/** WCAG contrast ratio of two `#rrggbb` colors */
+function contrastRatio(a: string, b: string): number {
+	const [light, dark] = [luminance(a), luminance(b)].toSorted((x, y) => y - x);
+	return (light! + 0.05) / (dark! + 0.05);
+}
 
 /**
- * Colors that presets generate their color scheme from, match13's is the `theme-color` from match13.com. Neutral's
- * palettes are gray, so its blue only gives the series, status, and band colors a hue.
+ * Make text, icons, and borders stronger on the palette's neutral ramp, as Astryx's tone-based color generator does
+ * for high contrast: secondary text and icons 10 stops toward contrast, the translucent border twice as opaque, and the
+ * emphasized border from mid-scale toward contrast until it reaches 3:1 on surfaces. Primary text is already black or
+ * white.
  */
-const presetColors: Partial<Record<ThemePreset, string>> = {
-	team581: defaultThemeColor,
-	match13: '#1a7ccd',
-	froglog: frogLogGreen,
-	neutral: '#3b82f6',
-};
+function applyHighContrast(tokens: Record<string, string>, neutralSeed: string, dark: boolean): void {
+	const ramp: Record<number, string> = generateTonalPalette({
+		recipe,
+		neutralProfile: 'custom',
+		modeStrategy: 'light-and-dark',
+		families: [{ id: 'neutral', seed: neutralSeed, kind: 'neutral' }],
+	}).palette['neutral']![dark ? 'dark' : 'light']!;
+	const stops = Object.keys(ramp).map(Number);
+	// Text darkens in light mode and lightens in dark mode
+	const toward = dark ? 1 : -1;
 
-/** MD3 color roles applied as `--md-*` CSS variables, ex. `surfaceContainerLow` is `--md-surface-container-low` */
-const roles = [
-	'primary',
-	'surfaceTint',
-	'onPrimary',
-	'primaryContainer',
-	'onPrimaryContainer',
-	'secondary',
-	'onSecondary',
-	'secondaryContainer',
-	'onSecondaryContainer',
-	'tertiary',
-	'onTertiary',
-	'tertiaryContainer',
-	'onTertiaryContainer',
-	'error',
-	'onError',
-	'errorContainer',
-	'onErrorContainer',
-	'background',
-	'onBackground',
-	'surface',
-	'onSurface',
-	'surfaceVariant',
-	'onSurfaceVariant',
-	'outline',
-	'outlineVariant',
-	'shadow',
-	'scrim',
-	'inverseSurface',
-	'inverseOnSurface',
-	'inversePrimary',
-	'primaryFixed',
-	'onPrimaryFixed',
-	'primaryFixedDim',
-	'onPrimaryFixedVariant',
-	'secondaryFixed',
-	'onSecondaryFixed',
-	'secondaryFixedDim',
-	'onSecondaryFixedVariant',
-	'tertiaryFixed',
-	'onTertiaryFixed',
-	'tertiaryFixedDim',
-	'onTertiaryFixedVariant',
-	'surfaceDim',
-	'surfaceBright',
-	'surfaceContainerLowest',
-	'surfaceContainerLow',
-	'surfaceContainer',
-	'surfaceContainerHigh',
-	'surfaceContainerHighest',
-] as const;
-
-type Role = (typeof roles)[number];
-type Palettes = Pick<
-	ConstructorParameters<typeof DynamicScheme>[0],
-	'primaryPalette' | 'secondaryPalette' | 'neutralPalette' | 'neutralVariantPalette'
->;
-
-const fromHex = (hex: string) => TonalPalette.fromInt(argbFromHex(hex));
-const maroonHue = Hct.fromInt(argbFromHex(defaultThemeColor)).hue;
-const frogLogPalettes: Palettes = {
-	primaryPalette: fromHex(frogLogGreen),
-	secondaryPalette: fromHex('#9ed8f7'),
-};
-const gray = TonalPalette.fromHueAndChroma(0, 0);
-const grayPalettes: Palettes = {
-	primaryPalette: gray,
-	secondaryPalette: gray,
-	neutralPalette: gray,
-	neutralVariantPalette: gray,
-};
-
-/** Palettes that presets use instead of Tonal Spot's in each appearance */
-const presetPalettes: Partial<Record<ThemePreset, Record<'light' | 'dark', Palettes>>> = {
-	// Muted neutrals so the team color stands out, lower in light mode where the 2025 spec boosts container chroma
-	team581: {
-		light: {
-			neutralPalette: TonalPalette.fromHueAndChroma(maroonHue, 1),
-			neutralVariantPalette: TonalPalette.fromHueAndChroma(maroonHue, 2),
-		},
-		dark: {
-			neutralPalette: TonalPalette.fromHueAndChroma(maroonHue, 2),
-			neutralVariantPalette: TonalPalette.fromHueAndChroma(maroonHue, 3.5),
-		},
-	},
-	// match13.com's blue accents, icy light panels, and the black overlays on its dark data pages
-	match13: {
-		light: {
-			primaryPalette: fromHex('#135ab0'),
-			secondaryPalette: fromHex('#cddff8'),
-			neutralPalette: fromHex('#e2efff'),
-		},
-		dark: {
-			primaryPalette: fromHex('#6ab0fd'),
-			secondaryPalette: fromHex('#273e55'),
-			neutralPalette: fromHex('#000000'),
-		},
-	},
-	froglog: { light: frogLogPalettes, dark: frogLogPalettes },
-	// Untinted grays, so only status, series, and error colors have a hue
-	neutral: { light: grayPalettes, dark: grayPalettes },
-};
-
-/** match13.com's sky-400 for dark mode actions and focus instead of Tonal Spot's pastel tone 80 */
-const sky = fromHex('#29a3f6');
-/** The sky tone for primary and its contrast ratio with on-primary at each contrast level */
-const skyPrimary: Record<Contrast, { tone: number; onPrimaryRatio: number }> = {
-	standard: { tone: sky.keyColor.tone, onPrimaryRatio: 6 },
-	medium: { tone: 75, onPrimaryRatio: 7 },
-	high: { tone: 90, onPrimaryRatio: 11 },
-};
-
-/** A preset's MD3 colors by role, as ARGB. Also draws link preview images, see `@/link-previews/preview-style`. */
-export function schemeColors(
-	themeColor: string,
-	dark: boolean,
-	contrast: Contrast,
-	preset: ThemePreset,
-): (role: Role) => number {
-	const colors = new DynamicScheme({
-		sourceColorHct: Hct.fromInt(argbFromHex(presetColors[preset] ?? themeColor)),
-		variant: Variant.TONAL_SPOT,
-		contrastLevel: contrastLevels[contrast],
-		isDark: dark,
-		specVersion: '2025',
-		...presetPalettes[preset]?.[dark ? 'dark' : 'light'],
-	});
-	if (preset !== 'match13' || !dark) {
-		return (role) => colors[role];
+	for (const token of ['--color-text-secondary', '--color-icon-secondary']) {
+		// The palette generates its ramp with its other seeds, so it's close to this one but not always equal
+		const distance = (stop: number) => Math.abs(luminance(ramp[stop]!) - luminance(tokens[token]!));
+		const nearest = stops.reduce((closest, stop) => (distance(stop) < distance(closest) ? stop : closest));
+		tokens[token] = ramp[Math.min(100, Math.max(0, nearest + 10 * toward))]!;
 	}
 
-	const { tone, onPrimaryRatio } = skyPrimary[contrast];
-	const primary = sky.tone(tone);
-	const overrides: Partial<Record<Role, number>> = {
-		primary,
-		surfaceTint: primary,
-		onPrimary: sky.tone(MaterialContrast.darkerUnsafe(tone, onPrimaryRatio)),
-	};
-	return (role) => overrides[role] ?? colors[role];
+	const border = tokens['--color-border']!;
+	const alpha = Number.parseInt(border.slice(7), 16) * 2;
+	tokens['--color-border'] = `${border.slice(0, 7)}${alpha.toString(16).padStart(2, '0')}`;
+
+	const surfaces = [tokens['--color-background-body']!, tokens['--color-background-surface']!];
+	const readable = (stop: number) => surfaces.every((surface) => contrastRatio(ramp[stop]!, surface) >= 3);
+	let stop = 50;
+	while (!readable(stop) && stop !== (dark ? 100 : 0)) {
+		stop += 5 * toward;
+	}
+	tokens['--color-border-emphasized'] = ramp[stop]!;
 }
 
-/**
- * Generate chart colors and their series outlines for a theme color.
- * They share one HCT tone so every color contrasts equally with the background, only the hue changes.
- */
-export function chartColorVariables(themeColor: string, dark: boolean): string {
-	const { hue } = Hct.fromInt(argbFromHex(themeColor));
-	const colors = Array.from({ length: chartCount }, (_, index) =>
-		hexFromArgb(Hct.from((hue + (index * 360) / chartCount) % 360, 60, dark ? 72 : 48).toInt()),
-	);
-	return (
-		colors.map((color, index) => `--chart-${index + 1}:${color};`).join('') +
-		colors.map((color, index) => seriesOutlineVariable(index + 1, color)).join('')
-	);
+export interface ThemeColors {
+	/** Astryx color tokens */
+	tokens: Record<string, string>;
+	/** Secondary text on parts with tinted backgrounds, ex. selected items, by `part` and style key */
+	lifts: Record<string, Record<string, string>>;
 }
 
-/** Generate the preset's MD3 tonal spot scheme (2025 spec) as `--md-*` CSS variable declarations */
+/** A preset's Astryx colors in a color mode, at standard or high contrast, generated from its seeds */
+export function themeColors(
+	themeColor: string,
+	dark: boolean,
+	highContrast: boolean,
+	preset: ThemePreset,
+): ThemeColors {
+	const seeds = presetSeeds[preset](themeColor, dark);
+	const palette = cachedPalette(seeds);
+	const mode = dark ? 'dark' : 'light';
+	const tokens = Object.fromEntries(
+		Object.entries(palette.tokens).map(([token, values]) => [token, values[dark ? 1 : 0]]),
+	);
+	if (preset === 'froglog') {
+		tokens['--color-accent-muted'] = frogLogBlue[mode]![dark ? 30 : 85]!;
+	}
+	if (highContrast) {
+		applyHighContrast(tokens, seeds.neutral!, dark);
+	}
+
+	// Lifted text keeps its own contrast, unless high contrast made secondary text stronger still
+	const secondary = tokens['--color-text-secondary']!;
+	const stronger = (color: string) => (dark === luminance(color) > luminance(secondary) ? color : secondary);
+	const lifts = Object.fromEntries(
+		Object.entries(liftedParts).map(([part, styles]) => [
+			part,
+			Object.fromEntries(
+				styles.map((style) => {
+					const lift = palette.components[part]?.[style]?.[`@${mode}`]?.['--color-text-secondary'];
+					return [style, typeof lift === 'string' ? stronger(lift) : secondary];
+				}),
+			),
+		]),
+	);
+	return { tokens, lifts };
+}
+
+/** The color tokens every generated palette sets, which Studio's Astryx theme reads from CSS variables */
+export const themeColorTokenNames = Object.keys(cachedPalette(team581Seeds).tokens);
+
+/** The parts and style keys whose secondary text palettes lift */
+export const liftedParts: Record<string, string[]> = Object.fromEntries(
+	Object.entries(cachedPalette(team581Seeds).components).map(([part, styles]) => [part, Object.keys(styles)]),
+);
+
+/** The variable Studio's Astryx theme reads a generated color token from, ex. `--studio-color-accent` */
+export const themeColorVariable = (token: string) => `--studio-${token.slice(2)}`;
+
+/** The variable Studio's Astryx theme reads a part's lifted secondary text from, ex. `--studio-lift-item-selected` */
+export const liftVariable = (part: string, style: string) => `--studio-lift-${part}-${style.replace(':', '-')}`;
+
+const testModeSeed = '#8b5cf6';
+
+/** Generate the preset's colors as CSS variable declarations, with test mode, which Astryx has no token for */
 export function themeColorVariables(
 	themeColor: string,
 	dark: boolean,
-	contrast: Contrast,
+	highContrast: boolean,
 	preset: ThemePreset,
 ): string {
-	const color = schemeColors(themeColor, dark, contrast, preset);
-	return roles
-		.map(
-			(role) =>
-				`--md-${role.replaceAll(/[A-Z]/gu, (letter) => `-${letter.toLowerCase()}`)}:${hexFromArgb(color(role))};`,
-		)
-		.join('');
+	const { tokens, lifts } = themeColors(themeColor, dark, highContrast, preset);
+	return [
+		...Object.entries(tokens).map(([token, value]) => `${themeColorVariable(token)}:${value};`),
+		...Object.entries(lifts).flatMap(([part, styles]) =>
+			Object.entries(styles).map(([style, value]) => `${liftVariable(part, style)}:${value};`),
+		),
+		// Lighter in dark mode, like Astryx's fills
+		`--test-mode:${dark ? shade(testModeSeed, 70) : testModeSeed};`,
+	].join('');
 }
 
 /**
- * Stylesheet that overrides the default colors in `index.css` with ones generated from the theme color.
- * The doubled selectors win over `:root` and `.dark` in `index.css` regardless of which stylesheet loads last.
+ * Stylesheet with the colors generated for the color settings. High contrast also applies when the system asks for more
+ * contrast, like Astryx's own contrast adaptations.
  */
 function themeColorCss(
 	themeColor: string,
-	contrast: Contrast,
+	highContrast: boolean,
 	preset: ThemePreset,
 	visualizationPalette: VisualizationPalette,
 ): string {
-	const seed = presetColors[preset] ?? themeColor;
-	const variables = (dark: boolean) =>
-		themeColorVariables(themeColor, dark, contrast, preset) +
-		chartColorVariables(seed, dark) +
-		statusColorVariables(seed, dark) +
-		seriesPaletteVariables(visualizationPalette, dark);
-	return `:root:root{${variables(false)}}:root.dark{${variables(true)}}`;
+	const variables = (dark: boolean, high: boolean) =>
+		themeColorVariables(themeColor, dark, high, preset) + seriesPaletteVariables(visualizationPalette, dark);
+	// Doubled selectors win over `index.css` regardless of which stylesheet loads last
+	const css = (high: boolean) => `:root:root{${variables(false, high)}}:root.dark{${variables(true, high)}}`;
+	return highContrast ? css(true) : `${css(false)}@media (prefers-contrast: more){${css(true)}}`;
 }
 
 export interface ThemePreviewColors {
@@ -242,22 +226,17 @@ export function themePreviewColors(
 	preset: ThemePreset,
 	themeColor: string,
 	dark: boolean,
-	contrast: Contrast,
+	highContrast: boolean,
 ): ThemePreviewColors {
-	const color = schemeColors(themeColor, dark, contrast, preset);
+	const { tokens } = themeColors(themeColor, dark, highContrast, preset);
 	return {
-		surface: hexFromArgb(color('surface')),
-		sidebar: hexFromArgb(color('surfaceContainerLow')),
-		bar: hexFromArgb(color('surfaceContainerHighest')),
-		border: hexFromArgb(color('outlineVariant')),
-		primary: hexFromArgb(color('primary')),
-		accent: hexFromArgb(color('secondaryContainer')),
+		surface: tokens['--color-background-surface']!,
+		sidebar: tokens['--color-background-body']!,
+		bar: tokens['--color-background-muted']!,
+		border: tokens['--color-border']!,
+		primary: tokens['--color-accent']!,
+		accent: tokens['--color-accent-muted']!,
 	};
-}
-
-/** Color that theme-tinted widget colors, ex. graph bands, take their hue from */
-export function accentColor(preset: ThemePreset, themeColor: string): string {
-	return presetColors[preset] ?? themeColor;
 }
 
 /** `index.html` applies the cached stylesheet from this key before render to avoid a flash of the default colors, keep them in sync */
@@ -267,10 +246,10 @@ const cssStorageKey = 'doglog-studio:theme-color-css';
 export function applyThemeColor(
 	themeColor: string,
 	preset: ThemePreset,
-	contrast: Contrast,
+	highContrast: boolean,
 	visualizationPalette: VisualizationPalette,
 ): void {
-	const css = themeColorCss(themeColor, contrast, preset, visualizationPalette);
+	const css = themeColorCss(themeColor, highContrast, preset, visualizationPalette);
 
 	// `index.html` may have added this element already
 	let style = document.querySelector<HTMLStyleElement>('#theme-color');

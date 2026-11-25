@@ -15,14 +15,15 @@ import { UtilityPage, UtilityPageSection } from '@/components/utility-page';
 import { getRobotHost } from '@/robot-target';
 import { useAnonymousName } from '@/sharing/identity';
 import { reportsNaturalScrolling, updateSettings, useSettings } from '@/settings';
-import { AppearanceSettings, ContrastSetting, VisualizationPaletteSetting } from '@/theme/appearance-settings';
+import { AppearanceSettings, VisualizationPaletteSetting } from '@/theme/appearance-settings';
 
 export const Route = createFileRoute('/settings')({
 	component: Settings,
 });
 
 function Settings() {
-	const { name, robotTarget, reduceLiveBandwidth, mediaControls, naturalScrolling, reduceMotion } = useSettings();
+	const { name, robotTarget, reduceLiveBandwidth, mediaControls, naturalScrolling, reduceMotion, highContrast } =
+		useSettings();
 	const hasCloudAccount = useSelector(cloudAccountStore, (account) => account !== null);
 	const anonymousName = useAnonymousName();
 	const robotHost = getRobotHost(robotTarget);
@@ -41,7 +42,12 @@ function Settings() {
 				<Divider />
 
 				<UtilityPageSection title="Accessibility" description="Make Studio easier to see and use">
-					<ContrastSetting />
+					<Switch
+						label="High contrast"
+						description="Stronger text and borders, always on when your system increases contrast"
+						value={highContrast}
+						onChange={(checked) => updateSettings({ highContrast: checked })}
+					/>
 					<VisualizationPaletteSetting />
 					<Switch
 						label="Reduce motion"

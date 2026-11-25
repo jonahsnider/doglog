@@ -85,13 +85,13 @@ Each discrete entry SHALL show its name above a row with a band per period of un
 
 ### Requirement: Band colors
 
-String values SHALL use colors whose hues are spaced evenly around the hue wheel starting from the theme color's hue (a fixed blue for the Neutral preset). True uses the theme's success color, and false uses a near-gray tinted with the theme color. Band colors MUST share one lightness that keeps black value labels readable on every band in both light and dark variants.
+String values SHALL use Astryx's categorical data colors in order. True uses the success color, and false uses Astryx's data neutral. Band colors MUST share one lightness that keeps black value labels readable on every band in both light and dark variants, and MUST be the same in every preset.
 
-#### Scenario: Theme color changes
+#### Scenario: String values
 
 - **GIVEN** the graph shows `/Arm/State`
-- **WHEN** the user picks a different theme color
-- **THEN** the bands are redrawn with colors based on the new theme color
+- **WHEN** it shows its first two values
+- **THEN** the first value's bands are a light blue and the second's a light orange
 
 ### Requirement: Layout
 

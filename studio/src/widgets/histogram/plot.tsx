@@ -111,7 +111,7 @@ export function HistogramPlot({
 			const colorList = colors.split(' ');
 			const css = (variable: string) => () => getComputedStyle(target).getPropertyValue(variable).trim();
 			const font = `12px ${getComputedStyle(target).fontFamily}`;
-			const axis = { font, stroke: css('--md-on-surface-variant'), ticks: { show: false }, gap: 4 };
+			const axis = { font, stroke: css('--color-text-secondary'), ticks: { show: false }, gap: 4 };
 			const chart = new uPlot(
 				{
 					width: target.clientWidth,
@@ -143,7 +143,7 @@ export function HistogramPlot({
 							filter: (_plot, ticks) => ticks.map((tick) => (tick !== null && Number.isInteger(tick) ? tick : null)),
 							// Faint like a graph's, so they don't compete with the data
 							grid: {
-								stroke: () => `color-mix(in oklab, ${css('--md-outline-variant')()} 45%, transparent)`,
+								stroke: () => `color-mix(in oklab, ${css('--color-border')()} 45%, transparent)`,
 								width: 1,
 							},
 							values: (_plot, ticks) => ticks.map((tick) => (tick === null ? '' : tick.toLocaleString())),

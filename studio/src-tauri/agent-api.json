@@ -2522,13 +2522,9 @@
 						"type": "string",
 						"pattern": "^#[\\da-f]{6}$"
 					},
-					"contrast": {
-						"type": "string",
-						"enum": [
-							"standard",
-							"medium",
-							"high"
-						]
+					"highContrast": {
+						"description": "Whether to use high contrast colors even when the system doesn't ask for more contrast",
+						"type": "boolean"
 					},
 					"reduceMotion": {
 						"description": "Whether to skip animations even when the system doesn't ask to reduce motion",

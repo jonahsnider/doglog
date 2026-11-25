@@ -156,7 +156,7 @@ const box = <boxGeometry />;
  * with an `opacity` below 1.
  */
 export function SwerveDrivebase({ color, opacity = 1 }: { color?: string; opacity?: number }) {
-	const primary = useThemeColor('var(--md-primary)');
+	const primary = useThemeColor('var(--color-accent)');
 	const bumperColor = color ?? primary;
 	const panSize = (frameHalf - tubeWidth) * 2;
 	return (

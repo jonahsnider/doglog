@@ -6,9 +6,6 @@ export type Theme = (typeof themes)[number];
 export const themePresets = ['team581', 'match13', 'froglog', 'neutral', 'custom'] as const;
 export type ThemePreset = (typeof themePresets)[number];
 
-export const contrasts = ['standard', 'medium', 'high'] as const;
-export type Contrast = (typeof contrasts)[number];
-
 export const visualizationPalettes = ['default', 'protan', 'deutan', 'tritan'] as const;
 export type VisualizationPalette = (typeof visualizationPalettes)[number];
 

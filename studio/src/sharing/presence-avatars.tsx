@@ -12,7 +12,7 @@ import './presence-avatars.css';
 const styles = stylex.create({
 	group: { display: 'flex' },
 	pane: { marginInlineEnd: spacingVars['--spacing-1'] },
-	// Each user's color follows the theme and contrasts equally with the background, see presence-avatars.css
+	// Each user's color is a series color, see presence-avatars.css
 	color: (color: string) => ({
 		backgroundColor: color,
 	}),

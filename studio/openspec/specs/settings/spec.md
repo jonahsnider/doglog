@@ -2,19 +2,19 @@
 
 ## Purpose
 
-Define the Settings page, where users choose the color theme, contrast, visualization colors, whether to reduce motion, their name, the robot connection target, and whether media controls control playback, with all settings persisted locally on the device. The page also shows which version of Studio is running.
+Define the Settings page, where users choose the color theme, high contrast, visualization colors, whether to reduce motion, their name, the robot connection target, and whether media controls control playback, with all settings persisted locally on the device. The page also shows which version of Studio is running.
 
 ## Requirements
 
 ### Requirement: Settings sections
 
-Settings SHALL group related settings under titled sections, each with a short description beside its settings on wide windows and above them on narrow ones, in this order: Appearance (theme and theme color), Accessibility (contrast, visualization colors, and reduce motion), Robot (robot connection), Sharing (name, while signed out of Cloud), and System (media controls, natural scrolling, the terminal command, and coding agents).
+Settings SHALL group related settings under titled sections, each with a short description beside its settings on wide windows and above them on narrow ones, in this order: Appearance (theme and theme color), Accessibility (high contrast, visualization colors, and reduce motion), Robot (robot connection), Sharing (name, while signed out of Cloud), and System (media controls, natural scrolling, the terminal command, and coding agents).
 
 #### Scenario: Find the theme
 
 - **WHEN** the user opens Settings
 - **THEN** the theme and theme color settings are under Appearance
-- **AND** the contrast, visualization colors, and reduce motion settings are under Accessibility
+- **AND** the high contrast, visualization colors, and reduce motion settings are under Accessibility
 
 ### Requirement: Theme setting
 
@@ -130,15 +130,15 @@ Settings SHALL let users choose a theme color preset of Team 581 maroon, match13
 - **WHEN** the user resets it
 - **THEN** the custom color is `#1c1816` again
 
-### Requirement: Contrast setting
+### Requirement: High contrast setting
 
-Settings SHALL let users choose standard, medium, or high contrast for generated color schemes, defaulting to standard.
+Settings SHALL offer a "High contrast" switch, off by default. It MUST explain that high contrast is always on when the system asks for more contrast.
 
 #### Scenario: High contrast
 
 - **GIVEN** the Team 581 maroon preset is selected
-- **WHEN** the user selects high contrast
-- **THEN** Studio's light and dark themes are regenerated at high contrast
+- **WHEN** the user turns on High contrast
+- **THEN** Studio's light and dark themes use high contrast colors
 
 ### Requirement: Visualization colors setting
 

@@ -30,7 +30,7 @@ const dpadWell = 31;
 
 const styles = stylex.create({
 	/** Buttons stand out from the body, the wells around sticks and the D-pad sink into it */
-	raised: { fill: 'var(--md-surface-bright)', stroke: colorVars['--color-border'] },
+	raised: { fill: colorVars['--color-background-surface'], stroke: colorVars['--color-border'] },
 	recessed: { fill: colorVars['--color-background-body'], stroke: colorVars['--color-border'] },
 	pressed: { fill: colorVars['--color-accent'], stroke: colorVars['--color-accent'] },
 	shell: { fill: colorVars['--color-background-muted'], stroke: colorVars['--color-border'] },

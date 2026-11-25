@@ -1,193 +1,152 @@
-import { Contrast, Hct, argbFromHex, lstarFromArgb } from '@material/material-color-utilities';
-import { afterEach, assert, describe, expect, test, vi } from 'vite-plus/test';
+import { afterEach, expect, test, vi } from 'vite-plus/test';
 import { themePresets, visualizationPalettes } from '@/theme/choices';
-import css from '../index.css?raw';
-import { seriesPaletteVariables } from './series-palette.ts';
+import { seriesOutline, seriesPaletteColors, seriesPaletteVariables } from './series-palette.ts';
 import {
 	applyThemeColor,
-	chartColorVariables,
+	defaultCustomColor,
 	defaultThemeColor,
-	schemeColors,
+	themeColors,
 	themeColorVariables,
 	themePreviewColors,
 } from './theme-color.ts';
-import { statusColorVariables } from './status-color.ts';
-import { team581Palette } from './team581-theme.ts';
 
 afterEach(() => {
 	vi.unstubAllGlobals();
 });
 
-function cssVariables(block: string): string[] {
-	return Array.from(
-		block.matchAll(/(--[a-z\d-]+): rgb\((\d+) (\d+) (\d+)\);/gu),
-		([, name, ...rgb]) => `${name}:#${rgb.map((channel) => Number(channel).toString(16).padStart(2, '0')).join('')}`,
-	);
+/** WCAG relative luminance of a `#rrggbb` color */
+function luminance(color: string): number {
+	const [red, green, blue] = [1, 3, 5].map((index) => {
+		const channel = Number.parseInt(color.slice(index, index + 2), 16) / 255;
+		return channel <= 0.040_45 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+	});
+	return 0.2126 * red! + 0.7152 * green! + 0.0722 * blue!;
 }
 
-function generatedVariables(dark: boolean): string[] {
-	return (
-		themeColorVariables(defaultThemeColor, dark, 'standard', 'team581') +
-		chartColorVariables(defaultThemeColor, dark) +
-		statusColorVariables(defaultThemeColor, dark)
-	)
-		.split(';')
-		.filter(Boolean);
+/** WCAG contrast ratio of two `#rrggbb` colors */
+function contrastRatio(a: string, b: string): number {
+	const [light, dark] = [luminance(a), luminance(b)].toSorted((x, y) => y - x);
+	return (light! + 0.05) / (dark! + 0.05);
 }
 
-// The default colors in index.css are used before JS loads, so they must match the generated ones
-describe('themeColorVariables()', () => {
-	const light = css.slice(css.indexOf(':root {\n\tcolor-scheme: light;'), css.indexOf('.dark {'));
-	const dark = css.slice(css.indexOf('.dark {'), css.indexOf('/*\n * REBUILT'));
+/** CIE L* of a `#rrggbb` color */
+const lstar = (color: string) => 116 * Math.cbrt(luminance(color)) - 16;
 
-	test('default light colors match index.css', () => {
-		expect(generatedVariables(false)).toStrictEqual(cssVariables(light));
-	});
+const channels = (color: string) => [1, 3, 5].map((index) => Number.parseInt(color.slice(index, index + 2), 16));
 
-	test('default dark colors match index.css', () => {
-		expect(generatedVariables(true)).toStrictEqual(cssVariables(dark));
-	});
-
-	test('match13 standard dark actions and their preview use the site blue', () => {
-		expect(themeColorVariables(defaultThemeColor, true, 'standard', 'match13')).toContain('--md-primary:#29a3f6;');
-		expect(themePreviewColors('match13', defaultThemeColor, true, 'standard').primary).toBe('#29a3f6');
-	});
-
-	test.each([
-		['standard', 6],
-		['medium', 7],
-		['high', 11],
-	] as const)('match13 dark primary labels retain %s contrast', (contrast, ratio) => {
-		const variables = themeColorVariables(defaultThemeColor, true, contrast, 'match13');
-		const primary = variables.match(/--md-primary:(#[\da-f]{6});/u)?.[1];
-		const onPrimary = variables.match(/--md-on-primary:(#[\da-f]{6});/u)?.[1];
-		assert.isDefined(primary);
-		assert.isDefined(onPrimary);
-		expect(
-			Contrast.ratioOfTones(lstarFromArgb(argbFromHex(primary)), lstarFromArgb(argbFromHex(onPrimary))),
-		).toBeGreaterThanOrEqual(ratio);
-	});
+test('match13 dark actions and their preview use the site blue', () => {
+	expect(themeColorVariables(defaultThemeColor, true, false, 'match13')).toContain('--studio-color-accent:#29a3f6;');
+	expect(themePreviewColors('match13', defaultThemeColor, true, false).primary).toBe('#29a3f6');
 });
 
-// The shared Team 581 Astryx theme has its own copy of the maroon scheme, so other apps don't need this generator
-test.each([
-	[false, 0],
-	[true, 1],
-] as const)('the Team 581 Astryx palette matches the generated maroon scheme (dark: %s)', (dark, mode) => {
-	const generated = `;${themeColorVariables(defaultThemeColor, dark, 'standard', 'team581')}${statusColorVariables(defaultThemeColor, dark)}`;
-	for (const [role, colors] of Object.entries(team581Palette)) {
-		expect(generated).toMatch(new RegExp(`;--(?:md-)?${role}:${colors[mode]};`, 'u'));
-	}
-});
+// Custom colors include a saturated one and a near-black one, which seed the custom neutral too
+const cases = themePresets.flatMap((preset) =>
+	(preset === 'custom' ? [defaultCustomColor, '#3366ff', '#ffe600'] : [defaultThemeColor]).flatMap((color) =>
+		[false, true].map((dark) => [preset, color, dark] as const),
+	),
+);
 
-test.each([false, true])('FrogLog uses readable green and blue accents (dark: %s)', (dark) => {
-	const color = schemeColors(defaultThemeColor, dark, 'standard', 'froglog');
-	const primary = Hct.fromInt(color('primary'));
-	const secondary = Hct.fromInt(color('secondaryContainer'));
-	expect(primary.hue).toBeGreaterThan(110);
-	expect(primary.hue).toBeLessThan(150);
-	expect(secondary.hue).toBeGreaterThan(210);
-	expect(secondary.hue).toBeLessThan(260);
-	expect(Contrast.ratioOfTones(primary.tone, lstarFromArgb(color('onPrimary')))).toBeGreaterThanOrEqual(4.5);
-	expect(Contrast.ratioOfTones(secondary.tone, lstarFromArgb(color('onSecondaryContainer')))).toBeGreaterThanOrEqual(
-		4.5,
-	);
-});
-
-test('switching presets restores the chosen scheme', () => {
-	const style = { textContent: '' };
-	const setItem = vi.fn<(key: string, value: string) => void>();
-	vi.stubGlobal('document', {
-		querySelector: () => style,
-	});
-	vi.stubGlobal('localStorage', { setItem });
-
-	applyThemeColor('#123456', 'custom', 'standard', 'default');
-	const customCss = style.textContent;
-	expect(customCss).toContain(themeColorVariables('#123456', false, 'standard', 'custom'));
-	expect(customCss).toContain(themeColorVariables('#123456', true, 'standard', 'custom'));
-
-	applyThemeColor('#123456', 'team581', 'standard', 'default');
-	expect(style.textContent).toContain(themeColorVariables(defaultThemeColor, false, 'standard', 'team581'));
-	expect(style.textContent).toContain(themeColorVariables(defaultThemeColor, true, 'standard', 'team581'));
-
-	applyThemeColor('#123456', 'custom', 'standard', 'default');
-	expect(style.textContent).toBe(customCss);
-});
-
-test.each(visualizationPalettes.filter((palette) => palette !== 'default'))(
-	'%s changes only the series fills and outlines, with fill contrast on light and dark surfaces',
-	(palette) => {
-		const style = { textContent: '' };
-		vi.stubGlobal('document', { querySelector: () => style });
-		vi.stubGlobal('localStorage', { setItem: () => {} });
-
-		applyThemeColor(defaultThemeColor, 'team581', 'standard', palette);
-		const themedCss = style.textContent;
-		const seriesDeclaration = /--series-[1-5]:(#[\da-f]{6});/gu;
-		const outlineDeclaration = /--series-outline-([1-5]):(#[\da-f]{6});/gu;
-		for (const [index, dark] of [false, true].entries()) {
-			const block = themedCss.split('}')[index]!;
-			const colors = Array.from(block.matchAll(seriesDeclaration), ([, color]) => color!);
-			expect(new Set(colors).size).toBe(5);
-			// The first five are the default outlines; the overrides must follow them.
-			const outlines = Array.from(block.matchAll(outlineDeclaration)).slice(5);
-			expect(outlines).toHaveLength(5);
-			for (const [, slot, color] of outlines) {
-				const fillTone = lstarFromArgb(argbFromHex(colors[Number(slot) - 1]!));
-				const outlineTone = lstarFromArgb(argbFromHex(color!));
-				const difference = Math.abs(fillTone - outlineTone);
-				expect(difference).toBeGreaterThan(9.5);
-				expect(difference).toBeLessThan(20.5);
-				expect(outlineTone / 10).toBeCloseTo(Math.round(outlineTone / 10), 1);
-			}
-			for (const preset of themePresets) {
-				const surface = lstarFromArgb(schemeColors(defaultThemeColor, dark, 'standard', preset)('surface'));
-				for (const color of colors) {
-					expect(Contrast.ratioOfTones(lstarFromArgb(argbFromHex(color)), surface)).toBeGreaterThanOrEqual(3);
-				}
-			}
-		}
-
-		applyThemeColor(defaultThemeColor, 'team581', 'standard', 'default');
-		expect(themedCss.replaceAll(seriesDeclaration, '').replaceAll(outlineDeclaration, '')).toBe(
-			style.textContent.replaceAll(outlineDeclaration, ''),
-		);
+test.each(cases)(
+	'%s (%s, dark: %s) text and accent labels are readable with and without high contrast',
+	(preset, color, dark) => {
+		const ratios = (highContrast: boolean) => {
+			const { tokens } = themeColors(color, dark, highContrast, preset);
+			const surface = tokens['--color-background-surface']!;
+			expect(contrastRatio(tokens['--color-on-accent']!, tokens['--color-accent']!)).toBeGreaterThanOrEqual(4.5);
+			return {
+				text: contrastRatio(tokens['--color-text-secondary']!, surface),
+				border: contrastRatio(tokens['--color-border-emphasized']!, surface),
+			};
+		};
+		const standard = ratios(false);
+		const high = ratios(true);
+		expect(standard.text).toBeGreaterThanOrEqual(4.5);
+		// High contrast makes secondary text stronger, and emphasized borders readable boundaries
+		expect(high.text).toBeGreaterThan(standard.text);
+		expect(high.border).toBeGreaterThanOrEqual(3);
 	},
 );
 
-test.each([false, true])('deutan includes a neutral series color instead of another hue (dark: %s)', (dark) => {
-	expect(seriesPaletteVariables('deutan', dark)).toMatch(/--series-[1-5]:#([\da-f]{2})\1\1;/u);
-});
-
-test('the near-black deutan fill uses a lighter tone 20 outline', () => {
-	const outline = seriesPaletteVariables('deutan', false).match(/--series-outline-4:(#[\da-f]{6});/u)?.[1];
-	assert.isDefined(outline);
-	expect(lstarFromArgb(argbFromHex(outline))).toBeCloseTo(20, 0);
+test.each([false, true])('FrogLog uses a green accent and blue selected items (dark: %s)', (dark) => {
+	const { tokens } = themeColors(defaultThemeColor, dark, false, 'froglog');
+	const [accentRed, accentGreen, accentBlue] = channels(tokens['--color-accent']!);
+	const [selectedRed, selectedGreen, selectedBlue] = channels(tokens['--color-accent-muted']!);
+	expect(accentGreen).toBeGreaterThan(Math.max(accentRed!, accentBlue!));
+	expect(selectedBlue).toBeGreaterThan(Math.max(selectedRed!, selectedGreen!));
 });
 
 test.each(
 	[false, true].flatMap((dark) =>
-		(['standard', 'high'] as const).flatMap((contrast) =>
-			['primary', 'secondary-container', 'surface', 'surface-container', 'outline-variant'].map(
-				(role) => [dark, contrast, role] as const,
-			),
+		[false, true].flatMap((highContrast) =>
+			[
+				'--color-accent',
+				'--color-accent-muted',
+				'--color-background-surface',
+				'--color-background-popover',
+				'--color-border-emphasized',
+			].map((token) => [dark, highContrast, token] as const),
 		),
 	),
-)('neutral %s %s %s is untinted', (dark, contrast, role) => {
+)('neutral (dark: %s, high contrast: %s) %s is untinted', (dark, highContrast, token) => {
 	// Equal red, green, and blue
-	expect(themeColorVariables(defaultThemeColor, dark, contrast, 'neutral')).toMatch(
-		new RegExp(`--md-${role}:#(\\w\\w)\\1\\1;`, 'u'),
-	);
+	expect(themeColors(defaultThemeColor, dark, highContrast, 'neutral').tokens[token]).toMatch(/^#(\w\w)\1\1$/u);
 });
 
-test('only the Team 581 preset previews muted surfaces for the maroon seed', () => {
-	expect(themePreviewColors('team581', defaultThemeColor, true, 'standard')).toMatchObject({
-		sidebar: '#161212',
-		primary: '#f9b6b1',
-	});
-	expect(themePreviewColors('custom', defaultThemeColor, true, 'standard')).toMatchObject({
-		sidebar: '#1a1110',
-		primary: '#f9b6b1',
-	});
+test('switching presets restores the chosen scheme', () => {
+	const style = { textContent: '' };
+	vi.stubGlobal('document', { querySelector: () => style });
+	vi.stubGlobal('localStorage', { setItem: () => {} });
+
+	applyThemeColor('#123456', 'custom', false, 'default');
+	const customCss = style.textContent;
+	expect(customCss).toContain(themeColorVariables('#123456', false, false, 'custom'));
+	expect(customCss).toContain(themeColorVariables('#123456', true, false, 'custom'));
+
+	applyThemeColor('#123456', 'team581', false, 'default');
+	expect(style.textContent).toContain(themeColorVariables(defaultThemeColor, false, false, 'team581'));
+
+	applyThemeColor('#123456', 'custom', false, 'default');
+	expect(style.textContent).toBe(customCss);
+});
+
+test('high contrast applies when the system asks for more contrast, and always when it is on', () => {
+	const style = { textContent: '' };
+	vi.stubGlobal('document', { querySelector: () => style });
+	vi.stubGlobal('localStorage', { setItem: () => {} });
+	const high = themeColorVariables(defaultThemeColor, true, true, 'team581');
+
+	applyThemeColor(defaultThemeColor, 'team581', false, 'default');
+	const media = style.textContent.indexOf('@media (prefers-contrast: more)');
+	expect(style.textContent.slice(0, media)).not.toContain(high);
+	expect(style.textContent.slice(media)).toContain(high);
+
+	applyThemeColor(defaultThemeColor, 'team581', true, 'default');
+	expect(style.textContent).toContain(high);
+	expect(style.textContent).not.toContain('prefers-contrast');
+});
+
+test.each(
+	visualizationPalettes.flatMap((palette) =>
+		(['light', 'dark'] as const).map((mode) => [palette, mode, mode === 'dark'] as const),
+	),
+)('%s %s series are distinct, stand out from every preset, and have outlines a step away', (palette, mode, dark) => {
+	const colors = seriesPaletteColors[palette][mode];
+	expect(new Set(colors).size).toBe(5);
+	for (const preset of themePresets) {
+		const surface = themeColors(defaultThemeColor, dark, false, preset).tokens['--color-background-surface']!;
+		for (const color of colors) {
+			expect(contrastRatio(color, surface)).toBeGreaterThanOrEqual(3);
+		}
+	}
+	for (const color of colors) {
+		const step = lstar(seriesOutline(color)) - lstar(color);
+		// Darker, unless the fill is so dark that a darker outline would be black
+		expect(Math.sign(step)).toBe(Math.sign(25 - lstar(color)));
+		expect(Math.abs(step)).toBeGreaterThan(5);
+		expect(Math.abs(step)).toBeLessThan(20);
+	}
+});
+
+test.each([false, true])('deutan includes a neutral series color instead of another hue (dark: %s)', (dark) => {
+	expect(seriesPaletteVariables('deutan', dark)).toMatch(/--series-[1-5]:#([\da-f]{2})\1\1;/u);
 });

@@ -2,7 +2,7 @@ import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import * as z from 'zod';
 import { createPersistedAtom } from '@/lib/persisted-store';
-import { contrasts, themePresets, themes, visualizationPalettes } from '@/theme/choices';
+import { themePresets, themes, visualizationPalettes } from '@/theme/choices';
 import { applyThemeColor, defaultCustomColor } from '@/theme/theme-color';
 
 const settingsSchema = z.object({
@@ -13,7 +13,8 @@ const settingsSchema = z.object({
 		.string()
 		.regex(/^#[\da-f]{6}$/iu)
 		.catch(defaultCustomColor),
-	contrast: z.enum(contrasts).catch('standard'),
+	/** Whether to use high contrast colors even when the system doesn't ask for more contrast */
+	highContrast: z.boolean().catch(false),
 	visualizationPalette: z.enum(visualizationPalettes).catch('default'),
 	/** Whether to reduce motion even when the system doesn't ask to, see `reducesMotion()` */
 	reduceMotion: z.boolean().catch(false),
@@ -67,10 +68,10 @@ export function syncTheme(): void {
 	const darkQuery = matchMedia('(prefers-color-scheme: dark)');
 	let appliedThemeColor: string | undefined;
 	let appliedThemePreset: Settings['themePreset'] | undefined;
-	let appliedContrast: Settings['contrast'] | undefined;
+	let appliedHighContrast: boolean | undefined;
 	let appliedVisualizationPalette: Settings['visualizationPalette'] | undefined;
 	const applyTheme = () => {
-		const { theme, themeColor, themePreset, contrast, visualizationPalette, reduceMotion } = settingsStore.get();
+		const { theme, themeColor, themePreset, highContrast, visualizationPalette, reduceMotion } = settingsStore.get();
 		const dark = theme === 'dark' || (theme === 'system' && darkQuery.matches);
 		document.documentElement.classList.toggle('dark', dark);
 		colorModeStore.set(dark ? 'dark' : 'light');
@@ -79,13 +80,13 @@ export function syncTheme(): void {
 		if (
 			themeColor !== appliedThemeColor ||
 			themePreset !== appliedThemePreset ||
-			contrast !== appliedContrast ||
+			highContrast !== appliedHighContrast ||
 			visualizationPalette !== appliedVisualizationPalette
 		) {
-			applyThemeColor(themeColor, themePreset, contrast, visualizationPalette);
+			applyThemeColor(themeColor, themePreset, highContrast, visualizationPalette);
 			appliedThemeColor = themeColor;
 			appliedThemePreset = themePreset;
-			appliedContrast = contrast;
+			appliedHighContrast = highContrast;
 			appliedVisualizationPalette = visualizationPalette;
 		}
 	};

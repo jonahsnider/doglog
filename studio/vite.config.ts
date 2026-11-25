@@ -62,8 +62,6 @@ function linkPreviewPlugin(): Plugin {
 				{
 					plugins: [svgr()],
 					resolve: { tsconfigPaths: true },
-					// Its ESM imports leave off file extensions, which Node can't resolve
-					environments: { inline: { resolve: { noExternal: ['@material/material-color-utilities'] } } },
 				},
 			);
 			this.emitFile({ type: 'asset', fileName: 'og.png', source: await module.renderGenericPreviewImage() });
@@ -355,14 +353,6 @@ export default defineConfig({
 			// Calls between modules in `src` go through the module runner's export getters, which makes benchmarks a bit
 			// slower than production builds, where they're direct calls. That keeps performance budgets conservative.
 			suppressExportGetterWarnings: true,
-		},
-		// Lets `theme-color.test.ts` import the default colors with `?raw`, Vitest replaces CSS with an empty string by default
-		css: { include: [/index\.css/u] },
-		server: {
-			deps: {
-				// Its ESM imports leave off file extensions, which Node can't resolve
-				inline: ['@material/material-color-utilities'],
-			},
 		},
 	},
 	optimizeDeps: {

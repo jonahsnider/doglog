@@ -1,8 +1,6 @@
 import 'uplot/dist/uPlot.min.css';
 import * as stylex from '@stylexjs/stylex';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSettings } from '@/settings';
-import { accentColor } from '@/theme/theme-color';
 import { seriesUnits } from '@/widgets/graph/axis-units';
 import { BandRow } from '@/widgets/graph/band-row';
 import { DropZones } from '@/widgets/graph/drop-zones';
@@ -57,9 +55,6 @@ const styles = stylex.create({
 });
 
 export function Graph({ bindings }: WidgetProps) {
-	const settings = useSettings();
-	const accent = accentColor(settings.themePreset, settings.themeColor);
-	const palette = useMemo(() => bandPalette(accent), [accent]);
 	const [assignments] = useState<ColorAssignments>(() => new Map());
 
 	const { plotted, discrete } = useMemo(() => {
@@ -116,7 +111,7 @@ export function Graph({ bindings }: WidgetProps) {
 	const plotTop = units.axes.y === undefined && units.axes.y2 === undefined ? edgeInset : 20;
 	// The timeline bar marks the time graphs show
 	useGraphShown();
-	const graph = useGraphDrawing(elements, series, bandEntries, palette, assignments, plotTop);
+	const graph = useGraphDrawing(elements, series, bandEntries, bandPalette, assignments, plotTop);
 	useWidgetMenu(() => ({
 		actions: [
 			{
@@ -235,7 +230,7 @@ export function Graph({ bindings }: WidgetProps) {
 				<GraphTooltip
 					bandHover={bandHover}
 					bandEntry={bandHover && discrete[bandHover.row]?.entry}
-					palette={palette}
+					palette={bandPalette}
 					assignments={assignments}
 					at={pointerAt}
 					pinned={pinned}

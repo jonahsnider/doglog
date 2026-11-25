@@ -157,8 +157,9 @@ export function HoverTooltip({
 		<div {...stylex.props(styles.content, styles.items)}>
 			{period && (
 				<TooltipItem
-					// The track's color, which the tooltip's inverted surface changes `--color-border` from
-					color={('mode' in period ? modeFills[period.mode] : undefined) ?? 'var(--md-outline-variant)'}
+					// A gray like the track's, which is `--color-border`. The tooltip's inverted surface changes that, but not the
+					// emphasized border.
+					color={('mode' in period ? modeFills[period.mode] : undefined) ?? 'var(--color-border-emphasized)'}
 					label={`${'mode' in period ? modeLabels[period.mode] : 'Disconnected'}${compressed ? ' (skipped)' : ''}`}
 					from={period.start}
 					to={period.end}

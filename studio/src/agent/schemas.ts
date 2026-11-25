@@ -1,6 +1,6 @@
 // Input schemas shared by agent commands, see `@/agent/commands`. Only Zod and other modules without React or the DOM.
 import * as z from 'zod';
-import { chartCount, contrasts, themePresets, themes } from '../theme/choices.ts';
+import { chartCount, themePresets, themes } from '../theme/choices.ts';
 import { type WidgetInfo, type WidgetOptionInfo, widgetInfos, type WidgetTypeId } from '../widgets/widget-info.ts';
 
 export const dashboardId = z.string().describe("The dashboard's ID, from `dashboard_list`");
@@ -162,7 +162,10 @@ export const settingsSchema = z.strictObject({
 		.regex(/^#[\da-f]{6}$/iu)
 		.optional()
 		.describe('Hex color the `custom` theme preset is generated from, ex. `#1c1816`'),
-	contrast: z.enum(contrasts).optional(),
+	highContrast: z
+		.boolean()
+		.optional()
+		.describe("Whether to use high contrast colors even when the system doesn't ask for more contrast"),
 	reduceMotion: z
 		.boolean()
 		.optional()

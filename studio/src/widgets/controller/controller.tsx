@@ -30,7 +30,7 @@ const styles = stylex.create({
 		width: '100%',
 	},
 	shell: { fill: colorVars['--color-background-muted'], stroke: colorVars['--color-border'] },
-	touchpad: { fill: 'var(--md-surface-bright)', stroke: colorVars['--color-border'] },
+	touchpad: { fill: colorVars['--color-background-surface'], stroke: colorVars['--color-border'] },
 	container: {
 		containerType: 'inline-size',
 		display: 'flex',

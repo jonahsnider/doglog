@@ -2,24 +2,34 @@
 
 ## Purpose
 
-Define Studio's visual identity: a Material Design 3 color scheme generated from a theme color (Team 581 maroon by default) or from untinted grays, available in both light and dark variants, and consistent motion.
+Define Studio's visual identity: Astryx color tokens generated from a preset's seed colors (Team 581 maroon by default) or from untinted grays, available in both light and dark variants, and consistent motion.
 
 ## Requirements
 
 ### Requirement: Generated color scheme
 
-Studio SHALL generate a Material Design 3 Tonal Spot scheme using the 2025 spec. The default Team 581 preset MUST use seed `#591616` and HCT chroma 1 and 2 in light mode and 2 and 3.5 in dark mode for the neutral and neutral variant palettes, respectively. The MD3 contrast level MUST be 0 for Standard, 0.5 for Medium, and 1 for High.
+Studio SHALL generate its color tokens with Astryx's palette generator (`astryx-oklch-v2`) from each preset's accent, neutral, and status seeds. The default Team 581 preset MUST use accent `#591616` and neutral `#6f6564`.
 
 #### Scenario: Default color
 
 - **GIVEN** the Team 581 preset is selected
 - **WHEN** the user views Studio in light or dark mode
-- **THEN** neutral surfaces have a subtler maroon tint than stock Tonal Spot
-- **AND** primary actions keep the stock maroon-derived accent
+- **THEN** neutral surfaces have a subtle maroon tint
+- **AND** primary actions use the maroon accent
+
+### Requirement: High contrast
+
+Studio SHALL use the palette generator's own mapping unless the High contrast setting is on or the system asks for more contrast. High contrast MUST follow the generator's tone-based high contrast rules on the same neutral ramp: secondary text and icons move 10 stops toward contrast, translucent borders become twice as opaque, and emphasized borders start mid-scale and move toward contrast until they reach 3:1 against surfaces. Secondary text MUST keep at least 4.5:1 against surfaces either way.
+
+#### Scenario: High contrast borders
+
+- **GIVEN** any preset is selected
+- **WHEN** the user turns on High contrast, or the system asks for more contrast
+- **THEN** borders and secondary text get stronger, while surfaces and accents stay the same
 
 ### Requirement: match13 palette
 
-The match13 preset MUST retain its `#1a7ccd` seed. Its primary, secondary, and neutral palette inputs MUST be `#135ab0`, `#cddff8`, and `#e2efff` in light mode and `#6ab0fd`, `#273e55`, and `#000000` in dark mode. Dark primary actions and focus rings MUST use the site's `sky-400` (`#29a3f6`) at Standard contrast and lighter tones at Medium and High. Primary labels MUST retain MD3's contrast targets.
+The match13 preset MUST use accent `#135ab0` and neutral `#e2efff` in light mode, and the site's `sky-400` (`#29a3f6`) accent with a `#000000` neutral in dark mode.
 
 #### Scenario: match13 colors
 
@@ -42,7 +52,7 @@ The skiing mascot SHALL ride the leading edge of the progress fill when loading 
 
 ### Requirement: FrogLog palette
 
-FrogLog SHALL use leaf green for its primary palette and soft stream blue for its secondary palette. Both palettes MUST follow the selected light or dark appearance and contrast setting.
+FrogLog SHALL use leaf green (`#79b748`) for its accent and soft stream blue (`#9ed8f7`) for selected items, each following the selected light or dark appearance.
 
 #### Scenario: FrogLog accents
 
@@ -52,7 +62,7 @@ FrogLog SHALL use leaf green for its primary palette and soft stream blue for it
 
 ### Requirement: Neutral colors
 
-The Neutral preset SHALL generate its scheme from untinted gray palettes in place of the primary, secondary, neutral, and neutral variant palettes, so surfaces, borders, and primary actions have no hue. Its series, status, and band colors MUST be generated from a fixed blue, since gray has no hue to start from.
+The Neutral preset SHALL generate its colors from gray accent and neutral seeds, so surfaces, borders, and primary actions have no hue.
 
 #### Scenario: Neutral primary actions
 
@@ -87,17 +97,17 @@ Studio SHALL tint a native backdrop with the theme's frame color on macOS (Liqui
 
 ### Requirement: Status colors
 
-The theme SHALL provide success, info, warning, and test mode status colors, each with a lighter fill for icons and backgrounds and a text color readable on surfaces. They MUST be generated from fixed hues the way MD3 custom colors are: success, info, and test mode are nudged toward the theme color's hue, while warning keeps its amber hue so it never looks like the error color.
+The theme SHALL provide success, info, warning, and error status colors, each with a fill for icons and backgrounds and a text color readable on surfaces, and a test mode fill. They MUST be generated from the same fixed seeds in every preset, so they keep their meaning next to any theme color.
 
-#### Scenario: Themed status colors
+#### Scenario: Status colors in any preset
 
-- **GIVEN** the Team 581 preset is selected
+- **GIVEN** any preset is selected
 - **WHEN** the user views a success badge
-- **THEN** it's green, nudged slightly toward the maroon theme color
+- **THEN** it's the same green as in every other preset
 
 ### Requirement: Series colors
 
-The theme SHALL provide 5 distinguishable series colors in light and dark. Default MUST space the hues evenly starting from the theme hue, at the same lightness. Protan, deutan, and tritan MUST use fixed light and dark palettes checked under the corresponding color vision simulation. They MUST NOT change logged colors or the game field.
+The theme SHALL provide 5 distinguishable series colors in light and dark, each with a darker outline from its own ramp (lighter for fills near black). Default MUST use Astryx's categorical data colors in their order, leaving out colors under 3:1 against light or dark panes and red, which reads as an error. Protan, deutan, and tritan MUST use fixed light and dark palettes checked under the corresponding color vision simulation. They MUST NOT change logged colors or the game field.
 
 #### Scenario: Five entries in light theme
 
@@ -105,11 +115,11 @@ The theme SHALL provide 5 distinguishable series colors in light and dark. Defau
 - **WHEN** a widget colors 5 entries
 - **THEN** each entry has a visibly different color
 
-#### Scenario: Themed series colors
+#### Scenario: Series colors in any preset
 
-- **GIVEN** the match13 preset and Default visualization colors are selected
-- **WHEN** a widget colors entries
-- **THEN** the first entry is blue, matching match13's theme color
+- **GIVEN** Default visualization colors are selected
+- **WHEN** the user switches between presets
+- **THEN** widgets keep the same series colors, starting with Astryx's blue
 
 ### Requirement: Motion
 

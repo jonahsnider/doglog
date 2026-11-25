@@ -38,11 +38,12 @@ Keep feature behavior and functionality in `openspec/specs`.
 
 ## Color
 
-- Use Astryx semantic tokens wherever possible, falling back to Material Design 3 color roles
-- Colors Astryx has no token for are CSS variables: series colors, code colors, FRC game colors, and MD3 roles as `--md-*`
-- Use the MD3 role in between two colors instead of introducing arbitrary opacity percentages to colors
-  - Use opacity only for MD3's state values: 8% hover, 10% focus and pressed, 16% dragged, 38% disabled content, 12% disabled containers, and 32% scrims
-- Generate new colors from the theme color with the generators in `src/theme`, so they follow every preset, contrast level, and color mode
+- Use Astryx semantic color tokens
+- Colors Astryx has no token for are CSS variables: series colors, code colors, FRC game colors, and test mode
+- Presets are seeds for Astryx's palette generator, see `src/theme/theme-color.ts`; change a seed or a palette stop rather than overriding single tokens
+- Use a token in between two colors instead of introducing arbitrary opacity percentages to colors
+  - Use opacity only for state values: 8% hover, 10% focus and pressed, 16% dragged, 38% disabled content, 12% disabled containers, and 32% scrims
+- Make new colors from Astryx's tokens, data colors, or ramps (`shade()` in `src/theme/series-palette.ts`) instead of picking hex values, so they follow color modes and high contrast
 - Colors explicitly defined (ex. in robot code or FRC game colors) should be used as-is, not themed
 - Check new colors with several theme colors in light and dark
   - Muddy yellows and hues drifting toward the error color are the usual problems

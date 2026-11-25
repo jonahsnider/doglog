@@ -31,157 +31,10 @@
 
 :root {
 	color-scheme: light;
-	/* Team 581 Material Design 3 colors, generated with @material/material-color-utilities */
-	/* Tonal Spot (2025) with seed #591616 and muted neutral palettes (chroma 1 and 2, 2 and 3.5 in dark mode) */
-	/* These are the defaults before JS loads, src/theme/theme-color.ts overrides them with colors from the theme color setting */
-	--md-primary: rgb(140 77 74);
-	--md-surface-tint: rgb(140 77 74);
-	--md-on-primary: rgb(255 247 246);
-	--md-primary-container: rgb(253 172 167);
-	--md-on-primary-container: rgb(98 44 41);
-	--md-secondary: rgb(120 87 85);
-	--md-on-secondary: rgb(255 247 246);
-	--md-secondary-container: rgb(255 218 215);
-	--md-on-secondary-container: rgb(105 74 72);
-	--md-tertiary: rgb(125 88 41);
-	--md-on-tertiary: rgb(255 247 243);
-	--md-tertiary-container: rgb(251 201 143);
-	--md-on-tertiary-container: rgb(98 64 19);
-	--md-error: rgb(167 59 33);
-	--md-on-error: rgb(255 247 246);
-	--md-error-container: rgb(253 121 90);
-	--md-on-error-container: rgb(110 20 0);
-	--md-background: rgb(254 248 247);
-	--md-on-background: rgb(53 50 49);
-	--md-surface: rgb(254 248 247);
-	--md-on-surface: rgb(53 50 49);
-	--md-surface-variant: rgb(232 225 224);
-	--md-on-surface-variant: rgb(99 94 93);
-	--md-outline: rgb(127 121 121);
-	--md-outline-variant: rgb(183 176 176);
-	--md-shadow: rgb(0 0 0);
-	--md-scrim: rgb(0 0 0);
-	--md-inverse-surface: rgb(15 14 14);
-	--md-inverse-on-surface: rgb(160 156 155);
-	--md-inverse-primary: rgb(253 172 167);
-	--md-primary-fixed: rgb(253 172 167);
-	--md-on-primary-fixed: rgb(72 24 22);
-	--md-primary-fixed-dim: rgb(237 159 154);
-	--md-on-primary-fixed-variant: rgb(109 52 50);
-	--md-secondary-fixed: rgb(255 218 215);
-	--md-on-secondary-fixed: rgb(85 56 54);
-	--md-secondary-fixed-dim: rgb(245 202 199);
-	--md-on-secondary-fixed-variant: rgb(116 83 81);
-	--md-tertiary-fixed: rgb(251 201 143);
-	--md-on-tertiary-fixed: rgb(76 46 2);
-	--md-tertiary-fixed-dim: rgb(236 187 131);
-	--md-on-tertiary-fixed-variant: rgb(108 74 28);
-	--md-surface-dim: rgb(224 216 215);
-	--md-surface-bright: rgb(254 248 247);
-	--md-surface-container-lowest: rgb(255 255 255);
-	--md-surface-container-low: rgb(249 242 241);
-	--md-surface-container: rgb(243 236 235);
-	--md-surface-container-high: rgb(238 231 230);
-	--md-surface-container-highest: rgb(232 225 224);
-
-	/* Chart colors generated from the theme color, see `chartColorVariables()` in src/theme/theme-color.ts */
-	--chart-1: rgb(194 74 71);
-	--chart-2: rgb(137 111 0);
-	--chart-3: rgb(0 130 91);
-	--chart-4: rgb(0 122 170);
-	--chart-5: rgb(143 87 200);
-	--series-outline-1: rgb(135 31 33);
-	--series-outline-2: rgb(86 69 0);
-	--series-outline-3: rgb(0 81 56);
-	--series-outline-4: rgb(0 76 108);
-	--series-outline-5: rgb(97 39 152);
-	/* Only widget series colors are overridden by the visualization palette. */
-	--series-1: var(--chart-1);
-	--series-2: var(--chart-2);
-	--series-3: var(--chart-3);
-	--series-4: var(--chart-4);
-	--series-5: var(--chart-5);
-	/* Status colors generated from the theme color, see `statusColorVariables()` in src/theme/status-color.ts */
-	--success: rgb(64 164 85);
-	--success-foreground: rgb(0 110 43);
-	--info: rgb(120 133 255);
-	--info-foreground: rgb(66 80 206);
-	--warning: rgb(254 166 25);
-	--warning-foreground: rgb(133 83 0);
-	--test-mode: rgb(191 105 250);
 }
 
 .dark {
 	color-scheme: dark;
-	--md-primary: rgb(249 182 177);
-	--md-surface-tint: rgb(249 182 177);
-	--md-on-primary: rgb(97 51 49);
-	--md-primary-container: rgb(118 69 66);
-	--md-on-primary-container: rgb(255 219 216);
-	--md-secondary: rgb(231 189 185);
-	--md-on-secondary: rgb(86 57 55);
-	--md-secondary-container: rgb(80 52 50);
-	--md-on-secondary-container: rgb(223 181 178);
-	--md-tertiary: rgb(255 217 176);
-	--md-on-tertiary: rgb(108 73 27);
-	--md-tertiary-container: rgb(251 201 143);
-	--md-on-tertiary-container: rgb(98 64 19);
-	--md-error: rgb(249 119 88);
-	--md-on-error: rgb(69 9 0);
-	--md-error-container: rgb(133 35 10);
-	--md-on-error-container: rgb(255 155 130);
-	--md-background: rgb(16 13 13);
-	--md-on-background: rgb(238 227 226);
-	--md-surface: rgb(16 13 13);
-	--md-on-surface: rgb(238 227 226);
-	--md-surface-variant: rgb(42 36 36);
-	--md-on-surface-variant: rgb(179 169 168);
-	--md-outline: rgb(124 115 115);
-	--md-outline-variant: rgb(77 70 70);
-	--md-shadow: rgb(0 0 0);
-	--md-scrim: rgb(0 0 0);
-	--md-inverse-surface: rgb(255 248 247);
-	--md-inverse-on-surface: rgb(89 84 83);
-	--md-inverse-primary: rgb(133 81 78);
-	--md-primary-fixed: rgb(255 187 183);
-	--md-on-primary-fixed: rgb(78 36 34);
-	--md-primary-fixed-dim: rgb(240 174 169);
-	--md-on-primary-fixed-variant: rgb(112 64 61);
-	--md-secondary-fixed: rgb(255 218 215);
-	--md-on-secondary-fixed: rgb(85 56 54);
-	--md-secondary-fixed-dim: rgb(245 202 199);
-	--md-on-secondary-fixed-variant: rgb(116 83 81);
-	--md-tertiary-fixed: rgb(251 201 143);
-	--md-on-tertiary-fixed: rgb(76 46 2);
-	--md-tertiary-fixed-dim: rgb(236 187 131);
-	--md-on-tertiary-fixed-variant: rgb(108 74 28);
-	--md-surface-dim: rgb(16 13 13);
-	--md-surface-bright: rgb(49 43 42);
-	--md-surface-container-lowest: rgb(0 0 0);
-	--md-surface-container-low: rgb(22 18 18);
-	--md-surface-container: rgb(29 25 24);
-	--md-surface-container-high: rgb(35 30 30);
-	--md-surface-container-highest: rgb(42 36 36);
-
-	/* Chart colors generated from the theme color, see `chartColorVariables()` in src/theme/theme-color.ts */
-	--chart-1: rgb(255 146 140);
-	--chart-2: rgb(211 173 0);
-	--chart-3: rgb(0 201 143);
-	--chart-4: rgb(45 188 255);
-	--chart-5: rgb(205 155 255);
-	--series-outline-1: rgb(217 115 110);
-	--series-outline-2: rgb(173 142 0);
-	--series-outline-3: rgb(0 165 117);
-	--series-outline-4: rgb(0 155 214);
-	--series-outline-5: rgb(172 123 220);
-	/* Status colors generated from the theme color, see `statusColorVariables()` in src/theme/status-color.ts */
-	--success: rgb(92 191 109);
-	--success-foreground: rgb(120 220 134);
-	--info: rgb(155 164 255);
-	--info-foreground: rgb(189 194 255);
-	--warning: rgb(254 166 25);
-	--warning-foreground: rgb(255 185 95);
-	--test-mode: rgb(210 144 255);
 }
 
 /*
@@ -207,8 +60,9 @@
 		overscroll-behavior: none;
 	}
 	body {
-		background-color: var(--md-surface);
-		color: var(--md-on-surface);
+		/* Before the theme renders, the colors `index.html` cached for it */
+		background-color: var(--color-background-surface, var(--studio-color-background-surface));
+		color: var(--color-text-primary, var(--studio-color-text-primary));
 		font-variant-numeric: tabular-nums;
 		/* Like a native app, UI text isn't selectable. Content worth copying opts back in with `user-select: text`. */
 		user-select: none;

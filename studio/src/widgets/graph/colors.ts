@@ -1,31 +1,23 @@
-import { Hct, TonalPalette, argbFromHex, hexFromArgb } from '@material/material-color-utilities';
 import type { Entry } from '@/data/data-store';
-import { statusPalette } from '@/theme/status-color';
+import { categoricalColors, dataColor, shade } from '@/theme/series-palette';
+import { statusSeeds } from '@/theme/team581-colors';
 
-/** Every band color is light enough for black text, at HCT tone 70 black text has a contrast ratio of about 9:1 */
+/** Every band color is light enough for black text, at stop 70 black text has a contrast ratio of about 9:1 */
 export const bandTextColor = '#000000';
 
-const paletteSize = 10;
-const bandTone = 70;
+const bandStop = 70;
 
 export type BandPalette = { values: string[]; true: string; false: string };
 
 /**
- * Band colors derived from `accentColor`, sharing one HCT tone so they stand out equally on light and dark backgrounds.
- * String values get hues spaced evenly around the hue wheel starting from `accentColor`'s, true is the success color, and
- * false is a near-gray tinted with `accentColor`.
+ * Band colors from Astryx's data colors, sharing one stop so they stand out equally on light and dark backgrounds. String
+ * values get the categorical colors in order, true is the success color, and false is the data neutral.
  */
-export function bandPalette(accentColor: string): BandPalette {
-	const { hue } = Hct.fromInt(argbFromHex(accentColor));
-	return {
-		// Stepping 3/10 of a turn visits all 10 hues while keeping consecutive colors far apart
-		values: Array.from({ length: paletteSize }, (_, index) =>
-			hexFromArgb(Hct.from((hue + index * 108) % 360, 48, bandTone).toInt()),
-		),
-		true: hexFromArgb(statusPalette('success', accentColor).tone(bandTone)),
-		false: hexFromArgb(TonalPalette.fromHueAndChroma(hue, 6).tone(bandTone)),
-	};
-}
+export const bandPalette: BandPalette = {
+	values: categoricalColors.map((name) => shade(dataColor(`categorical-${name}`, false), bandStop)),
+	true: shade(statusSeeds.success, bandStop),
+	false: shade(dataColor('neutral', false), bandStop, true),
+};
 
 export type ColorAssignments = Map<Entry, Map<string, number>>;
 

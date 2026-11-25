@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 let probe: CanvasRenderingContext2D | null | undefined;
 
 /**
- * A CSS color as `#rrggbb`, which three.js understands, ex. for `var(--md-primary)`. Theme colors use color spaces and
+ * A CSS color as `#rrggbb`, which three.js understands, ex. for `var(--color-accent)`. Theme colors use color spaces and
  * functions three.js can't parse, so the color is resolved by the browser and drawn to a pixel to read it back.
  */
 function resolveColor(css: string): string {
@@ -26,7 +26,7 @@ function resolveColor(css: string): string {
 	return `#${[red, green, blue].map((channel) => channel.toString(16).padStart(2, '0')).join('')}`;
 }
 
-/** A CSS color resolved for three.js, ex. `var(--md-outline-variant)`, updated when the theme changes */
+/** A CSS color resolved for three.js, ex. `var(--color-border)`, updated when the theme changes */
 export function useThemeColor(css: string): string {
 	const [resolved, setResolved] = useState(() => resolveColor(css));
 
