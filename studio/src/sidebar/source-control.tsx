@@ -1,11 +1,12 @@
-import { useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
+import { DropdownMenu, type DropdownMenuTriggerProps } from '@astryxdesign/core/DropdownMenu';
+import { colorVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { Tooltip } from '@astryxdesign/core/Tooltip';
+import * as stylex from '@stylexjs/stylex';
+import { useHotkey } from '@tanstack/react-hotkeys';
 import ChevronsUpDownIcon from 'lucide-react/icons/chevrons-up-down';
-import { Fragment, useEffect, useId, useState } from 'react';
-import { AppContextMenu, type MenuAction, type MenuEntry } from '@/components/app-context-menu';
+import { useEffect, useState } from 'react';
+import { AppContextMenu, MenuEntries, type MenuAction, type MenuEntry } from '@/components/app-context-menu';
 import { TextMorph } from '@/components/text-morph';
-import { Menu, MenuItem, MenuPopup, MenuSeparator, MenuShortcut, MenuTrigger } from '@/components/ui/menu';
-import { SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar';
-import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { nativeMenu, openLogUrlPrompt, shortcuts, startConnect } from '@/commands/commands';
 import { useEntries } from '@/data/data-store';
 import { supportsFileHandles } from '@/data/recent-logs';
@@ -22,14 +23,68 @@ import {
 	type Sources,
 	useSources,
 } from '@/data/source';
-import { cn } from '@/lib/utils';
 import { getRobotHost, simulatorHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
-import { OpenRecentMenu } from '@/sidebar/open-recent-menu';
+import { useOpenRecentEntry } from '@/sidebar/open-recent-menu';
+import { useSidebar } from '@/sidebar/sidebar-context';
+import { SidebarMenuButton, SidebarMenuItem } from '@/sidebar/sidebar-ui';
 import { SourceIcon } from '@/sidebar/source-icon';
 import { liveColors, sourceLabels, statusLabels } from '@/sidebar/source-labels';
 import { SourceSwitcher } from '@/sidebar/source-switcher';
 import { matchIcons } from '@/sync/match-icons';
+
+const styles = stylex.create({
+	icon: {
+		position: 'relative',
+		display: 'flex',
+		flexShrink: 0,
+		width: 16,
+		height: 16,
+	},
+	liveDot: (color: string) => ({
+		position: 'absolute',
+		insetInlineEnd: -2,
+		bottom: -2,
+		width: 6,
+		height: 6,
+		borderRadius: '50%',
+		backgroundColor: color,
+		boxShadow: `0 0 0 1px ${colorVars['--color-background-body']}`,
+	}),
+	labels: {
+		display: 'grid',
+		flex: 1,
+		minWidth: 0,
+		lineHeight: 1.25,
+		textAlign: 'start',
+	},
+	name: {
+		overflow: 'hidden',
+		fontWeight: 500,
+		textOverflow: 'ellipsis',
+	},
+	detail: {
+		overflow: 'hidden',
+		color: colorVars['--color-text-secondary'],
+		fontSize: typeScaleVars['--text-supporting-size'],
+		textOverflow: 'ellipsis',
+	},
+	reconnecting: {
+		color: colorVars['--color-text-error'],
+	},
+	chevron: {
+		flexShrink: 0,
+		width: 16,
+		height: 16,
+		marginInlineStart: 'auto',
+		color: colorVars['--color-icon-secondary'],
+	},
+	tooltip: {
+		maxWidth: 320,
+		overflowWrap: 'anywhere',
+		whiteSpace: 'pre-line',
+	},
+});
 
 function ShownSourceIcon({
 	source,
@@ -42,15 +97,9 @@ function ShownSourceIcon({
 		return <SourceIcon source={source} />;
 	}
 	return (
-		<span className="relative flex size-4 shrink-0 [&>svg]:size-full">
+		<span {...stylex.props(styles.icon)}>
 			<SourceIcon source={source} />
-			<span
-				aria-hidden
-				className={cn(
-					'absolute -end-0.5 -bottom-0.5 size-1.5 rounded-full ring-1 ring-sidebar',
-					liveColors[backgroundLive.status].background,
-				)}
-			/>
+			<span aria-hidden {...stylex.props(styles.liveDot(liveColors[backgroundLive.status]))} />
 		</span>
 	);
 }
@@ -112,9 +161,8 @@ function liveActions(
 	];
 }
 
-function SourceTrigger(sources: Sources) {
-	const { state } = useSidebar();
-	const descriptionId = useId();
+function SourceTrigger({ sources, trigger }: { sources: Sources; trigger: DropdownMenuTriggerProps }) {
+	const { collapsed } = useSidebar();
 	const { live, shown } = sources;
 	const source = shown === undefined ? undefined : sources[shown];
 	const { name, detail, matchType } = sourceLabels(source);
@@ -122,64 +170,34 @@ function SourceTrigger(sources: Sources) {
 	const liveDetail = backgroundLive && `Live: ${statusLabels[backgroundLive.status]}`;
 	const fileName = source?.type === 'log' && source.fileName !== name ? source.fileName : undefined;
 	const matchDetail = matchType && matchIcons[matchType].label;
-	const description = [matchDetail, fileName, liveDetail].filter(Boolean).join('\n');
-	const collapsed = state === 'collapsed';
+	const description = [collapsed ? `${name}: ${detail}` : undefined, matchDetail, fileName, liveDetail]
+		.filter(Boolean)
+		.join('\n');
 
 	return (
-		<Tooltip disabled={!collapsed && fileName === undefined}>
-			<MenuTrigger
-				aria-describedby={description ? descriptionId : undefined}
-				render={
-					<TooltipTrigger
-						render={
-							<SidebarMenuButton
-								size="lg"
-								// Keep the icon aligned and the height the same when only icons are shown
-								className="group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:p-2!"
-							/>
-						}
-					/>
-				}
-			>
+		<Tooltip
+			content={<span {...stylex.props(styles.tooltip)}>{description}</span>}
+			placement="end"
+			isEnabled={collapsed || fileName !== undefined}
+		>
+			<SidebarMenuButton {...trigger} size="lg">
 				<ShownSourceIcon source={source} backgroundLive={backgroundLive} />
-				<div className="grid min-w-0 flex-1 text-left leading-tight">
+				<span {...stylex.props(styles.labels)}>
 					{/* Numbers are off so addresses aren't morphed like decimals */}
-					<TextMorph as="span" className="truncate font-medium" numbers={false}>
+					<TextMorph as="span" numbers={false} {...stylex.props(styles.name)}>
 						{name}
 					</TextMorph>
 					<TextMorph
 						as="span"
 						numbers={false}
-						className={cn(
-							'truncate text-xs text-muted-foreground',
-							source?.status === 'reconnecting' && 'text-destructive-foreground',
-						)}
+						{...stylex.props(styles.detail, source?.status === 'reconnecting' && styles.reconnecting)}
 					>
 						{detail}
 					</TextMorph>
-				</div>
-				<ChevronsUpDownIcon className="ms-auto text-muted-foreground" />
-			</MenuTrigger>
-			{description && (
-				<span hidden id={descriptionId}>
-					{description}
 				</span>
-			)}
-			<TooltipPopup aria-hidden side="right" className="max-w-80 wrap-anywhere whitespace-pre-line">
-				{collapsed && <div>{`${name}: ${detail}`}</div>}
-				{description}
-			</TooltipPopup>
+				<ChevronsUpDownIcon {...stylex.props(styles.chevron)} />
+			</SidebarMenuButton>
 		</Tooltip>
-	);
-}
-
-function ActionItem({ action }: { action: MenuAction }) {
-	const formatForDisplay = useFormatForDisplay();
-	return (
-		<MenuItem onClick={action.onSelect}>
-			{action.label}
-			{action.shortcut !== undefined && <MenuShortcut>{formatForDisplay(action.shortcut)}</MenuShortcut>}
-		</MenuItem>
 	);
 }
 
@@ -189,7 +207,6 @@ export function SourceControl() {
 	const sources = useSources();
 	// Re-render when the log's entries load, so its match is read
 	useEntries();
-	const formatForDisplay = useFormatForDisplay();
 	const [connectTarget, setConnectTarget] = useState<ConnectTarget>();
 	// The native menu handles it on macOS
 	useHotkey(exportLiveShortcut, () => void exportLive(), { enabled: !nativeMenu, requireReset: true });
@@ -220,47 +237,33 @@ export function SourceControl() {
 		...liveActions(sources, connectTarget, true),
 	];
 
+	const openRecent = useOpenRecentEntry();
+	const dropdownItems: MenuEntry[] = [
+		{ label: 'Open log', shortcut: shortcuts.openLog, onSelect: chooseLog },
+		{ label: 'Open from URL…', shortcut: shortcuts.openLogUrl, onSelect: openLogUrlPrompt },
+		...(STUDIO_DESKTOP || supportsFileHandles ? [openRecent] : []),
+		...(log && !live ? [closeLogAction] : []),
+		'separator',
+		...exportActions(live).flatMap((action): MenuEntry[] => [action, 'separator']),
+		// The switcher goes back to the live session
+		...liveActions(sources, connectTarget, false),
+	];
+
 	return (
 		<SidebarMenuItem>
 			<AppContextMenu items={menuItems} label="Source actions">
-				<Menu
+				<DropdownMenu
+					menuWidth={224}
+					header={live && log && <SourceSwitcher live={live} log={log} shown={shown} />}
 					onOpenChange={(open) => {
 						if (open) {
 							checkConnectTarget();
 						}
 					}}
+					renderTrigger={(trigger) => <SourceTrigger sources={sources} trigger={trigger} />}
 				>
-					<SourceTrigger {...sources} />
-					<MenuPopup align="start" className="w-(--anchor-width) min-w-56">
-						{live && log && (
-							<>
-								<SourceSwitcher live={live} log={log} shown={shown} />
-								<MenuSeparator />
-							</>
-						)}
-						<MenuItem onClick={chooseLog}>
-							Open log
-							<MenuShortcut>{formatForDisplay(shortcuts.openLog)}</MenuShortcut>
-						</MenuItem>
-						<MenuItem onClick={openLogUrlPrompt}>
-							Open from URL…
-							<MenuShortcut>{formatForDisplay(shortcuts.openLogUrl)}</MenuShortcut>
-						</MenuItem>
-						{(STUDIO_DESKTOP || supportsFileHandles) && <OpenRecentMenu />}
-						{log && !live && <ActionItem action={closeLogAction} />}
-						<MenuSeparator />
-						{exportActions(live).map((action) => (
-							<Fragment key={action.label}>
-								<ActionItem action={action} />
-								<MenuSeparator />
-							</Fragment>
-						))}
-						{/* The switcher goes back to the live session */}
-						{liveActions(sources, connectTarget, false).map((action) => (
-							<ActionItem key={action.label} action={action} />
-						))}
-					</MenuPopup>
-				</Menu>
+					<MenuEntries items={dropdownItems} />
+				</DropdownMenu>
 			</AppContextMenu>
 		</SidebarMenuItem>
 	);

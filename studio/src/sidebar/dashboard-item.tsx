@@ -1,30 +1,42 @@
 import type { Hotkey } from '@tanstack/react-hotkeys';
-import { Link, type RegisteredRouter, useLocation, useRouter } from '@tanstack/react-router';
+import { type RegisteredRouter, useLocation, useRouter } from '@tanstack/react-router';
 import LayoutDashboardIcon from 'lucide-react/icons/layout-dashboard';
 import { useSortable } from '@dnd-kit/react/sortable';
 import { m, useIsPresent } from 'motion/react';
 import { easing, useMotionTransition } from '@/lib/motion';
-import { type ComponentType, type SVGProps, useState } from 'react';
+import { useState } from 'react';
+import { HoverCard } from '@astryxdesign/core/HoverCard';
+import { colorVars, radiusVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { AppContextMenu, type MenuAction } from '@/components/app-context-menu';
 import { DashboardOptions } from '@/sidebar/dashboard-options';
-import { SidebarInput, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { useDashboardCopyItems } from '@/sidebar/dashboard-copy-items';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { DashboardPreview } from '@/dashboards/dashboard-preview';
-import { PreviewCard, PreviewCardPopup, PreviewCardTrigger } from '@/components/ui/preview-card';
 import { Shortcut } from '@/components/shortcut';
 import { dashboardShortcut, shortcuts, useShortcutHint } from '@/commands/commands';
 import { moveDashboardToSection } from '@/dashboards/sharing';
 import { type DashboardDragData, dashboardDragType, dashboardSensors } from '@/dashboards/drag';
-import { dashboardName, mainWidgetType, suggestDashboardName } from '@/dashboards/label';
+import { dashboardName, mainWidgetType } from '@/dashboards/label';
 import { widgetIcons } from '@/widgets/icons';
-import { type Dashboard, deleteDashboard, deleteDashboards, renameDashboard } from '@/dashboards/dashboards';
+import { type Dashboard, deleteDashboard, deleteDashboards } from '@/dashboards/dashboards';
 import type { DashboardSelection } from '@/sidebar/selection';
-import { isEnterKey } from '@/lib/keyboard';
-import { cn } from '@/lib/utils';
 import { DashboardPresence } from '@/sharing/presence-avatars';
+import { RenameInput } from '@/sidebar/rename-input';
+import { SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem } from '@/sidebar/sidebar-ui';
 
 const MotionSidebarMenuItem = m.create(SidebarMenuItem);
+
+const styles = stylex.create({
+	// Only fills the row while it covers another row or is dragged. Otherwise the sidebar paints the surface.
+	row: {
+		borderRadius: radiusVars['--radius-element'],
+		backgroundColor: 'var(--row-cover)',
+	},
+	dragged: {
+		backgroundColor: colorVars['--color-background-body'],
+	},
+});
 
 function ItemEnd({
 	dashboard,
@@ -39,7 +51,8 @@ function ItemEnd({
 	return (
 		<>
 			{dashboard.shared && !showShortcut && (
-				<SidebarMenuBadge className="group-focus-within/menu-item:invisible group-hover/menu-item:invisible">
+				// Makes room for the menu button while the row is hovered or focused
+				<SidebarMenuBadge data-hide-on-hover="">
 					<DashboardPresence dashboardId={dashboard.id} />
 				</SidebarMenuBadge>
 			)}
@@ -72,47 +85,6 @@ function useDashboardSortable(dashboard: Dashboard, sectionIndex: number, renami
 		disabled: renaming || !present,
 	});
 	return { setItem, handleRef, isDragSource };
-}
-
-function RenameInput({
-	dashboard,
-	icon: Icon,
-	onDone,
-}: {
-	dashboard: Dashboard;
-	icon: ComponentType<SVGProps<SVGSVGElement>>;
-	onDone: () => void;
-}) {
-	const [initialName] = useState(() => dashboardName(dashboard));
-	return (
-		<div className="relative">
-			<SidebarInput
-				// Leaves room for the icon, so the name stays where it was in the link (p-2, a size-4 icon, and gap-2, less the border)
-				className="[&>input]:ps-[calc(--spacing(8)-1px)]"
-				aria-label="Dashboard name"
-				defaultValue={initialName}
-				placeholder={suggestDashboardName(dashboard.layout)}
-				autoFocus
-				onFocus={(event) => event.currentTarget.select()}
-				onBlur={(event) => {
-					// An unchanged suggested name isn't saved, so it keeps following the dashboard's contents
-					if (event.currentTarget.value !== initialName) {
-						renameDashboard(dashboard.id, event.currentTarget.value);
-					}
-					onDone();
-				}}
-				onKeyDown={(event) => {
-					if (isEnterKey(event)) {
-						event.currentTarget.blur();
-					} else if (event.key === 'Escape') {
-						event.currentTarget.value = initialName;
-						event.currentTarget.blur();
-					}
-				}}
-			/>
-			<Icon className="pointer-events-none absolute top-2 left-2 size-4" />
-		</div>
-	);
 }
 
 function dashboardMenu({
@@ -214,7 +186,9 @@ export function DashboardItem({
 			data-dashboard-index={sectionIndex}
 			// The new row covers its neighbor while it slides down. The negative margin cancels the gap at zero height.
 			// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Moves the dashboards below
-			initial={appear && { height: 0, marginBottom: '-0.25rem', zIndex: 1, '--row-cover': 'var(--frame)' }}
+			initial={
+				appear && { height: 0, marginBottom: '-0.25rem', zIndex: 1, '--row-cover': 'var(--color-background-body)' }
+			}
 			// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Moves the dashboards below
 			animate={{ height: 'auto', marginBottom: '0rem', opacity: 1, zIndex: 'auto', '--row-cover': 'transparent' }}
 			// react-doctor-disable-next-line react-doctor/no-layout-property-animation -- Moves the dashboards below
@@ -224,8 +198,7 @@ export function DashboardItem({
 			{/* The input keeps the browser's menu while renaming */}
 			<AppContextMenu items={menuItems} label="Dashboard actions" disabled={renaming}>
 				<m.div
-					// Only fill the wrapper while it covers another row or is dragged. Otherwise the sidebar paints the surface.
-					className={cn('rounded-lg', isDragSource ? 'bg-frame' : 'bg-(--row-cover)')}
+					{...stylex.props(styles.row, isDragSource && styles.dragged)}
 					initial={false}
 					animate={{ y: '0%' }}
 					exit={{ y: '-100%', transition: exitTransition }}
@@ -235,46 +208,44 @@ export function DashboardItem({
 						<RenameInput dashboard={dashboard} icon={Icon} onDone={() => setRenaming(false)} />
 					) : (
 						<>
-							<PreviewCard open={previewOpen} onOpenChange={(open) => setPreviewOpen(open && !isDragSource)}>
-								<PreviewCardTrigger
-									render={
-										<SidebarMenuButton
-											isActive={active}
-											className={cn(
-												selection.isSelected(dashboard) && 'bg-sidebar-accent text-sidebar-accent-foreground',
-											)}
-											render={<Link to="/dashboards/$dashboardId" params={{ dashboardId: dashboard.id }} />}
-											onClick={(event) => {
-												// Instead of opening the link in a new tab or window
-												if (selection.click(event, dashboard)) {
-													event.preventDefault();
-												}
-											}}
-											ref={handleRef}
-											// Keeps the link a link, dnd-kit makes drag handles without a role into buttons
-											role="link"
-											onDoubleClick={() => setRenaming(true)}
-											// Closes the dashboard like a browser tab, instead of opening the link in a new one
-											onAuxClick={(event) => {
-												if (event.button === 1) {
-													event.preventDefault();
-													deleteDashboard(dashboard.id);
-												}
-											}}
-											tooltip={{ children: <TooltipLabel label={name} shortcut={shortcut} /> }}
-										/>
-									}
+							{/* Only previews other dashboards, the selected one is already on screen. A single empty pane has nothing to preview. */}
+							<HoverCard
+								label={`${name} preview`}
+								content={<DashboardPreview layout={dashboard.layout} />}
+								placement="end"
+								alignment="start"
+								hasHoverIndication={false}
+								isEnabled={present && !active && !isEmpty(dashboard)}
+								isOpen={previewOpen}
+								onOpenChange={(open) => setPreviewOpen(open && !isDragSource)}
+							>
+								<SidebarMenuButton
+									href={`/dashboards/${dashboard.id}`}
+									isActive={active}
+									isHighlighted={selection.isSelected(dashboard)}
+									onClick={(event) => {
+										// Instead of opening the link in a new tab or window
+										if (selection.click(event, dashboard)) {
+											event.preventDefault();
+										}
+									}}
+									ref={handleRef}
+									// Keeps the link a link, dnd-kit makes drag handles without a role into buttons
+									role="link"
+									onDoubleClick={() => setRenaming(true)}
+									// Closes the dashboard like a browser tab, instead of opening the link in a new one
+									onAuxClick={(event) => {
+										if (event.button === 1) {
+											event.preventDefault();
+											deleteDashboard(dashboard.id);
+										}
+									}}
+									tooltip={<TooltipLabel label={name} shortcut={shortcut} />}
 								>
 									<Icon />
 									<span>{name}</span>
-								</PreviewCardTrigger>
-								{/* Only previews other dashboards, the selected one is already on screen. A single empty pane has nothing to preview. */}
-								{present && !active && !isEmpty(dashboard) && (
-									<PreviewCardPopup side="right" align="start" className="w-auto p-2">
-										<DashboardPreview layout={dashboard.layout} />
-									</PreviewCardPopup>
-								)}
-							</PreviewCard>
+								</SidebarMenuButton>
+							</HoverCard>
 							<ItemEnd dashboard={dashboard} shortcut={shortcut} menuItems={menuItems} />
 						</>
 					)}

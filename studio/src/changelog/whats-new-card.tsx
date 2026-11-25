@@ -1,14 +1,54 @@
+import { IconButton } from '@astryxdesign/core/IconButton';
+import { colorVars, radiusVars, shadowVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import SparklesIcon from 'lucide-react/icons/sparkles';
 import XIcon from 'lucide-react/icons/x';
 import { AnimatePresence, domAnimation, LazyMotion, m } from 'motion/react';
-import { Button } from '@/components/ui/button';
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { dismissUpdate, useUnseenUpdate } from '@/changelog/changelog';
 import { easing, useMotionTransition } from '@/lib/motion';
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/sidebar/sidebar-ui';
+
+const styles = stylex.create({
+	card: {
+		position: 'relative',
+		display: 'flex',
+		flexDirection: 'column',
+		gap: spacingVars['--spacing-1'],
+		marginBottom: spacingVars['--spacing-1'],
+		padding: spacingVars['--spacing-3'],
+		borderWidth: 1,
+		borderStyle: 'solid',
+		borderColor: colorVars['--color-border'],
+		borderRadius: radiusVars['--radius-container'],
+		backgroundColor: colorVars['--color-background-surface'],
+		boxShadow: shadowVars['--shadow-low'],
+		fontSize: typeScaleVars['--text-label-size'],
+	},
+	eyebrow: {
+		color: colorVars['--color-text-accent'],
+		fontSize: typeScaleVars['--text-supporting-size'],
+		fontWeight: 500,
+	},
+	title: {
+		margin: 0,
+		fontSize: typeScaleVars['--text-label-size'],
+		fontWeight: 500,
+	},
+	description: {
+		margin: 0,
+		color: colorVars['--color-text-secondary'],
+		fontSize: typeScaleVars['--text-supporting-size'],
+	},
+	dismiss: {
+		position: 'absolute',
+		insetInlineEnd: spacingVars['--spacing-1-5'],
+		top: spacingVars['--spacing-1-5'],
+	},
+});
 
 /**
  * Announces the newest product update at the bottom of the sidebar until it's dismissed.
- * The collapsed sidebar shows an icon instead, which calls `onShow` to show the card.
+ * The collapsed sidebar shows an icon instead, which calls `onShow` to show the card, see `sidebar-ui.css`.
  */
 export function WhatsNewCard({ onShow }: { onShow: () => void }) {
 	const update = useUnseenUpdate();
@@ -17,10 +57,10 @@ export function WhatsNewCard({ onShow }: { onShow: () => void }) {
 	return (
 		<>
 			{update && (
-				<SidebarMenu className="hidden group-data-[collapsible=icon]:flex">
+				<SidebarMenu data-whats-new-icon="">
 					<SidebarMenuItem>
 						<SidebarMenuButton onClick={onShow}>
-							<SparklesIcon className="text-sidebar-primary" />
+							<SparklesIcon color="var(--color-icon-accent)" />
 							<span>What’s new</span>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
@@ -34,22 +74,21 @@ export function WhatsNewCard({ onShow }: { onShow: () => void }) {
 							aria-label="What's new"
 							exit={{ opacity: 0, scale: 0.95 }}
 							transition={transition}
-							className="relative mb-1 flex flex-col gap-1 rounded-lg border bg-background p-3 text-sm shadow-xs/5 group-data-[collapsible=icon]:hidden"
-							data-slot="whats-new-card"
+							data-whats-new-card=""
 							data-sidebar-label=""
+							{...stylex.props(styles.card)}
 						>
-							<span className="text-xs font-medium text-sidebar-primary">What’s new</span>
-							<h2 className="font-medium">{update.title}</h2>
-							<p className="text-xs text-muted-foreground">{update.description}</p>
-							<Button
-								aria-label="Dismiss"
-								className="absolute end-1.5 top-1.5 text-muted-foreground"
-								onClick={dismissUpdate}
-								size="icon-xs"
+							<span {...stylex.props(styles.eyebrow)}>What’s new</span>
+							<h2 {...stylex.props(styles.title)}>{update.title}</h2>
+							<p {...stylex.props(styles.description)}>{update.description}</p>
+							<IconButton
+								label="Dismiss"
+								icon={<XIcon />}
 								variant="ghost"
-							>
-								<XIcon />
-							</Button>
+								size="sm"
+								xstyle={styles.dismiss}
+								onClick={dismissUpdate}
+							/>
 						</m.section>
 					)}
 				</AnimatePresence>

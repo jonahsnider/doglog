@@ -1,5 +1,5 @@
 import type { Hotkey } from '@tanstack/react-hotkeys';
-import { SidebarMenuBadge } from '@/components/ui/sidebar';
+import { SidebarMenuBadge } from '@/sidebar/sidebar-ui';
 import { Shortcut } from '@/components/shortcut';
 import { useShortcutHint } from '@/commands/commands';
 

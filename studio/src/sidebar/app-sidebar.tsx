@@ -3,12 +3,12 @@ import { useRouter } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import PanelLeftIcon from 'lucide-react/icons/panel-left';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetPopup, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Sidebar, SidebarContext, type SidebarContextProps } from '@/components/ui/sidebar';
+import { IconButton } from '@astryxdesign/core/IconButton';
+import { MobileNav } from '@astryxdesign/core/MobileNav';
 import { shortcuts } from '@/commands/commands';
 import { cn } from '@/lib/utils';
 import { useTitleBarStrip, useTrafficLights } from '@/desktop/title-bar';
+import { SidebarContext, type SidebarContextProps } from '@/sidebar/sidebar-context';
 import { SidebarItems } from '@/sidebar/sidebar-items';
 import {
 	animateSidebarPeek,
@@ -23,10 +23,7 @@ import { TitleBar } from '@/sidebar/title-bar';
 
 const peekDelay = 300;
 /** Keeps the peeking sidebar open while the pointer is over a popup, renaming a dashboard, or dragging one */
-const keepPeekingSelector =
-	':is([data-slot="menu-trigger"], [data-slot="context-menu-trigger"], [data-slot="dialog-trigger"])[data-popup-open], input:focus, [data-dnd-dragging]';
-
-function noop(): void {}
+const keepPeekingSelector = '[aria-expanded="true"], [data-menu-open], input:focus, [data-dnd-dragging]';
 
 export function AppSidebar({ mobile }: { mobile: boolean }) {
 	return mobile ? <MobileAppSidebar /> : <DesktopAppSidebar />;
@@ -47,33 +44,25 @@ function MobileAppSidebar() {
 		[router],
 	);
 
-	const context: SidebarContextProps = {
-		state: 'expanded',
-		open,
-		setOpen,
-		openMobile: open,
-		setOpenMobile: setOpen,
-		isMobile: true,
-		toggleSidebar: toggle,
-	};
+	const context: SidebarContextProps = { collapsed: false, open: true, isMobile: true, toggleSidebar: toggle };
 	return (
 		<SidebarContext value={context}>
-			<Sheet open={open} onOpenChange={setOpen}>
-				<header className="flex h-12 shrink-0 items-center gap-1 px-2">
-					<SheetTrigger render={<Button variant="ghost" size="icon-xl" aria-label="Show sidebar" />}>
-						<PanelLeftIcon />
-					</SheetTrigger>
-					<span className="font-heading text-sm font-semibold">DogLog Studio</span>
-				</header>
-				<SheetPopup
-					side="left"
-					className="group w-full max-w-none border-0 bg-sidebar text-sidebar-foreground motion-reduce:transition-none"
-					closeProps={{ 'aria-label': 'Hide sidebar' }}
-				>
-					<SheetTitle className="flex h-12 shrink-0 items-center ps-3 pe-14 text-base">DogLog Studio</SheetTitle>
+			<header className="flex h-12 shrink-0 items-center gap-1 px-2">
+				<IconButton
+					label="Show sidebar"
+					icon={<PanelLeftIcon />}
+					variant="ghost"
+					size="lg"
+					aria-expanded={open}
+					onClick={toggle}
+				/>
+				<span className="font-heading text-sm font-semibold">DogLog Studio</span>
+			</header>
+			<MobileNav isOpen={open} onOpenChange={setOpen} header="DogLog Studio" label="Sidebar">
+				<div data-sidebar="sidebar" className="flex h-full min-h-0 flex-col">
 					<SidebarItems />
-				</SheetPopup>
-			</Sheet>
+				</div>
+			</MobileNav>
 		</SidebarContext>
 	);
 }
@@ -187,13 +176,9 @@ function DesktopAppSidebar() {
 		};
 	}, [peeking]);
 
-	// Provided directly instead of using `SidebarProvider`, its open state is saved with `cookieStore`, which WebKit lacks
 	const context: SidebarContextProps = {
-		state: iconLayout ? 'collapsed' : 'expanded',
+		collapsed: iconLayout,
 		open: !collapsed,
-		setOpen: (open) => sidebarCollapsedStore.set(!open),
-		openMobile: false,
-		setOpenMobile: noop,
 		isMobile: false,
 		toggleSidebar: () => toggle(!reduceMotion),
 	};
@@ -214,13 +199,13 @@ function DesktopAppSidebar() {
 				data-animation={animation}
 			>
 				<TitleBar collapsed={collapsed} iconOnly={iconOnly} onToggle={() => toggle(!reduceMotion)} />
-				<Sidebar
-					collapsible="none"
+				<div
+					data-sidebar="sidebar"
 					data-collapsible={iconLayout ? 'icon' : undefined}
 					data-peeking={collapsed && peeking ? '' : undefined}
 					className={cn(
 						// Transparent on the frame, so it shows the window's backdrop through it when the frame is frosted. Its surface for peeking is below.
-						'group peer absolute start-0 bottom-0 z-20 overflow-hidden bg-transparent duration-200 motion-reduce:transition-none',
+						'group peer absolute start-0 bottom-0 z-20 flex w-(--sidebar-width) flex-col overflow-hidden text-(--color-text-secondary) duration-200 motion-reduce:transition-none',
 						// Peeking slides at full width. Animate `--peek` here so WebKit updates the drawer during the transition.
 						'[--peek:0] data-peeking:[--peek:1]',
 						// Keep the drawer lined up with the panes for the whole slide in and out.
@@ -228,8 +213,6 @@ function DesktopAppSidebar() {
 						'transition-[box-shadow,--peek] in-data-[animation=collapse]:transition-[width,box-shadow,--peek] in-data-[animation=expand]:transition-[width,box-shadow,--peek]',
 						// Below the title bar's strip, lined up with the main area's panes and pages, which have a gap above them
 						strip ? 'top-10.5' : 'top-0',
-						// Sized by its top and bottom instead of `Sidebar`'s full height, which would push it past the bottom of the window below the strip
-						'h-auto',
 						// On the frame like the rest of the app's base, rounded for when it peeks over the panes
 						'rounded-e-lg',
 						iconOnly && 'w-(--sidebar-width-icon) in-data-[animation=unpeek]:w-(--sidebar-width)',
@@ -269,22 +252,22 @@ function DesktopAppSidebar() {
 						<SidebarItems
 							// Leaves room for the title bar, which is above the sidebar when it has its own strip
 							// The items stay where they are in the rail below the strip, so they don't move when the sidebar expands
-							headerClassName={cn(!strip && 'pt-12.5', 'in-data-[animation=enter-strip]:pt-12.5')}
+							belowTitleBar={!strip}
 							expanded={!iconLayout}
 							closing={iconOnly && !iconLayout}
 							onShow={peek}
 						/>
 					</div>
-				</Sidebar>
+				</div>
 				{/* The rail as it was when peeking started, under the sidebar while it's out, see `peek()` */}
 				<div
 					ref={railCopyRef}
 					aria-hidden
 					inert
-					data-slot="sidebar-rail-copy"
+					data-sidebar="rail-copy"
 					data-collapsible="icon"
 					className={cn(
-						'group pointer-events-none invisible absolute start-0 bottom-0 z-10 w-(--sidebar-width-icon) overflow-hidden text-sidebar-foreground',
+						'group pointer-events-none invisible absolute start-0 bottom-0 z-10 w-(--sidebar-width-icon) overflow-hidden text-(--color-text-secondary)',
 						'peer-data-peeking:visible in-data-[animation=unpeek]:visible',
 						strip ? 'top-10.5' : 'top-0',
 					)}

@@ -1,0 +1,171 @@
+[data-sidebar='menu-button'] {
+	& > svg,
+	& > :has(> svg):first-child {
+		flex-shrink: 0;
+		inline-size: 1rem;
+		block-size: 1rem;
+	}
+	& > svg {
+		color: var(--color-icon-secondary);
+	}
+	& > span:last-child {
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+}
+
+/* The rail only shows the icons, centered in squares */
+[data-collapsible='icon'] [data-sidebar='menu-button'] {
+	justify-content: flex-start;
+	inline-size: var(--size-element-md);
+	block-size: var(--size-element-md);
+	padding: var(--spacing-2);
+
+	/* Keeps its height, so the items below don't move */
+	&[data-size='lg'] {
+		block-size: 3rem;
+	}
+	/* Overhangs its row, so its icon stays put when the sidebar peeks */
+	&[data-size='sm'] {
+		margin-block: calc(var(--spacing-0-5) * -1);
+	}
+}
+
+[data-sidebar='menu-badge'] {
+	position: absolute;
+	inset-block-start: 0;
+	inset-inline-end: var(--spacing-1);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	block-size: 100%;
+	min-inline-size: 1.25rem;
+	padding-inline: var(--spacing-1);
+	color: var(--color-text-secondary);
+	font-size: var(--text-supporting-size);
+	font-variant-numeric: tabular-nums;
+	pointer-events: none;
+	user-select: none;
+}
+
+[data-sidebar='menu-action'] {
+	position: absolute;
+	inset-block-start: 0;
+	inset-inline-end: var(--spacing-0-5);
+	display: flex;
+	align-items: center;
+	block-size: 100%;
+
+	&[data-hidden] {
+		visibility: hidden;
+	}
+
+	@media (hover: hover) {
+		opacity: 0;
+
+		[data-sidebar='menu-item']:is(:hover, :focus-within) &,
+		&:has([aria-expanded='true']) {
+			opacity: 1;
+		}
+	}
+}
+
+/* Leaves room for the action at the end of the row */
+[data-sidebar='menu-item']:has([data-sidebar='menu-action']) [data-sidebar='menu-button'] {
+	padding-inline-end: var(--spacing-8);
+}
+
+[data-collapsible='icon'] :is([data-sidebar='menu-badge'], [data-sidebar='menu-action']) {
+	display: none;
+}
+
+[data-sidebar='drop-placeholder'] > svg {
+	flex-shrink: 0;
+	inline-size: 1rem;
+	block-size: 1rem;
+}
+[data-collapsible='icon'] [data-sidebar='drop-placeholder'] {
+	justify-content: center;
+	inline-size: var(--size-element-md);
+	padding-inline: 0;
+
+	& > span {
+		display: none;
+	}
+}
+
+[data-sidebar='menu-item']:is(:hover, :focus-within) [data-sidebar='menu-badge'][data-hide-on-hover] {
+	visibility: hidden;
+}
+
+/* The Dashboards section's menu button, shown while its label is hovered or focused on devices with hover */
+.sidebar-section-action {
+	margin-inline-start: auto;
+
+	@media (hover: hover) {
+		[data-sidebar='group-label']:not(:hover, :focus-within) &:not([aria-expanded='true']) {
+			opacity: 0;
+		}
+	}
+}
+
+/* Section labels keep their space in the rail, so the dashboards don't move */
+[data-collapsible='icon'] [data-sidebar='group-label'] > * {
+	display: none;
+}
+
+/* Room for the title bar above the sidebar, which is in the window's strip instead when it has one. The items stay where they are in the rail below the strip, so they don't move when the sidebar expands. */
+:is([data-sidebar='header'][data-below-title-bar], [data-animation='enter-strip'] [data-sidebar='header']) {
+	padding-block-start: 3.125rem;
+}
+
+/* The rail shows an icon for the What's new card, which shows the full sidebar with the card */
+[data-whats-new-icon] {
+	display: none;
+}
+[data-collapsible='icon'] {
+	[data-whats-new-icon] {
+		display: flex;
+	}
+	[data-whats-new-card] {
+		display: none;
+	}
+}
+
+/* The footer's actions are muted, except an update that's ready to install */
+[data-footer-actions] [data-sidebar='menu-button']:not([data-update-ready]) {
+	color: var(--color-text-secondary);
+}
+[data-sidebar='menu-button'] > [data-end-icon] {
+	margin-inline-start: auto;
+}
+/* A row whose menu is open stays highlighted */
+[data-sidebar='menu-button'][aria-expanded='true'] {
+	background-color: var(--color-overlay-hover);
+}
+
+[data-expanded-row] {
+	transition: opacity 150ms ease-in;
+
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+	}
+
+	/* Hidden until the sidebar is hovered or in use, or shows the What's new card that they stay with */
+	@media (hover: hover) {
+		[data-sidebar='sidebar']:not(
+				:hover,
+				:has(:focus-visible),
+				:has([aria-expanded='true']),
+				:has([data-whats-new-card])
+			)
+			& {
+			opacity: 0;
+		}
+	}
+
+	/* Fade without removing their space until the sidebar switches to the rail layout */
+	[data-animation='collapse'] & {
+		opacity: 0 !important;
+	}
+}

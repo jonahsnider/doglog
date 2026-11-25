@@ -1,4 +1,4 @@
-import { Link, useMatchRoute } from '@tanstack/react-router';
+import { useMatchRoute } from '@tanstack/react-router';
 import CloudIcon from 'lucide-react/icons/cloud';
 import FolderSyncIcon from 'lucide-react/icons/folder-sync';
 import SettingsIcon from 'lucide-react/icons/settings';
@@ -6,6 +6,9 @@ import SlidersHorizontalIcon from 'lucide-react/icons/sliders-horizontal';
 import { cloudDeploymentUrl } from '@/cloud/deployment';
 import { shortcuts } from '@/commands/commands';
 import { TooltipLabel } from '@/components/tooltip-label';
+import { AppSidebarFooter } from '@/sidebar/app-sidebar-footer';
+import { ShortcutHint } from '@/sidebar/shortcut-hint';
+import { SidebarDashboards } from '@/sidebar/sidebar-dashboards';
 import {
 	SidebarContent,
 	SidebarGroup,
@@ -13,21 +16,19 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
-} from '@/components/ui/sidebar';
-import { AppSidebarFooter } from '@/sidebar/app-sidebar-footer';
-import { ShortcutHint } from '@/sidebar/shortcut-hint';
-import { SidebarDashboards } from '@/sidebar/sidebar-dashboards';
+} from '@/sidebar/sidebar-ui';
 import { SourceControl } from '@/sidebar/source-control';
 
 function noop(): void {}
 
 export function SidebarItems({
-	headerClassName,
+	belowTitleBar = false,
 	expanded = true,
 	closing = false,
 	onShow = noop,
 }: {
-	headerClassName?: string;
+	/** Leaves room for the title bar above the header, see `sidebar-ui.css` */
+	belowTitleBar?: boolean;
 	expanded?: boolean;
 	closing?: boolean;
 	onShow?: () => void;
@@ -35,7 +36,7 @@ export function SidebarItems({
 	const matchRoute = useMatchRoute();
 	return (
 		<>
-			<SidebarHeader className={headerClassName}>
+			<SidebarHeader data-below-title-bar={belowTitleBar ? '' : undefined}>
 				<SidebarMenu>
 					<SourceControl />
 				</SidebarMenu>
@@ -46,8 +47,8 @@ export function SidebarItems({
 						<SidebarMenuItem>
 							<SidebarMenuButton
 								isActive={Boolean(matchRoute({ to: '/logs' }))}
-								render={<Link to="/logs" />}
-								tooltip={{ children: <TooltipLabel label="Logs" shortcut={shortcuts.logs} /> }}
+								href="/logs"
+								tooltip={<TooltipLabel label="Logs" shortcut={shortcuts.logs} />}
 							>
 								<FolderSyncIcon />
 								<span>Logs</span>
@@ -55,23 +56,15 @@ export function SidebarItems({
 							<ShortcutHint shortcut={shortcuts.logs} />
 						</SidebarMenuItem>
 						<SidebarMenuItem>
-							<SidebarMenuButton
-								isActive={Boolean(matchRoute({ to: '/tuning' }))}
-								render={<Link to="/tuning" />}
-								tooltip={{ children: 'Tuning' }}
-							>
+							<SidebarMenuButton isActive={Boolean(matchRoute({ to: '/tuning' }))} href="/tuning" tooltip="Tuning">
 								<SlidersHorizontalIcon />
 								<span>Tuning</span>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
 						{cloudDeploymentUrl !== undefined && (
 							<SidebarMenuItem>
-								<SidebarMenuButton
-									isActive={Boolean(matchRoute({ to: '/cloud' }))}
-									render={<Link to="/cloud" aria-label="Cloud" />}
-									tooltip={{ children: 'Cloud' }}
-								>
-									<CloudIcon aria-hidden />
+								<SidebarMenuButton isActive={Boolean(matchRoute({ to: '/cloud' }))} href="/cloud" tooltip="Cloud">
+									<CloudIcon />
 									<span>Cloud</span>
 								</SidebarMenuButton>
 							</SidebarMenuItem>
@@ -79,8 +72,8 @@ export function SidebarItems({
 						<SidebarMenuItem>
 							<SidebarMenuButton
 								isActive={Boolean(matchRoute({ to: '/settings' }))}
-								render={<Link to="/settings" />}
-								tooltip={{ children: <TooltipLabel label="Settings" shortcut={shortcuts.settings} /> }}
+								href="/settings"
+								tooltip={<TooltipLabel label="Settings" shortcut={shortcuts.settings} />}
 							>
 								<SettingsIcon />
 								<span>Settings</span>

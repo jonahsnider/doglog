@@ -487,30 +487,11 @@
 	background-color: color-mix(in srgb, var(--frame) 75%, transparent);
 }
 /* Keep overlays that live outside the captured panes out of the image without moving the dashboard. */
-[data-capturing]
-	:is(
-		[data-slot='sidebar'],
-		[data-slot='sidebar-container'],
-		[data-slot='sidebar-rail-copy'],
-		[data-slot='preview-card-content'],
-		[data-slot='menu-popup'],
-		[data-slot='popover-popup'],
-		[data-slot='tooltip-popup'],
-		[data-slot='toast-viewport'],
-		[data-slot='toast-viewport-anchored']
-	) {
+[data-capturing] :is([data-sidebar='sidebar'], [data-sidebar='rail-copy'], .astryx-layer, .astryx-toast) {
 	visibility: hidden;
 }
 /* The sidebars stay in place while a video is saved, only overlays that could cover the frame are hidden */
-[data-saving-video]
-	:is(
-		[data-slot='preview-card-content'],
-		[data-slot='menu-popup'],
-		[data-slot='popover-popup'],
-		[data-slot='tooltip-popup'],
-		[data-slot='toast-viewport'],
-		[data-slot='toast-viewport-anchored']
-	) {
+[data-saving-video] :is(.astryx-layer, .astryx-toast) {
 	visibility: hidden;
 }
 /*
@@ -537,46 +518,12 @@
 }
 
 /*
- * MD3 colors for coss ui components, set by the slots they render so the components stay as they are upstream.
- * Utilities with the same specificity as the ones they replace, coming after them so they win, while more specific
- * state variants like `focus-visible:border-ring` still win over them.
- */
-@layer utilities {
-	/* Text fields, selects, checkboxes, and radios are bounded with outline, `outline-variant` is too faint for targets with nothing inside them */
-	.border-input:where(
-		[data-slot='input-control'],
-		[data-slot='textarea-control'],
-		[data-slot='input-group'],
-		[data-slot='combobox-input-group'],
-		[data-slot='number-field-group'],
-		[data-slot='otp-field-input'],
-		[data-slot='select-trigger'],
-		[data-slot='checkbox'],
-		[data-slot='radio']
-	) {
-		border-color: var(--outline);
-	}
-
-	/* The open page or dashboard is secondary container, like the selected item in MD3's navigation drawer, including while it's hovered */
-	[data-sidebar='menu-button'][data-active='true'] {
-		background-color: var(--secondary);
-		color: var(--secondary-foreground);
-	}
-}
-
-/* MD3 dialogs are surface container high, a step above menus */
-[data-slot='dialog-popup'],
-[data-slot='alert-dialog-popup'] {
-	--popover: var(--md-surface-container-high);
-}
-
-/*
  * Menu buttons stay rounded as the sidebar's edge passes over them, instead of being cut straight by it, by clipping
  * them as far from the edge as they are from its start, like they are in the rail. Only while it animates, so it
  * doesn't clip their focus rings.
  */
-[data-animation] [data-slot='sidebar'] [data-sidebar='menu-button'] {
-	clip-path: inset(0 max(0px, 100% + 1rem - 100cqw) 0 0 round var(--radius-lg));
+[data-animation] [data-sidebar='sidebar'] [data-sidebar='menu-button'] {
+	clip-path: inset(0 max(0px, 100% + 1rem - 100cqw) 0 0 round var(--radius-element));
 }
 /*
  * Labels fade out as the sidebar collapses, and back in as it expands, instead of what's left of them in the rail

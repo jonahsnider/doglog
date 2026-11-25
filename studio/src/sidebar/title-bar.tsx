@@ -3,12 +3,12 @@ import { useSelector } from '@tanstack/react-store';
 import ArrowLeftIcon from 'lucide-react/icons/arrow-left';
 import ArrowRightIcon from 'lucide-react/icons/arrow-right';
 import PanelLeftIcon from 'lucide-react/icons/panel-left';
-import type { ComponentProps, ReactNode } from 'react';
+import { IconButton, type IconButtonProps } from '@astryxdesign/core/IconButton';
+import { Tooltip } from '@astryxdesign/core/Tooltip';
+import type { ReactNode } from 'react';
 import { shortcuts } from '@/commands/commands';
 import { goInHistory, type HistoryStep, useCanGoInHistory } from '@/commands/history';
 import { TooltipLabel } from '@/components/tooltip-label';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { dragRegion, useTitleBarStrip, useTrafficLights } from '@/desktop/title-bar';
 import { cn } from '@/lib/utils';
 import { sidebarAnimationStore } from '@/sidebar/sidebar';
@@ -16,15 +16,12 @@ import { sidebarAnimationStore } from '@/sidebar/sidebar';
 function TitleBarButton({
 	label,
 	tooltip,
-	children,
+	icon,
 	...props
-}: ComponentProps<typeof Button> & { label: string; tooltip: ReactNode }) {
+}: Omit<IconButtonProps, 'variant' | 'size' | 'tooltip'> & { tooltip: ReactNode }) {
 	return (
-		<Tooltip>
-			<TooltipTrigger render={<Button variant="ghost" size="icon-xs" aria-label={label} {...props} />}>
-				{children}
-			</TooltipTrigger>
-			<TooltipPopup>{tooltip}</TooltipPopup>
+		<Tooltip content={tooltip} placement="below">
+			<IconButton label={label} icon={icon} variant="ghost" size="sm" {...props} />
 		</Tooltip>
 	);
 }
@@ -36,12 +33,10 @@ function HistoryButton({ step }: { step: HistoryStep }) {
 		<TitleBarButton
 			label={label}
 			tooltip={<TooltipLabel label={label} shortcut={step === -1 ? shortcuts.back : shortcuts.forward} />}
-			disabled={!useCanGoInHistory(step)}
-			className="shrink-0"
+			isDisabled={!useCanGoInHistory(step)}
+			icon={step === -1 ? <ArrowLeftIcon /> : <ArrowRightIcon />}
 			onClick={() => goInHistory(router, step)}
-		>
-			{step === -1 ? <ArrowLeftIcon /> : <ArrowRightIcon />}
-		</TitleBarButton>
+		/>
 	);
 }
 
@@ -91,11 +86,9 @@ export function TitleBar({
 				label={label}
 				tooltip={<TooltipLabel label={label} shortcut={shortcuts.toggleSidebar} />}
 				aria-expanded={!collapsed}
-				className="shrink-0"
+				icon={<PanelLeftIcon />}
 				onClick={onToggle}
-			>
-				<PanelLeftIcon />
-			</TitleBarButton>
+			/>
 			{(!iconOnly || strip || animating) && (
 				// The margin makes it as far from the icons as they are from each other, since they have padding around them
 				// The sidebar and the strip are wide enough for it beside the traffic lights and buttons

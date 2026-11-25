@@ -1,25 +1,26 @@
-import { spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { colorVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useParams, useRouter } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import PlusIcon from 'lucide-react/icons/plus';
 import { AnimatePresence, domAnimation, LazyMotion } from 'motion/react';
-import { type ComponentProps, type MouseEvent, type SyntheticEvent, useRef } from 'react';
+import { type MouseEvent, type SyntheticEvent, useRef } from 'react';
 import { AppActionMenu, AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { TextMorph } from '@/components/text-morph';
-import { SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { DropPlaceholder } from '@/sidebar/drop-placeholder';
+import { SectionLabel } from '@/sidebar/section-label';
 import { newDashboard, reopenDashboard, shortcuts } from '@/commands/commands';
 import { closedStore, type Dashboard, deleteDashboards, useDashboards } from '@/dashboards/dashboards';
 import { DashboardItem } from '@/sidebar/dashboard-item';
 import { useDragging, useNewDashboardDrop } from '@/sidebar/drag';
 import { type DashboardSelection, useDashboardSelection } from '@/sidebar/selection';
-import { cn } from '@/lib/utils';
 import { simulatorHost } from '@/robot-target';
 import { useSettings } from '@/settings';
 import { useRecentlyConnected, useSharingHost } from '@/sharing/sharing';
 import { type LiveSource, useSources } from '@/data/source';
+import { useSidebar } from '@/sidebar/sidebar-context';
+import { SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/sidebar/sidebar-ui';
 
 const styles = stylex.create({
 	// Fills the rest of the sidebar, so right-clicking anywhere under the dashboards opens their menu
@@ -28,6 +29,45 @@ const styles = stylex.create({
 		flex: 1,
 		flexDirection: 'column',
 		gap: spacingVars['--spacing-2'],
+	},
+	// Pulled into the gap between the groups, so its row is spaced like the dashboards around it
+	shared: {
+		flex: 1,
+		marginTop: `calc(${spacingVars['--spacing-2']} * -1)`,
+		paddingTop: 0,
+	},
+	local: {
+		paddingBottom: 0,
+	},
+	// `TextMorph` doesn't animate to or from no text, so the status grows out of nothing
+	status: {
+		display: 'grid',
+		gridTemplateColumns: '1fr',
+		minWidth: 0,
+		marginInlineStart: 'auto',
+		transitionDuration: { default: '200ms', '@media (prefers-reduced-motion: reduce)': '0s' },
+		transitionProperty: 'grid-template-columns, opacity',
+		transitionTimingFunction: 'ease-in-out',
+	},
+	statusHidden: {
+		gridTemplateColumns: '0fr',
+		opacity: 0,
+	},
+	statusClip: {
+		minWidth: 0,
+		overflow: 'hidden',
+	},
+	statusText: {
+		marginInlineStart: spacingVars['--spacing-2'],
+		overflow: 'hidden',
+		textOverflow: 'ellipsis',
+		whiteSpace: 'nowrap',
+	},
+	dragging: {
+		pointerEvents: 'none',
+	},
+	newDashboard: {
+		color: colorVars['--color-text-secondary'],
 	},
 });
 
@@ -157,21 +197,6 @@ function sharingStatus(
 	return host === simulatorHost ? 'Synced with simulator' : `Synced with ${robotTarget.trim()}`;
 }
 
-/** A muted label starting a section. The collapsed sidebar hides its text but keeps its space, so nothing moves. */
-function SectionLabel({ label, children, ...props }: Omit<ComponentProps<'div'>, 'className'> & { label: string }) {
-	return (
-		<div className="group/label my-1 flex h-8 items-center px-2 text-xs text-muted-foreground" {...props}>
-			<span
-				className="me-2 font-heading text-sm font-medium group-data-[collapsible=icon]:hidden"
-				data-sidebar-label=""
-			>
-				{label}
-			</span>
-			{children}
-		</div>
-	);
-}
-
 /** Below the other dashboards, it fills the empty space below it, so the pointer stays in this section when the other's drop placeholder moves it down */
 function SharedDashboards(props: SectionProps) {
 	const { ref, listRef, items } = useSectionItems(props, true);
@@ -185,8 +210,7 @@ function SharedDashboards(props: SectionProps) {
 	return (
 		<SidebarGroup
 			ref={ref}
-			// Pulled into the gap between the groups, so its row is spaced like the dashboards around it
-			className="-mt-2 flex-1 pt-0"
+			xstyle={styles.shared}
 			onClick={props.onClick}
 			onDoubleClick={props.onDoubleClick}
 			onContextMenu={preserveRowMenu}
@@ -197,24 +221,21 @@ function SharedDashboards(props: SectionProps) {
 				{/* It's remounted when shown, so it doesn't morph from the hidden "Disconnected", and numbers are off so addresses aren't morphed like decimals */}
 				<span
 					aria-hidden={status === undefined}
-					className={cn(
-						'ms-auto grid min-w-0 transition-[grid-template-columns,opacity] duration-200 ease-in-out motion-reduce:transition-none group-data-[collapsible=icon]:hidden',
-						status === undefined ? 'grid-cols-[0fr] opacity-0' : 'grid-cols-[1fr]',
-					)}
+					{...stylex.props(styles.status, status === undefined && styles.statusHidden)}
 				>
-					<span className="min-w-0 overflow-hidden">
+					<span {...stylex.props(styles.statusClip)}>
 						<TextMorph
 							key={status === undefined ? 'hidden' : 'shown'}
 							as="span"
-							className="ms-2 truncate"
 							numbers={false}
+							{...stylex.props(styles.statusText)}
 						>
 							{status ?? 'Disconnected'}
 						</TextMorph>
 					</span>
 				</span>
 			</SectionLabel>
-			<SidebarMenu ref={listRef} className={cn(dragging && 'pointer-events-none')}>
+			<SidebarMenu ref={listRef} xstyle={dragging && styles.dragging}>
 				<LazyMotion features={domAnimation} strict>
 					<AnimatePresence initial={false}>{items}</AnimatePresence>
 				</LazyMotion>
@@ -231,7 +252,7 @@ function LocalDashboards(props: SectionProps & { menuItems: readonly MenuEntry[]
 	return (
 		<SidebarGroup
 			ref={ref}
-			className="pb-0"
+			xstyle={styles.local}
 			onClick={props.onClick}
 			onDoubleClick={props.onDoubleClick}
 			onContextMenu={preserveRowMenu}
@@ -241,15 +262,15 @@ function LocalDashboards(props: SectionProps & { menuItems: readonly MenuEntry[]
 				<AppActionMenu
 					items={() => props.menuItems}
 					label="Dashboard section actions"
-					triggerClassName="ms-auto [@media(hover:hover)]:opacity-0 group-focus-within/label:opacity-100 group-hover/label:opacity-100 group-data-[collapsible=icon]:hidden aria-expanded:opacity-100"
+					triggerClassName="sidebar-section-action"
 				/>
 			</SectionLabel>
 			{/* Tooltips and previews would open on the dashboards the pointer passes over */}
-			<SidebarMenu ref={listRef} className={cn(dragging && 'pointer-events-none')}>
+			<SidebarMenu ref={listRef} xstyle={dragging && styles.dragging}>
 				<SidebarMenuItem>
 					<SidebarMenuButton
-						className="text-muted-foreground hover:text-muted-foreground active:text-muted-foreground"
-						tooltip={{ children: <TooltipLabel label="New dashboard" shortcut={shortcuts.newDashboard} /> }}
+						xstyle={styles.newDashboard}
+						tooltip={<TooltipLabel label="New dashboard" shortcut={shortcuts.newDashboard} />}
 						onClick={() => newDashboard(router)}
 					>
 						<PlusIcon />

@@ -41,9 +41,10 @@ export function sourceLabels(source: Source | undefined) {
 	};
 }
 
-export const liveColors: Record<LiveSource['status'], { text: string; background: string }> = {
-	connecting: { text: 'text-muted-foreground', background: 'bg-muted-foreground' },
-	connected: { text: 'text-success', background: 'bg-success' },
-	reconnecting: { text: 'text-destructive-foreground', background: 'bg-destructive-foreground' },
-	disconnected: { text: 'text-muted-foreground', background: 'bg-muted-foreground' },
+/** The live session's color for its state, for its icon and the dot on the log's */
+export const liveColors: Record<LiveSource['status'], string> = {
+	connecting: 'var(--color-icon-secondary)',
+	connected: 'var(--color-icon-success)',
+	reconnecting: 'var(--color-icon-error)',
+	disconnected: 'var(--color-icon-secondary)',
 };

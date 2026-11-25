@@ -16,14 +16,19 @@ import landmines from '@interfere/landmines/configs/recommended.json' with { typ
 import * as z from 'zod';
 import packageJson from './package.json' with { type: 'json' };
 import { projectSchema } from './src/three/project-schema.ts';
-import { lucideBarrelRestriction } from './vendored-lint.config.ts';
+
+const lucideBarrelRestriction = {
+	// The barrel makes dev load every icon and TypeScript load a 2.5 MB declaration file
+	name: 'lucide-react',
+	message:
+		"Import each icon from 'lucide-react/icons/<name>' and types from 'lucide-react/types' instead of the barrel.",
+};
 
 const ignorePatterns = [
 	'src/routeTree.gen.ts',
 	'src-tauri/target/',
 	'src-tauri/gen/',
-	// coss ui/shadcn files are copied in from a registry
-	'src/components/ui/',
+	// shadcn files are copied in from a registry
 	'src/hooks/use-media-query.ts',
 	'src/lib/utils.ts',
 	// Edited with Apple's Icon Composer

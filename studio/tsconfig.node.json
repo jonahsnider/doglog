@@ -14,5 +14,5 @@
 		// Vite+'s lazyPlugins() return type is incompatible with this option
 		"exactOptionalPropertyTypes": false
 	},
-	"include": ["vite.config.ts", "vendored-lint.config.ts", "doctor.config.ts", "scripts"]
+	"include": ["vite.config.ts", "doctor.config.ts", "scripts"]
 }

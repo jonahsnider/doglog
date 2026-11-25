@@ -94,7 +94,7 @@ function SubmenuEntries({ items }: { items: readonly MenuEntry[] }) {
 	);
 }
 
-function MenuEntries({ items, elements }: { items: readonly MenuEntry[]; elements?: Map<string, HTMLElement> }) {
+export function MenuEntries({ items, elements }: { items: readonly MenuEntry[]; elements?: Map<string, HTMLElement> }) {
 	return items.map((item, index, all) => {
 		if (item === 'separator') {
 			const previous = all[index - 1];

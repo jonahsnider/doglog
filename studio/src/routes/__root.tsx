@@ -12,7 +12,6 @@ import { OpenLogUrlDialog } from '@/components/open-log-url-dialog';
 import { RouterLink } from '@/components/router-link';
 import { useDesktopLinkOffer } from '@/dashboards/open-dashboard-link';
 import { LogDropOverlay } from '@/components/log-drop-overlay';
-import { SidebarInset } from '@/components/ui/sidebar';
 import { Toasts } from '@/components/toasts';
 import { useMobileLayout } from '@/lib/mobile-layout';
 import { cn } from '@/lib/utils';
@@ -58,10 +57,10 @@ function RootLayout() {
 								<div inert={exporting} className="contents">
 									<AppSidebar mobile={mobile} />
 								</div>
-								<SidebarInset
+								<main
 									className={cn(
-										'relative overflow-hidden',
-										panes ? 'bg-transparent' : 'm-1.5 rounded-lg',
+										'relative flex w-full min-w-0 flex-1 flex-col overflow-hidden',
+										panes ? 'bg-transparent' : 'm-1.5 rounded-lg bg-(--color-background-surface)',
 										mobile && (panes ? 'min-h-0 pe-1.5' : 'min-h-0 w-auto'),
 										// Below the title bar's strip, lined up with the rail. Pages have a gap around them, dashboards have it inside.
 										strip && (panes ? 'mt-9' : 'mt-10.5'),
@@ -70,7 +69,7 @@ function RootLayout() {
 									)}
 								>
 									<Outlet />
-								</SidebarInset>
+								</main>
 							</div>
 							{dashboard && !exporting && <TimelineBar />}
 						</div>

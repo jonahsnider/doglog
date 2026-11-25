@@ -1,11 +1,15 @@
 import { Button } from '@astryxdesign/core/Button';
 import { ButtonGroup } from '@astryxdesign/core/ButtonGroup';
-import { DropdownMenu, DropdownMenuItem } from '@astryxdesign/core/DropdownMenu';
+import {
+	DropdownMenu,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	type DropdownMenuTriggerProps,
+} from '@astryxdesign/core/DropdownMenu';
 import { invoke } from '@tauri-apps/api/core';
 import ChevronDownIcon from 'lucide-react/icons/chevron-down';
 import DownloadIcon from 'lucide-react/icons/download';
-import type { ReactElement } from 'react';
-import { Menu, MenuGroup, MenuGroupLabel, MenuItem, MenuLinkItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
+import type { ReactNode } from 'react';
 import { toastManager } from '@/components/toast';
 
 type Platform = 'macos' | 'windows' | 'linux';
@@ -87,28 +91,18 @@ async function copyDownloadLink(file: string): Promise<void> {
 }
 
 /** Lists every installer, which downloads in the browser and copies its link in the desktop app for sharing */
-export function DownloadMenu({ trigger }: { trigger: ReactElement }) {
+export function DownloadMenu({ renderTrigger }: { renderTrigger: (props: DropdownMenuTriggerProps) => ReactNode }) {
 	return (
-		<Menu>
-			<MenuTrigger render={trigger} />
-			<MenuPopup align="start" side="top">
-				{STUDIO_DESKTOP ? (
-					<MenuGroup>
-						<MenuGroupLabel>Copy download link</MenuGroupLabel>
-						{downloads.map(({ file, label }) => (
-							<MenuItem key={file} onClick={() => void copyDownloadLink(file)}>
-								{label}
-							</MenuItem>
-						))}
-					</MenuGroup>
-				) : (
-					downloads.map(({ file, label }) => (
-						<MenuLinkItem key={file} href={downloadsUrl + file}>
-							{label}
-						</MenuLinkItem>
-					))
-				)}
-			</MenuPopup>
-		</Menu>
+		<DropdownMenu placement="above" renderTrigger={renderTrigger}>
+			{STUDIO_DESKTOP ? (
+				<DropdownMenuGroup title="Copy download link">
+					{downloads.map(({ file, label }) => (
+						<DropdownMenuItem key={file} label={label} onClick={() => void copyDownloadLink(file)} />
+					))}
+				</DropdownMenuGroup>
+			) : (
+				downloads.map(({ file, label }) => <DropdownMenuItem key={file} label={label} href={downloadsUrl + file} />)
+			)}
+		</DropdownMenu>
 	);
 }

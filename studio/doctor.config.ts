@@ -4,8 +4,7 @@ export default defineConfig({
 	ignore: {
 		files: [
 			'src/routeTree.gen.ts',
-			// coss ui/shadcn files are copied in from a registry
-			'src/components/ui/**',
+			// shadcn files are copied in from a registry
 			'src/hooks/use-media-query.ts',
 			'src/lib/utils.ts',
 			// Rust build output, the crypto libraries' test keys look like leaked secrets

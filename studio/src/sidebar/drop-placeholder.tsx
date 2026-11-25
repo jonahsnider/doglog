@@ -1,13 +1,41 @@
+import { colorVars, radiusVars, sizeVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import LayoutDashboardIcon from 'lucide-react/icons/layout-dashboard';
 import UserIcon from 'lucide-react/icons/user';
 import UsersIcon from 'lucide-react/icons/users';
 import { m, useIsPresent } from 'motion/react';
 import type { Ref } from 'react';
-import { SidebarMenuItem } from '@/components/ui/sidebar';
-import { cn } from '@/lib/utils';
 import type { DraggedKind } from '@/sidebar/drag';
+import { SidebarMenuItem } from '@/sidebar/sidebar-ui';
 
 const MotionSidebarMenuItem = m.create(SidebarMenuItem);
+
+const styles = stylex.create({
+	removed: {
+		display: 'none',
+	},
+	// Matches the dashboards' buttons, see `sidebar-ui.css` for the rail
+	placeholder: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: spacingVars['--spacing-2'],
+		height: sizeVars['--size-element-md'],
+		overflow: 'hidden',
+		paddingInline: spacingVars['--spacing-2'],
+		borderWidth: 1,
+		borderStyle: 'dashed',
+		borderColor: colorVars['--color-border-emphasized'],
+		borderRadius: radiusVars['--radius-element'],
+		color: colorVars['--color-text-secondary'],
+		fontSize: typeScaleVars['--text-label-size'],
+		whiteSpace: 'nowrap',
+	},
+	active: {
+		borderColor: colorVars['--color-accent'],
+		backgroundColor: `color-mix(in srgb, ${colorVars['--color-accent']} 10%, transparent)`,
+		color: colorVars['--color-text-accent'],
+	},
+});
 
 function content(dragged: DraggedKind, shared: boolean) {
 	if (dragged === 'pane') {
@@ -34,21 +62,13 @@ export function DropPlaceholder({
 		// Hidden while it's removed, so a dashboard dropped in its spot doesn't push the ones below down for a frame.
 		<MotionSidebarMenuItem
 			ref={ref}
-			className={cn(!isPresent && 'hidden')}
+			xstyle={!isPresent && styles.removed}
 			exit={{ opacity: 0 }}
 			transition={{ duration: 0 }}
 		>
-			<div
-				className={cn(
-					// Matches the dashboards' buttons when the sidebar only shows icons
-					'flex h-8 items-center gap-2 overflow-hidden rounded-md border border-dashed px-2 text-sm whitespace-nowrap group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 [&>svg]:size-4 [&>svg]:shrink-0',
-					active
-						? 'border-sidebar-primary bg-sidebar-primary/10 text-sidebar-primary'
-						: 'border-outline text-muted-foreground',
-				)}
-			>
+			<div data-sidebar="drop-placeholder" {...stylex.props(styles.placeholder, active && styles.active)}>
 				<Icon />
-				<span className="group-data-[collapsible=icon]:hidden">{label}</span>
+				<span>{label}</span>
 			</div>
 		</MotionSidebarMenuItem>
 	);
