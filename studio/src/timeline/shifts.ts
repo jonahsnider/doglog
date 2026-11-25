@@ -29,14 +29,11 @@ const maxTeleopDelay = 5_000_000;
  * `B`), which it sends about 3 s into teleop.
  */
 function getActiveFirst(time: number): boolean | undefined {
-	for (const prefix of ['/NT:/FMSInfo/', '/FMSInfo/']) {
-		const inactiveFirst = getEntry(`${prefix}GameSpecificMessage`)?.samples.valueAt(time);
-		const red = getEntry(`${prefix}IsRedAlliance`)?.samples.valueAt(time);
-		if ((inactiveFirst === 'R' || inactiveFirst === 'B') && typeof red === 'boolean') {
-			return (inactiveFirst === 'R') !== red;
-		}
-	}
-	return undefined;
+	const inactiveFirst = getEntry('/FMSInfo/GameSpecificMessage')?.samples.valueAt(time);
+	const red = getEntry('/FMSInfo/IsRedAlliance')?.samples.valueAt(time);
+	return (inactiveFirst === 'R' || inactiveFirst === 'B') && typeof red === 'boolean'
+		? (inactiveFirst === 'R') !== red
+		: undefined;
 }
 
 /**

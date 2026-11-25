@@ -4,6 +4,7 @@ import SlidersHorizontalIcon from 'lucide-react/icons/sliders-horizontal';
 import type { ComponentType, SVGProps } from 'react';
 import LimelightIcon from '@/entries/logos/limelight.svg?react';
 import PhotonVisionIcon from '@/entries/logos/photonvision.svg?react';
+import { withoutNtPrefix } from '@/data/samples';
 import SpotIcon from '@/entries/logos/spot.svg?react';
 import { controllerPort } from '@/widgets/controller/data';
 
@@ -19,10 +20,10 @@ export type KnownGroup = {
  * Where DogLog's tunable values are: NetworkTables' `/Tunables` table, streamed or logged under `/NT:`, and from DogLog
  * releases before 2027, NetworkTables' `/Tunable` table and `/Robot/Tunable` in the robot's log
  */
-const tunablePaths = new Set(['/Tunables', '/NT:/Tunables', '/Tunable', '/NT:/Tunable', '/Robot/Tunable']);
+const tunablePaths = new Set(['/Tunables', '/Tunable', '/Robot/Tunable']);
 
 /** Where Team 581's Spot vision system publishes, and where its topics are logged from NetworkTables */
-const spotPaths = new Set(['/Spot', '/NT:/Spot']);
+const spotPaths = new Set(['/Spot']);
 
 /** What the group at `path` is, ex. a Limelight for `/NT:/limelight-front`, `undefined` for other groups */
 export function knownGroup(path: string): KnownGroup | undefined {
@@ -42,7 +43,7 @@ export function knownGroup(path: string): KnownGroup | undefined {
 		return { name: 'PhotonVision', icon: PhotonVisionIcon };
 	}
 
-	if (spotPaths.has(path)) {
+	if (spotPaths.has(withoutNtPrefix(path))) {
 		return { name: 'Spot', icon: SpotIcon };
 	}
 
@@ -52,7 +53,7 @@ export function knownGroup(path: string): KnownGroup | undefined {
 		return { name: 'Trailblazer', icon: FlameIcon };
 	}
 
-	if (tunablePaths.has(path)) {
+	if (tunablePaths.has(withoutNtPrefix(path))) {
 		return { name: 'Tunable values', icon: SlidersHorizontalIcon };
 	}
 

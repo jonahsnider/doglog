@@ -5,7 +5,7 @@ import type { StructDeclaration } from 'wpilib-struct';
 import * as z from 'zod';
 import { DataSet } from '@/data/data-set';
 import type { EntryKind } from '@/data/entry-kind';
-import type { Samples } from '@/data/samples';
+import { findEntry, type Samples } from '@/data/samples';
 
 export type Entry = {
 	/** Full name, ex. `/Robot/Arm/Angle` */
@@ -139,9 +139,9 @@ export function getEntries(): readonly Entry[] {
 	return entriesStore.get().list;
 }
 
-/** @public */
+/** An entry of the active source by name, see `findEntry()`. @public */
 export function getEntry(name: string): Entry | undefined {
-	return active.entries.get(name);
+	return findEntry(active.entries, name);
 }
 
 export function getStructSchemas(): ReadonlyMap<string, readonly StructDeclaration[]> {
@@ -175,9 +175,9 @@ export function useEntries(): readonly Entry[] {
 	return useSelector(entriesStore, (state) => state.list);
 }
 
-/** An entry of the active source by name, `undefined` if it doesn't exist. @public */
+/** An entry of the active source by name, see `findEntry()`. `undefined` if it doesn't exist. @public */
 export function useEntry(name: string): Entry | undefined {
-	return useSelector(entriesStore, (state) => state.map.get(name));
+	return useSelector(entriesStore, (state) => findEntry(state.map, name));
 }
 
 /** @public */

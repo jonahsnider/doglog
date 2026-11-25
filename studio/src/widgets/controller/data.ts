@@ -1,6 +1,6 @@
 // Reads a Driver Station controller's inputs from the entries WPILib or AdvantageKit log for it.
 import type { Entry } from '@/data/data-store';
-import type { Value } from '@/data/samples';
+import { type Value, withoutNtPrefix } from '@/data/samples';
 
 export type ControllerLayout = 'xbox' | 'playstation';
 
@@ -26,19 +26,16 @@ export type ControllerSource = {
 	readonly buttonCount: Entry | undefined;
 };
 
-/** AdvantageKit's prefixes for a controller's entries, in a log, streamed over NetworkTables, and logged from NetworkTables */
-const advantageKitPrefixes = [
-	'/DriverStation/Joystick',
-	'/AdvantageKit/DriverStation/Joystick',
-	'/NT:/AdvantageKit/DriverStation/Joystick',
-];
+/** AdvantageKit's prefixes for a controller's entries, in a log and over NetworkTables */
+const advantageKitPrefixes = ['/DriverStation/Joystick', '/AdvantageKit/DriverStation/Joystick'];
 
 const wpilibPrefix = '/DS:joystick';
 
 /** The controller port an entry belongs to, ex. 2 for `/DS:joystick2/axes`, `undefined` for other entries */
 export function controllerPort(name: string): number | undefined {
+	const bare = withoutNtPrefix(name);
 	for (const prefix of [...advantageKitPrefixes, wpilibPrefix]) {
-		const match = name.startsWith(prefix) ? /^([0-5])\//u.exec(name.slice(prefix.length)) : null;
+		const match = bare.startsWith(prefix) ? /^([0-5])\//u.exec(bare.slice(prefix.length)) : null;
 		if (match) {
 			return Number(match[1]);
 		}

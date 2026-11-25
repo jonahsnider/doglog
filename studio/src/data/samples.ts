@@ -71,7 +71,24 @@ export const studioTopicPrefix = '/DogLogStudio/';
 
 /** Studio's own topics, and robot logs' copies of them, aren't data to show */
 export function isStudioEntry(name: string): boolean {
-	return name.startsWith(studioTopicPrefix) || name.startsWith(`/NT:${studioTopicPrefix}`);
+	return withoutNtPrefix(name).startsWith(studioTopicPrefix);
+}
+
+/** Logs that record NetworkTables put its topics under `/NT:`, live sessions show them without it */
+const ntLogPrefix = '/NT:';
+
+/** `name` without the prefix of topics a log recorded from NetworkTables, ex. `/FMSInfo/EventName` for `/NT:/FMSInfo/EventName` */
+export function withoutNtPrefix(name: string): string {
+	return name.startsWith(`${ntLogPrefix}/`) ? name.slice(ntLogPrefix.length) : name;
+}
+
+/**
+ * The entry named `name`, or the same NetworkTables topic under its other name when there isn't one, so
+ * `/FMSInfo/EventName` finds `/NT:/FMSInfo/EventName` in a log that recorded NetworkTables and the other way around
+ */
+export function findEntry<T>(entries: ReadonlyMap<string, T>, name: string): T | undefined {
+	const bare = withoutNtPrefix(name);
+	return entries.get(name) ?? entries.get(bare === name ? `${ntLogPrefix}${name}` : bare);
 }
 
 /** Entry names always start with `/`, matching how WPILOG and NT4 names are usually written */

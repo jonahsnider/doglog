@@ -9,14 +9,12 @@ import type { WidgetOption } from '@/widgets/widget-type';
 
 /**
  * Where robots publish their WPILib version: WPILib's NetworkTables topic, and AdvantageKit's system stats (27.0.0-alpha-7
- * onward) in its log, streamed over NetworkTables, and logged from NetworkTables
+ * onward) in its log and over NetworkTables
  */
 const wpilibVersionNames = [
-	'/NT:/Robot/WPILibVersion',
 	'/Robot/WPILibVersion',
 	'/SystemStats/Versions/WPILib',
 	'/AdvantageKit/SystemStats/Versions/WPILib',
-	'/NT:/AdvantageKit/SystemStats/Versions/WPILib',
 ];
 
 /** The WPILib version the robot published, in a log or a live session */

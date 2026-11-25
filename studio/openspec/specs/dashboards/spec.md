@@ -14,7 +14,7 @@ Dashboards SHALL reference data only by entry name, so the same dashboard works 
 
 - **GIVEN** a dashboard built while connected to a robot
 - **WHEN** the user opens a log from that robot
-- **THEN** the dashboard's widgets show the matching entries from the log
+- **THEN** the dashboard's widgets show the matching entries from the log, including topics the log recorded from NetworkTables under `/NT:` (see the data-sources spec)
 
 ### Requirement: Create a dashboard
 

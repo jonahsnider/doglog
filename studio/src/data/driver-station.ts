@@ -6,7 +6,7 @@
  */
 export const driverStationEntries = [
 	['/DS:enabled', '/DS:autonomous', '/DS:test', '/DS:estop'],
-	...['/DriverStation/', '/AdvantageKit/DriverStation/', '/NT:/AdvantageKit/DriverStation/'].map(
+	...['/DriverStation/', '/AdvantageKit/DriverStation/'].map(
 		(prefix) =>
 			[
 				`${prefix}Enabled`,

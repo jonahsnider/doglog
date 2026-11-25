@@ -557,6 +557,29 @@ Studio SHALL read each entry's JSON metadata from WPILOG entry metadata and from
 - **GIVEN** a log entry's metadata is set to `{"unit": "rad"}` and later to `{"unit": "deg"}`
 - **THEN** Studio uses `{"unit": "deg"}`
 
+### Requirement: NetworkTables entries in logs
+
+Logs that record NetworkTables keep its topics under `/NT:`, ex. `/NT:/FMSInfo/EventName` for the live topic `/FMSInfo/EventName`. Studio SHALL show entries under the names the source gives them, and wherever Studio finds an entry by name, ex. for a widget binding or Driver Station data, it MUST use the entry with exactly that name when the source has one, and otherwise the same topic under its other name. Two entries MUST NOT be merged, even when they only differ by the `/NT:` prefix.
+
+#### Scenario: Live binding opened on a log
+
+- **GIVEN** a widget bound to `/limelight-front/tx` while connected to a robot
+- **WHEN** the user opens a log from that robot with `/NT:/limelight-front/tx`
+- **THEN** the widget shows `/NT:/limelight-front/tx`
+- **AND** the binding is still `/limelight-front/tx`
+
+#### Scenario: Log binding shown live
+
+- **GIVEN** a widget bound to `/NT:/FMSInfo/MatchTime` from a log
+- **WHEN** the user connects to a robot publishing `/FMSInfo/MatchTime`
+- **THEN** the widget shows `/FMSInfo/MatchTime`
+
+#### Scenario: Log with both names
+
+- **GIVEN** a log with `/Robot/Pose` logged directly and `/NT:/Robot/Pose` recorded from NetworkTables
+- **THEN** the entry browser lists both
+- **AND** a widget bound to `/Robot/Pose` shows the directly logged entry
+
 ### Requirement: Studio's own topics
 
 Entries under `/DogLogStudio/`, which Studio uses to share dashboards and record live sessions, SHALL NOT be shown, whether they come from a live NT4 server or from a log that recorded NetworkTables (ex. `NT:/DogLogStudio/`).

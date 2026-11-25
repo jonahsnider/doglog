@@ -1,5 +1,5 @@
 import { getDashboard, getDashboards, subscribeDashboards } from '@/dashboards/dashboards';
-import { getEntryKind, isStudioEntry } from '@/data/samples';
+import { getEntryKind, isStudioEntry, withoutNtPrefix } from '@/data/samples';
 import type { NtClient } from '@/nt/client';
 import { panes } from '@/panes/layout';
 import { settingsStore } from '@/settings';
@@ -8,15 +8,7 @@ import { tunablesPrefixes } from '@/tuning/tunables';
 import { widgetBindings } from '@/widgets/bindings';
 
 // The timeline, controller widgets, and tuning panel read these without an explicit binding.
-const builtInPrefixes = [
-	'/FMSInfo/',
-	'/NT:/FMSInfo/',
-	'/DriverStation/',
-	'/AdvantageKit/DriverStation/',
-	'/NT:/AdvantageKit/DriverStation/',
-	'/DS:',
-	...tunablesPrefixes,
-];
+const builtInPrefixes = ['/FMSInfo/', '/DriverStation/', '/AdvantageKit/DriverStation/', '/DS:', ...tunablesPrefixes];
 
 /** Keep the faster NT4 subscriptions in sync with dashboard bindings and topics discovered on this connection. */
 export function prioritizeLiveTopics(nt: NtClient) {
@@ -55,7 +47,8 @@ export function prioritizeLiveTopics(nt: NtClient) {
 			const tuning = getDashboard(tuningDashboardId);
 			const dashboards = tuning ? [...getDashboards(), tuning] : getDashboards();
 			for (const { widget } of dashboards.flatMap(({ layout }) => panes(layout))) {
-				for (const { name } of widgetBindings(widget)) {
+				// Bindings of entries a log recorded from NetworkTables show the live topic, see `findEntry()`
+				for (const name of widgetBindings(widget).map((binding) => withoutNtPrefix(binding.name))) {
 					if (!name.startsWith('/') || isStudioEntry(name)) {
 						continue;
 					}

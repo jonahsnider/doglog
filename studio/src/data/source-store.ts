@@ -3,6 +3,7 @@ import { createAtom } from '@tanstack/store';
 import type { DataSet } from '@/data/data-set';
 import { type Entry, setActiveData } from '@/data/data-store';
 import { saveDevLog } from '@/data/dev-log';
+import { findEntry } from '@/data/samples';
 import type { LiveStatus } from '@/data/live-source';
 import type { UnreadEnd } from '@/data/log-source';
 import { deleteLiveRecording } from '@/data/recording';
@@ -118,9 +119,9 @@ export function showSource(type: Source['type']): void {
 	}
 }
 
-/** An entry of the open log, whether or not it's shown */
+/** An entry of the open log, whether or not it's shown, see `findEntry()` */
 export function getLogEntry(name: string): Entry | undefined {
-	return sourceState.logData?.entries.get(name);
+	return sourceState.logData && findEntry(sourceState.logData.entries, name);
 }
 
 /** Close the log, showing the live session if there is one */

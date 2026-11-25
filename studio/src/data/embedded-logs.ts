@@ -2,7 +2,7 @@ import { decompress } from '@/data/decompress';
 import { controlBits, controlDataName, driverStationEntries } from '@/data/driver-station';
 import { parseHoot } from '@/data/parse-hoot';
 import { type EmbeddedLog, type ParsedLog, parseLog } from '@/data/parse-log';
-import { readableEmbeddedLogFormats, type Value } from '@/data/samples';
+import { findEntry, readableEmbeddedLogFormats, type Value } from '@/data/samples';
 import { isXz } from '@/data/xz';
 
 // Times are in µs
@@ -103,10 +103,10 @@ class CaptureBound {
 /** When the robot was enabled and disabled, from a log's Driver Station data. Empty without it. */
 function enableEdges({ entries }: ParsedLog): Edge[] {
 	const find = (names: readonly string[], type: string) =>
-		names.map((name) => entries.get(name)).find((entry) => entry?.type === type && entry.samples.length > 0);
+		names.map((name) => findEntry(entries, name)).find((entry) => entry?.type === type && entry.samples.length > 0);
 	const flag = find([...driverStationEntries.map(([name]) => name), ...enabledEntries], 'boolean');
 	const controlWord = find(controlWordEntries, 'struct:ControlWord');
-	const bits = find([controlDataName, `/NT:${controlDataName}`], 'int64');
+	const bits = find([controlDataName], 'int64');
 	const source = flag ?? controlWord ?? bits;
 	if (!source) {
 		return [];

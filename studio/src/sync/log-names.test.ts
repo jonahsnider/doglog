@@ -1,6 +1,6 @@
 import { expect, test } from 'vite-plus/test';
 import type { Entry } from '@/data/data-store';
-import { getEntryKind, Samples, type Value } from '@/data/samples';
+import { findEntry, getEntryKind, Samples, type Value } from '@/data/samples';
 import { parseLogName, readLogMatch } from './log-names.ts';
 
 test('WPILib logs', () => {
@@ -105,21 +105,15 @@ test('other files', () => {
 	expect(parseLogName('FRC_20260315_143000_pit-notes.wpilog')).toBeUndefined();
 });
 
-/** Look up entries with one latest value each, ex. `{ '/NT:/FMSInfo/MatchNumber': ['int64', 12] }` */
+/** Look up entries with one latest value each like the app does, ex. `{ '/NT:/FMSInfo/MatchNumber': ['int64', 12] }` */
 function entries(values: Record<string, [type: string, value: Value]>) {
-	return (name: string): Entry | undefined => {
-		const [type, value] = values[name] ?? [];
-		if (type === undefined || value === undefined) {
-			return undefined;
-		}
-		return {
+	const map = new Map<string, Entry>(
+		Object.entries(values).map(([name, [type, value]]) => [
 			name,
-			type,
-			kind: getEntryKind(type),
-			samples: new Samples(new Float64Array([0]), [value]),
-			metadata: {},
-		};
-	};
+			{ name, type, kind: getEntryKind(type), samples: new Samples(new Float64Array([0]), [value]), metadata: {} },
+		]),
+	);
+	return (name: string): Entry | undefined => findEntry(map, name);
 }
 
 test('Match from Driver Station data', () => {

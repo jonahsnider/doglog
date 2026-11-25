@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vite-plus/test';
-import { Samples, trimOldest } from '@/data/samples';
+import { findEntry, Samples, trimOldest } from '@/data/samples';
 
 function samplesOf(...items: [number, number][]): Samples {
 	const samples = new Samples();
@@ -79,4 +79,20 @@ describe('trimOldest', () => {
 		expect(busy.valueAt(1000)).toBe(2);
 		expect(busy).toHaveLength(1);
 	});
+});
+
+test('findEntry finds NetworkTables topics with or without the prefix logs record them under', () => {
+	const recorded = new Map([
+		['/NT:/FMSInfo/EventName', 'recorded'],
+		['/Robot/Pose', 'logged'],
+		['/NT:/Robot/Pose', 'published'],
+	]);
+	expect(findEntry(recorded, '/FMSInfo/EventName')).toBe('recorded');
+	expect(findEntry(new Map([['/FMSInfo/EventName', 'live']]), '/NT:/FMSInfo/EventName')).toBe('live');
+	// A log with both keeps them apart
+	expect(findEntry(recorded, '/Robot/Pose')).toBe('logged');
+	expect(findEntry(recorded, '/NT:/Robot/Pose')).toBe('published');
+	// Only the whole `/NT:` segment is a prefix
+	expect(findEntry(new Map([['/NT:Other/Value', 'other']]), '/Other/Value')).toBeUndefined();
+	expect(findEntry(recorded, '/Arm/Angle')).toBeUndefined();
 });

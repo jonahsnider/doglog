@@ -27,14 +27,11 @@ function robotDriverStation(time: number | undefined): DriverStation | undefined
 	if (time === undefined) {
 		return undefined;
 	}
-	for (const prefix of ['/NT:/FMSInfo/', '/FMSInfo/']) {
-		const red = getEntry(`${prefix}IsRedAlliance`)?.samples.valueAt(time);
-		const number = getEntry(`${prefix}StationNumber`)?.samples.valueAt(time);
-		if (typeof red === 'boolean' && (number === 1 || number === 2 || number === 3)) {
-			return { alliance: red ? 'red' : 'blue', number };
-		}
-	}
-	return undefined;
+	const red = getEntry('/FMSInfo/IsRedAlliance')?.samples.valueAt(time);
+	const number = getEntry('/FMSInfo/StationNumber')?.samples.valueAt(time);
+	return typeof red === 'boolean' && (number === 1 || number === 2 || number === 3)
+		? { alliance: red ? 'red' : 'blue', number }
+		: undefined;
 }
 
 /** The robot binding the camera follows, moving with it or from a driver station */

@@ -80,7 +80,7 @@ export function parseLogName(name: string): LogName | undefined {
 }
 
 // Where logs keep the Driver Station's match info: NetworkTables' FMSInfo when NT is logged, or AdvantageKit's inputs
-const matchInfoPrefixes = ['/NT:/FMSInfo/', '/DriverStation/'];
+const matchInfoPrefixes = ['/FMSInfo/', '/DriverStation/'];
 // The Driver Station's match type numbers, 0 is outside of matches
 const matchTypeNumbers: Record<number, { type: MatchType; letter: string }> = {
 	1: { type: 'practice', letter: 'P' },

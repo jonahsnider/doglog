@@ -272,7 +272,7 @@ Value-style widgets SHALL show the latest value at or before the global time cur
 
 ### Requirement: Missing data
 
-When a bound entry doesn't exist in the active source, or no source is active, the widget SHALL show a "no data" state instead of an error and MUST keep the binding.
+When a bound entry doesn't exist in the active source, even under its other NetworkTables name (see the data-sources spec), or no source is active, the widget SHALL show a "no data" state instead of an error and MUST keep the binding.
 
 #### Scenario: Entry missing from source
 
