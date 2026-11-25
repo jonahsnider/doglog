@@ -1,9 +1,10 @@
+import { Button } from '@astryxdesign/core/Button';
+import { ButtonGroup } from '@astryxdesign/core/ButtonGroup';
+import { DropdownMenu, DropdownMenuItem } from '@astryxdesign/core/DropdownMenu';
 import { invoke } from '@tauri-apps/api/core';
 import ChevronDownIcon from 'lucide-react/icons/chevron-down';
 import DownloadIcon from 'lucide-react/icons/download';
 import type { ReactElement } from 'react';
-import { Button, buttonVariants } from '@/components/ui/button';
-import { Group, GroupSeparator } from '@/components/ui/group';
 import { Menu, MenuGroup, MenuGroupLabel, MenuItem, MenuLinkItem, MenuPopup, MenuTrigger } from '@/components/ui/menu';
 import { toastManager } from '@/components/toast';
 
@@ -45,44 +46,34 @@ function detectPlatform(): Platform | undefined {
 export function DownloadButton() {
 	const platform = detectPlatform();
 	const primary = downloads.find((download) => download.platform === platform);
-
-	const menuPopup = (
-		<MenuPopup align="end">
-			{downloads.map((download) => (
-				<MenuLinkItem key={download.file} href={downloadsUrl + download.file}>
-					{download.label}
-				</MenuLinkItem>
-			))}
-		</MenuPopup>
-	);
+	const items = downloads.map((download) => (
+		<DropdownMenuItem key={download.file} label={download.label} href={downloadsUrl + download.file} />
+	));
 
 	if (!primary) {
 		return (
-			<Menu>
-				<MenuTrigger render={<Button />}>
-					<DownloadIcon />
-					Download
-					<ChevronDownIcon />
-				</MenuTrigger>
-				{menuPopup}
-			</Menu>
+			<DropdownMenu button={{ label: 'Download', variant: 'primary', icon: <DownloadIcon /> }} alignment="center">
+				{items}
+			</DropdownMenu>
 		);
 	}
 
 	return (
-		<Group aria-label="Download the desktop app">
-			<a href={downloadsUrl + primary.file} className={buttonVariants()} data-slot="button">
-				<DownloadIcon />
-				Download for {platformNames[primary.platform]}
-			</a>
-			<GroupSeparator />
-			<Menu>
-				<MenuTrigger render={<Button size="icon" aria-label="Other platforms" />}>
-					<ChevronDownIcon />
-				</MenuTrigger>
-				{menuPopup}
-			</Menu>
-		</Group>
+		<ButtonGroup label="Download the desktop app">
+			<Button
+				label={`Download for ${platformNames[primary.platform]}`}
+				variant="primary"
+				icon={<DownloadIcon />}
+				href={downloadsUrl + primary.file}
+			/>
+			<DropdownMenu
+				button={{ label: 'Other platforms', variant: 'primary', isIconOnly: true, icon: <ChevronDownIcon /> }}
+				hasChevron={false}
+				alignment="end"
+			>
+				{items}
+			</DropdownMenu>
+		</ButtonGroup>
 	);
 }
 

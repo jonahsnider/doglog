@@ -1,11 +1,11 @@
-import { Link, createFileRoute, useRouter } from '@tanstack/react-router';
+import { Button } from '@astryxdesign/core/Button';
+import { Spinner } from '@astryxdesign/core/Spinner';
+import { createFileRoute, useRouter } from '@tanstack/react-router';
 import DownloadIcon from 'lucide-react/icons/download';
 import ExternalLinkIcon from 'lucide-react/icons/external-link';
 import LinkIcon from 'lucide-react/icons/link';
 import { useEffect, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import { Spinner } from '@/components/ui/spinner';
+import { BackToDashboards, PageEmptyState } from '@/components/page-empty-state';
 import { toastManager } from '@/components/toast';
 import { buildOpenLogDeepLink, initialLogLabel, normalizeLogUrl } from '@/data/log-url';
 import { type OpenLogUrlError, openLogUrl } from '@/data/open-log-url';
@@ -39,22 +39,16 @@ function OpenLogRoute() {
 
 	if (normalized === undefined) {
 		return (
-			<Empty className="h-full">
-				<EmptyHeader>
-					<EmptyMedia variant="icon">
-						<LinkIcon />
-					</EmptyMedia>
-					<EmptyTitle>Couldn’t open log link</EmptyTitle>
-					<EmptyDescription>
-						{rawUrl === undefined || rawUrl.trim() === ''
-							? 'The link is missing a log URL.'
-							: 'The link does not contain a valid http:// or https:// URL.'}
-					</EmptyDescription>
-				</EmptyHeader>
-				<EmptyContent>
-					<Button render={<Link to="/" replace />}>Back to dashboards</Button>
-				</EmptyContent>
-			</Empty>
+			<PageEmptyState
+				icon={<LinkIcon />}
+				title="Couldn’t open log link"
+				description={
+					rawUrl === undefined || rawUrl.trim() === ''
+						? 'The link is missing a log URL.'
+						: 'The link does not contain a valid http:// or https:// URL.'
+				}
+				actions={<BackToDashboards />}
+			/>
 		);
 	}
 
@@ -183,79 +177,64 @@ function OpenValidLogUrl({ url }: { url: string }) {
 
 	if (state.status === 'handoff') {
 		return (
-			<Empty className="h-full">
-				<EmptyHeader>
-					<EmptyMedia variant="icon">
-						<ExternalLinkIcon />
-					</EmptyMedia>
-					<EmptyTitle>Opening in DogLog Studio</EmptyTitle>
-					<EmptyDescription>
-						Trying to open <span className="font-mono">{label}</span> in the desktop app.
-					</EmptyDescription>
-				</EmptyHeader>
-				<EmptyContent className="flex-row flex-wrap justify-center gap-2">
-					<Button
-						onClick={() => {
-							setState({ status: 'loading' });
-							setAttempt((count) => count + 1);
-						}}
-					>
-						Open in browser
-					</Button>
-					<Button variant="outline" render={<Link to="/" replace />}>
-						Back to dashboards
-					</Button>
-				</EmptyContent>
-			</Empty>
+			<PageEmptyState
+				icon={<ExternalLinkIcon />}
+				title="Opening in DogLog Studio"
+				description={`Trying to open ${label} in the desktop app.`}
+				actions={
+					<>
+						<Button
+							label="Open in browser"
+							variant="primary"
+							onClick={() => {
+								setState({ status: 'loading' });
+								setAttempt((count) => count + 1);
+							}}
+						/>
+						<BackToDashboards />
+					</>
+				}
+			/>
 		);
 	}
 
 	if (state.status === 'error') {
 		return (
-			<Empty className="h-full">
-				<EmptyHeader>
-					<EmptyMedia variant="icon">
-						<LinkIcon />
-					</EmptyMedia>
-					<EmptyTitle>Couldn’t open {label}</EmptyTitle>
-					<EmptyDescription>{state.error.message}</EmptyDescription>
-				</EmptyHeader>
-				<EmptyContent className="flex-row flex-wrap justify-center gap-2">
-					{desktopBrowser && (
-						<Button onClick={() => location.assign(deepLink)}>
-							<ExternalLinkIcon />
-							Open in desktop app
-						</Button>
-					)}
-					<Button
-						variant={desktopBrowser ? 'outline' : 'default'}
-						render={<a href={url} target="_blank" rel="noopener noreferrer" aria-label="Download file" />}
-					>
-						<DownloadIcon />
-						Download file
-					</Button>
-					<Button variant="ghost" render={<Link to="/" replace />}>
-						Back to dashboards
-					</Button>
-				</EmptyContent>
-			</Empty>
+			<PageEmptyState
+				icon={<LinkIcon />}
+				title={`Couldn’t open ${label}`}
+				description={state.error.message}
+				actions={
+					<>
+						{desktopBrowser && (
+							<Button
+								label="Open in desktop app"
+								variant="primary"
+								icon={<ExternalLinkIcon />}
+								onClick={() => location.assign(deepLink)}
+							/>
+						)}
+						<Button
+							label="Download file"
+							variant={desktopBrowser ? 'secondary' : 'primary'}
+							icon={<DownloadIcon />}
+							href={url}
+							target="_blank"
+							rel="noopener noreferrer"
+						/>
+						<BackToDashboards variant="ghost" />
+					</>
+				}
+			/>
 		);
 	}
 
 	return (
-		<Empty className="h-full">
-			<EmptyHeader>
-				<EmptyMedia variant="icon">
-					<Spinner />
-				</EmptyMedia>
-				<EmptyTitle>Opening {label}…</EmptyTitle>
-				<EmptyDescription>Connecting to download the log file.</EmptyDescription>
-			</EmptyHeader>
-			<EmptyContent>
-				<Button variant="outline" render={<Link to="/" replace />}>
-					Cancel
-				</Button>
-			</EmptyContent>
-		</Empty>
+		<PageEmptyState
+			icon={<Spinner size="lg" />}
+			title={`Opening ${label}…`}
+			description="Connecting to download the log file."
+			actions={<BackToDashboards label="Cancel" />}
+		/>
 	);
 }

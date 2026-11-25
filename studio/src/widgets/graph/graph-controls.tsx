@@ -1,4 +1,4 @@
-import { Kbd } from '@/components/ui/kbd';
+import { Shortcut } from '@/components/shortcut';
 
 export function GraphControls() {
 	return (
@@ -12,13 +12,13 @@ export function GraphControls() {
 			<dd>Drag left or right</dd>
 			<dt className="font-medium text-foreground">Pan</dt>
 			<dd>
-				<Kbd>Shift</Kbd> + drag or scroll sideways
+				<Shortcut hotkey="Shift" /> + drag or scroll sideways
 			</dd>
 			<dt className="font-medium text-foreground">Zoom time</dt>
 			<dd>Scroll or pinch on a trackpad</dd>
 			<dt className="font-medium text-foreground">Zoom Y</dt>
 			<dd>
-				Scroll over the axis or <Kbd>Shift</Kbd> + scroll in the plot
+				Scroll over the axis or <Shortcut hotkey="Shift" /> + scroll in the plot
 			</dd>
 		</dl>
 	);

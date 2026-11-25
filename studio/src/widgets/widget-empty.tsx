@@ -1,5 +1,15 @@
+import { EmptyState } from '@astryxdesign/core/EmptyState';
+import { spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import type { ReactNode } from 'react';
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+
+const styles = stylex.create({
+	widget: {
+		minHeight: '100%',
+		justifyContent: 'center',
+		paddingBlock: spacingVars['--spacing-6'],
+	},
+});
 
 export function WidgetEmpty({
 	icon,
@@ -14,13 +24,13 @@ export function WidgetEmpty({
 	children?: ReactNode;
 }) {
 	return (
-		<Empty className="min-h-full py-6 md:py-6">
-			<EmptyHeader>
-				<EmptyMedia variant="icon">{icon}</EmptyMedia>
-				<EmptyTitle>{title}</EmptyTitle>
-				<EmptyDescription>{description}</EmptyDescription>
-			</EmptyHeader>
-			{children !== undefined && <EmptyContent>{children}</EmptyContent>}
-		</Empty>
+		<EmptyState
+			icon={icon}
+			title={title}
+			description={description}
+			actions={children}
+			isCompact
+			xstyle={styles.widget}
+		/>
 	);
 }

@@ -1,7 +1,6 @@
 // The row under the field widget: the cursor position and tool buttons
-import { useFormatForDisplay } from '@tanstack/react-hotkeys';
 import { ControlTooltip } from '@/components/control-tooltip';
-import { InlineShortcut } from '@/components/inline-shortcut';
+import { InlineShortcut } from '@/components/shortcut';
 import { Toggle } from '@/components/ui/toggle';
 import { cn } from '@/lib/utils';
 import type { FieldPoint } from '@/widgets/field/geometry';
@@ -26,7 +25,6 @@ export function CursorPosition({
 	hovered: boolean;
 	copied: boolean;
 }) {
-	const formatForDisplay = useFormatForDisplay();
 	return (
 		<span
 			className={cn(
@@ -58,7 +56,7 @@ export function CursorPosition({
 					Copied
 				</span>
 			</span>
-			<InlineShortcut className="h-4 min-w-4">{formatForDisplay('Mod+C')}</InlineShortcut>
+			<InlineShortcut hotkey="Mod+C" />
 		</span>
 	);
 }
@@ -96,7 +94,7 @@ export function ToolButtons({
 						}
 					>
 						<>
-							<InlineShortcut className="h-4 min-w-4">{option.key}</InlineShortcut>
+							<InlineShortcut hotkey={option.key} />
 							{option.label}
 						</>
 					</ControlTooltip>

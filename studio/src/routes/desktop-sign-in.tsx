@@ -1,5 +1,9 @@
 import type { WireCreationOptions, WireRequestOptions } from '@convex-dev/auth/methods/username-passkey/react-custom';
-import { Link, createFileRoute } from '@tanstack/react-router';
+import { Banner } from '@astryxdesign/core/Banner';
+import { Button } from '@astryxdesign/core/Button';
+import { VStack } from '@astryxdesign/core/Layout';
+import { Spinner } from '@astryxdesign/core/Spinner';
+import { createFileRoute } from '@tanstack/react-router';
 import ExternalLinkIcon from 'lucide-react/icons/external-link';
 import KeyRoundIcon from 'lucide-react/icons/key-round';
 import LinkIcon from 'lucide-react/icons/link';
@@ -7,9 +11,7 @@ import { type ReactNode, useEffect, useState, useTransition } from 'react';
 import * as z from 'zod';
 import { browserCeremonies } from '@/cloud/passkey-ceremonies';
 import { sealSignInResult } from '@/cloud/sign-in-handoff';
-import { Button } from '@/components/ui/button';
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import { Spinner } from '@/components/ui/spinner';
+import { BackToDashboards, PageEmptyState } from '@/components/page-empty-state';
 
 // Where the desktop app signs in, see sign-in-handoff.ts. Read from the URL directly, since the router would parse
 // values that look like numbers.
@@ -79,7 +81,7 @@ function DesktopSignIn() {
 				title="Return to DogLog Studio"
 				description="Finish signing in in the desktop app. You can close this tab."
 			>
-				<Button onClick={() => location.assign(link)}>Open DogLog Studio</Button>
+				<Button label="Open DogLog Studio" variant="primary" onClick={() => location.assign(link)} />
 			</SignInMessage>
 		);
 	}
@@ -90,12 +92,12 @@ function DesktopSignIn() {
 				title="Couldn’t continue signing in"
 				description="This link is missing details from DogLog Studio. Sign in again from the app."
 			>
-				<Button render={<Link to="/" replace />}>Back to dashboards</Button>
+				<BackToDashboards />
 			</SignInMessage>
 		);
 	}
 	if (request.ceremony === 'oauth') {
-		return <SignInMessage icon={<Spinner />} title="Returning to DogLog Studio" />;
+		return <SignInMessage icon={<Spinner size="lg" />} title="Returning to DogLog Studio" />;
 	}
 	return <PasskeyPrompt request={request} onDone={setLink} />;
 }
@@ -137,14 +139,10 @@ function PasskeyPrompt({ request, onDone }: { request: PasskeyRequest; onDone: (
 					: 'Use your passkey to sign in to Cloud in the desktop app.'
 			}
 		>
-			<Button loading={pending} onClick={run}>
-				Continue with passkey
-			</Button>
-			{error !== undefined && (
-				<p role="alert" className="text-destructive-foreground text-sm">
-					{error}
-				</p>
-			)}
+			<VStack gap={3} hAlign="center">
+				<Button label="Continue with passkey" variant="primary" isLoading={pending} onClick={run} />
+				{error !== undefined && <Banner status="error" role="alert" title={error} />}
+			</VStack>
 		</SignInMessage>
 	);
 }
@@ -160,14 +158,5 @@ function SignInMessage({
 	description?: string;
 	children?: ReactNode;
 }) {
-	return (
-		<Empty className="h-full">
-			<EmptyHeader>
-				<EmptyMedia variant="icon">{icon}</EmptyMedia>
-				<EmptyTitle>{title}</EmptyTitle>
-				{description !== undefined && <EmptyDescription>{description}</EmptyDescription>}
-			</EmptyHeader>
-			{children !== undefined && <EmptyContent>{children}</EmptyContent>}
-		</Empty>
-	);
+	return <PageEmptyState icon={icon} title={title} description={description} actions={children} />;
 }

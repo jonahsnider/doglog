@@ -1,5 +1,6 @@
-import { type Hotkey, useFormatForDisplay } from '@tanstack/react-hotkeys';
-import { Kbd, KbdGroup } from '@/components/ui/kbd';
+import { HStack } from '@astryxdesign/core/Layout';
+import type { Hotkey } from '@tanstack/react-hotkeys';
+import { Shortcut } from '@/components/shortcut';
 
 export function TooltipLabel({
 	label,
@@ -8,18 +9,13 @@ export function TooltipLabel({
 	label: string;
 	shortcut?: Hotkey | readonly Hotkey[] | undefined;
 }) {
-	const formatForDisplay = useFormatForDisplay();
-	const keys = (shortcut === undefined ? [] : [shortcut].flat()).map((hotkey) => formatForDisplay(hotkey));
+	const hotkeys = shortcut === undefined ? [] : [shortcut].flat();
 	return (
-		<span className="flex items-center gap-2">
+		<HStack gap={2} vAlign="center">
 			{label}
-			{keys.length > 0 && (
-				<KbdGroup>
-					{keys.map((key) => (
-						<Kbd key={key}>{key}</Kbd>
-					))}
-				</KbdGroup>
-			)}
-		</span>
+			{hotkeys.map((hotkey) => (
+				<Shortcut key={String(hotkey)} hotkey={hotkey} />
+			))}
+		</HStack>
 	);
 }

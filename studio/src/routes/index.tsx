@@ -1,8 +1,8 @@
+import { Button } from '@astryxdesign/core/Button';
 import { Navigate, createFileRoute, redirect, useRouter } from '@tanstack/react-router';
 import LayoutDashboardIcon from 'lucide-react/icons/layout-dashboard';
 import PlusIcon from 'lucide-react/icons/plus';
-import { Button } from '@/components/ui/button';
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+import { PageEmptyState } from '@/components/page-empty-state';
 import { newDashboard } from '@/commands/commands';
 import { getDashboards, useDashboards } from '@/dashboards/dashboards';
 
@@ -26,20 +26,13 @@ function Index() {
 	}
 
 	return (
-		<Empty className="h-full">
-			<EmptyHeader>
-				<EmptyMedia variant="icon">
-					<LayoutDashboardIcon />
-				</EmptyMedia>
-				<EmptyTitle>No dashboards</EmptyTitle>
-				<EmptyDescription>Create a dashboard to start adding widgets.</EmptyDescription>
-			</EmptyHeader>
-			<EmptyContent>
-				<Button onClick={() => newDashboard(router)}>
-					<PlusIcon />
-					New dashboard
-				</Button>
-			</EmptyContent>
-		</Empty>
+		<PageEmptyState
+			icon={<LayoutDashboardIcon />}
+			title="No dashboards"
+			description="Create a dashboard to start adding widgets."
+			actions={
+				<Button label="New dashboard" variant="primary" icon={<PlusIcon />} onClick={() => newDashboard(router)} />
+			}
+		/>
 	);
 }

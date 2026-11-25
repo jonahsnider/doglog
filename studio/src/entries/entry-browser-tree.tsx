@@ -5,7 +5,7 @@ import SearchIcon from 'lucide-react/icons/search';
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { shortcuts } from '@/commands/commands';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
-import { Kbd } from '@/components/ui/kbd';
+import { Shortcut } from '@/components/shortcut';
 import { type Entry, useEntries } from '@/data/data-store';
 import { useSource } from '@/data/source';
 import { ActiveSection } from '@/entries/active-section';
@@ -132,7 +132,7 @@ export function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 					/>
 					{!mobile && query === '' && (
 						<InputGroupAddon align="inline-end" className="in-[[data-slot=input-group]:has(input:focus)]:hidden">
-							<Kbd className="border border-input bg-transparent">{shortcuts.searchEntries}</Kbd>
+							<Shortcut hotkey={shortcuts.searchEntries} />
 						</InputGroupAddon>
 					)}
 				</InputGroup>

@@ -1,12 +1,11 @@
 import type { Draggable, Droppable } from '@dnd-kit/dom';
 import { useDragOperation, useDroppable } from '@dnd-kit/react';
-import { useFormatForDisplay } from '@tanstack/react-hotkeys';
 import DatabaseIcon from 'lucide-react/icons/database';
 import ListPlusIcon from 'lucide-react/icons/list-plus';
 import TriangleAlertIcon from 'lucide-react/icons/triangle-exclamation-point';
 import { Component, type CSSProperties, type ReactNode, Suspense, use, useCallback, useMemo } from 'react';
 import { shortcuts } from '@/commands/shortcuts';
-import { InlineShortcut } from '@/components/inline-shortcut';
+import { InlineShortcut } from '@/components/shortcut';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import {
@@ -56,7 +55,6 @@ export function WidgetView({
 }) {
 	const source = useSource();
 	const dashboardLayout = use(DashboardLayoutContext);
-	const formatForDisplay = useFormatForDisplay();
 	// Accepts every entry so rejected ones can explain why they can't be dropped. Entries from this widget are reordered by dropping them on each other instead.
 	const { ref } = useDroppable<EntryDropData>({
 		id: paneId,
@@ -118,7 +116,7 @@ export function WidgetView({
 					onClick={() => startEditing(dashboardId, paneId)}
 				>
 					Add entries
-					<InlineShortcut>{formatForDisplay(shortcuts.editEntries)}</InlineShortcut>
+					<InlineShortcut hotkey={shortcuts.editEntries} />
 				</Button>
 				{type.id === 'graph' && <GraphControls />}
 			</WidgetEmpty>

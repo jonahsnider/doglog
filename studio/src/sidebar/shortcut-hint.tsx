@@ -1,14 +1,13 @@
-import { type Hotkey, useFormatForDisplay } from '@tanstack/react-hotkeys';
+import type { Hotkey } from '@tanstack/react-hotkeys';
 import { SidebarMenuBadge } from '@/components/ui/sidebar';
-import { Kbd } from '@/components/ui/kbd';
+import { Shortcut } from '@/components/shortcut';
 import { useShortcutHint } from '@/commands/commands';
 
 export function ShortcutHint({ shortcut }: { shortcut: Hotkey }) {
-	const formatForDisplay = useFormatForDisplay();
 	return (
 		useShortcutHint(shortcut) && (
 			<SidebarMenuBadge>
-				<Kbd>{formatForDisplay(shortcut)}</Kbd>
+				<Shortcut hotkey={shortcut} />
 			</SidebarMenuBadge>
 		)
 	);

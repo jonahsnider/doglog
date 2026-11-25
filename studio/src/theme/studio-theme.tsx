@@ -2,6 +2,7 @@ import { Theme, defineTheme } from '@astryxdesign/core/theme';
 import { useSelector } from '@tanstack/react-store';
 import type { ReactNode } from 'react';
 import { colorModeStore } from '@/settings';
+import { studioIcons } from '@/theme/studio-icons';
 import { type Team581Role, team581ColorTokens, team581Theme } from '@/theme/team581-theme';
 
 /** Roles Studio generates as `--<role>` instead of `--md-<role>`, see `statusColorVariables()` in `@/theme/status-color` */
@@ -24,6 +25,7 @@ const color = (role: Team581Role) => `var(--${statusRoles.has(role) ? '' : 'md-'
 const studioTheme = defineTheme({
 	name: 'doglog-studio',
 	extends: team581Theme,
+	icons: studioIcons,
 	tokens: {
 		...team581ColorTokens(color),
 		// Studio is a dense desktop app, so small controls match its 24px toolbar buttons

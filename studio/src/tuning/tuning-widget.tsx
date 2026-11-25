@@ -1,8 +1,8 @@
-import { useFormatForDisplay, useHotkey } from '@tanstack/react-hotkeys';
+import { useHotkey } from '@tanstack/react-hotkeys';
 import { useSelector } from '@tanstack/react-store';
 import SlidersHorizontalIcon from 'lucide-react/icons/sliders-horizontal';
 import { use, useRef, useState } from 'react';
-import { InlineShortcut } from '@/components/inline-shortcut';
+import { InlineShortcut } from '@/components/shortcut';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { toastManager } from '@/components/toast';
@@ -123,7 +123,6 @@ function Tunables({ bindings, status }: Pick<WidgetProps, 'bindings'> & { status
 	const paneId = widget?.paneId;
 	const { tunables, sections } = listSections(bindings);
 	const previous = useSelector(previousStore);
-	const formatForDisplay = useFormatForDisplay();
 
 	const [staged, setStaged] = useState<Staged>({});
 	// Values the robot already has, ex. someone else applied them, aren't staged anymore
@@ -266,7 +265,7 @@ function Tunables({ bindings, status }: Pick<WidgetProps, 'bindings'> & { status
 				</Button>
 				<Button size="sm" disabled={stagedCount === 0 || applying || !connected} onClick={apply}>
 					{stale.size > 0 ? 'Apply anyway' : 'Apply'}
-					<InlineShortcut>{formatForDisplay(applyShortcut)}</InlineShortcut>
+					<InlineShortcut hotkey={applyShortcut} />
 				</Button>
 			</div>
 		</div>

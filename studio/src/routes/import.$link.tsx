@@ -1,7 +1,6 @@
-import { Link, createFileRoute, redirect } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 import LinkIcon from 'lucide-react/icons/link';
-import { Button } from '@/components/ui/button';
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+import { BackToDashboards, PageEmptyState } from '@/components/page-empty-state';
 import { dashboardSnapshot, decodeDashboardLink, snapshotKey } from '@/dashboards/dashboard-link';
 import { createDashboard, getDashboards } from '@/dashboards/dashboards';
 import { openDashboardLinkInDesktop } from '@/dashboards/open-dashboard-link';
@@ -33,17 +32,11 @@ export const Route = createFileRoute('/import/$link')({
 
 function InvalidDashboardLink() {
 	return (
-		<Empty className="h-full">
-			<EmptyHeader>
-				<EmptyMedia variant="icon">
-					<LinkIcon />
-				</EmptyMedia>
-				<EmptyTitle>Couldn’t open dashboard link</EmptyTitle>
-				<EmptyDescription>The link is invalid or unsupported.</EmptyDescription>
-			</EmptyHeader>
-			<EmptyContent>
-				<Button render={<Link to="/" replace />}>Back to dashboards</Button>
-			</EmptyContent>
-		</Empty>
+		<PageEmptyState
+			icon={<LinkIcon />}
+			title="Couldn’t open dashboard link"
+			description="The link is invalid or unsupported."
+			actions={<BackToDashboards />}
+		/>
 	);
 }

@@ -1,4 +1,4 @@
-import { Kbd } from '@/components/ui/kbd';
+import { Shortcut } from '@/components/shortcut';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { cn } from '@/lib/utils';
 import type { View } from '@/widgets/view-toggle';
@@ -23,19 +23,21 @@ const pointerGestures = {
 		[
 			'Orbit',
 			<>
-				Drag or <Kbd aria-label="Arrow keys">↑ ↓ ← →</Kbd>
+				Drag or <Shortcut hotkey="ArrowUp" /> <Shortcut hotkey="ArrowDown" /> <Shortcut hotkey="ArrowLeft" />{' '}
+				<Shortcut hotkey="ArrowRight" />
 			</>,
 		],
 		[
 			'Pan',
 			<>
-				<Kbd>Shift</Kbd> + drag or <Kbd>A D Q E</Kbd>
+				<Shortcut hotkey="Shift" /> + drag or <Shortcut hotkey="A" /> <Shortcut hotkey="D" /> <Shortcut hotkey="Q" />{' '}
+				<Shortcut hotkey="E" />
 			</>,
 		],
 		[
 			'Zoom',
 			<>
-				Scroll or <Kbd>W S</Kbd>
+				Scroll or <Shortcut hotkey="W" /> <Shortcut hotkey="S" />
 			</>,
 		],
 	],

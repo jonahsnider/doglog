@@ -1,4 +1,4 @@
-import { type Hotkey, useFormatForDisplay } from '@tanstack/react-hotkeys';
+import type { Hotkey } from '@tanstack/react-hotkeys';
 import { Link, type RegisteredRouter, useLocation, useRouter } from '@tanstack/react-router';
 import LayoutDashboardIcon from 'lucide-react/icons/layout-dashboard';
 import { useSortable } from '@dnd-kit/react/sortable';
@@ -12,7 +12,7 @@ import { useDashboardCopyItems } from '@/sidebar/dashboard-copy-items';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { DashboardPreview } from '@/dashboards/dashboard-preview';
 import { PreviewCard, PreviewCardPopup, PreviewCardTrigger } from '@/components/ui/preview-card';
-import { Kbd } from '@/components/ui/kbd';
+import { Shortcut } from '@/components/shortcut';
 import { dashboardShortcut, shortcuts, useShortcutHint } from '@/commands/commands';
 import { moveDashboardToSection } from '@/dashboards/sharing';
 import { type DashboardDragData, dashboardDragType, dashboardSensors } from '@/dashboards/drag';
@@ -36,7 +36,6 @@ function ItemEnd({
 	menuItems: readonly (MenuAction | 'separator')[];
 }) {
 	const showShortcut = useShortcutHint(shortcut);
-	const formatForDisplay = useFormatForDisplay();
 	return (
 		<>
 			{dashboard.shared && !showShortcut && (
@@ -47,7 +46,7 @@ function ItemEnd({
 			<DashboardOptions items={menuItems} hidden={showShortcut} />
 			{showShortcut && shortcut !== undefined && (
 				<SidebarMenuBadge>
-					<Kbd>{formatForDisplay(shortcut)}</Kbd>
+					<Shortcut hotkey={shortcut} />
 				</SidebarMenuBadge>
 			)}
 		</>
