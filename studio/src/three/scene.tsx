@@ -33,7 +33,7 @@ const gridSize = 2.4;
 const gridDivisions = 6;
 
 function Floor() {
-	const line = useThemeColor('var(--border)');
+	const line = useThemeColor('var(--md-outline-variant)');
 	// Grid helpers are drawn in the XZ plane, turned onto the floor
 	return <gridHelper args={[gridSize, gridDivisions, line, line]} rotation={[Math.PI / 2, 0, 0]} />;
 }

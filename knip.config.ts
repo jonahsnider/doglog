@@ -13,6 +13,10 @@ const config: KnipConfig = {
 		// Runs the field model's Python project in CI, see `studio/scripts/field3d`
 		'uv',
 	],
+	compilers: {
+		// Finds packages Studio imports from CSS, like its fonts
+		css: (text: string) => [...text.matchAll(/(?<=@)import[^;]+/g)].join('\n'),
+	},
 	workspaces: {
 		cloud: {
 			// Void loads routes by their file paths

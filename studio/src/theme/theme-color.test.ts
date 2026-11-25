@@ -37,8 +37,8 @@ function generatedVariables(dark: boolean): string[] {
 
 // The default colors in index.css are used before JS loads, so they must match the generated ones
 describe('themeColorVariables()', () => {
-	const light = css.slice(css.indexOf(':root {'), css.indexOf('.dark {'));
-	const dark = css.slice(css.indexOf('.dark {'), css.indexOf('/* Map coss ui tokens'));
+	const light = css.slice(css.indexOf(':root {\n\tcolor-scheme: light;'), css.indexOf('.dark {'));
+	const dark = css.slice(css.indexOf('.dark {'), css.indexOf('/*\n * REBUILT'));
 
 	test('default light colors match index.css', () => {
 		expect(generatedVariables(false)).toStrictEqual(cssVariables(light));

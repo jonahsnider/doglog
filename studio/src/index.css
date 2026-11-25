@@ -1,14 +1,10 @@
 /*
- * Cascade layers, lowest first: resets, Astryx's components and theme, Studio's StyleX, then Tailwind utilities while the
- * app moves off them. `@astryxdesign/build` declares the first four in `index.html`, so Tailwind's preflight goes in the
- * reset layer instead of its own `base` layer, which would land above Astryx's components. Astryx's component styles are
- * compiled from its source by the Vite plugin, so only the components Studio imports ship, and there's no `astryx.css`.
+ * Cascade layers, lowest first: resets, then Astryx's components and theme, then Studio's StyleX. `@astryxdesign/build`
+ * declares them in `index.html`. Astryx's component styles are compiled from its source by the Vite plugin, so only the
+ * components Studio imports ship, and there's no `astryx.css`.
  */
-@layer reset, astryx-base, astryx-theme, product, theme, utilities;
-@import 'tailwindcss/theme.css' layer(theme);
-@import 'tailwindcss/preflight.css' layer(reset);
+@layer reset, astryx-base, astryx-theme, product;
 @import '@astryxdesign/core/reset.css';
-@import 'tailwindcss/utilities.css' layer(utilities);
 @import '@fontsource-variable/ibm-plex-sans';
 @import '@fontsource-variable/source-sans-3';
 @import '@fontsource/ibm-plex-mono/400.css';
@@ -18,53 +14,17 @@
 @import '@fontsource/ibm-plex-mono/400-italic.css';
 @import '@fontsource/ibm-plex-mono/600-italic.css';
 
-@custom-variant dark (&:is(.dark *));
-/* Copying an image sets `data-capturing` on the root, video export mode sets it on the dashboard it previews */
-@custom-variant capture (&:where([data-capturing], [data-capturing] *));
-/* The frames of a video being saved, which leave out video export mode's own controls */
-@custom-variant saving-video (&:where([data-saving-video] *));
-/* Motion is reduced when the system asks to or the reduce motion setting adds `reduce-motion` to the root element */
-@custom-variant motion-reduce {
-	@media (prefers-reduced-motion: reduce) {
-		@slot;
-	}
-	&:where(.reduce-motion, .reduce-motion *) {
-		@slot;
-	}
-}
-@custom-variant motion-safe {
-	@media (prefers-reduced-motion: no-preference) {
-		&:not(:where(.reduce-motion, .reduce-motion *)) {
-			@slot;
-		}
-	}
-}
-/* Breakpoints for the add widget prompt, based on how much space its content needs */
-
-/* Place the field legend beside the image when the pane is wider than the viewed field. */
-@custom-variant field-aside {
-	@container field-landscape (min-aspect-ratio: 1.925) {
-		@slot;
-	}
-	@container field-portrait (min-aspect-ratio: 0.52) {
-		@slot;
-	}
-}
-
 /*
- * Material 3 motion, see DESIGN.md. Tailwind's easing names are redefined so `ease-*` classes, plain `transition-*`
- * classes, and coss ui components all use the same curves. `src/lib/motion.ts` mirrors these for the motion library.
+ * Material 3 motion, see DESIGN.md. `src/lib/motion.ts` mirrors these for the motion library.
  * https://m3.material.io/styles/motion/easing-and-duration/tokens-specs
  */
-@theme static {
+:root {
 	/* Standard, for things that move within the screen */
 	--ease-in-out: cubic-bezier(0.2, 0, 0, 1);
 	/* Standard decelerate, for things entering the screen */
 	--ease-out: cubic-bezier(0, 0, 0, 1);
 	/* Standard accelerate, for things leaving the screen */
 	--ease-in: cubic-bezier(0.3, 0, 1, 1);
-	--default-transition-duration: 150ms;
-	--default-transition-timing-function: var(--ease-in-out);
 }
 /*
  * 0 when motion is reduced by the system or the reduce motion setting, 1 otherwise. Styles multiply their transition
@@ -78,157 +38,6 @@
 	}
 	&.reduce-motion {
 		--motion-scale: 0;
-	}
-}
-/* Spinners slow down instead of stopping when reducing motion, so they still show that something is loading */
-:root {
-	@variant motion-reduce {
-		--animate-spin: spin 3s linear infinite;
-	}
-}
-
-@theme inline {
-	--animate-skeleton: skeleton 2s -1s infinite linear;
-	--animate-toast-success-odd: toast-success-odd 0.32s cubic-bezier(0.5, 1, 0.89, 1);
-	--animate-toast-success-even: toast-success-even 0.32s cubic-bezier(0.5, 1, 0.89, 1);
-	--animate-toast-error-odd: toast-error-odd 0.28s cubic-bezier(0.5, 1, 0.89, 1);
-	--animate-toast-error-even: toast-error-even 0.28s cubic-bezier(0.5, 1, 0.89, 1);
-	--animate-caret-blink: 1s ease-out infinite caret-blink;
-	--font-heading: 'Source Sans 3 Variable', sans-serif;
-	--font-mono: 'IBM Plex Mono', monospace;
-	--font-sans: 'IBM Plex Sans Variable', sans-serif;
-	--color-sidebar-ring: var(--sidebar-ring);
-	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-	--color-sidebar-primary: var(--sidebar-primary);
-	--color-sidebar-foreground: var(--sidebar-foreground);
-	--color-sidebar-border: var(--sidebar-border);
-	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-	--color-sidebar-accent: var(--sidebar-accent);
-	--color-sidebar: var(--sidebar);
-	--color-frame: var(--frame);
-	/* Raised parts of drawings, like controller buttons, which stand out from both light and dark surfaces */
-	--color-surface-bright: var(--md-surface-bright);
-	--color-code-highlight: var(--code-highlight);
-	--code-foreground: var(--code-foreground);
-	--color-code: var(--code);
-	--color-chart-5: var(--chart-5);
-	--color-chart-4: var(--chart-4);
-	--color-chart-3: var(--chart-3);
-	--color-chart-2: var(--chart-2);
-	--color-chart-1: var(--chart-1);
-	--color-secondary-foreground: var(--secondary-foreground);
-	--color-secondary: var(--secondary);
-	--color-ring: var(--ring);
-	--color-primary-foreground: var(--primary-foreground);
-	--color-primary: var(--primary);
-	--color-popover-foreground: var(--popover-foreground);
-	--color-popover: var(--popover);
-	--color-muted-foreground: var(--muted-foreground);
-	--color-muted: var(--muted);
-	--color-input: var(--input);
-	--color-outline: var(--outline);
-	--color-foreground: var(--foreground);
-	--color-destructive: var(--destructive);
-	--color-card-foreground: var(--card-foreground);
-	--color-card: var(--card);
-	--color-border: var(--border);
-	--color-background: var(--background);
-	--color-accent-foreground: var(--accent-foreground);
-	--color-accent: var(--accent);
-	--color-warning-foreground: var(--warning-foreground);
-	--color-warning: var(--warning);
-	--color-success-foreground: var(--success-foreground);
-	--color-success: var(--success);
-	--color-info-foreground: var(--info-foreground);
-	--color-info: var(--info);
-	--color-test-mode: var(--test-mode);
-	--color-fuel: var(--fuel);
-	--color-fuel-outline: var(--fuel-outline);
-	--color-destructive-foreground: var(--destructive-foreground);
-	--radius-sm: calc(var(--radius) * 0.6);
-	--radius-md: calc(var(--radius) * 0.8);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) * 1.4);
-	--radius-2xl: calc(var(--radius) * 1.8);
-	--radius-3xl: calc(var(--radius) * 2.2);
-	--radius-4xl: calc(var(--radius) * 2.6);
-	@keyframes skeleton {
-		to {
-			background-position: -200% 0;
-		}
-	}
-	@keyframes toast-success-odd {
-		0% {
-			scale: 1;
-		}
-		30% {
-			scale: 1.025;
-		}
-		60% {
-			scale: 0.99;
-		}
-		100% {
-			scale: 1;
-		}
-	}
-	@keyframes toast-error-odd {
-		0% {
-			translate: 0 0;
-		}
-		25% {
-			translate: -3px 0;
-		}
-		50% {
-			translate: 3px 0;
-		}
-		75% {
-			translate: -3px 0;
-		}
-		100% {
-			translate: 0 0;
-		}
-	}
-	@keyframes toast-success-even {
-		0% {
-			scale: 1;
-		}
-		30% {
-			scale: 1.025;
-		}
-		60% {
-			scale: 0.99;
-		}
-		100% {
-			scale: 1;
-		}
-	}
-	@keyframes toast-error-even {
-		0% {
-			translate: 0 0;
-		}
-		25% {
-			translate: -3px 0;
-		}
-		50% {
-			translate: 3px 0;
-		}
-		75% {
-			translate: -3px 0;
-		}
-		100% {
-			translate: 0 0;
-		}
-	}
-	@keyframes caret-blink {
-		0%,
-		70%,
-		to {
-			opacity: 1;
-		}
-		20%,
-		50% {
-			opacity: 0;
-		}
 	}
 }
 
@@ -287,9 +96,6 @@
 	--md-surface-container-high: rgb(238 231 230);
 	--md-surface-container-highest: rgb(232 225 224);
 
-	--destructive: var(--md-error);
-	/* The base the sidebars and timeline sit on, darker than the panes. MD3's role for the dimmest surface. */
-	--frame: var(--md-surface-dim);
 	/* Chart colors generated from the theme color, see `chartColorVariables()` in src/theme/theme-color.ts */
 	--chart-1: rgb(194 74 71);
 	--chart-2: rgb(137 111 0);
@@ -369,10 +175,6 @@
 	--md-surface-container-high: rgb(35 30 30);
 	--md-surface-container-highest: rgb(42 36 36);
 
-	/* coss puts white text on destructive, so use the darker container color */
-	--destructive: var(--md-error-container);
-	/* Surface dim is the same as surface in dark themes, so the frame uses the only darker role */
-	--frame: var(--md-surface-container-lowest);
 	/* Chart colors generated from the theme color, see `chartColorVariables()` in src/theme/theme-color.ts */
 	--chart-1: rgb(255 146 140);
 	--chart-2: rgb(211 173 0);
@@ -394,44 +196,6 @@
 	--test-mode: rgb(210 144 255);
 }
 
-/* Map coss ui tokens to MD3 roles */
-:root,
-.dark {
-	--background: var(--md-surface);
-	--foreground: var(--md-on-surface);
-	--card: var(--md-surface-container-low);
-	--card-foreground: var(--md-on-surface);
-	--popover: var(--md-surface-container);
-	--popover-foreground: var(--md-on-surface);
-	--primary: var(--md-primary);
-	--primary-foreground: var(--md-on-primary);
-	--secondary: var(--md-secondary-container);
-	--secondary-foreground: var(--md-on-secondary-container);
-	--muted: var(--md-surface-container-highest);
-	--muted-foreground: var(--md-on-surface-variant);
-	--accent: var(--md-surface-container-high);
-	--accent-foreground: var(--md-on-surface);
-	--destructive-foreground: var(--md-error);
-	--border: var(--md-outline-variant);
-	--input: var(--md-outline-variant);
-	/* MD3 bounds controls with nothing inside to see them by, like text fields and checkboxes, with outline, see below */
-	--outline: var(--md-outline);
-	--ring: var(--md-primary);
-	--code: var(--md-surface-container-low);
-	--code-foreground: var(--md-on-surface);
-	--code-highlight: var(--md-surface-container-high);
-	--radius: 0.625rem;
-	/* Sidebars sit on the frame instead of their own surface */
-	--sidebar: var(--frame);
-	--sidebar-foreground: var(--md-on-surface-variant);
-	--sidebar-accent: var(--md-surface-container-high);
-	--sidebar-accent-foreground: var(--md-on-surface);
-	--sidebar-border: var(--md-outline-variant);
-	--sidebar-primary: var(--md-primary);
-	--sidebar-primary-foreground: var(--md-on-primary);
-	--sidebar-ring: var(--md-primary);
-}
-
 /*
  * REBUILT's official fuel color, the same in every theme like the field image. Light backgrounds barely contrast with it,
  * so it's outlined there with a darker tone of its hue (HCT tone 60).
@@ -446,33 +210,33 @@
 }
 
 @layer reset {
-	* {
-		@apply border-border outline-ring/50;
+	:where(*) {
+		border-color: var(--color-border);
+	}
+	html {
+		font-family: 'IBM Plex Sans Variable', system-ui, sans-serif;
+		/* The app fills the window, so stop the page from rubber-banding when scrolling past its edges on macOS */
+		overscroll-behavior: none;
 	}
 	body {
-		@apply bg-background text-foreground;
+		background-color: var(--md-surface);
+		color: var(--md-on-surface);
+		font-variant-numeric: tabular-nums;
+		/* Like a native app, UI text isn't selectable. Content worth copying opts back in with `user-select: text`. */
+		user-select: none;
+		-webkit-user-select: none;
 	}
 	code,
 	kbd,
 	samp,
 	pre {
-		font-family: var(--font-mono);
-	}
-	html {
-		@apply font-sans;
-		/* The app fills the window, so stop the page from rubber-banding when scrolling past its edges on macOS */
-		overscroll-behavior: none;
-	}
-	body {
-		font-variant-numeric: tabular-nums;
-		/* Like a native app, UI text isn't selectable. Content worth copying opts back in with `select-text`. */
-		@apply select-none;
+		font-family: 'IBM Plex Mono', ui-monospace, monospace;
 	}
 	/* WebKit won't let you type in fields inside `user-select: none` */
 	:is(input, textarea, [contenteditable]) {
-		@apply select-text;
+		user-select: text;
+		-webkit-user-select: text;
 	}
-	/* Tailwind v4 removed the pointer cursor from buttons, see https://ui.shadcn.com/docs/tailwind-v4#buttons-use-the-default-cursor */
 	:is(
 		button,
 		select,
@@ -569,22 +333,17 @@
  * (`--split-from`) to the ones the library sets inline, see `SplitView`
  */
 [data-split-animation] {
-	animation: split-resize 250ms var(--ease-in-out);
+	animation: split-resize calc(250ms * var(--motion-scale)) var(--ease-in-out);
 }
 /* Closing is quicker and accelerates, every child needs the same timing to add up to the split */
 [data-split-closing] {
-	animation-duration: 200ms;
+	animation-duration: calc(200ms * var(--motion-scale));
 	animation-timing-function: var(--ease-in);
 }
 /* Held at the end until the closed pane is removed */
 [data-split-animation='leave'] {
 	animation-name: split-leave;
 	animation-fill-mode: forwards;
-}
-[data-split-animation] {
-	@variant motion-reduce {
-		animation-duration: 0s;
-	}
 }
 @keyframes split-resize {
 	from {
@@ -610,7 +369,7 @@
 
 	& [data-pane-id] {
 		z-index: 1;
-		background-color: var(--background);
+		background-color: var(--color-background-surface);
 	}
 	& [data-zoom-filling] {
 		position: absolute;
@@ -619,26 +378,6 @@
 	}
 	& [data-separator] {
 		visibility: hidden;
-	}
-}
-
-/* Sliding bar for downloads whose total length isn't known (Base UI sets `data-indeterminate` when `value={null}`) */
-[data-slot='progress-indicator'][data-indeterminate] {
-	width: 35%;
-	animation: progress-indeterminate 1.4s var(--ease-in-out) infinite;
-
-	@variant motion-reduce {
-		width: 100%;
-		animation: none;
-		opacity: 0.38;
-	}
-}
-@keyframes progress-indeterminate {
-	from {
-		transform: translateX(-100%);
-	}
-	to {
-		transform: translateX(385%);
 	}
 }
 

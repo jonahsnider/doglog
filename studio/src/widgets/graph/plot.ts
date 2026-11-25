@@ -72,7 +72,7 @@ export function createPlot(
 ): uPlot {
 	const color = (variable: string) => () => resolveColor(target, `var(${variable})`);
 	// Gridlines stay faint so they don't compete with the data, the zero line is a little stronger
-	const gridColor = () => `color-mix(in oklab, ${resolveColor(target, 'var(--border)')} 45%, transparent)`;
+	const gridColor = () => `color-mix(in oklab, ${resolveColor(target, 'var(--md-outline-variant)')} 45%, transparent)`;
 	const font = `12px ${getComputedStyle(target).fontFamily}`;
 	const hasRight = series.some((line) => line.axis === 'y2');
 	// The left axis keeps its space without entries, so the plot lines up with the bands, but it's left blank
@@ -84,7 +84,7 @@ export function createPlot(
 		size: axisWidth,
 		gap: 4,
 		font,
-		stroke: color('--muted-foreground'),
+		stroke: color('--md-on-surface-variant'),
 		ticks: { show: false },
 		grid: { show: scale === 'y' ? hasLeft : !hasLeft, stroke: gridColor, width: 1 },
 		values: (_plot, splits, _axis, _space, spacing) =>
@@ -99,7 +99,7 @@ export function createPlot(
 			padding: [top, hasRight ? 0 : edgeInset, edgeInset, 0],
 			legend: { show: false },
 			cursor: { show: false },
-			hooks: { drawAxes: [(plot) => drawZeroLine(plot, resolveColor(target, 'var(--border)'))] },
+			hooks: { drawAxes: [(plot) => drawZeroLine(plot, resolveColor(target, 'var(--md-outline-variant)'))] },
 			scales: {
 				x: { time: false, auto: false },
 				// Fit by `drawPlot()` and `setYRanges()`

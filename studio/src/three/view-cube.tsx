@@ -202,9 +202,9 @@ export function ViewCube({
 	onLookFrom: (direction: Vector3) => void;
 	onHoverChange: (hovered: boolean) => void;
 }) {
-	const color = useThemeColor('var(--secondary)');
-	const textColor = useThemeColor('var(--secondary-foreground)');
-	const highlight = useThemeColor('var(--primary)');
+	const color = useThemeColor('var(--md-secondary-container)');
+	const textColor = useThemeColor('var(--md-on-secondary-container)');
+	const highlight = useThemeColor('var(--md-primary)');
 	const matcap = useMatcap();
 	const [hovered, setHovered] = useState<number>();
 
