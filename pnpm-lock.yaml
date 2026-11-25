@@ -194,7 +194,7 @@ catalogs:
       version: 1.8.0
 
 overrides:
-  '@sentry/bundler-plugins>sentry': 0.50.0
+  '@sentry/bundler-plugins>sentry': 0.51.0
   '@react-three/drei>three-mesh-bvh': 0.10.0
 
 packageExtensionsChecksum: sha256-OxAKNAr6Las4d5pj+Dw/QVb3MWbKIx3U1a12i1ItCTA=
@@ -14061,7 +14061,7 @@ snapshots:
       glob: 14.0.6
       magic-string: 1.4.5
       oxc-parser: 0.152.0
-      sentry: 0.50.0
+      sentry: 0.51.0
     optionalDependencies:
       rollup: 4.68.3
 
