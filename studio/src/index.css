@@ -200,6 +200,11 @@
 		flex-grow: 0;
 	}
 }
+/* Dialogs scale in from the center instead of from the control that opened them, the library sets the offset inline */
+.astryx-dialog {
+	--dialog-dir-x: 0px !important;
+	--dialog-dir-y: 0px !important;
+}
 /* Hidden while a zoomed pane in another child fills the dashboard, the library sets `display` inline */
 [data-split-hidden] {
 	display: none !important;
