@@ -38,7 +38,11 @@ export function ThemedProgressBar({ label, value }: { label: string; value: numb
 			<Text type="supporting" color="secondary" maxLines={1} xstyle={styles.label}>
 				{label}
 			</Text>
-			<div data-progress-mascot={themePreset === 'match13' || undefined} {...stylex.props(styles.track)}>
+			<div
+				data-themed-progress
+				data-progress-mascot={themePreset === 'match13' || undefined}
+				{...stylex.props(styles.track)}
+			>
 				<ProgressBar
 					label={label}
 					isLabelHidden

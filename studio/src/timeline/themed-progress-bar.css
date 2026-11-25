@@ -1,3 +1,11 @@
+/*
+ * Work that keeps the main thread busy drives these bars, and while it's busy a fill transition restarts each update from
+ * a stale position, so the fill jumps back and forth. Updates come often enough to look continuous without one.
+ */
+[data-themed-progress] .astryx-progress-bar-fill {
+	transition: none;
+}
+
 /* Monte sticks out above the track, which only clips the fill at its ends */
 [data-progress-mascot] .astryx-progress-bar-track {
 	overflow: visible;
