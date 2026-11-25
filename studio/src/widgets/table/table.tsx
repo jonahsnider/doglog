@@ -1,12 +1,20 @@
+import { IconButton } from '@astryxdesign/core/IconButton';
+import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from '@astryxdesign/core/Table';
+import {
+	colorVars,
+	durationVars,
+	sizeVars,
+	spacingVars,
+	textSizeVars,
+	typographyVars,
+} from '@astryxdesign/core/theme/tokens.stylex';
+import * as stylex from '@stylexjs/stylex';
 import ChevronRightIcon from 'lucide-react/icons/chevron-right';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { EntryTypeIcon } from '@/entries/value-marks';
 import { useDataVersion } from '@/data/data-store';
 import { formatValue } from '@/data/format-value';
 import { formatEntryType } from '@/data/samples';
-import { cn } from '@/lib/utils';
 import { useCursorTime } from '@/timeline/timeline';
 import { NoData } from '@/widgets/no-data';
 import type { WidgetProps } from '@/widgets/widget-type';
@@ -14,6 +22,65 @@ import { EntryName } from '@/entries/entry-name';
 import { useBindingDrag } from '@/entries/drag';
 
 type FieldValue = Parameters<typeof formatValue>[0];
+
+const styles = stylex.create({
+	// Fit to content and give the rest to values, otherwise columns resize as values change
+	fit: {
+		width: '1px',
+	},
+	code: {
+		fontFamily: typographyVars['--font-family-code'],
+		fontSize: textSizeVars['--font-size-sm'],
+	},
+	value: {
+		userSelect: 'text',
+	},
+	expandable: {
+		cursor: 'pointer',
+	},
+	name: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: spacingVars['--spacing-1'],
+		whiteSpace: 'nowrap',
+	},
+	indent: (depth: number) => ({
+		paddingInlineStart: `${depth * 1.25}rem`,
+	}),
+	// Doesn't make rows taller than their text
+	expandButton: {
+		flexShrink: 0,
+		margin: `calc(-1 * ${spacingVars['--spacing-1']})`,
+	},
+	expandSpace: {
+		flexShrink: 0,
+		width: sizeVars['--size-element-sm'],
+		height: sizeVars['--size-element-sm'],
+		margin: `calc(-1 * ${spacingVars['--spacing-1']})`,
+	},
+	chevron: {
+		transitionProperty: 'rotate',
+		transitionDuration: durationVars['--duration-fast'],
+	},
+	chevronExpanded: {
+		rotate: '90deg',
+	},
+	grab: {
+		cursor: 'grab',
+	},
+	type: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: spacingVars['--spacing-1-5'],
+		color: colorVars['--color-text-secondary'],
+		whiteSpace: 'nowrap',
+	},
+	typeIcon: {
+		flexShrink: 0,
+		width: '0.875rem',
+		height: '0.875rem',
+	},
+});
 
 type Row = {
 	binding: { id: string; name: string };
@@ -38,8 +105,8 @@ function childrenOf(value: FieldValue): [label: string, value: FieldValue][] | u
 
 function TypeLabel({ type }: { type: string }) {
 	return (
-		<span className="flex items-center gap-1.5 font-mono text-xs text-muted-foreground">
-			<EntryTypeIcon type={type} className="size-3.5 shrink-0" />
+		<span {...stylex.props(styles.type, styles.code)}>
+			<EntryTypeIcon type={type} {...stylex.props(styles.typeIcon)} />
 			{formatEntryType(type)}
 		</span>
 	);
@@ -104,13 +171,12 @@ export function TableWidget({ bindings }: WidgetProps) {
 	const anyExpandable = rows.some((row) => childrenOf(row.value) !== undefined);
 
 	return (
-		<Table>
+		<Table density="compact" hasHover>
 			<TableHeader>
-				<TableRow>
-					{/* Fit to content and give the rest to values, otherwise columns resize as values change */}
-					<TableHead className="w-px">Name</TableHead>
-					<TableHead className="w-px">Type</TableHead>
-					<TableHead>Value</TableHead>
+				<TableRow isHeaderRow>
+					<TableHeaderCell xstyle={styles.fit}>Name</TableHeaderCell>
+					<TableHeaderCell xstyle={styles.fit}>Type</TableHeaderCell>
+					<TableHeaderCell>Value</TableHeaderCell>
 				</TableRow>
 			</TableHeader>
 			<TableBody>
@@ -148,7 +214,7 @@ function ValueRow({
 			ref={row.depth === 0 ? ref : undefined}
 			// Right-clicking the row offers to remove its binding, middle-clicking removes it
 			data-binding-id={row.binding.id}
-			className={cn(expandable && 'cursor-pointer')}
+			xstyle={[expandable && styles.expandable]}
 			onClick={
 				expandable
 					? () => {
@@ -161,31 +227,28 @@ function ValueRow({
 					: undefined
 			}
 		>
-			<TableCell className="font-mono text-xs">
-				<div className="flex items-center gap-1" style={{ paddingLeft: `${row.depth * 1.25}rem` }}>
+			<TableCell xstyle={styles.code}>
+				<div {...stylex.props(styles.name, styles.indent(row.depth))}>
 					{expandable ? (
-						<Button
+						<IconButton
+							label={`${isExpanded ? 'Collapse' : 'Expand'} ${row.label}`}
+							icon={<ChevronRightIcon {...stylex.props(styles.chevron, isExpanded && styles.chevronExpanded)} />}
 							variant="ghost"
-							size="icon-xs"
-							className="-m-1 text-muted-foreground"
+							size="sm"
 							aria-expanded={isExpanded}
-							aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${row.label}`}
+							xstyle={styles.expandButton}
 							onClick={(event) => {
 								event.stopPropagation();
 								onToggle();
 							}}
-						>
-							<ChevronRightIcon className={cn('size-3.5 transition-transform', isExpanded && 'rotate-90')} />
-						</Button>
+						/>
 					) : (
-						anyExpandable && (
-							// Takes the same space as the expand button
-							<span className="-m-1 size-7 shrink-0 sm:size-6" />
-						)
+						// Takes the same space as the expand button
+						anyExpandable && <span {...stylex.props(styles.expandSpace)} />
 					)}
 					{/* Only the name starts a drag, not the expand button or selectable value. */}
 					{row.depth === 0 ? (
-						<span ref={handleRef} className="cursor-grab">
+						<span ref={handleRef} {...stylex.props(styles.grab)}>
 							<EntryName name={row.label} />
 						</span>
 					) : (
@@ -194,7 +257,7 @@ function ValueRow({
 				</div>
 			</TableCell>
 			<TableCell>{row.type !== undefined && <TypeLabel type={row.type} />}</TableCell>
-			<TableCell className="font-mono text-xs whitespace-normal select-text">{valueCell(row, isExpanded)}</TableCell>
+			<TableCell xstyle={[styles.code, styles.value]}>{valueCell(row, isExpanded)}</TableCell>
 		</TableRow>
 	);
 }
