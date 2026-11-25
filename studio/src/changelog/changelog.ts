@@ -4,9 +4,10 @@ import { createPersistedAtom } from '@/lib/persisted-store';
 
 /** The newest product update, shown in the sidebar. Increment `id` when changing it so it's shown again. */
 const update = {
-	id: 7,
-	title: 'New logo',
-	description: 'Studio has a new logo. I think it lookS nice.',
+	id: 8,
+	title: 'HOOT and vendor logs',
+	description:
+		'Open CTRE HOOT files, and see vendor logs embedded in a WPILOG file lined up with the rest of the robot’s data.',
 };
 
 /** ID of the update the user dismissed. New users start caught up, so they only see updates made after they started. */

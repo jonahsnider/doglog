@@ -64,6 +64,17 @@
 					"identifier": "studio.doglog.wpilogxz",
 					"conformsTo": ["public.data"]
 				}
+			},
+			{
+				"ext": ["hoot"],
+				"name": "HOOT",
+				"description": "CTRE Phoenix 6 signal log",
+				"role": "Viewer",
+				"mimeType": "application/x-hoot",
+				"exportedType": {
+					"identifier": "studio.doglog.hoot",
+					"conformsTo": ["public.data"]
+				}
 			}
 		],
 		"android": {

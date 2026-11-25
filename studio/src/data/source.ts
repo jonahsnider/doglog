@@ -8,6 +8,7 @@ import {
 	isWpilog,
 	loadLog,
 	loadLogStream,
+	logFileExtension,
 	type LogInput,
 	type LogStreamHandle,
 	type UnreadEnd,
@@ -114,8 +115,8 @@ function startLogLoad(options: {
 }
 
 /**
- * Open a WPILOG file and show it, replacing the open log. The live session keeps running in the background.
- * Nothing changes if the file isn't a WPILOG file. Returns whether the file started loading and transferred its buffer, if any.
+ * Open a local log and show it, replacing the open log. The live session keeps running in the background.
+ * Returns whether the file started loading and transferred its buffer, if any.
  * `onError` gets why it couldn't be opened, which is also shown in a toast.
  */
 export async function openLog(input: LogInput, onError?: (message: string) => void): Promise<boolean> {
@@ -123,9 +124,11 @@ export async function openLog(input: LogInput, onError?: (message: string) => vo
 	const contents = input instanceof File ? input : input.contents;
 	const size = contents instanceof File ? contents.size : contents.byteLength;
 	const requestedAt = sourceState.logGeneration;
-	if (size === 0 || !(await isWpilog(contents))) {
+	const wpilog = size > 0 && (await isWpilog(contents));
+	const hoot = logFileExtension.exec(name)?.[1]?.toLowerCase() === 'hoot';
+	if (size === 0 || (!wpilog && !hoot)) {
 		// Ex. a log the robot lost power right after creating
-		const message = size === 0 ? "It's empty." : "It isn't a WPILOG file.";
+		const message = size === 0 ? "It's empty." : "It isn't a WPILOG or HOOT file.";
 		toastManager.add({ type: 'error', title: `Couldn't open ${name}`, description: message });
 		onError?.(message);
 		return false;
@@ -137,7 +140,7 @@ export async function openLog(input: LogInput, onError?: (message: string) => vo
 	// Keep a copy for dev reloads before the worker takes ownership of the buffer.
 	const devFile = import.meta.env.DEV && (contents instanceof File ? contents : new File([contents], name));
 	const { data, callbacks } = startLogLoad({ name, initialProgress: 0, devFile, onError });
-	sourceState.stopLog = loadLog(contents, data, callbacks);
+	sourceState.stopLog = loadLog(contents, data, callbacks, { format: wpilog ? 'wpilog' : 'hoot' });
 	return true;
 }
 

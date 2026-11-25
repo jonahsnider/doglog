@@ -45,6 +45,6 @@ export async function restoreLive(): Promise<void> {
 			},
 			onError: () => claimed.delete(),
 		},
-		true,
+		{ live: true },
 	);
 }

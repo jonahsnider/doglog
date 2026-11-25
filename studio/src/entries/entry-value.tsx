@@ -5,6 +5,7 @@ import BanIcon from 'lucide-react/icons/ban';
 import { Fragment } from 'react';
 import { type Entry, getStructSchemas, useDataVersion } from '@/data/data-store';
 import { formatValue } from '@/data/format-value';
+import { embeddedLogFormat, readableEmbeddedLogFormats } from '@/data/samples';
 import { formatStructPreview } from '@/entries/struct-preview';
 import { useCursorTime } from '@/timeline/timeline';
 
@@ -64,13 +65,24 @@ function EntryValue({ entry, field }: { entry: Entry; field: Entry | undefined }
 
 const unsupportedLabel = "Unsupported type, can't be shown in widgets";
 
-/** An entry's value at the cursor, or a mark for entries of unsupported types */
+/**
+ * An entry's value at the cursor, or a mark for entries of unsupported types. Embedded logs Studio reads have no mark,
+ * their entries are listed under them.
+ */
 export function EntryRowValue({ entry, field }: { entry: Entry; field: Entry | undefined }) {
-	return (field ?? entry).kind === 'unsupported' ? (
-		<Tooltip content={unsupportedLabel}>
-			<BanIcon role="img" {...stylex.props(styles.unsupported)} aria-label={unsupportedLabel} />
+	const shown = field ?? entry;
+	if (shown.kind !== 'unsupported') {
+		return <EntryValue entry={entry} field={field} />;
+	}
+	const format = embeddedLogFormat(shown.type);
+	if (format !== undefined && readableEmbeddedLogFormats.has(format)) {
+		return null;
+	}
+	const label =
+		format === undefined ? unsupportedLabel : `Studio can't read .${format} logs yet, export it to open it elsewhere`;
+	return (
+		<Tooltip content={label}>
+			<BanIcon role="img" {...stylex.props(styles.unsupported)} aria-label={label} />
 		</Tooltip>
-	) : (
-		<EntryValue entry={entry} field={field} />
 	);
 }

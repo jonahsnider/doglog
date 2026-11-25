@@ -1,4 +1,5 @@
 import { type Entry, getEntry, getGaps, type TimeRange } from '@/data/data-store';
+import { controlBits, controlDataName, driverStationEntries } from '@/data/driver-station';
 import { settingsStore } from '@/settings';
 
 export type RobotMode = 'disabled' | 'auto' | 'teleop' | 'test' | 'estop';
@@ -15,23 +16,6 @@ export type AlertSpan = {
 	readonly level: AlertLevel;
 	readonly text: string;
 };
-
-const driverStationEntries = [
-	['/DS:enabled', '/DS:autonomous', '/DS:test', '/DS:estop'],
-	...['/DriverStation/', '/AdvantageKit/DriverStation/', '/NT:/AdvantageKit/DriverStation/'].map(
-		(prefix) =>
-			[
-				`${prefix}Enabled`,
-				`${prefix}Autonomous`,
-				`${prefix}Test`,
-				`${prefix}EmergencyStop`,
-				`${prefix}RobotMode`,
-			] as const,
-	),
-] as const;
-// Live sources have the same flags as a bitfield in NetworkTables
-const controlDataName = '/FMSInfo/FMSControlData';
-const controlBits = { enabled: 0x01, autonomous: 0x02, test: 0x04, estop: 0x08 };
 
 function modeOf(enabled: unknown, autonomous: unknown, test: unknown, estop: unknown): RobotMode {
 	if (estop === true) {

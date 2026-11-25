@@ -3,6 +3,7 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useEffect } from 'react';
 import { useDashboards } from '@/dashboards/dashboards';
 import { dashboardName } from '@/dashboards/label';
+import { logFileExtension } from '@/data/log-source';
 import { sourceName, useSource } from '@/data/source';
 
 /** macOS already groups an app's windows wherever it lists them, so their titles leave out the app's name */
@@ -32,8 +33,7 @@ export function useWindowTitle(): void {
 	} else if (matchRoute({ to: '/settings' }) !== false) {
 		page = 'Settings';
 	}
-	// Every log is a `.wpilog` or `.wpilogxz`, so the extension doesn't tell windows apart
-	const name = source === undefined ? undefined : sourceName(source).replace(/\.wpilog(?:xz)?$/iu, '');
+	const name = source === undefined ? undefined : sourceName(source).replace(logFileExtension, '');
 	const details = page !== undefined && name !== undefined ? `${page} (${name})` : (page ?? name);
 	let title = 'DogLog Studio';
 	if (details !== undefined) {

@@ -44,6 +44,42 @@ export async function saveLiveExport(path: string | undefined): Promise<string> 
 	return saveFile(file, path);
 }
 
+/**
+ * Let the user save `file`, with a save dialog on desktop or as a download, and say where it was saved on desktop.
+ * `filter` is the kind of file it is, for the save dialog.
+ */
+export async function saveFileAs(
+	file: Blob,
+	name: string,
+	filter: { name: string; extensions: string[] },
+	savedTitle: string,
+): Promise<void> {
+	if (!STUDIO_DESKTOP) {
+		const url = URL.createObjectURL(file);
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = name;
+		link.click();
+		// Once the download started
+		setTimeout(() => URL.revokeObjectURL(url), 60_000);
+		return;
+	}
+
+	const path = await save({ defaultPath: name, filters: [filter] });
+	if (path === null) {
+		return;
+	}
+	await saveFile(file, path);
+	toastManager.add({
+		type: 'success',
+		title: savedTitle,
+		actionProps: {
+			children: detectPlatform() === 'mac' ? 'Show in Finder' : 'Show in File Explorer',
+			onClick: () => void revealItemInDir(path),
+		},
+	});
+}
+
 /** Let the user save the live session's recording as a WPILOG file, with a save dialog on desktop or as a download */
 export async function exportLive(): Promise<void> {
 	// Ex. the shortcut before the session connected
@@ -53,30 +89,7 @@ export async function exportLive(): Promise<void> {
 	try {
 		// Read first, so it has the data from when the user chose to export
 		const { file, name } = await readLiveRecording();
-		if (!STUDIO_DESKTOP) {
-			const url = URL.createObjectURL(file);
-			const link = document.createElement('a');
-			link.href = url;
-			link.download = name;
-			link.click();
-			// Once the download started
-			setTimeout(() => URL.revokeObjectURL(url), 60_000);
-			return;
-		}
-
-		const path = await save({ defaultPath: name, filters: [{ name: 'WPILOG', extensions: ['wpilog'] }] });
-		if (path === null) {
-			return;
-		}
-		await saveFile(file, path);
-		toastManager.add({
-			type: 'success',
-			title: 'Exported live data',
-			actionProps: {
-				children: detectPlatform() === 'mac' ? 'Show in Finder' : 'Show in File Explorer',
-				onClick: () => void revealItemInDir(path),
-			},
-		});
+		await saveFileAs(file, name, { name: 'WPILOG', extensions: ['wpilog'] }, 'Exported live data');
 	} catch (error) {
 		toastManager.add({ type: 'error', title: 'Couldn’t export live data', description: String(error) });
 	}

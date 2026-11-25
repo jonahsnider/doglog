@@ -113,7 +113,7 @@ The source control at the top of the sidebar SHALL show the shown source and its
 
 ### Requirement: Open a log file
 
-Users SHALL be able to open a WPILOG file with a file picker or by dropping it anywhere on the app window. Studio MUST also open XZ-compressed WPILOG files (`.wpilogxz`), and MUST show what it could decompress from one that was cut off, ex. by the robot losing power.
+Users SHALL be able to open a WPILOG file with a file picker or by dropping it anywhere on the app window. Studio MUST also open XZ-compressed WPILOG files (`.wpilogxz`), and MUST show what it could decompress from one that was cut off, ex. by the robot losing power. Studio MUST open local HOOT files in format C19 or C21 using the same picker and drop paths.
 
 #### Scenario: Open with the file picker
 
@@ -124,6 +124,18 @@ Users SHALL be able to open a WPILOG file with a file picker or by dropping it a
 
 - **WHEN** the user opens a `.wpilogxz` file
 - **THEN** that log becomes the active source, the same as the `.wpilog` file it was compressed from
+
+#### Scenario: Open a local HOOT log in the browser
+
+- **WHEN** the user picks or drops a `.hoot` file in format C19 or C21
+- **THEN** Studio decodes it locally without an upload, native converter, or desktop app
+- **AND** supported entries can be viewed and graphed on the log's timeline
+- **AND** Studio skips signals it doesn't know how to decode
+
+#### Scenario: Unsupported HOOT version
+
+- **WHEN** the user opens a `.hoot` file in a format Studio doesn't support
+- **THEN** Studio reports that only C19 and C21 are supported
 
 #### Scenario: Drag and drop
 
@@ -453,6 +465,58 @@ Studio SHALL decode numeric, boolean, string, array, and WPILib struct entries. 
 - **GIVEN** a source contains a protobuf-encoded entry
 - **THEN** the entry appears in the entry browser marked as unsupported
 - **AND** it cannot be bound to widgets
+
+### Requirement: Embedded logs
+
+Studio SHALL read logs embedded in a log's entries, which let one WPILOG file hold a robot's other logs, ex. vendor or coprocessor logs. An embedded log is a raw entry with a `log:<format>` type, ex. `log:hoot`, whose records joined in time order are the bytes of the embedded log's file. Studio MUST list the entries of embedded WPILOG, WPILOGXZ, and HOOT files under the entry they're embedded in, and MUST list embedded logs of other formats marked as unreadable.
+
+#### Scenario: Embedded WPILOG file
+
+- **GIVEN** a log with a coprocessor's WPILOG file embedded in `/WPILOG`, which has `/Arm/Angle`
+- **WHEN** the user opens it
+- **THEN** the entry browser lists `/WPILOG/Arm/Angle`, and widgets can show it like any other entry
+
+#### Scenario: Embedded HOOT file
+
+- **GIVEN** a log with a Phoenix 6 HOOT file embedded in `/Hoot`
+- **THEN** the entry browser lists its signals under `/Hoot`, ex. `/Hoot/Phoenix6/TalonFX-5/Velocity`
+- **AND** `/Hoot/RobotEnable` changes when the robot's `/DS:controlWord` says it was enabled and disabled
+
+#### Scenario: Unreadable embedded log
+
+- **GIVEN** a log with a REV status log embedded in `/REVLOG`
+- **THEN** `/REVLOG` is listed with a `.revlog log` type and marked as unreadable, and can't be bound to widgets
+
+### Requirement: Embedded log times
+
+Studio MUST line up an embedded log's times with the robot's data, whatever clock it was written on, since data is captured into a log only after it's written. It MUST stay lined up when some of it was captured late.
+
+#### Scenario: Embedded log on another clock
+
+- **GIVEN** a log with an embedded log written on another computer's clock, some of which was captured into the log within 4 ms of being written
+- **AND** other parts were captured seconds after they were written, ex. while logging was paused
+- **THEN** the embedded log's entries line up with the robot's data within 4 ms
+
+#### Scenario: Embedded log on the robot's clock
+
+- **GIVEN** an embedded log written on the robot's clock
+- **THEN** its entries keep their times
+
+#### Scenario: Embedded log captured late
+
+- **GIVEN** an embedded log that was all captured long after it was written
+- **AND** it and the log it's embedded in both have Driver Station data, ex. Phoenix's `RobotEnable` in a HOOT file
+- **THEN** its entries are lined up by when the robot was enabled, since devices can log being disabled late
+
+### Requirement: Export an embedded log
+
+Users MUST be able to export the original file of any embedded log, the same way as exporting live data.
+
+#### Scenario: Export an embedded log
+
+- **GIVEN** the user opened `qual12.wpilog`, which has a log embedded in `/Hoot`
+- **WHEN** the user right-clicks `/Hoot` and chooses Export original log
+- **THEN** Studio saves `qual12_Hoot.hoot`, the same bytes as the file that was embedded
 
 ### Requirement: Mechanism2d entries
 

@@ -1,8 +1,12 @@
 import type { MenuAction, MenuEntry } from '@/components/app-context-menu';
 import { dropDashboardEntry } from '@/dashboards/panes';
 import { getDashboard } from '@/dashboards/dashboards';
+import { toastManager } from '@/components/toast';
 import { type Entry, getEntry } from '@/data/data-store';
+import { saveFileAs } from '@/data/export-live';
 import { formatValueForCopy } from '@/data/format-value';
+import { embeddedLogFormat } from '@/data/samples';
+import { getSources } from '@/data/source-store';
 import { droppedEntryName, type EntryDragData } from '@/entries/drag';
 import { panes } from '@/panes/layout';
 import { getCursorTime } from '@/timeline/timeline';
@@ -17,6 +21,18 @@ function copyValue(entry: Entry): void {
 	const value = time === undefined ? undefined : entry.samples.valueAt(time);
 	if (value !== undefined) {
 		void navigator.clipboard.writeText(formatValueForCopy(value));
+	}
+}
+
+/** Save the file of a log embedded in an entry, named after the open log and the entry, ex. `qual12_Hoot.hoot` */
+async function exportEmbeddedLog(entry: Entry, bytes: Uint8Array<ArrayBuffer>, format: string): Promise<void> {
+	const logName = getSources().log?.fileName.replace(/\.[^.]*$/u, '');
+	const entryName = entry.name.slice(entry.name.lastIndexOf('/') + 1);
+	const name = `${logName === undefined ? '' : `${logName}_`}${entryName}.${format}`;
+	try {
+		await saveFileAs(new Blob([bytes]), name, { name: `.${format} log`, extensions: [format] }, `Exported ${name}`);
+	} catch (error) {
+		toastManager.add({ type: 'error', title: `Couldn’t export ${name}`, description: String(error) });
 	}
 }
 
@@ -69,11 +85,22 @@ export function entryMenuItems(
 	}
 	const supported = entry.kind !== 'unsupported';
 	const destinations = supported ? widgetDestinationItems(dashboardId, { name: entry.name, field: field?.name }) : [];
+	const embeddedFormat = embeddedLogFormat(entry.type);
+	const { embeddedLog } = entry;
 	return [
 		{ label: 'Add to dashboard', disabled: !add, onSelect: () => add?.() },
 		...(destinations.length > 0 ? [{ label: 'Add to widget…', items: destinations }] : []),
 		{ label: 'Copy name', onSelect: () => void navigator.clipboard.writeText(entry.name) },
 		{ label: 'Copy value', disabled: !supported, onSelect: () => copyValue(entry) },
+		...(embeddedFormat === undefined
+			? []
+			: [
+					{
+						label: 'Export original log',
+						disabled: !embeddedLog,
+						onSelect: () => void (embeddedLog && exportEmbeddedLog(entry, embeddedLog, embeddedFormat)),
+					},
+				]),
 		'separator',
 	];
 }

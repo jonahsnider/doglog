@@ -1,6 +1,9 @@
-// Parses WPILOG files off the main thread so the UI stays responsive while large logs load
+// Parses log files off the main thread so the UI stays responsive while large logs load
 import type { StructDeclaration } from 'wpilib-struct';
 import { XzReadableStream } from 'xz-decompress';
+import { decompress } from '@/data/decompress';
+import { addEmbeddedLogs } from '@/data/embedded-logs';
+import { parseHoot } from '@/data/parse-hoot';
 import { type ParsedLog, parseLog } from '@/data/parse-log';
 import { recordedGaps, type RestoredRecording, toLiveTimes } from '@/data/read-recording';
 import type { Value } from '@/data/samples';
@@ -16,7 +19,7 @@ export type RestoredLog = RestoredRecording & {
 
 /** Messages sent to the worker: either a complete buffer/File or an incremental download stream */
 export type LogWorkerRequest =
-	| { kind: 'buffer'; contents: File | ArrayBuffer; live: boolean }
+	| { kind: 'buffer'; contents: File | ArrayBuffer; live: boolean; format: 'wpilog' | 'hoot' }
 	| { kind: 'stream-start'; totalBytes: number | undefined }
 	| { kind: 'stream-chunk'; chunk: ArrayBuffer; downloadedBytes: number }
 	| { kind: 'stream-end' }
@@ -45,6 +48,8 @@ export type LogWorkerMessage =
 			metadata: string;
 			timestamps: Float64Array<ArrayBuffer>;
 			values: Value[];
+			/** For an entry with a log embedded in it, the embedded log's file */
+			embeddedLog: Uint8Array<ArrayBuffer> | undefined;
 	  }
 	| {
 			type: 'done';
@@ -61,7 +66,8 @@ export type LogWorkerMessage =
 	  }
 	| { type: 'error'; message: string };
 
-function postParsed(parsed: ParsedLog, byteLength: number, live: boolean): void {
+async function postParsed(parsed: ParsedLog, byteLength: number, live: boolean): Promise<void> {
+	await addEmbeddedLogs(parsed);
 	const { entries, structSchemas, recording, unreadBytes } = parsed;
 	let { start, end } = parsed;
 	let gaps: { start: number; end: number }[] = [];
@@ -78,7 +84,9 @@ function postParsed(parsed: ParsedLog, byteLength: number, live: boolean): void 
 	}
 	postMessage({ type: 'schemas', structSchemas } satisfies LogWorkerMessage);
 
+	const embeddedLogs = new Map(parsed.embeddedLogs.map(({ name, bytes }) => [name, bytes]));
 	for (const [name, { type, metadata, samples }] of entries) {
+		const embeddedLog = embeddedLogs.get(name);
 		const message: LogWorkerMessage = {
 			type: 'entry',
 			name,
@@ -86,8 +94,11 @@ function postParsed(parsed: ParsedLog, byteLength: number, live: boolean): void 
 			metadata,
 			timestamps: samples.timestamps,
 			values: samples.values,
+			embeddedLog,
 		};
-		postMessage(message, { transfer: [samples.timestamps.buffer] });
+		postMessage(message, {
+			transfer: embeddedLog ? [samples.timestamps.buffer, embeddedLog.buffer] : [samples.timestamps.buffer],
+		});
 	}
 
 	postMessage({
@@ -99,32 +110,6 @@ function postParsed(parsed: ParsedLog, byteLength: number, live: boolean): void 
 		gaps,
 		restored,
 	} satisfies LogWorkerMessage);
-}
-
-function parse(bytes: Uint8Array, live: boolean): void {
-	const parsed = parseLog(bytes, (progress) => {
-		postMessage({ type: 'progress', progress } satisfies LogWorkerMessage);
-	});
-	postParsed(parsed, bytes.byteLength, live);
-}
-
-/** Decompress a `.wpilogxz` log, keeping what was read before an error since a robot that loses power cuts the file off */
-async function decompress(compressed: Uint8Array<ArrayBuffer>): Promise<Uint8Array> {
-	const chunks: Uint8Array[] = [];
-	try {
-		await new XzReadableStream(new Blob([compressed]).stream()).pipeTo(
-			new WritableStream({ write: (chunk) => void chunks.push(chunk) }),
-		);
-	} catch {
-		// The rest is parsed like an uncompressed log that was cut off
-	}
-	const bytes = new Uint8Array(chunks.reduce((size, chunk) => size + chunk.byteLength, 0));
-	let offset = 0;
-	for (const chunk of chunks) {
-		bytes.set(chunk, offset);
-		offset += chunk.byteLength;
-	}
-	return bytes;
 }
 
 class StreamSession {
@@ -229,7 +214,7 @@ class StreamSession {
 				this.parser.push(this.probe);
 			}
 			const parsed = this.parser.finish();
-			postParsed(parsed, this.decompressedBytes, false);
+			await postParsed(parsed, this.decompressedBytes, false);
 		} catch (error) {
 			postMessage({
 				type: 'error',
@@ -258,10 +243,15 @@ async function handleRequest(request: LogWorkerRequest): Promise<void> {
 	switch (request.kind) {
 		case 'buffer': {
 			try {
-				const bytes = new Uint8Array(
+				const input = new Uint8Array(
 					request.contents instanceof File ? await request.contents.arrayBuffer() : request.contents,
 				);
-				parse(isXz(bytes) ? await decompress(bytes) : bytes, request.live);
+				const bytes = request.format === 'wpilog' && isXz(input) ? await decompress(input) : input;
+				const parse = request.format === 'hoot' ? parseHoot : parseLog;
+				const parsed = parse(bytes, (progress) => {
+					postMessage({ type: 'progress', progress } satisfies LogWorkerMessage);
+				});
+				await postParsed(parsed, bytes.byteLength, request.live);
 			} catch (error) {
 				postMessage({
 					type: 'error',

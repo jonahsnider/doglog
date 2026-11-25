@@ -344,6 +344,12 @@ The entry browser SHALL show each entry's type as a compact icon that is visuall
 - **THEN** its row shows a struct type icon
 - **AND** hovering the icon shows `Pose2d`
 
+#### Scenario: Embedded log entry
+
+- **GIVEN** the source has a `log:hoot` entry
+- **THEN** its row shows a file type icon
+- **AND** hovering the icon shows `.hoot log`
+
 ### Requirement: Double-click to add
 
 Double-clicking a bindable entry SHALL add it to the open dashboard using the entry's default widget. If the dashboard already has a widget of that type, the entry MUST be added to it instead of creating a new pane, preferring the focused pane's widget, unless that widget already shows the entry.
@@ -559,7 +565,7 @@ Users SHALL be able to drag entries and groups between the Pinned section, the H
 
 ### Requirement: Entry context menu
 
-Right-clicking an entry SHALL open a context menu with Add to dashboard, Copy name, Copy value, and actions to pin or unpin and hide or unhide it. Right-clicking a group SHALL open a context menu with the pin and hide actions.
+Right-clicking an entry SHALL open a context menu with Add to dashboard, Copy name, Copy value, Export original log for entries with a log embedded in them, and actions to pin or unpin and hide or unhide it. Right-clicking a group SHALL open a context menu with the pin and hide actions.
 
 #### Scenario: Copy name
 

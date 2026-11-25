@@ -6,6 +6,7 @@ import BoxIcon from 'lucide-react/icons/box';
 import BoxesIcon from 'lucide-react/icons/boxes';
 import BracesIcon from 'lucide-react/icons/braces';
 import CheckIcon from 'lucide-react/icons/check';
+import FileArchiveIcon from 'lucide-react/icons/file-archive';
 import MinusIcon from 'lucide-react/icons/minus';
 import HashIcon from 'lucide-react/icons/hash';
 import ListChecksIcon from 'lucide-react/icons/list-checks';
@@ -17,7 +18,7 @@ import TypeIcon from 'lucide-react/icons/type';
 import type { LucideIcon } from 'lucide-react/types';
 import { TreeItemCheckbox } from '@ui-sdk/react/tree';
 import type { EntryKind } from '@/data/entry-kind';
-import { formatEntryType, getEntryKind } from '@/data/samples';
+import { embeddedLogFormat, formatEntryType, getEntryKind } from '@/data/samples';
 import { knownGroup } from '@/entries/known-groups';
 import { entryRowMarker } from './markers.stylex';
 
@@ -84,7 +85,12 @@ const kindIcons: Record<EntryKind, LucideIcon> = {
 
 /** Icon for an entry type, ex. `#` for `int64` */
 export function EntryTypeIcon({ type, className }: { type: string; className?: string | undefined }) {
-	const Icon = type === 'json' ? BracesIcon : kindIcons[getEntryKind(type)];
+	const Icon =
+		type === 'json'
+			? BracesIcon
+			: embeddedLogFormat(type) === undefined
+				? kindIcons[getEntryKind(type)]
+				: FileArchiveIcon;
 	return <Icon aria-hidden className={className} />;
 }
 

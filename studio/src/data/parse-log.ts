@@ -9,9 +9,28 @@ import {
 	type StructDeclaration,
 } from 'wpilog-parser';
 import { isRecordingEntry, readRecordingValue, type RecordingInfo } from '@/data/read-recording';
-import { isSchemaEntry, isStudioEntry, normalizeEntryName, Samples, type Value } from '@/data/samples';
+import {
+	embeddedLogFormat,
+	isSchemaEntry,
+	isStudioEntry,
+	normalizeEntryName,
+	Samples,
+	type Value,
+} from '@/data/samples';
 
 type ParsedEntry = { type: string; metadata: string; samples: Samples };
+
+/** A log embedded in an entry of another log, see `embeddedLogFormat` */
+export type EmbeddedLog = {
+	/** The entry it's embedded in */
+	name: string;
+	/** File extension, ex. `hoot` */
+	format: string;
+	/** The embedded log's file, its entry's records joined in order */
+	bytes: Uint8Array<ArrayBuffer>;
+	/** Where each capture of it ends in `bytes`, and when it was added to the log it's embedded in, in time order */
+	captures: { end: number; time: number }[];
+};
 
 export type ParsedLog = {
 	/** Entries by normalized name */
@@ -29,6 +48,8 @@ export type ParsedLog = {
 	recording: RecordingInfo | undefined;
 	/** IDs of entries that were started and not finished, including ones that aren't shown */
 	openEntryIds: number[];
+	/** Logs embedded in entries, ex. vendor logs */
+	embeddedLogs: EmbeddedLog[];
 };
 
 const textDecoder = new TextDecoder();
@@ -95,6 +116,8 @@ export class LogAccumulator {
 	// The latest value each entry was set to before the log started, see `finish()`
 	private readonly beforeStart = new Map<Samples, { timestamp: number; value: Value }>();
 	private readonly openEntryIds = new Set<number>();
+	// Records of embedded logs by entry name, joined in `finish()`
+	private readonly embeddedChunks = new Map<string, { timestamp: number; bytes: Uint8Array }[]>();
 	private start: number | undefined;
 	private end: number | undefined;
 	private recording: RecordingInfo | undefined;
@@ -127,6 +150,18 @@ export class LogAccumulator {
 		if (!entry) {
 			return;
 		}
+		if (embeddedLogFormat(entry.type) !== undefined) {
+			if (record.type === 'raw' && record.payload.byteLength > 0) {
+				let chunks = this.embeddedChunks.get(name);
+				if (!chunks) {
+					chunks = [];
+					this.embeddedChunks.set(name, chunks);
+				}
+				chunks.push({ timestamp: record.timestamp, bytes: record.payload });
+				this.extend(record.timestamp);
+			}
+			return;
+		}
 		const value = toValue(record, entry.type);
 		if (value === undefined) {
 			return;
@@ -142,6 +177,10 @@ export class LogAccumulator {
 			return;
 		}
 		entry.samples.push(timestamp, value);
+		this.extend(timestamp);
+	}
+
+	private extend(timestamp: number): void {
 		this.start = this.start === undefined ? timestamp : Math.min(this.start, timestamp);
 		this.end = this.end === undefined ? timestamp : Math.max(this.end, timestamp);
 	}
@@ -177,15 +216,36 @@ export class LogAccumulator {
 			unreadBytes: totalBytes - readBytes,
 			recording: this.recording,
 			openEntryIds: [...this.openEntryIds],
+			embeddedLogs: this.joinEmbeddedLogs(),
 		};
 	}
+
+	private joinEmbeddedLogs(): EmbeddedLog[] {
+		return [...this.embeddedChunks].map(([name, chunks]) => {
+			// Stable, so chunks written at the same time stay in the order they were logged
+			chunks.sort((a, b) => a.timestamp - b.timestamp);
+			const bytes = new Uint8Array(chunks.reduce((size, chunk) => size + chunk.bytes.byteLength, 0));
+			const captures: EmbeddedLog['captures'] = [];
+			let offset = 0;
+			for (const chunk of chunks) {
+				bytes.set(chunk.bytes, offset);
+				offset += chunk.bytes.byteLength;
+				captures.push({ end: offset, time: chunk.timestamp });
+			}
+			const format = embeddedLogFormat(this.entries.get(name)!.type)!;
+			return { name, format, bytes, captures };
+		});
+	}
 }
+
+/** Called with where each data record ends in a log's file, and its time, in file order */
+export type OnRecord = (end: number, timestamp: number) => void;
 
 /**
  * Read every entry of a WPILOG file. Throws if it isn't a WPILOG file, or if it's so damaged that none of its entries could be read.
  * Calls `onProgress` with the fraction of the file parsed, from 0 to 1, only when it changes by a whole percent so a worker doesn't flood the main thread with messages.
  */
-export function parseLog(bytes: Uint8Array, onProgress: (progress: number) => void): ParsedLog {
+export function parseLog(bytes: Uint8Array, onProgress: (progress: number) => void, onRecord?: OnRecord): ParsedLog {
 	const accumulator = new LogAccumulator();
 	// Unwritten blocks hold leftover data, not zeros, which reads as records for entries that were never started
 	const records = parseDataLog(bytes, { strict: true });
@@ -200,6 +260,9 @@ export function parseLog(bytes: Uint8Array, onProgress: (progress: number) => vo
 			if (nextPercent !== percent) {
 				percent = nextPercent;
 				onProgress(percent / 100);
+			}
+			if (onRecord && isDataRecord(record)) {
+				onRecord(readBytes, record.timestamp);
 			}
 			accumulator.addRecord(record);
 		}

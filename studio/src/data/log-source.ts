@@ -6,6 +6,8 @@ import { isXz } from '@/data/xz';
 
 export type LogInput = File | { name: string; contents: ArrayBuffer };
 
+export const logFileExtension = /\.(wpilog(?:xz)?|hoot)$/iu;
+
 /** Whether the first 6 bytes start a WPILOG or XZ-compressed WPILOG file */
 export function hasWpilogMagic(header: Uint8Array): boolean {
 	if (header.byteLength < 6) {
@@ -77,14 +79,18 @@ function attachLogWorker(
 					data.addStructSchema(name, fields);
 				}
 				break;
-			case 'entry':
-				data.addEntry(
+			case 'entry': {
+				const entry = data.addEntry(
 					message.name,
 					message.entryType,
 					new Samples(message.timestamps, message.values),
 					parseMetadata(message.metadata),
 				);
+				if (message.embeddedLog) {
+					entry.embeddedLog = message.embeddedLog;
+				}
 				break;
+			}
 			case 'done': {
 				stop();
 				let unread: UnreadEnd | undefined;
@@ -124,18 +130,18 @@ function attachLogWorker(
 }
 
 /**
- * Parse a WPILOG file in a worker and add its entries to `data`. With `live`, a live session's recording is added on
+ * Parse a log file in a worker and add its entries to `data`. With `live`, a live session's recording is added on
  * Studio's clock, like the live session showed it. Transfers ownership of a buffer and returns a function that cancels loading.
  */
 export function loadLog(
 	contents: File | ArrayBuffer,
 	data: DataSet,
 	callbacks: LoadLogCallbacks,
-	live = false,
+	{ live = false, format = 'wpilog' }: { live?: boolean; format?: 'wpilog' | 'hoot' } = {},
 ): () => void {
 	const { worker, stop } = attachLogWorker(data, callbacks);
 	worker.postMessage(
-		{ kind: 'buffer', contents, live } satisfies LogWorkerRequest,
+		{ kind: 'buffer', contents, live, format } satisfies LogWorkerRequest,
 		contents instanceof ArrayBuffer ? [contents] : [],
 	);
 	return stop;

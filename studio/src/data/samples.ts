@@ -41,10 +41,25 @@ export function getEntryKind(type: string): EntryKind {
 	return 'unsupported';
 }
 
-/** Type string shown to users, ex. `Pose2d` for `struct:Pose2d` */
+/** Type string shown to users, ex. `Pose2d` for `struct:Pose2d` or `.hoot log` for `log:hoot` */
 export function formatEntryType(type: string): string {
+	const format = embeddedLogFormat(type);
+	if (format !== undefined) {
+		return `.${format} log`;
+	}
 	return type.startsWith('struct:') ? type.slice('struct:'.length) : type;
 }
+
+/**
+ * The file extension of a log embedded in an entry, ex. `hoot` for `log:hoot`, or `undefined` if the entry isn't one.
+ * An embedded log is a raw entry whose records, in order, are the bytes of another log file, ex. a vendor's log.
+ */
+export function embeddedLogFormat(type: string): string | undefined {
+	return type.startsWith('log:') ? type.slice('log:'.length).toLowerCase() : undefined;
+}
+
+/** Formats of embedded logs that Studio reads, their entries are listed under the embedded log's entry */
+export const readableEmbeddedLogFormats: ReadonlySet<string> = new Set(['wpilog', 'wpilogxz', 'hoot']);
 
 /** Whether an entry holds schemas used to decode other entries (ex. `/.schema/struct:Pose2d`), these are hidden from users */
 export function isSchemaEntry(name: string): boolean {

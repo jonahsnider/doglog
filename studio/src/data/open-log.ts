@@ -2,6 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
 import { toastManager } from '@/components/toast';
+import { logFileExtension } from '@/data/log-source';
 import { openLogUrl } from '@/data/open-log-url';
 import {
 	addRecentLog,
@@ -13,8 +14,12 @@ import {
 import { openLog } from '@/data/source';
 import { handleFileDrops } from '@/desktop/file-drop';
 
+const logExtensions = ['.wpilog', '.wpilogxz', '.hoot'] as const;
+
 async function chooseLogWithDialog(): Promise<void> {
-	const path = await openDialog({ filters: [{ name: 'WPILOG', extensions: ['wpilog', 'wpilogxz'] }] });
+	const path = await openDialog({
+		filters: [{ name: 'Robot logs', extensions: logExtensions.map((extension) => extension.slice(1)) }],
+	});
 	if (path !== null) {
 		await openLogPath(path);
 	}
@@ -25,7 +30,7 @@ async function chooseLogWithPicker(): Promise<void> {
 	let handles: FileSystemFileHandle[];
 	try {
 		handles = await window.showOpenFilePicker!({
-			types: [{ description: 'WPILOG', accept: { 'application/octet-stream': ['.wpilog', '.wpilogxz'] } }],
+			types: [{ description: 'Robot logs', accept: { 'application/octet-stream': [...logExtensions] } }],
 		});
 	} catch (error) {
 		if (error instanceof DOMException && error.name === 'AbortError') {
@@ -59,7 +64,7 @@ export async function openRecentLogHandle(handle: FileSystemFileHandle): Promise
 	}
 }
 
-/** Let the user pick a WPILOG file to open */
+/** Let the user pick a local log file to open */
 export function chooseLog(): void {
 	// The desktop app's menu can't open the web file picker, since it only opens during a click or key press in the page
 	if (STUDIO_DESKTOP) {
@@ -73,7 +78,7 @@ export function chooseLog(): void {
 
 	const input = document.createElement('input');
 	input.type = 'file';
-	input.accept = '.wpilog,.wpilogxz';
+	input.accept = logExtensions.join(',');
 	input.addEventListener('change', () => {
 		const file = input.files?.[0];
 		if (file) {
@@ -136,7 +141,7 @@ export async function handleOpenedLogFiles(): Promise<void> {
 
 /** Whether a file's name or path is a log's */
 export function isLogFile(name: string): boolean {
-	return /\.wpilog(?:xz)?$/iu.test(name);
+	return logFileExtension.test(name);
 }
 
 /** Open logs dropped on the desktop app's window, unless a widget takes them */
@@ -148,7 +153,7 @@ export function handleDroppedLogPaths(): Promise<void> {
 	});
 }
 
-/** Open a dropped WPILOG unless a widget has already handled the drop */
+/** Open a dropped log unless a widget has already handled the drop */
 export function handleLogFileDrop(event: DragEvent): void {
 	const transfer = event.dataTransfer;
 	const file = transfer?.files[0];
@@ -178,7 +183,7 @@ async function openDroppedLog(file: File, handle: Promise<FileSystemHandle | nul
 	}
 }
 
-/** Open WPILOG files the OS asks the installed web app to open, see `file_handlers` in the web app manifest */
+/** Open logs the OS asks the installed web app to open, see `file_handlers` in the web app manifest */
 export function handleLaunchedLogFiles(): void {
 	window.launchQueue?.setConsumer(({ files }) => {
 		const handle = files[0];

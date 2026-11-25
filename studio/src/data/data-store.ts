@@ -16,6 +16,8 @@ export type Entry = {
 	/** Mutated in place as data arrives, read it when rendering instead of copying it into React state */
 	readonly samples: Samples;
 	metadata: Readonly<Record<string, unknown>>;
+	/** For a log's entry with a log embedded in it, the embedded log's file, see `embeddedLogFormat` */
+	embeddedLog?: Uint8Array<ArrayBuffer>;
 };
 
 const metadataSchema = z.record(z.string(), z.unknown()).catch({});
