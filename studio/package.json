@@ -62,7 +62,7 @@
 		"idb-keyval": "6.3.0",
 		"js-aruco2": "2.0.0",
 		"jsonc-parser": "3.3.1",
-		"loro-crdt": "1.18.0",
+		"loro-crdt": "1.19.0",
 		"lucide-react": "1.79.0",
 		"ml-levenberg-marquardt": "5.1.0",
 		"ml-matrix": "6.15.1",

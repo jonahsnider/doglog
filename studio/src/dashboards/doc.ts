@@ -133,16 +133,28 @@ export function writeDashboardDoc(doc: LoroDoc, { name, layout }: DashboardConte
 	const written = new Set<string>();
 	writeNode(tree, existing, written, layout, undefined, 0);
 
-	// Deleting a node deletes its children, which may have been deleted already
-	for (const node of tree.getNodes()) {
-		if (tree.isNodeDeleted(node.id)) {
-			continue;
-		}
+	for (const root of tree.roots()) {
+		deleteUnwritten(tree, written, root);
+	}
+}
 
-		const id = node.data.get('id');
-		if (typeof id !== 'string' || !written.has(id)) {
-			tree.delete(node.id);
-		}
+/**
+ * Delete the nodes that weren't written, children before their parents.
+ *
+ * Deleting a parent also deletes its children, but loro-crdt 1.19.0 and 1.19.1 (not 1.18) have a bug where undoing that
+ * restores the contents of the children's mergeable lists and text twice. Closing a pane and undoing it would duplicate
+ * the bindings of the pane next to it, as real edits that get saved and synced. Undo restores nodes correctly when each
+ * one was deleted on its own. This deletes the same nodes as deleting parents alone, since `writeNode()` already moved
+ * the nodes that are kept out of them.
+ */
+function deleteUnwritten(tree: LoroTree, written: ReadonlySet<string>, node: LoroTreeNode): void {
+	for (const child of node.children() ?? []) {
+		deleteUnwritten(tree, written, child);
+	}
+
+	const id = node.data.get('id');
+	if (typeof id !== 'string' || !written.has(id)) {
+		tree.delete(node.id);
 	}
 }
 
