@@ -4,7 +4,7 @@ import HouseIcon from 'lucide-react/icons/house';
 import ListPlusIcon from 'lucide-react/icons/list-plus';
 import SplineIcon from 'lucide-react/icons/spline';
 import { useRef } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@astryxdesign/core/Button';
 import type { Entry } from '@/data/data-store';
 import { useSource } from '@/data/source';
 import { Mechanism3d } from '@/three/mechanism-3d';
@@ -134,17 +134,15 @@ export function Robot({ bindings, options, setOption }: WidgetProps) {
 					)}
 					{view === '3d' && (
 						<Button
-							variant="ghost"
-							size="xs"
-							className="ms-auto bg-background capture:invisible"
+							label="Reset view"
+							icon={<HouseIcon />}
+							size="sm"
+							className="ms-auto capture-invisible"
 							onClick={() => {
 								controls.input();
 								scene.current?.reset();
 							}}
-						>
-							<HouseIcon />
-							Reset view
-						</Button>
+						/>
 					)}
 				</div>
 			</div>

@@ -1,7 +1,9 @@
 // The row under the field widget: the cursor position and tool buttons
-import { ControlTooltip } from '@/components/control-tooltip';
+import { HStack } from '@astryxdesign/core/Layout';
+import { ToggleButton } from '@astryxdesign/core/ToggleButton';
+import { Tooltip } from '@astryxdesign/core/Tooltip';
 import { InlineShortcut } from '@/components/shortcut';
-import { Toggle } from '@/components/ui/toggle';
+import { TooltipLabel } from '@/components/tooltip-label';
 import { cn } from '@/lib/utils';
 import type { FieldPoint } from '@/widgets/field/geometry';
 import type { FieldTool } from '@/widgets/field/pencil';
@@ -80,24 +82,20 @@ export function ToolButtons({
 			{tools
 				.filter((option) => measure || option.tool === 'pencil')
 				.map((option) => (
-					<ControlTooltip
-						key={option.tool}
-						label={option.hint}
-						shortcut={option.key}
-						render={
-							<Toggle
-								className="h-5 gap-1 rounded-md border-0 px-1 text-xs sm:h-5 sm:text-xs"
-								aria-keyshortcuts={option.key}
-								pressed={tool === option.tool}
-								onPressedChange={() => onToggle(option.tool)}
-							/>
-						}
-					>
-						<>
-							<InlineShortcut hotkey={option.key} />
-							{option.label}
-						</>
-					</ControlTooltip>
+					<Tooltip key={option.tool} content={<TooltipLabel label={option.hint} shortcut={option.key} />}>
+						<ToggleButton
+							label={option.label}
+							size="sm"
+							aria-keyshortcuts={option.key}
+							isPressed={tool === option.tool}
+							onPressedChange={() => onToggle(option.tool)}
+						>
+							<HStack gap={1} vAlign="center">
+								<InlineShortcut hotkey={option.key} />
+								{option.label}
+							</HStack>
+						</ToggleButton>
+					</Tooltip>
 				))}
 		</div>
 	);

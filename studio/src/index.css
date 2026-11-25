@@ -686,9 +686,15 @@
 	}
 }
 
-/* Controls left out of copied images, and of the dashboard video export mode previews. Above Astryx's components, so it hides them too. */
+/*
+ * Controls left out of copied images, and of the dashboard video export mode previews. Hidden ones give up their space,
+ * invisible ones keep it so the layout doesn't move. Above Astryx's components, so they hide them too.
+ */
 @layer product {
 	.capture-hidden:where([data-capturing], [data-capturing] *) {
 		display: none;
+	}
+	.capture-invisible:where([data-capturing], [data-capturing] *) {
+		visibility: hidden;
 	}
 }

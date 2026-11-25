@@ -1,15 +1,19 @@
-import ChevronsUpDownIcon from 'lucide-react/icons/chevrons-up-down';
+import {
+	DropdownMenu,
+	DropdownMenuDivider,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
+} from '@astryxdesign/core/DropdownMenu';
+import { Field } from '@astryxdesign/core/Field';
+import { VStack } from '@astryxdesign/core/Layout';
+import { Popover } from '@astryxdesign/core/Popover';
+import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
+import { Selector } from '@astryxdesign/core/Selector';
+import { Tooltip } from '@astryxdesign/core/Tooltip';
 import SettingsIcon from 'lucide-react/icons/settings';
+import { type ReactNode, useId } from 'react';
 import { Button } from '@/components/ui/button';
-import { Field, FieldLabel } from '@/components/ui/field';
-import { Fieldset, FieldsetLegend } from '@/components/ui/fieldset';
-import { Menu, MenuPopup, MenuRadioGroup, MenuRadioItem, MenuSeparator, MenuTrigger } from '@/components/ui/menu';
-import { Popover, PopoverPopup, PopoverTrigger } from '@/components/ui/popover';
-import { RadioGroup, RadioPrimitive } from '@/components/ui/radio-group';
-import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control';
-import { Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ToolbarButton } from '@/components/ui/toolbar';
-import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip';
 import { useMobileLayout } from '@/lib/mobile-layout';
 import type { Widget } from '@/panes/layout';
 import { inferredOption, optionValues, pickedOption } from '@/widgets/options';
@@ -32,21 +36,12 @@ export function WidgetOptions({ paneId, type, widget, bindings, onOptionChange }
 	const mobile = useMobileLayout();
 	const values = optionValues(type, widget, bindings, mobile);
 	return (
-		<Popover>
-			<Tooltip>
-				<TooltipTrigger
-					render={
-						<PopoverTrigger
-							render={<ToolbarButton render={<Button variant="ghost" size="icon-xs" />} aria-label="Widget options" />}
-						/>
-					}
-				>
-					<SettingsIcon aria-hidden />
-				</TooltipTrigger>
-				<TooltipPopup>Widget options</TooltipPopup>
-			</Tooltip>
-			<PopoverPopup align="end" className="w-80">
-				<div className="flex flex-col gap-3">
+		<Popover
+			label="Widget options"
+			alignment="end"
+			width={320}
+			content={
+				<VStack gap={3}>
 					{options.map((option) =>
 						option.kind === 'text' ? (
 							option.control && (
@@ -70,8 +65,15 @@ export function WidgetOptions({ paneId, type, widget, bindings, onOptionChange }
 							/>
 						),
 					)}
-				</div>
-			</PopoverPopup>
+				</VStack>
+			}
+		>
+			<Tooltip content="Widget options">
+				{/* Still the pane toolbar's own button, so it keeps the toolbar's arrow key navigation */}
+				<ToolbarButton render={<Button variant="ghost" size="icon-xs" />} aria-label="Widget options">
+					<SettingsIcon aria-hidden />
+				</ToolbarButton>
+			</Tooltip>
 		</Popover>
 	);
 }
@@ -107,41 +109,35 @@ function OptionControl({
 		}
 	};
 	if (option.dropdown) {
-		const items = choices.map(({ id, label }) => ({ value: id, label }));
 		return (
-			<Field name={option.id} className="items-stretch gap-1">
-				<FieldLabel className="font-semibold">{option.label}</FieldLabel>
-				<Select items={items} value={value} onValueChange={change}>
-					<SelectTrigger size="sm">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectPopup alignItemWithTrigger={false}>
-						{items.map((item) => (
-							<SelectItem key={item.value} value={item.value}>
-								{item.label}
-							</SelectItem>
-						))}
-					</SelectPopup>
-				</Select>
-			</Field>
+			<Selector
+				label={option.label}
+				size="sm"
+				width="100%"
+				options={choices.map(({ id, label }) => ({ value: id, label }))}
+				value={value}
+				onChange={change}
+			/>
 		);
 	}
 
 	return (
-		<Field name={option.id}>
-			<Fieldset>
-				<FieldsetLegend className="mb-1 text-sm">{option.label}</FieldsetLegend>
-				<SegmentedControl
-					size="sm"
-					render={<RadioGroup className="flex-row gap-0.5" value={value} onValueChange={change} />}
-				>
-					{choices.map((choice) => (
-						<SegmentedControlItem key={choice.id} render={<RadioPrimitive.Root value={choice.id} />}>
-							{choice.label}
-						</SegmentedControlItem>
-					))}
-				</SegmentedControl>
-			</Fieldset>
+		<ChoiceField label={option.label}>
+			<SegmentedControl label={option.label} size="sm" value={value} onChange={change}>
+				{choices.map((choice) => (
+					<SegmentedControlItem key={choice.id} value={choice.id} label={choice.label} />
+				))}
+			</SegmentedControl>
+		</ChoiceField>
+	);
+}
+
+/** A labeled group of choices, whose controls name themselves with the label too */
+function ChoiceField({ label, children }: { label: string; children: ReactNode }) {
+	const id = useId();
+	return (
+		<Field label={label} inputID={id} labelID={`${id}-label`} isGroupLabel>
+			{children}
 		</Field>
 	);
 }
@@ -158,32 +154,23 @@ function MenuOptionControl({
 	value: string;
 	onChange: (value: string | undefined) => void;
 }) {
+	const label = option.choices.find((choice) => choice.id === value)?.label ?? value;
 	return (
-		<Field name={option.id}>
-			<Fieldset>
-				<FieldsetLegend className="mb-1 text-sm">{option.label}</FieldsetLegend>
-				<Menu>
-					<MenuTrigger render={<Button variant="outline" size="sm" className="w-full justify-between" />}>
-						<span className="truncate">{option.choices.find((choice) => choice.id === value)?.label ?? value}</span>
-						<ChevronsUpDownIcon />
-					</MenuTrigger>
-					<MenuPopup align="start">
-						<MenuRadioGroup
-							value={value}
-							onValueChange={(next: string) => onChange(next === option.default ? undefined : next)}
-						>
-							{option.choices.map((choice) => (
-								<MenuRadioItem key={choice.id} value={choice.id} closeOnClick>
-									{choice.label}
-								</MenuRadioItem>
-							))}
-							<menu.Choices />
-						</MenuRadioGroup>
-						<MenuSeparator />
-						<menu.Commands value={value} pick={onChange} />
-					</MenuPopup>
-				</Menu>
-			</Fieldset>
-		</Field>
+		<ChoiceField label={option.label}>
+			<DropdownMenu button={{ label, width: '100%', size: 'sm', 'aria-label': `${option.label}: ${label}` }}>
+				<DropdownMenuRadioGroup
+					label={option.label}
+					value={value}
+					onChange={(next) => onChange(next === option.default ? undefined : next)}
+				>
+					{option.choices.map((choice) => (
+						<DropdownMenuRadioItem key={choice.id} value={choice.id} label={choice.label} />
+					))}
+					<menu.Choices />
+				</DropdownMenuRadioGroup>
+				<DropdownMenuDivider />
+				<menu.Commands value={value} pick={onChange} />
+			</DropdownMenu>
+		</ChoiceField>
 	);
 }

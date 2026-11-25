@@ -6,8 +6,7 @@ import TriangleAlertIcon from 'lucide-react/icons/triangle-exclamation-point';
 import { Component, type CSSProperties, type ReactNode, Suspense, use, useCallback, useMemo } from 'react';
 import { shortcuts } from '@/commands/shortcuts';
 import { InlineShortcut } from '@/components/shortcut';
-import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@astryxdesign/core/Button';
 import {
 	connectBindings,
 	disconnectBindings,
@@ -35,7 +34,7 @@ import {
 import { startEditing } from '@/entries/editing';
 import { cn } from '@/lib/utils';
 import { GraphControls } from '@/widgets/graph/graph-controls';
-import { WidgetEmpty } from '@/widgets/widget-empty';
+import { WidgetEmpty, WidgetLoading } from '@/widgets/widget-empty';
 import { setWidgetOption } from '@/widgets/options';
 import { acceptsDrop, type OptionValues, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
 
@@ -109,10 +108,9 @@ export function WidgetView({
 				description="Drag entries here from the entry browser."
 			>
 				<Button
+					label="Add entries"
 					data-edit-entries
-					className="capture:invisible"
-					variant="outline"
-					size="sm"
+					className="capture-invisible"
 					onClick={() => startEditing(dashboardId, paneId)}
 				>
 					Add entries
@@ -146,11 +144,7 @@ export function WidgetView({
 					{/* A widget that crashes only replaces itself, and tries again when its entries or options change */}
 					<WidgetErrorBoundary resetKey={bindings}>
 						<Suspense
-							fallback={
-								<div data-capture-pending className="grid h-full place-items-center">
-									<Spinner aria-label={`Loading ${type.name}`} className="size-4 text-muted-foreground" />
-								</div>
-							}
+							fallback={<WidgetLoading label={`Loading ${type.name}`} hasVisibleLabel={false} isCapturePending />}
 						>
 							<DashboardIdContext value={dashboardId}>{content}</DashboardIdContext>
 						</Suspense>
@@ -183,9 +177,7 @@ class WidgetErrorBoundary extends Component<{ resetKey: unknown; children: React
 		}
 		return (
 			<WidgetEmpty icon={<TriangleAlertIcon />} title="Something went wrong" description={error.message}>
-				<Button variant="outline" size="sm" onClick={() => this.setState({ error: undefined })}>
-					Try again
-				</Button>
+				<Button label="Try again" onClick={() => this.setState({ error: undefined })} />
 			</WidgetEmpty>
 		);
 	}

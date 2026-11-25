@@ -1,47 +1,42 @@
 import { useSelector } from '@tanstack/react-store';
-import { Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Selector } from '@astryxdesign/core/Selector';
 import { cameraNames, cameraStreams } from '@/data/camera-streams';
 import { useSource } from '@/data/source-store';
 import type { OptionControlProps } from '@/widgets/widget-type';
 
 export function CameraOptionControl({ values, setOption }: OptionControlProps) {
-	return <CameraPicker value={values['camera']} onChange={(name) => setOption('camera', name)} />;
+	return <CameraPicker value={values['camera']} hasLabel onChange={(name) => setOption('camera', name)} />;
 }
 
 export function CameraPicker({
 	value = '',
+	hasLabel = false,
 	onChange,
 }: {
 	value?: string | undefined;
+	/** Shows the Camera label, as in the widget's options. Without it, the picker is labeled by what's around it. */
+	hasLabel?: boolean;
 	onChange: (name: string) => void;
 }) {
 	const source = useSource();
 	const streams = useSelector(cameraStreams);
 	const names = source?.type === 'live' && source.status === 'connected' ? cameraNames(streams) : [];
-	const items = names.map((name) => ({ value: name, label: name }));
+	const unavailable = value !== '' && !names.includes(value);
 	return (
-		<Select
-			items={items}
-			value={value === '' ? null : value}
-			disabled={items.length === 0}
-			onValueChange={(name) => {
+		<Selector
+			label="Camera"
+			isLabelHidden={!hasLabel}
+			size="sm"
+			width={hasLabel ? '100%' : undefined}
+			options={[...(unavailable ? [{ value, label: `${value} (unavailable)`, disabled: true }] : []), ...names]}
+			value={value === '' ? undefined : value}
+			placeholder={names.length > 0 ? 'Choose camera' : 'No cameras available'}
+			isDisabled={names.length === 0}
+			onChange={(name) => {
 				if (name !== null) {
 					onChange(name);
 				}
 			}}
-		>
-			<SelectTrigger size="sm" aria-label="Camera">
-				<SelectValue placeholder={items.length > 0 ? 'Choose camera' : 'No cameras available'}>
-					{value !== '' && !names.includes(value) ? `${value} (unavailable)` : undefined}
-				</SelectValue>
-			</SelectTrigger>
-			<SelectPopup alignItemWithTrigger={false}>
-				{items.map(({ value: name, label }) => (
-					<SelectItem key={name} value={name}>
-						{label}
-					</SelectItem>
-				))}
-			</SelectPopup>
-		</Select>
+		/>
 	);
 }

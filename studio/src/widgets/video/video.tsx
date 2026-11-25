@@ -2,10 +2,9 @@ import ClapperboardIcon from 'lucide-react/icons/clapperboard';
 import FileVideoIcon from 'lucide-react/icons/file-video';
 import TriangleAlertIcon from 'lucide-react/icons/triangle-exclamation-point';
 import { type ReactNode, useSyncExternalStore } from 'react';
-import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@astryxdesign/core/Button';
 import { useSource } from '@/data/source';
-import { WidgetEmpty } from '@/widgets/widget-empty';
+import { WidgetEmpty, WidgetLoading } from '@/widgets/widget-empty';
 import type { WidgetProps } from '@/widgets/widget-type';
 import { AddVideo } from '@/widgets/video/add-video';
 import { useAddVideo } from '@/widgets/video/use-add-video';
@@ -38,9 +37,7 @@ export function Video({ options, setOption, paneId }: WidgetProps) {
 				title="Studio can’t play this link"
 				description="Videos can be YouTube links or video files."
 			>
-				<Button variant="outline" size="sm" onClick={() => setOption('video', undefined)}>
-					Remove video
-				</Button>
+				<Button label="Remove video" onClick={() => setOption('video', undefined)} />
 			</WidgetEmpty>
 		);
 	} else {
@@ -106,11 +103,7 @@ function LocalVideo({ name, choose, ...props }: VideoProps & { name: string; cho
 	const local = useLocalVideo(props.paneId, name);
 
 	if (local.state === 'loading') {
-		return (
-			<div data-capture-pending className="grid h-full place-items-center">
-				<Spinner aria-label="Loading video" className="size-4 text-muted-foreground" />
-			</div>
-		);
+		return <WidgetLoading label="Loading video" hasVisibleLabel={false} isCapturePending />;
 	}
 	if (local.state === 'allow') {
 		return (
@@ -119,9 +112,7 @@ function LocalVideo({ name, choose, ...props }: VideoProps & { name: string; cho
 				title={name}
 				description="Your browser needs permission to play this video again."
 			>
-				<Button variant="outline" size="sm" onClick={local.allow}>
-					Allow access to {name}
-				</Button>
+				<Button label={`Allow access to ${name}`} onClick={local.allow} />
 			</WidgetEmpty>
 		);
 	}
@@ -136,10 +127,7 @@ function LocalVideo({ name, choose, ...props }: VideoProps & { name: string; cho
 						: "Your browser doesn't keep access to video files, or it was added on another device."
 				}
 			>
-				<Button variant="outline" size="sm" onClick={choose}>
-					<FileVideoIcon />
-					Choose file…
-				</Button>
+				<Button label="Choose file…" icon={<FileVideoIcon />} onClick={choose} />
 			</WidgetEmpty>
 		);
 	}

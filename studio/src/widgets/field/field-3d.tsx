@@ -2,7 +2,7 @@
 import HouseIcon from 'lucide-react/icons/house';
 import XIcon from 'lucide-react/icons/x';
 import { Suspense, useCallback, useMemo, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { IconButton } from '@astryxdesign/core/IconButton';
 import { useDataVersion } from '@/data/data-store';
 import { cn } from '@/lib/utils';
 import { useWidgetMenu } from '@/panes/widget-menu';
@@ -218,33 +218,30 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 						<SceneControls view="3d" visible={controls.visible} disabled={!showControls} />
 					</div>
 					{followLabel !== undefined && (
-						<div className="absolute top-1.5 right-1.5 flex max-w-1/2 items-center gap-1 rounded-md bg-background ps-1.5 text-xs capture:invisible">
+						<div className="absolute top-1.5 right-1.5 flex max-w-1/2 items-center gap-1 rounded-md bg-background ps-1.5 text-xs capture-invisible">
 							<span className="truncate">{followLabel}</span>
-							<Button variant="ghost" size="icon-xs" aria-label="Stop following" onClick={stopFollowing}>
-								<XIcon />
-							</Button>
+							<IconButton label="Stop following" icon={<XIcon />} variant="ghost" size="sm" onClick={stopFollowing} />
 						</div>
 					)}
 				</div>
-				<div className="flex h-5 items-center justify-between gap-2 text-muted-foreground text-xs capture:invisible">
+				<div className="flex min-h-7 items-center justify-between gap-2 text-muted-foreground text-xs capture-invisible">
 					<CursorPosition pointer={pointer} hovered={overField} copied={copied} />
 					<div className="flex items-center gap-2">
 						<ToolButtons tool={pencil.tool} onToggle={pencil.toggle} measure={false} />
 						<div className={cn('flex items-center gap-2', !cameraMatch && hiddenWhileIdle)}>
-							<Button
+							<IconButton
+								label={resetLabel}
+								tooltip={resetLabel}
+								icon={<ResetIcon />}
 								variant="ghost"
-								size="xs"
-								className="h-5 sm:h-5"
+								size="sm"
 								onClick={() => {
 									controls.input();
 									stopFollowing();
 									scene.current?.reset();
 								}}
-							>
-								<ResetIcon />
-								{resetLabel}
-							</Button>
-							<ViewToggle compact view="3d" onChange={(view) => setOption('view', view)} />
+							/>
+							<ViewToggle view="3d" onChange={(view) => setOption('view', view)} />
 						</div>
 					</div>
 				</div>

@@ -1,10 +1,9 @@
 import CameraIcon from 'lucide-react/icons/camera';
 import { useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@astryxdesign/core/Button';
 import { cn } from '@/lib/utils';
 import { useCameraFeed } from '@/widgets/camera/use-camera-feed';
-import { WidgetEmpty } from '@/widgets/widget-empty';
+import { WidgetEmpty, WidgetLoading } from '@/widgets/widget-empty';
 
 export function CameraFeed({
 	name,
@@ -47,12 +46,7 @@ function CameraFeedStatus({
 		);
 	}
 	if (status === 'loading') {
-		return (
-			<div className="flex h-full items-center justify-center gap-2 text-sm text-muted-foreground" role="status">
-				<Spinner className="size-4" />
-				{reconnecting ? 'Reconnecting to robot…' : 'Connecting to camera…'}
-			</div>
-		);
+		return <WidgetLoading label={reconnecting ? 'Reconnecting to robot…' : 'Connecting to camera…'} />;
 	}
 	if (status === 'permission') {
 		return (
@@ -61,9 +55,7 @@ function CameraFeedStatus({
 				title="Allow camera access"
 				description="Your browser needs permission to reach the camera on your local network."
 			>
-				<Button variant="outline" size="sm" onClick={requestAccess}>
-					Allow access
-				</Button>
+				<Button label="Allow access" onClick={requestAccess} />
 			</WidgetEmpty>
 		);
 	}

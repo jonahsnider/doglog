@@ -1,17 +1,10 @@
+import { DropdownMenuCheckboxItem, DropdownMenuDivider, DropdownMenuGroup } from '@astryxdesign/core/DropdownMenu';
+import { Tooltip } from '@astryxdesign/core/Tooltip';
 import VideoIcon from 'lucide-react/icons/video';
 import { use, useState } from 'react';
-import { ControlTooltip } from '@/components/control-tooltip';
-import {
-	Menu,
-	MenuCheckboxItem,
-	MenuGroup,
-	MenuGroupLabel,
-	MenuPopup,
-	MenuSeparator,
-	MenuTrigger,
-} from '@/components/ui/menu';
 import { cn } from '@/lib/utils';
 import { FollowContext } from '@/widgets/legend/follow-context';
+import { LegendMenu } from '@/widgets/legend/legend-menu';
 import { type DriverStation, driverStationKey, driverStationLabel, driverStations } from '@/three/field-poses';
 import type { WidgetBinding } from '@/widgets/widget-type';
 
@@ -33,50 +26,40 @@ export function FollowPicker({ binding, follow }: { binding: WidgetBinding; foll
 	};
 	const following = follow !== 'off';
 	return (
-		<Menu
-			onOpenChange={(open) => {
-				if (open) {
-					setRobotStation(controls?.robotStation());
-				}
-			}}
-		>
-			<ControlTooltip
-				label={following ? 'Following with the camera' : 'Follow with the camera'}
-				render={
-					<MenuTrigger
-						disabled={binding.hidden}
-						className={cn(
-							'-mx-0.5 flex shrink-0 cursor-pointer items-center rounded-sm p-0.5 text-muted-foreground outline-none hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 data-popup-open:bg-accent data-popup-open:text-accent-foreground',
-							following && 'text-foreground',
-						)}
-						aria-label={`Follow ${binding.name}`}
-					/>
-				}
+		<Tooltip content={following ? 'Following with the camera' : 'Follow with the camera'}>
+			<LegendMenu
+				label={`Follow ${binding.name}`}
+				isActive={following}
+				isDisabled={binding.hidden}
+				onOpenChange={(open) => {
+					if (open) {
+						setRobotStation(controls?.robotStation());
+					}
+				}}
+				trigger={<VideoIcon className={cn('size-3.5 my-0.5', following && 'fill-current')} />}
 			>
-				<VideoIcon className={cn('size-3.5', following && 'fill-current')} />
-			</ControlTooltip>
-			<MenuPopup align="end">
-				<MenuCheckboxItem checked={follow === 'robot'} onCheckedChange={pick(undefined)} closeOnClick>
-					Follow
-				</MenuCheckboxItem>
-				<MenuSeparator />
-				<MenuGroup>
-					<MenuGroupLabel>From driver station</MenuGroupLabel>
+				<DropdownMenuCheckboxItem
+					label="Follow"
+					value={follow === 'robot'}
+					onChange={pick(undefined)}
+					hasCloseOnSelect
+				/>
+				<DropdownMenuDivider />
+				<DropdownMenuGroup title="From driver station">
 					{driverStations.map((station) => (
-						<MenuCheckboxItem
+						<DropdownMenuCheckboxItem
 							key={driverStationKey(station)}
-							checked={follow === driverStationKey(station)}
-							onCheckedChange={pick(station)}
-							closeOnClick
-						>
-							{driverStationLabel(station)}
-							{robotStation && driverStationKey(robotStation) === driverStationKey(station) && (
-								<span className="text-muted-foreground"> (robot’s)</span>
-							)}
-						</MenuCheckboxItem>
+							label={driverStationLabel(station)}
+							description={
+								robotStation && driverStationKey(robotStation) === driverStationKey(station) ? 'The robot’s' : undefined
+							}
+							value={follow === driverStationKey(station)}
+							onChange={pick(station)}
+							hasCloseOnSelect
+						/>
 					))}
-				</MenuGroup>
-			</MenuPopup>
-		</Menu>
+				</DropdownMenuGroup>
+			</LegendMenu>
+		</Tooltip>
 	);
 }

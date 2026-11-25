@@ -1,5 +1,5 @@
 import { type ReactNode, useMemo } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@astryxdesign/core/Button';
 import type { Entry } from '@/data/data-store';
 import { poseMatrix } from '@/three/poses';
 import { useLoadedRobot } from '@/three/robot-loading';
@@ -40,8 +40,8 @@ export function usePickedRobot(
 					<span className="truncate">{state.message}</span>
 					{state.needsAccess && project && (
 						<Button
-							variant="outline"
-							size="xs"
+							label="Allow access"
+							size="sm"
 							onClick={() => {
 								void allowProjectAccess(project).then((allowed) => {
 									if (allowed) {
@@ -50,9 +50,7 @@ export function usePickedRobot(
 									return undefined;
 								});
 							}}
-						>
-							Allow access
-						</Button>
+						/>
 					)}
 				</>
 			),

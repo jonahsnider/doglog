@@ -1,8 +1,7 @@
 import { useSelector } from '@tanstack/react-store';
 import CameraIcon from 'lucide-react/icons/camera';
 import { type ComponentProps, use } from 'react';
-import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@astryxdesign/core/Button';
 import { zoomedPanesStore } from '@/dashboards/pane-state';
 import { DashboardIdContext } from '@/dashboards/panes';
 import { cameraStreams } from '@/data/camera-streams';
@@ -11,7 +10,7 @@ import { findPane } from '@/panes/layout';
 import { goLive, useLiveFollow, useVideoRange } from '@/timeline/timeline';
 import { CameraFeed } from '@/widgets/camera/camera-feed';
 import { CameraPicker } from '@/widgets/camera/options';
-import { WidgetEmpty } from '@/widgets/widget-empty';
+import { WidgetEmpty, WidgetLoading } from '@/widgets/widget-empty';
 import type { WidgetProps } from '@/widgets/widget-type';
 
 function CameraEmpty(props: Omit<ComponentProps<typeof WidgetEmpty>, 'icon'>) {
@@ -54,12 +53,7 @@ function LiveCamera({
 	const reconnecting = source.status === 'reconnecting';
 
 	if (source.status === 'connecting' || (reconnecting && !name)) {
-		return (
-			<div className="flex h-full items-center justify-center gap-2 text-sm text-muted-foreground" role="status">
-				<Spinner className="size-4" />
-				{reconnecting ? 'Reconnecting to robot…' : 'Connecting to robot…'}
-			</div>
-		);
+		return <WidgetLoading label={reconnecting ? 'Reconnecting to robot…' : 'Connecting to robot…'} />;
 	}
 	if (!name && streams.size === 0) {
 		return (
@@ -79,9 +73,7 @@ function LiveCamera({
 	if (!following) {
 		return (
 			<CameraEmpty title="Camera is live only" description="Follow the latest robot data to resume the feed.">
-				<Button variant="outline" size="sm" onClick={goLive}>
-					Go live
-				</Button>
+				<Button label="Go live" onClick={goLive} />
 			</CameraEmpty>
 		);
 	}

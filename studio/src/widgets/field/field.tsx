@@ -275,11 +275,11 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 					</div>
 					{unbound && <SceneControls view="2d" visible={controls.visible} className="absolute inset-0" />}
 				</div>
-				<div className="flex h-5 items-center justify-between gap-2 text-muted-foreground text-xs capture:invisible">
+				<div className="flex min-h-7 items-center justify-between gap-2 text-muted-foreground text-xs capture-invisible">
 					<CursorPosition pointer={pointer} hovered={hovered} copied={copied} />
 					<div className="flex items-center gap-2">
 						<ToolButtons tool={tool} onToggle={toggleTool} />
-						<ViewToggle compact className={hiddenWhileIdle} view="2d" onChange={(next) => setOption('view', next)} />
+						<ViewToggle className={hiddenWhileIdle} view="2d" onChange={(next) => setOption('view', next)} />
 					</div>
 				</div>
 			</div>
