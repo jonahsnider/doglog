@@ -18,6 +18,9 @@ const desktop = STUDIO_DESKTOP;
 
 const updateStore = createAtom<UpdateState | undefined>(undefined);
 
+/** Every update toast shares this ID, so checking or installing again replaces the one that's shown */
+const updateToastId = 'update';
+
 /** Checks for a newer version, then installs it when pressed again. Browsers reserve some ⌘ shortcuts, ex. Edge's Read Aloud, so the web app uses Alt. */
 export const updateShortcut = (desktop ? 'Mod+Shift+U' : 'Alt+Shift+U') satisfies Hotkey;
 
@@ -116,12 +119,16 @@ export async function checkForUpdateManually(): Promise<void> {
 		return;
 	}
 
-	const toastId = toastManager.add({ type: 'loading', title: 'Checking for updates…' });
+	toastManager.update(updateToastId, { type: 'loading', title: 'Checking for updates…' });
 	let update: Update | undefined;
 	try {
 		update = await findUpdate();
 	} catch (error) {
-		toastManager.update(toastId, { type: 'error', title: "Couldn't check for updates", description: String(error) });
+		toastManager.update(updateToastId, {
+			type: 'error',
+			title: "Couldn't check for updates",
+			description: String(error),
+		});
 		return;
 	}
 
@@ -129,14 +136,14 @@ export async function checkForUpdateManually(): Promise<void> {
 		updateStore.set({ update, installing: false });
 		// oxlint-disable-next-line typescript/no-deprecated -- Outside a component it's the way to format a shortcut
 		const shortcut = formatForDisplay(updateShortcut);
-		toastManager.update(toastId, {
+		toastManager.update(updateToastId, {
 			type: 'info',
 			title: `An update is available`,
 			description: `Press ${shortcut} to ${desktop ? 'restart' : 'reload'} and update.`,
 			timeout: 0,
 		});
 	} else {
-		toastManager.update(toastId, {
+		toastManager.update(updateToastId, {
 			type: 'info',
 			title: 'DogLog Studio is up to date',
 		});
@@ -155,11 +162,9 @@ export async function checkOrInstallUpdate(): Promise<void> {
 	}
 
 	const title = state.update.version === undefined ? 'Updating Studio…' : `Updating to ${state.update.version}…`;
-	const toastId = toastManager.add({ type: 'loading', title });
-	if (!(await installUpdate(state.update))) {
-		// Installing failed, which shows its own toast
-		toastManager.close(toastId);
-	}
+	toastManager.update(updateToastId, { type: 'loading', title });
+	// Failing replaces this toast with an error
+	await installUpdate(state.update);
 }
 
 // Development builds would always find a "newer" release. The web app checks when it registers its service worker.
@@ -184,15 +189,13 @@ export function updateTitle(update: Update): string {
 	return update.version === undefined ? 'Update Studio' : `Update to ${update.version}`;
 }
 
-/** Install `update`, then restart into it. Returns whether installing succeeded. */
-export async function installUpdate(update: Update): Promise<boolean> {
+/** Install `update`, then restart into it */
+export async function installUpdate(update: Update): Promise<void> {
 	updateStore.set({ update, installing: true });
 	try {
 		await update.install();
-		return true;
 	} catch (error) {
 		updateStore.set({ update, installing: false });
-		toastManager.add({ type: 'error', title: "Couldn't update Studio", description: String(error) });
-		return false;
+		toastManager.update(updateToastId, { type: 'error', title: "Couldn't update Studio", description: String(error) });
 	}
 }

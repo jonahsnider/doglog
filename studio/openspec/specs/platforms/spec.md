@@ -234,6 +234,12 @@ The desktop app SHALL update itself automatically.
 - **THEN** a toast shows Studio checking for updates, then says whether a newer version is available
 - **AND** if one is, pressing ⇧⌘U again shows a toast that Studio is updating, then installs the update and restarts Studio
 
+#### Scenario: Check for updates repeatedly
+
+- **WHEN** the user checks for updates several times in a row, from any mix of the shortcut, menu, and sidebar
+- **THEN** at most one update toast is shown, and each check replaces it in place
+- **AND** installing the update, or failing to, replaces that same toast
+
 #### Scenario: No internet at an event
 
 - **WHEN** the user opens the desktop app with no internet connection

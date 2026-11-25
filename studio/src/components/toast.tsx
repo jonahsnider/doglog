@@ -104,7 +104,7 @@ function showToast(id: string, { type = 'info', title, description, actionProps,
 	dismissers.set(id, dismiss);
 }
 
-/** Shows toasts from anywhere, including outside React. `update` replaces a toast's contents in place. */
+/** Shows toasts from anywhere, including outside React. `update` replaces a toast's contents in place, or shows it with that ID if it's gone. */
 export const toastManager = {
 	add(options: ToastOptions): string {
 		const id = nanoid();
