@@ -1,6 +1,6 @@
 import { themePalette } from '@astryxdesign/core/palette';
 import { defineTheme } from '@astryxdesign/core/theme';
-import { team581Seeds } from '@/theme/team581-colors';
+import { doglogSeeds } from '@/theme/doglog-colors';
 
 /**
  * Content on the inverted surface, like toasts, is Astryx's on-dark or on-light color. Fills and borders there are made
@@ -19,10 +19,10 @@ function invertedTokens(surface: 'dark' | 'light'): Record<string, string> {
 	};
 }
 
-/** Team 581's Astryx theme, shared by the team's apps */
-export const team581Theme = defineTheme({
-	name: 'team581',
-	palette: themePalette(team581Seeds),
+/** DogLog's Astryx theme */
+export const doglogTheme = defineTheme({
+	name: 'doglog',
+	palette: themePalette(doglogSeeds),
 	typography: {
 		scale: { base: 14, ratio: 1.2 },
 		body: { family: 'IBM Plex Sans Variable', fallbacks: 'system-ui, sans-serif' },

@@ -3,17 +3,17 @@ import { useSelector } from '@tanstack/react-store';
 import type { ReactNode } from 'react';
 import { colorModeStore } from '@/settings';
 import { studioIcons } from '@/theme/studio-icons';
-import { team581Theme } from '@/theme/team581-theme';
+import { doglogTheme } from '@/theme/doglog-theme';
 import { liftVariable, liftedParts, themeColorTokenNames, themeColorVariable } from '@/theme/theme-color';
 
 /**
- * Team 581's theme with colors generated for the theme color setting, applied as CSS variables that already switch with
+ * DogLog's theme with colors generated for the theme color setting, applied as CSS variables that already switch with
  * the color mode, see `applyThemeColor()` in `@/theme/theme-color`. Presets, contrast levels, and custom colors restyle
  * every component without redefining the theme.
  */
 const studioTheme = defineTheme({
 	name: 'doglog-studio',
-	extends: team581Theme,
+	extends: doglogTheme,
 	icons: studioIcons,
 	tokens: {
 		...Object.fromEntries(themeColorTokenNames.map((token) => [token, `var(${themeColorVariable(token)})`])),
@@ -25,7 +25,7 @@ const studioTheme = defineTheme({
 			part,
 			Object.fromEntries(
 				styles.map((style) => {
-					// Per mode, to replace the Team 581 palette's lifts rather than lose to them
+					// Per mode, to replace the DogLog palette's lifts rather than lose to them
 					const lift = { '--color-text-secondary': `var(${liftVariable(part, style)})` };
 					return [style, { '@light': lift, '@dark': lift }];
 				}),

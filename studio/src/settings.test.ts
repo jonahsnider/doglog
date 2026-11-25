@@ -15,11 +15,11 @@ afterEach(() => {
 	vi.unstubAllGlobals();
 });
 
-test('new settings keep the Team 581 default', async () => {
+test('new settings keep the DogLog default', async () => {
 	const { settingsStore } = await import('./settings.ts');
 	expect(settingsStore.get()).toStrictEqual({
 		theme: 'system',
-		themePreset: 'team581',
+		themePreset: 'doglog',
 		themeColor: '#1c1816',
 		highContrast: false,
 		visualizationPalette: 'default',
@@ -38,7 +38,7 @@ test('new settings keep the Team 581 default', async () => {
 test('custom colors survive preset changes and a reload', async () => {
 	const { settingsStore, updateSettings } = await import('./settings.ts');
 	updateSettings({ theme: 'dark', themePreset: 'custom', themeColor: '#123456' });
-	for (const themePreset of ['team581', 'match13', 'custom'] as const) {
+	for (const themePreset of ['doglog', 'match13', 'custom'] as const) {
 		updateSettings({ themePreset });
 		expect(settingsStore.get().themeColor).toBe('#123456');
 	}

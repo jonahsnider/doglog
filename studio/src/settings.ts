@@ -7,7 +7,7 @@ import { applyThemeColor, defaultCustomColor } from '@/theme/theme-color';
 
 const settingsSchema = z.object({
 	theme: z.enum(themes).catch('system'),
-	themePreset: z.enum(themePresets).catch('team581'),
+	themePreset: z.enum(themePresets).catch('doglog'),
 	/** Hex color that the Custom preset's color scheme is generated from */
 	themeColor: z
 		.string()

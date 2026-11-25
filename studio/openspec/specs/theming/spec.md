@@ -8,11 +8,11 @@ Define Studio's visual identity: Astryx color tokens generated from a preset's s
 
 ### Requirement: Generated color scheme
 
-Studio SHALL generate its color tokens with Astryx's palette generator (`astryx-oklch-v2`) from each preset's accent, neutral, and status seeds. The default Team 581 preset MUST use accent `#591616` and neutral `#6f6564`.
+Studio SHALL generate its color tokens with Astryx's palette generator (`astryx-oklch-v2`) from each preset's accent, neutral, and status seeds. The default DogLog preset MUST use accent `#591616` and neutral `#6f6564`.
 
 #### Scenario: Default color
 
-- **GIVEN** the Team 581 preset is selected
+- **GIVEN** the DogLog preset is selected
 - **WHEN** the user views Studio in light or dark mode
 - **THEN** neutral surfaces have a subtle maroon tint
 - **AND** primary actions use the maroon accent

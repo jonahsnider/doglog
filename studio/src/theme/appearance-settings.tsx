@@ -110,7 +110,7 @@ const themeLabels: Record<Theme, string> = {
 };
 
 const themePresetLabels: Record<ThemePreset, string> = {
-	team581: 'DogLog',
+	doglog: 'DogLog',
 	match13: 'match13',
 	froglog: 'FrogLog',
 	neutral: 'Neutral',

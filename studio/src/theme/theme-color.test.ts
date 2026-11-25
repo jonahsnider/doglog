@@ -102,8 +102,8 @@ test('switching presets restores the chosen scheme', () => {
 	expect(customCss).toContain(themeColorVariables('#123456', false, false, 'custom'));
 	expect(customCss).toContain(themeColorVariables('#123456', true, false, 'custom'));
 
-	applyThemeColor('#123456', 'team581', false, 'default');
-	expect(style.textContent).toContain(themeColorVariables(defaultThemeColor, false, false, 'team581'));
+	applyThemeColor('#123456', 'doglog', false, 'default');
+	expect(style.textContent).toContain(themeColorVariables(defaultThemeColor, false, false, 'doglog'));
 
 	applyThemeColor('#123456', 'custom', false, 'default');
 	expect(style.textContent).toBe(customCss);
@@ -113,14 +113,14 @@ test('high contrast applies when the system asks for more contrast, and always w
 	const style = { textContent: '' };
 	vi.stubGlobal('document', { querySelector: () => style });
 	vi.stubGlobal('localStorage', { setItem: () => {} });
-	const high = themeColorVariables(defaultThemeColor, true, true, 'team581');
+	const high = themeColorVariables(defaultThemeColor, true, true, 'doglog');
 
-	applyThemeColor(defaultThemeColor, 'team581', false, 'default');
+	applyThemeColor(defaultThemeColor, 'doglog', false, 'default');
 	const media = style.textContent.indexOf('@media (prefers-contrast: more)');
 	expect(style.textContent.slice(0, media)).not.toContain(high);
 	expect(style.textContent.slice(media)).toContain(high);
 
-	applyThemeColor(defaultThemeColor, 'team581', true, 'default');
+	applyThemeColor(defaultThemeColor, 'doglog', true, 'default');
 	expect(style.textContent).toContain(high);
 	expect(style.textContent).not.toContain('prefers-contrast');
 });

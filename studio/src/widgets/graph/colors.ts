@@ -1,6 +1,6 @@
 import type { Entry } from '@/data/data-store';
 import { categoricalColors, dataColor, shade } from '@/theme/series-palette';
-import { statusSeeds } from '@/theme/team581-colors';
+import { statusSeeds } from '@/theme/doglog-colors';
 
 /** Every band color is light enough for black text, at stop 70 black text has a contrast ratio of about 9:1 */
 export const bandTextColor = '#000000';

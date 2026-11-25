@@ -9,10 +9,10 @@ export const statusSeeds = {
 } as const;
 
 /**
- * Seeds of Team 581's Astryx palette: the team's maroon, and a gray tinted with it so surfaces stay close to neutral and
+ * Seeds of DogLog's Astryx palette: Team 581's maroon, and a gray tinted with it so surfaces stay close to neutral and
  * the maroon carries emphasis
  */
-export const team581Seeds = {
+export const doglogSeeds = {
 	accent: '#591616',
 	neutral: '#6f6564',
 	...statusSeeds,
