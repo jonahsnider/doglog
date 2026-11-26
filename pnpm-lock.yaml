@@ -260,7 +260,7 @@ importers:
     dependencies:
       '@astryxdesign/core':
         specifier: 0.7.17
-        version: 0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        version: 0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@convex-dev/auth':
         specifier: 2.1.0
         version: 2.1.0(patch_hash=df8ebdd7112e66d3d21fdd9fdb0742e3fce502dd098904fa441ff2548c67239a)(@standard-schema/spec@1.1.0)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@voidzero-dev/vite-plus-core@8.3.8001)(convex-test@0.0.75(convex@1.51.0(react@19.3.1)))(convex@1.51.0(react@19.3.1))(hono@4.13.19)(prettier@3.10.1)(react@19.3.1)(typescript@7.1.0-dev.20261124.1)(zod@4.6.7)
@@ -272,7 +272,7 @@ importers:
         version: 0.5.3
       '@dnd-kit/react':
         specifier: 0.5.3
-        version: 0.5.3(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        version: 0.5.3(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@fontsource-variable/ibm-plex-sans':
         specifier: 5.3.0
         version: 5.3.0
@@ -287,10 +287,10 @@ importers:
         version: 2.0.0(patch_hash=a811b3789e62cd74e466c2abf81d4ac45bffdd3f18e8c2671d341fcb063c4643)
       '@react-three/drei':
         specifier: 10.7.9
-        version: 10.7.9(@react-three/fiber@9.8.2(@types/react@19.3.1)(@types/three@0.187.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(three@0.187.0))(@types/react@19.3.1)(@types/three@0.187.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(three@0.187.0)
+        version: 10.7.9(@react-three/fiber@9.8.2(@types/react@19.3.2)(@types/three@0.187.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(three@0.187.0))(@types/react@19.3.2)(@types/three@0.187.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(three@0.187.0)
       '@react-three/fiber':
         specifier: 9.8.2
-        version: 9.8.2(@types/react@19.3.1)(@types/three@0.187.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(three@0.187.0)
+        version: 9.8.2(@types/react@19.3.2)(@types/three@0.187.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(three@0.187.0)
       '@ridemountainpig/svgl-react':
         specifier: 1.0.19
         version: 1.0.19(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -308,10 +308,10 @@ importers:
         version: 0.27.2(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@tanstack/react-router':
         specifier: 1.170.46
-        version: 1.170.46(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        version: 1.170.46(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@tanstack/react-store':
         specifier: 0.11.4
-        version: 0.11.4(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        version: 0.11.4(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@tanstack/react-virtual':
         specifier: 3.14.28
         version: 3.14.28(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -335,13 +335,13 @@ importers:
         version: 2.14.1
       '@team581/astryx-theme':
         specifier: 1.1.1
-        version: 1.1.1(@astryxdesign/cli@0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2))(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(lucide-react@1.80.0(@types/react@19.3.1)(react@19.3.1))(react@19.3.1)
+        version: 1.1.1(@astryxdesign/cli@0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2))(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(lucide-react@1.80.0(@types/react@19.3.2)(react@19.3.1))(react@19.3.1)
       '@ui-sdk/core':
         specifier: 0.1.0-beta.17
         version: 0.1.0-beta.17
       '@ui-sdk/react':
         specifier: 0.1.0-beta.17
-        version: 0.1.0-beta.17(@types/react@19.3.1)(@ui-sdk/core@0.1.0-beta.17)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        version: 0.1.0-beta.17(@types/react@19.3.2)(@ui-sdk/core@0.1.0-beta.17)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       change-case:
         specifier: 5.4.4
         version: 5.4.4
@@ -377,7 +377,7 @@ importers:
         version: 1.19.1
       lucide-react:
         specifier: 1.80.0
-        version: 1.80.0(@types/react@19.3.1)(react@19.3.1)
+        version: 1.80.0(@types/react@19.3.2)(react@19.3.1)
       ml-levenberg-marquardt:
         specifier: 5.1.0
         version: 5.1.0
@@ -401,13 +401,13 @@ importers:
         version: 19.3.1(react@19.3.1)
       react-resizable-panels:
         specifier: 4.24.2
-        version: 4.24.2(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        version: 4.24.2(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       shiki:
         specifier: 4.6.0
         version: 4.6.0
       sonner:
         specifier: 2.0.8
-        version: 2.0.8(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        version: 2.0.8(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       takumi-js:
         specifier: 2.22.1
         version: 2.22.1(csstype@3.2.3)(react@19.3.1)
@@ -428,7 +428,7 @@ importers:
         version: 1.6.32
       usehooks-ts:
         specifier: 3.1.1
-        version: 3.1.1(@types/react@19.3.1)(react@19.3.1)
+        version: 3.1.1(@types/react@19.3.2)(react@19.3.1)
       wpilib-struct:
         specifier: 1.1.1
         version: 1.1.1
@@ -447,7 +447,7 @@ importers:
         version: 0.7.17(@babel/core@8.1.3)(@stylexjs/babel-plugin@0.19.2(supports-color@10.2.2))(@stylexjs/unplugin@0.19.2(supports-color@10.2.2)(unplugin@2.3.11))(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@voidzero-dev/vite-plus-core@8.3.8001)(postcss@8.5.32)(typescript@7.1.0-dev.20261124.1)
       '@astryxdesign/cli':
         specifier: 0.7.17
-        version: 0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2)
+        version: 0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2)
       '@babel/core':
         specifier: 8.1.3
         version: 8.1.3
@@ -486,7 +486,7 @@ importers:
         version: 0.19.2(supports-color@10.2.2)(unplugin@2.3.11)
       '@tanstack/router-plugin':
         specifier: 1.169.0
-        version: 1.169.0(@tanstack/react-router@1.170.46(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@voidzero-dev/vite-plus-core@8.3.8001)(esbuild@0.28.2)(rolldown@1.2.18)(rollup@4.68.3)(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1)
+        version: 1.169.0(@tanstack/react-router@1.170.46(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@voidzero-dev/vite-plus-core@8.3.8001)(esbuild@0.28.2)(rolldown@1.2.18)(rollup@4.68.3)(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1)
       '@tauri-apps/cli':
         specifier: 2.12.6
         version: 2.12.6
@@ -500,11 +500,11 @@ importers:
         specifier: 26.6.10
         version: 26.6.10
       '@types/react':
-        specifier: 19.3.1
-        version: 19.3.1
+        specifier: 19.3.2
+        version: 19.3.2
       '@types/react-dom':
         specifier: 19.3.0
-        version: 19.3.0(@types/react@19.3.1)
+        version: 19.3.0(@types/react@19.3.2)
       '@types/three':
         specifier: 0.187.0
         version: 0.187.0
@@ -564,13 +564,13 @@ importers:
     dependencies:
       '@astrojs/markdoc':
         specifier: 2.1.5
-        version: 2.1.5(@types/react@19.3.1)(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(react@19.3.1)
+        version: 2.1.5(@types/react@19.3.2)(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(react@19.3.1)
       '@astrojs/starlight':
         specifier: 0.43.1
         version: 0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1)
       '@astrojs/starlight-markdoc':
         specifier: 0.7.0
-        version: 0.7.0(@astrojs/markdoc@2.1.5(@types/react@19.3.1)(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(react@19.3.1))(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))
+        version: 0.7.0(@astrojs/markdoc@2.1.5(@types/react@19.3.2)(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(react@19.3.1))(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))
       '@astrojs/ts-content-mapper':
         specifier: 0.2.0
         version: 0.2.0(@emnapi/runtime@1.11.3)
@@ -5512,8 +5512,8 @@ packages:
     peerDependencies:
       '@types/react': '*'
 
-  '@types/react@19.3.1':
-    resolution: {integrity: sha512-HNTkBIm8zmHX8LUXX2vtZ/ONzehrV1J3abl2fUIiZ5qxTYRCj/z+rDeFwOltqCLl9lRdUTKWT41OLtYuFV/Arg==}
+  '@types/react@19.3.2':
+    resolution: {integrity: sha512-0QJbb58RxWJL3VAa5tvk7QhJamz0S+MpFL2xDuF/+THRR+kldyhPjRZ1iwvK45AEHZ1BVGS3otPsl7QlNVRizQ==}
 
   '@types/resolve@1.20.2':
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
@@ -10275,11 +10275,11 @@ snapshots:
       unified: 11.0.5
       yaml: 2.9.1
 
-  '@astrojs/markdoc@2.1.5(@types/react@19.3.1)(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(react@19.3.1)':
+  '@astrojs/markdoc@2.1.5(@types/react@19.3.2)(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(react@19.3.1)':
     dependencies:
       '@astrojs/internal-helpers': 0.13.2
       '@astrojs/prism': 4.1.2
-      '@markdoc/markdoc': 0.5.11(@types/react@19.3.1)(react@19.3.1)
+      '@markdoc/markdoc': 0.5.11(@types/react@19.3.2)(react@19.3.1)
       astro: 7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1)
       github-slugger: 2.0.0
       htmlparser2: 12.0.0
@@ -10316,9 +10316,9 @@ snapshots:
       sitemap: 9.0.1
       zod: 4.6.7
 
-  '@astrojs/starlight-markdoc@0.7.0(@astrojs/markdoc@2.1.5(@types/react@19.3.1)(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(react@19.3.1))(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))':
+  '@astrojs/starlight-markdoc@0.7.0(@astrojs/markdoc@2.1.5(@types/react@19.3.2)(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(react@19.3.1))(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))':
     dependencies:
-      '@astrojs/markdoc': 2.1.5(@types/react@19.3.1)(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(react@19.3.1)
+      '@astrojs/markdoc': 2.1.5(@types/react@19.3.2)(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(react@19.3.1)
       '@astrojs/starlight': 0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1)
 
   '@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1)':
@@ -10409,7 +10409,7 @@ snapshots:
       - postcss
       - typescript
 
-  '@astryxdesign/cli@0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2)':
+  '@astryxdesign/cli@0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2)':
     dependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
       '@babel/parser': 7.29.8
@@ -10433,16 +10433,16 @@ snapshots:
       recast: 0.23.21
       zod: 4.6.7
     optionalDependencies:
-      '@astryxdesign/core': 0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@astryxdesign/core': 0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
     transitivePeerDependencies:
       - '@babel/preset-env'
       - canvas
       - supports-color
 
-  '@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@stylexjs/stylex': 0.19.2
-      '@types/react': 19.3.1
+      '@types/react': 19.3.2
       intl-messageformat: 11.2.15
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
@@ -12152,12 +12152,12 @@ snapshots:
       '@dnd-kit/state': 0.5.3
       tslib: 2.8.1
 
-  '@dnd-kit/react@0.5.3(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@dnd-kit/react@0.5.3(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@dnd-kit/abstract': 0.5.3
       '@dnd-kit/dom': 0.5.3
       '@dnd-kit/state': 0.5.3
-      '@types/react': 19.3.1
+      '@types/react': 19.3.2
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
       tslib: 2.8.1
@@ -12941,9 +12941,9 @@ snapshots:
 
   '@levischuck/tiny-cbor@0.2.11': {}
 
-  '@markdoc/markdoc@0.5.11(@types/react@19.3.1)(react@19.3.1)':
+  '@markdoc/markdoc@0.5.11(@types/react@19.3.2)(react@19.3.1)':
     optionalDependencies:
-      '@types/react': 19.3.1
+      '@types/react': 19.3.2
       react: 19.3.1
 
   '@mediapipe/tasks-vision@0.10.17': {}
@@ -13818,13 +13818,13 @@ snapshots:
     dependencies:
       quansync: 1.0.0
 
-  '@react-three/drei@10.7.9(@react-three/fiber@9.8.2(@types/react@19.3.1)(@types/three@0.187.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(three@0.187.0))(@types/react@19.3.1)(@types/three@0.187.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(three@0.187.0)':
+  '@react-three/drei@10.7.9(@react-three/fiber@9.8.2(@types/react@19.3.2)(@types/three@0.187.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(three@0.187.0))(@types/react@19.3.2)(@types/three@0.187.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(three@0.187.0)':
     dependencies:
       '@babel/runtime': 7.29.14
       '@mediapipe/tasks-vision': 0.10.17
       '@monogrid/gainmap-js': 3.7.3(three@0.187.0)
-      '@react-three/fiber': 9.8.2(@types/react@19.3.1)(@types/three@0.187.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(three@0.187.0)
-      '@types/react': 19.3.1
+      '@react-three/fiber': 9.8.2(@types/react@19.3.2)(@types/three@0.187.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(three@0.187.0)
+      '@types/react': 19.3.2
       '@types/three': 0.187.0
       '@use-gesture/react': 10.3.1(react@19.3.1)
       camera-controls: 3.1.2(three@0.187.0)
@@ -13842,31 +13842,31 @@ snapshots:
       three-mesh-bvh: 0.10.0(@types/three@0.187.0)(three@0.187.0)
       three-stdlib: 2.36.1(@types/three@0.187.0)(three@0.187.0)
       troika-three-text: 0.52.5(three@0.187.0)
-      tunnel-rat: 0.1.2(@types/react@19.3.1)(react@19.3.1)
+      tunnel-rat: 0.1.2(@types/react@19.3.2)(react@19.3.1)
       use-sync-external-store: 1.7.0(react@19.3.1)
       utility-types: 3.11.0
-      zustand: 5.1.0(@types/react@19.3.1)(react@19.3.1)(use-sync-external-store@1.7.0(react@19.3.1))
+      zustand: 5.1.0(@types/react@19.3.2)(react@19.3.1)(use-sync-external-store@1.7.0(react@19.3.1))
     optionalDependencies:
       react-dom: 19.3.1(react@19.3.1)
     transitivePeerDependencies:
       - immer
 
-  '@react-three/fiber@9.8.2(@types/react@19.3.1)(@types/three@0.187.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(three@0.187.0)':
+  '@react-three/fiber@9.8.2(@types/react@19.3.2)(@types/three@0.187.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(three@0.187.0)':
     dependencies:
       '@babel/runtime': 7.29.14
-      '@types/react': 19.3.1
+      '@types/react': 19.3.2
       '@types/three': 0.187.0
       '@types/webxr': 0.5.24
       base64-js: 1.5.1
       buffer: 6.0.3
-      its-fine: 2.1.1(@types/react@19.3.1)(react@19.3.1)
+      its-fine: 2.1.1(@types/react@19.3.2)(react@19.3.1)
       react: 19.3.1
       react-use-measure: 2.1.7(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       scheduler: 0.28.0
       suspend-react: 0.1.3(react@19.3.1)
       three: 0.187.0
       use-sync-external-store: 1.7.0(react@19.3.1)
-      zustand: 5.1.0(@types/react@19.3.1)(react@19.3.1)(use-sync-external-store@1.7.0(react@19.3.1))
+      zustand: 5.1.0(@types/react@19.3.2)(react@19.3.1)(use-sync-external-store@1.7.0(react@19.3.1))
     optionalDependencies:
       react-dom: 19.3.1(react@19.3.1)
     transitivePeerDependencies:
@@ -14385,10 +14385,10 @@ snapshots:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
-  '@tanstack/react-router@1.170.46(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@tanstack/react-router@1.170.46(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@tanstack/history': 1.162.5
-      '@tanstack/react-store': 0.11.4(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@tanstack/react-store': 0.11.4(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@tanstack/router-core': 1.171.39
       isbot: 5.2.3
       react: 19.3.1
@@ -14396,14 +14396,14 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@tanstack/react-store@0.11.4(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@tanstack/react-store@0.11.4(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@tanstack/store': 0.11.3(patch_hash=64cb2afef9922ab9d26a86b6f2d286c58682094f87d219b442a01fe7f92dc1b7)
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
       use-sync-external-store: 1.7.0(react@19.3.1)
     optionalDependencies:
-      '@types/react': 19.3.1
+      '@types/react': 19.3.2
 
   '@tanstack/react-virtual@3.14.28(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
@@ -14431,7 +14431,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@tanstack/router-plugin@1.169.0(@tanstack/react-router@1.170.46(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@voidzero-dev/vite-plus-core@8.3.8001)(esbuild@0.28.2)(rolldown@1.2.18)(rollup@4.68.3)(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1)':
+  '@tanstack/router-plugin@1.169.0(@tanstack/react-router@1.170.46(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@voidzero-dev/vite-plus-core@8.3.8001)(esbuild@0.28.2)(rolldown@1.2.18)(rollup@4.68.3)(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1)':
     dependencies:
       '@babel/core': 7.29.13(supports-color@10.2.2)
       '@babel/template': 7.29.7
@@ -14443,7 +14443,7 @@ snapshots:
       unplugin: 3.7.0(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@voidzero-dev/vite-plus-core@8.3.8001)(esbuild@0.28.2)(rolldown@1.2.18)(rollup@4.68.3)(typescript@7.1.0-dev.20261124.1)
       zod: 4.6.7
     optionalDependencies:
-      '@tanstack/react-router': 1.170.46(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@tanstack/react-router': 1.170.46(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       vite: '@voidzero-dev/vite-plus-core@8.3.8001(@types/node@26.6.10)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)'
     transitivePeerDependencies:
       - '@farmfe/core'
@@ -14544,16 +14544,16 @@ snapshots:
     dependencies:
       '@tauri-apps/api': 2.12.5
 
-  '@team581/astryx-theme@1.1.1(@astryxdesign/cli@0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2))(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(lucide-react@1.80.0(@types/react@19.3.1)(react@19.3.1))(react@19.3.1)':
+  '@team581/astryx-theme@1.1.1(@astryxdesign/cli@0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2))(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(lucide-react@1.80.0(@types/react@19.3.2)(react@19.3.1))(react@19.3.1)':
     dependencies:
-      '@astryxdesign/core': 0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@astryxdesign/core': 0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@fontsource-variable/ibm-plex-sans': 5.3.0
       '@fontsource-variable/source-sans-3': 5.3.1
       '@fontsource/ibm-plex-mono': 5.3.0
-      lucide-react: 1.80.0(@types/react@19.3.1)(react@19.3.1)
+      lucide-react: 1.80.0(@types/react@19.3.2)(react@19.3.1)
       react: 19.3.1
     optionalDependencies:
-      '@astryxdesign/cli': 0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2)
+      '@astryxdesign/cli': 0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2)
 
   '@team581/starlight-theme@1.1.0(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))':
     dependencies:
@@ -14685,15 +14685,15 @@ snapshots:
 
   '@types/offscreencanvas@2019.7.3': {}
 
-  '@types/react-dom@19.3.0(@types/react@19.3.1)':
+  '@types/react-dom@19.3.0(@types/react@19.3.2)':
     dependencies:
-      '@types/react': 19.3.1
+      '@types/react': 19.3.2
 
-  '@types/react-reconciler@0.28.9(@types/react@19.3.1)':
+  '@types/react-reconciler@0.28.9(@types/react@19.3.2)':
     dependencies:
-      '@types/react': 19.3.1
+      '@types/react': 19.3.2
 
-  '@types/react@19.3.1':
+  '@types/react@19.3.2':
     dependencies:
       csstype: 3.2.3
 
@@ -14757,13 +14757,13 @@ snapshots:
 
   '@ui-sdk/core@0.1.0-beta.17': {}
 
-  '@ui-sdk/react@0.1.0-beta.17(@types/react@19.3.1)(@ui-sdk/core@0.1.0-beta.17)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@ui-sdk/react@0.1.0-beta.17(@types/react@19.3.2)(@ui-sdk/core@0.1.0-beta.17)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@ui-sdk/core': 0.1.0-beta.17
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
     optionalDependencies:
-      '@types/react': 19.3.1
+      '@types/react': 19.3.2
 
   '@ungap/structured-clone@1.4.0': {}
 
@@ -17770,9 +17770,9 @@ snapshots:
 
   isobject@3.0.1: {}
 
-  its-fine@2.1.1(@types/react@19.3.1)(react@19.3.1):
+  its-fine@2.1.1(@types/react@19.3.2)(react@19.3.1):
     dependencies:
-      '@types/react-reconciler': 0.28.9(@types/react@19.3.1)
+      '@types/react-reconciler': 0.28.9(@types/react@19.3.2)
       react: 19.3.1
     transitivePeerDependencies:
       - '@types/react'
@@ -18000,11 +18000,11 @@ snapshots:
 
   lru.min@1.1.5: {}
 
-  lucide-react@1.80.0(@types/react@19.3.1)(react@19.3.1):
+  lucide-react@1.80.0(@types/react@19.3.2)(react@19.3.1):
     dependencies:
       react: 19.3.1
     optionalDependencies:
-      '@types/react': 19.3.1
+      '@types/react': 19.3.2
 
   lz-string@1.5.0: {}
 
@@ -19110,12 +19110,12 @@ snapshots:
 
   react-is@17.0.2: {}
 
-  react-resizable-panels@4.24.2(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
+  react-resizable-panels@4.24.2(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
     dependencies:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
     optionalDependencies:
-      '@types/react': 19.3.1
+      '@types/react': 19.3.2
 
   react-use-measure@2.1.7(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
     dependencies:
@@ -19568,12 +19568,12 @@ snapshots:
       dot-case: 3.0.4
       tslib: 2.8.1
 
-  sonner@2.0.8(@types/react@19.3.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
+  sonner@2.0.8(@types/react@19.3.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
     dependencies:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
     optionalDependencies:
-      '@types/react': 19.3.1
+      '@types/react': 19.3.2
 
   source-map-js@1.2.2: {}
 
@@ -19867,10 +19867,10 @@ snapshots:
     dependencies:
       tslib: 1.14.1
 
-  tunnel-rat@0.1.2(@types/react@19.3.1)(react@19.3.1):
+  tunnel-rat@0.1.2(@types/react@19.3.2)(react@19.3.1):
     dependencies:
       react: 19.3.1
-      zustand: 4.5.7(@types/react@19.3.1)(react@19.3.1)
+      zustand: 4.5.7(@types/react@19.3.2)(react@19.3.1)
     transitivePeerDependencies:
       - '@types/react'
       - immer
@@ -20106,9 +20106,9 @@ snapshots:
     dependencies:
       react: 19.3.1
 
-  usehooks-ts@3.1.1(@types/react@19.3.1)(react@19.3.1):
+  usehooks-ts@3.1.1(@types/react@19.3.2)(react@19.3.1):
     dependencies:
-      '@types/react': 19.3.1
+      '@types/react': 19.3.2
       lodash.debounce: 4.0.8
       react: 19.3.1
 
@@ -20968,16 +20968,16 @@ snapshots:
 
   zod@4.6.7: {}
 
-  zustand@4.5.7(@types/react@19.3.1)(react@19.3.1):
+  zustand@4.5.7(@types/react@19.3.2)(react@19.3.1):
     dependencies:
       use-sync-external-store: 1.7.0(react@19.3.1)
     optionalDependencies:
-      '@types/react': 19.3.1
+      '@types/react': 19.3.2
       react: 19.3.1
 
-  zustand@5.1.0(@types/react@19.3.1)(react@19.3.1)(use-sync-external-store@1.7.0(react@19.3.1)):
+  zustand@5.1.0(@types/react@19.3.2)(react@19.3.1)(use-sync-external-store@1.7.0(react@19.3.1)):
     optionalDependencies:
-      '@types/react': 19.3.1
+      '@types/react': 19.3.2
       react: 19.3.1
       use-sync-external-store: 1.7.0(react@19.3.1)
 
