@@ -40,7 +40,12 @@ const styles = stylex.create({
 	},
 });
 
-/** Covers the window while a potential log file is dragged over it */
+/** Whether a path dragged over the desktop app may be a log, or a folder of them, which have no extension */
+function isLogDrop(path: string): boolean {
+	return isLogFile(path) || !path.split(/[/\\]/u).at(-1)!.includes('.');
+}
+
+/** Covers the window while a potential log file, or folder of them, is dragged over it */
 export function LogDropOverlay() {
 	const [dragging, setDragging] = useState(false);
 	// The desktop app gets file drags from Tauri instead of the browser's drag events
@@ -83,7 +88,7 @@ export function LogDropOverlay() {
 		handleLogFileDrop(event);
 	});
 
-	if (!dragging && !(draggedFile !== undefined && isLogFile(draggedFile))) {
+	if (!dragging && !(draggedFile !== undefined && isLogDrop(draggedFile))) {
 		return null;
 	}
 

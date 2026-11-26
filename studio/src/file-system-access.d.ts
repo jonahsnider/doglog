@@ -28,6 +28,10 @@ interface FileSystemSyncAccessHandle {
 	write(buffer: ArrayBufferView, options?: { at?: number }): number;
 }
 
+interface FileSystemDirectoryHandle {
+	values(): AsyncIterableIterator<FileSystemDirectoryHandle | FileSystemFileHandle>;
+}
+
 interface FileSystemFileHandle {
 	createSyncAccessHandle(): Promise<FileSystemSyncAccessHandle>;
 }

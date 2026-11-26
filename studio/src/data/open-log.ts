@@ -156,12 +156,25 @@ export function isLogFile(name: string): boolean {
 	return logFileExtension.test(name);
 }
 
-/** Open logs dropped on the desktop app's window, unless a widget takes them */
-export function handleDroppedLogPaths(): Promise<void> {
-	return handleFileDrops((paths) => void openLogPaths(paths.filter((path) => isLogFile(path))));
+/** Logs directly in a dropped folder, by name, see the data-sources spec's open several logs at once */
+function byName<T extends { name: string }>(files: T[]): T[] {
+	return files.filter((file) => isLogFile(file.name)).toSorted((a, b) => a.name.localeCompare(b.name));
 }
 
-/** Open dropped logs unless a widget has already handled the drop */
+/** Open logs dropped on the desktop app's window, and the logs in dropped folders, unless a widget takes them */
+export function handleDroppedLogPaths(): Promise<void> {
+	return handleFileDrops((paths) => {
+		void Promise.all(paths.map((path) => invoke<string[]>('folder_files', { path }))).then((files) =>
+			openLogPaths(files.flat().filter((path) => isLogFile(path))),
+		);
+	});
+}
+
+type DroppedItem =
+	| { file: File; handle: Promise<FileSystemHandle | null> | undefined }
+	| { folder: FileSystemDirectoryEntry; handle: Promise<FileSystemHandle | null> | undefined };
+
+/** Open dropped logs and the logs in dropped folders, unless a widget has already handled the drop */
 export function handleLogFileDrop(event: DragEvent): void {
 	const transfer = event.dataTransfer;
 	if (event.defaultPrevented || transfer?.types.includes('Files') !== true) {
@@ -169,14 +182,24 @@ export function handleLogFileDrop(event: DragEvent): void {
 	}
 	// Don't let the browser navigate to unhandled files.
 	event.preventDefault();
-	// Files and their handles have to be read before the event ends
-	const dropped = Array.from(transfer.items).flatMap((item) => {
-		const file = item.kind === 'file' ? item.getAsFile() : null;
-		return file && isLogFile(file.name)
-			? [{ file, handle: supportsFileHandles ? item.getAsFileSystemHandle?.() : undefined }]
-			: [];
+	// Files, folders, and their handles have to be read before the event ends
+	const dropped = Array.from(transfer.items).flatMap((item): DroppedItem[] => {
+		if (item.kind !== 'file') {
+			return [];
+		}
+		const handle = supportsFileHandles ? item.getAsFileSystemHandle?.() : undefined;
+		const entry = item.webkitGetAsEntry();
+		// Chrome doesn't expose the entry classes, so they're told apart by these
+		if (entry?.isDirectory === true) {
+			// oxlint-disable-next-line typescript/no-unsafe-type-assertion -- It's a folder's entry
+			return [{ folder: entry as FileSystemDirectoryEntry, handle }];
+		}
+		const file = item.getAsFile();
+		return file && isLogFile(file.name) ? [{ file, handle }] : [];
 	});
-	void openInOrder(dropped, ({ file, handle }) => openDroppedLog(file, handle));
+	void openInOrder(dropped, (item) =>
+		'file' in item ? openDroppedLog(item.file, item.handle) : openDroppedFolder(item.folder, item.handle),
+	);
 }
 
 async function openDroppedLog(file: File, handle: Promise<FileSystemHandle | null> | undefined): Promise<void> {
@@ -187,6 +210,49 @@ async function openDroppedLog(file: File, handle: Promise<FileSystemHandle | nul
 	if (resolved instanceof FileSystemFileHandle) {
 		await addRecentLogHandle(resolved);
 	}
+}
+
+/** Open the logs directly in a dropped folder, with their handles when the browser has them so they're kept in recents */
+async function openDroppedFolder(
+	folder: FileSystemDirectoryEntry,
+	handle: Promise<FileSystemHandle | null> | undefined,
+): Promise<void> {
+	const resolved = await handle;
+	if (resolved instanceof FileSystemDirectoryHandle) {
+		const handles: FileSystemFileHandle[] = [];
+		for await (const child of resolved.values()) {
+			if (child instanceof FileSystemFileHandle) {
+				handles.push(child);
+			}
+		}
+		await openInOrder(byName(handles), openLogHandle);
+		return;
+	}
+	const files = await Promise.all(
+		(await folderEntries(folder))
+			.filter((entry): entry is FileSystemFileEntry => entry.isFile)
+			.map(
+				(entry) =>
+					new Promise<File>((resolve, reject) => {
+						entry.file(resolve, reject);
+					}),
+			),
+	);
+	await openInOrder(byName(files), (file) => openLog(file));
+}
+
+/** Every entry in a folder, which a reader returns in batches until one is empty */
+function folderEntries(folder: FileSystemDirectoryEntry): Promise<FileSystemEntry[]> {
+	const reader = folder.createReader();
+	const read = () =>
+		new Promise<FileSystemEntry[]>((resolve, reject) => {
+			reader.readEntries(resolve, reject);
+		});
+	const next = async (entries: FileSystemEntry[]): Promise<FileSystemEntry[]> => {
+		const batch = await read();
+		return batch.length === 0 ? entries : next([...entries, ...batch]);
+	};
+	return next([]);
 }
 
 /** Open logs the OS asks the installed web app to open, see `file_handlers` in the web app manifest */

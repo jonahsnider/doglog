@@ -30,6 +30,13 @@ Each window SHALL hold any number of logs and at most one live session, and MUST
 - **WHEN** the user picks `qual12.wpilog` and `qual13.wpilog` in the file picker, or drops both on the window
 - **THEN** both are added
 
+#### Scenario: Drop a folder of logs
+
+- **GIVEN** a folder holds `qual13.wpilog`, `qual12.wpilog`, and `notes.txt`
+- **WHEN** the user drops the folder on the window
+- **THEN** `qual12.wpilog` and `qual13.wpilog` are added, in that order by name
+- **AND** `notes.txt` and any folders inside it are left out
+
 #### Scenario: Open a log that's already open
 
 - **GIVEN** `qual12.wpilog` is open
