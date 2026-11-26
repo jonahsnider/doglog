@@ -6,8 +6,7 @@ import { createPersistedAtom } from '@/lib/persisted-store';
 const update = {
 	id: 9,
 	title: 'View multiple logs',
-	description:
-		'Studio can now open several logs at once to analyze side-by-side.',
+	description: 'Studio can now open several logs at once to analyze side-by-side.',
 };
 
 /** ID of the update the user dismissed. New users start caught up, so they only see updates made after they started. */
