@@ -17,6 +17,8 @@ import { useMinWindowSize } from '@/desktop/window-size';
 import { useSize } from '@/hooks/use-size';
 import { dragDivider, endDrag, snapDistance, useSplitGroup } from '@/panes/divider-snap';
 import { findPane, type PaneNode, resizeSplit, type Split, type SplitDirection } from '@/panes/layout';
+import { type PaneHosts, usePaneHosts } from '@/panes/pane-hosts';
+import { PanePortal, PaneSlot } from '@/panes/pane-slot';
 import { SplitDivider } from '@/panes/split-divider';
 import { dividerSize, minNodeSize, minPaneSizeIn } from '@/panes/pane-size';
 import { SplitPanel, type SplitPanelAnimation } from '@/panes/split-panel';
@@ -57,27 +59,42 @@ export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 		},
 	});
 
+	const { hosts, shown } = usePaneHosts(layout);
 	return (
 		<div ref={container} {...stylex.props(styles.panes)} data-dashboard-panes data-zooming={zooming || undefined}>
 			<DashboardLayoutContext value={layout}>
 				<PaneNodeView
 					dashboardId={dashboard.id}
 					dashboardLayout={layout}
-					focusedPaneId={focusedPaneId}
 					zoomedPaneId={zoomedPaneId}
 					hiddenBy={zooming ? undefined : zoomedPaneId}
 					zooming={zooming}
-					zoomFillingPaneId={zoom?.zoomingIn === true ? zoom.paneId : undefined}
 					minPaneSizes={minPaneSizes}
+					hosts={hosts}
 					node={layout}
-					root
 				/>
+				{shown.map((pane) => (
+					<PanePortal key={pane.id} hosts={hosts} paneId={pane.id}>
+						<PaneView
+							dashboardId={dashboard.id}
+							dashboardLayout={layout}
+							focusedPaneId={focusedPaneId}
+							zoomedPaneId={zoomedPaneId}
+							zoomFillingPaneId={zoom?.zoomingIn === true ? zoom.paneId : undefined}
+							pane={pane}
+							// Closing the only pane does nothing unless there's a widget to remove
+							closable={layout.kind === 'split' || pane.widget !== undefined}
+						/>
+					</PanePortal>
+				))}
 			</DashboardLayoutContext>
 		</div>
 	);
 }
 
-type NodeProps = PaneNodeProps & {
+type NodeProps = Pick<PaneNodeProps, 'dashboardId' | 'dashboardLayout' | 'zoomedPaneId'> & {
+	/** The elements panes are rendered into, see `usePaneHosts()` */
+	hosts: PaneHosts;
 	/** The zoomed pane once it fills the dashboard, which hides the panes in the other children of its splits */
 	hiddenBy: string | undefined;
 	/** Whether a zoom is animating, which lets the panes move outside their splits */
@@ -86,7 +103,7 @@ type NodeProps = PaneNodeProps & {
 	minPaneSizes: Record<SplitDirection, number> | undefined;
 };
 
-function PaneNodeView({ node, root = false, ...props }: NodeProps & { node: PaneNode; root?: boolean }) {
+function PaneNodeView({ node, ...props }: NodeProps & { node: PaneNode }) {
 	const { zoomedPaneId } = props;
 	const [previous, setPrevious] = useState({ node, zoomedPaneId });
 	const [animation, setAnimation] = useState<SplitAnimation>();
@@ -112,8 +129,7 @@ function PaneNodeView({ node, root = false, ...props }: NodeProps & { node: Pane
 	}
 
 	return node.kind === 'pane' ? (
-		// Closing the only pane does nothing unless there's a widget to remove
-		<PaneView {...props} pane={node} closable={!root || node.widget !== undefined} />
+		<PaneSlot hosts={props.hosts} paneId={node.id} />
 	) : (
 		// Keyed so a split that takes another's place reads its own sizes
 		<SplitView

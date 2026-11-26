@@ -430,6 +430,7 @@ A dashboard SHALL be a layout of panes, each holding exactly one widget. Users M
 - **THEN** the new pane grows in from the right edge as the divider slides to the middle
 - **AND** a closed pane shrinks away as the remaining pane expands into its space
 - **AND** the remaining pane's content takes its new size right away instead of resizing as the divider moves
+- **AND** every pane keeps showing its widget throughout, including when the animation finishes, instead of the widget starting over, ex. a 3D field going blank until it draws again
 - **AND** panes appear and disappear instantly when the system is set to reduce motion
 
 #### Scenario: Resize a pane holding a split

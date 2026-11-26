@@ -85,6 +85,10 @@ export function useZoomAnimation(
 			for (const animation of animations) {
 				animation.cancel();
 			}
+			// Panes that slid away are hidden by now, and stay in the layout if the zoomed pane closes without sliding them back
+			for (const pane of panes) {
+				pane.style.removeProperty('transform');
+			}
 		};
 	}, [container, zoom, zoomIn, zoomOut]);
 
