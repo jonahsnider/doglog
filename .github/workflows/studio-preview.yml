@@ -141,7 +141,8 @@ jobs:
         with:
           projectPath: studio
           releaseId: ${{ needs.release.outputs.id }}
-          updaterJsonPreferNsis: true
+          # The publish job writes the manifest once every build is done, builds updating it themselves overwrite each other
+          uploadUpdaterJson: false
           args: ${{ matrix.target && format('--target {0}', matrix.target) }} --config '{"bundle":{"createUpdaterArtifacts":true}}'
       # Lets Sentry show function names and source lines for panics, a missing upload shouldn't block the release
       - name: Upload debug symbols to Sentry
@@ -168,11 +169,37 @@ jobs:
         uses: pnpm/setup@v3.2.0
         with:
           cache: true
-      - name: Download manifest from release
-        run: gh release download "$TAG_NAME" --pattern latest.json
-      # Each build job merges its platform into the release's manifest, so make sure none were lost before publishing
-      - name: Check every platform is in the manifest
-        run: jq -e '.platforms | has("darwin-aarch64") and has("darwin-x86_64") and has("windows-x86_64") and has("linux-x86_64")' latest.json
+      # Same as release-please.yml, fails if a platform's updater bundle or signature is missing
+      - name: Create manifest
+        run: |
+          set -euo pipefail
+          dir="$(mktemp -d)"
+          gh release download "$TAG_NAME" --pattern '*.sig' --dir "$dir/signatures"
+          gh release view "$TAG_NAME" --json assets > "$dir/release.json"
+          for file in "$dir"/signatures/*.sig; do
+            jq -n --arg name "$(basename "$file" .sig)" --rawfile signature "$file" '{($name): $signature}'
+          done | jq -s add > "$dir/signatures.json"
+          jq -n --arg version "$VERSION" --slurpfile release "$dir/release.json" --slurpfile signatures "$dir/signatures.json" '
+            def entry($suffix):
+              [$release[0].assets[] | select(.name | endswith($suffix))] as $matches
+              | if ($matches | length) != 1 then error("Expected 1 asset ending in \($suffix), found \($matches | length)") end
+              | $matches[0]
+              | {signature: ($signatures[0][.name] // error("No signature for \(.name)")), url: .apiUrl};
+            {
+              version: $version,
+              pub_date: (now | todate),
+              platforms: {
+                "darwin-aarch64": entry("_aarch64.app.tar.gz"),
+                "darwin-aarch64-app": entry("_aarch64.app.tar.gz"),
+                "darwin-x86_64": entry("_x64.app.tar.gz"),
+                "darwin-x86_64-app": entry("_x64.app.tar.gz"),
+                "windows-x86_64": entry("_x64-setup.exe"),
+                "windows-x86_64-nsis": entry("_x64-setup.exe"),
+                "linux-x86_64": entry(".AppImage"),
+                "linux-x86_64-appimage": entry(".AppImage"),
+                "linux-x86_64-deb": entry(".deb")
+              }
+            }' > latest.json
       # The manifest links to the release's assets, which can't be downloaded while it's a draft
       - name: Publish release
         run: gh release edit "$TAG_NAME" --draft=false
