@@ -17,7 +17,7 @@ import { isSourceWindow, startSourceWindows } from './desktop/source-windows.ts'
 import { getSources, reopenDevLog, subscribeSource } from './data/source.ts';
 import { syncMediaSession } from './timeline/media-session.ts';
 import { routeTree } from './routeTree.gen.ts';
-import { hasFrostedFrame, syncTheme } from './settings.ts';
+import { hasFrostedFrame, hasNativeBackdrop, syncTheme } from './settings.ts';
 import { StudioTheme } from './theme/studio-theme.tsx';
 import { startSharing } from './sharing/sharing.ts';
 import { runLogSync } from './sync/sync.ts';
@@ -82,6 +82,9 @@ startSharing();
 if (STUDIO_DESKTOP) {
 	if (hasFrostedFrame) {
 		document.documentElement.dataset['frostedFrame'] = '';
+	}
+	if (hasNativeBackdrop) {
+		document.documentElement.dataset['nativeBackdrop'] = '';
 	}
 	void handleOpenedLogFiles();
 	void handleDroppedLogPaths();

@@ -41,6 +41,8 @@ fn create_at(app: &AppHandle, log: Option<OpenedLogTarget>, position: Option<(f6
     }
     let window = WebviewWindowBuilder::from_config(app, &config)?.build()?;
     crate::window_state::restore(&window, false);
+    #[cfg(target_os = "macos")]
+    crate::window_backdrop::install(&window);
     if let Some((x, y)) = position {
         // Under the pointer, about where the source's row would be in the sidebar
         window.set_position(LogicalPosition::new(x - 120.0, y - 60.0))?;

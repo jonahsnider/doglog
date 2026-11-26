@@ -1,9 +1,11 @@
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
+import { invoke } from '@tauri-apps/api/core';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import * as z from 'zod';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { themePresets, themes, visualizationPalettes } from '@/theme/choices';
-import { applyThemeColor, defaultCustomColor } from '@/theme/theme-color';
+import { applyThemeColor, defaultCustomColor, themeColors } from '@/theme/theme-color';
 
 const settingsSchema = z.object({
 	theme: z.enum(themes).catch('system'),
@@ -46,6 +48,8 @@ export const reportsNaturalScrolling =
 
 /** The desktop app shows a native backdrop through the window frame, so reducing transparency only matters there */
 export const hasFrostedFrame = STUDIO_DESKTOP && '__DOGLOG_FROSTED_FRAME__' in window;
+/** Whether the window's backdrop is tinted natively with the theme's colors, instead of by the frame's background */
+export const hasNativeBackdrop = hasFrostedFrame && '__DOGLOG_NATIVE_BACKDROP__' in window;
 
 /**
  * Use `settingsStore.get()` to read settings outside React, ex. when connecting to a robot.
@@ -71,6 +75,8 @@ export const colorModeStore = createAtom<'light' | 'dark'>('light');
  */
 export function syncTheme(): void {
 	const darkQuery = matchMedia('(prefers-color-scheme: dark)');
+	let appliedTheme: Settings['theme'] | undefined;
+	let appliedBackdrop: string | undefined;
 	let appliedThemeColor: string | undefined;
 	let appliedThemePreset: Settings['themePreset'] | undefined;
 	let appliedHighContrast: boolean | undefined;
@@ -81,6 +87,11 @@ export function syncTheme(): void {
 		const dark = theme === 'dark' || (theme === 'system' && darkQuery.matches);
 		document.documentElement.classList.toggle('dark', dark);
 		colorModeStore.set(dark ? 'dark' : 'light');
+		// The window's native backdrop follows the window's appearance, not the page's
+		if (STUDIO_DESKTOP && theme !== appliedTheme) {
+			void getCurrentWindow().setTheme(theme === 'system' ? null : theme);
+			appliedTheme = theme;
+		}
 		document.documentElement.classList.toggle('reduce-motion', reduceMotion);
 		document.documentElement.classList.toggle('reduce-transparency', reduceTransparency);
 		// Other settings changes, ex. typing a robot target, don't need the colors regenerated
@@ -95,6 +106,19 @@ export function syncTheme(): void {
 			appliedThemePreset = themePreset;
 			appliedHighContrast = highContrast;
 			appliedVisualizationPalette = visualizationPalette;
+		}
+		if (hasNativeBackdrop) {
+			const { tokens } = themeColors(themeColor, dark, highContrast, themePreset);
+			const backdrop = {
+				body: tokens['--color-background-body']!,
+				surface: tokens['--color-background-surface']!,
+				dark,
+			};
+			const key = JSON.stringify(backdrop);
+			if (key !== appliedBackdrop) {
+				appliedBackdrop = key;
+				void invoke('set_window_backdrop', backdrop);
+			}
 		}
 	};
 

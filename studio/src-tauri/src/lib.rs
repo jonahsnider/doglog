@@ -15,6 +15,8 @@ mod relaunch;
 mod sync;
 #[cfg(any(target_os = "macos", windows))]
 mod video;
+#[cfg(target_os = "macos")]
+mod window_backdrop;
 mod window_state;
 
 use liblzma::bufread::XzDecoder;
@@ -248,26 +250,29 @@ pub fn run() -> ExitCode {
     let mut context = tauri::generate_context!();
 
     #[cfg(target_os = "macos")]
-    let effects = vec![Effect::LiquidGlassRegular, Effect::Sidebar];
+    // `window_backdrop` adds its own, Tauri's effects can't stack Liquid Glass over another material
+    let effects: Vec<Effect> = Vec::new();
     #[cfg(windows)]
-    // Windows 11 22H2 introduced system backdrops. Legacy Acrylic can lag when moving or resizing.
+    // Windows 11 22H2 introduced system backdrops. Mica only samples the wallpaper, so other windows don't show through.
     let effects = if windows_version::OsVersion::current().build >= 22621 {
-        vec![Effect::Acrylic]
+        vec![Effect::Mica]
     } else {
         Vec::new()
     };
     #[cfg(not(any(target_os = "macos", windows)))]
     let effects: Vec<Effect> = Vec::new();
 
-    let frosted_frame = !effects.is_empty();
+    let frosted_frame = cfg!(target_os = "macos") || !effects.is_empty();
     if frosted_frame {
         // The opaque webview panes cover the native material, leaving it visible through the frame.
         for window in &mut context.config_mut().app.windows {
             window.transparent = true;
-            window.window_effects = Some(tauri::utils::config::WindowEffectsConfig {
-                effects: effects.clone(),
-                ..Default::default()
-            });
+            if !effects.is_empty() {
+                window.window_effects = Some(tauri::utils::config::WindowEffectsConfig {
+                    effects: effects.clone(),
+                    ..Default::default()
+                });
+            }
         }
     }
     // HTTP clients (remote log fetches, Sentry, and the updater) share this rustls crypto provider
@@ -318,6 +323,8 @@ pub fn run() -> ExitCode {
     } else {
         builder
     };
+    #[cfg(target_os = "macos")]
+    let builder = builder.append_invoke_initialization_script("\nwindow.__DOGLOG_NATIVE_BACKDROP__ = true;");
     // Lets agents inspect and drive the app with the Tauri MCP server, only on this computer
     #[cfg(debug_assertions)]
     let builder = builder.plugin(
@@ -350,6 +357,8 @@ pub fn run() -> ExitCode {
         .on_window_event(|window, event| match event {
             WindowEvent::Focused(focused) => {
                 agent::window::set_focused(window, *focused);
+                #[cfg(target_os = "macos")]
+                window_backdrop::set_active(window, *focused);
                 if *focused {
                     new_window::set_focused(window.app_handle(), window.label());
                 }
@@ -357,6 +366,8 @@ pub fn run() -> ExitCode {
             WindowEvent::Destroyed => {
                 let app = window.app_handle();
                 agent::window::close(app, window.label());
+                #[cfg(target_os = "macos")]
+                window_backdrop::remove(window.label());
                 #[cfg(any(target_os = "macos", windows))]
                 video::cancel_window_video(app, window.label());
                 camera_stream::cancel_for_window(app, window.label());
@@ -406,6 +417,8 @@ pub fn run() -> ExitCode {
             recent_logs::clear_recent_logs,
             relaunch::relaunch,
             window_state::reveal_window,
+            #[cfg(target_os = "macos")]
+            window_backdrop::set_window_backdrop,
             sync::lock_sync,
             sync::list_robot_logs,
             sync::download_robot_log,
@@ -433,7 +446,10 @@ pub fn run() -> ExitCode {
                 )?;
             }
 
-            window_state::restore(&app.get_webview_window("main").unwrap(), true);
+            let main_window = app.get_webview_window("main").unwrap();
+            window_state::restore(&main_window, true);
+            #[cfg(target_os = "macos")]
+            window_backdrop::install(&main_window);
 
             if let Some(log) = log {
                 set_opened_log(app.handle(), "main", log);

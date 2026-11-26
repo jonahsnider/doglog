@@ -101,7 +101,11 @@
 /* Opaque in captures, including a video's edge past the dashboard it shows */
 [data-frosted-frame]:not([data-capturing], [data-saving-video])
 	[data-app-frame]:not(:where([data-capturing], [data-capturing] *)) {
-	background-color: color-mix(in srgb, var(--color-background-body) 75%, transparent);
+	background-color: color-mix(in srgb, var(--color-background-body) var(--frame-tint, 60%), transparent);
+}
+/* The native backdrop on macOS is tinted with the theme's colors itself */
+[data-native-backdrop] {
+	--frame-tint: 0%;
 }
 /* Keep overlays that live outside the captured panes out of the image without moving the dashboard. */
 [data-capturing] :is([data-sidebar='sidebar'], [data-sidebar='rail-copy'], .astryx-layer, .astryx-toast) {

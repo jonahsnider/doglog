@@ -93,7 +93,25 @@ The theme SHALL have both light and dark variants derived from the same color sc
 
 ### Requirement: Window frame backdrop
 
-Studio SHALL tint a native backdrop with the theme's frame color on macOS (Liquid Glass on macOS 26 and later, sidebar vibrancy on macOS 15) and Windows 11 22H2 and later (Desktop Acrylic). The backdrop SHALL show through the frame, including under the sidebars and timeline; panes and pages SHALL stay opaque. The frame SHALL be solid without a native backdrop, with forced colors, or when the system or the setting reduces transparency.
+Studio SHALL tint a native backdrop with the theme's frame color on macOS (Liquid Glass over the HUD window material) and Windows 11 22H2 and later (Mica). The backdrop SHALL show through the frame, including under the sidebars and timeline; panes and pages SHALL stay opaque. The frame SHALL be solid without a native backdrop, with forced colors, or when the system or the setting reduces transparency.
+
+#### Scenario: Other windows behind Studio
+
+- **GIVEN** the native backdrop is available
+- **WHEN** another window is behind Studio's frame
+- **THEN** its content is blurred or hidden enough that it can't be made out
+
+#### Scenario: Inactive window on macOS
+
+- **GIVEN** Studio is running on macOS 26 or later
+- **WHEN** its window isn't focused
+- **THEN** the frame shows only the tinted Liquid Glass, without the HUD window material under it
+
+#### Scenario: Theme differs from the system's
+
+- **GIVEN** the native backdrop is available
+- **WHEN** Studio's theme is light or dark and the system uses the other one
+- **THEN** the backdrop uses Studio's theme
 
 #### Scenario: Native backdrop is available
 
