@@ -11,7 +11,7 @@ import {
 import { IconButton } from '@astryxdesign/core/IconButton';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
 import type { StyleXStyles } from '@stylexjs/stylex';
-import type { Hotkey, HotkeyChord } from '@tanstack/react-hotkeys';
+import type { HotkeyChord } from '@tanstack/react-hotkeys';
 import EllipsisIcon from 'lucide-react/icons/ellipsis';
 import { type ReactNode, type RefObject, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
@@ -229,7 +229,6 @@ export function AppActionMenu({
 	items,
 	label,
 	accessibleLabel = label,
-	shortcut,
 	triggerXstyle,
 	isFocusable = true,
 	finalFocus,
@@ -240,11 +239,10 @@ export function AppActionMenu({
 	label: string;
 	/** The button's name, when it needs to say more than its tooltip, ex. which row it's for */
 	accessibleLabel?: string;
-	shortcut?: Hotkey;
 	triggerXstyle?: StyleXStyles;
-	/** Leaves the button out of the tab order, ex. when its row opens the menu from the keyboard instead */
+	/** Leaves the button out of the tab order, ex. in a tree that's a single tab stop */
 	isFocusable?: boolean;
-	/** Where focus goes when the menu closes instead of the button, ex. its row */
+	/** Where focus goes when the menu closes instead of the button while it isn't focusable, ex. its row */
 	finalFocus?: RefObject<HTMLElement | null>;
 	onOpenChange?: (open: boolean) => void;
 }) {
@@ -257,7 +255,7 @@ export function AppActionMenu({
 			onOpenChange={(next) => {
 				setOpenFrom(next ? (trigger.current ?? undefined) : undefined);
 				onOpenChange?.(next);
-				if (!next && finalFocus) {
+				if (!next && finalFocus && !isFocusable) {
 					// After the menu returns focus to the button
 					requestAnimationFrame(() => {
 						if (document.activeElement === trigger.current) {
@@ -267,7 +265,7 @@ export function AppActionMenu({
 				}
 			}}
 			renderTrigger={(props) => (
-				<Tooltip content={<TooltipLabel label={label} shortcut={shortcut} />} isEnabled={openFrom === undefined}>
+				<Tooltip content={<TooltipLabel label={label} />} isEnabled={openFrom === undefined}>
 					<IconButton
 						{...props}
 						ref={(element: HTMLElement | null) => {

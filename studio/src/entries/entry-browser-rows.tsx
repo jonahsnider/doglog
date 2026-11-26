@@ -180,6 +180,7 @@ export function EntryRows({
 									groupCheck={groupCheck(row.item.value)}
 									group={groups.get(row.item.value)}
 									activeGuide={guideAt(item.index)}
+									focused={row.item.value === active}
 								/>
 							</Fragment>
 						);

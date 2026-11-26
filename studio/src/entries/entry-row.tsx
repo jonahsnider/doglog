@@ -5,7 +5,6 @@ import { TreeItem, TreeItemLabel } from '@ui-sdk/react/tree';
 import ChevronRightIcon from 'lucide-react/icons/chevron-right';
 import { memo, use, useRef } from 'react';
 import { AppActionMenu, AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
-import { openContextMenu } from '@/components/open-context-menu';
 import { SectionHeaderLabel } from '@/entries/section-header-label';
 import { type GroupCheck, GroupCheckbox, GroupMark, TypeMark } from '@/entries/value-marks';
 import { EntryRowValue } from '@/entries/entry-value';
@@ -109,6 +108,7 @@ export const EntryRowView = memo(function EntryRowView({
 	groupCheck,
 	group,
 	activeGuide,
+	focused,
 }: {
 	row: EntryTreeRow;
 	top: number;
@@ -124,6 +124,8 @@ export const EntryRowView = memo(function EntryRowView({
 	group: readonly EntryDragItem[] | undefined;
 	/** Level of the group whose guide is emphasized, when the row is in it */
 	activeGuide: number | undefined;
+	/** The row focused last, which holds the tree's tab stop */
+	focused: boolean;
 }) {
 	const dashboardId = use(DashboardIdContext);
 	const { item: node, level, section } = row;
@@ -188,16 +190,6 @@ export const EntryRowView = memo(function EntryRowView({
 				ref={ref}
 				{...stylex.props(entryRowMarker, styles.row, dropTarget && styles.dropTarget, styles.entry)}
 				style={style}
-				aria-keyshortcuts="Shift+F10"
-				onKeyDown={(event) => {
-					if (
-						event.target === event.currentTarget &&
-						(event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10'))
-					) {
-						event.preventDefault();
-						openContextMenu(event.currentTarget);
-					}
-				}}
 				onDoubleClick={editing ? undefined : add}
 			>
 				<IndentGuides level={level} active={activeGuide} />
@@ -215,9 +207,8 @@ export const EntryRowView = memo(function EntryRowView({
 					items={menuItems}
 					label="Entry actions"
 					accessibleLabel={`Actions for ${node.value}`}
-					shortcut="Shift+F10"
-					// The tree stays one tab stop; Shift+F10 opens the menu from the focused row.
-					isFocusable={false}
+					// Only the focused row's button is a tab stop, so Tab doesn't stop at every row's
+					isFocusable={focused}
 					finalFocus={rowElement}
 					triggerXstyle={styles.actions}
 				/>

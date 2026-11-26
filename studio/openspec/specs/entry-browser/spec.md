@@ -596,7 +596,7 @@ The entry row's menu SHALL offer **Add to widget…** alongside **Add to dashboa
 
 ### Requirement: Entry row actions button
 
-The row's `…` button SHALL open the same actions as the context menu. On devices that support hover, it SHALL show while the row is hovered, focused, or its menu is open. On devices without hover, it SHALL always show. The button SHALL NOT add a tab stop to the tree.
+The row's `…` button SHALL open the same actions as the context menu. On devices that support hover, it SHALL show while the row is hovered, focused, or its menu is open. On devices without hover, it SHALL always show. Only the button of the row focused last SHALL be a tab stop, so the tree adds one tab stop at most.
 
 #### Scenario: Open actions while editing
 
@@ -606,6 +606,8 @@ The row's `…` button SHALL open the same actions as the context menu. On devic
 
 #### Scenario: Open actions with the keyboard
 
-- **WHEN** the user presses Shift+F10 or the Menu key on a focused row
-- **THEN** the row's actions open
-- **AND** dismissing the menu with Escape returns focus to that row
+- **GIVEN** a row in the tree is focused
+- **WHEN** the user presses Tab
+- **THEN** that row's `…` button is focused
+- **WHEN** the user presses Tab again
+- **THEN** focus leaves the tree
