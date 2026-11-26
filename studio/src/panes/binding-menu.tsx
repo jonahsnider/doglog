@@ -2,6 +2,8 @@ import { radiusVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import type { MenuEntry } from '@/components/app-context-menu';
 import { updateLayout } from '@/dashboards/panes';
+import { getSources, sourceList } from '@/data/source';
+import { sourceLabels } from '@/sidebar/source-labels';
 import { widgetDestinationItems } from '@/entries/entry-menu';
 import type { Pane } from '@/panes/layout';
 import { chartCount } from '@/theme/choices';
@@ -16,6 +18,7 @@ import {
 } from '@/widgets/bindings';
 import { connectionBetween } from '@/widgets/legend/connections';
 import { seriesColor } from '@/widgets/series-color';
+import { pinName } from '@/widgets/source-entries';
 import { widgetOptions } from '@/widgets/widget-info';
 import type { WidgetBinding } from '@/widgets/widget-type';
 
@@ -88,6 +91,23 @@ export function bindingMenuItems(
 			onValueChange: (color) =>
 				updateLayout(dashboardId, (layout) =>
 					setBindingPick(layout, paneId, id, 'color', color === 'auto' ? undefined : Number(color)),
+				),
+		});
+	}
+
+	const sources = sourceList(getSources());
+	if (sources.length > 1 || binding.pin !== undefined) {
+		const choices = sources.map((source) => ({ value: pinName(source), label: sourceLabels(source).name }));
+		if (binding.pin !== undefined && !choices.some((choice) => choice.value === binding.pin)) {
+			choices.push({ value: binding.pin, label: binding.pin });
+		}
+		items.push({
+			label: 'Source',
+			value: binding.pin ?? 'all',
+			choices: [{ value: 'all', label: 'All sources' }, ...choices],
+			onValueChange: (pin) =>
+				updateLayout(dashboardId, (layout) =>
+					setBindingPick(layout, paneId, id, 'pin', pin === 'all' ? undefined : pin),
 				),
 		});
 	}

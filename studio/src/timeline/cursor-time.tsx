@@ -12,7 +12,7 @@ import {
 import { Tooltip } from '@astryxdesign/core/Tooltip';
 import { focusOutlineProps } from '@astryxdesign/core/utils/focusOutline.stylex';
 import * as stylex from '@stylexjs/stylex';
-import type { TimeRange } from '@/data/data-store';
+import type { SourcesRange } from '@/data/data-store';
 import { getActiveCompressedSpans } from '@/timeline/events';
 import { TimeField } from '@/timeline/time-field';
 import { formatTime, seek, TimelineCursorContext } from '@/timeline/timeline';
@@ -106,7 +106,7 @@ function CursorTimeButton({
 }
 
 /** The cursor's time in the timeline bar, click it to type a time to go to */
-export function CursorTime({ range }: { range: TimeRange | undefined }) {
+export function CursorTime({ range }: { range: SourcesRange | undefined }) {
 	const time = use(TimelineCursorContext);
 	// The time shown when the user clicked it to type one, `undefined` while not typing
 	const [editText, setEditText] = useState<string>();
@@ -116,12 +116,12 @@ export function CursorTime({ range }: { range: TimeRange | undefined }) {
 	// Also shown while paused, so there's time to hover it for the tooltip
 	const skipped = getActiveCompressedSpans(range).some((span) => span.start <= time && time < span.end);
 	// Fits the widest time in the log plus the icon and its gap, so the label doesn't resize while playing or typing
-	const maxLength = formatTime(range.end, range.start).length;
+	const maxLength = formatTime(range.end, range.origin).length;
 	const skippedMark = stylex.props(styles.skippedMark, skipped && styles.visible);
 	return (
 		<span {...stylex.props(styles.time, styles.cursor)} style={{ width: `max(5rem, calc(${maxLength}ch + 1.125rem))` }}>
 			<span data-capture-time {...stylex.props(styles.captureTime)}>
-				{formatTime(time, range.start)}
+				{formatTime(time, range.origin)}
 			</span>
 			{editText === undefined ? (
 				<>
@@ -140,7 +140,7 @@ export function CursorTime({ range }: { range: TimeRange | undefined }) {
 						</span>
 					</Tooltip>
 					<Tooltip content="Go to time">
-						<CursorTimeButton start={range.start} onEdit={setEditText} />
+						<CursorTimeButton start={range.origin} onEdit={setEditText} />
 					</Tooltip>
 				</>
 			) : (
@@ -148,7 +148,7 @@ export function CursorTime({ range }: { range: TimeRange | undefined }) {
 					<TimeField
 						label="Go to time"
 						text={editText}
-						start={range.start}
+						start={range.origin}
 						hasAutoFocus
 						onCommit={(typed) => {
 							if (typed !== undefined) {

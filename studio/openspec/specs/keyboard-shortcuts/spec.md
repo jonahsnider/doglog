@@ -68,7 +68,7 @@ Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and
 
 ### Requirement: Data source shortcuts
 
-Studio SHALL provide these data source shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: Open log (⌘O), Open from URL (⇧⌘O), Export live data as WPILOG (⌘S), Connect (⌘K), and Switch between log and live (⇧⌘K). Switch between log and live MUST do nothing unless both a log and a live session are open. Export live data as WPILOG MUST work on the web too, instead of the browser saving the page, and MUST do nothing while there's no live data.
+Studio SHALL provide these data source shortcuts, using ⌘ on macOS and Ctrl on Windows and Linux: Open log (⌘O), Open from URL (⇧⌘O), Export live data as WPILOG (⌘S), and Connect (⌘K). Export live data as WPILOG MUST work on the web too, instead of the browser saving the page, and MUST do nothing while there's no live data.
 
 #### Scenario: Open from URL
 
@@ -85,12 +85,6 @@ Studio SHALL provide these data source shortcuts, using ⌘ on macOS and Ctrl on
 
 - **WHEN** the user presses ⌘K
 - **THEN** Studio starts connecting, the same way as choosing Connect
-
-#### Scenario: Switch sources
-
-- **GIVEN** the user opened a log while connected to the robot
-- **WHEN** the user presses ⇧⌘K
-- **THEN** every dashboard shows the live session
 
 ### Requirement: Search entries shortcut
 

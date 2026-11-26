@@ -197,6 +197,26 @@ async fn read_log(path: PathBuf) -> Result<Response, String> {
     .map_err(|error: std::io::Error| error.to_string())
 }
 
+/// The files directly in `path` sorted by name, or `path` itself when it isn't a folder, ex. for logs dropped as a folder
+#[tauri::command]
+async fn folder_files(path: PathBuf) -> Result<Vec<PathBuf>, String> {
+    spawn_blocking(move || {
+        if !path.is_dir() {
+            return Ok(vec![path]);
+        }
+        let mut files = std::fs::read_dir(&path)?
+            .filter_map(Result::ok)
+            .map(|entry| entry.path())
+            .filter(|file| file.is_file())
+            .collect::<Vec<_>>();
+        files.sort();
+        Ok(files)
+    })
+    .await
+    .map_err(|error| error.to_string())?
+    .map_err(|error: std::io::Error| error.to_string())
+}
+
 /// Let the webview play the video widget's video at `path` from `asset://`, erroring when it isn't a file. Not added to
 /// the asset protocol's scope by default, since videos can be anywhere, and `read_file()` can read any file anyway.
 #[tauri::command]
@@ -358,6 +378,7 @@ pub fn run() -> ExitCode {
             take_opened_dashboard_link,
             read_file,
             read_log,
+            folder_files,
             allow_video,
             camera_stream::start_camera_stream,
             camera_stream::read_camera_stream,
@@ -380,6 +401,7 @@ pub fn run() -> ExitCode {
             video::cancel_video,
             live_export::save_live_export,
             new_window::new_window,
+            new_window::new_source_window,
             recent_logs::note_recent_log,
             recent_logs::clear_recent_logs,
             relaunch::relaunch,

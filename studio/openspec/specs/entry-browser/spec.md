@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Define the entry browser, a collapsible panel listing every entry in the active source as a searchable tree, used to find entries and drag them onto widgets.
+Define the entry browser, a collapsible panel listing every entry in the visible sources as a searchable tree, used to find entries and drag them onto widgets.
 
 ## Requirements
 
 ### Requirement: Entry tree
 
-The entry browser SHALL list every entry in the active source as a tree grouped by path segments, showing each entry's type indicator and value at the cursor. Groups MUST start collapsed, except the Pinned section, the top-level group when it's the only one, and the groups that need to open to show the immediate children of `/Robot`, `/RealOutputs`, `/AdvantageKit/RealOutputs`, or `/NT:/AdvantageKit/RealOutputs`. This MUST also work when the output group is compacted with another group.
+The entry browser SHALL list every entry in the visible sources as one tree grouped by path segments, showing each entry's type indicator and value at the cursor. Groups MUST start collapsed, except the Pinned section, the top-level group when it's the only one, and the groups that need to open to show the immediate children of `/Robot`, `/RealOutputs`, `/AdvantageKit/RealOutputs`, or `/NT:/AdvantageKit/RealOutputs`. This MUST also work when the output group is compacted with another group.
 
 #### Scenario: Nested entries
 
@@ -46,6 +46,22 @@ The entry browser SHALL list every entry in the active source as a tree grouped 
 - **GIVEN** an entry has a long name and a long value preview
 - **WHEN** the user narrows the entry browser
 - **THEN** the name and preview truncate as needed without overlapping
+
+### Requirement: Entries from several sources
+
+When several sources are visible, the entry browser SHALL list an entry once if any visible source has it, and MUST show its type and value at the cursor from the top visible source that has it. An entry that only some visible sources have MUST say which ones, ex. with a tooltip on a marker after its name. Entries with the same name but different types in different sources MUST be listed once with the type from the top source that has it.
+
+#### Scenario: Entry in every source
+
+- **GIVEN** `qual12.wpilog` and `qual13.wpilog` both have `/Arm/Angle`, with `qual12.wpilog` on top
+- **THEN** `/Arm/Angle` is listed once, with its value from `qual12.wpilog`
+
+#### Scenario: Entry in one source
+
+- **GIVEN** the user is connected to the robot and opened `reference.wpilog`
+- **AND** only `reference.wpilog` has `/Vision/Latency`
+- **THEN** `/Vision/Latency` is listed with its value from `reference.wpilog`
+- **AND** it's marked as only in `reference.wpilog`
 
 ### Requirement: Compact groups
 

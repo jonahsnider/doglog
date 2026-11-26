@@ -36,10 +36,16 @@ export function parseMetadata(metadata: unknown): Record<string, unknown> {
 
 /** Times in microseconds, on the same clock as sample timestamps. @public */
 export type TimeRange = {
-	/** Start of the source (the first record of a log, or when a live connection began), shown as 0 s */
+	/** Start of the source (the first record of a log, or when a live connection began) */
 	readonly start: number;
 	/** Newest sample timestamp */
 	readonly end: number;
+};
+
+/** The time range of every visible source, see `getTimeRange()` */
+export type SourcesRange = TimeRange & {
+	/** Start of the time base, the top visible source, shown as 0 s. Earlier times are negative. */
+	readonly origin: number;
 };
 
 /**
@@ -54,18 +60,48 @@ export function createDataSet(): DataSet {
 	return new DataSet(scheduleFlush);
 }
 
-// The displayed data is normally the selected source, except while previewing a video of live history.
+// The time base, the top visible source, is normally what's displayed, except while previewing a video of live history
 let sourceData = createDataSet();
 let active = sourceData;
+// Every visible source, the time base first, see `setVisibleData()`
+let visible: readonly DataSet[] = [];
+let visibleSet: ReadonlySet<DataSet> = new Set();
+// Whether the time range ends at the time base's newest data, ex. for the live session
+let endsAtTimeBase = false;
+let timeRange: SourcesRange | undefined;
 const changedSets = new Set<DataSet>();
 let flushScheduled = false;
 
 // Only changes when entries are added or removed, not when samples are added
 const entriesStore = createAtom(active.snapshot);
+/** The entries of each visible source, the time base first */
+export type VisibleEntries = readonly { readonly data: DataSet; readonly map: ReadonlyMap<string, Entry> }[];
+// Like `entriesStore`, for every visible source
+const visibleEntriesStore = createAtom<VisibleEntries>([]);
+
+function publishVisibleEntries(): void {
+	visibleEntriesStore.set(getVisibleData().map((data) => ({ data, map: data.snapshot.map })));
+}
 let dataVersion = 0;
 const dataListeners = new Set<() => void>();
 
+function updateTimeRange(): void {
+	const sets = active === sourceData ? visible : [active];
+	const ranges = sets.flatMap((data) => (data.timeRange ? [data.timeRange] : []));
+	// Until the time base has data, ex. while connecting, the next source with data is
+	const origin = ranges[0]?.start;
+	if (origin === undefined) {
+		timeRange = undefined;
+		return;
+	}
+	const start = Math.min(...ranges.map((range) => range.start));
+	const timeBaseEnd = active.timeRange?.end;
+	const end = endsAtTimeBase && timeBaseEnd !== undefined ? timeBaseEnd : Math.max(...ranges.map((range) => range.end));
+	timeRange = { start, end: Math.max(start, end), origin };
+}
+
 function notifyData(): void {
+	updateTimeRange();
 	dataVersion++;
 	for (const listener of dataListeners) {
 		listener();
@@ -74,19 +110,26 @@ function notifyData(): void {
 
 function flush(): void {
 	flushScheduled = false;
+	let entriesChanged = false;
+	let dataChanged = false;
 	for (const data of changedSets) {
 		const changes = data.publish();
-		if (data !== active) {
+		if (data !== active && !(active === sourceData && visibleSet.has(data))) {
 			continue;
 		}
-		if (changes.entries) {
+		if (changes.entries && data === active) {
 			entriesStore.set(data.snapshot);
 		}
-		if (changes.data) {
-			notifyData();
-		}
+		entriesChanged ||= changes.entries;
+		dataChanged ||= changes.data;
 	}
 	changedSets.clear();
+	if (entriesChanged) {
+		publishVisibleEntries();
+	}
+	if (dataChanged) {
+		notifyData();
+	}
 }
 
 function scheduleFlush(data: DataSet): void {
@@ -99,21 +142,40 @@ function scheduleFlush(data: DataSet): void {
 
 function showData(data: DataSet): void {
 	active = data;
-	active.publish();
-	changedSets.delete(active);
+	for (const other of active === sourceData ? visible : [active]) {
+		other.publish();
+		changedSets.delete(other);
+	}
 	entriesStore.set(active.snapshot);
+	publishVisibleEntries();
 	notifyData();
 }
 
-/** Show `data` in every dashboard and widget, or nothing when `undefined` */
-export function setActiveData(data: DataSet | undefined): void {
-	sourceData = data ?? createDataSet();
+/**
+ * Show every source in `data` in every dashboard and widget, or nothing when it's empty. The first is the time base,
+ * whose entries are listed and whose start is shown as 0 s. `live` ends the time range at the time base's newest data.
+ */
+export function setVisibleData(data: readonly DataSet[], live = false): void {
+	visible = data;
+	visibleSet = new Set(data);
+	endsAtTimeBase = live;
+	sourceData = data[0] ?? createDataSet();
 	showData(sourceData);
 }
 
-/** The selected source, also used to keep the same graph view when replaying its history */
+/** Show `data` alone in every dashboard and widget, or nothing when `undefined` */
+export function setActiveData(data: DataSet | undefined): void {
+	setVisibleData(data ? [data] : []);
+}
+
+/** The time base, the top visible source, also used to keep the same graph view when replaying its history */
 export function getSourceData(): DataSet {
 	return sourceData;
+}
+
+/** Every visible source, the time base first. Only the time base while replaying live history. */
+function getVisibleData(): readonly DataSet[] {
+	return active === sourceData ? visible : [active];
 }
 
 /** Show a stable copy of the live history. Returns how to resume showing incoming data. */
@@ -134,26 +196,32 @@ export function flushData(): void {
 	}
 }
 
-/** All entries of the active source, sorted by name. Doesn't change when samples are added. */
-export function getEntries(): readonly Entry[] {
-	return entriesStore.get().list;
-}
-
-/** An entry of the active source by name, see `findEntry()`. @public */
+/** An entry of the time base by name, see `findEntry()`. @public */
 export function getEntry(name: string): Entry | undefined {
 	return findEntry(active.entries, name);
+}
+
+/** An entry by name from the top visible source that has it, see `findEntry()` */
+export function getVisibleEntry(name: string): Entry | undefined {
+	for (const { map } of visibleEntriesStore.get()) {
+		const entry = findEntry(map, name);
+		if (entry) {
+			return entry;
+		}
+	}
+	return getEntry(name);
 }
 
 export function getStructSchemas(): ReadonlyMap<string, readonly StructDeclaration[]> {
 	return active.structSchemas;
 }
 
-/** @public */
-export function getTimeRange(): TimeRange | undefined {
-	return active.timeRange;
+/** The range of every visible source, on the time base's clock. @public */
+export function getTimeRange(): SourcesRange | undefined {
+	return timeRange;
 }
 
-/** When the active live session, or the live session a log recorded, was disconnected, sorted */
+/** When the time base's live session, or the live session it recorded, was disconnected, sorted */
 export function getGaps(): readonly TimeRange[] {
 	return active.gaps;
 }
@@ -170,18 +238,28 @@ export function subscribeData(listener: () => void): () => void {
 	};
 }
 
-/** All entries of the active source, sorted by name. Doesn't change when samples are added. @public */
+/** All entries of the time base, sorted by name. Doesn't change when samples are added. @public */
 export function useEntries(): readonly Entry[] {
 	return useSelector(entriesStore, (state) => state.list);
 }
 
-/** An entry of the active source by name, see `findEntry()`. `undefined` if it doesn't exist. @public */
+/** An entry of the time base by name, see `findEntry()`. `undefined` if it doesn't exist. @public */
 export function useEntry(name: string): Entry | undefined {
 	return useSelector(entriesStore, (state) => findEntry(state.map, name));
 }
 
+/** The entries of each visible source, the time base first. Doesn't change when samples are added. */
+export function useVisibleEntries(): VisibleEntries {
+	return useSelector(visibleEntriesStore);
+}
+
+/** The entries of each visible source, the time base first */
+export function getVisibleEntries(): VisibleEntries {
+	return visibleEntriesStore.get();
+}
+
 /** @public */
-export function useTimeRange(): TimeRange | undefined {
+export function useTimeRange(): SourcesRange | undefined {
 	return useSyncExternalStore(subscribeData, getTimeRange);
 }
 

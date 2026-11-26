@@ -4,37 +4,77 @@ import { AgentError } from '@/agent/agent-error';
 import type { Handlers } from '@/agent/commands';
 import { dashboardHandlers, requireDashboard, showDashboard } from '@/agent/dashboard-handlers';
 import { paneHandlers } from '@/agent/pane-handlers';
-import { flushData, getEntries, getTimeRange } from '@/data/data-store';
+import { type Entry, flushData, getTimeRange, getVisibleEntries } from '@/data/data-store';
 import { saveLiveExport } from '@/data/export-live';
 import { openLogPath } from '@/data/open-log';
 import { openLogUrl } from '@/data/open-log-url';
 import { isReachable } from '@/data/connect-target';
-import { closeSource, connect, getSource, type Source, subscribeSource } from '@/data/source';
+import {
+	closeSource,
+	connect,
+	getSource,
+	getSources,
+	type LogSource,
+	sourceId,
+	sourceList,
+	type Sources,
+	subscribeSource,
+	visibleSources,
+} from '@/data/source';
+import { sourceData } from '@/data/source-store';
 import { getRobotHost, simulatorHost } from '@/robot-target';
 import { settingsStore, updateSettings } from '@/settings';
 import { getTimeline, seek } from '@/timeline/timeline';
 
 function describeSource() {
-	const source = getSource();
-	if (!source) {
+	const sources = getSources();
+	const list = sourceList(sources);
+	if (list.length === 0) {
 		return null;
 	}
 	flushData();
-	return { ...source, entries: getEntries().length };
+	const visible = visibleSources(sources);
+	const shown = new Set(visible);
+	return {
+		// oxlint-disable-next-line oxc/no-map-spread -- Each source is described with fields it doesn't have
+		sources: list.map((source) => {
+			const { hidden: _hidden, ...rest } = source;
+			return {
+				...rest,
+				id: sourceId(source),
+				visible: shown.has(source),
+				timeBase: visible[0] === source,
+				entries: sourceData(source)?.entries.size ?? 0,
+			};
+		}),
+	};
 }
 
-function waitForSource(done: (source: Source | undefined) => boolean): Promise<Source | undefined> {
+/** Wait until a source is no longer loading or connecting, `undefined` if it closed first */
+function waitForSource(done: (sources: Sources) => boolean): Promise<void> {
 	return new Promise((resolve) => {
 		const check = () => {
-			const source = getSource();
-			if (done(source)) {
+			if (done(getSources())) {
 				unsubscribe();
-				resolve(source);
+				resolve();
 			}
 		};
 		const unsubscribe = subscribeSource(check);
 		check();
 	});
+}
+
+/** Wait for the newest log named `fileName` to finish loading, `undefined` if it closed first */
+async function waitForLog(fileName: string): Promise<LogSource | undefined> {
+	const find = () => getSources().logs.findLast((log) => log.fileName === fileName);
+	await waitForSource(() => find()?.status !== 'loading');
+	return find();
+}
+
+/** How far the time base was moved from its own clock, agents use its own clock */
+function timeBaseOffset(): number {
+	const source = getSource();
+	return (source && sourceData(source)?.offset) ?? 0;
 }
 
 const seconds = (microseconds: number | undefined) => (microseconds === undefined ? null : microseconds / 1_000_000);
@@ -43,7 +83,9 @@ function describeTimeline() {
 	flushData();
 	const range = getTimeRange();
 	const { time, live } = getTimeline();
-	return { time: seconds(time), start: seconds(range?.start), end: seconds(range?.end), live };
+	const offset = timeBaseOffset();
+	const own = (value: number | undefined) => seconds(value === undefined ? undefined : value - offset);
+	return { time: own(time), start: own(range?.origin), end: own(range?.end), live };
 }
 
 function describeSettings() {
@@ -96,7 +138,16 @@ export const handlers: Handlers = {
 		}
 		flushData();
 		const search = name?.toLowerCase();
-		return getEntries()
+		const entries = new Map<string, Entry>();
+		for (const { data } of getVisibleEntries()) {
+			for (const entry of data.snapshot.list) {
+				if (!entries.has(entry.name)) {
+					entries.set(entry.name, entry);
+				}
+			}
+		}
+		return [...entries.values()]
+			.toSorted((a, b) => (a.name < b.name ? -1 : 1))
 			.filter(
 				(entry) =>
 					(search === undefined || entry.name.toLowerCase().includes(search)) &&
@@ -121,11 +172,10 @@ export const handlers: Handlers = {
 			if (!result.ok) {
 				throw new AgentError(`Couldn't open ${url}: ${result.error.message}`);
 			}
-			const loading = getSource();
-			const source = await waitForSource((other) => other !== loading);
-			if (source?.type !== 'log' || source.status !== 'loaded') {
+			const log = await waitForLog(result.fileName);
+			if (log?.status !== 'loaded') {
 				throw new AgentError(
-					error === '' ? `Another source was opened before ${url} finished loading.` : `Couldn't open ${url}: ${error}`,
+					error === '' ? `${url} was closed before it finished loading.` : `Couldn't open ${url}: ${error}`,
 				);
 			}
 			return describeSource();
@@ -139,9 +189,9 @@ export const handlers: Handlers = {
 				throw new AgentError(`Couldn't reach ${hosts.join(' or ')}. Check that the robot or simulator is running.`);
 			}
 			await connect(robotHost);
-			const source = await waitForSource((other) => other?.type !== 'live' || other.status !== 'connecting');
-			if (source?.type !== 'live') {
-				throw new AgentError('Another source was opened before the connection was made.');
+			await waitForSource(({ live }) => live?.status !== 'connecting');
+			if (getSources().live === undefined) {
+				throw new AgentError('The live session was closed before the connection was made.');
 			}
 			return describeSource();
 		}
@@ -152,22 +202,26 @@ export const handlers: Handlers = {
 				error = message;
 			}))
 		) {
-			throw new AgentError(
-				error === '' ? `Another source was opened before ${path} could be.` : `Couldn't open ${path}: ${error}`,
-			);
+			throw new AgentError(error === '' ? `Couldn't open ${path}.` : `Couldn't open ${path}: ${error}`);
 		}
-		const loading = getSource();
-		const source = await waitForSource((other) => other !== loading);
-		if (source?.type !== 'log' || source.status !== 'loaded') {
+		const log = await waitForLog(path.split(/[/\\]/u).at(-1)!);
+		if (log?.status !== 'loaded') {
 			throw new AgentError(
-				error === '' ? `Another source was opened before ${path} finished loading.` : `Couldn't open ${path}: ${error}`,
+				error === '' ? `${path} was closed before it finished loading.` : `Couldn't open ${path}: ${error}`,
 			);
 		}
 		return describeSource();
 	},
 
-	source_delete: () => {
-		closeSource();
+	source_delete: ({ id }) => {
+		const list = sourceList(getSources());
+		const sources = id === undefined ? list : list.filter((source) => sourceId(source) === id);
+		if (sources.length === 0 && id !== undefined) {
+			throw new AgentError(`No source has the ID \`${id}\`, see \`source_get\`.`);
+		}
+		for (const source of sources) {
+			closeSource(source);
+		}
 	},
 
 	source_export: async ({ path }) => {
@@ -190,7 +244,7 @@ export const handlers: Handlers = {
 				getSource() === undefined ? 'No source is open, open one with `source_update`.' : 'The source has no data yet.',
 			);
 		}
-		seek(time * 1_000_000);
+		seek(time * 1_000_000 + timeBaseOffset());
 		return describeTimeline();
 	},
 

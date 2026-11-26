@@ -16,7 +16,7 @@ import { LogProgress } from '@/timeline/log-progress';
 import { TimelineOptions } from '@/timeline/timeline-options';
 import { TimelineTrack } from '@/timeline/timeline-track';
 import { TooltipLabel } from '@/components/tooltip-label';
-import { type TimeRange, useTimeRange } from '@/data/data-store';
+import { type SourcesRange, useTimeRange } from '@/data/data-store';
 import { type Source, useSource } from '@/data/source';
 import { useCaptureFrame } from '@/desktop/capture';
 import { useSize } from '@/hooks/use-size';
@@ -107,7 +107,7 @@ function TimelineControls({
 	timeline,
 }: {
 	fadeIn: boolean;
-	range: TimeRange | undefined;
+	range: SourcesRange | undefined;
 	source: Source;
 	timeline: Timeline;
 }) {
@@ -214,7 +214,7 @@ export function TimelineBar() {
 						exit={{ height: 0, transition: exit }}
 					>
 						{loading ? (
-							<LogProgress fileName={source.fileName} cancelable={source.cancelable} />
+							<LogProgress id={source.id} fileName={source.fileName} cancelable={source.cancelable} />
 						) : (
 							<TimelineControls fadeIn={showedProgress} range={range} source={source} timeline={timeline} />
 						)}

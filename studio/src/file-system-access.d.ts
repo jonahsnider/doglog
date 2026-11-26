@@ -10,6 +10,7 @@ interface DataTransferItem {
 }
 
 interface OpenFilePickerOptions {
+	multiple?: boolean;
 	types?: { description?: string; accept: Record<string, string[]> }[];
 }
 
@@ -25,6 +26,10 @@ interface FileSystemSyncAccessHandle {
 	read(buffer: ArrayBufferView, options?: { at?: number }): number;
 	truncate(newSize: number): void;
 	write(buffer: ArrayBufferView, options?: { at?: number }): number;
+}
+
+interface FileSystemDirectoryHandle {
+	values(): AsyncIterableIterator<FileSystemDirectoryHandle | FileSystemFileHandle>;
 }
 
 interface FileSystemFileHandle {

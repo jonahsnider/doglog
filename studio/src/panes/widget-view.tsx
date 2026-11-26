@@ -1,4 +1,5 @@
 import { useDroppable } from '@dnd-kit/react';
+import { useSelector } from '@tanstack/react-store';
 import * as stylex from '@stylexjs/stylex';
 import DatabaseIcon from 'lucide-react/icons/database';
 import ListPlusIcon from 'lucide-react/icons/list-plus';
@@ -16,12 +17,14 @@ import {
 } from '@/widgets/bindings';
 import { DashboardIdContext, DashboardLayoutContext, updateLayout } from '@/dashboards/panes';
 import { useSource } from '@/data/source';
+import { sourceList, sourcesStore } from '@/data/source-store';
 import { type EntryDropData, entryDragType, type WidgetBindings, WidgetBindingsContext } from '@/entries/drag';
 import { startEditing } from '@/entries/editing';
 import { DropFeedback } from '@/panes/drop-feedback';
 import { GraphControls } from '@/widgets/graph/graph-controls';
 import { WidgetEmpty, WidgetLoading } from '@/widgets/widget-empty';
 import { setWidgetOption } from '@/widgets/options';
+import { pinName } from '@/widgets/source-entries';
 import type { OptionValues, WidgetBinding, WidgetType } from '@/widgets/widget-type';
 
 const styles = stylex.create({
@@ -44,6 +47,7 @@ export function WidgetView({
 	options: OptionValues;
 }) {
 	const source = useSource();
+	const openPins = sourceList(useSelector(sourcesStore)).map((open) => pinName(open));
 	const dashboardLayout = use(DashboardLayoutContext);
 	// Accepts every entry so rejected ones can explain why they can't be dropped. Entries from this widget are reordered by dropping them on each other instead.
 	const { ref } = useDroppable<EntryDropData>({
@@ -70,7 +74,6 @@ export function WidgetView({
 	};
 	const setOption = (id: string, value: string | undefined) =>
 		updateLayout(dashboardId, (layout) => setWidgetOption(layout, paneId, id, value));
-	const names = new Set(bindings.map((binding) => binding.name));
 	const widget = (
 		<type.component
 			bindings={bindings}
@@ -104,17 +107,8 @@ export function WidgetView({
 	} else if (!source) {
 		content = <WidgetEmpty icon={<DatabaseIcon />} title="No data" description="Open a log or connect to a robot." />;
 	} else if (bindings.every((binding) => binding.entry === undefined)) {
-		content = (
-			<WidgetEmpty
-				icon={<DatabaseIcon />}
-				title="No data"
-				description={
-					names.size === 1
-						? `The current source doesn't have ${bindings[0]!.name}.`
-						: "The current source doesn't have any of this widget's entries."
-				}
-			/>
-		);
+		const description = noDataDescription(bindings, openPins);
+		content = <WidgetEmpty icon={<DatabaseIcon />} title="No data" description={description} />;
 	} else {
 		content = widget;
 	}
@@ -163,4 +157,16 @@ class WidgetErrorBoundary extends Component<{ resetKey: unknown; children: React
 			</WidgetEmpty>
 		);
 	}
+}
+
+/** Why a widget has no data: the source all its bindings are pinned to isn't open or doesn't have them, or no visible source does */
+function noDataDescription(bindings: readonly WidgetBinding[], openPins: readonly string[]): string {
+	const names = new Set(bindings.map((binding) => binding.name));
+	const what = names.size === 1 ? bindings[0]!.name : "any of this widget's entries";
+	const pins = new Set(bindings.map((binding) => binding.pin));
+	const [pin] = pins;
+	if (pins.size === 1 && pin !== undefined) {
+		return openPins.includes(pin) ? `${pin} doesn't have ${what}.` : `${pin} isn't open.`;
+	}
+	return `No visible source has ${what}.`;
 }

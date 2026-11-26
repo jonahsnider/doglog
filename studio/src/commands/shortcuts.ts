@@ -22,7 +22,6 @@ export const shortcuts = {
 	back: desktop ? 'Mod+[' : 'Alt+[',
 	forward: desktop ? 'Mod+]' : 'Alt+]',
 	connect: 'Mod+K',
-	switchSource: 'Mod+Shift+K',
 	splitRight: 'Mod+D',
 	splitDown: 'Mod+Shift+D',
 	zoom: 'Mod+Shift+Enter',

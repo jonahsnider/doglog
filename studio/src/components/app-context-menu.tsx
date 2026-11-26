@@ -1,3 +1,4 @@
+// oxlint-disable max-lines -- Context menus and their ellipsis buttons share how their entries are shown
 import { ContextMenu } from '@astryxdesign/core/ContextMenu';
 import {
 	DropdownMenu,
@@ -13,7 +14,7 @@ import { Tooltip } from '@astryxdesign/core/Tooltip';
 import type { StyleXStyles } from '@stylexjs/stylex';
 import type { HotkeyChord } from '@tanstack/react-hotkeys';
 import EllipsisIcon from 'lucide-react/icons/ellipsis';
-import { type ReactNode, type RefObject, useRef, useState } from 'react';
+import { type ComponentProps, type ReactNode, type RefObject, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 import { Shortcut } from '@/components/shortcut';
 import { TooltipLabel } from '@/components/tooltip-label';
@@ -233,6 +234,7 @@ export function AppActionMenu({
 	isFocusable = true,
 	finalFocus,
 	onOpenChange,
+	...menu
 }: {
 	items: (trigger: Element) => readonly MenuEntry[];
 	/** Shown in the button's tooltip */
@@ -245,12 +247,13 @@ export function AppActionMenu({
 	/** Where focus goes when the menu closes instead of the button while it isn't focusable, ex. its row */
 	finalFocus?: RefObject<HTMLElement | null>;
 	onOpenChange?: (open: boolean) => void;
-}) {
+} & Pick<ComponentProps<typeof DropdownMenu>, 'header' | 'menuWidth'>) {
 	const trigger = useRef<HTMLElement>(null);
 	/** The button, while the menu is open */
 	const [openFrom, setOpenFrom] = useState<HTMLElement>();
 	return (
 		<DropdownMenu
+			{...menu}
 			alignment="end"
 			onOpenChange={(next) => {
 				setOpenFrom(next ? (trigger.current ?? undefined) : undefined);

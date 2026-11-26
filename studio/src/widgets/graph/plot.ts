@@ -16,6 +16,8 @@ export type PlotSeries = {
 	/** A CSS color, `var()` included */
 	color: string;
 	hidden: boolean;
+	/** Dash pattern in CSS pixels, empty for a solid line, see `sourceDash()` */
+	dash: readonly number[];
 	/** Converts values to the axis's unit */
 	convert: (value: number) => number;
 };
@@ -132,6 +134,8 @@ export function createPlot(
 					alpha: line.hidden ? 0 : 1,
 					stroke: () => resolveColor(target, line.color),
 					width: 1.5,
+					// uPlot scales the width to device pixels, but not the dash pattern
+					...(line.dash.length > 0 && { dash: line.dash.map((length) => length * devicePixelRatio) }),
 					// Positions aren't rounded to whole pixels, so lines glide instead of jumping while slowly zooming
 					pxAlign: 0,
 					paths: uPlot.paths.stepped!({ align: 1 }),

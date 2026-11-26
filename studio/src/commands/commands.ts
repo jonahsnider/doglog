@@ -29,7 +29,7 @@ import { isExportingVideo } from '@/desktop/video-export';
 import { toggleEditing } from '@/entries/editing';
 import { chooseLog } from '@/data/open-log';
 import { checkOrInstallUpdate } from '@/updater';
-import { connect, getSource, showSource } from '@/data/source';
+import { connect } from '@/data/source';
 import type { SplitDirection } from '@/panes/layout';
 import { shownTuningDashboard } from '@/tuning/dashboard';
 import { getRobotHost } from '@/robot-target';
@@ -177,11 +177,6 @@ export function startConnect(): void {
 	void connect(getRobotHost(settingsStore.get().robotTarget));
 }
 
-/** Switch between the log and the live session, when both are open */
-function switchSource(): void {
-	showSource(getSource()?.type === 'log' ? 'live' : 'log');
-}
-
 export function useGlobalShortcuts(): void {
 	const router = useRouter();
 
@@ -217,7 +212,6 @@ export function useGlobalShortcuts(): void {
 			{ hotkey: 'Mod+[', callback: () => goInHistory(router, -1), options: desktopOnly },
 			{ hotkey: 'Mod+]', callback: () => goInHistory(router, 1), options: desktopOnly },
 			{ hotkey: shortcuts.connect, callback: startConnect },
-			{ hotkey: shortcuts.switchSource, callback: switchSource },
 			{ hotkey: shortcuts.splitRight, callback: () => splitFocused(router, 'row') },
 			{ hotkey: shortcuts.splitDown, callback: () => splitFocused(router, 'column') },
 			{ hotkey: shortcuts.zoom, callback: () => toggleFocusedZoom(router) },

@@ -39,7 +39,7 @@ test('new Camera widgets choose unused live feeds alphabetically, then stay unas
 	const camera = getWidgetType('camera')!;
 	const empty = createPane();
 	try {
-		sourcesStore.set({ shown: 'live', live: { type: 'live', host: 'robot.local', status: 'connected' } });
+		sourcesStore.set({ logs: [], live: { type: 'live', host: 'robot.local', status: 'connected' } });
 		updateCameraStreams('/CameraPublisher/Rear/streams', ['mjpg:http://robot.local:1182']);
 		updateCameraStreams('/CameraPublisher/Front/streams', ['mjpg:http://robot.local:1181']);
 		// An unsupported feed sorts ahead of both valid feeds but cannot be selected.
@@ -53,14 +53,14 @@ test('new Camera widgets choose unused live feeds alphabetically, then stay unas
 		expect(initialOptions(camera, splitPane(front, front.id, 'row', rear))).toEqual({});
 		expect(initialOptions(camera, createPane())).toEqual({ camera: 'Front' });
 
-		sourcesStore.set((sources) => ({
-			...sources,
-			shown: 'log',
-			log: { type: 'log', fileName: 'match.wpilog', status: 'loaded' },
-		}));
+		// The camera needs the live session visible
+		sourcesStore.set({
+			live: { type: 'live', host: 'robot.local', status: 'connected', hidden: true },
+			logs: [{ type: 'log', id: 'match', fileName: 'match.wpilog', status: 'loaded' }],
+		});
 		expect(initialOptions(camera, empty)).toEqual({});
 	} finally {
 		clearCameraStreams();
-		sourcesStore.set({});
+		sourcesStore.set({ logs: [] });
 	}
 });

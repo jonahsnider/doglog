@@ -2351,7 +2351,7 @@
 		},
 		{
 			"name": "entry_list",
-			"description": "List the active source's entries, with each one's name, type, kind, and metadata (ex. its unit). Never returns values.",
+			"description": "List the entries of every visible source, each once, with each one's name, type, kind, and metadata (ex. its unit). Never returns values.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
@@ -2384,7 +2384,7 @@
 		},
 		{
 			"name": "source_get",
-			"description": "Get the active source: a log file, or a live connection to the robot or simulator, with its status and how many entries it has. `null` when there's none.",
+			"description": "List the window's sources in order: the live connection to the robot or simulator first, then log files, each with its ID, status, how many entries it has, whether it's visible, and whether it's the time base, the top visible source whose clock times are in. Widgets show every visible source at once. `null` when there's none.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
@@ -2396,7 +2396,7 @@
 		},
 		{
 			"name": "source_update",
-			"description": "Open a WPILOG file by path or HTTP(S) URL, or connect to the robot from the `robotTarget` setting (or the simulator when the robot isn't reachable). Returns once the log is loaded or the connection is made, like `source_get`.",
+			"description": "Open a WPILOG file by path or HTTP(S) URL, adding it to the window's sources and lining it up with them, or connect to the robot from the `robotTarget` setting (or the simulator when the robot isn't reachable). Returns once the log is loaded or the connection is made, like `source_get`.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
@@ -2419,11 +2419,17 @@
 		},
 		{
 			"name": "source_delete",
-			"description": "Close the active source, leaving none.",
+			"description": "Close a source by its ID from `source_get`, or every source when the ID is left out.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",
-				"properties": {},
+				"properties": {
+					"id": {
+						"description": "ID of the source to close, from `source_get`.",
+						"type": "string",
+						"minLength": 1
+					}
+				},
 				"additionalProperties": false
 			},
 			"bridge": false,
@@ -2449,7 +2455,7 @@
 		},
 		{
 			"name": "timeline_get",
-			"description": "Get the timeline cursor and the source's time range, in seconds on the source's clock: a log's timestamps (microseconds, as wpilog-parser reads them) divided by 1,000,000. Studio shows times relative to `start`.",
+			"description": "Get the timeline cursor and the visible sources' time range, in seconds on the time base's clock (see `source_get`): a log's timestamps (microseconds, as wpilog-parser reads them) divided by 1,000,000. Studio shows times relative to `start`.",
 			"inputSchema": {
 				"$schema": "https://json-schema.org/draft/2020-12/schema",
 				"type": "object",

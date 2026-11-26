@@ -1,14 +1,22 @@
-import { colorVars, durationVars, easeVars, radiusVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { colorVars, durationVars, easeVars, radiusVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
 import * as stylex from '@stylexjs/stylex';
 import { TreeItemIndicator } from '@ui-sdk/react/tree';
 import ChevronRightIcon from 'lucide-react/icons/chevron-right';
+import { use } from 'react';
 import { HighlightedText } from '@/components/highlighted-text';
 import { EntryName } from '@/entries/entry-name';
+import { PartialEntriesContext } from '@/entries/entry-sources';
 import { entryBrowserMarker } from './markers.stylex';
 import type { EntryTreeNode } from '@/entries/tree';
 
 const styles = stylex.create({
+	partial: {
+		flexShrink: 0,
+		fontSize: typeScaleVars['--text-supporting-size'],
+		color: colorVars['--color-text-secondary'],
+		whiteSpace: 'nowrap',
+	},
 	guides: {
 		position: 'absolute',
 		insetBlock: 0,
@@ -119,6 +127,18 @@ export function RowLabel({
 					<HighlightedText text={node.label} ranges={highlights} />
 				)}
 			</span>
+		</Tooltip>
+	);
+}
+
+/** Names the sources that have an entry when only some visible sources do */
+export function PartialSourcesMark({ node }: { node: EntryTreeNode }) {
+	const partial = use(PartialEntriesContext);
+	// Rows showing a struct's only field are marked by the struct's own row
+	const sources = node.entry && node.field === undefined ? partial.get(node.entry.name) : undefined;
+	return sources === undefined ? undefined : (
+		<Tooltip content={`Only in ${sources.join(', ')}`}>
+			<span {...stylex.props(styles.partial)}>{sources.length === 1 ? sources[0] : `${sources.length} sources`}</span>
 		</Tooltip>
 	);
 }

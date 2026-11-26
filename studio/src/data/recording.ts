@@ -122,6 +122,30 @@ export class LiveRecording {
 		}
 	}
 
+	/**
+	 * Stop writing, keeping the file for another window to continue, see `claimRecording()`. Returns its ID, `undefined`
+	 * if nothing was recorded.
+	 */
+	async close(): Promise<string | undefined> {
+		if (this.deleted) {
+			return undefined;
+		}
+		this.deleted = true;
+		if (this.worker === undefined) {
+			this.stop();
+			return undefined;
+		}
+		// Once everything sent before it is written
+		const request = this.nextRead++;
+		const written = new Promise<unknown>((resolve) => {
+			this.reads.set(request, { resolve, reject: resolve });
+		});
+		queueMicrotask(() => this.send({ type: 'read', request }));
+		await written;
+		this.stop();
+		return this.id;
+	}
+
 	private start(): void {
 		if (this.worker) {
 			return;
@@ -184,6 +208,13 @@ export function recordLive(host: string): LiveRecording {
 	return liveRecording;
 }
 
+/** Stop recording the live session, keeping its file for another window, see `LiveRecording.close()` */
+export function closeLiveRecording(): Promise<string | undefined> {
+	const recording = liveRecording;
+	liveRecording = undefined;
+	return recording?.close() ?? Promise.resolve(undefined);
+}
+
 /** Delete the live session's recording, ex. when it's cleared */
 export function deleteLiveRecording(): void {
 	liveRecording?.delete();
@@ -216,8 +247,11 @@ export type ClaimedRecording = {
 	release(): void;
 };
 
-/** Claim the recording that changed most recently that no other tab or window uses, to restore it */
-export function claimRecording(): Promise<ClaimedRecording | undefined> {
+/**
+ * Claim the recording that changed most recently that no other tab or window uses, to restore it, or the one with `only`
+ * as its ID, ex. a live session another window moved here
+ */
+export function claimRecording(only?: string): Promise<ClaimedRecording | undefined> {
 	return navigator.locks.request(claimLock, async () => {
 		let newest: { id: string; file: File; release: () => void } | undefined;
 		for await (const handle of (await getFolder()).values()) {
@@ -225,6 +259,9 @@ export function claimRecording(): Promise<ClaimedRecording | undefined> {
 				continue;
 			}
 			const id = handle.name.slice(0, -'.wpilog'.length);
+			if (only !== undefined && id !== only) {
+				continue;
+			}
 			const release = await holdLock(recordingLock(id));
 			if (!release) {
 				continue;

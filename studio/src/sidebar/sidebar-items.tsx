@@ -17,7 +17,7 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from '@/sidebar/sidebar-ui';
-import { SourceControl } from '@/sidebar/source-control';
+import { SourceList } from '@/sidebar/source-list';
 
 function noop(): void {}
 
@@ -37,9 +37,7 @@ export function SidebarItems({
 	return (
 		<>
 			<SidebarHeader data-below-title-bar={belowTitleBar ? '' : undefined}>
-				<SidebarMenu>
-					<SourceControl />
-				</SidebarMenu>
+				<SourceList onShow={onShow} />
 			</SidebarHeader>
 			<SidebarContent>
 				<SidebarGroup>

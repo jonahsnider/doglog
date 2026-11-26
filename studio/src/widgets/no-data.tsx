@@ -7,7 +7,7 @@ const styles = stylex.create({
 	},
 });
 
-/** Shown in place of a bound entry's data when the active source doesn't have it */
+/** Shown in place of a bound entry's data when no visible source has it */
 export function NoData() {
 	return <span {...stylex.props(styles.noData)}>No data</span>;
 }

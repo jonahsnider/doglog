@@ -16,7 +16,7 @@ import { type GraphElements, useGraphDrawing } from '@/widgets/graph/use-graph-d
 import { useGraphPointer } from '@/widgets/graph/use-graph-pointer';
 import { resetView, useGraphShown } from '@/widgets/graph/view';
 import { useWidgetMenu } from '@/panes/widget-menu';
-import { bindingColor } from '@/widgets/series-color';
+import { bindingColor, sourceDash } from '@/widgets/series-color';
 import type { WidgetProps } from '@/widgets/widget-type';
 
 const styles = stylex.create({
@@ -63,20 +63,25 @@ export function Graph({ bindings }: WidgetProps) {
 		return { plotted: lines, discrete: bindings.filter((binding) => graphSection(binding.role) === 'discrete') };
 	}, [bindings]);
 	const units = seriesUnits(plotted);
-	const series = plotted.flatMap((binding, index): PlotSeries[] =>
-		binding.entry
+	const series = plotted.flatMap((binding, index): PlotSeries[] => {
+		const line = {
+			axis: graphSection(binding.role) === 'right' ? ('y2' as const) : ('y' as const),
+			color: bindingColor(binding, index),
+			hidden: binding.hidden,
+			convert: units.units.get(binding.id)!.convert,
+		};
+		return binding.entry
 			? [
-					{
-						id: binding.id,
-						entry: binding.entry,
-						axis: graphSection(binding.role) === 'right' ? 'y2' : 'y',
-						color: bindingColor(binding, index),
-						hidden: binding.hidden,
-						convert: units.units.get(binding.id)!.convert,
-					},
+					{ ...line, id: binding.id, entry: binding.entry, dash: sourceDash(binding.source?.index ?? 0) },
+					...binding.others.map((other) => ({
+						...line,
+						id: `${binding.id}:${other.source.id}`,
+						entry: other.entry,
+						dash: sourceDash(other.source.index),
+					})),
 				]
-			: [],
-	);
+			: [];
+	});
 	const bandEntries = discrete.map((binding) => binding.entry);
 	const hasPlot = plotted.length > 0;
 	const hasRight = series.some((line) => line.axis === 'y2');

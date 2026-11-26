@@ -13,6 +13,7 @@ import { PaneLayoutButtons } from '@/panes/pane-layout-buttons';
 import { splitMenuItems } from '@/panes/split-menu';
 import { PaneDropIndicator } from '@/panes/pane-drop-indicator';
 import { WidgetView } from '@/panes/widget-view';
+import { useBindingSources } from '@/widgets/source-entries';
 import { shortcuts } from '@/commands/commands';
 import { allowedActions, closeDashboardPane, splitDashboardPane, toggleZoom, updateLayout } from '@/dashboards/panes';
 import { focusPane } from '@/dashboards/pane-state';
@@ -20,7 +21,7 @@ import { canCapture, copyImage } from '@/desktop/capture';
 import { useVideoExport } from '@/desktop/video-export';
 import { dragRegion } from '@/desktop/title-bar';
 import { focusEditingPane, startEditing, useEditingPane } from '@/entries/editing';
-import { getEntry, useEntries } from '@/data/data-store';
+import { getEntry } from '@/data/data-store';
 import {
 	bindingLabel,
 	changeWidgetType,
@@ -105,11 +106,11 @@ export function PaneView({
 	const update = (operation: (layout: PaneNode) => PaneNode) => updateLayout(dashboardId, operation);
 	const { widget } = pane;
 	const type = widget && getWidgetType(widget.type);
-	const entries = useEntries();
-	const bindings = useMemo(() => {
-		const byName = new Map(entries.map((entry) => [entry.name, entry]));
-		return type ? resolveBindings(type, widgetBindings(widget), (name) => byName.get(name)) : [];
-	}, [entries, type, widget]);
+	const sources = useBindingSources();
+	const bindings = useMemo(
+		() => (type ? resolveBindings(type, widgetBindings(widget), () => undefined, sources) : []),
+		[sources, type, widget],
+	);
 	/** The bindings when the menu opened, so the ones removed from it stay listed and can be restored */
 	const [menuBindings, setMenuBindings] = useState<Binding[]>();
 	const onMenuOpenChange = (open: boolean) => setMenuBindings(open ? widgetBindings(widget) : undefined);

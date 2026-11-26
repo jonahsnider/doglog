@@ -14,7 +14,7 @@ import type { EntryDragData, EntryDragItem, EntrySectionDropData } from '@/entri
 import { entryDragType, entryRowDragType, entryRowSensors } from '@/entries/drag';
 import { sectionMenuItems } from '@/entries/sections';
 import type { EntryTreeRow } from '@/entries/tree';
-import { ContainsBoundMark, IndentGuides, RowIndicator, RowLabel } from '@/entries/entry-row-parts';
+import { ContainsBoundMark, IndentGuides, PartialSourcesMark, RowIndicator, RowLabel } from '@/entries/entry-row-parts';
 import { entryRowMarker } from './markers.stylex';
 import { defaultWidget } from '@/widgets/registry';
 
@@ -201,6 +201,7 @@ export const EntryRowView = memo(function EntryRowView({
 					<RowLabel node={node} highlights={highlights} unsupported={unsupported} bound={bound} />
 					{containsBound && <ContainsBoundMark />}
 				</TreeItemLabel>
+				<PartialSourcesMark node={node} />
 				{node.children && <GroupMark path={node.value} />}
 				{entry && <EntryRowValue entry={entry} field={field} />}
 				<AppActionMenu

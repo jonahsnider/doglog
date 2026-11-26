@@ -2,20 +2,20 @@
 
 ## Purpose
 
-Define the overall layout of DogLog Studio: a vertical sidebar on the left for choosing the data source, auxiliary pages, and dashboards, with the selected item shown in the main area.
+Define the overall layout of DogLog Studio: a vertical sidebar on the left for managing data sources, auxiliary pages, and dashboards, with the selected item shown in the main area.
 
 ## Requirements
 
 ### Requirement: Sidebar layout
 
-The app SHALL show a vertical sidebar on the left containing, from top to bottom: the sidebar toggle, the source control, a pages section, and a Dashboards section. Sections MUST be set apart by spacing and muted labels instead of divider lines.
+The app SHALL show a vertical sidebar on the left containing, from top to bottom: the sidebar toggle, the source list, a pages section, and a Dashboards section. Sections MUST be set apart by spacing and muted labels instead of divider lines.
 
 #### Scenario: Sidebar sections
 
 - **WHEN** the user opens Studio
 - **THEN** the sidebar shows the sidebar toggle at the top
-- **AND** the source control below it
-- **AND** the pages section below the source control
+- **AND** the source list below it
+- **AND** the pages section below the source list
 - **AND** the Dashboards section, labeled "Dashboards", below the pages section
 
 ### Requirement: Sidebar footer actions
@@ -103,7 +103,7 @@ The bottom of the sidebar SHALL show a card announcing the newest product update
 
 ### Requirement: Window titles
 
-Each Studio tab and window SHALL be titled after what it shows, so they can be told apart wherever the browser or system lists them: the dashboard's name or the page, then the source's name in parentheses, then "DogLog Studio". Parts that don't apply MUST be left out. Log names MUST leave out their `.wpilog` or `.wpilogxz` extension. The macOS desktop app MUST leave out "DogLog Studio", since macOS already groups windows by app. The title MUST update when the dashboard, page, or source changes.
+Each Studio tab and window SHALL be titled after what it shows, so they can be told apart wherever they're listed: the dashboard's name or the page, then the top visible source's name and "+N" for the others in parentheses, then "DogLog Studio". Parts that don't apply MUST be left out. Log names MUST leave out their `.wpilog` or `.wpilogxz` extension. The macOS desktop app MUST leave out "DogLog Studio", since macOS already groups windows by app. It MUST update when they change.
 
 #### Scenario: Two windows on the same log
 
@@ -116,6 +116,12 @@ Each Studio tab and window SHALL be titled after what it shows, so they can be t
 - **GIVEN** a dashboard named Drivetrain is shown
 - **WHEN** the user connects to the robot at 10.5.81.2
 - **THEN** the window is titled "Drivetrain (Robot at 10.5.81.2) — DogLog Studio"
+
+#### Scenario: Several sources
+
+- **GIVEN** a dashboard named Drivetrain is shown
+- **WHEN** the user opens `match_q42.wpilog`, then `match_q43.wpilog`
+- **THEN** the window is titled "Drivetrain (match_q42 +1) — DogLog Studio"
 
 #### Scenario: Nothing to name
 
@@ -180,9 +186,9 @@ The dashboards section SHALL always list the user's dashboards, regardless of wh
 
 When a dashboard is shown, the main area SHALL show the dashboard's panes and a collapsible entry browser panel on the right.
 
-#### Scenario: Dashboard view with an active source
+#### Scenario: Dashboard view with a source
 
-- **GIVEN** a data source is active
+- **GIVEN** a data source is open
 - **WHEN** the user opens a dashboard
 - **THEN** the dashboard's panes fill the main area
 - **AND** the timeline bar spans the window below the panes and both sidebars

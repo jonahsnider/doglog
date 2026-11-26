@@ -13,14 +13,34 @@ export type RoleOption = {
 	readonly label: string;
 };
 
+/** Which visible source an entry is from, see the widgets spec's several sources */
+export type SourceTag = {
+	readonly id: string;
+	/** Short name for legends, ex. `Q12` or `Live` */
+	readonly label: string;
+	/** Position among the visible sources, the time base is 0. Picks the source's line style, see `sourceDash()`. */
+	readonly index: number;
+	/** Whether several sources are visible, so legends label which source each line is from */
+	readonly labeled: boolean;
+};
+
 /** A bound entry as a widget shows it, see `resolveBindings()` */
 export type WidgetBinding = {
 	/** Tells apart bindings of the same entry, which can be bound more than once */
 	readonly id: string;
 	/** Bound entry name, ex. `/Arm/Angle` */
 	readonly name: string;
-	/** `undefined` when the active source has no entry with this name and an accepted kind. Show `<NoData />` for it. */
+	/**
+	 * The entry from the top visible source that has one with this name and an accepted kind, or from the source the
+	 * binding is pinned to. `undefined` when none do, show `<NoData />` for it.
+	 */
 	readonly entry: Entry | undefined;
+	/** The source `entry` is from, `undefined` without an entry or outside a window's dashboards */
+	readonly source: SourceTag | undefined;
+	/** The same entry from the other visible sources, for widgets that draw several sources at once */
+	readonly others: readonly { readonly entry: Entry; readonly source: SourceTag }[];
+	/** The name of the source the binding is pinned to, see `Binding.pin` */
+	readonly pin: string | undefined;
 	/** Roles the entry can take in the widget, the inferred one first. Empty for widgets without roles. */
 	readonly roles: readonly RoleOption[];
 	/** The chosen or inferred role, `undefined` without an entry or for widgets without roles */

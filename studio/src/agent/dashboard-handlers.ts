@@ -29,7 +29,8 @@ export function setAgentRouter(appRouter: RegisteredRouter): void {
 	router = appRouter;
 }
 
-function getRouter(): RegisteredRouter {
+/** The router of this window, see `setAgentRouter()` */
+export function getRouter(): RegisteredRouter {
 	if (!router) {
 		throw new Error('Agent commands ran before the router was set');
 	}

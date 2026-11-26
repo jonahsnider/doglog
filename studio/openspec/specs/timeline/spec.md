@@ -373,28 +373,62 @@ While the media controls setting is on and a log is open, media keys and the ope
 
 ### Requirement: Remember log position
 
-Studio SHALL remember where the cursor was in each log by file name, and MUST move the cursor there when a log with that name is opened or shown again.
+Studio SHALL remember where the cursor was in each log by file name, and MUST move the cursor there when a log with that name is opened as the window's only source. Adding a log to other sources MUST NOT move the cursor.
 
 #### Scenario: Reopen a log
 
 - **GIVEN** the cursor was at 42.0 s when the user last had `match.wpilog` open
-- **WHEN** the user opens `match.wpilog` again
+- **WHEN** the user opens `match.wpilog` again in a window without sources
 - **THEN** the cursor starts paused at 42.0 s
 
 #### Scenario: New log
 
-- **WHEN** the user opens a log they haven't opened before
+- **WHEN** the user opens a log they haven't opened before in a window without sources
 - **THEN** the cursor starts paused at the beginning of the log
 
-### Requirement: Switching sources
+#### Scenario: Add a log to another
 
-When switching between the log and the live session, the playback speed and timeline options SHALL stay the same. The cursor MUST follow the newest data when switching to the live session, and go to where it was in the log when switching to the log.
+- **GIVEN** the cursor is at 1:30.00 in `qual12.wpilog`
+- **WHEN** the user opens `qual13.wpilog`
+- **THEN** the cursor stays at 1:30.00
 
-#### Scenario: Back to live
+### Requirement: Adding and removing sources
 
-- **GIVEN** the cursor was paused at 0:42 in the live session before the user opened a log
-- **WHEN** the user goes back to the live session
-- **THEN** the cursor follows the newest data
+Adding, closing, hiding, or showing a source SHALL keep the playback speed, timeline options, and the moment the cursor is at. While the cursor follows the live session, it MUST keep following when a log is added. When the time base closes or is hidden, the next visible source becomes the time base, and the cursor MUST stay at the same moment.
+
+#### Scenario: Open a log while following live
+
+- **GIVEN** the cursor follows the live session
+- **WHEN** the user opens `reference.wpilog`
+- **THEN** the cursor keeps following the newest data
+
+#### Scenario: Close the time base
+
+- **GIVEN** the cursor is at the start of auto in `qual12.wpilog` and `qual13.wpilog`, with `qual12.wpilog` on top
+- **WHEN** the user closes `qual12.wpilog`
+- **THEN** `qual13.wpilog` becomes the time base and the cursor stays at the start of its auto
+
+### Requirement: Several sources on the timeline
+
+The timeline bar SHALL span every visible source, after lining them up (see the data-sources spec's line up sources). The robot's mode, alerts, hub shifts, skipped idle time, disconnected time, and unreadable end shown on it MUST come from the top visible source, and while several sources are visible, hovering them MUST name that source. While the live session is visible, the timeline bar MUST end at its newest data, so logs that extend past it are cut off.
+
+#### Scenario: Logs of different lengths
+
+- **GIVEN** `qual12.wpilog` lasts 3:00 and `practice.wpilog` lasts 10:00, lined up at their first enable
+- **THEN** the timeline bar spans from the earliest start to the latest end of the two logs
+- **AND** the track is colored by `qual12.wpilog`'s robot mode, since it's on top
+
+#### Scenario: Hide the top source
+
+- **GIVEN** `qual12.wpilog` is above `qual13.wpilog`
+- **WHEN** the user hides `qual12.wpilog`
+- **THEN** the track is colored by `qual13.wpilog`'s robot mode
+
+#### Scenario: Name the source of the timeline's events
+
+- **GIVEN** `CAPH Q12` is above `CAPH Q13`, and both are visible
+- **WHEN** the user hovers an alert on the timeline bar
+- **THEN** the tooltip names `CAPH Q12` above the alert
 
 ### Requirement: Live follow
 
@@ -431,7 +465,7 @@ Studio SHALL keep live history for the session until a memory limit is reached, 
 
 ### Requirement: Time display
 
-Timestamps SHALL be shown as time since the start of the source (the first record of a log, or the moment a live connection began) in minutes and seconds to the hundredth, like `m:ss.cc`.
+Timestamps SHALL be shown as time since the start of the time base (the first record of a log, or the moment a live connection began) in minutes and seconds to the hundredth, like `m:ss.cc`. Times before it starts MUST be shown with a minus sign, ex. `-0:04.20`.
 
 #### Scenario: Log time
 
@@ -441,5 +475,5 @@ Timestamps SHALL be shown as time since the start of the source (the first recor
 
 #### Scenario: Time over a minute
 
-- **WHEN** the cursor is 65.5 seconds after the start of the source
+- **WHEN** the cursor is 65.5 seconds after the start of the time base
 - **THEN** the time is shown as 1:05.50

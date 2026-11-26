@@ -29,6 +29,7 @@ Keep feature behavior and functionality in `openspec/specs`.
 - Colors Astryx has no token for are CSS variables: series colors, code colors, FRC game colors, and test mode
 - Presets are seeds for Astryx's palette generator, see `src/theme/theme-color.ts`; change a seed or a palette stop rather than overriding single tokens
 - Make ramps with `shade()` in `src/theme/series-palette.ts`
+- An entry keeps its series color in every source; sources are told apart by line style (`sourceDash()`), shown with `LineSample` in the source list and legends, and labeled only while several are visible
 
 ## Motion
 

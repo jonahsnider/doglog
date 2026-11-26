@@ -2,7 +2,7 @@ import { getLogEntry, type LiveSource, type Source } from '@/data/source';
 import { dateTimeFormat } from '@/sync/format';
 import { parseLogName, readLogMatch } from '@/sync/log-names';
 
-export const statusLabels: Record<Source['status'], string> = {
+const statusLabels: Record<Source['status'], string> = {
 	loading: 'Loading…',
 	loaded: 'Log file',
 	connecting: 'Connecting…',
@@ -25,7 +25,7 @@ export function sourceLabels(source: Source | undefined) {
 
 	const parsed = parseLogName(source.fileName);
 	// Driver Station data takes precedence over the name, which may have been edited.
-	const match = readLogMatch(getLogEntry) ?? parsed?.match;
+	const match = readLogMatch((name) => getLogEntry(name, source.id)) ?? parsed?.match;
 	if (parsed === undefined) {
 		return {
 			name: source.fileName,
@@ -42,6 +42,19 @@ export function sourceLabels(source: Source | undefined) {
 		detail = label === undefined ? hoot : `${hoot} · ${date}`;
 	}
 	return { name: label ?? date, detail, matchType: match?.type };
+}
+
+/** A short name to tell sources apart in legends, ex. `Q12` or `Live` */
+export function shortSourceLabel(source: Source): string {
+	if (source.type === 'live') {
+		return 'Live';
+	}
+	const { name, matchType } = sourceLabels(source);
+	if (matchType !== undefined) {
+		// The match without its event, ex. `Q12` for `CAPH Q12`
+		return name.split(' ').at(-1)!;
+	}
+	return name.replace(/\.(?:wpilog|wpilogxz|hoot)$/iu, '');
 }
 
 /** The live session's color for its state, for its icon and the dot on the log's */

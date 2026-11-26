@@ -12,6 +12,7 @@ import { legendEntryMarker } from './markers.stylex';
 import { RobotPicker } from '@/widgets/legend/robot-picker';
 import { RoleLabel } from '@/widgets/legend/role-picker';
 import { LegendSwatch } from '@/widgets/legend/swatch';
+import { SourceTags } from '@/widgets/line-sample';
 
 const styles = stylex.create({
 	entry: {
@@ -90,6 +91,7 @@ export function LegendEntry({
 			) : (
 				<FollowPicker binding={binding} follow={item.follow} />
 			)}
+			<SourceTags item={item} />
 			{item.note !== undefined && <span {...stylex.props(styles.note)}>{item.note}</span>}
 			{item.controls}
 			{item.error !== undefined && <span {...stylex.props(styles.error)}>{item.error}</span>}

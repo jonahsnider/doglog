@@ -233,7 +233,7 @@ Hovering a graph SHALL show a line at the hovered time in every other graph and 
 
 ### Requirement: Shared time range
 
-All graphs SHALL show the same time range. Logs MUST start showing their whole range when opened, and live sources the newest 30 seconds, scrolling as data arrives. Switching between the log and the live session MUST keep how much time is shown, around the cursor in the log and ending at the newest data live. The range MUST NOT be saved, so it's reset when Studio is reopened.
+All graphs SHALL show the same time range. A log opened as the window's only source MUST start showing its whole range, and while the cursor follows the live session, graphs MUST show its newest 30 seconds, scrolling as data arrives. Adding, closing, hiding, or showing a source MUST keep how much time is shown, around the cursor, or ending at the newest data while following live. The range MUST NOT be saved, so it's reset when Studio is reopened.
 
 #### Scenario: Zoom one graph
 
@@ -241,15 +241,15 @@ All graphs SHALL show the same time range. Logs MUST start showing their whole r
 - **WHEN** the user zooms the first
 - **THEN** the second shows the same time range
 
-#### Scenario: Switch to live
+#### Scenario: Add a log while following live
 
-- **GIVEN** graphs show 10 seconds of a log
-- **WHEN** the user goes back to the live session
-- **THEN** graphs show the newest 10 seconds of live data
+- **GIVEN** graphs show the newest 10 seconds of the live session
+- **WHEN** the user opens `reference.wpilog`
+- **THEN** graphs still show the newest 10 seconds, with `reference.wpilog` drawn dashed
 
 ### Requirement: Zoom and pan
 
-Scrolling vertically or pinching SHALL zoom the time axis toward the pointer, and scrolling sideways or dragging with Shift held MUST pan it. Whether a scroll pans or zooms MUST follow its recent direction, so a mostly sideways swipe never zooms, and turning it switches without lifting. Holding Shift while scrolling, or scrolling over a y-axis, MUST zoom that y-axis instead. Zooming MUST stop at the source's whole range and at 1 ms.
+Scrolling vertically or pinching SHALL zoom the time axis toward the pointer, and scrolling sideways or dragging with Shift held MUST pan it. Whether a scroll pans or zooms MUST follow its recent direction, so a mostly sideways swipe never zooms, and turning it switches without lifting. Holding Shift while scrolling, or scrolling over a y-axis, MUST zoom that y-axis instead. Zooming MUST stop at the whole range of the visible sources and at 1 ms.
 
 #### Scenario: Slightly diagonal swipe
 

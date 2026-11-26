@@ -214,7 +214,7 @@ const commands = {
 	},
 	entry_list: {
 		description:
-			"List the active source's entries, with each one's name, type, kind, and metadata (ex. its unit). Never returns values.",
+			"List the entries of every visible source, each once, with each one's name, type, kind, and metadata (ex. its unit). Never returns values.",
 		input: z.strictObject({
 			name: z.string().optional().describe('Only entries whose name contains this, ignoring case'),
 			kind: z
@@ -225,12 +225,12 @@ const commands = {
 	},
 	source_get: {
 		description:
-			"Get the active source: a log file, or a live connection to the robot or simulator, with its status and how many entries it has. `null` when there's none.",
+			"List the window's sources in order: the live connection to the robot or simulator first, then log files, each with its ID, status, how many entries it has, whether it's visible, and whether it's the time base, the top visible source whose clock times are in. Widgets show every visible source at once. `null` when there's none.",
 		input: empty,
 	},
 	source_update: {
 		description:
-			"Open a WPILOG file by path or HTTP(S) URL, or connect to the robot from the `robotTarget` setting (or the simulator when the robot isn't reachable). Returns once the log is loaded or the connection is made, like `source_get`.",
+			"Open a WPILOG file by path or HTTP(S) URL, adding it to the window's sources and lining it up with them, or connect to the robot from the `robotTarget` setting (or the simulator when the robot isn't reachable). Returns once the log is loaded or the connection is made, like `source_get`.",
 		input: z.strictObject({
 			path: z
 				.string()
@@ -250,8 +250,10 @@ const commands = {
 		}),
 	},
 	source_delete: {
-		description: 'Close the active source, leaving none.',
-		input: empty,
+		description: 'Close a source by its ID from `source_get`, or every source when the ID is left out.',
+		input: z.strictObject({
+			id: z.string().min(1).optional().describe('ID of the source to close, from `source_get`.'),
+		}),
 	},
 	source_export: {
 		description:
@@ -263,7 +265,7 @@ const commands = {
 	},
 	timeline_get: {
 		description:
-			"Get the timeline cursor and the source's time range, in seconds on the source's clock: a log's timestamps (microseconds, as wpilog-parser reads them) divided by 1,000,000. Studio shows times relative to `start`.",
+			"Get the timeline cursor and the visible sources' time range, in seconds on the time base's clock (see `source_get`): a log's timestamps (microseconds, as wpilog-parser reads them) divided by 1,000,000. Studio shows times relative to `start`.",
 		input: empty,
 	},
 	timeline_update: {

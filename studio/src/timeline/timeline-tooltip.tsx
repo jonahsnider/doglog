@@ -2,7 +2,10 @@ import { Text } from '@astryxdesign/core/Text';
 import { colorVars, fontWeightVars, radiusVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
 import * as stylex from '@stylexjs/stylex';
+import { useSelector } from '@tanstack/react-store';
 import { type ReactNode, useRef, useState } from 'react';
+import { sourcesStore, visibleSources } from '@/data/source-store';
+import { sourceLabels } from '@/sidebar/source-labels';
 import { alertFills, modeFills, modeLabels } from '@/timeline/colors';
 import { formatRoughDuration, formatTime } from '@/timeline/timeline';
 import type { TimeRange } from '@/data/data-store';
@@ -70,6 +73,12 @@ const styles = stylex.create({
 	numbers: {
 		fontVariantNumeric: 'tabular-nums',
 	},
+	source: {
+		paddingBottom: spacingVars['--spacing-1-5'],
+		borderBottomWidth: 1,
+		borderBottomStyle: 'solid',
+		borderBottomColor: colorVars['--color-border'],
+	},
 	anchor: {
 		position: 'absolute',
 		insetBlock: 0,
@@ -86,6 +95,21 @@ function Muted({ block, children }: { block?: boolean; children: ReactNode }) {
 		<Text type="inherit" color="secondary" display={block === true ? 'block' : 'inline'} xstyle={styles.numbers}>
 			{children}
 		</Text>
+	);
+}
+
+/** The time base, which the timeline's events are from, named while several sources are shown */
+function SourceName() {
+	const source = useSelector(sourcesStore, (sources) => {
+		const visible = visibleSources(sources);
+		return visible.length > 1 ? visible[0] : undefined;
+	});
+	return (
+		source !== undefined && (
+			<div {...stylex.props(styles.source)}>
+				<Muted block>{sourceLabels(source).name}</Muted>
+			</div>
+		)
 	);
 }
 
@@ -155,6 +179,7 @@ export function HoverTooltip({
 }) {
 	return (
 		<div {...stylex.props(styles.content, styles.items)}>
+			<SourceName />
 			{period && (
 				<TooltipItem
 					// A gray like the track's, which is `--color-border`. The tooltip's inverted surface changes that, but not the
@@ -206,18 +231,21 @@ export function HoverTooltip({
 /** The unreadable end of a log, which has no times, so it shows about how long it would have lasted and how much of the file it is */
 export function UnreadTooltip({ percent, duration, after }: UnreadEnd) {
 	return (
-		<div {...stylex.props(styles.content)}>
-			<div {...stylex.props(styles.heading)}>
-				<div {...stylex.props(styles.label, styles.unreadLabel)}>
-					<span {...stylex.props(styles.dot('var(--color-error)'))} />
-					Couldn’t be read
+		<div {...stylex.props(styles.content, styles.items)}>
+			<SourceName />
+			<div>
+				<div {...stylex.props(styles.heading)}>
+					<div {...stylex.props(styles.label, styles.unreadLabel)}>
+						<span {...stylex.props(styles.dot('var(--color-error)'))} />
+						Couldn’t be read
+					</div>
+					<Muted>estimated {formatRoughDuration(duration)}</Muted>
 				</div>
-				<Muted>estimated {formatRoughDuration(duration)}</Muted>
-			</div>
-			<div {...stylex.props(styles.range)}>
-				<Muted block>
-					The last {percent}% of the file, after {formatTime(after, 0)}
-				</Muted>
+				<div {...stylex.props(styles.range)}>
+					<Muted block>
+						The last {percent}% of the file, after {formatTime(after, 0)}
+					</Muted>
+				</div>
 			</div>
 		</div>
 	);

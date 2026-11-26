@@ -2,11 +2,11 @@ import type { MenuAction, MenuEntry } from '@/components/app-context-menu';
 import { dropDashboardEntry } from '@/dashboards/panes';
 import { getDashboard } from '@/dashboards/dashboards';
 import { toastManager } from '@/components/toast';
-import { type Entry, getEntry } from '@/data/data-store';
+import { type Entry, getVisibleEntry } from '@/data/data-store';
 import { saveFileAs } from '@/data/export-live';
 import { formatValueForCopy } from '@/data/format-value';
 import { embeddedLogFormat } from '@/data/samples';
-import { getSources } from '@/data/source-store';
+import { getSource } from '@/data/source-store';
 import { droppedEntryName, type EntryDragData } from '@/entries/drag';
 import { panes } from '@/panes/layout';
 import { getCursorTime } from '@/timeline/timeline';
@@ -26,7 +26,8 @@ function copyValue(entry: Entry): void {
 
 /** Save the file of a log embedded in an entry, named after the open log and the entry, ex. `qual12_Hoot.hoot` */
 async function exportEmbeddedLog(entry: Entry, bytes: Uint8Array<ArrayBuffer>, format: string): Promise<void> {
-	const logName = getSources().log?.fileName.replace(/\.[^.]*$/u, '');
+	const timeBase = getSource();
+	const logName = timeBase?.type === 'log' ? timeBase.fileName.replace(/\.[^.]*$/u, '') : undefined;
 	const entryName = entry.name.slice(entry.name.lastIndexOf('/') + 1);
 	const name = `${logName === undefined ? '' : `${logName}_`}${entryName}.${format}`;
 	try {
@@ -54,7 +55,7 @@ export function widgetDestinationItems(dashboardId: string, dragged: EntryDragDa
 				title: widgetTitle(type, optionValues(type, widget, [])),
 				available:
 					id !== dragged.paneId &&
-					acceptsDrop(type, name, getEntry(name)) &&
+					acceptsDrop(type, name, getVisibleEntry(name)) &&
 					widgetBindings(widget).length < maxWidgetEntries,
 			},
 		];

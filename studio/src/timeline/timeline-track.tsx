@@ -8,7 +8,7 @@ import {
 } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { TextMorph } from '@/components/text-morph';
-import type { TimeRange } from '@/data/data-store';
+import type { SourcesRange } from '@/data/data-store';
 import type { Source } from '@/data/source';
 import { useSettings } from '@/settings';
 import { getSourceYear } from '@/timeline/shifts';
@@ -65,7 +65,7 @@ export function TimelineTrack({
 	timeline,
 }: {
 	compact: boolean;
-	range: TimeRange | undefined;
+	range: SourcesRange | undefined;
 	source: Source;
 	timeline: Timeline;
 }) {
@@ -90,7 +90,7 @@ export function TimelineTrack({
 					<div {...stylex.props(styles.emptyTrack)} />
 				)}
 			</TimelineCursorContext>
-			<span {...stylex.props(styles.duration)}>{range ? formatTime(range.end, range.start) : '-'}</span>
+			<span {...stylex.props(styles.duration)}>{range ? formatTime(range.end, range.origin) : '-'}</span>
 			{live && (
 				<Button
 					label={following ? 'Live' : 'Go live'}

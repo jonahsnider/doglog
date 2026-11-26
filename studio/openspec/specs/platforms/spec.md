@@ -133,19 +133,19 @@ The web app SHALL handle `/open?url=<log-url>` with desktop handoff. Desktop Chr
 
 ### Requirement: Open recent logs
 
-The desktop app SHALL keep a list of the 10 logs it opened most recently, newest first. The source control menu's Open recent submenu and, on macOS, File > Open Recent MUST list them, with an item that clears the list. Logs opened from a path, ex. with the file picker, by dropping them on the window, from the OS, or from the Logs page, MUST be added, and logs that can't be read MUST be removed.
+The desktop app SHALL keep a list of the 10 logs it opened most recently, newest first. The source list's header menu's Open recent submenu and, on macOS, File > Open Recent MUST list them, with an item that clears the list. Logs opened from a path, ex. with the file picker, by dropping them on the window, from the OS, or from the Logs page, MUST be added, and logs that can't be read MUST be removed.
 
 #### Scenario: Reopen a recent log
 
 - **GIVEN** the user opened `match.wpilog` in the desktop app on macOS
 - **WHEN** the user chooses File > Open Recent > match.wpilog
-- **THEN** that log becomes the active source
+- **THEN** that log is added to the focused window
 
-#### Scenario: Reopen a recent log from the source control
+#### Scenario: Reopen a recent log from the source list
 
 - **GIVEN** the user opened `match.wpilog` in the desktop app
-- **WHEN** the user chooses Open recent > match.wpilog in the source control menu
-- **THEN** that log becomes the active source
+- **WHEN** the user chooses Open recent > match.wpilog in the source list's header menu
+- **THEN** that log is added to the window
 
 #### Scenario: Recent log was deleted
 
@@ -172,15 +172,15 @@ The web app SHALL keep the same recent logs list in browsers that support the Fi
 #### Scenario: Reopen a recent log in the web app
 
 - **GIVEN** the user opened `match.wpilog` in the web app in Chrome, then reloaded the page
-- **WHEN** the user chooses Open recent > match.wpilog in the source control menu
+- **WHEN** the user chooses Open recent > match.wpilog in the source list's header menu
 - **AND** allows Studio to view the file
-- **THEN** that log becomes the active source
+- **THEN** that log is added to the window
 
 #### Scenario: Decline access to a recent log
 
 - **GIVEN** `match.wpilog` is in the web app's recent logs
 - **WHEN** the user chooses it and doesn't allow Studio to view the file
-- **THEN** the active source doesn't change
+- **THEN** no source is added
 - **AND** `match.wpilog` stays in the recent logs
 
 ### Requirement: Open logs from a terminal
@@ -204,7 +204,7 @@ The desktop app SHALL provide a `doglog` terminal command that opens Studio in a
 
 - **GIVEN** a Studio window is open
 - **WHEN** the user runs `doglog match.wpilog`
-- **THEN** a separate window shows that log, so each window keeps its own data source
+- **THEN** a separate window shows that log, so the open window's sources don't change
 
 #### Scenario: Help
 
@@ -216,6 +216,63 @@ The desktop app SHALL provide a `doglog` terminal command that opens Studio in a
 - **GIVEN** the desktop app is installed on macOS
 - **WHEN** the user clicks the button in settings to install the command and enters their password
 - **THEN** `doglog` works in new terminals
+
+### Requirement: Move sources between windows
+
+The desktop app SHALL let users move a source to another window, from the source's Move to submenu, which lists New window and every other open window by title, or by dragging its row onto another window's source list. A moved source MUST appear in the other window right away, with its data, without reading or downloading the log again. Moving a window's last source MUST leave the window open without sources.
+
+#### Scenario: Move it back
+
+- **GIVEN** the user popped `qual13.wpilog` out into a new window
+- **WHEN** the user drags its row onto the first window's source list, the same as moving any source
+- **THEN** `qual13.wpilog` is added to the first window where it was dropped in the list, without reading the file again
+- **AND** the new window stays open without sources
+
+### Requirement: Window for a moved source
+
+A new window opened by moving a source SHALL show the dashboard the source's old window showed, with the cursor at the same moment of that source, paused or following live as it was.
+
+#### Scenario: Pop out a log
+
+- **GIVEN** a window shows the Drivetrain dashboard with `qual12.wpilog` and `qual13.wpilog`, paused at the start of auto
+- **WHEN** the user chooses Move to > New window from `qual13.wpilog`'s menu
+- **THEN** a new window opens showing the Drivetrain dashboard with `qual13.wpilog`, paused at the start of its auto
+- **AND** the first window keeps showing `qual12.wpilog`
+
+### Requirement: Drag a source out of a window
+
+In the desktop app, dropping a source's row outside every Studio window SHALL open a new window at the drop point with that source, like dragging a browser tab out, the same as choosing Move to > New window.
+
+#### Scenario: Drag a log out
+
+- **GIVEN** a window has `qual12.wpilog` and `qual13.wpilog`
+- **WHEN** the user drags `qual13.wpilog`'s row onto the desktop
+- **THEN** a new window opens there with `qual13.wpilog`
+- **AND** the first window keeps `qual12.wpilog`
+
+### Requirement: Move the live session between windows
+
+Moving the live session to another window MUST keep it connected and keep its history, disconnect gaps, and recording, which the other window now owns. A window that already has a live session MUST NOT accept another, so Move to omits it for the live session and a dropped live session snaps back.
+
+#### Scenario: Pop out the live session
+
+- **GIVEN** the user is connected to the robot with `reference.wpilog` open, and the cursor follows the live session
+- **WHEN** the user drags the live session's row outside every Studio window
+- **THEN** a new window opens where it was dropped, following the live session with all of its history
+- **AND** the robot stays connected without a gap on the timeline
+- **AND** the first window keeps `reference.wpilog`
+
+#### Scenario: Window with its own live session
+
+- **GIVEN** two windows are each connected to the robot
+- **WHEN** the user opens the Move to submenu of one window's live session
+- **THEN** it lists New window but not the other window
+
+#### Scenario: Restore a moved live session
+
+- **GIVEN** the user moved the live session to a new window, then quit Studio
+- **WHEN** the user opens Studio again
+- **THEN** the live session is restored like any other (see the data-sources spec's restore the live session)
 
 ### Requirement: Desktop auto-update
 

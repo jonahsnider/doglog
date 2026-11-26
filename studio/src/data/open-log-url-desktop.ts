@@ -135,5 +135,5 @@ export async function openLogUrlDesktop(
 	}
 	bufferedFrames.length = 0;
 
-	return { ok: true, fileName };
+	return { ok: true, fileName, id: streamRef.current.id };
 }

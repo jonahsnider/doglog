@@ -107,7 +107,7 @@ Each binding's row in the summary table SHALL show count, minimum, maximum, arit
 
 ### Requirement: No samples in range
 
-An entry present in the active source but without finite samples in the selected time range SHALL show "No samples in range" in its summary row and have no series in the histogram. An entry missing from the active source MUST use the shared "No data" state in its row. Neither state MAY remove the binding or affect the results for other entries. When no visible series has samples, the histogram MUST be replaced by "No samples in range", centered.
+An entry present in a visible source but without finite samples in the selected time range SHALL show "No samples in range" in its summary row and have no series in the histogram. An entry missing from every visible source MUST use the shared "No data" state in its row. Neither state MAY remove the binding or affect the results for other entries. When no visible series has samples, the histogram MUST be replaced by "No samples in range", centered.
 
 #### Scenario: No samples during a phase
 

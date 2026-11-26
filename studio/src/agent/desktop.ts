@@ -3,7 +3,7 @@ import { Channel, invoke } from '@tauri-apps/api/core';
 import { AgentError, agentApiVersion, runAgentCommand } from '@/agent/registry';
 import { getDashboard } from '@/dashboards/dashboards';
 import { dashboardName } from '@/dashboards/label';
-import { getSource, sourceName } from '@/data/source';
+import { getSources, sourceList, sourceName } from '@/data/source';
 
 /** A request from an agent's `doglog` command, relayed by `src-tauri/src/agent/window.rs` */
 type AgentRequest = { id: number; method: 'info' } | { id: number; method: 'call'; name: string; args: unknown };
@@ -43,12 +43,16 @@ function info(router: RegisteredRouter) {
 }
 
 function describeSource(): string | null {
-	const source = getSource();
-	if (source === undefined) {
+	const sources = sourceList(getSources());
+	if (sources.length === 0) {
 		return null;
 	}
-	if (source.type === 'log') {
-		return source.status === 'loading' ? `${source.fileName} (loading)` : source.fileName;
-	}
-	return `${sourceName(source)} (${source.status})`;
+	return sources
+		.map((source) => {
+			if (source.type === 'log') {
+				return source.status === 'loading' ? `${source.fileName} (loading)` : source.fileName;
+			}
+			return `${sourceName(source)} (${source.status})`;
+		})
+		.join(', ');
 }
