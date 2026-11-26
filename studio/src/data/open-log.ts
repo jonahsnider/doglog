@@ -17,12 +17,11 @@ import { handleFileDrops } from '@/desktop/file-drop';
 const logExtensions = ['.wpilog', '.wpilogxz', '.hoot'] as const;
 
 async function chooseLogWithDialog(): Promise<void> {
-	const path = await openDialog({
+	const paths = await openDialog({
+		multiple: true,
 		filters: [{ name: 'Robot logs', extensions: logExtensions.map((extension) => extension.slice(1)) }],
 	});
-	if (path !== null) {
-		await openLogPath(path);
-	}
+	await openLogPaths(paths ?? []);
 }
 
 /** Pick a log with the File System Access API, which gives a handle that can be kept in the recent logs */
@@ -30,6 +29,7 @@ async function chooseLogWithPicker(): Promise<void> {
 	let handles: FileSystemFileHandle[];
 	try {
 		handles = await window.showOpenFilePicker!({
+			multiple: true,
 			types: [{ description: 'Robot logs', accept: { 'application/octet-stream': [...logExtensions] } }],
 		});
 	} catch (error) {
@@ -39,7 +39,16 @@ async function chooseLogWithPicker(): Promise<void> {
 		}
 		throw error;
 	}
-	await openLogHandle(handles[0]!);
+	await openInOrder(handles, openLogHandle);
+}
+
+/**
+ * Open several logs one after another, so they're added to the source list in the order given. Each one has started
+ * loading before the next is opened.
+ */
+async function openInOrder<T>(items: readonly T[], open: (item: T) => Promise<unknown>): Promise<void> {
+	// Opening them at once could add them in any order
+	await items.reduce<Promise<unknown>>((previous, item) => previous.then(() => open(item)), Promise.resolve());
 }
 
 async function openLogHandle(handle: FileSystemFileHandle): Promise<void> {
@@ -79,11 +88,9 @@ export function chooseLog(): void {
 	const input = document.createElement('input');
 	input.type = 'file';
 	input.accept = logExtensions.join(',');
+	input.multiple = true;
 	input.addEventListener('change', () => {
-		const file = input.files?.[0];
-		if (file) {
-			void openLog(file);
-		}
+		void openInOrder([...(input.files ?? [])], (file) => openLog(file));
 	});
 	input.click();
 }
@@ -132,6 +139,11 @@ export async function openLogPath(path: string, onError?: (message: string) => v
 	return opened;
 }
 
+/** Open logs from the desktop app's file system in order, see `openLogPath()` */
+function openLogPaths(paths: readonly string[]): Promise<void> {
+	return openInOrder(paths, (path) => openLogPath(path));
+}
+
 /** Open WPILOG files the OS asks the desktop app to open, ex. when one is double-clicked */
 export async function handleOpenedLogFiles(): Promise<void> {
 	await listen('log-opened', () => void openTakenLog());
@@ -146,31 +158,25 @@ export function isLogFile(name: string): boolean {
 
 /** Open logs dropped on the desktop app's window, unless a widget takes them */
 export function handleDroppedLogPaths(): Promise<void> {
-	return handleFileDrops((path) => {
-		if (isLogFile(path)) {
-			void openLogPath(path);
-		}
-	});
+	return handleFileDrops((paths) => void openLogPaths(paths.filter((path) => isLogFile(path))));
 }
 
-/** Open a dropped log unless a widget has already handled the drop */
+/** Open dropped logs unless a widget has already handled the drop */
 export function handleLogFileDrop(event: DragEvent): void {
 	const transfer = event.dataTransfer;
-	const file = transfer?.files[0];
-	if (event.defaultPrevented || !file) {
+	if (event.defaultPrevented || transfer?.types.includes('Files') !== true) {
 		return;
 	}
 	// Don't let the browser navigate to unhandled files.
 	event.preventDefault();
-	if (isLogFile(file.name)) {
-		// The handle has to be requested before the event ends.
-		const handle = supportsFileHandles
-			? Array.from(transfer.items)
-					.find((item) => item.kind === 'file')
-					?.getAsFileSystemHandle?.()
-			: undefined;
-		void openDroppedLog(file, handle);
-	}
+	// Files and their handles have to be read before the event ends
+	const dropped = Array.from(transfer.items).flatMap((item) => {
+		const file = item.kind === 'file' ? item.getAsFile() : null;
+		return file && isLogFile(file.name)
+			? [{ file, handle: supportsFileHandles ? item.getAsFileSystemHandle?.() : undefined }]
+			: [];
+	});
+	void openInOrder(dropped, ({ file, handle }) => openDroppedLog(file, handle));
 }
 
 async function openDroppedLog(file: File, handle: Promise<FileSystemHandle | null> | undefined): Promise<void> {
@@ -186,9 +192,7 @@ async function openDroppedLog(file: File, handle: Promise<FileSystemHandle | nul
 /** Open logs the OS asks the installed web app to open, see `file_handlers` in the web app manifest */
 export function handleLaunchedLogFiles(): void {
 	window.launchQueue?.setConsumer(({ files }) => {
-		const handle = files[0];
-		if (handle instanceof FileSystemFileHandle) {
-			void openLogHandle(handle);
-		}
+		const handles = files.filter((handle) => handle instanceof FileSystemFileHandle);
+		void openInOrder(handles, openLogHandle);
 	});
 }

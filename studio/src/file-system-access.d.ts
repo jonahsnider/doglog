@@ -10,6 +10,7 @@ interface DataTransferItem {
 }
 
 interface OpenFilePickerOptions {
+	multiple?: boolean;
 	types?: { description?: string; accept: Record<string, string[]> }[];
 }
 

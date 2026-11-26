@@ -230,7 +230,7 @@ A log's menu SHALL show how far it's shifted from where it would be if its clock
 
 ### Requirement: Open a log file
 
-Users SHALL be able to open a WPILOG file with a file picker or by dropping it anywhere on the app window. Studio MUST also open XZ-compressed WPILOG files (`.wpilogxz`), and MUST show what it could decompress from one that was cut off, ex. by the robot losing power. Studio MUST open local HOOT files in format C19 or C21 using the same picker and drop paths.
+Users SHALL be able to open WPILOG files with a file picker or by dropping them anywhere on the app window. Picking or dropping several MUST add each, in the order given. Studio MUST also open XZ-compressed WPILOG files (`.wpilogxz`), and MUST show what it could decompress from one that was cut off, ex. by the robot losing power. Studio MUST open local HOOT files in format C19 or C21 using the same picker and drop paths.
 
 #### Scenario: Open with the file picker
 
@@ -258,6 +258,12 @@ Users SHALL be able to open a WPILOG file with a file picker or by dropping it a
 
 - **WHEN** the user drops a `.wpilog` file anywhere on the app window
 - **THEN** that log is added to the window
+
+#### Scenario: Drop logs with other files
+
+- **WHEN** the user drops `qual12.wpilog`, `notes.txt`, and `qual13.wpilog` on the app window
+- **THEN** `qual12.wpilog` and `qual13.wpilog` are added, in that order
+- **AND** `notes.txt` is ignored
 
 #### Scenario: Dragging a potential log over the window
 

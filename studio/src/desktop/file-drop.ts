@@ -14,7 +14,7 @@ type DropTarget = {
 
 const targets = new WeakMap<Element, DropTarget>();
 
-/** The file dragged over the window, and the drop target under it that accepts it, if any */
+/** The first file dragged over the window, and the drop target under it that accepts it, if any */
 const dragStore = createAtom<{ path: string; target: DropTarget | undefined } | undefined>(undefined);
 
 function targetAt({ x, y }: { x: number; y: number }, path: string): DropTarget | undefined {
@@ -30,19 +30,22 @@ function targetAt({ x, y }: { x: number; y: number }, path: string): DropTarget 
 	return undefined;
 }
 
-/** Handle files dropped on the window, calling `drop` with the ones no drop target under them takes */
-export async function handleFileDrops(drop: (path: string) => void): Promise<void> {
-	// Only the first file is used, like the web app
-	let path: string | undefined;
+/**
+ * Handle files dropped on the window, calling `drop` with them unless a drop target under them takes the first one.
+ * Drop targets only take one file, ex. a video widget's video.
+ */
+export async function handleFileDrops(drop: (paths: string[]) => void): Promise<void> {
+	let paths: string[] = [];
 	await getCurrentWebview().onDragDropEvent(({ payload }) => {
 		if (payload.type === 'leave') {
-			path = undefined;
+			paths = [];
 			dragStore.set(undefined);
 			return;
 		}
 		if (payload.type !== 'over') {
-			path = payload.paths[0];
+			paths = payload.paths;
 		}
+		const [path] = paths;
 		if (path === undefined) {
 			return;
 		}
@@ -50,7 +53,11 @@ export async function handleFileDrops(drop: (path: string) => void): Promise<voi
 		const target = targetAt(payload.position, path);
 		if (payload.type === 'drop') {
 			dragStore.set(undefined);
-			(target?.drop ?? drop)(path);
+			if (target) {
+				target.drop(path);
+			} else {
+				drop(paths);
+			}
 			return;
 		}
 		const drag = dragStore.get();
