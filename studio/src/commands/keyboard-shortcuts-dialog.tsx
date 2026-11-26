@@ -6,16 +6,12 @@ import { spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden';
 import * as stylex from '@stylexjs/stylex';
 import { useSelector } from '@tanstack/react-store';
-import { dashboardShortcut, nativeMenu, redoAlternate, shortcuts } from '@/commands/commands';
-import {
-	keyboardShortcutsDialogOpen,
-	toggleKeyboardShortcutsDialog,
-} from '@/commands/keyboard-shortcuts-dialog-handle';
+import { type AppCommand, commands } from '@/commands/app-commands';
+import { dashboardShortcut } from '@/commands/commands';
+import { keyboardShortcutsDialogOpen } from '@/commands/keyboard-shortcuts-dialog-handle';
 import { Kbd, Shortcut } from '@/components/shortcut';
-import { exportLiveShortcut } from '@/data/export-live';
-import { canCapture } from '@/desktop/capture';
 import { useSettings } from '@/settings';
-import { type Hotkey, useHotkey } from '@tanstack/react-hotkeys';
+import type { Hotkey } from '@tanstack/react-hotkeys';
 import PauseIcon from 'lucide-react/icons/pause';
 import PlayIcon from 'lucide-react/icons/play';
 import SkipBackIcon from 'lucide-react/icons/skip-back';
@@ -49,6 +45,17 @@ interface ShortcutRow {
 	separator?: string;
 }
 
+/** A command's row, or none when this platform doesn't have it */
+function commandRow(command: AppCommand, label = command.label): ShortcutRow[] {
+	return command.available === false || command.shortcut === undefined ? [] : [{ label, keys: [command.shortcut] }];
+}
+
+/** A row for a command and its opposite, like undo / redo, with the opposite's alternates on their own lines */
+function pairRow(label: string, first: Hotkey, second: Hotkey, alternates: readonly Hotkey[] = []): ShortcutRow {
+	const pairs: KeyPair[] = [[first, second], ...alternates.map((alternate): KeyPair => [first, alternate])];
+	return { label, keys: pairs };
+}
+
 const sections: {
 	title: string;
 	shortcuts: ShortcutRow[];
@@ -58,61 +65,53 @@ const sections: {
 	{
 		title: 'General',
 		shortcuts: [
-			...(STUDIO_DESKTOP ? [{ label: 'New window', keys: [shortcuts.newWindow] }] : []),
-			{ label: 'New dashboard', keys: [shortcuts.newDashboard] },
-			{
-				label: STUDIO_DESKTOP ? 'Close pane, dashboard, or window' : 'Close pane or dashboard',
-				keys: [shortcuts.close],
-			},
-			{ label: 'Close dashboard', keys: [shortcuts.closeDashboard] },
-			{ label: 'Reopen closed dashboard', keys: [shortcuts.reopenDashboard] },
-			{
-				label: 'Undo / redo',
-				keys: [
-					[shortcuts.undo, shortcuts.redo],
-					...(redoAlternate === undefined ? [] : [[shortcuts.undo, redoAlternate] as const]),
-				],
-			},
-			{ label: 'Check for updates or update', keys: [shortcuts.update] },
-			{ label: 'Keyboard shortcuts', keys: [shortcuts.keyboardShortcuts] },
+			...commandRow(commands.newWindow),
+			...commandRow(commands.newDashboard),
+			...commandRow(commands.close, STUDIO_DESKTOP ? 'Close pane, dashboard, or window' : 'Close pane or dashboard'),
+			...commandRow(commands.closeDashboard),
+			...commandRow(commands.reopenDashboard),
+			pairRow('Undo / redo', commands.undo.shortcut, commands.redo.shortcut, commands.redo.alternates),
+			...commandRow(commands.update, 'Check for updates or update'),
+			...commandRow(commands.commandPalette),
+			...commandRow(commands.keyboardShortcuts),
 		],
 	},
 	{
 		title: 'Navigation',
 		shortcuts: [
-			{ label: 'Back / forward', keys: [[shortcuts.back, shortcuts.forward]] },
+			pairRow('Back / forward', commands.back.shortcut, commands.forward.shortcut),
 			{ label: 'Switch to dashboard 1-9', keys: [dashboardShortcut(0)!, dashboardShortcut(8)!], separator: '–' },
-			{ label: 'Logs', keys: [shortcuts.logs] },
-			{ label: 'Settings', keys: [shortcuts.settings] },
+			...commandRow(commands.logs),
+			...commandRow(commands.settings),
 		],
 	},
 	{
 		title: 'Layout',
 		shortcuts: [
-			{ label: 'Toggle sidebar', keys: [shortcuts.toggleSidebar] },
-			{ label: 'Toggle entry browser', keys: [shortcuts.toggleEntryBrowser] },
-			{ label: 'Search entries', keys: [shortcuts.searchEntries] },
-			{ label: 'Split right', keys: [shortcuts.splitRight] },
-			{ label: 'Split down', keys: [shortcuts.splitDown] },
-			{ label: 'Zoom or restore pane', keys: [shortcuts.zoom] },
-			{ label: 'Edit entries', keys: [shortcuts.editEntries] },
+			...commandRow(commands.toggleSidebar),
+			...commandRow(commands.toggleEntryBrowser),
+			...commandRow(commands.searchEntries),
+			...commandRow(commands.splitRight),
+			...commandRow(commands.splitDown),
+			...commandRow(commands.zoom),
+			...commandRow(commands.editEntries),
 		],
 	},
 	{
 		title: 'Data',
 		shortcuts: [
-			{ label: 'Open log', keys: [shortcuts.openLog] },
-			{ label: 'Open from URL', keys: [shortcuts.openLogUrl] },
-			{ label: 'Export live data as WPILOG', keys: [exportLiveShortcut] },
-			{ label: 'Connect', keys: [shortcuts.connect] },
+			...commandRow(commands.openLog),
+			...commandRow(commands.openLogUrl),
+			...commandRow(commands.exportLive),
+			...commandRow(commands.connect),
 		],
 	},
 	{
 		title: 'Collaboration and sharing',
 		shortcuts: [
-			{ label: 'Copy dashboard link', keys: [shortcuts.copyDashboardLink] },
-			...(canCapture ? [{ label: 'Copy dashboard image', keys: [shortcuts.copyDashboardImage] }] : []),
-			...(canCapture ? [{ label: 'Export dashboard video', keys: [shortcuts.exportVideo] }] : []),
+			...commandRow(commands.copyDashboardLink),
+			...commandRow(commands.copyDashboardImage),
+			...commandRow(commands.exportVideo),
 		],
 	},
 	{
@@ -243,7 +242,6 @@ const setOpen = (next: boolean) => keyboardShortcutsDialogOpen.set(next);
 export function KeyboardShortcutsDialog() {
 	const open = useSelector(keyboardShortcutsDialogOpen);
 	const { mediaControls } = useSettings();
-	useHotkey(shortcuts.keyboardShortcuts, toggleKeyboardShortcutsDialog, { enabled: !nativeMenu, requireReset: true });
 
 	return (
 		<Dialog isOpen={open} onOpenChange={setOpen} width={768}>

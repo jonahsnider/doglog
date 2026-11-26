@@ -1,8 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { confirm } from '@tauri-apps/plugin-dialog';
-import { useHotkeys } from '@tanstack/react-hotkeys';
-import { type RegisteredRouter, useRouter } from '@tanstack/react-router';
+import type { RegisteredRouter } from '@tanstack/react-router';
 import { closeFocusedPane } from '@/dashboards/panes';
 import {
 	createDashboard,
@@ -14,14 +13,7 @@ import {
 	undoDashboard,
 } from '@/dashboards/dashboards';
 import { openLogUrlDialogOpen } from '@/components/open-log-url-dialog-handle';
-import {
-	copyCurrentDashboardLink,
-	currentDashboard,
-	splitFocused,
-	toggleFocusedEditing,
-	toggleFocusedZoom,
-} from '@/commands/dashboard-commands';
-import { goInHistory } from '@/commands/history';
+import { currentDashboard } from '@/commands/dashboard-commands';
 import {
 	dashboardNumbers,
 	dashboardShortcut,
@@ -31,22 +23,14 @@ import {
 	useShortcutHint,
 } from '@/commands/shortcuts';
 import { isExportingVideo } from '@/desktop/video-export';
-import { chooseLog } from '@/data/open-log';
-import { checkOrInstallUpdate } from '@/updater';
 import { connect } from '@/data/source';
 import { shownTuningDashboard } from '@/tuning/dashboard';
 import { getRobotHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
-import { requestSidebarToggle } from '@/sidebar/sidebar';
 
-export { dashboardShortcut, nativeMenu, redoAlternate, shortcuts, useShortcutHint };
+export { dashboardNumbers, dashboardShortcut, nativeMenu, redoAlternate, shortcuts, useShortcutHint };
 
 const desktop = STUDIO_DESKTOP;
-
-/** Options for shortcuts that the native menu handles on macOS */
-const desktopOnly = { enabled: desktop && !nativeMenu };
-/** Options for shortcuts that the native menu handles on macOS, and that also work on the web */
-const outsideNativeMenu = { enabled: !nativeMenu };
 
 export function newDashboard(router: RegisteredRouter, position?: 'top' | 'bottom'): void {
 	void showNewDashboard(router, createDashboard(position).id);
@@ -129,7 +113,7 @@ export function undoOrRedo(router: RegisteredRouter, direction: 'undo' | 'redo')
 	}
 }
 
-function openDashboardAt(router: RegisteredRouter, index: number): void {
+export function openDashboardAt(router: RegisteredRouter, index: number): void {
 	const dashboard = getDashboards()[index];
 	if (dashboard) {
 		void router.navigate({ to: '/dashboards/$dashboardId', params: { dashboardId: dashboard.id } });
@@ -152,71 +136,4 @@ export function openLogUrlPrompt(): void {
 /** Connect to the robot target from Settings, or the simulator */
 export function startConnect(): void {
 	void connect(getRobotHost(settingsStore.get().robotTarget));
-}
-
-export function useGlobalShortcuts(): void {
-	const router = useRouter();
-
-	useHotkeys(
-		[
-			{ hotkey: 'Alt+T', callback: () => newDashboard(router) },
-			{ hotkey: 'Alt+W', callback: () => closeFocused(router) },
-			{ hotkey: 'Alt+Shift+W', callback: () => closeCurrentDashboard(router) },
-			{ hotkey: 'Alt+Shift+T', callback: () => reopenDashboard(router) },
-			{ hotkey: 'Alt+,', callback: () => openSettings(router) },
-			{ hotkey: 'Alt+L', callback: () => openLogs(router) },
-			{ hotkey: 'Alt+[', callback: () => goInHistory(router, -1) },
-			{ hotkey: 'Alt+]', callback: () => goInHistory(router, 1) },
-			...(STUDIO_DESKTOP ? [{ hotkey: shortcuts.newWindow, callback: newWindow, options: desktopOnly }] : []),
-			{ hotkey: 'Mod+T', callback: () => newDashboard(router), options: desktopOnly },
-			{ hotkey: 'Mod+W', callback: () => closeFocused(router), options: desktopOnly },
-			{ hotkey: 'Mod+Shift+W', callback: () => closeCurrentDashboard(router), options: desktopOnly },
-			{ hotkey: 'Mod+Shift+T', callback: () => reopenDashboard(router), options: desktopOnly },
-			{
-				hotkey: shortcuts.copyDashboardLink,
-				callback: (event) => {
-					if (copyCurrentDashboardLink(router)) {
-						event.preventDefault();
-					}
-				},
-				options: { ...outsideNativeMenu, preventDefault: false, stopPropagation: false },
-			},
-			{ hotkey: 'Mod+,', callback: () => openSettings(router), options: desktopOnly },
-			{ hotkey: 'Mod+L', callback: () => openLogs(router), options: desktopOnly },
-			{ hotkey: shortcuts.update, callback: () => void checkOrInstallUpdate(), options: outsideNativeMenu },
-			{ hotkey: 'Mod+[', callback: () => goInHistory(router, -1), options: desktopOnly },
-			{ hotkey: 'Mod+]', callback: () => goInHistory(router, 1), options: desktopOnly },
-			{ hotkey: shortcuts.connect, callback: startConnect, options: outsideNativeMenu },
-			{ hotkey: shortcuts.toggleSidebar, callback: requestSidebarToggle, options: outsideNativeMenu },
-			{ hotkey: shortcuts.splitRight, callback: () => splitFocused(router, 'row'), options: outsideNativeMenu },
-			{ hotkey: shortcuts.splitDown, callback: () => splitFocused(router, 'column'), options: outsideNativeMenu },
-			{ hotkey: shortcuts.zoom, callback: () => toggleFocusedZoom(router), options: outsideNativeMenu },
-			{ hotkey: shortcuts.editEntries, callback: () => toggleFocusedEditing(router), options: outsideNativeMenu },
-			{ hotkey: shortcuts.openLog, callback: chooseLog, options: outsideNativeMenu },
-			{ hotkey: shortcuts.openLogUrl, callback: openLogUrlPrompt, options: outsideNativeMenu },
-			// Text fields handle these themselves
-			{
-				hotkey: shortcuts.undo,
-				callback: () => undoOrRedo(router, 'undo'),
-				options: { ...outsideNativeMenu, ignoreInputs: true },
-			},
-			{
-				hotkey: shortcuts.redo,
-				callback: () => undoOrRedo(router, 'redo'),
-				options: { ...outsideNativeMenu, ignoreInputs: true },
-			},
-			...(redoAlternate === undefined
-				? []
-				: [{ hotkey: redoAlternate, callback: () => undoOrRedo(router, 'redo'), options: { ignoreInputs: true } }]),
-			...dashboardNumbers.flatMap((number) => [
-				{ hotkey: `Alt+${number}` as const, callback: () => openDashboardAt(router, number - 1) },
-				{
-					hotkey: `Mod+${number}` as const,
-					callback: () => openDashboardAt(router, number - 1),
-					options: { enabled: desktop },
-				},
-			]),
-		],
-		{ requireReset: true },
-	);
 }

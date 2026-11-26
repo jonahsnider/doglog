@@ -33,6 +33,7 @@ export const shortcuts = {
 	toggleSidebar: 'Mod+B',
 	toggleEntryBrowser: 'Mod+Alt+B',
 	keyboardShortcuts: 'Mod+/',
+	commandPalette: 'Mod+P',
 	searchEntries: '/',
 	update: updateShortcut,
 } as const satisfies Record<string, Hotkey>;

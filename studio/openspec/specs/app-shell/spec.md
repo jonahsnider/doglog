@@ -20,7 +20,12 @@ The app SHALL show a vertical sidebar on the left containing, from top to bottom
 
 ### Requirement: Sidebar footer actions
 
-The sidebar footer SHALL offer Keyboard shortcuts, Download app, and Check for updates when the sidebar is expanded or peeking. These actions MUST NOT appear in the collapsed rail. When an update is ready, Check for updates MUST become the install action in the same row without moving the other actions or losing focus. The install action MUST remain available in the rail.
+The sidebar footer SHALL offer Command palette, Keyboard shortcuts, Download app, and Check for updates when the sidebar is expanded or peeking. These actions MUST NOT appear in the collapsed rail. When an update is ready, Check for updates MUST become the install action in the same row without moving the other actions or losing focus. The install action MUST remain available in the rail.
+
+#### Scenario: Open the command palette
+
+- **WHEN** the user selects Command palette in the footer
+- **THEN** Studio opens the command palette
 
 #### Scenario: Open keyboard shortcuts
 

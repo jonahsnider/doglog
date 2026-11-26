@@ -3,10 +3,11 @@ import { colorVars, durationVars, easeVars, radiusVars } from '@astryxdesign/cor
 import * as stylex from '@stylexjs/stylex';
 import { Outlet, createRootRoute, useMatchRoute } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
-import { useGlobalShortcuts } from '@/commands/commands';
+import { useGlobalShortcuts } from '@/commands/app-commands';
 import { AppSidebar } from '@/sidebar/app-sidebar';
 import { useVideoExport } from '@/desktop/video-export';
 import { CloudProvider } from '@/cloud/cloud-background';
+import { CommandPaletteDialog } from '@/commands/command-palette';
 import { KeyboardShortcutsDialog } from '@/commands/keyboard-shortcuts-dialog';
 import { AboutDialog } from '@/components/about-dialog';
 import { DragProvider } from '@/components/drag-provider';
@@ -142,6 +143,7 @@ function RootLayout() {
 				<AboutDialog />
 				<OpenLogUrlDialog />
 				<KeyboardShortcutsDialog />
+				<CommandPaletteDialog />
 				<Toasts />
 			</CloudProvider>
 		</LinkProvider>

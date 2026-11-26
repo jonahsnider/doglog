@@ -2,11 +2,10 @@ import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { IconButton } from '@astryxdesign/core/IconButton';
 import { spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
-import { useHotkey } from '@tanstack/react-hotkeys';
 import PlusIcon from 'lucide-react/icons/plus';
 import { useEffect, useRef, useState } from 'react';
 import { MenuEntries, type MenuAction, type MenuEntry } from '@/components/app-context-menu';
-import { nativeMenu, openLogUrlPrompt, shortcuts, startConnect } from '@/commands/commands';
+import { openLogUrlPrompt, shortcuts, startConnect } from '@/commands/commands';
 import { useVisibleEntries } from '@/data/data-store';
 import { type ConnectTarget, findConnectTarget, isSourceTarget } from '@/data/connect-target';
 import { canExportLive, exportLive, exportLiveShortcut } from '@/data/export-live';
@@ -150,9 +149,6 @@ export function SourceList({ onShow }: { onShow: () => void }) {
 		setSourceListElement(listRef.current);
 		return () => setSourceListElement(null);
 	}, []);
-	// The native menu handles it on macOS
-	useHotkey(exportLiveShortcut, () => void exportLive(), { enabled: !nativeMenu, requireReset: true });
-
 	const { live, logs } = sources;
 	const checkOnOpen = (open: boolean) => {
 		if (open) {

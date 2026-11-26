@@ -5,8 +5,10 @@ import CircleArrowUpIcon from 'lucide-react/icons/circle-arrow-up';
 import DownloadIcon from 'lucide-react/icons/download';
 import KeyboardIcon from 'lucide-react/icons/keyboard';
 import RefreshCwIcon from 'lucide-react/icons/refresh-cw';
+import SearchIcon from 'lucide-react/icons/search';
 import { WhatsNewCard } from '@/changelog/whats-new-card';
 import { shortcuts } from '@/commands/commands';
+import { commandPaletteOpen } from '@/commands/command-palette-handle';
 import { keyboardShortcutsDialogOpen } from '@/commands/keyboard-shortcuts-dialog-handle';
 import { TextMorph } from '@/components/text-morph';
 import { TooltipLabel } from '@/components/tooltip-label';
@@ -39,6 +41,17 @@ export function AppSidebarFooter({
 				<SidebarMenu data-footer-actions="">
 					{expanded && (
 						<>
+							<SidebarMenuItem {...expandedRow} inert={closing}>
+								<Tooltip
+									content={<TooltipLabel label="Command palette" shortcut={shortcuts.commandPalette} />}
+									placement="end"
+								>
+									<SidebarMenuButton size="sm" onClick={() => commandPaletteOpen.set(true)}>
+										<SearchIcon />
+										<span>Command palette</span>
+									</SidebarMenuButton>
+								</Tooltip>
+							</SidebarMenuItem>
 							<SidebarMenuItem {...expandedRow} inert={closing}>
 								<Tooltip
 									content={<TooltipLabel label="Keyboard shortcuts" shortcut={shortcuts.keyboardShortcuts} />}

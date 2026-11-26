@@ -11,10 +11,12 @@ import { Popover } from '@astryxdesign/core/Popover';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { Selector } from '@astryxdesign/core/Selector';
 import SettingsIcon from 'lucide-react/icons/settings';
-import { type ReactNode, useId, useState } from 'react';
+import { useSelector } from '@tanstack/react-store';
+import { type ReactNode, useId } from 'react';
 import { useMobileLayout } from '@/lib/mobile-layout';
 import type { Widget } from '@/panes/layout';
 import { paneIconSize } from '@/panes/pane-button';
+import { widgetOptionsPane } from '@/panes/widget-options-handle';
 import { inferredOption, optionValues, pickedOption } from '@/widgets/options';
 import type { OptionMenu, WidgetBinding, WidgetOption, WidgetType } from '@/widgets/widget-type';
 
@@ -34,7 +36,8 @@ export function WidgetOptions({ paneId, type, widget, bindings, onOptionChange }
 	const { options = [] } = type;
 	const mobile = useMobileLayout();
 	const values = optionValues(type, widget, bindings, mobile);
-	const [open, setOpen] = useState(false);
+	const open = useSelector(widgetOptionsPane, (shown) => shown === paneId);
+	const setOpen = (next: boolean) => widgetOptionsPane.set(next ? paneId : undefined);
 	return (
 		<Popover
 			isOpen={open}

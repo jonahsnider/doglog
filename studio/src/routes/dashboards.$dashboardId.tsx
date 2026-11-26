@@ -2,17 +2,16 @@ import { spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { useDragDropMonitor } from '@dnd-kit/react';
 import * as stylex from '@stylexjs/stylex';
 import { useHotkey } from '@tanstack/react-hotkeys';
-import { Navigate, createFileRoute, useLocation, useRouter } from '@tanstack/react-router';
+import { Navigate, createFileRoute, useLocation } from '@tanstack/react-router';
 import { Activity, useEffect, useState } from 'react';
 import { Group, Panel } from 'react-resizable-panels';
-import { nativeMenu, shortcuts } from '@/commands/commands';
+import { shortcuts } from '@/commands/commands';
 import { canCopyDashboardLink } from '@/dashboards/copy-dashboard-link';
 import { DashboardSplitZones } from '@/dashboards/dashboard-drag';
 import { DashboardPanes } from '@/dashboards/dashboard-panes';
 import { canCapture, copyImage, dashboardCaptureTarget } from '@/desktop/capture';
-import { canExportVideo, startVideoExport, useVideoExport } from '@/desktop/video-export';
+import { useVideoExport } from '@/desktop/video-export';
 import { getEntry } from '@/data/data-store';
-import { getSource } from '@/data/source';
 import { VideoExportBar } from '@/timeline/video-export-bar';
 import { EntryBrowser } from '@/entries/entry-browser';
 import { TimelineBar } from '@/timeline/timeline-bar';
@@ -144,7 +143,6 @@ function DashboardView() {
 }
 
 function PanesColumn({ dashboard, dashboards }: { dashboard: Dashboard; dashboards: readonly Dashboard[] }) {
-	const router = useRouter();
 	const exporting = useVideoExport()?.dashboardId === dashboard.id;
 	const [recent, setRecent] = useState({ active: dashboard.id, parked: undefined as string | undefined });
 	if (recent.active !== dashboard.id) {
@@ -176,17 +174,6 @@ function PanesColumn({ dashboard, dashboards }: { dashboard: Dashboard; dashboar
 			stopPropagation: false,
 			requireReset: true,
 		},
-	);
-
-	// Also stops ⌘R from reloading the window on desktop
-	useHotkey(
-		shortcuts.exportVideo,
-		() => {
-			if (canExportVideo(dashboard, getSource())) {
-				startVideoExport(router, dashboard.id);
-			}
-		},
-		{ enabled: STUDIO_DESKTOP && canCapture && !nativeMenu, requireReset: true },
 	);
 
 	return (

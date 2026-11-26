@@ -1,49 +1,46 @@
 import type { RegisteredRouter } from '@tanstack/react-router';
 import { Menu, MenuItem, type MenuItemOptions, Submenu } from '@tauri-apps/api/menu';
 import { getCurrentWindow } from '@tauri-apps/api/window';
-import {
-	closeCurrentDashboard,
-	closeFocused,
-	nativeMenu,
-	newDashboard,
-	newWindow,
-	openLogs,
-	openLogUrlPrompt,
-	openSettings,
-	reopenDashboard,
-	startConnect,
-	canUndoOrRedo,
-	undoOrRedo,
-} from '@/commands/commands';
-import {
-	canCopyCurrentDashboard,
-	canEditFocusedEntries,
-	canExportCurrentDashboardVideo,
-	canSplitFocused,
-	canToggleEntryBrowser,
-	canZoomFocused,
-	copyCurrentDashboardImage,
-	copyCurrentDashboardLink,
-	currentDashboard,
-	exportCurrentDashboardVideo,
-	splitFocused,
-	toggleDashboardEntryBrowser,
-	toggleFocusedEditing,
-	toggleFocusedZoom,
-} from '@/commands/dashboard-commands';
-import { canGoInHistory, goInHistory } from '@/commands/history';
-import { toggleKeyboardShortcutsDialog } from '@/commands/keyboard-shortcuts-dialog-handle';
+import { type AppCommand, canRunCommand, commands } from '@/commands/app-commands';
+import { nativeMenu } from '@/commands/commands';
 import { aboutDialogOpen } from '@/components/about-dialog-handle';
-import { canExportLive, exportLive } from '@/data/export-live';
-import { chooseLog } from '@/data/open-log';
 import { closedStore, subscribeDashboards } from '@/dashboards/dashboards';
 import { subscribeData } from '@/data/data-store';
 import { subscribeSource } from '@/data/source';
-import { canCapture } from '@/desktop/capture';
 import { createOpenRecentMenu } from '@/desktop/native-menu';
-import { isExportingVideo, subscribeVideoExport } from '@/desktop/video-export';
-import { requestSidebarToggle } from '@/sidebar/sidebar';
-import { checkOrInstallUpdate, updateTitle, watchUpdate } from '@/updater';
+import { subscribeVideoExport } from '@/desktop/video-export';
+import { updateTitle, watchUpdate } from '@/updater';
+
+/** Short words macOS leaves lowercase in title case */
+const minorWords = new Set([
+	'a',
+	'an',
+	'and',
+	'as',
+	'at',
+	'by',
+	'for',
+	'from',
+	'in',
+	'of',
+	'on',
+	'or',
+	'the',
+	'to',
+	'with',
+]);
+
+/**
+ * A command's label in title case for the menu bar, with `…` when it asks for more before acting, ex.
+ * `Export Live Data as WPILOG…` from `Export live data as WPILOG`
+ */
+function menuLabel(command: AppCommand): string {
+	const title = command.label
+		.split(' ')
+		.map((word, index) => (index > 0 && minorWords.has(word) ? word : word.charAt(0).toUpperCase() + word.slice(1)))
+		.join(' ');
+	return command.ellipsis ? `${title}…` : title;
+}
 
 /** Replace the default macOS app menu with one whose shortcuts run Studio's commands */
 export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
@@ -53,39 +50,42 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 
 	const separator = { item: 'Separator' } as const;
 	/** Items that are disabled while their command can't run */
-	const conditionalItems: { item: MenuItem; canRun: () => boolean; enabled: boolean }[] = [];
-	const conditional = async (options: MenuItemOptions, canRun: () => boolean) => {
-		const enabled = canRun();
-		const item = await MenuItem.new({ ...options, enabled });
-		conditionalItems.push({ item, canRun, enabled });
+	const conditionalItems: { item: MenuItem; command: AppCommand; enabled: boolean }[] = [];
+	const commandOptions = (command: AppCommand): MenuItemOptions => ({
+		text: menuLabel(command),
+		action: () => command.run(router),
+		...(command.shortcut === undefined || command.ownHotkey
+			? {}
+			: { accelerator: String(command.shortcut).replace('Mod', 'CmdOrCtrl') }),
+	});
+	const commandItem = async (command: AppCommand): Promise<MenuItem | MenuItemOptions> => {
+		if (!command.canRun) {
+			return commandOptions(command);
+		}
+		const enabled = canRunCommand(router, command);
+		const item = await MenuItem.new({ ...commandOptions(command), enabled });
+		conditionalItems.push({ item, command, enabled });
 		return item;
 	};
 	// Live data can change this every frame, so only changes go to the native menu
 	const updateEnabled = () => {
 		for (const conditionalItem of conditionalItems) {
-			const enabled = conditionalItem.canRun();
+			const enabled = canRunCommand(router, conditionalItem.command);
 			if (enabled !== conditionalItem.enabled) {
 				conditionalItem.enabled = enabled;
 				void conditionalItem.item.setEnabled(enabled);
 			}
 		}
 	};
-	// Like the update shortcut, it installs the update once one is found
-	const updateItem = await MenuItem.new({
-		text: 'Check for Updates…',
-		accelerator: 'CmdOrCtrl+Shift+U',
-		action: () => void checkOrInstallUpdate(),
-	});
+	// Shows when an update is found, which its command then installs
+	const updateItem = await MenuItem.new(commandOptions(commands.update));
 	watchUpdate((state) => {
 		void updateItem.setText(
-			state?.installing === true ? 'Updating…' : state ? `${updateTitle(state.update)}…` : 'Check for Updates…',
+			state?.installing === true ? 'Updating…' : state ? `${updateTitle(state.update)}…` : menuLabel(commands.update),
 		);
 		void updateItem.setEnabled(state?.installing !== true);
 	});
-	const helpMenu = await Submenu.new({
-		text: 'Help',
-		items: [{ text: 'Keyboard Shortcuts', accelerator: 'CmdOrCtrl+/', action: toggleKeyboardShortcutsDialog }],
-	});
+	const helpMenu = await Submenu.new({ text: 'Help', items: [await commandItem(commands.keyboardShortcuts)] });
 	const menu = await Menu.new({
 		items: [
 			{
@@ -94,7 +94,7 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 					{ text: 'About DogLog Studio', action: () => aboutDialogOpen.set(true) },
 					updateItem,
 					separator,
-					{ text: 'Settings…', accelerator: 'CmdOrCtrl+,', action: () => openSettings(router) },
+					await commandItem(commands.settings),
 					separator,
 					{ item: 'Services' },
 					separator,
@@ -108,120 +108,49 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 			{
 				text: 'File',
 				items: [
-					{ text: 'New Window', accelerator: 'CmdOrCtrl+N', action: newWindow },
-					{ text: 'New Dashboard', accelerator: 'CmdOrCtrl+T', action: () => newDashboard(router) },
-					await conditional(
-						{
-							text: 'Reopen Closed Dashboard',
-							accelerator: 'CmdOrCtrl+Shift+T',
-							action: () => reopenDashboard(router),
-						},
-						() => closedStore.get().length > 0,
-					),
-					{ text: 'Open Log…', accelerator: 'CmdOrCtrl+O', action: chooseLog },
-					{ text: 'Open from URL…', accelerator: 'CmdOrCtrl+Shift+O', action: openLogUrlPrompt },
+					await commandItem(commands.newWindow),
+					await commandItem(commands.newDashboard),
+					await commandItem(commands.reopenDashboard),
+					await commandItem(commands.openLog),
+					await commandItem(commands.openLogUrl),
 					await createOpenRecentMenu(),
-					{ text: 'Connect', accelerator: 'CmdOrCtrl+K', action: startConnect },
+					await commandItem(commands.connect),
 					separator,
-					await conditional(
-						{ text: 'Export Live Data as WPILOG…', accelerator: 'CmdOrCtrl+S', action: () => void exportLive() },
-						canExportLive,
-					),
-					...(canCapture
-						? [
-								await conditional(
-									{
-										text: 'Export Dashboard Video…',
-										accelerator: 'CmdOrCtrl+R',
-										action: () => exportCurrentDashboardVideo(router),
-									},
-									() => canExportCurrentDashboardVideo(router),
-								),
-							]
-						: []),
+					await commandItem(commands.exportLive),
+					...(commands.exportVideo.available ? [await commandItem(commands.exportVideo)] : []),
 					separator,
 					// Closes the window when there's no dashboard
-					await conditional(
-						{ text: 'Close Pane', accelerator: 'CmdOrCtrl+W', action: () => closeFocused(router) },
-						() => !isExportingVideo(),
-					),
-					await conditional(
-						{ text: 'Close Dashboard', accelerator: 'CmdOrCtrl+Shift+W', action: () => closeCurrentDashboard(router) },
-						() => currentDashboard(router) !== undefined,
-					),
+					await commandItem(commands.close),
+					await commandItem(commands.closeDashboard),
 				],
 			},
 			{
 				text: 'Edit',
 				items: [
-					await conditional(
-						{ text: 'Undo', accelerator: 'CmdOrCtrl+Z', action: () => undoOrRedo(router, 'undo') },
-						() => canUndoOrRedo(router, 'undo'),
-					),
-					await conditional(
-						{ text: 'Redo', accelerator: 'CmdOrCtrl+Shift+Z', action: () => undoOrRedo(router, 'redo') },
-						() => canUndoOrRedo(router, 'redo'),
-					),
+					await commandItem(commands.undo),
+					await commandItem(commands.redo),
 					separator,
 					{ item: 'Cut' },
 					{ item: 'Copy' },
 					{ item: 'Paste' },
 					{ item: 'SelectAll' },
 					separator,
-					await conditional(
-						{
-							text: 'Copy Dashboard Link',
-							accelerator: 'CmdOrCtrl+Shift+C',
-							action: () => {
-								copyCurrentDashboardLink(router);
-							},
-						},
-						() => canCopyCurrentDashboard(router),
-					),
-					// ⌘C stays with Copy, which falls back to copying the dashboard's image
-					...(canCapture
-						? [
-								await conditional(
-									{ text: 'Copy Dashboard Image', action: () => copyCurrentDashboardImage(router) },
-									() => canCopyCurrentDashboard(router),
-								),
-							]
-						: []),
+					await commandItem(commands.copyDashboardLink),
+					...(commands.copyDashboardImage.available ? [await commandItem(commands.copyDashboardImage)] : []),
 				],
 			},
 			{
 				text: 'View',
 				items: [
-					{ text: 'Toggle Sidebar', accelerator: 'CmdOrCtrl+B', action: requestSidebarToggle },
-					await conditional(
-						{
-							text: 'Toggle Entry Browser',
-							accelerator: 'CmdOrCtrl+Alt+B',
-							action: () => toggleDashboardEntryBrowser(router),
-						},
-						() => canToggleEntryBrowser(router),
-					),
+					await commandItem(commands.commandPalette),
 					separator,
-					await conditional(
-						{ text: 'Split Right', accelerator: 'CmdOrCtrl+D', action: () => splitFocused(router, 'row') },
-						() => canSplitFocused(router, 'row'),
-					),
-					await conditional(
-						{ text: 'Split Down', accelerator: 'CmdOrCtrl+Shift+D', action: () => splitFocused(router, 'column') },
-						() => canSplitFocused(router, 'column'),
-					),
-					await conditional(
-						{
-							text: 'Zoom or Restore Pane',
-							accelerator: 'CmdOrCtrl+Shift+Enter',
-							action: () => toggleFocusedZoom(router),
-						},
-						() => canZoomFocused(router),
-					),
-					await conditional(
-						{ text: 'Edit Entries', accelerator: 'CmdOrCtrl+E', action: () => toggleFocusedEditing(router) },
-						() => canEditFocusedEntries(router),
-					),
+					await commandItem(commands.toggleSidebar),
+					await commandItem(commands.toggleEntryBrowser),
+					separator,
+					await commandItem(commands.splitRight),
+					await commandItem(commands.splitDown),
+					await commandItem(commands.zoom),
+					await commandItem(commands.editEntries),
 					separator,
 					{ item: 'Fullscreen' },
 				],
@@ -229,14 +158,10 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 			{
 				text: 'Go',
 				items: [
-					await conditional({ text: 'Back', accelerator: 'CmdOrCtrl+[', action: () => goInHistory(router, -1) }, () =>
-						canGoInHistory(-1),
-					),
-					await conditional({ text: 'Forward', accelerator: 'CmdOrCtrl+]', action: () => goInHistory(router, 1) }, () =>
-						canGoInHistory(1),
-					),
+					await commandItem(commands.back),
+					await commandItem(commands.forward),
 					separator,
-					{ text: 'Logs', accelerator: 'CmdOrCtrl+L', action: () => openLogs(router) },
+					await commandItem(commands.logs),
 				],
 			},
 			// Leaves out Close Window, which also uses ⌘W

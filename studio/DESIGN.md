@@ -16,6 +16,8 @@ Keep feature behavior and functionality in `openspec/specs`.
 ### Keyboard shortcuts
 
 - Show keys with `Shortcut` from `@/components/shortcut`, not Astryx's `Kbd`
+- Add app-wide commands to `commands` in `src/commands/app-commands.ts`, with an icon, which runs their shortcuts and lists them in the macOS menu bar, the keyboard shortcuts list, and the command palette
+- Label commands in sentence case; only the macOS menu bar uses title case and `…`, which it makes from the label
 
 ## Layout and styling
 

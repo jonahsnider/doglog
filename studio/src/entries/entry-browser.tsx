@@ -24,19 +24,13 @@ import { ToggleButton } from '@/entries/entry-browser-toggle';
 import { EntryTree } from '@/entries/entry-browser-tree';
 import { type EditedWidget, useEditedWidget } from '@/entries/edited-widget';
 import { TooltipLabel } from '@/components/tooltip-label';
-import { nativeMenu, shortcuts } from '@/commands/commands';
+import { shortcuts } from '@/commands/commands';
 import { useMobileLayout } from '@/lib/mobile-layout';
 import { useSwipeToClose } from '@/hooks/use-swipe-to-close';
 import type { Dashboard } from '@/dashboards/dashboards';
 import { DashboardIdContext } from '@/dashboards/panes';
 import { useVideoExport } from '@/desktop/video-export';
-import {
-	focusEntrySearch,
-	getEntryBrowserOpenStore,
-	setEntryBrowserOpen,
-	stopEditing,
-	toggleEntryBrowser,
-} from '@/entries/editing';
+import { focusEntrySearch, getEntryBrowserOpenStore, setEntryBrowserOpen, stopEditing } from '@/entries/editing';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { dragRegion } from '@/desktop/title-bar';
 import { entryBrowserMarker } from './markers.stylex';
@@ -139,7 +133,6 @@ const widthPxStore = createPersistedAtom('entry-browser-width', z.number().posit
 export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 	const mobile = useMobileLayout();
 	const open = useSelector(getEntryBrowserOpenStore(mobile));
-	useHotkey(shortcuts.toggleEntryBrowser, toggleEntryBrowser, { enabled: !nativeMenu, requireReset: true });
 	useHotkey(shortcuts.searchEntries, focusEntrySearch);
 	const edited = useEditedWidget(dashboard);
 	useHotkey('Escape', stopEditing, {

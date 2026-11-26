@@ -19,7 +19,7 @@ export function currentDashboard(router: RegisteredRouter): Dashboard | undefine
 }
 
 /** The dashboard that pane commands act on. Video export mode keeps the layout it previews. */
-function paneCommandDashboard(router: RegisteredRouter): Dashboard | undefined {
+export function paneCommandDashboard(router: RegisteredRouter): Dashboard | undefined {
 	return isExportingVideo() ? undefined : (currentDashboard(router) ?? shownTuningDashboard(router));
 }
 

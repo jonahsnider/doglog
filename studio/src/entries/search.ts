@@ -76,7 +76,7 @@ export function labelRanges(node: EntryTreeNode, positions: ReadonlyMap<string, 
 }
 
 /** Turn matched character positions into ranges, as `[start, end, start, end, ...]` */
-function matchRanges(positions: Iterable<number>): number[] {
+export function matchRanges(positions: Iterable<number>): number[] {
 	const ranges: number[] = [];
 	for (const position of [...new Set(positions)].toSorted((a, b) => a - b)) {
 		if (ranges.at(-1) === position) {

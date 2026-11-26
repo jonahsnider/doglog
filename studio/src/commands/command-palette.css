@@ -1,0 +1,34 @@
+/* The search box is always focused while the palette is open, and its caret already shows it */
+.astryx-command-palette-input input:focus-visible {
+	outline: none;
+}
+
+/*
+ * Kept where it would be centered at its full height, so fewer results shrink it from the bottom instead of moving the
+ * search box
+ */
+.command-palette {
+	--command-palette-max-height: 480px;
+	margin-block: max(1rem, calc((100dvh - var(--command-palette-max-height)) / 2)) auto;
+}
+
+/* The palette has no footer, but Astryx still renders an empty one with a divider along the bottom edge */
+.command-palette .astryx-layout-footer {
+	display: none;
+}
+
+/*
+ * People open it all the time, so it appears quicker than other dialogs, and grows from its search box instead of
+ * sliding in
+ */
+.command-palette {
+	transform-origin: top;
+	animation: command-palette-enter calc(var(--duration-fast-max) * var(--motion-scale)) var(--ease-entrance) backwards;
+}
+
+@keyframes command-palette-enter {
+	from {
+		opacity: 0;
+		transform: scale(0.98);
+	}
+}
