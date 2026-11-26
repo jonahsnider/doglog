@@ -118,6 +118,8 @@ export async function unlockAccountKey(
 	if (registeredPublicKey === null) {
 		await register(stored.publicKey);
 	}
+	// Browsers clear site data when storage runs low unless asked to keep it, which loses the key until this device pairs again
+	void navigator.storage.persist().catch(() => undefined);
 	return privateKey;
 }
 
