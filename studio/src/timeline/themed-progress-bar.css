@@ -13,13 +13,14 @@
 }
 
 /*
- * The fill spans the track and slides by its filled share, so Monte sits on its leading edge. The clamp keeps Monte
- * inside the track at either end, in the fill's coordinates.
+ * The fill spans the track and slides by its filled share, so Monte skis on top of the track at its leading edge,
+ * clear of the fill so the edge stays visible. The clamp keeps Monte inside the track at either end, in the fill's
+ * coordinates.
  */
 [data-progress-mascot] .astryx-progress-bar-fill::after {
 	content: '';
 	position: absolute;
-	bottom: 0;
+	bottom: 100%;
 	inset-inline-start: clamp(
 		calc(100% - var(--_progress-bar-fill, 100%)),
 		calc(100% - 0.75rem),

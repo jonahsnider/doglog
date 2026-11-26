@@ -41,7 +41,7 @@ The match13 preset MUST use accent `#135ab0` and neutral `#e2efff` in light mode
 
 ### Requirement: Themed progress decoration
 
-The skiing mascot SHALL ride the leading edge of the progress fill when loading a log or saving a video in the match13 preset. The mascot MUST be decorative and MUST NOT change the progress value, label, or cancellation behavior. Other presets MUST show the standard progress track.
+The skiing mascot SHALL ride on top of the progress track at the leading edge of its fill when loading a log or saving a video in the match13 preset. The mascot MUST be decorative and MUST NOT change the progress value, label, or cancellation behavior. Other presets MUST show the standard progress track.
 
 #### Scenario: Reduced motion
 

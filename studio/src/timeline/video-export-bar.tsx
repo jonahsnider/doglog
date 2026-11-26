@@ -28,10 +28,10 @@ const styles = stylex.create({
 		flexShrink: 0,
 		alignItems: 'center',
 		gap: spacingVars['--spacing-3'],
-		height: '2.5rem',
+		// Same as the timeline bar above it, which also gives Monte room to ski on the progress bar
+		height: '3.5rem',
 		paddingInlineStart: spacingVars['--spacing-3'],
 		paddingInlineEnd: spacingVars['--spacing-1-5'],
-		paddingBottom: spacingVars['--spacing-1-5'],
 	},
 	duration: {
 		color: colorVars['--color-text-secondary'],
