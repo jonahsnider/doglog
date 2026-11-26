@@ -130,6 +130,8 @@ export function allowedActions(id: string, layout: PaneNode, paneId: string) {
 		// Show the controls even when the row or column is full
 		splittable: right || down,
 		close,
+		// Show the close button for panes that could be closed once split, ex. the only pane beside the Tuning pane
+		closable: close || right || down,
 		// Dragging a pane takes it out of its place, like closing it
 		move: close,
 		changeWidget: allowsLayout(id, setPaneWidget(layout, paneId, undefined)),

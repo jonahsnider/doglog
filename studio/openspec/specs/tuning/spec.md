@@ -35,6 +35,7 @@ The Tuning pane MUST NOT be closed, split, dragged, or changed to another widget
 
 - **GIVEN** the Tuning page is shown
 - **THEN** the Tuning pane has no controls to close or split it, and can't be dragged
+- **AND** the only pane beside it shows its Close pane button disabled
 - **AND** the Tuning widget isn't offered when changing another pane's widget
 
 #### Scenario: Close a graph

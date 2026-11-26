@@ -266,7 +266,15 @@ export function PaneView({
 									onSplit={split}
 									onZoom={zoom}
 								/>
-								{closable && <PaneButton label="Close pane" shortcut={shortcuts.close} onClick={close} icon={XIcon} />}
+								{allowed.closable && (
+									<PaneButton
+										label="Close pane"
+										shortcut={shortcuts.close}
+										disabled={!closable}
+										onClick={close}
+										icon={XIcon}
+									/>
+								)}
 							</>
 						}
 					/>
