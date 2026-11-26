@@ -410,7 +410,7 @@ Adding, closing, hiding, or showing a source SHALL keep the playback speed, time
 
 ### Requirement: Several sources on the timeline
 
-The timeline bar SHALL span every visible source, after lining them up (see the data-sources spec's line up sources). The robot's mode, alerts, hub shifts, skipped idle time, disconnected time, and unreadable end shown on it MUST come from the top visible source. While the live session is visible, the timeline bar MUST end at its newest data, so logs that extend past it are cut off.
+The timeline bar SHALL span every visible source, after lining them up (see the data-sources spec's line up sources). The robot's mode, alerts, hub shifts, skipped idle time, disconnected time, and unreadable end shown on it MUST come from the top visible source, and while several sources are visible, hovering them MUST name that source. While the live session is visible, the timeline bar MUST end at its newest data, so logs that extend past it are cut off.
 
 #### Scenario: Logs of different lengths
 
@@ -423,6 +423,12 @@ The timeline bar SHALL span every visible source, after lining them up (see the 
 - **GIVEN** `qual12.wpilog` is above `qual13.wpilog`
 - **WHEN** the user hides `qual12.wpilog`
 - **THEN** the track is colored by `qual13.wpilog`'s robot mode
+
+#### Scenario: Name the source of the timeline's events
+
+- **GIVEN** `CAPH Q12` is above `CAPH Q13`, and both are visible
+- **WHEN** the user hovers an alert on the timeline bar
+- **THEN** the tooltip names `CAPH Q12` above the alert
 
 ### Requirement: Live follow
 

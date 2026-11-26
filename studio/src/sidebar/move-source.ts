@@ -30,14 +30,11 @@ function outside(event: PointerEvent): boolean {
 export function useSourceDrag(source: Source, list: { current: HTMLElement | null }) {
 	const start = useRef<{ x: number; y: number } | undefined>(undefined);
 	const dragging = useRef(false);
-	// Whether the click after a drag should be ignored, so the row's menu doesn't open
-	const dragged = useRef(false);
 	const movable = STUDIO_DESKTOP || source.type === 'log';
 	const id = sourceId(source);
 
 	return {
 		onPointerDown: (event: PointerEvent<HTMLElement>) => {
-			dragged.current = false;
 			if (!movable || event.button !== 0 || event.pointerType === 'touch') {
 				return;
 			}
@@ -77,7 +74,6 @@ export function useSourceDrag(source: Source, list: { current: HTMLElement | nul
 			if (!wasDragging) {
 				return;
 			}
-			dragged.current = true;
 			if (drop?.index !== undefined && source.type === 'log') {
 				moveLog(source.id, drop.index);
 			} else if (STUDIO_DESKTOP && outside(event)) {
@@ -88,13 +84,6 @@ export function useSourceDrag(source: Source, list: { current: HTMLElement | nul
 			start.current = undefined;
 			dragging.current = false;
 			dragStore.set(undefined);
-		},
-		onClickCapture: (event: PointerEvent<HTMLElement> | React.MouseEvent<HTMLElement>) => {
-			if (dragged.current) {
-				dragged.current = false;
-				event.preventDefault();
-				event.stopPropagation();
-			}
 		},
 	};
 }

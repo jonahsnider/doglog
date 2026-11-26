@@ -120,7 +120,7 @@ function startLogLoad(options: {
 			if (unread !== undefined) {
 				toastManager.add({
 					type: 'warning',
-					title: 'Log corrupted',
+					title: `${name} is corrupted`,
 					description: `The last ${unread.percent}% of the file is unreadable, an estimated ${formatRoughDuration(unread.duration)} after ${formatTime(unread.after, 0)}.`,
 				});
 			}

@@ -17,7 +17,10 @@ import {
 	closeLog,
 	disconnect,
 	type LiveSource,
+	solo,
+	type Source,
 	sourceList,
+	toggleHidden,
 	useSources,
 	visibleSources,
 } from '@/data/source';
@@ -122,6 +125,17 @@ function liveItems(live: LiveSource, connectTarget: ConnectTarget | undefined, h
 	return items;
 }
 
+/** Hiding or showing a source, and the others while there are some */
+function visibilityItems(source: Source, sources: number, visible: number): MenuEntry[] {
+	const hidden = source.hidden === true;
+	const items: MenuEntry[] = [{ label: hidden ? 'Show' : 'Hide', onSelect: () => toggleHidden(source) }];
+	if (sources > 1) {
+		const alone = !hidden && visible === 1;
+		items.push({ label: alone ? 'Show others' : 'Hide others', onSelect: () => solo(source) });
+	}
+	return [...items, 'separator'];
+}
+
 /** One row per source at the top of the sidebar, growing with each one, see the data-sources spec's source list */
 export function SourceList({ onShow }: { onShow: () => void }) {
 	const sources = useSources();
@@ -207,6 +221,7 @@ export function SourceList({ onShow }: { onShow: () => void }) {
 								logIndex={undefined}
 								list={listRef}
 								menuItems={[
+									...visibilityItems(source, list.length, visible.length),
 									...liveItems(source, connect.target, logs.length > 0),
 									...(move === undefined ? [] : ['separator' as const, move]),
 								]}
@@ -215,6 +230,7 @@ export function SourceList({ onShow }: { onShow: () => void }) {
 						);
 					}
 					const items: MenuEntry[] = [
+						...visibilityItems(source, list.length, visible.length),
 						...(source.manualOffset === true
 							? [{ label: 'Line up automatically', onSelect: () => lineUpLog(source.id) }, 'separator' as const]
 							: []),

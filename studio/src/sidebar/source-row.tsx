@@ -1,32 +1,22 @@
-import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
-import { IconButton } from '@astryxdesign/core/IconButton';
-import { colorVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { colorVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
 import * as stylex from '@stylexjs/stylex';
 import { useSelector } from '@tanstack/react-store';
-import EyeIcon from 'lucide-react/icons/eye';
-import EyeOffIcon from 'lucide-react/icons/eye-off';
-import XIcon from 'lucide-react/icons/x';
 import { type ReactNode, type RefObject, useEffect, useRef } from 'react';
-import { AppContextMenu, MenuEntries, type MenuEntry } from '@/components/app-context-menu';
+import { AppActionMenu, AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { TextMorph } from '@/components/text-morph';
-import { closeLive, closeLog, solo, type Source, sourceId, toggleHidden } from '@/data/source';
+import { type Source, sourceId } from '@/data/source';
 import { highlightedSourceStore } from '@/data/source-store';
 import { duration, reducesMotion } from '@/lib/motion';
 import { useSourceDrag, useSourceDrop } from '@/sidebar/move-source';
 import { useSidebar } from '@/sidebar/sidebar-context';
-import { SidebarMenuButton, SidebarMenuItem } from '@/sidebar/sidebar-ui';
+import { SidebarMenuAction, SidebarMenuButton, SidebarMenuItem } from '@/sidebar/sidebar-ui';
 import { SourceIcon } from '@/sidebar/source-icon';
 import { sourceLabels } from '@/sidebar/source-labels';
 import { matchIcons } from '@/sync/match-icons';
 import { LineSample } from '@/widgets/line-sample';
 
 const styles = stylex.create({
-	row: {
-		position: 'relative',
-		// Room for the visibility and close buttons, see `sidebar-ui.css`
-		'--menu-action-space': `calc(${spacingVars['--spacing-12']} + ${spacingVars['--spacing-2']})`,
-	},
 	hidden: {
 		color: colorVars['--color-text-secondary'],
 	},
@@ -52,13 +42,6 @@ const styles = stylex.create({
 	},
 	reconnecting: {
 		color: colorVars['--color-text-error'],
-	},
-	actions: {
-		position: 'absolute',
-		insetBlock: 0,
-		insetInlineEnd: spacingVars['--spacing-0-5'],
-		display: 'flex',
-		alignItems: 'center',
 	},
 	sample: {
 		display: 'flex',
@@ -126,32 +109,6 @@ function dropLines(
 	return { dropBefore: drop.index === logIndex, dropAfter: lastLog && drop.index === logIndex + 1 };
 }
 
-/** The row's visibility toggle, which solos it when Alt-clicked, and its close button */
-function RowActions({ source, name, hidden }: { source: Source; name: string; hidden: boolean }) {
-	const closeLabel = source.type === 'log' ? 'Close log' : 'Disconnect and clear live data';
-	const visibilityLabel = hidden ? 'Show' : 'Hide';
-	return (
-		<div data-sidebar="menu-action" {...stylex.props(styles.actions)}>
-			<IconButton
-				label={`${visibilityLabel} ${name}`}
-				tooltip={`${visibilityLabel}, Alt-click to solo`}
-				icon={hidden ? <EyeOffIcon /> : <EyeIcon />}
-				variant="ghost"
-				size="sm"
-				onClick={(event) => (event.altKey ? solo(source) : toggleHidden(source))}
-			/>
-			<IconButton
-				label={closeLabel}
-				tooltip={closeLabel}
-				icon={<XIcon />}
-				variant="ghost"
-				size="sm"
-				onClick={source.type === 'log' ? () => closeLog(source.id) : closeLive}
-			/>
-		</div>
-	);
-}
-
 export function SourceRow({
 	source,
 	visibleIndex,
@@ -184,55 +141,43 @@ export function SourceRow({
 		<SidebarMenuItem
 			ref={ref}
 			data-log-index={logIndex}
-			xstyle={[styles.row, dropBefore && styles.dropBefore, dropAfter && styles.dropAfter]}
+			xstyle={[dropBefore && styles.dropBefore, dropAfter && styles.dropAfter]}
 		>
 			<AppContextMenu items={menuItems} label={`${name} actions`}>
-				<DropdownMenu
-					menuWidth={240}
-					header={header}
-					onOpenChange={onOpenChange}
-					renderTrigger={(trigger) => (
-						<Tooltip
-							content={<span {...stylex.props(styles.tooltip)}>{description}</span>}
-							placement="end"
-							isEnabled={description !== ''}
-						>
-							<SidebarMenuButton
-								{...trigger}
-								size="lg"
-								xstyle={hidden && styles.hidden}
-								// A mouse press would open the menu, so it opens on click instead and pressing can drag the row
-								onPointerDown={(event) => {
-									if (event.pointerType === 'touch') {
-										trigger.onPointerDown(event);
-									}
-									drag.onPointerDown(event);
-								}}
-								onPointerMove={drag.onPointerMove}
-								onPointerUp={drag.onPointerUp}
-								onPointerCancel={drag.onPointerCancel}
-								onClickCapture={(event) => {
-									drag.onClickCapture(event);
-									if (!event.isPropagationStopped()) {
-										trigger.onClickCapture(event);
-									}
-								}}
-							>
-								<SourceIcon source={source} />
-								<SourceLabels name={name} detail={detail} reconnecting={source.status === 'reconnecting'} />
-								{!hidden && (
-									<span {...stylex.props(styles.sample)}>
-										<LineSample index={visibleIndex} />
-									</span>
-								)}
-							</SidebarMenuButton>
-						</Tooltip>
-					)}
+				<Tooltip
+					content={<span {...stylex.props(styles.tooltip)}>{description}</span>}
+					placement="end"
+					isEnabled={description !== ''}
 				>
-					<MenuEntries items={menuItems} />
-				</DropdownMenu>
+					{/* Only dragged, its actions are in its menus */}
+					<SidebarMenuButton
+						size="lg"
+						xstyle={hidden && styles.hidden}
+						onPointerDown={drag.onPointerDown}
+						onPointerMove={drag.onPointerMove}
+						onPointerUp={drag.onPointerUp}
+						onPointerCancel={drag.onPointerCancel}
+					>
+						<SourceIcon source={source} />
+						<SourceLabels name={name} detail={detail} reconnecting={source.status === 'reconnecting'} />
+						{!hidden && (
+							<span {...stylex.props(styles.sample)}>
+								<LineSample index={visibleIndex} />
+							</span>
+						)}
+					</SidebarMenuButton>
+				</Tooltip>
 			</AppContextMenu>
-			<RowActions source={source} name={name} hidden={hidden} />
+			<SidebarMenuAction>
+				<AppActionMenu
+					items={() => menuItems}
+					label="Actions"
+					accessibleLabel={`${name} actions`}
+					header={header}
+					menuWidth={240}
+					onOpenChange={onOpenChange}
+				/>
+			</SidebarMenuAction>
 		</SidebarMenuItem>
 	);
 }

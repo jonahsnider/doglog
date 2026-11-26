@@ -41,11 +41,11 @@ Each window SHALL hold any number of logs and at most one live session, and MUST
 
 - **GIVEN** the user opened `qual12.wpilog` while connected to the robot
 - **THEN** Studio offers no command or shortcut to show one source instead of the other
-- **AND** the user hides or solos sources instead (see Hide a source and Solo a source)
+- **AND** the user hides sources or hides the others instead (see Hide a source and Hide other sources)
 
 ### Requirement: Source list
 
-The source list at the top of the sidebar SHALL show one row per source, with the live session first and logs below it. The list MUST grow with each source instead of scrolling or hiding sources in a menu. Each row MUST show the source's icon, name, and state, a sample of its line style (see the widgets spec's several sources), a visibility toggle, and, on hover or focus, a close button. A button in the list's header SHALL open a menu to open a log, open from URL, open a recent log, and connect.
+The source list at the top of the sidebar SHALL show one row per source, with the live session first and logs below it. The list MUST grow with each source instead of scrolling or hiding sources in a menu. Each row MUST show the source's icon, name, and state, and a sample of its line style (see the widgets spec's several sources). A row's actions MUST be in its menu (see Source menu) instead of buttons on the row, so the list stays uncluttered. Pressing a row MUST NOT do anything, but logs' rows MUST still be draggable (see Source order). A button in the list's header SHALL open a menu to open a log, open from URL, open a recent log, and connect.
 
 #### Scenario: Three sources
 
@@ -90,16 +90,14 @@ The source list at the top of the sidebar SHALL show one row per source, with th
 #### Scenario: Close a log
 
 - **GIVEN** the user opened `qual12.wpilog` and `qual13.wpilog` while connected to the robot
-- **WHEN** the user presses the close button on `qual12.wpilog`'s row
+- **WHEN** the user chooses Close log from `qual12.wpilog`'s menu
 - **THEN** `qual12.wpilog` closes
 - **AND** the live session and `qual13.wpilog` are unaffected
 
 #### Scenario: Close the live session
 
 - **GIVEN** the user opened `qual12.wpilog` while connected to the robot
-- **WHEN** the user hovers the live session's close button
-- **THEN** a tooltip reads "Disconnect and clear live data"
-- **WHEN** the user presses it
+- **WHEN** the user chooses Disconnect, then Clear, from the live session's menu
 - **THEN** Studio disconnects, throws away the live data, and shows `qual12.wpilog`
 
 #### Scenario: No source
@@ -119,14 +117,20 @@ While the sidebar is collapsed to its rail, the rail SHALL show one icon per sou
 
 ### Requirement: Source menu
 
-Clicking a source's row SHALL open that source's menu. The live session's menu MUST offer its connection actions (see Disconnect and clear) and Export as WPILOG (see Export live data). A log's menu MUST offer Close log. Every source's menu MUST offer its time offset (see Time offset), and in the desktop app, Move to (see the platforms spec's move sources between windows).
+A source's menu SHALL open from a "…" button at the end of its row, shown while the row is hovered or focused on devices with hover, and from right-clicking or long-pressing the row. Every source's menu MUST offer Hide or Show (see Hide a source), and while there are other sources, Hide others (see Hide other sources). The live session's menu MUST offer its connection actions (see Disconnect and clear) and Export as WPILOG (see Export live data). A log's menu MUST offer Close log. A loaded log's menu from its "…" button MUST show its time offset (see Time offset) above its items, and in the desktop app, every source's menu MUST offer Move to (see the platforms spec's move sources between windows).
 
 #### Scenario: Open a log's menu
 
 - **GIVEN** the user opened `qual12.wpilog` and `qual13.wpilog`
-- **WHEN** the user clicks `qual13.wpilog`'s row
-- **THEN** its menu shows its time offset and offers Close log
+- **WHEN** the user presses the "…" button on `qual13.wpilog`'s row
+- **THEN** its menu shows its time offset and offers Hide, Hide others, and Close log
 - **AND** both logs stay visible in every dashboard
+
+#### Scenario: Press a source's row
+
+- **GIVEN** the user opened `qual12.wpilog`
+- **WHEN** the user clicks its row
+- **THEN** nothing happens, and no menu opens
 
 ### Requirement: Source order
 
@@ -147,7 +151,7 @@ The top source in the source list SHALL be the time base that other sources line
 
 ### Requirement: Hide a source
 
-Each source's visibility toggle SHALL hide the source without closing it, and pressing it again MUST show it again. A hidden source MUST keep its data, and a hidden live session MUST keep receiving and recording data, but a hidden source MUST NOT be drawn in widgets, listed in the entry browser, or count toward the timeline's range.
+Hide in a source's menu SHALL hide the source without closing it, and Show MUST show it again. A hidden source's row MUST be dimmed and leave out its line style sample. A hidden source MUST keep its data, and a hidden live session MUST keep receiving and recording data, but a hidden source MUST NOT be drawn in widgets, listed in the entry browser, or count toward the timeline's range.
 
 #### Scenario: Hide a log
 
@@ -157,16 +161,16 @@ Each source's visibility toggle SHALL hide the source without closing it, and pr
 - **WHEN** the user shows `qual13.wpilog` again
 - **THEN** it's drawn right away, without reading the file again
 
-### Requirement: Solo a source
+### Requirement: Hide other sources
 
-Alt-clicking a source's visibility toggle SHALL solo it, hiding every other source, and Alt-clicking it again while it's the only visible source MUST show every source.
+Hide others in a source's menu SHALL show that source and hide every other source. While it's the only visible source, the item MUST read Show others instead, and MUST show every source.
 
-#### Scenario: Solo a source
+#### Scenario: Hide other sources
 
 - **GIVEN** the user opened `qual12.wpilog` and `qual13.wpilog` while connected to the robot
-- **WHEN** the user Alt-clicks the live session's visibility toggle
+- **WHEN** the user chooses Hide others from the live session's menu
 - **THEN** only the live session is drawn
-- **WHEN** the user Alt-clicks it again
+- **WHEN** the user chooses Show others from its menu
 - **THEN** every source is drawn
 
 ### Requirement: Line up sources
@@ -555,7 +559,7 @@ When part of a log can't be read, Studio MUST load every record before the damag
 - **AND** its readable part stops at 1:59.42
 - **WHEN** the user opens it
 - **THEN** every record before the damage is available
-- **AND** Studio warns that the last 66% of the file is unreadable, and an estimate of how long that is after 1:59.42, from the rate the rest of the log was written
+- **AND** Studio warns that the log, named by its file name, is corrupted: the last 66% of the file is unreadable, and an estimate of how long that is after 1:59.42, from the rate the rest of the log was written
 
 #### Scenario: Value that can't be decoded
 
