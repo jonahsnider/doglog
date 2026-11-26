@@ -60,17 +60,6 @@ const styles = stylex.create({
 		display: 'flex',
 		alignItems: 'center',
 	},
-	// Only shown while the row is hovered or focused, on devices with hover
-	close: {
-		opacity: {
-			default: 1,
-			'@media (hover: hover)': {
-				default: 0,
-				[stylex.when.ancestor(':hover')]: 1,
-				[stylex.when.ancestor(':focus-within')]: 1,
-			},
-		},
-	},
 	sample: {
 		display: 'flex',
 		flexShrink: 0,
@@ -157,7 +146,6 @@ function RowActions({ source, name, hidden }: { source: Source; name: string; hi
 				icon={<XIcon />}
 				variant="ghost"
 				size="sm"
-				xstyle={styles.close}
 				onClick={source.type === 'log' ? () => closeLog(source.id) : closeLive}
 			/>
 		</div>

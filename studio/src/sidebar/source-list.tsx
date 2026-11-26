@@ -1,6 +1,6 @@
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { IconButton } from '@astryxdesign/core/IconButton';
-import { typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useHotkey } from '@tanstack/react-hotkeys';
 import PlusIcon from 'lucide-react/icons/plus';
@@ -39,6 +39,13 @@ import { sectionLabelMarker } from './markers.stylex';
 const railSources = 4;
 
 const styles = stylex.create({
+	// Without the header's gap, so the label sits on the list like the dashboards' does. Space below matches the gap
+	// between the sidebar's other sections: a group's padding on either side, the gap between them, and a label's margin.
+	section: {
+		display: 'flex',
+		flexDirection: 'column',
+		paddingBottom: spacingVars['--spacing-3'],
+	},
 	sectionAction: {
 		marginInlineStart: 'auto',
 		opacity: {
@@ -151,7 +158,7 @@ export function SourceList({ onShow }: { onShow: () => void }) {
 
 	const shown = collapsed ? list.slice(0, list.length > railSources ? railSources - 1 : railSources) : list;
 	return (
-		<>
+		<div {...stylex.props(styles.section)}>
 			<SectionLabel label="Sources">
 				<DropdownMenu
 					alignment="end"
@@ -242,6 +249,6 @@ export function SourceList({ onShow }: { onShow: () => void }) {
 					</SidebarMenuItem>
 				)}
 			</SidebarMenu>
-		</>
+		</div>
 	);
 }
