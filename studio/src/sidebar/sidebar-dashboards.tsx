@@ -15,7 +15,6 @@ import { closedStore, type Dashboard, deleteDashboards, useDashboards } from '@/
 import { DashboardItem } from '@/sidebar/dashboard-item';
 import { useDragging, useNewDashboardDrop } from '@/sidebar/drag';
 import { type DashboardSelection, useDashboardSelection } from '@/sidebar/selection';
-import { simulatorHost } from '@/robot-target';
 import { useSettings } from '@/settings';
 import { useRecentlyConnected, useSharingHost } from '@/sharing/sharing';
 import { type LiveSource, useSources } from '@/data/source';
@@ -205,10 +204,7 @@ function sharingStatus(
 		return recentlyConnected ? 'Disconnected' : undefined;
 	}
 	// The data source above already shows where it's connected
-	if (live?.host === host) {
-		return 'Synced';
-	}
-	return host === simulatorHost ? 'Synced with simulator' : `Synced with ${robotTarget.trim()}`;
+	return live?.host === host ? 'Synced' : `Synced with ${robotTarget.trim()}`;
 }
 
 /** Below the other dashboards, it fills the empty space below it, so the pointer stays in this section when the other's drop placeholder moves it down */

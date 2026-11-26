@@ -20,6 +20,9 @@ const binaryFrame = z.tuple([z.number(), z.number(), z.number(), z.union([z.numb
 const controlFrames = z.array(z.object({ method: z.string(), params: z.record(z.string(), z.unknown()) }));
 const noop = () => {};
 
+// Dashboards are shared on the robot set in Settings
+updateSettings({ robotTarget: '581' });
+
 function serveAfterReconnect(socket: WebSocket, firstPublish: () => void, receive: (name?: string) => void): void {
 	let publisher: number | undefined;
 	let missedAnnouncement = false;

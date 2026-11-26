@@ -2,7 +2,7 @@ import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import { getSharedDocs, removeExpired } from '@/dashboards/sharing';
 import { canConnectWithoutPrompt, isReachable } from '@/data/connect-target';
-import { getRobotHost, simulatorHost } from '@/robot-target';
+import { getRobotHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
 import { trackActivity } from '@/sharing/presence';
 
@@ -38,8 +38,8 @@ function setHost(host: string | undefined): void {
 const retryDelay = 5000;
 
 /**
- * Keep shared dashboards and presence in sync with others connected to the robot, or the simulator when the robot isn't
- * reachable, for as long as the app is open. This connection is separate from the data source.
+ * Keep shared dashboards and presence in sync with others connected to the robot for as long as the app is open.
+ * Simulators are never used for sharing. This connection is separate from the data source.
  */
 export function startSharing(): void {
 	removeExpired();
@@ -65,22 +65,18 @@ export function startSharing(): void {
 	};
 
 	async function attempt(attemptGeneration: number): Promise<void> {
-		const robotHost = getRobotHost(settingsStore.get().robotTarget);
-		const hosts = robotHost === undefined ? [simulatorHost] : [robotHost, simulatorHost];
+		const host = getRobotHost(settingsStore.get().robotTarget);
+		// Restarted once a robot is set
+		if (host === undefined) {
+			return;
+		}
 		// Asking for local network access unprompted would be surprising, unless the user shared a dashboard
-		const shared = getSharedDocs().length > 0;
-		const reachable = await Promise.all(
-			hosts.map(
-				async (host) =>
-					(shared || (await canConnectWithoutPrompt(host === simulatorHost ? 'loopback-network' : 'local-network'))) &&
-					isReachable(host),
-			),
-		);
-		const host = hosts.find((_, index) => reachable[index] === true);
+		const reachable =
+			(getSharedDocs().length > 0 || (await canConnectWithoutPrompt('local-network'))) && (await isReachable(host));
 		if (attemptGeneration !== generation) {
 			return;
 		}
-		if (host === undefined) {
+		if (!reachable) {
 			retry(attemptGeneration);
 			return;
 		}
@@ -106,7 +102,6 @@ export function startSharing(): void {
 				return;
 			}
 
-			// Look for the robot and simulator again, since the other one might be reachable now
 			disconnect?.();
 			disconnect = undefined;
 			setHost(undefined);

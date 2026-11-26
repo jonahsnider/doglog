@@ -21,6 +21,7 @@ import {
 	writeSharing,
 } from '@/dashboards/doc';
 import { currentCloudScope, isCloudScope, requireCloud } from '@/cloud/session';
+import { toastManager } from '@/components/toast';
 import { focusPane, zoomPane } from '@/dashboards/pane-state';
 import { sharingScope } from '@/dashboards/scope';
 import { createId } from '@/lib/random-id';
@@ -39,6 +40,9 @@ function isExpired({ scope, deletedAt }: DashboardSharing): boolean {
  */
 export function getSharedDocs(): { id: string; doc: LoroDoc }[] {
 	const scope = sharingScope();
+	if (scope === undefined) {
+		return [];
+	}
 	return idsStore.get().flatMap((id) => {
 		const sharing = getSharing(id);
 		return sharing.scope === scope && !isExpired(sharing) ? [{ id, doc: getDoc(id).doc }] : [];
@@ -61,7 +65,7 @@ export function receiveSharedDashboard(id: string, bytes: Uint8Array): void {
 		const doc = new LoroDoc();
 		doc.import(bytes);
 		const sharing = readSharing(doc);
-		// Others still send dashboards they deleted, and ones shared on other robots can reach the simulator
+		// Others still send dashboards they deleted
 		if (sharing.scope !== sharingScope() || sharing.deletedAt !== undefined) {
 			return;
 		}
@@ -75,8 +79,12 @@ export function receiveSharedDashboard(id: string, bytes: Uint8Array): void {
 	idsStore.set((ids) => (ids.includes(id) ? ids : [...ids, id]));
 }
 
-/** Sharing with a team publishes to Cloud, see `requireCloud()` */
+/** Sharing with a team publishes to Cloud, see `requireCloud()`, and sharing without one needs a robot to share on */
 export function canShareDashboards(): boolean {
+	if (currentCloudScope() === undefined && sharingScope() === undefined) {
+		toastManager.add({ type: 'error', title: 'Set a robot connection in Settings to share dashboards' });
+		return false;
+	}
 	return requireCloud(currentCloudScope() !== undefined, 'share dashboards with your team');
 }
 
