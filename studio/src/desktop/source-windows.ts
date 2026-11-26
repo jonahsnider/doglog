@@ -93,7 +93,7 @@ async function windowOrigin(): Promise<{ x: number; y: number }> {
 }
 
 /** Index among the logs a source dropped at `clientY` in the source list goes to */
-export function dropIndex(list: HTMLElement, clientY: number): number {
+function dropIndex(list: HTMLElement, clientY: number): number {
 	const rows = [...list.querySelectorAll<HTMLElement>('[data-log-index]')];
 	const after = rows.filter((row) => {
 		const { top, height } = row.getBoundingClientRect();
