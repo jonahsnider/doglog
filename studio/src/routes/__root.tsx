@@ -28,6 +28,11 @@ const styles = stylex.create({
 		display: 'flex',
 		flexDirection: 'column',
 		height: '100svh',
+		// Keeps content out of the notch, Dynamic Island, and home indicator, which the background still fills
+		paddingTop: 'env(safe-area-inset-top)',
+		paddingRight: 'env(safe-area-inset-right)',
+		paddingBottom: 'env(safe-area-inset-bottom)',
+		paddingLeft: 'env(safe-area-inset-left)',
 		backgroundColor: colorVars['--color-background-body'],
 	},
 	mobileFrame: {
