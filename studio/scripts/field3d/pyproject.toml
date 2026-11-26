@@ -10,7 +10,7 @@ dev = [
 	# Types for ty, which can't read them from OpenCascade's compiled bindings
 	"cadquery-ocp-stubs==8.0.1.1.0",
 	"ruff==0.17.6",
-	"ty==0.0.111",
+	"ty==0.0.112",
 ]
 
 [tool.uv]
