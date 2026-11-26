@@ -10,6 +10,8 @@ Keep feature behavior and functionality in `openspec/specs`.
 - Build context menus with `AppContextMenu`
 - Let panels that slide in on touch devices close with a swipe toward their edge using `useSwipeToClose` from `@/hooks/use-swipe-to-close`, and don't add swipes that start at the screen's edge, since browsers and installed web apps use them to go back
 - Group related account or settings actions in a `SettingsGroup` card of `ListItem` rows, with each action at the row's end and anything that can't be undone in its own group
+- Put the actions of a row or item that has several, or that people rarely use, in an `AppActionMenu` (`…` button) instead of a row of buttons
+- Show values people copy, like links, in a read-only `TextInput` with a copy `IconButton` attached by an `InputGroup`, using `useClipboard` to cross-fade its icon to a check once it's copied
 
 ### Keyboard shortcuts
 
