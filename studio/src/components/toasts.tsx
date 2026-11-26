@@ -67,6 +67,8 @@ const styles = stylex.create({
 		width: 16,
 		height: 16,
 	},
+	// Fills the same 16px box as the icons, with the small spinner's 2px stroke on each side
+	spinner: { '--spinner-diameter': '12px' },
 	info: { color: colorVars['--color-icon-info'] },
 	success: { color: colorVars['--color-icon-success'] },
 	warning: { color: colorVars['--color-icon-warning'] },
@@ -92,7 +94,7 @@ const icons: Record<ToastType, ReactNode> = {
 	success: <CircleCheckIcon {...stylex.props(styles.icon, styles.success)} />,
 	warning: <TriangleAlertIcon {...stylex.props(styles.icon, styles.warning)} />,
 	error: <CircleAlertIcon {...stylex.props(styles.icon, styles.error)} />,
-	loading: <Spinner size="sm" />,
+	loading: <Spinner size="sm" className={stylex.props(styles.spinner).className} />,
 };
 
 /** A toast's contents, styled with Studio's theme */
