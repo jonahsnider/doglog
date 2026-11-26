@@ -147,12 +147,32 @@
 /*
  * Menu buttons stay rounded as the sidebar's edge passes over them, instead of being cut straight by it, by clipping
  * them as far from the edge as they are in the rail, so they're the rail's squares when it's the rail's width instead of
- * jumping to them. Only while it animates, so it doesn't clip their focus rings.
+ * jumping to them. Only while it animates, so it doesn't clip their focus rings. While the sidebar resizes, the clip is
+ * animated like its width instead of following it with container units, since making the sidebar a size container
+ * restyles everything in it every frame in WebKit. Until the edge reaches them, the clip is past their own rounded end.
  */
 [data-animation] [data-sidebar='sidebar'] [data-sidebar='menu-button'] {
 	clip-path: inset(
-		0 max(0px, 100% + var(--sidebar-width-icon) - var(--size-element-md) - 100cqw) 0 0 round var(--radius-element)
+		0 calc(100% + var(--sidebar-width-icon) - var(--size-element-md) - var(--sidebar-width)) 0 0 round
+			var(--radius-element)
 	);
+	animation: calc(var(--duration-fast-max) * var(--motion-scale)) var(--ease-move) both;
+}
+[data-animation='collapse'] [data-sidebar='sidebar'] [data-sidebar='menu-button'] {
+	animation-name: sidebar-edge-collapse;
+}
+[data-animation='expand'] [data-sidebar='sidebar'] [data-sidebar='menu-button'] {
+	animation-name: sidebar-edge-expand;
+}
+@keyframes sidebar-edge-collapse {
+	to {
+		clip-path: inset(0 calc(100% - var(--size-element-md)) 0 0 round var(--radius-element));
+	}
+}
+@keyframes sidebar-edge-expand {
+	from {
+		clip-path: inset(0 calc(100% - var(--size-element-md)) 0 0 round var(--radius-element));
+	}
 }
 /*
  * Labels fade out as the sidebar collapses, and back in as it expands, instead of what's left of them in the rail

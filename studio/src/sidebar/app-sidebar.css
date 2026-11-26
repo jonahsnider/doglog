@@ -39,8 +39,6 @@
 	border-end-end-radius: var(--radius-element);
 	/* Transparent on the frame, so it shows the window's backdrop through it when it's frosted. Its surface for peeking is below. */
 	color: var(--color-text-secondary);
-	/* Its width as it animates, for the menu buttons' corners, see `index.css` */
-	container-type: inline-size;
 	transition-property: box-shadow, --peek;
 	transition-duration: calc(var(--duration-fast-max) * var(--motion-scale));
 	transition-timing-function: var(--ease-move);
