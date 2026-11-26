@@ -2,13 +2,16 @@ import { Button } from '@astryxdesign/core/Button';
 import { Spinner } from '@astryxdesign/core/Spinner';
 import { colorVars, fontWeightVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import type { ShowToastFn, ToastDismissFn } from '@astryxdesign/core/Toast';
+import { Tooltip } from '@astryxdesign/core/Tooltip';
 import * as stylex from '@stylexjs/stylex';
+import type { Hotkey } from '@tanstack/react-hotkeys';
 import CircleAlertIcon from 'lucide-react/icons/circle-alert';
 import CircleCheckIcon from 'lucide-react/icons/circle-check';
 import InfoIcon from 'lucide-react/icons/info';
 import TriangleAlertIcon from 'lucide-react/icons/triangle-alert';
 import { nanoid } from 'nanoid';
 import type { ReactNode } from 'react';
+import { TooltipLabel } from '@/components/tooltip-label';
 
 type ToastType = 'info' | 'success' | 'warning' | 'error' | 'loading';
 
@@ -16,8 +19,8 @@ export interface ToastOptions {
 	type?: ToastType;
 	title: ReactNode;
 	description?: ReactNode;
-	/** A button at the end of the toast */
-	actionProps?: { children: string; onClick: () => void };
+	/** A button at the end of the toast, with its shortcut in a tooltip */
+	actionProps?: { children: string; onClick: () => void; shortcut?: Hotkey };
 	/** Milliseconds before it hides on its own, 0 keeps it until it's dismissed. Errors and loading toasts always stay. */
 	timeout?: number;
 }
@@ -48,6 +51,8 @@ const styles = stylex.create({
 	},
 	title: {
 		fontWeight: fontWeightVars['--font-weight-medium'],
+		// Progress, ex. a download's percent, doesn't change the toast's width as it counts up
+		fontVariantNumeric: 'tabular-nums',
 	},
 	description: {
 		userSelect: 'text',
@@ -88,14 +93,19 @@ function showToast(id: string, { type = 'info', title, description, actionProps,
 			</span>
 		),
 		endContent: actionProps && (
-			<Button
-				label={actionProps.children}
-				size="sm"
-				onClick={() => {
-					actionProps.onClick();
-					dismiss();
-				}}
-			/>
+			<Tooltip
+				content={<TooltipLabel label={actionProps.children} shortcut={actionProps.shortcut} />}
+				isEnabled={actionProps.shortcut !== undefined}
+			>
+				<Button
+					label={actionProps.children}
+					size="sm"
+					onClick={() => {
+						actionProps.onClick();
+						dismiss();
+					}}
+				/>
+			</Tooltip>
 		),
 		onHide: () => {
 			dismissers.delete(id);

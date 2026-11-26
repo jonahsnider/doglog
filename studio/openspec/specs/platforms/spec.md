@@ -242,6 +242,18 @@ The desktop app SHALL update itself automatically.
 - **THEN** a toast shows Studio checking for updates, then says whether a newer version is available
 - **AND** if one is, pressing ⇧⌘U again shows a toast that Studio is updating, then installs the update and restarts Studio
 
+#### Scenario: Update from the toast
+
+- **GIVEN** a toast says a newer version is available
+- **THEN** it has a button that installs the update, the same as pressing the update shortcut again
+- **AND** hovering the button shows a tooltip with the shortcut
+
+#### Scenario: Update progress
+
+- **WHEN** the desktop app installs an update from the shortcut or the toast
+- **THEN** the toast shows the download's percent as it counts up, in the same toast
+- **AND** once the download finishes, it says the update is being prepared until Studio restarts
+
 #### Scenario: Check for updates repeatedly
 
 - **WHEN** the user checks for updates several times in a row, from any mix of the shortcut, menu, and sidebar
