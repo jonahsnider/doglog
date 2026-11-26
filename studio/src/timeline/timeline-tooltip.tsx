@@ -14,12 +14,11 @@ import type { AlertSpan, ModePeriod } from '@/timeline/events';
 import type { MatchShift } from '@/timeline/shifts';
 
 const styles = stylex.create({
-	// The popup balances text, which wraps alerts into narrow lines, so they wrap normally up to a wider width
+	// The popup balances text, which wraps alerts into narrow lines, so they wrap normally.
+	// It's at most 300px wide and clips anything wider, so the content is left to its width.
 	content: {
 		display: 'flex',
 		flexDirection: 'column',
-		width: 'max-content',
-		maxWidth: '28rem',
 		paddingBlock: spacingVars['--spacing-0-5'],
 		textWrap: 'pretty',
 	},
