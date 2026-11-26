@@ -261,7 +261,7 @@ export type WidgetInfo = {
 	readonly title?: (options: Readonly<Record<string, string>>) => string;
 };
 
-/** Every widget type, in the order they're listed in the widget picker */
+/** Every widget type, in the order they're listed in the widget picker, see `widgetTypes` */
 export const widgetInfos = [
 	{
 		id: 'graph',
@@ -270,15 +270,6 @@ export const widgetInfos = [
 			"Plots entries over time. Numbers go on the left or right axis (`left`, `right`), or are shown as colored bands (`discrete`); booleans and strings can only be bands. A number goes on the right axis when its unit measures something else than the left axis's.",
 		accepts: ['number', 'boolean', 'string'],
 		roles: Object.values(widgetRoles.graph),
-		options: [],
-	},
-	{
-		id: 'histogram',
-		name: 'Histogram',
-		description:
-			'Shows how the values of numeric entries are distributed over the time range graphs show, each entry a series in one histogram, with summary statistics for each.',
-		accepts: ['number'],
-		roles: [],
 		options: [],
 	},
 	{
@@ -300,6 +291,24 @@ export const widgetInfos = [
 		options: Object.values(widgetOptions.robot),
 	},
 	{
+		id: 'swerve',
+		name: 'Swerve',
+		description:
+			'A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d, Pose2d, Pose3d, or number is the `heading`. When the heading comes from a pose shown on a field widget, the drawing turns to match that field.',
+		accepts: ['number', 'struct', 'struct[]'],
+		roles: Object.values(widgetRoles.swerve),
+		options: [],
+	},
+	{
+		id: 'histogram',
+		name: 'Histogram',
+		description:
+			'Shows how the values of numeric entries are distributed over the time range graphs show, each entry a series in one histogram, with summary statistics for each.',
+		accepts: ['number'],
+		roles: [],
+		options: [],
+	},
+	{
 		id: 'table',
 		name: 'Table',
 		description: "A table of the bound entries' values at the timeline cursor. Accepts every kind but Mechanism2d.",
@@ -318,15 +327,6 @@ export const widgetInfos = [
 		defaultEntryNames: ['/console', '/messages'],
 	},
 	{
-		id: 'swerve',
-		name: 'Swerve',
-		description:
-			'A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d, Pose2d, Pose3d, or number is the `heading`. When the heading comes from a pose shown on a field widget, the drawing turns to match that field.',
-		accepts: ['number', 'struct', 'struct[]'],
-		roles: Object.values(widgetRoles.swerve),
-		options: [],
-	},
-	{
 		id: 'controller',
 		name: 'Controller',
 		description:
@@ -335,14 +335,6 @@ export const widgetInfos = [
 		roles: [],
 		options: Object.values(widgetOptions.controller),
 		title: (options) => `Controller ${options['controller']}`,
-	},
-	{
-		id: 'notepad',
-		name: 'Notepad',
-		description: "Notes the user types, shared by the notepads on one dashboard. Doesn't take entries.",
-		accepts: [],
-		roles: [],
-		options: [],
 	},
 	{
 		id: 'video',
@@ -361,6 +353,14 @@ export const widgetInfos = [
 		roles: [],
 		options: Object.values(widgetOptions.camera),
 		title: ({ camera = '' }) => (camera === '' ? 'Camera' : camera),
+	},
+	{
+		id: 'notepad',
+		name: 'Notepad',
+		description: "Notes the user types, shared by the notepads on one dashboard. Doesn't take entries.",
+		accepts: [],
+		roles: [],
+		options: [],
 	},
 ] as const satisfies readonly WidgetInfo[];
 

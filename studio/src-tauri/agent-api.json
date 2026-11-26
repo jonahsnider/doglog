@@ -217,48 +217,6 @@
 												"properties": {
 													"type": {
 														"type": "string",
-														"const": "histogram"
-													},
-													"bindings": {
-														"description": "Entries to show, in order. Accepted kinds: number. Left out, the widget starts like one the user adds.",
-														"type": "array",
-														"items": {
-															"type": "object",
-															"properties": {
-																"entry": {
-																	"type": "string",
-																	"minLength": 1,
-																	"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
-																},
-																"color": {
-																	"type": "integer",
-																	"minimum": 0,
-																	"maximum": 4,
-																	"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
-																},
-																"hidden": {
-																	"type": "boolean",
-																	"description": "Listed in the legend but not drawn"
-																}
-															},
-															"required": [
-																"entry"
-															],
-															"additionalProperties": false
-														}
-													}
-												},
-												"required": [
-													"type"
-												],
-												"additionalProperties": false,
-												"description": "Histogram: Shows how the values of numeric entries are distributed over the time range graphs show, each entry a series in one histogram, with summary statistics for each."
-											},
-											{
-												"type": "object",
-												"properties": {
-													"type": {
-														"type": "string",
 														"const": "field"
 													},
 													"options": {
@@ -519,6 +477,101 @@
 												"properties": {
 													"type": {
 														"type": "string",
+														"const": "swerve"
+													},
+													"bindings": {
+														"description": "Entries to show, in order. Accepted kinds: number, struct, struct[]. Left out, the widget starts like one the user adds.",
+														"type": "array",
+														"items": {
+															"type": "object",
+															"properties": {
+																"entry": {
+																	"type": "string",
+																	"minLength": 1,
+																	"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
+																},
+																"color": {
+																	"type": "integer",
+																	"minimum": 0,
+																	"maximum": 4,
+																	"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
+																},
+																"hidden": {
+																	"type": "boolean",
+																	"description": "Listed in the legend but not drawn"
+																},
+																"role": {
+																	"description": "How the widget shows the entry. Left out, it's inferred from the entry and the bindings before it.",
+																	"type": "string",
+																	"enum": [
+																		"states",
+																		"positions",
+																		"speeds",
+																		"fieldSpeeds",
+																		"heading"
+																	]
+																}
+															},
+															"required": [
+																"entry"
+															],
+															"additionalProperties": false
+														}
+													}
+												},
+												"required": [
+													"type"
+												],
+												"additionalProperties": false,
+												"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d, Pose2d, Pose3d, or number is the `heading`. When the heading comes from a pose shown on a field widget, the drawing turns to match that field."
+											},
+											{
+												"type": "object",
+												"properties": {
+													"type": {
+														"type": "string",
+														"const": "histogram"
+													},
+													"bindings": {
+														"description": "Entries to show, in order. Accepted kinds: number. Left out, the widget starts like one the user adds.",
+														"type": "array",
+														"items": {
+															"type": "object",
+															"properties": {
+																"entry": {
+																	"type": "string",
+																	"minLength": 1,
+																	"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
+																},
+																"color": {
+																	"type": "integer",
+																	"minimum": 0,
+																	"maximum": 4,
+																	"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
+																},
+																"hidden": {
+																	"type": "boolean",
+																	"description": "Listed in the legend but not drawn"
+																}
+															},
+															"required": [
+																"entry"
+															],
+															"additionalProperties": false
+														}
+													}
+												},
+												"required": [
+													"type"
+												],
+												"additionalProperties": false,
+												"description": "Histogram: Shows how the values of numeric entries are distributed over the time range graphs show, each entry a series in one histogram, with summary statistics for each."
+											},
+											{
+												"type": "object",
+												"properties": {
+													"type": {
+														"type": "string",
 														"const": "table"
 													},
 													"bindings": {
@@ -603,59 +656,6 @@
 												"properties": {
 													"type": {
 														"type": "string",
-														"const": "swerve"
-													},
-													"bindings": {
-														"description": "Entries to show, in order. Accepted kinds: number, struct, struct[]. Left out, the widget starts like one the user adds.",
-														"type": "array",
-														"items": {
-															"type": "object",
-															"properties": {
-																"entry": {
-																	"type": "string",
-																	"minLength": 1,
-																	"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
-																},
-																"color": {
-																	"type": "integer",
-																	"minimum": 0,
-																	"maximum": 4,
-																	"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
-																},
-																"hidden": {
-																	"type": "boolean",
-																	"description": "Listed in the legend but not drawn"
-																},
-																"role": {
-																	"description": "How the widget shows the entry. Left out, it's inferred from the entry and the bindings before it.",
-																	"type": "string",
-																	"enum": [
-																		"states",
-																		"positions",
-																		"speeds",
-																		"fieldSpeeds",
-																		"heading"
-																	]
-																}
-															},
-															"required": [
-																"entry"
-															],
-															"additionalProperties": false
-														}
-													}
-												},
-												"required": [
-													"type"
-												],
-												"additionalProperties": false,
-												"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d, Pose2d, Pose3d, or number is the `heading`. When the heading comes from a pose shown on a field widget, the drawing turns to match that field."
-											},
-											{
-												"type": "object",
-												"properties": {
-													"type": {
-														"type": "string",
 														"const": "controller"
 													},
 													"options": {
@@ -719,20 +719,6 @@
 												],
 												"additionalProperties": false,
 												"description": "Controller: A Driver Station controller's buttons and sticks. Doesn't take entries: pick the joystick port with the `controller` option. The `layout` option is inferred from the controller's name."
-											},
-											{
-												"type": "object",
-												"properties": {
-													"type": {
-														"type": "string",
-														"const": "notepad"
-													}
-												},
-												"required": [
-													"type"
-												],
-												"additionalProperties": false,
-												"description": "Notepad: Notes the user types, shared by the notepads on one dashboard. Doesn't take entries."
 											},
 											{
 												"type": "object",
@@ -826,6 +812,20 @@
 												],
 												"additionalProperties": false,
 												"description": "Camera: Shows a live robot camera feed while following live data. Does not take entries or record frames."
+											},
+											{
+												"type": "object",
+												"properties": {
+													"type": {
+														"type": "string",
+														"const": "notepad"
+													}
+												},
+												"required": [
+													"type"
+												],
+												"additionalProperties": false,
+												"description": "Notepad: Notes the user types, shared by the notepads on one dashboard. Doesn't take entries."
 											}
 										]
 									},
@@ -1053,48 +1053,6 @@
 								],
 								"additionalProperties": false,
 								"description": "Graph: Plots entries over time. Numbers go on the left or right axis (`left`, `right`), or are shown as colored bands (`discrete`); booleans and strings can only be bands. A number goes on the right axis when its unit measures something else than the left axis's."
-							},
-							{
-								"type": "object",
-								"properties": {
-									"type": {
-										"type": "string",
-										"const": "histogram"
-									},
-									"bindings": {
-										"description": "Entries to show, in order. Accepted kinds: number. Left out, the widget starts like one the user adds.",
-										"type": "array",
-										"items": {
-											"type": "object",
-											"properties": {
-												"entry": {
-													"type": "string",
-													"minLength": 1,
-													"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
-												},
-												"color": {
-													"type": "integer",
-													"minimum": 0,
-													"maximum": 4,
-													"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
-												},
-												"hidden": {
-													"type": "boolean",
-													"description": "Listed in the legend but not drawn"
-												}
-											},
-											"required": [
-												"entry"
-											],
-											"additionalProperties": false
-										}
-									}
-								},
-								"required": [
-									"type"
-								],
-								"additionalProperties": false,
-								"description": "Histogram: Shows how the values of numeric entries are distributed over the time range graphs show, each entry a series in one histogram, with summary statistics for each."
 							},
 							{
 								"type": "object",
@@ -1361,6 +1319,101 @@
 								"properties": {
 									"type": {
 										"type": "string",
+										"const": "swerve"
+									},
+									"bindings": {
+										"description": "Entries to show, in order. Accepted kinds: number, struct, struct[]. Left out, the widget starts like one the user adds.",
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"entry": {
+													"type": "string",
+													"minLength": 1,
+													"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
+												},
+												"color": {
+													"type": "integer",
+													"minimum": 0,
+													"maximum": 4,
+													"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
+												},
+												"hidden": {
+													"type": "boolean",
+													"description": "Listed in the legend but not drawn"
+												},
+												"role": {
+													"description": "How the widget shows the entry. Left out, it's inferred from the entry and the bindings before it.",
+													"type": "string",
+													"enum": [
+														"states",
+														"positions",
+														"speeds",
+														"fieldSpeeds",
+														"heading"
+													]
+												}
+											},
+											"required": [
+												"entry"
+											],
+											"additionalProperties": false
+										}
+									}
+								},
+								"required": [
+									"type"
+								],
+								"additionalProperties": false,
+								"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d, Pose2d, Pose3d, or number is the `heading`. When the heading comes from a pose shown on a field widget, the drawing turns to match that field."
+							},
+							{
+								"type": "object",
+								"properties": {
+									"type": {
+										"type": "string",
+										"const": "histogram"
+									},
+									"bindings": {
+										"description": "Entries to show, in order. Accepted kinds: number. Left out, the widget starts like one the user adds.",
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"entry": {
+													"type": "string",
+													"minLength": 1,
+													"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
+												},
+												"color": {
+													"type": "integer",
+													"minimum": 0,
+													"maximum": 4,
+													"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
+												},
+												"hidden": {
+													"type": "boolean",
+													"description": "Listed in the legend but not drawn"
+												}
+											},
+											"required": [
+												"entry"
+											],
+											"additionalProperties": false
+										}
+									}
+								},
+								"required": [
+									"type"
+								],
+								"additionalProperties": false,
+								"description": "Histogram: Shows how the values of numeric entries are distributed over the time range graphs show, each entry a series in one histogram, with summary statistics for each."
+							},
+							{
+								"type": "object",
+								"properties": {
+									"type": {
+										"type": "string",
 										"const": "table"
 									},
 									"bindings": {
@@ -1445,59 +1498,6 @@
 								"properties": {
 									"type": {
 										"type": "string",
-										"const": "swerve"
-									},
-									"bindings": {
-										"description": "Entries to show, in order. Accepted kinds: number, struct, struct[]. Left out, the widget starts like one the user adds.",
-										"type": "array",
-										"items": {
-											"type": "object",
-											"properties": {
-												"entry": {
-													"type": "string",
-													"minLength": 1,
-													"description": "Full entry name, ex. `/Robot/Drive/Pose`. Entries missing from the source can be bound too."
-												},
-												"color": {
-													"type": "integer",
-													"minimum": 0,
-													"maximum": 4,
-													"description": "One of the theme's 5 chart colors, by index. Left out, the widget picks one."
-												},
-												"hidden": {
-													"type": "boolean",
-													"description": "Listed in the legend but not drawn"
-												},
-												"role": {
-													"description": "How the widget shows the entry. Left out, it's inferred from the entry and the bindings before it.",
-													"type": "string",
-													"enum": [
-														"states",
-														"positions",
-														"speeds",
-														"fieldSpeeds",
-														"heading"
-													]
-												}
-											},
-											"required": [
-												"entry"
-											],
-											"additionalProperties": false
-										}
-									}
-								},
-								"required": [
-									"type"
-								],
-								"additionalProperties": false,
-								"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d, Pose2d, Pose3d, or number is the `heading`. When the heading comes from a pose shown on a field widget, the drawing turns to match that field."
-							},
-							{
-								"type": "object",
-								"properties": {
-									"type": {
-										"type": "string",
 										"const": "controller"
 									},
 									"options": {
@@ -1561,20 +1561,6 @@
 								],
 								"additionalProperties": false,
 								"description": "Controller: A Driver Station controller's buttons and sticks. Doesn't take entries: pick the joystick port with the `controller` option. The `layout` option is inferred from the controller's name."
-							},
-							{
-								"type": "object",
-								"properties": {
-									"type": {
-										"type": "string",
-										"const": "notepad"
-									}
-								},
-								"required": [
-									"type"
-								],
-								"additionalProperties": false,
-								"description": "Notepad: Notes the user types, shared by the notepads on one dashboard. Doesn't take entries."
 							},
 							{
 								"type": "object",
@@ -1668,6 +1654,20 @@
 								],
 								"additionalProperties": false,
 								"description": "Camera: Shows a live robot camera feed while following live data. Does not take entries or record frames."
+							},
+							{
+								"type": "object",
+								"properties": {
+									"type": {
+										"type": "string",
+										"const": "notepad"
+									}
+								},
+								"required": [
+									"type"
+								],
+								"additionalProperties": false,
+								"description": "Notepad: Notes the user types, shared by the notepads on one dashboard. Doesn't take entries."
 							}
 						]
 					}
@@ -1714,20 +1714,6 @@
 										],
 										"additionalProperties": false,
 										"description": "Graph: Plots entries over time. Numbers go on the left or right axis (`left`, `right`), or are shown as colored bands (`discrete`); booleans and strings can only be bands. A number goes on the right axis when its unit measures something else than the left axis's."
-									},
-									{
-										"type": "object",
-										"properties": {
-											"type": {
-												"type": "string",
-												"const": "histogram"
-											}
-										},
-										"required": [
-											"type"
-										],
-										"additionalProperties": false,
-										"description": "Histogram: Shows how the values of numeric entries are distributed over the time range graphs show, each entry a series in one histogram, with summary statistics for each."
 									},
 									{
 										"type": "object",
@@ -1897,6 +1883,34 @@
 										"properties": {
 											"type": {
 												"type": "string",
+												"const": "swerve"
+											}
+										},
+										"required": [
+											"type"
+										],
+										"additionalProperties": false,
+										"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d, Pose2d, Pose3d, or number is the `heading`. When the heading comes from a pose shown on a field widget, the drawing turns to match that field."
+									},
+									{
+										"type": "object",
+										"properties": {
+											"type": {
+												"type": "string",
+												"const": "histogram"
+											}
+										},
+										"required": [
+											"type"
+										],
+										"additionalProperties": false,
+										"description": "Histogram: Shows how the values of numeric entries are distributed over the time range graphs show, each entry a series in one histogram, with summary statistics for each."
+									},
+									{
+										"type": "object",
+										"properties": {
+											"type": {
+												"type": "string",
 												"const": "table"
 											}
 										},
@@ -1919,20 +1933,6 @@
 										],
 										"additionalProperties": false,
 										"description": "Console: Text logged over time, like a terminal. Starts with WPILib's console output (`/console`) and Driver Station messages (`/messages`) bound."
-									},
-									{
-										"type": "object",
-										"properties": {
-											"type": {
-												"type": "string",
-												"const": "swerve"
-											}
-										},
-										"required": [
-											"type"
-										],
-										"additionalProperties": false,
-										"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d, Pose2d, Pose3d, or number is the `heading`. When the heading comes from a pose shown on a field widget, the drawing turns to match that field."
 									},
 									{
 										"type": "object",
@@ -2002,20 +2002,6 @@
 										],
 										"additionalProperties": false,
 										"description": "Controller: A Driver Station controller's buttons and sticks. Doesn't take entries: pick the joystick port with the `controller` option. The `layout` option is inferred from the controller's name."
-									},
-									{
-										"type": "object",
-										"properties": {
-											"type": {
-												"type": "string",
-												"const": "notepad"
-											}
-										},
-										"required": [
-											"type"
-										],
-										"additionalProperties": false,
-										"description": "Notepad: Notes the user types, shared by the notepads on one dashboard. Doesn't take entries."
 									},
 									{
 										"type": "object",
@@ -2109,6 +2095,20 @@
 										],
 										"additionalProperties": false,
 										"description": "Camera: Shows a live robot camera feed while following live data. Does not take entries or record frames."
+									},
+									{
+										"type": "object",
+										"properties": {
+											"type": {
+												"type": "string",
+												"const": "notepad"
+											}
+										},
+										"required": [
+											"type"
+										],
+										"additionalProperties": false,
+										"description": "Notepad: Notes the user types, shared by the notepads on one dashboard. Doesn't take entries."
 									}
 								]
 							},

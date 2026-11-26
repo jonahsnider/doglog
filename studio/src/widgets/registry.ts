@@ -62,7 +62,10 @@ export const tuningWidgetType: WidgetType = {
 	component: lazy(loadTuning),
 };
 
-/** Every widget type, in the order they're listed in the widget picker */
+/**
+ * Every widget type, in the order they're listed in the widget picker.
+ * Most used first, in related pairs since the empty pane's picker is two columns (ex. Robot next to Swerve).
+ */
 export const widgetTypes: readonly WidgetType[] = [
 	{
 		...info('graph'),
@@ -71,7 +74,6 @@ export const widgetTypes: readonly WidgetType[] = [
 		inferRole: inferGraphRole,
 		component: Graph,
 	},
-	{ ...info('histogram'), hotkey: 'H', component: Histogram },
 	{
 		...info('field'),
 		hotkey: 'F',
@@ -91,22 +93,16 @@ export const widgetTypes: readonly WidgetType[] = [
 		preload: loadRobot,
 		component: lazy(loadRobot),
 	},
+	{ ...info('swerve'), hotkey: 'S', roles: swerveRoles, component: Swerve },
+	{ ...info('histogram'), hotkey: 'H', component: Histogram },
 	{ ...info('table'), hotkey: 'T', component: TableWidget },
 	{ ...info('console'), hotkey: 'C', component: Console },
-	{ ...info('swerve'), hotkey: 'S', roles: swerveRoles, component: Swerve },
 	{
 		...info(controllerTypeId),
 		rendersEmpty: true,
 		options: controllerOptions,
 		optionFromEntry: controllerOptionFromEntry,
 		component: Controller,
-	},
-	{
-		...info('notepad'),
-		hotkey: 'N',
-		rendersEmpty: true,
-		preload: loadNotepad,
-		component: lazy(loadNotepad),
 	},
 	{
 		...info('video'),
@@ -122,6 +118,13 @@ export const widgetTypes: readonly WidgetType[] = [
 		options: [cameraOption, widgetOptions.camera.rotation],
 		preload: loadCamera,
 		component: lazy(loadCamera),
+	},
+	{
+		...info('notepad'),
+		hotkey: 'N',
+		rendersEmpty: true,
+		preload: loadNotepad,
+		component: lazy(loadNotepad),
 	},
 ];
 
