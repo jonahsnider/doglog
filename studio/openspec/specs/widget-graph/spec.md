@@ -126,6 +126,18 @@ Hiding or showing a plotted entry SHALL fade its line out or in, instantly when 
 - **WHEN** the user hides `/Drive/Velocity` from its swatch
 - **THEN** its line fades out instead of disappearing at once
 
+### Requirement: Highlight a line from the legend
+
+Hovering a shown entry in the legend with a mouse SHALL fade the other plotted lines, and the marks where they cross the hovered time, to faint after a short delay, so passing over the legend on the way to the plot doesn't flash it. Moving to another entry MUST switch the highlight right away, and leaving the legend MUST fade the lines back in. Hovering a hidden entry MUST NOT fade the others.
+
+#### Scenario: Hover an entry
+
+- **GIVEN** the graph plots `/Drive/Velocity` and `/Arm/Angle`
+- **WHEN** the user rests the pointer on `/Arm/Angle` in the legend
+- **THEN** the `/Drive/Velocity` line fades to faint while `/Arm/Angle` stays as it was
+- **WHEN** the pointer leaves the legend
+- **THEN** the `/Drive/Velocity` line fades back in
+
 ### Requirement: Long legends
 
 A legend with many entries SHALL scroll instead of taking up more than about a third of the graph, so the plot keeps most of it.

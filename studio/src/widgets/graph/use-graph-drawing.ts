@@ -18,6 +18,7 @@ import {
 } from '@/widgets/graph/plot';
 import { createRangeAnimation } from '@/widgets/graph/y-range';
 import { type Fade, isFading, opacityAt, updateFades } from '@/widgets/graph/fade';
+import { perFrame } from '@/lib/per-frame';
 import { timeTicks } from '@/widgets/graph/ticks';
 import { getHoverTime, subscribeHover } from '@/timeline/hover';
 import { getViewRange, subscribeView } from '@/widgets/graph/view';
@@ -35,24 +36,6 @@ export type GraphElements = {
 	/** One dot per plotted series where it crosses the hovered time */
 	hoverDots: RefObject<HTMLDivElement | null>;
 };
-
-/** Run `callback` once per frame, no matter how many times the returned function is called */
-function perFrame(callback: () => void): { schedule: () => void; cancel: () => void } {
-	let frame: number | undefined;
-	return {
-		schedule: () => {
-			frame ??= requestAnimationFrame(() => {
-				frame = undefined;
-				callback();
-			});
-		},
-		cancel: () => {
-			if (frame !== undefined) {
-				cancelAnimationFrame(frame);
-			}
-		},
-	};
-}
 
 function placeLine(
 	line: HTMLDivElement,
@@ -77,6 +60,8 @@ export type GraphPlot = {
 	manual: ManualRanges;
 	redraw: () => void;
 	setManual: (axis: 'y' | 'y2', range?: [number, number]) => void;
+	/** Mutes the other bindings' lines to pick out this one's, or shows them all again without one */
+	highlight: (bindingId: string | undefined) => void;
 };
 
 export function useGraphDrawing(
@@ -88,6 +73,8 @@ export function useGraphDrawing(
 	/** Room above the plot, ex. for unit labels */
 	plotTop: number,
 ): RefObject<GraphPlot> {
+	// Kept while the plot is made again for other entries, so lines stay muted, ex. when another entry is added
+	const highlighted = useRef<string>(undefined);
 	const state = useRef<GraphPlot>({
 		plot: undefined,
 		targets: {},
@@ -95,6 +82,10 @@ export function useGraphDrawing(
 		redraw: () => {},
 		setManual(axis, range) {
 			state.current.manual = { ...state.current.manual, [axis]: range };
+			state.current.redraw();
+		},
+		highlight(bindingId) {
+			highlighted.current = bindingId;
 			state.current.redraw();
 		},
 	});
@@ -166,6 +157,7 @@ export function useGraphDrawing(
 						continue;
 					}
 					dot.hidden = value === undefined;
+					dot.style.opacity = String(plot.series[index + 1]!.alpha ?? 1);
 					if (value !== undefined) {
 						const top = plot.valToPos(value, line.axis) + plot.over.offsetTop;
 						dot.style.transform = `translate(${plot.valToPos(hover!, 'x')}px, ${top}px)`;
@@ -175,8 +167,8 @@ export function useGraphDrawing(
 		};
 
 		const lineFades = fades.current;
-		updateFades(lineFades, series, performance.now());
 		const fadeLines = (now: number): boolean => {
+			updateFades(lineFades, series, highlighted.current, now);
 			let fading = false;
 			for (const [index, line] of series.entries()) {
 				const fade = lineFades.get(line.id)!;

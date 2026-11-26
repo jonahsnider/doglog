@@ -3,6 +3,7 @@ import * as stylex from '@stylexjs/stylex';
 import { axisWidth } from '@/widgets/graph/plot';
 import { graphSection } from '@/widgets/graph/roles';
 import { Legend, type LegendItem } from '@/widgets/legend/legend';
+import { useLegendHighlight } from '@/widgets/legend/use-legend-highlight';
 import { bindingColor } from '@/widgets/series-color';
 import type { WidgetBinding } from '@/widgets/widget-type';
 
@@ -46,9 +47,17 @@ const rightSide = [styles.side, styles.right];
 /**
  * Left axis entries on the left and right axis entries on the right, named by the last segments that tell them apart
  * when their full names don't fit. Values are shown in the hover tooltip, and entries are moved between axes by dragging
- * them or from their context menu.
+ * them or from their context menu. Hovering an entry for a moment highlights its line, moving to another entry switches
+ * right away, and leaving the legend shows all lines again.
  */
-export function GraphLegend({ plotted }: { plotted: readonly WidgetBinding[] }) {
+export function GraphLegend({
+	plotted,
+	onHighlight,
+}: {
+	plotted: readonly WidgetBinding[];
+	onHighlight: (bindingId: string | undefined) => void;
+}) {
+	const highlight = useLegendHighlight(onHighlight);
 	const names = plotted.map((binding) => binding.name);
 	const items = plotted.map((binding, index): LegendItem & { right: boolean } => ({
 		binding,
@@ -62,7 +71,7 @@ export function GraphLegend({ plotted }: { plotted: readonly WidgetBinding[] }) 
 	return items.length === 0 ? undefined : (
 		// Each side takes up to half the width and wraps within it, or more when the other side is shorter. Long legends
 		// scroll, so the plot keeps most of the widget.
-		<div {...stylex.props(styles.legends)}>
+		<div {...stylex.props(styles.legends)} {...highlight}>
 			{left.length > 0 && <Legend items={left} dropRole="left" roles={false} xstyle={styles.side} />}
 			{right.length > 0 && <Legend items={right} dropRole="right" roles={false} xstyle={rightSide} />}
 		</div>

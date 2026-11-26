@@ -65,6 +65,7 @@ export function Graph({ bindings }: WidgetProps) {
 	const units = seriesUnits(plotted);
 	const series = plotted.flatMap((binding, index): PlotSeries[] => {
 		const line = {
+			binding: binding.id,
 			axis: graphSection(binding.role) === 'right' ? ('y2' as const) : ('y' as const),
 			color: bindingColor(binding, index),
 			hidden: binding.hidden,
@@ -181,7 +182,7 @@ export function Graph({ bindings }: WidgetProps) {
 
 	return (
 		<div {...stylex.props(styles.graph)}>
-			<GraphLegend plotted={plotted} />
+			<GraphLegend plotted={plotted} onHighlight={(bindingId) => graph.current.highlight(bindingId)} />
 			<div
 				ref={body}
 				{...stylex.props(styles.body)}

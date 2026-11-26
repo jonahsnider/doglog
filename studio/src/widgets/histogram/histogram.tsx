@@ -15,6 +15,7 @@ import { type Analysis, analyzeSamples, histogramBins } from '@/widgets/histogra
 import { valueAxisEnd } from '@/widgets/histogram/format';
 import { HistogramPlot } from '@/widgets/histogram/plot';
 import { Legend } from '@/widgets/legend/legend';
+import { useLegendHighlight } from '@/widgets/legend/use-legend-highlight';
 import { NoData } from '@/widgets/no-data';
 import { bindingColor } from '@/widgets/series-color';
 import type { WidgetBinding, WidgetProps } from '@/widgets/widget-type';
@@ -156,6 +157,9 @@ export function Histogram({ bindings }: WidgetProps) {
 		[series, analyses],
 	);
 
+	const [highlighted, setHighlighted] = useState<string>();
+	const highlight = useLegendHighlight(setHighlighted);
+
 	// Keep zoom while the time range moves or series are hidden, but not for other entries, ex. another source's
 	const [zoom, setZoom] = useState<{ entries: readonly Entry[]; range: Range }>();
 	const range =
@@ -208,7 +212,7 @@ export function Histogram({ bindings }: WidgetProps) {
 	return (
 		<div {...stylex.props(styles.histogram)}>
 			{bindings.length > 0 && (
-				<div {...stylex.props(styles.summary)}>
+				<div {...stylex.props(styles.summary)} {...highlight}>
 					<table {...stylex.props(styles.table)} aria-label="Summary">
 						<thead>
 							<tr {...stylex.props(styles.headings)}>
@@ -267,7 +271,14 @@ export function Histogram({ bindings }: WidgetProps) {
 			)}
 			<div ref={body} {...stylex.props(styles.body)}>
 				{histogram ? (
-					<HistogramPlot series={plotSeries} unit={axes.y} histogram={histogram} range={range} onZoom={changeZoom} />
+					<HistogramPlot
+						series={plotSeries}
+						highlighted={highlighted}
+						unit={axes.y}
+						histogram={histogram}
+						range={range}
+						onZoom={changeZoom}
+					/>
 				) : (
 					<div {...stylex.props(styles.noSamples)}>
 						{series.some((item) => !item.binding.hidden) && 'No samples in range'}

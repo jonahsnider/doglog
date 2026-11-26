@@ -2,11 +2,13 @@ import 'uplot/dist/uPlot.min.css';
 import './plot.css';
 import { colorVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
-import { useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import uPlot from 'uplot';
 import { formatValue } from '@/data/format-value';
+import { perFrame } from '@/lib/per-frame';
 import { settingsStore } from '@/settings';
+import { type Fade, isFading, opacityAt, updateFades } from '@/widgets/graph/fade';
 import { axisWidth } from '@/widgets/graph/plot';
 import type { histogramBins } from '@/widgets/histogram/data';
 import { HistogramBins } from '@/widgets/histogram/bins';
@@ -16,6 +18,8 @@ type Histogram = ReturnType<typeof histogramBins>;
 type Range = readonly [number, number];
 
 const xAxisHeight = 23;
+/** Overlapping series show through each other */
+const overlapAlpha = 0.6;
 /** Room above the plot, like a graph's with unit labels, for how many samples are outside the view */
 const plotTop = 20;
 
@@ -71,14 +75,43 @@ const styles = stylex.create({
 const bars = uPlot.paths.bars!({ size: [1], disp: heights });
 const singleBar = uPlot.paths.bars!({ size: [1, 32], disp: heights });
 
+/** Fades series other than the `highlighted` binding's, see `updateFades()`, returning a function that stops it */
+function fadeSeries(
+	plot: uPlot,
+	lines: readonly { id: string; binding: string; hidden: boolean }[],
+	highlighted: string | undefined,
+	fades: Map<string, Fade>,
+): () => void {
+	const base = lines.length > 1 ? overlapAlpha : 1;
+	updateFades(fades, lines, highlighted, performance.now());
+	const animate = perFrame(() => {
+		const now = performance.now();
+		let fading = false;
+		for (const [index, line] of lines.entries()) {
+			const fade = fades.get(line.id)!;
+			plot.series[index + 1]!.alpha = base * opacityAt(fade, now);
+			fading = isFading(fade, now) || fading;
+		}
+		plot.redraw(false);
+		if (fading) {
+			animate.schedule();
+		}
+	});
+	animate.schedule();
+	return animate.cancel;
+}
+
 export function HistogramPlot({
 	series,
+	highlighted,
 	unit,
 	histogram,
 	range,
 	onZoom,
 }: {
 	series: readonly PlotSeries[];
+	/** The binding whose series stays as it is while the others fade, see `updateFades()` */
+	highlighted: string | undefined;
 	/** The value axis's unit */
 	unit: string | undefined;
 	histogram: Histogram;
@@ -150,8 +183,7 @@ export function HistogramPlot({
 					...colorList.map((color) => ({
 						fill: css(color.slice(4, -1)),
 						width: 0,
-						// Overlapping series show through each other
-						alpha: colorList.length > 1 ? 0.6 : 1,
+						alpha: colorList.length > 1 ? overlapAlpha : 1,
 						points: { show: false },
 						paths: (self: uPlot, index: number, start: number, end: number) =>
 							(self.data[0].length === 1 ? singleBar : bars)(self, index, start, end),
@@ -214,6 +246,16 @@ export function HistogramPlot({
 			plot.setScale('y', { min: 0, max: Math.max(1, maxCount * 1.06) });
 		});
 	}, [bins, range, plot]);
+
+	const fades = useRef(new Map<string, Fade>());
+	const ids = series.map((item) => item.id).join(' ');
+	useEffect(() => {
+		const lines = ids.split(' ').map((id) => ({ id, binding: id, hidden: false }));
+		if (plot === undefined || plot.series.length !== lines.length + 1) {
+			return undefined;
+		}
+		return fadeSeries(plot, lines, highlighted, fades.current);
+	}, [plot, ids, highlighted]);
 
 	const outside = histogram.outside.reduce((total, count) => total + count, 0);
 

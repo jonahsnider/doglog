@@ -11,6 +11,8 @@ export const edgeInset = 8;
 
 export type PlotSeries = {
 	id: string;
+	/** ID of the binding the line is for, one of several with other sources */
+	binding: string;
 	entry: Entry;
 	axis: 'y' | 'y2';
 	/** A CSS color, `var()` included */

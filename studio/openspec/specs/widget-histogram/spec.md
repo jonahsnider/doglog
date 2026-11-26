@@ -16,6 +16,16 @@ The Histogram widget SHALL accept only scalar numeric entries and SHALL show the
 - **WHEN** the user hides `/Robot/LoopMilliseconds` from its swatch
 - **THEN** its series and statistics are hidden, and the histogram is binned over `/Vision/LoopMilliseconds` alone
 
+### Requirement: Highlight a series from the legend
+
+Hovering a binding's legend item in the summary table SHALL fade the other series' bars like a graph's legend fades its other lines (see widget-graph), with the same delay, switching, and clearing.
+
+#### Scenario: Hover a legend item
+
+- **GIVEN** the widget is bound to `/Robot/LoopMilliseconds` and `/Vision/LoopMilliseconds`
+- **WHEN** the user rests the pointer on `/Vision/LoopMilliseconds` in the summary table
+- **THEN** the `/Robot/LoopMilliseconds` bars fade to faint while the `/Vision/LoopMilliseconds` bars stay as they were
+
 ### Requirement: Units
 
 Units SHALL follow a graph's axis (see widget-graph and entry-units): the value axis takes the first entry's unit and shows it at the end of the axis, entries measuring the same thing are converted to it, and other entries are shown as logged. Each binding's legend item MUST show the unit its values are shown in.
