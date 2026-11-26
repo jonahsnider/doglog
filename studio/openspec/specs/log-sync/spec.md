@@ -93,13 +93,19 @@ Sync SHALL only copy logs with WPILib's or AdvantageKit's file names, including 
 
 ### Requirement: Copying logs
 
-Sync SHALL copy one log at a time, newest first. A log the robot is still writing MUST be copied as far as it's been written, with only the new part copied the next time sync runs. Logs that are already in the sync folder MUST NOT be copied again.
+Sync SHALL copy one log at a time, newest first, including every file of a log WPILib split into several for being too big. A log the robot is still writing MUST be copied as far as it's been written, with only the new part copied the next time sync runs. Logs that are already in the sync folder MUST NOT be copied again.
 
 #### Scenario: Robot code still running
 
 - **GIVEN** robot code is running and writing a log
 - **WHEN** sync runs, and runs again a minute later
 - **THEN** the second sync only copies what was written in that minute
+
+#### Scenario: Log split into several files
+
+- **GIVEN** a long match's log was split into `WPILIB_20270315_143000_CAPH_Q12.wpilog` and `WPILIB_20270315_143000_CAPH_Q12.2.wpilog`
+- **WHEN** sync runs
+- **THEN** both files are copied, and the Logs page names the second `CAPH Q12 (part 2)`
 
 #### Scenario: Progress
 

@@ -9,11 +9,12 @@ export function formatSize(bytes: number): string {
 
 export const dateTimeFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 
-/** A short name for a log a person recognizes, ex. `CAPH Q12` for a match or when it started otherwise */
+/** A short name for a log a person recognizes, ex. `CAPH Q12` for a match or when it started otherwise, and which part it is of a split log */
 export function logLabel(name: string): string {
 	const parsed = parseLogName(name);
 	if (!parsed) {
 		return name;
 	}
-	return parsed.match?.label ?? dateTimeFormat.format(parsed.date);
+	const label = parsed.match?.label ?? dateTimeFormat.format(parsed.date);
+	return parsed.part === undefined ? label : `${label} (part ${parsed.part})`;
 }

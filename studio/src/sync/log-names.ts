@@ -19,12 +19,16 @@ export interface LogName {
 	match: Match | undefined;
 	/** The CAN bus a Phoenix 6 log is from */
 	canBus?: 'roboRIO' | 'CANivore';
+	/** Which part of a WPILib log split into several files for being too big, from 2 for the second file */
+	part?: number;
 }
 
 // WPILib's DataLogManager, ex. `FRC_20260315_143000_CAPH_Q12.wpilog`
 // The event name is empty when the field doesn't send one, ex. `FRC_20241110_165657__Q68.wpilog`.
 // Match numbers can be 0, ex. practice matches on a practice field.
-const wpilibPattern = /^(?:FRC|WPILIB)_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})(_.*_[PQE]\d+)?\.wpilog$/u;
+// Logs over 1.8 GB continue in numbered files, ex. `WPILIB_20270315_143000_CAPH_Q12.2.wpilog`.
+const wpilibPattern =
+	/^(?:FRC|WPILIB)_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})(_.*_[PQE]\d+)?(?:\.(\d+))?\.wpilog$/u;
 // AdvantageKit's WPILOGWriter, ex. `akit_26-03-15_14-30-00_caph_q12.wpilog`, or `.wpilogxz` when compressed
 const advantageKitPattern = /^akit_(\d{2})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})(_.+)?\.wpilog(?:xz)?$/u;
 const advantageKitMatchPattern = /_[pqe]\d+$/u;
@@ -55,6 +59,7 @@ export function parseLogName(name: string): LogName | undefined {
 	}
 	// Running more than one CANivore is rare, so they aren't told apart by serial number
 	const canBus = hoot && { canBus: hoot[2] === 'rio' ? ('roboRIO' as const) : ('CANivore' as const) };
+	const segment = wpilib?.[8] !== undefined && { part: Number(wpilib[8]) };
 
 	const part = (index: number) => Number(groups[index]);
 	const [month, day, hour, minute, second] = [part(1), part(2), part(3), part(4), part(5)];
@@ -67,7 +72,7 @@ export function parseLogName(name: string): LogName | undefined {
 
 	const suffix = groups[6];
 	if (suffix === undefined) {
-		return { date, match: undefined, ...canBus };
+		return { date, match: undefined, ...canBus, ...segment };
 	}
 	if (advantageKit && !advantageKitMatchPattern.test(suffix)) {
 		return { date, event: suffix.slice(1).toUpperCase(), match: undefined };
@@ -76,8 +81,12 @@ export function parseLogName(name: string): LogName | undefined {
 	const parts = suffix.split('_').filter(Boolean);
 	const label = parts.join(' ').toUpperCase();
 	// The last part is the match, ex. `Q12`
-	return { date, match: { label, type: matchTypes[parts.at(-1)![0]!.toUpperCase()]! }, ...canBus };
+	return { date, match: { label, type: matchTypes[parts.at(-1)![0]!.toUpperCase()]! }, ...canBus, ...segment };
 }
+
+/** Order logs that started at the same time by name, with the parts of a split log in order */
+export const compareLogNames = (a: string, b: string): number =>
+	(parseLogName(a)?.part ?? 1) - (parseLogName(b)?.part ?? 1) || a.localeCompare(b);
 
 // Where logs keep the Driver Station's match info: NetworkTables' FMSInfo when NT is logged, or AdvantageKit's inputs
 const matchInfoPrefixes = ['/FMSInfo/', '/DriverStation/'];

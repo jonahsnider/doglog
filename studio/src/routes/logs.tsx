@@ -19,7 +19,7 @@ import { UtilityPage } from '@/components/utility-page';
 import { DownloadButton } from '@/desktop/download-button';
 import { openLogPath } from '@/data/open-log';
 import { dateTimeFormat, logLabel, formatSize } from '@/sync/format';
-import { parseLogName } from '@/sync/log-names';
+import { compareLogNames, parseLogName } from '@/sync/log-names';
 import { matchIcons } from '@/sync/match-icons';
 import { type SyncFolder, usePlannedLogs, useSyncFolder, useSyncStatus } from '@/sync/sync';
 import { updateSyncSettings, useSyncSettings } from '@/sync/sync-settings';
@@ -56,7 +56,7 @@ function syncedLogs(folder: SyncFolder | undefined) {
 			const parsed = parseLogName(log.name);
 			return parsed ? [{ ...log, ...parsed }] : [];
 		})
-		.toSorted((a, b) => b.date.getTime() - a.date.getTime() || b.name.localeCompare(a.name));
+		.toSorted((a, b) => b.date.getTime() - a.date.getTime() || compareLogNames(b.name, a.name));
 }
 
 function SyncOverview() {

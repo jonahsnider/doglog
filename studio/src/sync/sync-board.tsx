@@ -12,7 +12,7 @@ import fnv1a from '@sindresorhus/fnv1a';
 import * as stylex from '@stylexjs/stylex';
 import type { LucideIcon } from 'lucide-react/types';
 import { dateTimeFormat, formatSize, logLabel } from '@/sync/format';
-import { type MatchType, parseLogName } from '@/sync/log-names';
+import { type MatchType, compareLogNames, parseLogName } from '@/sync/log-names';
 import { matchIcons } from '@/sync/match-icons';
 
 export interface BoardLog {
@@ -140,7 +140,7 @@ const stateText: Record<BoardLog['state'], string> = {
 
 function byDay(logs: BoardLog[]): { day: Date; logs: BoardLog[] }[] {
 	const days = new Map<string, { day: Date; logs: BoardLog[] }>();
-	for (const log of logs.toSorted((a, b) => a.date - b.date || a.name.localeCompare(b.name))) {
+	for (const log of logs.toSorted((a, b) => a.date - b.date || compareLogNames(a.name, b.name))) {
 		const day = new Date(log.date);
 		const key = day.toDateString();
 		const entry = days.get(key) ?? { day, logs: [] };

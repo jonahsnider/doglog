@@ -41,6 +41,10 @@ export function sourceLabels(source: Source | undefined) {
 		const hoot = `${parsed.canBus} HOOT`;
 		detail = label === undefined ? hoot : `${hoot} · ${date}`;
 	}
+	if (parsed.part !== undefined) {
+		// Ex. `Part 2 · Mar 15, 2027, 2:30 PM` for the second file of a split match log
+		detail = label === undefined ? `Part ${parsed.part}` : `Part ${parsed.part} · ${detail}`;
+	}
 	return { name: label ?? date, detail, matchType: match?.type };
 }
 

@@ -1,4 +1,4 @@
-import { parseLogName } from '@/sync/log-names';
+import { compareLogNames, parseLogName } from '@/sync/log-names';
 
 /** A log file on the robot */
 export interface RemoteLog {
@@ -100,7 +100,7 @@ export function planSync(remoteLogs: RemoteLog[], localLogs: LocalLog[], filter:
 		}
 	}
 
-	const newestFirst = [...candidates.values()].toSorted((a, b) => b.date - a.date || b.name.localeCompare(a.name));
+	const newestFirst = [...candidates.values()].toSorted((a, b) => b.date - a.date || compareLogNames(b.name, a.name));
 	const plan: SyncPlan = { downloads: [], deletions: [], logs: [] };
 	let used = 0;
 	let full = false;

@@ -39,6 +39,19 @@ test('WPILIB prefix', () => {
 	});
 });
 
+test('split WPILib logs', () => {
+	expect(parseLogName('WPILIB_20270315_143000_CAPH_Q12.2.wpilog')).toEqual({
+		date: new Date('2027-03-15T14:30:00Z'),
+		match: { label: 'CAPH Q12', type: 'qualification' },
+		part: 2,
+	});
+	expect(parseLogName('WPILIB_20270315_143000.12.wpilog')).toEqual({
+		date: new Date('2027-03-15T14:30:00Z'),
+		match: undefined,
+		part: 12,
+	});
+});
+
 test('AdvantageKit logs', () => {
 	expect(parseLogName('akit_26-03-15_14-30-00.wpilog')).toEqual({
 		date: new Date('2026-03-15T14:30:00Z'),

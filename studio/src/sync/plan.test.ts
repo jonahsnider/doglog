@@ -23,6 +23,17 @@ test('downloads new logs newest first', () => {
 	expect(plan.deletions).toEqual([]);
 });
 
+test('downloads the parts of a split log newest first', () => {
+	const parts = [qual, qual.replace('.wpilog', '.2.wpilog'), qual.replace('.wpilog', '.10.wpilog')];
+	const plan = planSync(
+		parts.map((name) => remote(name, 100)),
+		[],
+		{ ...noFilter, officialOnly: true },
+		now,
+	);
+	expect(plan.downloads.map(({ log }) => log.name)).toEqual(parts.toReversed());
+});
+
 test('skips logs that are already synced and resumes ones that grew', () => {
 	const plan = planSync(
 		[remote(practice, 100), remote(current, 300)],
