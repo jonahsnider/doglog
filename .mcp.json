@@ -8,7 +8,7 @@
 		},
 		"safari": {
 			"type": "stdio",
-			"command": "/Applications/Safari.app/Contents/MacOS/safaridriver",
+			"command": "/usr/bin/safaridriver",
 			"args": ["--mcp"],
 			"env": {}
 		}
