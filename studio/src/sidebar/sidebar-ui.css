@@ -8,6 +8,10 @@
 	& > svg {
 		color: var(--color-icon-secondary);
 	}
+	/* The open page's icon matches its label */
+	&[data-active] > svg {
+		color: inherit;
+	}
 	& > span:last-child {
 		overflow: hidden;
 		text-overflow: ellipsis;
