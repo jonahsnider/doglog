@@ -83,8 +83,8 @@ const styles = stylex.create({
 	// Marks the widget whose entries the entry browser is editing
 	editing: { backgroundColor: `color-mix(in srgb, ${colorVars['--color-accent']} 12%, transparent)` },
 	title: { display: 'flex', flex: 1, minWidth: 0 },
-	// The pane header has its own padding
-	controls: { flexShrink: 0, padding: 0, transition: showControls },
+	// The pane header has its own padding, the toolbar's Section pads an inner element with this
+	controls: { flexShrink: 0, '--astryx-section-padding-inline': '0px', transition: showControls },
 	// Shown while the pane is hovered, and always while it's focused or without hover
 	hiddenControls: { opacity: { default: 0, [stylex.when.ancestor(':hover', paneMarker)]: 1 } },
 	content: { flex: 1, minHeight: 0 },
