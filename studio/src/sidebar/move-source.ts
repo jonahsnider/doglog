@@ -24,6 +24,8 @@ export function isSourceDrag(source: Draggable | null | undefined): source is Dr
 export function useSourceSortable(source: Source, logIndex: number | undefined) {
 	const [element, setElement] = useState<HTMLElement | null>(null);
 	const log = source.type === 'log';
+	// The live session can only be moved to other windows
+	const draggable = STUDIO_DESKTOP || log;
 	const { handleRef, isDragSource } = useSortable({
 		element,
 		id: `source-${sourceId(source)}`,
@@ -34,9 +36,9 @@ export function useSourceSortable(source: Source, logIndex: number | undefined) 
 		data: { sourceId: sourceId(source), log } satisfies SourceDragData,
 		// Picked up like dashboards, once the pointer moves or with Space
 		sensors: dashboardSensors,
-		disabled: !STUDIO_DESKTOP && !log,
+		disabled: !draggable,
 	});
-	return { setElement, handleRef, isDragSource };
+	return { setElement, handleRef, isDragSource, draggable };
 }
 
 /**

@@ -5,8 +5,8 @@ import type { LegendItem } from '@/widgets/legend/legend';
 const styles = stylex.create({
 	sample: {
 		flexShrink: 0,
-		width: 16,
-		height: 16,
+		width: 20,
+		height: 12,
 	},
 	tags: {
 		display: 'inline-flex',
@@ -24,14 +24,14 @@ const styles = stylex.create({
 });
 
 /**
- * The line styles of `sourceDash()` drawn like the app's icons: on a 24 px grid with round caps, ex. solid like a minus,
- * then dashed, dotted, and dash-dotted
+ * The line styles of `sourceDash()` with round caps like the app's icons: solid, dashed, dotted, and dash-dotted. Drawn
+ * at their size in pixels with a 2 px stroke, since smaller dashes and dots are hard to make out.
  */
 const samplePaths = [
-	'M4 12h16',
-	'M4 12h5M15 12h5',
-	'M4 12h.01M9.33 12h.01M14.67 12h.01M20 12h.01',
-	'M4 12h4M12 12h.01M16 12h4',
+	'M2 6h16',
+	'M3 6h4M13 6h4',
+	'M2.5 6h.01M7.5 6h.01M12.5 6h.01M17.5 6h.01',
+	'M2 6h4M10 6h.01M14 6h4',
 ];
 
 /** A short line in the style the visible source at `index` is drawn with, see `sourceDash()` */
@@ -39,7 +39,7 @@ export function LineSample({ index, color = 'currentColor' }: { index: number; c
 	return (
 		<svg
 			aria-hidden
-			viewBox="0 0 24 24"
+			viewBox="0 0 20 12"
 			fill="none"
 			stroke={color}
 			strokeWidth={2}

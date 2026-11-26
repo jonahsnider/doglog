@@ -20,6 +20,10 @@ const styles = stylex.create({
 	hidden: {
 		color: colorVars['--color-text-secondary'],
 	},
+	// Rows are only dragged, pressing them does nothing
+	draggable: {
+		cursor: { default: 'grab', ':active': 'grabbing' },
+	},
 	labels: {
 		display: 'grid',
 		flex: 1,
@@ -114,7 +118,7 @@ export function SourceRow({
 	const { collapsed } = useSidebar();
 	const id = sourceId(source);
 	const ref = useHighlight(id);
-	const { setElement, handleRef, isDragSource } = useSourceSortable(source, logIndex);
+	const { setElement, handleRef, isDragSource, draggable } = useSourceSortable(source, logIndex);
 	const { name, detail } = sourceLabels(source);
 	const hidden = visibleIndex === undefined;
 	const description = rowDescription(source, collapsed, hidden);
@@ -137,7 +141,11 @@ export function SourceRow({
 					isEnabled={description !== '' && !isDragSource}
 				>
 					{/* Only dragged, its actions are in its menus */}
-					<SidebarMenuButton ref={handleRef} size="lg" xstyle={hidden && styles.hidden}>
+					<SidebarMenuButton
+						ref={handleRef}
+						size="lg"
+						xstyle={[hidden && styles.hidden, draggable && styles.draggable]}
+					>
 						<SourceIcon source={source} />
 						<SourceLabels name={name} detail={detail} reconnecting={source.status === 'reconnecting'} />
 						{!hidden && (
