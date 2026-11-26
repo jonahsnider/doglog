@@ -45,7 +45,7 @@ Each window SHALL hold any number of logs and at most one live session, and MUST
 
 ### Requirement: Source list
 
-The source list at the top of the sidebar SHALL show one row per source, with the live session first and logs below it. The list MUST grow with each source instead of scrolling or hiding sources in a menu. Each row MUST show the source's icon, name, and state, and a sample of its line style (see the widgets spec's several sources). A row's actions MUST be in its menu (see Source menu) instead of buttons on the row, so the list stays uncluttered. Pressing a row MUST NOT do anything, but logs' rows MUST still be draggable (see Source order). A button in the list's header SHALL open a menu to open a log, open from URL, open a recent log, and connect.
+The source list at the top of the sidebar SHALL show one row per source, with the live session first and logs below it. The list MUST grow with each source instead of scrolling or hiding sources in a menu. Each row MUST show the source's icon, name, state, and a sample of its line style (see the widgets spec's several sources), and keep its actions in its menu (see Source menu). A button in the list's header SHALL open a menu to open a log, open from URL, open a recent log, and connect.
 
 #### Scenario: Three sources
 
@@ -117,7 +117,17 @@ While the sidebar is collapsed to its rail, the rail SHALL show one icon per sou
 
 ### Requirement: Source menu
 
-A source's menu SHALL open from a "…" button at the end of its row, shown while the row is hovered or focused on devices with hover, and from right-clicking or long-pressing the row. Every source's menu MUST offer Hide or Show (see Hide a source), and while there are other sources, Hide others (see Hide other sources). The live session's menu MUST offer its connection actions (see Disconnect and clear) and Export as WPILOG (see Export live data). A log's menu MUST offer Close log. A loaded log's menu from its "…" button MUST show its time offset (see Time offset) above its items, and in the desktop app, every source's menu MUST offer Move to (see the platforms spec's move sources between windows).
+A source's menu SHALL open from a "…" button at the end of its row, shown while the row is hovered or focused on devices with hover, and from right-clicking or long-pressing the row. Pressing the row itself MUST NOT open it, so it can be dragged (see Source order).
+
+#### Scenario: Press a source's row
+
+- **GIVEN** the user opened `qual12.wpilog`
+- **WHEN** the user clicks its row
+- **THEN** nothing happens, and no menu opens
+
+### Requirement: Source menu items
+
+Every source's menu SHALL offer Hide or Show (see Hide a source), and while there are other sources, Hide others (see Hide other sources). The live session's menu MUST offer its connection actions (see Disconnect and clear). A log's menu MUST offer Close log, and once it's loaded, its "…" menu MUST show its time offset above its items (see Time offset). In the desktop app, every source's menu MUST offer Move to (see the platforms spec's move sources between windows).
 
 #### Scenario: Open a log's menu
 
@@ -125,12 +135,6 @@ A source's menu SHALL open from a "…" button at the end of its row, shown whil
 - **WHEN** the user presses the "…" button on `qual13.wpilog`'s row
 - **THEN** its menu shows its time offset and offers Hide, Hide others, and Close log
 - **AND** both logs stay visible in every dashboard
-
-#### Scenario: Press a source's row
-
-- **GIVEN** the user opened `qual12.wpilog`
-- **WHEN** the user clicks its row
-- **THEN** nothing happens, and no menu opens
 
 ### Requirement: Source order
 

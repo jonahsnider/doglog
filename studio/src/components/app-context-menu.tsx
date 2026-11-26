@@ -1,3 +1,4 @@
+// oxlint-disable max-lines -- Context menus and their ellipsis buttons share how their entries are shown
 import { ContextMenu } from '@astryxdesign/core/ContextMenu';
 import {
 	DropdownMenu,
