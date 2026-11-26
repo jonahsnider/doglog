@@ -121,7 +121,7 @@
 		"portless": "0.18.1",
 		"react-doctor": "0.9.23",
 		"sentry": "0.51.0",
-		"typescript": "7.1.0-dev.20261124.1",
+		"typescript": "7.1.0-dev.20261125.1",
 		"vite": "catalog:",
 		"vite-plugin-pwa": "2.0.0",
 		"vite-plugin-svgr": "5.2.0",
