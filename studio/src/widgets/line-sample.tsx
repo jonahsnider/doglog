@@ -1,19 +1,18 @@
 import { colorVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
-import { sourceDash } from '@/widgets/series-color';
 import type { LegendItem } from '@/widgets/legend/legend';
 
 const styles = stylex.create({
 	sample: {
 		flexShrink: 0,
 		width: 16,
-		height: 6,
+		height: 16,
 	},
 	tags: {
 		display: 'inline-flex',
 		flexShrink: 0,
 		alignItems: 'center',
-		gap: spacingVars['--spacing-1-5'],
+		gap: spacingVars['--spacing-2'],
 		whiteSpace: 'nowrap',
 		color: colorVars['--color-text-secondary'],
 	},
@@ -24,19 +23,30 @@ const styles = stylex.create({
 	},
 });
 
+/**
+ * The line styles of `sourceDash()` drawn like the app's icons: on a 24 px grid with round caps, ex. solid like a minus,
+ * then dashed, dotted, and dash-dotted
+ */
+const samplePaths = [
+	'M4 12h16',
+	'M4 12h5M15 12h5',
+	'M4 12h.01M9.33 12h.01M14.67 12h.01M20 12h.01',
+	'M4 12h4M12 12h.01M16 12h4',
+];
+
 /** A short line in the style the visible source at `index` is drawn with, see `sourceDash()` */
 export function LineSample({ index, color = 'currentColor' }: { index: number; color?: string | undefined }) {
 	return (
-		<svg aria-hidden viewBox="0 0 16 6" {...stylex.props(styles.sample)}>
-			<line
-				x1={0}
-				y1={3}
-				x2={16}
-				y2={3}
-				stroke={color}
-				strokeWidth={1.5}
-				strokeDasharray={sourceDash(index).join(' ')}
-			/>
+		<svg
+			aria-hidden
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke={color}
+			strokeWidth={2}
+			strokeLinecap="round"
+			{...stylex.props(styles.sample)}
+		>
+			<path d={samplePaths[index % samplePaths.length]} />
 		</svg>
 	);
 }
