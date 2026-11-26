@@ -22,6 +22,7 @@ import { moveDashboardToSection } from '@/dashboards/sharing';
 import { entryPointerSensor, isEntryDrag, isEntryRowDrag } from '@/entries/drag';
 import { isNewDashboardDrop, isPaneDrag, isPaneDrop, nearestSide, type PaneDragData } from '@/panes/drag';
 import { getWidgetType } from '@/widgets/registry';
+import { dropSource, isSourceDrag } from '@/sidebar/move-source';
 
 const styles = stylex.create({
 	preview: {
@@ -67,6 +68,7 @@ const sensors = [entryPointerSensor, KeyboardSensor];
 /**
  * Lets dashboards, panes, and entries be dragged anywhere in the app:
  * dashboards to reorder them or onto the open dashboard's split zones, panes beside other panes or onto the sidebar,
+ * sources to reorder them or move them to other windows,
  * entries onto widgets (handled by `DashboardPanes`), and entry browser rows between its sections (handled by `EntryBrowser`).
  */
 export function DragProvider({ children }: { children: ReactNode }) {
@@ -82,7 +84,7 @@ export function DragProvider({ children }: { children: ReactNode }) {
 					feedback.dropAnimation = hasPreview(operation.source) ? null : undefined;
 				}
 			}}
-			onDragEnd={({ operation, canceled }, manager) => {
+			onDragEnd={({ operation, canceled, nativeEvent }, manager) => {
 				const { source, target } = operation;
 				if (canceled || !source) {
 					return;
@@ -110,6 +112,12 @@ export function DragProvider({ children }: { children: ReactNode }) {
 						}
 					} else if (isSortable(source)) {
 						moveDashboard(dashboardId, source.index);
+					}
+				} else if (isSourceDrag(source) && dropSource(source, nativeEvent)) {
+					// It moves to another window, instead of flying back to its row
+					const feedback = manager.registry.plugins.get(Feedback);
+					if (feedback) {
+						feedback.dropAnimation = null;
 					}
 				}
 			}}

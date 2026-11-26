@@ -219,7 +219,6 @@ export function SourceList({ onShow }: { onShow: () => void }) {
 								source={source}
 								visibleIndex={index === -1 ? undefined : index}
 								logIndex={undefined}
-								list={listRef}
 								menuItems={[
 									...visibilityItems(source, list.length, visible.length),
 									...liveItems(source, connect.target, logs.length > 0),
@@ -243,7 +242,6 @@ export function SourceList({ onShow }: { onShow: () => void }) {
 							source={source}
 							visibleIndex={index === -1 ? undefined : index}
 							logIndex={logs.indexOf(source)}
-							list={listRef}
 							menuItems={items}
 							header={source.status === 'loaded' && <SourceOffset id={source.id} />}
 						/>

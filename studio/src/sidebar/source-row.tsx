@@ -1,14 +1,14 @@
-import { colorVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { colorVars, radiusVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
 import * as stylex from '@stylexjs/stylex';
 import { useSelector } from '@tanstack/react-store';
-import { type ReactNode, type RefObject, useEffect, useRef } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import { AppActionMenu, AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { TextMorph } from '@/components/text-morph';
 import { type Source, sourceId } from '@/data/source';
 import { highlightedSourceStore } from '@/data/source-store';
 import { duration, reducesMotion } from '@/lib/motion';
-import { useSourceDrag, useSourceDrop } from '@/sidebar/move-source';
+import { useSourceSortable } from '@/sidebar/move-source';
 import { useSidebar } from '@/sidebar/sidebar-context';
 import { SidebarMenuAction, SidebarMenuButton, SidebarMenuItem } from '@/sidebar/sidebar-ui';
 import { SourceIcon } from '@/sidebar/source-icon';
@@ -48,11 +48,10 @@ const styles = stylex.create({
 		flexShrink: 0,
 		color: colorVars['--color-icon-secondary'],
 	},
-	dropBefore: {
-		boxShadow: `inset 0 2px 0 ${colorVars['--color-accent']}`,
-	},
-	dropAfter: {
-		boxShadow: `inset 0 -2px 0 ${colorVars['--color-accent']}`,
+	// Covers the rows it passes over, like a dragged dashboard
+	dragged: {
+		borderRadius: radiusVars['--radius-element'],
+		backgroundColor: colorVars['--color-background-body'],
 	},
 	tooltip: {
 		maxWidth: 320,
@@ -95,25 +94,10 @@ function rowDescription(source: Source, collapsed: boolean, hidden: boolean): st
 		.join('\n');
 }
 
-/** Where the dragged log would drop: above this log, or below it when it's the last one */
-function dropLines(
-	drop: ReturnType<typeof useSourceDrop>,
-	id: string,
-	logIndex: number | undefined,
-	list: HTMLUListElement | null,
-): { dropBefore: boolean; dropAfter: boolean } {
-	if (drop?.index === undefined || drop.id === id || logIndex === undefined) {
-		return { dropBefore: false, dropAfter: false };
-	}
-	const lastLog = list?.querySelectorAll('[data-log-index]').length === logIndex + 1;
-	return { dropBefore: drop.index === logIndex, dropAfter: lastLog && drop.index === logIndex + 1 };
-}
-
 export function SourceRow({
 	source,
 	visibleIndex,
 	logIndex,
-	list,
 	menuItems,
 	header,
 	onOpenChange,
@@ -123,7 +107,6 @@ export function SourceRow({
 	visibleIndex: number | undefined;
 	/** Position among the logs, `undefined` for the live session */
 	logIndex: number | undefined;
-	list: RefObject<HTMLUListElement | null>;
 	menuItems: MenuEntry[];
 	header?: ReactNode;
 	onOpenChange?: (open: boolean) => void;
@@ -131,33 +114,30 @@ export function SourceRow({
 	const { collapsed } = useSidebar();
 	const id = sourceId(source);
 	const ref = useHighlight(id);
-	const drag = useSourceDrag(source, list);
+	const { setElement, handleRef, isDragSource } = useSourceSortable(source, logIndex);
 	const { name, detail } = sourceLabels(source);
 	const hidden = visibleIndex === undefined;
 	const description = rowDescription(source, collapsed, hidden);
-	const { dropBefore, dropAfter } = dropLines(useSourceDrop(), id, logIndex, list.current);
 
 	return (
 		<SidebarMenuItem
-			ref={ref}
+			ref={(element) => {
+				ref.current = element;
+				setElement(element);
+			}}
+			// Where a source dragged from another window goes, see `dropIndex()`
 			data-log-index={logIndex}
-			xstyle={[dropBefore && styles.dropBefore, dropAfter && styles.dropAfter]}
+			xstyle={isDragSource && styles.dragged}
 		>
 			<AppContextMenu items={menuItems} label={`${name} actions`}>
 				<Tooltip
 					content={<span {...stylex.props(styles.tooltip)}>{description}</span>}
 					placement="end"
-					isEnabled={description !== ''}
+					// Closed while the row is dragged, since it would follow the pointer
+					isEnabled={description !== '' && !isDragSource}
 				>
 					{/* Only dragged, its actions are in its menus */}
-					<SidebarMenuButton
-						size="lg"
-						xstyle={hidden && styles.hidden}
-						onPointerDown={drag.onPointerDown}
-						onPointerMove={drag.onPointerMove}
-						onPointerUp={drag.onPointerUp}
-						onPointerCancel={drag.onPointerCancel}
-					>
+					<SidebarMenuButton ref={handleRef} size="lg" xstyle={hidden && styles.hidden}>
 						<SourceIcon source={source} />
 						<SourceLabels name={name} detail={detail} reconnecting={source.status === 'reconnecting'} />
 						{!hidden && (

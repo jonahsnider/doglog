@@ -1,91 +1,67 @@
 // Reordering sources by dragging their rows, and moving them to other windows in the desktop app.
 // Rows are dragged with pointer events, since the desktop app's webviews don't get HTML drag and drop on Windows.
-import { useSelector } from '@tanstack/react-store';
-import { createAtom } from '@tanstack/store';
-import { type PointerEvent, useRef } from 'react';
+import type { Draggable } from '@dnd-kit/dom';
+import { isSortable, useSortable } from '@dnd-kit/react/sortable';
+import { useState } from 'react';
 import type { MenuEntry } from '@/components/app-context-menu';
-import { moveLog, type Source, sourceId } from '@/data/source';
-import { dropIndex, dropOutside, moveSource, useOtherWindows } from '@/desktop/source-windows';
+import { dashboardSensors } from '@/dashboards/drag';
+import { getSources, moveLog, type Source, sourceId, sourceList } from '@/data/source';
+import { dropOutside, moveSource, useOtherWindows } from '@/desktop/source-windows';
 
-/** How far (px) a pointer moves before pressing a row drags it instead of opening its menu */
-const dragThreshold = 4;
+/** Drag type of sources' rows in the sidebar */
+const sourceDragType = 'source';
 
-/** The row being dragged and where it would drop among the logs, `undefined` when it would snap back */
-const dragStore = createAtom<{ id: string; index: number | undefined } | undefined>(undefined);
+type SourceDragData = { sourceId: string; log: boolean };
 
-/** Where the dragged row would drop among the logs, for drawing the drop line, see `dragStore` */
-export function useSourceDrop(): { id: string; index: number | undefined } | undefined {
-	return useSelector(dragStore);
-}
-
-/** Whether a pointer is outside the window, where dropping a source moves it to a new window */
-function outside(event: PointerEvent): boolean {
-	return event.clientX < 0 || event.clientY < 0 || event.clientX > innerWidth || event.clientY > innerHeight;
+export function isSourceDrag(source: Draggable | null | undefined): source is Draggable<SourceDragData> {
+	return source?.type === sourceDragType;
 }
 
 /**
- * Handlers that let a source's row be dragged: logs between the other logs, and in the desktop app, any source to
- * another window or out of every window into a new one. `list` is the source list's element.
+ * Lets a source's row be dragged by its button like a dashboard: logs between the other logs, and in the desktop app,
+ * any source to another window or out of every window into a new one. The live session stays first.
  */
-export function useSourceDrag(source: Source, list: { current: HTMLElement | null }) {
-	const start = useRef<{ x: number; y: number } | undefined>(undefined);
-	const dragging = useRef(false);
-	const movable = STUDIO_DESKTOP || source.type === 'log';
-	const id = sourceId(source);
+export function useSourceSortable(source: Source, logIndex: number | undefined) {
+	const [element, setElement] = useState<HTMLElement | null>(null);
+	const log = source.type === 'log';
+	const { handleRef, isDragSource } = useSortable({
+		element,
+		id: `source-${sourceId(source)}`,
+		index: logIndex ?? 0,
+		group: log ? 'logs' : 'live',
+		type: sourceDragType,
+		accept: (other) => log && other.type === sourceDragType && other.data['log'] === true,
+		data: { sourceId: sourceId(source), log } satisfies SourceDragData,
+		// Picked up like dashboards, once the pointer moves or with Space
+		sensors: dashboardSensors,
+		disabled: !STUDIO_DESKTOP && !log,
+	});
+	return { setElement, handleRef, isDragSource };
+}
 
-	return {
-		onPointerDown: (event: PointerEvent<HTMLElement>) => {
-			if (!movable || event.button !== 0 || event.pointerType === 'touch') {
-				return;
-			}
-			start.current = { x: event.clientX, y: event.clientY };
-			event.currentTarget.setPointerCapture(event.pointerId);
-		},
-		onPointerMove: (event: PointerEvent<HTMLElement>) => {
-			if (start.current === undefined) {
-				return;
-			}
-			if (!dragging.current) {
-				if (Math.hypot(event.clientX - start.current.x, event.clientY - start.current.y) < dragThreshold) {
-					return;
-				}
-				dragging.current = true;
-			}
-			const element = list.current;
-			const overList =
-				element !== null &&
-				(() => {
-					const rect = element.getBoundingClientRect();
-					return (
-						event.clientX >= rect.left &&
-						event.clientX <= rect.right &&
-						event.clientY >= rect.top &&
-						event.clientY <= rect.bottom
-					);
-				})();
-			dragStore.set({ id, index: overList && source.type === 'log' ? dropIndex(element, event.clientY) : undefined });
-		},
-		onPointerUp: (event: PointerEvent<HTMLElement>) => {
-			const drop = dragStore.get();
-			const wasDragging = dragging.current;
-			start.current = undefined;
-			dragging.current = false;
-			dragStore.set(undefined);
-			if (!wasDragging) {
-				return;
-			}
-			if (drop?.index !== undefined && source.type === 'log') {
-				moveLog(source.id, drop.index);
-			} else if (STUDIO_DESKTOP && outside(event)) {
-				void dropOutside(source, event.screenX, event.screenY);
-			}
-		},
-		onPointerCancel: () => {
-			start.current = undefined;
-			dragging.current = false;
-			dragStore.set(undefined);
-		},
-	};
+/**
+ * Drop a dragged source: a log where it was sorted to, or in the desktop app, a source dropped outside the window in
+ * the window it's over or a new one. Returns whether it left the window, so it doesn't fly back to its row.
+ */
+export function dropSource(dragged: Draggable<SourceDragData>, event: Event | undefined): boolean {
+	const source = sourceList(getSources()).find((other) => sourceId(other) === dragged.data.sourceId);
+	if (source === undefined) {
+		return false;
+	}
+	// Kept where it was sorted to even when it leaves the window, since the list was already sorted around it
+	if (source.type === 'log' && isSortable(dragged)) {
+		moveLog(source.id, dragged.index);
+	}
+	if (STUDIO_DESKTOP && event instanceof PointerEvent && outside(event)) {
+		void dropOutside(source, event.screenX, event.screenY);
+		return true;
+	}
+	return false;
+}
+
+/** Whether a pointer is outside the window, where dropping a source moves it to another window or a new one */
+function outside(event: PointerEvent): boolean {
+	return event.clientX < 0 || event.clientY < 0 || event.clientX > innerWidth || event.clientY > innerHeight;
 }
 
 /** The Move to submenu of a source's menu, `undefined` outside the desktop app */
