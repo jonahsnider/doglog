@@ -52,7 +52,7 @@ Each window SHALL hold any number of logs and at most one live session, and MUST
 
 ### Requirement: Source list
 
-The source list at the top of the sidebar SHALL show one row per source, with the live session first and logs below it. The list MUST grow with each source instead of scrolling or hiding sources in a menu. Each row MUST show the source's icon, name, state, and a sample of its line style (see the widgets spec's several sources), and keep its actions in its menu (see Source menu). A button in the list's header SHALL open a menu to open a log, open from URL, open a recent log, and connect.
+The source list at the top of the sidebar SHALL show one row per source, with the live session first and logs below it. The list MUST grow with each source instead of scrolling or hiding any in a menu. Each row MUST show the source's icon, name, state, and, while several sources are visible, its line style (see the widgets spec's several sources), and keep its actions in its menu (see Source menu). The list's header SHALL have a menu to open a log, open from URL, open a recent log, and connect.
 
 #### Scenario: Three sources
 
@@ -64,6 +64,7 @@ The source list at the top of the sidebar SHALL show one row per source, with th
 
 - **GIVEN** the user opened `qual12.wpilog`
 - **THEN** its row shows `qual12.wpilog`
+- **AND** its row shows no line style sample, since it's the only visible source
 
 #### Scenario: Match log source shown
 

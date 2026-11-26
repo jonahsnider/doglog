@@ -105,6 +105,7 @@ function rowDescription(source: Source, collapsed: boolean, hidden: boolean): st
 export function SourceRow({
 	source,
 	visibleIndex,
+	sampled,
 	logIndex,
 	menuItems,
 	header,
@@ -113,6 +114,8 @@ export function SourceRow({
 	source: Source;
 	/** Position among the visible sources, `undefined` while hidden */
 	visibleIndex: number | undefined;
+	/** Whether to show the row's line style, only while several sources are visible since widgets draw one solid */
+	sampled: boolean;
 	/** Position among the logs, `undefined` for the live session */
 	logIndex: number | undefined;
 	menuItems: MenuEntry[];
@@ -152,7 +155,7 @@ export function SourceRow({
 					>
 						<SourceIcon source={source} />
 						<SourceLabels name={name} detail={detail} reconnecting={source.status === 'reconnecting'} />
-						{!hidden && (
+						{!hidden && sampled && (
 							<span {...stylex.props(styles.sample)}>
 								<LineSample index={visibleIndex} />
 							</span>

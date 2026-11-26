@@ -218,6 +218,7 @@ export function SourceList({ onShow }: { onShow: () => void }) {
 								key="live"
 								source={source}
 								visibleIndex={index === -1 ? undefined : index}
+								sampled={visible.length > 1}
 								logIndex={undefined}
 								menuItems={[
 									...visibilityItems(source, list.length, visible.length),
@@ -238,6 +239,7 @@ export function SourceList({ onShow }: { onShow: () => void }) {
 							key={source.id}
 							source={source}
 							visibleIndex={index === -1 ? undefined : index}
+							sampled={visible.length > 1}
 							logIndex={logs.indexOf(source)}
 							menuItems={items}
 							header={
