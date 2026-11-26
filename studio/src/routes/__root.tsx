@@ -28,10 +28,10 @@ const styles = stylex.create({
 		display: 'flex',
 		flexDirection: 'column',
 		height: '100svh',
-		// Keeps content out of the notch, Dynamic Island, and home indicator, which the background still fills
+		// Keeps content out of the notch and Dynamic Island, which the background still fills. Panes reach behind the home
+		// indicator like a native app's content, the timeline's controls stay above it.
 		paddingTop: 'env(safe-area-inset-top)',
 		paddingRight: 'env(safe-area-inset-right)',
-		paddingBottom: 'env(safe-area-inset-bottom)',
 		paddingLeft: 'env(safe-area-inset-left)',
 		backgroundColor: colorVars['--color-background-body'],
 	},

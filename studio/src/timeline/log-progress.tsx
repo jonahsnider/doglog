@@ -11,7 +11,9 @@ const styles = stylex.create({
 	footer: {
 		display: 'flex',
 		alignItems: 'center',
-		height: '3.5rem',
+		// Above the home indicator, like the timeline's controls
+		height: 'calc(3.5rem + env(safe-area-inset-bottom))',
+		paddingBottom: 'env(safe-area-inset-bottom)',
 		contain: 'strict',
 	},
 	content: {
