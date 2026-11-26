@@ -171,10 +171,23 @@ The Logs page SHALL let the user limit how much space synced logs take, which is
 
 ### Requirement: One window syncs
 
-When several Studio windows are open, only one SHALL sync logs, and the others MUST say that another window is syncing.
+When several Studio windows are open, only one SHALL sync logs. Every other window's Logs page MUST show the same status, progress, and logs as the window that syncs, and pausing, resuming, Sync now, and sync settings MUST work from any window. When the window that syncs closes, another open window MUST take over. When another copy of Studio on the computer is syncing, the Logs page MUST say so.
 
 #### Scenario: Two windows
 
 - **GIVEN** sync is on and Studio is open in two windows
 - **WHEN** a new log is on the robot
 - **THEN** it's copied once
+- **AND** both windows show the progress of the copy
+
+#### Scenario: Pause from another window
+
+- **GIVEN** sync is copying a log in one window
+- **WHEN** the user pauses sync from the Logs page in another window
+- **THEN** the copy stops and both windows show that sync is paused
+
+#### Scenario: Window that syncs closes
+
+- **GIVEN** sync is on and Studio is open in two windows
+- **WHEN** the user closes the window that syncs
+- **THEN** the other window keeps syncing

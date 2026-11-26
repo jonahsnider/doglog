@@ -1,3 +1,4 @@
+// oxlint-disable max-lines -- Sync's loop and sharing its state with other windows use the same module state
 // oxlint-disable no-await-in-loop -- Sync does one thing at a time, to keep the load on the roboRIO low
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
@@ -14,8 +15,8 @@ export type SyncStatus =
 	/** The user paused sync, or hasn't started it yet */
 	| { type: 'paused' }
 	| { type: 'no-robot' }
-	/** Another Studio window is syncing */
-	| { type: 'other-window' }
+	/** Another copy of Studio is syncing, ex. a development build */
+	| { type: 'other-app' }
 	| { type: 'waiting'; host: string; error: string | undefined }
 	/** The robot is enabled, or was just disabled */
 	| { type: 'robot-enabled' }
@@ -63,6 +64,28 @@ let robotEnabled: { host: string; backend: SyncBackend; watcher: RobotEnabledWat
 
 const currentBackend = (): SyncBackend => (syncSettingsStore.get().demo ? demoBackend : robotBackend);
 
+/** Whether this window syncs, see `runLogSync()` */
+let syncing = false;
+/** Whether this window shows what another window that syncs is doing */
+let following = false;
+
+/** Windows of this app share the state of the window that syncs, and ask it to sync now */
+type Message =
+	| { type: 'hello' }
+	| { type: 'state'; status: SyncStatus; planned: PlannedLogs; folder: SyncFolder | undefined }
+	| { type: 'sync-now' };
+
+const channel = STUDIO_DESKTOP ? new BroadcastChannel('doglog-studio:log-sync') : undefined;
+
+function post(message: Message): void {
+	// oxlint-disable-next-line unicorn/require-post-message-target-origin -- Broadcast channels have no origin argument
+	channel?.postMessage(message);
+}
+
+function postState(): void {
+	post({ type: 'state', status: statusStore.get(), planned: plannedStore.get(), folder: folderStore.get() });
+}
+
 export function useSyncStatus(): SyncStatus {
 	return useSelector(statusStore);
 }
@@ -77,7 +100,11 @@ export function usePlannedLogs(): PlannedLogs {
 
 /** Check the robot for new logs now instead of waiting for the next check */
 export function syncNow(): void {
-	wake();
+	if (syncing) {
+		wake();
+	} else {
+		post({ type: 'sync-now' });
+	}
 }
 
 /** Wait `ms` milliseconds, or until something sync depends on changes */
@@ -225,27 +252,55 @@ async function syncOnce(host: string): Promise<number> {
 export async function runLogSync(): Promise<void> {
 	let demo = syncSettingsStore.get().demo;
 	syncSettingsStore.subscribe((settings) => {
-		if (!settings.enabled || settings.demo !== demo) {
+		const demoChanged = settings.demo !== demo;
+		demo = settings.demo;
+		// The window that syncs follows the same settings and shares what changed
+		if (following) {
+			return;
+		}
+		if (!settings.enabled || demoChanged) {
 			robotBackend.cancelDownload();
 			demoBackend.cancelDownload();
 		}
-		if (settings.demo === demo) {
-			void refreshFolder();
-		} else {
-			demo = settings.demo;
-			void showSavedLogs();
-		}
+		void (demoChanged ? showSavedLogs() : refreshFolder());
 		wake();
 	});
 	settingsStore.subscribe(() => wake());
 	await showSavedLogs();
 
+	channel?.addEventListener('message', ({ data }: MessageEvent<Message>) => {
+		if (data.type === 'state' && !syncing) {
+			following = true;
+			statusStore.set(data.status);
+			plannedStore.set(data.planned);
+			folderStore.set(data.folder);
+		} else if (data.type === 'hello' && syncing) {
+			postState();
+		} else if (data.type === 'sync-now' && syncing) {
+			wake();
+		}
+	});
+	post({ type: 'hello' });
+
 	// Only one window syncs, so two can't write to the same log at once
 	while (!(await invoke<boolean>('lock_sync'))) {
-		statusStore.set({ type: 'other-window' });
+		// Another copy of Studio doesn't share its state, show what's in the sync folder instead
+		if (!following) {
+			statusStore.set({ type: 'other-app' });
+		}
 		await sleep(reconnectDelay);
-		await refreshFolder();
+		if (!following) {
+			await refreshFolder();
+		}
 	}
+
+	// Took over from a window that closed, or the first window to sync
+	syncing = true;
+	following = false;
+	statusStore.subscribe(postState);
+	plannedStore.subscribe(postState);
+	folderStore.subscribe(postState);
+	postState();
 
 	for (;;) {
 		const { enabled, demo: inDemo } = syncSettingsStore.get();

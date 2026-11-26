@@ -185,13 +185,13 @@ function viewFor(status: SyncStatus, syncedCount: number, days: number, stoppedS
 				detail: 'Sync uses the same robot as Connect',
 				action: <Button label="Open Settings" href="/settings" />,
 			};
-		case 'other-window':
+		case 'other-app':
 			return {
 				icon: AppWindowIcon,
 				tone: 'idle',
 				step: stoppedStep,
-				title: 'Syncing in another window',
-				detail: 'Only one Studio window syncs logs at a time',
+				title: 'Syncing in another copy of Studio',
+				detail: 'Only one copy of Studio syncs logs at a time',
 			};
 		case 'waiting':
 			return {
