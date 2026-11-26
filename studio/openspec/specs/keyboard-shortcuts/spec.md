@@ -225,9 +225,9 @@ The desktop app SHALL provide New window (⌘N), which opens another Studio wind
 - **WHEN** the user presses ⌘N
 - **THEN** another Studio window opens
 
-### Requirement: App menu
+### Requirement: Menu bar
 
-On macOS, the desktop app SHALL list Settings and Check for updates in its app menu; New window, New dashboard, Reopen closed dashboard, Open log, Open from URL, Connect, Export live data as WPILOG, Export dashboard video, Close pane, and Close dashboard in its File menu; Undo, Redo, Copy dashboard link, and Copy dashboard image in its Edit menu; Toggle sidebar, Toggle entry browser, Split right, Split down, Zoom or restore pane, and Edit entries in its View menu; Back, Forward, and Logs in its Go menu; and Keyboard shortcuts in its Help menu. Each item MUST show its shortcut, except Copy dashboard image, because Copy keeps ⌘C. Check for updates MUST be labeled like the sidebar's update button and install a found update, like its shortcut. Items MUST be disabled while their command can't run, ex. Split right on a page without panes, and update as that changes. Undo and Redo MUST be enabled while a text field is focused, since its history can't be read, and otherwise only while the dashboard has a change to undo or redo. Undo and Redo MUST act on the focused text field while one is focused. Menu commands MUST act on the focused window.
+On macOS, the desktop app SHALL show its commands in the menu bar. Each item MUST show its shortcut, except Copy dashboard image, because Copy keeps ⌘C. Menu commands MUST act on the focused window.
 
 #### Scenario: Open a log from the menu
 
@@ -241,13 +241,9 @@ On macOS, the desktop app SHALL list Settings and Check for updates in its app m
 - **WHEN** the user focuses the second window and chooses File > New Dashboard
 - **THEN** the second window opens a new dashboard
 
-#### Scenario: Disabled menu items
+### Requirement: App and File menus
 
-- **GIVEN** the user is using the desktop app on macOS
-- **AND** the open dashboard has a single empty pane
-- **WHEN** the user opens the Edit and View menus
-- **THEN** Copy Dashboard Link, Copy Dashboard Image, Zoom or Restore Pane, and Edit Entries are disabled
-- **AND** once the user adds a widget, Copy Dashboard Link and Copy Dashboard Image are enabled
+On macOS, the desktop app SHALL list Settings and Check for updates in its app menu, and New window, New dashboard, Reopen closed dashboard, Open log, Open from URL, Connect, Export live data as WPILOG, Export dashboard video, Close pane, and Close dashboard in its File menu. Check for updates MUST be labeled like the sidebar's update button and install a found update, like its shortcut.
 
 #### Scenario: Update from the menu
 
@@ -255,6 +251,30 @@ On macOS, the desktop app SHALL list Settings and Check for updates in its app m
 - **WHEN** the user opens the DogLog Studio menu
 - **THEN** it shows Update to 2026.2.0… with ⇧⌘U in place of Check for Updates…
 - **AND** choosing it installs the update
+
+### Requirement: Edit, View, Go, and Help menus
+
+On macOS, the desktop app SHALL list Undo, Redo, Copy dashboard link, and Copy dashboard image in its Edit menu; Toggle sidebar, Toggle entry browser, Split right, Split down, Zoom or restore pane, and Edit entries in its View menu; Back, Forward, and Logs in its Go menu; and Keyboard shortcuts in its Help menu. Undo and Redo MUST act on the focused text field while one is focused.
+
+#### Scenario: Undo from the menu while typing
+
+- **GIVEN** the user is using the desktop app on macOS
+- **AND** the user typed in a text field that is still focused
+- **WHEN** the user chooses Edit > Undo
+- **THEN** the text field's last edit is undone
+- **AND** the dashboard is unchanged
+
+### Requirement: Menu item states
+
+On macOS, the desktop app's menu items SHALL be disabled while their command can't run, ex. Split right on a page without panes, and update as that changes. Undo and Redo MUST be enabled while a text field is focused, since its history can't be read, and otherwise only while the dashboard has a change to undo or redo.
+
+#### Scenario: Disabled menu items
+
+- **GIVEN** the user is using the desktop app on macOS
+- **AND** the open dashboard has a single empty pane
+- **WHEN** the user opens the Edit and View menus
+- **THEN** Copy Dashboard Link, Copy Dashboard Image, Zoom or Restore Pane, and Edit Entries are disabled
+- **AND** once the user adds a widget, Copy Dashboard Link and Copy Dashboard Image are enabled
 
 ### Requirement: Close pane or dashboard
 
