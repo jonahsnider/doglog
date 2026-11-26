@@ -13,6 +13,7 @@ import { keyboardShortcutsDialogOpen } from '@/commands/keyboard-shortcuts-dialo
 import { TextMorph } from '@/components/text-morph';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { DownloadMenu } from '@/desktop/download-button';
+import { useSidebar } from '@/sidebar/sidebar-context';
 import { SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/sidebar/sidebar-ui';
 import { checkForUpdateManually, installUpdate, updateTitle, useUpdate } from '@/updater';
 
@@ -31,6 +32,7 @@ export function AppSidebarFooter({
 	closing: boolean;
 	onShow: () => void;
 }) {
+	const { isMobile } = useSidebar();
 	const update = useUpdate();
 	const installing = update?.installing ?? false;
 	const updateLabel = installing ? 'Updating…' : update ? updateTitle(update.update) : 'Check for updates';
@@ -40,18 +42,21 @@ export function AppSidebarFooter({
 			{(expanded || update) && (
 				<SidebarMenu data-footer-actions="">
 					{expanded && (
+						<SidebarMenuItem {...expandedRow} inert={closing}>
+							<Tooltip
+								content={<TooltipLabel label="Command palette" shortcut={shortcuts.commandPalette} />}
+								placement="end"
+							>
+								<SidebarMenuButton size="sm" onClick={() => commandPaletteOpen.set(true)}>
+									<SearchIcon />
+									<span>Command palette</span>
+								</SidebarMenuButton>
+							</Tooltip>
+						</SidebarMenuItem>
+					)}
+					{/* Phones have no keyboard to need the shortcuts, and can't run the desktop app */}
+					{expanded && !isMobile && (
 						<>
-							<SidebarMenuItem {...expandedRow} inert={closing}>
-								<Tooltip
-									content={<TooltipLabel label="Command palette" shortcut={shortcuts.commandPalette} />}
-									placement="end"
-								>
-									<SidebarMenuButton size="sm" onClick={() => commandPaletteOpen.set(true)}>
-										<SearchIcon />
-										<span>Command palette</span>
-									</SidebarMenuButton>
-								</Tooltip>
-							</SidebarMenuItem>
 							<SidebarMenuItem {...expandedRow} inert={closing}>
 								<Tooltip
 									content={<TooltipLabel label="Keyboard shortcuts" shortcut={shortcuts.keyboardShortcuts} />}
