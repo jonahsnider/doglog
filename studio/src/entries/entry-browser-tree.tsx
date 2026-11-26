@@ -7,13 +7,14 @@ import { useSelector } from '@tanstack/react-store';
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { shortcuts } from '@/commands/commands';
 import { Shortcut } from '@/components/shortcut';
-import { type Entry, useEntries } from '@/data/data-store';
+import type { Entry } from '@/data/data-store';
 import { useSource } from '@/data/source';
 import { ActiveSection } from '@/entries/active-section';
 import type { EntryDragData, EntrySectionDropData } from '@/entries/drag';
 import { type EditedWidget, hiddenEntriesNote } from '@/entries/edited-widget';
 import { searchFocusStore } from '@/entries/editing';
 import { EntryRows } from '@/entries/entry-browser-rows';
+import { PartialEntriesContext, useMergedEntries } from '@/entries/entry-sources';
 import { HiddenSection } from '@/entries/hidden-section';
 import { useSearchExpansion } from '@/entries/search-expansion';
 import { entryPlacementsStore, moveToSection } from '@/entries/sections';
@@ -85,7 +86,7 @@ let handledSearchFocus = 0;
 export function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 	const mobile = useMobileLayout();
 	const source = useSource();
-	const allEntries = useEntries();
+	const { entries: allEntries, partial } = useMergedEntries();
 	const editedType = edited?.type;
 	const entries = editedType ? allEntries.filter((entry) => acceptsEntry(editedType, entry)) : allEntries;
 	const [query, setQuery] = useState('');
@@ -151,7 +152,7 @@ export function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 	const message = emptyMessage(source !== undefined, allEntries, entries, editedType, results);
 
 	return (
-		<>
+		<PartialEntriesContext value={partial}>
 			<div {...stylex.props(styles.search)}>
 				<div {...stylex.props(entrySearchMarker, styles.field)}>
 					<TextInput
@@ -212,7 +213,7 @@ export function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 			{editedType && entries.length > 0 && entries.length < allEntries.length && (
 				<p {...stylex.props(styles.note)}>{hiddenEntriesNote(allEntries, entries, editedType)}</p>
 			)}
-		</>
+		</PartialEntriesContext>
 	);
 }
 

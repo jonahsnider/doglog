@@ -380,6 +380,7 @@ pub fn run() -> ExitCode {
             video::cancel_video,
             live_export::save_live_export,
             new_window::new_window,
+            new_window::new_source_window,
             recent_logs::note_recent_log,
             recent_logs::clear_recent_logs,
             relaunch::relaunch,

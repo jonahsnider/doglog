@@ -4,7 +4,7 @@ use crate::OpenedLogTarget;
 use std::process::{Command, Stdio};
 use std::sync::Mutex;
 use std::sync::atomic::{AtomicU32, Ordering};
-use tauri::{AppHandle, Manager, WebviewWindowBuilder};
+use tauri::{AppHandle, LogicalPosition, Manager, WebviewWindowBuilder};
 
 /// The label of the window that was focused last, `main` until another is focused
 pub struct LastFocused(Mutex<String>);
@@ -25,16 +25,33 @@ pub fn last_focused(app: &AppHandle) -> String {
 }
 
 pub fn create(app: &AppHandle, log: Option<OpenedLogTarget>) -> tauri::Result<()> {
+    create_at(app, log, None).map(drop)
+}
+
+/// Open a window, with its top left corner near `position` in logical screen coordinates when it's given. Returns its label.
+fn create_at(app: &AppHandle, log: Option<OpenedLogTarget>, position: Option<(f64, f64)>) -> tauri::Result<String> {
     static NEXT: AtomicU32 = AtomicU32::new(1);
     let mut config = app.config().app.windows[0].clone();
-    config.label = format!("window-{}", NEXT.fetch_add(1, Ordering::Relaxed));
+    // Windows for moved sources don't restore a live session, see `@/desktop/source-windows`
+    let prefix = if position.is_some() { "source-window" } else { "window" };
+    config.label = format!("{prefix}-{}", NEXT.fetch_add(1, Ordering::Relaxed));
     // Taken by the window once it loads
     if let Some(log) = log {
         crate::set_opened_log(app, &config.label, log);
     }
     let window = WebviewWindowBuilder::from_config(app, &config)?.build()?;
     crate::window_state::restore(&window, false);
-    Ok(())
+    if let Some((x, y)) = position {
+        // Under the pointer, about where the source's row would be in the sidebar
+        window.set_position(LogicalPosition::new(x - 120.0, y - 60.0))?;
+    }
+    Ok(config.label)
+}
+
+/// Open another window for a source moved out of a window, see `@/desktop/source-windows`. Returns its label.
+#[tauri::command]
+pub async fn new_source_window(app: AppHandle, x: f64, y: f64) -> Result<String, String> {
+    create_at(&app, None, Some((x, y))).map_err(|error| error.to_string())
 }
 
 /// Open another Studio window. Async, since creating a window in a synchronous command deadlocks on Windows.

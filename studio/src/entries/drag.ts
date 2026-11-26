@@ -1,7 +1,7 @@
 import { type Draggable, PointerActivationConstraints } from '@dnd-kit/dom';
 import { KeyboardSensor, PointerSensor, useDraggable, useDroppable } from '@dnd-kit/react';
 import { createContext, use, useId } from 'react';
-import { getEntry } from '@/data/data-store';
+import { getVisibleEntry } from '@/data/data-store';
 import type { EntrySection } from '@/entries/sections';
 import type { EntryDrop } from '@/widgets/bindings';
 import { acceptsDrop, acceptsEntry, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
@@ -27,7 +27,9 @@ export type EntryDragData = EntryDragItem & {
  * widgets that can't show the struct, ex. an enum logged as a struct dropped on a graph.
  */
 export function droppedEntryName(type: WidgetType, { name, field }: EntryDragItem): string {
-	return field !== undefined && !acceptsDrop(type, name, getEntry(name)) && acceptsDrop(type, field, getEntry(field))
+	return field !== undefined &&
+		!acceptsDrop(type, name, getVisibleEntry(name)) &&
+		acceptsDrop(type, field, getVisibleEntry(field))
 		? field
 		: name;
 }
@@ -36,7 +38,7 @@ export function droppedGroupNames(type: WidgetType, group: readonly EntryDragIte
 	const names = new Set<string>();
 	for (const item of group) {
 		const name = droppedEntryName(type, item);
-		const entry = getEntry(name);
+		const entry = getVisibleEntry(name);
 		if (entry && acceptsEntry(type, entry)) {
 			names.add(name);
 		}

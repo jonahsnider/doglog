@@ -67,7 +67,8 @@ function OpenValidLogUrl({ url }: { url: string }) {
 
 	useEffect(() => {
 		let active = true;
-		let streamingStarted = false;
+		// The log once it started streaming into the window's sources
+		let streamingId: string | undefined;
 		let toastId: string | undefined;
 		let blurTimeout: number | undefined;
 		let blurListener: (() => void) | undefined;
@@ -76,8 +77,8 @@ function OpenValidLogUrl({ url }: { url: string }) {
 
 		const abortFetch = () => {
 			controller.abort();
-			if (streamingStarted) {
-				closeLog();
+			if (streamingId !== undefined) {
+				closeLog(streamingId);
 			}
 		};
 
@@ -152,7 +153,7 @@ function OpenValidLogUrl({ url }: { url: string }) {
 				return;
 			}
 			if (result.ok) {
-				streamingStarted = true;
+				streamingId = result.id;
 				cleanupHandoffListeners();
 				await router.navigate({ to: '/', replace: true });
 				return;
@@ -169,7 +170,7 @@ function OpenValidLogUrl({ url }: { url: string }) {
 			active = false;
 			cleanupHandoffListeners();
 			// Only abort if we're leaving before streaming handed off to the active log store
-			if (!streamingStarted) {
+			if (streamingId === undefined) {
 				controller.abort();
 			}
 		};

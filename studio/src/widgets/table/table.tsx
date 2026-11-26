@@ -11,7 +11,7 @@ import {
 } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import ChevronRightIcon from 'lucide-react/icons/chevron-right';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { EntryTypeIcon } from '@/entries/value-marks';
 import { useDataVersion } from '@/data/data-store';
 import { formatValue } from '@/data/format-value';
@@ -77,6 +77,11 @@ const styles = stylex.create({
 		color: colorVars['--color-text-secondary'],
 		whiteSpace: 'nowrap',
 	},
+	source: {
+		flexShrink: 0,
+		fontFamily: typographyVars['--font-family-body'],
+		color: colorVars['--color-text-secondary'],
+	},
 	typeIcon: {
 		flexShrink: 0,
 		width: '0.875rem',
@@ -93,6 +98,10 @@ type Row = {
 	value: FieldValue;
 	depth: number;
 	missing: boolean;
+	/** Short name of the source the row's value is from, while several sources are visible */
+	source?: string | undefined;
+	/** The same entry from another source, below the binding's own row, which is the one dragged */
+	extra?: boolean;
 };
 
 function childrenOf(value: FieldValue): [label: string, value: FieldValue][] | undefined {
@@ -153,20 +162,26 @@ export function TableWidget({ bindings }: WidgetProps) {
 					value,
 					depth: row.depth + 1,
 					missing: false,
+					extra: row.extra,
 				});
 			}
 		}
 	};
-	for (const { id, name, entry } of bindings) {
-		addRows({
-			binding: { id, name },
-			path: id,
-			label: name,
-			type: entry?.type,
-			value: entry && time !== undefined ? entry.samples.valueAt(time) : undefined,
-			depth: 0,
-			missing: entry === undefined,
-		});
+	for (const { id, name, entry, source, others } of bindings) {
+		const sources = entry ? [{ entry, source }, ...others] : [{ entry: undefined, source: undefined }];
+		for (const [index, from] of sources.entries()) {
+			addRows({
+				binding: { id, name },
+				path: index === 0 ? id : `${id}:${from.source?.id}`,
+				label: name,
+				type: from.entry?.type,
+				value: from.entry && time !== undefined ? from.entry.samples.valueAt(time) : undefined,
+				depth: 0,
+				missing: from.entry === undefined,
+				source: from.source?.labeled === true ? from.source.label : undefined,
+				extra: index > 0,
+			});
+		}
 	}
 
 	// Rows only reserve space for the expand button when some row has one, so names stay aligned
@@ -208,12 +223,12 @@ function ValueRow({
 	onToggle: () => void;
 }) {
 	// Rows of an entry's fields and elements are part of its row, only the entry's own row can be dragged or dropped on
-	const { ref, handleRef } = useBindingDrag(row.binding, { disabled: row.depth > 0 });
+	const { ref, handleRef } = useBindingDrag(row.binding, { disabled: row.depth > 0 || row.extra === true });
 	const expandable = childrenOf(row.value) !== undefined;
 	const isExpanded = expandable && expanded;
 	return (
 		<TableRow
-			ref={row.depth === 0 ? ref : undefined}
+			ref={row.depth === 0 && row.extra !== true ? ref : undefined}
 			// Right-clicking the row offers to remove its binding, middle-clicking removes it
 			data-binding-id={row.binding.id}
 			xstyle={[expandable && styles.expandable]}
@@ -249,17 +264,29 @@ function ValueRow({
 						anyExpandable && <span {...stylex.props(styles.expandSpace)} />
 					)}
 					{/* Only the name starts a drag, not the expand button or selectable value. */}
-					{row.depth === 0 ? (
-						<span ref={handleRef} {...stylex.props(styles.grab)}>
-							<EntryName name={row.label} />
-						</span>
-					) : (
-						row.label
-					)}
+					<RowName row={row} handleRef={handleRef} />
 				</div>
 			</TableCell>
 			<TableCell>{row.type !== undefined && <TypeLabel type={row.type} />}</TableCell>
 			<TableCell xstyle={[styles.code, styles.value]}>{valueCell(row, isExpanded)}</TableCell>
 		</TableRow>
+	);
+}
+
+/** The row's name, which starts a drag on the binding's own row, then the source its value is from */
+function RowName({ row, handleRef }: { row: Row; handleRef: (element: Element | null) => void }) {
+	let name: ReactNode = row.label;
+	if (row.depth === 0) {
+		name = (
+			<span ref={row.extra === true ? undefined : handleRef} {...stylex.props(row.extra !== true && styles.grab)}>
+				<EntryName name={row.label} />
+			</span>
+		);
+	}
+	return (
+		<>
+			{name}
+			{row.source !== undefined && <span {...stylex.props(styles.source)}>{row.source}</span>}
+		</>
 	);
 }

@@ -23,7 +23,7 @@ const styles = stylex.create({
 	},
 });
 
-export function LogProgress({ fileName, cancelable }: { fileName: string; cancelable?: boolean }) {
+export function LogProgress({ id, fileName, cancelable }: { id: string; fileName: string; cancelable?: boolean }) {
 	const present = useIsPresent();
 	const progress = useLogProgress();
 	const capture = useCaptureFrame();
@@ -31,7 +31,7 @@ export function LogProgress({ fileName, cancelable }: { fileName: string; cancel
 		<footer aria-label="Timeline" inert={!present} {...stylex.props(styles.footer)} style={capture?.timelinePadding}>
 			<div data-fade-in="delayed" {...stylex.props(styles.content)}>
 				<ThemedProgressBar label={`Loading ${fileName}`} value={progress} />
-				{cancelable === true && <Button label="Cancel" variant="ghost" size="sm" onClick={closeLog} />}
+				{cancelable === true && <Button label="Cancel" variant="ghost" size="sm" onClick={() => closeLog(id)} />}
 			</div>
 		</footer>
 	);

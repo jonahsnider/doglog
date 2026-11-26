@@ -1,3 +1,4 @@
+// oxlint-disable max-lines -- The timeline's state and the functions that change it are kept together
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import { createContext } from 'react';
@@ -54,8 +55,10 @@ const maxSavedLogs = 100;
 
 // Cursor time (µs) of recently opened logs by file name, restored when a log is reopened
 const savedTimes = createPersistedAtom('log-cursor-times', z.record(z.string(), z.number()), {});
-// File name of the active log, `undefined` for live sources
+// File name of the time base when it's a log, `undefined` for live sources
 let logName: string | undefined;
+// How far (µs) the time base log was moved from its own clock, its cursor is saved on its own clock
+let logOffset = 0;
 
 let frame: number | undefined;
 let lastFrameTime = 0;
@@ -80,7 +83,7 @@ function update(changes: Partial<Timeline>, spans?: readonly CompressedSpan[]): 
 			? (spans ?? getActiveCompressedSpans(range)).find((span) => span.start <= time && time < span.end)
 			: undefined;
 	const playbackClock =
-		range && !next.live && !compressed && time !== undefined ? videoClockAt(time - range.start, speed) : undefined;
+		range && !next.live && !compressed && time !== undefined ? videoClockAt(time - range.origin, speed) : undefined;
 	store.set({ ...next, playbackRate: rateInSpan(videoRange ? 1 : speed, compressed), playbackClock });
 
 	const playing = store.get().playback === 'playing';
@@ -109,7 +112,7 @@ function tick(now: number): void {
 	const spans = videoRange ? [] : getActiveCompressedSpans(sourceRange);
 	const compressed = spans.find((span) => span.start <= time && time < span.end);
 	const rate = rateInSpan(videoRange ? 1 : speed, compressed);
-	const driven = compressed ? undefined : timeFromVideo(playbackClock, time, sourceRange.start, spans);
+	const driven = compressed ? undefined : timeFromVideo(playbackClock, time, sourceRange.origin, spans);
 	const next = driven ?? Math.min(time + elapsed * 1000 * rate, compressed?.end ?? Infinity);
 
 	if (next >= range.end) {
@@ -120,7 +123,8 @@ function tick(now: number): void {
 	}
 }
 
-subscribeData(() => {
+/** Follow the newest data, or place a cursor that hasn't been placed yet once the sources have data */
+function syncToData(): void {
 	const range = getTimeRange();
 	if (range === undefined) {
 		return;
@@ -133,9 +137,11 @@ subscribeData(() => {
 		}
 	} else if (time === undefined) {
 		const saved = logName === undefined ? undefined : savedTimes.get()[logName];
-		update({ time: saved === undefined ? range.start : clamp(saved, range) });
+		update({ time: saved === undefined ? range.origin : clamp(saved + logOffset, range) });
 	}
-});
+}
+
+subscribeData(syncToData);
 
 // Save the cursor of the active log when it settles, saving every frame while playing or saving a video would be wasteful
 store.subscribe(({ time, playback }) => {
@@ -144,25 +150,45 @@ store.subscribe(({ time, playback }) => {
 		time === undefined ||
 		playback === 'playing' ||
 		savingVideo ||
-		savedTimes.get()[logName] === time
+		savedTimes.get()[logName] === time - logOffset
 	) {
 		return;
 	}
 	const times = { ...savedTimes.get() };
 	// Re-add the log so it's the most recently saved
 	delete times[logName];
-	times[logName] = time;
+	times[logName] = time - logOffset;
 	savedTimes.set(Object.fromEntries(Object.entries(times).slice(-maxSavedLogs)));
 });
 
 /**
- * Reset the cursor when switching sources: live sources follow the newest data,
- * logs start paused where the cursor was when the log was last shown, or at the beginning
+ * Start the cursor over for a new source: live sources follow the newest data, logs start paused where the cursor was
+ * when the log was last open, or at the beginning. `offset` is how far the log was moved from its own clock.
  */
-export function resetTimeline(source: Source | undefined): void {
+export function resetTimeline(source: Source | undefined, offset = 0): void {
 	const live = source?.type === 'live';
 	logName = source?.type === 'log' ? source.fileName : undefined;
+	logOffset = offset;
 	update({ time: undefined, playback: live ? 'following' : 'paused', live, videoRange: undefined });
+	// A source that's already loaded, ex. one moved from another window, doesn't add data to place the cursor with
+	syncToData();
+}
+
+/**
+ * Use `source` as the time base, the source whose clock and robot mode the timeline uses. `fresh` starts the cursor
+ * over, ex. when the first source opens, otherwise it stays at the same moment. The cursor only follows the newest data
+ * while the live session is the time base.
+ */
+export function setTimeBase(source: Source | undefined, offset: number, fresh: boolean): void {
+	const { time, playback } = store.get();
+	if (fresh || source === undefined || time === undefined) {
+		resetTimeline(source, offset);
+		return;
+	}
+	const live = source.type === 'live';
+	logName = source.type === 'log' ? source.fileName : undefined;
+	logOffset = offset;
+	update({ live, playback: !live && playback === 'following' ? 'paused' : playback });
 }
 
 /** The full timeline state, re-renders on every cursor move */

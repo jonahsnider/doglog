@@ -54,6 +54,10 @@ const styles = stylex.create({
 		whiteSpace: 'nowrap',
 		fontFamily: typographyVars['--font-family-code'],
 	},
+	source: {
+		fontFamily: typographyVars['--font-family-body'],
+		color: colorVars['--color-text-secondary'],
+	},
 	value: {
 		// Wide enough for most values, so the tooltip rarely resizes as they change
 		minWidth: '10ch',
@@ -83,7 +87,7 @@ function TimeHeader({ time }: { time: number }) {
 	const period = getModePeriods(range).findLast((item) => item.start <= time && time <= item.end);
 	return (
 		<div {...stylex.props(styles.header)}>
-			{formatTime(time, range.start)}
+			{formatTime(time, range.origin)}
 			{period && ` · ${modeLabels[period.mode]}`}
 		</div>
 	);
@@ -191,16 +195,23 @@ function LineTooltip({ at, time, top, above, plotted, units, offset, bounds }: L
 		<Popup at={at} top={top} above={above} offset={offset} bounds={bounds}>
 			<TimeHeader time={time} />
 			<div {...stylex.props(styles.values)}>
-				{plotted.map((binding, index) => {
-					return binding.hidden ? null : (
-						<div key={binding.id} {...stylex.props(styles.row)}>
+				{plotted.flatMap((binding, index) => {
+					if (binding.hidden) {
+						return [];
+					}
+					const sources = binding.entry
+						? [{ entry: binding.entry, source: binding.source }, ...binding.others]
+						: [{ entry: undefined, source: undefined }];
+					return sources.map(({ entry, source }) => (
+						<div key={`${binding.id}:${source?.id}`} {...stylex.props(styles.row)}>
 							<span {...stylex.props(styles.dot)} style={{ background: bindingColor(binding, index) }} />
 							<span {...stylex.props(styles.name)}>
 								<EntryName name={binding.name} />
+								{source?.labeled === true && <span {...stylex.props(styles.source)}> {source.label}</span>}
 							</span>
-							<LineValue entry={binding.entry} time={time} unit={units.get(binding.id)!} />
+							<LineValue entry={entry} time={time} unit={units.get(binding.id)!} />
 						</div>
-					);
+					));
 				})}
 			</div>
 		</Popup>
@@ -243,8 +254,8 @@ function BandTooltip({
 			</div>
 			<div {...stylex.props(styles.bandTime)}>
 				{changes > 1
-					? `${formatTime(from, range.start)} - ${formatTime(to, range.start)}`
-					: `${formatTime(band.start, range.start)} - ${formatTime(band.end, range.start)}`}
+					? `${formatTime(from, range.origin)} - ${formatTime(to, range.origin)}`
+					: `${formatTime(band.start, range.origin)} - ${formatTime(band.end, range.origin)}`}
 			</div>
 		</Popup>
 	);

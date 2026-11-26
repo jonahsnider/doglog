@@ -62,18 +62,24 @@ function toPeriods(
 	return periods;
 }
 
-/** The robot's mode over time, from the Driver Station data in a log or NetworkTables. Empty without that data. */
-export function getModePeriods(range: TimeRange): readonly ModePeriod[] {
+/**
+ * The robot's mode over time, from the Driver Station data in a log or NetworkTables. Empty without that data.
+ * Reads the time base's entries unless `find` reads another source's.
+ */
+export function getModePeriods(
+	range: TimeRange,
+	find: (name: string) => Entry | undefined = getEntry,
+): readonly ModePeriod[] {
 	for (const [enabledName, autoName, testName, estopName, modeName] of driverStationEntries) {
 		const [enabled, autonomous, test, estop] = [enabledName, autoName, testName, estopName].map((name) => {
-			const entry = getEntry(name);
+			const entry = find(name);
 			return entry?.kind === 'boolean' && entry.samples.length > 0 ? entry : undefined;
 		});
 		const flags = [enabled, autonomous, test, estop].filter((entry) => entry !== undefined);
 		if (flags.length === 0) {
 			continue;
 		}
-		const mode = modeName === undefined ? undefined : getEntry(modeName);
+		const mode = modeName === undefined ? undefined : find(modeName);
 		const robotMode = mode?.kind === 'string' ? mode : undefined;
 		return toPeriods(
 			robotMode ? [...flags, robotMode] : flags,
@@ -91,7 +97,7 @@ export function getModePeriods(range: TimeRange): readonly ModePeriod[] {
 		);
 	}
 
-	const controlData = getEntry(controlDataName);
+	const controlData = find(controlDataName);
 	if (controlData?.kind === 'number') {
 		return toPeriods(
 			[controlData],

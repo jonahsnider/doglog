@@ -112,12 +112,12 @@ export function fieldConnects(binding: WidgetBinding): Connects | undefined {
  */
 export function fieldDrawings(
 	bindings: readonly WidgetBinding[],
-	valueOf: (binding: WidgetBinding) => Value | undefined,
+	valueOf: (entry: Entry | undefined) => Value | undefined,
 ): ReactNode[] {
 	const layers: ReactNode[][] = drawOrder.map(() => []);
 	bindings.forEach((binding, index) => {
 		const role = roles.find((option) => option.id === binding.role?.id);
-		const value = valueOf(binding);
+		const value = valueOf(binding.entry);
 		if (role === undefined || value === undefined || binding.hidden) {
 			return;
 		}
@@ -128,8 +128,19 @@ export function fieldDrawings(
 				{role.draw(value, color, bindingColor(binding, index, 'outline'))}
 			</g>,
 		);
+		// The same entry from other sources is drawn faded, and under it since layers draw their last item first
+		for (const other of binding.others) {
+			const otherValue = valueOf(other.entry);
+			if (otherValue !== undefined) {
+				layers[drawOrder.indexOf(role.id)]!.push(
+					<g key={`${binding.id}:${other.source.id}`} data-binding-id={binding.id} opacity={0.45}>
+						{role.draw(otherValue, color, bindingColor(binding, index, 'outline'))}
+					</g>,
+				);
+			}
+		}
 		for (const source of binding.sources) {
-			const sourceValue = source.hidden ? undefined : valueOf(source);
+			const sourceValue = source.hidden ? undefined : valueOf(source.entry);
 			if (sourceValue !== undefined) {
 				layers[drawOrder.indexOf('connections')]!.push(
 					<Connections

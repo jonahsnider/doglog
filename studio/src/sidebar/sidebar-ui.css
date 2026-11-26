@@ -70,9 +70,12 @@
 	}
 }
 
-/* Leaves room for the action at the end of the row. `:where` keeps it below the rail's square, which hides the action. */
+/*
+ * Leaves room for the action at the end of the row, or `--menu-action-space` for rows with more than one. `:where` keeps
+ * it below the rail's square, which hides the action.
+ */
 :where([data-sidebar='menu-item']:has([data-sidebar='menu-action'])) [data-sidebar='menu-button'] {
-	padding-inline-end: var(--spacing-8);
+	padding-inline-end: var(--menu-action-space, var(--spacing-8));
 }
 
 [data-collapsible='icon'] :is([data-sidebar='menu-badge'], [data-sidebar='menu-action']) {

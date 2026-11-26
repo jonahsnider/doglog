@@ -32,7 +32,9 @@ export type OpenLogUrlError = {
 	url?: string;
 };
 
-export type OpenLogUrlResult = { ok: true; fileName: string } | { ok: false; error: OpenLogUrlError };
+export type OpenLogUrlResult =
+	/** `id` is the log's in the window's sources */
+	{ ok: true; fileName: string; id: string } | { ok: false; error: OpenLogUrlError };
 
 /** Read chunks sequentially from `reader` until at least 6 bytes are buffered or the stream ends */
 async function readInitialMagic(
@@ -259,12 +261,12 @@ async function openLogUrlWeb(
 		void pumpReader(reader, stream, controller, totalBytes, downloaded);
 	}
 
-	return { ok: true, fileName };
+	return { ok: true, fileName, id: stream.id };
 }
 
 /**
  * Validate and stream a WPILOG or `.wpilogxz` file from an HTTP(S) URL.
- * Validates headers and the first 6 magic bytes before replacing any currently open log.
+ * Validates headers and the first 6 magic bytes before adding it to the window's sources.
  */
 export function openLogUrl(
 	rawUrl: string,

@@ -281,7 +281,7 @@ export function Console({ bindings }: WidgetProps) {
 									style={{ transform: `translateY(${item.start}px)` }}
 								>
 									<span {...stylex.props(styles.time, styles.secondary)}>
-										{formatTime(messages.times[item.index]!, range?.start ?? 0)}
+										{formatTime(messages.times[item.index]!, range?.origin ?? 0)}
 									</span>
 									<span {...stylex.props(styles.text)}>
 										<HighlightedText

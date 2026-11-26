@@ -4,7 +4,14 @@ import type { Entry } from '@/data/data-store';
 import { createId } from '@/lib/random-id';
 import { findPane, type PaneNode, setPaneWidget, type Widget } from '@/panes/layout';
 import { initialOptions } from '@/widgets/options';
-import { acceptsEntry, canConnect, type RoleOption, type WidgetBinding, type WidgetType } from '@/widgets/widget-type';
+import {
+	acceptsEntry,
+	canConnect,
+	type RoleOption,
+	type SourceTag,
+	type WidgetBinding,
+	type WidgetType,
+} from '@/widgets/widget-type';
 
 const cameraFov = z.number().min(1).max(179).optional().catch(undefined);
 export const bindingSchema = z.object({
@@ -22,6 +29,8 @@ export const bindingSchema = z.object({
 	/** The robot picked to draw the binding as, ex. a field robot's robot project, the widget picks one otherwise */
 	robot: z.string().optional(),
 	camera: z.object({ name: z.string().optional(), fov: cameraFov }).optional().catch(undefined),
+	/** The name of the only source to draw the entry from, ex. `qual12.wpilog` or `Live`, every visible source otherwise */
+	pin: z.string().optional(),
 });
 
 export type Binding = z.infer<typeof bindingSchema>;
@@ -146,8 +155,8 @@ export function setBindingRole(layout: PaneNode, paneId: string, bindingId: stri
 	);
 }
 
-/** Pick a binding's series color, robot, or camera settings */
-export function setBindingPick<K extends 'color' | 'robot' | 'camera'>(
+/** Pick a binding's series color, robot, camera settings, or the source it's pinned to */
+export function setBindingPick<K extends 'color' | 'robot' | 'camera' | 'pin'>(
 	layout: PaneNode,
 	paneId: string,
 	bindingId: string,
@@ -258,16 +267,45 @@ export function changeWidgetType(
  * binding of its entry has, so a second binding of a robot's pose isn't drawn on top of it. Hidden bindings count too,
  * so hiding one doesn't change the others' roles. Connections that don't fit the bindings' roles are kept but not used.
  */
+/** A visible source to find bound entries in, see `resolveBindings()` */
+export type BindingSource = SourceTag & {
+	/** What a binding pinned to it is saved with, see `Binding.pin` */
+	readonly name: string;
+	readonly entryNamed: (name: string) => Entry | undefined;
+};
+
+/**
+ * Bindings with their entries, roles, and connections. Entries are found with `entryOf`, or in each of `sources`, the
+ * visible sources with the time base first, when they're given.
+ */
 export function resolveBindings(
 	type: WidgetType,
 	bindings: readonly Binding[],
 	entryOf: (name: string) => Entry | undefined,
+	sources?: readonly BindingSource[],
 ): WidgetBinding[] {
 	const resolved = bindings.map((binding) => {
-		const found = entryOf(binding.name);
-		const entry = found && acceptsEntry(type, found) ? found : undefined;
+		const candidates: readonly (BindingSource | { entryNamed: typeof entryOf; tag?: undefined })[] =
+			sources === undefined
+				? [{ entryNamed: entryOf }]
+				: sources.filter((source) => binding.pin === undefined || source.name === binding.pin);
+		const found = candidates.flatMap((candidate) => {
+			const entry = candidate.entryNamed(binding.name);
+			return entry && acceptsEntry(type, entry)
+				? [{ entry, source: 'id' in candidate ? sourceTag(candidate) : undefined }]
+				: [];
+		});
+		const entry = found[0]?.entry;
 		const roles = entry && type.roles ? type.roles(entry) : [];
-		return { binding, entry, roles, picked: roles.find((role) => role.id === binding.role) };
+		const others = found.slice(1).flatMap(({ entry: other, source }) => (source ? [{ entry: other, source }] : []));
+		return {
+			binding,
+			entry,
+			source: found[0]?.source,
+			others,
+			roles,
+			picked: roles.find((role) => role.id === binding.role),
+		};
 	});
 
 	const counts = new Map<string, number>();
@@ -284,7 +322,7 @@ export function resolveBindings(
 
 	// Connections are added once every binding has its role, since what can be connected depends on it
 	const withRoles: Mutable<WidgetBinding>[] = [];
-	for (const { binding, entry, roles, picked } of resolved) {
+	for (const { binding, entry, source, others: otherSources, roles, picked } of resolved) {
 		let role: RoleOption | undefined =
 			picked ?? (entry && roles.length > 0 ? type.inferRole?.(roles, withRoles, entry) : undefined);
 		const others = taken.get(binding.name)!;
@@ -298,6 +336,9 @@ export function resolveBindings(
 			id: binding.id,
 			name: binding.name,
 			entry,
+			source,
+			others: otherSources,
+			pin: binding.pin,
 			roles,
 			role,
 			roleLabel: role && (roles.length > 1 || counts.get(binding.name)! > 1) ? role.label : undefined,
@@ -325,3 +366,7 @@ export function resolveBindings(
 }
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
+
+function sourceTag({ id, label, index, labeled }: SourceTag): SourceTag {
+	return { id, label, index, labeled };
+}

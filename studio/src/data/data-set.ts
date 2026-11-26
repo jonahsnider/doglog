@@ -1,3 +1,4 @@
+// oxlint-disable max-lines -- Moving and copying data sets for other windows is kept with the data they change
 import type { StructDeclaration } from 'wpilib-struct';
 import type { Entry, TimeRange } from '@/data/data-store';
 import { type FieldKey, FieldEntry, structFieldType } from '@/data/field-entry';
@@ -10,6 +11,24 @@ import { getEntryKind, Samples, trimOldest, type Value } from '@/data/samples';
 export const maxLiveSamples = 10_000_000;
 
 export type EntriesSnapshot = { readonly list: readonly Entry[]; readonly map: ReadonlyMap<string, Entry> };
+
+/** A data set copied to send to another window, see `DataSet.toTransfer()` */
+export type DataSetTransfer = {
+	entries: {
+		name: string;
+		type: string;
+		timestamps: Float64Array<ArrayBuffer>;
+		values: Value[];
+		metadata: Readonly<Record<string, unknown>>;
+		embeddedLog?: Uint8Array<ArrayBuffer>;
+	}[];
+	structSchemas: [string, readonly StructDeclaration[]][];
+	gaps: TimeRange[];
+	disconnectedAt: number | undefined;
+	start: number | undefined;
+	end: number | undefined;
+	offset: number;
+};
 
 /**
  * The entries and samples of one source, a log or the live session. Kept out of React state, the active data set is
@@ -25,6 +44,8 @@ export class DataSet {
 	disconnectedAt: number | undefined;
 	start: number | undefined;
 	end: number | undefined;
+	/** How far (µs) samples have been moved from the source's own clock, see `shift()` */
+	offset = 0;
 	/** Published once per frame */
 	snapshot: EntriesSnapshot = { list: [], map: new Map() };
 	timeRange: TimeRange | undefined;
@@ -113,6 +134,37 @@ export class DataSet {
 		this.changed();
 	}
 
+	/**
+	 * Move every sample `delta` µs later, ex. to line a log up with other sources. Sources in a window share one clock, so
+	 * widgets read them all at the cursor time. `offset` is how far the data has been moved from its own clock in total.
+	 */
+	shift(delta: number): void {
+		if (delta === 0) {
+			return;
+		}
+		this.offset += delta;
+		for (const samples of this.uniqueSamples()) {
+			for (let index = 0; index < samples.length; index++) {
+				samples.timestamps[index]! += delta;
+			}
+			// Field entries and anything else that copied the samples start over
+			samples.rewrites++;
+		}
+		for (const [index, gap] of this.gaps.entries()) {
+			this.gaps[index] = { start: gap.start + delta, end: gap.end + delta };
+		}
+		if (this.disconnectedAt !== undefined) {
+			this.disconnectedAt += delta;
+		}
+		if (this.start !== undefined) {
+			this.start += delta;
+		}
+		if (this.end !== undefined) {
+			this.end += delta;
+		}
+		this.changed();
+	}
+
 	/** Record that the live connection dropped at `time` */
 	disconnect(time: number): void {
 		this.disconnectedAt ??= time;
@@ -147,6 +199,49 @@ export class DataSet {
 					: { start: this.start, end: Math.max(this.start, this.end) };
 		}
 		return changes;
+	}
+
+	/** Copy the data to send to another window. Entries the data set adds itself, like struct fields, are added again there. */
+	toTransfer(): DataSetTransfer {
+		const logged = [...this.entries.values()].filter(
+			(entry) => !(entry instanceof FieldEntry) && entry.kind !== 'mechanism2d',
+		);
+		return {
+			// oxlint-disable-next-line oxc/no-map-spread -- Each entry is copied anyway, to send to the other window
+			entries: logged.map(({ name, type, samples, metadata, embeddedLog }) => ({
+				name,
+				type,
+				timestamps: samples.timestamps.slice(0, samples.length),
+				values: samples.values.slice(),
+				metadata,
+				...(embeddedLog && { embeddedLog }),
+			})),
+			structSchemas: [...this.structSchemas],
+			gaps: [...this.gaps],
+			disconnectedAt: this.disconnectedAt,
+			start: this.start,
+			end: this.end,
+			offset: this.offset,
+		};
+	}
+
+	/** Add the data another window sent, see `toTransfer()`. Call on an empty data set. */
+	addTransfer(transfer: DataSetTransfer): void {
+		for (const [name, fields] of transfer.structSchemas) {
+			this.structSchemas.set(name, fields);
+		}
+		for (const { name, type, timestamps, values, metadata, embeddedLog } of transfer.entries) {
+			const entry = this.addEntry(name, type, new Samples(timestamps, values), { ...metadata });
+			if (embeddedLog) {
+				entry.embeddedLog = embeddedLog;
+			}
+		}
+		this.gaps.push(...transfer.gaps);
+		this.disconnectedAt = transfer.disconnectedAt;
+		this.start = transfer.start;
+		this.end = transfer.end;
+		this.offset = transfer.offset;
+		this.changed();
 	}
 
 	/** Copy the displayed history for replay while the live data set keeps receiving and dropping samples. */

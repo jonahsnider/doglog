@@ -9,7 +9,7 @@ import { HoverTooltip, ScrubberTooltip, UnreadTooltip } from '@/timeline/timelin
 import { setHoverTime } from '@/timeline/hover';
 import { GraphMarks, ScrubberPosition } from '@/timeline/timeline-marks';
 import { ScrubberBar } from '@/timeline/scrubber-bar';
-import { getGaps, type TimeRange, useEntries } from '@/data/data-store';
+import { getGaps, type SourcesRange, useEntries } from '@/data/data-store';
 import type { UnreadEnd } from '@/data/log-source';
 import { settingsStore } from '@/settings';
 import { formatTime, getCursorTime, seek, TimelineCursorContext } from '@/timeline/timeline';
@@ -108,7 +108,7 @@ export function Scrubber({
 	year,
 	unread,
 }: {
-	range: TimeRange;
+	range: SourcesRange;
 	live: boolean;
 	showAlerts: boolean;
 	showShifts: boolean;
@@ -192,7 +192,7 @@ export function Scrubber({
 				compressed={compressed.some((span) => span.start <= hoverTime && hoverTime <= span.end)}
 				alerts={hovered}
 				hoverTime={hoverTime}
-				start={range.start}
+				start={range.origin}
 			/>
 		) : undefined;
 	};
@@ -230,7 +230,7 @@ export function Scrubber({
 			aria-valuemin={0}
 			aria-valuemax={duration / 1_000_000}
 			aria-valuenow={(time - range.start) / 1_000_000}
-			aria-valuetext={formatTime(time, range.start)}
+			aria-valuetext={formatTime(time, range.origin)}
 			{...stylex.props(scrubberMarker, styles.slider)}
 			onPointerDown={(event) => {
 				if (event.button === 0) {
