@@ -5,7 +5,7 @@ import { useSortable } from '@dnd-kit/react/sortable';
 import { m, useIsPresent } from 'motion/react';
 import { duration, easing, useMotionTransition } from '@/lib/motion';
 import { useState } from 'react';
-import { HoverCard } from '@astryxdesign/core/HoverCard';
+import { useHoverCard } from '@astryxdesign/core/HoverCard';
 import { colorVars, radiusVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { AppContextMenu, type MenuAction } from '@/components/app-context-menu';
@@ -161,18 +161,24 @@ export function DashboardItem({
 	const [renaming, setRenaming] = useState(false);
 	const copy = useDashboardCopyItems(dashboard, router, active);
 	const { setItem, handleRef, isDragSource } = useDashboardSortable(dashboard, sectionIndex, renaming, present);
-	// Closed while the dashboard is dragged, since the trigger moves with the pointer and the preview would follow it
-	const [previewOpen, setPreviewOpen] = useState(false);
-	if (isDragSource && previewOpen) {
-		setPreviewOpen(false);
-	}
+	const name = dashboardName(dashboard);
+	// Only previews other dashboards, the selected one is already on screen. A single empty pane has nothing to preview.
+	// On the link itself rather than `<HoverCard>`, whose trigger would be the tooltip's wrapper, which has no box to anchor to.
+	const preview = useHoverCard({
+		label: `${name} preview`,
+		placement: 'end',
+		alignment: 'start',
+		isEnabled: present && !active && !isEmpty(dashboard),
+		// Closed while the dashboard is dragged, since the trigger moves with the pointer and the preview would follow it.
+		// Left uncontrolled otherwise, since a controlled `false` keeps hovering from opening it.
+		isOpen: isDragSource ? false : undefined,
+	});
 	const transition = useMotionTransition({ duration: duration.fastMax, ease: easing.entrance });
 	const exitTransition = useMotionTransition({ duration: duration.exit, ease: easing.exit });
 	const afterEntry = { type: false as const, delay: transition.duration ?? 0 };
 	// Dashboards dragged to the other section are hidden right away, so only the gap they leave closes
 	const rowExit = isDragSource ? { ...exitTransition, opacity: { duration: 0 } } : exitTransition;
 	const shortcut = dashboardShortcut(index);
-	const name = dashboardName(dashboard);
 	const mainType = mainWidgetType(dashboard.layout);
 	const Icon = mainType ? widgetIcons[mainType.id] : LayoutDashboardIcon;
 	const menuItems = selection.isSelected(dashboard)
@@ -208,44 +214,36 @@ export function DashboardItem({
 						<RenameInput dashboard={dashboard} icon={Icon} onDone={() => setRenaming(false)} />
 					) : (
 						<>
-							{/* Only previews other dashboards, the selected one is already on screen. A single empty pane has nothing to preview. */}
-							<HoverCard
-								label={`${name} preview`}
-								content={<DashboardPreview layout={dashboard.layout} />}
-								placement="end"
-								alignment="start"
-								hasHoverIndication={false}
-								isEnabled={present && !active && !isEmpty(dashboard)}
-								isOpen={previewOpen}
-								onOpenChange={(open) => setPreviewOpen(open && !isDragSource)}
+							<SidebarMenuButton
+								href={`/dashboards/${dashboard.id}`}
+								isActive={active}
+								isHighlighted={selection.isSelected(dashboard)}
+								onClick={(event) => {
+									// Instead of opening the link in a new tab or window
+									if (selection.click(event, dashboard)) {
+										event.preventDefault();
+									}
+								}}
+								ref={(element) => {
+									handleRef(element);
+									preview.ref(element);
+								}}
+								// Keeps the link a link, dnd-kit makes drag handles without a role into buttons
+								role="link"
+								onDoubleClick={() => setRenaming(true)}
+								// Closes the dashboard like a browser tab, instead of opening the link in a new one
+								onAuxClick={(event) => {
+									if (event.button === 1) {
+										event.preventDefault();
+										deleteDashboard(dashboard.id);
+									}
+								}}
+								tooltip={<TooltipLabel label={name} shortcut={shortcut} />}
 							>
-								<SidebarMenuButton
-									href={`/dashboards/${dashboard.id}`}
-									isActive={active}
-									isHighlighted={selection.isSelected(dashboard)}
-									onClick={(event) => {
-										// Instead of opening the link in a new tab or window
-										if (selection.click(event, dashboard)) {
-											event.preventDefault();
-										}
-									}}
-									ref={handleRef}
-									// Keeps the link a link, dnd-kit makes drag handles without a role into buttons
-									role="link"
-									onDoubleClick={() => setRenaming(true)}
-									// Closes the dashboard like a browser tab, instead of opening the link in a new one
-									onAuxClick={(event) => {
-										if (event.button === 1) {
-											event.preventDefault();
-											deleteDashboard(dashboard.id);
-										}
-									}}
-									tooltip={<TooltipLabel label={name} shortcut={shortcut} />}
-								>
-									<Icon />
-									<span>{name}</span>
-								</SidebarMenuButton>
-							</HoverCard>
+								<Icon />
+								<span>{name}</span>
+							</SidebarMenuButton>
+							{preview.renderHoverCard(<DashboardPreview layout={dashboard.layout} />)}
 							<ItemEnd dashboard={dashboard} shortcut={shortcut} menuItems={menuItems} />
 						</>
 					)}
