@@ -11,10 +11,24 @@
 	background-color: var(--color-border);
 }
 
-/* Monte sticks out above the track, which only clips the fill at its ends */
+/*
+ * Monte sticks out above the track, which only clips the fill at its ends. The ends are rounded like Astryx's clip, with
+ * the 4px radius of its 8px track, where shape() is supported.
+ */
 [data-progress-mascot] .astryx-progress-bar-track {
 	overflow: visible;
 	clip-path: inset(-1.5rem 0 0);
+	clip-path: shape(
+		from 0 -1.5rem,
+		hline to 100%,
+		vline to 0,
+		hline by -4px,
+		arc by 0 8px of 4px cw,
+		hline to 4px,
+		arc by 0 -8px of 4px cw,
+		hline to 0,
+		close
+	);
 }
 
 /*
