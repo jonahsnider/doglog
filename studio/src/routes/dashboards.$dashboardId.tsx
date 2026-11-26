@@ -5,7 +5,7 @@ import { useHotkey } from '@tanstack/react-hotkeys';
 import { Navigate, createFileRoute, useLocation, useRouter } from '@tanstack/react-router';
 import { Activity, useEffect, useState } from 'react';
 import { Group, Panel } from 'react-resizable-panels';
-import { shortcuts } from '@/commands/commands';
+import { nativeMenu, shortcuts } from '@/commands/commands';
 import { canCopyDashboardLink } from '@/dashboards/copy-dashboard-link';
 import { DashboardSplitZones } from '@/dashboards/dashboard-drag';
 import { DashboardPanes } from '@/dashboards/dashboard-panes';
@@ -186,7 +186,7 @@ function PanesColumn({ dashboard, dashboards }: { dashboard: Dashboard; dashboar
 				startVideoExport(router, dashboard.id);
 			}
 		},
-		{ enabled: STUDIO_DESKTOP && canCapture, requireReset: true },
+		{ enabled: STUDIO_DESKTOP && canCapture && !nativeMenu, requireReset: true },
 	);
 
 	return (

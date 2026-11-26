@@ -5,7 +5,7 @@ import { createAtom } from '@tanstack/store';
 import { invoke } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { getRouter } from '@/agent/dashboard-handlers';
-import { currentDashboard } from '@/commands/commands';
+import { currentDashboard } from '@/commands/dashboard-commands';
 import { toastManager } from '@/components/toast';
 import { closeLog, getSources, type Source, sourceName, subscribeSource } from '@/data/source';
 import {

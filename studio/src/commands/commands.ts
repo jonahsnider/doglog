@@ -3,19 +3,24 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 import { confirm } from '@tauri-apps/plugin-dialog';
 import { useHotkeys } from '@tanstack/react-hotkeys';
 import { type RegisteredRouter, useRouter } from '@tanstack/react-router';
-import { canCopyDashboardLink, copyDashboardLink } from '@/dashboards/copy-dashboard-link';
-import { closeFocusedPane, getFocusedPane, splitDashboardPane, toggleZoom } from '@/dashboards/panes';
+import { closeFocusedPane } from '@/dashboards/panes';
 import {
 	createDashboard,
-	type Dashboard,
 	deleteDashboard,
-	getDashboard,
 	getDashboards,
+	getDoc,
 	redoDashboard,
 	reopenClosedDashboards,
 	undoDashboard,
 } from '@/dashboards/dashboards';
 import { openLogUrlDialogOpen } from '@/components/open-log-url-dialog-handle';
+import {
+	copyCurrentDashboardLink,
+	currentDashboard,
+	splitFocused,
+	toggleFocusedEditing,
+	toggleFocusedZoom,
+} from '@/commands/dashboard-commands';
 import { goInHistory } from '@/commands/history';
 import {
 	dashboardNumbers,
@@ -26,16 +31,13 @@ import {
 	useShortcutHint,
 } from '@/commands/shortcuts';
 import { isExportingVideo } from '@/desktop/video-export';
-import { toggleEditing } from '@/entries/editing';
 import { chooseLog } from '@/data/open-log';
 import { checkOrInstallUpdate } from '@/updater';
 import { connect } from '@/data/source';
-import type { SplitDirection } from '@/panes/layout';
 import { shownTuningDashboard } from '@/tuning/dashboard';
 import { getRobotHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
-import { getWidgetType } from '@/widgets/registry';
-import { bindsEntries } from '@/widgets/widget-type';
+import { requestSidebarToggle } from '@/sidebar/sidebar';
 
 export { dashboardShortcut, nativeMenu, redoAlternate, shortcuts, useShortcutHint };
 
@@ -54,11 +56,6 @@ export function newDashboard(router: RegisteredRouter, position?: 'top' | 'botto
 export async function showNewDashboard(router: RegisteredRouter, id: string): Promise<void> {
 	const opener = { pathname: router.state.location.pathname, dashboardId: currentDashboard(router)?.id };
 	await router.navigate({ to: '/dashboards/$dashboardId', params: { dashboardId: id }, state: { opener } });
-}
-
-export function currentDashboard(router: RegisteredRouter): Dashboard | undefined {
-	const match = router.state.matches.find((other) => other.routeId === '/dashboards/$dashboardId');
-	return match && getDashboard(match.params.dashboardId);
 }
 
 /** Open another Studio window, desktop only */
@@ -109,6 +106,15 @@ function isEditingText(): boolean {
 	);
 }
 
+/** Text fields keep their own history, which can't be read, so they can always try */
+export function canUndoOrRedo(router: RegisteredRouter, direction: 'undo' | 'redo'): boolean {
+	if (isEditingText()) {
+		return true;
+	}
+	const dashboard = currentDashboard(router) ?? shownTuningDashboard(router);
+	return dashboard !== undefined && !isExportingVideo() && getDoc(dashboard.id).canTravel(direction);
+}
+
 export function undoOrRedo(router: RegisteredRouter, direction: 'undo' | 'redo'): void {
 	if (isEditingText()) {
 		// The native menu's Undo and Redo replace the predefined items that would do this for text fields
@@ -123,35 +129,6 @@ export function undoOrRedo(router: RegisteredRouter, direction: 'undo' | 'redo')
 	}
 }
 
-function toggleFocusedZoom(router: RegisteredRouter): void {
-	const dashboard = currentDashboard(router) ?? shownTuningDashboard(router);
-	if (dashboard && !isExportingVideo()) {
-		toggleZoom(dashboard.id, getFocusedPane(dashboard).id);
-	}
-}
-
-function toggleFocusedEditing(router: RegisteredRouter): void {
-	const dashboard = currentDashboard(router) ?? shownTuningDashboard(router);
-	if (!dashboard || isExportingVideo()) {
-		return;
-	}
-
-	const pane = getFocusedPane(dashboard);
-	const type = pane.widget && getWidgetType(pane.widget.type);
-	if (type && bindsEntries(type)) {
-		toggleEditing(dashboard.id, pane.id);
-	}
-}
-
-function splitFocused(router: RegisteredRouter, direction: SplitDirection): void {
-	const dashboard = currentDashboard(router) ?? shownTuningDashboard(router);
-	if (!dashboard || isExportingVideo()) {
-		return;
-	}
-
-	splitDashboardPane(dashboard.id, getFocusedPane(dashboard).id, direction);
-}
-
 function openDashboardAt(router: RegisteredRouter, index: number): void {
 	const dashboard = getDashboards()[index];
 	if (dashboard) {
@@ -163,7 +140,7 @@ export function openSettings(router: RegisteredRouter): void {
 	void router.navigate({ to: '/settings' });
 }
 
-function openLogs(router: RegisteredRouter): void {
+export function openLogs(router: RegisteredRouter): void {
 	void router.navigate({ to: '/logs' });
 }
 
@@ -198,24 +175,23 @@ export function useGlobalShortcuts(): void {
 			{
 				hotkey: shortcuts.copyDashboardLink,
 				callback: (event) => {
-					const dashboard = currentDashboard(router);
-					if (dashboard && canCopyDashboardLink(dashboard)) {
+					if (copyCurrentDashboardLink(router)) {
 						event.preventDefault();
-						void copyDashboardLink(dashboard);
 					}
 				},
-				options: { preventDefault: false, stopPropagation: false },
+				options: { ...outsideNativeMenu, preventDefault: false, stopPropagation: false },
 			},
 			{ hotkey: 'Mod+,', callback: () => openSettings(router), options: desktopOnly },
-			{ hotkey: 'Mod+L', callback: () => openLogs(router), options: { enabled: desktop } },
-			{ hotkey: shortcuts.update, callback: () => void checkOrInstallUpdate() },
+			{ hotkey: 'Mod+L', callback: () => openLogs(router), options: desktopOnly },
+			{ hotkey: shortcuts.update, callback: () => void checkOrInstallUpdate(), options: outsideNativeMenu },
 			{ hotkey: 'Mod+[', callback: () => goInHistory(router, -1), options: desktopOnly },
 			{ hotkey: 'Mod+]', callback: () => goInHistory(router, 1), options: desktopOnly },
-			{ hotkey: shortcuts.connect, callback: startConnect },
-			{ hotkey: shortcuts.splitRight, callback: () => splitFocused(router, 'row') },
-			{ hotkey: shortcuts.splitDown, callback: () => splitFocused(router, 'column') },
-			{ hotkey: shortcuts.zoom, callback: () => toggleFocusedZoom(router) },
-			{ hotkey: shortcuts.editEntries, callback: () => toggleFocusedEditing(router) },
+			{ hotkey: shortcuts.connect, callback: startConnect, options: outsideNativeMenu },
+			{ hotkey: shortcuts.toggleSidebar, callback: requestSidebarToggle, options: outsideNativeMenu },
+			{ hotkey: shortcuts.splitRight, callback: () => splitFocused(router, 'row'), options: outsideNativeMenu },
+			{ hotkey: shortcuts.splitDown, callback: () => splitFocused(router, 'column'), options: outsideNativeMenu },
+			{ hotkey: shortcuts.zoom, callback: () => toggleFocusedZoom(router), options: outsideNativeMenu },
+			{ hotkey: shortcuts.editEntries, callback: () => toggleFocusedEditing(router), options: outsideNativeMenu },
 			{ hotkey: shortcuts.openLog, callback: chooseLog, options: outsideNativeMenu },
 			{ hotkey: shortcuts.openLogUrl, callback: openLogUrlPrompt, options: outsideNativeMenu },
 			// Text fields handle these themselves

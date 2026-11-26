@@ -223,6 +223,12 @@ export function useUpdate(): UpdateState | undefined {
 	return useSelector(updateStore);
 }
 
+/** Calls `listener` with the update now and whenever it changes */
+export function watchUpdate(listener: (state: UpdateState | undefined) => void): void {
+	listener(updateStore.get());
+	updateStore.subscribe(listener);
+}
+
 export function updateTitle(update: Update): string {
 	return update.version === undefined ? 'Update Studio' : `Update to ${update.version}`;
 }

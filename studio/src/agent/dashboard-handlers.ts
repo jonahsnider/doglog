@@ -3,7 +3,8 @@ import type { RegisteredRouter } from '@tanstack/react-router';
 import { AgentError } from '@/agent/agent-error';
 import type { Handlers } from '@/agent/commands';
 import { createInputLayout, describeLayout, tooManyPanes } from '@/agent/layouts';
-import { currentDashboard, showNewDashboard } from '@/commands/commands';
+import { currentDashboard } from '@/commands/dashboard-commands';
+import { showNewDashboard } from '@/commands/commands';
 import {
 	createDashboard,
 	type Dashboard,

@@ -41,6 +41,11 @@ export function useVideoExport(): VideoExport | undefined {
 	return useSelector(store);
 }
 
+export function subscribeVideoExport(listener: () => void): () => void {
+	const subscription = store.subscribe(listener);
+	return () => subscription.unsubscribe();
+}
+
 /** Whether video export mode is open, which keeps the dashboard's layout from changing */
 export function isExportingVideo(): boolean {
 	return store.get() !== undefined;

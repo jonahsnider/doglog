@@ -6,6 +6,18 @@ import { createPersistedAtom } from '@/lib/persisted-store';
 /** Whether the sidebar only shows icons */
 export const sidebarCollapsedStore = createPersistedAtom('sidebar-collapsed', z.boolean(), false, { perWindow: true });
 
+/** Bumped to toggle the shown sidebar, which keeps its own state for peeking and the mobile drawer */
+const toggleRequestStore = createAtom(0);
+
+/** Toggle the sidebar like its shortcut does, without animating */
+export function requestSidebarToggle(): void {
+	toggleRequestStore.set((count) => count + 1);
+}
+
+export function subscribeSidebarToggle(listener: () => void): () => void {
+	return toggleRequestStore.subscribe(listener).unsubscribe;
+}
+
 type SidebarAnimation = 'enter-strip' | 'collapse' | 'expand' | 'leave-strip' | 'peek' | 'unpeek';
 
 /**

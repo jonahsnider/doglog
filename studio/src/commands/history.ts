@@ -60,6 +60,10 @@ export function goInHistory(router: RegisteredRouter, step: HistoryStep): void {
 	}
 }
 
+export function canGoInHistory(step: HistoryStep): boolean {
+	return findDelta(historyStore.get(), step, getDashboards()) !== undefined;
+}
+
 export function useCanGoInHistory(step: HistoryStep): boolean {
 	const dashboards = useDashboards();
 	return findDelta(useSelector(historyStore), step, dashboards) !== undefined;

@@ -6,8 +6,11 @@ import { spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden';
 import * as stylex from '@stylexjs/stylex';
 import { useSelector } from '@tanstack/react-store';
-import { dashboardShortcut, redoAlternate, shortcuts } from '@/commands/commands';
-import { keyboardShortcutsDialogOpen } from '@/commands/keyboard-shortcuts-dialog-handle';
+import { dashboardShortcut, nativeMenu, redoAlternate, shortcuts } from '@/commands/commands';
+import {
+	keyboardShortcutsDialogOpen,
+	toggleKeyboardShortcutsDialog,
+} from '@/commands/keyboard-shortcuts-dialog-handle';
 import { Kbd, Shortcut } from '@/components/shortcut';
 import { exportLiveShortcut } from '@/data/export-live';
 import { canCapture } from '@/desktop/capture';
@@ -240,7 +243,7 @@ const setOpen = (next: boolean) => keyboardShortcutsDialogOpen.set(next);
 export function KeyboardShortcutsDialog() {
 	const open = useSelector(keyboardShortcutsDialogOpen);
 	const { mediaControls } = useSettings();
-	useHotkey(shortcuts.keyboardShortcuts, () => setOpen(!keyboardShortcutsDialogOpen.get()), { requireReset: true });
+	useHotkey(shortcuts.keyboardShortcuts, toggleKeyboardShortcutsDialog, { enabled: !nativeMenu, requireReset: true });
 
 	return (
 		<Dialog isOpen={open} onOpenChange={setOpen} width={768}>

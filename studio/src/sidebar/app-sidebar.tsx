@@ -1,4 +1,3 @@
-import { useHotkey } from '@tanstack/react-hotkeys';
 import { useRouter } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import PanelLeftIcon from 'lucide-react/icons/panel-left';
@@ -7,7 +6,6 @@ import { IconButton } from '@astryxdesign/core/IconButton';
 import { MobileNav } from '@astryxdesign/core/MobileNav';
 import { fontWeightVars, spacingVars, typeScaleVars, typographyVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
-import { shortcuts } from '@/commands/commands';
 import { useTitleBarStrip, useTrafficLights } from '@/desktop/title-bar';
 import { SidebarContext, type SidebarContextProps } from '@/sidebar/sidebar-context';
 import { SidebarItems } from '@/sidebar/sidebar-items';
@@ -17,6 +15,7 @@ import {
 	isCollapsing,
 	sidebarAnimationStore,
 	sidebarCollapsedStore,
+	subscribeSidebarToggle,
 	toggleSidebarCollapsed,
 } from '@/sidebar/sidebar';
 import { useMotionTransition } from '@/lib/motion';
@@ -66,7 +65,7 @@ function MobileAppSidebar() {
 		onClose: () => setOpen(false),
 		panel: '.astryx-mobile-nav-drawer',
 	});
-	useHotkey(shortcuts.toggleSidebar, toggle, { requireReset: true });
+	useEffect(() => subscribeSidebarToggle(() => setOpen((value) => !value)), []);
 	useEffect(
 		() =>
 			router.subscribe('onResolved', ({ pathChanged }) => {
@@ -175,7 +174,8 @@ function DesktopAppSidebar() {
 		setPeeking(false);
 		animateSidebarPeek(false);
 	});
-	useHotkey(shortcuts.toggleSidebar, () => toggle(false), { requireReset: true });
+	const toggleWithoutAnimation = useEffectEvent(() => toggle(false));
+	useEffect(() => subscribeSidebarToggle(toggleWithoutAnimation), []);
 
 	// A finger doesn't leave the sidebar after tapping a page or dashboard in it, so it stops peeking to show it
 	const unpeekAfterTap = useEffectEvent(() => {

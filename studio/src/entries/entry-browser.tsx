@@ -24,7 +24,7 @@ import { ToggleButton } from '@/entries/entry-browser-toggle';
 import { EntryTree } from '@/entries/entry-browser-tree';
 import { type EditedWidget, useEditedWidget } from '@/entries/edited-widget';
 import { TooltipLabel } from '@/components/tooltip-label';
-import { shortcuts } from '@/commands/commands';
+import { nativeMenu, shortcuts } from '@/commands/commands';
 import { useMobileLayout } from '@/lib/mobile-layout';
 import { useSwipeToClose } from '@/hooks/use-swipe-to-close';
 import type { Dashboard } from '@/dashboards/dashboards';
@@ -139,7 +139,7 @@ const widthPxStore = createPersistedAtom('entry-browser-width', z.number().posit
 export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 	const mobile = useMobileLayout();
 	const open = useSelector(getEntryBrowserOpenStore(mobile));
-	useHotkey(shortcuts.toggleEntryBrowser, toggleEntryBrowser, { requireReset: true });
+	useHotkey(shortcuts.toggleEntryBrowser, toggleEntryBrowser, { enabled: !nativeMenu, requireReset: true });
 	useHotkey(shortcuts.searchEntries, focusEntrySearch);
 	const edited = useEditedWidget(dashboard);
 	useHotkey('Escape', stopEditing, {

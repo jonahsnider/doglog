@@ -219,6 +219,8 @@ export type DashboardDoc = {
 	 * Returns the pane that was focused before the change, or `false` if there's nothing to undo or redo.
 	 */
 	travel(direction: 'undo' | 'redo'): { focusedPaneId: string | undefined } | false;
+	/** Whether this window has a change to undo or redo */
+	canTravel(direction: 'undo' | 'redo'): boolean;
 };
 
 const historyLimit = 100;
@@ -261,6 +263,7 @@ export function loadDashboardDoc(
 		doc,
 		travel: (direction) =>
 			undoManager[direction]() && { focusedPaneId: typeof poppedFocus === 'string' ? poppedFocus : undefined },
+		canTravel: (direction) => (direction === 'undo' ? undoManager.canUndo() : undoManager.canRedo()),
 	};
 }
 
