@@ -14,7 +14,7 @@ insert_final_newline = true
 [*.java]
 indent_style = space
 
-[*.yml]
+[*.{yml,yaml}]
 indent_style = space
 
 [*.rs]
