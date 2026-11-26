@@ -180,3 +180,9 @@
 		transition-property: inline-size;
 	}
 }
+
+/* The mobile sidebar's drawer reaches the screen's edges, its items stay clear of the notch and home indicator */
+.astryx-mobile-nav-drawer {
+	padding-block: env(safe-area-inset-top) env(safe-area-inset-bottom);
+	padding-inline-start: env(safe-area-inset-left);
+}

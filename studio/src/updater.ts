@@ -1,15 +1,17 @@
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
-import { formatForDisplay, type Hotkey } from '@tanstack/react-hotkeys';
+import type { Hotkey } from '@tanstack/react-hotkeys';
 import { invoke } from '@tauri-apps/api/core';
 import { check } from '@tauri-apps/plugin-updater';
+import { createElement } from 'react';
 import { toastManager } from '@/components/toast';
+import { DownloadingUpdate } from '@/downloading-update';
 
 type Update = {
 	/** The web app can't know the new version until it loads it */
 	version: string | undefined;
-	/** Installs the update and restarts Studio into it, throwing if installing fails */
-	install: () => Promise<void> | void;
+	/** Installs the update and restarts Studio into it, throwing if installing fails. Calls `onDownloaded` once the update is downloaded and installing starts. */
+	install: (onDownloaded?: () => void) => Promise<void> | void;
 };
 
 type UpdateState = { update: Update; installing: boolean };
@@ -17,6 +19,9 @@ type UpdateState = { update: Update; installing: boolean };
 const desktop = STUDIO_DESKTOP;
 
 const updateStore = createAtom<UpdateState | undefined>(undefined);
+
+/** How much of the desktop update has downloaded, from 0 to 100, or `undefined` when its size isn't known */
+const downloadPercentStore = createAtom<number | undefined>(undefined);
 
 /** Every update toast shares this ID, so checking or installing again replaces the one that's shown */
 const updateToastId = 'update';
@@ -31,8 +36,27 @@ async function findDesktopUpdate(): Promise<Update | undefined> {
 	}
 	return {
 		version: update.version,
-		install: async () => {
-			await update.downloadAndInstall();
+		install: async (onDownloaded) => {
+			let size: number | undefined;
+			let downloaded = 0;
+			downloadPercentStore.set(undefined);
+			await update.downloadAndInstall((event) => {
+				switch (event.event) {
+					case 'Started':
+						size = event.data.contentLength;
+						break;
+					case 'Progress':
+						downloaded += event.data.chunkLength;
+						if (size !== undefined && size > 0) {
+							// Whole percents, so the toast only redraws when the number it shows changes
+							downloadPercentStore.set(Math.min(100, Math.floor((downloaded / size) * 100)));
+						}
+						break;
+					case 'Finished':
+						onDownloaded?.();
+						break;
+				}
+			});
 			// On Windows the installer already closed Studio and reopens it
 			await invoke('relaunch');
 		},
@@ -134,12 +158,15 @@ export async function checkForUpdateManually(): Promise<void> {
 
 	if (update) {
 		updateStore.set({ update, installing: false });
-		// oxlint-disable-next-line typescript/no-deprecated -- Outside a component it's the way to format a shortcut
-		const shortcut = formatForDisplay(updateShortcut);
 		toastManager.update(updateToastId, {
 			type: 'info',
-			title: `An update is available`,
-			description: `Press ${shortcut} to ${desktop ? 'restart' : 'reload'} and update.`,
+			title: 'An update is available',
+			actionProps: {
+				// The web app already downloaded the new version, so it only has to reload into it
+				children: desktop ? 'Download' : 'Reload Now',
+				onClick: () => void checkOrInstallUpdate(),
+				shortcut: updateShortcut,
+			},
 			timeout: 0,
 		});
 	} else {
@@ -161,10 +188,21 @@ export async function checkOrInstallUpdate(): Promise<void> {
 		return;
 	}
 
-	const title = state.update.version === undefined ? 'Updating Studio…' : `Updating to ${state.update.version}…`;
-	toastManager.update(updateToastId, { type: 'loading', title });
+	// The web app's service worker already downloaded the new version
+	if (desktop) {
+		toastManager.update(updateToastId, {
+			type: 'loading',
+			title: createElement(DownloadingUpdate, { percent: downloadPercentStore }),
+		});
+	} else {
+		showPreparingUpdate();
+	}
 	// Failing replaces this toast with an error
-	await installUpdate(state.update);
+	await installUpdate(state.update, showPreparingUpdate);
+}
+
+function showPreparingUpdate(): void {
+	toastManager.update(updateToastId, { type: 'loading', title: 'Preparing update…' });
 }
 
 // Development builds would always find a "newer" release. The web app checks when it registers its service worker.
@@ -190,10 +228,10 @@ export function updateTitle(update: Update): string {
 }
 
 /** Install `update`, then restart into it */
-export async function installUpdate(update: Update): Promise<void> {
+export async function installUpdate(update: Update, onDownloaded?: () => void): Promise<void> {
 	updateStore.set({ update, installing: true });
 	try {
-		await update.install();
+		await update.install(onDownloaded);
 	} catch (error) {
 		updateStore.set({ update, installing: false });
 		toastManager.update(updateToastId, { type: 'error', title: "Couldn't update Studio", description: String(error) });

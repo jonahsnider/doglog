@@ -4,37 +4,33 @@ import { ConvexError } from 'convex/values';
 import { useState } from 'react';
 import { toastManager } from '@/components/toast';
 
-/** A button that asks before running a Cloud action, and stays open with an error toast if the action fails */
-export function ConfirmCloudAction({
-	label,
-	triggerLabel,
-	title,
-	description,
-	failureMessage,
-	destructive = false,
-	disabledReason,
-	variant,
-	onConfirm,
-}: {
+type ConfirmCloudDialogProps = {
 	label: string;
-	triggerLabel?: string;
-	/** The trigger button's style */
-	variant?: ButtonVariant;
 	title: string;
 	description: string;
 	failureMessage: string;
 	destructive?: boolean;
-	disabledReason?: string | undefined;
 	onConfirm: () => Promise<unknown>;
-}) {
-	const [open, setOpen] = useState(false);
+};
+
+/** Asks before running a Cloud action, and stays open with an error toast if the action fails */
+export function ConfirmCloudDialog({
+	open,
+	onOpenChange,
+	label,
+	title,
+	description,
+	failureMessage,
+	destructive = false,
+	onConfirm,
+}: ConfirmCloudDialogProps & { open: boolean; onOpenChange: (open: boolean) => void }) {
 	const [pending, setPending] = useState(false);
 
 	async function confirm() {
 		setPending(true);
 		try {
 			await onConfirm();
-			setOpen(false);
+			onOpenChange(false);
 		} catch (error) {
 			toastManager.add({
 				type: 'error',
@@ -45,30 +41,48 @@ export function ConfirmCloudAction({
 	}
 
 	return (
+		<AlertDialog
+			isOpen={open}
+			onOpenChange={(next) => {
+				if (!pending) {
+					onOpenChange(next);
+				}
+			}}
+			title={title}
+			description={description}
+			actionLabel={label}
+			actionVariant={destructive ? 'destructive' : 'primary'}
+			isActionLoading={pending}
+			onAction={() => void confirm()}
+		/>
+	);
+}
+
+/** A button that opens a `ConfirmCloudDialog` */
+export function ConfirmCloudAction({
+	triggerLabel,
+	disabledReason,
+	variant,
+	...dialog
+}: ConfirmCloudDialogProps & {
+	triggerLabel?: string;
+	/** The trigger button's style */
+	variant?: ButtonVariant;
+	disabledReason?: string | undefined;
+}) {
+	const [open, setOpen] = useState(false);
+	return (
 		<>
 			<Button
-				label={triggerLabel ?? label}
+				label={triggerLabel ?? dialog.label}
 				variant={variant}
 				isDisabled={disabledReason !== undefined}
 				tooltip={disabledReason}
 				onClick={() => setOpen(true)}
 			>
-				{label}
+				{dialog.label}
 			</Button>
-			<AlertDialog
-				isOpen={open && disabledReason === undefined}
-				onOpenChange={(next) => {
-					if (!pending) {
-						setOpen(next);
-					}
-				}}
-				title={title}
-				description={description}
-				actionLabel={label}
-				actionVariant={destructive ? 'destructive' : 'primary'}
-				isActionLoading={pending}
-				onAction={() => void confirm()}
-			/>
+			<ConfirmCloudDialog {...dialog} open={open && disabledReason === undefined} onOpenChange={setOpen} />
 		</>
 	);
 }

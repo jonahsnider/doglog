@@ -125,8 +125,8 @@ A member SHALL be able to leave their team without deleting their account. Delet
 #### Scenario: Deletion is unavailable
 
 - **WHEN** a signed-in user cannot delete their account or cannot delete the team they belong to
-- **THEN** the corresponding delete button remains visible and disabled
-- **AND** hovering, focusing, or tapping the button explains why deletion is unavailable without opening a confirmation dialog
+- **THEN** the corresponding delete action remains visible and disabled
+- **AND** it explains why deletion is unavailable without opening a confirmation dialog
 
 #### Scenario: The last admin tries to leave
 

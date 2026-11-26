@@ -24,6 +24,7 @@ export type MenuAction = {
 	/** A single key that selects the item while its submenu is open, ex. `S` */
 	accessKey?: string;
 	disabled?: boolean;
+	description?: string;
 	onSelect: () => void;
 };
 
@@ -144,6 +145,7 @@ export function MenuEntries({ items, elements }: { items: readonly MenuEntry[]; 
 					})
 				}
 				label={item.label}
+				description={item.description}
 				isDisabled={item.disabled ?? false}
 				endContent={shortcut === undefined ? undefined : <Shortcut hotkey={shortcut} />}
 				onClick={item.onSelect}

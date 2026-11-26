@@ -54,13 +54,15 @@ const styles = stylex.create({
 	speed: {
 		fontVariantNumeric: 'tabular-nums',
 	},
+	// Its background fills the home indicator's safe area, its controls stay above it
 	bar: {
 		display: 'flex',
-		height: '3.5rem',
+		height: 'calc(3.5rem + env(safe-area-inset-bottom))',
+		paddingBottom: 'env(safe-area-inset-bottom)',
 		contain: 'strict',
 	},
 	compactBar: {
-		height: '5.5rem',
+		height: 'calc(5.5rem + env(safe-area-inset-bottom))',
 	},
 	controls: {
 		display: 'flex',

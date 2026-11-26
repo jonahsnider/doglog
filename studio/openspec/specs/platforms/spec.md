@@ -36,6 +36,14 @@ Studio SHALL be available as a website that supports opening logs in modern brow
 - **WHEN** they connect to a robot by IP address and grant the local network permission
 - **THEN** the live connection works
 
+#### Scenario: Phone with a notch and home indicator
+
+- **GIVEN** a user opens Studio on an iPhone with a Dynamic Island and a home indicator, in the browser or as an installed web app
+- **WHEN** they open the sidebar, in portrait or landscape
+- **THEN** its header, pages, dashboards, and bottom rows stay inside the screen's safe area, clear of the Dynamic Island and home indicator
+- **AND** the timeline's controls stay above the home indicator, while dashboard panes reach behind it
+- **AND** the app's backgrounds still reach the screen's edges
+
 ### Requirement: Offline web app
 
 The web app SHALL be an installable PWA that works offline after the first visit, including opening logs.
@@ -290,6 +298,18 @@ The desktop app SHALL update itself automatically.
 - **WHEN** the user presses ⇧⌘U
 - **THEN** a toast shows Studio checking for updates, then says whether a newer version is available
 - **AND** if one is, pressing ⇧⌘U again shows a toast that Studio is updating, then installs the update and restarts Studio
+
+#### Scenario: Update from the toast
+
+- **GIVEN** a toast says a newer version is available
+- **THEN** it has a button that installs the update, the same as pressing the update shortcut again
+- **AND** hovering the button shows a tooltip with the shortcut
+
+#### Scenario: Update progress
+
+- **WHEN** the desktop app installs an update from the shortcut or the toast
+- **THEN** the toast shows the download's percent as it counts up, in the same toast
+- **AND** once the download finishes, it says the update is being prepared until Studio restarts
 
 #### Scenario: Check for updates repeatedly
 
