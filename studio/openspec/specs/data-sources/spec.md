@@ -266,6 +266,12 @@ Users SHALL be able to open WPILOG files with a file picker or by dropping them 
 - **WHEN** the user chooses Open log and selects a `.wpilog` file
 - **THEN** that log is added to the window
 
+#### Scenario: Loading progress
+
+- **WHEN** the user opens a large log
+- **THEN** the timeline shows its loading progress, which reaches 100% only once every entry has been read and is ready to show
+- **AND** the log's entries appear together once it's loaded, not one at a time while it loads
+
 #### Scenario: Open a compressed log
 
 - **WHEN** the user opens a `.wpilogxz` file

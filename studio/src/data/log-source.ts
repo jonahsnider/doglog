@@ -1,3 +1,4 @@
+import type { StructDeclaration } from 'wpilib-struct';
 import type { DataSet } from '@/data/data-set';
 import { parseMetadata } from '@/data/data-store';
 import type { LogWorkerMessage, LogWorkerRequest, RestoredLog } from '@/data/log-worker';
@@ -52,6 +53,12 @@ export type LogStreamHandle = {
 	stop: () => void;
 };
 
+/**
+ * Share of a log's progress for parsing or downloading it, the rest is for sending its entries from the worker. Sending
+ * them takes about half as long as parsing, so the progress moves at about the same speed through both.
+ */
+const parseShare = 2 / 3;
+
 function attachLogWorker(
 	data: DataSet,
 	{ onProgress, onLoaded, onError }: LoadLogCallbacks,
@@ -64,6 +71,25 @@ function attachLogWorker(
 		worker.terminate();
 	};
 
+	// Added together once loaded, so the log isn't shown again as each entry arrives
+	let schemas: Map<string, StructDeclaration[]> | undefined;
+	const entries: Extract<LogWorkerMessage, { type: 'entry' }>[] = [];
+	// Fraction parsed or downloaded, `undefined` when indeterminate
+	let parsed: number | undefined = 0;
+	let totalSamples = 0;
+	let sentSamples = 0;
+	let shown: number | undefined = 0;
+	// Whole percents, so a log with many entries doesn't rerender the progress bar for each
+	const showProgress = () => {
+		const sent = totalSamples > 0 ? sentSamples / totalSamples : 0;
+		const progress =
+			parsed === undefined ? undefined : Math.floor((parsed * parseShare + sent * (1 - parseShare)) * 100) / 100;
+		if (progress !== shown) {
+			shown = progress;
+			onProgress(progress);
+		}
+	};
+
 	worker.addEventListener('message', (event: MessageEvent<LogWorkerMessage>) => {
 		if (stopped) {
 			return;
@@ -72,27 +98,34 @@ function attachLogWorker(
 		const message = event.data;
 		switch (message.type) {
 			case 'progress':
-				onProgress(message.progress);
+				parsed = message.progress;
+				showProgress();
 				break;
 			case 'schemas':
-				for (const [name, fields] of message.structSchemas) {
-					data.addStructSchema(name, fields);
+				schemas = message.structSchemas;
+				totalSamples = message.samples;
+				// Parsed, even when a damaged end kept it from reaching 100%
+				if (parsed !== undefined) {
+					parsed = 1;
 				}
+				showProgress();
 				break;
-			case 'entry': {
-				const entry = data.addEntry(
-					message.name,
-					message.entryType,
-					new Samples(message.timestamps, message.values),
-					parseMetadata(message.metadata),
-				);
-				if (message.embeddedLog) {
-					entry.embeddedLog = message.embeddedLog;
-				}
+			case 'entry':
+				entries.push(message);
+				sentSamples += message.values.length;
+				showProgress();
 				break;
-			}
 			case 'done': {
 				stop();
+				for (const [name, fields] of schemas ?? []) {
+					data.addStructSchema(name, fields);
+				}
+				for (const { name, entryType, timestamps, values, metadata, embeddedLog } of entries) {
+					const entry = data.addEntry(name, entryType, new Samples(timestamps, values), parseMetadata(metadata));
+					if (embeddedLog) {
+						entry.embeddedLog = embeddedLog;
+					}
+				}
 				let unread: UnreadEnd | undefined;
 				if (message.start !== undefined && message.end !== undefined) {
 					data.setStartTime(message.start);

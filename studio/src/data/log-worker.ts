@@ -39,6 +39,8 @@ export type LogWorkerMessage =
 			type: 'schemas';
 			/** Fields of the log's struct schemas by struct name */
 			structSchemas: Map<string, StructDeclaration[]>;
+			/** Samples in every entry to come, for progress while they're sent */
+			samples: number;
 	  }
 	| {
 			type: 'entry';
@@ -82,7 +84,11 @@ async function postParsed(parsed: ParsedLog, byteLength: number, live: boolean):
 			end = session.disconnectedAt;
 		}
 	}
-	postMessage({ type: 'schemas', structSchemas } satisfies LogWorkerMessage);
+	let total = 0;
+	for (const entry of entries.values()) {
+		total += entry.samples.length;
+	}
+	postMessage({ type: 'schemas', structSchemas, samples: total } satisfies LogWorkerMessage);
 
 	const embeddedLogs = new Map(parsed.embeddedLogs.map(({ name, bytes }) => [name, bytes]));
 	for (const [name, { type, metadata, samples }] of entries) {
