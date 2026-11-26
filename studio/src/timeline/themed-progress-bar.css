@@ -6,6 +6,11 @@
 	transition: none;
 }
 
+/* The track's muted color is the frame's, which these bars sit on, so it's colored like the scrubber's data instead */
+[data-themed-progress] .astryx-progress-bar-track {
+	background-color: var(--color-border);
+}
+
 /* Monte sticks out above the track, which only clips the fill at its ends */
 [data-progress-mascot] .astryx-progress-bar-track {
 	overflow: visible;
