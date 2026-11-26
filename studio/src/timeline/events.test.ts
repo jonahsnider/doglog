@@ -42,6 +42,13 @@ const robotMode = [
 ] as const;
 const oldFlags = { Enabled: enabled, Autonomous: autonomous, Test: utility, EmergencyStop: estop };
 const newFlags = { Enabled: enabled, RobotMode: robotMode, EmergencyStop: estop };
+const periods = [
+	{ mode: 'disabled', start: 10, end: 30 },
+	{ mode: 'auto', start: 30, end: 45 },
+	{ mode: 'teleop', start: 45, end: 70 },
+	{ mode: 'test', start: 70, end: 85 },
+	{ mode: 'estop', start: 85, end: 100 },
+];
 
 test.each<{ prefix: string; fields: Record<string, ModeSamples> }>([
 	{ prefix: '/DS:', fields: { enabled, autonomous, test: utility, estop } },
@@ -56,11 +63,35 @@ test.each<{ prefix: string; fields: Record<string, ModeSamples> }>([
 	addSamples(data, '/FMSInfo/FMSControlData', [[0, 1]]);
 	setActiveData(data);
 
-	expect(getModePeriods({ start: 0, end: 100 })).toEqual([
-		{ mode: 'disabled', start: 10, end: 30 },
-		{ mode: 'auto', start: 30, end: 45 },
-		{ mode: 'teleop', start: 45, end: 70 },
-		{ mode: 'test', start: 70, end: 85 },
-		{ mode: 'estop', start: 85, end: 100 },
-	]);
+	expect(getModePeriods({ start: 0, end: 100 })).toEqual(periods);
 });
+
+// WPILib 2027's `ControlWord`, its `robotMode` enum is unknown, autonomous, teleoperated, then utility
+test.each(['/DS:controlWord', '/DriverStation/ControlWord', '/NT:/DriverStation/ControlWord'])(
+	'robot mode periods from %s',
+	(name) => {
+		const data = new DataSet(() => {});
+		const entry = data.addEntry(name, 'struct:ControlWord');
+		for (const [time, mode, isEnabled, eStop] of [
+			[10, 0n, false, false],
+			[20, 1n, false, false],
+			[30, 1n, true, false],
+			[45, 2n, true, false],
+			[70, 3n, true, false],
+			[85, 3n, false, true],
+		] as const) {
+			data.addSample(entry, time, {
+				opModeHash: 0n,
+				robotMode: mode,
+				enabled: isEnabled,
+				eStop,
+				fmsAttached: false,
+				dsAttached: true,
+			});
+		}
+		addSamples(data, '/FMSInfo/FMSControlData', [[0, 1]]);
+		setActiveData(data);
+
+		expect(getModePeriods({ start: 0, end: 100 })).toEqual(periods);
+	},
+);

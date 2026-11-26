@@ -64,7 +64,7 @@ Clicking or dragging along the timeline bar SHALL snap the cursor to the start o
 
 ### Requirement: Robot mode on the timeline
 
-When the source has Driver Station data, the timeline bar's track SHALL be colored by the robot's mode: autonomous, teleop, test, and e-stopped, leaving disabled periods uncolored. Studio MUST use the first source of mode data available: WPILib's `/DS:` flags, AdvantageKit's `/DriverStation/` entries in a log, its `/AdvantageKit/DriverStation/` or `/NT:/AdvantageKit/DriverStation/` entries from NetworkTables, then `/FMSInfo/FMSControlData`.
+When the source has Driver Station data, the timeline bar's track SHALL be colored by the robot's mode: autonomous, teleop, test, and e-stopped, leaving disabled periods uncolored. Studio MUST use the first source of mode data available: WPILib's `/DS:` flags, AdvantageKit's `/DriverStation/` entries in a log, its `/AdvantageKit/DriverStation/` or `/NT:/AdvantageKit/DriverStation/` entries from NetworkTables, `/DS:controlWord`, `/DriverStation/ControlWord`, then `/FMSInfo/FMSControlData`.
 
 #### Scenario: Teleop
 
@@ -76,6 +76,11 @@ When the source has Driver Station data, the timeline bar's track SHALL be color
 - **GIVEN** a source with AdvantageKit's `Enabled`, `EmergencyStop`, and `RobotMode` entries instead of separate `Autonomous` and `Test` flags
 - **THEN** the timeline shows `AUTONOMOUS` as auto and `UTILITY` as test while enabled
 - **AND** it shows e-stop when `EmergencyStop` is true, even if the robot is disabled
+
+#### Scenario: WPILib 2027 control word
+
+- **GIVEN** a log or live session from a robot using WPILib 2027, which has a `ControlWord` struct (`/DS:controlWord` in logs, `/DriverStation/ControlWord` in NetworkTables) instead of the earlier Driver Station flags and `/FMSInfo/FMSControlData`
+- **THEN** the timeline shows the robot's mode from the control word's `enabled`, `eStop`, and `robotMode` fields, with `utility` shown as test
 
 ### Requirement: Alerts on the timeline
 

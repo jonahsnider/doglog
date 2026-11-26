@@ -1,5 +1,5 @@
 import { decompress } from '@/data/decompress';
-import { controlBits, controlDataName, driverStationEntries } from '@/data/driver-station';
+import { controlBits, controlDataName, controlWordEntries, driverStationEntries } from '@/data/driver-station';
 import { parseHoot } from '@/data/parse-hoot';
 import { type EmbeddedLog, type ParsedLog, parseLog } from '@/data/parse-log';
 import { findEntry, readableEmbeddedLogFormats, type Value } from '@/data/samples';
@@ -17,8 +17,6 @@ type Edge = { time: number; rising: boolean };
 
 /** Boolean entries for whether the robot is enabled besides WPILib's and AdvantageKit's, ex. Phoenix's in HOOT logs */
 const enabledEntries = ['/RobotEnable', '/DS:controlWord/enabled'];
-/** `ControlWord` struct entries with an `enabled` field, logged by WPILib 2027 */
-const controlWordEntries = ['/DS:controlWord', '/NT:/DriverStation/ControlWord'];
 
 /**
  * Add the entries of the embedded logs Studio reads under the name of the entry each is embedded in, ex.

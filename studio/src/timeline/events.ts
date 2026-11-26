@@ -1,5 +1,11 @@
 import { type Entry, getEntry, getGaps, type TimeRange } from '@/data/data-store';
-import { controlBits, controlDataName, driverStationEntries } from '@/data/driver-station';
+import {
+	controlBits,
+	controlDataName,
+	controlWordEntries,
+	controlWordModes,
+	driverStationEntries,
+} from '@/data/driver-station';
 import { settingsStore } from '@/settings';
 
 export type RobotMode = 'disabled' | 'auto' | 'teleop' | 'test' | 'estop';
@@ -91,6 +97,27 @@ export function getModePeriods(
 					selected === undefined ? autonomous?.samples.valueAt(time) : selected === 'AUTONOMOUS',
 					selected === undefined ? test?.samples.valueAt(time) : selected === 'UTILITY',
 					estop?.samples.valueAt(time),
+				);
+			},
+			range,
+		);
+	}
+
+	const controlWord = controlWordEntries
+		.map((name) => find(name))
+		.find((entry) => entry?.type === 'struct:ControlWord' && entry.samples.length > 0);
+	if (controlWord) {
+		return toPeriods(
+			[controlWord],
+			(time) => {
+				const value = controlWord.samples.valueAt(time);
+				const word = typeof value === 'object' && !Array.isArray(value) ? value : undefined;
+				const robotMode = Number(word?.['robotMode']);
+				return modeOf(
+					word?.['enabled'],
+					robotMode === controlWordModes.autonomous,
+					robotMode === controlWordModes.utility,
+					word?.['eStop'],
 				);
 			},
 			range,

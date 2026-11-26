@@ -17,6 +17,12 @@ export const driverStationEntries = [
 			] as const,
 	),
 ] as const;
-// Live sources have the same flags as a bitfield in NetworkTables
+/**
+ * WPILib 2027's `ControlWord` struct, with `enabled` and `eStop` flags and a `robotMode` enum, logged and in
+ * NetworkTables. Also found under `/NT:`, see `findEntry()`.
+ */
+export const controlWordEntries = ['/DS:controlWord', '/DriverStation/ControlWord'];
+export const controlWordModes = { autonomous: 1, utility: 3 };
+// Before 2027, live sources have the same flags as a bitfield in NetworkTables
 export const controlDataName = '/FMSInfo/FMSControlData';
 export const controlBits = { enabled: 0x01, autonomous: 0x02, test: 0x04, estop: 0x08 };
