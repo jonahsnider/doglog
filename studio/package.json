@@ -51,7 +51,7 @@
 		"@tauri-apps/plugin-fs": "2.7.1",
 		"@tauri-apps/plugin-opener": "2.7.3",
 		"@tauri-apps/plugin-updater": "2.14.1",
-		"@team581/astryx-theme": "1.1.0",
+		"@team581/astryx-theme": "1.1.1",
 		"@ui-sdk/core": "0.1.0-beta.17",
 		"@ui-sdk/react": "0.1.0-beta.17",
 		"change-case": "5.4.4",

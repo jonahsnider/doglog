@@ -78,7 +78,7 @@ minimumReleaseAgeExclude:
   - '@ui-sdk/react@0.1.0-beta.5'
   - sentry@0.50.0
   - '@ntcore-ts/client@2.0.0'
-  - '@team581/astryx-theme@1.1.0'
+  - '@team581/astryx-theme@1.1.1'
   - hoot-parser@1.0.0 || 1.1.0
   - wpilib-protobuf@1.0.1
 overrides:
