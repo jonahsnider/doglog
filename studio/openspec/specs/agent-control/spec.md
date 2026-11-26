@@ -73,11 +73,11 @@ A command SHALL return once its effect is complete, ex. once a log is fully open
 
 ### Requirement: Entry catalog
 
-`entry_list` SHALL list the active source's entries with each entry's name, type, kind, and metadata. It MUST accept an optional entry name filter and an optional kind filter, and return every match without pagination.
+`entry_list` SHALL list the visible sources' entries with each entry's name, type, kind, and metadata. It MUST accept an optional entry name filter and an optional kind filter, and return every match without pagination.
 
 #### Scenario: Find pose entries
 
-- **GIVEN** the active source has 2,000 entries
+- **GIVEN** the visible sources have 2,000 entries
 - **WHEN** an agent calls `entry_list` filtered to entries whose name contains `Pose`
 - **THEN** it gets every matching entry's name, type, kind, and metadata
 
@@ -88,12 +88,12 @@ A command SHALL return once its effect is complete, ex. once a log is fully open
 
 ### Requirement: Read a dashboard
 
-`dashboard_get` SHALL return a dashboard's name, layout, panes, widgets, options, and bindings, with the IDs other commands use to target them. It MUST also report problems that would stop a widget from showing what the agent intended: a bound entry missing from the active source, a role that couldn't be inferred, or an entry type the widget doesn't accept.
+`dashboard_get` SHALL return a dashboard's name, layout, panes, widgets, options, and bindings, with the IDs other commands use to target them. It MUST also report problems that would stop a widget from showing what the agent intended: a bound entry missing from every visible source, a role that couldn't be inferred, or an entry type the widget doesn't accept.
 
 #### Scenario: Entry missing from the source
 
 - **GIVEN** a field widget is bound to `/Robot/Pose`
-- **AND** the active source has no `/Robot/Pose` entry
+- **AND** no visible source has a `/Robot/Pose` entry
 - **WHEN** an agent calls `dashboard_get`
 - **THEN** that binding is reported as missing from the source
 
@@ -146,7 +146,7 @@ Agents SHALL be able to rename, share or stop sharing, duplicate, combine, and d
 
 ### Requirement: Save dashboard videos
 
-`dashboard_record` SHALL save an MP4 of a dashboard from a start time to an end time, the same video video export mode saves. Times MUST be in seconds on the source's clock, kept within the source's range. It MUST save to the absolute path it's given, or a new file in the temporary folder, and return the file's path. While saving, the window MUST show video export mode with its progress, where the user can cancel, then return to how it was.
+`dashboard_record` SHALL save an MP4 of a dashboard from a start time to an end time, the same video video export mode saves. Times MUST be in seconds on the time base's clock, kept within the range of the visible sources. It MUST save to the absolute path it's given, or a new file in the temporary folder, and return the file's path. While saving, the window MUST show video export mode with its progress, where the user can cancel, then return to how it was.
 
 #### Scenario: Share a moment from a match
 
@@ -186,7 +186,7 @@ Agents SHALL be able to split a pane to add one, move and delete panes, and set 
 
 ### Requirement: Edit bindings
 
-Agents SHALL be able to bind entries to a widget by entry name, and set each binding's role, color, hidden state, connections, and a field robot's Robot. Entries MUST be bound even when they're missing from the active source, as the user can. A role left unset MUST be inferred as it is for the user.
+Agents SHALL be able to bind entries to a widget by entry name, and set each binding's role, color, hidden state, connections, and a field robot's Robot. Entries MUST be bound even when they're missing from every visible source, as the user can. A role left unset MUST be inferred as it is for the user.
 
 #### Scenario: Bind a pose with an inferred role
 
@@ -196,7 +196,7 @@ Agents SHALL be able to bind entries to a widget by entry name, and set each bin
 
 ### Requirement: Source and timeline
 
-Agents SHALL be able to read the active source, connect to a robot, and close the source. On desktop they MUST also be able to open a log by its file path. Agents SHALL be able to read and move the timeline cursor, but not control playback. Times MUST be in seconds on the source's own clock, the same timestamps wpilog-parser reads.
+Agents SHALL be able to list the window's sources in order with whether each is visible, connect to a robot, and close a source. On desktop they MUST also be able to open a log by its file path. Agents SHALL be able to read and move the timeline cursor, but not control playback. Times MUST be in seconds on the time base's own clock, the same timestamps wpilog-parser reads from it.
 
 #### Scenario: Show the user a moment
 
@@ -206,7 +206,7 @@ Agents SHALL be able to read the active source, connect to a robot, and close th
 
 ### Requirement: Export live data
 
-`source_export` SHALL save a copy of the live session's recording, the same file Export as WPILOG saves, whether or not the live session is shown. It MUST save to the absolute path it's given, or to a new file in the temporary folder, and return the file's path. It MUST fail and say why when there's no live session with data.
+`source_export` SHALL save a copy of the live session's recording, the same file Export as WPILOG saves, whether or not the live session is visible. It MUST save to the absolute path it's given, or to a new file in the temporary folder, and return the file's path. It MUST fail and say why when there's no live session with data.
 
 #### Scenario: Analyze a practice session
 
@@ -283,13 +283,13 @@ The `doglog mcp` command SHALL run an MCP server over stdio that controls every 
 
 ### Requirement: Target a window
 
-On desktop, every command that acts on a window SHALL take an optional window ID, defaulting to the most recently focused window. `window_list` MUST list each window's ID, when it was last focused, which dashboard it shows, its active source, and whether it's focused. `window_update` MUST be able to show a dashboard in a window and bring it to the front.
+On desktop, every command that acts on a window SHALL take an optional window ID, defaulting to the most recently focused window. `window_list` MUST list each window's ID, when it was last focused, which dashboard it shows, its sources, and whether it's focused. `window_update` MUST be able to show a dashboard in a window and bring it to the front.
 
 #### Scenario: Several windows open
 
 - **GIVEN** two Studio windows are open, and the user last used the one showing `match_q42.wpilog`
 - **WHEN** an agent calls `source_get` without a window ID
-- **THEN** it gets that window's source
+- **THEN** it gets that window's sources
 
 #### Scenario: Agent picks a window
 

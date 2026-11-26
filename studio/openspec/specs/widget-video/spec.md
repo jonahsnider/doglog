@@ -164,7 +164,7 @@ When a video can't play, the widget SHALL say why and what to do next, and MUST 
 
 ### Requirement: Live sources
 
-The widget SHALL support adding and syncing a video with a live session, including retained data after disconnecting. The sync uses seconds from the start of the shown source. Sync mode MUST NOT lock the sync until the timeline has a cursor. With no source selected, the widget SHALL prompt the user to choose one and MUST keep its video and sync.
+The widget SHALL support adding and syncing a video with a live session, including retained data after disconnecting. The sync uses seconds from the start of the time base (see the data-sources spec's source order). Sync mode MUST NOT lock the sync until the timeline has a cursor. With no source selected, the widget SHALL prompt the user to choose one and MUST keep its video and sync.
 
 #### Scenario: Review a disconnected session
 

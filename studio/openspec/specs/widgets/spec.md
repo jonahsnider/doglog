@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the behavior shared by every widget: binding entries by name, filtering by accepted data type, following the time cursor, and handling missing data, so new widgets are cheap to add. Widgets that don't show entries, such as the notepad, accept no data types and are exempt from the entry binding requirements.
+Define the behavior shared by every widget: binding entries by name, filtering by accepted data type, following the time cursor, showing several sources at once, and handling missing data, so new widgets are cheap to add. Widgets that don't show entries, such as the notepad, accept no data types and are exempt from the entry binding requirements.
 
 ## Requirements
 
@@ -272,7 +272,7 @@ Value-style widgets SHALL show the latest value at or before the global time cur
 
 ### Requirement: Missing data
 
-When a bound entry doesn't exist in the active source, even under its other NetworkTables name (see the data-sources spec), or no source is active, the widget SHALL show a "no data" state instead of an error and MUST keep the binding.
+When a bound entry doesn't exist in a visible source, even under its other NetworkTables name (see the data-sources spec), the widget MUST draw nothing for it from that source and keep drawing it from the others. When the entry is missing from every visible source, or no source is visible, the widget SHALL show a "no data" state instead of an error. The binding MUST be kept either way.
 
 #### Scenario: Entry missing from source
 
@@ -280,6 +280,53 @@ When a bound entry doesn't exist in the active source, even under its other Netw
 - **WHEN** the user opens a log without `/Arm/Angle`
 - **THEN** the widget shows "no data" for that entry
 - **AND** the binding is kept for future sources
+
+#### Scenario: Entry missing from one of two sources
+
+- **GIVEN** a graph bound to `/Arm/Angle`, and `qual12.wpilog` and `qual13.wpilog` are open
+- **AND** only `qual12.wpilog` has `/Arm/Angle`
+- **THEN** the graph draws `/Arm/Angle` from `qual12.wpilog` without a "no data" state
+
+### Requirement: Several sources
+
+Widgets SHALL draw each bound entry from every visible source that has it, at the same moment of each source after they're lined up (see the data-sources spec's line up sources). An entry MUST keep its color in every source, and each source SHALL have its own line style in source list order: solid for the time base, then dashed, dotted, and dash-dot, repeating after that.
+
+#### Scenario: Compare two matches
+
+- **GIVEN** a graph bound to `/Drive/Velocity` in red
+- **AND** `qual12.wpilog` and `qual13.wpilog` are open, with `qual12.wpilog` on top
+- **THEN** the graph draws `/Drive/Velocity` from `qual12.wpilog` as a solid red line and from `qual13.wpilog` as a dashed red line
+
+### Requirement: Source labels
+
+Legends MUST label each source's line with the source's short name, ex. `Q12` or `Live`, and MUST NOT label sources while only one is visible. With one visible source, widgets MUST look the same as before several sources existed.
+
+#### Scenario: Label two matches
+
+- **GIVEN** a graph bound to `/Drive/Velocity`, with `qual12.wpilog` and `qual13.wpilog` visible
+- **THEN** the legend labels its lines `Q12` and `Q13`
+
+#### Scenario: One source
+
+- **GIVEN** only `qual12.wpilog` is visible
+- **THEN** widgets draw it with solid lines and without source labels
+
+### Requirement: Pin a binding to a source
+
+A binding's context menu SHALL offer a Source submenu with All sources, the default, and each open source. Pinning a binding to a source MUST draw it only from that source, whether or not that source is the time base, and the binding MUST keep its pin when sources are reordered. Pins SHALL be saved with the dashboard by the source's name, and a binding pinned to a source that isn't open MUST show the shared "no data" state naming that source.
+
+#### Scenario: Pin to the live session
+
+- **GIVEN** a graph bound to `/Drive/Velocity`, while connected to the robot with `reference.wpilog` open
+- **WHEN** the user pins the binding to the live session
+- **THEN** the graph only draws `/Drive/Velocity` from the live session
+
+#### Scenario: Pinned source closed
+
+- **GIVEN** a binding pinned to `qual12.wpilog`
+- **WHEN** the user closes `qual12.wpilog`
+- **THEN** the binding shows "no data" for `qual12.wpilog`
+- **AND** the binding keeps its pin
 
 ### Requirement: Widget errors
 

@@ -2,109 +2,99 @@
 
 ## Purpose
 
-Define how users load data into Studio, by opening a WPILOG file and connecting to a live NetworkTables 4 server, how they switch between the two, and how Studio behaves when sources fail or disconnect.
+Define how users load data into Studio, by opening WPILOG files and connecting to a live NetworkTables 4 server, how several sources are shown together and lined up in time, and how Studio behaves when sources fail or disconnect.
 
 ## Requirements
 
-### Requirement: Log and live session
+### Requirement: Several sources
 
-Each window SHALL have at most one open log and one live session, and MUST show one of them in every dashboard and widget. The live session SHALL last until the user clears it or Connect replaces it, receiving data whether or not it's shown and coming back when Studio reopens (see Restore the live session). The log MUST stay loaded while the live session is shown, so switching between them is instant.
+Each window SHALL hold any number of logs and at most one live session, and MUST show every visible source in every dashboard and widget at the same time (see the widgets spec's several sources). Opening a log MUST add it to the window instead of replacing an open log. The live session SHALL last until the user clears it or Connect replaces it, receiving data whether or not it's visible and coming back when Studio reopens (see Restore the live session).
 
 #### Scenario: Open a log while live
 
 - **GIVEN** the user is connected to the robot
 - **WHEN** the user opens `qual12.wpilog`
-- **THEN** every dashboard shows `qual12.wpilog`
+- **THEN** every dashboard shows the live session and `qual12.wpilog` together
 - **AND** the live session keeps receiving data
 - **AND** no dashboard layout or widget binding changes
-
-#### Scenario: Back to live
-
-- **GIVEN** the user opened `qual12.wpilog` while connected to the robot
-- **WHEN** the user chooses Connect
-- **THEN** every dashboard shows the live session, including the data received while the log was shown
-
-#### Scenario: Back to the log
-
-- **GIVEN** the user opened `qual12.wpilog`, then went back to the live session
-- **WHEN** the user chooses `qual12.wpilog` in the source control menu
-- **THEN** every dashboard shows `qual12.wpilog` right away, without reading the file again
-
-#### Scenario: Switch with the keyboard
-
-- **GIVEN** the user opened `qual12.wpilog` while connected to the robot
-- **WHEN** the user presses Mod+Shift+K
-- **THEN** every dashboard shows the live session
-- **WHEN** the user presses Mod+Shift+K again
-- **THEN** every dashboard shows `qual12.wpilog`
 
 #### Scenario: Open another log
 
 - **GIVEN** `qual12.wpilog` is open
 - **WHEN** the user opens `qual13.wpilog`
-- **THEN** `qual13.wpilog` replaces `qual12.wpilog`
+- **THEN** `qual13.wpilog` is added below `qual12.wpilog`
+- **AND** every dashboard shows both
 
-### Requirement: Source control
+#### Scenario: Open several logs at once
 
-The source control at the top of the sidebar SHALL show the shown source and its state, and MUST offer actions to open a log and to connect. While a log is shown, it MUST also show the live session's connection state with a status dot. If a log is open, users MUST be able to close it from the source control without affecting the live session, if any.
+- **WHEN** the user picks `qual12.wpilog` and `qual13.wpilog` in the file picker, or drops both on the window
+- **THEN** both are added
 
-#### Scenario: Close the only log
+#### Scenario: Open a log that's already open
 
-- **GIVEN** a log is open without a live session
-- **WHEN** the user chooses Close log from the source control's dropdown or context menu
-- **THEN** the log closes and the source control shows No data source
+- **GIVEN** `qual12.wpilog` is open
+- **WHEN** the user opens the same `qual12.wpilog` file or URL again
+- **THEN** Studio doesn't read it again or add a second row
+- **AND** its row in the source list is highlighted
+
+#### Scenario: No switching between sources
+
+- **GIVEN** the user opened `qual12.wpilog` while connected to the robot
+- **THEN** Studio offers no command or shortcut to show one source instead of the other
+- **AND** the user hides or solos sources instead (see Hide a source and Solo a source)
+
+### Requirement: Source list
+
+The source list at the top of the sidebar SHALL show one row per source, with the live session first and logs below it. The list MUST grow with each source instead of scrolling or hiding sources in a menu. Each row MUST show the source's icon, name, and state, a sample of its line style (see the widgets spec's several sources), a visibility toggle, and, on hover or focus, a close button. A button in the list's header SHALL open a menu to open a log, open from URL, open a recent log, and connect.
+
+#### Scenario: Three sources
+
+- **GIVEN** the user is connected to the robot and opened `qual12.wpilog`, then `qual13.wpilog`
+- **THEN** the source list shows the live session, `qual12.wpilog`, and `qual13.wpilog`, from top to bottom
+- **AND** the pages section moves down to make room for them
 
 #### Scenario: Log source shown
 
 - **GIVEN** the user opened `qual12.wpilog`
-- **THEN** the source control shows `qual12.wpilog`
+- **THEN** its row shows `qual12.wpilog`
 
 #### Scenario: Match log source shown
 
 - **GIVEN** the user opened `FRC_20260315_143000_CAPH_Q12.wpilog`
-- **THEN** the source control and source switcher show `CAPH Q12` with a file icon and the local date and time
-- **AND** hovering or focusing the source control reveals the match type and original filename
+- **THEN** its row shows `CAPH Q12` with a file icon and the local date and time
+- **AND** hovering or focusing the row reveals the match type and original filename
 
 #### Scenario: Dated log outside a match
 
 - **GIVEN** the user opened `WPILIB_20261118_003735.wpilog`
-- **THEN** the source control shows the local date and time instead of the filename
+- **THEN** its row shows the local date and time instead of the filename
 - **AND** if the filename names an event but no match, the event appears above the date and time
 
 #### Scenario: HOOT log source shown
 
 - **GIVEN** the user opened `mttd_Q51_rio_2026-11-08_01-20-41.hoot`
-- **THEN** the source control shows `MTTD Q51` with the local date and time and `roboRIO HOOT`, for the CAN bus it's from
+- **THEN** its row shows `MTTD Q51` with the local date and time and `roboRIO HOOT`, for the CAN bus it's from
 - **AND** a log named by a CANivore's serial number, ex. `FE21E64A394C4853202020500F0D18FF_2026-11-06_18-39-11.hoot`, shows `CANivore HOOT` under the date and time
 
 #### Scenario: Renamed match log source shown
 
 - **GIVEN** the user opened `qual12.wpilog`, a renamed log with the Driver Station's match info for qualification 12 at `CAPH`
-- **THEN** the source control keeps `qual12.wpilog` and shows that it is for `CAPH Q12`
+- **THEN** its row keeps `qual12.wpilog` and shows that it is for `CAPH Q12`
 - **AND** if a recognized filename names a different match, the match from the log data takes precedence
 
 #### Scenario: Live source shown
 
 - **GIVEN** the user is connected to `10.5.81.2`
-- **THEN** the source control shows the address and the connection state (connecting, connected, reconnecting, or disconnected)
+- **THEN** the live session's row shows the address and the connection state (connecting, connected, reconnecting, or disconnected)
 
-#### Scenario: Live session behind a log
+#### Scenario: Close a log
 
-- **GIVEN** the user opened `qual12.wpilog` while connected to the robot
-- **THEN** the source control shows `qual12.wpilog` with a dot showing the robot is connected
-- **AND** no toast is shown when the robot disconnects
+- **GIVEN** the user opened `qual12.wpilog` and `qual13.wpilog` while connected to the robot
+- **WHEN** the user presses the close button on `qual12.wpilog`'s row
+- **THEN** `qual12.wpilog` closes
+- **AND** the live session and `qual13.wpilog` are unaffected
 
-#### Scenario: Log and live session open
-
-- **GIVEN** the user opened `qual12.wpilog` while connected to the robot
-- **WHEN** the user opens the source control menu
-- **THEN** it lists the live session above `qual12.wpilog`, each with its icon, state, and a button to close it
-- **AND** the shown source is raised on a surface, and the other is muted
-- **WHEN** the user chooses the live session
-- **THEN** the raised surface slides up to the live session, casting a deeper shadow while it moves
-- **AND** the menu stays open
-
-#### Scenario: Close from the source control menu
+#### Scenario: Close the live session
 
 - **GIVEN** the user opened `qual12.wpilog` while connected to the robot
 - **WHEN** the user hovers the live session's close button
@@ -114,8 +104,129 @@ The source control at the top of the sidebar SHALL show the shown source and its
 
 #### Scenario: No source
 
-- **GIVEN** no source is active
-- **THEN** the source control prompts the user to open a log or connect
+- **GIVEN** no source is open
+- **THEN** the source list prompts the user to open a log or connect
+
+### Requirement: Sources in the sidebar rail
+
+While the sidebar is collapsed to its rail, the rail SHALL show one icon per source in source list order, up to 4, followed by "+N" for the rest.
+
+#### Scenario: Collapsed sidebar
+
+- **GIVEN** the user is connected to the robot and opened 5 logs
+- **WHEN** the sidebar is collapsed to its rail
+- **THEN** the rail shows the live session's icon and 3 log icons, followed by "+3"
+
+### Requirement: Source menu
+
+Clicking a source's row SHALL open that source's menu. The live session's menu MUST offer its connection actions (see Disconnect and clear) and Export as WPILOG (see Export live data). A log's menu MUST offer Close log. Every source's menu MUST offer its time offset (see Time offset), and in the desktop app, Move to (see the platforms spec's move sources between windows).
+
+#### Scenario: Open a log's menu
+
+- **GIVEN** the user opened `qual12.wpilog` and `qual13.wpilog`
+- **WHEN** the user clicks `qual13.wpilog`'s row
+- **THEN** its menu shows its time offset and offers Close log
+- **AND** both logs stay visible in every dashboard
+
+### Requirement: Source order
+
+The top source in the source list SHALL be the time base that other sources line up with (see Line up sources), and MUST draw with a solid line. Users MUST be able to reorder logs by dragging their rows. The live session MUST stay at the top. Reordering MUST NOT move sources in time relative to each other.
+
+#### Scenario: Compare against another log
+
+- **GIVEN** the user opened `qual12.wpilog`, then `qual13.wpilog`
+- **WHEN** the user drags `qual13.wpilog` above `qual12.wpilog`
+- **THEN** `qual13.wpilog` is the time base and draws solid, and `qual12.wpilog` draws dashed
+- **AND** widgets keep showing the same moment of each log
+
+#### Scenario: Live session stays first
+
+- **GIVEN** the user opened `qual12.wpilog` while connected to the robot
+- **WHEN** the user drags `qual12.wpilog` toward the top of the list
+- **THEN** it can't be dropped above the live session
+
+### Requirement: Hide a source
+
+Each source's visibility toggle SHALL hide the source without closing it, and pressing it again MUST show it again. A hidden source MUST keep its data, and a hidden live session MUST keep receiving and recording data, but a hidden source MUST NOT be drawn in widgets, listed in the entry browser, or count toward the timeline's range.
+
+#### Scenario: Hide a log
+
+- **GIVEN** the user opened `qual12.wpilog` and `qual13.wpilog`
+- **WHEN** the user hides `qual13.wpilog`
+- **THEN** widgets only draw `qual12.wpilog`
+- **WHEN** the user shows `qual13.wpilog` again
+- **THEN** it's drawn right away, without reading the file again
+
+### Requirement: Solo a source
+
+Alt-clicking a source's visibility toggle SHALL solo it, hiding every other source, and Alt-clicking it again while it's the only visible source MUST show every source.
+
+#### Scenario: Solo a source
+
+- **GIVEN** the user opened `qual12.wpilog` and `qual13.wpilog` while connected to the robot
+- **WHEN** the user Alt-clicks the live session's visibility toggle
+- **THEN** only the live session is drawn
+- **WHEN** the user Alt-clicks it again
+- **THEN** every source is drawn
+
+### Requirement: Line up sources
+
+Studio SHALL line each log up with the time base using one time offset, chosen by matching when each was enabled, disabled, and in auto or teleop, so the same moments of different matches line up, and so do logs from the same run on different clocks. When either log was never enabled, or their enabled times can't be matched, Studio MUST line up their starts. A log MUST be lined up when it's added, and MUST keep its offset until the user changes it or lines it up again.
+
+#### Scenario: Compare two matches
+
+- **GIVEN** auto starts 2:16.94 into `qual12.wpilog` and 1:05.20 into `qual13.wpilog`
+- **WHEN** the user opens `qual12.wpilog`, then `qual13.wpilog`
+- **THEN** the start of auto in both logs is at the same time on the timeline
+
+#### Scenario: Logs from the same run
+
+- **GIVEN** a roboRIO log and a coprocessor log of the same match, each on its own clock
+- **WHEN** the user opens both
+- **THEN** the times the robot was enabled and disabled line up in both logs
+
+#### Scenario: Log that was never enabled
+
+- **GIVEN** `qual12.wpilog` is open
+- **WHEN** the user opens `bench-test.wpilog`, in which the robot was never enabled
+- **THEN** both logs start at the same time on the timeline
+
+### Requirement: Line up with the live session
+
+While a live session is open, it's the time base, and logs MUST line up with its latest enable instead of its whole history. A log added before the live session was ever enabled MUST line up with the start of the live session, then line up with its first enable once it happens. The live session's menu SHALL offer Line up logs with latest enable, which lines every log up with its most recent enable.
+
+#### Scenario: Compare live with a reference log
+
+- **GIVEN** the user is connected to the robot, which just ran auto
+- **WHEN** the user opens `reference.wpilog`
+- **THEN** the start of auto in `reference.wpilog` lines up with the start of the auto the robot just ran
+
+#### Scenario: Run auto again
+
+- **GIVEN** `reference.wpilog` is lined up with the robot's previous run
+- **AND** the robot ran auto again
+- **WHEN** the user chooses Line up logs with latest enable from the live session's menu
+- **THEN** the start of auto in `reference.wpilog` lines up with the start of the auto the robot just ran
+
+#### Scenario: Open a log before enabling
+
+- **GIVEN** the user is connected to the robot, which hasn't been enabled
+- **WHEN** the user opens `reference.wpilog`
+- **THEN** `reference.wpilog` starts when the live session started
+- **WHEN** the robot is enabled for the first time
+- **THEN** `reference.wpilog`'s first enable lines up with it
+
+### Requirement: Time offset
+
+A log's menu SHALL show how far it's shifted from where it would be if its clock matched the time base's, ex. "+1:11.74", and MUST let the user type a new offset, which moves the log on the timeline right away. Once the user changes it, the menu MUST offer Line up automatically, which lines the log up again (see Line up sources and Line up with the live session). The time base's menu MUST NOT show an offset.
+
+#### Scenario: Fine-tune an offset
+
+- **GIVEN** `qual13.wpilog` is lined up with `qual12.wpilog` with an offset of +1:11.74
+- **WHEN** the user changes the offset to +1:11.80
+- **THEN** `qual13.wpilog` is drawn 0.06 s later on the timeline
+- **WHEN** the user chooses Line up automatically
+- **THEN** the offset goes back to +1:11.74
 
 ### Requirement: Open a log file
 
@@ -124,12 +235,12 @@ Users SHALL be able to open a WPILOG file with a file picker or by dropping it a
 #### Scenario: Open with the file picker
 
 - **WHEN** the user chooses Open log and selects a `.wpilog` file
-- **THEN** that log becomes the active source
+- **THEN** that log is added to the window
 
 #### Scenario: Open a compressed log
 
 - **WHEN** the user opens a `.wpilogxz` file
-- **THEN** that log becomes the active source, the same as the `.wpilog` file it was compressed from
+- **THEN** that log opens the same as the `.wpilog` file it was compressed from
 
 #### Scenario: Open a local HOOT log in the browser
 
@@ -146,7 +257,7 @@ Users SHALL be able to open a WPILOG file with a file picker or by dropping it a
 #### Scenario: Drag and drop
 
 - **WHEN** the user drops a `.wpilog` file anywhere on the app window
-- **THEN** that log becomes the active source
+- **THEN** that log is added to the window
 
 #### Scenario: Dragging a potential log over the window
 
@@ -158,7 +269,7 @@ Users SHALL be able to open a WPILOG file with a file picker or by dropping it a
 
 - **WHEN** the user drops a video file outside a video widget
 - **THEN** Studio doesn't try to open it as a log
-- **AND** the active source doesn't change
+- **AND** no source is added
 
 #### Scenario: Values set before logging started
 
@@ -169,7 +280,7 @@ Users SHALL be able to open a WPILOG file with a file picker or by dropping it a
 
 ### Requirement: Open a log from a URL
 
-Users SHALL be able to open a `.wpilog` or `.wpilogxz` file from an `http://` or `https://` URL, including via an in-app "Open from URL..." dialog in the source control menu and macOS File menu. Other schemes like `file://` MUST be rejected, including after redirects. Scheme-less URLs SHALL default to `https://` when they do not start with `/` and their host is `localhost` or contains a dot. URL logs MUST stay in memory only and MUST NOT be added to recent logs.
+Users SHALL be able to open a `.wpilog` or `.wpilogxz` file from an `http://` or `https://` URL, including via an in-app "Open from URL..." dialog in the source list's header menu and macOS File menu. Other schemes like `file://` MUST be rejected, including after redirects. Scheme-less URLs SHALL default to `https://` when they do not start with `/` and their host is `localhost` or contains a dot. URL logs MUST stay in memory only and MUST NOT be added to recent logs.
 
 #### Scenario: Open a valid log URL from the dialog
 
@@ -189,13 +300,14 @@ Users SHALL be able to open a `.wpilog` or `.wpilogxz` file from an `http://` or
 
 ### Requirement: Streaming URL log download and progress
 
-Studio SHALL validate the HTTP status, `Content-Type`, and first 6 magic bytes (`WPILOG` or XZ) before replacing an already open log. While downloading, Studio MUST decompress `.wpilogxz` logs and parse WPILOG records incrementally as chunks arrive, showing the log once complete. The timeline progress bar SHALL show determinate progress when `Content-Length` is known, indeterminate progress otherwise, and a Cancel button that aborts the download and returns to the live session if one is open.
+Studio SHALL validate the HTTP status, `Content-Type`, and first 6 magic bytes (`WPILOG` or XZ) before adding the log to the source list. While downloading, Studio MUST decompress `.wpilogxz` logs and parse WPILOG records incrementally as chunks arrive, showing the log once complete. The timeline progress bar SHALL show determinate progress when `Content-Length` is known, indeterminate progress otherwise, and a Cancel button that aborts the download and removes the log.
 
 #### Scenario: Cancel a download
 
-- **GIVEN** a live session is running in the background and a large log URL is downloading
+- **GIVEN** the user is connected to the robot and a large log URL is downloading
 - **WHEN** the user clicks Cancel on the progress bar
-- **THEN** Studio aborts the download and returns to the live session
+- **THEN** Studio aborts the download and removes the log
+- **AND** the live session is unaffected
 
 #### Scenario: Filename derivation
 
@@ -212,7 +324,7 @@ HTTP 401 and 403 responses MUST explain that the link requires signing in or per
 - **GIVEN** a URL redirects to a sign-in page with `Content-Type: text/html`
 - **AND** another log is already open
 - **WHEN** the user opens that URL in the desktop app
-- **THEN** Studio aborts before downloading the page and keeps the already open log
+- **THEN** Studio aborts before downloading the page, adds no source, and leaves the already open log as it was
 - **AND** explains that the URL returned a web page instead of a WPILOG file, with an action to open it in the browser
 
 #### Scenario: Mid-download network drop
@@ -224,7 +336,7 @@ HTTP 401 and 403 responses MUST explain that the link requires signing in or per
 
 ### Requirement: Connect to a live NT4 server
 
-Users SHALL be able to connect to a robot or simulator over NT4 with a single Connect action, using the connection target from Settings. The source control MUST NOT offer separate actions for the robot and the simulator.
+Users SHALL be able to connect to a robot or simulator over NT4 with a single Connect action, using the connection target from Settings. The source list MUST NOT offer separate actions for the robot and the simulator.
 
 #### Scenario: Connect to a robot by team number
 
@@ -264,7 +376,7 @@ Studio MUST keep all data received from a live source when the connection drops,
 
 - **GIVEN** Studio is connected and has received data
 - **WHEN** the connection drops
-- **THEN** the source control shows the reconnecting state
+- **THEN** the live session's row shows the reconnecting state
 - **AND** all previously received data remains viewable
 - **AND** Studio keeps trying to reconnect
 
@@ -295,13 +407,13 @@ Studio tabs and windows SHALL share one NT4 connection to each server, for their
 
 ### Requirement: Disconnect and clear
 
-The source control menu's live section SHALL offer one action for the live session's state: Connect without a session, Disconnect while it's connecting, connected, or reconnecting, and once disconnected, Reconnect and Clear. Disconnect MUST stop reconnecting and keep the received data, and Reconnect MUST continue the same session. Clear MUST close the live session and throw away its data, including its recording.
+Without a live session, the source list's header menu SHALL offer Connect. The live session's menu SHALL offer one action for its state: Disconnect while it's connecting, connected, or reconnecting, and once disconnected, Reconnect and Clear. Disconnect MUST stop reconnecting and keep the received data, and Reconnect MUST continue the same session. Clear MUST close the live session and throw away its data, including its recording.
 
 #### Scenario: Disconnect
 
 - **GIVEN** Studio is connected to the robot
 - **WHEN** the user chooses Disconnect
-- **THEN** the source control shows the disconnected state
+- **THEN** the live session's row shows the disconnected state
 - **AND** the received data remains viewable
 - **AND** the menu offers "Reconnect to robot" and "Clear"
 
@@ -310,7 +422,7 @@ The source control menu's live section SHALL offer one action for the live sessi
 - **GIVEN** the user disconnected from the robot and has `qual12.wpilog` open
 - **WHEN** the user chooses Clear
 - **THEN** the live session is closed
-- **AND** every dashboard shows `qual12.wpilog`
+- **AND** `qual12.wpilog` becomes the time base
 
 #### Scenario: Disconnect before connecting
 
@@ -388,7 +500,7 @@ When Studio reopens after closing with a live session, including after a crash, 
 
 ### Requirement: Export live data
 
-The source control menu SHALL offer Export as WPILOG in its own section above the live session's actions whenever the live session has data. Exporting MUST save a copy of the whole recording, including history no longer kept in memory, without interrupting the session. The desktop app MUST ask where to save it, and the web app MUST download it. The suggested file name MUST be `WPILIB_<date>_<time>.wpilog` with the date and time the session started in UTC, like WPILib names its logs.
+The live session's menu SHALL offer Export as WPILOG in its own section above its connection actions whenever the live session has data. Exporting MUST save a copy of the whole recording, including history no longer kept in memory, without interrupting the session. The desktop app MUST ask where to save it, and the web app MUST download it. The suggested file name MUST be `WPILIB_<date>_<time>.wpilog` with the date and time the session started in UTC, like WPILib names its logs.
 
 #### Scenario: Export while connected
 
@@ -423,7 +535,7 @@ Tools that don't read Studio's entries see no values published while Studio was 
 
 ### Requirement: Damaged log tolerance
 
-When part of a log can't be read, Studio MUST load every record before the damage and tell the user how much is missing instead of failing to open the log. Studio MUST NOT load anything after the first record that can't be read, even if it looks valid. When a log can't be opened at all, Studio MUST go back to showing the live session if there is one.
+When part of a log can't be read, Studio MUST load every record before the damage and tell the user how much is missing instead of failing to open the log. Studio MUST NOT load anything after the first record that can't be read, even if it looks valid. When a log can't be opened at all, Studio MUST NOT add it, and other sources MUST stay as they were.
 
 #### Scenario: Partial last record
 
@@ -599,7 +711,7 @@ Entries under `/DogLogStudio/`, which Studio uses to share dashboards and record
 
 ### Requirement: Connect target selection
 
-Connect SHALL try the robot connection target and the simulator at the same time, connect to the robot if it is reachable and otherwise to the simulator, and MUST keep trying both until one is reachable without showing an error. Connect MUST NOT replace the live session unless it would connect to a different target, so the received data isn't thrown away. While a log is shown, Connect MUST show the live session if there is one, reading "Back to robot" or "Back to simulator".
+Connect SHALL try the robot connection target and the simulator at the same time, connect to the robot if it is reachable and otherwise to the simulator, and MUST keep trying both until one is reachable without showing an error. Connect MUST NOT replace the live session unless it would connect to a different target, so the received data isn't thrown away.
 
 #### Scenario: Robot available
 
@@ -617,7 +729,7 @@ Connect SHALL try the robot connection target and the simulator at the same time
 
 - **GIVEN** neither the robot nor a simulator is reachable
 - **WHEN** the user chooses Connect
-- **THEN** the source control shows the connecting state
+- **THEN** the live session's row shows the connecting state
 - **AND** Studio connects as soon as one becomes reachable
 
 #### Scenario: No robot target
@@ -629,16 +741,16 @@ Connect SHALL try the robot connection target and the simulator at the same time
 #### Scenario: Connect while connected
 
 - **GIVEN** Studio is connected to the robot
-- **WHEN** the user opens the source control menu
-- **THEN** it offers Disconnect instead of Connect
+- **WHEN** the user opens the source list's header menu
+- **THEN** it doesn't offer Connect, and the live session's menu offers Disconnect
 - **AND** the Connect shortcut does nothing
 
 #### Scenario: Connect while reconnecting
 
 - **GIVEN** the connection to the robot dropped
 - **AND** the simulator isn't running
-- **WHEN** the user opens the source control menu
-- **THEN** it offers Disconnect instead of Connect
+- **WHEN** the user opens the source list's header menu
+- **THEN** it doesn't offer Connect, and the live session's menu offers Disconnect
 - **AND** the Connect shortcut does nothing
 
 #### Scenario: Switch targets while reconnecting
@@ -648,37 +760,31 @@ Connect SHALL try the robot connection target and the simulator at the same time
 - **WHEN** the user presses the Connect shortcut, or disconnects and chooses "Connect to simulator"
 - **THEN** Studio connects to the simulator, replacing the robot's data
 
-#### Scenario: Connect while a log is shown
-
-- **GIVEN** the user opened `qual12.wpilog` while connected to the robot
-- **WHEN** the user presses the Connect shortcut
-- **THEN** every dashboard shows the live session
-
 ### Requirement: Connect target preview
 
-The source control menu's Connect action SHALL show whether it would connect to the robot or the simulator. Studio SHALL check the targets when it starts and when the menu opens, and MUST NOT check them at any other time. Studio MUST NOT check a target when doing so would show a browser permission prompt.
+The source list's Connect action SHALL show whether it would connect to the robot or the simulator. Studio SHALL check the targets when it starts and when the menu opens, and MUST NOT check them at any other time. Studio MUST NOT check a target when doing so would show a browser permission prompt.
 
 #### Scenario: Robot available
 
 - **GIVEN** the robot is reachable
-- **WHEN** the user opens the source control menu
+- **WHEN** the user opens the source list's header menu
 - **THEN** the Connect action reads "Connect to robot"
 
 #### Scenario: Only the simulator is running
 
 - **GIVEN** the robot is not reachable and a simulator is running
-- **WHEN** the user opens the source control menu
+- **WHEN** the user opens the source list's header menu
 - **THEN** the Connect action reads "Connect to simulator"
 
 #### Scenario: Target available at startup
 
 - **GIVEN** a simulator is running
-- **WHEN** Studio starts and the user opens the source control menu
+- **WHEN** Studio starts and the user opens the source list's header menu
 - **THEN** the Connect action reads "Connect to simulator" right away
 
 #### Scenario: Local network permission not granted
 
 - **GIVEN** the user is on the web app and hasn't granted Chrome's local network permission
-- **WHEN** the user opens the source control menu
+- **WHEN** the user opens the source list's header menu
 - **THEN** no permission prompt is shown
 - **AND** the Connect action reads "Connect"

@@ -66,7 +66,7 @@ Studio SHALL save the selected camera's name, not its stream URLs, with the dash
 
 ### Requirement: Stream only while visible and following live
 
-A Camera widget SHALL stream only while its pane is visible and the selected source is in live follow. On pause or seek back, it MUST stop streaming and offer "Go live" to resume. With no source, a log, or an explicit disconnect, it MUST stop streaming and say it needs a live connection. Changing dashboards or zooming another pane MUST stop streaming for the hidden pane. None of these actions may change the camera selection.
+A Camera widget SHALL stream only while its pane is visible, the live session is visible, and the cursor follows it. On pause or seek back, it MUST stop streaming and offer "Go live" to resume. Without a visible live session, or after an explicit disconnect, it MUST stop streaming and say it needs a live connection. Changing dashboards or zooming another pane MUST stop streaming for the hidden pane. None of these actions may change the camera selection.
 
 #### Scenario: Review live history
 
