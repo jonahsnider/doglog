@@ -71,6 +71,12 @@ The source list at the top of the sidebar SHALL show one row per source, with th
 - **THEN** its row shows `CAPH Q12` with a file icon and the local date and time
 - **AND** hovering or focusing the row reveals the match type and original filename
 
+#### Scenario: Long log name
+
+- **GIVEN** the user opened `practice_session_with_a_really_long_name.wpilog`, which is too long for the sidebar
+- **THEN** its row cuts the name off with an ellipsis
+- **AND** hovering or focusing the row shows the whole filename
+
 #### Scenario: Dated log outside a match
 
 - **GIVEN** the user opened `WPILIB_20261118_003735.wpilog`
@@ -233,15 +239,22 @@ While a live session is open, it's the time base, and logs MUST line up with its
 
 ### Requirement: Time offset
 
-A log's menu SHALL show how far it's shifted from where it would be if its clock matched the time base's, ex. "+1:11.74", and MUST let the user type a new offset, which moves the log on the timeline right away. Once the user changes it, the menu MUST offer Line up automatically, which lines the log up again (see Line up sources and Line up with the live session). The time base's menu MUST NOT show an offset.
+A log's menu SHALL have a field for how far it's shifted from where it would be if its clock matched the time base's, ex. "+1:11.74". While the log is lined up automatically (see Line up sources and Line up with the live session), the field MUST be blank with the automatic offset as its placeholder. Typing an offset MUST move the log right away, and clearing the field MUST line it up automatically again. The time base's menu MUST NOT show an offset.
 
 #### Scenario: Fine-tune an offset
 
 - **GIVEN** `qual13.wpilog` is lined up with `qual12.wpilog` with an offset of +1:11.74
+- **THEN** the offset field is blank, with +1:11.74 as its placeholder
 - **WHEN** the user changes the offset to +1:11.80
-- **THEN** `qual13.wpilog` is drawn 0.06 s later on the timeline
-- **WHEN** the user chooses Line up automatically
+- **THEN** `qual13.wpilog` is drawn 0.06 s later on the timeline, and the field shows +1:11.80
+- **WHEN** the user clears the field
 - **THEN** the offset goes back to +1:11.74
+
+#### Scenario: Focus the offset field
+
+- **GIVEN** `qual13.wpilog` is lined up automatically
+- **WHEN** the user focuses its offset field, then closes the menu without typing
+- **THEN** it stays lined up automatically
 
 ### Requirement: Open a log file
 

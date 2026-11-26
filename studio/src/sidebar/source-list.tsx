@@ -24,7 +24,7 @@ import {
 	useSources,
 	visibleSources,
 } from '@/data/source';
-import { lineUpLog, lineUpWithLatestEnable } from '@/data/source-line-up';
+import { lineUpWithLatestEnable } from '@/data/source-line-up';
 import { getRobotHost, simulatorHost } from '@/robot-target';
 import { settingsStore } from '@/settings';
 import { setSourceListElement } from '@/desktop/source-windows';
@@ -230,9 +230,6 @@ export function SourceList({ onShow }: { onShow: () => void }) {
 					}
 					const items: MenuEntry[] = [
 						...visibilityItems(source, list.length, visible.length),
-						...(source.manualOffset === true
-							? [{ label: 'Line up automatically', onSelect: () => lineUpLog(source.id) }, 'separator' as const]
-							: []),
 						...(move === undefined ? [] : [move, 'separator' as const]),
 						{ label: 'Close log', onSelect: () => closeLog(source.id) },
 					];
@@ -243,7 +240,9 @@ export function SourceList({ onShow }: { onShow: () => void }) {
 							visibleIndex={index === -1 ? undefined : index}
 							logIndex={logs.indexOf(source)}
 							menuItems={items}
-							header={source.status === 'loaded' && <SourceOffset id={source.id} />}
+							header={
+								source.status === 'loaded' && <SourceOffset id={source.id} manual={source.manualOffset === true} />
+							}
 						/>
 					);
 				})}

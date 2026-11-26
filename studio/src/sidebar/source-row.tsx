@@ -2,7 +2,8 @@ import { colorVars, radiusVars, typeScaleVars } from '@astryxdesign/core/theme/t
 import { Tooltip } from '@astryxdesign/core/Tooltip';
 import * as stylex from '@stylexjs/stylex';
 import { useSelector } from '@tanstack/react-store';
-import { type ReactNode, useEffect, useRef } from 'react';
+import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useResizeObserver } from 'usehooks-ts';
 import { AppActionMenu, AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
 import { TextMorph } from '@/components/text-morph';
 import { type Source, sourceId } from '@/data/source';
@@ -84,10 +85,13 @@ function useHighlight(id: string) {
 	return ref;
 }
 
-/** The row's tooltip: its labels when the sidebar is collapsed, its match type, file name, and whether it's hidden */
+/**
+ * The row's tooltip: its labels when the sidebar is collapsed, its match type, a log's whole file name, which its name
+ * may be cut off from, and whether it's hidden
+ */
 function rowDescription(source: Source, collapsed: boolean, hidden: boolean): string {
 	const { name, detail, matchType } = sourceLabels(source);
-	const fileName = source.type === 'log' && source.fileName !== name ? source.fileName : undefined;
+	const fileName = source.type === 'log' ? source.fileName : undefined;
 	return [
 		collapsed ? `${name}: ${detail}` : undefined,
 		matchType && matchIcons[matchType].label,
@@ -182,13 +186,39 @@ export function SourceLabels({
 }) {
 	return (
 		<span {...stylex.props(styles.labels)}>
-			{/* Numbers are off so addresses aren't morphed like decimals */}
-			<TextMorph as="span" numbers={false} {...stylex.props(styles.name)}>
-				{name}
-			</TextMorph>
-			<TextMorph as="span" numbers={false} {...stylex.props(styles.detail, reconnecting && styles.reconnecting)}>
-				{detail}
-			</TextMorph>
+			<FittedText text={name} xstyle={styles.name} />
+			<FittedText text={detail} xstyle={[styles.detail, reconnecting && styles.reconnecting]} />
+		</span>
+	);
+}
+
+/**
+ * Text that morphs as it changes, or while it doesn't fit, is cut off with an ellipsis instead, since morphing text is
+ * drawn a character at a time, which CSS can't add an ellipsis to
+ */
+function FittedText({ text, xstyle }: { text: string; xstyle: stylex.StyleXStyles }) {
+	const ref = useRef<HTMLSpanElement>(null!);
+	const [overflowing, setOverflowing] = useState(false);
+	const measure = () => {
+		// Can run after it's unmounted
+		const element: HTMLSpanElement | null = ref.current;
+		if (element !== null) {
+			setOverflowing(element.scrollWidth > element.clientWidth);
+		}
+	};
+	useResizeObserver({ ref, onResize: measure });
+	// Text that changed may fit now, or not anymore
+	useLayoutEffect(measure, [text]);
+	return (
+		<span ref={ref} {...stylex.props(xstyle)}>
+			{overflowing ? (
+				text
+			) : (
+				// Numbers are off so addresses aren't morphed like decimals
+				<TextMorph as="span" numbers={false}>
+					{text}
+				</TextMorph>
+			)}
 		</span>
 	);
 }

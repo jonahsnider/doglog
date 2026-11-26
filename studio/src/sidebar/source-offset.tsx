@@ -2,7 +2,7 @@ import { TextInput } from '@astryxdesign/core/TextInput';
 import { spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useRef, useState } from 'react';
-import { logOffset, setLogOffset } from '@/data/source-line-up';
+import { automaticLogOffset, lineUpLog, logOffset, setLogOffset } from '@/data/source-line-up';
 import { isEnterKey } from '@/lib/keyboard';
 import { formatTime } from '@/timeline/format-time';
 import { parseTime } from '@/timeline/parse-time';
@@ -26,10 +26,15 @@ function parseOffset(text: string): number | undefined {
 	return time === undefined ? undefined : match[1] === undefined || match[1] === '+' ? time : -time;
 }
 
-/** How far a log is shifted from the time base, which the user can type over, see the data-sources spec's time offset */
-export function SourceOffset({ id }: { id: string }) {
+/**
+ * How far a log is shifted from the time base, which the user can type over, see the data-sources spec's time offset.
+ * It's blank while the log is lined up automatically, with the automatic offset as its placeholder, and clearing it
+ * lines the log up automatically again.
+ */
+export function SourceOffset({ id, manual }: { id: string; manual: boolean }) {
 	const offset = logOffset(id);
-	const text = offset === undefined ? '' : formatOffset(offset);
+	const automatic = automaticLogOffset(id) ?? offset;
+	const text = manual && offset !== undefined ? formatOffset(offset) : '';
 	const [value, setValue] = useState(text);
 	const [shown, setShown] = useState(text);
 	const [invalid, setInvalid] = useState(false);
@@ -43,13 +48,17 @@ export function SourceOffset({ id }: { id: string }) {
 	if (offset === undefined) {
 		return null;
 	}
+	const blank = value.trim() === '';
 	const commit = () => {
-		const next = canceled.current ? undefined : parseOffset(value);
+		const wasCanceled = canceled.current;
 		canceled.current = false;
-		if (next === undefined) {
+		const next = wasCanceled || blank ? undefined : parseOffset(value);
+		if (!wasCanceled && blank && manual) {
+			lineUpLog(id);
+		} else if (next === undefined || value === text) {
 			setValue(text);
 			setInvalid(false);
-		} else if (value !== text) {
+		} else {
 			setLogOffset(id, next);
 		}
 	};
@@ -61,7 +70,12 @@ export function SourceOffset({ id }: { id: string }) {
 				width="100%"
 				hasSpellCheck={false}
 				value={value}
-				status={invalid ? { type: 'error', message: 'Enter an offset, ex. +1:05.50' } : undefined}
+				placeholder={automatic === undefined ? undefined : formatOffset(automatic)}
+				status={
+					invalid
+						? { type: 'error', message: 'Enter an offset, ex. +1:05.50, or leave it blank to line up automatically' }
+						: undefined
+				}
 				statusVariant="tooltip"
 				onChange={(next) => {
 					setValue(next);
@@ -81,7 +95,7 @@ export function SourceOffset({ id }: { id: string }) {
 						event.stopPropagation();
 					}
 					if (isEnterKey(event)) {
-						if (parseOffset(value) === undefined) {
+						if (!blank && parseOffset(value) === undefined) {
 							setInvalid(true);
 						} else {
 							commit();

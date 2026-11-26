@@ -65,6 +65,17 @@ export function lineUpLog(id: string): void {
 	updateLog(id, { manualOffset: undefined });
 }
 
+/** The offset lining a log up again would give it, see `logOffset()` and `lineUpLog()` */
+export function automaticLogOffset(id: string): number | undefined {
+	const current = logOffset(id);
+	const data = sourceState.logData.get(id);
+	const base = lineUpBase(id);
+	if (current === undefined || data === undefined || base === undefined) {
+		return undefined;
+	}
+	return current + lineUpOffset(base.data, data, base.latestEnable);
+}
+
 /** Line every log the user didn't move up with the live session's latest enable */
 export function lineUpWithLatestEnable(includeManual = true): void {
 	for (const log of sourcesStore.get().logs) {
