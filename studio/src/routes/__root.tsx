@@ -12,7 +12,6 @@ import { AboutDialog } from '@/components/about-dialog';
 import { DragProvider } from '@/components/drag-provider';
 import { OpenLogUrlDialog } from '@/components/open-log-url-dialog';
 import { RouterLink } from '@/components/router-link';
-import { useDesktopLinkOffer } from '@/dashboards/open-dashboard-link';
 import { LogDropOverlay } from '@/components/log-drop-overlay';
 import { Toasts } from '@/components/toasts';
 import { useMobileLayout } from '@/lib/mobile-layout';
@@ -102,8 +101,6 @@ export const Route = createRootRoute({
 function RootLayout() {
 	useGlobalShortcuts();
 	useWindowTitle();
-	// After the toast bridge's effect subscribes it, since child effects run first
-	useDesktopLinkOffer();
 	const matchRoute = useMatchRoute();
 	const dashboard = matchRoute({ to: '/dashboards/$dashboardId' }) !== false;
 	// Dashboards and Tuning lay out their own panes and entry browser on the frame, other pages are one container
@@ -116,37 +113,36 @@ function RootLayout() {
 	return (
 		<LinkProvider component={RouterLink}>
 			<CloudProvider>
-				<Toasts>
-					{/* Wraps the whole app, so dashboards and panes can be dragged between the sidebar and the main area */}
-					<DragProvider>
-						<div
-							data-app-frame=""
-							{...stylex.props(styles.frame, mobile && styles.mobileFrame, !STUDIO_DESKTOP && styles.webFrame)}
-						>
-							<div {...stylex.props(styles.body, mobile && styles.mobileBody)}>
-								<div inert={exporting} {...stylex.props(styles.contents)}>
-									<AppSidebar mobile={mobile} />
-								</div>
-								<main
-									{...stylex.props(
-										styles.main,
-										!panes && styles.page,
-										mobile && (panes ? styles.mobilePanes : styles.mobilePage),
-										strip && (panes ? styles.belowStripPanes : styles.belowStripPage),
-										animation !== undefined && styles.animated,
-									)}
-								>
-									<Outlet />
-								</main>
+				{/* Wraps the whole app, so dashboards and panes can be dragged between the sidebar and the main area */}
+				<DragProvider>
+					<div
+						data-app-frame=""
+						{...stylex.props(styles.frame, mobile && styles.mobileFrame, !STUDIO_DESKTOP && styles.webFrame)}
+					>
+						<div {...stylex.props(styles.body, mobile && styles.mobileBody)}>
+							<div inert={exporting} {...stylex.props(styles.contents)}>
+								<AppSidebar mobile={mobile} />
 							</div>
-							{dashboard && !exporting && <TimelineBar />}
+							<main
+								{...stylex.props(
+									styles.main,
+									!panes && styles.page,
+									mobile && (panes ? styles.mobilePanes : styles.mobilePage),
+									strip && (panes ? styles.belowStripPanes : styles.belowStripPage),
+									animation !== undefined && styles.animated,
+								)}
+							>
+								<Outlet />
+							</main>
 						</div>
-					</DragProvider>
-					<LogDropOverlay />
-					<AboutDialog />
-					<OpenLogUrlDialog />
-					<KeyboardShortcutsDialog />
-				</Toasts>
+						{dashboard && !exporting && <TimelineBar />}
+					</div>
+				</DragProvider>
+				<LogDropOverlay />
+				<AboutDialog />
+				<OpenLogUrlDialog />
+				<KeyboardShortcutsDialog />
+				<Toasts />
 			</CloudProvider>
 		</LinkProvider>
 	);

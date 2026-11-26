@@ -1,0 +1,32 @@
+/* The popover only puts the toaster in the top layer, it has no box of its own */
+[data-toasts] {
+	inset: auto;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	overflow: visible;
+}
+
+/* Toasts with custom content are only as wide as it otherwise, phones set their own width */
+[data-sonner-toast] {
+	width: var(--width);
+}
+
+/* Toasts stacked behind the front one show only their edge */
+[data-sonner-toast][data-expanded='false'][data-front='false'] > * {
+	opacity: 0;
+}
+
+/* More specific than the toaster's own focus ring, since its styles load after these */
+[data-sonner-toaster] [data-sonner-toast]:focus-visible {
+	box-shadow: var(--shadow-med);
+	outline: var(--focus-outline-width) var(--focus-outline-style) var(--focus-outline-color);
+	outline-offset: var(--focus-outline-offset);
+}
+
+/* The toaster only stops its motion for the system setting, this also follows Studio's reduce motion setting */
+.reduce-motion :is([data-sonner-toast], [data-sonner-toast] > *) {
+	transition: none !important;
+	animation: none !important;
+}

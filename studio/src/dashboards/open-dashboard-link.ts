@@ -1,7 +1,6 @@
 import type { RegisteredRouter } from '@tanstack/react-router';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
-import { useEffect } from 'react';
 import { toastManager } from '@/components/toast';
 
 declare global {
@@ -30,34 +29,10 @@ export function openDashboardLinkInDesktop(link: string): void {
 	if (mobile) {
 		return;
 	}
-	if (toastsReady) {
-		offerDesktop(url);
-	} else {
-		pendingOffer = url;
-	}
-}
-
-/** Whether the toast provider is listening, toasts added before it is are dropped */
-let toastsReady = false;
-/** The desktop app link to offer once toasts are ready, ex. from a link that loaded the page */
-let pendingOffer: string | undefined;
-
-function offerDesktop(url: string): void {
 	toastManager.add({
 		title: 'Open in the desktop app?',
 		actionProps: { children: 'Open', onClick: () => location.assign(url) },
 	});
-}
-
-/** Show the desktop app offer from a link that loaded the page, use inside the toast provider */
-export function useDesktopLinkOffer(): void {
-	useEffect(() => {
-		toastsReady = true;
-		if (pendingOffer !== undefined) {
-			offerDesktop(pendingOffer);
-			pendingOffer = undefined;
-		}
-	}, []);
 }
 
 /** Import dashboard links the OS asks the desktop app to open, ex. when the browser hands one to it */
