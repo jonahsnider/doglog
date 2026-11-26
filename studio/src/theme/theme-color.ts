@@ -13,7 +13,7 @@ import {
 	wcagContrast,
 	wcagLuminance,
 } from 'culori/fn';
-import { statusSeeds, team581Seeds } from '@team581/astryx-theme/colors';
+import { statusSeeds, team581Palette, team581Seeds } from '@team581/astryx-theme/colors';
 import type { ThemePreset, VisualizationPalette } from '@/theme/choices';
 import { seriesPaletteVariables, shade } from '@/theme/series-palette';
 
@@ -142,7 +142,8 @@ export function themeColors(
 	preset: ThemePreset,
 ): ThemeColors {
 	const seeds = presetSeeds[preset](themeColor, dark);
-	const palette = cachedPalette(seeds);
+	// The DogLog preset is Team 581's own palette, which replaces dark mode's neutrals generated from its seeds
+	const palette = preset === 'doglog' ? team581Palette : cachedPalette(seeds);
 	const mode = dark ? 'dark' : 'light';
 	const tokens = Object.fromEntries(
 		Object.entries(palette.tokens).map(([token, values]) => [token, values[dark ? 1 : 0]]),
