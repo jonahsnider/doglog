@@ -16,7 +16,7 @@
 		"check:dev": "pnpm check && react-doctor --no-telemetry --scope files --include-untracked",
 		"check:fix": "vp check --fix",
 		"deploy": "wrangler deploy",
-		"desktop:install": "VITE_DOGLOG_LOCAL_PREVIEW=1 tauri build --bundles app && rm -rf \"/Applications/DogLog Studio.app\" && ditto \"src-tauri/target/release/bundle/macos/DogLog Studio.app\" \"/Applications/DogLog Studio.app\"",
+		"desktop:install": "VITE_DOGLOG_LOCAL_PREVIEW=1 tauri build --bundles app --config '{\"bundle\":{\"macOS\":{\"files\":{\"embedded.provisionprofile\":null}}}}' && rm -rf \"/Applications/DogLog Studio.app\" && ditto \"src-tauri/target/release/bundle/macos/DogLog Studio.app\" \"/Applications/DogLog Studio.app\"",
 		"dev": "portless run --force",
 		"dev:app": "vp dev",
 		"openspec:check": "openspec validate --specs --strict --no-interactive",

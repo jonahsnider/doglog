@@ -4,6 +4,10 @@
 		"beforeBundleCommand": "sh scripts/compile-macos-assets.sh"
 	},
 	"bundle": {
+		"macOS": {
+			"entitlements": "Entitlements.plist",
+			"files": { "embedded.provisionprofile": "embedded.provisionprofile" }
+		},
 		"icon": ["icons/32x32.png", "icons/icon.icns", "target/macos-assets/Assets.car"]
 	}
 }

@@ -385,6 +385,9 @@ pub fn run() -> ExitCode {
         .invoke_handler(tauri::generate_handler![
             take_opened_log,
             cloud_keychain::cloud_account_wrapping_key,
+            cloud_sign_in::native_passkeys,
+            #[cfg(target_os = "macos")]
+            cloud_sign_in::macos::native_passkey,
             set_window_has_source,
             take_opened_dashboard_link,
             read_file,

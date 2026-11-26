@@ -1,2 +1,6 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+# macOS reads it to let the desktop app use the website's passkeys
+/.well-known/apple-app-site-association
+  Content-Type: application/json

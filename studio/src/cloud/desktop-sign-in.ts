@@ -1,7 +1,9 @@
-// The desktop app's side of signing in through Studio's website, see sign-in-handoff.ts
+// The desktop app's side of signing in. The OS's sheet runs passkeys when the build is entitled to, see
+// `cloud_sign_in_macos.rs`, otherwise sign-in runs on Studio's website, see sign-in-handoff.ts.
 import type { OauthFlowError, UseOauthSignInReturn } from '@convex-dev/auth/methods/oauth/react';
 import type { PasskeyCeremonies } from '@convex-dev/auth/methods/username-passkey/react-custom';
 import { createAtom } from '@tanstack/store';
+import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import * as z from 'zod';
@@ -61,24 +63,55 @@ function passkeyRequestHash(request: object) {
 
 const canceled = { success: false, userError: { error: 'CEREMONY_ABORTED' } } as const;
 
-/** Runs passkey ceremonies in the browser, for passkeys made on Studio's website */
+let nativePasskeys: Promise<boolean> | undefined;
+
+/** Whether passkeys run in the OS's sheet, ex. in the signed macOS app */
+function supportsNativePasskeys() {
+	nativePasskeys ??= invoke<boolean>('native_passkeys').catch(() => false);
+	return nativePasskeys;
+}
+
+const nativeError = z.object({ kind: z.enum(['canceled', 'excluded', 'failed']), message: z.string().optional() });
+
+/** Runs a native passkey ceremony, resolving with `undefined` if it's canceled */
+async function runNative(request: object): Promise<unknown> {
+	try {
+		return await invoke('native_passkey', { request });
+	} catch (cause) {
+		const error = nativeError.safeParse(cause);
+		if (error.success && error.data.kind === 'canceled') {
+			return undefined;
+		}
+		if (error.success && error.data.kind === 'excluded') {
+			// Like the browser, so the passkey UI explains it the same way
+			throw new DOMException('This device already has a passkey for this account', 'InvalidStateError');
+		}
+		throw new Error(error.success ? error.data.message : String(cause), { cause });
+	}
+}
+
+/** Runs passkey ceremonies in the OS's sheet, or in the browser for builds that can't */
 export const desktopCeremonies = {
 	isSupported: () => true,
 	async register(options) {
-		const result = await signInInBrowser((key) => {
-			const url = signInPage(key);
-			url.hash = passkeyRequestHash({ ceremony: 'register', options });
-			return openUrl(url.href);
-		});
+		const result = (await supportsNativePasskeys())
+			? { response: await runNative({ ceremony: 'register', options }) }
+			: await signInInBrowser((key) => {
+					const url = signInPage(key);
+					url.hash = passkeyRequestHash({ ceremony: 'register', options });
+					return openUrl(url.href);
+				});
 		const parsed = z.object({ response: registrationResponse }).safeParse(result);
 		return parsed.success ? { success: true, response: parsed.data.response } : canceled;
 	},
 	async authenticate(options) {
-		const result = await signInInBrowser((key) => {
-			const url = signInPage(key);
-			url.hash = passkeyRequestHash({ ceremony: 'authenticate', options });
-			return openUrl(url.href);
-		});
+		const result = (await supportsNativePasskeys())
+			? { response: await runNative({ ceremony: 'authenticate', options }) }
+			: await signInInBrowser((key) => {
+					const url = signInPage(key);
+					url.hash = passkeyRequestHash({ ceremony: 'authenticate', options });
+					return openUrl(url.href);
+				});
 		const parsed = z.object({ response: authenticationResponse }).safeParse(result);
 		return parsed.success ? { success: true, response: parsed.data.response } : canceled;
 	},

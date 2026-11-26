@@ -1,2 +1,5 @@
 /target/
 /gen/schemas
+
+# The Developer ID provisioning profile, CI writes it from a secret. Local builds are unsigned and skip it.
+/embedded.provisionprofile

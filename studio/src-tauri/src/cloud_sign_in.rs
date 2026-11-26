@@ -1,6 +1,12 @@
-//! Signing in to Cloud through Studio's website, which hands the result back with a `doglog://sign-in` link. See
-//! `src/cloud/sign-in-handoff.ts`.
+//! Signing in to Cloud. On macOS the OS's own sheet runs passkeys when the build is entitled to, see
+//! `cloud_sign_in_macos.rs`. Otherwise sign-in runs on Studio's website, which hands the result back with a
+//! `doglog://sign-in` link, see `src/cloud/sign-in-handoff.ts`.
 
+#[cfg(target_os = "macos")]
+#[path = "cloud_sign_in_macos.rs"]
+pub mod macos;
+
+use serde::Serialize;
 use tauri::{
     AppHandle, Emitter, Runtime, Url,
     plugin::{Builder, TauriPlugin},
@@ -28,4 +34,31 @@ pub fn plugin<R: Runtime>() -> TauriPlugin<R> {
 /// Sends a `doglog://sign-in` link to every window, only the one that started the sign-in can decrypt it
 pub fn forward_link<R: Runtime>(app: &AppHandle<R>, url: &Url) {
     let _ = app.emit("sign-in-link", url.as_str());
+}
+
+/// Whether passkeys run in the OS's sheet instead of the browser
+#[tauri::command]
+pub fn native_passkeys() -> bool {
+    #[cfg(target_os = "macos")]
+    return macos::supported();
+    #[cfg(not(target_os = "macos"))]
+    false
+}
+
+/// Why a passkey ceremony in the app didn't finish
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+#[derive(Serialize)]
+#[serde(tag = "kind", content = "message", rename_all = "lowercase")]
+pub enum NativeSignInError {
+    Canceled,
+    /// The authenticator already has a passkey for the account
+    Excluded,
+    Failed(String),
+}
+
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+impl NativeSignInError {
+    fn failed(message: String) -> Self {
+        Self::Failed(message)
+    }
 }

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Sign in to Cloud with macOS's passkey sheet. These only launch with the provisioning profile that authorizes them,
+	embedded.provisionprofile, and need the website's apple-app-site-association file. -->
+	<key>com.apple.application-identifier</key>
+	<string>W8SSFFCVLR.studio.doglog</string>
+	<key>com.apple.developer.team-identifier</key>
+	<string>W8SSFFCVLR</string>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>webcredentials:doglog.studio</string>
+	</array>
+</dict>
+</plist>

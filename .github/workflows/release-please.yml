@@ -192,6 +192,17 @@ jobs:
         run: |
           echo CARGO_PROFILE_RELEASE_STRIP=none >> "$GITHUB_ENV"
           echo CARGO_PROFILE_RELEASE_SPLIT_DEBUGINFO=off >> "$GITHUB_ENV"
+      # Authorizes the entitlements in Entitlements.plist, which the app can't launch without
+      - name: Add provisioning profile
+        if: runner.os == 'macOS'
+        env:
+          APPLE_PROVISIONING_PROFILE: ${{ secrets.APPLE_PROVISIONING_PROFILE }}
+        run: |
+          if [ -z "$APPLE_PROVISIONING_PROFILE" ]; then
+            echo "::error::Set the APPLE_PROVISIONING_PROFILE secret to the base64 Developer ID provisioning profile for studio.doglog"
+            exit 1
+          fi
+          echo "$APPLE_PROVISIONING_PROFILE" | base64 --decode > studio/src-tauri/embedded.provisionprofile
       - name: Build and upload to release
         uses: tauri-apps/tauri-action@v1.0.0
         env:
