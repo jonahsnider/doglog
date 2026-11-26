@@ -56,7 +56,7 @@ export function FollowPicker({ binding, follow }: { binding: WidgetBinding; foll
 							key={driverStationKey(station)}
 							label={driverStationLabel(station)}
 							description={
-								robotStation && driverStationKey(robotStation) === driverStationKey(station) ? 'The robot’s' : undefined
+								robotStation && driverStationKey(robotStation) === driverStationKey(station) ? 'From FMS' : undefined
 							}
 							value={follow === driverStationKey(station)}
 							onChange={pick(station)}

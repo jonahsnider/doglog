@@ -84,7 +84,7 @@ export function useRobotFollow(
 					{ label: 'Follow', checked: current === 'robot', closeOnClick: true, onCheckedChange: () => followFrom() },
 					'separator',
 					...driverStations.map((station) => ({
-						label: `From ${driverStationLabel(station)}${driverStationKey(station) === robotKey ? ' (robot’s)' : ''}`,
+						label: `From ${driverStationLabel(station)}${driverStationKey(station) === robotKey ? ' (FMS)' : ''}`,
 						checked: current === driverStationKey(station),
 						closeOnClick: true,
 						onCheckedChange: () => followFrom(station),
