@@ -12,7 +12,8 @@ export async function isReachable(host: string): Promise<boolean> {
 			'networktables.first.wpi.edu',
 		]);
 	} catch {
-		// Browsers block insecure connections to some addresses from HTTPS pages
+		// Browsers block insecure connections to some addresses from HTTPS pages. Chrome 147+ allows them with its local
+		// network permission, only to IP literals and localhost. Safari always blocks them. The desktop app isn't limited.
 		return false;
 	}
 

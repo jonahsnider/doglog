@@ -208,6 +208,16 @@ Studio MUST encrypt dashboard names and entry names before sending data to Cloud
 - **WHEN** an operator inspects the sync traffic, database, backups, or diagnostics without changing the live service or Studio code
 - **THEN** they cannot read its dashboard name or entry names
 
+### Requirement: Encryption credential on the device
+
+Studio SHALL keep a member's encryption credential on the device, and MUST NOT ask the user to unlock it separately from signing in to Cloud.
+
+#### Scenario: Reopen Studio
+
+- **GIVEN** a signed-in member has unlocked their Cloud dashboards on this device
+- **WHEN** they quit and reopen Studio
+- **THEN** their Cloud dashboards open without another unlock prompt
+
 ### Requirement: Pair Studio on a new device
 
 Members SHALL be able to pair a new Studio with an already-unlocked Studio signed in to the same account, without admin approval. Both devices MUST display a six-digit verification code computed independently for the pairing attempt. The unlocked device MUST transfer the encryption credential only after the user confirms that the codes match. Cloud MUST NOT be able to read the transferred credential. Each pairing attempt MUST expire and work only once.

@@ -422,3 +422,13 @@ Studio SHALL offer an About dialog from Settings on every platform and from the 
 
 - **WHEN** the user selects About DogLog Studio in Settings
 - **THEN** the dialog opens with a bulleted list of acknowledgments
+
+### Requirement: Error reports
+
+Production builds SHALL report uncaught errors so they can be fixed. The production web app MAY also sample page-load and navigation timings. Studio MUST NOT collect usage analytics, and reports MUST NOT include log contents, page URLs, referrers, outgoing requests, or personal info such as hostnames.
+
+#### Scenario: Error while a log is open
+
+- **GIVEN** a user has opened `qual13.wpilog` from `https://example.com/logs/qual13.wpilog` on the production web app
+- **WHEN** an uncaught error occurs
+- **THEN** an error report is sent without the log's URL, its entries, or their values

@@ -1,6 +1,5 @@
 // Converts FIRST's official field CAD into the field widget's 3D model, see `src/three/field-scene.tsx`. Run it once a
-// season with the STEP file's URL or path: `node scripts/field-model.ts <step>`. It needs uv, which runs
-// `field3d/step_to_glb.py` to convert the STEP file with OpenCascade, and takes under a minute.
+// season with the STEP file's URL or path: `node scripts/field-model.ts <step>`. The resulting GLB is committed and bundled with Studio.
 //
 // The model is written in WPILib 2026's field coordinates: meters, origin at the blue alliance wall's corner on the
 // scoring table side, +X toward red, +Z up. Fasteners and other small hardware are removed, the rest is simplified and

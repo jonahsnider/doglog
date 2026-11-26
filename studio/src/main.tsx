@@ -52,7 +52,8 @@ const localPreview =
 	(!STUDIO_DESKTOP && /^(localhost|127\.[\d.]+|\[::1\])$|\.localhost$/u.test(location.hostname));
 const traceWeb = import.meta.env.PROD && !STUDIO_DESKTOP && !localPreview;
 
-// Reports uncaught errors from production-mode builds, with the release set by the build plugin.
+// Reports uncaught errors from production-mode builds, with the release set by the build plugin, see the platforms spec's
+// error reports requirement for what may be sent.
 Sentry.init({
 	dsn: 'https://cc0e3a691d3ee00a449b2ee4ea3d55f3@o141130.ingest.us.sentry.io/4512455446495232',
 	enabled: import.meta.env.PROD,
