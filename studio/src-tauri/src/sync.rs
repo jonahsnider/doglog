@@ -1,4 +1,4 @@
-//! Commands for syncing logs from a roboRIO, the frontend decides what to sync and when
+//! Commands for syncing logs from a robot, the frontend decides what to sync and when
 
 use std::{
     fs::{File, OpenOptions, TryLockError},
@@ -7,14 +7,12 @@ use std::{
     time::{Duration, Instant},
 };
 
-use robot_sftp::Robot;
+use robot_sftp::{LOG_DIRS, Robot};
 use serde::Serialize;
 use tauri::{AppHandle, Manager, State, WebviewWindow, ipc::Channel, scope::fs::Scope, utils::config::FsScope};
 use tauri_plugin_fs::FsExt;
 use tokio::sync::Mutex;
 
-/// Where WPILib and AdvantageKit save logs on a roboRIO, the USB drive and internal storage
-const LOG_DIRS: [&str; 2] = ["/U/logs", "/home/lvuser/logs"];
 const SSH_PORT: u16 = 22;
 /// How often to report download progress, sending every chunk floods the frontend
 const PROGRESS_INTERVAL: Duration = Duration::from_millis(100);

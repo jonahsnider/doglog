@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define how the desktop app copies logs from a roboRIO to the user's computer in the background, so logs from every match are on hand without plugging in a USB drive. Logs are copied over the robot's network connection while Studio is open, and sync never slows the robot down while it's enabled or deletes anything on the robot.
+Define how the desktop app copies logs from a roboRIO or Systemcore to the user's computer in the background, so logs from every match are on hand without plugging in a USB drive. Logs are copied over the robot's network connection while Studio is open, and sync never slows the robot down while it's enabled or deletes anything on the robot.
 
 ## Requirements
 
@@ -54,7 +54,13 @@ Sync SHALL be off until the user starts it from the Logs page. While it's on, St
 
 ### Requirement: Robot connection
 
-Sync SHALL use the robot connection setting shared with Connect, and log in to the roboRIO the same way WPILib's tools do, without asking for credentials. It MUST read logs from both the USB drive and the roboRIO's internal storage.
+Sync SHALL use the robot connection setting shared with Connect, and log in to a roboRIO or a Systemcore the same way WPILib's tools do, without asking for credentials or which kind of robot it is. It MUST read logs from both the robot's USB drive and its internal storage.
+
+#### Scenario: Systemcore
+
+- **GIVEN** sync is on and the robot setting is team 581
+- **WHEN** team 581's robot is a Systemcore with logs on its USB drive and internal storage
+- **THEN** logs from both are copied, the same as from a roboRIO
 
 #### Scenario: Robot not reachable
 

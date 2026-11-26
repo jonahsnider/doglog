@@ -1,4 +1,4 @@
-//! Lists and downloads log files from a roboRIO over SFTP
+//! Lists and downloads log files from a roboRIO or Systemcore over SFTP
 
 use std::{
     collections::HashSet,
@@ -20,8 +20,10 @@ use tokio::{
     io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt, SeekFrom},
 };
 
-/// roboRIO user that robot code runs as, it has a blank password
-const USER: &str = "lvuser";
+/// The user robot code runs as and its password, the same logins WPILib's tools use, roboRIO first
+const LOGINS: [(&str, &str); 2] = [("lvuser", ""), ("systemcore", "systemcore")];
+/// Where WPILib and AdvantageKit save logs, the USB drive and internal storage of a roboRIO and a Systemcore
+pub const LOG_DIRS: [&str; 4] = ["/U/logs", "/u/logs", "/home/lvuser/logs", "/home/systemcore/logs"];
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(3);
 const CHUNK_SIZE: usize = 64 * 1024;
 
@@ -33,7 +35,7 @@ impl client::Handler for Client {
     type Error = russh::Error;
 
     async fn check_server_key(&mut self, _key: &PublicKeyOrCertificate) -> std::result::Result<bool, Self::Error> {
-        // Reimaging a roboRIO changes its host key, and every team's robot uses the same addresses
+        // Reimaging a robot changes its host key, and every team's robot uses the same addresses
         Ok(true)
     }
 }
@@ -61,26 +63,32 @@ impl Robot {
             ..Default::default()
         });
 
-        let mut ssh = tokio::time::timeout(CONNECT_TIMEOUT, client::connect(config, (host, port), Client))
-            .await
-            .map_err(|_| format!("Timed out connecting to {host}"))?
-            .map_err(|error| format!("Couldn't connect to {host}: {error}"))?;
+        // SSH servers disconnect a login that switches users, so each login gets its own connection
+        for (user, password) in LOGINS {
+            let mut ssh = tokio::time::timeout(CONNECT_TIMEOUT, client::connect(config.clone(), (host, port), Client))
+                .await
+                .map_err(|_| format!("Timed out connecting to {host}"))?
+                .map_err(|error| format!("Couldn't connect to {host}: {error}"))?;
 
-        // The roboRIO allows logging in with no password, older images may only accept an empty one
-        let authenticated = ssh
-            .authenticate_none(USER)
-            .await
-            .map_err(|error| error.to_string())?
-            .success()
-            || ssh
-                .authenticate_password(USER, "")
+            // roboRIOs allow logging in with no password, older images may only accept an empty one
+            let authenticated = ssh
+                .authenticate_none(user)
                 .await
                 .map_err(|error| error.to_string())?
-                .success();
-        if !authenticated {
-            return Err(format!("{host} didn't accept a login for {USER} with no password"));
+                .success()
+                || ssh
+                    .authenticate_password(user, password)
+                    .await
+                    .map_err(|error| error.to_string())?
+                    .success();
+            if authenticated {
+                return Self::open_sftp(ssh).await;
+            }
         }
+        Err(format!("{host} didn't accept a roboRIO's or Systemcore's login"))
+    }
 
+    async fn open_sftp(ssh: Handle<Client>) -> Result<Self> {
         let channel = ssh.channel_open_session().await.map_err(|error| error.to_string())?;
         channel
             .request_subsystem(true, "sftp")

@@ -1,5 +1,5 @@
 // oxlint-disable max-lines -- Sync's loop and sharing its state with other windows use the same module state
-// oxlint-disable no-await-in-loop -- Sync does one thing at a time, to keep the load on the roboRIO low
+// oxlint-disable no-await-in-loop -- Sync does one thing at a time, to keep the load on the robot low
 import { useSelector } from '@tanstack/react-store';
 import { createAtom } from '@tanstack/store';
 import { invoke } from '@tauri-apps/api/core';

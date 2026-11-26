@@ -59,7 +59,7 @@ export function trackEnabled(onChange: () => void): {
 	};
 }
 
-/** A roboRIO, over SFTP in the desktop app */
+/** A roboRIO or Systemcore, over SFTP in the desktop app */
 export const robotBackend: SyncBackend = {
 	listRobotLogs: (host) => invoke<RemoteLog[]>('list_robot_logs', { host }),
 	listSavedLogs: async (folder) => {
