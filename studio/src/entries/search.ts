@@ -1,6 +1,6 @@
 import { go, type KeysResult } from 'fuzzysort';
 import { FieldEntry } from '@/data/field-entry';
-import { formatEntryType } from '@/data/samples';
+import { formatEntryType, protobufMessage } from '@/data/samples';
 import type { EntryTreeNode } from '@/entries/tree';
 
 type SearchableEntry = {
@@ -9,9 +9,15 @@ type SearchableEntry = {
 	readonly type?: string;
 };
 
-/** Struct entries also match their type, ex. `Pose2d`. Primitive types are left out since nearly every entry would match them. */
-function structType(entry: SearchableEntry): string | undefined {
-	return entry.type?.startsWith('struct:') === true ? formatEntryType(entry.type) : undefined;
+/**
+ * Struct and protobuf entries also match their type, ex. `Pose2d`. Primitive types are left out since nearly every entry
+ * would match them.
+ */
+function structType({ type }: SearchableEntry): string | undefined {
+	if (type === undefined) {
+		return undefined;
+	}
+	return type.startsWith('struct:') || protobufMessage(type) !== undefined ? formatEntryType(type) : undefined;
 }
 
 /**

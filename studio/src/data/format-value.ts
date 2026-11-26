@@ -1,6 +1,6 @@
 import type { Value } from '@/data/samples';
 
-type Formattable = Value | bigint | undefined | Formattable[] | { [key: string]: Formattable };
+type Formattable = Value | bigint | Uint8Array | undefined | Formattable[] | { [key: string]: Formattable };
 
 /** Format a value compactly for display, ex. `1.23457`, `[1, 2]`, or `x: 1, y: 2` */
 export function formatValue(value: Formattable): string {
@@ -15,8 +15,9 @@ export function formatValue(value: Formattable): string {
 		case 'undefined':
 			return '';
 		default:
-			if (Array.isArray(value)) {
-				return `[${value.map((item) => formatNested(item)).join(', ')}]`;
+			// Protobuf bytes fields are shown as arrays of bytes
+			if (Array.isArray(value) || value instanceof Uint8Array) {
+				return `[${Array.from(value, (item) => formatNested(item)).join(', ')}]`;
 			}
 
 			return Object.entries(value)
@@ -31,7 +32,9 @@ function formatNested(value: Formattable): string {
 		return JSON.stringify(value);
 	}
 
-	return typeof value === 'object' && !Array.isArray(value) ? `{${formatValue(value)}}` : formatValue(value);
+	return typeof value === 'object' && !Array.isArray(value) && !(value instanceof Uint8Array)
+		? `{${formatValue(value)}}`
+		: formatValue(value);
 }
 
 /** Format a value for the clipboard, JSON except plain strings which aren't quoted */
@@ -40,6 +43,13 @@ export function formatValueForCopy(value: Formattable): string {
 		return value;
 	}
 
-	// JSON has no bigints, struct int64 fields beyond 2^53 lose precision
-	return JSON.stringify(value, (_key, field: unknown) => (typeof field === 'bigint' ? Number(field) : field)) ?? '';
+	// JSON has no bigints, int64 fields beyond 2^53 lose precision. Protobuf bytes fields are arrays of bytes.
+	return (
+		JSON.stringify(value, (_key, field: unknown) => {
+			if (typeof field === 'bigint') {
+				return Number(field);
+			}
+			return field instanceof Uint8Array ? Array.from(field) : field;
+		}) ?? ''
+	);
 }

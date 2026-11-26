@@ -56,6 +56,44 @@ describe('field entries', () => {
 		expect(data.snapshot.list.map((entry) => entry.name)).toContain('/Drive/ModuleStates/1/angle/value');
 	});
 
+	test('protobuf fields are found in logged values, including fields and repeated elements first logged later', () => {
+		const data = new DataSet(() => {});
+		const trajectory = data.addEntry('/Auto/Trajectory', 'proto:wpi.proto.ProtobufTrajectory');
+		// The second state's pose is unset, which proto3 leaves out
+		data.addSample(trajectory, 10, {
+			states: [{ time: 0.5, pose: { translation: { x: 1, y: 2 } } }, { time: 1 }],
+			id: 7n,
+			data: new Uint8Array([1, 2]),
+			tags: [],
+		});
+		data.publish();
+
+		expect(trajectory).toMatchObject({ kind: 'struct' });
+		expect(data.entries.get('/Auto/Trajectory/states')).toMatchObject({ type: 'protobuf message[]', kind: 'struct[]' });
+		expect(data.entries.get('/Auto/Trajectory/states/0/pose')).toMatchObject({
+			type: 'protobuf message',
+			kind: 'struct',
+		});
+		expect(data.entries.get('/Auto/Trajectory/id')).toMatchObject({ type: 'int64', kind: 'number' });
+		expect(valuesOf(data.entries.get('/Auto/Trajectory/id')!.samples)).toEqual([[10, 7]]);
+		expect(data.entries.has('/Auto/Trajectory/states/1/pose')).toBe(false);
+		expect(data.entries.has('/Auto/Trajectory/states/2')).toBe(false);
+		// Bytes aren't supported, and an empty repeated field doesn't say what it holds
+		expect(data.entries.has('/Auto/Trajectory/data')).toBe(false);
+		expect(data.entries.has('/Auto/Trajectory/tags')).toBe(false);
+
+		data.addSample(trajectory, 20, {
+			states: [{ time: 0 }, { time: 2, pose: { translation: { x: 3, y: 4 } } }, { time: 3 }],
+			tags: ['auto'],
+		});
+		data.publish();
+
+		expect(valuesOf(data.entries.get('/Auto/Trajectory/states/1/pose/translation/y')!.samples)).toEqual([[20, 4]]);
+		expect(valuesOf(data.entries.get('/Auto/Trajectory/states/2/time')!.samples)).toEqual([[20, 3]]);
+		expect(data.entries.get('/Auto/Trajectory/tags')).toMatchObject({ type: 'string[]' });
+		expect(valuesOf(data.entries.get('/Auto/Trajectory/states/0/pose/translation/x')!.samples)).toEqual([[10, 1]]);
+	});
+
 	test('array elements follow live data, including elements first logged later and trimmed history', () => {
 		const data = new DataSet(() => {});
 		const speeds = data.addEntry('/Drive/Speeds', 'double[]', undefined, { unit: 'm/s' });

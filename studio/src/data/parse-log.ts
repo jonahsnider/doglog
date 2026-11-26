@@ -72,9 +72,6 @@ function toValue(record: DataRecord, entryType: string): Value | undefined {
 		case 'raw':
 			// JSON entries are text. Values that couldn't be decoded, and other raw entries (msgpack, etc.), are unsupported.
 			return entryType === 'json' ? textDecoder.decode(record.payload) : undefined;
-		case 'protobuf':
-			// Not supported yet
-			return undefined;
 		default:
 			return record.payload;
 	}

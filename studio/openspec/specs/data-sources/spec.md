@@ -478,11 +478,11 @@ Studio SHALL record every live session to a WPILOG file on the user's device as 
 
 ### Requirement: Recording contents
 
-A recording MUST contain every topic and value the session received as the server sent it, including values Studio can't decode, struct schemas as text, and topic property changes as entry metadata. It MUST NOT contain the topics Studio uses to share dashboards, or entries Studio derives, ex. struct fields. It SHALL also contain entries under `/DogLogStudio/` for when each connection started and ended, and both clocks when it started.
+A recording MUST contain every topic and value the session received as the server sent it, including values Studio can't decode, struct schemas as text, each protobuf schema once, and topic property changes as entry metadata. It MUST NOT contain the topics Studio uses to share dashboards, or entries Studio derives, ex. struct fields. It SHALL also contain entries under `/DogLogStudio/` for when each connection started and ended, and both clocks when it started.
 
 #### Scenario: Values Studio can't decode
 
-- **GIVEN** Studio is connected to a robot publishing protobuf values to `/Vision/Result`
+- **GIVEN** Studio is connected to a robot publishing msgpack values to `/Vision/Result`
 - **THEN** `/Vision/Result` is listed as unsupported
 - **AND** the recording has every value the robot sent for it
 
@@ -588,7 +588,7 @@ When part of a log can't be read, Studio MUST load every record before the damag
 
 #### Scenario: Value that can't be decoded
 
-- **GIVEN** a log with a struct value that doesn't match its schema, or a struct schema that can't be parsed
+- **GIVEN** a log with a struct or protobuf value that doesn't match its schema, or a schema that can't be parsed
 - **WHEN** the user opens it
 - **THEN** only the values that can't be decoded are missing
 - **AND** every record after them is still available
@@ -600,7 +600,7 @@ When part of a log can't be read, Studio MUST load every record before the damag
 
 ### Requirement: Supported data types
 
-Studio SHALL decode numeric, boolean, string, array, and WPILib struct entries. Entries of unsupported types MUST still be listed and marked as unsupported.
+Studio SHALL decode numeric, boolean, string, array, WPILib struct, and protobuf entries. Entries of unsupported types MUST still be listed and marked as unsupported.
 
 #### Scenario: Struct entry
 
@@ -622,9 +622,15 @@ Studio SHALL decode numeric, boolean, string, array, and WPILib struct entries. 
 
 #### Scenario: Protobuf entry
 
-- **GIVEN** a source contains a protobuf-encoded entry
-- **THEN** the entry appears in the entry browser marked as unsupported
-- **AND** it cannot be bound to widgets
+- **GIVEN** a log contains a `proto:wpi.proto.ProtobufTrajectory` entry
+- **THEN** its type is shown as `ProtobufTrajectory`
+- **AND** each field logged in it is available to widgets, ex. `/Auto/Trajectory/states/3/velocity`, including fields and repeated elements first logged partway through
+
+#### Scenario: Protobuf schemas
+
+- **GIVEN** a source contains `/.schema/proto:` schema entries
+- **THEN** they're used to decode protobuf entries, including values logged or received before them
+- **AND** the schema entries aren't listed anywhere in Studio
 
 ### Requirement: Embedded logs
 

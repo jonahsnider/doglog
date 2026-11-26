@@ -118,10 +118,14 @@ function isScalar(value: unknown): value is TunableScalar {
 	return typeof value === 'number' || typeof value === 'boolean' || typeof value === 'string';
 }
 
+function isScalarArray(value: unknown): value is TunableScalar[] {
+	return Array.isArray(value) && value.every((element) => isScalar(element));
+}
+
 export function currentValue({ entry, array }: Tunable): TunableValue | undefined {
 	const value = entry.samples.values.at(-1);
 	if (array) {
-		return Array.isArray(value) && value.every((element) => isScalar(element)) ? value : undefined;
+		return isScalarArray(value) ? value : undefined;
 	}
 	return isScalar(value) ? value : undefined;
 }

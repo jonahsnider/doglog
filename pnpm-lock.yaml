@@ -429,6 +429,9 @@ importers:
       usehooks-ts:
         specifier: 3.1.1
         version: 3.1.1(@types/react@19.3.3)(react@19.3.1)
+      wpilib-protobuf:
+        specifier: 1.0.1
+        version: 1.0.1
       wpilib-struct:
         specifier: 1.1.1
         version: 1.1.1

@@ -1,3 +1,4 @@
+import { ProtobufRegistry } from 'wpilib-protobuf';
 import { StructRegistry } from 'wpilib-struct';
 import { clearCameraStreams, updateCameraStreams } from '@/data/camera-streams';
 import type { DataSet } from '@/data/data-set';
@@ -5,7 +6,7 @@ import { type Entry, liveTime, parseMetadata } from '@/data/data-store';
 import { setLiveConnection } from '@/data/live-connection';
 import { prioritizeLiveTopics } from '@/data/live-priority';
 import type { LiveRecording } from '@/data/recording';
-import { isSchemaEntry, isStudioEntry, normalizeEntryName, type Value } from '@/data/samples';
+import { isSchemaEntry, isStudioEntry, normalizeEntryName, protobufMessage, type Value } from '@/data/samples';
 import type { NtClient, NtValue } from '@/nt/client';
 
 /**
@@ -15,6 +16,7 @@ import type { NtClient, NtValue } from '@/nt/client';
 export type LiveStatus = 'connecting' | 'connected' | 'reconnecting' | 'disconnected';
 
 const structSchemaPrefix = '/.schema/struct:';
+const protobufSchemaPrefix = '/.schema/proto:';
 /** How long (µs) the NT4 client goes without hearing from the server before it drops the connection */
 const idleTimeout = 3_000_000;
 const textDecoder = new TextDecoder();
@@ -32,8 +34,9 @@ export function connectLive(
 	setLiveConnection(nt);
 	const priority = prioritizeLiveTopics(nt);
 	const structs = new StructRegistry();
-	// Struct values that arrived before their schema
-	let pendingStructs: { entry: Entry; timestamp: number; bytes: Uint8Array }[] = [];
+	const protobufs = new ProtobufRegistry();
+	// Struct and protobuf values that arrived before their schemas
+	let pending: { entry: Entry; timestamp: number; bytes: Uint8Array }[] = [];
 	let closed = false;
 	let connected = false;
 	let connectedAt = 0;
@@ -42,11 +45,34 @@ export function connectLive(
 	// When the newest value received was sent, on Studio's clock
 	let newestValueAt = 0;
 
-	const decodeStruct = (entry: Entry, bytes: Uint8Array): Value | string => {
+	/** Decode a struct or protobuf value, or get the name of the type whose schema is missing */
+	const decode = (entry: Entry, bytes: Uint8Array): Value | string => {
+		const message = protobufMessage(entry.type);
+		if (message !== undefined) {
+			return protobufs.decode(message, bytes);
+		}
 		const structName = entry.type.slice('struct:'.length);
 		return entry.kind === 'struct[]'
 			? structs.decodeArray(structName.slice(0, -'[]'.length), bytes)
 			: structs.decode(structName, bytes);
+	};
+
+	/** Add the pending values that can be decoded now that another schema arrived */
+	const decodePending = (): void => {
+		pending = pending.filter(({ entry, timestamp, bytes }) => {
+			let decoded: Value | string;
+			try {
+				decoded = decode(entry, bytes);
+			} catch {
+				// Doesn't match its schema
+				return false;
+			}
+			if (typeof decoded === 'string') {
+				return true;
+			}
+			data.addSample(entry, timestamp, decoded);
+			return false;
+		});
 	};
 
 	const toValue = (entry: Entry, value: NtValue, timestamp: number): Value | undefined => {
@@ -60,10 +86,16 @@ export function connectLive(
 				if (!(value instanceof Uint8Array)) {
 					return undefined;
 				}
-				const decoded = decodeStruct(entry, value);
+				let decoded: Value | string;
+				try {
+					decoded = decode(entry, value);
+				} catch {
+					// Doesn't match its schema
+					return undefined;
+				}
 				if (typeof decoded === 'string') {
 					// Missing schema, decode it once the schema arrives
-					pendingStructs.push({ entry, timestamp, bytes: value });
+					pending.push({ entry, timestamp, bytes: value });
 					return undefined;
 				}
 				return decoded;
@@ -82,15 +114,7 @@ export function connectLive(
 			return;
 		}
 		data.addStructSchema(structName, structs.getDefinition(structName));
-
-		pendingStructs = pendingStructs.filter(({ entry, timestamp, bytes }) => {
-			const decoded = decodeStruct(entry, bytes);
-			if (typeof decoded === 'string') {
-				return true;
-			}
-			data.addSample(entry, timestamp, decoded);
-			return false;
-		});
+		decodePending();
 	};
 
 	// Notified right away, since other windows or shared dashboards might have connected to the same server already
@@ -203,6 +227,26 @@ export function connectLive(
 					recording.record({ type: 'value', name: normalizeEntryName(name), topicType: type, value, serverTime });
 					registerStructSchema(name, value instanceof Uint8Array ? textDecoder.decode(value) : String(value));
 				}
+			},
+		},
+	);
+
+	nt.subscribe(
+		protobufSchemaPrefix,
+		{ all: true },
+		{
+			value: (name, type, value, serverTime) => {
+				if (closed || !(value instanceof Uint8Array)) {
+					return;
+				}
+				recording.record({ type: 'value', name: normalizeEntryName(name), topicType: type, value, serverTime });
+				try {
+					protobufs.register(value);
+				} catch {
+					// Invalid schema, values using it stay pending
+					return;
+				}
+				decodePending();
 			},
 		},
 	);

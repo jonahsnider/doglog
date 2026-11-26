@@ -1,12 +1,13 @@
+import type { ProtobufValue } from 'wpilog-parser';
 import type { StructDeclaration, StructPayload } from 'wpilib-struct';
 import type { Entry } from '@/data/data-store';
 import type { EntryKind } from '@/data/entry-kind';
-import { getEntryKind, Samples, type Value } from '@/data/samples';
+import { getEntryKind, protobufMessageField, Samples, type Value } from '@/data/samples';
 
 /** Index of an array element or name of a struct field */
 export type FieldKey = number | string;
 
-type Field = Value | StructPayload[string];
+type Field = Value | StructPayload[string] | ProtobufValue;
 
 function isBigIntArray(field: Field): field is bigint[] {
 	return Array.isArray(field) && typeof field[0] === 'bigint';
@@ -19,7 +20,8 @@ function fieldValue(value: Value | undefined, path: readonly FieldKey[]): Value 
 		if (typeof key === 'number') {
 			field = Array.isArray(field) ? field[key] : undefined;
 		} else {
-			field = typeof field === 'object' && !Array.isArray(field) ? field[key] : undefined;
+			field =
+				typeof field === 'object' && !Array.isArray(field) && !(field instanceof Uint8Array) ? field[key] : undefined;
 		}
 	}
 	// Struct int64 fields are bigints
@@ -29,7 +31,8 @@ function fieldValue(value: Value | undefined, path: readonly FieldKey[]): Value 
 	if (isBigIntArray(field)) {
 		return field.map(Number);
 	}
-	return field;
+	// Protobuf bytes aren't supported
+	return field instanceof Uint8Array ? undefined : field;
 }
 
 const noMetadata: Readonly<Record<string, unknown>> = {};
@@ -66,6 +69,31 @@ export function structFieldType({ value, arraySize }: StructDeclaration): string
 			type = `struct:${value}`;
 	}
 	return arraySize === undefined ? type : `${type}[]`;
+}
+
+/**
+ * The type of a decoded protobuf field as an entry type, from its value since Studio doesn't read protobuf schemas.
+ * `undefined` for bytes, which aren't supported, and empty repeated fields, which don't say what they hold.
+ */
+export function protobufFieldType(value: ProtobufValue | undefined): string | undefined {
+	if (Array.isArray(value)) {
+		const element = protobufFieldType(value[0]);
+		return element === undefined ? undefined : `${element}[]`;
+	}
+	switch (typeof value) {
+		case 'number':
+			return 'double';
+		case 'bigint':
+			return 'int64';
+		case 'boolean':
+			return 'boolean';
+		case 'string':
+			return 'string';
+		case 'object':
+			return value instanceof Uint8Array ? undefined : protobufMessageField;
+		default:
+			return undefined;
+	}
 }
 
 /**

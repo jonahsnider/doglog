@@ -1,8 +1,12 @@
 // oxlint-disable max-lines -- Moving and copying data sets for other windows is kept with the data they change
+import type { ProtobufValue } from 'wpilog-parser';
 import type { StructDeclaration } from 'wpilib-struct';
 import type { Entry, TimeRange } from '@/data/data-store';
-import { type FieldKey, FieldEntry, structFieldType } from '@/data/field-entry';
-import { getEntryKind, Samples, trimOldest, type Value } from '@/data/samples';
+import { type FieldKey, FieldEntry, protobufFieldType, structFieldType } from '@/data/field-entry';
+import { getEntryKind, protobufMessage, Samples, trimOldest, type Value } from '@/data/samples';
+
+/** The fields found so far in a protobuf entry's values, and the fields found in each of them */
+type FoundFields = Map<FieldKey, FoundFields>;
 
 /**
  * Live history keeps at most this many samples across all entries, about 160 MB of numeric samples.
@@ -57,6 +61,8 @@ export class DataSet {
 	private readonly arrays = new Map<Entry, { checked: number; length: number }>();
 	// Struct entries whose fields haven't been added yet, until their schema arrives
 	private readonly unexpandedStructs = new Set<Entry>();
+	// Protobuf entries, how many of their samples were checked, and the fields found in them
+	private readonly protobufs = new Map<Entry, { checked: number; fields: FoundFields }>();
 	private entriesChanged = false;
 	private dataChanged = false;
 
@@ -84,7 +90,9 @@ export class DataSet {
 
 		const entry: Entry = { name, type, kind: getEntryKind(type), samples, metadata: metadata ?? {} };
 		this.entries.set(name, entry);
-		if (entry.kind === 'struct') {
+		if (protobufMessage(type) !== undefined) {
+			this.protobufs.set(entry, { checked: 0, fields: new Map() });
+		} else if (entry.kind === 'struct') {
 			this.unexpandedStructs.add(entry);
 		} else if (entry.kind.endsWith('[]')) {
 			this.arrays.set(entry, { checked: 0, length: 0 });
@@ -323,10 +331,22 @@ export class DataSet {
 	}
 
 	/**
-	 * Add an entry for each element of logged arrays, up to the longest value logged so far, and each field of structs
-	 * whose schema is known, nested as deep as they go. See `FieldEntry`.
+	 * Add an entry for each element of logged arrays, up to the longest value logged so far, each field of structs
+	 * whose schema is known, and each field of protobuf messages logged so far, nested as deep as they go. See `FieldEntry`.
 	 */
 	private addFieldEntries(): void {
+		for (const [entry, protobuf] of this.protobufs) {
+			const { values, length } = entry.samples;
+			// Trimmed live history, check what's left
+			if (protobuf.checked > length) {
+				protobuf.checked = 0;
+			}
+			for (let index = protobuf.checked; index < length; index++) {
+				this.addProtobufFields(entry, [], values[index], protobuf.fields);
+			}
+			protobuf.checked = length;
+		}
+
 		for (const [entry, array] of this.arrays) {
 			const { values, length } = entry.samples;
 			// Trimmed live history, check what's left
@@ -380,10 +400,43 @@ export class DataSet {
 		}
 	}
 
+	/**
+	 * Add a field entry for each field in a protobuf value, and each element of its repeated fields, that wasn't found in
+	 * earlier values. Proto3 leaves out unset messages, and repeated fields vary in length, so every value is checked.
+	 * `path` is where `value` is in the logged entry's values, it's changed while checking and restored after.
+	 */
+	private addProtobufFields(root: Entry, path: FieldKey[], value: ProtobufValue | undefined, found: FoundFields): void {
+		if (typeof value !== 'object' || value instanceof Uint8Array) {
+			return;
+		}
+		for (const [key, field] of Array.isArray(value) ? value.entries() : Object.entries(value)) {
+			let fields = found.get(key);
+			path.push(key);
+			if (fields === undefined) {
+				const type = protobufFieldType(field);
+				if (type !== undefined) {
+					fields = new Map();
+					found.set(key, fields);
+					const entry = new FieldEntry(root, [...path], type);
+					// A logged entry with the same name stays
+					if (!this.entries.has(entry.name)) {
+						this.entries.set(entry.name, entry);
+						this.entriesChanged = true;
+					}
+				}
+			}
+			if (fields !== undefined) {
+				this.addProtobufFields(root, path, field, fields);
+			}
+			path.pop();
+		}
+	}
+
 	/** Remove the field entries of an entry that's being replaced */
 	private removeFields(entry: Entry): void {
 		this.arrays.delete(entry);
 		this.unexpandedStructs.delete(entry);
+		this.protobufs.delete(entry);
 		const prefix = `${entry.name}/`;
 		for (const [name, other] of this.entries) {
 			if (other instanceof FieldEntry && name.startsWith(prefix)) {

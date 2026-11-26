@@ -17,6 +17,7 @@ export const hiddenEntries = {
 };
 
 const structSchemaPrefix = '/.schema/struct:';
+const protobufSchemaPrefix = '/.schema/proto:';
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
 
@@ -38,6 +39,8 @@ export class Recorder {
 	private readonly writer: DataLogWriter;
 	private readonly host: string;
 	private readonly entries = new Map<string, { id: number; type: string; properties: Record<string, unknown> }>();
+	// Protobuf schema topics whose value was written
+	private readonly protobufSchemas = new Set<string>();
 	private clock: RecordingClock | undefined;
 	/** When the current connection was made, on the recording's clock */
 	private connectedAt: number | undefined;
@@ -87,6 +90,13 @@ export class Recorder {
 					event.serverTime === 0 && this.connectedAt !== undefined
 						? this.connectedAt
 						: Math.round(event.serverTime + clock.shift);
+				// Schemas are received by more than one subscription, and a schema file never changes
+				if (event.name.startsWith(protobufSchemaPrefix)) {
+					if (this.protobufSchemas.has(event.name)) {
+						return;
+					}
+					this.protobufSchemas.add(event.name);
+				}
 				if (event.name.startsWith(structSchemaPrefix)) {
 					const schema = event.value instanceof Uint8Array ? textDecoder.decode(event.value) : String(event.value);
 					try {

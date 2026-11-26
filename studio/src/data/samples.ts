@@ -1,8 +1,31 @@
-import type { StructPayload } from 'wpilog-parser';
+import type { ProtobufPayload, ProtobufValue, StructPayload } from 'wpilog-parser';
 import type { EntryKind } from '@/data/entry-kind';
 
 /** A decoded value of a supported entry type */
-export type Value = number | boolean | string | number[] | boolean[] | string[] | StructPayload | StructPayload[];
+export type Value =
+	| number
+	| boolean
+	| string
+	| number[]
+	| boolean[]
+	| string[]
+	| StructPayload
+	| StructPayload[]
+	| ProtobufPayload
+	| ProtobufValue[];
+
+const protobufPrefix = 'proto:';
+
+/**
+ * Type of a protobuf message's fields that are messages too. Values don't say which message they are, so they share a type.
+ * See `protobufFieldType()` in `@/data/field-entry`.
+ */
+export const protobufMessageField = 'protobuf message';
+
+/** The message of a protobuf entry, ex. `wpi.proto.ProtobufPose2d` for `proto:wpi.proto.ProtobufPose2d`, or `undefined` if it isn't one */
+export function protobufMessage(type: string): string | undefined {
+	return type.startsWith(protobufPrefix) ? type.slice(protobufPrefix.length) : undefined;
+}
 
 /** Get the kind of an entry from its WPILOG or NT4 type string, ex. `double`, `int64[]`, or `struct:Pose2d` */
 export function getEntryKind(type: string): EntryKind {
@@ -37,15 +60,30 @@ export function getEntryKind(type: string): EntryKind {
 		return type.endsWith('[]') ? 'struct[]' : 'struct';
 	}
 
-	// Protobuf, msgpack, raw bytes, etc.
+	// Decoded protobuf messages have named fields like structs
+	if (type === protobufMessageField || protobufMessage(type) !== undefined) {
+		return 'struct';
+	}
+	if (type === `${protobufMessageField}[]`) {
+		return 'struct[]';
+	}
+
+	// msgpack, raw bytes, etc.
 	return 'unsupported';
 }
 
-/** Type string shown to users, ex. `Pose2d` for `struct:Pose2d` or `.hoot log` for `log:hoot` */
+/**
+ * Type string shown to users, ex. `Pose2d` for `struct:Pose2d`, `ProtobufPose2d` for `proto:wpi.proto.ProtobufPose2d`,
+ * or `.hoot log` for `log:hoot`
+ */
 export function formatEntryType(type: string): string {
 	const format = embeddedLogFormat(type);
 	if (format !== undefined) {
 		return `.${format} log`;
+	}
+	const message = protobufMessage(type);
+	if (message !== undefined) {
+		return message.slice(message.lastIndexOf('.') + 1);
 	}
 	return type.startsWith('struct:') ? type.slice('struct:'.length) : type;
 }

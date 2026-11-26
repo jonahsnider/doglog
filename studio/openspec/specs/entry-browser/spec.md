@@ -94,7 +94,7 @@ The groups containing the rows at the top of the list SHALL stick there while th
 
 ### Requirement: Array elements and struct fields
 
-Each element of an array entry and each field of a struct entry SHALL be listed under it as an entry of its own, named by its index or field name, so it can be found, dragged, and bound as if it was logged on its own. Elements of struct arrays and fields of nested structs MUST be listed the same way, as deep as they go.
+Each element of an array entry and each field of a struct or protobuf entry SHALL be listed under it as an entry of its own, named by its index or field name, so it can be found, dragged, and bound as if it was logged on its own. Elements of struct arrays and fields of nested structs and messages MUST be listed the same way, as deep as they go. Repeated fields of protobuf entries are arrays.
 
 #### Scenario: One swerve module's speed
 
@@ -211,7 +211,7 @@ The entry tree SHALL follow the WAI-ARIA tree view pattern: it MUST be a single 
 
 ### Requirement: Search
 
-The entry browser SHALL provide a search box that filters the tree by matching the query's characters in order against entry names, allowing separators like `/`, `_`, `-`, and spaces to be skipped. It MUST highlight matched characters in entry and group names. Struct entries MUST also match by struct type; primitive types MUST NOT match.
+The entry browser SHALL provide a search box that filters the tree by matching the query's characters in order against entry names, allowing separators like `/`, `_`, `-`, and spaces to be skipped. It MUST highlight matched characters in entry and group names. Struct and protobuf entries MUST also match by their type; primitive types MUST NOT match.
 
 The search box SHALL show its `/` focus shortcut while it's empty and not focused.
 
