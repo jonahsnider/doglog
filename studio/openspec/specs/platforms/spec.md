@@ -43,6 +43,7 @@ Studio SHALL be available as a website that supports opening logs in modern brow
 - **THEN** its header, pages, dashboards, and bottom rows stay inside the screen's safe area, clear of the Dynamic Island and home indicator
 - **AND** the timeline's controls stay above the home indicator, while dashboard panes reach behind it
 - **AND** the app's backgrounds still reach the screen's edges
+- **AND** pages and panes fill the screen below the top bar instead of floating as cards on the frame, with their backgrounds reaching the screen's sides in landscape
 
 ### Requirement: Offline web app
 

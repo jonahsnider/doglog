@@ -65,8 +65,10 @@ const styles = stylex.create({
 		position: 'relative',
 		display: 'flex',
 		flexDirection: 'column',
+		// `PhonePanes` makes panes fill the screen's width instead
+		paddingInline: 'var(--pane-padding-inline)',
 		overflow: 'hidden',
-		borderRadius: radiusVars['--radius-element'],
+		borderRadius: `var(--pane-radius, ${radiusVars['--radius-element']})`,
 		backgroundColor: colorVars['--color-background-surface'],
 		transition: `opacity ${durationVars['--duration-fast']} ${easeVars['--ease-standard']}`,
 	},

@@ -41,7 +41,7 @@ const styles = stylex.create({
 	// Sits in the app header without taking space from the dashboard's panels, centered in its 48px like the sidebar toggle
 	mobileToggle: {
 		position: 'fixed',
-		insetInlineEnd: spacingVars['--spacing-2'],
+		insetInlineEnd: `calc(${spacingVars['--spacing-2']} + env(safe-area-inset-right))`,
 		top: `calc((48px - ${sizeVars['--size-element-lg']}) / 2)`,
 		zIndex: 30,
 	},

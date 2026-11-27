@@ -29,10 +29,9 @@ const styles = stylex.create({
 		flexDirection: 'column',
 		height: '100svh',
 		// Keeps content out of the notch and Dynamic Island, which the background still fills. Panes reach behind the home
-		// indicator like a native app's content, the timeline's controls stay above it.
+		// indicator like a native app's content, the timeline's controls stay above it. The body and the timeline keep out
+		// of the sides' safe areas themselves.
 		paddingTop: 'env(safe-area-inset-top)',
-		paddingRight: 'env(safe-area-inset-right)',
-		paddingLeft: 'env(safe-area-inset-left)',
 		backgroundColor: colorVars['--color-background-body'],
 	},
 	mobileFrame: {
@@ -50,9 +49,15 @@ const styles = stylex.create({
 		display: 'flex',
 		flex: 1,
 		minHeight: 0,
+		paddingRight: 'env(safe-area-inset-right)',
+		paddingLeft: 'env(safe-area-inset-left)',
 	},
+	// The top bar, pages, and panes keep their own content out of the sides' safe areas instead, so their backgrounds reach
+	// the screen's edges in landscape
 	mobileBody: {
 		flexDirection: 'column',
+		paddingRight: 0,
+		paddingLeft: 0,
 	},
 	contents: {
 		display: 'contents',
@@ -75,13 +80,19 @@ const styles = stylex.create({
 		borderRadius: radiusVars['--radius-element'],
 		backgroundColor: colorVars['--color-background-surface'],
 	},
+	// Panes fill the screen's width themselves, see `PhonePanes`
 	mobilePanes: {
 		minHeight: 0,
-		paddingInlineEnd: '0.375rem',
 	},
+	// Fills the screen below the top bar like a native app's content, a gap and corners can't follow the screen's rounded
+	// corners since CSS doesn't report them
 	mobilePage: {
 		width: 'auto',
 		minHeight: 0,
+		margin: 0,
+		paddingRight: 'env(safe-area-inset-right)',
+		paddingLeft: 'env(safe-area-inset-left)',
+		borderRadius: 0,
 	},
 	// Below the title bar's strip, lined up with the rail
 	belowStripPanes: {

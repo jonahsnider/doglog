@@ -15,7 +15,7 @@ const styles = stylex.create({
 	minimap: {
 		position: 'absolute',
 		top: `calc(36px + ${spacingVars['--spacing-1-5']})`,
-		right: spacingVars['--spacing-1-5'],
+		right: `calc(${spacingVars['--spacing-1-5']} + env(safe-area-inset-right))`,
 		padding: spacingVars['--spacing-1'],
 		borderWidth: borderVars['--border-width'],
 		borderStyle: 'solid',

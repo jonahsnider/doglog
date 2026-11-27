@@ -76,8 +76,10 @@ const styles = stylex.create({
 		flexWrap: 'wrap',
 		rowGap: 0,
 	},
+	// Its background reaches the screen's sides, its controls stay out of their safe areas in landscape
 	present: {
 		flexShrink: 0,
+		paddingInline: 'env(safe-area-inset-left) env(safe-area-inset-right)',
 		overflow: 'clip',
 	},
 });

@@ -24,6 +24,7 @@ Keep feature behavior and functionality in `openspec/specs`.
 
 - The app sits on a darker frame (`--color-background-body`) where panes/pages are cards on it, separated by gaps instead of divider lines
   - The sidebars and timeline sit directly on the frame
+  - In the phone layout, pages and panes fill the screen below the top bar instead, without a gap or rounded corners, reaching the screen's sides in landscape while their content stays out of the safe areas
 - Text isn't selectable by default, set `userSelect: 'text'` on content people copy, like console messages and table values
 - Fade the end of overflowing sidebar labels and pane titles, leaving the start readable even when space is tight
 - Hide controls and hover marks from captures and video exports with the capture classes in `src/index.css`

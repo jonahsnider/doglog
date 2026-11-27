@@ -23,6 +23,7 @@ import { setViewedDashboard } from '@/sharing/presence';
 import { useNamePrompt } from '@/sharing/name-prompt';
 import { resolveBindings, widgetBindings } from '@/widgets/bindings';
 import { preloadField3d } from '@/widgets/field/load-3d';
+import { useMobileLayout } from '@/lib/mobile-layout';
 import { optionValues } from '@/widgets/options';
 import { getWidgetType } from '@/widgets/registry';
 import './dashboards.$dashboardId.css';
@@ -38,6 +39,11 @@ const styles = stylex.create({
 		minHeight: 0,
 		paddingInlineStart: spacingVars['--spacing-1-5'],
 		paddingTop: spacingVars['--spacing-1-5'],
+	},
+	// Panes fill the screen below the top bar instead of floating on the frame
+	mobileCapture: {
+		paddingInlineStart: 0,
+		paddingTop: 0,
 	},
 	panes: {
 		position: 'relative',
@@ -144,6 +150,7 @@ function DashboardView() {
 
 function PanesColumn({ dashboard, dashboards }: { dashboard: Dashboard; dashboards: readonly Dashboard[] }) {
 	const exporting = useVideoExport()?.dashboardId === dashboard.id;
+	const mobile = useMobileLayout();
 	const [recent, setRecent] = useState({ active: dashboard.id, parked: undefined as string | undefined });
 	if (recent.active !== dashboard.id) {
 		const previous = dashboards.find(({ id }) => id === recent.active);
@@ -182,7 +189,7 @@ function PanesColumn({ dashboard, dashboards }: { dashboard: Dashboard; dashboar
 			<div
 				data-capture-dashboard={dashboard.id}
 				data-capturing={exporting ? '' : undefined}
-				{...stylex.props(styles.capture)}
+				{...stylex.props(styles.capture, mobile && styles.mobileCapture)}
 			>
 				<section aria-label="Panes" {...stylex.props(styles.panes)}>
 					{(parked ? [dashboard, parked] : [dashboard]).map((item) => (

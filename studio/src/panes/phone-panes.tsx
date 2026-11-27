@@ -39,7 +39,14 @@ const styles = stylex.create({
 		transitionDuration: 'var(--pane-duration, 0ms)',
 		transitionTimingFunction: easeVars['--ease-move'],
 	},
-	slot: { flex: '0 0 100%', minWidth: 0, height: '100%' },
+	// Panes fill the screen's width, with their content kept out of the sides' safe areas in landscape
+	slot: {
+		'--pane-padding-inline': 'env(safe-area-inset-left) env(safe-area-inset-right)',
+		'--pane-radius': '0px',
+		flex: '0 0 100%',
+		minWidth: 0,
+		height: '100%',
+	},
 });
 
 /** A swipe past the first or last pane moves less and less the further it goes, like iOS's rubber band */

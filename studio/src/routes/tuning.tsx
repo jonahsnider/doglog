@@ -8,6 +8,7 @@ import { DashboardPanes } from '@/dashboards/dashboard-panes';
 import { getDashboard, subscribeDashboards } from '@/dashboards/dashboards';
 import { getSource } from '@/data/source';
 import { EntryBrowser } from '@/entries/entry-browser';
+import { useMobileLayout } from '@/lib/mobile-layout';
 import { tuningDashboardId } from '@/tuning/dashboard';
 import { tuningWidgetType } from '@/widgets/registry';
 
@@ -20,6 +21,11 @@ const styles = stylex.create({
 		paddingBlock: spacingVars['--spacing-1-5'],
 		paddingInlineStart: spacingVars['--spacing-1-5'],
 	},
+	// Panes fill the screen below the top bar instead of floating on the frame
+	mobilePanes: {
+		paddingTop: 0,
+		paddingInlineStart: 0,
+	},
 });
 
 export const Route = createFileRoute('/tuning')({
@@ -31,6 +37,7 @@ export const Route = createFileRoute('/tuning')({
 function Tuning() {
 	// Unlisted dashboards are read when any dashboard changes, they're kept until their own document changes
 	const dashboard = useSyncExternalStore(subscribeDashboards, () => getDashboard(tuningDashboardId)!);
+	const mobile = useMobileLayout();
 
 	// Tuning only works live, so opening the page connects unless the live session is already shown
 	useEffect(() => {
@@ -43,7 +50,7 @@ function Tuning() {
 	return (
 		<Group orientation="horizontal" {...stylex.props(styles.fill)}>
 			<Panel minSize="7rem" style={{ overflow: 'hidden' }}>
-				<section aria-label="Tuning" {...stylex.props(styles.panes)}>
+				<section aria-label="Tuning" {...stylex.props(styles.panes, mobile && styles.mobilePanes)}>
 					<DashboardPanes dashboard={dashboard} />
 				</section>
 			</Panel>

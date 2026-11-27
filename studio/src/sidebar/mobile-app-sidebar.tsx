@@ -19,7 +19,7 @@ const styles = stylex.create({
 		alignItems: 'center',
 		gap: spacingVars['--spacing-1'],
 		height: 48,
-		paddingInline: spacingVars['--spacing-2'],
+		paddingInline: `calc(${spacingVars['--spacing-2']} + env(safe-area-inset-left)) calc(${spacingVars['--spacing-2']} + env(safe-area-inset-right))`,
 	},
 	name: {
 		fontFamily: typographyVars['--font-family-heading'],
