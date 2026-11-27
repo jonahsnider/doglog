@@ -333,7 +333,7 @@ The field widget SHALL color each entry from the shared chart colors in binding 
 
 ### Requirement: Legend layout in 2D
 
-In 2D, the legend SHALL be above the field, unless the widget is wider than the field's shape, where it MUST be beside the field so the field isn't shrunk, and the field SHALL be centered in the widget unless the legend needs that space. Beside the field, the legend MUST be able to take all the width the field doesn't need at the widget's full height, and at least a third of the widget, so it only shortens names that don't fit there. The zoomed field MUST extend under the legend instead of leaving its side of the widget empty, and the legend MUST stay on top of it with an opaque background.
+In 2D, the legend SHALL be above the field, unless the widget is wider than the field's shape, where it MUST be beside the field so the field isn't shrunk, and the field SHALL be centered in the widget unless the legend needs that space. Beside the field, the legend MUST be able to take all the width the field doesn't need at the widget's full height, and at least a third of the widget, so it only shortens names that don't fit there.
 
 #### Scenario: Wide widget
 
@@ -350,6 +350,10 @@ In 2D, the legend SHALL be above the field, unless the widget is wider than the 
 - **GIVEN** a field widget much wider than the field, bound to entries with names wider than a third of the widget
 - **THEN** the legend shows their full names beside the field
 - **AND** the field isn't shrunk
+
+### Requirement: Zoomed field under the legend in 2D
+
+In 2D, the zoomed field MUST extend under the legend instead of leaving its side of the widget empty, and the legend MUST stay on top of it with an opaque background.
 
 #### Scenario: Zoomed under the legend
 

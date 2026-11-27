@@ -365,7 +365,7 @@ Widgets SHALL shorten the `/Robot`, `/RealOutputs`, `/AdvantageKit`, `/Advantage
 
 ### Requirement: Long names in legends
 
-When a legend has no room for an entry's full name, it SHALL shorten the segments before the fewest last segments that tell it apart from the widget's other entries, one at a time from the first and only as many as it needs to fit, the same way as shortened prefixes, without dimming their letters. A segment that would shorten the same as another entry's segment under the same parent MUST stay in full. Hovering a shortened segment MUST only show that segment in full. Names that still don't fit MUST be cut off, and MUST scroll to show the rest while hovered. The name SHALL go back to its full form once there's room for it. A row's name SHALL give up its room before the row's notes and robot picker, but only down to its shortest form or half the row, after which they MUST be cut off along with it, and notes MUST also scroll to show the rest while hovered.
+When a legend has no room for an entry's full name, it SHALL shorten the segments before the fewest last segments that tell it apart from the widget's other entries, one at a time from the first and only as many as it needs to fit, the same way as shortened prefixes, without dimming their letters. A segment that would shorten the same as another entry's segment under the same parent MUST stay in full. The name SHALL go back to its full form once there's room for it.
 
 #### Scenario: Shortened segment
 
@@ -387,18 +387,26 @@ When a legend has no room for an entry's full name, it SHALL shorten the segment
 - **GIVEN** a legend a little too narrow for `/Robot/Drive/Modules/FrontLeft/State` beside `/Robot/Drive/Modules/FrontRight/State`
 - **THEN** the legend shows `/R/D/Modules/FrontLeft/State`
 
-#### Scenario: Name beside a note
+### Requirement: Hovering long names in legends
 
-- **GIVEN** a 3D field legend a little too narrow for `/Robot/Arm/Mechanism` and its note "Connect to a robot"
-- **THEN** the legend shortens the name and shows the note in full
-- **WHEN** the legend is much narrower
-- **THEN** the legend shows the start of the name and the start of the note, each cut off
+Hovering a shortened segment in a legend MUST only show that segment in full. Legend names that still don't fit once shortened MUST be cut off, and MUST scroll to show the rest while hovered.
 
 #### Scenario: Scroll the rest of the name
 
 - **GIVEN** a legend too narrow for `/R/L/EstimatedPose`
 - **WHEN** the user hovers the name
 - **THEN** it scrolls back and forth to show the rest of the name
+
+### Requirement: Legend names beside notes
+
+A legend row's name SHALL give up its room before the row's notes and robot picker, but only down to its shortest form or half the row, after which they MUST be cut off along with it, and notes MUST also scroll to show the rest while hovered.
+
+#### Scenario: Name beside a note
+
+- **GIVEN** a 3D field legend a little too narrow for `/Robot/Arm/Mechanism` and its note "Connect to a robot"
+- **THEN** the legend shortens the name and shows the note in full
+- **WHEN** the legend is much narrower
+- **THEN** the legend shows the start of the name and the start of the note, each cut off
 
 ### Requirement: Dimmed slashes in entry names
 
