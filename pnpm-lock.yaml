@@ -570,17 +570,17 @@ importers:
         specifier: 2.1.5
         version: 2.1.5(@types/react@19.3.3)(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(react@19.3.1)
       '@astrojs/starlight':
-        specifier: 0.43.1
-        version: 0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1)
+        specifier: 0.43.2
+        version: 0.43.2(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1)
       '@astrojs/starlight-markdoc':
         specifier: 0.7.0
-        version: 0.7.0(@astrojs/markdoc@2.1.5(@types/react@19.3.3)(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(react@19.3.1))(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1))
+        version: 0.7.0(@astrojs/markdoc@2.1.5(@types/react@19.3.3)(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(react@19.3.1))(@astrojs/starlight@0.43.2(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1))
       '@astrojs/ts-content-mapper':
         specifier: 0.2.0
         version: 0.2.0(@emnapi/runtime@1.11.3)
       '@team581/starlight-theme':
         specifier: ^1.0.0
-        version: 1.1.0(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1))(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))
+        version: 1.1.0(@astrojs/starlight@0.43.2(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1))(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))
       astro:
         specifier: 7.4.12
         version: 7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1)
@@ -589,7 +589,7 @@ importers:
         version: 0.35.5(@types/node@24.13.3)
       starlight-changelogs:
         specifier: ^0.7.0
-        version: 0.7.1(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1))(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)
+        version: 0.7.1(@astrojs/starlight@0.43.2(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1))(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)
       typescript:
         specifier: 7.1.0-dev.20261126.1
         version: 7.1.0-dev.20261126.1
@@ -758,8 +758,8 @@ packages:
       '@astrojs/markdoc': ^2.0.0
       '@astrojs/starlight': '>=0.41.0'
 
-  '@astrojs/starlight@0.43.1':
-    resolution: {integrity: sha512-GhTK+93UNejoQThnYbEkJAlRJiOtctxOCnFtLcUMSTraT75vzS1E89xdMtKOdKcUDD2wx+taJxsfrA3UBs0QgQ==}
+  '@astrojs/starlight@0.43.2':
+    resolution: {integrity: sha512-ZKNLpDdlExdVD3EugTUtJx4bUPcIBIZwgpm9sR4bDgHOn9u42x5GVgMQPlyPpXdechjadb0URJLQE6oPm0F3vw==}
     peerDependencies:
       '@astrojs/markdown-remark': ^7.3.0
       astro: ^7.2.10
@@ -10259,12 +10259,12 @@ snapshots:
       sitemap: 9.0.1
       zod: 4.6.7
 
-  '@astrojs/starlight-markdoc@0.7.0(@astrojs/markdoc@2.1.5(@types/react@19.3.3)(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(react@19.3.1))(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1))':
+  '@astrojs/starlight-markdoc@0.7.0(@astrojs/markdoc@2.1.5(@types/react@19.3.3)(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(react@19.3.1))(@astrojs/starlight@0.43.2(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1))':
     dependencies:
       '@astrojs/markdoc': 2.1.5(@types/react@19.3.3)(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(react@19.3.1)
-      '@astrojs/starlight': 0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1)
+      '@astrojs/starlight': 0.43.2(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1)
 
-  '@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1)':
+  '@astrojs/starlight@0.43.2(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1)':
     dependencies:
       '@astrojs/markdown-satteri': 0.4.10
       '@astrojs/mdx': 8.1.2(@astrojs/markdown-satteri@0.4.10)(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))
@@ -14443,9 +14443,9 @@ snapshots:
     optionalDependencies:
       '@astryxdesign/cli': 0.7.17(@astryxdesign/core@0.7.17(patch_hash=b3eac12af4c9e48f25249d49e53c5ee91a32fee6f3899bd61dbf0493d8d241b9)(@stylexjs/stylex@0.19.2)(@types/react@19.3.3)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2)
 
-  '@team581/starlight-theme@1.1.0(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1))(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))':
+  '@team581/starlight-theme@1.1.0(@astrojs/starlight@0.43.2(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1))(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))':
     dependencies:
-      '@astrojs/starlight': 0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1)
+      '@astrojs/starlight': 0.43.2(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1)
       '@fontsource-variable/source-sans-3': 5.3.1
       astro: 7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1)
 
@@ -14589,7 +14589,7 @@ snapshots:
 
   '@types/sax@1.2.7':
     dependencies:
-      '@types/node': 26.6.11
+      '@types/node': 24.13.3
 
   '@types/stats.js@0.17.4': {}
 
@@ -19480,10 +19480,10 @@ snapshots:
 
   stack-trace@1.0.0-pre2: {}
 
-  starlight-changelogs@0.7.1(@astrojs/starlight@0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1))(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2):
+  starlight-changelogs@0.7.1(@astrojs/starlight@0.43.2(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1))(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2):
     dependencies:
       '@ascorbic/loader-utils': 1.0.2(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))
-      '@astrojs/starlight': 0.43.1(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1)
+      '@astrojs/starlight': 0.43.2(astro@7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261126.1)
       '@types/mdast': 4.0.4
       astro: 7.4.12(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(aws4fetch@1.0.20)(esbuild@0.28.2)(idb-keyval@6.3.0)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(vite@8.3.7)(yaml@2.9.1)
       github-slugger: 2.0.0
