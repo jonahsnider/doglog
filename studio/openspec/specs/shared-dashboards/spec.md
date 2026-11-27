@@ -55,7 +55,7 @@ A signed-in user SHALL be able to add passkeys and link Apple and Google to thei
 
 ### Requirement: Desktop sign-in
 
-The desktop app SHALL sign in without leaving the app when the OS provides the chosen method, ex. passkeys on macOS. Otherwise, it SHALL open sign-in in the default browser and return the user to the app signed in. A browser sign-in MUST only sign in the app that started it. Passkeys MUST work the same in the web and desktop apps.
+The desktop app SHALL sign in without leaving the app when the OS provides the chosen method, ex. passkeys on macOS. Otherwise, it SHALL open sign-in in the default browser and return the user to the app signed in. When the browser can't open the app, the user MUST be able to paste a code from the browser instead. A browser sign-in MUST only sign in the app that started it. Passkeys MUST work the same in the web and desktop apps.
 
 #### Scenario: Sign in with a passkey in the macOS app
 
@@ -67,6 +67,12 @@ The desktop app SHALL sign in without leaving the app when the OS provides the c
 
 - **WHEN** a user chooses Sign in with Google in the desktop app
 - **THEN** Google's sign-in opens in their default browser, and once they finish, the desktop app is signed in to that account
+
+#### Scenario: Paste the sign-in code when the browser can't open the app
+
+- **GIVEN** a user finished Google's sign-in in the browser, started from the desktop app
+- **WHEN** they decline the browser's prompt to open the app, then copy the code it shows and paste it into the app
+- **THEN** the desktop app is signed in to that account
 
 ### Requirement: Team membership
 

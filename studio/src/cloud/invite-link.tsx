@@ -1,36 +1,14 @@
 import { Banner } from '@astryxdesign/core/Banner';
 import { Button } from '@astryxdesign/core/Button';
-import { useClipboard } from '@astryxdesign/core/hooks';
-import { IconButton } from '@astryxdesign/core/IconButton';
-import { InputGroup } from '@astryxdesign/core/InputGroup';
 import { HStack, StackItem, VStack } from '@astryxdesign/core/Layout';
 import { Text } from '@astryxdesign/core/Text';
-import { TextInput } from '@astryxdesign/core/TextInput';
-import { durationVars, easeVars } from '@astryxdesign/core/theme/tokens.stylex';
-import * as stylex from '@stylexjs/stylex';
 import { useMutation, useQuery } from 'convex/react';
-import CheckIcon from 'lucide-react/icons/check';
-import CopyIcon from 'lucide-react/icons/copy';
 import { useState } from 'react';
 import { AppActionMenu } from '@/components/app-context-menu';
-import { toastManager } from '@/components/toast';
+import { CopyField } from '@/components/copy-field';
 import { api } from '../../../cloud/convex/_generated/api.js';
 import { ConfirmCloudDialog } from './confirm-cloud-action';
 import { studioWebsiteOrigin } from './deployment';
-
-const styles = stylex.create({
-	// Stacks the copy and check icons, so they cross-fade
-	icons: { display: 'grid', width: '100%', height: '100%' },
-	icon: {
-		gridArea: '1 / 1',
-		width: '100%',
-		height: '100%',
-		transitionProperty: 'opacity, scale',
-		transitionDuration: `calc(${durationVars['--duration-fast']} * var(--motion-scale))`,
-		transitionTimingFunction: easeVars['--ease-standard'],
-	},
-	hidden: { opacity: 0, scale: 0.5 },
-});
 
 export function InviteLink() {
 	const token = useQuery(api.invites.getMine);
@@ -39,13 +17,6 @@ export function InviteLink() {
 	const [creating, setCreating] = useState(false);
 	const [createFailed, setCreateFailed] = useState(false);
 	const [revoking, setRevoking] = useState(false);
-	const { copy, isCopied } = useClipboard({ announce: 'Copied the invite link' });
-
-	async function copyLink(link: string) {
-		if (!(await copy(link))) {
-			toastManager.add({ type: 'error', title: 'Couldn’t copy the invite link' });
-		}
-	}
 
 	async function create() {
 		setCreateFailed(false);
@@ -83,20 +54,7 @@ export function InviteLink() {
 			) : (
 				<HStack vAlign="center" gap={2}>
 					<StackItem size="fill">
-						<InputGroup label="Invite link" isLabelHidden>
-							<TextInput label="Invite link" isReadOnly value={link} />
-							<IconButton
-								label="Copy invite link"
-								tooltip="Copy"
-								icon={
-									<span {...stylex.props(styles.icons)}>
-										<CopyIcon {...stylex.props(styles.icon, isCopied && styles.hidden)} />
-										<CheckIcon {...stylex.props(styles.icon, !isCopied && styles.hidden)} />
-									</span>
-								}
-								onClick={() => void copyLink(link)}
-							/>
-						</InputGroup>
+						<CopyField label="Invite link" value={link} />
 					</StackItem>
 					<AppActionMenu
 						label="Invite link options"
