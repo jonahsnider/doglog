@@ -38,9 +38,6 @@ export function TeamPanel({
 					<Heading level={3} wordBreak="break-word">
 						{team.name}
 					</Heading>
-					<Text type="supporting" color="secondary">
-						{team.role === 'admin' ? 'Team admin' : 'Team member'}
-					</Text>
 				</VStack>
 				<AppActionMenu
 					label="Team options"

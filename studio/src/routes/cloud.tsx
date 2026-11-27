@@ -200,7 +200,6 @@ function DisplayName({ name }: { name: string | null }) {
 			<FormLayout>
 				<TextInput
 					label="Display name"
-					description="Your teammates will see this name."
 					value={draft ?? name ?? ''}
 					onChange={(value) => {
 						setDraft(value.slice(0, displayNameMaxLength));

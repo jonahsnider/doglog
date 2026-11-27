@@ -48,7 +48,7 @@ export function AgentsField() {
 				</HStack>
 			)}
 			<Text type="supporting" color="secondary">
-				Let agents build dashboards for you. Add Studio to others with this MCP config:
+				Let coding agents work with you in Studio. Add Studio to others with this MCP config:
 			</Text>
 			<CodeBlock code={config} language="json" hasLanguageLabel={false} size="sm" width="100%" />
 		</VStack>

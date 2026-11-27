@@ -18,7 +18,7 @@ export function TeamDefaults({ team }: { team: FunctionReturnType<typeof api.tea
 	}
 	return (
 		<>
-			<UtilityPageSection title="Team defaults" description="Settings every member starts with">
+			<UtilityPageSection title="Team defaults">
 				<TeamNumber key={team.id} teamNumber={team.defaults.teamNumber} canEdit={team.role === 'admin'} />
 			</UtilityPageSection>
 			<Divider />
@@ -63,8 +63,8 @@ function TeamNumber({ teamNumber, canEdit }: { teamNumber: number | null; canEdi
 					label="Team number"
 					description={
 						canEdit
-							? 'Members connect to this robot unless they enter another in Settings, like an offseason team number.'
-							: 'Members connect to this robot unless they enter another in Settings. Only team admins can change it.'
+							? 'Default team number to use for robot connections.'
+							: 'Default team number to use for robot connections, configured by team admins.'
 					}
 					value={draft ?? current}
 					onChange={(value) => {
