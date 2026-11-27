@@ -57,7 +57,7 @@ function CliInstall() {
 			<VStack gap={2} hAlign="start">
 				<Text type="label">Terminal command</Text>
 				<Text type="supporting" color="secondary">
-					{cliStatusDescriptions[status]} <Code>doglog match.wpilog</Code>
+					{cliStatusDescriptions[status]} <Code size="inherit">doglog match.wpilog</Code>
 				</Text>
 				<Button
 					label={`${status === 'missing' ? 'Install' : 'Reinstall'} doglog command`}

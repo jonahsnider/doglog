@@ -75,7 +75,7 @@ export function OpenLogUrlDialog() {
 							title="Open log from URL"
 							subtitle={
 								<>
-									Enter the URL of a <Code>.wpilog</Code> or <Code>.wpilogxz</Code> file.
+									Enter the URL of a <Code size="inherit">.wpilog</Code> or <Code size="inherit">.wpilogxz</Code> file.
 								</>
 							}
 							onOpenChange={setOpen}

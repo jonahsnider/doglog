@@ -150,18 +150,22 @@ function Settings() {
 						{STUDIO_COMMIT !== null && (
 							<>
 								{' '}
-								(<Code color="inherit">{STUDIO_COMMIT}</Code>)
+								(
+								<Code color="inherit" size="inherit">
+									{STUDIO_COMMIT}
+								</Code>
+								)
 							</>
 						)}
 					</Text>
 					<Text type="supporting" color="secondary">
-						<Link href="https://github.com/jonahsnider/doglog" isExternalLink color="inherit">
+						<Link href="https://github.com/jonahsnider/doglog" isExternalLink type="inherit" color="inherit">
 							GitHub
 						</Link>
 					</Text>
 					<Text type="supporting" color="secondary">
 						By{' '}
-						<Link href="https://jonahsnider.com" isExternalLink color="inherit">
+						<Link href="https://jonahsnider.com" isExternalLink type="inherit" color="inherit">
 							Jonah Snider
 						</Link>
 					</Text>

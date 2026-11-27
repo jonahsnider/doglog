@@ -38,7 +38,11 @@ export function AboutDialog() {
 								{STUDIO_COMMIT !== null && (
 									<>
 										{' '}
-										(<Code color="inherit">{STUDIO_COMMIT}</Code>)
+										(
+										<Code color="inherit" size="inherit">
+											{STUDIO_COMMIT}
+										</Code>
+										)
 									</>
 								)}
 							</Text>
