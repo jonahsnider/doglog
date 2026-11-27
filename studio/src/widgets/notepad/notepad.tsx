@@ -48,8 +48,8 @@ const styles = stylex.create({
 		backgroundColor: 'transparent',
 		color: 'transparent',
 		caretColor: colorVars['--color-text-primary'],
-		outline: { default: 'none', ':focus-visible': `1px solid ${colorVars['--color-accent']}` },
-		outlineOffset: -1,
+		// Like a code editor, the caret shows focus. Text fields always match `:focus-visible`, so a ring would show on every click.
+		outline: 'none',
 		'::selection': {
 			backgroundColor: `color-mix(in srgb, ${colorVars['--color-accent']} 16%, transparent)`,
 		},
