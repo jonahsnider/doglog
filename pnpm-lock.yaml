@@ -473,8 +473,8 @@ importers:
         specifier: 4.5.1
         version: 4.5.1(@types/node@26.6.10)
       '@interfere/landmines':
-        specifier: 0.3.1
-        version: 0.3.1(oxlint@1.94.0(vite-plus@1.8.0(@astrojs/compiler-rs@0.5.3)(@opentelemetry/api@1.9.1)(@types/node@26.6.10)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.1)(@vitest/ui@5.1.1)(@voidzero-dev/vite-plus-core@8.3.8001)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(typescript@7.1.0-dev.20261125.1)(vitest@5.1.1)(yaml@2.9.1)))
+        specifier: 0.3.2
+        version: 0.3.2(oxlint@1.94.0(vite-plus@1.8.0(@astrojs/compiler-rs@0.5.3)(@opentelemetry/api@1.9.1)(@types/node@26.6.10)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.1)(@vitest/ui@5.1.1)(@voidzero-dev/vite-plus-core@8.3.8001)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(typescript@7.1.0-dev.20261125.1)(vitest@5.1.1)(yaml@2.9.1)))
       '@msgpack/msgpack':
         specifier: 3.1.3
         version: 3.1.3
@@ -3029,8 +3029,8 @@ packages:
       '@types/node':
         optional: true
 
-  '@interfere/landmines@0.3.1':
-    resolution: {integrity: sha512-w55JbpiBaswGV+kZmp7C1pxfcB/s+UIWuKP2NZpKqgDSpro7SguhBC9rXHa9+2WaTEwny6PO0VUWyQ1CV/Mjbg==}
+  '@interfere/landmines@0.3.2':
+    resolution: {integrity: sha512-/fdJclUvPUTTFeq9ALcxTzAi6TGZM+oDnV0t1XUuW/49PQzAh1AHrZyHVGPcNAFdJfL4kWu9n2EHs2fLLmb0Vw==}
     engines: {node: '>=22.18.0'}
     peerDependencies:
       oxlint: '>=1.81.0'
@@ -12878,7 +12878,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 26.6.10
 
-  '@interfere/landmines@0.3.1(oxlint@1.94.0(vite-plus@1.8.0(@astrojs/compiler-rs@0.5.3)(@opentelemetry/api@1.9.1)(@types/node@26.6.10)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.1)(@vitest/ui@5.1.1)(@voidzero-dev/vite-plus-core@8.3.8001)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(typescript@7.1.0-dev.20261125.1)(vitest@5.1.1)(yaml@2.9.1)))':
+  '@interfere/landmines@0.3.2(oxlint@1.94.0(vite-plus@1.8.0(@astrojs/compiler-rs@0.5.3)(@opentelemetry/api@1.9.1)(@types/node@26.6.10)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.1)(@vitest/ui@5.1.1)(@voidzero-dev/vite-plus-core@8.3.8001)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(typescript@7.1.0-dev.20261125.1)(vitest@5.1.1)(yaml@2.9.1)))':
     dependencies:
       '@babel/parser': 8.0.4
       '@babel/types': 8.0.4
