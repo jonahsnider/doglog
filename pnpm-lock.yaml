@@ -220,6 +220,24 @@ importers:
         specifier: 0.80.0
         version: 0.80.0(@astrojs/compiler-rs@0.5.3)(vite-plus@1.8.0(@astrojs/compiler-rs@0.5.3)(@opentelemetry/api@1.9.1)(@types/node@26.6.11)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.1)(@vitest/ui@5.1.1)(@voidzero-dev/vite-plus-core@8.3.8001)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(typescript@5.9.3)(vitest@5.1.1)(yaml@2.9.1))
 
+  benchmarks:
+    devDependencies:
+      '@tsconfig/strictest':
+        specifier: 2.0.9
+        version: 2.0.9
+      '@types/node':
+        specifier: 26.6.11
+        version: 26.6.11
+      playwright-core:
+        specifier: 1.65.1
+        version: 1.65.1
+      typescript:
+        specifier: 7.1.0-dev.20261126.1
+        version: 7.1.0-dev.20261126.1
+      web-vitals:
+        specifier: 6.2.3
+        version: 6.2.3
+
   cloud:
     dependencies:
       '@convex-dev/auth':

@@ -1,0 +1,20 @@
+{
+	"name": "@doglog/benchmarks",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"check": "tsc --noEmit",
+		"report": "node report.ts",
+		"startup:chrome": "node startup.ts chrome",
+		"startup:macos": "node startup.ts macos",
+		"suite": "node suite.ts"
+	},
+	"devDependencies": {
+		"@tsconfig/strictest": "2.0.9",
+		"@types/node": "26.6.11",
+		"playwright-core": "1.65.1",
+		"typescript": "7.1.0-dev.20261126.1",
+		"web-vitals": "6.2.3"
+	}
+}

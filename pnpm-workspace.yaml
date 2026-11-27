@@ -4,6 +4,7 @@ trustPolicyExclude:
 saveExact: true
 
 packages:
+  - 'benchmarks'
   - 'cloud'
   - 'lib'
   - 'studio'

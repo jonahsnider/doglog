@@ -1,0 +1,14 @@
+{
+	"extends": "@tsconfig/strictest",
+	"compilerOptions": {
+		"target": "es2023",
+		"lib": ["ES2023", "DOM"],
+		"module": "nodenext",
+		"types": ["node"],
+		"allowImportingTsExtensions": true,
+		"verbatimModuleSyntax": true,
+		"erasableSyntaxOnly": true,
+		"noEmit": true
+	},
+	"include": ["*.ts"]
+}
