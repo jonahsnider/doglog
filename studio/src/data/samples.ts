@@ -332,7 +332,10 @@ class NumberSamples extends Samples {
 
 	protected insertValue(index: number, value: Value): void {
 		this.numbers = grow(this.numbers, this.length + 1);
-		this.numbers.copyWithin(index + 1, index, this.length);
+		// Almost always added at the end, from a log
+		if (index < this.length) {
+			this.numbers.copyWithin(index + 1, index, this.length);
+		}
 		// oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Samples are made for their entry's kind, see `createSamples()`
 		this.numbers[index] = value as number;
 	}
@@ -403,7 +406,10 @@ export class NumberArraySamples extends Samples {
 		const end = offsets[length]!;
 		this.items = grow(this.items, end + array.length);
 		this.offsets = grow(offsets, length + 2);
-		this.items.copyWithin(start + array.length, start, end);
+		// Almost always added at the end, from a log
+		if (start < end) {
+			this.items.copyWithin(start + array.length, start, end);
+		}
 		this.items.set(array, start);
 		for (let next = length + 1; next > index; next--) {
 			this.offsets[next] = this.offsets[next - 1]! + array.length;

@@ -1,3 +1,4 @@
+// oxlint-disable max-lines -- Each record is read into the entries, schemas, and recording it belongs to in one pass
 import {
 	type ControlRecordPayload,
 	ControlRecordType,
@@ -122,6 +123,17 @@ function addStructSchema(structSchemas: Map<string, StructDeclaration[]>, name: 
 	}
 }
 
+/**
+ * What an entry's records are for, worked out from its name and type once instead of for each record, see
+ * `LogAccumulator.target()`. `null` for records that aren't kept, ex. of entries that aren't shown.
+ */
+type Target =
+	| { kind: 'recording'; name: string }
+	| { kind: 'schema'; name: string }
+	| { kind: 'embedded'; name: string }
+	| { kind: 'samples'; entry: ParsedEntry }
+	| null;
+
 /** Accumulates decoded WPILOG records into entries, struct schemas, time bounds, and live-recording metadata */
 export class LogAccumulator {
 	readonly entries = new Map<string, ParsedEntry>();
@@ -132,8 +144,10 @@ export class LogAccumulator {
 	private readonly openEntryIds = new Set<number>();
 	// Records of embedded logs by entry name, joined in `finish()`
 	private readonly embeddedChunks = new Map<string, { timestamp: number; bytes: Uint8Array }[]>();
-	private start: number | undefined;
-	private end: number | undefined;
+	// Targets by entry ID, unset until worked out. Cleared when an entry starts, since it can replace another's entry.
+	private targets: Target[] = [];
+	private start = Infinity;
+	private end = -Infinity;
 	private recording: RecordingInfo | undefined;
 
 	addRecord(record: DecodedRecord): void {
@@ -141,6 +155,7 @@ export class LogAccumulator {
 			const { payload } = record;
 			if (payload.controlRecordType === ControlRecordType.Start) {
 				this.openEntryIds.add(payload.entryId);
+				this.targets = [];
 			} else if (payload.controlRecordType === ControlRecordType.Finish) {
 				this.openEntryIds.delete(payload.entryId);
 			}
@@ -148,34 +163,40 @@ export class LogAccumulator {
 			return;
 		}
 
-		const name = normalizeEntryName(record.entry.name);
-		if (isRecordingEntry(name)) {
-			this.recording ??= { host: undefined, status: undefined, connections: [], end: record.timestamp };
-			readRecordingValue(this.recording, name, record.timestamp, record.payload);
+		const id = record.entry.entryId;
+		let target = this.targets[id];
+		if (target === undefined) {
+			target = this.target(record.entry.name, record.entry.type);
+			this.targets[id] = target;
+		}
+		if (target === null) {
 			return;
 		}
-		if (record.entry.type === 'structschema') {
-			if (name.startsWith(structSchemaPrefix) && typeof record.payload === 'string') {
-				addStructSchema(this.structSchemas, name.slice(structSchemaPrefix.length), record.payload);
-			}
-			return;
-		}
-		const entry = this.entries.get(name);
-		if (!entry) {
-			return;
-		}
-		if (embeddedLogFormat(entry.type) !== undefined) {
-			if (record.type === 'raw' && record.payload.byteLength > 0) {
-				let chunks = this.embeddedChunks.get(name);
-				if (!chunks) {
-					chunks = [];
-					this.embeddedChunks.set(name, chunks);
+		switch (target.kind) {
+			case 'recording':
+				this.recording ??= { host: undefined, status: undefined, connections: [], end: record.timestamp };
+				readRecordingValue(this.recording, target.name, record.timestamp, record.payload);
+				return;
+			case 'schema':
+				if (typeof record.payload === 'string') {
+					addStructSchema(this.structSchemas, target.name, record.payload);
 				}
-				chunks.push({ timestamp: record.timestamp, bytes: record.payload });
-				this.extend(record.timestamp);
-			}
-			return;
+				return;
+			case 'embedded':
+				if (record.type === 'raw' && record.payload.byteLength > 0) {
+					let chunks = this.embeddedChunks.get(target.name);
+					if (!chunks) {
+						chunks = [];
+						this.embeddedChunks.set(target.name, chunks);
+					}
+					chunks.push({ timestamp: record.timestamp, bytes: record.payload });
+					this.extend(record.timestamp);
+				}
+				return;
+			case 'samples':
+				break;
 		}
+		const { entry } = target;
 		const value = toValue(record, entry.type);
 		if (value === undefined) {
 			return;
@@ -194,21 +215,45 @@ export class LogAccumulator {
 		this.extend(timestamp);
 	}
 
+	/** What records of the entry named `entryName` with type `type` are for */
+	private target(entryName: string, type: string): Target {
+		const name = normalizeEntryName(entryName);
+		if (isRecordingEntry(name)) {
+			return { kind: 'recording', name };
+		}
+		if (type === 'structschema') {
+			return name.startsWith(structSchemaPrefix)
+				? { kind: 'schema', name: name.slice(structSchemaPrefix.length) }
+				: null;
+		}
+		const entry = this.entries.get(name);
+		if (!entry) {
+			return null;
+		}
+		return embeddedLogFormat(entry.type) === undefined ? { kind: 'samples', entry } : { kind: 'embedded', name };
+	}
+
 	private extend(timestamp: number): void {
-		this.start = this.start === undefined ? timestamp : Math.min(this.start, timestamp);
-		this.end = this.end === undefined ? timestamp : Math.max(this.end, timestamp);
+		if (timestamp < this.start) {
+			this.start = timestamp;
+		}
+		if (timestamp > this.end) {
+			this.end = timestamp;
+		}
 	}
 
 	finish(totalBytes: number, readBytes: number): ParsedLog {
+		const hasData = this.start <= this.end;
+		let start = hasData ? this.start : undefined;
+		let end = hasData ? this.end : undefined;
 		// They're the values at the start of the log, unless the entry was logged again right as it started
-		const first = this.start ?? 0;
+		const first = start ?? 0;
 		for (const [samples, { value }] of this.beforeStart) {
 			if (samples.length === 0 || samples.timestamps[0]! > first) {
 				samples.push(first, value);
 			}
 		}
 
-		let { start, end } = this;
 		// A recorded live session starts when it first connected, values from before then are its values at the start
 		const connectedAt = this.recording?.connections[0]?.start;
 		if (connectedAt !== undefined) {
@@ -264,16 +309,21 @@ export function parseLog(bytes: Uint8Array, onProgress: (progress: number) => vo
 	// Unwritten blocks hold leftover data, not zeros, which reads as records for entries that were never started
 	const records = parseDataLog(bytes, logParseOptions);
 	let percent = 0;
+	// Bytes read when the progress reaches the next whole percent, so it's only worked out once per percent
+	let nextProgress = 0;
 	// The end of the last record read, since `records.bytesRead` skips to the end of the file when the last record is cut off
 	let readBytes = records.bytesRead;
 
 	try {
 		for (const record of records) {
 			readBytes = records.bytesRead;
-			const nextPercent = Math.floor((readBytes / bytes.byteLength) * 100);
-			if (nextPercent !== percent) {
-				percent = nextPercent;
-				onProgress(percent / 100);
+			if (readBytes >= nextProgress) {
+				const next = Math.floor((readBytes / bytes.byteLength) * 100);
+				if (next !== percent) {
+					percent = next;
+					onProgress(percent / 100);
+				}
+				nextProgress = Math.max(readBytes + 1, Math.ceil(((percent + 1) / 100) * bytes.byteLength));
 			}
 			if (onRecord && isDataRecord(record)) {
 				onRecord(readBytes, record.timestamp);
