@@ -78,10 +78,11 @@ const styles = stylex.create({
 		borderBottomStyle: 'solid',
 		borderBottomColor: colorVars['--color-border'],
 	},
+	// WebKit doesn't paint a popover anchored to a box with no width
 	anchor: {
 		position: 'absolute',
 		insetBlock: 0,
-		width: 0,
+		width: 1,
 		pointerEvents: 'none',
 	},
 });
