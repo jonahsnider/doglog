@@ -111,7 +111,8 @@ export function CursorTime({ range }: { range: SourcesRange | undefined }) {
 	// The time shown when the user clicked it to type one, `undefined` while not typing
 	const [editText, setEditText] = useState<string>();
 	if (range === undefined || time === undefined) {
-		return <span {...stylex.props(styles.time, styles.empty)}>-</span>;
+		// Blank until there's data, keeping the time's space so the track doesn't move when it appears
+		return <span {...stylex.props(styles.time, styles.empty)} />;
 	}
 	// Also shown while paused, so there's time to hover it for the tooltip
 	const skipped = getActiveCompressedSpans(range).some((span) => span.start <= time && time < span.end);
