@@ -336,7 +336,7 @@ importers:
         version: 2.14.1
       '@team581/astryx-theme':
         specifier: 1.1.1
-        version: 1.1.1(@astryxdesign/cli@0.7.17(@astryxdesign/core@0.7.17(patch_hash=b3eac12af4c9e48f25249d49e53c5ee91a32fee6f3899bd61dbf0493d8d241b9)(@stylexjs/stylex@0.19.2)(@types/react@19.3.3)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2))(@astryxdesign/core@0.7.17(patch_hash=b3eac12af4c9e48f25249d49e53c5ee91a32fee6f3899bd61dbf0493d8d241b9)(@stylexjs/stylex@0.19.2)(@types/react@19.3.3)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(lucide-react@1.80.0(@types/react@19.3.3)(react@19.3.1))(react@19.3.1)
+        version: 1.1.1(@astryxdesign/cli@0.7.17(@astryxdesign/core@0.7.17(patch_hash=b3eac12af4c9e48f25249d49e53c5ee91a32fee6f3899bd61dbf0493d8d241b9)(@stylexjs/stylex@0.19.2)(@types/react@19.3.3)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2))(@astryxdesign/core@0.7.17(patch_hash=b3eac12af4c9e48f25249d49e53c5ee91a32fee6f3899bd61dbf0493d8d241b9)(@stylexjs/stylex@0.19.2)(@types/react@19.3.3)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(lucide-react@1.81.0(@types/react@19.3.3)(react@19.3.1))(react@19.3.1)
       '@ui-sdk/core':
         specifier: 0.1.0-beta.17
         version: 0.1.0-beta.17
@@ -377,8 +377,8 @@ importers:
         specifier: 1.19.1
         version: 1.19.1
       lucide-react:
-        specifier: 1.80.0
-        version: 1.80.0(@types/react@19.3.3)(react@19.3.1)
+        specifier: 1.81.0
+        version: 1.81.0(@types/react@19.3.3)(react@19.3.1)
       ml-levenberg-marquardt:
         specifier: 5.1.0
         version: 5.1.0
@@ -8002,8 +8002,8 @@ packages:
     resolution: {integrity: sha512-5J9ysMYUpYIg9RF2vJpy9SinEmSviFSe0GyPpCQ4L5QSkLAgeLXlTAOu2ZwWUU5m+0SBl6gUU1R1ZQB3aKypfA==}
     engines: {bun: '>=1.0.0', deno: '>=1.30.0', node: '>=8.0.0'}
 
-  lucide-react@1.80.0:
-    resolution: {integrity: sha512-f9cQkUMFp2ZrOek9FucpRqQVI67gT09clXcHs3yCvdhJnsK4RW4og/rqoC0YAHd6FV/GPkeiIR3Rdxr2pPRwHA==}
+  lucide-react@1.81.0:
+    resolution: {integrity: sha512-U+CisvFQ84m+xUJAKKA4q+mykGB1LAmu196hOblQbuNYJgD43iHwpmfYuqcFYHXJu2oqRih5JoH3f5LxwsUegg==}
     peerDependencies:
       '@types/react': '*'
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -14432,13 +14432,13 @@ snapshots:
     dependencies:
       '@tauri-apps/api': 2.12.5
 
-  '@team581/astryx-theme@1.1.1(@astryxdesign/cli@0.7.17(@astryxdesign/core@0.7.17(patch_hash=b3eac12af4c9e48f25249d49e53c5ee91a32fee6f3899bd61dbf0493d8d241b9)(@stylexjs/stylex@0.19.2)(@types/react@19.3.3)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2))(@astryxdesign/core@0.7.17(patch_hash=b3eac12af4c9e48f25249d49e53c5ee91a32fee6f3899bd61dbf0493d8d241b9)(@stylexjs/stylex@0.19.2)(@types/react@19.3.3)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(lucide-react@1.80.0(@types/react@19.3.3)(react@19.3.1))(react@19.3.1)':
+  '@team581/astryx-theme@1.1.1(@astryxdesign/cli@0.7.17(@astryxdesign/core@0.7.17(patch_hash=b3eac12af4c9e48f25249d49e53c5ee91a32fee6f3899bd61dbf0493d8d241b9)(@stylexjs/stylex@0.19.2)(@types/react@19.3.3)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2))(@astryxdesign/core@0.7.17(patch_hash=b3eac12af4c9e48f25249d49e53c5ee91a32fee6f3899bd61dbf0493d8d241b9)(@stylexjs/stylex@0.19.2)(@types/react@19.3.3)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(lucide-react@1.81.0(@types/react@19.3.3)(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@astryxdesign/core': 0.7.17(patch_hash=b3eac12af4c9e48f25249d49e53c5ee91a32fee6f3899bd61dbf0493d8d241b9)(@stylexjs/stylex@0.19.2)(@types/react@19.3.3)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@fontsource-variable/ibm-plex-sans': 5.3.0
       '@fontsource-variable/source-sans-3': 5.3.1
       '@fontsource/ibm-plex-mono': 5.3.0
-      lucide-react: 1.80.0(@types/react@19.3.3)(react@19.3.1)
+      lucide-react: 1.81.0(@types/react@19.3.3)(react@19.3.1)
       react: 19.3.1
     optionalDependencies:
       '@astryxdesign/cli': 0.7.17(@astryxdesign/core@0.7.17(patch_hash=b3eac12af4c9e48f25249d49e53c5ee91a32fee6f3899bd61dbf0493d8d241b9)(@stylexjs/stylex@0.19.2)(@types/react@19.3.3)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(supports-color@10.2.2)
@@ -17890,7 +17890,7 @@ snapshots:
 
   lru.min@1.1.5: {}
 
-  lucide-react@1.80.0(@types/react@19.3.3)(react@19.3.1):
+  lucide-react@1.81.0(@types/react@19.3.3)(react@19.3.1):
     dependencies:
       react: 19.3.1
     optionalDependencies:
