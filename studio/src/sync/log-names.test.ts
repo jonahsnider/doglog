@@ -1,7 +1,13 @@
 import { expect, test } from 'vite-plus/test';
 import type { Entry } from '@/data/data-store';
-import { findEntry, getEntryKind, Samples, type Value } from '@/data/samples';
+import { createSamples, findEntry, getEntryKind, type Value } from '@/data/samples';
 import { parseLogName, readLogMatch } from './log-names.ts';
+
+function samplesOf(type: string, value: Value) {
+	const samples = createSamples(getEntryKind(type));
+	samples.push(0, value);
+	return samples;
+}
 
 test('WPILib logs', () => {
 	expect(parseLogName('FRC_20260315_143000.wpilog')).toEqual({
@@ -123,7 +129,7 @@ function entries(values: Record<string, [type: string, value: Value]>) {
 	const map = new Map<string, Entry>(
 		Object.entries(values).map(([name, [type, value]]) => [
 			name,
-			{ name, type, kind: getEntryKind(type), samples: new Samples(new Float64Array([0]), [value]), metadata: {} },
+			{ name, type, kind: getEntryKind(type), samples: samplesOf(type, value), metadata: {} },
 		]),
 	);
 	return (name: string): Entry | undefined => findEntry(map, name);

@@ -75,13 +75,14 @@ export function historyMax(entry: Entry, role: Role): HistoryMax {
 		historyMaxes.set(entry, max);
 	}
 
-	const { values, length } = entry.samples;
+	const { samples } = entry;
+	const { length } = samples;
 	// Trimming live history removes the oldest samples, rescan what's left
 	if (length < max.scanned) {
 		max.scanned = 0;
 	}
 	for (let index = max.scanned; index < length; index++) {
-		const value = values[index];
+		const value = samples.value(index);
 		if (role === 'states' && Array.isArray(value)) {
 			for (const module of value) {
 				max.speed = Math.max(max.speed, Math.abs(moduleSpeed(module)));

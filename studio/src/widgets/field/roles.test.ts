@@ -1,10 +1,10 @@
 import { expect, test } from 'vite-plus/test';
 import type { Entry } from '@/data/data-store';
-import { getEntryKind, Samples } from '@/data/samples';
+import { createSamples, getEntryKind } from '@/data/samples';
 import { fieldRoles } from '@/widgets/field/roles';
 
 function entry(name: string, type: string): Entry {
-	return { name, type, kind: getEntryKind(type), samples: new Samples(), metadata: {} };
+	return { name, type, kind: getEntryKind(type), samples: createSamples(getEntryKind(type)), metadata: {} };
 }
 
 test.each([

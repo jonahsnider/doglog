@@ -1,19 +1,21 @@
 import { expect, test } from 'vite-plus/test';
-import { Samples, type Value } from '@/data/samples';
+import { createSamples, type Samples, type Value } from '@/data/samples';
 import { analyzeSamples, histogramBins } from '@/widgets/histogram/data';
 
 function samples(...values: Value[]): Samples {
-	return new Samples(
-		Float64Array.from(values, (_, index) => index),
-		values,
-	);
+	// Any kind of value, like a live topic whose type changed
+	const result = createSamples('string');
+	for (const [index, value] of values.entries()) {
+		result.push(index, value);
+	}
+	return result;
 }
 
 test('analyzes only finite numeric recordings in the index slice without dropping repeats', () => {
 	const raw = samples(30, 20, 10, 10, Number.NaN, Infinity, -Infinity, '40', true, [30], 40);
 	const analysis = analyzeSamples(raw, 1, 10);
 	expect(analysis).toMatchObject({ values: [10, 10, 20], count: 3, min: 10, max: 20, median: 10 });
-	expect(raw.values.slice(0, 4)).toEqual([30, 20, 10, 10]);
+	expect(raw.values().slice(0, 4)).toEqual([30, 20, 10, 10]);
 	expect(analyzeSamples(raw, 4, 10)).toBeUndefined();
 	expect(analyzeSamples(raw, 1, 1)).toBeUndefined();
 });

@@ -41,7 +41,7 @@ export function stepLine(
 	/** When nothing was received, sorted */
 	gaps: readonly TimeRange[] = [],
 ): StepLine {
-	const { timestamps, values } = samples;
+	const { timestamps } = samples;
 	const first = Math.max(0, samples.indexAtOrBefore(view.start));
 	const after = samples.indexAtOrAfter(view.end);
 	const last = after < 0 ? samples.length - 1 : after;
@@ -81,7 +81,7 @@ export function stepLine(
 	};
 
 	for (let index = first; index <= last; index++) {
-		const logged = values[index];
+		const logged = samples.value(index);
 		if (typeof logged !== 'number' || !Number.isFinite(logged)) {
 			continue;
 		}

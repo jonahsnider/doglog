@@ -1,11 +1,11 @@
 import { expect, test } from 'vite-plus/test';
-import { Samples } from '@/data/samples';
+import { createSamples, type Samples } from '@/data/samples';
 import { stepLine } from '@/widgets/graph/decimate';
 import { formatTick, timeTicks } from '@/widgets/graph/ticks';
 import { fitRange, zoomedSpan } from '@/widgets/graph/y-range';
 
 function samples(points: [time: number, value: number][]): Samples {
-	const result = new Samples();
+	const result = createSamples('number');
 	for (const [time, value] of points) {
 		result.push(time, value);
 	}

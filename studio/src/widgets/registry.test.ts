@@ -2,14 +2,14 @@ import { expect, test } from 'vite-plus/test';
 import { createWidget, widgetBindings } from '@/widgets/bindings';
 import { clearCameraStreams, updateCameraStreams } from '@/data/camera-streams';
 import type { Entry } from '@/data/data-store';
-import { getEntryKind, Samples } from '@/data/samples';
+import { createSamples, getEntryKind } from '@/data/samples';
 import { sourcesStore } from '@/data/source-store';
 import { createPane, splitPane } from '@/panes/layout';
 import { initialOptions } from '@/widgets/options';
 import { defaultWidget, getWidgetType } from '@/widgets/registry';
 
 function entry(name: string, type: string): Entry {
-	return { name, type, kind: getEntryKind(type), samples: new Samples(), metadata: {} };
+	return { name, type, kind: getEntryKind(type), samples: createSamples(getEntryKind(type)), metadata: {} };
 }
 
 test.each([

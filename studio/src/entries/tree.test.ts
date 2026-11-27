@@ -2,7 +2,7 @@ import { expect, test } from 'vite-plus/test';
 import { parseStructSpecification } from 'wpilog-parser';
 import { DataSet } from '../data/data-set.ts';
 import type { Entry } from '../data/data-store.ts';
-import { Samples } from '../data/samples.ts';
+import { createSamples } from '../data/samples.ts';
 import {
 	ancestorGroups,
 	buildEntryTree,
@@ -14,7 +14,8 @@ import {
 } from './tree.ts';
 
 function entries(...names: string[]): Entry[] {
-	return names.map((name) => ({ name, type: 'double', kind: 'number', samples: new Samples(), metadata: {} }));
+	const samples = createSamples('number');
+	return names.map((name) => ({ name, type: 'double', kind: 'number', samples, metadata: {} }));
 }
 
 const tree = buildEntryTree(
@@ -117,8 +118,8 @@ test('search ignores separators', () => {
 
 test('search matches struct types but not primitive types', () => {
 	const typed = buildEntryTree([
-		{ name: '/Drive/Pose', type: 'struct:Pose2d', kind: 'struct', samples: new Samples(), metadata: {} },
-		{ name: '/Drive/Enabled', type: 'boolean', kind: 'boolean', samples: new Samples(), metadata: {} },
+		{ name: '/Drive/Pose', type: 'struct:Pose2d', kind: 'struct', samples: createSamples('struct'), metadata: {} },
+		{ name: '/Drive/Enabled', type: 'boolean', kind: 'boolean', samples: createSamples('boolean'), metadata: {} },
 	]);
 	const search = (query: string) => entryTreeView(typed, [], query).rows.map((row) => row.item.value);
 	expect(search('pose2d')).toEqual(['/Drive', '/Drive/Pose']);

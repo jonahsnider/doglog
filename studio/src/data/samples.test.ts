@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vite-plus/test';
-import { findEntry, Samples, trimOldest } from '@/data/samples';
+import { createSamples, findEntry, fromTransfer, type Samples, trimOldest } from '@/data/samples';
 
 function samplesOf(...items: [number, number][]): Samples {
-	const samples = new Samples();
+	const samples = createSamples('number');
 	for (const [timestamp, value] of items) {
 		samples.push(timestamp, value);
 	}
@@ -33,17 +33,57 @@ describe('Samples', () => {
 		const samples = samplesOf([10, 1], [30, 3], [20, 2], [5, 0]);
 
 		expect([...samples.timestamps.subarray(0, samples.length)]).toEqual([5, 10, 20, 30]);
-		expect(samples.values).toEqual([0, 1, 2, 3]);
+		expect(samples.values()).toEqual([0, 1, 2, 3]);
 	});
 
 	test('grows past its initial capacity', () => {
-		const samples = new Samples(new Float64Array(1));
+		const samples = createSamples('number');
 		for (let i = 0; i < 100; i++) {
 			samples.push(i, i);
 		}
 
 		expect(samples).toHaveLength(100);
 		expect(samples.valueAt(42.5)).toBe(42);
+	});
+});
+
+function arraysOf(...items: [number, number[]][]): Samples {
+	const samples = createSamples('number[]');
+	for (const [timestamp, value] of items) {
+		samples.push(timestamp, value);
+	}
+	return samples;
+}
+
+describe('arrays of numbers', () => {
+	test('keep each array apart through out of order samples and trimming', () => {
+		const samples = arraysOf([10, [1, 1]], [40, [4]], [20, []], [30, [3, 3, 3]], [5, [0, 0, 0, 0]]);
+
+		expect(timestampsOf(samples)).toEqual([5, 10, 20, 30, 40]);
+		expect(samples.values()).toEqual([[0, 0, 0, 0], [1, 1], [], [3, 3, 3], [4]]);
+		expect(samples.lengthAt(3)).toBe(3);
+
+		samples.trimBefore(25);
+		expect(timestampsOf(samples)).toEqual([20, 30, 40]);
+		expect(samples.values()).toEqual([[], [3, 3, 3], [4]]);
+		samples.push(50, [5, 5]);
+		expect(samples.valueAt(60)).toEqual([5, 5]);
+	});
+
+	test('reading a value again gives the same array until it changes', () => {
+		const samples = arraysOf([10, [1]], [20, [2]]);
+		const first = samples.valueAt(15);
+
+		expect(samples.valueAt(15)).toBe(first);
+		samples.trimBefore(20);
+		expect(samples.value(0)).toEqual([2]);
+	});
+
+	test('survive being sent', () => {
+		const samples = arraysOf([10, [1, 2]], [20, [3]]);
+		const sent = structuredClone(samples.copy().toTransfer());
+
+		expect(fromTransfer(sent).values()).toEqual([[1, 2], [3]]);
 	});
 });
 

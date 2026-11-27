@@ -75,7 +75,7 @@ test('a live session prioritizes the topics behind dashboard fields but still re
 	listener.value?.('/Drive/HeadingRaw', 'double', 31, 1);
 	await Promise.resolve();
 	expect(state.priority).toMatchObject({ topics: ['/Drive/Modules', '/Drive/Heading'] });
-	expect(data.entries.get('/Drive/HeadingRaw')?.samples.values).toEqual([31]);
+	expect(data.entries.get('/Drive/HeadingRaw')?.samples.values()).toEqual([31]);
 	expect(events).toContainEqual({
 		type: 'value',
 		name: '/Drive/HeadingRaw',
@@ -94,7 +94,7 @@ test('a live session prioritizes the topics behind dashboard fields but still re
 	updateSettings({ reduceLiveBandwidth: false });
 	await Promise.resolve();
 	expect(state.priority).toBe('full');
-	expect(data.entries.get('/Drive/HeadingRaw')?.samples.values).toEqual([31]);
+	expect(data.entries.get('/Drive/HeadingRaw')?.samples.values()).toEqual([31]);
 });
 
 // WPILib's geometry2d.proto, encoded by protoc, as robots publish it to `/.schema/proto:geometry2d.proto`
@@ -133,15 +133,19 @@ test('a live session decodes protobuf values that arrived before their schema, a
 
 	const decoded = { translation: { x: 1.5, y: -2 }, rotation: { value: 3 } };
 	const { samples } = data.entries.get('/Pose')!;
-	expect(samples.values).toEqual([decoded]);
+	expect(samples.values()).toEqual([decoded]);
 	// When it arrived, 4 µs after connecting on the server's clock
 	expect(samples.timestamps[0]! - data.start!).toBe(4);
 	data.publish();
-	expect(data.entries.get('/Pose/translation/y')?.samples.values).toEqual([-2]);
+	expect(data.entries.get('/Pose/translation/y')?.samples.values()).toEqual([-2]);
 
 	disconnect();
 	writer.close();
 	const bytes = new Uint8Array(await new Response(writer.readable).arrayBuffer());
-	expect(parseLog(bytes, () => {}).entries.get('/Pose')?.samples.values).toEqual([decoded]);
+	expect(
+		parseLog(bytes, () => {})
+			.entries.get('/Pose')
+			?.samples.values(),
+	).toEqual([decoded]);
 	expect(recordsOf(bytes, schemaName)).toHaveLength(1);
 });

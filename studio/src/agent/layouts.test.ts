@@ -2,7 +2,7 @@ import { expect, test } from 'vite-plus/test';
 import { checkBinding, createInputLayout, describeLayout } from '@/agent/layouts';
 import type { LayoutInput } from '@/agent/schemas';
 import type { Entry } from '@/data/data-store';
-import { getEntryKind, Samples } from '@/data/samples';
+import { createSamples, getEntryKind } from '@/data/samples';
 import { panes, type PaneNode } from '@/panes/layout';
 import { getWidgetType } from '@/widgets/registry';
 import { widgetBindings } from '@/widgets/bindings';
@@ -17,7 +17,7 @@ const entries = new Map(
 		] as const
 	).map(([name, type]): [string, Entry] => [
 		name,
-		{ name, type, kind: getEntryKind(type), samples: new Samples(), metadata: {} },
+		{ name, type, kind: getEntryKind(type), samples: createSamples(getEntryKind(type)), metadata: {} },
 	]),
 );
 const entryOf = (name: string) => entries.get(name);

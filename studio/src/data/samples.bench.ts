@@ -1,18 +1,17 @@
 import { expect, test } from 'vite-plus/test';
 import { maxLiveSamples } from '@/data/data-set';
-import { Samples, trimOldest } from '@/data/samples';
+import { createSamples, type Samples, trimOldest } from '@/data/samples';
 
 /** Live history at its limit, spread across entries like a robot's topics */
 function fullHistory(): Samples[] {
 	const entryCount = 1000;
 	const length = maxLiveSamples / entryCount;
 	return Array.from({ length: entryCount }, () => {
-		const timestamps = new Float64Array(length);
-		const values = Array.from({ length }, (_, i) => {
-			timestamps[i] = i * 20_000;
-			return Math.random();
-		});
-		return new Samples(timestamps, values);
+		const samples = createSamples('number');
+		for (let i = 0; i < length; i++) {
+			samples.push(i * 20_000, Math.random());
+		}
+		return samples;
 	});
 }
 

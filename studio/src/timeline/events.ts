@@ -43,10 +43,9 @@ function toPeriods(
 ): readonly ModePeriod[] {
 	const changeTimes = new Set<number>();
 	for (const { samples } of sources) {
-		const { timestamps, values } = samples;
-		for (let i = 0; i < values.length; i++) {
-			if (i === 0 || values[i] !== values[i - 1]) {
-				changeTimes.add(timestamps[i]!);
+		for (let i = 0; i < samples.length; i++) {
+			if (i === 0 || samples.value(i) !== samples.value(i - 1)) {
+				changeTimes.add(samples.timestamps[i]!);
 			}
 		}
 	}
@@ -154,14 +153,15 @@ const alertDebounce = 5_000_000;
 
 /** Add a span for each time an alert is in a list of active alerts (`string[]` entry). Spans still active end at `end`. */
 function addAlertSpans(entry: Entry, level: AlertLevel, end: number, spans: AlertSpan[]): void {
-	const { timestamps, values, length } = entry.samples;
+	const { samples } = entry;
+	const { timestamps, length } = samples;
 	let active = new Set<string>();
 	// Spans end at `Infinity` while the alert is active
 	const entrySpans: { start: number; end: number; level: AlertLevel; text: string }[] = [];
 	const latest = new Map<string, (typeof entrySpans)[number]>();
 	for (let index = 0; index < length; index++) {
 		const time = timestamps[index]!;
-		const value = values[index];
+		const value = samples.value(index);
 		const texts = new Set(Array.isArray(value) ? value.map(String) : []);
 		for (const text of texts) {
 			if (active.has(text)) {
@@ -197,7 +197,7 @@ export function getAlertSpans(entries: readonly Entry[], range: TimeRange): read
 	const spans: AlertSpan[] = [];
 
 	for (const typeEntry of entries) {
-		if (!typeEntry.name.endsWith('/.type') || typeEntry.samples.values.at(-1) !== 'Alerts') {
+		if (!typeEntry.name.endsWith('/.type') || typeEntry.samples.value(typeEntry.samples.length - 1) !== 'Alerts') {
 			continue;
 		}
 		const group = typeEntry.name.slice(0, -'/.type'.length);

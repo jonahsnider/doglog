@@ -84,13 +84,13 @@ test('a recording is on the robot clock and continues after it resets', async ()
 	expect(JSON.parse(entries.get('/Arm/Angle')!.metadata)).toEqual({ unit: 'deg' });
 	expect(entries.get('/Arm/Enabled')?.samples.timestamps[0]).toBe(100 * second);
 	expect(entries.get('/Count')?.type).toBe('int64');
-	expect(entries.get('/Count')?.samples.values).toEqual([5]);
+	expect(entries.get('/Count')?.samples.values()).toEqual([5]);
 	expect([...entries.keys()].some((name) => name.startsWith('/DogLogStudio/'))).toBe(false);
 	expect(recordedGaps(recording!, end!)).toEqual([{ start: 300 * second, end: 340 * second }]);
 
 	// Bytes Studio can't decode, and structs, are kept as the robot sent them
 	expect(rawPayloads(bytes).get('/Vision/Result')).toEqual(new Uint8Array([1, 2, 3]));
-	expect(entries.get('/Target')?.samples.values).toEqual([{ x: 1.5, y: -2 }]);
+	expect(entries.get('/Target')?.samples.values()).toEqual([{ x: 1.5, y: -2 }]);
 });
 
 test('a restored recording has the live times, and continues in the same file', async () => {
@@ -125,7 +125,7 @@ test('a restored recording has the live times, and continues in the same file', 
 
 	const { entries, recording, end, unreadBytes } = parseLog(combined, () => {});
 	expect(unreadBytes).toBe(0);
-	expect(entries.get('/Arm/Angle')?.samples.values).toEqual([1, 2, 3]);
+	expect(entries.get('/Arm/Angle')?.samples.values()).toEqual([1, 2, 3]);
 	expect(entries.get('/Arm/Angle')?.samples.timestamps[2]).toBe(401 * second);
 	expect(recordedGaps(recording!, end!)).toEqual([
 		{ start: 300 * second, end: 340 * second },

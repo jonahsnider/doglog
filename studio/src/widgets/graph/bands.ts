@@ -10,19 +10,20 @@ export const bandHeight = 20;
 
 /** The period of unchanged value around `time`, or `undefined` before the first sample */
 export function bandAt(entry: Entry, time: number, end: number) {
-	const { timestamps, values, length } = entry.samples;
-	const index = entry.samples.indexAtOrBefore(time);
+	const { samples } = entry;
+	const { timestamps, length } = samples;
+	const index = samples.indexAtOrBefore(time);
 	if (index < 0) {
 		return undefined;
 	}
 
-	const value = values[index];
+	const value = samples.value(index);
 	let first = index;
-	while (first > 0 && values[first - 1] === value) {
+	while (first > 0 && samples.value(first - 1) === value) {
 		first--;
 	}
 	let next = index + 1;
-	while (next < length && values[next] === value) {
+	while (next < length && samples.value(next) === value) {
 		next++;
 	}
 	return { value, start: timestamps[first]!, end: next < length ? timestamps[next]! : end };
@@ -30,14 +31,11 @@ export function bandAt(entry: Entry, time: number, end: number) {
 
 /** How many times the value changes from `start` to `end` */
 export function changesIn(entry: Entry, start: number, end: number): number {
-	const { timestamps, values, length } = entry.samples;
+	const { samples } = entry;
+	const { timestamps, length } = samples;
 	let changes = 0;
-	for (
-		let index = Math.max(1, entry.samples.indexAtOrAfter(start));
-		index < length && timestamps[index]! <= end;
-		index++
-	) {
-		if (values[index] !== values[index - 1]) {
+	for (let index = Math.max(1, samples.indexAtOrAfter(start)); index < length && timestamps[index]! <= end; index++) {
+		if (samples.value(index) !== samples.value(index - 1)) {
 			changes++;
 		}
 	}
@@ -123,9 +121,10 @@ export function drawBands(
 			continue;
 		}
 
-		const { timestamps, values, length } = entry.samples;
+		const { samples } = entry;
+		const { timestamps, length } = samples;
 		const y = row * rowHeight + bandTop;
-		const first = Math.max(0, entry.samples.indexAtOrBefore(view.start));
+		const first = Math.max(0, samples.indexAtOrBefore(view.start));
 		// Changes narrower than a pixel are gathered until a wider band, then drawn hatched
 		let narrow: { start: number; end: number; count: number } | undefined;
 		const drawNarrow = () => {
@@ -139,9 +138,9 @@ export function drawBands(
 
 		let index = first;
 		while (index < length && timestamps[index]! <= view.end) {
-			const value = values[index];
+			const value = samples.value(index);
 			let next = index + 1;
-			while (next < length && values[next] === value) {
+			while (next < length && samples.value(next) === value) {
 				next++;
 			}
 
@@ -154,7 +153,7 @@ export function drawBands(
 			}
 			if (narrow?.count === 1) {
 				// A single narrow band keeps its color
-				context.fillStyle = bandColor(assignments, palette, entry, values[index - 1]);
+				context.fillStyle = bandColor(assignments, palette, entry, samples.value(index - 1));
 				context.fillRect(Math.floor(narrow.start), y, 1, bandHeight);
 				narrow = undefined;
 			}

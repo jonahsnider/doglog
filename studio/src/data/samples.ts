@@ -1,3 +1,4 @@
+// oxlint-disable max-lines, max-classes-per-file -- Each kind of samples is a small class that only makes sense next to the base it extends
 import type { ProtobufPayload, ProtobufValue, StructPayload } from 'wpilog-parser';
 import type { EntryKind } from '@/data/entry-kind';
 
@@ -134,38 +135,82 @@ export function normalizeEntryName(name: string): string {
 	return name.startsWith('/') ? name : `/${name}`;
 }
 
+/** Samples in a form a worker or another window can be sent, see `Samples.toTransfer()` */
+export type SamplesTransfer = { timestamps: Float64Array<ArrayBuffer>; length: number } & (
+	| { values: Value[] }
+	| { numbers: Float64Array<ArrayBuffer> }
+	| { items: Float64Array<ArrayBuffer>; offsets: Uint32Array<ArrayBuffer> }
+);
+
+function grow<T extends Float64Array<ArrayBuffer> | Uint32Array<ArrayBuffer>>(array: T, size: number): T {
+	if (size <= array.length) {
+		return array;
+	}
+	// oxlint-disable-next-line typescript/no-unsafe-type-assertion -- A typed array's constructor makes the same type of typed array
+	const grown = new (array.constructor as new (length: number) => T)(Math.max(16, size, array.length * 2));
+	grown.set(array);
+	return grown;
+}
+
 /**
  * Time-ordered samples of one entry.
- * Timestamps are in microseconds, `timestamps[i]` is the time of `values[i]`, and only the first `length` items are used.
+ * Timestamps are in microseconds, `timestamps[i]` is the time of `value(i)`, and only the first `length` items are used.
+ * Numbers and arrays of numbers are kept in typed arrays, so a worker can send them without copying, see `createSamples()`.
  */
-export class Samples {
+export abstract class Samples {
 	timestamps: Float64Array<ArrayBuffer>;
-	values: Value[];
+	length: number;
 	/** Changes when samples are removed or inserted before the latest one, so copies made from them know to start over */
 	rewrites = 0;
 
-	constructor(timestamps: Float64Array<ArrayBuffer> = new Float64Array(16), values: Value[] = []) {
+	constructor(timestamps: Float64Array<ArrayBuffer>, length: number) {
 		this.timestamps = timestamps;
-		this.values = values;
+		this.length = length;
 	}
 
-	get length(): number {
-		return this.values.length;
+	/** The value of the sample at `index`, or `undefined` if there is none */
+	abstract value(index: number): Value | undefined;
+
+	/** Every value, in order */
+	values(): Value[] {
+		return Array.from({ length: this.length }, (_, index) => this.value(index)!);
+	}
+
+	/** How many items the value at `index` has, 0 if it isn't an array */
+	lengthAt(index: number): number {
+		const value = this.value(index);
+		return Array.isArray(value) ? value.length : 0;
+	}
+
+	/** Store `value` as the sample at `index`, moving the samples at and after it up one */
+	protected abstract insertValue(index: number, value: Value): void;
+
+	/** Remove the first `count` values */
+	protected abstract removeValues(count: number): void;
+
+	/** A copy, without the room kept for more samples */
+	abstract copy(): Samples;
+
+	/** The samples to send without copying them, see `transferables()`. They can't be used once they're sent. */
+	abstract toTransfer(): SamplesTransfer;
+
+	/** Remove every sample */
+	clear(): void {
+		this.removeValues(this.length);
+		this.timestamps = new Float64Array(16);
+		this.length = 0;
+		this.rewrites++;
 	}
 
 	/** Add a sample, keeping samples sorted by time */
 	push(timestamp: number, value: Value): void {
-		const length = this.length;
-
-		if (length === this.timestamps.length) {
-			const grown = new Float64Array(Math.max(16, length * 2));
-			grown.set(this.timestamps);
-			this.timestamps = grown;
-		}
+		const { length } = this;
+		this.timestamps = grow(this.timestamps, length + 1);
 
 		if (length === 0 || timestamp >= this.timestamps[length - 1]!) {
 			this.timestamps[length] = timestamp;
-			this.values.push(value);
+			this.insertValue(length, value);
+			this.length++;
 			return;
 		}
 
@@ -173,7 +218,8 @@ export class Samples {
 		const index = this.indexAtOrBefore(timestamp) + 1;
 		this.timestamps.copyWithin(index + 1, index, length);
 		this.timestamps[index] = timestamp;
-		this.values.splice(index, 0, value);
+		this.insertValue(index, value);
+		this.length++;
 		this.rewrites++;
 	}
 
@@ -209,7 +255,7 @@ export class Samples {
 
 	/** The latest value at or before `time`, or `undefined` if there is none */
 	valueAt(time: number): Value | undefined {
-		return this.values[this.indexAtOrBefore(time)];
+		return this.value(this.indexAtOrBefore(time));
 	}
 
 	/**
@@ -222,10 +268,205 @@ export class Samples {
 			return 0;
 		}
 		this.timestamps.copyWithin(0, count, this.length);
-		this.values.splice(0, count);
+		this.removeValues(count);
+		this.length -= count;
 		this.rewrites++;
 		return count;
 	}
+
+	protected has(index: number): boolean {
+		return index >= 0 && index < this.length;
+	}
+}
+
+/** Samples of any kind of value */
+class ValueSamples extends Samples {
+	private stored: Value[];
+
+	constructor(timestamps = new Float64Array(16), values: Value[] = []) {
+		super(timestamps, values.length);
+		this.stored = values;
+	}
+
+	value(index: number): Value | undefined {
+		return this.stored[index];
+	}
+
+	override values(): Value[] {
+		return this.stored.slice();
+	}
+
+	protected insertValue(index: number, value: Value): void {
+		if (index === this.stored.length) {
+			this.stored.push(value);
+		} else {
+			this.stored.splice(index, 0, value);
+		}
+	}
+
+	protected removeValues(count: number): void {
+		this.stored.splice(0, count);
+	}
+
+	copy(): Samples {
+		return new ValueSamples(this.timestamps.slice(0, this.length), this.stored.slice());
+	}
+
+	toTransfer(): SamplesTransfer {
+		return { timestamps: this.timestamps, length: this.length, values: this.stored };
+	}
+}
+
+/** Samples of numbers, kept in a typed array */
+class NumberSamples extends Samples {
+	private numbers: Float64Array<ArrayBuffer>;
+
+	constructor(timestamps = new Float64Array(16), numbers = new Float64Array(16), length = 0) {
+		super(timestamps, length);
+		this.numbers = numbers;
+	}
+
+	value(index: number): number | undefined {
+		return this.has(index) ? this.numbers[index] : undefined;
+	}
+
+	protected insertValue(index: number, value: Value): void {
+		this.numbers = grow(this.numbers, this.length + 1);
+		this.numbers.copyWithin(index + 1, index, this.length);
+		// oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Samples are made for their entry's kind, see `createSamples()`
+		this.numbers[index] = value as number;
+	}
+
+	protected removeValues(count: number): void {
+		this.numbers.copyWithin(0, count, this.length);
+	}
+
+	copy(): Samples {
+		return new NumberSamples(this.timestamps.slice(0, this.length), this.numbers.slice(0, this.length), this.length);
+	}
+
+	toTransfer(): SamplesTransfer {
+		return { timestamps: this.timestamps, length: this.length, numbers: this.numbers };
+	}
+}
+
+/**
+ * Samples of arrays of numbers, kept in one typed array of every array's items. Arrays are only made when a value is
+ * read, see `value()`, so an entry nobody looks at never makes them.
+ */
+export class NumberArraySamples extends Samples {
+	private items: Float64Array<ArrayBuffer>;
+	/** Where each sample's items start in `items`, and where the last one's end */
+	private offsets: Uint32Array<ArrayBuffer>;
+	// The latest value read, so reading it again gives the same array
+	private cached: { index: number; rewrites: number; value: number[] } | undefined;
+
+	constructor(
+		timestamps = new Float64Array(16),
+		items = new Float64Array(16),
+		offsets = new Uint32Array(17),
+		length = 0,
+	) {
+		super(timestamps, length);
+		this.items = items;
+		this.offsets = offsets;
+	}
+
+	value(index: number): number[] | undefined {
+		if (!this.has(index)) {
+			return undefined;
+		}
+		const { cached } = this;
+		if (cached?.index === index && cached.rewrites === this.rewrites) {
+			return cached.value;
+		}
+		const value = Array.from(this.items.subarray(this.offsets[index], this.offsets[index + 1]));
+		this.cached = { index, rewrites: this.rewrites, value };
+		return value;
+	}
+
+	/** How many items the array at `index` has, without making it, since making every array takes about as long as loading the log */
+	override lengthAt(index: number): number {
+		return this.offsets[index + 1]! - this.offsets[index]!;
+	}
+
+	/** Item `item` of the array at `index`, or `undefined` past its end, without making the array */
+	itemAt(index: number, item: number): number | undefined {
+		return item >= 0 && item < this.lengthAt(index) ? this.items[this.offsets[index]! + item] : undefined;
+	}
+
+	protected insertValue(index: number, value: Value): void {
+		// oxlint-disable-next-line typescript/no-unsafe-type-assertion -- Samples are made for their entry's kind, see `createSamples()`
+		const array = value as readonly number[];
+		const { length, offsets } = this;
+		const start = offsets[index]!;
+		const end = offsets[length]!;
+		this.items = grow(this.items, end + array.length);
+		this.offsets = grow(offsets, length + 2);
+		this.items.copyWithin(start + array.length, start, end);
+		this.items.set(array, start);
+		for (let next = length + 1; next > index; next--) {
+			this.offsets[next] = this.offsets[next - 1]! + array.length;
+		}
+	}
+
+	protected removeValues(count: number): void {
+		const { length, offsets } = this;
+		const start = offsets[count]!;
+		this.items.copyWithin(0, start, offsets[length]);
+		for (let index = 0; index <= length - count; index++) {
+			offsets[index] = offsets[index + count]! - start;
+		}
+	}
+
+	copy(): Samples {
+		const { length } = this;
+		return new NumberArraySamples(
+			this.timestamps.slice(0, length),
+			this.items.slice(0, this.offsets[length]),
+			this.offsets.slice(0, length + 1),
+			length,
+		);
+	}
+
+	toTransfer(): SamplesTransfer {
+		return { timestamps: this.timestamps, length: this.length, items: this.items, offsets: this.offsets };
+	}
+}
+
+/** Empty samples for an entry of `kind`, see `Samples` */
+export function createSamples(kind: EntryKind): Samples {
+	switch (kind) {
+		case 'number':
+			return new NumberSamples();
+		case 'number[]':
+			return new NumberArraySamples();
+		default:
+			return new ValueSamples();
+	}
+}
+
+/** Samples another window or a worker sent, see `Samples.toTransfer()` */
+export function fromTransfer(transfer: SamplesTransfer): Samples {
+	const { timestamps, length } = transfer;
+	if ('numbers' in transfer) {
+		return new NumberSamples(timestamps, transfer.numbers, length);
+	}
+	if ('items' in transfer) {
+		return new NumberArraySamples(timestamps, transfer.items, transfer.offsets, length);
+	}
+	return new ValueSamples(timestamps, transfer.values);
+}
+
+/** The buffers of samples to transfer instead of copying, see `Samples.toTransfer()` */
+export function transferables(transfer: SamplesTransfer): ArrayBuffer[] {
+	if ('numbers' in transfer) {
+		return [transfer.timestamps.buffer, transfer.numbers.buffer];
+	}
+	if ('items' in transfer) {
+		return [transfer.timestamps.buffer, transfer.items.buffer, transfer.offsets.buffer];
+	}
+	return [transfer.timestamps.buffer];
 }
 
 /**

@@ -12,7 +12,7 @@ import {
 	widgetBindings,
 } from '@/widgets/bindings';
 import type { Entry } from '@/data/data-store';
-import { getEntryKind, Samples } from '@/data/samples';
+import { createSamples, getEntryKind } from '@/data/samples';
 import { createPane, findPane, type PaneNode } from '@/panes/layout';
 import { getWidgetType } from '@/widgets/registry';
 import type { WidgetType } from '@/widgets/widget-type';
@@ -136,7 +136,7 @@ const pose: Entry = {
 	name: '/pose',
 	type: 'struct:Pose2d',
 	kind: getEntryKind('struct:Pose2d'),
-	samples: new Samples(),
+	samples: createSamples('struct'),
 	metadata: {},
 };
 const robotType: WidgetType = {
@@ -190,7 +190,10 @@ const fieldEntries = new Map<string, Entry>(
 			['/tags', 'struct:Pose3d[]'],
 			['/path', 'struct:Pose2d[]'],
 		] as const
-	).map(([name, type]) => [name, { name, type, kind: getEntryKind(type), samples: new Samples(), metadata: {} }]),
+	).map(([name, type]) => [
+		name,
+		{ name, type, kind: getEntryKind(type), samples: createSamples(getEntryKind(type)), metadata: {} },
+	]),
 );
 const resolveField = (...bindings: Binding[]) => resolveBindings(field, bindings, (name) => fieldEntries.get(name));
 

@@ -26,14 +26,14 @@ const extents = new WeakMap<Samples, Extent>();
  * dropped, ex. by a long live session.
  */
 export function wholeExtent(samples: Samples): Range | undefined {
-	const { timestamps, values, length } = samples;
+	const { timestamps, length } = samples;
 	let extent = extents.get(samples);
 	if (!extent || extent.first !== timestamps[0] || extent.checked > length) {
 		extent = { first: timestamps[0] ?? 0, checked: 0, min: Infinity, max: -Infinity };
 		extents.set(samples, extent);
 	}
 	for (let index = extent.checked; index < length; index++) {
-		const value = values[index];
+		const value = samples.value(index);
 		if (typeof value === 'number' && Number.isFinite(value)) {
 			extent.min = Math.min(extent.min, value);
 			extent.max = Math.max(extent.max, value);

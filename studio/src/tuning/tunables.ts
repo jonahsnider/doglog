@@ -123,7 +123,7 @@ function isScalarArray(value: unknown): value is TunableScalar[] {
 }
 
 export function currentValue({ entry, array }: Tunable): TunableValue | undefined {
-	const value = entry.samples.values.at(-1);
+	const value = entry.samples.value(entry.samples.length - 1);
 	if (array) {
 		return isScalarArray(value) ? value : undefined;
 	}

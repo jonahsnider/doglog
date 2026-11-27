@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vite-plus/test';
-import { Samples } from '@/data/samples';
+import { createSamples, type Samples } from '@/data/samples';
 import {
 	countAtOrBefore,
 	filterMessages,
@@ -12,7 +12,7 @@ import {
 } from '@/widgets/console/messages';
 
 function samplesOf(...items: [number, string][]): Samples {
-	const samples = new Samples();
+	const samples = createSamples('string');
 	for (const [timestamp, value] of items) {
 		samples.push(timestamp, value);
 	}
@@ -32,7 +32,7 @@ describe('mergeMessages', () => {
 
 	test('handles empty sources', () => {
 		expect(mergeMessages([]).texts).toEqual([]);
-		expect(mergeMessages([new Samples(), samplesOf([5, 'a'])]).texts).toEqual(['a']);
+		expect(mergeMessages([createSamples('string'), samplesOf([5, 'a'])]).texts).toEqual(['a']);
 	});
 
 	test('splits samples into lines, joining indented lines to the same source across samples', () => {

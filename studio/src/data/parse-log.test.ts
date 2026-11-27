@@ -26,8 +26,8 @@ test('leftover data after the last record is unread, and its records are not loa
 	const tail = new Uint8Array([0x01, 0xff, 0xff, 0, 0, 0x00, 5, 8, 0, 0, 0, 0, 0, 0, 0, 0xf0, 0x3f]);
 	const { unreadBytes, entries } = parse(withTail(tail));
 	expect(unreadBytes).toBe(tail.length);
-	expect(entries.get('/Robot/Subsystem0/Number0')?.samples.values).toEqual(
-		parse(log).entries.get('/Robot/Subsystem0/Number0')?.samples.values,
+	expect(entries.get('/Robot/Subsystem0/Number0')?.samples.values()).toEqual(
+		parse(log).entries.get('/Robot/Subsystem0/Number0')?.samples.values(),
 	);
 });
 
@@ -75,8 +75,8 @@ test('values set before the log started are values at its start, and the log sti
 
 	expect(end).toBe(plain.end);
 	expect(entries.get('/Limelight/tx')?.samples.valueAt(start!)).toBe(2);
-	expect(entries.get('/Robot/Subsystem0/Number0')?.samples.values).toEqual(
-		plain.entries.get('/Robot/Subsystem0/Number0')?.samples.values,
+	expect(entries.get('/Robot/Subsystem0/Number0')?.samples.values()).toEqual(
+		plain.entries.get('/Robot/Subsystem0/Number0')?.samples.values(),
 	);
 });
 
@@ -93,7 +93,7 @@ test("a value that doesn't match its struct schema is skipped, and later records
 	const { entries } = parse(withTail(new Uint8Array(tail.flatMap((bytes) => Array.from(bytes)))));
 
 	expect(entries.get('/Pair')?.samples.length).toBe(0);
-	expect(entries.get('/After')?.samples.values).toEqual([3]);
+	expect(entries.get('/After')?.samples.values()).toEqual([3]);
 });
 
 test('a log with no readable entries throws', () => {

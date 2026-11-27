@@ -28,7 +28,7 @@ test.each([1, 7, 137, 4096])('StreamingLogParser matches parseLog with %i-byte c
 		expect(streamed.type).toBe(entry.type);
 		expect(streamed.metadata).toBe(entry.metadata);
 		expect(streamed.samples.timestamps).toEqual(entry.samples.timestamps);
-		expect(streamed.samples.values).toEqual(entry.samples.values);
+		expect(streamed.samples.values()).toEqual(entry.samples.values());
 	}
 });
 
@@ -95,7 +95,7 @@ test('StreamingLogParser decodes nested structs whose dependencies arrive in sep
 	]);
 
 	const parsed = streamInChunks(rawLog, 5);
-	expect(parsed.entries.get('/Robot/Pair')?.samples.values).toEqual([{ first: { x: 1.5 }, second: { y: 2.5 } }]);
+	expect(parsed.entries.get('/Robot/Pair')?.samples.values()).toEqual([{ first: { x: 1.5 }, second: { y: 2.5 } }]);
 	expect(parsed.unreadBytes).toBe(0);
 });
 
@@ -108,8 +108,8 @@ test('StreamingLogParser handles partial trailing records and damaged tails iden
 	const expected = parseLog(damaged, () => {});
 	const actual = streamInChunks(damaged, 13);
 	expect(actual.unreadBytes).toBe(expected.unreadBytes);
-	expect(actual.entries.get('/Robot/Subsystem0/Number0')?.samples.values).toEqual(
-		expected.entries.get('/Robot/Subsystem0/Number0')?.samples.values,
+	expect(actual.entries.get('/Robot/Subsystem0/Number0')?.samples.values()).toEqual(
+		expected.entries.get('/Robot/Subsystem0/Number0')?.samples.values(),
 	);
 
 	// Header with garbage records and zero readable entries must throw

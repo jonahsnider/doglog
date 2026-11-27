@@ -3,7 +3,16 @@ import type { ProtobufValue } from 'wpilog-parser';
 import type { StructDeclaration } from 'wpilib-struct';
 import type { Entry, TimeRange } from '@/data/data-store';
 import { type FieldKey, FieldEntry, protobufFieldType, structFieldType } from '@/data/field-entry';
-import { getEntryKind, protobufMessage, Samples, trimOldest, type Value } from '@/data/samples';
+import {
+	createSamples,
+	fromTransfer,
+	getEntryKind,
+	protobufMessage,
+	type Samples,
+	type SamplesTransfer,
+	trimOldest,
+	type Value,
+} from '@/data/samples';
 
 /** The fields found so far in a protobuf entry's values, and the fields found in each of them */
 type FoundFields = Map<FieldKey, FoundFields>;
@@ -21,8 +30,7 @@ export type DataSetTransfer = {
 	entries: {
 		name: string;
 		type: string;
-		timestamps: Float64Array<ArrayBuffer>;
-		values: Value[];
+		samples: SamplesTransfer;
 		metadata: Readonly<Record<string, unknown>>;
 		embeddedLog?: Uint8Array<ArrayBuffer>;
 	}[];
@@ -75,7 +83,12 @@ export class DataSet {
 	}
 
 	/** Add an entry, or replace it with an empty entry if its type changed. Updates the entry's metadata when `metadata` is given. */
-	addEntry(name: string, type: string, samples = new Samples(), metadata?: Record<string, unknown>): Entry {
+	addEntry(
+		name: string,
+		type: string,
+		samples = createSamples(getEntryKind(type)),
+		metadata?: Record<string, unknown>,
+	): Entry {
 		const existing = this.entries.get(name);
 		// A logged entry replaces a field entry with the same name
 		if (existing?.type === type && !(existing instanceof FieldEntry)) {
@@ -219,8 +232,7 @@ export class DataSet {
 			entries: logged.map(({ name, type, samples, metadata, embeddedLog }) => ({
 				name,
 				type,
-				timestamps: samples.timestamps.slice(0, samples.length),
-				values: samples.values.slice(),
+				samples: samples.copy().toTransfer(),
 				metadata,
 				...(embeddedLog && { embeddedLog }),
 			})),
@@ -238,8 +250,8 @@ export class DataSet {
 		for (const [name, fields] of transfer.structSchemas) {
 			this.structSchemas.set(name, fields);
 		}
-		for (const { name, type, timestamps, values, metadata, embeddedLog } of transfer.entries) {
-			const entry = this.addEntry(name, type, new Samples(timestamps, values), { ...metadata });
+		for (const { name, type, samples, metadata, embeddedLog } of transfer.entries) {
+			const entry = this.addEntry(name, type, fromTransfer(samples), { ...metadata });
 			if (embeddedLog) {
 				entry.embeddedLog = embeddedLog;
 			}
@@ -263,7 +275,7 @@ export class DataSet {
 				copy = new FieldEntry(replay.entries.get(entry.root.name)!, entry.path, entry.type);
 			} else {
 				const from = entry.samples;
-				const samples = histories.get(from) ?? new Samples(from.timestamps.slice(0, from.length), from.values.slice());
+				const samples = histories.get(from) ?? from.copy();
 				histories.set(from, samples);
 				copy = { ...entry, samples };
 			}
@@ -304,7 +316,7 @@ export class DataSet {
 	 */
 	private addMechanismEntries(): void {
 		for (const typeEntry of this.uncheckedTypeEntries) {
-			const type = typeEntry.samples.values[0];
+			const type = typeEntry.samples.value(0);
 			if (type === undefined) {
 				continue;
 			}
@@ -336,29 +348,28 @@ export class DataSet {
 	 */
 	private addFieldEntries(): void {
 		for (const [entry, protobuf] of this.protobufs) {
-			const { values, length } = entry.samples;
+			const { samples } = entry;
+			const { length } = samples;
 			// Trimmed live history, check what's left
 			if (protobuf.checked > length) {
 				protobuf.checked = 0;
 			}
 			for (let index = protobuf.checked; index < length; index++) {
-				this.addProtobufFields(entry, [], values[index], protobuf.fields);
+				this.addProtobufFields(entry, [], samples.value(index), protobuf.fields);
 			}
 			protobuf.checked = length;
 		}
 
 		for (const [entry, array] of this.arrays) {
-			const { values, length } = entry.samples;
+			const { samples } = entry;
+			const { length } = samples;
 			// Trimmed live history, check what's left
 			if (array.checked > length) {
 				array.checked = 0;
 			}
 			let longest = array.length;
 			for (let index = array.checked; index < length; index++) {
-				const value = values[index];
-				if (Array.isArray(value) && value.length > longest) {
-					longest = value.length;
-				}
+				longest = Math.max(longest, samples.lengthAt(index));
 			}
 			for (let index = array.length; index < longest; index++) {
 				this.addField(entry, index, entry.type.slice(0, -'[]'.length));

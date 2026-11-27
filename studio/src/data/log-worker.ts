@@ -6,7 +6,7 @@ import { addEmbeddedLogs } from '@/data/embedded-logs';
 import { parseHoot } from '@/data/parse-hoot';
 import { type ParsedLog, parseLog } from '@/data/parse-log';
 import { recordedGaps, type RestoredRecording, toLiveTimes } from '@/data/read-recording';
-import type { Value } from '@/data/samples';
+import { type SamplesTransfer, transferables } from '@/data/samples';
 import { StreamingLogParser } from '@/data/stream-log';
 import { isXz } from '@/data/xz';
 
@@ -48,8 +48,7 @@ export type LogWorkerMessage =
 			entryType: string;
 			/** The entry's latest metadata string */
 			metadata: string;
-			timestamps: Float64Array<ArrayBuffer>;
-			values: Value[];
+			samples: SamplesTransfer;
 			/** For an entry with a log embedded in it, the embedded log's file */
 			embeddedLog: Uint8Array<ArrayBuffer> | undefined;
 	  }
@@ -93,18 +92,16 @@ async function postParsed(parsed: ParsedLog, byteLength: number, live: boolean):
 	const embeddedLogs = new Map(parsed.embeddedLogs.map(({ name, bytes }) => [name, bytes]));
 	for (const [name, { type, metadata, samples }] of entries) {
 		const embeddedLog = embeddedLogs.get(name);
+		const transfer = samples.toTransfer();
 		const message: LogWorkerMessage = {
 			type: 'entry',
 			name,
 			entryType: type,
 			metadata,
-			timestamps: samples.timestamps,
-			values: samples.values,
+			samples: transfer,
 			embeddedLog,
 		};
-		postMessage(message, {
-			transfer: embeddedLog ? [samples.timestamps.buffer, embeddedLog.buffer] : [samples.timestamps.buffer],
-		});
+		postMessage(message, { transfer: [...transferables(transfer), ...(embeddedLog ? [embeddedLog.buffer] : [])] });
 	}
 
 	postMessage({

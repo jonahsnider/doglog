@@ -1,5 +1,6 @@
 import { expect, test } from 'vite-plus/test';
 import { parseLog } from '@/data/parse-log';
+import { transferables } from '@/data/samples';
 import { syntheticLog } from '@/data/synthetic-log';
 
 // CodSpeed counts instructions under Valgrind instead of timing, which is far slower, and a smaller log catches the same regressions
@@ -13,10 +14,8 @@ test('loading a log', { timeout: 10 * 60_000 }, async ({ bench }) => {
 		const { entries } = parseLog(bytes, () => {});
 		// The worker posts each entry to the main thread, which copies its values
 		for (const { samples } of entries.values()) {
-			structuredClone(
-				{ timestamps: samples.timestamps, values: samples.values },
-				{ transfer: [samples.timestamps.buffer] },
-			);
+			const transfer = samples.toTransfer();
+			structuredClone(transfer, { transfer: transferables(transfer) });
 		}
 	}).run({ iterations: 5, time: 0, warmupIterations: 1, warmupTime: 0 });
 

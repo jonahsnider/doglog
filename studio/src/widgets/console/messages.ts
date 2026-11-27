@@ -46,7 +46,7 @@ export function mergeMessages(sources: readonly Samples[]): ConsoleMessages {
 			}
 		}
 
-		for (const line of formatValue(sources[best]!.values[next[best]!]).split('\n')) {
+		for (const line of formatValue(sources[best]!.value(next[best]!)).split('\n')) {
 			if (line.trim() === '') {
 				continue;
 			}

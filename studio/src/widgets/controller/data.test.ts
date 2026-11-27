@@ -1,6 +1,6 @@
 import { expect, test } from 'vite-plus/test';
 import type { Entry } from '@/data/data-store';
-import { getEntryKind, Samples, type Value } from '@/data/samples';
+import { createSamples, getEntryKind, type Value } from '@/data/samples';
 import { createPane, type Pane, splitPane } from '@/panes/layout';
 import {
 	controllerPort,
@@ -12,7 +12,7 @@ import {
 import { nextController } from '@/widgets/controller/options';
 
 function entry(name: string, type: string, value: Value): Entry {
-	const samples = new Samples();
+	const samples = createSamples(getEntryKind(type));
 	samples.push(0, value);
 	return { name, type, kind: getEntryKind(type), samples, metadata: {} };
 }

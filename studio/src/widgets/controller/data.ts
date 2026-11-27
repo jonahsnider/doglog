@@ -88,16 +88,15 @@ export function findController(
 }
 
 function values(entry: Entry | undefined): Value[] {
-	return entry ? entry.samples.values.slice(0, entry.samples.length) : [];
+	return entry ? entry.samples.values() : [];
 }
 
 /** Whether a controller was ever plugged in, logs have empty values for every port without one */
 export function hasControllerData(source: ControllerSource | undefined): boolean {
 	const samples = source?.axes?.samples;
-	// Checked as the widget renders, so it stops at the first value instead of copying them
+	// Checked as the widget renders, so it stops at the first value and counts items without making each array
 	for (let index = 0; index < (samples?.length ?? 0); index++) {
-		const value = samples!.values[index];
-		if (Array.isArray(value) && value.length > 0) {
+		if (samples!.lengthAt(index) > 0) {
 			return true;
 		}
 	}

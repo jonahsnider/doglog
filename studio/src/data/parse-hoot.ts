@@ -1,6 +1,6 @@
 import { parseHoot as readHoot } from 'hoot-parser';
 import type { OnRecord, ParsedLog } from '@/data/parse-log';
-import { isSchemaEntry, isStudioEntry, normalizeEntryName, Samples } from '@/data/samples';
+import { createSamples, getEntryKind, isSchemaEntry, isStudioEntry, normalizeEntryName } from '@/data/samples';
 
 /** Collect decoded HOOT records into Studio entries. */
 export function parseHoot(bytes: Uint8Array, onProgress: (progress: number) => void, onRecord?: OnRecord): ParsedLog {
@@ -29,7 +29,7 @@ export function parseHoot(bytes: Uint8Array, onProgress: (progress: number) => v
 		let entry = entries.get(name);
 		if (entry?.type !== type) {
 			const metadata = unit === undefined || unit === '' ? '' : JSON.stringify({ unit });
-			entry = { type, metadata, samples: new Samples() };
+			entry = { type, metadata, samples: createSamples(getEntryKind(type)) };
 			entries.set(name, entry);
 		}
 		entry.samples.push(timestamp, payload);

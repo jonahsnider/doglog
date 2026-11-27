@@ -57,7 +57,7 @@ export function analyzeSamples(
 ): Analysis | undefined {
 	const values: number[] = [];
 	for (let index = start; index < end; index++) {
-		const value = samples.values[index];
+		const value = samples.value(index);
 		if (typeof value === 'number' && Number.isFinite(value)) {
 			const converted = convert(value);
 			if (Number.isFinite(converted)) {

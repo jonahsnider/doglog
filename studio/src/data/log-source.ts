@@ -2,7 +2,7 @@ import type { StructDeclaration } from 'wpilib-struct';
 import type { DataSet } from '@/data/data-set';
 import { parseMetadata } from '@/data/data-store';
 import type { LogWorkerMessage, LogWorkerRequest, RestoredLog } from '@/data/log-worker';
-import { Samples } from '@/data/samples';
+import { fromTransfer } from '@/data/samples';
 import { isXz } from '@/data/xz';
 
 export type LogInput = File | { name: string; contents: ArrayBuffer };
@@ -55,9 +55,9 @@ export type LogStreamHandle = {
 
 /**
  * Share of a log's progress for parsing or downloading it, the rest is for sending its entries from the worker. Sending
- * them takes about half as long as parsing, so the progress moves at about the same speed through both.
+ * them takes about a fifth as long as parsing, so the progress moves at about the same speed through both.
  */
-const parseShare = 2 / 3;
+const parseShare = 0.85;
 
 function attachLogWorker(
 	data: DataSet,
@@ -112,7 +112,7 @@ function attachLogWorker(
 				break;
 			case 'entry':
 				entries.push(message);
-				sentSamples += message.values.length;
+				sentSamples += message.samples.length;
 				showProgress();
 				break;
 			case 'done': {
@@ -120,8 +120,8 @@ function attachLogWorker(
 				for (const [name, fields] of schemas ?? []) {
 					data.addStructSchema(name, fields);
 				}
-				for (const { name, entryType, timestamps, values, metadata, embeddedLog } of entries) {
-					const entry = data.addEntry(name, entryType, new Samples(timestamps, values), parseMetadata(metadata));
+				for (const { name, entryType, samples, metadata, embeddedLog } of entries) {
+					const entry = data.addEntry(name, entryType, fromTransfer(samples), parseMetadata(metadata));
 					if (embeddedLog) {
 						entry.embeddedLog = embeddedLog;
 					}

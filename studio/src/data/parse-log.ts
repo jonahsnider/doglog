@@ -11,11 +11,13 @@ import {
 } from 'wpilog-parser';
 import { isRecordingEntry, readRecordingValue, type RecordingInfo } from '@/data/read-recording';
 import {
+	createSamples,
 	embeddedLogFormat,
+	getEntryKind,
 	isSchemaEntry,
 	isStudioEntry,
 	normalizeEntryName,
-	Samples,
+	type Samples,
 	type Value,
 } from '@/data/samples';
 
@@ -104,7 +106,11 @@ function handleControlRecord(
 	if (existing?.type === payload.entryType) {
 		existing.metadata = payload.entryMetadata;
 	} else {
-		entries.set(name, { type: payload.entryType, metadata: payload.entryMetadata, samples: new Samples() });
+		entries.set(name, {
+			type: payload.entryType,
+			metadata: payload.entryMetadata,
+			samples: createSamples(getEntryKind(payload.entryType)),
+		});
 	}
 }
 

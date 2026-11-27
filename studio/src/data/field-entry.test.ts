@@ -1,10 +1,10 @@
 import { parseStructSpecification } from 'wpilog-parser';
 import { describe, expect, test } from 'vite-plus/test';
 import { DataSet } from '@/data/data-set';
-import { Samples, type Value } from '@/data/samples';
+import { createSamples, type Samples, type Value } from '@/data/samples';
 
 function samplesOf(...items: [number, Value][]): Samples {
-	const samples = new Samples();
+	const samples = createSamples('struct[]');
 	for (const [timestamp, value] of items) {
 		samples.push(timestamp, value);
 	}
@@ -12,7 +12,7 @@ function samplesOf(...items: [number, Value][]): Samples {
 }
 
 function valuesOf(samples: Samples): [number, Value][] {
-	return samples.values.map((value, index) => [samples.timestamps[index]!, value]);
+	return samples.values().map((value, index) => [samples.timestamps[index]!, value]);
 }
 
 describe('field entries', () => {

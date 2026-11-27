@@ -1,10 +1,10 @@
 import { expect, test } from 'vite-plus/test';
 import type { Entry } from '@/data/data-store';
 import { mechanismLayout, readMechanism } from '@/data/mechanism';
-import { getEntryKind, Samples, type Value } from '@/data/samples';
+import { createSamples, getEntryKind, type Value } from '@/data/samples';
 
 function entry(name: string, type: string, value: Value, time = 0): Entry {
-	const samples = new Samples();
+	const samples = createSamples(getEntryKind(type));
 	samples.push(time, value);
 	return { name, type, kind: getEntryKind(type), samples, metadata: {} };
 }

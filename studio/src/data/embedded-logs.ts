@@ -118,12 +118,12 @@ function enableEdges({ entries }: ParsedLog): Edge[] {
 		}
 		return (Number(value) & controlBits.enabled) !== 0;
 	};
-	const { timestamps, values } = source.samples;
+	const { samples } = source;
 	const edges: Edge[] = [];
-	for (let i = 1; i < values.length; i++) {
-		const enabled = isEnabled(values[i]);
-		if (enabled !== isEnabled(values[i - 1])) {
-			edges.push({ time: timestamps[i]!, rising: enabled });
+	for (let i = 1; i < samples.length; i++) {
+		const enabled = isEnabled(samples.value(i));
+		if (enabled !== isEnabled(samples.value(i - 1))) {
+			edges.push({ time: samples.timestamps[i]!, rising: enabled });
 		}
 	}
 	return edges;

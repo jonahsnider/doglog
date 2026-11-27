@@ -2,7 +2,14 @@ import type { ProtobufValue } from 'wpilog-parser';
 import type { StructDeclaration, StructPayload } from 'wpilib-struct';
 import type { Entry } from '@/data/data-store';
 import type { EntryKind } from '@/data/entry-kind';
-import { getEntryKind, protobufMessageField, Samples, type Value } from '@/data/samples';
+import {
+	createSamples,
+	getEntryKind,
+	NumberArraySamples,
+	protobufMessageField,
+	type Samples,
+	type Value,
+} from '@/data/samples';
 
 /** Index of an array element or name of a struct field */
 export type FieldKey = number | string;
@@ -128,7 +135,7 @@ export class FieldEntry implements Entry {
 	}
 
 	get samples(): Samples {
-		this.copy ??= new Samples();
+		this.copy ??= createSamples(this.kind);
 		this.sync(this.copy);
 		return this.copy;
 	}
@@ -139,12 +146,15 @@ export class FieldEntry implements Entry {
 			// Samples were trimmed or inserted out of order, start over
 			this.rewrites = source.rewrites;
 			this.read = 0;
-			copy.timestamps = new Float64Array(16);
-			copy.values = [];
-			copy.rewrites++;
+			copy.clear();
 		}
+		// An element of an array of numbers is read without making the array
+		const [key] = this.path;
+		const item = this.path.length === 1 && typeof key === 'number' ? key : undefined;
+		const array = source instanceof NumberArraySamples ? source : undefined;
 		for (let index = this.read; index < source.length; index++) {
-			const value = fieldValue(source.values[index], this.path);
+			const value =
+				array && item !== undefined ? array.itemAt(index, item) : fieldValue(source.value(index), this.path);
 			if (value !== undefined) {
 				copy.push(source.timestamps[index]!, value);
 			}
