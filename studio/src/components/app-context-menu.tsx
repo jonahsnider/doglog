@@ -163,9 +163,64 @@ function menuPoint(event: React.MouseEvent | React.TouchEvent): MenuPoint | unde
 	return event.button === 2 || event.ctrlKey ? { clientX: event.clientX, clientY: event.clientY } : undefined;
 }
 
+/** Whether the right-click being pressed shows the browser's menu instead of one of these, from when one first opens */
+let showsBrowserMenu: boolean | undefined;
+
+/**
+ * Lets a right-click on an open menu, or on what it was opened from, close the menu and show the browser's instead.
+ * It's decided as the button is pressed, since a press outside the menu closes it before the menu event is sent. The
+ * menu event is stopped before it reaches React, so no handler prevents it, including ones that send their own, ex. 3D
+ * views.
+ */
+function allowBrowserMenu() {
+	if (showsBrowserMenu !== undefined) {
+		return;
+	}
+	showsBrowserMenu = false;
+	window.addEventListener(
+		'pointerdown',
+		(event) => {
+			showsBrowserMenu = false;
+			if (event.button !== 2 || !(event.target instanceof Element)) {
+				return;
+			}
+
+			let menu = event.target.closest('[role="menu"]');
+			// Submenus are inside the menu they're opened from
+			while (menu?.parentElement?.closest('[role="menu"]')) {
+				menu = menu.parentElement.closest('[role="menu"]');
+			}
+			if (menu) {
+				showsBrowserMenu = true;
+				menu.closest<HTMLElement>('[popover]')?.hidePopover();
+			} else {
+				showsBrowserMenu = event.target.closest('[data-context-menu]')?.matches('[data-menu-open]') ?? false;
+			}
+		},
+		true,
+	);
+	window.addEventListener(
+		'keydown',
+		() => {
+			showsBrowserMenu = false;
+		},
+		true,
+	);
+	window.addEventListener(
+		'contextmenu',
+		(event) => {
+			if (showsBrowserMenu === true) {
+				event.stopImmediatePropagation();
+			}
+		},
+		true,
+	);
+}
+
 /**
  * A right-click (or long-press) menu for `children`, which are wrapped in an element that has `data-menu-open` while
- * it's open. `triggerXstyle` lays out that element, ex. filling the parent.
+ * it's open. `triggerXstyle` lays out that element, ex. filling the parent. Right-clicking it again while it's open
+ * shows the browser's menu.
  */
 export function AppContextMenu({
 	items,
@@ -208,10 +263,14 @@ export function AppContextMenu({
 			isDisabled={disabled}
 			triggerAs={inline ? 'span' : 'div'}
 			triggerXstyle={triggerXstyle}
+			data-context-menu=""
 			data-menu-open={open ? '' : undefined}
 			onContextMenu={remember}
 			onTouchStart={remember}
 			onOpenChange={(next) => {
+				if (next) {
+					allowBrowserMenu();
+				}
 				setOpen(next);
 				onOpenChange?.(next);
 			}}

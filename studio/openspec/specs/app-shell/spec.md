@@ -357,12 +357,24 @@ The macOS desktop app SHALL draw the window controls over the top of the sidebar
 
 ### Requirement: Context menus
 
-Context menus SHALL be shown as in-app menus, in the desktop app and on the web, so they match the rest of the app.
+Context menus SHALL be shown as in-app menus, in the desktop app and on the web, so they match the rest of the app. Right-clicking an open menu, or what it was opened from, MUST show the browser's menu instead.
 
 #### Scenario: Context menu
 
 - **WHEN** the user right-clicks a dashboard in the sidebar
 - **THEN** an in-app menu is shown
+
+#### Scenario: Right-click twice
+
+- **GIVEN** the user right-clicked a dashboard in the sidebar
+- **WHEN** the user right-clicks it again while its menu is open
+- **THEN** the in-app menu closes and the browser's menu is shown
+
+#### Scenario: Right-click something else
+
+- **GIVEN** the user right-clicked a dashboard in the sidebar
+- **WHEN** the user right-clicks another dashboard while the menu is open
+- **THEN** the other dashboard's in-app menu is shown
 
 #### Scenario: Dashboard options menu
 
