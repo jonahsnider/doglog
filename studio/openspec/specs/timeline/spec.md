@@ -404,7 +404,7 @@ Studio SHALL remember where the cursor was in each log by file name, and MUST mo
 
 ### Requirement: Adding and removing sources
 
-Adding, closing, hiding, or showing a source SHALL keep the playback speed, timeline options, and the moment the cursor is at. While the cursor follows the live session, it MUST keep following when a log is added. When the time base closes or is hidden, the next visible source becomes the time base, and the cursor MUST stay at the same moment.
+Adding, closing, hiding, or showing a source SHALL keep the playback speed, timeline options, and the moment the cursor is at. While the cursor follows the live session, it MUST keep following when a log is added. When the time base closes or is hidden, the next visible source becomes the time base, and the cursor MUST stay at the same moment. When the moment is outside the remaining sources, the cursor MUST move to the nearest end of the timeline bar.
 
 #### Scenario: Open a log while following live
 
@@ -417,6 +417,12 @@ Adding, closing, hiding, or showing a source SHALL keep the playback speed, time
 - **GIVEN** the cursor is at the start of auto in `qual12.wpilog` and `qual13.wpilog`, with `qual12.wpilog` on top
 - **WHEN** the user closes `qual12.wpilog`
 - **THEN** `qual13.wpilog` becomes the time base and the cursor stays at the start of its auto
+
+#### Scenario: Close a longer log
+
+- **GIVEN** `practice.wpilog` lasts 10:00 and `qual12.wpilog` lasts 3:00, lined up at their first enable, and the cursor is at 8:00
+- **WHEN** the user closes `practice.wpilog`
+- **THEN** the cursor moves to the end of `qual12.wpilog`
 
 ### Requirement: Several sources on the timeline
 

@@ -123,7 +123,10 @@ function tick(now: number): void {
 	}
 }
 
-/** Follow the newest data, or place a cursor that hasn't been placed yet once the sources have data */
+/**
+ * Follow the newest data, place a cursor that hasn't been placed yet once the sources have data, or keep the cursor in
+ * range when it shrinks, ex. when a source is closed
+ */
 function syncToData(): void {
 	const range = getTimeRange();
 	if (range === undefined) {
@@ -138,6 +141,8 @@ function syncToData(): void {
 	} else if (time === undefined) {
 		const saved = logName === undefined ? undefined : savedTimes.get()[logName];
 		update({ time: saved === undefined ? range.origin : clamp(saved + logOffset, range) });
+	} else if (time !== clamp(time, range)) {
+		update({ time: clamp(time, range) });
 	}
 }
 
@@ -170,14 +175,12 @@ export function resetTimeline(source: Source | undefined, offset = 0): void {
 	logName = source?.type === 'log' ? source.fileName : undefined;
 	logOffset = offset;
 	update({ time: undefined, playback: live ? 'following' : 'paused', live, videoRange: undefined });
-	// A source that's already loaded, ex. one moved from another window, doesn't add data to place the cursor with
-	syncToData();
 }
 
 /**
  * Use `source` as the time base, the source whose clock and robot mode the timeline uses. `fresh` starts the cursor
  * over, ex. when the first source opens, otherwise it stays at the same moment. The cursor only follows the newest data
- * while the live session is the time base.
+ * while the live session is the time base. Call it before showing the sources' data, which places the cursor.
  */
 export function setTimeBase(source: Source | undefined, offset: number, fresh: boolean): void {
 	const { time, playback } = store.get();

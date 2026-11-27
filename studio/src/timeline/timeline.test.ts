@@ -1,7 +1,7 @@
 // oxlint-disable landmines/no-test-doubles -- Tests run without a DOM, so they provide the browser globals themselves
 import { afterEach, expect, test, vi } from 'vite-plus/test';
 import { DataSet } from '@/data/data-set';
-import { setActiveData } from '@/data/data-store';
+import { setActiveData, setVisibleData } from '@/data/data-store';
 import { formatDuration } from './format-time';
 import { registerPlaybackVideo } from './playback-clock';
 import { getTimeline, resetTimeline, seek, setSpeed, setVideoRange, togglePlayback } from './timeline';
@@ -109,4 +109,21 @@ test('one local video drives only the part of log playback it can show', ({ onTe
 	setVideoRange({ start: 8_000_000, end: 30_000_000 }, { time: 9_000_000, playback: 'playing' });
 	frame(3_100);
 	expect(getTimeline().time).toBe(9_100_000);
+});
+
+test('the cursor moves into the time range when a source is closed', () => {
+	const long = new DataSet(() => {});
+	long.extendTimeRange(10_000_000, 600_000_000);
+	const short = new DataSet(() => {});
+	short.extendTimeRange(20_000_000, 120_000_000);
+
+	setVisibleData([long, short]);
+	seek(500_000_000);
+	setVisibleData([short]);
+	expect(getTimeline().time).toBe(120_000_000);
+
+	setVisibleData([long, short]);
+	seek(15_000_000);
+	setVisibleData([short]);
+	expect(getTimeline().time).toBe(20_000_000);
 });

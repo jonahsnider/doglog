@@ -149,10 +149,11 @@ function showVisible(): void {
 	}
 	shownTimeBase = timeBase;
 	shownData = data;
-	setVisibleData(data, timeBase?.type === 'live');
+	// Before the data changes, so a cursor moved into the new time range is saved for the new time base
 	if (fresh || newTimeBase) {
 		setTimeBase(timeBase, data[0]?.offset ?? 0, fresh);
 	}
+	setVisibleData(data, timeBase?.type === 'live');
 }
 
 export function updateSources(changes: Partial<Sources>): void {
