@@ -1,3 +1,16 @@
+.pane-controls-on-interaction {
+	transition: opacity calc(var(--duration-fast-min) * var(--motion-scale)) var(--ease-standard);
+}
+
+/* Give hidden controls' space to the title without removing them from the keyboard tab order. */
+[data-pane-id]:not(:hover, :focus-within) > [data-pane-header] > .pane-controls-on-interaction {
+	position: absolute;
+	inset-inline-end: var(--spacing-2);
+	opacity: 0;
+	/* Don't fade out over the title as it takes back the space. */
+	transition: none;
+}
+
 /* Captures leave out the highlight of the pane whose entries are being edited */
 [data-pane-header]:where([data-capturing], [data-capturing] *) {
 	background-color: transparent;

@@ -62,8 +62,8 @@ const styles = stylex.create({
 	},
 	// Source Sans 3 is smaller than IBM Plex Sans, so it's a size up, keeping the line height so the header doesn't grow
 	name: {
-		overflow: 'hidden',
-		textOverflow: 'ellipsis',
+		// Keep the start readable even when there's only room for one character.
+		'--overflow-fade-width': `min(${spacingVars['--spacing-8']}, 50%)`,
 		whiteSpace: 'nowrap',
 		fontFamily: typographyVars['--font-family-heading'],
 		fontSize: textSizeVars['--font-size-base'],
@@ -92,6 +92,7 @@ export function PaneTitle({
 	onEdit: () => void;
 }) {
 	const Icon = name === undefined ? LayoutDashboardIcon : type?.icon;
+	const nameStyle = stylex.props(styles.name);
 	return (
 		<span
 			ref={dragRef}
@@ -109,7 +110,9 @@ export function PaneTitle({
 				/>
 			)}
 			{movable && <MoveIcon {...stylex.props(styles.icon, styles.moveIcon, isDragging && styles.draggedMoveIcon)} />}
-			<span {...stylex.props(styles.name)}>{name ?? 'Empty pane'}</span>
+			<span {...nameStyle} className={`${nameStyle.className} overflow-fade`}>
+				{name ?? 'Empty pane'}
+			</span>
 		</span>
 	);
 }

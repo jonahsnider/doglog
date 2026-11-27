@@ -38,7 +38,6 @@ import { usePaneSwipeArea } from '@/panes/pane-swipe';
 import { bindingMenuItems } from '@/panes/binding-menu';
 import { widgetMenuItems } from '@/panes/widget-menu';
 import { type Pane, type PaneNode, setPaneWidget, type SplitDirection } from '@/panes/layout';
-import { paneMarker } from './markers.stylex';
 import { getWidgetType, widgetTypes } from '@/widgets/registry';
 import { PanePresence } from '@/sharing/presence-avatars';
 import { initialOptions, optionValues } from '@/widgets/options';
@@ -59,7 +58,6 @@ export type PaneNodeProps = {
 const bindingIdAt = (target: EventTarget) =>
 	target instanceof Element ? target.closest<HTMLElement>('[data-binding-id]')?.dataset['bindingId'] : undefined;
 
-const showControls = `opacity ${durationVars['--duration-fast-min']} ${easeVars['--ease-standard']}`;
 const styles = stylex.create({
 	// The pane and the menu wrapping it fill its place in the layout
 	fill: { width: '100%', height: '100%' },
@@ -74,6 +72,7 @@ const styles = stylex.create({
 	},
 	dragged: { opacity: 0.4 },
 	header: {
+		position: 'relative',
 		display: 'flex',
 		flexShrink: 0,
 		alignItems: 'center',
@@ -86,9 +85,7 @@ const styles = stylex.create({
 	editing: { backgroundColor: `color-mix(in srgb, ${colorVars['--color-accent']} 12%, transparent)` },
 	title: { display: 'flex', flex: 1, minWidth: 0 },
 	// The pane header has its own padding, the toolbar's Section pads an inner element with this
-	controls: { flexShrink: 0, '--astryx-section-padding-inline': '0px', transition: showControls },
-	// Shown while the pane is hovered, and always while it's focused or without hover
-	hiddenControls: { opacity: { default: 0, [stylex.when.ancestor(':hover', paneMarker)]: 1 } },
+	controls: { flexShrink: 0, '--astryx-section-padding-inline': '0px' },
 	content: { flex: 1, minHeight: 0 },
 	unknown: { padding: spacingVars['--spacing-3'] },
 });
@@ -201,7 +198,7 @@ export function PaneView({
 		>
 			<div
 				ref={dropRef}
-				{...stylex.props(paneMarker, styles.fill, styles.pane, isDragging && styles.dragged)}
+				{...stylex.props(styles.fill, styles.pane, isDragging && styles.dragged)}
 				// Lets `addDashboardWidget()` pick a split direction from the pane's size
 				data-pane-id={pane.id}
 				data-zoom-filling={pane.id === zoomFillingPaneId || undefined}
@@ -243,8 +240,8 @@ export function PaneView({
 						label="Pane controls"
 						size="sm"
 						gap={0.5}
-						xstyle={[styles.controls, !mobile && !focused && styles.hiddenControls]}
-						className="capture-invisible"
+						xstyle={styles.controls}
+						className={!mobile && !focused ? 'capture-hidden pane-controls-on-interaction' : 'capture-hidden'}
 						endContent={
 							<>
 								{type && (

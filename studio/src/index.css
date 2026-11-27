@@ -12,6 +12,26 @@
 @import '@fontsource/ibm-plex-mono/400-italic.css';
 @import '@fontsource/ibm-plex-mono/600-italic.css';
 
+.overflow-fade,
+[data-sidebar='menu-button'] > span:last-child {
+	overflow: hidden;
+	text-overflow: ellipsis;
+
+	/* The scroll timeline is only active while the label overflows. */
+	@supports (animation-timeline: scroll()) {
+		text-overflow: clip;
+		animation: label-overflow-fade linear both;
+		animation-timeline: scroll(self inline);
+	}
+}
+
+@keyframes label-overflow-fade {
+	from,
+	to {
+		mask-image: linear-gradient(to left, transparent, black var(--overflow-fade-width, var(--spacing-8)));
+	}
+}
+
 /*
  * 0 when motion is reduced by the system or the reduce motion setting, 1 otherwise. Styles multiply their transition
  * and animation durations by it, ex. `calc(var(--duration-fast) * var(--motion-scale))`.

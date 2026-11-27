@@ -12,24 +12,6 @@
 	&[data-active] > svg {
 		color: inherit;
 	}
-	& > span:last-child {
-		overflow: hidden;
-		text-overflow: ellipsis;
-
-		/* Fades out labels that don't fit instead, like a browser's tabs. The scroll timeline is only active while it overflows. */
-		@supports (animation-timeline: scroll()) {
-			text-overflow: clip;
-			animation: label-overflow-fade linear both;
-			animation-timeline: scroll(self inline);
-		}
-	}
-}
-
-@keyframes label-overflow-fade {
-	from,
-	to {
-		mask-image: linear-gradient(to left, transparent, black var(--spacing-8));
-	}
 }
 
 /* The rail only shows the icons, centered in squares */

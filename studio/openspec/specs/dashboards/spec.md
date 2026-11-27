@@ -726,7 +726,7 @@ The pane the user last clicked or interacted with SHALL be the focused pane. The
 
 ### Requirement: Pane header controls
 
-A pane's header buttons, like Edit entries, split, and close, SHALL only be shown while the pane is hovered or focused in the docked layout. In the phone layout, the header MUST always show its widget's buttons and Close, without split or zoom buttons, since the pane bar adds panes (see Panes on phones).
+A pane's header buttons, like Edit entries, split, and close, SHALL only be shown while the pane is hovered or focused in the docked layout. Hidden buttons MUST NOT take space from the title. If the title doesn't fit, its end SHALL fade out. In the phone layout, the header MUST always show its widget's buttons and Close, without split or zoom buttons, since the pane bar adds panes (see Panes on phones).
 
 #### Scenario: Pane header on a phone
 
@@ -739,6 +739,7 @@ A pane's header buttons, like Edit entries, split, and close, SHALL only be show
 - **GIVEN** a dashboard in the docked layout with two panes, the first focused
 - **WHEN** the user isn't hovering the second pane
 - **THEN** the second pane's header buttons are hidden, and the first pane's are shown
+- **AND** the second pane's title can use the space its buttons would have taken
 
 #### Scenario: Hover an unfocused pane
 
