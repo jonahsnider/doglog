@@ -132,7 +132,7 @@ Settings and UI state MUST be saved on the device and restored when Studio reope
 
 ### Requirement: Theme color setting
 
-Settings SHALL let users choose a theme color preset of DogLog, match13, FrogLog, HogLog, Neutral, or Custom, defaulting to DogLog. The presets MUST be shown as cards side by side when they fit, each with circular previews of its light and dark colors. Custom MUST let users pick any color, defaulting to `#1c1816`, and reset it to the default, and MUST keep the picked color while another preset is selected.
+Settings SHALL let users choose a theme color preset of DogLog, match13, FrogLog, HogLog, Neutral, their team, or Custom, defaulting to DogLog. The presets MUST be shown as cards in a grid, two rows at the settings page's full width, each with circular previews of its light and dark colors. Custom MUST let users pick any color, defaulting to `#1c1816`, and reset it to the default, and MUST keep the picked color while another preset is selected.
 
 #### Scenario: Custom color
 
@@ -151,6 +151,47 @@ Settings SHALL let users choose a theme color preset of DogLog, match13, FrogLog
 - **GIVEN** the user picked a custom color
 - **WHEN** the user resets it
 - **THEN** the custom color is `#1c1816` again
+
+### Requirement: Team colors
+
+The team preset SHALL use the team's primary and secondary colors from frc-colors.com, for the Cloud team's team number or, without one, the robot connection's team number. Its card MUST be labeled with the team number, ex. "Team 581", or "Your team" without one. Studio MUST cache the colors so they work offline and refresh them on launch and when the team number changes.
+
+#### Scenario: Team colors
+
+- **GIVEN** the robot connection is `581` and the user isn't on a Cloud team
+- **WHEN** the user selects the Team 581 preset
+- **THEN** Studio's themes are generated from team 581's colors on frc-colors.com
+- **AND** Settings says the colors are team 581's
+
+#### Scenario: Team without colors
+
+- **GIVEN** the robot connection is a team number without colors on frc-colors.com
+- **WHEN** the user selects the team preset
+- **THEN** Studio uses DogLog's colors
+- **AND** Settings says the team has no colors on frc-colors.com
+
+#### Scenario: No team number
+
+- **GIVEN** the robot connection is an IP address and the user isn't on a Cloud team
+- **WHEN** the user selects the Your team preset
+- **THEN** Studio uses DogLog's colors
+- **AND** Settings asks for a team number in Robot connection
+
+### Requirement: Default theme color
+
+Settings SHALL remember whether the user has picked a preset, and use DogLog until they do. When the device gets a Cloud team number, by joining a team or by the team setting one, Studio SHALL switch to the team preset if the user hasn't picked a preset. A picked preset MUST stay selected, including DogLog.
+
+#### Scenario: Join a Cloud team
+
+- **GIVEN** the user hasn't picked a theme color preset
+- **WHEN** the user joins a Cloud team whose team number is 254
+- **THEN** the Team 254 preset is selected with team 254's colors
+
+#### Scenario: Join a Cloud team with a chosen preset
+
+- **GIVEN** the user picked FrogLog or DogLog
+- **WHEN** the user joins a Cloud team with a team number
+- **THEN** the picked preset stays selected
 
 ### Requirement: High contrast setting
 

@@ -5,17 +5,28 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 import * as z from 'zod';
 import { teamDefaultsStore } from '@/cloud/session';
 import { createPersistedAtom } from '@/lib/persisted-store';
-import { themePresets, themes, visualizationPalettes } from '@/theme/choices';
+import { defaultThemePreset, type ThemePreset, themePresets, themes, visualizationPalettes } from '@/theme/choices';
 import { applyThemeColor, defaultCustomColor, themeColors } from '@/theme/theme-color';
+
+const hexColorSchema = z.string().regex(/^#[\da-f]{6}$/iu);
 
 const settingsSchema = z.object({
 	theme: z.enum(themes).catch('system'),
-	themePreset: z.enum(themePresets).catch('doglog'),
+	/** The chosen theme color preset, `null` until the user picks one, which uses `defaultThemePreset` */
+	themePreset: z.enum(themePresets).nullable().catch(null),
 	/** Hex color that the Custom preset's color scheme is generated from */
-	themeColor: z
-		.string()
-		.regex(/^#[\da-f]{6}$/iu)
-		.catch(defaultCustomColor),
+	themeColor: hexColorSchema.catch(defaultCustomColor),
+	/**
+	 * The team the FRC Colors preset is for and its colors from frc-colors.com, `null` colors if it has none. Cached so
+	 * they work offline, see `syncTeamColors()`.
+	 */
+	frcColors: z
+		.object({
+			teamNumber: z.number(),
+			colors: z.object({ primary: hexColorSchema, secondary: hexColorSchema }).nullable(),
+		})
+		.nullable()
+		.catch(null),
 	/** Whether to use high contrast colors even when the system doesn't ask for more contrast */
 	highContrast: z.boolean().catch(false),
 	visualizationPalette: z.enum(visualizationPalettes).catch('default'),
@@ -92,13 +103,23 @@ export function syncTheme(): void {
 	const darkQuery = matchMedia('(prefers-color-scheme: dark)');
 	let appliedTheme: Settings['theme'] | undefined;
 	let appliedBackdrop: string | undefined;
-	let appliedThemeColor: string | undefined;
-	let appliedThemePreset: Settings['themePreset'] | undefined;
+	let appliedPresetInputs: string | undefined;
+	let appliedThemePreset: ThemePreset | undefined;
 	let appliedHighContrast: boolean | undefined;
 	let appliedVisualizationPalette: Settings['visualizationPalette'] | undefined;
 	const applyTheme = () => {
-		const { theme, themeColor, themePreset, highContrast, visualizationPalette, reduceMotion, reduceTransparency } =
-			settingsStore.get();
+		const {
+			theme,
+			themeColor,
+			frcColors,
+			themePreset: chosenThemePreset,
+			highContrast,
+			visualizationPalette,
+			reduceMotion,
+			reduceTransparency,
+		} = settingsStore.get();
+		const themePreset = chosenThemePreset ?? defaultThemePreset;
+		const presetInputs = { themeColor, teamColors: frcColors?.colors ?? null };
 		const dark = theme === 'dark' || (theme === 'system' && darkQuery.matches);
 		document.documentElement.classList.toggle('dark', dark);
 		colorModeStore.set(dark ? 'dark' : 'light');
@@ -111,19 +132,19 @@ export function syncTheme(): void {
 		document.documentElement.classList.toggle('reduce-transparency', reduceTransparency);
 		// Other settings changes, ex. typing a robot target, don't need the colors regenerated
 		if (
-			themeColor !== appliedThemeColor ||
+			JSON.stringify(presetInputs) !== appliedPresetInputs ||
 			themePreset !== appliedThemePreset ||
 			highContrast !== appliedHighContrast ||
 			visualizationPalette !== appliedVisualizationPalette
 		) {
-			applyThemeColor(themeColor, themePreset, highContrast, visualizationPalette);
-			appliedThemeColor = themeColor;
+			applyThemeColor(presetInputs, themePreset, highContrast, visualizationPalette);
+			appliedPresetInputs = JSON.stringify(presetInputs);
 			appliedThemePreset = themePreset;
 			appliedHighContrast = highContrast;
 			appliedVisualizationPalette = visualizationPalette;
 		}
 		if (hasNativeBackdrop) {
-			const { tokens } = themeColors(themeColor, dark, highContrast, themePreset);
+			const { tokens } = themeColors(presetInputs, dark, highContrast, themePreset);
 			const backdrop = {
 				body: tokens['--color-background-body']!,
 				surface: tokens['--color-background-surface']!,

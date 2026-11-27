@@ -25,8 +25,9 @@ test('new settings keep the DogLog default', async () => {
 	const { settingsStore } = await import('./settings.ts');
 	expect(settingsStore.get()).toStrictEqual({
 		theme: 'system',
-		themePreset: 'doglog',
+		themePreset: null,
 		themeColor: '#1c1816',
+		frcColors: null,
 		highContrast: false,
 		visualizationPalette: 'default',
 		reduceMotion: false,
@@ -56,6 +57,7 @@ test('custom colors survive preset changes and a reload', async () => {
 		theme: 'dark',
 		themePreset: 'froglog',
 		themeColor: '#123456',
+		frcColors: null,
 		highContrast: false,
 		visualizationPalette: 'tritan',
 		reduceMotion: false,

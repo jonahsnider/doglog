@@ -155,7 +155,7 @@ export const settingsSchema = z.strictObject({
 		.enum(themePresets)
 		.optional()
 		.describe(
-			'Theme color: DogLog maroon (`doglog`), match13 blue, FrogLog green and blue (`froglog`), HogLog pastel pink (`hoglog`), `neutral` gray, or `custom` for `themeColor`',
+			"Theme color: DogLog maroon (`doglog`), match13 blue, FrogLog green and blue (`froglog`), HogLog pastel pink (`hoglog`), `neutral` gray, `frc-colors` for the team's colors from frc-colors.com (the Cloud team's number, or `robotTarget`'s team number), or `custom` for `themeColor`",
 		),
 	themeColor: z
 		.string()

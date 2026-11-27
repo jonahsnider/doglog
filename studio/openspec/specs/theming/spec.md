@@ -71,6 +71,16 @@ HogLog SHALL follow MD3's tonal spot scheme (2025 spec) for `#ffbbcc`: its prima
 - **THEN** surfaces switch from pale pink to a pink-tinted charcoal
 - **AND** primary actions switch from deep rose to pastel pink
 
+### Requirement: Team palette
+
+The team preset SHALL generate its colors from the team's primary color from frc-colors.com as the accent, with a neutral tinted like Custom's, and use the team's secondary color for selected items at the tones FrogLog's blue uses. A gray secondary MUST make gray selected items. Without colors for the team, the team preset MUST look the same as the DogLog preset.
+
+#### Scenario: Team colors
+
+- **GIVEN** the team preset is selected for a team with a green primary and a black secondary
+- **WHEN** the user views Studio in light or dark mode
+- **THEN** primary actions use green and selected sidebar items use gray
+
 ### Requirement: Neutral colors
 
 The Neutral preset SHALL generate its colors from gray accent and neutral seeds, so surfaces, borders, and primary actions have no hue.

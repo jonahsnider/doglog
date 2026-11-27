@@ -1,3 +1,4 @@
+// oxlint-disable max-lines -- Every preset's colors are generated together, from the same seeds and tones
 import {
 	type ThemePalette,
 	type ThemePaletteInput,
@@ -49,8 +50,20 @@ function tintedGray(color: string): string {
 
 const recipe = 'astryx-oklch-v2';
 
+/** A team's primary and secondary colors from frc-colors.com */
+export interface TeamColors {
+	primary: string;
+	secondary: string;
+}
+
+/** The colors the Custom and FRC Colors presets are generated from, `null` team colors when there are none */
+export interface PresetInputs {
+	themeColor: string;
+	teamColors: TeamColors | null;
+}
+
 /** The seeds of each preset's Astryx palette in a color mode */
-const presetSeeds: Record<ThemePreset, (themeColor: string, dark: boolean) => ThemePaletteInput> = {
+const presetSeeds: Record<ThemePreset, (inputs: PresetInputs, dark: boolean) => ThemePaletteInput> = {
 	doglog: () => team581Seeds,
 	// match13.com's blue accents and icy panels in light mode, its sky-400 on navy cards in dark mode
 	match13: (_, dark) =>
@@ -64,7 +77,12 @@ const presetSeeds: Record<ThemePreset, (themeColor: string, dark: boolean) => Th
 	},
 	// Untinted grays, so only status, series, and error colors have a hue
 	neutral: () => ({ accent: '#5e5e5e', neutral: '#6b6b6b', ...statusSeeds, recipe }),
-	custom: (themeColor) => ({ accent: themeColor, neutral: tintedGray(themeColor), ...statusSeeds, recipe }),
+	// The team's primary as the accent, or DogLog's colors until it has some
+	'frc-colors': ({ teamColors }) =>
+		teamColors
+			? { accent: teamColors.primary, neutral: tintedGray(teamColors.primary), ...statusSeeds, recipe }
+			: team581Seeds,
+	custom: ({ themeColor }) => ({ accent: themeColor, neutral: tintedGray(themeColor), ...statusSeeds, recipe }),
 };
 
 /** Generated palettes by their seeds, since the settings' previews ask for every preset's on each render */
@@ -136,14 +154,14 @@ export interface ThemeColors {
 
 /** A preset's Astryx colors in a color mode, at standard or high contrast, generated from its seeds */
 export function themeColors(
-	themeColor: string,
+	inputs: PresetInputs,
 	dark: boolean,
 	highContrast: boolean,
 	preset: ThemePreset,
 ): ThemeColors {
-	const seeds = presetSeeds[preset](themeColor, dark);
-	// The DogLog preset is Team 581's own palette, which replaces dark mode's neutrals generated from its seeds
-	const palette = preset === 'doglog' ? team581Palette : cachedPalette(seeds);
+	const seeds = presetSeeds[preset](inputs, dark);
+	// DogLog's seeds use Team 581's own palette, which replaces dark mode's neutrals generated from its seeds
+	const palette = seeds === team581Seeds ? team581Palette : cachedPalette(seeds);
 	const mode = dark ? 'dark' : 'light';
 	const tokens = Object.fromEntries(
 		Object.entries(palette.tokens).map(([token, values]) => [token, values[dark ? 1 : 0]]),
@@ -157,6 +175,11 @@ export function themeColors(
 	}
 	if (preset === 'hoglog') {
 		tokens['--color-accent-muted'] = hogLog[mode].selected;
+	}
+	if (preset === 'frc-colors' && inputs.teamColors) {
+		// The team's secondary for selected items, at FrogLog's tones. Near grays, ex. a black secondary, stay gray.
+		const { secondary } = inputs.teamColors;
+		tokens['--color-accent-muted'] = shade(secondary, dark ? 30 : 85, oklch(secondary)!.c <= 0.018);
 	}
 	if (highContrast) {
 		applyHighContrast(tokens, seeds.neutral!, dark);
@@ -197,12 +220,12 @@ const testModeSeed = '#8b5cf6';
 
 /** Generate the preset's colors as CSS variable declarations, with test mode, which Astryx has no token for */
 export function themeColorVariables(
-	themeColor: string,
+	inputs: PresetInputs,
 	dark: boolean,
 	highContrast: boolean,
 	preset: ThemePreset,
 ): string {
-	const { tokens, lifts } = themeColors(themeColor, dark, highContrast, preset);
+	const { tokens, lifts } = themeColors(inputs, dark, highContrast, preset);
 	return [
 		...Object.entries(tokens).map(([token, value]) => `${themeColorVariable(token)}:${value};`),
 		...Object.entries(lifts).flatMap(([part, styles]) =>
@@ -218,13 +241,13 @@ export function themeColorVariables(
  * contrast, like Astryx's own contrast adaptations.
  */
 function themeColorCss(
-	themeColor: string,
+	inputs: PresetInputs,
 	highContrast: boolean,
 	preset: ThemePreset,
 	visualizationPalette: VisualizationPalette,
 ): string {
 	const variables = (dark: boolean, high: boolean) =>
-		themeColorVariables(themeColor, dark, high, preset) + seriesPaletteVariables(visualizationPalette, dark);
+		themeColorVariables(inputs, dark, high, preset) + seriesPaletteVariables(visualizationPalette, dark);
 	// Doubled selectors win over `index.css` regardless of which stylesheet loads last
 	const css = (high: boolean) => `:root:root{${variables(false, high)}}:root.dark{${variables(true, high)}}`;
 	return highContrast ? css(true) : `${css(false)}@media (prefers-contrast: more){${css(true)}}`;
@@ -246,11 +269,11 @@ export interface ThemePreviewColors {
 
 export function themePreviewColors(
 	preset: ThemePreset,
-	themeColor: string,
+	inputs: PresetInputs,
 	dark: boolean,
 	highContrast: boolean,
 ): ThemePreviewColors {
-	const { tokens } = themeColors(themeColor, dark, highContrast, preset);
+	const { tokens } = themeColors(inputs, dark, highContrast, preset);
 	return {
 		surface: tokens['--color-background-surface']!,
 		sidebar: tokens['--color-background-body']!,
@@ -267,12 +290,12 @@ const cssStorageKey = 'doglog-studio:theme-color-css';
 
 /** Apply a preset and cache generated colors for `index.html` to use on the next load */
 export function applyThemeColor(
-	themeColor: string,
+	inputs: PresetInputs,
 	preset: ThemePreset,
 	highContrast: boolean,
 	visualizationPalette: VisualizationPalette,
 ): void {
-	const css = themeColorCss(themeColor, highContrast, preset, visualizationPalette);
+	const css = themeColorCss(inputs, highContrast, preset, visualizationPalette);
 
 	// `index.html` may have added this element already
 	let style = document.querySelector<HTMLStyleElement>('#theme-color');

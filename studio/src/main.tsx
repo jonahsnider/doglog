@@ -19,6 +19,7 @@ import { syncMediaSession } from './timeline/media-session.ts';
 import { routeTree } from './routeTree.gen.ts';
 import { hasFrostedFrame, hasNativeBackdrop, syncTheme } from './settings.ts';
 import { StudioTheme } from './theme/studio-theme.tsx';
+import { syncTeamColors } from './theme/team-colors.ts';
 import { startSharing } from './sharing/sharing.ts';
 import { runLogSync } from './sync/sync.ts';
 import { registerServiceWorker } from './updater.ts';
@@ -78,6 +79,7 @@ Sentry.init({
 });
 
 syncTheme();
+syncTeamColors();
 syncMediaSession();
 startSharing();
 if (STUDIO_DESKTOP) {

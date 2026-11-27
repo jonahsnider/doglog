@@ -24,6 +24,7 @@ import {
 import { sourceData } from '@/data/source-store';
 import { getRobotHost, simulatorHost } from '@/robot-target';
 import { robotTargetStore, settingsStore, updateSettings } from '@/settings';
+import { defaultThemePreset } from '@/theme/choices';
 import { getTimeline, seek } from '@/timeline/timeline';
 
 function describeSource() {
@@ -103,7 +104,7 @@ function describeSettings() {
 	} = settingsStore.get();
 	return {
 		theme,
-		themePreset,
+		themePreset: themePreset ?? defaultThemePreset,
 		themeColor,
 		highContrast,
 		reduceMotion,

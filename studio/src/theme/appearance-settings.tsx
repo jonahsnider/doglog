@@ -1,8 +1,11 @@
+// oxlint-disable max-lines -- Appearance settings and the option cards they share are kept together
 import { Button } from '@astryxdesign/core/Button';
 import { Code } from '@astryxdesign/core/Code';
 import { Field } from '@astryxdesign/core/Field';
 import { HStack } from '@astryxdesign/core/Layout';
+import { Link } from '@astryxdesign/core/Link';
 import { Selector } from '@astryxdesign/core/Selector';
+import { Text } from '@astryxdesign/core/Text';
 import {
 	colorVars,
 	durationVars,
@@ -12,9 +15,11 @@ import {
 } from '@astryxdesign/core/theme/tokens.stylex';
 import { focusOutlineProps } from '@astryxdesign/core/utils/focusOutline.stylex';
 import * as stylex from '@stylexjs/stylex';
+import { useSelector } from '@tanstack/react-store';
 import type { ReactNode } from 'react';
 import { updateSettings, useSettings } from '@/settings';
 import {
+	defaultThemePreset,
 	type Theme,
 	type ThemePreset,
 	themePresets,
@@ -23,6 +28,7 @@ import {
 	visualizationPalettes,
 } from '@/theme/choices';
 import { seriesPaletteColors } from '@/theme/series-palette';
+import { colorsTeamNumberStore } from '@/theme/team-colors';
 import { defaultCustomColor, themePreviewColors } from '@/theme/theme-color';
 import { ThemeModePreview, ThemeSwatch } from '@/theme/theme-preview';
 
@@ -53,8 +59,8 @@ const styles = stylex.create({
 	},
 	presetCards: {
 		display: 'grid',
-		// Just fits both swatches, so every preset fits in a row of the settings page
-		gridTemplateColumns: 'repeat(auto-fill, minmax(5.5rem, 1fr))',
+		// Four to a row at the settings page's full width, so the presets take two rows
+		gridTemplateColumns: 'repeat(auto-fill, minmax(7.5rem, 1fr))',
 		gap: spacingVars['--spacing-2'],
 	},
 	card: {
@@ -109,13 +115,15 @@ const themeLabels: Record<Theme, string> = {
 	system: 'System',
 };
 
-const themePresetLabels: Record<ThemePreset, string> = {
-	doglog: 'DogLog',
-	match13: 'match13',
-	froglog: 'FrogLog',
-	hoglog: 'HogLog',
-	neutral: 'Neutral',
-	custom: 'Custom',
+/** The team preset is named for the team whose colors it uses */
+const themePresetLabels: Record<ThemePreset, (teamNumber: number | null) => string> = {
+	doglog: () => 'DogLog',
+	match13: () => 'match13',
+	froglog: () => 'FrogLog',
+	hoglog: () => 'HogLog',
+	neutral: () => 'Neutral',
+	'frc-colors': (teamNumber) => (teamNumber === null ? 'Your team' : `Team ${teamNumber}`),
+	custom: () => 'Custom',
 };
 
 const visualizationPaletteLabels: Record<VisualizationPalette, string> = {
@@ -130,7 +138,10 @@ const visualizationPaletteItems = visualizationPalettes.map((value) => ({
 }));
 
 export function AppearanceSettings() {
-	const { theme, themeColor, themePreset, highContrast } = useSettings();
+	const { theme, themeColor, frcColors, highContrast, ...settings } = useSettings();
+	const themePreset = settings.themePreset ?? defaultThemePreset;
+	const inputs = { themeColor, teamColors: frcColors?.colors ?? null };
+	const teamNumber = useSelector(colorsTeamNumberStore);
 
 	return (
 		<>
@@ -145,8 +156,8 @@ export function AppearanceSettings() {
 					>
 						<ThemeModePreview
 							theme={value}
-							light={themePreviewColors(themePreset, themeColor, false, highContrast)}
-							dark={themePreviewColors(themePreset, themeColor, true, highContrast)}
+							light={themePreviewColors(themePreset, inputs, false, highContrast)}
+							dark={themePreviewColors(themePreset, inputs, true, highContrast)}
 						/>
 					</OptionCard>
 				))}
@@ -157,17 +168,19 @@ export function AppearanceSettings() {
 					<OptionCard
 						key={value}
 						name="theme-preset"
-						label={themePresetLabels[value]}
+						label={themePresetLabels[value](teamNumber)}
 						isChecked={themePreset === value}
 						onCheck={() => updateSettings({ themePreset: value })}
 					>
 						<span {...stylex.props(styles.swatches)}>
-							<ThemeSwatch colors={themePreviewColors(value, themeColor, false, highContrast)} />
-							<ThemeSwatch colors={themePreviewColors(value, themeColor, true, highContrast)} />
+							<ThemeSwatch colors={themePreviewColors(value, inputs, false, highContrast)} />
+							<ThemeSwatch colors={themePreviewColors(value, inputs, true, highContrast)} />
 						</span>
 					</OptionCard>
 				))}
 			</CardGroup>
+
+			{themePreset === 'frc-colors' && <FrcColorsStatus />}
 
 			{themePreset === 'custom' && (
 				<Field label="Custom color" inputID="theme-color">
@@ -190,6 +203,40 @@ export function AppearanceSettings() {
 				</Field>
 			)}
 		</>
+	);
+}
+
+/** Which team's colors the team preset uses, or why it uses DogLog's */
+function FrcColorsStatus() {
+	const { frcColors } = useSettings();
+	const teamNumber = useSelector(colorsTeamNumberStore);
+	const source = (
+		<Link href="https://frc-colors.com" isExternalLink type="inherit" color="inherit">
+			FRC Colors
+		</Link>
+	);
+	let status: ReactNode;
+	if (teamNumber === null) {
+		status = 'Enter your team number in Robot connection to use your team’s colors.';
+	} else if (frcColors?.teamNumber !== teamNumber) {
+		status = `Getting team ${teamNumber}’s colors…`;
+	} else if (frcColors.colors === null) {
+		status = (
+			<>
+				Team {teamNumber} doesn’t have colors on {source} yet, so DogLog’s are used.
+			</>
+		);
+	} else {
+		status = (
+			<>
+				Team {teamNumber}’s colors from {source}
+			</>
+		);
+	}
+	return (
+		<Text type="supporting" color="secondary" role="status">
+			{status}
+		</Text>
 	);
 }
 

@@ -7,6 +7,8 @@ import {
 	applyThemeColor,
 	defaultCustomColor,
 	defaultThemeColor,
+	type PresetInputs,
+	type TeamColors,
 	themeColors,
 	themeColorVariables,
 	themePreviewColors,
@@ -36,25 +38,42 @@ const lstar = (color: string) => 116 * Math.cbrt(luminance(color)) - 16;
 
 const oklch = registerMode(modeOklch);
 
+const inputs = (themeColor: string, teamColors: TeamColors | null = null): PresetInputs => ({ themeColor, teamColors });
+
 const channels = (color: string) => [1, 3, 5].map((index) => Number.parseInt(color.slice(index, index + 2), 16));
 
 test('match13 dark actions and their preview use the site blue', () => {
-	expect(themeColorVariables(defaultThemeColor, true, false, 'match13')).toContain('--studio-color-accent:#29a3f6;');
-	expect(themePreviewColors('match13', defaultThemeColor, true, false).primary).toBe('#29a3f6');
+	expect(themeColorVariables(inputs(defaultThemeColor), true, false, 'match13')).toContain(
+		'--studio-color-accent:#29a3f6;',
+	);
+	expect(themePreviewColors('match13', inputs(defaultThemeColor), true, false).primary).toBe('#29a3f6');
 });
 
-// Custom colors include a saturated one and a near-black one, which seed the custom neutral too
-const cases = themePresets.flatMap((preset) =>
-	(preset === 'custom' ? [defaultCustomColor, '#3366ff', '#ffe600'] : [defaultThemeColor]).flatMap((color) =>
-		[false, true].map((dark) => [preset, color, dark] as const),
-	),
-);
+// Custom colors include a saturated one and a near-black one, which seed the custom neutral too. Team colors include
+// a near-black secondary, a pale primary, and none.
+const teams: (TeamColors | null)[] = [
+	{ primary: '#591616', secondary: '#e86d38' },
+	{ primary: '#3cd52e', secondary: '#242424' },
+	{ primary: '#ffe600', secondary: '#ffffff' },
+	null,
+];
+const cases = themePresets.flatMap((preset) => {
+	let presetInputs = [inputs(defaultThemeColor)];
+	if (preset === 'custom') {
+		presetInputs = [defaultCustomColor, '#3366ff', '#ffe600'].map((color) => inputs(color));
+	} else if (preset === 'frc-colors') {
+		presetInputs = teams.map((team) => inputs(defaultCustomColor, team));
+	}
+	return presetInputs.flatMap((input) =>
+		[false, true].map((dark) => [preset, JSON.stringify(input), dark, input] as const),
+	);
+});
 
 test.each(cases)(
 	'%s (%s, dark: %s) text and accent labels are readable with and without high contrast',
-	(preset, color, dark) => {
+	(preset, _, dark, input) => {
 		const ratios = (highContrast: boolean) => {
-			const { tokens } = themeColors(color, dark, highContrast, preset);
+			const { tokens } = themeColors(input, dark, highContrast, preset);
 			const surface = tokens['--color-background-surface']!;
 			expect(contrastRatio(tokens['--color-on-accent']!, tokens['--color-accent']!)).toBeGreaterThanOrEqual(4.5);
 			return {
@@ -72,16 +91,33 @@ test.each(cases)(
 );
 
 test.each([false, true])('FrogLog uses a green accent and blue selected items (dark: %s)', (dark) => {
-	const { tokens } = themeColors(defaultThemeColor, dark, false, 'froglog');
+	const { tokens } = themeColors(inputs(defaultThemeColor), dark, false, 'froglog');
 	const [accentRed, accentGreen, accentBlue] = channels(tokens['--color-accent']!);
 	const [selectedRed, selectedGreen, selectedBlue] = channels(tokens['--color-accent-muted']!);
 	expect(accentGreen).toBeGreaterThan(Math.max(accentRed!, accentBlue!));
 	expect(selectedBlue).toBeGreaterThan(Math.max(selectedRed!, selectedGreen!));
 });
 
+test.each([false, true])(
+	'FRC Colors uses the team primary for actions and secondary for selected items (dark: %s)',
+	(dark) => {
+		// Team 1678's green and near-black, so selected items are gray rather than a tint of the green
+		const { tokens } = themeColors(inputs(defaultCustomColor, teams[1]), dark, false, 'frc-colors');
+		const [accentRed, accentGreen, accentBlue] = channels(tokens['--color-accent']!);
+		expect(accentGreen).toBeGreaterThan(Math.max(accentRed!, accentBlue!));
+		expect(oklch(tokens['--color-accent-muted'])!.c).toBeLessThan(0.02);
+	},
+);
+
+test.each([false, true])('FRC Colors without team colors looks like DogLog (dark: %s)', (dark) => {
+	expect(themeColors(inputs(defaultCustomColor), dark, false, 'frc-colors')).toStrictEqual(
+		themeColors(inputs(defaultCustomColor), dark, false, 'doglog'),
+	);
+});
+
 test.each(['--color-background-body', '--color-background-surface'])('HogLog dark %s is near gray', (token) => {
 	// MD3's tonal spot surfaces for the same pink reach 0.017 OKLCH chroma
-	expect(oklch(themeColors(defaultThemeColor, true, false, 'hoglog').tokens[token])!.c).toBeLessThan(0.02);
+	expect(oklch(themeColors(inputs(defaultThemeColor), true, false, 'hoglog').tokens[token])!.c).toBeLessThan(0.02);
 });
 
 test.each(
@@ -98,7 +134,7 @@ test.each(
 	),
 )('neutral (dark: %s, high contrast: %s) %s is untinted', (dark, highContrast, token) => {
 	// Equal red, green, and blue
-	expect(themeColors(defaultThemeColor, dark, highContrast, 'neutral').tokens[token]).toMatch(/^#(\w\w)\1\1$/u);
+	expect(themeColors(inputs(defaultThemeColor), dark, highContrast, 'neutral').tokens[token]).toMatch(/^#(\w\w)\1\1$/u);
 });
 
 test('switching presets restores the chosen scheme', () => {
@@ -106,15 +142,15 @@ test('switching presets restores the chosen scheme', () => {
 	vi.stubGlobal('document', { querySelector: () => style });
 	vi.stubGlobal('localStorage', { setItem: () => {} });
 
-	applyThemeColor('#123456', 'custom', false, 'default');
+	applyThemeColor(inputs('#123456'), 'custom', false, 'default');
 	const customCss = style.textContent;
-	expect(customCss).toContain(themeColorVariables('#123456', false, false, 'custom'));
-	expect(customCss).toContain(themeColorVariables('#123456', true, false, 'custom'));
+	expect(customCss).toContain(themeColorVariables(inputs('#123456'), false, false, 'custom'));
+	expect(customCss).toContain(themeColorVariables(inputs('#123456'), true, false, 'custom'));
 
-	applyThemeColor('#123456', 'doglog', false, 'default');
-	expect(style.textContent).toContain(themeColorVariables(defaultThemeColor, false, false, 'doglog'));
+	applyThemeColor(inputs('#123456'), 'doglog', false, 'default');
+	expect(style.textContent).toContain(themeColorVariables(inputs(defaultThemeColor), false, false, 'doglog'));
 
-	applyThemeColor('#123456', 'custom', false, 'default');
+	applyThemeColor(inputs('#123456'), 'custom', false, 'default');
 	expect(style.textContent).toBe(customCss);
 });
 
@@ -122,14 +158,14 @@ test('high contrast applies when the system asks for more contrast, and always w
 	const style = { textContent: '' };
 	vi.stubGlobal('document', { querySelector: () => style });
 	vi.stubGlobal('localStorage', { setItem: () => {} });
-	const high = themeColorVariables(defaultThemeColor, true, true, 'doglog');
+	const high = themeColorVariables(inputs(defaultThemeColor), true, true, 'doglog');
 
-	applyThemeColor(defaultThemeColor, 'doglog', false, 'default');
+	applyThemeColor(inputs(defaultThemeColor), 'doglog', false, 'default');
 	const media = style.textContent.indexOf('@media (prefers-contrast: more)');
 	expect(style.textContent.slice(0, media)).not.toContain(high);
 	expect(style.textContent.slice(media)).toContain(high);
 
-	applyThemeColor(defaultThemeColor, 'doglog', true, 'default');
+	applyThemeColor(inputs(defaultThemeColor), 'doglog', true, 'default');
 	expect(style.textContent).toContain(high);
 	expect(style.textContent).not.toContain('prefers-contrast');
 });
@@ -142,7 +178,7 @@ test.each(
 	const colors = seriesPaletteColors[palette][mode];
 	expect(new Set(colors).size).toBe(5);
 	for (const preset of themePresets) {
-		const surface = themeColors(defaultThemeColor, dark, false, preset).tokens['--color-background-surface']!;
+		const surface = themeColors(inputs(defaultThemeColor), dark, false, preset).tokens['--color-background-surface']!;
 		for (const color of colors) {
 			expect(contrastRatio(color, surface)).toBeGreaterThanOrEqual(3);
 		}
