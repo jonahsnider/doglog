@@ -269,7 +269,7 @@ export function disconnect(): void {
 	if (live === undefined || live.status === 'disconnected') {
 		return;
 	}
-	if (live.status === 'connecting') {
+	if (sourceState.liveData?.start === undefined) {
 		closeLive();
 		return;
 	}

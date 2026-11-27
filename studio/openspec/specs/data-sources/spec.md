@@ -504,7 +504,7 @@ Studio tabs and windows SHALL share one NT4 connection to each server, for their
 
 ### Requirement: Disconnect and clear
 
-Without a live session, the source list's header menu SHALL offer Connect. The live session's menu SHALL offer one action for its state: Disconnect while it's connecting, connected, or reconnecting, and once disconnected, Reconnect and Clear. Disconnect MUST stop reconnecting and keep the received data, and Reconnect MUST continue the same session. Clear MUST close the live session and throw away its data, including its recording.
+The source list's header menu SHALL offer Connect when no live session is open. The live session's menu SHALL offer Disconnect while connecting, connected, or reconnecting, and Reconnect and Clear once disconnected. Disconnect MUST stop reconnecting and keep the received data. If the session never connected, Disconnect MUST close it. Reconnect MUST continue the same session. Clear MUST close the session and delete its data and recording.
 
 #### Scenario: Disconnect
 
@@ -523,7 +523,7 @@ Without a live session, the source list's header menu SHALL offer Connect. The l
 
 #### Scenario: Disconnect before connecting
 
-- **GIVEN** Studio is still looking for the robot or simulator
+- **GIVEN** a live session that has never connected was moved to another window, where it shows as reconnecting
 - **WHEN** the user chooses Disconnect
 - **THEN** the live session is closed, since it has no data
 
