@@ -122,6 +122,7 @@ export function PhonePanes({
 	const bar = useRef<HTMLDivElement>(null);
 	const keyboard = useOnScreenKeyboard();
 	const tabsSlot = useSelector(paneTabsSlot);
+	const barSlot = parked ? null : tabsSlot;
 	const idPrefix = useId();
 	const [swiping, setSwiping] = useState(false);
 	// The pane the minimap last showed up for, `undefined` once it's faded out
@@ -134,10 +135,10 @@ export function PhonePanes({
 
 	const placed = useRef(false);
 	useLayoutEffect(() => {
-		// Slides to panes chosen after the first render, and moves the minimap's highlight as the layout changes
-		placePanes(root.current, bar.current, paneRects(layout), index, placed.current);
+		// The pane bar can mount after the panes once its portal slot is available.
+		placePanes(root.current, barSlot && bar.current, paneRects(layout), index, placed.current);
 		placed.current = true;
-	}, [index, layout]);
+	}, [index, layout, barSlot]);
 
 	useEffect(() => {
 		if (minimapFor === undefined || swiping) {
@@ -214,14 +215,9 @@ export function PhonePanes({
 
 	const allowed = shown && allowedActions(dashboardId, layout, shown.id);
 	const direction = allowed?.splitRight === true ? 'row' : allowed?.splitDown === true ? 'column' : undefined;
-	// The bar mounts after the panes once the top bar's slot is set, so its highlight is placed then
-	const barRef = (element: HTMLDivElement | null) => {
-		bar.current = element;
-		placePanes(root.current, element, rects, index, false);
-	};
 	const paneBar = (
 		<PaneBar
-			ref={barRef}
+			ref={bar}
 			idPrefix={idPrefix}
 			order={order}
 			shownId={shown?.id}
@@ -251,7 +247,7 @@ export function PhonePanes({
 				</div>
 				{order.length > 1 && <PaneMinimap rects={rects} shown={minimapFor !== undefined && !keyboard} />}
 			</div>
-			{!parked && tabsSlot && createPortal(paneBar, tabsSlot)}
+			{barSlot && createPortal(paneBar, barSlot)}
 		</div>
 	);
 }
