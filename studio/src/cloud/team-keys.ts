@@ -14,7 +14,8 @@ interface Publish {
 	rotate: (keyVersion: number, grants: { userId: Id<'users'>; wrappedKey: ArrayBuffer }[]) => Promise<unknown>;
 }
 
-// Returns undefined after publishing a new team key, which arrives as a new grant.
+// Returns undefined after publishing a new team key, which arrives as a new grant, and 'waiting' until a teammate
+// grants this account the key.
 async function unlockTeamKey(
 	grant: Grant,
 	userId: Id<'users'>,
@@ -22,11 +23,15 @@ async function unlockTeamKey(
 	ownKey: AccountKeyAttestation,
 	trustedCloudKey: ArrayBuffer,
 	publish: Publish,
-): Promise<TeamKey | undefined> {
+): Promise<TeamKey | 'waiting' | undefined> {
 	if (grant.keyVersion === null) {
 		const context = { teamId: grant.teamId, recipientId: userId, keyVersion: 1 };
 		await publish.initialize(await wrapTeamKey(createTeamKey(), context, ownKey, trustedCloudKey));
 		return undefined;
+	}
+	if (grant.wrappedKey === null && grant.rotation) {
+		// This account reset its key, so a teammate who holds the team key rotates it to include the new one
+		return 'waiting';
 	}
 	if (grant.wrappedKey === null) {
 		throw new Error('This account has no grant for the current team key.');
@@ -65,10 +70,10 @@ export function useTeamKey(userId: Id<'users'>, accountKey: CryptoKey) {
 	const initialize = useMutation(api.teamKeys.initialize);
 	const completeJoin = useMutation(api.teamKeys.completeJoin);
 	const rotate = useMutation(api.teamKeys.rotate);
-	const [result, setResult] = useState<{ grant: typeof grant; teamKey?: TeamKey; failed: boolean }>();
+	const [result, setResult] = useState<{ grant: typeof grant; state: TeamKey | 'waiting' | 'failed' }>();
 	const attempted = useRef(new Set<string>());
-	const current = result?.grant === grant ? result : undefined;
-	const teamKey = current?.teamKey;
+	const state = result && result.grant === grant ? result.state : undefined;
+	const teamKey = typeof state === 'object' ? state : undefined;
 
 	useEffect(() => {
 		let active = true;
@@ -81,12 +86,12 @@ export function useTeamKey(userId: Id<'users'>, accountKey: CryptoKey) {
 					initialize: (wrappedKey) => initialize({ teamId: grant.teamId, wrappedKey }),
 					rotate: (keyVersion, grants) => rotate({ keyVersion, grants }),
 				});
-				if (active && key) {
-					setResult({ grant, teamKey: key, failed: false });
+				if (active && key !== undefined) {
+					setResult({ grant, state: key });
 				}
 			} catch {
 				if (active) {
-					setResult({ grant, failed: true });
+					setResult({ grant, state: 'failed' });
 				}
 			}
 		}
@@ -121,10 +126,9 @@ export function useTeamKey(userId: Id<'users'>, accountKey: CryptoKey) {
 		);
 	}, [completeJoin, pendingJoins, teamKey, trustedCloudKey]);
 
-	const failed = current?.failed === true;
 	useEffect(() => {
-		teamKeyStore.set(failed ? 'failed' : teamKey);
-	}, [failed, teamKey]);
+		teamKeyStore.set(state);
+	}, [state]);
 	useEffect(() => () => teamKeyStore.set(undefined), []);
 	return teamKey;
 }

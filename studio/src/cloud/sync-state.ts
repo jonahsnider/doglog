@@ -35,6 +35,18 @@ export function setSyncState(id: string, state: SyncState | undefined): void {
 	});
 }
 
+/**
+ * Upload this device's copies of Cloud dashboards in full on the next sync, and download them again, ex. after an
+ * account key reset deleted the team's Cloud dashboards
+ */
+export function reuploadAll(): void {
+	syncStateStore.set((states) =>
+		Object.fromEntries(
+			Object.entries(states).map(([id, state]) => [id, { ...state, pulledSeq: 0, pushed: undefined }]),
+		),
+	);
+}
+
 /** Drop a local copy whose edits can't be uploaded, it's downloaded again from Cloud */
 export function discard(id: string): void {
 	idsStore.set((ids) => ids.filter((other) => other !== id));

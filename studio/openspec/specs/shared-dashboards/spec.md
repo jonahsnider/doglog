@@ -273,15 +273,23 @@ Studio MUST grant dashboard access to accounts, not devices. Before sealing the 
 - **THEN** it receives access to the current dashboards and may read retained history encrypted with that key
 - **AND** joining does not rotate the team key or require sharing keys from earlier rotations
 
-### Requirement: Recover dashboard access
+### Requirement: Reset a lost encryption credential
 
-Cloud MUST NOT be able to unlock account private keys. If a member loses their credential, an admin who can still open the dashboards SHALL be able to verify the member and grant a replacement credential for the same account. Studio MUST rotate the team key and exclude the lost credential. If nobody on the team can unlock the dashboards, signing in again or contacting support MUST NOT restore access to the protected data.
+Cloud MUST NOT be able to unlock account private keys. A signed-in user who can't pair from another device SHALL be able to replace their account's encryption credential themselves, without admin approval. The team key MUST be rotated so the replaced credential can't decrypt new updates, and the account's other devices MUST pair again. If nobody on the team can unlock the dashboards, signing in again or contacting support MUST NOT restore access to the protected data.
 
-#### Scenario: Replace one member's lost credential
+#### Scenario: Reset with teammates
 
-- **GIVEN** a member has lost their encryption credential and an admin can still open the team's dashboards
-- **WHEN** the admin verifies the member and authorizes a replacement credential
-- **THEN** the same account can open the dashboards with the replacement credential
+- **GIVEN** a member lost every device with their encryption credential and a teammate can still open the team's dashboards
+- **WHEN** the member resets their credential and the teammate opens Studio
+- **THEN** the same account can open the dashboards with the new credential
+- **AND** the replaced credential cannot decrypt new Cloud updates
+
+#### Scenario: Reset as the only member
+
+- **GIVEN** a team's only member lost their encryption credential
+- **WHEN** they reset it
+- **THEN** nobody can share the team key, so the team's Cloud dashboards are deleted
+- **AND** copies still on that device sync again under a fresh team key
 
 #### Scenario: No member can unlock the team key
 
@@ -289,9 +297,9 @@ Cloud MUST NOT be able to unlock account private keys. If a member loses their c
 - **WHEN** an admin regains access to their Cloud account
 - **THEN** they still cannot decrypt the existing dashboards
 
-### Requirement: Rotate dashboard keys on member removal
+### Requirement: Rotate dashboard keys
 
-When a membership ends, Studio MUST generate a fresh team key that cannot be derived from a previous key and grant it only to remaining members. Studio MUST verify the current team state with Cloud before publishing. After removal takes effect, Cloud MUST NOT accept or distribute new edits encrypted with the old key. If Studio cannot verify team state or unlock the current key, it MUST keep edits local. Rotation cannot revoke keys or copies a former member already holds.
+When a membership ends or a credential is reset, Studio MUST generate a fresh team key not derivable from a previous key and grant it only to remaining members. Studio MUST verify the current team state with Cloud before publishing. After removal takes effect, Cloud MUST NOT accept or distribute new edits encrypted with the old key. If Studio cannot verify team state or unlock the current key, it MUST keep edits local. Rotation cannot revoke keys or copies a former member already holds.
 
 #### Scenario: A remaining member reconnects after rotation
 

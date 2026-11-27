@@ -53,6 +53,15 @@ async function seal(
 	return { publicKey, wrappedPrivateKey, iv, ...(STUDIO_DESKTOP ? {} : { wrappingKey }) };
 }
 
+async function generate(key: string, additionalData: Uint8Array<ArrayBuffer>) {
+	const accountKey = await crypto.subtle.generateKey(
+		{ ...accountKeyAlgorithm, modulusLength: 3072, publicExponent: Uint8Array.of(1, 0, 1) },
+		true,
+		['encrypt', 'decrypt'],
+	);
+	return seal(key, accountKey.privateKey, await crypto.subtle.exportKey('spki', accountKey.publicKey), additionalData);
+}
+
 async function unseal(
 	key: string,
 	stored: StoredAccountKey,
@@ -79,17 +88,7 @@ export async function unlockAccountKey(
 	const { key, additionalData } = storage(deployment, userId);
 	let stored = await get<StoredAccountKey>(key);
 	if (!stored && registeredPublicKey === null) {
-		const accountKey = await crypto.subtle.generateKey(
-			{ ...accountKeyAlgorithm, modulusLength: 3072, publicExponent: Uint8Array.of(1, 0, 1) },
-			true,
-			['encrypt', 'decrypt'],
-		);
-		const candidate = await seal(
-			key,
-			accountKey.privateKey,
-			await crypto.subtle.exportKey('spki', accountKey.publicKey),
-			additionalData,
-		);
+		const candidate = await generate(key, additionalData);
 		// Commit one candidate across tabs before registering its public key with Cloud.
 		await update<StoredAccountKey>(key, (existing) => existing ?? candidate);
 		stored = await get<StoredAccountKey>(key);
@@ -121,6 +120,21 @@ export async function unlockAccountKey(
 	// Browsers clear site data when storage runs low unless asked to keep it, which loses the key until this device pairs again
 	void navigator.storage.persist().catch(() => undefined);
 	return privateKey;
+}
+
+/**
+ * Replaces the account's key with a new one made on this device, for when no device can approve this one. Saved before
+ * Cloud registers it, so a failed reset leaves an unregistered key that the next reset overwrites.
+ */
+export async function resetAccountKey(
+	deployment: string,
+	userId: string,
+	register: (publicKey: ArrayBuffer) => Promise<unknown>,
+) {
+	const { key, additionalData } = storage(deployment, userId);
+	const stored = await generate(key, additionalData);
+	await set(key, stored);
+	await register(stored.publicKey);
 }
 
 // Pairing is the only reason to read the private key out of storage.

@@ -85,8 +85,16 @@ export function TeamPanel({
 }
 
 function TeamKeyStatus() {
-	const failed = useSelector(teamKeyStore) === 'failed';
-	return failed ? (
+	const state = useSelector(teamKeyStore);
+	if (state === 'waiting') {
+		return (
+			<Banner
+				status="info"
+				title="You’ll get access to your team’s Cloud dashboards when a teammate next opens DogLog Studio."
+			/>
+		);
+	}
+	return state === 'failed' ? (
 		<Banner status="error" role="alert" title="Couldn’t unlock your team’s encryption key on this device." />
 	) : null;
 }

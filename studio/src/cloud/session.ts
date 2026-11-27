@@ -50,8 +50,8 @@ export type AccountKeyState = { status: 'loading' | 'missing' | 'error' } | { st
 export const accountKeyStore = createAtom<AccountKeyState>({ status: 'loading' });
 /** Bumped to unlock the account key again, ex. after pairing */
 export const accountKeyAttemptStore = createAtom(0);
-/** The current team key, or whether it couldn't be unlocked */
-export const teamKeyStore = createAtom<TeamKey | 'failed' | undefined>(undefined);
+/** The current team key, whether it couldn't be unlocked, or whether a teammate needs to grant it after a key reset */
+export const teamKeyStore = createAtom<TeamKey | 'waiting' | 'failed' | undefined>(undefined);
 /** Whether this window is connected to Cloud with the current team key, so team dashboards can be shared and closed */
 export const cloudReadyStore = createAtom(false);
 
