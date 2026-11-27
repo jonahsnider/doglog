@@ -24,13 +24,13 @@ export function TimelineOptions({
 				icon: <SlidersHorizontalIcon />,
 				variant: 'ghost',
 				tooltip: 'Timeline options',
+				xstyle: compact && styles.compact,
 			}}
 			hasChevron={false}
 			alignment="end"
 			placement="above"
 			onOpenChange={onOpenChange}
 			className="capture-hidden"
-			xstyle={compact && styles.compact}
 		>
 			<DropdownMenuCheckboxItem
 				label="Show alerts"
