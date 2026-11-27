@@ -11,8 +11,9 @@ import type { Ref } from 'react';
 import { Legend, type LegendItem } from '@/widgets/legend/legend';
 
 const styles = stylex.create({
-	// Wide when it's above the field, and tall beside it when the pane is wider than the viewed field. The 2D field sets
-	// these container names on its root.
+	// Wide when it's above the field, and tall beside it when the stage is wider than the viewed field, as wide as the room
+	// beside the field at full height or a third of the stage. The aspect ratios are the viewed field's, and the 2D field
+	// sets these container names on its stage.
 	legend: {
 		position: 'absolute',
 		top: 0,
@@ -20,8 +21,8 @@ const styles = stylex.create({
 		width: 'max-content',
 		maxWidth: {
 			default: '100%',
-			'@container field-landscape (min-aspect-ratio: 1.925)': '33cqw',
-			'@container field-portrait (min-aspect-ratio: 0.52)': '33cqw',
+			'@container field-landscape (min-aspect-ratio: 1.925)': 'max(33cqw, 100cqw - 100cqh * 1.925)',
+			'@container field-portrait (min-aspect-ratio: 0.52)': 'max(33cqw, 100cqw - 100cqh * 0.52)',
 		},
 		maxHeight: {
 			default: '33%',

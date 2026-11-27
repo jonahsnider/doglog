@@ -35,11 +35,12 @@ import { ViewToggle } from '@/widgets/view-toggle';
 import type { WidgetProps } from '@/widgets/widget-type';
 
 const styles = stylex.create({
-	root: { height: '100%', padding: spacingVars['--spacing-2'], containerType: 'size' },
+	root: { height: '100%', padding: spacingVars['--spacing-2'] },
+	column: { display: 'flex', height: '100%', flexDirection: 'column', gap: spacingVars['--spacing-1'] },
+	// The legend sizes itself to the room the field leaves in the stage
+	stage: { position: 'relative', minHeight: 0, flex: 1, containerType: 'size' },
 	landscape: { containerName: 'field-landscape' },
 	portrait: { containerName: 'field-portrait' },
-	column: { display: 'flex', height: '100%', flexDirection: 'column', gap: spacingVars['--spacing-1'] },
-	stage: { position: 'relative', minHeight: 0, flex: 1 },
 	box: { position: 'absolute', inset: 0, overflow: 'hidden', touchAction: 'none' },
 	pannable: { cursor: { default: 'grab', ':active': 'grabbing' } },
 	measuring: { cursor: 'crosshair' },
@@ -162,9 +163,9 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 	return (
 		// The legend floats over the top-left corner, wide when it's above the field and tall when the widget is wider
 		// than the field and has room beside it. The field fits beside or under it, and zooms in under it.
-		<div {...stylex.props(fieldMarker, styles.root, vertical ? styles.portrait : styles.landscape)}>
+		<div {...stylex.props(fieldMarker, styles.root)}>
 			<div {...stylex.props(styles.column)}>
-				<div {...stylex.props(styles.stage)}>
+				<div {...stylex.props(styles.stage, vertical ? styles.portrait : styles.landscape)}>
 					<div
 						ref={boxRef}
 						{...stylex.props(styles.box, tool === undefined ? zoom.scale > 1 && styles.pannable : styles.measuring)}
