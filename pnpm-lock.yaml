@@ -304,8 +304,8 @@ importers:
         specifier: 0.19.2
         version: 0.19.2
       '@tanstack/react-hotkeys':
-        specifier: 0.27.3
-        version: 0.27.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: 0.27.4
+        version: 0.27.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@tanstack/react-router':
         specifier: 1.170.46
         version: 1.170.46(@types/react@19.3.3)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -5122,12 +5122,12 @@ packages:
     resolution: {integrity: sha512-w1+YvwmTkwt5n8yUqEH3IWZ9DsmorCZW/EQ3KYHnqEgIkOZpH54NvW6/Epq3Dzb8H0ifIeYX8PExvrNLIH5FIA==}
     engines: {node: '>=20.19'}
 
-  '@tanstack/hotkeys@0.34.0':
-    resolution: {integrity: sha512-nsXOsxJHPUkI7tvRB8NO/LQLUrGiPX35l/b14aFzsbku+Ep3yIxPxLeaCwsq02ygTvw2Fy7avjqNylJxk18agQ==}
+  '@tanstack/hotkeys@0.35.0':
+    resolution: {integrity: sha512-yq2xzNTwC+liu4G8wewOO61VrBDeRsJzg8dMO+ql5y4ENFSmekctzsRkWDuUwwBSESUJ1CeWjyWc9+z3wXiyYg==}
     engines: {node: '>=20'}
 
-  '@tanstack/react-hotkeys@0.27.3':
-    resolution: {integrity: sha512-ks+tGDdUzFOfcWmCacmv83xMgz0cuMnjk2caHdhNdVvmHBumtsyFMxS9QmkuCliolqbBg4biUMwWsVsvCDV9gQ==}
+  '@tanstack/react-hotkeys@0.27.4':
+    resolution: {integrity: sha512-ZNhXRUqAC+O74rMXJW1BzQt2kIqk1XUb5ObxgpQXtBK7rxRGXWp6p20Bnua/ada1NRY1bDrOpWSzjGD0Hf4lCA==}
     engines: {node: '>=20'}
     peerDependencies:
       react: '>=18.0.0'
@@ -12421,7 +12421,7 @@ snapshots:
     dependencies:
       '@eslint/object-schema': 3.0.5
       debug: 4.4.3(supports-color@10.2.2)
-      minimatch: 11.0.8
+      minimatch: 11.0.9
     transitivePeerDependencies:
       - supports-color
 
@@ -14264,11 +14264,11 @@ snapshots:
 
   '@tanstack/history@1.162.5': {}
 
-  '@tanstack/hotkeys@0.34.0': {}
+  '@tanstack/hotkeys@0.35.0': {}
 
-  '@tanstack/react-hotkeys@0.27.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@tanstack/react-hotkeys@0.27.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
-      '@tanstack/hotkeys': 0.34.0
+      '@tanstack/hotkeys': 0.35.0
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
@@ -16923,7 +16923,7 @@ snapshots:
       imurmurhash: 0.1.4
       is-glob: 4.0.3
       json-stable-stringify-without-jsonify: 1.0.1
-      minimatch: 11.0.8
+      minimatch: 11.0.9
       natural-compare: 1.4.0
       optionator: 0.9.4
     optionalDependencies:
@@ -20386,7 +20386,7 @@ snapshots:
       jsonc-parser: 3.3.1
       mime: 4.1.2
       miniflare: 5.20261123.1-beta(@types/node@26.6.11)
-      minimatch: 11.0.8
+      minimatch: 11.0.9
       mysql2: 3.24.6(@types/node@26.6.11)
       pg: 8.23.1
       postal-mime: 4.2.1
