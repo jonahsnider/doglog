@@ -304,8 +304,8 @@ importers:
         specifier: 0.19.2
         version: 0.19.2
       '@tanstack/react-hotkeys':
-        specifier: 0.27.2
-        version: 0.27.2(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: 0.27.3
+        version: 0.27.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@tanstack/react-router':
         specifier: 1.170.46
         version: 1.170.46(@types/react@19.3.3)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -5173,12 +5173,12 @@ packages:
     resolution: {integrity: sha512-w1+YvwmTkwt5n8yUqEH3IWZ9DsmorCZW/EQ3KYHnqEgIkOZpH54NvW6/Epq3Dzb8H0ifIeYX8PExvrNLIH5FIA==}
     engines: {node: '>=20.19'}
 
-  '@tanstack/hotkeys@0.33.1':
-    resolution: {integrity: sha512-8lTyzrwAKIQm/8Ml938RXMSDBy/6wsIlavczmjDec4hsXkSPys0SbQ59kYboC6cBOfR2T1jFBQ1P0J3A06szsA==}
+  '@tanstack/hotkeys@0.34.0':
+    resolution: {integrity: sha512-nsXOsxJHPUkI7tvRB8NO/LQLUrGiPX35l/b14aFzsbku+Ep3yIxPxLeaCwsq02ygTvw2Fy7avjqNylJxk18agQ==}
     engines: {node: '>=20'}
 
-  '@tanstack/react-hotkeys@0.27.2':
-    resolution: {integrity: sha512-VpnIlDQ1t21G2scxjsvdxsg4hhj9R1gZMjJxEitVS6f4+PAz78fA5W/Q0iBythZH/gBSvqp0Aj2HLRyEvHcm/g==}
+  '@tanstack/react-hotkeys@0.27.3':
+    resolution: {integrity: sha512-ks+tGDdUzFOfcWmCacmv83xMgz0cuMnjk2caHdhNdVvmHBumtsyFMxS9QmkuCliolqbBg4biUMwWsVsvCDV9gQ==}
     engines: {node: '>=20'}
     peerDependencies:
       react: '>=18.0.0'
@@ -14380,11 +14380,11 @@ snapshots:
 
   '@tanstack/history@1.162.5': {}
 
-  '@tanstack/hotkeys@0.33.1': {}
+  '@tanstack/hotkeys@0.34.0': {}
 
-  '@tanstack/react-hotkeys@0.27.2(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@tanstack/react-hotkeys@0.27.3(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
-      '@tanstack/hotkeys': 0.33.1
+      '@tanstack/hotkeys': 0.34.0
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
