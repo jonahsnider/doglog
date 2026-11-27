@@ -9,6 +9,7 @@
 		"check:convex": "tsc -p convex",
 		"deploy": "void deploy --platform cloudflare",
 		"dev": "vp dev",
+		"dev:local": "node scripts/dev-local.ts",
 		"test:convex": "vp test run --config vitest.config.ts"
 	},
 	"dependencies": {

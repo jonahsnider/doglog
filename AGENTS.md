@@ -46,6 +46,15 @@ Testing the desktop app is necessary for some features, but should only be used 
 
 Use `agent-device` or the Safari WebDriver MCP to test on mobile device simulators.
 
+### Testing Cloud
+
+- Cloud's Convex functions are in `cloud/convex` and have a few helper scripts
+  - Run `pnpm test:convex` and `pnpm check:convex` to run tests and check types
+  - Run `pnpm dev:local` as a long-running process to start a local Convex backend for quick testing.
+- Sign in with a passkey, Apple and Google are disabled locally (but dev credentials can be setup if needed)
+  - When automating a browser, add a virtual authenticator first, ex. `playwright-cli run-code` with CDP's `WebAuthn.enable` and `WebAuthn.addVirtualAuthenticator` (`protocol: 'ctap2'`, `transport: 'internal'`, and `hasResidentKey`, `hasUserVerification`, `isUserVerified`, `automaticPresenceSimulation` all true)
+- Use `pnpm exec convex <command>` in `cloud` to inspect it while it runs, ex. `convex data teams`
+
 ## General development
 
 - Use straight quotes and apostrophes in comments, specs, and agent-facing text such as CLI output and MCP descriptions. Leave Studio UI copy unchanged when applying this rule.
