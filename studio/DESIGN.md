@@ -1,7 +1,7 @@
 # Studio design guide
 
 Studio follows the [Astryx](https://astryx.design) design guidelines (`pnpm exec astryx docs principles`) and Team 581's design guide (the `team581-design` skill from `@team581/astryx-theme`).
-This guide lists only the app-wide rules Studio adds to them.
+This guide lists only the app-wide rules Studio adds to them. Avoid adding rules for things that are obvious or inferred from surrounding code.
 Change rules that apply to every Team 581 app in `@team581/astryx-theme` instead.
 Keep feature behavior and functionality in `openspec/specs`.
 
