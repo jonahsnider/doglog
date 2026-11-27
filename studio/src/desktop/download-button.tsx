@@ -1,16 +1,10 @@
 import { Button } from '@astryxdesign/core/Button';
 import { ButtonGroup } from '@astryxdesign/core/ButtonGroup';
-import {
-	DropdownMenu,
-	DropdownMenuGroup,
-	DropdownMenuItem,
-	type DropdownMenuTriggerProps,
-} from '@astryxdesign/core/DropdownMenu';
-import { invoke } from '@tauri-apps/api/core';
+import { DropdownMenu, DropdownMenuItem, type DropdownMenuTriggerProps } from '@astryxdesign/core/DropdownMenu';
 import ChevronDownIcon from 'lucide-react/icons/chevron-down';
 import DownloadIcon from 'lucide-react/icons/download';
 import type { ReactNode } from 'react';
-import { toastManager } from '@/components/toast';
+import { isMobileDevice } from '@/lib/mobile-layout';
 
 type Platform = 'macos' | 'windows' | 'linux';
 
@@ -29,11 +23,10 @@ const downloads: { platform: Platform; label: string; file: string }[] = [
 ];
 
 function detectPlatform(): Platform | undefined {
-	const ua = navigator.userAgent;
-	// Phones and tablets can't run the desktop app, iPads say they're Macs but have touch screens
-	if (/Android|iPhone|iPad/u.test(ua) || (ua.includes('Mac') && navigator.maxTouchPoints > 1)) {
+	if (isMobileDevice()) {
 		return undefined;
 	}
+	const ua = navigator.userAgent;
 	if (ua.includes('Win')) {
 		return 'windows';
 	}
@@ -81,28 +74,12 @@ export function DownloadButton() {
 	);
 }
 
-async function copyDownloadLink(file: string): Promise<void> {
-	try {
-		await invoke('plugin:clipboard-manager|write_text', { text: downloadsUrl + file });
-		toastManager.add({ type: 'success', title: 'Copied download link' });
-	} catch {
-		toastManager.add({ type: 'error', title: 'Couldn’t copy download link' });
-	}
-}
-
-/** Lists every installer, which downloads in the browser and copies its link in the desktop app for sharing */
 export function DownloadMenu({ renderTrigger }: { renderTrigger: (props: DropdownMenuTriggerProps) => ReactNode }) {
 	return (
 		<DropdownMenu placement="above" renderTrigger={renderTrigger}>
-			{STUDIO_DESKTOP ? (
-				<DropdownMenuGroup title="Copy download link">
-					{downloads.map(({ file, label }) => (
-						<DropdownMenuItem key={file} label={label} onClick={() => void copyDownloadLink(file)} />
-					))}
-				</DropdownMenuGroup>
-			) : (
-				downloads.map(({ file, label }) => <DropdownMenuItem key={file} label={label} href={downloadsUrl + file} />)
-			)}
+			{downloads.map(({ file, label }) => (
+				<DropdownMenuItem key={file} label={label} href={downloadsUrl + file} />
+			))}
 		</DropdownMenu>
 	);
 }

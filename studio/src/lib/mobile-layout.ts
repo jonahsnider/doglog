@@ -15,3 +15,9 @@ export function useMobileLayout(): boolean {
 export function isMobileLayout(): boolean {
 	return !STUDIO_DESKTOP && typeof window !== 'undefined' && window.matchMedia(mobileLayoutQuery).matches;
 }
+
+export function isMobileDevice(): boolean {
+	const ua = navigator.userAgent;
+	// iPads can report themselves as Macs, but Macs don't have touchscreens
+	return /Android|iPhone|iPad/u.test(ua) || (ua.includes('Mac') && navigator.maxTouchPoints > 1);
+}
