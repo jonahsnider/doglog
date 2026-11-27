@@ -156,7 +156,7 @@ export function SourceRow({
 						<SourceIcon source={source} />
 						<SourceLabels name={name} detail={detail} reconnecting={source.status === 'reconnecting'} />
 						{!hidden && sampled && (
-							<span {...stylex.props(styles.sample)}>
+							<span data-replaced-by-action="" {...stylex.props(styles.sample)}>
 								<LineSample index={visibleIndex} />
 							</span>
 						)}
