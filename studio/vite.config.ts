@@ -264,11 +264,14 @@ export default defineConfig({
 	plugins: lazyPlugins(() => [
 		{
 			name: 'require-convex-url',
-			apply: 'build',
+			// Tests don't connect to Cloud
+			apply: (_config, { mode }) => mode !== 'test',
 			configResolved({ env }) {
 				const url: unknown = env['VITE_CONVEX_URL'];
 				if (typeof url !== 'string' || url.trim() === '') {
-					throw new Error('Set VITE_CONVEX_URL to a Convex deployment URL before building Studio.');
+					throw new Error(
+						'Set VITE_CONVEX_URL to a Convex deployment URL, ex. in studio/.env.development.local for the dev server.',
+					);
 				}
 			},
 		},

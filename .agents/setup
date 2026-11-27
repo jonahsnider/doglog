@@ -4,3 +4,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 pnpm install --frozen-lockfile
+
+# Studio's dev server requires a Convex deployment, use the shared dev deployment unless one is already set
+if [[ ! -f studio/.env.development.local ]]; then
+	echo 'VITE_CONVEX_URL=https://wry-raven-667.convex.cloud' > studio/.env.development.local
+fi

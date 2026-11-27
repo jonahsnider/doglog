@@ -24,9 +24,6 @@ const ambientSignIns = location.pathname === '/desktop-sign-in' ? [] : undefined
 
 /** Signs in to Cloud for the whole app, and keeps the team's keys and dashboards available while signed in */
 export function CloudProvider({ children }: { children: ReactNode }) {
-	if (cloudClient === undefined) {
-		return children;
-	}
 	return (
 		<ConvexAuthProvider client={cloudClient} api={api.auth} ambientSignIns={ambientSignIns}>
 			<CloudBackground />

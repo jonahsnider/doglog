@@ -7,7 +7,7 @@ import { ListItem } from '@astryxdesign/core/List';
 import { Text } from '@astryxdesign/core/Text';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useAuthActions } from '@convex-dev/auth/react';
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { useConvexAuth, useMutation, useQuery } from 'convex/react';
 import { ConvexError } from 'convex/values';
 import LogOutIcon from 'lucide-react/icons/log-out';
@@ -15,7 +15,6 @@ import Trash2Icon from 'lucide-react/icons/trash-2';
 import { type SubmitEvent, useState } from 'react';
 import { AccountEncryption } from '@/cloud/account-encryption';
 import { ConfirmCloudAction } from '@/cloud/confirm-cloud-action';
-import { cloudDeploymentUrl } from '@/cloud/deployment';
 import { InviteLink } from '@/cloud/invite-link';
 import { JoinTeam } from '@/cloud/join-team';
 import { CloudSignIn, displayNameMaxLength } from '@/cloud/sign-in';
@@ -31,12 +30,15 @@ export const Route = createFileRoute('/cloud')({
 	validateSearch: (search: Record<string, unknown>): { invite?: string } => ({
 		invite: typeof search['invite'] === 'string' ? search['invite'] : undefined,
 	}),
-	beforeLoad: () => (cloudDeploymentUrl === undefined ? redirect({ to: '/', replace: true }) : undefined),
 	component: CloudPage,
 });
 
 function CloudPage() {
-	return <UtilityPage title="Cloud">{cloudDeploymentUrl !== undefined && <CloudAccount />}</UtilityPage>;
+	return (
+		<UtilityPage title="Cloud">
+			<CloudAccount />
+		</UtilityPage>
+	);
 }
 
 function CloudAccount() {

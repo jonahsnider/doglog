@@ -34,7 +34,6 @@ import Undo2Icon from 'lucide-react/icons/undo-2';
 import VideoIcon from 'lucide-react/icons/video';
 import XIcon from 'lucide-react/icons/x';
 import type { LucideIcon } from 'lucide-react/types';
-import { cloudDeploymentUrl } from '@/cloud/deployment';
 import { toggleCommandPalette } from '@/commands/command-palette-handle';
 import {
 	canUndoOrRedo,
@@ -239,7 +238,6 @@ export const commands = {
 		label: 'Cloud',
 		icon: CloudIcon,
 		page: true,
-		available: cloudDeploymentUrl !== undefined,
 		run: (router) => void router.navigate({ to: '/cloud' }),
 	},
 	settings: {

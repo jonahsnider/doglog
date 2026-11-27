@@ -6,6 +6,6 @@ declare const STUDIO_COMMIT: string | null;
 declare const STUDIO_DESKTOP: boolean;
 
 interface ImportMetaEnv {
-	readonly VITE_CONVEX_URL?: string;
+	readonly VITE_CONVEX_URL: string;
 	readonly VITE_DOGLOG_LOCAL_PREVIEW?: string;
 }

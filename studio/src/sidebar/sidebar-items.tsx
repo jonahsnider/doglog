@@ -3,7 +3,6 @@ import CloudIcon from 'lucide-react/icons/cloud';
 import FolderSyncIcon from 'lucide-react/icons/folder-sync';
 import SettingsIcon from 'lucide-react/icons/settings';
 import SlidersHorizontalIcon from 'lucide-react/icons/sliders-horizontal';
-import { cloudDeploymentUrl } from '@/cloud/deployment';
 import { shortcuts } from '@/commands/commands';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { AppSidebarFooter } from '@/sidebar/app-sidebar-footer';
@@ -59,14 +58,12 @@ export function SidebarItems({
 								<span>Tuning</span>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
-						{cloudDeploymentUrl !== undefined && (
-							<SidebarMenuItem>
-								<SidebarMenuButton isActive={Boolean(matchRoute({ to: '/cloud' }))} href="/cloud" tooltip="Cloud">
-									<CloudIcon />
-									<span>Cloud</span>
-								</SidebarMenuButton>
-							</SidebarMenuItem>
-						)}
+						<SidebarMenuItem>
+							<SidebarMenuButton isActive={Boolean(matchRoute({ to: '/cloud' }))} href="/cloud" tooltip="Cloud">
+								<CloudIcon />
+								<span>Cloud</span>
+							</SidebarMenuButton>
+						</SidebarMenuItem>
 						<SidebarMenuItem>
 							<SidebarMenuButton
 								isActive={Boolean(matchRoute({ to: '/settings' }))}
