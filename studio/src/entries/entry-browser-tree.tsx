@@ -1,13 +1,17 @@
+import { Button } from '@astryxdesign/core/Button';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { colorVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import type { Draggable, Droppable } from '@dnd-kit/dom';
 import { useDragDropMonitor, useDragOperation } from '@dnd-kit/react';
 import { useSelector } from '@tanstack/react-store';
+import FileIcon from 'lucide-react/icons/file';
+import RadioTowerIcon from 'lucide-react/icons/radio-tower';
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
-import { shortcuts } from '@/commands/commands';
+import { shortcuts, startConnect } from '@/commands/commands';
 import { Shortcut } from '@/components/shortcut';
 import type { Entry } from '@/data/data-store';
+import { chooseLog } from '@/data/open-log';
 import { useSource } from '@/data/source';
 import { ActiveSection } from '@/entries/active-section';
 import type { EntryDragData, EntrySectionDropData } from '@/entries/drag';
@@ -65,6 +69,12 @@ const styles = stylex.create({
 		color: colorVars['--color-text-secondary'],
 		fontSize: typeScaleVars['--text-label-size'],
 		lineHeight: typeScaleVars['--text-label-leading'],
+	},
+	sourceActions: {
+		display: 'flex',
+		flexDirection: 'column',
+		gap: spacingVars['--spacing-2'],
+		marginTop: spacingVars['--spacing-3'],
 	},
 	note: {
 		flexShrink: 0,
@@ -198,7 +208,15 @@ export function EntryTree({ edited }: { edited: EditedWidget | undefined }) {
 					}}
 				/>
 			) : (
-				<p {...stylex.props(styles.message)}>{message}</p>
+				<div {...stylex.props(styles.message)}>
+					<p>{message}</p>
+					{source === undefined && (
+						<div {...stylex.props(styles.sourceActions)}>
+							<Button label="Open log" icon={<FileIcon />} size="sm" width="100%" onClick={chooseLog} />
+							<Button label="Connect" icon={<RadioTowerIcon />} size="sm" width="100%" onClick={startConnect} />
+						</div>
+					)}
+				</div>
 			)}
 			{(sectioned.hidden.length > 0 || dragging) && (
 				<HiddenSection
@@ -225,7 +243,7 @@ function emptyMessage(
 	view: EntryTreeView,
 ): string | undefined {
 	if (!hasSource) {
-		return 'Open a log or connect to a robot to browse its entries.';
+		return 'No data source.';
 	}
 	if (allEntries.length === 0) {
 		return 'No entries yet.';

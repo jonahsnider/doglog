@@ -47,6 +47,11 @@ The entry browser SHALL list every entry in the visible sources as one tree grou
 - **WHEN** the user narrows the entry browser
 - **THEN** the name and preview truncate as needed without overlapping
 
+#### Scenario: No source
+
+- **GIVEN** no source is open
+- **THEN** the entry browser says there's no data source, with buttons to open a log and to connect
+
 ### Requirement: Entries from several sources
 
 When several sources are visible, the entry browser SHALL list an entry once if any visible source has it, and MUST show its type and value at the cursor from the top visible source that has it. An entry that only some visible sources have MUST say which ones, ex. with a tooltip on a marker after its name. Entries with the same name but different types in different sources MUST be listed once with the type from the top source that has it.
