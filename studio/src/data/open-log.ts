@@ -76,7 +76,24 @@ async function openLogHandle(handle: FileSystemFileHandle): Promise<void> {
 
 /** Reopen one of the web app's recent logs. Call this during a click, since the browser may ask to read the file again. */
 export async function openRecentLogHandle(handle: FileSystemFileHandle): Promise<void> {
-	if ((await handle.requestPermission({ mode: 'read' })) === 'granted') {
+	let granted: boolean;
+	try {
+		// Once the user declines, the browser denies it without asking again, so point them to the picker
+		if ((await handle.queryPermission({ mode: 'read' })) === 'denied') {
+			toastManager.add({
+				type: 'error',
+				title: `Couldn't open ${handle.name}`,
+				description: "Studio isn't allowed to read it. Choose it again to allow access.",
+				actionProps: { children: 'Choose file', onClick: chooseLog },
+			});
+			return;
+		}
+		granted = (await handle.requestPermission({ mode: 'read' })) === 'granted';
+	} catch (error) {
+		toastManager.add({ type: 'error', title: `Couldn't open ${handle.name}`, description: String(error) });
+		return;
+	}
+	if (granted) {
 		await openLogHandle(handle);
 	}
 }

@@ -167,7 +167,7 @@ The desktop app SHALL add the logs it opens to the OS's recent documents, which 
 
 ### Requirement: Open recent logs in the web app
 
-The web app SHALL keep the same recent logs list in browsers that support the File System Access API, ex. Chrome and Edge, with logs opened with the file picker, by dropping them on the window, or from the OS. Reopening a recent log MUST ask for permission to read it when the browser needs it, and declining MUST keep it in the list. Other browsers don't keep access to opened files, so the web app doesn't list recent logs in them.
+The web app SHALL keep the same recent logs list in browsers that support the File System Access API, ex. Chrome and Edge, with logs opened with the file picker, by dropping them on the window, or from the OS. Reopening a recent log MUST ask for permission to read it when the browser needs it, and declining MUST keep it in the list. Choosing it again after declining MUST offer the file picker. Other browsers don't keep access to opened files, so the web app doesn't list recent logs in them.
 
 #### Scenario: Reopen a recent log in the web app
 
@@ -182,6 +182,13 @@ The web app SHALL keep the same recent logs list in browsers that support the Fi
 - **WHEN** the user chooses it and doesn't allow Studio to view the file
 - **THEN** no source is added
 - **AND** `match.wpilog` stays in the recent logs
+
+#### Scenario: Choose a declined recent log again
+
+- **GIVEN** the user didn't allow Studio to view `match.wpilog` from the recent logs
+- **WHEN** the user chooses it again
+- **THEN** Studio shows an error that it isn't allowed to read `match.wpilog`
+- **AND** the error has a Choose file button that opens the file picker
 
 ### Requirement: Open logs from a terminal
 
