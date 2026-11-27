@@ -33,6 +33,8 @@ import TextSearchIcon from 'lucide-react/icons/text-search';
 import Undo2Icon from 'lucide-react/icons/undo-2';
 import VideoIcon from 'lucide-react/icons/video';
 import XIcon from 'lucide-react/icons/x';
+import ZoomInIcon from 'lucide-react/icons/zoom-in';
+import ZoomOutIcon from 'lucide-react/icons/zoom-out';
 import type { LucideIcon } from 'lucide-react/types';
 import { toggleCommandPalette } from '@/commands/command-palette-handle';
 import {
@@ -81,6 +83,7 @@ import { closedStore } from '@/dashboards/dashboards';
 import { canExportLive, exportLive, exportLiveShortcut } from '@/data/export-live';
 import { chooseLog } from '@/data/open-log';
 import { canCapture } from '@/desktop/capture';
+import { zoomPage } from '@/desktop/page-zoom';
 import { isExportingVideo } from '@/desktop/video-export';
 import { focusEntrySearch } from '@/entries/editing';
 import { requestSidebarToggle } from '@/sidebar/sidebar';
@@ -341,6 +344,30 @@ export const commands = {
 		shortcut: shortcuts.zoom,
 		canRun: canZoomFocused,
 		run: toggleFocusedZoom,
+	},
+	zoomInPage: {
+		label: 'Zoom in',
+		icon: ZoomInIcon,
+		shortcut: shortcuts.zoomInPage,
+		// A shifted = can reach the webview as either = or +.
+		alternates: ['Mod+Shift+=', 'Mod++'],
+		available: desktop,
+		run: () => zoomPage(1),
+	},
+	zoomOutPage: {
+		label: 'Zoom out',
+		icon: ZoomOutIcon,
+		shortcut: shortcuts.zoomOutPage,
+		available: desktop,
+		run: () => zoomPage(-1),
+	},
+	resetPageZoom: {
+		label: 'Actual size',
+		icon: Maximize2Icon,
+		keywords: ['reset', 'zoom', '100%'],
+		shortcut: shortcuts.resetPageZoom,
+		available: desktop,
+		run: () => zoomPage(0),
 	},
 	editEntries: {
 		label: 'Edit entries',

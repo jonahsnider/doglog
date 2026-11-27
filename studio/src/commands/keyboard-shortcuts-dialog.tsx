@@ -96,6 +96,10 @@ const sections: {
 			...commandRow(commands.splitBestFit),
 			...commandRow(commands.zoom),
 			...commandRow(commands.editEntries),
+			...(STUDIO_DESKTOP
+				? [pairRow('Zoom page in / out', commands.zoomInPage.shortcut, commands.zoomOutPage.shortcut)]
+				: []),
+			...commandRow(commands.resetPageZoom),
 		],
 	},
 	{

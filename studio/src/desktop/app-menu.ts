@@ -38,7 +38,11 @@ const minorWords = new Set([
 function menuLabel(command: AppCommand): string {
 	const title = command.label
 		.split(' ')
-		.map((word, index) => (index > 0 && minorWords.has(word) ? word : word.charAt(0).toUpperCase() + word.slice(1)))
+		.map((word, index, words) =>
+			index > 0 && index < words.length - 1 && minorWords.has(word)
+				? word
+				: word.charAt(0).toUpperCase() + word.slice(1),
+		)
 		.join(' ');
 	return command.ellipsis ? `${title}…` : title;
 }
@@ -156,6 +160,10 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 					await commandItem(commands.balanceSplits),
 					await commandItem(commands.zoom),
 					await commandItem(commands.editEntries),
+					separator,
+					await commandItem(commands.zoomInPage),
+					await commandItem(commands.zoomOutPage),
+					await commandItem(commands.resetPageZoom),
 					separator,
 					{ item: 'Fullscreen' },
 				],

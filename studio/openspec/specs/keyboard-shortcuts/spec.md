@@ -235,6 +235,23 @@ The desktop app SHALL provide New window (⌘N), which opens another Studio wind
 - **WHEN** the user presses ⌘N
 - **THEN** another Studio window opens
 
+### Requirement: Desktop page zoom
+
+The desktop app SHALL zoom the whole page with ⌘+ or ⌘= and ⌘-, and reset it to 100% with ⌘0. Windows and Linux MUST use Ctrl instead of ⌘. On macOS, the View menu MUST list Zoom In, Zoom Out, and Actual Size. The web app MUST leave these shortcuts to the browser.
+
+#### Scenario: Resize the page in one window
+
+- **GIVEN** two Studio windows are open at 100% zoom
+- **WHEN** the user presses ⌘+ in the focused window
+- **THEN** the page in that window gets larger, and the other window stays at 100%
+- **AND** pressing ⌘0 in the focused window restores it to 100%
+
+#### Scenario: Zoom out while editing text
+
+- **GIVEN** a text field is focused in the desktop app
+- **WHEN** the user presses ⌘-
+- **THEN** the page gets smaller and the text field keeps its value and focus
+
 ### Requirement: Menu bar
 
 On macOS, the desktop app SHALL show its commands in the menu bar. Each item MUST show its shortcut, except Copy dashboard image, because Copy keeps ⌘C. Menu commands MUST act on the focused window.
