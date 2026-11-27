@@ -14,8 +14,9 @@ import { InlineShortcut } from '@/components/shortcut';
 import { getWidgetType, widgetTypes } from '@/widgets/registry';
 import type { WidgetType } from '@/widgets/widget-type';
 
-// Short panes list the widgets as rows, and tiny ones also drop the title
-const compact = '@container add-widget ((height < 23rem) or (width < 18rem))';
+// Short or narrow panes drop the icon backgrounds, narrow ones list the widgets in one column, and tiny ones also drop the title
+const compact = '@container add-widget ((height < 30rem) or (width < 20rem))';
+const narrow = '@container add-widget (width < 20rem)';
 const tiny = '@container add-widget (height < 11rem)';
 
 const styles = stylex.create({
@@ -37,17 +38,17 @@ const styles = stylex.create({
 	grid: {
 		display: 'grid',
 		width: '100%',
-		maxWidth: { default: '24rem', [compact]: '14rem' },
-		gridTemplateColumns: { default: 'repeat(2, minmax(0, 1fr))', [compact]: 'minmax(0, 1fr)' },
-		gap: { default: spacingVars['--spacing-3'], [compact]: spacingVars['--spacing-2'] },
+		maxWidth: { default: '24rem', [narrow]: '14rem' },
+		gridTemplateColumns: { default: 'repeat(2, minmax(0, 1fr))', [narrow]: 'minmax(0, 1fr)' },
+		gap: spacingVars['--spacing-2'],
 	},
 	tile: {
 		display: 'flex',
-		flexDirection: { default: 'column', [compact]: 'row' },
-		alignItems: { default: 'stretch', [compact]: 'center' },
-		gap: spacingVars['--spacing-2'],
-		padding: spacingVars['--spacing-2'],
-		paddingInline: { default: spacingVars['--spacing-2'], [compact]: spacingVars['--spacing-3'] },
+		alignItems: 'center',
+		gap: { default: spacingVars['--spacing-3'], [compact]: spacingVars['--spacing-2'] },
+		paddingBlock: spacingVars['--spacing-2'],
+		paddingInlineEnd: spacingVars['--spacing-3'],
+		paddingInlineStart: { default: spacingVars['--spacing-2'], [compact]: spacingVars['--spacing-3'] },
 		cursor: 'pointer',
 		color: {
 			default: colorVars['--color-text-secondary'],
@@ -73,24 +74,26 @@ const styles = stylex.create({
 	},
 	preview: {
 		display: { default: 'flex', [compact]: 'contents' },
+		flexShrink: 0,
 		alignItems: 'center',
 		justifyContent: 'center',
-		aspectRatio: '16 / 10',
+		width: spacingVars['--spacing-10'],
+		height: spacingVars['--spacing-10'],
 		backgroundColor: colorVars['--color-background-muted'],
 		borderRadius: radiusVars['--radius-element'],
 	},
 	icon: {
 		flexShrink: 0,
-		width: { default: spacingVars['--spacing-8'], [compact]: spacingVars['--spacing-4'] },
-		height: { default: spacingVars['--spacing-8'], [compact]: spacingVars['--spacing-4'] },
+		width: { default: spacingVars['--spacing-6'], [compact]: spacingVars['--spacing-4'] },
+		height: { default: spacingVars['--spacing-6'], [compact]: spacingVars['--spacing-4'] },
 	},
 	label: {
 		display: 'flex',
-		flex: { default: null, [compact]: 1 },
+		flex: 1,
+		minWidth: 0,
 		alignItems: 'center',
 		justifyContent: 'space-between',
 		gap: spacingVars['--spacing-2'],
-		paddingInline: { default: spacingVars['--spacing-1'], [compact]: 0 },
 	},
 });
 
