@@ -1,10 +1,9 @@
 import { Dialog, DialogHeader } from '@astryxdesign/core/Dialog';
+import { Grid } from '@astryxdesign/core/Grid';
 import { HStack, Layout, LayoutContent, VStack } from '@astryxdesign/core/Layout';
 import { List, ListItem } from '@astryxdesign/core/List';
-import { Text } from '@astryxdesign/core/Text';
-import { spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { Heading, Text } from '@astryxdesign/core/Text';
 import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden';
-import * as stylex from '@stylexjs/stylex';
 import { useSelector } from '@tanstack/react-store';
 import { type AppCommand, commands } from '@/commands/app-commands';
 import { dashboardShortcut } from '@/commands/commands';
@@ -56,136 +55,131 @@ function pairRow(label: string, first: Hotkey, second: Hotkey, alternates: reado
 	return { label, keys: pairs };
 }
 
-const sections: {
-	title: string;
-	shortcuts: ShortcutRow[];
-	/** Only shown while the media controls setting is on */
-	mediaControls?: boolean;
-}[] = [
+const columns: Record<
+	string,
 	{
-		title: 'General',
-		shortcuts: [
-			...commandRow(commands.newWindow),
-			...commandRow(commands.newDashboard),
-			...commandRow(commands.close, STUDIO_DESKTOP ? 'Close pane, dashboard, or window' : 'Close pane or dashboard'),
-			...commandRow(commands.closeDashboard),
-			...commandRow(commands.reopenDashboard),
-			pairRow('Undo / redo', commands.undo.shortcut, commands.redo.shortcut, commands.redo.alternates),
-			...commandRow(commands.update, 'Check for updates or update'),
-			...commandRow(commands.commandPalette),
-			...commandRow(commands.keyboardShortcuts),
-		],
-	},
-	{
-		title: 'Navigation',
-		shortcuts: [
-			pairRow('Back / forward', commands.back.shortcut, commands.forward.shortcut),
-			{ label: 'Switch to dashboard 1-9', keys: [dashboardShortcut(0)!, dashboardShortcut(8)!], separator: '–' },
-			...commandRow(commands.logs),
-			...commandRow(commands.settings),
-		],
-	},
-	{
-		title: 'Layout',
-		shortcuts: [
-			...commandRow(commands.toggleSidebar),
-			...commandRow(commands.toggleEntryBrowser),
-			...commandRow(commands.searchEntries),
-			pairRow('Split left / right', commands.splitLeft.shortcut, commands.splitRight.shortcut),
-			pairRow('Split up / down', commands.splitUp.shortcut, commands.splitDown.shortcut),
-			...commandRow(commands.splitBestFit),
-			...commandRow(commands.zoom),
-			...commandRow(commands.editEntries),
-			...(STUDIO_DESKTOP
-				? [pairRow('Zoom page in / out', commands.zoomInPage.shortcut, commands.zoomOutPage.shortcut)]
-				: []),
-			...commandRow(commands.resetPageZoom),
-		],
-	},
-	{
-		title: 'Data',
-		shortcuts: [
-			...commandRow(commands.openLog),
-			...commandRow(commands.openLogUrl),
-			...commandRow(commands.exportLive),
-			...commandRow(commands.connect),
-			...commandRow(commands.findInConsole),
-		],
-	},
-	{
-		title: 'Collaboration and sharing',
-		shortcuts: [
-			...commandRow(commands.copyDashboardLink),
-			...commandRow(commands.copyDashboardImage),
-			...commandRow(commands.exportVideo),
-		],
-	},
-	{
-		title: 'Timeline',
-		shortcuts: [
-			{ label: 'Play or pause', keys: ['Space', 'K'] },
-			{ label: 'Step back / forward', keys: [[',', '.']] },
-			{ label: 'Skip back / forward 5 seconds', keys: [['ArrowLeft', 'ArrowRight']] },
-			{ label: 'Skip back / forward 10 seconds', keys: [['J', 'L']] },
-			{ label: 'Previous / next section', keys: [['Shift+ArrowLeft', 'Shift+ArrowRight']] },
-			{
-				label: 'Jump to start / end',
-				keys: [
-					['Home', 'End'],
-					['Mod+ArrowLeft', 'Mod+ArrowRight'],
-				],
-			},
-			{
-				label: 'Slower / faster playback',
-				keys: [
-					['[', ']'],
-					['<', '>'],
-				],
-			},
-		],
-	},
-	{
-		title: 'Media keys',
-		mediaControls: true,
-		shortcuts: [
-			{
-				label: 'Play or pause',
-				keys: [
-					{
-						name: 'Play/pause',
-						icon: (
-							<>
-								<PlayIcon size="1em" />
-								<PauseIcon size="1em" />
-							</>
-						),
-					},
-				],
-			},
-			{
-				label: 'Previous / next section',
-				keys: [
-					[
-						{ name: 'Previous track', icon: <SkipBackIcon size="1em" /> },
-						{ name: 'Next track', icon: <SkipForwardIcon size="1em" /> },
+		title: string;
+		shortcuts: ShortcutRow[];
+		/** Only shown while the media controls setting is on */
+		mediaControls?: boolean;
+	}[]
+> = {
+	app: [
+		{
+			title: 'General',
+			shortcuts: [
+				...commandRow(commands.newWindow),
+				...commandRow(commands.newDashboard),
+				...commandRow(commands.close, STUDIO_DESKTOP ? 'Close pane, dashboard, or window' : 'Close pane or dashboard'),
+				...commandRow(commands.closeDashboard),
+				...commandRow(commands.reopenDashboard),
+				pairRow('Undo / redo', commands.undo.shortcut, commands.redo.shortcut, commands.redo.alternates),
+				...commandRow(commands.update, 'Check for updates or update'),
+				...commandRow(commands.commandPalette),
+				...commandRow(commands.keyboardShortcuts),
+			],
+		},
+		{
+			title: 'Navigation',
+			shortcuts: [
+				pairRow('Back / forward', commands.back.shortcut, commands.forward.shortcut),
+				{ label: 'Switch to dashboard 1-9', keys: [dashboardShortcut(0)!, dashboardShortcut(8)!], separator: '–' },
+				...commandRow(commands.logs),
+				...commandRow(commands.settings),
+			],
+		},
+		{
+			title: 'Layout',
+			shortcuts: [
+				...commandRow(commands.toggleSidebar),
+				...commandRow(commands.toggleEntryBrowser),
+				...commandRow(commands.searchEntries),
+				pairRow('Split left / right', commands.splitLeft.shortcut, commands.splitRight.shortcut),
+				pairRow('Split up / down', commands.splitUp.shortcut, commands.splitDown.shortcut),
+				...commandRow(commands.splitBestFit),
+				...commandRow(commands.zoom),
+				...commandRow(commands.editEntries),
+				...(STUDIO_DESKTOP
+					? [pairRow('Zoom page in / out', commands.zoomInPage.shortcut, commands.zoomOutPage.shortcut)]
+					: []),
+				...commandRow(commands.resetPageZoom),
+			],
+		},
+	],
+	dataAndPlayback: [
+		{
+			title: 'Data',
+			shortcuts: [
+				...commandRow(commands.openLog),
+				...commandRow(commands.openLogUrl),
+				...commandRow(commands.exportLive),
+				...commandRow(commands.connect),
+				...commandRow(commands.findInConsole),
+			],
+		},
+		{
+			title: 'Collaboration and sharing',
+			shortcuts: [
+				...commandRow(commands.copyDashboardLink),
+				...commandRow(commands.copyDashboardImage),
+				...commandRow(commands.exportVideo),
+			],
+		},
+		{
+			title: 'Timeline',
+			shortcuts: [
+				{ label: 'Play or pause', keys: ['Space', 'K'] },
+				{ label: 'Step back / forward', keys: [[',', '.']] },
+				{ label: 'Skip back / forward 5 seconds', keys: [['ArrowLeft', 'ArrowRight']] },
+				{ label: 'Skip back / forward 10 seconds', keys: [['J', 'L']] },
+				{ label: 'Previous / next section', keys: [['Shift+ArrowLeft', 'Shift+ArrowRight']] },
+				{
+					label: 'Jump to start / end',
+					keys: [
+						['Home', 'End'],
+						['Mod+ArrowLeft', 'Mod+ArrowRight'],
 					],
-				],
-			},
-		],
-	},
-];
-
-const styles = stylex.create({
-	// Sections flow down two columns once the dialog has room, without splitting a section across them
-	columns: {
-		columnWidth: '18rem',
-		columnGap: spacingVars['--spacing-8'],
-	},
-	section: {
-		breakInside: 'avoid',
-		marginBottom: spacingVars['--spacing-4'],
-	},
-});
+				},
+				{
+					label: 'Slower / faster playback',
+					keys: [
+						['[', ']'],
+						['<', '>'],
+					],
+				},
+			],
+		},
+		{
+			title: 'Media keys',
+			mediaControls: true,
+			shortcuts: [
+				{
+					label: 'Play or pause',
+					keys: [
+						{
+							name: 'Play/pause',
+							icon: (
+								<>
+									<PlayIcon size="1em" />
+									<PauseIcon size="1em" />
+								</>
+							),
+						},
+					],
+				},
+				{
+					label: 'Previous / next section',
+					keys: [
+						[
+							{ name: 'Previous track', icon: <SkipBackIcon size="1em" /> },
+							{ name: 'Next track', icon: <SkipForwardIcon size="1em" /> },
+						],
+					],
+				},
+			],
+		},
+	],
+};
 
 function KeyView({ shortcutKey }: { shortcutKey: Key }) {
 	if (!isIconKey(shortcutKey)) {
@@ -255,24 +249,31 @@ export function KeyboardShortcutsDialog() {
 				header={<DialogHeader title="Keyboard shortcuts" onOpenChange={setOpen} />}
 				content={
 					<LayoutContent>
-						<div {...stylex.props(styles.columns)}>
-							{sections
-								.filter((section) => mediaControls || section.mediaControls !== true)
-								.map((section) => (
-									<div key={section.title} {...stylex.props(styles.section)}>
-										<List header={section.title} density="compact" edge="flush">
-											{section.shortcuts.map((shortcut) => (
-												<ListItem
-													key={shortcut.label}
-													label={shortcut.label}
-													align="first-line"
-													endContent={<ShortcutKeys shortcut={shortcut} />}
-												/>
-											))}
-										</List>
-									</div>
-								))}
-						</div>
+						<Grid columns={{ minWidth: 288, max: 2 }} gap={6} columnGap={8} align="start">
+							{Object.entries(columns).map(([column, sections]) => (
+								<VStack key={column} gap={6}>
+									{sections
+										.filter((section) => mediaControls || section.mediaControls !== true)
+										.map((section) => (
+											<List
+												key={section.title}
+												header={<Heading level={3}>{section.title}</Heading>}
+												density="compact"
+												edge="flush"
+											>
+												{section.shortcuts.map((shortcut) => (
+													<ListItem
+														key={shortcut.label}
+														label={shortcut.label}
+														align="first-line"
+														endContent={<ShortcutKeys shortcut={shortcut} />}
+													/>
+												))}
+											</List>
+										))}
+								</VStack>
+							))}
+						</Grid>
 					</LayoutContent>
 				}
 			/>
