@@ -316,6 +316,18 @@
 																		"type": "null"
 																	}
 																]
+															},
+															"robot": {
+																"description": "Robot: What robots and ghosts are drawn as in 3D when neither they nor the first robot pick a `robot`: `swerve` (the built-in swerve drivebase) or the name of a robot from a project the user added on their device. Set when the widget is added, to the robot the user picked last. `null` unsets it.",
+																"anyOf": [
+																	{
+																		"type": "string",
+																		"pattern": "\\S"
+																	},
+																	{
+																		"type": "null"
+																	}
+																]
 															}
 														},
 														"additionalProperties": false
@@ -1158,6 +1170,18 @@
 														"type": "null"
 													}
 												]
+											},
+											"robot": {
+												"description": "Robot: What robots and ghosts are drawn as in 3D when neither they nor the first robot pick a `robot`: `swerve` (the built-in swerve drivebase) or the name of a robot from a project the user added on their device. Set when the widget is added, to the robot the user picked last. `null` unsets it.",
+												"anyOf": [
+													{
+														"type": "string",
+														"pattern": "\\S"
+													},
+													{
+														"type": "null"
+													}
+												]
 											}
 										},
 										"additionalProperties": false
@@ -1814,6 +1838,18 @@
 																	"75",
 																	"90"
 																]
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"robot": {
+														"description": "Robot: What robots and ghosts are drawn as in 3D when neither they nor the first robot pick a `robot`: `swerve` (the built-in swerve drivebase) or the name of a robot from a project the user added on their device. Set when the widget is added, to the robot the user picked last. `null` unsets it.",
+														"anyOf": [
+															{
+																"type": "string",
+																"pattern": "\\S"
 															},
 															{
 																"type": "null"

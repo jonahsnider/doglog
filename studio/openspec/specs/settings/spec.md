@@ -8,7 +8,7 @@ Define the Settings page, where users choose the color theme, high contrast, vis
 
 ### Requirement: Settings sections
 
-Settings SHALL group related settings under titled sections, each with a short description beside its settings on wide windows and above them on narrow ones, in this order: Appearance (theme and theme color), Accessibility (high contrast, visualization colors, reduce motion, and reduce transparency on desktop), Robot (robot connection), Sharing (name, while signed out of Cloud), and System (media controls, natural scrolling, the terminal command, and coding agents).
+Settings SHALL group related settings under titled sections, each with a short description beside its settings on wide windows and above them on narrow ones, in this order: Appearance (theme and theme color), Accessibility (high contrast, visualization colors, reduce motion, and reduce transparency on desktop), Robot (robot connection), Robot projects, Sharing (name, while signed out of Cloud), and System (media controls, natural scrolling, the terminal command, and coding agents).
 
 #### Scenario: Find the theme
 
@@ -64,6 +64,22 @@ The Robot section SHALL offer a "Reduce live bandwidth" switch, off by default. 
 - **GIVEN** Studio is recording a live session
 - **WHEN** the user enables Reduce live bandwidth
 - **THEN** the recording continues with the same history and new incoming updates
+
+### Requirement: Robot projects setting
+
+Settings SHALL list the robot projects added on the device, one row per project folder with its folder name and the names of its robots. Each row MUST offer a button to remove the project, and the list MUST offer a button to add a project, the same as the robot widget's "Add project…" and "Remove project". Where projects can't be added, the add button MUST be disabled and say why.
+
+#### Scenario: Add a project from Settings
+
+- **WHEN** the user presses Add project in Settings and chooses a robot project
+- **THEN** the project is listed with its robots
+- **AND** its robots are in every robot widget's Robot option
+
+#### Scenario: Remove a project from Settings
+
+- **GIVEN** a robot widget showing the robot "581 2026"
+- **WHEN** the user removes its project in Settings
+- **THEN** the swerve drivebase is drawn, with a note that "581 2026" isn't added on this device
 
 ### Requirement: Media controls setting
 

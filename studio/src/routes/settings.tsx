@@ -16,6 +16,7 @@ import { getRobotHost } from '@/robot-target';
 import { useAnonymousName } from '@/sharing/identity';
 import { hasFrostedFrame, reportsNaturalScrolling, updateSettings, useSettings } from '@/settings';
 import { AppearanceSettings, VisualizationPaletteSetting } from '@/theme/appearance-settings';
+import { RobotProjectsSetting } from '@/widgets/robot/robot-projects-setting';
 
 export const Route = createFileRoute('/settings')({
 	component: Settings,
@@ -94,6 +95,15 @@ function Settings() {
 						value={reduceLiveBandwidth}
 						onChange={(checked) => updateSettings({ reduceLiveBandwidth: checked })}
 					/>
+				</UtilityPageSection>
+
+				<Divider />
+
+				<UtilityPageSection
+					title="Robot projects"
+					description={<>Show your robot&apos;s 3D models in visualizations by adding its project folder</>}
+				>
+					<RobotProjectsSetting />
 				</UtilityPageSection>
 
 				{!hasCloudAccount && (

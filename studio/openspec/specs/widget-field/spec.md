@@ -687,7 +687,7 @@ In 3D, each robot and ghost SHALL be drawn at its pose, including height, pitch,
 
 ### Requirement: Robot per binding
 
-In 3D, each robot and ghost binding's legend row SHALL pick its role and Robot in one dropdown, with the same Robot choices, "Add project…", and "Remove project" as the robot widget's Robot option. A binding without one MUST use the first robot binding's Robot, or the built-in swerve drivebase. A Robot whose project isn't added on this device MUST be drawn as the swerve drivebase, with a note on its legend row in 3D. A binding's Robot MUST only change how it's drawn in 3D.
+In 3D, each robot and ghost binding's legend row SHALL pick its role and Robot in one dropdown, with the same Robot choices, "Add project…", and "Remove project" as the robot widget's Robot option. A binding without one MUST use the first robot binding's Robot, then the field robot default. A Robot whose project isn't added on this device MUST be drawn as the swerve drivebase, with a note on its legend row in 3D. A binding's Robot MUST only change how it's drawn in 3D.
 
 #### Scenario: Setpoint ghost
 
@@ -700,6 +700,16 @@ In 3D, each robot and ghost binding's legend row SHALL pick its role and Robot i
 - **GIVEN** a field widget showing `/Drive/Pose` as the robot "581 2026"
 - **WHEN** the user picks "Swerve drivebase" in the legend row of `/Opponent/Pose`
 - **THEN** `/Drive/Pose` is still drawn as "581 2026"
+
+### Requirement: Field robot default
+
+A new field widget SHALL save the robot picked last on the device, as a new robot widget does, so others see the same robot. Robots and ghosts without a Robot, when the first robot binding has none either, MUST be drawn as it, or as the built-in swerve drivebase when it has none.
+
+#### Scenario: Last picked robot
+
+- **GIVEN** the user picked the robot "581 2026" in a robot widget
+- **WHEN** they add a field widget showing `/Drive/Pose` in 3D
+- **THEN** `/Drive/Pose` is drawn as "581 2026" without picking it
 
 ### Requirement: Appearance in the legend context menu
 

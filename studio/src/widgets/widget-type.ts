@@ -121,6 +121,8 @@ export type OptionMenu = {
 	readonly Choices: ComponentType;
 	/** Items for commands listed after the choices, which can pick a choice, `undefined` goes back to the default */
 	readonly Commands: ComponentType<{ value: string; pick: (value: string | undefined) => void }>;
+	/** Called when the user picks a choice from the menu, ex. to remember it for new widgets */
+	readonly onPick?: (value: string) => void;
 };
 
 /** Option values by option ID, every option has one */

@@ -3,7 +3,7 @@ import * as z from 'zod';
 import type { Entry } from '@/data/data-store';
 import { createId } from '@/lib/random-id';
 import { findPane, type PaneNode, setPaneWidget, type Widget } from '@/panes/layout';
-import { initialOptions } from '@/widgets/options';
+import { initialOptions, withInitialOptions } from '@/widgets/options';
 import {
 	acceptsEntry,
 	canConnect,
@@ -256,7 +256,7 @@ export function changeWidgetType(
 		layout,
 		paneId,
 		kept.length > 0
-			? { type: type.id, config: { bindings: kept } }
+			? withInitialOptions(type, { type: type.id, config: { bindings: kept } }, layout)
 			: createWidget(type, undefined, initialOptions(type, layout)),
 	);
 }

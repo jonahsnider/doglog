@@ -61,6 +61,16 @@ export function initialOptions(type: WidgetType, layout: PaneNode): Record<strin
 	);
 }
 
+/** `widget` with the options it would start with when added to `layout`, keeping the ones it already picked */
+export function withInitialOptions(type: WidgetType, widget: Widget, layout: PaneNode): Widget {
+	const options = { ...initialOptions(type, layout), ...configSchema.parse(widget.config) };
+	if (Object.keys(options).length === 0) {
+		return widget;
+	}
+	const config = z.record(z.string(), z.unknown()).catch({}).parse(widget.config);
+	return { ...widget, config: { ...config, options } };
+}
+
 /** Pick an option's value in a pane's widget, `undefined` goes back to Auto or the default */
 export function setWidgetOption(layout: PaneNode, paneId: string, id: string, value: string | undefined): PaneNode {
 	const widget = findPane(layout, paneId)?.widget;

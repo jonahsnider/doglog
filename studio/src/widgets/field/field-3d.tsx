@@ -104,6 +104,8 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 	const coordinates: FieldCoordinates = options['coordinates'] === 'center' ? 'center' : 'blue-wall';
 	const mechanisms = useMechanisms(bindings);
 	const projects = useRobotProjects();
+	// Every option has a value, empty when a text option isn't set
+	const widgetRobot = options['robot']!;
 	const cameraMatch = useCameraMatch(paneId);
 	const exitCameraMatch = () => setCameraMatch(paneId, undefined);
 	const cameraMatched = cameraMatch !== undefined;
@@ -143,7 +145,7 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 		);
 		const parts = attached.find((binding) => binding.role?.id === 'parts');
 		return {
-			name: fieldRobot(robot, bindings),
+			name: fieldRobot(robot, bindings, widgetRobot),
 			parts: parts && valueOf(parts),
 			mechanisms: attached.flatMap((binding) => {
 				const mechanism = binding.entry?.kind === 'mechanism2d' ? mechanisms.get(binding.name) : undefined;
@@ -152,7 +154,7 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 		};
 	};
 
-	const notes = missingRobotNotes(bindings, projects);
+	const notes = missingRobotNotes(bindings, projects, widgetRobot);
 	for (const binding of bindings) {
 		if (isAttached(binding) && binding.entry !== undefined && binding.sources.length === 0 && !onlyRobot) {
 			notes.set(binding.id, 'Connect to a robot');
@@ -176,7 +178,14 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 		],
 	}));
 	const { legend, cameraImages } = useFieldCameras({
-		items: fieldLegendItems(bindings, { view: '3d', time, mechanisms, notes, followed: followedInLegend }),
+		items: fieldLegendItems(bindings, {
+			view: '3d',
+			time,
+			mechanisms,
+			notes,
+			followed: followedInLegend,
+			robot: widgetRobot,
+		}),
 		paneId,
 		layout,
 		hasPose: (binding) => valueOf(binding) !== undefined,

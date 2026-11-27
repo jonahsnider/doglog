@@ -149,6 +149,15 @@ export const widgetOptions = {
 			choices: ['30', '45', '60', '75', '90'].map((id) => ({ id, label: `${id}°` })),
 			default: '45',
 		},
+		robot: {
+			kind: 'text',
+			id: 'robot',
+			label: 'Robot',
+			description:
+				'What robots and ghosts are drawn as in 3D when neither they nor the first robot pick a `robot`: `swerve` (the built-in swerve drivebase) or the name of a robot from a project the user added on their device. Set when the widget is added, to the robot the user picked last.',
+			pattern: /\S/u,
+			default: '',
+		},
 	},
 	robot: {
 		view: {

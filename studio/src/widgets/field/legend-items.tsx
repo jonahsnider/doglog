@@ -29,6 +29,7 @@ export function fieldLegendItems(
 		mechanisms,
 		notes,
 		followed,
+		robot = '',
 	}: {
 		view: '2d' | '3d';
 		time: number | undefined;
@@ -36,6 +37,8 @@ export function fieldLegendItems(
 		notes?: ReadonlyMap<string, string>;
 		/** The binding the camera follows and how, see `FollowPicker`. Robots can be followed when it's set or `null`. */
 		followed?: { id: string; key: string } | null | undefined;
+		/** The widget's `robot` option, what robots and ghosts are drawn as in 3D without a pick */
+		robot?: string;
 	},
 ): LegendItem[] {
 	return bindings.map((binding, index): LegendItem => {
@@ -51,7 +54,7 @@ export function fieldLegendItems(
 			binding,
 			color: bindingColor(binding, index),
 			...(only3d && binding.role?.id !== 'camera' && { icon: mechanism ? mechanismIcon : partsIcon }),
-			...(view === '3d' && isRobotBinding(binding) && { robot: fieldRobot(binding, bindings) }),
+			...(view === '3d' && isRobotBinding(binding) && { robot: fieldRobot(binding, bindings, robot) }),
 			...(followed !== undefined &&
 				isRobotBinding(binding) && { follow: followed?.id === binding.id ? followed.key : 'off' }),
 			dimmed: value === undefined,

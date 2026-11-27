@@ -35,7 +35,7 @@ import {
 	type Widget,
 } from '@/panes/layout';
 import { getWidgetType } from '@/widgets/registry';
-import { optionValues, setWidgetOption } from '@/widgets/options';
+import { optionValues, setWidgetOption, withInitialOptions } from '@/widgets/options';
 import { droppedEntryName, droppedGroupNames, type EntryDragData } from '@/entries/drag';
 import { acceptsDrop, bindsEntries } from '@/widgets/widget-type';
 
@@ -180,8 +180,9 @@ export function addDashboardWidget(id: string, widget: Widget): void {
 			return { ...dashboard, layout: addEntries(dashboard.layout, matching.id, names), focusedPaneId: matching.id };
 		}
 
+		const added = type ? withInitialOptions(type, widget, dashboard.layout) : widget;
 		if (focused.widget === undefined) {
-			return { ...dashboard, layout: setPaneWidget(dashboard.layout, focused.id, widget), focusedPaneId: focused.id };
+			return { ...dashboard, layout: setPaneWidget(dashboard.layout, focused.id, added), focusedPaneId: focused.id };
 		}
 
 		const preferred = splitDirectionFor(focused.id);
@@ -192,7 +193,7 @@ export function addDashboardWidget(id: string, widget: Widget): void {
 			return dashboard;
 		}
 
-		const newPane = { ...createPane(), widget };
+		const newPane = { ...createPane(), widget: added };
 		const layout = splitPane(dashboard.layout, focused.id, direction, newPane);
 		return { ...dashboard, layout, focusedPaneId: newPane.id };
 	});

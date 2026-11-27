@@ -7,7 +7,7 @@ import { sourceLabels } from '@/sidebar/source-labels';
 import { widgetDestinationItems } from '@/entries/entry-menu';
 import type { Pane } from '@/panes/layout';
 import { chartCount } from '@/theme/choices';
-import { getRobotProjects } from '@/three/robot-projects';
+import { getRobotProjects, rememberRobot } from '@/three/robot-projects';
 import {
 	bindingLabel,
 	connectBindings,
@@ -79,8 +79,10 @@ export function bindingMenuItems(
 				...widgetOptions.robot.robot.choices.map((choice) => ({ value: choice.id, label: choice.label })),
 				...getRobotProjects().map((project) => ({ value: project.name, label: project.name })),
 			],
-			onValueChange: (robot) =>
-				updateLayout(dashboardId, (layout) => setBindingPick(layout, paneId, id, 'robot', robot)),
+			onValueChange: (robot) => {
+				rememberRobot(robot);
+				updateLayout(dashboardId, (layout) => setBindingPick(layout, paneId, id, 'robot', robot));
+			},
 		});
 	}
 	if (target.closest('[data-pane-id]')?.querySelector(`[data-binding-id="${CSS.escape(id)}"] [data-binding-color]`)) {

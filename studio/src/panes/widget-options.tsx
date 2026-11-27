@@ -172,7 +172,10 @@ function MenuOptionControl({
 				<DropdownMenuRadioGroup
 					label={option.label}
 					value={value}
-					onChange={(next) => onChange(next === option.default ? undefined : next)}
+					onChange={(next) => {
+						menu.onPick?.(next);
+						onChange(next === option.default ? undefined : next);
+					}}
 				>
 					{option.choices.map((choice) => (
 						<DropdownMenuRadioItem key={choice.id} value={choice.id} label={choice.label} />

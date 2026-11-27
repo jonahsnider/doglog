@@ -1,4 +1,5 @@
 import { getEntry } from '@/data/data-store';
+import { getLastRobot } from '@/three/robot-projects';
 import { panes, type PaneNode } from '@/panes/layout';
 import { widgetBindings } from '@/widgets/bindings';
 import { orientedField, wpilibCoordinates, xAxisAngle } from '@/widgets/field/geometry';
@@ -42,6 +43,8 @@ export const fieldOptions: readonly WidgetOption[] = [
 	widgetOptions.field.stagedGamePieces,
 	widgetOptions.field.fieldBorder,
 	{ ...widgetOptions.field.fov, dropdown: true },
+	// Picked per robot in the legend, this is what they start as, so it has no control
+	{ ...widgetOptions.field.robot, initial: getLastRobot },
 ];
 
 /**

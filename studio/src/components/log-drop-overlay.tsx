@@ -11,6 +11,7 @@ import { useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 import { draggedFileType, handleLogFileDrop, isLogFile } from '@/data/open-log';
 import { useDraggedFile } from '@/desktop/file-drop';
+import { isRobotConfig } from '@/three/robot-projects';
 
 const styles = stylex.create({
 	overlay: {
@@ -88,14 +89,15 @@ export function LogDropOverlay() {
 		handleLogFileDrop(event);
 	});
 
-	if (!dragging && !(draggedFile !== undefined && isLogDrop(draggedFile))) {
+	const project = draggedFile !== undefined && isRobotConfig(draggedFile);
+	if (!dragging && !project && !(draggedFile !== undefined && isLogDrop(draggedFile))) {
 		return null;
 	}
 
 	return (
 		<div {...stylex.props(styles.overlay)}>
 			<FileUpIcon {...stylex.props(styles.icon)} />
-			Drop to open log
+			{project ? 'Drop to add robot project' : 'Drop to open log'}
 		</div>
 	);
 }

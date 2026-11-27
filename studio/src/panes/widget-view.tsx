@@ -23,6 +23,7 @@ import { startEditing } from '@/entries/editing';
 import { DropFeedback } from '@/panes/drop-feedback';
 import { GraphControls } from '@/widgets/graph/graph-controls';
 import { WidgetEmpty, WidgetLoading } from '@/widgets/widget-empty';
+import { rememberRobot } from '@/three/robot-projects';
 import { setWidgetOption } from '@/widgets/options';
 import { pinName } from '@/widgets/source-entries';
 import type { OptionValues, WidgetBinding, WidgetType } from '@/widgets/widget-type';
@@ -67,8 +68,12 @@ export function WidgetView({
 		toggleHidden: (bindingId) => updateLayout(dashboardId, (layout) => toggleBindingHidden(layout, paneId, bindingId)),
 		setColor: (bindingId, color) =>
 			updateLayout(dashboardId, (layout) => setBindingPick(layout, paneId, bindingId, 'color', color)),
-		setRobot: (bindingId, robot) =>
-			updateLayout(dashboardId, (layout) => setBindingPick(layout, paneId, bindingId, 'robot', robot)),
+		setRobot: (bindingId, robot) => {
+			if (robot !== undefined) {
+				rememberRobot(robot);
+			}
+			updateLayout(dashboardId, (layout) => setBindingPick(layout, paneId, bindingId, 'robot', robot));
+		},
 		setCamera: (bindingId, camera) =>
 			updateLayout(dashboardId, (layout) => setBindingPick(layout, paneId, bindingId, 'camera', camera)),
 	};

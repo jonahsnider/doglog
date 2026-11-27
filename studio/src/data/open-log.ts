@@ -1,3 +1,4 @@
+// oxlint-disable max-lines -- Every way logs are opened (pickers, drops, the OS, and links) shares its helpers
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
@@ -13,6 +14,12 @@ import {
 } from '@/data/recent-logs';
 import { openLog } from '@/data/source';
 import { handleFileDrops } from '@/desktop/file-drop';
+import {
+	addDroppedRobotProject,
+	isRobotConfig,
+	isRobotProjectFolder,
+	showDroppedConfigError,
+} from '@/three/robot-projects';
 
 const logExtensions = ['.wpilog', '.wpilogxz', '.hoot'] as const;
 
@@ -161,12 +168,44 @@ function byName<T extends { name: string }>(files: T[]): T[] {
 	return files.filter((file) => isLogFile(file.name)).toSorted((a, b) => a.name.localeCompare(b.name));
 }
 
-/** Open logs dropped on the desktop app's window, and the logs in dropped folders, unless a widget takes them */
+/** Say a dropped folder was ignored, since it has no logs and isn't a robot project */
+function showUnusedFolder(name: string): void {
+	toastManager.add({
+		type: 'error',
+		title: `${name} has no logs`,
+		description: "It isn't a robot project either, which has a doglog.jsonc file.",
+	});
+}
+
+/**
+ * Open logs dropped on the desktop app's window, and the logs in dropped folders, unless a widget takes them. Dropped
+ * robot project folders, or their configs, add their projects.
+ */
 export function handleDroppedLogPaths(): Promise<void> {
 	return handleFileDrops((paths) => {
-		void Promise.all(paths.map((path) => invoke<string[]>('folder_files', { path }))).then((files) =>
-			openLogPaths(files.flat().filter((path) => isLogFile(path))),
-		);
+		void (async () => {
+			const projects = new Set<string>();
+			const logs: string[] = [];
+			for (const [index, files] of (
+				await Promise.all(paths.map((path) => invoke<string[]>('folder_files', { path })))
+			).entries()) {
+				const path = paths[index]!;
+				// A file's only file is itself
+				const folder = files.length !== 1 || files[0] !== path;
+				if (isRobotConfig(path)) {
+					projects.add(path.replace(/[/\\][^/\\]*$/u, ''));
+				} else if (folder && isRobotProjectFolder(files)) {
+					projects.add(path);
+				} else if (folder && !files.some((file) => isLogFile(file))) {
+					showUnusedFolder(path.split(/[/\\]/u).at(-1)!);
+				} else {
+					logs.push(...files.filter((file) => isLogFile(file)));
+				}
+			}
+			// One at a time so they don't overwrite each other's saved projects
+			await openInOrder([...projects], (path) => addDroppedRobotProject({ path }));
+			await openLogPaths(logs);
+		})();
 	});
 }
 
@@ -195,6 +234,9 @@ export function handleLogFileDrop(event: DragEvent): void {
 			return [{ folder: entry as FileSystemDirectoryEntry, handle }];
 		}
 		const file = item.getAsFile();
+		if (file && isRobotConfig(file.name)) {
+			showDroppedConfigError(file.name);
+		}
 		return file && isLogFile(file.name) ? [{ file, handle }] : [];
 	});
 	void openInOrder(dropped, (item) =>
@@ -225,18 +267,32 @@ async function openDroppedFolder(
 				handles.push(child);
 			}
 		}
-		await openInOrder(byName(handles), openLogHandle);
+		if (isRobotProjectFolder(handles.map((child) => child.name))) {
+			await addDroppedRobotProject({ handle: resolved });
+		} else if (byName(handles).length === 0) {
+			showUnusedFolder(resolved.name);
+		} else {
+			await openInOrder(byName(handles), openLogHandle);
+		}
+		return;
+	}
+	// Browsers without folder handles can't keep access to a project's folder
+	const entries = (await folderEntries(folder)).filter((entry): entry is FileSystemFileEntry => entry.isFile);
+	if (isRobotProjectFolder(entries.map((entry) => entry.name))) {
+		await addDroppedRobotProject(undefined);
+		return;
+	}
+	if (byName(entries).length === 0) {
+		showUnusedFolder(folder.name);
 		return;
 	}
 	const files = await Promise.all(
-		(await folderEntries(folder))
-			.filter((entry): entry is FileSystemFileEntry => entry.isFile)
-			.map(
-				(entry) =>
-					new Promise<File>((resolve, reject) => {
-						entry.file(resolve, reject);
-					}),
-			),
+		byName(entries).map(
+			(entry) =>
+				new Promise<File>((resolve, reject) => {
+					entry.file(resolve, reject);
+				}),
+		),
 	);
 	await openInOrder(byName(files), (file) => openLog(file));
 }

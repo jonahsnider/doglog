@@ -198,7 +198,7 @@ In 3D, the center of a mechanism canvas's bottom edge SHALL be at the robot's or
 
 ### Requirement: Robot
 
-The robot widget SHALL have a Robot option, which MUST default to "Swerve drivebase": a 0.9 m square frame with bumpers and four swerve modules, drawn without a model. Its other choices SHALL be the robots of the projects the user added. The option's menu MUST offer "Add project…", and "Remove project" to remove the picked robot's project with all its robots. Robots MUST only be drawn in 3D.
+The robot widget SHALL have a Robot option, whose default is "Swerve drivebase": a 0.9 m square frame with bumpers and four swerve modules, drawn without a model. Its other choices SHALL be the robots of the projects added on the device, shared by every widget and dashboard. The option's menu MUST offer "Add project…", and "Remove project" to remove the picked robot's project with all its robots. Robots MUST only be drawn in 3D.
 
 #### Scenario: Default robot
 
@@ -207,7 +207,7 @@ The robot widget SHALL have a Robot option, which MUST default to "Swerve driveb
 
 #### Scenario: Add a project
 
-- **WHEN** the user picks "Add project…" from the Robot option and chooses a robot project's folder
+- **WHEN** the user picks "Add project…" from the Robot option and chooses a robot project
 - **THEN** the project's robots are added to the Robot option's choices, and its first robot is picked
 
 #### Scenario: Robot not added on this device
@@ -215,6 +215,16 @@ The robot widget SHALL have a Robot option, which MUST default to "Swerve driveb
 - **GIVEN** a shared dashboard with a robot widget showing the robot "581 2026"
 - **WHEN** a teammate who hasn't added that robot's project opens it
 - **THEN** the swerve drivebase is drawn, with a note that "581 2026" isn't added on this device
+
+### Requirement: Last picked robot
+
+A new robot widget SHALL start with the robot picked last on the device, from a Robot option, a field robot's legend row or Robot model menu, or adding a project, saved in the widget so others see the same robot. Before a robot is picked, or after that robot's project is removed, it MUST start with the swerve drivebase.
+
+#### Scenario: Last picked robot
+
+- **GIVEN** the user picked the robot "581 2026" in a robot widget
+- **WHEN** they add a robot widget to another dashboard
+- **THEN** it shows "581 2026"
 
 ### Requirement: Robot projects
 
@@ -226,6 +236,15 @@ A robot project SHALL be a folder with a `doglog.jsonc` or `doglog.json` file in
 - **WHEN** the user adds the project
 - **THEN** its robot is drawn using the models in `cad`
 
+### Requirement: Pick a robot project's folder
+
+Adding a robot project SHALL ask for its folder, and MUST say so, since browsers don't give access to a chosen file's folder.
+
+#### Scenario: Add from Settings
+
+- **WHEN** the user presses Add project in Settings
+- **THEN** a folder picker opens, and the Add a project row says to choose the project's folder
+
 ### Requirement: Several robots in a project
 
 A project's robots SHALL be read from the `robots` array, and each robot MUST have a different name. Adding a project again MUST replace the robots it added before.
@@ -235,6 +254,31 @@ A project's robots SHALL be read from the `robots` array, and each robot MUST ha
 - **GIVEN** a `doglog.jsonc` with a competition robot and a practice robot
 - **WHEN** the user adds the project
 - **THEN** both robots are added to the Robot option's choices
+
+### Requirement: Drop robot projects
+
+Dropping a robot project's folder anywhere on the app window SHALL add it as "Add project…" does, and MUST say which robots were added. When only its `doglog.jsonc` or `doglog.json` file is dropped, the desktop app MUST add the file's folder, showing that dropping it adds a robot project while it's dragged, and the web app MUST say to drop the project's folder instead.
+
+#### Scenario: Drop a config file on desktop
+
+- **GIVEN** the desktop app
+- **WHEN** the user drops a robot project's `doglog.jsonc` on the window
+- **THEN** the project's robots are added, and a message names them
+
+#### Scenario: Drop a config file on the web
+
+- **GIVEN** the web app
+- **WHEN** the user drops a robot project's `doglog.jsonc` on the window
+- **THEN** nothing is added, and a message says to drop the robot project's folder instead
+
+### Requirement: Dropped folders
+
+A dropped folder with a `doglog.jsonc` or `doglog.json`, or an AdvantageScope robot's `config.json` and `model.glb`, SHALL be added as a robot project instead of opening logs in it. A dropped folder that has no logs and isn't a robot project MUST say so instead of doing nothing.
+
+#### Scenario: Drop a folder that isn't a project
+
+- **WHEN** the user drops a folder with no logs, `doglog.jsonc`, `doglog.json`, or AdvantageScope robot files on the window
+- **THEN** nothing is added, and a message says the folder has no logs and isn't a robot project
 
 ### Requirement: Robot projects on the web
 
@@ -251,6 +295,11 @@ The web app SHALL only add robot projects in browsers that can keep access to fo
 ### Requirement: Invalid robot projects
 
 A robot project whose files aren't valid SHALL NOT be drawn, and the widget MUST say which file and key are wrong instead, drawing the swerve drivebase.
+
+#### Scenario: Folder without a config
+
+- **WHEN** the user picks "Add project…" and chooses a folder without `doglog.jsonc`, `doglog.json`, or an AdvantageScope robot's `config.json`
+- **THEN** nothing is added, and a message says the folder doesn't have a `doglog.jsonc`
 
 #### Scenario: Unknown key
 
