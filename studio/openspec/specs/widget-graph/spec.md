@@ -216,12 +216,18 @@ The graph's tooltip SHALL be drawn over other panes rather than cut off at the g
 
 ### Requirement: Robot mode
 
-The graph SHALL show the robot's mode along the top of its time axis, in the timeline's colors, with the spans the timeline compresses hatched like on the timeline.
+The graph SHALL show the robot's mode along the top of its time axis, in the timeline's colors, with the spans the timeline compresses hatched like on the timeline. Hovering the time axis MUST show the hovered mode's tooltip like the timeline's, without its shifts or alerts.
 
 #### Scenario: Autonomous period
 
 - **GIVEN** a log where the robot was in autonomous from 2 s to 17 s
 - **THEN** the time axis is marked in the autonomous color from 2 s to 17 s
+
+#### Scenario: Hover a mode
+
+- **GIVEN** a log where the robot was in autonomous from 2 s to 17 s
+- **WHEN** the user hovers the graph's time axis at 10 s
+- **THEN** a tooltip names Autonomous, with how far into it 10 s is and its time range
 
 ### Requirement: Cursor and seeking
 

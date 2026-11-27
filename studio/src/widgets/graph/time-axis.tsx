@@ -2,10 +2,11 @@ import { colorVars, radiusVars, typeScaleVars } from '@astryxdesign/core/theme/t
 import * as stylex from '@stylexjs/stylex';
 import { memo, useRef, useState } from 'react';
 import { useResizeObserver } from 'usehooks-ts';
-import { useTimeRange } from '@/data/data-store';
+import { type TimeRange, useTimeRange } from '@/data/data-store';
 
 import { modeFills } from '@/timeline/colors';
-import { getActiveCompressedSpans, getModePeriods } from '@/timeline/events';
+import { getActiveCompressedSpans, getModePeriods, type ModePeriod } from '@/timeline/events';
+import { HoverTooltip, ScrubberTooltip } from '@/timeline/timeline-tooltip';
 import { useSettings } from '@/settings';
 import { formatTick, timeTicks } from '@/widgets/graph/ticks';
 import { useViewRange } from '@/widgets/graph/view';
@@ -59,10 +60,52 @@ const styles = stylex.create({
 	},
 });
 
-/** The robot's mode in the timeline's colors, with the spans it compresses hatched, then times labeled like the timeline */
+/** The hovered mode's tooltip, like the timeline's */
+function ModeTooltip({
+	x,
+	time,
+	periods,
+	compressed,
+	origin,
+}: {
+	x: number | undefined;
+	time: number | undefined;
+	periods: readonly ModePeriod[];
+	compressed: readonly TimeRange[];
+	origin: number | undefined;
+}) {
+	// Sections share their boundaries, the later one starts there
+	const period = time === undefined ? undefined : periods.findLast((item) => item.start <= time && time <= item.end);
+	return (
+		<ScrubberTooltip
+			x={x}
+			content={
+				period &&
+				time !== undefined &&
+				origin !== undefined && (
+					<HoverTooltip
+						period={period}
+						shift={undefined}
+						compressed={compressed.some((span) => span.start <= time && time <= span.end)}
+						alerts={[]}
+						hoverTime={time}
+						start={origin}
+					/>
+				)
+			}
+		/>
+	);
+}
+
+/**
+ * The robot's mode in the timeline's colors, with the spans it compresses hatched, then times labeled like the timeline.
+ * Hovering it names the mode like the timeline does.
+ */
 export const TimeAxis = memo(function TimeAxis({ leftInset, rightInset }: { leftInset: number; rightInset: number }) {
 	const element = useRef<HTMLDivElement>(null!);
 	const [width, setWidth] = useState(0);
+	/** How far into the axis the pointer is, in px */
+	const [hoverX, setHoverX] = useState<number>();
 	const view = useViewRange();
 	const range = useTimeRange();
 	const { timelineCompress } = useSettings();
@@ -79,9 +122,16 @@ export const TimeAxis = memo(function TimeAxis({ leftInset, rightInset }: { left
 		const right = Math.min(toPercent(end), 100);
 		return right <= left ? undefined : { left: `${left}%`, width: `${right - left}%` };
 	};
+	const hoverTime =
+		view && hoverX !== undefined && width > 0 ? view.start + (hoverX / width) * (view.end - view.start) : undefined;
 	return (
 		<div {...stylex.props(styles.axis)} style={{ marginLeft: leftInset, marginRight: rightInset }}>
-			<div ref={element} {...stylex.props(styles.fill)}>
+			<div
+				ref={element}
+				{...stylex.props(styles.fill)}
+				onPointerMove={(event) => setHoverX(event.clientX - event.currentTarget.getBoundingClientRect().left)}
+				onPointerLeave={() => setHoverX(undefined)}
+			>
 				<div {...stylex.props(styles.strip)}>
 					{periods.map((period) => {
 						const color = modeFills[period.mode];
@@ -109,6 +159,7 @@ export const TimeAxis = memo(function TimeAxis({ leftInset, rightInset }: { left
 						</span>
 					);
 				})}
+				<ModeTooltip x={hoverX} time={hoverTime} periods={periods} compressed={compressed} origin={range?.origin} />
 			</div>
 		</div>
 	);
