@@ -8,8 +8,6 @@ const config: KnipConfig = {
 		'build',
 		// Run from the studio workspace with `pnpm --dir studio exec`
 		'wrangler',
-		// Built into macOS
-		'ditto',
 		// Runs the field model's Python project in CI, see `studio/scripts/field3d`
 		'uv',
 	],
