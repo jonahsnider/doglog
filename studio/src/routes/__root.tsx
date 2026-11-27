@@ -65,6 +65,9 @@ const styles = stylex.create({
 		width: '100%',
 		minWidth: 0,
 		overflow: 'hidden',
+		// Overlays opened with nothing focused, ex. the command palette from its shortcut, return focus here when they
+		// close, and a ring around the whole page doesn't show where anything is
+		outline: 'none',
 	},
 	// Pages have a gap around them, dashboards have it inside
 	page: {
