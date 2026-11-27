@@ -125,7 +125,7 @@ function RootLayout() {
 					>
 						<div {...stylex.props(styles.body, mobile && styles.mobileBody)}>
 							<div inert={exporting} {...stylex.props(styles.contents)}>
-								<AppSidebar mobile={mobile} />
+								<AppSidebar mobile={mobile} hasEntryBrowser={panes} />
 							</div>
 							<main
 								{...stylex.props(

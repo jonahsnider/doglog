@@ -1,12 +1,10 @@
 import { useRouter } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
-import PanelLeftIcon from 'lucide-react/icons/panel-left';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
-import { IconButton } from '@astryxdesign/core/IconButton';
-import { MobileNav } from '@astryxdesign/core/MobileNav';
-import { fontWeightVars, spacingVars, typeScaleVars, typographyVars } from '@astryxdesign/core/theme/tokens.stylex';
-import * as stylex from '@stylexjs/stylex';
 import { useTitleBarStrip, useTrafficLights } from '@/desktop/title-bar';
+import { useSwipeToOpen } from '@/hooks/use-swipe-to-open';
+import { useMotionTransition } from '@/lib/motion';
+import { MobileAppSidebar } from '@/sidebar/mobile-app-sidebar';
 import { SidebarContext, type SidebarContextProps } from '@/sidebar/sidebar-context';
 import { SidebarItems } from '@/sidebar/sidebar-items';
 import {
@@ -18,85 +16,15 @@ import {
 	subscribeSidebarToggle,
 	toggleSidebarCollapsed,
 } from '@/sidebar/sidebar';
-import { useMotionTransition } from '@/lib/motion';
-import { useSwipeToClose } from '@/hooks/use-swipe-to-close';
 import { TitleBar } from '@/sidebar/title-bar';
 import './app-sidebar.css';
-
-const styles = stylex.create({
-	mobileHeader: {
-		display: 'flex',
-		flexShrink: 0,
-		alignItems: 'center',
-		gap: spacingVars['--spacing-1'],
-		height: 48,
-		paddingInline: spacingVars['--spacing-2'],
-	},
-	mobileName: {
-		fontFamily: typographyVars['--font-family-heading'],
-		fontSize: typeScaleVars['--text-label-size'],
-		fontWeight: fontWeightVars['--font-weight-semibold'],
-	},
-	mobileSidebar: {
-		display: 'flex',
-		flexDirection: 'column',
-		height: '100%',
-		minHeight: 0,
-	},
-});
 
 const peekDelay = 300;
 /** Keeps the peeking sidebar open while the pointer is over a popup, renaming a dashboard, or dragging one */
 const keepPeekingSelector = '[aria-expanded="true"], [data-menu-open], input:focus, [data-dnd-dragging]';
 
-export function AppSidebar({ mobile }: { mobile: boolean }) {
-	return mobile ? <MobileAppSidebar /> : <DesktopAppSidebar />;
-}
-
-function MobileAppSidebar() {
-	const [open, setOpen] = useState(false);
-	const router = useRouter();
-	const toggle = () => setOpen((value) => !value);
-	const navRef = useRef<HTMLDialogElement>(null);
-	// Also from the scrim beside it
-	useSwipeToClose(navRef, {
-		isOpen: open,
-		side: 'start',
-		onClose: () => setOpen(false),
-		panel: '.astryx-mobile-nav-drawer',
-	});
-	useEffect(() => subscribeSidebarToggle(() => setOpen((value) => !value)), []);
-	useEffect(
-		() =>
-			router.subscribe('onResolved', ({ pathChanged }) => {
-				if (pathChanged) {
-					setOpen(false);
-				}
-			}),
-		[router],
-	);
-
-	const context: SidebarContextProps = { collapsed: false, open: true, isMobile: true, toggleSidebar: toggle };
-	return (
-		<SidebarContext value={context}>
-			<header {...stylex.props(styles.mobileHeader)}>
-				<IconButton
-					label="Show sidebar"
-					icon={<PanelLeftIcon />}
-					variant="ghost"
-					size="lg"
-					aria-expanded={open}
-					onClick={toggle}
-				/>
-				<span {...stylex.props(styles.mobileName)}>DogLog Studio</span>
-			</header>
-			<MobileNav ref={navRef} isOpen={open} onOpenChange={setOpen} side="start" header="DogLog Studio" label="Sidebar">
-				<div data-sidebar="sidebar" {...stylex.props(styles.mobileSidebar)}>
-					<SidebarItems />
-				</div>
-			</MobileNav>
-		</SidebarContext>
-	);
+export function AppSidebar({ mobile, hasEntryBrowser }: { mobile: boolean; hasEntryBrowser: boolean }) {
+	return mobile ? <MobileAppSidebar hasEntryBrowser={hasEntryBrowser} /> : <DesktopAppSidebar />;
 }
 
 function DesktopAppSidebar() {
@@ -167,6 +95,17 @@ function DesktopAppSidebar() {
 		setPeeking(true);
 		animateSidebarPeek(true);
 	};
+	const swipeRail = useSwipeToOpen(
+		!STUDIO_DESKTOP && iconLayout
+			? (dx) => {
+					if (dx > 0) {
+						peek();
+					}
+				}
+			: undefined,
+		// Touch can't hover, so tapping the rail outside its buttons peeks instead.
+		iconLayout ? peek : undefined,
+	);
 	const unpeek = useEffectEvent(() => {
 		// The sidebar slides out over the copy, so its pages and dashboards are copied again, like a new selection. The
 		// header and footer show more while peeking than in the rail, so they keep the copy from when peeking started.
@@ -255,6 +194,7 @@ function DesktopAppSidebar() {
 			>
 				<TitleBar collapsed={collapsed} iconOnly={iconOnly} onToggle={() => toggle(!reduceMotion)} />
 				<div
+					{...swipeRail}
 					data-sidebar="sidebar"
 					data-collapsible={iconLayout ? 'icon' : undefined}
 					data-peeking={collapsed && peeking ? '' : undefined}
@@ -268,18 +208,8 @@ function DesktopAppSidebar() {
 						}
 					}}
 					onPointerLeave={cancelPeek}
-					onPointerDown={(event) => {
+					onPointerDownCapture={(event) => {
 						touchPress.current = event.pointerType !== 'mouse';
-					}}
-					// Touch can't hover, so tapping the rail outside its buttons peeks instead. A scroll ends in pointercancel.
-					onPointerUp={(event) => {
-						if (
-							iconLayout &&
-							event.pointerType !== 'mouse' &&
-							!(event.target instanceof Element && event.target.closest('a, button, input, [role="button"]'))
-						) {
-							peek();
-						}
 					}}
 				>
 					<div data-sidebar-surface="" />

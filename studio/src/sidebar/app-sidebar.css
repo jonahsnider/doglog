@@ -111,6 +111,11 @@
 	}
 }
 
+/* The rail's scroll container also needs to leave horizontal swipes to the app. */
+[data-sidebar-swipe] [data-sidebar='content'] {
+	touch-action: pan-y pinch-zoom;
+}
+
 /* The rail as it was when peeking started, under the sidebar while it's out, see `peek()` */
 [data-sidebar='rail-copy'] {
 	position: absolute;

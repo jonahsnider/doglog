@@ -283,6 +283,22 @@ Studio on the web SHALL use the phone layout in viewports narrower than 800 CSS 
 - **WHEN** the user navigates to another page or dashboard
 - **THEN** the sidebar closes, revealing the selected destination
 
+### Requirement: Swipe to open sidebars
+
+In the web app, including when installed, users SHALL be able to open a closed sidebar with an inward touch swipe starting on the app chrome, clear of the screen edge and outside its buttons and links. The existing buttons MUST still open the sidebars. Short or vertical gestures, mouse drags, and swipes starting in widget content MUST NOT open them.
+
+#### Scenario: Open a sidebar on a phone
+
+- **GIVEN** Studio is using the phone layout
+- **WHEN** the user swipes right from the left half of the top bar, or swipes left from the right half on a page with an entry browser
+- **THEN** the corresponding panel opens as if the user tapped its button
+
+#### Scenario: Open a collapsed sidebar on a tablet
+
+- **GIVEN** Studio is using the docked layout on a touch device and either sidebar is collapsed
+- **WHEN** the user swipes inward from a blank area of its rail
+- **THEN** the left sidebar peeks without changing the saved layout, or the entry browser expands in place
+
 ### Requirement: Swipe to close panels
 
 Panels that slide in over Studio, like the sidebar and entry browser in the phone layout and the sync settings, SHALL close when swiped toward the edge they came from, following the finger without moving past that edge. Swipes MUST start on the panel or the scrim beside it, never at the screen's edge, which browsers and installed web apps use to go back. Vertical swipes MUST still scroll, a mouse drag MUST NOT move the panel, and each panel MUST also have a close button.

@@ -66,6 +66,9 @@
 		user-select: none;
 		-webkit-user-select: none;
 	}
+	[data-sidebar-swipe] {
+		touch-action: pan-y pinch-zoom;
+	}
 	code,
 	kbd,
 	samp,

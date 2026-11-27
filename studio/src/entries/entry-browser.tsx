@@ -27,6 +27,7 @@ import { TooltipLabel } from '@/components/tooltip-label';
 import { shortcuts } from '@/commands/commands';
 import { useMobileLayout } from '@/lib/mobile-layout';
 import { useSwipeToClose } from '@/hooks/use-swipe-to-close';
+import { useSwipeToOpen } from '@/hooks/use-swipe-to-open';
 import type { Dashboard } from '@/dashboards/dashboards';
 import { DashboardIdContext } from '@/dashboards/panes';
 import { useVideoExport } from '@/desktop/video-export';
@@ -146,6 +147,15 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 	useSwipeToClose(drawerRef, { isOpen: mobile && open, side: 'end', onClose: () => setEntryBrowserOpen(false) });
 	// Video export mode keeps the dashboard it previews as it is
 	const exporting = useVideoExport() !== undefined;
+	const swipeRail = useSwipeToOpen(
+		!STUDIO_DESKTOP && !mobile && !open && !exporting
+			? (dx) => {
+					if (dx < 0) {
+						setEntryBrowserOpen(true);
+					}
+				}
+			: undefined,
+	);
 
 	if (mobile) {
 		const title = edited ? `Editing ${edited.type.name}` : 'Entry browser';
@@ -181,7 +191,7 @@ export function EntryBrowser({ dashboard }: { dashboard: Dashboard }) {
 
 	if (!open) {
 		return (
-			<aside aria-label="Entry browser" inert={exporting} {...stylex.props(styles.collapsed)}>
+			<aside {...swipeRail} aria-label="Entry browser" inert={exporting} {...stylex.props(styles.collapsed)}>
 				<ToggleButton open={false} />
 			</aside>
 		);
