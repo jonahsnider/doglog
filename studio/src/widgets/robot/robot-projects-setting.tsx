@@ -6,16 +6,12 @@ import { SettingsGroup } from '@/components/settings-group';
 import {
 	addRobotProject,
 	cantAddRobotProjects,
+	folderName,
 	removeRobotProject,
-	type RobotProject,
 	useRobotProjectFolders,
 } from '@/three/robot-projects';
 
 const iconSize = 20;
-
-function folderName({ path, handle }: RobotProject): string {
-	return path?.split(/[/\\]/u).findLast((segment) => segment !== '') ?? handle?.name ?? '';
-}
 
 /** The robot projects the user added, to add and remove them without a robot widget */
 export function RobotProjectsSetting() {

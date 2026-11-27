@@ -280,6 +280,17 @@ A dropped folder with a `doglog.jsonc` or `doglog.json`, or an AdvantageScope ro
 - **WHEN** the user drops a folder with no logs, `doglog.jsonc`, `doglog.json`, or AdvantageScope robot files on the window
 - **THEN** nothing is added, and a message says the folder has no logs and isn't a robot project
 
+### Requirement: Create a config from AdvantageScope robots
+
+When an added or dropped folder has no `doglog.jsonc`, `doglog.json`, or `config.json`, but has AdvantageScope robot folders (`Robot_` folders with a `config.json`) in it or in its folders, Studio SHALL offer to create a `doglog.jsonc` that draws them as AdvantageScope does, then add the project. It MUST NOT replace an existing `doglog.jsonc`.
+
+#### Scenario: Robot code with AdvantageScope assets
+
+- **GIVEN** robot code with `ascope_assets/Robot_2026/config.json` and no `doglog.jsonc`
+- **WHEN** the user adds the robot code's folder and accepts the offer
+- **THEN** `doglog.jsonc` is created in the robot code with the robot "2026" using `ascope_assets/Robot_2026/model.glb`
+- **AND** the project is added with that robot
+
 ### Requirement: Robot projects on the web
 
 The web app SHALL only add robot projects in browsers that can keep access to folders, and MUST say why "Add project…" is unavailable in others. When the browser asks to allow access to a project's folder again, ex. after it's reopened, the widget MUST offer a button to allow it, then draw the robot.

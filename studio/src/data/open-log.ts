@@ -18,6 +18,7 @@ import {
 	addDroppedRobotProject,
 	isRobotConfig,
 	isRobotProjectFolder,
+	offerRobotConfig,
 	showDroppedConfigError,
 } from '@/three/robot-projects';
 
@@ -168,8 +169,17 @@ function byName<T extends { name: string }>(files: T[]): T[] {
 	return files.filter((file) => isLogFile(file.name)).toSorted((a, b) => a.name.localeCompare(b.name));
 }
 
-/** Say a dropped folder was ignored, since it has no logs and isn't a robot project */
-function showUnusedFolder(name: string): void {
+/**
+ * A dropped folder without logs or a robot config: offer to create its config when it has AdvantageScope robots in it,
+ * or say it was ignored. `project` is `undefined` for folders the browser can't keep access to.
+ */
+async function handleUnusedFolder(
+	name: string,
+	project: { path: string } | { handle: FileSystemDirectoryHandle } | undefined,
+): Promise<void> {
+	if (project !== undefined && (await offerRobotConfig(project))) {
+		return;
+	}
 	toastManager.add({
 		type: 'error',
 		title: `${name} has no logs`,
@@ -185,6 +195,7 @@ export function handleDroppedLogPaths(): Promise<void> {
 	return handleFileDrops((paths) => {
 		void (async () => {
 			const projects = new Set<string>();
+			const unused: string[] = [];
 			const logs: string[] = [];
 			for (const [index, files] of (
 				await Promise.all(paths.map((path) => invoke<string[]>('folder_files', { path })))
@@ -197,13 +208,14 @@ export function handleDroppedLogPaths(): Promise<void> {
 				} else if (folder && isRobotProjectFolder(files)) {
 					projects.add(path);
 				} else if (folder && !files.some((file) => isLogFile(file))) {
-					showUnusedFolder(path.split(/[/\\]/u).at(-1)!);
+					unused.push(path);
 				} else {
 					logs.push(...files.filter((file) => isLogFile(file)));
 				}
 			}
 			// One at a time so they don't overwrite each other's saved projects
 			await openInOrder([...projects], (path) => addDroppedRobotProject({ path }));
+			await openInOrder(unused, (path) => handleUnusedFolder(path.split(/[/\\]/u).at(-1)!, { path }));
 			await openLogPaths(logs);
 		})();
 	});
@@ -270,7 +282,7 @@ async function openDroppedFolder(
 		if (isRobotProjectFolder(handles.map((child) => child.name))) {
 			await addDroppedRobotProject({ handle: resolved });
 		} else if (byName(handles).length === 0) {
-			showUnusedFolder(resolved.name);
+			await handleUnusedFolder(resolved.name, { handle: resolved });
 		} else {
 			await openInOrder(byName(handles), openLogHandle);
 		}
@@ -283,7 +295,7 @@ async function openDroppedFolder(
 		return;
 	}
 	if (byName(entries).length === 0) {
-		showUnusedFolder(folder.name);
+		await handleUnusedFolder(folder.name, undefined);
 		return;
 	}
 	const files = await Promise.all(

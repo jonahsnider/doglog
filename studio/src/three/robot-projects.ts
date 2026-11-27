@@ -1,7 +1,9 @@
+// oxlint-disable max-lines -- Adding projects, from pickers, drops, and AdvantageScope's robots, shares the saved projects
 // Robot projects the user added, read where they are: the desktop app remembers folder paths, and the web app keeps
 // directory handles. Both are kept in IndexedDB, which can store handles.
 import { useSelector } from '@tanstack/react-store';
-import { useEffect } from 'react';
+import { Code } from '@astryxdesign/core/Code';
+import { createElement, Fragment, useEffect } from 'react';
 import { createAtom } from '@tanstack/store';
 import { invoke } from '@tauri-apps/api/core';
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
@@ -9,7 +11,7 @@ import { get, set } from 'idb-keyval';
 import * as z from 'zod';
 import { toastManager } from '@/components/toast';
 import { createPersistedAtom } from '@/lib/persisted-store';
-import type { ReadProjectFile } from '@/three/robot-config';
+import type { ListProjectFolders, ReadProjectFile } from '@/three/robot-config';
 import { widgetOptions } from '@/widgets/widget-info';
 
 /** A robot in a project the user added, a project with several robots has an entry for each */
@@ -180,6 +182,37 @@ export function projectFileReader(project: RobotProject): ReadProjectFile {
 	};
 }
 
+/** Lists the folders in a project's folders, see `findAdvantageScopeRobots()` */
+function projectFolderLister({ path, handle }: Omit<RobotProject, 'name'>): ListProjectFolders {
+	if (STUDIO_DESKTOP && path !== undefined) {
+		return (folder) =>
+			invoke<string[]>('subfolders', { path: folder === '' ? path : `${path}/${folder}` }).catch(() => []);
+	}
+	return async (folder) => {
+		const names: string[] = [];
+		try {
+			let current = handle;
+			for (const segment of folder === '' ? [] : folder.split('/')) {
+				// oxlint-disable-next-line no-await-in-loop -- Each folder is found inside the one before it
+				current = await current?.getDirectoryHandle(segment);
+			}
+			for await (const child of current?.values() ?? []) {
+				if (child instanceof FileSystemDirectoryHandle) {
+					names.push(child.name);
+				}
+			}
+		} catch {
+			// Folders that can't be read have no robots
+		}
+		return names;
+	};
+}
+
+/** The name of a project's folder, ex. `robot-2026` */
+export function folderName({ path, handle }: Omit<RobotProject, 'name'>): string {
+	return path?.split(/[/\\]/u).findLast((segment) => segment !== '') ?? handle?.name ?? '';
+}
+
 /** Ask to read a project's folder again, call it from a click */
 export async function allowProjectAccess(project: RobotProject): Promise<boolean> {
 	return (await project.handle?.requestPermission({ mode: 'read' })) === 'granted';
@@ -217,13 +250,86 @@ function showAddError(error: unknown): void {
 	});
 }
 
+/** Create a project's `doglog.jsonc` without replacing one, the web app asks to change the folder, so call it from a click */
+async function createRobotConfig({ path, handle }: Omit<RobotProject, 'name'>, contents: string): Promise<void> {
+	if (STUDIO_DESKTOP && path !== undefined) {
+		await invoke('create_robot_config', { folder: path, contents });
+		return;
+	}
+	if ((await handle?.requestPermission({ mode: 'readwrite' })) !== 'granted') {
+		throw new Error('Studio needs to be allowed to change the folder to create doglog.jsonc');
+	}
+	const exists = await handle!.getFileHandle('doglog.jsonc').then(
+		() => true,
+		() => false,
+	);
+	if (exists) {
+		throw new Error('The folder already has a doglog.jsonc');
+	}
+	const writable = await (await handle!.getFileHandle('doglog.jsonc', { create: true })).createWritable();
+	await writable.write(contents);
+	await writable.close();
+}
+
+/**
+ * Offer to create a `doglog.jsonc` for a project folder without one, from the AdvantageScope robots in its folders,
+ * then add the project. Returns whether there were any to offer.
+ */
+export async function offerRobotConfig(project: Omit<RobotProject, 'name'>): Promise<boolean> {
+	const { doglogConfigFromAdvantageScope, findAdvantageScopeRobots } = await import('@/three/robot-config');
+	const robots = await findAdvantageScopeRobots(
+		projectFileReader({ name: '', ...project }),
+		projectFolderLister(project),
+	);
+	if (robots.length === 0) {
+		return false;
+	}
+	const contents = doglogConfigFromAdvantageScope(robots);
+	const create = async () => {
+		try {
+			await createRobotConfig(project, contents);
+			const names = await addProjectFolder(project);
+			toastManager.add({
+				type: 'success',
+				title: 'Created doglog.jsonc and added the project',
+				description: names?.join(', '),
+			});
+		} catch (error) {
+			showAddError(error);
+		}
+	};
+	toastManager.add({
+		title: createElement(Fragment, null, 'Generate ', createElement(Code, null, 'doglog.jsonc'), '?'),
+		description: createElement(
+			Fragment,
+			null,
+			'Create a ',
+			createElement(Code, null, 'doglog.jsonc'),
+			' config from your AdvantageScope project',
+		),
+		actionProps: { children: 'Create', onClick: () => void create() },
+		timeout: 0,
+	});
+	return true;
+}
+
 /**
  * Add a project folder's robots, replacing robots with the same names and the folder's robots from when it was added
- * before. The first robot is remembered for new robot widgets. Returns the robots' names.
+ * before. The first robot is remembered for new robot widgets. Returns the robots' names, or `undefined` when the folder
+ * has no config but has AdvantageScope robots, and Studio offered to create one, see `offerRobotConfig()`.
  */
-async function addProjectFolder(project: Omit<RobotProject, 'name'>): Promise<string[]> {
-	const { readRobotConfigs } = await import('@/three/robot-config');
-	const names = (await readRobotConfigs(projectFileReader({ name: '', ...project }))).map(({ name }) => name);
+async function addProjectFolder(project: Omit<RobotProject, 'name'>): Promise<string[] | undefined> {
+	const { RobotConfigError, readRobotConfigs } = await import('@/three/robot-config');
+	let configs;
+	try {
+		configs = await readRobotConfigs(projectFileReader({ name: '', ...project }));
+	} catch (error) {
+		if (error instanceof RobotConfigError && error.missing && (await offerRobotConfig(project))) {
+			return undefined;
+		}
+		throw error;
+	}
+	const names = configs.map(({ name }) => name);
 	const others = await savedProjectsWithout({ name: '', ...project }, names);
 	// Removed first so a project added again is a new object, and its models load again with any changes
 	await saveProjects(others);
@@ -248,7 +354,7 @@ export async function addRobotProject(): Promise<string | undefined> {
 		} else {
 			project = { handle: await window.showDirectoryPicker!({ mode: 'read' }) };
 		}
-		return (await addProjectFolder(project))[0];
+		return (await addProjectFolder(project))?.[0];
 	} catch (error) {
 		if (!(error instanceof DOMException && error.name === 'AbortError')) {
 			showAddError(error);
@@ -268,7 +374,9 @@ export async function addDroppedRobotProject(project: Omit<RobotProject, 'name'>
 	}
 	try {
 		const names = await addProjectFolder(project);
-		toastManager.add({ type: 'success', title: 'Added a robot project', description: names.join(', ') });
+		if (names !== undefined) {
+			toastManager.add({ type: 'success', title: 'Added a robot project', description: names.join(', ') });
+		}
 	} catch (error) {
 		showAddError(error);
 	}

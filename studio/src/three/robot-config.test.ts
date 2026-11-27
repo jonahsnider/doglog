@@ -1,6 +1,11 @@
 import { type Matrix4, Vector3 } from 'three';
 import { expect, test } from 'vite-plus/test';
-import { RobotConfigError, readRobotConfigs } from '@/three/robot-config';
+import {
+	doglogConfigFromAdvantageScope,
+	findAdvantageScopeRobots,
+	RobotConfigError,
+	readRobotConfigs,
+} from '@/three/robot-config';
 import { transformMatrix } from '@/three/poses';
 
 function folder(files: Record<string, string>) {
@@ -9,6 +14,11 @@ function folder(files: Record<string, string>) {
 		const text = files[path];
 		return Promise.resolve(text === undefined ? undefined : encoder.encode(text).buffer);
 	};
+}
+
+/** Lists the folders in `tree` by their folder's path */
+function folders(tree: Record<string, string[]>) {
+	return (path: string) => Promise.resolve(tree[path] ?? []);
 }
 
 function placed(matrix: Matrix4, point = new Vector3()): number[] {
@@ -105,4 +115,57 @@ test('translates AdvantageScope robots', async () => {
 	expect(config!.parts.map((part) => part.file)).toEqual(['model_0.glb']);
 	// Like AdvantageScope, a component's pose places its zeroed model
 	expect(placed(transformMatrix({ z: 0.5 }).multiply(config!.parts[0]!.zero))).toEqual([0, 0, 0]);
+});
+
+const advantageScope = JSON.stringify({
+	name: 'KitBot',
+	rotations: [
+		{ axis: 'x', degrees: 90 },
+		{ axis: 'z', degrees: 30 },
+	],
+	position: [0.1, -0.2, 0.3],
+	components: [{ zeroedRotations: [{ axis: 'y', degrees: 45 }], zeroedPosition: [0.2, 0, -0.5] }],
+});
+
+test('finds AdvantageScope robots in the project and its folders', async () => {
+	const robots = await findAdvantageScopeRobots(
+		folder({
+			'Robot_Top/config.json': JSON.stringify({ name: 'Top' }),
+			'ascope_assets/Robot_KitBot/config.json': advantageScope,
+			'ascope_assets/Robot_Broken/config.json': '{',
+			'ascope_assets/Field3d_2026/config.json': JSON.stringify({ name: 'Field' }),
+			'.git/Robot_Hidden/config.json': JSON.stringify({ name: 'Hidden' }),
+		}),
+		folders({
+			'': ['.git', 'Robot_Top', 'ascope_assets', 'src'],
+			ascope_assets: ['Field3d_2026', 'Robot_KitBot', 'Robot_Broken'],
+			src: ['main'],
+			'.git': ['Robot_Hidden'],
+		}),
+	);
+	expect(robots.map(({ name, folder: path }) => [name, path])).toEqual([
+		['KitBot', 'ascope_assets/Robot_KitBot'],
+		['Top', 'Robot_Top'],
+	]);
+});
+
+test('a doglog.jsonc made from an AdvantageScope robot draws it the same way', async () => {
+	const [original] = await readRobotConfigs(folder({ 'config.json': advantageScope }));
+	const [robot] = await findAdvantageScopeRobots(
+		folder({ 'ascope_assets/Robot_KitBot/config.json': advantageScope }),
+		folders({ '': ['ascope_assets'], ascope_assets: ['Robot_KitBot'] }),
+	);
+	const [migrated] = await readRobotConfigs(folder({ 'doglog.jsonc': doglogConfigFromAdvantageScope([robot!]) }));
+
+	expect(migrated!.name).toBe('KitBot');
+	expect(migrated!.body.file).toBe('ascope_assets/Robot_KitBot/model.glb');
+	expect(migrated!.parts.map((part) => part.file)).toEqual(['ascope_assets/Robot_KitBot/model_0.glb']);
+	const point = new Vector3(0.4, -0.7, 1.3);
+	expect(placed(migrated!.body.transform, point)).toEqual(placed(original!.body.transform, point));
+	expect(placed(migrated!.parts[0]!.rest, point)).toEqual(placed(original!.parts[0]!.rest, point));
+	// A logged pose places the part the same way
+	const pose = transformMatrix({ x: 0.3, z: 0.6, pitch: -20 });
+	expect(placed(pose.clone().multiply(migrated!.parts[0]!.zero), point)).toEqual(
+		placed(pose.clone().multiply(original!.parts[0]!.zero), point),
+	);
 });

@@ -24,7 +24,7 @@ use serde::Serialize;
 use std::{
     collections::HashMap,
     fs::File,
-    io::{BufRead, BufReader, Read},
+    io::{BufRead, BufReader, Read, Write},
     ops::ControlFlow,
     path::PathBuf,
     process::ExitCode,
@@ -219,6 +219,34 @@ async fn folder_files(path: PathBuf) -> Result<Vec<PathBuf>, String> {
     .map_err(|error: std::io::Error| error.to_string())
 }
 
+/// The names of the folders directly in `path` sorted by name, ex. to find AdvantageScope robots in a robot project
+#[tauri::command]
+async fn subfolders(path: PathBuf) -> Result<Vec<String>, String> {
+    spawn_blocking(move || {
+        let mut names = std::fs::read_dir(&path)?
+            .filter_map(Result::ok)
+            .filter(|entry| entry.file_type().is_ok_and(|kind| kind.is_dir()))
+            .filter_map(|entry| entry.file_name().into_string().ok())
+            .collect::<Vec<_>>();
+        names.sort();
+        Ok(names)
+    })
+    .await
+    .map_err(|error| error.to_string())?
+    .map_err(|error: std::io::Error| error.to_string())
+}
+
+/// Create a robot project's `doglog.jsonc` in `folder`, erroring instead of replacing one that's there
+#[tauri::command]
+fn create_robot_config(folder: PathBuf, contents: String) -> Result<(), String> {
+    std::fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(folder.join("doglog.jsonc"))
+        .and_then(|mut file| file.write_all(contents.as_bytes()))
+        .map_err(|error| error.to_string())
+}
+
 /// Let the webview play the video widget's video at `path` from `asset://`, erroring when it isn't a file. Not added to
 /// the asset protocol's scope by default, since videos can be anywhere, and `read_file()` can read any file anyway.
 #[tauri::command]
@@ -393,6 +421,8 @@ pub fn run() -> ExitCode {
             read_file,
             read_log,
             folder_files,
+            subfolders,
+            create_robot_config,
             allow_video,
             camera_stream::start_camera_stream,
             camera_stream::read_camera_stream,
