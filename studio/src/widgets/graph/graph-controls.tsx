@@ -7,6 +7,7 @@ const styles = stylex.create({
 		display: 'grid',
 		gridTemplateColumns: 'auto minmax(0, 1fr)',
 		alignItems: 'baseline',
+		marginBlockStart: spacingVars['--spacing-4'],
 		columnGap: spacingVars['--spacing-3'],
 		rowGap: spacingVars['--spacing-1'],
 		textAlign: 'start',
