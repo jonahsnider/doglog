@@ -8,8 +8,9 @@ import {
 	typeScaleVars,
 } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
+import HouseIcon from 'lucide-react/icons/house';
 import { Shortcut } from '@/components/shortcut';
-import { useMediaQuery } from '@/hooks/use-media-query';
+import { useSceneHintInput } from '@/widgets/use-scene-controls';
 import type { View } from '@/widgets/view-toggle';
 
 const styles = stylex.create({
@@ -59,6 +60,7 @@ const styles = stylex.create({
 	action: {
 		fontWeight: fontWeightVars['--font-weight-medium'],
 	},
+	hintIcon: { display: 'inline-block', verticalAlign: 'text-bottom' },
 });
 
 const touchGestures = {
@@ -67,6 +69,12 @@ const touchGestures = {
 		['Orbit', '1-finger drag'],
 		['Pan', '2-finger drag'],
 		['Zoom', 'Pinch'],
+		[
+			'Reset',
+			<>
+				Tap <HouseIcon {...stylex.props(styles.hintIcon)} size="1em" role="img" aria-label="Reset view" />
+			</>,
+		],
 	],
 } as const;
 
@@ -80,22 +88,24 @@ const pointerGestures = {
 	'3d': [
 		[
 			'Orbit',
+			'Drag',
 			<>
-				Drag or <Shortcut hotkey="ArrowUp" /> <Shortcut hotkey="ArrowDown" /> <Shortcut hotkey="ArrowLeft" />{' '}
+				<Shortcut hotkey="ArrowUp" /> <Shortcut hotkey="ArrowDown" /> <Shortcut hotkey="ArrowLeft" />{' '}
 				<Shortcut hotkey="ArrowRight" />
 			</>,
 		],
 		[
 			'Pan',
+			'Right-drag',
 			<>
-				<Shortcut hotkey="Shift" /> + drag or <Shortcut hotkey="A" /> <Shortcut hotkey="D" /> <Shortcut hotkey="Q" />{' '}
-				<Shortcut hotkey="E" />
+				<Shortcut hotkey="A" /> <Shortcut hotkey="D" /> <Shortcut hotkey="Q" /> <Shortcut hotkey="E" />
 			</>,
 		],
 		[
 			'Zoom',
+			'Scroll',
 			<>
-				Scroll or <Shortcut hotkey="W" /> <Shortcut hotkey="S" />
+				<Shortcut hotkey="W" /> <Shortcut hotkey="S" />
 			</>,
 		],
 	],
@@ -112,20 +122,23 @@ export function SceneControls({
 	disabled?: boolean;
 	xstyle?: stylex.StyleXStyles;
 }) {
-	const touch = useMediaQuery('(pointer: coarse)');
+	const hintInput = useSceneHintInput();
 	if (disabled) {
 		return null;
 	}
-	const gestures = (touch ? touchGestures : pointerGestures)[view];
+	const gestures = (hintInput === 'touch' ? touchGestures : pointerGestures)[view];
 	const container = stylex.props(styles.container, xstyle);
 	return (
 		<div {...container} className={`${container.className} capture-hidden`} aria-hidden={!visible}>
 			<div {...stylex.props(styles.panel, !visible && styles.hidden)}>
 				<dl aria-label={`${view.toUpperCase()} view controls`} {...stylex.props(styles.list)}>
-					{gestures.map(([action, input]) => (
+					{gestures.map(([action, input, keys]) => (
 						<div key={action} {...stylex.props(styles.row)}>
 							<dt {...stylex.props(styles.action)}>{action}</dt>
-							<dd>{input}</dd>
+							<dd>
+								{input}
+								{hintInput === 'pointer-with-keys' && keys && <> or {keys}</>}
+							</dd>
 						</div>
 					))}
 				</dl>

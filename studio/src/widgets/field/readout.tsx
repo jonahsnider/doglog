@@ -13,6 +13,9 @@ import {
 import { ToggleButton } from '@astryxdesign/core/ToggleButton';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
 import * as stylex from '@stylexjs/stylex';
+import DraftingCompassIcon from 'lucide-react/icons/drafting-compass';
+import PencilIcon from 'lucide-react/icons/pencil';
+import RulerIcon from 'lucide-react/icons/ruler';
 import type { ReactNode } from 'react';
 import { InlineShortcut } from '@/components/shortcut';
 import { TooltipLabel } from '@/components/tooltip-label';
@@ -20,17 +23,23 @@ import type { FieldPoint } from '@/widgets/field/geometry';
 import type { FieldTool } from '@/widgets/field/pencil';
 import { fieldMarker } from './markers.stylex';
 
+const compact = '@container (width < 24rem)';
+
 const styles = stylex.create({
 	row: {
+		containerType: 'inline-size',
 		display: 'flex',
+		flexWrap: 'wrap',
+		flexShrink: 0,
 		minHeight: '1.75rem',
 		alignItems: 'center',
-		justifyContent: 'space-between',
-		gap: spacingVars['--spacing-2'],
+		columnGap: spacingVars['--spacing-2'],
+		rowGap: spacingVars['--spacing-1'],
 		color: colorVars['--color-text-secondary'],
 		fontSize: typeScaleVars['--text-supporting-size'],
 		lineHeight: '1rem',
 	},
+	controls: { marginInlineStart: 'auto', flexShrink: 0 },
 	group: {
 		display: 'flex',
 		alignItems: 'center',
@@ -40,6 +49,9 @@ const styles = stylex.create({
 		display: 'flex',
 		gap: spacingVars['--spacing-1'],
 	},
+	toolButton: { paddingInline: { default: null, [compact]: spacingVars['--spacing-1'] } },
+	toolIcon: { display: { default: 'none', [compact]: 'block' } },
+	toolLabel: { display: { default: 'flex', [compact]: 'none' } },
 	fades: {
 		transitionProperty: 'opacity',
 		transitionDuration: `calc(${durationVars['--duration-fast']} * var(--motion-scale))`,
@@ -69,6 +81,7 @@ const styles = stylex.create({
 		display: 'flex',
 		alignItems: 'center',
 		gap: spacingVars['--spacing-1-5'],
+		whiteSpace: 'nowrap',
 	},
 	hidden: {
 		opacity: 0,
@@ -98,6 +111,8 @@ const styles = stylex.create({
 	coordinates: {
 		fontFamily: typographyVars['--font-family-code'],
 		fontVariantNumeric: 'tabular-nums',
+		// Reserve room for signed coordinates so moving the cursor doesn't move the controls to another line.
+		minInlineSize: '20ch',
 	},
 	copiedText: {
 		textAlign: 'center',
@@ -108,11 +123,23 @@ const styles = stylex.create({
 	},
 });
 
-const tools: readonly { tool: FieldTool; key: 'M' | 'A' | 'P'; label: string; hint: string }[] = [
-	{ tool: 'distance', key: 'M', label: 'Distance', hint: 'Drag to measure distance, hold Shift to snap to 45°' },
-	{ tool: 'angle', key: 'A', label: 'Angle', hint: 'Drag to measure the angle from +X, hold Shift to snap to 45°' },
-	{ tool: 'pencil', key: 'P', label: 'Pencil', hint: 'Drag to sketch a line on the field' },
-];
+const tools = [
+	{
+		tool: 'distance',
+		key: 'M',
+		label: 'Distance',
+		icon: RulerIcon,
+		hint: 'Drag to measure distance, hold Shift to snap to 45°',
+	},
+	{
+		tool: 'angle',
+		key: 'A',
+		label: 'Angle',
+		icon: DraftingCompassIcon,
+		hint: 'Drag to measure the angle from +X, hold Shift to snap to 45°',
+	},
+	{ tool: 'pencil', key: 'P', label: 'Pencil', icon: PencilIcon, hint: 'Drag to sketch a line on the field' },
+] as const;
 
 /**
  * The row under the field, left out of copied images: the cursor position, then the tool buttons and `children`.
@@ -139,7 +166,7 @@ export function Readout({
 	return (
 		<div className={`${row.className} capture-invisible`}>
 			<CursorPosition pointer={pointer} hovered={hovered} copied={copied} />
-			<div {...stylex.props(styles.group)}>
+			<div {...stylex.props(styles.group, styles.controls)}>
 				<ToolButtons tool={tool} onToggle={onToggle} measure={measure} />
 				{children}
 			</div>
@@ -187,18 +214,20 @@ function ToolButtons({
 		<div {...stylex.props(styles.tools, styles.fades, tool === undefined && styles.hiddenWhileIdle)}>
 			{tools
 				.filter((option) => measure || option.tool === 'pencil')
-				.map((option) => (
-					<Tooltip key={option.tool} content={<TooltipLabel label={option.hint} shortcut={option.key} />}>
+				.map(({ tool: value, key, label, icon: Icon, hint }) => (
+					<Tooltip key={value} content={<TooltipLabel label={hint} shortcut={key} />}>
 						<ToggleButton
-							label={option.label}
+							label={label}
 							size="sm"
-							aria-keyshortcuts={option.key}
-							isPressed={tool === option.tool}
-							onPressedChange={() => onToggle(option.tool)}
+							aria-keyshortcuts={key}
+							xstyle={styles.toolButton}
+							isPressed={tool === value}
+							onPressedChange={() => onToggle(value)}
 						>
-							<HStack gap={1} vAlign="center">
-								<InlineShortcut hotkey={option.key} />
-								{option.label}
+							<Icon {...stylex.props(styles.toolIcon)} size={16} aria-hidden />
+							<HStack gap={1} vAlign="center" xstyle={styles.toolLabel}>
+								<InlineShortcut hotkey={key} />
+								{label}
 							</HStack>
 						</ToggleButton>
 					</Tooltip>

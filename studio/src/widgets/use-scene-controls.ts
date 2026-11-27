@@ -1,7 +1,22 @@
 import { type DOMAttributes, useEffect, useEffectEvent, useRef, useState } from 'react';
+import { useMediaQuery } from '@/hooks/use-media-query';
+import { useMobileLayout } from '@/lib/mobile-layout';
 
 const idleMs = 3000;
 const visibleMs = 5000;
+
+export const scene3dNavigationHints = {
+	touch: 'Drag with one finger to orbit, drag with two fingers to pan, and pinch to zoom.',
+	pointer: 'Drag to orbit, right-drag to pan, and scroll to zoom.',
+	'pointer-with-keys': 'Drag to orbit, scroll or W and S to zoom, A, D, Q, and E to pan, hold Shift to go faster.',
+};
+
+/** Touch gestures follow the primary pointer; the phone layout leaves out keycaps even with a mouse. */
+export function useSceneHintInput() {
+	const touch = useMediaQuery('(pointer: coarse)');
+	const mobile = useMobileLayout();
+	return touch ? 'touch' : mobile ? 'pointer' : 'pointer-with-keys';
+}
 
 /** Shows the reference once on mount and once per stretch of input, not on camera or data updates. */
 export function useSceneControls(enabled = true) {

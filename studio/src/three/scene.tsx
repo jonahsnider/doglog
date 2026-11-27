@@ -16,6 +16,7 @@ import type { FieldFraming } from '@/three/field-framing';
 import { ViewCube } from '@/three/view-cube';
 import { useSceneCanvas } from '@/three/use-scene-canvas';
 import type { CameraMatch } from '@/widgets/field/camera-match';
+import { scene3dNavigationHints, useSceneHintInput } from '@/widgets/use-scene-controls';
 
 const styles = stylex.create({
 	scene: { position: 'relative', width: '100%', height: '100%', overflow: 'hidden', touchAction: 'none' },
@@ -112,6 +113,7 @@ export function Scene3d({
 	}));
 	const [cubeHovered, setCubeHovered] = useState(false);
 	const canvas = useSceneCanvas();
+	const hintInput = useSceneHintInput();
 
 	const labels = useRef<(HTMLSpanElement | null)[]>([]);
 	// Hidden until the canvas is sized and drawn, it starts at the browser's default size with the labels in the corner
@@ -192,11 +194,7 @@ export function Scene3d({
 			// oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Focused for its keyboard controls
 			tabIndex={0}
 			data-capture-pending={drawn ? undefined : ''}
-			aria-label={
-				cameraMatch
-					? `${label}. Camera matched to video.`
-					: `${label}. Drag to orbit, scroll or W and S to zoom, A, D, Q, and E to pan, hold Shift to go faster.`
-			}
+			aria-label={`${label}. ${cameraMatch ? 'Camera matched to video.' : scene3dNavigationHints[hintInput]}`}
 			{...stylex.props(
 				styles.scene,
 				styles.frame,

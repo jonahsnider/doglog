@@ -167,13 +167,13 @@ In 2D, scrolling or pinching over the field SHALL zoom in and out around the poi
 
 ### Requirement: Field controls reference
 
-An unbound Field SHALL show a compact, non-interactive controls reference in the lower-left of the scene. It MUST use short labels: touch gestures for a coarse primary pointer, or one set for mouse and trackpad otherwise. It MUST NOT show with any bound entries, during capture, or during a video camera match. It MAY be hidden if too narrow to read.
+An unbound Field SHALL show a compact, non-interactive controls reference in the lower-left of the scene. It MUST use short labels: touch gestures for a coarse primary pointer, or one set for mouse and trackpad otherwise. The reference and the scene's accessible instructions MUST omit keyboard shortcuts in the phone layout and with a coarse primary pointer. The reference MUST NOT show with any bound entries, during capture, or during a video camera match. It MAY be hidden if too narrow to read.
 
 #### Scenario: Read the reference in 3D
 
 - **GIVEN** the quick reference is visible in 3D
 - **THEN** it describes how to orbit, pan, and zoom
-- **AND** when the primary pointer is not coarse, it shows keyboard shortcuts as keycaps without a focus instruction
+- **AND** in the desktop layout with a fine primary pointer, it shows keyboard shortcuts as keycaps without a focus instruction
 
 #### Scenario: Read the reference on a touch device
 
