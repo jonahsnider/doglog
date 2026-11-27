@@ -101,6 +101,15 @@ The theme SHALL have both light and dark variants derived from the same color sc
 - **THEN** every surface, text, and widget color switches to the light variant
 - **AND** status colors remain distinguishable
 
+### Requirement: Web app chrome and launch colors
+
+Studio SHALL tell the browser to use the active palette's frame color for browser and installed web app chrome. The web app manifest SHALL use the default palette's frame and page background for launch, with dark alternatives for browsers that support them.
+
+#### Scenario: Appearance changes while Studio is open
+
+- **WHEN** the active palette or resolved light or dark mode changes
+- **THEN** the browser's theme color updates to match the new frame color without reloading
+
 ### Requirement: Window frame backdrop
 
 Studio SHALL tint a native backdrop with the theme's frame color on macOS (Liquid Glass over the HUD window material) and Windows 11 22H2 and later (Mica). The backdrop SHALL show through the frame, including under the sidebars and timeline; panes and pages SHALL stay opaque. The frame SHALL be solid without a native backdrop, with forced colors, or when the system or the setting reduces transparency.

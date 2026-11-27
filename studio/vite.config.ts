@@ -2,6 +2,7 @@
 import { astryxStylex } from '@astryxdesign/build/vite';
 import codspeedPlugin from '@codspeed/vitest-plugin';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
+import { team581Palette } from '@team581/astryx-theme/colors';
 import { execFileSync } from 'node:child_process';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
@@ -88,6 +89,15 @@ const sentryRelease =
 	!isDesktop && commitHash !== null
 		? `doglog-studio@${packageJson.version}+${commitHash}`
 		: `doglog-studio@${packageJson.version}`;
+
+// Before the document and the user's settings load, use the default palette's frame and page background.
+const [lightFrame, darkFrame] = team581Palette.tokens['--color-background-body']!;
+const [lightSurface, darkSurface] = team581Palette.tokens['--color-background-surface']!;
+const launchColors = {
+	theme_color: lightFrame,
+	background_color: lightSurface,
+	color_scheme_dark: { theme_color: darkFrame, background_color: darkSurface },
+};
 
 export default defineConfig({
 	fmt: {
@@ -297,6 +307,17 @@ export default defineConfig({
 		svgr(),
 		projectSchemaPlugin(),
 		linkPreviewPlugin(),
+		!isDesktop && {
+			name: 'doglog-theme-color',
+			// Insert before the inline theme script, which picks the mode and applies any cached palette.
+			transformIndexHtml: () => [
+				{
+					tag: 'meta',
+					attrs: { name: 'theme-color', content: lightFrame, 'data-dark': darkFrame },
+					injectTo: 'head-prepend',
+				},
+			],
+		},
 		VitePWA({
 			// A new version waits until every Studio tab closes or the user updates from the sidebar, so open tabs keep
 			// loading their own version's chunks
@@ -319,7 +340,7 @@ export default defineConfig({
 				short_name: 'DogLog Studio',
 				description: 'Review FRC robot logs and debug robots live',
 				display: 'standalone',
-				theme_color: '#591616',
+				...launchColors,
 				start_url: '/',
 				// Lets the installed web app open logs from the OS, in Chromium browsers
 				file_handlers: [{ action: '/', accept: { 'application/octet-stream': ['.wpilog', '.wpilogxz', '.hoot'] } }],
@@ -328,6 +349,7 @@ export default defineConfig({
 			pwaAssets: {
 				config: true,
 				includeHtmlHeadLinks: false,
+				injectThemeColor: false,
 			},
 		}),
 		// Uploads source maps when `SENTRY_AUTH_TOKEN` is set, without writing them to `dist`

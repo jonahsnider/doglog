@@ -4,6 +4,7 @@
 		<meta charset="UTF-8" />
 		<!-- `viewport-fit=cover` makes iOS report its safe areas, which the app keeps its controls out of -->
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+		<meta name="color-scheme" content="light dark" />
 		<title>DogLog Studio</title>
 		<link rel="icon" href="/favicon.ico" sizes="48x48" />
 		<link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
@@ -45,6 +46,14 @@
 					style.id = 'theme-color';
 					style.textContent = css;
 					document.head.append(style);
+				}
+
+				// The web build adds the default frame colors. A saved palette takes precedence in either mode.
+				const chromeColor = document.head.querySelector('meta[name="theme-color"]');
+				if (chromeColor) {
+					const frame =
+						css && getComputedStyle(document.documentElement).getPropertyValue('--studio-color-background-body');
+					chromeColor.content = frame?.trim() || (dark ? chromeColor.dataset.dark : chromeColor.content);
 				}
 			}
 		</script>

@@ -6,7 +6,7 @@ import * as z from 'zod';
 import { teamDefaultsStore } from '@/cloud/session';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { defaultThemePreset, type ThemePreset, themePresets, themes, visualizationPalettes } from '@/theme/choices';
-import { applyThemeColor, defaultCustomColor, themeColors } from '@/theme/theme-color';
+import { applyThemeColor, defaultCustomColor, themeColors, themeColorVariable } from '@/theme/theme-color';
 
 const hexColorSchema = z.string().regex(/^#[\da-f]{6}$/iu);
 
@@ -96,11 +96,11 @@ export function useRobotTarget(): string {
 export const colorModeStore = createAtom<'light' | 'dark'>('light');
 
 /**
- * Keep the `dark` class on the root element in sync with the theme setting and the OS color scheme, the colors in sync
- * with the color settings, and the `reduce-motion` and `reduce-transparency` classes in sync with their settings
+ * Sync the root classes, palette, and browser chrome or native backdrop with the appearance settings and OS color scheme
  */
 export function syncTheme(): void {
 	const darkQuery = matchMedia('(prefers-color-scheme: dark)');
+	const chromeColor = STUDIO_DESKTOP ? null : document.head.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
 	let appliedTheme: Settings['theme'] | undefined;
 	let appliedBackdrop: string | undefined;
 	let appliedPresetInputs: string | undefined;
@@ -121,8 +121,10 @@ export function syncTheme(): void {
 		const themePreset = chosenThemePreset ?? defaultThemePreset;
 		const presetInputs = { themeColor, teamColors: frcColors?.colors ?? null };
 		const dark = theme === 'dark' || (theme === 'system' && darkQuery.matches);
+		const mode = dark ? 'dark' : 'light';
+		const modeChanged = colorModeStore.get() !== mode;
 		document.documentElement.classList.toggle('dark', dark);
-		colorModeStore.set(dark ? 'dark' : 'light');
+		colorModeStore.set(mode);
 		// The window's native backdrop follows the window's appearance, not the page's
 		if (STUDIO_DESKTOP && theme !== appliedTheme) {
 			void getCurrentWindow().setTheme(theme === 'system' ? null : theme);
@@ -131,17 +133,22 @@ export function syncTheme(): void {
 		document.documentElement.classList.toggle('reduce-motion', reduceMotion);
 		document.documentElement.classList.toggle('reduce-transparency', reduceTransparency);
 		// Other settings changes, ex. typing a robot target, don't need the colors regenerated
-		if (
+		const colorsChanged =
 			JSON.stringify(presetInputs) !== appliedPresetInputs ||
 			themePreset !== appliedThemePreset ||
 			highContrast !== appliedHighContrast ||
-			visualizationPalette !== appliedVisualizationPalette
-		) {
+			visualizationPalette !== appliedVisualizationPalette;
+		if (colorsChanged) {
 			applyThemeColor(presetInputs, themePreset, highContrast, visualizationPalette);
 			appliedPresetInputs = JSON.stringify(presetInputs);
 			appliedThemePreset = themePreset;
 			appliedHighContrast = highContrast;
 			appliedVisualizationPalette = visualizationPalette;
+		}
+		if (chromeColor && (modeChanged || colorsChanged)) {
+			chromeColor.content = getComputedStyle(document.documentElement)
+				.getPropertyValue(themeColorVariable('--color-background-body'))
+				.trim();
 		}
 		if (hasNativeBackdrop) {
 			const { tokens } = themeColors(presetInputs, dark, highContrast, themePreset);
