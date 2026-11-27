@@ -3,6 +3,7 @@ import * as stylex from '@stylexjs/stylex';
 import { useEffect, useEffectEvent, useId, useLayoutEffect, useRef, useState } from 'react';
 import { allowedActions, splitDashboardPane } from '@/dashboards/panes';
 import { focusPane } from '@/dashboards/pane-state';
+import { useSource } from '@/data/source-store';
 import { useOnScreenKeyboard } from '@/hooks/use-on-screen-keyboard';
 import { duration, reducesMotion } from '@/lib/motion';
 import { type PaneNode, panes } from '@/panes/layout';
@@ -94,6 +95,8 @@ export function PhonePanes({
 	const root = useRef<HTMLDivElement>(null);
 	const viewport = useRef<HTMLDivElement>(null);
 	const keyboard = useOnScreenKeyboard();
+	// The timeline bar shows below the dashboard while it has a source
+	const timeline = useSource() !== undefined;
 	const idPrefix = useId();
 	const [swiping, setSwiping] = useState(false);
 	// The pane the minimap last showed up for, `undefined` once it's faded out
@@ -213,6 +216,7 @@ export function PhonePanes({
 					onSelect={(paneId) => focusPane(dashboardId, paneId)}
 					onScrub={onScrub}
 					onAdd={shown && direction ? () => splitDashboardPane(dashboardId, shown.id, direction) : undefined}
+					atBottom={!timeline}
 				/>
 			)}
 		</div>

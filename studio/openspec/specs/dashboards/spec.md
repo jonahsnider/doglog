@@ -828,6 +828,11 @@ Swiping sideways on the shown pane's header SHALL switch to the pane beside it, 
 
 In the phone layout, a dashboard SHALL show a pane bar centered above the timeline bar, with its panes' widget icons in order and an Add pane button. The shown pane's icon MUST be highlighted, following swipes. The bar MUST NOT cover widgets. Tapping an icon MUST slide to its pane, and long-pressing one MUST do nothing. Icons that don't fit MUST fade at the bar's edges and scroll. The bar MUST show for a single pane, and hide while the on-screen keyboard is open.
 
+#### Scenario: No source open
+
+- **GIVEN** a dashboard in the phone layout with no source, so no timeline bar
+- **THEN** the pane bar sits above the home indicator, clear of its system gestures
+
 #### Scenario: Type in a pane
 
 - **GIVEN** a notepad pane in the phone layout

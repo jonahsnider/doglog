@@ -26,6 +26,10 @@ const styles = stylex.create({
 		gap: spacingVars['--spacing-2'],
 		paddingTop: spacingVars['--spacing-1-5'],
 	},
+	// Without the timeline bar below to fill it, the bar stays above the home indicator and its gestures
+	bottom: {
+		paddingBottom: `max(${spacingVars['--spacing-1-5']}, env(safe-area-inset-bottom))`,
+	},
 	pill: {
 		display: 'flex',
 		minWidth: 0,
@@ -89,6 +93,7 @@ export function PaneBar({
 	onSelect,
 	onScrub,
 	onAdd,
+	atBottom,
 }: {
 	idPrefix: string;
 	order: Pane[];
@@ -98,6 +103,8 @@ export function PaneBar({
 	onScrub: (position: number, ended: boolean) => void;
 	/** `undefined` when the shown pane can't be split */
 	onAdd: (() => void) | undefined;
+	/** Whether the bar is at the bottom of the screen, rather than above the timeline bar */
+	atBottom: boolean;
 }) {
 	// Where the press that may become a scrub started, and whether it has
 	const press = useRef<{ x: number; scrubbing: boolean }>(undefined);
@@ -110,7 +117,7 @@ export function PaneBar({
 		}
 	};
 	return (
-		<div {...stylex.props(styles.bar)}>
+		<div {...stylex.props(styles.bar, atBottom && styles.bottom)}>
 			<div data-pane-bar {...stylex.props(styles.pill)}>
 				<TabList
 					role="tablist"
