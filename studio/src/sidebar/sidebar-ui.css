@@ -15,6 +15,20 @@
 	& > span:last-child {
 		overflow: hidden;
 		text-overflow: ellipsis;
+
+		/* Fades out labels that don't fit instead, like a browser's tabs. The scroll timeline is only active while it overflows. */
+		@supports (animation-timeline: scroll()) {
+			text-overflow: clip;
+			animation: label-overflow-fade linear both;
+			animation-timeline: scroll(self inline);
+		}
+	}
+}
+
+@keyframes label-overflow-fade {
+	from,
+	to {
+		mask-image: linear-gradient(to left, transparent, black var(--spacing-8));
 	}
 }
 
@@ -75,11 +89,24 @@
 }
 
 /*
- * Leaves room for the action at the end of the row, or `--menu-action-space` for rows with more than one. `:where` keeps
- * it below the rail's square, which hides the action.
+ * Leaves room for the action at the end of the row, or `--menu-action-space` for rows with more than one. On devices with
+ * hover, the label uses that room until the action or a badge shows, like a browser's tabs. `:where` keeps it below the
+ * rail's square, which hides the action.
  */
-:where([data-sidebar='menu-item']:has([data-sidebar='menu-action'])) [data-sidebar='menu-button'] {
+:where(
+		[data-sidebar='menu-item']:has([data-sidebar='menu-action']):is(
+				:hover,
+				:focus-within,
+				:has([data-sidebar='menu-action'] [aria-expanded='true'], [data-sidebar='menu-badge']:not(:empty))
+			)
+	)
+	[data-sidebar='menu-button'] {
 	padding-inline-end: var(--menu-action-space, var(--spacing-8));
+}
+@media not (hover: hover) {
+	:where([data-sidebar='menu-item']:has([data-sidebar='menu-action'])) [data-sidebar='menu-button'] {
+		padding-inline-end: var(--menu-action-space, var(--spacing-8));
+	}
 }
 
 [data-collapsible='icon'] :is([data-sidebar='menu-badge'], [data-sidebar='menu-action']) {

@@ -18,6 +18,17 @@ The app SHALL show a vertical sidebar on the left containing, from top to bottom
 - **AND** the pages section below the source list
 - **AND** the Dashboards section, labeled "Dashboards", below the pages section
 
+### Requirement: Sidebar row labels
+
+A sidebar row's label that doesn't fit SHALL fade out at its end. On devices with hover, a row whose `…` button is hidden MUST let its label use that button's space until the row is hovered or focused, its menu is open, or it shows a badge like a shortcut.
+
+#### Scenario: Long dashboard name
+
+- **GIVEN** a dashboard's name is wider than its row
+- **WHEN** the pointer is elsewhere
+- **THEN** the name runs to the end of the row and fades out there
+- **AND** hovering the row fades it out before the `…` button instead
+
 ### Requirement: Sidebar footer actions
 
 The sidebar footer SHALL offer Command palette, Keyboard shortcuts, Download app, and Check for updates when the sidebar is expanded or peeking. These actions MUST NOT appear in the collapsed rail. In the phone layout, the footer MUST NOT offer Keyboard shortcuts or Download app. When an update is ready, Check for updates MUST become the install action in the same row without moving the other actions or losing focus. The install action MUST remain available in the rail.
