@@ -129,14 +129,18 @@ export function useGraphDrawing(
 			const hover = getHoverTime();
 			const cursorX = placeLine(elements.cursorLine.current!, cursor, view, width);
 			const hoverX = placeLine(elements.hoverLine.current!, hover, view, width);
-			if (cursorX === undefined || hoverX === undefined || cursorX === hoverX) {
+			if (cursor === undefined || hoverX === undefined || cursorX === hoverX) {
 				ruler.hidden = true;
 			} else {
-				const center = (cursorX + hoverX) / 2;
-				const delta = hover! - cursor!;
+				// A cursor out of view leaves the bracket open at the edge it's past
+				const startX = cursorX ?? (cursor < view.start ? 0 : width);
+				const center = (startX + hoverX) / 2;
+				const delta = hover! - cursor;
 				ruler.hidden = false;
-				ruler.style.left = `${Math.min(cursorX, hoverX)}px`;
-				ruler.style.width = `${Math.abs(hoverX - cursorX)}px`;
+				ruler.style.left = `${Math.min(startX, hoverX)}px`;
+				ruler.style.width = `${Math.abs(hoverX - startX)}px`;
+				ruler.style.setProperty('--delta-left-stroke', cursorX === undefined && startX === 0 ? '0px' : '2px');
+				ruler.style.setProperty('--delta-right-stroke', cursorX === undefined && startX === width ? '0px' : '2px');
 				// Keep a gap from the y-axis at either edge, even when the interval is narrower than its label.
 				const inset = 4;
 				ruler.style.setProperty(
