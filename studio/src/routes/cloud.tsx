@@ -1,12 +1,15 @@
 import { Banner } from '@astryxdesign/core/Banner';
 import { Button } from '@astryxdesign/core/Button';
+import { Center } from '@astryxdesign/core/Center';
 import { Divider } from '@astryxdesign/core/Divider';
 import { FormLayout } from '@astryxdesign/core/FormLayout';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { ListItem } from '@astryxdesign/core/List';
-import { Text } from '@astryxdesign/core/Text';
+import { Spinner } from '@astryxdesign/core/Spinner';
+import { Heading, Text } from '@astryxdesign/core/Text';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useAuthActions } from '@convex-dev/auth/react';
+import * as stylex from '@stylexjs/stylex';
 import { createFileRoute } from '@tanstack/react-router';
 import { useConvexAuth, useMutation, useQuery } from 'convex/react';
 import { ConvexError } from 'convex/values';
@@ -26,6 +29,10 @@ import { SettingsGroup } from '@/components/settings-group';
 import { UtilityPage, UtilityPageSection } from '@/components/utility-page';
 import { api } from '../../../cloud/convex/_generated/api.js';
 
+const styles = stylex.create({
+	scroll: { height: '100%', overflowY: 'auto' },
+});
+
 export const Route = createFileRoute('/cloud')({
 	validateSearch: (search: Record<string, unknown>): { invite?: string } => ({
 		invite: typeof search['invite'] === 'string' ? search['invite'] : undefined,
@@ -34,28 +41,38 @@ export const Route = createFileRoute('/cloud')({
 });
 
 function CloudPage() {
-	return (
-		<UtilityPage title="Cloud">
-			<CloudAccount />
-		</UtilityPage>
-	);
-}
-
-function CloudAccount() {
 	const { isLoading, isAuthenticated } = useConvexAuth();
-	if (!isLoading && isAuthenticated) {
-		return <SignedIn />;
+	if (isLoading) {
+		return (
+			<Center height="100%" role="status">
+				<Spinner size="lg" label="Checking Cloud sign-in…" />
+			</Center>
+		);
+	}
+	if (!isAuthenticated) {
+		return (
+			<div {...stylex.props(styles.scroll)}>
+				<Center minHeight="100%" padding={6}>
+					<VStack gap={8} width="100%" maxWidth={360}>
+						<VStack gap={3} hAlign="center">
+							<img src="/logo.svg" alt="" width={56} height={56} />
+							<VStack gap={1} hAlign="center">
+								<Heading level={1}>Sign in to DogLog Cloud</Heading>
+								<Text color="secondary" justify="center">
+									Share dashboards with your team
+								</Text>
+							</VStack>
+						</VStack>
+						<CloudSignIn />
+					</VStack>
+				</Center>
+			</div>
+		);
 	}
 	return (
-		<UtilityPageSection title="Sign in" description="Share dashboards with your team through DogLog Cloud">
-			{isLoading ? (
-				<Text role="status" color="secondary">
-					Checking Cloud sign-in…
-				</Text>
-			) : (
-				<CloudSignIn />
-			)}
-		</UtilityPageSection>
+		<UtilityPage title="Cloud">
+			<SignedIn />
+		</UtilityPage>
 	);
 }
 

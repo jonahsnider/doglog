@@ -125,17 +125,37 @@ function PasskeySignIn() {
 							isDisabled={pending}
 							isRequired
 						/>
-						<HStack wrap="wrap" gap={2}>
-							<Button type="submit" label="Create account with a passkey" variant="primary" isLoading={pending} />
-							<Button label="Back" isDisabled={pending} onClick={() => showSignUp(false)} />
-						</HStack>
+						<VStack gap={2}>
+							<Button
+								type="submit"
+								label="Create account with a passkey"
+								variant="primary"
+								size="lg"
+								width="100%"
+								isLoading={pending}
+							/>
+							<Button label="Back" size="lg" width="100%" isDisabled={pending} onClick={() => showSignUp(false)} />
+						</VStack>
 					</FormLayout>
 				</form>
 			) : (
-				<HStack wrap="wrap" gap={2}>
-					<Button label="Sign in with a passkey" variant="primary" isLoading={pending} onClick={() => void run()} />
-					<Button label="Create an account" isDisabled={pending} onClick={() => showSignUp(true)} />
-				</HStack>
+				<VStack gap={2}>
+					<Button
+						label="Sign in with a passkey"
+						variant="primary"
+						size="lg"
+						width="100%"
+						isLoading={pending}
+						onClick={() => void run()}
+					/>
+					<Button
+						label="Create an account"
+						size="lg"
+						width="100%"
+						isDisabled={pending}
+						onClick={() => showSignUp(true)}
+					/>
+				</VStack>
 			)}
 			{error !== undefined && <Banner status="error" role="alert" title={error} />}
 		</VStack>
@@ -161,22 +181,24 @@ function OAuthSignIn() {
 	const shown = error ?? (flowError === null ? undefined : oauthErrorMessage(flowError));
 	return (
 		<VStack gap={2}>
-			<HStack wrap="wrap" gap={2}>
-				<Button
-					label="Continue with Apple"
-					icon={<AppleLight aria-hidden="true" {...stylex.props(styles.apple)} />}
-					isLoading={pending === 'Apple'}
-					isDisabled={pending === 'Google'}
-					onClick={() => void start('Apple')}
-				/>
-				<Button
-					label="Continue with Google"
-					icon={<Google aria-hidden="true" />}
-					isLoading={pending === 'Google'}
-					isDisabled={pending === 'Apple'}
-					onClick={() => void start('Google')}
-				/>
-			</HStack>
+			<Button
+				label="Continue with Apple"
+				icon={<AppleLight aria-hidden="true" {...stylex.props(styles.apple)} />}
+				size="lg"
+				width="100%"
+				isLoading={pending === 'Apple'}
+				isDisabled={pending === 'Google'}
+				onClick={() => void start('Apple')}
+			/>
+			<Button
+				label="Continue with Google"
+				icon={<Google aria-hidden="true" />}
+				size="lg"
+				width="100%"
+				isLoading={pending === 'Google'}
+				isDisabled={pending === 'Apple'}
+				onClick={() => void start('Google')}
+			/>
 			{shown !== undefined && <Banner status="error" role="alert" title={shown} />}
 		</VStack>
 	);

@@ -79,6 +79,11 @@ An account MUST belong to at most one team. When Cloud is available, Studio SHAL
 - **AND** the Collaboration section contains display name and invite links for admins
 - **AND** the Account section contains encryption, sign-in methods, sign-out, and account deletion controls
 
+#### Scenario: Open the Cloud page while signed out
+
+- **WHEN** a signed-out user opens the Cloud page
+- **THEN** Studio shows only a sign-in page with each way to sign in or create an account
+
 #### Scenario: Start a team
 
 - **GIVEN** the signed-in user does not belong to a team and has no valid pending join
