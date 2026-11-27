@@ -253,7 +253,7 @@ Members SHALL be able to pair a new Studio with an already-unlocked Studio signe
 #### Scenario: Pair Studio on a new device
 
 - **GIVEN** a team member can open Cloud dashboards on one device
-- **WHEN** they start pairing on another device signed in to the same account, compare the two codes, and confirm the match on the unlocked device
+- **WHEN** they open Cloud on another device signed in to the same account, compare the two codes, and confirm the match on the unlocked device
 - **THEN** they can open the team's dashboards on the new device without admin approval
 
 #### Scenario: Cancel a pairing attempt
@@ -261,6 +261,22 @@ Members SHALL be able to pair a new Studio with an already-unlocked Studio signe
 - **GIVEN** both devices show a verification code for a pairing attempt
 - **WHEN** the codes differ and the member cancels, or the attempt expires before they confirm
 - **THEN** Studio does not transfer the credential and the member must start a new attempt to pair
+
+### Requirement: Request pairing automatically
+
+A device without the encryption credential SHALL request pairing while its Cloud page is open, without the member starting it. It SHALL request again when an unanswered attempt expires, and MUST NOT replace a newer attempt from another window or device.
+
+#### Scenario: Pairing request expires
+
+- **GIVEN** a device without the credential has Cloud open
+- **WHEN** its pairing attempt expires before another device answers
+- **THEN** Studio requests pairing again without the member doing anything
+
+#### Scenario: Another window requests pairing
+
+- **GIVEN** a device without the credential is requesting pairing
+- **WHEN** another window or device signed in to the same account starts its own request
+- **THEN** the first request stops and Studio offers to request again instead of replacing the newer one
 
 ### Requirement: Grant dashboard access to an account
 

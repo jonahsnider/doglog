@@ -33,7 +33,7 @@ const keyStatus = {
 		endContent: <Badge icon={<CheckIcon aria-hidden="true" size={12} />} label="Available" />,
 	},
 	missing: {
-		description: 'Approve this sign-in from a device you’re already signed in on.',
+		description: 'This device doesn’t have it yet.',
 		endContent: <Badge variant="warning" icon={<ClockIcon aria-hidden="true" size={12} />} label="Needs approval" />,
 	},
 	error: {

@@ -3,13 +3,14 @@ import { Button } from '@astryxdesign/core/Button';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { Text } from '@astryxdesign/core/Text';
 import { type ConvexReactClient, useConvex, useQuery } from 'convex/react';
-import { type RefObject, useEffect, useRef, useState } from 'react';
+import { type RefObject, useEffect, useEffectEvent, useRef, useState } from 'react';
 import { api } from '../../../cloud/convex/_generated/api.js';
 import type { Id } from '../../../cloud/convex/_generated/dataModel';
 import {
 	cancelPairing,
 	errorMessage,
 	type PairingAccount,
+	PairingEndedError,
 	type PairingRequest,
 	pairNewDevice,
 	startApproval,
@@ -25,35 +26,53 @@ function PairingCode({ code }: { code: string }) {
 
 type PairState =
 	| { step: 'idle' }
+	| { step: 'replaced' }
 	| { step: 'waiting' }
 	| { step: 'code'; code: string }
 	| { step: 'error'; message: string };
 
+/** Asks for approval as soon as it's shown, and stops when it's hidden or cancelled */
 export function PairThisDevice({ account, onPaired }: { account: PairingAccount; onPaired: () => void }) {
 	const client = useConvex();
-	const [state, setState] = useState<PairState>({ step: 'idle' });
+	const [state, setState] = useState<PairState>({ step: 'waiting' });
 	const controller = useRef<AbortController>(null);
-	useEffect(() => () => controller.current?.abort(), []);
 
-	async function pair() {
+	function pair() {
 		const current = new AbortController();
 		controller.current = current;
-		setState({ step: 'waiting' });
-		try {
-			await pairNewDevice(client, account, current.signal, (code) => setState({ step: 'code', code }));
-			onPaired();
-		} catch (error) {
-			if (!current.signal.aborted) {
-				setState({ step: 'error', message: errorMessage(error, 'Couldn’t get approval. Try again.') });
-			}
-		}
+		pairNewDevice(client, account, current.signal, (code) => setState({ step: 'code', code })).then(
+			onPaired,
+			(error: unknown) => {
+				if (current.signal.aborted) {
+					return;
+				}
+				setState(
+					error instanceof PairingEndedError && error.replaced
+						? { step: 'replaced' }
+						: { step: 'error', message: errorMessage(error, 'Couldn’t get approval. Try again.') },
+				);
+			},
+		);
 	}
+	const pairOnMount = useEffectEvent(pair);
+	useEffect(() => {
+		pairOnMount();
+		return () => controller.current?.abort();
+	}, []);
 
-	if (state.step === 'idle' || state.step === 'error') {
+	if (state.step === 'idle' || state.step === 'replaced' || state.step === 'error') {
 		return (
 			<VStack gap={2} hAlign="start">
+				{state.step === 'replaced' && <Text role="status">Another window or device asked for approval instead.</Text>}
 				{state.step === 'error' && <Banner status="error" role="alert" title={state.message} />}
-				<Button label="Request approval" size="sm" onClick={() => void pair()} />
+				<Button
+					label="Request approval"
+					size="sm"
+					onClick={() => {
+						setState({ step: 'waiting' });
+						pair();
+					}}
+				/>
 			</VStack>
 		);
 	}
