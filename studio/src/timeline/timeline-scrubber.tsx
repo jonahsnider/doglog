@@ -147,8 +147,9 @@ export function Scrubber({
 	);
 
 	const shifts = useMemo(() => (showShifts ? getActiveShifts(periods, year) : []), [showShifts, periods, year]);
-	// The track moves away from the alerts above it and the shifts below it, the shifts only make room in matches
-	const trackOffset = showAlerts === shifts.length > 0 ? undefined : showAlerts ? styles.lowered : styles.raised;
+	// The track moves away from the alerts above it and the shifts below it, only making room for ones that are shown
+	const hasAlerts = alerts.length > 0;
+	const trackOffset = hasAlerts === shifts.length > 0 ? undefined : hasAlerts ? styles.lowered : styles.raised;
 
 	const hoverAt = (event: PointerEvent): Hover => {
 		const rect = track.current!.getBoundingClientRect();

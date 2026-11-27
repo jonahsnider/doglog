@@ -96,6 +96,11 @@ The timeline bar SHALL show when WPILib error and warning alerts were active, fr
 - **GIVEN** a warning alert that turns on and off every second for a minute
 - **THEN** it's shown as one bar spanning that minute
 
+#### Scenario: No alerts
+
+- **GIVEN** a practice log where no error or warning alerts were active
+- **THEN** the track stays in the vertical center of the timeline bar instead of moving down to make room for alerts
+
 ### Requirement: Active hub shifts on the timeline
 
 For 2026 matches, the timeline bar SHALL show when the robot's alliance hub was active in teleop as bars below the track in REBUILT's fuel color (#FACB43, outlined in light mode), one per shift with a gap between each: the 10 second transition shift, the robot's two 25 second alliance shifts, and the 30 second end game. Inactive shifts MUST NOT be shown. Shifts SHALL start with teleop and end where it does. The track SHALL move up to make room only when shifts are shown.
