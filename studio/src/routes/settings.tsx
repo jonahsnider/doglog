@@ -54,13 +54,13 @@ function Settings() {
 			actions={<Button label="About DogLog Studio" onClick={() => aboutDialogOpen.set(true)} />}
 		>
 			<VStack gap={8}>
-				<UtilityPageSection title="Appearance" description="How Studio looks">
+				<UtilityPageSection title="Appearance">
 					<AppearanceSettings />
 				</UtilityPageSection>
 
 				<Divider />
 
-				<UtilityPageSection title="Accessibility" description="Make Studio easier to see and use">
+				<UtilityPageSection title="Accessibility">
 					<Switch
 						label="High contrast"
 						description="Stronger text and borders, always on when your system increases contrast"
@@ -133,7 +133,7 @@ function Settings() {
 
 				<Divider />
 
-				<UtilityPageSection title="System" description="How Studio works with your computer">
+				<UtilityPageSection title="System">
 					<Switch
 						label="Media controls"
 						description="Play, pause, and seek logs with media keys and the system media controls"
