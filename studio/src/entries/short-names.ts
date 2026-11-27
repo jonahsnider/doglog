@@ -21,7 +21,7 @@ export function distinctSegments(name: string, names: readonly string[]): number
 }
 
 /** Where the last `count` segments of `name` start, at their slash */
-export function lastSegmentsStart(name: string, count: number): number {
+function lastSegmentsStart(name: string, count: number): number {
 	let start = name.length;
 	for (let index = 0; index < count && start > 0; index++) {
 		start = name.lastIndexOf('/', start - 1);
@@ -56,4 +56,23 @@ export function ambiguousSegments(name: string, names: readonly string[]): Set<n
 		start += segment.length + 1;
 	});
 	return starts;
+}
+
+/**
+ * Prefixes shortened to their slashes and capital letters, like fish shortens paths, ex. `/Robot/Arm/Angle` is shown
+ * as `/R/Arm/Angle` and `/AdvantageKit/RealOutputs/Arm/Angle` as `/AK/RO/Arm/Angle`. Longer prefixes come first.
+ */
+const shortenedPrefixes = [
+	'/AdvantageKit/RealOutputs',
+	'/AdvantageKit/DriverStation',
+	'/AdvantageKit',
+	'/RealOutputs',
+	'/Robot',
+];
+
+/** The name's shortened common prefix, and the segments after it that `distinctFrom` shortens, see `EntryName` */
+export function shortenableSegments(name: string, distinctFrom: readonly string[] | undefined) {
+	const common = shortenedPrefixes.find((candidate) => name.startsWith(`${candidate}/`)) ?? '';
+	const end = distinctFrom ? lastSegmentsStart(name, distinctSegments(name, distinctFrom)) : 0;
+	return { common, segments: name.slice(common.length, end).match(/\/?[^/]+/gu) ?? [] };
 }

@@ -63,7 +63,6 @@ export function GraphLegend({
 		binding,
 		color: bindingColor(binding, index),
 		dimmed: binding.entry === undefined,
-		distinctFrom: names,
 		right: graphSection(binding.role) === 'right',
 	}));
 	const left = items.filter((item) => !item.right);
@@ -72,8 +71,12 @@ export function GraphLegend({
 		// Each side takes up to half the width and wraps within it, or more when the other side is shorter. Long legends
 		// scroll, so the plot keeps most of the widget.
 		<div {...stylex.props(styles.legends)} {...highlight}>
-			{left.length > 0 && <Legend items={left} dropRole="left" roles={false} xstyle={styles.side} />}
-			{right.length > 0 && <Legend items={right} dropRole="right" roles={false} xstyle={rightSide} />}
+			{left.length > 0 && (
+				<Legend items={left} dropRole="left" roles={false} distinctFrom={names} xstyle={styles.side} />
+			)}
+			{right.length > 0 && (
+				<Legend items={right} dropRole="right" roles={false} distinctFrom={names} xstyle={rightSide} />
+			)}
 		</div>
 	);
 }

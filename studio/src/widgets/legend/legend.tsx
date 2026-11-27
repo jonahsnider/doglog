@@ -70,8 +70,6 @@ export type LegendItem = {
 	/** Has no value at the cursor */
 	dimmed: boolean;
 	error?: string;
-	/** Names to tell the item's name apart from, shortening the rest of it when it doesn't fit, see `EntryName` */
-	distinctFrom?: readonly string[];
 };
 
 type LegendProps = {
@@ -81,6 +79,11 @@ type LegendProps = {
 	dropRole?: string;
 	/** Shows each item's role, which can be picked there. Roles can also be picked from the item's context menu. */
 	roles?: boolean;
+	/**
+	 * Names to tell each item's name apart from, shortening the rest of it when it doesn't fit, see `EntryName`. Defaults
+	 * to the items' names, pass them all when a widget splits its entries between legends.
+	 */
+	distinctFrom?: readonly string[];
 	/** Merged with the list's styles, ex. to size it in a row of legends. Keep it the same object between renders. */
 	xstyle?: stylex.StyleXStyles;
 };
@@ -97,13 +100,15 @@ export const Legend = memo(
 		previous.dropRole === next.dropRole &&
 		previous.roles === next.roles &&
 		previous.xstyle === next.xstyle &&
+		shallow(previous.distinctFrom, next.distinctFrom) &&
 		(previous.items === next.items ||
 			(previous.items.length === next.items.length &&
 				previous.items.every((item, index) => shallow(item, next.items[index])))),
 );
 
-function LegendList({ items, vertical = false, dropRole, roles = true, xstyle }: LegendProps) {
+function LegendList({ items, vertical = false, dropRole, roles = true, distinctFrom, xstyle }: LegendProps) {
 	const widget = use(WidgetBindingsContext);
+	const names = distinctFrom ?? items.map((item) => item.binding.name);
 	const list = useRef<HTMLUListElement>(null);
 	const gutter = useRef<HTMLDivElement>(null);
 	const [hovered, setHovered] = useState<Connection>();
@@ -157,6 +162,7 @@ function LegendList({ items, vertical = false, dropRole, roles = true, xstyle }:
 					vertical={vertical}
 					dropRole={dropRole}
 					roles={roles}
+					distinctFrom={names}
 					followable={followable}
 					handle={
 						connectable && item.binding.connects !== undefined ? (

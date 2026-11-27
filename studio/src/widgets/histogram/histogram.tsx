@@ -238,11 +238,11 @@ export function Histogram({ bindings }: WidgetProps) {
 														binding,
 														color: bindingColor(binding, index),
 														dimmed: binding.entry === undefined,
-														distinctFrom: names,
 														note: units.get(binding.id)?.label,
 													},
 												]}
 												roles={false}
+												distinctFrom={names}
 											/>
 										</td>
 										{binding.entry === undefined ? (

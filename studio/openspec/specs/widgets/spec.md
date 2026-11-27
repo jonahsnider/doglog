@@ -365,9 +365,9 @@ Widgets SHALL shorten the `/Robot`, `/RealOutputs`, `/AdvantageKit`, `/Advantage
 
 ### Requirement: Long names in legends
 
-When a legend has no room for an entry's full name, it SHALL also shorten the first segment after any shortened prefix the same way, unless that segment is the last one, and MUST NOT dim its letters. Hovering a shortened segment MUST only show that segment in full. Names that still don't fit MUST be cut off, and MUST scroll to show the rest while hovered. The name SHALL go back to its full form once there's room for it.
+When a legend has no room for an entry's full name, it SHALL shorten the segments before the fewest last segments that tell it apart from the widget's other entries, one at a time from the first and only as many as it needs to fit, the same way as shortened prefixes, without dimming their letters. A segment that would shorten the same as another entry's segment under the same parent MUST stay in full. Hovering a shortened segment MUST only show that segment in full. Names that still don't fit MUST be cut off, and MUST scroll to show the rest while hovered. The name SHALL go back to its full form once there's room for it. A row's name SHALL give up its room before the row's notes and robot picker, but only down to its shortest form or half the row, after which they MUST be cut off along with it, and notes MUST also scroll to show the rest while hovered.
 
-#### Scenario: Collapsed segment
+#### Scenario: Shortened segment
 
 - **GIVEN** a narrow field legend bound to `/Robot/Localization/EstimatedPose`
 - **THEN** the legend shows `/R/L/EstimatedPose` with `/R` and the slashes dimmed, but not `L`
@@ -376,6 +376,23 @@ When a legend has no room for an entry's full name, it SHALL also shorten the fi
 
 - **GIVEN** a narrow legend bound to `/Robot/front-left/EstimatedPose`
 - **THEN** the legend keeps each hyphen and the first letter after it, showing `/R/f-l/EstimatedPose`
+
+#### Scenario: Names that differ near the end
+
+- **GIVEN** a narrow field legend bound to `/Robot/Drive/Modules/FrontLeft/State` and `/Robot/Drive/Modules/FrontRight/State`
+- **THEN** the legend shows `/R/D/M/FrontLeft/State` and `/R/D/M/FrontRight/State`
+
+#### Scenario: Only as short as needed
+
+- **GIVEN** a legend a little too narrow for `/Robot/Drive/Modules/FrontLeft/State` beside `/Robot/Drive/Modules/FrontRight/State`
+- **THEN** the legend shows `/R/D/Modules/FrontLeft/State`
+
+#### Scenario: Name beside a note
+
+- **GIVEN** a 3D field legend a little too narrow for `/Robot/Arm/Mechanism` and its note "Connect to a robot"
+- **THEN** the legend shortens the name and shows the note in full
+- **WHEN** the legend is much narrower
+- **THEN** the legend shows the start of the name and the start of the note, each cut off
 
 #### Scenario: Scroll the rest of the name
 

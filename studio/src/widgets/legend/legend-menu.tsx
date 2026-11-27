@@ -31,8 +31,9 @@ const styles = stylex.create({
 	active: {
 		color: colorVars['--color-text-primary'],
 	},
-	// Shrinks once the row's name, which shrinks much faster, has given up its room
-	shrinkable: { flexShrink: 0.01 },
+	// Shrinks once the row's name is as short as it gets, see `LegendName`
+	// Barely shrinks before then, since even a fraction of a pixel cuts its text off
+	shrinkable: { flexShrink: 0.001 },
 });
 
 /**

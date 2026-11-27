@@ -149,7 +149,7 @@ A legend with many entries SHALL scroll instead of taking up more than about a t
 
 ### Requirement: Short legend names
 
-The legend SHALL show each entry's full name when there's room for it. When there isn't, it SHALL name the entry by the fewest last segments that tell it apart from the graph's other plotted entries, shortening the segments before them like long names in other legends. A segment that would shorten the same as another entry's segment under the same parent MUST stay in full. The legend MUST NOT show roles.
+The legend SHALL shorten names that don't fit like long names in other legends, telling each entry apart from every plotted entry, including those on the other axis. The legend MUST NOT show roles.
 
 #### Scenario: Room for full names
 

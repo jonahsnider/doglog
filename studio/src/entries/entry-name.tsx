@@ -2,7 +2,7 @@ import { colorVars, durationVars, easeVars } from '@astryxdesign/core/theme/toke
 import * as stylex from '@stylexjs/stylex';
 import { HighlightedText } from '@/components/highlighted-text';
 import { commonPrefixMarker, entryNameMarker, nameSegmentMarker } from './markers.stylex';
-import { ambiguousSegments, distinctSegments, hiddenNameLetters, lastSegmentsStart } from '@/entries/short-names';
+import { ambiguousSegments, hiddenNameLetters, shortenableSegments } from '@/entries/short-names';
 
 const styles = stylex.create({
 	dimmed: {
@@ -40,47 +40,29 @@ const styles = stylex.create({
 	},
 });
 
-/**
- * Prefixes shortened to their slashes and capital letters, like fish shortens paths, ex. `/Robot/Arm/Angle` is shown
- * as `/R/Arm/Angle` and `/AdvantageKit/RealOutputs/Arm/Angle` as `/AK/RO/Arm/Angle`. Longer prefixes come first.
- */
-const shortenedPrefixes = [
-	'/AdvantageKit/RealOutputs',
-	'/AdvantageKit/DriverStation',
-	'/AdvantageKit',
-	'/RealOutputs',
-	'/Robot',
-];
-
 type Ranges = readonly number[] | undefined;
 
 /**
  * An entry's name with dimmed slashes and common prefixes shortened. Hovering a shortened segment shows it in full, and
  * hovering the dimmed common prefix shows the whole name. `ranges` of the name are highlighted, ex. the parts matching a
- * search. `collapsed` also shortens the first segment after the common prefix when it isn't the last, ex.
- * `/Robot/Drive/Pose` is shown as `/R/D/Pose`. `distinctFrom` shortens every segment instead, but the last ones that
- * tell the name apart from those names and the ones that would shorten the same as theirs, ex. `/Robot/Drive/Pose` is
- * shown as `/R/D/Pose` beside `/Robot/Arm/Angle`, and `/R/Drive/Pose` beside `/Robot/Dashboard/Mode`.
+ * search. `distinctFrom` also shortens every segment but the last ones that tell the name apart from those names and
+ * the ones that would shorten the same as theirs, ex. `/Robot/Drive/Pose` is shown as `/R/D/Pose` beside
+ * `/Robot/Arm/Angle`, and `/R/Drive/Pose` beside `/Robot/Dashboard/Mode`. `shortenedSegments` only shortens that many
+ * of them, from the first.
  */
 export function EntryName({
 	name,
 	ranges,
-	collapsed = false,
 	distinctFrom,
+	shortenedSegments,
 }: {
 	name: string;
 	ranges?: Ranges;
-	collapsed?: boolean | undefined;
 	distinctFrom?: readonly string[] | undefined;
+	shortenedSegments?: number;
 }) {
-	const common = shortenedPrefixes.find((candidate) => name.startsWith(`${candidate}/`)) ?? '';
-	let shortened = common;
-	if (distinctFrom) {
-		shortened = name.slice(0, lastSegmentsStart(name, distinctSegments(name, distinctFrom)));
-	} else if (collapsed) {
-		shortened = common + (/^\/?[^/]+(?=\/)/u.exec(name.slice(common.length))?.[0] ?? '');
-	}
-	const prefix = shortened.length > common.length ? shortened : common;
+	const { common, segments } = shortenableSegments(name, distinctFrom);
+	const prefix = common + segments.slice(0, shortenedSegments).join('');
 	if (prefix === '') {
 		return <DimmedSlashes text={name} ranges={ranges} offset={0} />;
 	}
