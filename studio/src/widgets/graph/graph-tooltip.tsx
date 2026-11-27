@@ -12,7 +12,7 @@ import { formatValue } from '@/data/format-value';
 import { useCaptureFrame } from '@/desktop/capture';
 import { WidgetBindingsContext } from '@/entries/drag';
 import { EntryName } from '@/entries/entry-name';
-import { modeLabels } from '@/timeline/colors';
+import { modeFills, modeLabels } from '@/timeline/colors';
 import { getModePeriods } from '@/timeline/events';
 import { useHoverTime } from '@/timeline/hover';
 import { formatTime, useCursorTime } from '@/timeline/timeline';
@@ -28,9 +28,17 @@ import type { WidgetBinding } from '@/widgets/widget-type';
 
 const styles = stylex.create({
 	header: {
-		marginBottom: spacingVars['--spacing-1'],
+		display: 'flex',
+		alignItems: 'center',
+		gap: spacingVars['--spacing-3'],
+		marginBottom: spacingVars['--spacing-2'],
 		color: colorVars['--color-text-secondary'],
 		fontVariantNumeric: 'tabular-nums',
+	},
+	mode: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: spacingVars['--spacing-1-5'],
 	},
 	values: {
 		display: 'grid',
@@ -78,7 +86,7 @@ const styles = stylex.create({
 	},
 });
 
-/** The hovered time and the robot's mode then, ex. `0:12.34 · Teleop` */
+/** The hovered time and the robot's mode then, with the mode's color from the timeline */
 function TimeHeader({ time }: { time: number }) {
 	const range = useTimeRange();
 	if (!range) {
@@ -88,7 +96,17 @@ function TimeHeader({ time }: { time: number }) {
 	return (
 		<div {...stylex.props(styles.header)}>
 			{formatTime(time, range.origin)}
-			{period && ` · ${modeLabels[period.mode]}`}
+			{period && (
+				<span {...stylex.props(styles.mode)}>
+					<span
+						aria-hidden="true"
+						{...stylex.props(styles.dot)}
+						// Disabled is uncolored on the timeline, so it gets the same gray the timeline's tooltip uses
+						style={{ background: modeFills[period.mode] ?? 'var(--color-border-emphasized)' }}
+					/>
+					{modeLabels[period.mode]}
+				</span>
+			)}
 		</div>
 	);
 }
