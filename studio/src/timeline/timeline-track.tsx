@@ -25,6 +25,24 @@ const styles = stylex.create({
 	following: {
 		backgroundColor: colorVars['--color-error'],
 	},
+	// Both labels share one cell, so the button keeps the longer one's width and the track doesn't resize
+	liveLabel: {
+		display: 'grid',
+		justifyItems: 'center',
+	},
+	liveContent: {
+		gridArea: '1 / 1',
+		display: 'flex',
+		alignItems: 'center',
+		gap: spacingVars['--spacing-2'],
+	},
+	liveSizer: {
+		visibility: 'hidden',
+	},
+	// Following is a status rather than an unavailable action, so it isn't dimmed
+	liveStatus: {
+		opacity: 1,
+	},
 	track: {
 		display: 'flex',
 		alignItems: 'center',
@@ -95,12 +113,21 @@ export function TimelineTrack({
 				<Button
 					label={following ? 'Live' : 'Go live'}
 					variant={following ? 'ghost' : 'secondary'}
-					icon={<span {...stylex.props(styles.liveDot, following && styles.following)} />}
 					className="capture-hidden"
 					isDisabled={following}
+					xstyle={styles.liveStatus}
 					onClick={goLive}
 				>
-					<TextMorph>{following ? 'Live' : 'Go live'}</TextMorph>
+					<span {...stylex.props(styles.liveLabel)}>
+						<span aria-hidden {...stylex.props(styles.liveContent, styles.liveSizer)}>
+							<span {...stylex.props(styles.liveDot)} />
+							Go live
+						</span>
+						<span {...stylex.props(styles.liveContent)}>
+							<span {...stylex.props(styles.liveDot, following && styles.following)} />
+							<TextMorph>{following ? 'Live' : 'Go live'}</TextMorph>
+						</span>
+					</span>
 				</Button>
 			)}
 		</div>
