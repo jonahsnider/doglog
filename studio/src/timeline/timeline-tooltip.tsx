@@ -12,6 +12,7 @@ import type { TimeRange } from '@/data/data-store';
 import type { UnreadEnd } from '@/data/log-source';
 import type { AlertSpan, ModePeriod } from '@/timeline/events';
 import type { MatchShift } from '@/timeline/shifts';
+import './timeline-tooltip.css';
 
 const styles = stylex.create({
 	// The popup balances text, which wraps alerts into narrow lines, so they wrap normally.
@@ -89,7 +90,6 @@ const styles = stylex.create({
 
 const maxListedAlerts = 5;
 
-/** Secondary text that follows the tooltip's inverted surface, which the app's own muted color doesn't */
 function Muted({ block, children }: { block?: boolean; children: ReactNode }) {
 	return (
 		<Text type="inherit" color="secondary" display={block === true ? 'block' : 'inline'} xstyle={styles.numbers}>
@@ -182,8 +182,7 @@ export function HoverTooltip({
 			<SourceName />
 			{period && (
 				<TooltipItem
-					// A gray like the track's, which is `--color-border`. The tooltip's inverted surface changes that, but not the
-					// emphasized border.
+					// Disabled and disconnected spans are uncolored, so use the same gray as the graph readout.
 					color={('mode' in period ? modeFills[period.mode] : undefined) ?? 'var(--color-border-emphasized)'}
 					label={`${'mode' in period ? modeLabels[period.mode] : 'Disconnected'}${compressed ? ' (skipped)' : ''}`}
 					from={period.start}
@@ -263,9 +262,9 @@ export function ScrubberTooltip({ x, content }: { x: number | undefined; content
 		setShown({ x, content });
 	}
 	return (
-		<>
+		<div data-scrubber-tooltip>
 			<span ref={anchor} {...stylex.props(styles.anchor)} style={{ left: shown?.x ?? 0 }} />
 			<Tooltip anchorRef={anchor} isOpen={content !== undefined} content={content ?? shown?.content} />
-		</>
+		</div>
 	);
 }
