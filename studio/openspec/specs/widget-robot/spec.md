@@ -320,7 +320,7 @@ A robot project whose files aren't valid SHALL NOT be drawn, and the widget MUST
 
 ### Requirement: Robot config
 
-Each of a project's robots SHALL have a `name`, the glTF binary `model` of the robot's body, an optional `mount`, and an optional list of `parts`, each with its own `model` and `origin`. Model paths MUST be relative to the project's folder. `mount` MUST move every model from the CAD's coordinates into the robot's, and each part's `origin` MUST be the pose of its pivot in the robot's coordinates, where the CAD placed it.
+Each of a project's robots SHALL have a `name`, an optional glTF binary `model` of the robot's body, drawing the swerve drivebase without one, an optional `mount`, and an optional list of `parts`, each with its own `model` and `origin`. Model paths MUST be relative to the project's folder. `mount` MUST move every model from the CAD's coordinates into the robot's, and each part's `origin` MUST be the pose of its pivot in the robot's coordinates, where the CAD placed it.
 
 ```jsonc
 {
@@ -343,6 +343,27 @@ Each of a project's robots SHALL have a `name`, the glTF binary `model` of the r
 
 - **GIVEN** a robot with an arm part, and no `Pose3d[]` entry bound
 - **THEN** the arm is drawn where the CAD placed it
+
+### Requirement: Device names
+
+A robot config SHALL name the robot's CAN devices for HOOT logs in an optional `devices`, by CAN bus, then by model and ID as HOOT logs name them, with an ID from 0 to 62. A name MAY have `/` to group devices. Each of a robot's devices MUST have a different name, and a name MUST NOT be a group of another, ex. `Shooter` beside `Shooter/Left`.
+
+```jsonc
+"devices": {
+	"rio": { "TalonFX-11": "Shooter/Left", "TalonFX-12": "Shooter/Right", "CANcoder-11": "Shooter/Encoder" },
+	"drive": { "Pigeon2-0": "Gyro" },
+}
+```
+
+#### Scenario: Same name twice
+
+- **GIVEN** a robot that names `TalonFX-11` and `TalonFX-12` on `rio` both `Shooter`
+- **THEN** the robot project is invalid, and says `robots.0.devices` in `doglog.jsonc` names two devices `Shooter`
+
+#### Scenario: Robot without a model
+
+- **GIVEN** a robot with a `name` and `devices`, and no `model`
+- **THEN** the project can be added, and robot widgets draw the swerve drivebase for it
 
 ### Requirement: Compressed models
 

@@ -1,6 +1,7 @@
-import { colorVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { colorVars, typeScaleVars, typographyVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
 import * as stylex from '@stylexjs/stylex';
+import { useSelector } from '@tanstack/react-store';
 import BinaryIcon from 'lucide-react/icons/binary';
 import BoxIcon from 'lucide-react/icons/box';
 import BoxesIcon from 'lucide-react/icons/boxes';
@@ -18,6 +19,7 @@ import TypeIcon from 'lucide-react/icons/type';
 import type { LucideIcon } from 'lucide-react/types';
 import { TreeItemCheckbox } from '@ui-sdk/react/tree';
 import type { EntryKind } from '@/data/entry-kind';
+import { renamedDevicesStore } from '@/data/device-names';
 import { embeddedLogFormat, formatEntryType, getEntryKind } from '@/data/samples';
 import { knownGroup } from '@/entries/known-groups';
 import { entryRowMarker } from './markers.stylex';
@@ -50,6 +52,14 @@ const styles = stylex.create({
 	icon: {
 		width: 14,
 		height: 14,
+	},
+	device: {
+		flexShrink: 0,
+		fontFamily: typographyVars['--font-family-code'],
+		fontSize: typeScaleVars['--text-supporting-size'],
+		lineHeight: '1rem',
+		color: colorVars['--color-text-secondary'],
+		whiteSpace: 'nowrap',
 	},
 	// Gives way to the empty checkbox while its row is hovered or focused
 	checkableIcon: {
@@ -155,11 +165,19 @@ export function GroupCheckbox({ check, sticky = false }: { check: GroupCheck | u
 }
 
 /**
- * What the group at `path` is when it's a known group (see `knownGroup()`), at the end of its row where entries show
- * their values, with its name in a tooltip. Renders nothing for other groups.
+ * What the group at `path` is when it's a known group (see `knownGroup()`), or a renamed HOOT device's model and ID, at
+ * the end of its row where entries show their values. Renders nothing for other groups.
  */
 export function GroupMark({ path }: { path: string }) {
 	const group = knownGroup(path);
+	const device = useSelector(renamedDevicesStore, (devices) => devices.get(path));
+	if (device) {
+		return (
+			<Tooltip content={`Named by ${device.robot}`}>
+				<span {...stylex.props(styles.device)}>{device.id}</span>
+			</Tooltip>
+		);
+	}
 	if (!group) {
 		return null;
 	}

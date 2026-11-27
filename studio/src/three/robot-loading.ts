@@ -5,14 +5,15 @@ import { RobotConfigError, type RobotConfig, readRobotConfigs } from '@/three/ro
 import { ProjectAccessError, projectFileReader, type RobotProject } from '@/three/robot-projects';
 
 export type LoadedRobot = {
-	readonly config: RobotConfig;
+	readonly config: RobotConfig & { readonly body: NonNullable<RobotConfig['body']> };
 	readonly body: Object3D;
 	readonly parts: readonly Object3D[];
 };
 
 export type RobotState =
 	| { readonly status: 'loading' }
-	| { readonly status: 'loaded'; readonly robot: LoadedRobot }
+	/** `robot` is `undefined` for a robot without a model, which is drawn as the swerve drivebase */
+	| { readonly status: 'loaded'; readonly robot: LoadedRobot | undefined }
 	| { readonly status: 'error'; readonly message: string; readonly needsAccess: boolean };
 
 /** `instanceof Mesh` types a mesh's geometry and material as `any` */
@@ -67,7 +68,7 @@ function prepare(model: Object3D): Object3D {
 	return model;
 }
 
-async function loadRobot(project: RobotProject): Promise<LoadedRobot> {
+async function loadRobot(project: RobotProject): Promise<LoadedRobot | undefined> {
 	const read = projectFileReader(project);
 	const config = (await readRobotConfigs(read)).find(({ name }) => name === project.name);
 	if (config === undefined) {
@@ -84,12 +85,15 @@ async function loadRobot(project: RobotProject): Promise<LoadedRobot> {
 			throw new RobotConfigError(`${file} isn't a glTF binary model it can read: ${String(error)}`);
 		}
 	};
+	if (config.body === undefined) {
+		return undefined;
+	}
 	const [body, ...parts] = await Promise.all([load(config.body.file), ...config.parts.map((part) => load(part.file))]);
-	return { config, body, parts };
+	return { config: { ...config, body: config.body }, body, parts };
 }
 
 /** Loaded robots by project, a project added again is a new object and loads again */
-const loaded = new WeakMap<RobotProject, Promise<LoadedRobot>>();
+const loaded = new WeakMap<RobotProject, Promise<LoadedRobot | undefined>>();
 
 async function stateOf(project: RobotProject): Promise<RobotState> {
 	let promise = loaded.get(project);

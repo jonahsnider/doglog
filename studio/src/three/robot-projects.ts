@@ -12,6 +12,8 @@ import * as z from 'zod';
 import { toastManager } from '@/components/toast';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import type { ListProjectFolders, ReadProjectFile } from '@/three/robot-config';
+import type { DeviceNames } from '@/three/project-schema';
+import { loadRobotDevices, robotDevicesStore, saveRobotDevices } from '@/three/robot-devices';
 import { widgetOptions } from '@/widgets/widget-info';
 
 /** A robot in a project the user added, a project with several robots has an entry for each */
@@ -97,6 +99,40 @@ async function loadProjects(): Promise<void> {
 	}
 	foldersStore.set(folders);
 	projectsStore.set(projects);
+}
+
+/**
+ * Read the device names of the added robots from their projects' configs again, keeping the saved names of projects
+ * whose folders can't be read, see `robotDevicesStore`
+ */
+export async function refreshRobotDevices(): Promise<void> {
+	const [{ readRobotConfigs }] = await Promise.all([
+		import('@/three/robot-config'),
+		loadRobotDevices(),
+		loadProjects(),
+	]);
+	const saved = new Map(robotDevicesStore.get()?.map(({ robot, devices }) => [robot, devices]));
+	const read = new Map<string, DeviceNames | undefined>();
+	await Promise.all(
+		(foldersStore.get() ?? []).map(async (folder) => {
+			try {
+				const configs = new Map(
+					(await readRobotConfigs(projectFileReader(folder[0]))).map(({ name, devices }) => [name, devices]),
+				);
+				for (const { name } of folder) {
+					read.set(name, configs.get(name));
+				}
+			} catch {
+				// Saved names are kept for a folder that can't be read, or whose config isn't valid while it's edited
+			}
+		}),
+	);
+	await saveRobotDevices(
+		(projectsStore.get() ?? []).flatMap(({ name }) => {
+			const devices = read.has(name) ? read.get(name) : saved.get(name);
+			return devices && Object.keys(devices).length > 0 ? [{ robot: name, devices }] : [];
+		}),
+	);
 }
 
 let loading = false;
@@ -335,6 +371,7 @@ async function addProjectFolder(project: Omit<RobotProject, 'name'>): Promise<st
 	await saveProjects(others);
 	await saveProjects([...others, ...names.map((name) => ({ name, ...project }))]);
 	rememberRobot(names[0]!);
+	await refreshRobotDevices();
 	return names;
 }
 
@@ -391,5 +428,6 @@ export async function removeRobotProject(name: string): Promise<void> {
 		if (!kept.some((other) => other.name === lastRobotStore.get())) {
 			lastRobotStore.set('');
 		}
+		await refreshRobotDevices();
 	}
 }

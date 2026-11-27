@@ -2,7 +2,7 @@
 import { type ParseError, parse, printParseErrorCode } from 'jsonc-parser';
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three';
 import * as z from 'zod';
-import { projectSchema } from '@/three/project-schema';
+import { type DeviceNames, projectSchema } from '@/three/project-schema';
 import { transformMatrix } from '@/three/poses';
 
 /** A model file of a robot, and how it's placed */
@@ -17,10 +17,12 @@ type RobotPart = {
 
 export type RobotConfig = {
 	readonly name: string;
-	/** The robot's body, which doesn't move */
-	readonly body: { readonly file: string; readonly transform: Matrix4 };
+	/** The robot's body, which doesn't move. Without one, the swerve drivebase is drawn. */
+	readonly body: { readonly file: string; readonly transform: Matrix4 } | undefined;
 	/** Parts moved by a `Pose3d[]` entry, in its order */
 	readonly parts: readonly RobotPart[];
+	/** Names for the robot's CAN devices in HOOT logs */
+	readonly devices: DeviceNames;
 };
 
 export class RobotConfigError extends Error {
@@ -48,7 +50,9 @@ function describeIssue(issue: z.core.$ZodIssue, file: string): string {
 		const key = [...issue.path, issue.keys[0]].join('.');
 		return `${key} in ${file} isn't a known key`;
 	}
-	const message = issue.message.replace(/^Invalid input: /u, '');
+	// Ex. a device ID out of range, the key's own issue says what's wrong with it
+	const { message: raw } = issue.code === 'invalid_key' ? (issue.issues[0] ?? issue) : issue;
+	const message = raw.replace(/^Invalid input: /u, '');
 	return path === '' ? `${file}: ${message}` : `${path} in ${file}: ${message}`;
 }
 
@@ -70,12 +74,13 @@ function readDogLogConfig(text: string, file: string): RobotConfig[] {
 		const mount = transformMatrix(robot.mount);
 		return {
 			name: robot.name,
-			body: { file: robot.model, transform: mount },
+			body: robot.model === undefined ? undefined : { file: robot.model, transform: mount },
 			parts: (robot.parts ?? []).map((part) => ({
 				file: part.model,
 				rest: mount,
 				zero: transformMatrix(part.origin).invert().multiply(mount),
 			})),
+			devices: robot.devices ?? {},
 		};
 	});
 }
@@ -130,6 +135,7 @@ function readAdvantageScopeConfig(text: string): RobotConfig[] {
 				rest: base,
 				zero: advantageScopeMatrix(component.zeroedRotations, component.zeroedPosition),
 			})),
+			devices: {},
 		},
 	];
 }

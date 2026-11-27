@@ -91,7 +91,7 @@ function Robot({
 	const opacity = ghost ? ghostOpacity : 1;
 	return (
 		<group matrix={fieldPoseMatrix(value)} matrixAutoUpdate={false}>
-			{state?.status === 'loaded' ? (
+			{state?.status === 'loaded' && state.robot ? (
 				<RobotModel robot={state.robot} poses={poses} {...(ghost && { ghost: color })} />
 			) : (
 				<SwerveDrivebase color={color} opacity={opacity} />

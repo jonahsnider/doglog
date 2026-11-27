@@ -18,6 +18,15 @@ export type Entry = {
 	metadata: Readonly<Record<string, unknown>>;
 	/** For a log's entry with a log embedded in it, the embedded log's file, see `embeddedLogFormat` */
 	embeddedLog?: Uint8Array<ArrayBuffer>;
+	/** For a HOOT device's entry renamed by a robot project, see `nameDevices()` */
+	device?: {
+		/** The entry's name in the log, ex. `/Phoenix6/rio/TalonFX-11/Velocity` */
+		readonly original: string;
+		/** The device's model and ID, ex. `TalonFX-11` */
+		readonly id: string;
+		/** The robot that named it */
+		readonly robot: string;
+	};
 };
 
 const metadataSchema = z.record(z.string(), z.unknown()).catch({});

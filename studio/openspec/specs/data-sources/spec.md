@@ -319,6 +319,62 @@ Users SHALL be able to open WPILOG files with a file picker or by dropping them 
 - **THEN** each of those entries has the latest of those values at the start of the log, unless it was also logged right at the start
 - **AND** the log ends at its last record
 
+### Requirement: HOOT CAN buses
+
+Studio SHALL put the CAN bus in the entry names of a HOOT log's devices, after `/Phoenix6`, so the devices of several HOOT logs opened together don't share entries. C19 logs, which have one file per CAN bus, MUST use the bus their file is from, with the roboRIO's bus named `rio` and a CANivore named as robot code names it. Other logs MUST use the bus names they have, ex. a Systemcore's onboard buses.
+
+#### Scenario: Two buses with the same IDs
+
+- **GIVEN** the user opened `mttd_Q51_rio_2026-11-08_01-20-41.hoot` and the log from the CANivore `581CANivore` for the same match, both C19
+- **AND** both buses have a Talon FX with ID 16
+- **THEN** the entry browser lists `/Phoenix6/rio/TalonFX-16/Velocity` and `/Phoenix6/581CANivore/TalonFX-16/Velocity`
+
+### Requirement: HOOT device names
+
+Studio SHALL rename the devices in a HOOT log, opened or embedded, with the names in a robot's `devices`, since HOOT logs only name devices by model and ID. A device's model and ID in its entry names MUST be replaced with its name, keeping the CAN bus. Devices without a name and custom signals MUST keep their names.
+
+#### Scenario: Name a motor
+
+- **GIVEN** an added robot project whose robot has `"devices": { "rio": { "TalonFX-16": "Intake/Left" } }`
+- **WHEN** the user opens a HOOT log from the roboRIO's CAN bus with signals from `TalonFX-16` and `TalonFX-17`
+- **THEN** the entry browser lists `/Phoenix6/rio/Intake/Left/Velocity` and `/Phoenix6/rio/TalonFX-17/Velocity`
+
+#### Scenario: Same ID on different models
+
+- **GIVEN** a robot with `"TalonFX-11": "Shooter/Left"` and `"CANcoder-11": "Shooter/Encoder"` on `rio`
+- **THEN** the log's Talon FX 11 and CANcoder 11 are renamed `Shooter/Left` and `Shooter/Encoder`
+
+#### Scenario: Embedded HOOT file
+
+- **GIVEN** a log with a HOOT file from the roboRIO's CAN bus embedded in `/Hoot`, and a robot that names `TalonFX-16` on `rio` `Intake/Left`
+- **THEN** the entry browser lists `/Hoot/Phoenix6/rio/Intake/Left/Velocity`
+
+### Requirement: Robot for HOOT device names
+
+Studio SHALL rename a HOOT log's devices with the names of the robot whose `devices` names the most of them on the same CAN bus, from every added robot project, without asking. When robots tie, the one added most recently MUST be used, and when no robot names any of them, nothing MUST be renamed.
+
+#### Scenario: Closest robot
+
+- **GIVEN** a competition robot that names `TalonFX-16` and `TalonFX-17` on `rio`, and a practice robot that names them on `581CANivore`
+- **WHEN** the user opens a HOOT log from the practice robot's `581CANivore`
+- **THEN** its devices are renamed with the practice robot's names
+
+### Requirement: Updated HOOT device names
+
+Studio SHALL rename open HOOT logs' devices again, without reopening them, when a robot project is added or removed, or when its `devices` change, which Studio MUST notice when its window is focused. Names MUST still be used when the web app can't read the project's folder until the user allows it again.
+
+#### Scenario: Edit device names
+
+- **GIVEN** an open HOOT log whose `TalonFX-16` was renamed `Intake/Left`
+- **WHEN** the user renames it `Intake/Leader` in `doglog.jsonc`, then switches back to Studio
+- **THEN** the entry browser lists `/Phoenix6/rio/Intake/Leader/Velocity` instead of `/Phoenix6/rio/Intake/Left/Velocity`
+
+#### Scenario: Reopened web app
+
+- **GIVEN** the web app, with an added robot project that names devices
+- **WHEN** the user reopens the web app, and opens a HOOT log before allowing access to the project's folder again
+- **THEN** its devices are renamed with the project's names
+
 ### Requirement: Open a log from a URL
 
 Users SHALL be able to open a `.wpilog` or `.wpilogxz` file from an `http://` or `https://` URL, including via an in-app "Open from URL..." dialog in the source list's header menu and macOS File menu. Other schemes like `file://` MUST be rejected, including after redirects. Scheme-less URLs SHALL default to `https://` when they do not start with `/` and their host is `localhost` or contains a dot. URL logs MUST stay in memory only and MUST NOT be added to recent logs.
@@ -651,7 +707,7 @@ Studio SHALL read logs embedded in a log's entries, which let one WPILOG file ho
 #### Scenario: Embedded HOOT file
 
 - **GIVEN** a log with a Phoenix 6 HOOT file embedded in `/Hoot`
-- **THEN** the entry browser lists its signals under `/Hoot`, ex. `/Hoot/Phoenix6/TalonFX-5/Velocity`
+- **THEN** the entry browser lists its signals under `/Hoot`, ex. `/Hoot/Phoenix6/rio/TalonFX-5/Velocity`
 - **AND** `/Hoot/RobotEnable` changes when the robot's `/DS:controlWord` says it was enabled and disabled
 
 #### Scenario: Unreadable embedded log

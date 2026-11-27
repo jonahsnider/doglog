@@ -1,6 +1,7 @@
 // Moving sources between desktop windows, see `@/desktop/source-windows`
 import type { DataSetTransfer } from '@/data/data-set';
 import { createDataSet, liveTime } from '@/data/data-store';
+import { nameDevices } from '@/data/device-names';
 import { loadLog } from '@/data/log-source';
 import type { RestoredLog } from '@/data/log-worker';
 import { claimRecording, closeLiveRecording } from '@/data/recording';
@@ -44,8 +45,9 @@ export function adoptLog({ log, data: transfer }: { log: LogSource; data: DataSe
 	const id = createId();
 	const data = createDataSet();
 	data.addTransfer(transfer);
-	data.publish();
 	sourceState.logData.set(id, data);
+	nameDevices(data);
+	data.publish();
 	const { logs, live } = sourcesStore.get();
 	const lineUp = logs.length > 0 || live !== undefined;
 	const adopted: LogSource = { ...log, id, ...(lineUp && { manualOffset: undefined }) };

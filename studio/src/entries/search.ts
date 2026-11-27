@@ -7,6 +7,8 @@ type SearchableEntry = {
 	readonly name: string;
 	/** Type string from the source, ex. `struct:Pose2d`. Missing for entries without data. */
 	readonly type?: string;
+	/** A renamed HOOT device's model and ID */
+	readonly device?: { readonly id: string };
 };
 
 /**
@@ -21,7 +23,7 @@ function structType({ type }: SearchableEntry): string | undefined {
 }
 
 /**
- * Entries whose names or struct types fuzzy match the query, best match first, or `undefined` when the query has nothing to search for.
+ * Entries whose names, struct types, or device IDs fuzzy match the query, best match first, or `undefined` when the query has nothing to search for.
  * Separators in the query split it into words matched separately, so `module_states` finds `ModuleStates` and `Module States` alike.
  */
 export function searchEntries<T extends SearchableEntry>(
@@ -32,7 +34,12 @@ export function searchEntries<T extends SearchableEntry>(
 	if (!terms) {
 		return undefined;
 	}
-	const results = go(terms, entries, { keys: ['name', structType], limit: 0, threshold: 0 });
+	// Renamed HOOT devices also match their model and ID, ex. `TalonFX-11`
+	const results = go(terms, entries, {
+		keys: ['name', structType, ({ device }) => device?.id],
+		limit: 0,
+		threshold: 0,
+	});
 	// A fixed cutoff drops reasonable matches that score low, like `mod1` for `Module1`, so cut relative to the best match
 	const cutoff = (results[0]?.score ?? 0) / 2;
 	const matches = results.filter((result) => result.score >= cutoff);

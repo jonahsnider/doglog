@@ -450,6 +450,22 @@ The entry browser SHALL mark groups that a known device or library logs (control
 - **GIVEN** the source has DogLog's tunable values in `/Tunables` or `/NT:/Tunables`, or from DogLog releases before 2027, in `/Tunable`, `/NT:/Tunable`, or `/Robot/Tunable`
 - **THEN** the group's row shows a sliders icon
 
+### Requirement: Renamed devices
+
+The entry browser SHALL show the model and ID of a device renamed with a robot's `devices`, muted at the end of its group's row, and hovering it MUST say which robot named it. Searching for the model and ID MUST find the device.
+
+#### Scenario: Renamed motor
+
+- **GIVEN** a HOOT log where `TalonFX-11` is renamed `Shooter/Left` by the robot "581 2026"
+- **THEN** the `Left` row shows `TalonFX-11`, muted
+- **AND** hovering it says "581 2026" named it
+
+#### Scenario: Search by ID
+
+- **GIVEN** a HOOT log where `TalonFX-11` is renamed `Shooter/Left`
+- **WHEN** the user searches for `talonfx11`
+- **THEN** the `Shooter/Left` group and its entries are shown
+
 ### Requirement: Edit a widget's entries
 
 The entry browser SHALL be able to edit one widget's entries, started from the widget's Edit entries button or context menu. While editing, its header MUST name the widget with a button that stops editing, the widget's pane MUST be marked, and its search box MUST be focused. Entries the widget doesn't accept, and groups left empty, MUST be hidden, with a note saying how many are hidden. A collapsed entry browser MUST open while editing and collapse again after.

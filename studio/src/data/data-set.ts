@@ -118,6 +118,24 @@ export class DataSet {
 		return entry;
 	}
 
+	/** Give entries new names, ex. a HOOT log's devices named by a robot project, see `nameDevices()` */
+	renameEntries(names: ReadonlyMap<Entry, string>): void {
+		if (names.size === 0) {
+			return;
+		}
+		// Removed first, so entries can trade names
+		for (const entry of names.keys()) {
+			this.entries.delete(entry.name);
+		}
+		for (const [entry, name] of names) {
+			// Entries are looked up by name, so only the data set renames them
+			(entry as { name: string }).name = name;
+			this.entries.set(name, entry);
+		}
+		this.entriesChanged = true;
+		this.scheduleFlush(this);
+	}
+
 	/** Replace an entry's metadata, ex. when NT4 topic properties change */
 	setMetadata(entry: Entry, metadata: Record<string, unknown>): void {
 		entry.metadata = metadata;
@@ -229,8 +247,9 @@ export class DataSet {
 		);
 		return {
 			// oxlint-disable-next-line oxc/no-map-spread -- Each entry is copied anyway, to send to the other window
-			entries: logged.map(({ name, type, samples, metadata, embeddedLog }) => ({
-				name,
+			entries: logged.map(({ name, type, samples, metadata, embeddedLog, device }) => ({
+				// The other window names devices itself
+				name: device?.original ?? name,
 				type,
 				samples: samples.copy().toTransfer(),
 				metadata,

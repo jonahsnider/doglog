@@ -1,6 +1,7 @@
 import type { StructDeclaration } from 'wpilib-struct';
 import type { DataSet } from '@/data/data-set';
 import { parseMetadata } from '@/data/data-store';
+import { nameDevices } from '@/data/device-names';
 import type { LogWorkerMessage, LogWorkerRequest, RestoredLog } from '@/data/log-worker';
 import { fromTransfer } from '@/data/samples';
 import { isXz } from '@/data/xz';
@@ -126,6 +127,7 @@ function attachLogWorker(
 						entry.embeddedLog = embeddedLog;
 					}
 				}
+				nameDevices(data);
 				let unread: UnreadEnd | undefined;
 				if (message.start !== undefined && message.end !== undefined) {
 					data.setStartTime(message.start);

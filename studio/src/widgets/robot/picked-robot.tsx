@@ -36,7 +36,10 @@ export function usePickedRobot(
 		return { robot: <SwerveDrivebase />, note: `${name} isn't added on this device` };
 	}
 	if (state?.status === 'loaded') {
-		return { robot: <RobotModel robot={state.robot} poses={poses} />, note: undefined };
+		return {
+			robot: state.robot ? <RobotModel robot={state.robot} poses={poses} /> : <SwerveDrivebase />,
+			note: undefined,
+		};
 	}
 	if (state?.status === 'error') {
 		return {

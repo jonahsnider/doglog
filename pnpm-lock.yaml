@@ -361,8 +361,8 @@ importers:
         specifier: 4.0.2
         version: 4.0.2
       hoot-parser:
-        specifier: 1.1.0
-        version: 1.1.0
+        specifier: 2.0.0
+        version: 2.0.0
       idb-keyval:
         specifier: 6.3.0
         version: 6.3.0
@@ -7459,8 +7459,8 @@ packages:
   hookified@2.2.0:
     resolution: {integrity: sha512-p/LgFzRN5FeoD3DLS6bkUapeye6E4SI6yJs6KetENd18S+FBthqYq2amJUWpt5z0EQwwHemidjY5OqJGEKm5uA==}
 
-  hoot-parser@1.1.0:
-    resolution: {integrity: sha512-tza9y6syYH2u9ZtPOe67CMh4d1ln7QtJze1D6W/pLxacdqArdIGZghJzGMsUWz1lUXODoryIGiKEE/NES3k00w==}
+  hoot-parser@2.0.0:
+    resolution: {integrity: sha512-8pHFuN28awRw/GE9cLYgSkJDR7M88elWuyenYs8mNX7F3dGwKbif/7q2sW8sag+tGrtezGKaCCpY8OPwCmAVDQ==}
 
   html-escaper@3.0.3:
     resolution: {integrity: sha512-RuMffC89BOWQoY0WKGpIhn5gX3iI54O6nRA0yC124NYVtzjmFWBIiFd8M0x+ZdX0P9R4lADg1mgP8C7PxGOWuQ==}
@@ -17405,7 +17405,7 @@ snapshots:
 
   hookified@2.2.0: {}
 
-  hoot-parser@1.1.0:
+  hoot-parser@2.0.0:
     dependencies:
       wpilib-struct: 1.1.1
 
@@ -20386,7 +20386,7 @@ snapshots:
       jsonc-parser: 3.3.1
       mime: 4.1.2
       miniflare: 5.20261123.1-beta(@types/node@26.6.11)
-      minimatch: 11.0.9
+      minimatch: 11.0.8
       mysql2: 3.24.6(@types/node@26.6.11)
       pg: 8.23.1
       postal-mime: 4.2.1

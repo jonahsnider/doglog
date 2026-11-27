@@ -49,11 +49,20 @@ async function competitionRobot() {
 test('reads every robot in doglog.jsonc', async () => {
 	const [competition, practice] = await readRobotConfigs(folder({ 'doglog.jsonc': doglog }));
 	expect(competition!.name).toBe('581 2026');
-	expect(competition!.body.file).toBe('cad/robot.glb');
+	expect(competition!.body!.file).toBe('cad/robot.glb');
 	expect(competition!.parts.map((part) => part.file)).toEqual(['cad/arm.glb']);
 	expect(practice!.name).toBe('581 2026 Practice');
-	expect(practice!.body.file).toBe('cad/practice.glb');
+	expect(practice!.body!.file).toBe('cad/practice.glb');
 	expect(practice!.parts).toEqual([]);
+});
+
+test('reads device names, for robots without a model too', async () => {
+	const devices = { rio: { 'TalonFX-11': 'Shooter/Left', 'CANcoder-11': 'Shooter/Encoder' } };
+	const [robot] = await readRobotConfigs(
+		folder({ 'doglog.jsonc': JSON.stringify({ robots: [{ name: 'A', devices }] }) }),
+	);
+	expect(robot!.body).toBeUndefined();
+	expect(robot!.devices).toEqual(devices);
 });
 
 test('prefers doglog.jsonc to doglog.json', async () => {
@@ -90,6 +99,36 @@ test.each([
 		{ 'doglog.jsonc': '{ "robots": [{ "name": "A", "model": "a.glb" }, { "name": "A", "model": "b.glb" }] }' },
 		'robots in doglog.jsonc: each robot needs a different name',
 	],
+	[
+		{
+			'doglog.jsonc': JSON.stringify({
+				robots: [{ name: 'A', devices: { rio: { 'TalonFX-11': 'Shooter', 'TalonFX-12': 'Shooter' } } }],
+			}),
+		},
+		'robots.0.devices in doglog.jsonc: names two devices Shooter',
+	],
+	[
+		{
+			'doglog.jsonc': JSON.stringify({
+				robots: [
+					{ name: 'A', devices: { rio: { 'TalonFX-11': 'Shooter' }, canivore: { 'TalonFX-12': 'Shooter/Left' } } },
+				],
+			}),
+		},
+		"robots.0.devices in doglog.jsonc: can't name a device Shooter and another Shooter/Left",
+	],
+	[
+		{ 'doglog.jsonc': JSON.stringify({ robots: [{ name: 'A', devices: { rio: { 'TalonFX-63': 'Shooter' } } }] }) },
+		'must be a model and an ID from 0 to 62',
+	],
+	[
+		{
+			'doglog.jsonc': JSON.stringify({
+				robots: [{ name: 'A', devices: { rio: { 'TalonFX-11': 'TalonFX-12/Left' } } }],
+			}),
+		},
+		"can't start with a model and an ID",
+	],
 	[{ 'doglog.jsonc': '{ "robots": ' }, "doglog.jsonc isn't valid JSON"],
 	[{}, "doesn't have a doglog.jsonc"],
 ])('explains invalid projects: %o', async (files, message) => {
@@ -109,9 +148,9 @@ test('translates AdvantageScope robots', async () => {
 			}),
 		}),
 	);
-	expect(config!.body.file).toBe('model.glb');
+	expect(config!.body!.file).toBe('model.glb');
 	// The CAD's +Y is up, turned to +Z, then raised
-	expect(placed(config!.body.transform, new Vector3(0, 1, 0))).toEqual([0, 0, 1.1]);
+	expect(placed(config!.body!.transform, new Vector3(0, 1, 0))).toEqual([0, 0, 1.1]);
 	expect(config!.parts.map((part) => part.file)).toEqual(['model_0.glb']);
 	// Like AdvantageScope, a component's pose places its zeroed model
 	expect(placed(transformMatrix({ z: 0.5 }).multiply(config!.parts[0]!.zero))).toEqual([0, 0, 0]);
@@ -158,10 +197,10 @@ test('a doglog.jsonc made from an AdvantageScope robot draws it the same way', a
 	const [migrated] = await readRobotConfigs(folder({ 'doglog.jsonc': doglogConfigFromAdvantageScope([robot!]) }));
 
 	expect(migrated!.name).toBe('KitBot');
-	expect(migrated!.body.file).toBe('ascope_assets/Robot_KitBot/model.glb');
+	expect(migrated!.body!.file).toBe('ascope_assets/Robot_KitBot/model.glb');
 	expect(migrated!.parts.map((part) => part.file)).toEqual(['ascope_assets/Robot_KitBot/model_0.glb']);
 	const point = new Vector3(0.4, -0.7, 1.3);
-	expect(placed(migrated!.body.transform, point)).toEqual(placed(original!.body.transform, point));
+	expect(placed(migrated!.body!.transform, point)).toEqual(placed(original!.body!.transform, point));
 	expect(placed(migrated!.parts[0]!.rest, point)).toEqual(placed(original!.parts[0]!.rest, point));
 	// A logged pose places the part the same way
 	const pose = transformMatrix({ x: 0.3, z: 0.6, pitch: -20 });
