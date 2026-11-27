@@ -70,6 +70,8 @@ test('ticks are spaced so labels fit, aligned to the start of the source', () =>
 		times: [1_000_000, 3_000_000, 5_000_000, 7_000_000, 9_000_000, 11_000_000],
 		spacing: 2_000_000,
 	});
+	// A 20 hour log zoomed all the way out still gets readable labels
+	expect(timeTicks({ start: 0, end: 20 * 3_600_000_000 }, 0, 1000).spacing).toBe(2 * 3_600_000_000);
 	expect(formatTick(66_000_000, 1_000_000, 5_000_000)).toBe('1:05');
 	expect(formatTick(3_500_000, 1_000_000, 500_000)).toBe('0:02.5');
 });

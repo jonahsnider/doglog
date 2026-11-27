@@ -1,9 +1,10 @@
 import type { TimeRange } from '@/data/data-store';
 
-/** Tick spacings (µs): fractions of a second, then seconds and minutes */
+/** Tick spacings (µs): fractions of a second, then seconds, minutes, and hours */
 const spacings = [
 	...[1, 2, 5, 10, 20, 50, 100, 200, 500].map((milliseconds) => milliseconds * 1000),
 	...[1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 1800].map((seconds) => seconds * 1_000_000),
+	...[1, 2, 3, 6, 12, 24].map((hours) => hours * 3_600_000_000),
 ];
 
 /** Times (µs) to label on a time axis `pixels` wide, at least `minPixels` apart, aligned to the start of the source */
