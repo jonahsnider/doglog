@@ -88,6 +88,7 @@ overrides:
   # Both copies augment BufferGeometry.boundsTree, so Studio and Drei must use the same version.
   '@react-three/drei>three-mesh-bvh': 'catalog:'
 patchedDependencies:
+  '@astryxdesign/core@0.7.17': patches/@astryxdesign__core@0.7.17.patch
   '@convex-dev/auth@2.1.0': patches/@convex-dev__auth@2.1.0.patch
   '@ntcore-ts/client@2.0.0': patches/@ntcore-ts__client@2.0.0.patch
   '@tanstack/store': patches/@tanstack__store.patch

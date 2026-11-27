@@ -1,0 +1,166 @@
+diff --git a/dist/Tooltip/useTooltip.js b/dist/Tooltip/useTooltip.js
+index c8013ccd335dc3ef1723bbe25d3498f6a7bf9113..fad28f86861312c9669c415ed1a4484f8e042857 100644
+--- a/dist/Tooltip/useTooltip.js
++++ b/dist/Tooltip/useTooltip.js
+@@ -29,6 +29,7 @@ import { registerLayerSurface } from "../Layer/layerSurfacePress.js";
+ import { noteOutsideDismissal } from "../Layer/outsidePress.js";
+ import { useLayerDismissal } from "../Layer/useLayerDismissal.js";
+ import { themeProps } from "../utils/themeProps.js";
++import { KEYBOARD_HINT_SHOW_EVENT } from "../hooks/anchoredHint.js";
+ import "../theme/tokens.stylex.js";
+ import { colorVars, radiusVars, spacingVars, typographyVars, typeScaleVars } from "../theme/tokens.stylex.js";
+ 
+@@ -537,6 +538,13 @@ export function useTooltip(options = {}) {
+     };
+     // A held tooltip's own focus-leave close, whatever `focusTrigger` is.
+     const onHeldFocusOut = e => latest().handleHeldFocusOut(e);
++    // A keyboard hint for the focused trigger opens where the tooltip does,
++    // so an uncontrolled tooltip that isn't held gives way to it.
++    const onKeyboardHint = () => {
++      if (latest().isOpen === undefined && !isHeldRef.current) {
++        latest().hideNow();
++      }
++    };
+     el.addEventListener('pointerenter', onPointerEnter);
+     el.addEventListener('mouseenter', onMouseEnter);
+     el.addEventListener('mouseleave', onMouseLeave);
+@@ -544,6 +552,7 @@ export function useTooltip(options = {}) {
+     el.addEventListener('focusin', onFocusIn);
+     el.addEventListener('focusout', onFocusOut);
+     el.addEventListener('focusout', onHeldFocusOut);
++    el.addEventListener(KEYBOARD_HINT_SHOW_EVENT, onKeyboardHint);
+     triggerRef.current = el;
+ 
+     // A trigger that attaches again after its wiring was removed
+@@ -589,6 +598,7 @@ export function useTooltip(options = {}) {
+       el.removeEventListener('focusin', onFocusIn);
+       el.removeEventListener('focusout', onFocusOut);
+       el.removeEventListener('focusout', onHeldFocusOut);
++      el.removeEventListener(KEYBOARD_HINT_SHOW_EVENT, onKeyboardHint);
+       stopPressTrackingRef.current?.();
+       if (triggerRef.current === el) {
+         triggerRef.current = null;
+diff --git a/dist/hooks/anchoredHint.js b/dist/hooks/anchoredHint.js
+index 1119473e4fec6c3243887719446146580289a23d..bfb1b9efdee172e491b57f46ce63c329fc50ffae 100644
+--- a/dist/hooks/anchoredHint.js
++++ b/dist/hooks/anchoredHint.js
+@@ -60,6 +60,12 @@ const styles = {
+   }
+ };
+ 
++/**
++ * Dispatched on the element a keyboard hint shows for. A tooltip on that
++ * element hides, since both open below it and would overlap.
++ */
++export const KEYBOARD_HINT_SHOW_EVENT = 'astryx-keyboard-hint-show';
++
+ /** The hint's row of key glyphs, and the label after it. */
+ export const anchoredHintStyles = {
+   keys: styles.keys,
+diff --git a/dist/hooks/useKeyboardHint.js b/dist/hooks/useKeyboardHint.js
+index d15175d78572fc1370a6281954d342467ae7ea3b..7ed3a325d54e0cec2aa5bcaf7d9ff1732373e576 100644
+--- a/dist/hooks/useKeyboardHint.js
++++ b/dist/hooks/useKeyboardHint.js
+@@ -24,7 +24,7 @@ import { useLayer } from "../Layer/useLayer.js";
+ import { useLayerDismissal } from "../Layer/useLayerDismissal.js";
+ import { registerEnglishFallback, useComponentTranslator } from "../i18n/useComponentTranslator.js";
+ import english from "../i18n/generated-english/hooks/useKeyboardHint.generated.js";
+-import { anchoredHintStyles, renderAnchoredHint } from "./anchoredHint.js";
++import { anchoredHintStyles, KEYBOARD_HINT_SHOW_EVENT, renderAnchoredHint } from "./anchoredHint.js";
+ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+ registerEnglishFallback(english);
+ 
+@@ -122,6 +122,9 @@ export function useKeyboardHint(options = {}) {
+     layerAnchorRef.current(anchor);
+     setIsShowing(true);
+     layer.show();
++    anchor.dispatchEvent(new Event(KEYBOARD_HINT_SHOW_EVENT, {
++      bubbles: true
++    }));
+     clearDismissTimeout();
+     if (dismissAfterMs != null) {
+       timeoutRef.current = setTimeout(() => {
+diff --git a/src/Tooltip/useTooltip.tsx b/src/Tooltip/useTooltip.tsx
+index a454ff142bb58e98a195cfed27577d7b42c25e85..3c239776d46a927af6af0e477f8cbed468366c05 100644
+--- a/src/Tooltip/useTooltip.tsx
++++ b/src/Tooltip/useTooltip.tsx
+@@ -46,6 +46,7 @@ import {registerLayerSurface} from '../Layer/layerSurfacePress';
+ import {noteOutsideDismissal} from '../Layer/outsidePress';
+ import {useLayerDismissal} from '../Layer/useLayerDismissal';
+ import {themeProps} from '../utils/themeProps';
++import {KEYBOARD_HINT_SHOW_EVENT} from '../hooks/anchoredHint';
+ import {
+   colorVars,
+   radiusVars,
+@@ -794,6 +795,13 @@ export function useTooltip(options: TooltipOptions = {}): TooltipReturn {
+       };
+       // A held tooltip's own focus-leave close, whatever `focusTrigger` is.
+       const onHeldFocusOut = (e: FocusEvent) => latest().handleHeldFocusOut(e);
++      // A keyboard hint for the focused trigger opens where the tooltip does,
++      // so an uncontrolled tooltip that isn't held gives way to it.
++      const onKeyboardHint = () => {
++        if (latest().isOpen === undefined && !isHeldRef.current) {
++          latest().hideNow();
++        }
++      };
+       el.addEventListener('pointerenter', onPointerEnter);
+       el.addEventListener('mouseenter', onMouseEnter);
+       el.addEventListener('mouseleave', onMouseLeave);
+@@ -801,6 +809,7 @@ export function useTooltip(options: TooltipOptions = {}): TooltipReturn {
+       el.addEventListener('focusin', onFocusIn);
+       el.addEventListener('focusout', onFocusOut);
+       el.addEventListener('focusout', onHeldFocusOut);
++      el.addEventListener(KEYBOARD_HINT_SHOW_EVENT, onKeyboardHint);
+       triggerRef.current = el;
+ 
+       // A trigger that attaches again after its wiring was removed
+@@ -861,6 +870,7 @@ export function useTooltip(options: TooltipOptions = {}): TooltipReturn {
+         el.removeEventListener('focusin', onFocusIn);
+         el.removeEventListener('focusout', onFocusOut);
+         el.removeEventListener('focusout', onHeldFocusOut);
++        el.removeEventListener(KEYBOARD_HINT_SHOW_EVENT, onKeyboardHint);
+         stopPressTrackingRef.current?.();
+         if (triggerRef.current === el) {
+           triggerRef.current = null;
+diff --git a/src/hooks/anchoredHint.tsx b/src/hooks/anchoredHint.tsx
+index 8bce3d6afb9df49bf4f5314f1b27d5d215a20a7e..abcf0f4a58722bd99a60e92ca6ed7a4810cf00b7 100644
+--- a/src/hooks/anchoredHint.tsx
++++ b/src/hooks/anchoredHint.tsx
+@@ -77,6 +77,12 @@ const styles = stylex.create({
+   },
+ });
+ 
++/**
++ * Dispatched on the element a keyboard hint shows for. A tooltip on that
++ * element hides, since both open below it and would overlap.
++ */
++export const KEYBOARD_HINT_SHOW_EVENT = 'astryx-keyboard-hint-show';
++
+ /** The hint's row of key glyphs, and the label after it. */
+ export const anchoredHintStyles = {
+   keys: styles.keys,
+diff --git a/src/hooks/useKeyboardHint.tsx b/src/hooks/useKeyboardHint.tsx
+index d8840a08c5ed67ead36d03e77d84d1af6a213e2d..b52edd126663d794659dbc50145f6debe961b585 100644
+--- a/src/hooks/useKeyboardHint.tsx
++++ b/src/hooks/useKeyboardHint.tsx
+@@ -34,7 +34,11 @@ import {
+   useComponentTranslator,
+ } from '../i18n/useComponentTranslator';
+ import english from '../i18n/generated-english/hooks/useKeyboardHint.generated';
+-import {anchoredHintStyles, renderAnchoredHint} from './anchoredHint';
++import {
++  anchoredHintStyles,
++  KEYBOARD_HINT_SHOW_EVENT,
++  renderAnchoredHint,
++} from './anchoredHint';
+ 
+ registerEnglishFallback(english);
+ 
+@@ -204,6 +208,7 @@ export function useKeyboardHint(
+       layerAnchorRef.current(anchor);
+       setIsShowing(true);
+       layer.show();
++      anchor.dispatchEvent(new Event(KEYBOARD_HINT_SHOW_EVENT, {bubbles: true}));
+ 
+       clearDismissTimeout();
+       if (dismissAfterMs != null) {
