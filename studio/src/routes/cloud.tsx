@@ -27,6 +27,7 @@ import { TeamMembers } from '@/cloud/team-members';
 import { TeamPanel } from '@/cloud/team-panel';
 import { SettingsGroup } from '@/components/settings-group';
 import { UtilityPage, UtilityPageSection } from '@/components/utility-page';
+import { TeamStorageSettings } from '@/storage/storage-settings';
 import { api } from '../../../cloud/convex/_generated/api.js';
 
 const styles = stylex.create({
@@ -120,6 +121,8 @@ function SignedIn() {
 			<Divider />
 
 			<TeamDefaults team={team} />
+
+			<TeamStorageSettings team={team} />
 
 			<UtilityPageSection title="Collaboration">
 				{account && <DisplayName key={account.id} name={account.displayName} />}

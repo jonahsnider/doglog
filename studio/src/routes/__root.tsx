@@ -2,6 +2,7 @@ import { LinkProvider } from '@astryxdesign/core/Link';
 import { colorVars, durationVars, easeVars, radiusVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { Outlet, createRootRoute, useMatchRoute } from '@tanstack/react-router';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { useSelector } from '@tanstack/react-store';
 import { useGlobalShortcuts } from '@/commands/app-commands';
 import { AppSidebar } from '@/sidebar/app-sidebar';
@@ -18,6 +19,7 @@ import { Toasts } from '@/components/toasts';
 import { useMobileLayout } from '@/lib/mobile-layout';
 import { useTitleBarStrip } from '@/desktop/title-bar';
 import { sidebarAnimationStore } from '@/sidebar/sidebar';
+import { queryClient } from '@/storage/listing';
 import { TimelineBar } from '@/timeline/timeline-bar';
 import { useWindowTitle } from '@/window-title';
 
@@ -127,39 +129,41 @@ function RootLayout() {
 
 	return (
 		<LinkProvider component={RouterLink}>
-			<CloudProvider>
-				{/* Wraps the whole app, so dashboards and panes can be dragged between the sidebar and the main area */}
-				<DragProvider>
-					<div
-						data-app-frame=""
-						{...stylex.props(styles.frame, mobile && styles.mobileFrame, !STUDIO_DESKTOP && styles.webFrame)}
-					>
-						<div {...stylex.props(styles.body, mobile && styles.mobileBody)}>
-							<div inert={exporting} {...stylex.props(styles.contents)}>
-								<AppSidebar mobile={mobile} hasEntryBrowser={panes} />
+			<QueryClientProvider client={queryClient}>
+				<CloudProvider>
+					{/* Wraps the whole app, so dashboards and panes can be dragged between the sidebar and the main area */}
+					<DragProvider>
+						<div
+							data-app-frame=""
+							{...stylex.props(styles.frame, mobile && styles.mobileFrame, !STUDIO_DESKTOP && styles.webFrame)}
+						>
+							<div {...stylex.props(styles.body, mobile && styles.mobileBody)}>
+								<div inert={exporting} {...stylex.props(styles.contents)}>
+									<AppSidebar mobile={mobile} hasEntryBrowser={panes} />
+								</div>
+								<main
+									{...stylex.props(
+										styles.main,
+										!panes && styles.page,
+										mobile && (panes ? styles.mobilePanes : styles.mobilePage),
+										strip && (panes ? styles.belowStripPanes : styles.belowStripPage),
+										animation !== undefined && styles.animated,
+									)}
+								>
+									<Outlet />
+								</main>
 							</div>
-							<main
-								{...stylex.props(
-									styles.main,
-									!panes && styles.page,
-									mobile && (panes ? styles.mobilePanes : styles.mobilePage),
-									strip && (panes ? styles.belowStripPanes : styles.belowStripPage),
-									animation !== undefined && styles.animated,
-								)}
-							>
-								<Outlet />
-							</main>
+							{dashboard && !exporting && <TimelineBar />}
 						</div>
-						{dashboard && !exporting && <TimelineBar />}
-					</div>
-				</DragProvider>
-				<LogDropOverlay />
-				<AboutDialog />
-				<OpenLogUrlDialog />
-				<KeyboardShortcutsDialog />
-				<CommandPaletteDialog />
-				<Toasts />
-			</CloudProvider>
+					</DragProvider>
+					<LogDropOverlay />
+					<AboutDialog />
+					<OpenLogUrlDialog />
+					<KeyboardShortcutsDialog />
+					<CommandPaletteDialog />
+					<Toasts />
+				</CloudProvider>
+			</QueryClientProvider>
 		</LinkProvider>
 	);
 }

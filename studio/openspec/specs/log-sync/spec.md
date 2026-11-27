@@ -2,19 +2,31 @@
 
 ## Purpose
 
-Define how the desktop app copies logs from a roboRIO or Systemcore to the user's computer in the background, so logs from every match are on hand without plugging in a USB drive. Logs are copied over the robot's network connection while Studio is open, and sync never slows the robot down while it's enabled or deletes anything on the robot.
+Define how the desktop app copies logs from a roboRIO or Systemcore to the user's computer in the background, so logs from every match are on hand without plugging in a USB drive, and uploads them to the team's storage (see the log-storage spec). Logs are copied over the robot's network connection while Studio is open, and sync never slows the robot down while it's enabled or deletes anything on the robot. Studio's copy calls this downloading, since logs only go from the robot to the computer.
 
 ## Requirements
 
 ### Requirement: Desktop only
 
-Log sync SHALL only be available in the desktop app. The web app's Logs page MUST explain that log sync needs the desktop app and offer a download of the desktop app for the user's platform, with downloads for every platform in a menu in case the detected platform is wrong. On macOS, the download MUST be the Apple silicon build, with the Intel build in the menu.
+Copying logs from the robot SHALL only be available in the desktop app. The web app's Logs page MUST explain that log sync needs the desktop app in place of the robot's status (see Logs page header), except on phones and tablets, which can't run it, and offer a download of the desktop app for the user's platform, with downloads for every platform in a menu in case the detected platform is wrong. On macOS, the download MUST be the Apple silicon build, with the Intel build in the menu.
 
 #### Scenario: Logs page in the browser
 
 - **WHEN** the user opens the Logs page in the web app
-- **THEN** the page says log sync needs the desktop app
+- **THEN** the page says robot downloads need the desktop app
 - **AND** no sync settings are shown
+
+#### Scenario: Logs page in the browser with team storage
+
+- **GIVEN** the user's team has storage the web app can reach
+- **WHEN** the user opens the Logs page in the web app
+- **THEN** the page says robot downloads need the desktop app, above the team's runs
+
+#### Scenario: Logs page on a phone with team storage
+
+- **GIVEN** the user's team has storage the web app can reach
+- **WHEN** the user opens the Logs page on a phone
+- **THEN** the page shows the upload row and the team's runs, without mentioning robot downloads
 
 #### Scenario: Download the desktop app
 
@@ -25,7 +37,7 @@ Log sync SHALL only be available in the desktop app. The web app's Logs page MUS
 
 ### Requirement: Turning sync on
 
-Sync SHALL be off until the user starts it from the Logs page. While it's on, Studio MUST check the robot for new logs automatically for as long as Studio is open, and the Logs page MUST offer a button to check right away. The user MUST be able to pause and resume sync from the Logs page by clicking the sync status icon, and pausing MUST stop a copy in progress right away.
+Sync SHALL be off until the user starts it from the Logs page. While it's on, Studio MUST check the robot for new logs automatically for as long as Studio is open, and the Logs page MUST offer a button to check right away. The user MUST be able to pause and resume copying from the robot with its Pause button on the Logs page, and pausing MUST stop a copy in progress right away.
 
 #### Scenario: Sync after a match
 
@@ -42,7 +54,7 @@ Sync SHALL be off until the user starts it from the Logs page. While it's on, St
 #### Scenario: Pause
 
 - **GIVEN** sync is copying a log
-- **WHEN** the user clicks the sync status icon
+- **WHEN** the user clicks Pause next to the robot's status
 - **THEN** the copy stops and nothing else is copied until the user clicks it again
 - **AND** the rest of the log is copied after resuming
 
@@ -71,7 +83,7 @@ Sync SHALL use the robot connection setting shared with Connect, and log in to a
 
 ### Requirement: Which logs sync
 
-Sync SHALL only copy logs with WPILib's or AdvantageKit's file names, including AdvantageKit's compressed `.wpilogxz` logs, and MUST skip logs that haven't been named with a date yet, since they're renamed once the Driver Station connects. The Logs page MUST let the user limit sync to logs from the last number of days, which defaults to 14, and to logs from matches run by the field (practice, qualification, and elimination matches). Changing these MUST NOT delete logs that were already synced.
+Sync SHALL only copy logs with WPILib's, AdvantageKit's, or Phoenix 6's file names, including `.wpilogxz` and HOOT logs, and MUST skip logs that haven't been named with a date yet, since they're renamed once the Driver Station connects. The Logs page MUST let the user limit sync to logs from the last number of days, which defaults to 14, and to logs from matches run by the field (practice, qualification, and elimination matches). Changing these MUST NOT delete logs that were already synced.
 
 #### Scenario: Old logs on a USB drive
 
@@ -105,26 +117,36 @@ Sync SHALL copy one log at a time, newest first, including every file of a log W
 
 - **GIVEN** a long match's log was split into `WPILIB_20270315_143000_CAPH_Q12.wpilog` and `WPILIB_20270315_143000_CAPH_Q12.2.wpilog`
 - **WHEN** sync runs
-- **THEN** both files are copied, and the Logs page names the second `CAPH Q12 (part 2)`
+- **THEN** both files are copied into the CAPH Q12 run
 
 #### Scenario: Progress
 
 - **WHEN** sync is copying logs
-- **THEN** the Logs page shows which log is being copied, the progress through every log being copied, and an estimate of how long is left
+- **THEN** the robot's status shows which log is being copied, the progress through every log being copied, and an estimate of how long is left
 
-### Requirement: Sync overview
+### Requirement: Logs page header
 
-The Logs page SHALL lead with what sync is doing, followed by every log from the last number of days in the filter as a square, grouped by the day the log started. Each square MUST show whether its log is synced, being copied, waiting on the robot, or doesn't fit under the storage limit, and selecting a synced log's square MUST open it. Sync settings MUST be out of the way, in a panel opened from the Logs page.
+The Logs page SHALL lead with two rows above the runs timeline (see the log-storage spec): the robot's row for copying from the robot, and while the team has storage, the upload row for uploading to it. Each row MUST show what it's doing, its progress, and a Pause or Resume button, without text that repeats what its icon and title say. Download settings MUST be in a panel opened from the Logs page.
+
+#### Scenario: Offline at an event
+
+- **GIVEN** the team's storage is in the cloud and the computer has no internet
+- **WHEN** sync copies a match log from the robot
+- **THEN** the robot's row shows the download, and the upload row says it can't reach the storage, with the log waiting
+
+### Requirement: Squares for logs on the robot
+
+The robot's row SHALL show every run with logs from the last number of days in the filter as one square, grouped by the day the run started, including the parts of a split log and its HOOT logs. Each square MUST show whether its run is synced, being copied, waiting on the robot, or doesn't fit under the storage limit, and selecting a synced run's square MUST open its logs.
 
 #### Scenario: Day of matches
 
-- **GIVEN** the robot has logs from 12 qualification matches on Saturday and 3 have been copied
+- **GIVEN** the robot has a WPILib log and a HOOT log from each of 12 qualification matches on Saturday, and 3 matches have been copied
 - **WHEN** the user opens the Logs page
 - **THEN** Saturday shows 12 squares, 3 of them filled in as synced
 
 ### Requirement: Pause while enabled
 
-Sync MUST NOT copy logs while the robot is enabled, and MUST stop a copy in progress as soon as the robot is enabled. It SHALL resume once the robot has been disabled for 10 seconds, so the pause between autonomous and teleop doesn't start it. A robot whose robot code isn't running counts as disabled.
+Sync MUST NOT copy logs from the robot while the robot is enabled, and MUST stop a copy in progress as soon as the robot is enabled. It SHALL resume once the robot has been disabled for 10 seconds, so the pause between autonomous and teleop doesn't start it. A robot whose robot code isn't running counts as disabled. Uploads MUST keep going while the robot is enabled, since they don't use the robot's connection.
 
 #### Scenario: Robot enabled during a copy
 
@@ -141,12 +163,12 @@ Sync MUST NOT copy logs while the robot is enabled, and MUST stop a copy in prog
 
 ### Requirement: Sync folder
 
-Logs SHALL be copied to `DogLog/Logs` in the user's Documents folder, and the sync settings MUST let the user choose a different folder. The Logs page MUST list the newest few synced logs, named by their match when they're from one, and selecting one MUST open it. The Logs page MUST offer a button that opens the sync folder in the computer's file manager.
+Logs SHALL be copied to `DogLog/Logs` in the user's Documents folder, and the sync settings MUST let the user choose a different folder. The sync folder MUST use the same folders as storage (see the log-storage spec's folder layout), so each run's logs are together, and the Logs page MUST show them in the runs timeline. The Logs page MUST offer a button that opens the sync folder in the computer's file manager.
 
 #### Scenario: Open a synced log
 
 - **GIVEN** a match log was synced
-- **WHEN** the user selects it on the Logs page
+- **WHEN** the user opens its run on the Logs page
 - **THEN** Studio opens that log
 
 #### Scenario: Deleted local log
@@ -167,7 +189,7 @@ Studio MUST NOT access the sync folder until the user starts sync for the first 
 
 ### Requirement: Storage limit
 
-The Logs page SHALL let the user limit how much space synced logs take, which is off by default. With a limit, sync MUST keep the newest logs that fit, MUST NOT copy older logs that wouldn't fit, and MUST permanently delete older logs from the sync folder to stay under the limit. Sync MUST only delete files with WPILib's or AdvantageKit's log names, and MUST NOT delete anything on the robot.
+The Logs page SHALL let the user limit how much space synced logs take, which is off by default. With a limit, sync MUST keep the newest logs that fit, MUST NOT copy older logs that wouldn't fit, and MUST permanently delete older logs from the sync folder to stay under the limit. Sync MUST only delete files with WPILib's, AdvantageKit's, or Phoenix 6's log names, and MUST NOT delete anything on the robot.
 
 #### Scenario: Folder is full
 
@@ -181,9 +203,19 @@ The Logs page SHALL let the user limit how much space synced logs take, which is
 - **WHEN** sync deletes logs to stay under the limit
 - **THEN** `notes.wpilog` is kept
 
+### Requirement: Only delete uploaded logs
+
+While the team has storage, the storage limit SHALL have an Only delete uploaded logs option, on by default, which keeps logs that aren't uploaded yet. When only those are left to delete, sync MUST stop copying from the robot and the robot's row MUST say it's waiting for logs to upload.
+
+#### Scenario: Folder is full of logs waiting to upload
+
+- **GIVEN** Only delete uploaded logs is on and every log in the full sync folder is waiting to upload
+- **WHEN** a new match log is on the robot
+- **THEN** sync doesn't delete anything, and the robot's row says it's waiting for logs to upload
+
 ### Requirement: One window syncs
 
-When several Studio windows are open, only one SHALL sync logs. Every other window's Logs page MUST show the same status, progress, and logs as the window that syncs, and pausing, resuming, Sync now, and sync settings MUST work from any window. When the window that syncs closes, another open window MUST take over. When another copy of Studio on the computer is syncing, the Logs page MUST say so.
+When several Studio windows are open, only one SHALL sync logs and upload them. Every other window's Logs page MUST show the same status, progress, and logs as the window that syncs, and pausing, resuming, Sync now, and sync settings MUST work from any window. When the window that syncs closes, another open window MUST take over. When another copy of Studio on the computer is syncing, the Logs page MUST say so.
 
 #### Scenario: Two windows
 
@@ -203,3 +235,29 @@ When several Studio windows are open, only one SHALL sync logs. Every other wind
 - **GIVEN** sync is on and Studio is open in two windows
 - **WHEN** the user closes the window that syncs
 - **THEN** the other window keeps syncing
+
+### Requirement: Upload synced logs
+
+While the team has storage, sync SHALL upload each log once it's finished, meaning the robot started a newer log and the copy in the sync folder has caught up, and MUST NOT upload logs the robot is still writing. Logs waiting to upload MUST stay queued until storage can be reached, including after Studio restarts. Sync MUST skip a log whose file name and size are already anywhere in storage, and when two computers upload the same log with different sizes, the larger MUST be kept.
+
+#### Scenario: Upload after a match
+
+- **GIVEN** sync copied the log of CAPH Q18
+- **WHEN** the robot starts the log for CAPH Q19
+- **THEN** the log of CAPH Q18 uploads to `2027/CAPH/Q18/`
+
+#### Scenario: Two laptops sync one robot
+
+- **GIVEN** two members' laptops sync the same robot
+- **WHEN** both copy the finished log of CAPH Q18
+- **THEN** storage has one copy of it
+
+### Requirement: Pause uploads
+
+The user SHALL be able to pause and resume uploads from the upload row, and pausing MUST stop an upload in progress right away. Pausing uploads MUST NOT pause copying from the robot, and pausing copying from the robot MUST NOT pause uploads.
+
+#### Scenario: Pause uploads on a hotspot
+
+- **GIVEN** the laptop is on a phone's hotspot
+- **WHEN** the user pauses uploads
+- **THEN** logs keep copying from the robot, and nothing uploads until the user resumes uploads

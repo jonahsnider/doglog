@@ -9,6 +9,7 @@ import { WidgetEmpty } from '@/widgets/widget-empty';
 import type { WidgetProps } from '@/widgets/widget-type';
 import { isYouTubeLink, parseVideo } from '@/widgets/video/source';
 import { OrDivider } from '@/widgets/video/options';
+import { RunVideoPicker } from '@/widgets/video/run-video';
 import { startSyncing } from '@/widgets/video/state';
 
 export function AddVideo({
@@ -64,6 +65,7 @@ export function AddVideo({
 				/>
 				<OrDivider />
 				<Button label="Choose file…" icon={<FileVideoIcon />} onClick={choose} />
+				<RunVideoPicker setOption={setOption} />
 			</VStack>
 		</WidgetEmpty>
 	);

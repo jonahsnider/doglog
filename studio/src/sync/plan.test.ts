@@ -38,8 +38,8 @@ test('skips logs that are already synced and resumes ones that grew', () => {
 	const plan = planSync(
 		[remote(practice, 100), remote(current, 300)],
 		[
-			{ name: practice, size: 100 },
-			{ name: current, size: 120 },
+			{ name: practice, size: 100, dir: '' },
+			{ name: current, size: 120, dir: '' },
 		],
 		noFilter,
 		now,
@@ -50,11 +50,11 @@ test('skips logs that are already synced and resumes ones that grew', () => {
 test('ignores logs without a recognized name', () => {
 	const plan = planSync(
 		[remote('FRC_TBD_3f2a9c0d1e4b5a6c.wpilog', 100), remote('match.wpilog', 100)],
-		[{ name: 'match.wpilog', size: 100 }],
+		[{ name: 'match.wpilog', size: 100, dir: '' }],
 		{ ...noFilter, capBytes: 0 },
 		now,
 	);
-	expect(plan).toEqual({ downloads: [], deletions: [], logs: [] });
+	expect(plan).toEqual({ downloads: [], deletions: [], logs: [], waitingToDelete: false });
 });
 
 describe('filter', () => {
@@ -71,7 +71,7 @@ describe('filter', () => {
 	test("doesn't delete or keep downloading logs that no longer pass", () => {
 		const plan = planSync(
 			[remote(practice, 300)],
-			[{ name: practice, size: 100 }],
+			[{ name: practice, size: 100, dir: '' }],
 			{ ...noFilter, officialOnly: true },
 			now,
 		);
@@ -86,15 +86,15 @@ describe('storage limit', () => {
 		const plan = planSync(
 			[remote(current, 300), remote(qual, 200), remote(practice, 100)],
 			[
-				{ name: qual, size: 200 },
-				{ name: practice, size: 100 },
-				{ name: old, size: 50 },
+				{ name: qual, size: 200, dir: '' },
+				{ name: practice, size: 100, dir: '' },
+				{ name: old, size: 50, dir: '' },
 			],
 			{ ...noFilter, capBytes: 550 },
 			now,
 		);
 		expect(plan.downloads.map(({ log }) => log.name)).toEqual([current]);
-		expect(plan.deletions).toEqual([practice, old]);
+		expect(plan.deletions.map(({ name }) => name)).toEqual([practice, old]);
 		expect(plan.logs.map(({ name, state }) => [name, state])).toEqual([
 			[current, 'queued'],
 			[qual, 'synced'],
@@ -115,7 +115,7 @@ describe('storage limit', () => {
 		// Running again after the download makes the same choice, so nothing is downloaded and deleted over and over
 		const next = planSync(
 			[remote(current, 300), remote(qual, 200)],
-			[{ name: current, size: 300 }],
+			[{ name: current, size: 300, dir: '' }],
 			{ ...noFilter, capBytes: 400 },
 			now,
 		);
@@ -124,13 +124,46 @@ describe('storage limit', () => {
 	});
 
 	test('counts logs that are only on this computer', () => {
-		const plan = planSync([remote(current, 300)], [{ name: qual, size: 200 }], { ...noFilter, capBytes: 400 }, now);
+		const plan = planSync(
+			[remote(current, 300)],
+			[{ name: qual, size: 200, dir: '' }],
+			{ ...noFilter, capBytes: 400 },
+			now,
+		);
 		expect(plan.downloads.map(({ log }) => log.name)).toEqual([current]);
-		expect(plan.deletions).toEqual([qual]);
+		expect(plan.deletions.map(({ name }) => name)).toEqual([qual]);
+	});
+
+	test("keeps logs that can't be deleted yet, and deletes older ones that can", () => {
+		const plan = planSync(
+			[remote(current, 300)],
+			[
+				{ name: qual, size: 200, dir: '' },
+				{ name: practice, size: 100, dir: '' },
+			],
+			// The newer log isn't uploaded, so the older uploaded one makes room for the new log
+			{ ...noFilter, capBytes: 500, canDelete: (log) => log.name === practice },
+			now,
+		);
+		expect(plan.downloads.map(({ log }) => log.name)).toEqual([current]);
+		expect(plan.deletions.map((log) => log.name)).toEqual([practice]);
+		expect(plan.waitingToDelete).toBe(false);
+	});
+
+	test("waits when only logs that can't be deleted are left", () => {
+		const plan = planSync(
+			[remote(current, 300)],
+			[{ name: qual, size: 400, dir: '' }],
+			{ ...noFilter, capBytes: 500, canDelete: () => false },
+			now,
+		);
+		expect(plan.downloads).toEqual([]);
+		expect(plan.deletions).toEqual([]);
+		expect(plan.waitingToDelete).toBe(true);
 	});
 
 	test('never deletes files with other names', () => {
-		const plan = planSync([], [{ name: 'notes.wpilog', size: 1000 }], { ...noFilter, capBytes: 0 }, now);
+		const plan = planSync([], [{ name: 'notes.wpilog', size: 1000, dir: '' }], { ...noFilter, capBytes: 0 }, now);
 		expect(plan.deletions).toEqual([]);
 	});
 });

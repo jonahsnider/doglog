@@ -27,15 +27,26 @@ tauri = { version = "2.12.5", features = ["protocol-asset"] }
 tauri-plugin-log = "2"
 tauri-plugin-clipboard-manager = "2.5"
 tauri-plugin-dialog = "2"
+# The frontend's requests to a team's storage, which can be any host. Its reqwest uses rustls with ring like the rest
+# of the app, trusting the OS's root certificates.
+tauri-plugin-http = { version = "2.9", default-features = false, features = [
+	"charset",
+	"http2",
+	"rustls-tls-native-roots",
+	"system-proxy",
+] }
 tauri-plugin-updater = "2"
 clap = { version = "4", features = ["string"] }
 robot-sftp = { path = "robot-sftp" }
+russh = { version = "0.65", default-features = false, features = ["ring", "rsa"] }
+russh-sftp = "4"
 tokio = { version = "1", features = ["rt-multi-thread", "net", "io-util", "io-std", "sync", "time"] }
 tauri-plugin-fs = "2"
 tauri-plugin-persisted-scope = "2"
 tauri-plugin-opener = "2"
 tauri-plugin-window-state = "2"
 base64 = "0.23"
+percent-encoding = "2"
 rmcp = { version = "3.11", default-features = false, features = ["server", "transport-io"] }
 getrandom = "0.4"
 tauri-plugin-mcp-bridge = "0.13"

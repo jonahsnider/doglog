@@ -72,6 +72,14 @@ export default defineSchema({
 		iv: v.bytes(),
 		ciphertext: v.bytes(),
 	}).index('by_dashboard_and_seq', ['dashboardId', 'seq']),
+	// The team's storage connection, encrypted with the team key so Cloud can't read its credentials. keyVersion is the
+	// team key it's encrypted with, Studio re-encrypts it with the current key after a rotation.
+	storageConnections: defineTable({
+		teamId: v.id('teams'),
+		keyVersion: v.number(),
+		iv: v.bytes(),
+		ciphertext: v.bytes(),
+	}).index('by_team', ['teamId']),
 	pairings: defineTable({
 		userId: v.id('users'),
 		expiresAt: v.number(),

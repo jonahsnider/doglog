@@ -49,6 +49,26 @@ Each video widget SHALL have one video and one sync, saved with the dashboard, w
 - **WHEN** the user opens `qual13.wpilog`
 - **THEN** the widget still plays `qual12.mp4` with the same sync
 
+### Requirement: Run videos
+
+A video widget SHALL offer to play a run's video instead of one video, chosen by its angle name, such as Stands, from the team's storage (see the log-storage spec). It MUST play that angle's video of the run whose log is the time base, with the sync saved with the video in storage, so one dashboard works for every match. When the time base isn't from a run, or its run has no video with that angle, the widget MUST say so and keep its angle.
+
+#### Scenario: Next match
+
+- **GIVEN** a video widget playing the Stands video of the run whose log is the time base, CAPH Q17
+- **WHEN** the user opens CAPH Q18 and drags its log to the top of the source list
+- **THEN** the widget plays CAPH Q18's Stands video, lined up with its log
+
+### Requirement: Sync run videos for everyone
+
+Saving a run's video in Sync mode SHALL change the sync saved with the video in storage, so every member sees the new sync.
+
+#### Scenario: Fix a run's sync
+
+- **GIVEN** a video widget playing CAPH Q18's Stands video
+- **WHEN** the user changes its sync in Sync mode and saves
+- **THEN** every member who opens CAPH Q18 sees the video with the new sync
+
 ### Requirement: Follow the timeline
 
 Outside Sync mode, the video SHALL show the moment lined up with the cursor, and MUST play, pause, and change speed with the timeline. The video MUST NOT have controls of its own, and clicking it MUST play or pause like the timeline. When the timeline plays faster than the video can, the video MUST keep up with the cursor as closely as it can.

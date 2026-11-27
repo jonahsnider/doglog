@@ -32,6 +32,13 @@ function robotLog(date: Date, size: number, match?: string): RemoteLog {
 	return { path: `/U/logs/${name}`, name, size };
 }
 
+/** A Phoenix 6 log of the roboRIO's CAN bus started at `date`, in the folder Phoenix 6 makes for each run */
+function hootLog(date: Date, size: number, match?: string): RemoteLog {
+	const time = date.toISOString().slice(0, 19).replace('T', '_').replaceAll(':', '-');
+	const name = `${match === undefined ? '' : `demo_${match}_`}rio_${time}.hoot`;
+	return { path: `/U/logs/${time}/${name}`, name, size };
+}
+
 /** Three days of logs ending now: practice in the pits and on the field, qualifications, and eliminations */
 function initialRobotLogs(): RemoteLog[] {
 	const today = new Date();
@@ -41,11 +48,14 @@ function initialRobotLogs(): RemoteLog[] {
 
 	return [
 		...[9, 10.25, 11.5, 14].map((hours) => robotLog(at(2, hours), 8 * mb + hours * mb)),
+		// Phoenix 6 starts logging a few seconds after the robot log
+		hootLog(new Date(at(2, 14).getTime() + 6000), 5 * mb),
 		robotLog(at(2, 15.5), 12 * mb, 'P1'),
 		robotLog(at(2, 16.5), 11 * mb, 'P2'),
-		...Array.from({ length: 12 }, (_, index) =>
+		...Array.from({ length: 12 }, (_, index) => [
 			robotLog(at(1, 8 + index / 2), 20 * mb + ((index * 7) % 20) * mb, `Q${index + 1}`),
-		),
+			hootLog(new Date(at(1, 8 + index / 2).getTime() + 6000), 9 * mb, `Q${index + 1}`),
+		]).flat(),
 		...[3, 2, 1].map((hoursAgo, index) =>
 			robotLog(new Date(now - hoursAgo * hourMs), 30 * mb + index * 5 * mb, `E${index + 1}`),
 		),
@@ -96,14 +106,14 @@ export const demoBackend: SyncBackend = {
 		return demoStore.get().robotLogs;
 	},
 	listSavedLogs: () =>
-		Promise.resolve(Object.entries(demoStore.get().savedLogs).map(([name, size]) => ({ name, size }))),
+		Promise.resolve(Object.entries(demoStore.get().savedLogs).map(([name, size]) => ({ name, size, dir: '' }))),
 	createFolder: () => Promise.resolve(),
-	deleteLog: (_folder, name) => {
+	deleteLog: (_folder, { name }) => {
 		const { [name]: _deleted, ...savedLogs } = demoStore.get().savedLogs;
 		updateDemo({ savedLogs });
 		return Promise.resolve();
 	},
-	download: async (host, log, _folder, offset, onProgress) => {
+	download: async (host, log, _localPath, offset, onProgress) => {
 		cancelled = false;
 		let copied = 0;
 		while (offset + copied < log.size) {

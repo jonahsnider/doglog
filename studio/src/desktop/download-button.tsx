@@ -1,4 +1,4 @@
-import { Button } from '@astryxdesign/core/Button';
+import { Button, type ButtonSize } from '@astryxdesign/core/Button';
 import { ButtonGroup } from '@astryxdesign/core/ButtonGroup';
 import { DropdownMenu, DropdownMenuItem, type DropdownMenuTriggerProps } from '@astryxdesign/core/DropdownMenu';
 import ChevronDownIcon from 'lucide-react/icons/chevron-down';
@@ -40,7 +40,7 @@ function detectPlatform(): Platform | undefined {
 }
 
 /** Downloads the desktop app for the user's platform, with the other platforms in a menu */
-export function DownloadButton() {
+export function DownloadButton({ size }: { size?: ButtonSize }) {
 	const platform = detectPlatform();
 	const primary = downloads.find((download) => download.platform === platform);
 	const items = downloads.map((download) => (
@@ -49,7 +49,7 @@ export function DownloadButton() {
 
 	if (!primary) {
 		return (
-			<DropdownMenu button={{ label: 'Download', variant: 'primary', icon: <DownloadIcon /> }} alignment="center">
+			<DropdownMenu button={{ label: 'Download', variant: 'primary', size, icon: <DownloadIcon /> }} alignment="center">
 				{items}
 			</DropdownMenu>
 		);
@@ -60,11 +60,12 @@ export function DownloadButton() {
 			<Button
 				label={`Download for ${platformNames[primary.platform]}`}
 				variant="primary"
+				size={size}
 				icon={<DownloadIcon />}
 				href={downloadsUrl + primary.file}
 			/>
 			<DropdownMenu
-				button={{ label: 'Other platforms', variant: 'primary', isIconOnly: true, icon: <ChevronDownIcon /> }}
+				button={{ label: 'Other platforms', variant: 'primary', size, isIconOnly: true, icon: <ChevronDownIcon /> }}
 				hasChevron={false}
 				alignment="end"
 			>

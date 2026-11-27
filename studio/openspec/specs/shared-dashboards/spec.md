@@ -111,7 +111,7 @@ An account MUST belong to at most one team. When Cloud is available, Studio SHAL
 
 ### Requirement: Dashboard ownership and roles
 
-Dashboards shared in Cloud SHALL belong to the team, not to the member who shared them. Every member MUST be able to see and edit every Cloud dashboard in their team. Only admins may manage other accounts' membership, invite links, and robot links. A team MUST NOT have viewer roles or per-dashboard permissions.
+Dashboards shared in Cloud SHALL belong to the team, not to the member who shared them. Every member MUST be able to see and edit every Cloud dashboard in their team. Only admins may manage other accounts' membership, invite links, robot links, and the team's storage connection (see the log-storage spec). A team MUST NOT have viewer roles or per-dashboard permissions.
 
 #### Scenario: A dashboard's creator leaves
 

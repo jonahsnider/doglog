@@ -18,7 +18,7 @@ export function useAddVideo(paneId: string, setOption: WidgetProps['setOption'])
 	// Files dropped on the desktop app have paths, so they're kept like picked ones
 	const desktopDrop = useFileDropTarget(
 		(name) => isVideoFile({ name, type: '' }),
-		(path) => addFile(setVideoPath(paneId, path)),
+		(paths) => addFile(setVideoPath(paneId, paths[0]!)),
 	);
 	return {
 		draggingVideo: draggingVideo || desktopDrop.over,

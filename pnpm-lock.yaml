@@ -307,6 +307,9 @@ importers:
       '@tanstack/react-hotkeys':
         specifier: 0.27.5
         version: 0.27.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@tanstack/react-query':
+        specifier: 5.108.4
+        version: 5.108.4(@types/react@19.3.3)(react@19.3.1)
       '@tanstack/react-router':
         specifier: 1.170.46
         version: 1.170.46(@types/react@19.3.3)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -328,6 +331,9 @@ importers:
       '@tauri-apps/plugin-fs':
         specifier: 2.7.1
         version: 2.7.1
+      '@tauri-apps/plugin-http':
+        specifier: 2.9.0
+        version: 2.9.0
       '@tauri-apps/plugin-opener':
         specifier: 2.7.3
         version: 2.7.3
@@ -343,6 +349,9 @@ importers:
       '@ui-sdk/react':
         specifier: 0.1.0-beta.17
         version: 0.1.0-beta.17(@types/react@19.3.3)(@ui-sdk/core@0.1.0-beta.17)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      aws4fetch:
+        specifier: 1.0.20
+        version: 1.0.20
       change-case:
         specifier: 5.4.4
         version: 5.4.4
@@ -5231,12 +5240,24 @@ packages:
     resolution: {integrity: sha512-kgpt1ri0zpEJ6zAzPtngKDhxU/SWRnMGTb/Re/5iJyXKO9+D6fn7+vvJNYFEnD2ss+oZDTUFAS87NwoFcfYUWw==}
     engines: {node: '>=20'}
 
+  '@tanstack/query-core@5.108.4':
+    resolution: {integrity: sha512-2Ks5dlLWz4eXJrthOyG0qW3SLt3xx0RrQmAmN0rnmogiaaOYuWiAe6HAm9KE2b2v8nig+vraNz8fsfZ6fF6zFg==}
+
   '@tanstack/react-hotkeys@0.27.5':
     resolution: {integrity: sha512-ncJbgmkRTnVy3LKWOkSc7//zupmcoJfpd5yjtcWfgG7NnDxfH5WgiB3jwxq56vGl0BzIwY/DA1fAsL8V5924fA==}
     engines: {node: '>=20'}
     peerDependencies:
       react: '>=18.0.0'
       react-dom: '>=18.0.0'
+
+  '@tanstack/react-query@5.108.4':
+    resolution: {integrity: sha512-GlTa94kfEKTVsbzXe58rFA3GZ0ZE7N1aFtbZAfOS3XxMv8YNn4C+8rsz40LorHLazdm5PsqCroWaYAR+ZkMXMQ==}
+    peerDependencies:
+      '@types/react': ^18 || ^19
+      react: ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@tanstack/react-router@1.170.46':
     resolution: {integrity: sha512-ez1iNIhsPjGlaDHg3BXWs67EWVIYzB2tbopEHYDESdkO7owgkGb5de52+5Kv2v1fxdkggcNzo35bdk4arTVGQw==}
@@ -5388,6 +5409,9 @@ packages:
 
   '@tauri-apps/plugin-fs@2.7.1':
     resolution: {integrity: sha512-4TBVjpi/q8PuNzjpkAc2iBGXMTLjOrAyfTiiOL8ORaJCZJRG3tjzmQ4sqs2CMG75FvLyRkOkERfP7AyY4iBNwQ==}
+
+  '@tauri-apps/plugin-http@2.9.0':
+    resolution: {integrity: sha512-q3HTsbyFk3E9H4slJr+egd6KdRF2Fn4BoZFGI3ZHb7PBT9snlsOOlZC5L4Q1+AlDDd6OHdf/KTM6DNUJ0RNMEQ==}
 
   '@tauri-apps/plugin-opener@2.7.3':
     resolution: {integrity: sha512-Nm+v7vLBCDzYZxrmCJhpMgtPsPsKt5myMs7SMU/aBjPOmAFI1RrHfhMz7t5KlxjMOzRcelyNq1/j0pmC9SmBVA==}
@@ -14435,11 +14459,20 @@ snapshots:
 
   '@tanstack/hotkeys@0.36.0': {}
 
+  '@tanstack/query-core@5.108.4': {}
+
   '@tanstack/react-hotkeys@0.27.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@tanstack/hotkeys': 0.36.0
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
+
+  '@tanstack/react-query@5.108.4(@types/react@19.3.3)(react@19.3.1)':
+    dependencies:
+      '@tanstack/query-core': 5.108.4
+      react: 19.3.1
+    optionalDependencies:
+      '@types/react': 19.3.3
 
   '@tanstack/react-router@1.170.46(@types/react@19.3.3)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
@@ -14589,6 +14622,10 @@ snapshots:
       '@tauri-apps/api': 2.12.5
 
   '@tauri-apps/plugin-fs@2.7.1':
+    dependencies:
+      '@tauri-apps/api': 2.12.5
+
+  '@tauri-apps/plugin-http@2.9.0':
     dependencies:
       '@tauri-apps/api': 2.12.5
 

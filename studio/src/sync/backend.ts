@@ -16,18 +16,19 @@ export interface RobotEnabledWatcher {
 export interface SyncBackend {
 	/** List the logs on the robot, throws if the robot can't be reached */
 	listRobotLogs: (host: string) => Promise<RemoteLog[]>;
-	/** List the logs in the sync folder, which is empty before the first sync */
+	/** List the logs in the sync folder and its run folders, which are empty before the first sync */
 	listSavedLogs: (folder: string) => Promise<LocalLog[]>;
+	/** Create a folder and the folders it's in */
 	createFolder: (folder: string) => Promise<void>;
-	deleteLog: (folder: string, name: string) => Promise<void>;
+	deleteLog: (folder: string, log: LocalLog) => Promise<void>;
 	/**
-	 * Copy the rest of `log` after the `offset` bytes already in the sync folder.
+	 * Copy the rest of `log` to `localPath` after the `offset` bytes already there.
 	 * Returns the bytes copied, which is less than the rest of the log if it was cancelled.
 	 */
 	download: (
 		host: string,
 		log: RemoteLog,
-		folder: string,
+		localPath: string,
 		offset: number,
 		onProgress: (copied: number) => void,
 	) => Promise<number>;
@@ -62,25 +63,36 @@ export function trackEnabled(onChange: () => void): {
 /** A roboRIO or Systemcore, over SFTP in the desktop app */
 export const robotBackend: SyncBackend = {
 	listRobotLogs: (host) => invoke<RemoteLog[]>('list_robot_logs', { host }),
-	listSavedLogs: async (folder) => {
-		let entries;
-		try {
-			entries = await readDir(folder);
-		} catch {
-			// Not created until the first sync
-			return [];
-		}
-
-		const logs = entries.filter((entry) => entry.isFile && /\.wpilog(?:xz)?$/u.test(entry.name));
-		return Promise.all(logs.map(async ({ name }) => ({ name, size: (await stat(await join(folder, name))).size })));
+	listSavedLogs: (folder) => {
+		const list = async (dir: string, depth: number): Promise<LocalLog[]> => {
+			let entries;
+			try {
+				entries = await readDir(dir === '' ? folder : await join(folder, dir));
+			} catch {
+				// Not created until the first sync
+				return [];
+			}
+			const nested = await Promise.all(
+				entries.map(async ({ name, isFile, isDirectory }): Promise<LocalLog[]> => {
+					const path = dir === '' ? name : `${dir}/${name}`;
+					if (isFile && /\.(?:wpilog|wpilogxz|hoot)$/u.test(name)) {
+						return [{ name, size: (await stat(await join(folder, path))).size, dir }];
+					}
+					// Runs are at most 3 folders deep, ex. `2027/CAPH/Q12`
+					return isDirectory && depth < 3 ? list(path, depth + 1) : [];
+				}),
+			);
+			return nested.flat();
+		};
+		return list('', 0);
 	},
 	createFolder: (folder) => mkdir(folder, { recursive: true }),
-	deleteLog: async (folder, name) => remove(await join(folder, name)),
-	download: async (host, log, folder, offset, onProgress) =>
+	deleteLog: async (folder, { dir, name }) => remove(await join(folder, dir, name)),
+	download: (host, log, localPath, offset, onProgress) =>
 		invoke<number>('download_robot_log', {
 			host,
 			remotePath: log.path,
-			localPath: await join(folder, log.name),
+			localPath,
 			offset,
 			onProgress: new Channel<number>(onProgress),
 		}),

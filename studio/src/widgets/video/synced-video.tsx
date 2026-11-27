@@ -62,10 +62,13 @@ export function SyncedVideo({
 	setOption,
 	video,
 	replace,
+	saveSync,
 }: VideoProps & {
 	video: { kind: 'youtube'; id: string } | { kind: 'file'; url: string };
 	/** Picks another file when this one can't play */
 	replace?: () => void;
+	/** Saves a sync from Sync mode somewhere other than the `sync` option, ex. with a run's video in storage */
+	saveSync?: (sync: Sync) => void;
 }) {
 	const player = useRef<Player>(null);
 	const [info, setInfo] = useState<PlayerInfo>({});
@@ -133,7 +136,11 @@ export function SyncedVideo({
 					onSync={(videoTime) => {
 						const log = timelineTimeAt(getCursorTime());
 						if (log !== undefined) {
-							setOption('sync', formatSync({ log, video: videoTime }));
+							if (saveSync) {
+								saveSync({ log, video: videoTime });
+							} else {
+								setOption('sync', formatSync({ log, video: videoTime }));
+							}
 							stopSyncing(paneId);
 						}
 					}}

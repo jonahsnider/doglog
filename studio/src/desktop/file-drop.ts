@@ -7,9 +7,9 @@ import { useEffect, useRef, useState } from 'react';
 
 /** An element files can be dropped on, which takes them before the window does */
 type DropTarget = {
-	/** Whether it takes a file with this name */
+	/** Whether it takes a drop whose first file has this name */
 	accepts: (name: string) => boolean;
-	drop: (path: string) => void;
+	drop: (paths: string[]) => void;
 };
 
 const targets = new WeakMap<Element, DropTarget>();
@@ -31,8 +31,8 @@ function targetAt({ x, y }: { x: number; y: number }, path: string): DropTarget 
 }
 
 /**
- * Handle files dropped on the window, calling `drop` with them unless a drop target under them takes the first one.
- * Drop targets only take one file, ex. a video widget's video.
+ * Handle files dropped on the window, calling `drop` with them unless a drop target under them takes the first one,
+ * which then gets all of them.
  */
 export async function handleFileDrops(drop: (paths: string[]) => void): Promise<void> {
 	let paths: string[] = [];
@@ -54,7 +54,7 @@ export async function handleFileDrops(drop: (paths: string[]) => void): Promise<
 		if (payload.type === 'drop') {
 			dragStore.set(undefined);
 			if (target) {
-				target.drop(path);
+				target.drop(paths);
 			} else {
 				drop(paths);
 			}
@@ -75,14 +75,14 @@ export function useDraggedFile(): string | undefined {
 
 /**
  * Let files be dropped on an element. Returns a ref for it, and whether a file it takes is dragged over it.
- * `accepts` gets the file's name, `drop` its path.
+ * `accepts` gets the first file's name, `drop` every dropped path.
  */
-export function useFileDropTarget(accepts: (name: string) => boolean, drop: (path: string) => void) {
+export function useFileDropTarget(accepts: (name: string) => boolean, drop: (paths: string[]) => void) {
 	const latestDrop = useRef(drop);
 	useEffect(() => {
 		latestDrop.current = drop;
 	});
-	const [target] = useState<DropTarget>(() => ({ accepts, drop: (path) => latestDrop.current(path) }));
+	const [target] = useState<DropTarget>(() => ({ accepts, drop: (paths) => latestDrop.current(paths) }));
 	const over = useSelector(dragStore, (drag) => drag?.target === target);
 	// Removed elements don't need to be unregistered, they're never under the pointer and the map doesn't keep them
 	const ref = (element: Element | null) => {

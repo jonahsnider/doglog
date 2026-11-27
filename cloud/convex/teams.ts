@@ -4,6 +4,7 @@ import { deleteTeamDashboards } from './cloudDashboards';
 import type { Doc, Id } from './_generated/dataModel';
 import { type DatabaseReader, mutation, type MutationCtx, query } from './_generated/server';
 import { getPendingInvites } from './invites';
+import { deleteTeamStorage } from './storage';
 
 export function getMembership(db: DatabaseReader, userId: Id<'users'>) {
 	return db
@@ -43,12 +44,14 @@ async function revokeGrants(ctx: MutationCtx, { teamId, userId }: Doc<'membershi
 	}
 }
 
-async function deleteTeamKeysAndDashboards(ctx: MutationCtx, teamId: Id<'teams'>) {
+// Deletes the team key and everything Cloud keeps encrypted with it
+async function deleteTeamKeyData(ctx: MutationCtx, teamId: Id<'teams'>) {
 	const keys = ctx.db.query('teamKeys').withIndex('by_team_user_and_version', (q) => q.eq('teamId', teamId));
 	for await (const key of keys) {
 		await ctx.db.delete('teamKeys', key._id);
 	}
 	await deleteTeamDashboards(ctx, teamId);
+	await deleteTeamStorage(ctx, teamId);
 }
 
 // Removes the account's membership and key grants. A former member is treated like one who never joined.
@@ -60,7 +63,7 @@ async function endMembership(ctx: MutationCtx, membership: Doc<'memberships'>) {
 /**
  * Called when an account replaces its encryption key, since its grants are sealed to the old one. Teammates' Studios
  * rotate the team key to every member's current key. With no teammates, nobody can share the key again, so the team
- * starts over without its Cloud dashboards and the member's Studio publishes a fresh key.
+ * starts over without its Cloud dashboards and storage connection, and the member's Studio publishes a fresh key.
  */
 export async function resetGrants(ctx: MutationCtx, userId: Id<'users'>) {
 	const membership = await getMembership(ctx.db, userId);
@@ -68,7 +71,7 @@ export async function resetGrants(ctx: MutationCtx, userId: Id<'users'>) {
 		return;
 	}
 	if (await isOnlyTeamMember(ctx.db, membership.teamId)) {
-		await deleteTeamKeysAndDashboards(ctx, membership.teamId);
+		await deleteTeamKeyData(ctx, membership.teamId);
 		await ctx.db.patch('teams', membership.teamId, { keyVersion: undefined, rotationPending: undefined });
 	} else {
 		await revokeGrants(ctx, membership);
@@ -107,7 +110,7 @@ export const remove = mutation({
 			throw new ConvexError('You can only delete a team when you’re its only member and an admin.');
 		}
 		await ctx.db.delete('memberships', membership._id);
-		await deleteTeamKeysAndDashboards(ctx, teamId);
+		await deleteTeamKeyData(ctx, teamId);
 		await ctx.db.delete('teams', teamId);
 	},
 });

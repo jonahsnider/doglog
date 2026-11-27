@@ -16,6 +16,7 @@ import { useRobotTarget } from '@/settings';
 import { addDemoMatch, resetDemo, updateDemo, useDemo } from '@/sync/demo';
 import { syncNow, useSyncFolder } from '@/sync/sync';
 import { updateSyncSettings, useSyncSettings } from '@/sync/sync-settings';
+import { useTeamStorage } from '@/storage/team-storage';
 
 /** A button that opens the log sync settings in a drawer */
 export function SyncSettingsDrawer() {
@@ -24,10 +25,16 @@ export function SyncSettingsDrawer() {
 	useSwipeToClose(drawerRef, { isOpen: open, side: 'end', onClose: () => setOpen(false) });
 	return (
 		<>
-			<Button label="Sync settings" variant="ghost" size="sm" icon={<SettingsIcon />} onClick={() => setOpen(true)} />
-			<Drawer ref={drawerRef} isOpen={open} onOpenChange={setOpen} label="Sync settings">
+			<Button
+				label="Download settings"
+				variant="ghost"
+				size="sm"
+				icon={<SettingsIcon />}
+				onClick={() => setOpen(true)}
+			/>
+			<Drawer ref={drawerRef} isOpen={open} onOpenChange={setOpen} label="Download settings">
 				<Layout
-					header={<DrawerHeader title="Sync settings" subtitle={<RobotSummary />} onOpenChange={setOpen} />}
+					header={<DrawerHeader title="Download settings" subtitle={<RobotSummary />} onOpenChange={setOpen} />}
 					content={
 						<LayoutContent>
 							<SyncSettingsForm />
@@ -42,9 +49,9 @@ export function SyncSettingsDrawer() {
 function RobotSummary() {
 	const { demo } = useSyncSettings();
 	const target = useRobotTarget();
-	let summary = `Syncs from ${/^\d+$/u.test(target) ? `team ${target}` : target}. `;
+	let summary = `Downloads from ${/^\d+$/u.test(target) ? `team ${target}` : target}. `;
 	if (demo) {
-		summary = 'Syncs from the demo robot. ';
+		summary = 'Downloads from the demo robot. ';
 	} else if (getRobotHost(target) === undefined) {
 		summary = 'No robot is set. ';
 	}
@@ -59,8 +66,9 @@ function RobotSummary() {
 }
 
 function SyncSettingsForm() {
-	const { folder, days, officialOnly, capGb, demo } = useSyncSettings();
+	const { folder, days, officialOnly, capGb, onlyDeleteUploaded, demo } = useSyncSettings();
 	const folderPath = useSyncFolder()?.path;
+	const hasStorage = useTeamStorage() !== null;
 
 	const changeFolder = async () => {
 		const picked = await openDialog({ directory: true, defaultPath: folderPath });
@@ -92,7 +100,7 @@ function SyncSettingsForm() {
 
 			<NumberInput
 				label="Days of logs"
-				description="Only sync logs from this many days ago or newer"
+				description="Only download logs from this many days ago or newer"
 				value={days}
 				min={1}
 				isIntegerOnly
@@ -127,6 +135,14 @@ function SyncSettingsForm() {
 						onChange={(value) => updateSyncSettings({ capGb: value })}
 					/>
 				)}
+				{capGb !== null && hasStorage && (
+					<Switch
+						label="Only delete uploaded logs"
+						description="Keeps logs that aren’t in the team’s storage yet, even if downloads have to wait for them to upload"
+						value={onlyDeleteUploaded}
+						onChange={(checked) => updateSyncSettings({ onlyDeleteUploaded: checked })}
+					/>
+				)}
 			</VStack>
 
 			{import.meta.env.DEV && (
@@ -134,7 +150,7 @@ function SyncSettingsForm() {
 					<Divider />
 					<Switch
 						label="Demo mode"
-						description="Pretends to sync from a robot with made-up logs, without saving anything. Only in development builds."
+						description="Pretends to download from a robot with made-up logs, without saving anything. Only in development builds."
 						value={demo}
 						onChange={(checked) => updateSyncSettings({ demo: checked })}
 					/>
