@@ -1,10 +1,11 @@
 /*
  * Cascade layers, lowest first: resets, then Astryx's components and theme, then Studio's StyleX. `@astryxdesign/build`
- * declares them in `index.html`. Astryx's component styles are compiled from its source by the Vite plugin, so only the
- * components Studio imports ship, and there's no `astryx.css`.
+ * declares them in `index.html`. Builds compile Astryx's component styles from its source, so only the components Studio
+ * imports ship, and its plugin replaces `astryx.css` with an empty stylesheet. The dev server loads the real one.
  */
 @layer reset, astryx-base, astryx-theme, product;
 @import '@astryxdesign/core/reset.css';
+@import '@astryxdesign/core/astryx.css';
 @import '@team581/astryx-theme/themes/team581.fonts.css';
 /* Bold and italic text in the notepad */
 @import '@fontsource/ibm-plex-mono/600.css';

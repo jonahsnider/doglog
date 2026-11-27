@@ -275,8 +275,15 @@ export default defineConfig({
 		// Only active when CodSpeed runs the benchmarks in CI
 		codspeedPlugin(),
 		tanstackRouter({ target: 'react', autoCodeSplitting: true }),
-		// Compiles Astryx from source, so only the components Studio imports ship their styles, and Studio's own StyleX
-		...astryxStylex(),
+		// Compiles Studio's own StyleX, and in builds Astryx from source, so only the components Studio imports ship their
+		// styles. Compiling Astryx made dev cold starts over twice as slow, so the dev server loads its prebuilt `dist` and
+		// `astryx.css` instead. Those use StyleX's default `x` class prefix, so Studio's classes get their own in dev, or a
+		// class both define would move Astryx's rule from `astryx-base` to `product`, above theme overrides.
+		...(process.env['NODE_ENV'] === 'production'
+			? astryxStylex()
+			: astryxStylex({ stylexOverrides: { classNamePrefix: 'studio' } }).filter(
+					(plugin) => plugin.name !== 'astryx-config',
+				)),
 		react({
 			compiler: true,
 			// Leave the generated routes alone. Compile both TSX components and TS hooks.
