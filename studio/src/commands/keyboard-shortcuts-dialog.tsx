@@ -105,6 +105,7 @@ const sections: {
 			...commandRow(commands.openLogUrl),
 			...commandRow(commands.exportLive),
 			...commandRow(commands.connect),
+			...commandRow(commands.findInConsole),
 		],
 	},
 	{

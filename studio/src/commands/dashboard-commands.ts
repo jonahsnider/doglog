@@ -1,14 +1,22 @@
 import type { RegisteredRouter } from '@tanstack/react-router';
 import { canCopyDashboardLink, copyDashboardLink } from '@/dashboards/copy-dashboard-link';
 import { type Dashboard, getDashboard, updateDashboard } from '@/dashboards/dashboards';
-import { allowedActions, getFocusedPane, splitDashboardPane, splitDirectionFor, toggleZoom } from '@/dashboards/panes';
+import {
+	allowedActions,
+	getFocusedPane,
+	getZoomedPane,
+	splitDashboardPane,
+	splitDirectionFor,
+	toggleZoom,
+} from '@/dashboards/panes';
 import { getSource } from '@/data/source';
 import { copyDashboardImage } from '@/desktop/capture';
 import { canExportVideo, isExportingVideo, startVideoExport } from '@/desktop/video-export';
 import { toggleEditing, toggleEntryBrowser } from '@/entries/editing';
 import { isMobileLayout } from '@/lib/mobile-layout';
-import { balanceLayout, isBalanced, type SplitDirection } from '@/panes/layout';
+import { balanceLayout, isBalanced, panes, type SplitDirection } from '@/panes/layout';
 import { shownTuningDashboard } from '@/tuning/dashboard';
+import { consoleFilterInputs } from '@/widgets/console/filter-inputs';
 import { getWidgetType } from '@/widgets/registry';
 import { bindsEntries } from '@/widgets/widget-type';
 
@@ -22,6 +30,44 @@ export function currentDashboard(router: RegisteredRouter): Dashboard | undefine
 /** The dashboard that pane commands act on. Video export mode keeps the layout it previews. */
 export function paneCommandDashboard(router: RegisteredRouter): Dashboard | undefined {
 	return isExportingVideo() ? undefined : (currentDashboard(router) ?? shownTuningDashboard(router));
+}
+
+function visibleConsoleFilters(router: RegisteredRouter) {
+	const dashboard = paneCommandDashboard(router);
+	if (!dashboard) {
+		return [];
+	}
+	const focused = getFocusedPane(dashboard);
+	// Like DashboardPanes, the phone layout shows the focused pane and ignores the saved zoom.
+	const onlyShown = isMobileLayout() ? focused : getZoomedPane(dashboard);
+	const filters = consoleFilterInputs.get();
+	return (onlyShown ? [onlyShown] : panes(dashboard.layout)).flatMap(({ id }) => {
+		const input = filters.get(id);
+		return input ? [{ input, focused: id === focused.id }] : [];
+	});
+}
+
+export function canFindInConsole(router: RegisteredRouter): boolean {
+	return visibleConsoleFilters(router).length > 0;
+}
+
+export function findInConsole(router: RegisteredRouter): void {
+	const filters = visibleConsoleFilters(router);
+	let input = filters.find((filter) => filter.focused)?.input;
+	if (!input) {
+		let largest = 0;
+		// Layout order breaks ties. Measure the pane, not the width of its filter.
+		for (const filter of filters) {
+			const rect = filter.input.closest('[data-pane-id]')?.getBoundingClientRect();
+			const area = rect ? rect.width * rect.height : 0;
+			if (area > largest) {
+				largest = area;
+				input = filter.input;
+			}
+		}
+	}
+	input?.focus({ preventScroll: true });
+	input?.select();
 }
 
 /** The phone layout shows one pane at a time, so it doesn't zoom */

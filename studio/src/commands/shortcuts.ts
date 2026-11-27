@@ -37,6 +37,7 @@ export const shortcuts = {
 	toggleEntryBrowser: 'Mod+Alt+B',
 	keyboardShortcuts: 'Mod+/',
 	commandPalette: 'Mod+P',
+	findInConsole: 'Mod+F',
 	searchEntries: '/',
 	update: updateShortcut,
 } as const satisfies Record<string, Hotkey>;

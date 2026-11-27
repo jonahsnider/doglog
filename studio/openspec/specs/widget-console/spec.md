@@ -62,6 +62,28 @@ The console SHALL provide a text filter that hides messages not matching the fil
 - **WHEN** the user types "CAN" in the filter and turns on match whole word
 - **THEN** messages containing "CAN bus" are shown, but not ones only containing "CANcoder"
 
+### Requirement: Find in Console
+
+Find in Console (⌘F, or Ctrl+F on Windows and Linux) SHALL focus a visible filter and select its text without moving the timeline. The focused Console MUST win, then the largest visible pane with a filter, with ties in layout order. Without a target, the web app MUST leave the shortcut to the browser.
+
+#### Scenario: Focused Console is smaller
+
+- **GIVEN** a small Console pane is focused and a larger Console is also visible
+- **WHEN** the user presses ⌘F
+- **THEN** the small Console's filter is focused, with its text selected and the timeline cursor unchanged
+
+#### Scenario: Another widget is focused
+
+- **GIVEN** a Graph pane is focused and two Console filters are visible
+- **WHEN** the user presses ⌘F
+- **THEN** the larger Console's filter is focused, or the first in dashboard layout order if they are the same size
+
+#### Scenario: Console hidden by zoom
+
+- **GIVEN** a Graph pane is zoomed and the dashboard's only Console is hidden
+- **WHEN** the user presses ⌘F in the web app
+- **THEN** Studio leaves the shortcut to the browser
+
 ### Requirement: Message navigation
 
 The console SHALL provide previous and next message buttons, also bound to Shift+Enter and Enter in the filter, that move the global cursor to the previous or next message passing the filters. The message stepped to SHALL briefly flash a tinted background to show where it is, and SHALL NOT flash at other times, such as when the console opens. While filtering, the filter SHALL show how many matching messages are at or before the cursor out of all matching messages in the log.

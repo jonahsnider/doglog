@@ -10,6 +10,7 @@ import { subscribeSource } from '@/data/source';
 import { createOpenRecentMenu } from '@/desktop/native-menu';
 import { subscribeVideoExport } from '@/desktop/video-export';
 import { updateTitle, watchUpdate } from '@/updater';
+import { consoleFilterInputs } from '@/widgets/console/filter-inputs';
 
 /** Short words macOS leaves lowercase in title case */
 const minorWords = new Set([
@@ -135,6 +136,8 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 					{ item: 'Paste' },
 					{ item: 'SelectAll' },
 					separator,
+					await commandItem(commands.findInConsole),
+					separator,
 					await commandItem(commands.copyDashboardLink),
 					...(commands.copyDashboardImage.available ? [await commandItem(commands.copyDashboardImage)] : []),
 				],
@@ -177,9 +180,11 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 	subscribeSource(updateEnabled);
 	subscribeData(updateEnabled);
 	subscribeVideoExport(updateEnabled);
+	consoleFilterInputs.subscribe(updateEnabled);
 	// Undo and Redo follow whether a text field is focused
 	document.addEventListener('focusin', updateEnabled);
 	document.addEventListener('focusout', () => queueMicrotask(updateEnabled));
+	updateEnabled();
 	await menu.setAsAppMenu();
 	// Adds macOS's menu search field
 	await helpMenu.setAsHelpMenuForNSApp();

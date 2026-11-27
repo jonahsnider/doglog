@@ -264,7 +264,7 @@ On macOS, the desktop app SHALL list Settings and Check for updates in its app m
 
 ### Requirement: Edit, View, Go, and Help menus
 
-On macOS, the desktop app SHALL list Undo, Redo, Copy dashboard link, and Copy dashboard image in its Edit menu; Command palette, Toggle sidebar, Toggle entry browser, Split right, Split down, Split best fit, Balance splits, Zoom or restore pane, and Edit entries in its View menu; Back, Forward, and Logs in its Go menu; and Keyboard shortcuts in its Help menu. Undo and Redo MUST act on the focused text field while one is focused.
+On macOS, the desktop app SHALL list Undo, Redo, Find in Console, Copy dashboard link, and Copy dashboard image in its Edit menu; Command palette, Toggle sidebar, Toggle entry browser, Split right, Split down, Split best fit, Balance splits, Zoom or restore pane, and Edit entries in its View menu; Back, Forward, and Logs in its Go menu; and Keyboard shortcuts in its Help menu. Undo and Redo MUST act on the focused text field while one is focused.
 
 #### Scenario: Undo from the menu while typing
 

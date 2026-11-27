@@ -5,9 +5,7 @@ import ChevronUpIcon from 'lucide-react/icons/chevron-up';
 import RegexIcon from 'lucide-react/icons/regex';
 import WholeWordIcon from 'lucide-react/icons/whole-word';
 import { IconButton } from '@astryxdesign/core/IconButton';
-import { InputGroup, InputGroupText } from '@astryxdesign/core/InputGroup';
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
-import { TextInput } from '@astryxdesign/core/TextInput';
 import { ToggleButton, ToggleButtonGroup } from '@astryxdesign/core/ToggleButton';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
 import { colorVars, spacingVars, typeScaleVars, typographyVars } from '@astryxdesign/core/theme/tokens.stylex';
@@ -16,9 +14,9 @@ import { type ReactNode, useCallback, useLayoutEffect, useMemo, useRef, useState
 import { AppContextMenu } from '@/components/app-context-menu';
 import { HighlightedText } from '@/components/highlighted-text';
 import { TooltipLabel } from '@/components/tooltip-label';
-import { isEnterKey } from '@/lib/keyboard';
 import { useDataVersion, useTimeRange } from '@/data/data-store';
 import { formatTime, seek, stopFollowing, useCursorTime, useTimeline } from '@/timeline/timeline';
+import { ConsoleFilter } from '@/widgets/console/console-filter';
 import {
 	type ConsoleMessages,
 	countAtOrBefore,
@@ -41,8 +39,6 @@ const styles = stylex.create({
 	root: { display: 'flex', height: '100%', flexDirection: 'column' },
 	toolbar: { display: 'flex', flexShrink: 0, flexWrap: 'wrap', alignItems: 'center', gap: spacingVars['--spacing-2'] },
 	toolbarPadding: { padding: spacingVars['--spacing-2'] },
-	filter: { minWidth: '14rem', flex: 1 },
-	count: { fontVariantNumeric: 'tabular-nums' },
 	steps: { display: 'flex', flexShrink: 0, alignItems: 'center' },
 	log: { minHeight: 0, flex: 1, overflow: 'auto', paddingBlock: spacingVars['--spacing-1'], lineHeight: '1rem' },
 	code: { fontFamily: typographyVars['--font-family-code'], fontSize: typeScaleVars['--text-supporting-size'] },
@@ -66,7 +62,7 @@ const searchToggles: readonly { option: keyof SearchOptions; label: string; icon
 
 const noMessages: ConsoleMessages = { ids: new Uint32Array(), times: new Float64Array(), texts: [], levels: [] };
 
-export function Console({ bindings }: WidgetProps) {
+export function Console({ bindings, paneId }: WidgetProps) {
 	useDataVersion();
 	const time = useCursorTime();
 	const range = useTimeRange();
@@ -170,33 +166,14 @@ export function Console({ bindings }: WidgetProps) {
 	return (
 		<div {...stylex.props(styles.root)}>
 			<div className={`${stylex.props(styles.toolbar, styles.toolbarPadding).className} capture-invisible`}>
-				<div {...stylex.props(styles.filter)}>
-					<InputGroup label="Console" isLabelHidden size="sm">
-						<TextInput
-							type="search"
-							label="Filter messages"
-							isLabelHidden
-							startIcon="search"
-							placeholder="Filter messages"
-							// The message list says so too, so its message is only on the status icon
-							status={pattern === null ? { type: 'error', message: 'Invalid regular expression' } : undefined}
-							statusVariant="tooltip"
-							value={filter}
-							onChange={setFilter}
-							onKeyDown={(event) => {
-								if (isEnterKey(event)) {
-									event.preventDefault();
-									seekMessage(event.shiftKey ? previousTime : nextTime);
-								}
-							}}
-						/>
-						{filtering && pattern !== null && (
-							<InputGroupText xstyle={styles.count}>
-								{count} of {messages.texts.length}
-							</InputGroupText>
-						)}
-					</InputGroup>
-				</div>
+				<ConsoleFilter
+					paneId={paneId}
+					value={filter}
+					invalid={pattern === null}
+					matchCount={filtering && pattern !== null ? `${count} of ${messages.texts.length}` : undefined}
+					onChange={setFilter}
+					onStep={(direction) => seekMessage(direction === -1 ? previousTime : nextTime)}
+				/>
 				<ToggleButtonGroup
 					label="Filter options"
 					type="multiple"
