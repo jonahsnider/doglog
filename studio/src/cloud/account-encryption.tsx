@@ -1,10 +1,12 @@
-import { Banner } from '@astryxdesign/core/Banner';
+import { Badge } from '@astryxdesign/core/Badge';
 import { Button } from '@astryxdesign/core/Button';
 import { VStack } from '@astryxdesign/core/Layout';
 import { ListItem } from '@astryxdesign/core/List';
-import { Text } from '@astryxdesign/core/Text';
 import { useSelector } from '@tanstack/react-store';
 import { useAction, useConvex, useQuery } from 'convex/react';
+import CheckIcon from 'lucide-react/icons/check';
+import ClockIcon from 'lucide-react/icons/clock';
+import CloudCheckIcon from 'lucide-react/icons/cloud-check';
 import KeyRoundIcon from 'lucide-react/icons/key-round';
 import { SettingsGroup } from '@/components/settings-group';
 import { api } from '../../../cloud/convex/_generated/api.js';
@@ -19,30 +21,61 @@ function retryAccountKey() {
 	accountKeyAttemptStore.set((attempt) => attempt + 1);
 }
 
-export function AccountEncryption({ userId }: { userId: Id<'users'> }) {
+const iconSize = 20;
+
+const keyStatus = {
+	loading: {
+		description: 'Checking your encryption key…',
+		endContent: <Badge label="Checking" />,
+	},
+	ready: {
+		description: 'When you sign in on another device, approve it here.',
+		endContent: <Badge icon={<CheckIcon aria-hidden="true" size={12} />} label="Available" />,
+	},
+	missing: {
+		description: 'Approve this sign-in from a device you’re already signed in on.',
+		endContent: <Badge variant="warning" icon={<ClockIcon aria-hidden="true" size={12} />} label="Needs approval" />,
+	},
+	error: {
+		description: 'Couldn’t set up your encryption key.',
+		endContent: <Button label="Try again" onClick={retryAccountKey} />,
+	},
+};
+
+/** Shows that this device is signed in and whether it has the account's encryption key, with pairing to get or share it */
+export function AccountStatus({ account }: { account: { id: Id<'users'>; displayName: string | null } }) {
 	const { url } = useConvex();
 	const registeredKey = useQuery(api.users.getMyEncryptionKey);
 	const { status } = useSelector(accountKeyStore);
-	const account = registeredKey ? { deployment: url, userId, publicKey: registeredKey.publicKey } : undefined;
+	const pairing = registeredKey
+		? { deployment: url, userId: account.id, publicKey: registeredKey.publicKey }
+		: undefined;
+	const key = keyStatus[status];
 
 	return (
-		<VStack gap={2} hAlign="start">
-			<Text role="status" type="supporting" color="secondary">
-				{status === 'loading' && 'Checking your encryption key…'}
-				{status === 'ready' && 'When you sign in on another device, approve it here.'}
-				{status === 'missing' && 'Approve this sign-in from a device you’re already signed in on.'}
-			</Text>
-			{account && status === 'missing' && <PairThisDevice account={account} onPaired={retryAccountKey} />}
-			{account && status === 'ready' && <ApprovePairing account={account} />}
-			{status === 'error' && (
-				<Banner
-					status="error"
-					role="alert"
-					title="Couldn’t set up your encryption key."
-					endContent={<Button label="Try again" size="sm" onClick={retryAccountKey} />}
-				/>
-			)}
-		</VStack>
+		<SettingsGroup>
+			<ListItem
+				align="first-line"
+				startContent={<CloudCheckIcon aria-hidden="true" size={iconSize} />}
+				label="Account"
+				description={account.displayName ?? 'DogLog Cloud'}
+				endContent={<Badge icon={<CheckIcon aria-hidden="true" size={12} />} label="Signed in" />}
+			/>
+			<ListItem
+				// Keeps the icon and badge by the label while pairing steps grow the row
+				align="first-line"
+				startContent={<KeyRoundIcon aria-hidden="true" size={iconSize} />}
+				label="Encryption key"
+				description={
+					<VStack gap={3} hAlign="start">
+						<span role={status === 'error' ? 'alert' : 'status'}>{key.description}</span>
+						{pairing && status === 'missing' && <PairThisDevice account={pairing} onPaired={retryAccountKey} />}
+						{pairing && status === 'ready' && <ApprovePairing account={pairing} />}
+					</VStack>
+				}
+				endContent={key.endContent}
+			/>
+		</SettingsGroup>
 	);
 }
 

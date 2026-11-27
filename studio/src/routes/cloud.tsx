@@ -16,7 +16,7 @@ import { ConvexError } from 'convex/values';
 import LogOutIcon from 'lucide-react/icons/log-out';
 import Trash2Icon from 'lucide-react/icons/trash-2';
 import { type SubmitEvent, useState } from 'react';
-import { AccountEncryption, ResetAccountKey } from '@/cloud/account-encryption';
+import { AccountStatus, ResetAccountKey } from '@/cloud/account-encryption';
 import { ConfirmCloudAction } from '@/cloud/confirm-cloud-action';
 import { InviteLink } from '@/cloud/invite-link';
 import { JoinTeam } from '@/cloud/join-team';
@@ -129,10 +129,7 @@ function SignedIn() {
 			<Divider />
 
 			<UtilityPageSection title="Account">
-				<VStack gap={1}>
-					<Text>Signed in to DogLog Cloud</Text>
-					{account && <AccountEncryption userId={account.id} />}
-				</VStack>
+				{account && <AccountStatus account={account} />}
 				<ResetAccountKey />
 				<SignInMethods />
 				<SettingsGroup>
