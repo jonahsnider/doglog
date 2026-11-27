@@ -45,6 +45,10 @@ const styles = stylex.create({
 		paddingInlineStart: 0,
 		paddingTop: 0,
 	},
+	// The pane bar spaces itself from the timeline bar, or sits in it
+	mobilePanes: {
+		marginBottom: 0,
+	},
 	panes: {
 		position: 'relative',
 		isolation: 'isolate',
@@ -191,10 +195,10 @@ function PanesColumn({ dashboard, dashboards }: { dashboard: Dashboard; dashboar
 				data-capturing={exporting ? '' : undefined}
 				{...stylex.props(styles.capture, mobile && styles.mobileCapture)}
 			>
-				<section aria-label="Panes" {...stylex.props(styles.panes)}>
+				<section aria-label="Panes" {...stylex.props(styles.panes, mobile && styles.mobilePanes)}>
 					{(parked ? [dashboard, parked] : [dashboard]).map((item) => (
 						<Activity key={item.id} mode={item.id === dashboard.id ? 'visible' : 'hidden'}>
-							<DashboardPanes dashboard={item} />
+							<DashboardPanes dashboard={item} parked={item.id !== dashboard.id} />
 						</Activity>
 					))}
 					<DashboardSplitZones dashboard={dashboard} />

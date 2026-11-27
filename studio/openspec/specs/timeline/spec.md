@@ -28,9 +28,15 @@ When a dashboard is open and a source is active, the timeline bar SHALL span the
 
 #### Scenario: Scrub on a narrow timeline
 
-- **GIVEN** the timeline is narrower than 480 CSS pixels
+- **GIVEN** the timeline is narrower than 480 CSS pixels, outside the phone layout
 - **THEN** the scrubber has a row below the playback controls, alongside the end time and the live button when present
 - **AND** play, playback speed, the current time, and timeline options remain available above it
+
+#### Scenario: Scrub on a phone
+
+- **GIVEN** a log is open in the phone layout in portrait
+- **THEN** play, the current time, the scrubber, and timeline options share one row, like a native media player
+- **AND** the log's end time is left out so the scrubber has room
 
 #### Scenario: Open or close the only source
 
@@ -245,7 +251,13 @@ For live sources, the timeline bar SHALL span at least one FRC match (2 min 40 s
 
 ### Requirement: Timeline bar controls
 
-The timeline bar SHALL have buttons for play/pause and playback speed at its start and a timeline options menu at its end, leaving the other playback controls to keyboard shortcuts so the track has room. Keyboard shortcuts MUST NOT act while the speed list or options menu is open.
+The timeline bar SHALL have buttons for play/pause and playback speed at its start and a timeline options menu at its end, leaving the other playback controls to keyboard shortcuts so the track has room. In the phone layout, playback speed MUST be in the timeline options menu instead, so the controls fit one row with the track. Keyboard shortcuts MUST NOT act while the speed list or options menu is open.
+
+#### Scenario: Change speed on a phone
+
+- **GIVEN** a log is open in the phone layout
+- **WHEN** the user opens the timeline options and chooses 2x under Playback speed
+- **THEN** playback runs at 2x, and the options show Playback speed as 2x
 
 #### Scenario: Step from the keyboard
 

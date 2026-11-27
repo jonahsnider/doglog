@@ -8,23 +8,35 @@ import { useEffect, useRef, useState } from 'react';
 import { setEntryBrowserOpen } from '@/entries/editing';
 import { useSwipeToClose } from '@/hooks/use-swipe-to-close';
 import { useSwipeToOpen } from '@/hooks/use-swipe-to-open';
+import { paneTabsSlot } from '@/lib/mobile-layout';
 import { SidebarContext, type SidebarContextProps } from '@/sidebar/sidebar-context';
 import { SidebarItems } from '@/sidebar/sidebar-items';
 import { subscribeSidebarToggle } from '@/sidebar/sidebar';
+import './app-sidebar.css';
 
 const styles = stylex.create({
+	// The name and the pane tabs share a cell after the sidebar's button, so they cross-fade in place
 	header: {
-		display: 'flex',
+		display: 'grid',
 		flexShrink: 0,
+		gridTemplateColumns: 'auto 1fr',
 		alignItems: 'center',
 		gap: spacingVars['--spacing-1'],
 		height: 48,
 		paddingInline: `calc(${spacingVars['--spacing-2']} + env(safe-area-inset-left)) calc(${spacingVars['--spacing-2']} + env(safe-area-inset-right))`,
 	},
+	// The dashboard's pane tabs take the name's place, see `app-sidebar.css`
 	name: {
+		gridArea: '1 / 2',
+		justifySelf: 'start',
 		fontFamily: typographyVars['--font-family-heading'],
 		fontSize: typeScaleVars['--text-label-size'],
 		fontWeight: fontWeightVars['--font-weight-semibold'],
+	},
+	tabs: {
+		gridArea: '1 / 2',
+		display: 'flex',
+		minWidth: 0,
 	},
 	sidebar: {
 		display: 'flex',
@@ -34,6 +46,12 @@ const styles = stylex.create({
 	},
 });
 
+const setPaneTabsSlot = (element: HTMLElement | null) => {
+	paneTabsSlot.set(element);
+	return () => paneTabsSlot.set(null);
+};
+
+/** The phone layout's top bar, and the sidebar it opens as a drawer */
 export function MobileAppSidebar({ hasEntryBrowser }: { hasEntryBrowser: boolean }) {
 	const [open, setOpen] = useState(false);
 	const router = useRouter();
@@ -71,7 +89,7 @@ export function MobileAppSidebar({ hasEntryBrowser }: { hasEntryBrowser: boolean
 	const context: SidebarContextProps = { collapsed: false, open: true, isMobile: true, toggleSidebar: toggle };
 	return (
 		<SidebarContext value={context}>
-			<header {...swipeHeader} {...stylex.props(styles.header)}>
+			<header data-mobile-header {...swipeHeader} {...stylex.props(styles.header)}>
 				<IconButton
 					label="Show sidebar"
 					icon={<PanelLeftIcon />}
@@ -80,7 +98,10 @@ export function MobileAppSidebar({ hasEntryBrowser }: { hasEntryBrowser: boolean
 					aria-expanded={open}
 					onClick={toggle}
 				/>
-				<span {...stylex.props(styles.name)}>DogLog Studio</span>
+				<span data-mobile-name {...stylex.props(styles.name)}>
+					DogLog Studio
+				</span>
+				<div ref={setPaneTabsSlot} {...stylex.props(styles.tabs)} />
 			</header>
 			<MobileNav ref={navRef} isOpen={open} onOpenChange={setOpen} side="start" header="DogLog Studio" label="Sidebar">
 				<div data-sidebar="sidebar" {...stylex.props(styles.sidebar)}>

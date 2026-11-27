@@ -20,6 +20,7 @@ import { type SourcesRange, useTimeRange } from '@/data/data-store';
 import { type Source, useSource } from '@/data/source';
 import { useCaptureFrame } from '@/desktop/capture';
 import { useSize } from '@/hooks/use-size';
+import { useMobileLayout } from '@/lib/mobile-layout';
 import { duration, easing, useMotionTransition } from '@/lib/motion';
 import {
 	changeSpeed,
@@ -102,6 +103,42 @@ function ControlButton({
 	);
 }
 
+/** The speed's button, which phones have in the timeline options instead */
+function SpeedMenu({ speed, onOpenChange }: { speed: number; onOpenChange: (open: boolean) => void }) {
+	return (
+		<Tooltip content={<TooltipLabel label="Playback speed" shortcut={['[', ']']} />}>
+			<DropdownMenu
+				// A ghost button like its neighbors, since it's rarely used and a bordered select stands out
+				button={{
+					label: 'Playback speed',
+					variant: 'ghost',
+					className: 'capture-hidden',
+					endContent: <Icon icon={ChevronsUpDownIcon} size="sm" />,
+					// Just the number, so it rolls by place value instead of morphing as a word
+					children: (
+						<span {...stylex.props(styles.speed)}>
+							<TextMorph as="span">{speed}</TextMorph>x
+						</span>
+					),
+				}}
+				hasChevron={false}
+				placement="above"
+				onOpenChange={onOpenChange}
+			>
+				<DropdownMenuRadioGroup
+					label="Playback speed"
+					value={String(speed)}
+					onChange={(value) => setSpeed(Number(value))}
+				>
+					{playbackSpeeds.map((value) => (
+						<DropdownMenuRadioItem key={value} value={String(value)} label={`${value}x`} />
+					))}
+				</DropdownMenuRadioGroup>
+			</DropdownMenu>
+		</Tooltip>
+	);
+}
+
 function TimelineControls({
 	fadeIn,
 	range,
@@ -120,14 +157,20 @@ function TimelineControls({
 	const bar = useRef<HTMLElement>(null);
 	const size = useSize(bar);
 	const capture = useCaptureFrame();
-	const compact = size !== undefined && size.width < 480;
+	// Phones keep one row like native players, with the speed in the options menu so the track has room. A narrow window
+	// on a computer wraps the track onto its own row instead.
+	const mobile = useMobileLayout();
+	const compact = !mobile && size !== undefined && size.width < 480;
 	const shortcutsEnabled = present && !speedOpen;
 
 	// Skips keys used by a focused text field, button, or menu, and keys already handled, ex. by a pane divider.
 	// The speed and options menus use keys like the arrows and Space themselves, so the shortcuts are off while they're open.
 	useHotkeys(hotkeys, { ignoreDefaultPrevented: true, enabled: shortcutsEnabled && !optionsOpen });
 
-	const optionsMenu = <TimelineOptions key="options" compact={compact} onOpenChange={setOptionsOpen} />;
+	// Ends the first row when the controls wrap, after the track otherwise
+	const end = (
+		<TimelineOptions key="end" compact={compact} speed={mobile ? speed : undefined} onOpenChange={setOptionsOpen} />
+	);
 
 	return (
 		<footer
@@ -144,43 +187,14 @@ function TimelineControls({
 					icon={playback === 'paused' ? <PlayIcon /> : <PauseIcon />}
 					onClick={togglePlayback}
 				/>
-				<Tooltip content={<TooltipLabel label="Playback speed" shortcut={['[', ']']} />}>
-					<DropdownMenu
-						// A ghost button like its neighbors, since it's rarely used and a bordered select stands out
-						button={{
-							label: 'Playback speed',
-							variant: 'ghost',
-							className: 'capture-hidden',
-							endContent: <Icon icon={ChevronsUpDownIcon} size="sm" />,
-							// Just the number, so it rolls by place value instead of morphing as a word
-							children: (
-								<span {...stylex.props(styles.speed)}>
-									<TextMorph as="span">{speed}</TextMorph>x
-								</span>
-							),
-						}}
-						hasChevron={false}
-						placement="above"
-						onOpenChange={setSpeedOpen}
-					>
-						<DropdownMenuRadioGroup
-							label="Playback speed"
-							value={String(speed)}
-							onChange={(value) => setSpeed(Number(value))}
-						>
-							{playbackSpeeds.map((value) => (
-								<DropdownMenuRadioItem key={value} value={String(value)} label={`${value}x`} />
-							))}
-						</DropdownMenuRadioGroup>
-					</DropdownMenu>
-				</Tooltip>
+				{!mobile && <SpeedMenu speed={speed} onOpenChange={setSpeedOpen} />}
 
 				<TimelineCursorContext value={time}>
 					<CursorTime range={range} />
 				</TimelineCursorContext>
-				{compact && optionsMenu}
+				{compact && end}
 				<TimelineTrack compact={compact} range={range} source={source} timeline={timeline} />
-				{!compact && optionsMenu}
+				{!compact && end}
 			</div>
 		</footer>
 	);

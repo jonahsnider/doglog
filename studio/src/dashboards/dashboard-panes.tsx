@@ -21,7 +21,8 @@ const styles = stylex.create({
 	panes: { height: '100%' },
 });
 
-export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
+/** @param parked Whether the dashboard is kept hidden to switch back to quickly, see `PanesColumn` */
+export function DashboardPanes({ dashboard, parked = false }: { dashboard: Dashboard; parked?: boolean }) {
 	const { layout } = dashboard;
 	const focusedPaneId = getFocusedPane(dashboard).id;
 	const mobile = useMobileLayout();
@@ -66,6 +67,7 @@ export function DashboardPanes({ dashboard }: { dashboard: Dashboard }) {
 						focusedPaneId={focusedPaneId}
 						hosts={hosts}
 						swipes={swipes}
+						parked={parked}
 					/>
 				) : (
 					<PaneNodeView

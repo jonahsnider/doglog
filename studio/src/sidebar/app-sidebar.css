@@ -189,3 +189,14 @@
 	padding-block: env(safe-area-inset-top) env(safe-area-inset-bottom);
 	padding-inline-start: env(safe-area-inset-left);
 }
+
+/* The phone's top bar shows a dashboard's pane tabs in place of the app's name, which fades out as they fade in */
+[data-mobile-name] {
+	transition-property: opacity, visibility;
+	transition-duration: calc(var(--duration-fast) * var(--motion-scale));
+	transition-timing-function: var(--ease-standard);
+}
+[data-mobile-header]:has([data-pane-tabs]) [data-mobile-name] {
+	opacity: 0;
+	visibility: hidden;
+}

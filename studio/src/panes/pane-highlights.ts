@@ -75,4 +75,13 @@ export function placeBarHighlight(root: HTMLElement, position: number): void {
 	// Measured from the strip the tabs scroll in, which the highlight is drawn on
 	bar.style.setProperty('--pane-bar-x', between(from.offsetLeft, to.offsetLeft));
 	bar.style.setProperty('--pane-bar-width', between(from.offsetWidth, to.offsetWidth));
+	// The tabs just appeared, so the highlight starts where it's placed instead of growing from nothing. Reading its style
+	// applies the place before the highlight's transition is turned on.
+	if (!Object.hasOwn(bar.dataset, 'placed')) {
+		const strip = bar.querySelector('.astryx-tab-strip');
+		if (strip) {
+			void getComputedStyle(strip, '::before').width;
+		}
+		bar.dataset['placed'] = '';
+	}
 }

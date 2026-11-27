@@ -1,10 +1,12 @@
 import { easeVars, spacingVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
+import { useSelector } from '@tanstack/react-store';
 import { useEffect, useEffectEvent, useId, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { allowedActions, splitDashboardPane } from '@/dashboards/panes';
 import { focusPane } from '@/dashboards/pane-state';
-import { useSource } from '@/data/source-store';
 import { useOnScreenKeyboard } from '@/hooks/use-on-screen-keyboard';
+import { paneTabsSlot } from '@/lib/mobile-layout';
 import { duration, reducesMotion } from '@/lib/motion';
 import { type PaneNode, panes } from '@/panes/layout';
 import { PaneBar } from '@/panes/pane-bar';
@@ -60,24 +62,38 @@ function resist(position: number, count: number): number {
 	return position < 0 ? -resisted : last + resisted;
 }
 
-/** Puts the panes and the highlights at `position`, sliding them there if `animate` */
-function placePanes(root: HTMLElement | null, rects: readonly PaneRect[], position: number, animate: boolean): void {
+/**
+ * Puts the panes and the highlights at `position`, sliding them there if `animate`. The pane bar is passed on its own,
+ * since it's in the top bar.
+ */
+function placePanes(
+	root: HTMLElement | null,
+	bar: HTMLElement | null,
+	rects: readonly PaneRect[],
+	position: number,
+	animate: boolean,
+): void {
 	if (!root) {
 		return;
 	}
 	const index = Math.min(Math.max(position, 0), rects.length - 1);
 	const ms = animate && !reducesMotion() ? duration.medium * 1000 : 0;
 	root.style.setProperty('--pane-position', String(position));
-	root.style.setProperty('--pane-index', String(index));
-	root.style.setProperty('--pane-duration', `${ms}ms`);
+	for (const element of bar ? [root, bar] : [root]) {
+		element.style.setProperty('--pane-index', String(index));
+		element.style.setProperty('--pane-duration', `${ms}ms`);
+	}
 	placeMinimapHighlight(root, rects, index, ms);
-	placeBarHighlight(root, index);
+	if (bar) {
+		placeBarHighlight(bar, index);
+	}
 }
 
 /**
  * A dashboard in the phone layout. Its focused pane fills the dashboard, swiping a pane's header goes to the panes
- * beside it, and the pane bar below switches between them and adds more.
+ * beside it, and the pane bar in the top bar switches between them and adds more.
  * @param swipes Swipes on pane headers, which `PaneSwipeContext` passes along
+ * @param parked Whether this dashboard is kept hidden, so another one's tabs are in the top bar
  */
 export function PhonePanes({
 	dashboardId,
@@ -85,12 +101,14 @@ export function PhonePanes({
 	focusedPaneId,
 	hosts,
 	swipes,
+	parked,
 }: {
 	dashboardId: string;
 	layout: PaneNode;
 	focusedPaneId: string;
 	hosts: PaneHosts;
 	swipes: Swipes;
+	parked: boolean;
 }) {
 	const order = panes(layout);
 	const rects = paneRects(layout);
@@ -101,9 +119,9 @@ export function PhonePanes({
 	const shown = order[index];
 	const root = useRef<HTMLDivElement>(null);
 	const viewport = useRef<HTMLDivElement>(null);
+	const bar = useRef<HTMLDivElement>(null);
 	const keyboard = useOnScreenKeyboard();
-	// The timeline bar shows below the dashboard while it has a source
-	const timeline = useSource() !== undefined;
+	const tabsSlot = useSelector(paneTabsSlot);
 	const idPrefix = useId();
 	const [swiping, setSwiping] = useState(false);
 	// The pane the minimap last showed up for, `undefined` once it's faded out
@@ -117,7 +135,7 @@ export function PhonePanes({
 	const placed = useRef(false);
 	useLayoutEffect(() => {
 		// Slides to panes chosen after the first render, and moves the minimap's highlight as the layout changes
-		placePanes(root.current, paneRects(layout), index, placed.current);
+		placePanes(root.current, bar.current, paneRects(layout), index, placed.current);
 		placed.current = true;
 	}, [index, layout]);
 
@@ -157,7 +175,7 @@ export function PhonePanes({
 		// In panes, toward the next one
 		const moved = -translation.x / width;
 		if (state === 'began' || state === 'changed') {
-			placePanes(root.current, rects, resist(index + moved, order.length), false);
+			placePanes(root.current, bar.current, rects, resist(index + moved, order.length), false);
 			return;
 		}
 
@@ -175,7 +193,7 @@ export function PhonePanes({
 		if (target !== index && next) {
 			focusPane(dashboardId, next.id);
 		} else {
-			placePanes(root.current, rects, index, true);
+			placePanes(root.current, bar.current, rects, index, true);
 		}
 	});
 	useEffect(() => swipes.subscribe((event) => onPan(event)), [swipes]);
@@ -186,16 +204,34 @@ export function PhonePanes({
 		setMinimapFor(shown?.id);
 		const next = order[Math.round(position)];
 		if (!ended) {
-			placePanes(root.current, rects, position, false);
+			placePanes(root.current, bar.current, rects, position, false);
 		} else if (next && next.id !== shown?.id) {
 			focusPane(dashboardId, next.id);
 		} else {
-			placePanes(root.current, rects, index, true);
+			placePanes(root.current, bar.current, rects, index, true);
 		}
 	};
 
 	const allowed = shown && allowedActions(dashboardId, layout, shown.id);
 	const direction = allowed?.splitRight === true ? 'row' : allowed?.splitDown === true ? 'column' : undefined;
+	// The bar mounts after the panes once the top bar's slot is set, so its highlight is placed then
+	const barRef = (element: HTMLDivElement | null) => {
+		bar.current = element;
+		placePanes(root.current, element, rects, index, false);
+	};
+	const paneBar = (
+		<PaneBar
+			ref={barRef}
+			idPrefix={idPrefix}
+			order={order}
+			shownId={shown?.id}
+			onSelect={(paneId) => focusPane(dashboardId, paneId)}
+			onScrub={onScrub}
+			onAdd={shown && direction ? () => splitDashboardPane(dashboardId, shown.id, direction) : undefined}
+		/>
+	);
+	// A single pane has no tab to label it
+	const tabs = order.length > 1;
 	return (
 		<div ref={root} {...stylex.props(styles.panes)}>
 			<div ref={viewport} {...stylex.props(styles.viewport)}>
@@ -204,8 +240,8 @@ export function PhonePanes({
 						<div
 							key={pane.id}
 							id={`${idPrefix}-panel-${pane.id}`}
-							role="tabpanel"
-							aria-labelledby={`${idPrefix}-tab-${pane.id}`}
+							role={tabs ? 'tabpanel' : undefined}
+							aria-labelledby={tabs ? `${idPrefix}-tab-${pane.id}` : undefined}
 							inert={paneIndex !== index}
 							{...stylex.props(styles.slot)}
 						>
@@ -215,17 +251,7 @@ export function PhonePanes({
 				</div>
 				{order.length > 1 && <PaneMinimap rects={rects} shown={minimapFor !== undefined && !keyboard} />}
 			</div>
-			{!keyboard && (
-				<PaneBar
-					idPrefix={idPrefix}
-					order={order}
-					shownId={shown?.id}
-					onSelect={(paneId) => focusPane(dashboardId, paneId)}
-					onScrub={onScrub}
-					onAdd={shown && direction ? () => splitDashboardPane(dashboardId, shown.id, direction) : undefined}
-					atBottom={!timeline}
-				/>
-			)}
+			{!parked && tabsSlot && createPortal(paneBar, tabsSlot)}
 		</div>
 	);
 }

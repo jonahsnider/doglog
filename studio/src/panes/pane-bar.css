@@ -17,6 +17,10 @@
 		transition-duration: var(--pane-duration, 0ms);
 		transition-timing-function: var(--ease-move);
 	}
+	/* Placed without sliding until the tabs have a place to slide from, see `placeBarHighlight()` */
+	&:not([data-placed]) .astryx-tab-strip::before {
+		transition-property: none;
+	}
 	/* The tab's hover and press layer matches the round highlight */
 	.astryx-tab > [aria-hidden='true'] {
 		border-radius: var(--radius-full);

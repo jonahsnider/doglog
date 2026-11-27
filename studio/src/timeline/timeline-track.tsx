@@ -10,6 +10,7 @@ import * as stylex from '@stylexjs/stylex';
 import { TextMorph } from '@/components/text-morph';
 import type { SourcesRange } from '@/data/data-store';
 import type { Source } from '@/data/source';
+import { useMobileLayout } from '@/lib/mobile-layout';
 import { useSettings } from '@/settings';
 import { getSourceYear } from '@/timeline/shifts';
 import { formatTime, goLive, type Timeline, TimelineCursorContext } from '@/timeline/timeline';
@@ -90,6 +91,8 @@ export function TimelineTrack({
 	const { time, playback, live, videoRange } = timeline;
 	const { timelineAlerts, timelineCompress, timelineShifts } = useSettings();
 	const following = playback === 'following';
+	// Phones leave the length out so the scrubber has room, with the cursor's time before it
+	const mobile = useMobileLayout();
 	return (
 		<div {...stylex.props(styles.track, compact && styles.compactTrack)}>
 			<TimelineCursorContext value={time}>
@@ -108,7 +111,7 @@ export function TimelineTrack({
 					<div {...stylex.props(styles.emptyTrack)} />
 				)}
 			</TimelineCursorContext>
-			{range && <span {...stylex.props(styles.duration)}>{formatTime(range.end, range.origin)}</span>}
+			{range && !mobile && <span {...stylex.props(styles.duration)}>{formatTime(range.end, range.origin)}</span>}
 			{live && (
 				<Button
 					label={following ? 'Live' : 'Go live'}
