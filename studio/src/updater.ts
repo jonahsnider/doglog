@@ -4,8 +4,8 @@ import type { Hotkey } from '@tanstack/react-hotkeys';
 import { invoke } from '@tauri-apps/api/core';
 import { check } from '@tauri-apps/plugin-updater';
 import { createElement } from 'react';
-import { toastManager } from '@/components/toast';
-import { DownloadingUpdate } from '@/downloading-update';
+import { toastManager, type ToastOptions } from '@/components/toast';
+import { UpdateToastTitle } from '@/update-toast-title';
 
 type Update = {
 	/** The web app can't know the new version until it loads it */
@@ -28,6 +28,13 @@ const updateToastId = 'update';
 
 /** Checks for a newer version, then installs it when pressed again. Browsers reserve some ⌘ shortcuts, ex. Edge's Read Aloud, so the web app uses Alt. */
 export const updateShortcut = (desktop ? 'Mod+Shift+U' : 'Alt+Shift+U') satisfies Hotkey;
+
+function showUpdateToast({ title, ...options }: Omit<ToastOptions, 'title'> & { title: string | undefined }): void {
+	toastManager.update(updateToastId, {
+		...options,
+		title: createElement(UpdateToastTitle, { title, percent: downloadPercentStore }),
+	});
+}
 
 async function findDesktopUpdate(): Promise<Update | undefined> {
 	const update = await check();
@@ -197,12 +204,12 @@ export async function checkForUpdateManually(): Promise<void> {
 		return;
 	}
 
-	toastManager.update(updateToastId, { type: 'loading', title: 'Checking for updates…' });
+	showUpdateToast({ type: 'loading', title: 'Checking for updates…' });
 	let update: Update | undefined;
 	try {
 		update = await findUpdate();
 	} catch (error) {
-		toastManager.update(updateToastId, {
+		showUpdateToast({
 			type: 'error',
 			title: "Couldn't check for updates",
 			description: String(error),
@@ -212,7 +219,7 @@ export async function checkForUpdateManually(): Promise<void> {
 
 	if (update) {
 		updateStore.set({ update, installing: false });
-		toastManager.update(updateToastId, {
+		showUpdateToast({
 			type: 'info',
 			title: 'An update is available',
 			actionProps: {
@@ -223,7 +230,7 @@ export async function checkForUpdateManually(): Promise<void> {
 			timeout: 0,
 		});
 	} else {
-		toastManager.update(updateToastId, {
+		showUpdateToast({
 			type: 'info',
 			title: 'DogLog Studio is up to date',
 		});
@@ -241,16 +248,13 @@ export async function checkOrInstallUpdate(): Promise<void> {
 		return;
 	}
 
-	toastManager.update(updateToastId, {
-		type: 'loading',
-		title: createElement(DownloadingUpdate, { percent: downloadPercentStore }),
-	});
+	showUpdateToast({ type: 'loading', title: undefined });
 	// Failing replaces this toast with an error
 	await installUpdate(state.update, showPreparingUpdate);
 }
 
 function showPreparingUpdate(): void {
-	toastManager.update(updateToastId, { type: 'loading', title: 'Preparing update…' });
+	showUpdateToast({ type: 'loading', title: 'Preparing update…' });
 }
 
 // Development builds would always find a "newer" release. The web app checks when it registers its service worker.
@@ -288,6 +292,6 @@ export async function installUpdate(update: Update, onDownloaded?: () => void): 
 		await update.install(onDownloaded);
 	} catch (error) {
 		updateStore.set({ update, installing: false });
-		toastManager.update(updateToastId, { type: 'error', title: "Couldn't update Studio", description: String(error) });
+		showUpdateToast({ type: 'error', title: "Couldn't update Studio", description: String(error) });
 	}
 }
