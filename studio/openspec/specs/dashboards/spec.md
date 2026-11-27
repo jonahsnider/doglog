@@ -235,6 +235,12 @@ Users SHALL be able to duplicate a dashboard, or every selected dashboard, from 
 
 Users SHALL be able to drag a pane by its title, which shows a move icon and a background while hovered, empty panes included, and drop it on the half of another pane nearest the pointer. That half MUST be highlighted, moving between sides without animating. The dragged pane MUST go on that side, each taking half the space, and its sibling MUST take its old space. Sides where panes would end up too small MUST be shown as unavailable.
 
+#### Scenario: Drag a pane's header on a phone
+
+- **GIVEN** a dashboard with two panes in the phone layout
+- **WHEN** the user drags the shown pane's header sideways
+- **THEN** the other pane slides in instead of the pane moving, here or to a new dashboard
+
 #### Scenario: Not enough room
 
 - **GIVEN** a dashboard with four panes side by side
@@ -554,6 +560,13 @@ Dividers that look like one line, parallel and in line with only a divider acros
 
 Users SHALL be able to zoom a pane so it fills the dashboard, hiding the other panes until it's restored. Zooming MUST slide the other panes off the dashboard, away from the zoomed pane, and restoring MUST slide them back. Panes on the same side of the zoomed pane MUST move together, however the dashboard is split. Splitting or closing any pane MUST restore the other panes. Zooming MUST NOT be an undo step, and a dashboard MUST stay zoomed when it's reopened.
 
+#### Scenario: Zoomed dashboard on a phone
+
+- **GIVEN** a dashboard with a pane zoomed in the docked layout
+- **WHEN** the user opens it in the phone layout
+- **THEN** its panes can be switched between as usual, and no Zoom pane or Restore pane button is offered
+- **AND** the pane is still zoomed when the dashboard is opened in the docked layout again
+
 #### Scenario: Zoom a pane
 
 - **GIVEN** a dashboard with two panes
@@ -713,7 +726,13 @@ The pane the user last clicked or interacted with SHALL be the focused pane. The
 
 ### Requirement: Pane header controls
 
-A pane's header buttons, like Edit entries, split, and close, SHALL always be shown in the phone layout. In the docked layout, they SHALL only be shown while the pane is hovered or focused.
+A pane's header buttons, like Edit entries, split, and close, SHALL only be shown while the pane is hovered or focused in the docked layout. In the phone layout, the header MUST always show its widget's buttons and Close, without split or zoom buttons, since the pane bar adds panes (see Panes on phones).
+
+#### Scenario: Pane header on a phone
+
+- **GIVEN** a graph pane in the phone layout
+- **THEN** its header shows Edit entries and Close
+- **AND** it has no Split right, Split down, or Zoom pane buttons
 
 #### Scenario: Unfocused pane
 
@@ -729,7 +748,7 @@ A pane's header buttons, like Edit entries, split, and close, SHALL always be sh
 
 ### Requirement: Pane context menu
 
-Right-clicking or long-pressing a pane SHALL open a context menu with Split right, Split down, Zoom pane (Restore pane while zoomed), Change widget (Add widget in an empty pane), Edit entries, and Close, plus actions supplied by its widget. The pane header MUST NOT have a button that opens this menu.
+Right-clicking or long-pressing a pane SHALL open a context menu with Split right, Split down, Zoom pane (Restore pane while zoomed), Change widget (Add widget in an empty pane), Edit entries, and Close, plus actions supplied by its widget. The phone layout MUST leave out Zoom pane. The pane header MUST NOT have a button that opens this menu.
 
 #### Scenario: Split from the context menu
 
@@ -752,3 +771,112 @@ Right-clicking or long-pressing a pane SHALL open a context menu with Split righ
 - **WHEN** the user presses `S`
 - **THEN** the pane's widget changes to swerve and the menu closes
 - **AND** each widget type in Change widget shows its key, the same keys as the Add widget tiles
+
+### Requirement: Panes on phones
+
+In the phone layout (see app-shell), a dashboard SHALL show only its focused pane, filling the dashboard area. Panes MUST be ordered left before right and top before bottom, finishing each side of a split first. Changes on a phone MUST change the layout the docked layout shows. A pane switched away from and back MUST show as it was. Closing the shown pane MUST show the pane before it, or the one after it if it was first.
+
+#### Scenario: Open a split dashboard on a phone
+
+- **GIVEN** a dashboard with a field on the left and a graph above a table on the right, the graph focused
+- **WHEN** the user opens it in the phone layout
+- **THEN** the graph fills the dashboard area
+- **AND** switching through its panes goes field, graph, table
+
+#### Scenario: Come back to a pane
+
+- **GIVEN** a field pane in the phone layout, orbited to look at the robot from the side
+- **WHEN** the user switches to the next pane and back
+- **THEN** the field shows the same view, without going blank first
+
+#### Scenario: Close the shown pane
+
+- **GIVEN** a dashboard with a field, a graph, and a table, showing the graph in the phone layout
+- **WHEN** the user taps Close in the graph's header
+- **THEN** the field is shown
+
+### Requirement: Swipe between panes on phones
+
+Swiping sideways on the shown pane's header SHALL switch to the pane beside it, while swipes on a widget's content MUST go to the widget. The panes MUST follow the finger and switch once released past halfway or flicked, otherwise sliding back. Swiping past the first or last pane MUST resist the finger instead of wrapping around. Swipes MUST NOT start at the screen's edge (see app-shell), and panes MUST switch without sliding when reducing motion.
+
+#### Scenario: Swipe to the next pane
+
+- **GIVEN** a dashboard with a field and a graph, showing the field in the phone layout
+- **WHEN** the user swipes left on the field's header
+- **THEN** the graph slides in from the right as the field slides out, following the finger
+- **AND** once released, the graph is shown and focused
+
+#### Scenario: Change your mind mid-swipe
+
+- **GIVEN** a dashboard with a field and a graph, showing the field in the phone layout
+- **WHEN** the user drags the field's header a third of the way left and lets go slowly
+- **THEN** the field slides back and stays shown
+
+#### Scenario: Swipe past the last pane
+
+- **GIVEN** the last pane is shown in the phone layout
+- **WHEN** the user swipes left on its header
+- **THEN** it moves less than the finger and settles back once released
+
+#### Scenario: Pan a graph on a phone
+
+- **GIVEN** a graph pane in the phone layout, beside other panes
+- **WHEN** the user drags sideways across the plot
+- **THEN** the graph pans and the same pane stays shown
+
+### Requirement: Pane bar on phones
+
+In the phone layout, a dashboard SHALL show a pane bar centered above the timeline bar, with its panes' widget icons in order and an Add pane button. The shown pane's icon MUST be highlighted, following swipes. The bar MUST NOT cover widgets. Tapping an icon MUST slide to its pane, and long-pressing one MUST do nothing. Icons that don't fit MUST fade at the bar's edges and scroll. The bar MUST show for a single pane, and hide while the on-screen keyboard is open.
+
+#### Scenario: Type in a pane
+
+- **GIVEN** a notepad pane in the phone layout
+- **WHEN** the user taps into the notepad and the on-screen keyboard opens
+- **THEN** the pane bar hides until the keyboard closes
+
+### Requirement: Scrub the pane bar
+
+Dragging along the pane bar SHALL move the panes and both highlights with the finger, showing a pane fully while the finger is on its icon and part of each between two icons. Once released, the panes MUST settle on the pane whose icon is nearest. A drag near an end of an overflowing bar MUST scroll it.
+
+#### Scenario: Scrub along the bar
+
+- **GIVEN** a dashboard with five panes, showing the first in the phone layout
+- **WHEN** the user slowly drags along the bar from the first icon to halfway between the second and third
+- **THEN** the panes slide with the finger, showing half of the second pane and half of the third
+- **WHEN** the user lets go
+- **THEN** the panes settle on whichever of the two is nearest the finger, and it's focused
+
+### Requirement: Add a pane on phones
+
+The pane bar's Add pane SHALL split the shown pane right, following Pane sizes, or down when its row is full, and MUST be disabled when it can't be split either way. The new pane MUST be shown and focused.
+
+#### Scenario: Add a pane on a phone
+
+- **GIVEN** a dashboard with only a graph, in the phone layout
+- **WHEN** the user taps Add pane
+- **THEN** a new empty pane slides in with the Add widget prompt
+- **AND** the bar shows a graph icon and a highlighted empty pane icon
+- **AND** in the docked layout, the graph and the new pane are side by side, each taking half the width
+
+#### Scenario: Add a pane to a full row
+
+- **GIVEN** a dashboard with four panes side by side, in the phone layout
+- **WHEN** the user taps Add pane
+- **THEN** the shown pane is split down, and the new pane is shown
+
+### Requirement: Pane minimap on phones
+
+Switching panes in the phone layout SHALL show a minimap in the dashboard area's top right corner. It MUST draw the dashboard's panes as they're laid out in a 16:10 frame, with the shown pane in the accent color. During a swipe, the highlight MUST move between the two panes with the finger. It MUST fade out about 1.5 seconds after the last switch, MUST NOT show for a dashboard with one pane or while the on-screen keyboard is open, and taps on it MUST go to the pane under it.
+
+#### Scenario: See where a pane is
+
+- **GIVEN** a dashboard with a field on the left and a graph above a table on the right, in the phone layout
+- **WHEN** the user switches from the graph to the table
+- **THEN** the minimap shows a tall pane on the left and two stacked panes on the right, with the bottom right one highlighted
+- **AND** it fades out about 1.5 seconds later
+
+#### Scenario: Follow a swipe on the minimap
+
+- **GIVEN** the minimap is shown
+- **WHEN** the user drags the shown pane's header a third of the way toward the next pane
+- **THEN** the highlight sits a third of the way between the two panes

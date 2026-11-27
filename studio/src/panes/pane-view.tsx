@@ -10,7 +10,7 @@ import { WidgetButtons } from '@/panes/widget-buttons';
 import { PaneButton } from '@/panes/pane-button';
 import { PaneTitle } from '@/panes/pane-title';
 import { PaneLayoutButtons } from '@/panes/pane-layout-buttons';
-import { splitMenuItems } from '@/panes/split-menu';
+import { layoutMenuItems } from '@/panes/split-menu';
 import { PaneDropIndicator } from '@/panes/pane-drop-indicator';
 import { WidgetView } from '@/panes/widget-view';
 import { useBindingSources } from '@/widgets/source-entries';
@@ -34,6 +34,7 @@ import {
 } from '@/widgets/bindings';
 import { useMobileLayout } from '@/lib/mobile-layout';
 import { usePaneDrag } from '@/panes/drag';
+import { usePaneSwipeArea } from '@/panes/pane-swipe';
 import { bindingMenuItems } from '@/panes/binding-menu';
 import { widgetMenuItems } from '@/panes/widget-menu';
 import { type Pane, type PaneNode, setPaneWidget, type SplitDirection } from '@/panes/layout';
@@ -103,6 +104,9 @@ export function PaneView({
 }: PaneNodeProps & { pane: Pane; closable: boolean }) {
 	const allowed = allowedActions(dashboardId, dashboardLayout, pane.id);
 	const closable = closableHere && allowed.close;
+	const mobile = useMobileLayout();
+	// Dragging the header switches panes in the phone layout instead
+	const movable = allowed.move && !mobile;
 	const update = (operation: (layout: PaneNode) => PaneNode) => updateLayout(dashboardId, operation);
 	const { widget } = pane;
 	const type = widget && getWidgetType(widget.type);
@@ -114,12 +118,12 @@ export function PaneView({
 	/** The bindings when the menu opened, so the ones removed from it stay listed and can be restored */
 	const [menuBindings, setMenuBindings] = useState<Binding[]>();
 	const onMenuOpenChange = (open: boolean) => setMenuBindings(open ? widgetBindings(widget) : undefined);
-	const mobile = useMobileLayout();
+	const header = usePaneSwipeArea();
 	const options = useMemo(
 		() => (type ? optionValues(type, widget, bindings, mobile) : {}),
 		[type, widget, bindings, mobile],
 	);
-	const { dragRef, isDragging, dropRef, isDropTarget } = usePaneDrag(dashboardId, pane, allowed.move);
+	const { dragRef, isDragging, dropRef, isDropTarget } = usePaneDrag(dashboardId, pane, movable);
 	const exporting = useVideoExport() !== undefined;
 	const setWidget = (newType: WidgetType) =>
 		update((layout) =>
@@ -148,13 +152,7 @@ export function PaneView({
 		const boundIds = new Set(bindings.map((binding) => binding.id));
 		const { actions = [], contextual = [] } = widgetMenuItems(pane.id, targetBinding, target, point);
 		return [
-			...splitMenuItems(allowed, split),
-			{
-				label: zoomed ? 'Restore pane' : 'Zoom pane',
-				shortcut: shortcuts.zoom,
-				disabled: dashboardLayout.kind === 'pane',
-				onSelect: zoom,
-			},
+			...layoutMenuItems(allowed, split, { zoomed, canZoom: dashboardLayout.kind === 'split', onZoom: zoom }),
 			'separator',
 			{
 				label: widget === undefined ? 'Add widget' : 'Change widget',
@@ -219,6 +217,7 @@ export function PaneView({
 				}}
 			>
 				<div
+					ref={header}
 					{...dragRegion}
 					{...stylex.props(styles.header, editing && styles.editing)}
 					data-pane-header
@@ -232,7 +231,7 @@ export function PaneView({
 					<span {...stylex.props(styles.title)}>
 						<PaneTitle
 							dragRef={dragRef}
-							movable={allowed.move}
+							movable={movable}
 							isDragging={isDragging}
 							type={type}
 							name={type ? widgetTitle(type, options) : widget?.type}

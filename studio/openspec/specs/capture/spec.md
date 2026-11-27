@@ -30,6 +30,12 @@ A dashboard's sidebar menu SHALL offer Copy image when it contains a widget. A w
 - **WHEN** the user chooses Copy image in that dashboard's sidebar menu
 - **THEN** the clipboard receives the zoomed dashboard and its timeline, without either sidebar
 
+#### Scenario: Copy the open dashboard on a phone
+
+- **GIVEN** a dashboard with several panes is open in the phone layout
+- **WHEN** the user copies its image
+- **THEN** the clipboard receives the shown pane and its timeline, without the pane bar or minimap
+
 #### Scenario: Copy the open dashboard while the collapsed sidebar is peeking
 
 - **GIVEN** the collapsed sidebar is temporarily expanded over the open dashboard

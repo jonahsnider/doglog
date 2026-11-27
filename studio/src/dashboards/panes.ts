@@ -15,16 +15,17 @@ import { focusPane, zoomPane } from '@/dashboards/pane-state';
 import { allowsLayout } from '@/dashboards/unlisted';
 import { canShareDashboards, placeDashboard, shareDashboards } from '@/dashboards/sharing';
 import { getEntry } from '@/data/data-store';
+import { isMobileLayout } from '@/lib/mobile-layout';
 import {
 	canJoinLayouts,
 	canSplitPane,
 	closePane,
 	createPane,
 	findPane,
-	findSibling,
 	firstPane,
 	joinLayouts,
 	movePane,
+	paneAfterClosing,
 	type Pane,
 	panes,
 	type PaneNode,
@@ -275,11 +276,11 @@ export function movePaneToNewDashboard(id: string, paneId: string, shared: boole
 	closeDashboardPane(id, paneId);
 }
 
-/** Close a pane and focus the pane that takes its place */
+/** Close a pane and focus the pane that takes its place, see `paneAfterClosing()` */
 export function closeDashboardPane(id: string, paneId: string): void {
 	updateDashboard(id, (dashboard) => {
-		const layout = closePane(dashboard.layout, paneId);
-		return { ...dashboard, layout, focusedPaneId: firstPane(findSibling(dashboard.layout, paneId) ?? layout).id };
+		const focused = paneAfterClosing(dashboard.layout, paneId, isMobileLayout());
+		return { ...dashboard, layout: closePane(dashboard.layout, paneId), focusedPaneId: focused?.id };
 	});
 }
 

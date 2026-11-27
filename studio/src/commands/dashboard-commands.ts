@@ -6,6 +6,7 @@ import { getSource } from '@/data/source';
 import { copyDashboardImage } from '@/desktop/capture';
 import { canExportVideo, isExportingVideo, startVideoExport } from '@/desktop/video-export';
 import { toggleEditing, toggleEntryBrowser } from '@/entries/editing';
+import { isMobileLayout } from '@/lib/mobile-layout';
 import { balanceLayout, isBalanced, type SplitDirection } from '@/panes/layout';
 import { shownTuningDashboard } from '@/tuning/dashboard';
 import { getWidgetType } from '@/widgets/registry';
@@ -23,13 +24,14 @@ export function paneCommandDashboard(router: RegisteredRouter): Dashboard | unde
 	return isExportingVideo() ? undefined : (currentDashboard(router) ?? shownTuningDashboard(router));
 }
 
+/** The phone layout shows one pane at a time, so it doesn't zoom */
 export function canZoomFocused(router: RegisteredRouter): boolean {
-	return paneCommandDashboard(router)?.layout.kind === 'split';
+	return !isMobileLayout() && paneCommandDashboard(router)?.layout.kind === 'split';
 }
 
 export function toggleFocusedZoom(router: RegisteredRouter): void {
 	const dashboard = paneCommandDashboard(router);
-	if (dashboard) {
+	if (dashboard && canZoomFocused(router)) {
 		toggleZoom(dashboard.id, getFocusedPane(dashboard).id);
 	}
 }

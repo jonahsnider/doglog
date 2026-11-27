@@ -6,9 +6,9 @@ import {
 	canSplitPane,
 	closePane,
 	createPane,
-	findSibling,
 	joinLayouts,
 	movePane,
+	paneAfterClosing,
 	panes,
 	panesAlong,
 	type PaneNode,
@@ -108,13 +108,14 @@ test('closing a pane whose split is left inside one in the same direction moves 
 	expect(sizesOf(closed)).toEqual(shares(0.5, 0.25, 0.25));
 });
 
-test('the pane focused after closing one is the one before it, or after it for the first', () => {
+test('the pane focused after closing one is beside it, or before it in reading order when shown one at a time', () => {
 	const [a, b, c] = [createPane(), createPane(), createPane()];
-	const thirds = splitPane(splitPane(a, a.id, 'row', b), b.id, 'row', c);
-
-	expect(findSibling(thirds, a.id)).toEqual(b);
-	expect(findSibling(thirds, c.id)).toEqual(b);
-	expect(findSibling(a, a.id)).toBeUndefined();
+	const layout = splitPane(splitPane(a, a.id, 'row', b), b.id, 'column', c);
+	expect(paneAfterClosing(layout, b.id, false)).toEqual(c);
+	expect(paneAfterClosing(layout, c.id, false)).toEqual(b);
+	expect(paneAfterClosing(layout, b.id, true)).toEqual(a);
+	expect(paneAfterClosing(layout, a.id, true)).toEqual(b);
+	expect(paneAfterClosing(a, a.id, false)).toBeUndefined();
 });
 
 test('closing the only pane leaves an empty pane', () => {

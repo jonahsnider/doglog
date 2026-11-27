@@ -3,10 +3,14 @@ import Maximize2Icon from 'lucide-react/icons/maximize-2';
 import Minimize2Icon from 'lucide-react/icons/minimize-2';
 import Rows2Icon from 'lucide-react/icons/rows-2';
 import { shortcuts } from '@/commands/commands';
+import { useMobileLayout } from '@/lib/mobile-layout';
 import { PaneButton } from '@/panes/pane-button';
 import type { SplitDirection } from '@/panes/layout';
 
-/** Splitting is hidden while zoomed since it would restore the other panes, and for panes that aren't `splittable` */
+/**
+ * Splitting is hidden while zoomed since it would restore the other panes, and for panes that aren't `splittable`. The
+ * phone layout has none of these, since its pane bar adds panes and every pane fills the dashboard.
+ */
 export function PaneLayoutButtons({
 	splittable,
 	canSplitRight,
@@ -24,6 +28,9 @@ export function PaneLayoutButtons({
 	onSplit: (direction: SplitDirection) => void;
 	onZoom: () => void;
 }) {
+	if (useMobileLayout()) {
+		return null;
+	}
 	return (
 		<>
 			{splittable && !zoomed && (

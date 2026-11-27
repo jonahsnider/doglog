@@ -213,10 +213,18 @@ export function closePane(layout: PaneNode, paneId: string): PaneNode {
 }
 
 /** The node beside a pane that's focused when it's closed: the one before it, or after it for the first. `undefined` for the only pane. */
-export function findSibling(layout: PaneNode, paneId: string): PaneNode | undefined {
+function findSibling(layout: PaneNode, paneId: string): PaneNode | undefined {
 	const parent = findParent(layout, paneId);
 	const index = parent?.children.findIndex((child) => child.id === paneId) ?? -1;
 	return parent?.children[index === 0 ? 1 : index - 1];
+}
+
+/** The pane focused once one closes: the first beside it, or `oneAtATime` the one before it in reading order */
+export function paneAfterClosing(layout: PaneNode, paneId: string, oneAtATime: boolean): Pane | undefined {
+	const order = panes(layout);
+	const index = order.findIndex((pane) => pane.id === paneId);
+	const sibling = findSibling(layout, paneId);
+	return oneAtATime ? order[index === 0 ? 1 : index - 1] : sibling && firstPane(sibling);
 }
 
 export function findPane(layout: PaneNode, paneId: string): Pane | undefined {

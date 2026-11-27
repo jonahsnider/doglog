@@ -1,0 +1,29 @@
+/* The pane bar's tabs show which pane is shown with a highlight that follows swipes, see `placeBarHighlight()` */
+[data-pane-bar] {
+	.astryx-tab-strip {
+		position: relative;
+		/* Dragging along the bar switches panes instead of scrolling it, see `PaneBar` */
+		touch-action: none;
+	}
+	.astryx-tab-strip::before {
+		content: '';
+		position: absolute;
+		inset-block: 0;
+		left: var(--pane-bar-x, 0);
+		width: var(--pane-bar-width, 0);
+		border-radius: var(--radius-full);
+		background-color: var(--color-overlay-pressed);
+		transition-property: left, width;
+		transition-duration: var(--pane-duration, 0ms);
+		transition-timing-function: var(--ease-move);
+	}
+	/* The tab's hover and press layer matches the round highlight */
+	.astryx-tab > [aria-hidden='true'] {
+		border-radius: var(--radius-full);
+	}
+	/* Dragging near an end scrolls the bar, and pressing the arrows would switch panes too */
+	.astryx-tab-indicator,
+	.astryx-tab-scroll-button {
+		display: none;
+	}
+}
