@@ -1,0 +1,17 @@
+/* Rows tint on hover and at the cursor. The time column covers the row while scrolling sideways, so it layers the tint over the card. */
+[data-table-row] {
+	--table-row-tint: transparent;
+	background-color: var(--table-row-tint);
+}
+[data-table-row]:hover {
+	--table-row-tint: var(--color-overlay-hover);
+}
+[data-table-row][data-cursor] {
+	--table-row-tint: color-mix(in srgb, var(--color-accent) 16%, transparent);
+}
+[data-table-row][data-cursor]:hover {
+	--table-row-tint: color-mix(in srgb, var(--color-accent) 24%, transparent);
+}
+[data-table-row] > [data-table-time] {
+	background: linear-gradient(var(--table-row-tint), var(--table-row-tint)), var(--color-background-card);
+}

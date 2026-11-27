@@ -72,18 +72,18 @@ The pane context menu SHALL put commands for the widget as a whole next to **Cha
 
 ### Requirement: Edit entries from the context menu
 
-A widget's context menu SHALL offer Edit entries and to remove a bound entry. Right-clicking the part of a widget that shows an entry, such as a table row, MUST offer to remove that entry directly; elsewhere, bound entries MUST be listed as checkboxes in an "Entries" submenu, with their role when it's shown in the legend. Middle-clicking the part of a widget that shows an entry SHALL remove it, and only that binding of an entry bound more than once.
+A widget's context menu SHALL offer Edit entries and to remove a bound entry. Right-clicking the part of a widget that shows an entry, such as a table column header, MUST offer to remove that entry directly; elsewhere, bound entries MUST be listed as checkboxes in an "Entries" submenu, with their role when it's shown in the legend. Middle-clicking the part of a widget that shows an entry SHALL remove it, and only that binding of an entry bound more than once.
 
-#### Scenario: Remove a table row
+#### Scenario: Remove a table column
 
 - **GIVEN** a table showing `/Arm/Angle`
-- **WHEN** the user right-clicks the `/Arm/Angle` row and chooses "Remove /Arm/Angle"
+- **WHEN** the user right-clicks the `/Arm/Angle` column header and chooses "Remove /Arm/Angle"
 - **THEN** the table stops showing `/Arm/Angle`
 
 #### Scenario: Middle-click to remove
 
 - **GIVEN** a table showing `/Arm/Angle`
-- **WHEN** the user middle-clicks the `/Arm/Angle` row
+- **WHEN** the user middle-clicks the `/Arm/Angle` column header
 - **THEN** the table stops showing `/Arm/Angle`
 
 #### Scenario: Remove one of two bindings
@@ -119,12 +119,12 @@ Users SHALL be able to bind an entry by dragging it from the entry browser onto 
 
 ### Requirement: Drag entries out of widgets
 
-The part of a widget that shows an entry, such as a table row or swerve legend item, SHALL be draggable. Dropping it on another entry of the same widget MUST move it to that entry's position, and dropping it on another widget MUST move it after that widget's entries. Rows whose other parts have their own interactions, such as selecting values, MUST be dragged by the entry name. Widgets that don't show entries individually, such as the console, are exempt.
+The part of a widget that shows an entry, such as a table column header or swerve legend item, SHALL be draggable. Dropping it on another entry of the same widget MUST move it to that entry's position, and dropping it on another widget MUST move it after that widget's entries. Rows whose other parts have their own interactions, such as selecting values, MUST be dragged by the entry name. Widgets that don't show entries individually, such as the console, are exempt.
 
 #### Scenario: Reorder
 
 - **GIVEN** a table showing `/Arm/Angle` then `/Arm/Voltage`
-- **WHEN** the user drags the `/Arm/Voltage` row onto the `/Arm/Angle` row
+- **WHEN** the user drags the `/Arm/Voltage` column header onto the `/Arm/Angle` column header
 - **THEN** the table shows `/Arm/Voltage` then `/Arm/Angle`
 - **AND** while dragging, a line marks where it will go
 
@@ -136,7 +136,7 @@ The part of a widget that shows an entry, such as a table row or swerve legend i
 
 #### Scenario: Dropped outside a widget
 
-- **WHEN** the user drags a table row and drops it outside any widget
+- **WHEN** the user drags a table column header and drops it outside any widget
 - **THEN** the table is unchanged
 
 ### Requirement: Move a binding from its context menu

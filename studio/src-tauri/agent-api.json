@@ -619,7 +619,7 @@
 													"type"
 												],
 												"additionalProperties": false,
-												"description": "Table: A table of the bound entries' values at the timeline cursor. Accepts every kind but Mechanism2d."
+												"description": "Table: A spreadsheet of the bound entries' values over time, a column per entry and a row per time any of them was logged, with the timeline cursor's row highlighted. Accepts every kind but Mechanism2d."
 											},
 											{
 												"type": "object",
@@ -1473,7 +1473,7 @@
 									"type"
 								],
 								"additionalProperties": false,
-								"description": "Table: A table of the bound entries' values at the timeline cursor. Accepts every kind but Mechanism2d."
+								"description": "Table: A spreadsheet of the bound entries' values over time, a column per entry and a row per time any of them was logged, with the timeline cursor's row highlighted. Accepts every kind but Mechanism2d."
 							},
 							{
 								"type": "object",
@@ -1954,7 +1954,7 @@
 											"type"
 										],
 										"additionalProperties": false,
-										"description": "Table: A table of the bound entries' values at the timeline cursor. Accepts every kind but Mechanism2d."
+										"description": "Table: A spreadsheet of the bound entries' values over time, a column per entry and a row per time any of them was logged, with the timeline cursor's row highlighted. Accepts every kind but Mechanism2d."
 									},
 									{
 										"type": "object",

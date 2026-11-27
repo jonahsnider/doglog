@@ -320,7 +320,8 @@ export const widgetInfos = [
 	{
 		id: 'table',
 		name: 'Table',
-		description: "A table of the bound entries' values at the timeline cursor. Accepts every kind but Mechanism2d.",
+		description:
+			"A spreadsheet of the bound entries' values over time, a column per entry and a row per time any of them was logged, with the timeline cursor's row highlighted. Accepts every kind but Mechanism2d.",
 		accepts: valueKinds,
 		roles: [],
 		options: [],

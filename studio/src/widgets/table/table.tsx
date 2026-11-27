@@ -1,142 +1,88 @@
-import { IconButton } from '@astryxdesign/core/IconButton';
-import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from '@astryxdesign/core/Table';
-import {
-	colorVars,
-	durationVars,
-	easeVars,
-	sizeVars,
-	spacingVars,
-	textSizeVars,
-	typographyVars,
-} from '@astryxdesign/core/theme/tokens.stylex';
+import { useVirtualizer } from '@tanstack/react-virtual'; // oxlint-disable studio/no-manual-memo -- React Compiler skips this component, because of `useVirtualizer()` and the `react-hooks/exhaustive-deps` suppression
+import { colorVars, spacingVars, textSizeVars, typographyVars } from '@astryxdesign/core/theme/tokens.stylex';
 import * as stylex from '@stylexjs/stylex';
-import ChevronRightIcon from 'lucide-react/icons/chevron-right';
-import { type ReactNode, useState } from 'react';
-import { EntryTypeIcon } from '@/entries/value-marks';
-import { useDataVersion } from '@/data/data-store';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useDataVersion, useTimeRange } from '@/data/data-store';
 import { formatValue } from '@/data/format-value';
-import { formatEntryType } from '@/data/samples';
-import { useCursorTime } from '@/timeline/timeline';
-import { NoData } from '@/widgets/no-data';
+import { formatTime, seek, useCursorTime, useTimeline } from '@/timeline/timeline';
+import { ColumnHeader } from '@/widgets/table/column-header';
+import { type Column, fieldAt, tableColumns } from '@/widgets/table/columns';
+import { countAtOrBefore, mergeTimes } from '@/widgets/table/rows';
 import type { WidgetProps } from '@/widgets/widget-type';
-import { EntryName } from '@/entries/entry-name';
-import { useBindingDrag } from '@/entries/drag';
+import './table.css';
 
-type FieldValue = Parameters<typeof formatValue>[0];
+const rowHeight = 24;
 
 const styles = stylex.create({
-	// Fit to content and give the rest to values, otherwise columns resize as values change
-	fit: {
-		width: '1px',
-	},
-	code: {
+	root: {
+		height: '100%',
+		overflow: 'auto',
 		fontFamily: typographyVars['--font-family-code'],
 		fontSize: textSizeVars['--font-size-sm'],
 	},
-	value: {
+	grid: { display: 'grid', minWidth: 'min-content' },
+	header: {
+		position: 'sticky',
+		top: 0,
+		zIndex: 2,
+		backgroundColor: colorVars['--color-background-card'],
+		borderBottomWidth: 1,
+		borderBottomStyle: 'solid',
+		borderBottomColor: colorVars['--color-border'],
+	},
+	rows: { position: 'relative' },
+	row: {
+		position: 'absolute',
+		insetInline: 0,
+		top: 0,
+		height: rowHeight,
+		alignItems: 'center',
+	},
+	cell: {
+		minWidth: 0,
+		overflow: 'hidden',
+		paddingInline: spacingVars['--spacing-2'],
+		textOverflow: 'ellipsis',
+		whiteSpace: 'nowrap',
 		userSelect: 'text',
 	},
-	expandable: {
-		cursor: 'pointer',
-	},
-	name: {
+	end: { textAlign: 'end', fontVariantNumeric: 'tabular-nums' },
+	// Values that didn't change since the row before are dimmed, so changes stand out
+	held: { color: colorVars['--color-text-secondary'] },
+	// Stays in view while scrolling sideways, and isn't selectable so copying values copies only values
+	time: {
+		position: 'sticky',
+		insetInlineStart: 0,
+		zIndex: 1,
+		alignSelf: 'stretch',
 		display: 'flex',
 		alignItems: 'center',
-		gap: spacingVars['--spacing-1'],
-		whiteSpace: 'nowrap',
-	},
-	indent: (depth: number) => ({
-		paddingInlineStart: `${depth * 1.25}rem`,
-	}),
-	// Doesn't make rows taller than their text
-	expandButton: {
-		flexShrink: 0,
-		margin: `calc(-1 * ${spacingVars['--spacing-1']})`,
-	},
-	expandSpace: {
-		flexShrink: 0,
-		width: sizeVars['--size-element-sm'],
-		height: sizeVars['--size-element-sm'],
-		margin: `calc(-1 * ${spacingVars['--spacing-1']})`,
-	},
-	chevron: {
-		transitionProperty: 'rotate',
-		transitionDuration: durationVars['--duration-fast'],
-		transitionTimingFunction: easeVars['--ease-standard'],
-	},
-	chevronExpanded: {
-		rotate: '90deg',
-	},
-	grab: {
-		cursor: 'grab',
-	},
-	type: {
-		display: 'flex',
-		alignItems: 'center',
-		gap: spacingVars['--spacing-1-5'],
+		justifyContent: 'flex-end',
+		paddingInline: spacingVars['--spacing-2'],
 		color: colorVars['--color-text-secondary'],
-		whiteSpace: 'nowrap',
+		fontVariantNumeric: 'tabular-nums',
+		userSelect: 'none',
 	},
-	source: {
-		flexShrink: 0,
+	timeHeader: {
+		backgroundColor: colorVars['--color-background-card'],
+		gridColumn: 1,
+		gridRow: '1 / -1',
+		alignItems: 'flex-end',
+		paddingBlock: spacingVars['--spacing-1'],
+		fontFamily: typographyVars['--font-family-body'],
+	},
+	empty: {
+		padding: spacingVars['--spacing-2'],
 		fontFamily: typographyVars['--font-family-body'],
 		color: colorVars['--color-text-secondary'],
 	},
-	typeIcon: {
-		flexShrink: 0,
-		width: '0.875rem',
-		height: '0.875rem',
-	},
 });
 
-type Row = {
-	binding: { id: string; name: string };
-	/** Identifies the row for expansion, the binding's ID followed by the field, ex. `<id>.translation` */
-	path: string;
-	label: string;
-	type: string | undefined;
-	value: FieldValue;
-	depth: number;
-	missing: boolean;
-	/** Short name of the source the row's value is from, while several sources are visible */
-	source?: string | undefined;
-	/** The same entry from another source, below the binding's own row, which is the one dragged */
-	extra?: boolean;
-};
-
-function childrenOf(value: FieldValue): [label: string, value: FieldValue][] | undefined {
-	if (Array.isArray(value)) {
-		return value.length === 0 ? undefined : value.map((element, index) => [`[${index}]`, element]);
-	}
-	if (typeof value === 'object') {
-		return Object.entries(value);
-	}
-	return undefined;
-}
-
-function TypeLabel({ type }: { type: string }) {
-	return (
-		<span {...stylex.props(styles.type, styles.code)}>
-			<EntryTypeIcon type={type} {...stylex.props(styles.typeIcon)} />
-			{formatEntryType(type)}
-		</span>
-	);
-}
-
-function valueCell(row: Row, isExpanded: boolean) {
-	if (row.missing) {
-		return <NoData />;
-	}
-	if (isExpanded) {
-		return undefined;
-	}
-	return formatValue(row.value);
-}
-
 export function TableWidget({ bindings }: WidgetProps) {
-	const time = useCursorTime();
-	// Values at the cursor can change as samples arrive, ex. while a log loads
 	useDataVersion();
+	const time = useCursorTime();
+	const range = useTimeRange();
+	const { seekRevision } = useTimeline();
 	const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
 
 	const toggle = (path: string) =>
@@ -148,145 +94,132 @@ export function TableWidget({ bindings }: WidgetProps) {
 			return next;
 		});
 
-	const rows: Row[] = [];
-	const addRows = (row: Row) => {
-		rows.push(row);
-		if (expanded.has(row.path)) {
-			for (const [label, value] of childrenOf(row.value) ?? []) {
-				const path = label.startsWith('[') ? row.path + label : `${row.path}.${label}`;
-				addRows({
-					binding: row.binding,
-					path,
-					label,
-					type: undefined,
-					value,
-					depth: row.depth + 1,
-					missing: false,
-					extra: row.extra,
-				});
-			}
-		}
-	};
-	for (const { id, name, entry, source, others } of bindings) {
-		const sources = entry ? [{ entry, source }, ...others] : [{ entry: undefined, source: undefined }];
-		for (const [index, from] of sources.entries()) {
-			addRows({
-				binding: { id, name },
-				path: index === 0 ? id : `${id}:${from.source?.id}`,
-				label: name,
-				type: from.entry?.type,
-				value: from.entry && time !== undefined ? from.entry.samples.valueAt(time) : undefined,
-				depth: 0,
-				missing: from.entry === undefined,
-				source: from.source?.labeled === true ? from.source.label : undefined,
-				extra: index > 0,
-			});
-		}
-	}
+	const { columns, leaves } = tableColumns(bindings, expanded, time);
+	const headerRows = Math.max(...columns.map((column) => column.depth)) + 1;
 
-	// Rows only reserve space for the expand button when some row has one, so names stay aligned
-	const anyExpandable = rows.some((row) => childrenOf(row.value) !== undefined);
+	const sources = useMemo(
+		() => bindings.flatMap(({ entry, others }) => (entry ? [entry, ...others.map((other) => other.entry)] : [])),
+		[bindings],
+	).map(({ samples }) => samples);
+	// Samples are mutated in place, so `signature` tells when a column's samples changed and need merging again
+	const signature = sources
+		.map((samples) => `${samples.length}:${samples.timestamps[0]}:${samples.timestamps[samples.length - 1]}`)
+		.join(',');
+	// oxlint-disable-next-line react-hooks/exhaustive-deps
+	const times = useMemo(() => mergeTimes(sources), [bindings, signature]);
+	// The cursor's row, the latest at or before it, -1 before the first row
+	const cursorRow = time === undefined ? -1 : countAtOrBefore(times, time) - 1;
+
+	const scrollElement = useRef<HTMLDivElement>(null);
+	const rowsElement = useRef<HTMLDivElement>(null);
+	// Rows start below the header, which also covers the top of the table while it's scrolled
+	const headerHeight = rowsElement.current?.offsetTop ?? 0;
+	// react-doctor-disable-next-line react-hooks-js/incompatible-library -- React Compiler skips this component rather than memoizing the mutable virtualizer
+	const virtualizer = useVirtualizer({
+		count: times.length,
+		getScrollElement: () => scrollElement.current,
+		estimateSize: () => rowHeight,
+		overscan: 10,
+		scrollMargin: headerHeight,
+		scrollPaddingStart: headerHeight,
+		// Start with the cursor's row at the bottom, where it's scrolled to on mount, so the first frame isn't blank
+		initialRect: { width: 0, height: window.innerHeight },
+		initialOffset: () => Math.max((cursorRow + 1) * rowHeight - window.innerHeight, 0),
+	});
+
+	// Moving the cursor brings its row into view, while playback and live data only keep it in view, so the table can be
+	// scrolled away from it while they move the cursor
+	const shown = useRef({ row: -1, seekRevision: -1 });
+	useLayoutEffect(() => {
+		const element = scrollElement.current!;
+		const previous = shown.current;
+		if (previous.row === cursorRow && previous.seekRevision === seekRevision) {
+			return;
+		}
+		const inView = (row: number) =>
+			(row + 1) * rowHeight > element.scrollTop &&
+			headerHeight + row * rowHeight < element.scrollTop + element.clientHeight;
+		const row = Math.max(cursorRow, 0);
+		if (previous.seekRevision !== seekRevision) {
+			// Centered to show the rows around it, unless it's already in view, ex. the row was clicked
+			if (!inView(row)) {
+				virtualizer.scrollToIndex(row, { align: 'center' });
+			}
+		} else if (inView(previous.row)) {
+			virtualizer.scrollToIndex(row, { align: 'auto' });
+		}
+		shown.current = { row: cursorRow, seekRevision };
+	});
+
+	// The header and each row are separate grids, so the time column has a fixed width to line up. Value columns share
+	// the rest, and scroll sideways once they'd be narrower than 9rem.
+	const gridTemplateColumns = `calc(8ch + 2 * ${spacingVars['--spacing-2']}) repeat(${leaves.length}, minmax(9rem, 1fr))`;
 
 	return (
-		<Table density="compact" hasHover>
-			<TableHeader>
-				<TableRow isHeaderRow>
-					<TableHeaderCell xstyle={styles.fit}>Name</TableHeaderCell>
-					<TableHeaderCell xstyle={styles.fit}>Type</TableHeaderCell>
-					<TableHeaderCell>Value</TableHeaderCell>
-				</TableRow>
-			</TableHeader>
-			<TableBody>
-				{rows.map((row) => (
-					<ValueRow
-						key={row.path}
-						row={row}
-						expanded={expanded.has(row.path)}
-						anyExpandable={anyExpandable}
-						onToggle={() => toggle(row.path)}
+		<div ref={scrollElement} {...stylex.props(styles.root)}>
+			<div
+				{...stylex.props(styles.grid, styles.header)}
+				style={{ gridTemplateColumns, gridTemplateRows: `repeat(${headerRows}, auto)` }}
+			>
+				<div {...stylex.props(styles.time, styles.timeHeader)}>Time</div>
+				{columns.map((column) => (
+					<ColumnHeader
+						key={column.path}
+						column={column}
+						headerRows={headerRows}
+						expanded={column.expandable && expanded.has(column.path)}
+						onToggle={() => toggle(column.path)}
 					/>
 				))}
-			</TableBody>
-		</Table>
-	);
-}
-
-function ValueRow({
-	row,
-	expanded,
-	anyExpandable,
-	onToggle,
-}: {
-	row: Row;
-	expanded: boolean;
-	anyExpandable: boolean;
-	onToggle: () => void;
-}) {
-	// Rows of an entry's fields and elements are part of its row, only the entry's own row can be dragged or dropped on
-	const { ref, handleRef } = useBindingDrag(row.binding, { disabled: row.depth > 0 || row.extra === true });
-	const expandable = childrenOf(row.value) !== undefined;
-	const isExpanded = expandable && expanded;
-	return (
-		<TableRow
-			ref={row.depth === 0 && row.extra !== true ? ref : undefined}
-			// Right-clicking the row offers to remove its binding, middle-clicking removes it
-			data-binding-id={row.binding.id}
-			xstyle={[expandable && styles.expandable]}
-			onClick={
-				expandable
-					? () => {
-							// Selecting text in the row shouldn't toggle it
-							if (window.getSelection()?.isCollapsed === false) {
-								return;
-							}
-							onToggle();
-						}
-					: undefined
-			}
-		>
-			<TableCell xstyle={styles.code}>
-				<div {...stylex.props(styles.name, styles.indent(row.depth))}>
-					{expandable ? (
-						<IconButton
-							label={`${isExpanded ? 'Collapse' : 'Expand'} ${row.label}`}
-							icon={<ChevronRightIcon {...stylex.props(styles.chevron, isExpanded && styles.chevronExpanded)} />}
-							variant="ghost"
-							size="sm"
-							aria-expanded={isExpanded}
-							xstyle={styles.expandButton}
-							onClick={(event) => {
-								event.stopPropagation();
-								onToggle();
-							}}
-						/>
-					) : (
-						// Takes the same space as the expand button
-						anyExpandable && <span {...stylex.props(styles.expandSpace)} />
-					)}
-					{/* Only the name starts a drag, not the expand button or selectable value. */}
-					<RowName row={row} handleRef={handleRef} />
+			</div>
+			{times.length === 0 ? (
+				<p {...stylex.props(styles.empty)}>No values</p>
+			) : (
+				<div ref={rowsElement} {...stylex.props(styles.rows)} style={{ height: virtualizer.getTotalSize() }}>
+					{virtualizer.getVirtualItems().map((item) => {
+						const rowTime = times[item.index]!;
+						// Clicking a row is a pointer shortcut for moving the cursor, which the timeline does from the keyboard
+						// oxlint-disable jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+						return (
+							// react-doctor-disable-next-line react-doctor/no-static-element-interactions
+							<div
+								key={item.key}
+								data-table-row
+								data-cursor={item.index === cursorRow || undefined}
+								{...stylex.props(styles.grid, styles.row)}
+								style={{ gridTemplateColumns, transform: `translateY(${item.start - headerHeight}px)` }}
+								onClick={() => {
+									// Selecting values shouldn't move the cursor
+									if (window.getSelection()?.isCollapsed !== false) {
+										seek(rowTime);
+									}
+								}}
+							>
+								<span data-table-time {...stylex.props(styles.time)}>
+									{formatTime(rowTime, range?.origin ?? 0)}
+								</span>
+								{leaves.map((column) => (
+									<ValueCell key={column.path} column={column} time={rowTime} />
+								))}
+							</div>
+						);
+						// oxlint-enable jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+					})}
 				</div>
-			</TableCell>
-			<TableCell>{row.type !== undefined && <TypeLabel type={row.type} />}</TableCell>
-			<TableCell xstyle={[styles.code, styles.value]}>{valueCell(row, isExpanded)}</TableCell>
-		</TableRow>
+			)}
+		</div>
 	);
 }
 
-/** The row's name, which starts a drag on the binding's own row, then the source its value is from */
-function RowName({ row, handleRef }: { row: Row; handleRef: (element: Element | null) => void }) {
-	let name: ReactNode = row.label;
-	if (row.depth === 0) {
-		name = (
-			<span ref={row.extra === true ? undefined : handleRef} {...stylex.props(row.extra !== true && styles.grab)}>
-				<EntryName name={row.label} />
-			</span>
-		);
+/** A column's value at a row, dimmed unless the entry logged a different value at that row's time */
+function ValueCell({ column: { samples, fields, align }, time }: { column: Column; time: number }) {
+	const index = samples?.indexAtOrBefore(time) ?? -1;
+	if (!samples || index < 0) {
+		return <span {...stylex.props(styles.cell)} />;
 	}
-	return (
-		<>
-			{name}
-			{row.source !== undefined && <span {...stylex.props(styles.source)}>{row.source}</span>}
-		</>
-	);
+	const text = formatValue(fieldAt(samples.value(index), fields));
+	const changed =
+		samples.timestamps[index] === time &&
+		(index === 0 || formatValue(fieldAt(samples.value(index - 1), fields)) !== text);
+	return <span {...stylex.props(styles.cell, align === 'end' && styles.end, !changed && styles.held)}>{text}</span>;
 }
