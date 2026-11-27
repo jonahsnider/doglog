@@ -337,14 +337,20 @@ The web app SHALL offer to update to a newer deployed version, the same way the 
 
 - **GIVEN** a newer version of the web app is deployed
 - **WHEN** the user opens Studio in a browser with internet access
-- **THEN** once the new version finishes downloading, the bottom of the sidebar shows an Update Studio button
-- **AND** clicking it reloads every open Studio tab into the new version
+- **THEN** once the browser finds the new version, the bottom of the sidebar shows an Update Studio button, while the new version downloads in the background
+- **AND** clicking it reloads every open Studio tab into the new version once it finishes downloading
 
 #### Scenario: Update with the keyboard on the web
 
 - **WHEN** the user presses ⌥⇧U in the web app
-- **THEN** a toast shows Studio checking for updates, then says whether a newer version is available
+- **THEN** a toast shows Studio checking for updates, then says whether a newer version is available, without waiting for it to download
 - **AND** if one is, pressing ⌥⇧U again shows a toast that Studio is updating, then reloads every open Studio tab into it
+
+#### Scenario: Update progress on the web
+
+- **WHEN** the web app installs an update from the shortcut or the toast before the new version finishes downloading
+- **THEN** the toast shows how much of the new version has downloaded as it counts up, in the same toast
+- **AND** once the download finishes, it says the update is being prepared until the tabs reload
 
 #### Scenario: Open the web app offline
 

@@ -63,36 +63,90 @@ async function findDesktopUpdate(): Promise<Update | undefined> {
 	};
 }
 
-/** Finds a newer version of the web app in the service worker that `registration` downloaded */
-async function findWebUpdate(registration: ServiceWorkerRegistration): Promise<Update | undefined> {
+/** Finds a newer version of the web app that the browser found for `registration`, which may still be downloading */
+function findWebUpdate(registration: ServiceWorkerRegistration): Update | undefined {
 	// A page the service worker doesn't control came from the network, so it's already the newest version
-	if (!navigator.serviceWorker.controller) {
-		return undefined;
-	}
-
-	const worker = registration.installing;
-	if (worker) {
-		// Waits for the new version to finish precaching, so it can load offline
-		await new Promise((resolve) => {
-			worker.addEventListener('statechange', () => {
-				if (worker.state !== 'installing') {
-					resolve(undefined);
-				}
-			});
-		});
-	}
-	const waiting = registration.waiting;
-	if (!waiting) {
+	if (!navigator.serviceWorker.controller || (!registration.installing && !registration.waiting)) {
 		return undefined;
 	}
 	return {
 		version: undefined,
-		install: () => {
+		install: async (onDownloaded) => {
+			downloadPercentStore.set(undefined);
+			// A download that failed, ex. without internet, discards the new version, so this finds it again
+			if (!registration.installing && !registration.waiting) {
+				await registration.update();
+			}
+			const worker = registration.installing ?? registration.waiting;
+			if (!worker) {
+				throw new Error('The new version is no longer available');
+			}
+			// Waits for the new version to finish precaching, so it can load offline
+			await Promise.all([waitForInstall(worker), showPrecacheProgress(registration, worker).catch(() => {})]);
+			onDownloaded?.();
 			// Every Studio tab reloads when the new version takes over, see `registerServiceWorker`
 			// oxlint-disable-next-line unicorn/require-post-message-target-origin -- Service workers have no origin argument
-			waiting.postMessage({ type: 'SKIP_WAITING' });
+			worker.postMessage({ type: 'SKIP_WAITING' });
 		},
 	};
+}
+
+function waitForInstall(worker: ServiceWorker): Promise<void> {
+	return new Promise((resolve, reject) => {
+		const settle = (): void => {
+			if (worker.state === 'installing') {
+				return;
+			}
+			worker.removeEventListener('statechange', settle);
+			if (worker.state === 'redundant') {
+				reject(new Error("Couldn't download the new version"));
+			} else {
+				resolve();
+			}
+		};
+		worker.addEventListener('statechange', settle);
+		settle();
+	});
+}
+
+/**
+ * Sets `downloadPercentStore` to how many of the new version's files `worker` has precached, until it finishes. Workbox
+ * doesn't report its progress, so this reads the file list from the new service worker and checks Workbox's cache.
+ */
+async function showPrecacheProgress(registration: ServiceWorkerRegistration, worker: ServiceWorker): Promise<void> {
+	const response = await fetch(worker.scriptURL, { cache: 'no-cache' });
+	if (!response.ok) {
+		return;
+	}
+	const script = await response.text();
+	// Matches Workbox's cache keys, which add the revision to files without a hash in their name
+	const files = new Set<string>();
+	for (const [, url = '', revision] of script.matchAll(/\{url:"([^"]+)",revision:(?:null|"([^"]+)")\}/gu)) {
+		const key = new URL(url, worker.scriptURL);
+		if (revision !== undefined) {
+			key.searchParams.set('__WB_REVISION__', revision);
+		}
+		files.add(key.href);
+	}
+	if (files.size === 0) {
+		return;
+	}
+	// Each version shares this cache, so files that didn't change are already in it and don't count toward the download
+	const cache = await caches.open(`workbox-precache-v2-${registration.scope}`);
+	let alreadyCached: number | undefined;
+	while (worker.state === 'installing') {
+		// oxlint-disable-next-line no-await-in-loop -- Checks again a moment after the last check
+		const [requests] = await Promise.all([
+			cache.keys(),
+			new Promise<void>((resolve) => {
+				setTimeout(resolve, 200);
+			}),
+		]);
+		const cached = requests.filter((request) => files.has(request.url)).length;
+		alreadyCached ??= cached;
+		const remaining = files.size - alreadyCached;
+		downloadPercentStore.set(remaining > 0 ? Math.floor(((cached - alreadyCached) / remaining) * 100) : 100);
+	}
 }
 
 async function findUpdate(): Promise<Update | undefined> {
@@ -125,16 +179,16 @@ export async function registerServiceWorker(): Promise<void> {
 	if (registration === undefined) {
 		return;
 	}
-	const showUpdate = async (): Promise<void> => {
-		const update = await findWebUpdate(registration);
+	const showUpdate = (): void => {
+		const update = findWebUpdate(registration);
 		if (update && updateStore.get()?.installing !== true) {
 			updateStore.set({ update, installing: false });
 		}
 	};
-	// The browser checks for a new version after loading the page, usually after registering finishes
-	registration.addEventListener('updatefound', () => void showUpdate());
+	// The browser checks for a new version after loading the page, usually after registering finishes, then downloads it
+	registration.addEventListener('updatefound', showUpdate);
 	// Or it found one before, ex. in a tab that's still open
-	await showUpdate();
+	showUpdate();
 }
 
 /** Check for a newer version when the user asks, telling them what was found */
@@ -162,8 +216,7 @@ export async function checkForUpdateManually(): Promise<void> {
 			type: 'info',
 			title: 'An update is available',
 			actionProps: {
-				// The web app already downloaded the new version, so it only has to reload into it
-				children: desktop ? 'Download' : 'Reload Now',
+				children: 'Download',
 				onClick: () => void checkOrInstallUpdate(),
 				shortcut: updateShortcut,
 			},
@@ -188,15 +241,10 @@ export async function checkOrInstallUpdate(): Promise<void> {
 		return;
 	}
 
-	// The web app's service worker already downloaded the new version
-	if (desktop) {
-		toastManager.update(updateToastId, {
-			type: 'loading',
-			title: createElement(DownloadingUpdate, { percent: downloadPercentStore }),
-		});
-	} else {
-		showPreparingUpdate();
-	}
+	toastManager.update(updateToastId, {
+		type: 'loading',
+		title: createElement(DownloadingUpdate, { percent: downloadPercentStore }),
+	});
 	// Failing replaces this toast with an error
 	await installUpdate(state.update, showPreparingUpdate);
 }
