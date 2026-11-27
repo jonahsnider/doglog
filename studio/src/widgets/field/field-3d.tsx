@@ -25,7 +25,7 @@ import { useFieldCameras } from '@/widgets/field/use-field-cameras';
 import { useFloorPencil } from '@/widgets/field/use-floor-pencil';
 import { widgetOptions } from '@/widgets/widget-info';
 import { FollowContext } from '@/widgets/legend/follow-context';
-import { Legend } from '@/widgets/legend/legend';
+import { OverlayLegend } from '@/widgets/legend/overlay-legend';
 import { mechanismPlane } from '@/widgets/robot/roles';
 import { SceneControls } from '@/widgets/scene-controls';
 import { useMechanisms } from '@/widgets/use-mechanisms';
@@ -41,19 +41,13 @@ const styles = stylex.create({
 	matched: { display: 'grid', placeItems: 'center', containerType: 'size' },
 	scene: { width: '100%', height: '100%' },
 	drawing: { cursor: 'crosshair' },
-	overlay: { pointerEvents: 'none', position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column' },
-	legend: {
-		pointerEvents: 'auto',
-		flexShrink: 0,
-		width: 'fit-content',
-		maxWidth: '50%',
-		maxHeight: '50%',
-		marginTop: spacingVars['--spacing-1-5'],
-		marginInlineStart: spacingVars['--spacing-1-5'],
-		overflowY: 'auto',
+	overlay: {
+		pointerEvents: 'none',
+		position: 'absolute',
+		inset: 0,
+		display: 'flex',
+		flexDirection: 'column',
 		paddingInline: spacingVars['--spacing-1-5'],
-		borderRadius: radiusVars['--radius-element'],
-		backgroundColor: colorVars['--color-background-surface'],
 	},
 	followBadge: {
 		position: 'absolute',
@@ -254,13 +248,13 @@ export function Field3d({ bindings, options, setOption, paneId, layout }: Widget
 						</Scene3d>
 					</div>
 					<div {...stylex.props(styles.overlay)}>
-						{legend.length > 0 && (
-							<div {...stylex.props(styles.legend)}>
-								<FollowContext value={followControls}>
-									<Legend items={legend} vertical />
-								</FollowContext>
-							</div>
-						)}
+						<FollowContext value={followControls}>
+							{/* Beside the follow chip while following */}
+							<OverlayLegend
+								items={legend}
+								endInset={followLabel === undefined ? undefined : `calc(50% + ${spacingVars['--spacing-1-5']})`}
+							/>
+						</FollowContext>
 						<SceneControls view="3d" visible={controls.visible} disabled={!showControls} />
 					</div>
 					{followLabel !== undefined && (

@@ -360,7 +360,7 @@ In 2D, the legend SHALL be above the field, unless the widget is wider than the 
 
 ### Requirement: Legend layout in 3D
 
-In 3D, the scene SHALL fill the widget, and the legend MUST be in its top-left corner over the scene, only as large as its entries, with an opaque background.
+In 3D, the scene SHALL fill the widget, and the legend MUST be in its top-left corner over the scene, only as large as its entries, with an opaque background. It MAY be as wide as the widget, but MUST leave the top-right corner to the follow chip while following.
 
 #### Scenario: Legend over the scene
 

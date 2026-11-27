@@ -11,8 +11,10 @@ import type { Entry } from '@/data/data-store';
 import { useSource } from '@/data/source';
 import { Mechanism3d } from '@/three/mechanism-3d';
 import { Scene3d, type Scene3dHandle } from '@/three/scene';
+import { viewCubeInset } from '@/three/view-cube';
 import { useCursorTime } from '@/timeline/timeline';
-import { Legend, type LegendItem } from '@/widgets/legend/legend';
+import type { LegendItem } from '@/widgets/legend/legend';
+import { OverlayLegend } from '@/widgets/legend/overlay-legend';
 import { MechanismCanvas } from '@/widgets/robot/mechanism-2d';
 import { usePickedRobot } from '@/widgets/robot/picked-robot';
 import { mechanismPlane } from '@/widgets/robot/roles';
@@ -44,18 +46,6 @@ const styles = stylex.create({
 		flexDirection: 'column',
 		paddingInline: spacingVars['--spacing-1-5'],
 		paddingBottom: spacingVars['--spacing-10'],
-	},
-	legend: {
-		pointerEvents: 'auto',
-		flexShrink: 0,
-		width: 'fit-content',
-		maxWidth: '50%',
-		maxHeight: '50%',
-		marginTop: spacingVars['--spacing-1-5'],
-		overflowY: 'auto',
-		paddingInline: spacingVars['--spacing-1-5'],
-		borderRadius: radiusVars['--radius-element'],
-		backgroundColor: colorVars['--color-background-surface'],
 	},
 	// Along the bottom, letting drags between the controls through to the 3D view
 	controls: {
@@ -173,11 +163,12 @@ export function Robot({ bindings, options, setOption }: WidgetProps) {
 					)}
 				</div>
 				<div {...stylex.props(styles.overlay)}>
-					{legend.length > 0 && (
-						<div {...stylex.props(styles.legend)}>
-							<Legend items={legend} vertical roles={view === '3d'} />
-						</div>
-					)}
+					{/* Beside the view cube in 3D */}
+					<OverlayLegend
+						items={legend}
+						roles={view === '3d'}
+						endInset={view === '3d' ? `${viewCubeInset}px` : undefined}
+					/>
 					{unbound && view === '3d' && <SceneControls view="3d" visible={controls.visible} />}
 				</div>
 				<div {...stylex.props(styles.controls)}>

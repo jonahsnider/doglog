@@ -17,6 +17,8 @@ import { useThemeColor } from '@/three/theme';
 const size = 88;
 /** Distance from the canvas's top-right corner to the cube's center, in pixels */
 const margin = 76;
+/** How far the cube reaches in from the canvas's right edge, in pixels */
+export const viewCubeInset = margin + size / 2;
 const labelFont = "600 44px 'IBM Plex Sans Variable', sans-serif";
 /** Width of the faces' labels, a little less than the cube so they stay on its flat part */
 const labelSize = 0.9;
