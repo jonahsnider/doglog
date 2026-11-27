@@ -6,6 +6,7 @@ import ArrowLeftIcon from 'lucide-react/icons/arrow-left';
 import ArrowRightIcon from 'lucide-react/icons/arrow-right';
 import CloudIcon from 'lucide-react/icons/cloud';
 import Columns2Icon from 'lucide-react/icons/columns-2';
+import Columns3Icon from 'lucide-react/icons/columns-3';
 import DownloadIcon from 'lucide-react/icons/download';
 import FolderOpenIcon from 'lucide-react/icons/folder-open';
 import FolderSyncIcon from 'lucide-react/icons/folder-sync';
@@ -13,6 +14,7 @@ import GlobeIcon from 'lucide-react/icons/globe';
 import HistoryIcon from 'lucide-react/icons/history';
 import ImageIcon from 'lucide-react/icons/image';
 import KeyboardIcon from 'lucide-react/icons/keyboard';
+import LayoutGridPlusIcon from 'lucide-react/icons/layout-grid-plus';
 import LinkIcon from 'lucide-react/icons/link';
 import ListTodoIcon from 'lucide-react/icons/list-todo';
 import Maximize2Icon from 'lucide-react/icons/maximize-2';
@@ -53,10 +55,13 @@ import {
 	undoOrRedo,
 } from '@/commands/commands';
 import {
+	balancePanes,
+	canBalancePanes,
 	canCopyCurrentDashboard,
 	canEditFocusedEntries,
 	canExportCurrentDashboardVideo,
 	canSplitFocused,
+	canSplitFocusedBestFit,
 	canToggleEntryBrowser,
 	canZoomFocused,
 	copyCurrentDashboardImage,
@@ -64,6 +69,7 @@ import {
 	currentDashboard,
 	exportCurrentDashboardVideo,
 	splitFocused,
+	splitFocusedBestFit,
 	toggleDashboardEntryBrowser,
 	toggleFocusedEditing,
 	toggleFocusedZoom,
@@ -101,6 +107,8 @@ export interface AppCommand {
 	available?: boolean;
 	/** Its shortcut is handled where it's used instead of app-wide, and the menu bar doesn't show it */
 	ownHotkey?: true;
+	/** Left out of the macOS menu bar, whose shortcuts would take its keys from text fields, so its shortcut is handled here there too */
+	notInMenuBar?: true;
 	/** Leaves its shortcut to the browser and other handlers while it can't run */
 	passThrough?: true;
 	/** Text fields handle its shortcut themselves */
@@ -115,7 +123,7 @@ function reservedAlternate(hotkey: Hotkey): Hotkey[] {
 	return desktop ? [hotkey] : [];
 }
 
-/** Every command with a shortcut, except ones with `ownHotkey`, must be in the macOS menu bar, which handles it there */
+/** Every command with a shortcut, except ones with `ownHotkey` or `notInMenuBar`, must be in the macOS menu bar, which handles it there */
 export const commands = {
 	newWindow: {
 		label: 'New window',
@@ -281,6 +289,41 @@ export const commands = {
 		canRun: (router) => canSplitFocused(router, 'column'),
 		run: (router) => splitFocused(router, 'column'),
 	},
+	splitLeft: {
+		label: 'Split left',
+		icon: Columns2Icon,
+		shortcut: shortcuts.splitLeft,
+		// Selects text to the start of the line
+		ignoreInputs: true,
+		notInMenuBar: true,
+		canRun: (router) => canSplitFocused(router, 'row'),
+		run: (router) => splitFocused(router, 'row', true),
+	},
+	splitUp: {
+		label: 'Split up',
+		icon: Rows2Icon,
+		shortcut: shortcuts.splitUp,
+		// Selects text to the start of the field
+		ignoreInputs: true,
+		notInMenuBar: true,
+		canRun: (router) => canSplitFocused(router, 'column'),
+		run: (router) => splitFocused(router, 'column', true),
+	},
+	splitBestFit: {
+		label: 'Split best fit',
+		icon: LayoutGridPlusIcon,
+		keywords: ['auto', 'automatic'],
+		shortcut: shortcuts.splitBestFit,
+		canRun: canSplitFocusedBestFit,
+		run: splitFocusedBestFit,
+	},
+	balanceSplits: {
+		label: 'Balance splits',
+		icon: Columns3Icon,
+		keywords: ['equalize', 'evenly', 'reset', 'resize', 'sizes'],
+		canRun: canBalancePanes,
+		run: balancePanes,
+	},
 	zoom: {
 		label: 'Zoom or restore pane',
 		icon: Maximize2Icon,
@@ -385,7 +428,11 @@ function commandHotkeys(router: RegisteredRouter, command: AppCommand): UseHotke
 	};
 	return [
 		// The macOS menu bar handles it there
-		{ hotkey: command.shortcut, callback, options: { ...options, enabled: !nativeMenu } },
+		{
+			hotkey: command.shortcut,
+			callback,
+			options: { ...options, enabled: !nativeMenu || command.notInMenuBar === true },
+		},
 		...(command.alternates ?? []).map((hotkey) => ({ hotkey, callback, options })),
 	];
 }

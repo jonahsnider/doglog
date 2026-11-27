@@ -1,12 +1,12 @@
 import type { RegisteredRouter } from '@tanstack/react-router';
 import { canCopyDashboardLink, copyDashboardLink } from '@/dashboards/copy-dashboard-link';
-import { type Dashboard, getDashboard } from '@/dashboards/dashboards';
-import { allowedActions, getFocusedPane, splitDashboardPane, toggleZoom } from '@/dashboards/panes';
+import { type Dashboard, getDashboard, updateDashboard } from '@/dashboards/dashboards';
+import { allowedActions, getFocusedPane, splitDashboardPane, splitDirectionFor, toggleZoom } from '@/dashboards/panes';
 import { getSource } from '@/data/source';
 import { copyDashboardImage } from '@/desktop/capture';
 import { canExportVideo, isExportingVideo, startVideoExport } from '@/desktop/video-export';
 import { toggleEditing, toggleEntryBrowser } from '@/entries/editing';
-import type { SplitDirection } from '@/panes/layout';
+import { balanceLayout, isBalanced, type SplitDirection } from '@/panes/layout';
 import { shownTuningDashboard } from '@/tuning/dashboard';
 import { getWidgetType } from '@/widgets/registry';
 import { bindsEntries } from '@/widgets/widget-type';
@@ -58,10 +58,43 @@ export function canSplitFocused(router: RegisteredRouter, direction: SplitDirect
 	return direction === 'row' ? allowed.splitRight : allowed.splitDown;
 }
 
-export function splitFocused(router: RegisteredRouter, direction: SplitDirection): void {
+/** The new pane goes after the focused pane, or before it with `before` */
+export function splitFocused(router: RegisteredRouter, direction: SplitDirection, before = false): void {
 	const dashboard = paneCommandDashboard(router);
 	if (dashboard && canSplitFocused(router, direction)) {
-		splitDashboardPane(dashboard.id, getFocusedPane(dashboard).id, direction);
+		splitDashboardPane(dashboard.id, getFocusedPane(dashboard).id, direction, before);
+	}
+}
+
+export function canSplitFocusedBestFit(router: RegisteredRouter): boolean {
+	return canSplitFocused(router, 'row') || canSplitFocused(router, 'column');
+}
+
+/** Splits along the focused pane's longer side, or its shorter side when that row or column is full */
+export function splitFocusedBestFit(router: RegisteredRouter): void {
+	const dashboard = paneCommandDashboard(router);
+	if (!dashboard) {
+		return;
+	}
+	const preferred = splitDirectionFor(getFocusedPane(dashboard).id);
+	const directions: SplitDirection[] = [preferred, preferred === 'row' ? 'column' : 'row'];
+	const direction = directions.find((other) => canSplitFocused(router, other));
+	if (direction) {
+		splitFocused(router, direction);
+	}
+}
+
+/** Whether the dashboard has resized panes to balance */
+export function canBalancePanes(router: RegisteredRouter): boolean {
+	const dashboard = paneCommandDashboard(router);
+	return dashboard !== undefined && !isBalanced(dashboard.layout);
+}
+
+/** Undo every resize in the dashboard, so its panes share the space evenly */
+export function balancePanes(router: RegisteredRouter): void {
+	const dashboard = paneCommandDashboard(router);
+	if (dashboard) {
+		updateDashboard(dashboard.id, (current) => ({ ...current, layout: balanceLayout(current.layout) }));
 	}
 }
 

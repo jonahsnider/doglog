@@ -117,14 +117,15 @@ function insertBeside(
 	});
 }
 
-/** Split a pane, `newPane` goes after (right of or below) the existing one */
+/** Split a pane, `newPane` goes after (right of or below) the existing one, or before it with `before` */
 export function splitPane(
 	layout: PaneNode,
 	paneId: string,
 	direction: SplitDirection,
 	newPane: Pane = createPane(),
+	before = false,
 ): PaneNode {
-	return insertBeside(layout, paneId, direction, newPane, false);
+	return insertBeside(layout, paneId, direction, newPane, before);
 }
 
 /** Most panes lined up one after another in `direction`, e.g. the most columns for `row` */
@@ -256,6 +257,18 @@ export function setPaneWidget(layout: PaneNode, paneId: string, widget: Widget |
 /** Resize a split's children to `sizes`, their shares in order, see `resizeChildren()` */
 export function resizeSplit(layout: PaneNode, splitId: string, sizes: readonly number[], snap = 0): PaneNode {
 	return replaceNode(layout, splitId, (node) => (node.kind === 'pane' ? node : resizeChildren(node, sizes, snap)));
+}
+
+/** Let every split's children share its space evenly again, undoing every resize */
+export function balanceLayout(node: PaneNode): PaneNode {
+	return node.kind === 'pane'
+		? { ...node, size: undefined }
+		: { ...node, size: undefined, children: node.children.map((child) => balanceLayout(child)) };
+}
+
+/** Whether no pane or split in the layout was resized */
+export function isBalanced(node: PaneNode): boolean {
+	return node.size === undefined && (node.kind === 'pane' || node.children.every((child) => isBalanced(child)));
 }
 
 /** Let the two children beside a split's divider share their space evenly again */

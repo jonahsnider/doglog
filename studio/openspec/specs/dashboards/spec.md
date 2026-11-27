@@ -500,6 +500,28 @@ Splitting a pane in the same direction as the panes beside it SHALL add a pane t
 - **WHEN** the user double-clicks the divider between two panes
 - **THEN** the two panes share their space evenly again
 
+### Requirement: Split directions and balancing
+
+Split left and Split up SHALL put the new pane before the focused pane instead of after it. Split best fit MUST split along the focused pane's longer side, or its shorter side when that row or column is full. Balance splits MUST undo every resize in the dashboard, so all of its panes share their space evenly, and MUST only be available while the dashboard has a resized pane.
+
+#### Scenario: Split a pane left
+
+- **GIVEN** a dashboard with one pane
+- **WHEN** the user presses ⇧⌘←
+- **THEN** a new empty pane appears to the left of it and is focused
+
+#### Scenario: Split a wide pane best fit
+
+- **GIVEN** a dashboard with one pane, wider than it is tall
+- **WHEN** the user presses ⌘↩
+- **THEN** the pane splits to the right
+
+#### Scenario: Balance splits
+
+- **GIVEN** two columns of two panes, with dividers dragged away from the middle
+- **WHEN** the user chooses Balance splits in the command palette
+- **THEN** all four panes are the same size
+
 ### Requirement: Divider snapping
 
 Dragging a divider close to a parallel divider elsewhere in the dashboard SHALL snap it in line with that divider. Both dividers MUST be highlighted while it's held there.

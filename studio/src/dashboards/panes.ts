@@ -138,8 +138,8 @@ export function allowedActions(id: string, layout: PaneNode, paneId: string) {
 	};
 }
 
-/** Split a pane and focus the new pane, if the layout has room for it */
-export function splitDashboardPane(id: string, paneId: string, direction: SplitDirection): void {
+/** Split a pane and focus the new pane, if the layout has room for it. It goes after the pane, or before it with `before`. */
+export function splitDashboardPane(id: string, paneId: string, direction: SplitDirection, before = false): void {
 	updateDashboard(id, (dashboard) => {
 		if (!canSplitPane(dashboard.layout, paneId, direction)) {
 			return dashboard;
@@ -148,7 +148,7 @@ export function splitDashboardPane(id: string, paneId: string, direction: SplitD
 		const newPane = createPane();
 		return {
 			...dashboard,
-			layout: splitPane(dashboard.layout, paneId, direction, newPane),
+			layout: splitPane(dashboard.layout, paneId, direction, newPane, before),
 			focusedPaneId: newPane.id,
 		};
 	});

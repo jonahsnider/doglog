@@ -59,7 +59,7 @@ The command palette SHALL show one list without group headings. With an empty qu
 #### Scenario: Search
 
 - **WHEN** the user opens the command palette and types "split"
-- **THEN** Split right and Split down are listed
+- **THEN** Split right, Split down, Split left, Split up, and Split best fit are listed
 
 #### Scenario: Related words
 

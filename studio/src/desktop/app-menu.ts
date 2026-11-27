@@ -149,6 +149,8 @@ export async function setUpAppMenu(router: RegisteredRouter): Promise<void> {
 					separator,
 					await commandItem(commands.splitRight),
 					await commandItem(commands.splitDown),
+					await commandItem(commands.splitBestFit),
+					await commandItem(commands.balanceSplits),
 					await commandItem(commands.zoom),
 					await commandItem(commands.editEntries),
 					separator,

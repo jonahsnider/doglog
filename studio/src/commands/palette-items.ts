@@ -53,23 +53,23 @@ export interface PaletteItem {
 	ranges?: number[] | undefined;
 }
 
+/** Undo and redo act on the focused text field, which would be the palette's search box */
+const notInPalette = new Set<string>(['commandPalette', 'undo', 'redo'] satisfies (keyof typeof commands)[]);
+
 /** The commands that can run right now, pages first */
 export function commandItems(router: RegisteredRouter): PaletteItem[] {
-	return (
-		Object.entries<AppCommand>(commands)
-			// Undo and redo act on the focused text field, which would be the palette's search box
-			.filter(([id, command]) => id !== 'commandPalette' && !command.ignoreInputs && canRunCommand(router, command))
-			.toSorted(([, a], [, b]) => Number(b.page === true) - Number(a.page === true))
-			.map(([id, command]) => ({
-				id: `command:${id}`,
-				label: command.label,
-				icon: command.icon,
-				kind: command.page ? 'Page' : 'Command',
-				keywords: command.keywords,
-				shortcut: command.shortcut,
-				run: () => command.run(router),
-			}))
-	);
+	return Object.entries<AppCommand>(commands)
+		.filter(([id, command]) => !notInPalette.has(id) && canRunCommand(router, command))
+		.toSorted(([, a], [, b]) => Number(b.page === true) - Number(a.page === true))
+		.map(([id, command]) => ({
+			id: `command:${id}`,
+			label: command.label,
+			icon: command.icon,
+			kind: command.page ? 'Page' : 'Command',
+			keywords: command.keywords,
+			shortcut: command.shortcut,
+			run: () => command.run(router),
+		}));
 }
 
 export function dashboardItems(router: RegisteredRouter, dashboards: readonly Dashboard[]): PaletteItem[] {
