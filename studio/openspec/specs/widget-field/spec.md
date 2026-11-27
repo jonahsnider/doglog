@@ -212,7 +212,7 @@ In 2D, while the user zooms or pans a zoomed-in field, a minimap of the whole fi
 
 ### Requirement: Robots
 
-In 2D, each robot SHALL be drawn as a 0.9 m square centered on its pose, rotated by its heading (counterclockwise positive), with bumpers in the entry's color around a dark body and a white arrow pointing toward its front. Ghosts MUST be drawn like robots, but see-through. `Pose3d` robots and ghosts MUST be drawn at their yaw, ignoring height, pitch, and roll.
+In 2D, each robot SHALL be drawn as a rectangle the size of its Robot's [dimensions](../widget-robot/spec.md#requirement-robot-dimensions), centered on its pose, rotated by its heading (counterclockwise positive), with bumpers in the entry's color around a dark body and a white arrow pointing toward its front. Ghosts MUST be drawn like robots, but see-through. `Pose3d` robots and ghosts MUST be drawn at their yaw, ignoring height, pitch, and roll.
 
 #### Scenario: Turned left
 
@@ -223,6 +223,12 @@ In 2D, each robot SHALL be drawn as a 0.9 m square centered on its pose, rotated
 
 - **GIVEN** a `Pose3d` entry 0.5 m off the floor, pitched 10°, with a 45° yaw
 - **THEN** the robot is drawn at its X and Y position, rotated 45°
+
+#### Scenario: Long robot
+
+- **GIVEN** a field widget showing `/Drive/Pose` as a robot whose `dimensions` are 1.1 m long and 0.7 m wide
+- **AND** the pose's rotation is 0°
+- **THEN** the robot is drawn 1.1 m along field +X and 0.7 m along field +Y
 
 ### Requirement: Points and paths
 
@@ -697,7 +703,7 @@ In 3D, each robot and ghost SHALL be drawn at its pose, including height, pitch,
 
 ### Requirement: Robot per binding
 
-In 3D, each robot and ghost binding's legend row SHALL pick its role and Robot in one dropdown, with the same Robot choices, "Add project…", and "Remove project" as the robot widget's Robot option. A binding without one MUST use the first robot binding's Robot, then the field robot default. A Robot whose project isn't added on this device MUST be drawn as the swerve drivebase, with a note on its legend row in 3D. A binding's Robot MUST only change how it's drawn in 3D.
+In 3D, each robot and ghost binding's legend row SHALL pick its role and Robot in one dropdown, with the same Robot choices, "Add project…", and "Remove project" as the robot widget's Robot option. A binding without one MUST use the first robot binding's Robot, then the field robot default. A Robot whose project isn't added on this device MUST be drawn as the swerve drivebase, with a note on its legend row in 3D. In 2D, a binding's Robot MUST only change its size.
 
 #### Scenario: Setpoint ghost
 

@@ -320,7 +320,7 @@ A robot project whose files aren't valid SHALL NOT be drawn, and the widget MUST
 
 ### Requirement: Robot config
 
-Each of a project's robots SHALL have a `name`, an optional glTF binary `model` of the robot's body, drawing the swerve drivebase without one, an optional `mount`, and an optional list of `parts`, each with its own `model` and `origin`. Model paths MUST be relative to the project's folder. `mount` MUST move every model from the CAD's coordinates into the robot's, and each part's `origin` MUST be the pose of its pivot in the robot's coordinates, where the CAD placed it.
+Each of a project's robots SHALL have a `name`, an optional glTF binary `model` of the robot's body, drawing the swerve drivebase without one, an optional `mount`, an optional list of `parts`, each with its own `model` and `origin`, and optional `dimensions`. Model paths MUST be relative to the project's folder. `mount` MUST move every model from the CAD's coordinates into the robot's, and each part's `origin` MUST be the pose of its pivot in the robot's coordinates, where the CAD placed it.
 
 ```jsonc
 {
@@ -343,6 +343,24 @@ Each of a project's robots SHALL have a `name`, an optional glTF binary `model` 
 
 - **GIVEN** a robot with an arm part, and no `Pose3d[]` entry bound
 - **THEN** the arm is drawn where the CAD placed it
+
+### Requirement: Robot dimensions
+
+A robot config SHALL describe the robot's footprint including its bumpers in an optional `dimensions`, in meters: a number for a square robot, or a `length` from back to front (along X) and a `width` from right to left (along Y). Each MUST be more than 0. Robots without `dimensions`, AdvantageScope robots, and the swerve drivebase SHALL be 0.9 m square. Robots on the field in 2D, the swerve widget's chassis, and the swerve drivebase MUST be drawn at these dimensions.
+
+```jsonc
+"dimensions": { "length": 0.85, "width": 0.75 },
+```
+
+#### Scenario: Robot without a model
+
+- **GIVEN** a robot with `"dimensions": { "length": 1.1, "width": 0.7 }` and no `model`
+- **THEN** robot widgets draw the swerve drivebase 1.1 m long and 0.7 m wide
+
+#### Scenario: Missing width
+
+- **GIVEN** a robot with `"dimensions": { "length": 0.9 }`
+- **THEN** the robot project is invalid, and says `robots.0.dimensions` in `doglog.jsonc` must be meters above 0, or a length and width in meters above 0
 
 ### Requirement: Device names
 

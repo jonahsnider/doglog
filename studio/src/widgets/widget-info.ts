@@ -303,10 +303,10 @@ export const widgetInfos = [
 		id: 'swerve',
 		name: 'Swerve',
 		description:
-			'A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d, Pose2d, Pose3d, or number is the `heading`. When the heading comes from a pose shown on a field widget, the drawing turns to match that field.',
+			"A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d, Pose2d, Pose3d, or number is the `heading`. When the heading comes from a pose shown on a field widget, the drawing turns to match that field. The `robot` option, as in the robot widget, shapes the chassis like that robot's dimensions.",
 		accepts: ['number', 'struct', 'struct[]'],
 		roles: Object.values(widgetRoles.swerve),
-		options: [],
+		options: [widgetOptions.robot.robot],
 	},
 	{
 		id: 'histogram',

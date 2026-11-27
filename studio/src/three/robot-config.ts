@@ -1,8 +1,9 @@
+// oxlint-disable max-lines -- Reading both kinds of config shares their parts, and writing one from the other shares them too
 // Reads a robot project's config, from `doglog.jsonc` (or `doglog.json`), or an AdvantageScope robot's `config.json`
 import { type ParseError, parse, printParseErrorCode } from 'jsonc-parser';
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three';
 import * as z from 'zod';
-import { type DeviceNames, projectSchema } from '@/three/project-schema';
+import { type DeviceNames, defaultRobotDimensions, projectSchema, type RobotDimensions } from '@/three/project-schema';
 import { transformMatrix } from '@/three/poses';
 
 /** A model file of a robot, and how it's placed */
@@ -23,6 +24,8 @@ export type RobotConfig = {
 	readonly parts: readonly RobotPart[];
 	/** Names for the robot's CAN devices in HOOT logs */
 	readonly devices: DeviceNames;
+	/** The robot's footprint with its bumpers, what the swerve drivebase and 2D robots are drawn as */
+	readonly dimensions: RobotDimensions;
 };
 
 export class RobotConfigError extends Error {
@@ -81,6 +84,7 @@ function readDogLogConfig(text: string, file: string): RobotConfig[] {
 				zero: transformMatrix(part.origin).invert().multiply(mount),
 			})),
 			devices: robot.devices ?? {},
+			dimensions: robot.dimensions ?? defaultRobotDimensions,
 		};
 	});
 }
@@ -136,6 +140,7 @@ function readAdvantageScopeConfig(text: string): RobotConfig[] {
 				zero: advantageScopeMatrix(component.zeroedRotations, component.zeroedPosition),
 			})),
 			devices: {},
+			dimensions: defaultRobotDimensions,
 		},
 	];
 }

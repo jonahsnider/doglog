@@ -42,7 +42,7 @@ A pose heading entry's heading SHALL be its rotation, or its yaw for `Pose3d`.
 
 ### Requirement: Drivetrain layout
 
-The swerve widget SHALL draw a square chassis, centered and fit to the widget, with 4 modules in front-left, front-right, back-left, back-right order matching the module array order. Each module MUST be labeled `FL`, `FR`, `BL`, or `BR`, and labels SHALL stay upright when the drivetrain rotates. A module array whose length isn't 4 MUST NOT be drawn, and its legend item SHALL say how many modules were expected and received.
+The swerve widget SHALL draw a chassis shaped like its [Robot's](#requirement-swerve-robot) dimensions, centered and fit to the widget, with 4 modules in front-left, front-right, back-left, back-right order matching the module array order. Each module MUST be labeled `FL`, `FR`, `BL`, or `BR`, and labels SHALL stay upright when the drivetrain rotates. A module array whose length isn't 4 MUST NOT be drawn, and its legend item SHALL say how many modules were expected and received.
 
 #### Scenario: Module labels
 
@@ -50,11 +50,27 @@ The swerve widget SHALL draw a square chassis, centered and fit to the widget, w
 - **THEN** the `FL` and `FR` labels are at the bottom of the widget
 - **AND** the labels are upright
 
+#### Scenario: Long robot
+
+- **GIVEN** a swerve widget whose Robot's `dimensions` are 1.1 m long and 0.7 m wide
+- **AND** no heading entry
+- **THEN** the chassis is taller than it is wide, with the robot's front pointing up
+
 #### Scenario: Wrong module count
 
 - **GIVEN** the widget is bound to a `SwerveModuleState[]` entry with 3 elements
 - **THEN** that entry is not drawn
 - **AND** its legend item shows "expected 4 modules, got 3"
+
+### Requirement: Swerve robot
+
+The swerve widget SHALL have a Robot option with the same choices, "Add project…", "Remove project", and default as the [robot widget's](../widget-robot/spec.md#requirement-robot), and a new swerve widget MUST start with the [last picked robot](../widget-robot/spec.md#requirement-last-picked-robot). The Robot MUST only change the chassis's shape, from its [dimensions](../widget-robot/spec.md#requirement-robot-dimensions).
+
+#### Scenario: Pick a project's robot
+
+- **GIVEN** a swerve widget showing the swerve drivebase
+- **WHEN** the user picks the robot "581 2026", whose `dimensions` are 0.7 m long and 0.8 m wide
+- **THEN** the chassis is wider than it is tall
 
 ### Requirement: Module state arrows
 

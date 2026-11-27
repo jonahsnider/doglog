@@ -3,7 +3,7 @@ import { colorVars, typographyVars } from '@astryxdesign/core/theme/tokens.style
 import * as stylex from '@stylexjs/stylex';
 import type { Value } from '@/data/samples';
 import { numberField } from '@/data/struct-fields';
-import { chassisHalf, headSize, move, type Point, strokeWidth, toSvg } from '@/widgets/swerve/geometry';
+import { headSize, move, type Point, strokeWidth, toSvg } from '@/widgets/swerve/geometry';
 
 const styles = stylex.create({
 	label: {
@@ -73,16 +73,18 @@ function RotationArc({ radius, sweep, color }: { radius: number; sweep: number; 
 /** Module name outside the chassis corner, kept upright when the drivetrain is turned by `rotation` (radians) */
 export function ModuleLabel({
 	position: [x, y],
+	chassis: [halfLength, halfWidth],
 	label,
 	rotation,
 }: {
 	position: Point;
+	/** Half the chassis's length and width */
+	chassis: Point;
 	label: string;
 	rotation: number;
 }) {
 	// Just outside the chassis corner nearest the module
-	const offset = chassisHalf + 0.08;
-	const [labelX, labelY] = toSvg([Math.sign(x) * offset, Math.sign(y) * offset]);
+	const [labelX, labelY] = toSvg([Math.sign(x) * (halfLength + 0.08), Math.sign(y) * (halfWidth + 0.08)]);
 	return (
 		<text
 			x={labelX}

@@ -491,6 +491,25 @@
 														"type": "string",
 														"const": "swerve"
 													},
+													"options": {
+														"type": "object",
+														"properties": {
+															"robot": {
+																"description": "Robot, `swerve` by default. `null` goes back to inferring it or the default.",
+																"anyOf": [
+																	{
+																		"type": "string",
+																		"minLength": 1,
+																		"description": "`swerve`, or another choice from the user's device"
+																	},
+																	{
+																		"type": "null"
+																	}
+																]
+															}
+														},
+														"additionalProperties": false
+													},
 													"bindings": {
 														"description": "Entries to show, in order. Accepted kinds: number, struct, struct[]. Left out, the widget starts like one the user adds.",
 														"type": "array",
@@ -535,7 +554,7 @@
 													"type"
 												],
 												"additionalProperties": false,
-												"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d, Pose2d, Pose3d, or number is the `heading`. When the heading comes from a pose shown on a field widget, the drawing turns to match that field."
+												"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d, Pose2d, Pose3d, or number is the `heading`. When the heading comes from a pose shown on a field widget, the drawing turns to match that field. The `robot` option, as in the robot widget, shapes the chassis like that robot's dimensions."
 											},
 											{
 												"type": "object",
@@ -1345,6 +1364,25 @@
 										"type": "string",
 										"const": "swerve"
 									},
+									"options": {
+										"type": "object",
+										"properties": {
+											"robot": {
+												"description": "Robot, `swerve` by default. `null` goes back to inferring it or the default.",
+												"anyOf": [
+													{
+														"type": "string",
+														"minLength": 1,
+														"description": "`swerve`, or another choice from the user's device"
+													},
+													{
+														"type": "null"
+													}
+												]
+											}
+										},
+										"additionalProperties": false
+									},
 									"bindings": {
 										"description": "Entries to show, in order. Accepted kinds: number, struct, struct[]. Left out, the widget starts like one the user adds.",
 										"type": "array",
@@ -1389,7 +1427,7 @@
 									"type"
 								],
 								"additionalProperties": false,
-								"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d, Pose2d, Pose3d, or number is the `heading`. When the heading comes from a pose shown on a field widget, the drawing turns to match that field."
+								"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d, Pose2d, Pose3d, or number is the `heading`. When the heading comes from a pose shown on a field widget, the drawing turns to match that field. The `robot` option, as in the robot widget, shapes the chassis like that robot's dimensions."
 							},
 							{
 								"type": "object",
@@ -1920,13 +1958,32 @@
 											"type": {
 												"type": "string",
 												"const": "swerve"
+											},
+											"options": {
+												"type": "object",
+												"properties": {
+													"robot": {
+														"description": "Robot, `swerve` by default. `null` goes back to inferring it or the default.",
+														"anyOf": [
+															{
+																"type": "string",
+																"minLength": 1,
+																"description": "`swerve`, or another choice from the user's device"
+															},
+															{
+																"type": "null"
+															}
+														]
+													}
+												},
+												"additionalProperties": false
 											}
 										},
 										"required": [
 											"type"
 										],
 										"additionalProperties": false,
-										"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d, Pose2d, Pose3d, or number is the `heading`. When the heading comes from a pose shown on a field widget, the drawing turns to match that field."
+										"description": "Swerve: A swerve drive seen from above. Roles follow the entry type: SwerveModuleState[] or SwerveModuleVelocity[] are `states`, SwerveModulePosition[] are `positions`, ChassisSpeeds or ChassisVelocities are robot-relative `speeds` or field-relative `fieldSpeeds` (inferred from names containing `field`), and a Rotation2d, Pose2d, Pose3d, or number is the `heading`. When the heading comes from a pose shown on a field widget, the drawing turns to match that field. The `robot` option, as in the robot widget, shapes the chassis like that robot's dimensions."
 									},
 									{
 										"type": "object",

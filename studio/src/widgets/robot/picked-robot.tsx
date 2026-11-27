@@ -5,7 +5,7 @@ import type { Entry } from '@/data/data-store';
 import { poseMatrix } from '@/three/poses';
 import { useLoadedRobot } from '@/three/robot-loading';
 import { RobotModel } from '@/three/robot-model';
-import { allowProjectAccess, useRobotProject } from '@/three/robot-projects';
+import { allowProjectAccess, useRobotDimensions, useRobotProject } from '@/three/robot-projects';
 import { SwerveDrivebase } from '@/three/swerve-drivebase';
 import { useCursorTime } from '@/timeline/timeline';
 import { defaultRobot } from '@/widgets/robot/robot-option';
@@ -28,22 +28,24 @@ export function usePickedRobot(
 	const value = parts && time !== undefined ? parts.samples.valueAt(time) : undefined;
 	// oxlint-disable-next-line studio/no-manual-memo -- Without it, React Compiler reruns this whenever `time` changes, not just when the value does
 	const poses = useMemo(() => (Array.isArray(value) ? value.map((pose) => poseMatrix(pose)) : []), [value]);
+	const dimensions = useRobotDimensions(name);
+	const drivebase = <SwerveDrivebase dimensions={dimensions} />;
 
 	if (name === defaultRobot) {
-		return { robot: <SwerveDrivebase />, note: undefined };
+		return { robot: drivebase, note: undefined };
 	}
 	if (project === null) {
-		return { robot: <SwerveDrivebase />, note: `${name} isn't added on this device` };
+		return { robot: drivebase, note: `${name} isn't added on this device` };
 	}
 	if (state?.status === 'loaded') {
 		return {
-			robot: state.robot ? <RobotModel robot={state.robot} poses={poses} /> : <SwerveDrivebase />,
+			robot: state.robot ? <RobotModel robot={state.robot} poses={poses} /> : drivebase,
 			note: undefined,
 		};
 	}
 	if (state?.status === 'error') {
 		return {
-			robot: <SwerveDrivebase />,
+			robot: drivebase,
 			note: (
 				<>
 					<span {...stylex.props(styles.message)}>{state.message}</span>

@@ -65,6 +65,25 @@ test('reads device names, for robots without a model too', async () => {
 	expect(robot!.devices).toEqual(devices);
 });
 
+test('reads dimensions as a square, a length and width, or the default', async () => {
+	const robots = await readRobotConfigs(
+		folder({
+			'doglog.jsonc': JSON.stringify({
+				robots: [
+					{ name: 'Square', dimensions: 0.8 },
+					{ name: 'Long', dimensions: { length: 1.1, width: 0.7 } },
+					{ name: 'Default' },
+				],
+			}),
+		}),
+	);
+	expect(robots.map(({ dimensions }) => dimensions)).toEqual([
+		{ length: 0.8, width: 0.8 },
+		{ length: 1.1, width: 0.7 },
+		{ length: 0.9, width: 0.9 },
+	]);
+});
+
 test('prefers doglog.jsonc to doglog.json', async () => {
 	const json = JSON.stringify({ robots: [{ name: 'Old', model: 'old.glb' }] });
 	expect((await readRobotConfigs(folder({ 'doglog.json': json, 'doglog.jsonc': doglog })))[0]!.name).toBe('581 2026');
@@ -128,6 +147,10 @@ test.each([
 			}),
 		},
 		"can't start with a model and an ID",
+	],
+	[
+		{ 'doglog.jsonc': JSON.stringify({ robots: [{ name: 'A', dimensions: { length: 0.9 } }] }) },
+		'robots.0.dimensions in doglog.jsonc: must be meters above 0, or a length and width in meters above 0',
 	],
 	[{ 'doglog.jsonc': '{ "robots": ' }, "doglog.jsonc isn't valid JSON"],
 	[{}, "doesn't have a doglog.jsonc"],

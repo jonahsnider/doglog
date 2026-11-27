@@ -1,9 +1,8 @@
 // SVG shapes for the field widget, drawn in field meters with +Y up
+import { useRobotDimensions } from '@/three/robot-projects';
 import { type Pose, readShape } from '@/widgets/field/data';
 import { pointMarker, strokeWidth, toDegrees } from '@/widgets/field/geometry';
 
-/** Bumper footprint of a typical robot */
-const robotHalf = 0.45;
 /** Drawn a little thicker than real bumpers so they read at small sizes */
 const bumperWidth = 0.1;
 const { diameter, outlineWidth, shaftRadius, shaftLength, arrowheadRadius, arrowLength } = pointMarker;
@@ -11,17 +10,33 @@ const markerRadius = diameter * (0.5 - outlineWidth);
 
 /**
  * A robot like AdvantageScope draws one: bumpers in the entry's color around a dark body, with a white arrow toward its
- * front. Everything is sized in meters, so the robot keeps its look at any zoom.
+ * front, the size of `robot`'s dimensions. Everything is sized in meters, so the robot keeps its look at any zoom.
  */
-export function Robot({ pose, color, ghost = false }: { pose: Pose; color: string; ghost?: boolean }) {
-	const bodyHalf = robotHalf - bumperWidth;
+export function Robot({
+	pose,
+	color,
+	robot,
+	ghost = false,
+}: {
+	pose: Pose;
+	color: string;
+	robot: string;
+	ghost?: boolean;
+}) {
+	const { length, width } = useRobotDimensions(robot);
 	return (
 		<g
 			transform={`translate(${pose.x} ${pose.y}) rotate(${toDegrees(pose.heading ?? 0)})`}
 			opacity={ghost ? 0.35 : undefined}
 		>
-			<rect x={-robotHalf} y={-robotHalf} width={robotHalf * 2} height={robotHalf * 2} rx={0.06} fill={color} />
-			<rect x={-bodyHalf} y={-bodyHalf} width={bodyHalf * 2} height={bodyHalf * 2} fill="#222" />
+			<rect x={-length / 2} y={-width / 2} width={length} height={width} rx={0.06} fill={color} />
+			<rect
+				x={-length / 2 + bumperWidth}
+				y={-width / 2 + bumperWidth}
+				width={length - bumperWidth * 2}
+				height={width - bumperWidth * 2}
+				fill="#222"
+			/>
 			<path
 				d="M -0.2 0 L 0.2 0 M 0.08 0.12 L 0.2 0 L 0.08 -0.12"
 				fill="none"

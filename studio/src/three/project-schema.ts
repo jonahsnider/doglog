@@ -62,6 +62,29 @@ const devices = z
 	})
 	.describe("Names for the robot's CAN devices in HOOT logs, by CAN bus, then by model and ID");
 
+/** A robot's footprint with its bumpers, in meters */
+export type RobotDimensions = { readonly length: number; readonly width: number };
+
+/** The size of robots without `dimensions`, a typical robot with bumpers */
+export const defaultRobotDimensions: RobotDimensions = { length: 0.9, width: 0.9 };
+
+const meters = z.number().positive();
+
+const dimensions = z
+	.union(
+		[
+			meters.transform((size): RobotDimensions => ({ length: size, width: size })),
+			z.strictObject({
+				length: meters.describe("Meters from the robot's back bumper to its front bumper, along X"),
+				width: meters.describe("Meters from the robot's right bumper to its left bumper, along Y"),
+			}),
+		],
+		{ error: 'must be meters above 0, or a length and width in meters above 0' },
+	)
+	.describe(
+		"The robot's footprint in meters, including bumpers, a number for a square robot. Robots on the 2D field, the swerve widget, and the swerve drivebase are drawn this size, 0.9 m square without it.",
+	);
+
 const robot = z
 	.strictObject({
 		name: z
@@ -87,6 +110,7 @@ const robot = z
 			)
 			.optional()
 			.describe('Parts moved by a Pose3d[] entry, the pose at each index places the part at the same index'),
+		dimensions: dimensions.optional(),
 		devices: devices.optional(),
 	})
 	.refine(({ model, parts }) => model !== undefined || parts === undefined, {

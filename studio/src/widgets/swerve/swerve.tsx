@@ -6,6 +6,7 @@ import type { Value } from '@/data/samples';
 import { type Entry, useDataVersion } from '@/data/data-store';
 import { angleUnitLabels, inferAngleUnit, toRadians } from '@/data/units';
 import { useMobileLayout } from '@/lib/mobile-layout';
+import { useRobotDimensions } from '@/three/robot-projects';
 import { useCursorTime } from '@/timeline/timeline';
 import { numberField, structField } from '@/data/struct-fields';
 import { readPose } from '@/widgets/field/data';
@@ -42,9 +43,10 @@ const styles = stylex.create({
 	},
 });
 
-// Sizes in robot-frame meters-like units: the chassis is 1 wide, the view leaves room for arrows when it's rotated
-/** Modules sit inside the chassis, like a real robot's */
-const moduleOffset = 0.36;
+// Sizes in robot-frame meters-like units: the chassis's longer side is 1 long, the view leaves room for arrows when
+// it's rotated
+/** How far modules sit inside the chassis's corners, like a real robot's */
+const moduleInset = 0.14;
 /** Arrow length at zero speed, so stopped modules still show a full-shape arrow past the wheel */
 const baseArrow = 0.2;
 /** Arrow length at the fastest speed in the bound entries' history */
@@ -53,11 +55,11 @@ const positionLine = 0.25;
 const viewHalf = 1.1;
 
 /** Front-left, front-right, back-left, back-right, matching WPILib's usual module order */
-const modulePositions: readonly Point[] = [
-	[moduleOffset, moduleOffset],
-	[moduleOffset, -moduleOffset],
-	[-moduleOffset, moduleOffset],
-	[-moduleOffset, -moduleOffset],
+const moduleCorners: readonly Point[] = [
+	[1, 1],
+	[1, -1],
+	[-1, 1],
+	[-1, -1],
 ];
 const moduleLabels = ['FL', 'FR', 'BL', 'BR'];
 const headingIcon = <CompassIcon {...stylex.props(styles.headingIcon)} />;
@@ -65,12 +67,14 @@ const headingIcon = <CompassIcon {...stylex.props(styles.headingIcon)} />;
 /** Arrows for module states or lines for module positions, optionally over translucent wheels in the entry's color */
 function ModuleLayer({
 	modules,
+	modulePositions,
 	isPositions,
 	showWheels,
 	arrowLength,
 	color,
 }: {
 	modules: Module[];
+	modulePositions: readonly Point[];
 	isPositions: boolean;
 	showWheels: boolean;
 	arrowLength: (speed: number) => number;
@@ -149,9 +153,14 @@ function drivetrainRotation(
 	return heading + xAxisAngle - Math.PI / 2;
 }
 
-export function Swerve({ bindings, layout }: WidgetProps) {
+export function Swerve({ bindings, layout, options }: WidgetProps) {
 	const time = useCursorTime();
 	const mobile = useMobileLayout();
+	const chassis = chassisHalf(useRobotDimensions(options['robot']!));
+	const modulePositions = moduleCorners.map(([x, y]): Point => [
+		x * (chassis[0] - moduleInset),
+		y * (chassis[1] - moduleInset),
+	]);
 	// Values at the cursor and the arrow scale change as samples arrive
 	useDataVersion();
 
@@ -234,6 +243,7 @@ export function Swerve({ bindings, layout }: WidgetProps) {
 			<ModuleLayer
 				key={id}
 				modules={modules}
+				modulePositions={modulePositions}
 				isPositions={role === 'positions'}
 				showWheels={!isPrimary}
 				arrowLength={arrowLength}
@@ -260,11 +270,12 @@ export function Swerve({ bindings, layout }: WidgetProps) {
 			>
 				{/* Counterclockwise turns are negative SVG rotations */}
 				<g transform={`rotate(${(-rotation * 180) / Math.PI})`}>
+					{/* The robot's front points up, so its length is the chassis's height */}
 					<rect
-						x={-chassisHalf}
-						y={-chassisHalf}
-						width={chassisHalf * 2}
-						height={chassisHalf * 2}
+						x={-chassis[1]}
+						y={-chassis[0]}
+						width={chassis[1] * 2}
+						height={chassis[0] * 2}
 						rx={0.04}
 						fill="none"
 						{...stylex.props(styles.chassis)}
@@ -275,7 +286,7 @@ export function Swerve({ bindings, layout }: WidgetProps) {
 					{modulePositions.map((position, index) => (
 						<g key={moduleLabels[index]}>
 							<Wheel position={position} angle={wheelAngles?.[index] ?? 0} />
-							<ModuleLabel position={position} label={moduleLabels[index]!} rotation={rotation} />
+							<ModuleLabel position={position} chassis={chassis} label={moduleLabels[index]!} rotation={rotation} />
 						</g>
 					))}
 					{primaryArrows}

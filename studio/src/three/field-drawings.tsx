@@ -12,7 +12,7 @@ import { Mechanism3d, type MechanismPlane } from '@/three/mechanism-3d';
 import { poseMatrix } from '@/three/poses';
 import { useLoadedRobot } from '@/three/robot-loading';
 import { ghostOpacity, RobotModel } from '@/three/robot-model';
-import { useRobotProject } from '@/three/robot-projects';
+import { useRobotDimensions, useRobotProject } from '@/three/robot-projects';
 import { SwerveDrivebase } from '@/three/swerve-drivebase';
 import { useThemeColor } from '@/three/theme';
 import { readShape } from '@/widgets/field/data';
@@ -87,6 +87,7 @@ function Robot({
 }) {
 	const project = useRobotProject(name === defaultRobot ? '' : name);
 	const { state } = useLoadedRobot(name === defaultRobot ? undefined : (project ?? undefined));
+	const dimensions = useRobotDimensions(name);
 	const poses = Array.isArray(parts) ? parts.map((pose) => poseMatrix(pose)) : [];
 	const opacity = ghost ? ghostOpacity : 1;
 	return (
@@ -94,7 +95,7 @@ function Robot({
 			{state?.status === 'loaded' && state.robot ? (
 				<RobotModel robot={state.robot} poses={poses} {...(ghost && { ghost: color })} />
 			) : (
-				<SwerveDrivebase color={color} opacity={opacity} />
+				<SwerveDrivebase color={color} opacity={opacity} dimensions={dimensions} />
 			)}
 			{mechanisms.map(({ id, mechanism, plane }) => (
 				<Mechanism3d key={id} mechanism={mechanism} plane={plane} />

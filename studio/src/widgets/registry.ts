@@ -93,7 +93,7 @@ export const widgetTypes: readonly WidgetType[] = [
 		preload: loadRobot,
 		component: lazy(loadRobot),
 	},
-	{ ...info('swerve'), hotkey: 'S', roles: swerveRoles, component: Swerve },
+	{ ...info('swerve'), hotkey: 'S', roles: swerveRoles, options: [robotOption], component: Swerve },
 	{ ...info('histogram'), hotkey: 'H', component: Histogram },
 	{ ...info('table'), hotkey: 'T', component: TableWidget },
 	{ ...info('console'), hotkey: 'C', component: Console },

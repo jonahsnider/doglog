@@ -2,12 +2,14 @@ import type { ReactNode } from 'react';
 import type { Entry } from '@/data/data-store';
 import type { Value } from '@/data/samples';
 import { readPose } from '@/widgets/field/data';
+import { fieldRobot } from '@/widgets/field/robots';
 import { bindingColor } from '@/widgets/series-color';
 import { Connections, Markers, Path, Robot, Shapes } from '@/widgets/field/shapes';
 import { widgetRoles } from '@/widgets/widget-info';
 import type { Connects, RoleOption, WidgetBinding } from '@/widgets/widget-type';
 
-type Draw = (value: Value, color: string, outline: string) => ReactNode;
+/** `robot` is the robot a robot or ghost is drawn the size of, see `fieldRobot()` */
+type Draw = (value: Value, color: string, outline: string, robot: string) => ReactNode;
 
 const items = (value: Value): readonly unknown[] => (Array.isArray(value) ? value : [value]);
 const poses = (value: Value) => items(value).map((item) => readPose(item));
@@ -19,8 +21,14 @@ const roles = [
 	{ ...field.path, draw: (value, color) => <Path poses={poses(value)} color={color} /> },
 	{ ...field.points, draw: points },
 	{ ...field.point, draw: points },
-	{ ...field.ghost, draw: (value, color) => <Robot pose={readPose(value)} color={color} ghost /> },
-	{ ...field.robot, draw: (value, color) => <Robot pose={readPose(value)} color={color} /> },
+	{
+		...field.ghost,
+		draw: (value, color, _outline, robot) => <Robot pose={readPose(value)} color={color} robot={robot} ghost />,
+	},
+	{
+		...field.robot,
+		draw: (value, color, _outline, robot) => <Robot pose={readPose(value)} color={color} robot={robot} />,
+	},
 ] as const satisfies readonly (RoleOption & { draw: Draw })[];
 
 type FieldRoleId = keyof typeof field;
@@ -113,6 +121,8 @@ export function fieldConnects(binding: WidgetBinding): Connects | undefined {
 export function fieldDrawings(
 	bindings: readonly WidgetBinding[],
 	valueOf: (entry: Entry | undefined) => Value | undefined,
+	/** The widget's `robot` option */
+	widgetRobot: string,
 ): ReactNode[] {
 	const layers: ReactNode[][] = drawOrder.map(() => []);
 	bindings.forEach((binding, index) => {
@@ -122,10 +132,11 @@ export function fieldDrawings(
 			return;
 		}
 		const color = bindingColor(binding, index);
+		const robot = fieldRobot(binding, bindings, widgetRobot);
 		layers[drawOrder.indexOf(role.id)]!.push(
 			// Right-clicking a drawing offers to remove its binding, middle-clicking removes it
 			<g key={binding.id} data-binding-id={binding.id}>
-				{role.draw(value, color, bindingColor(binding, index, 'outline'))}
+				{role.draw(value, color, bindingColor(binding, index, 'outline'), robot)}
 			</g>,
 		);
 		// The same entry from other sources is drawn faded, and under it since layers draw their last item first
@@ -134,7 +145,7 @@ export function fieldDrawings(
 			if (otherValue !== undefined) {
 				layers[drawOrder.indexOf(role.id)]!.push(
 					<g key={`${binding.id}:${other.source.id}`} data-binding-id={binding.id} opacity={0.45}>
-						{role.draw(otherValue, color, bindingColor(binding, index, 'outline'))}
+						{role.draw(otherValue, color, bindingColor(binding, index, 'outline'), robot)}
 					</g>,
 				);
 			}

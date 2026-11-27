@@ -3,7 +3,7 @@
 // directory handles. Both are kept in IndexedDB, which can store handles.
 import { useSelector } from '@tanstack/react-store';
 import { Code } from '@astryxdesign/core/Code';
-import { createElement, Fragment, useEffect } from 'react';
+import { createElement, Fragment, useEffect, useState } from 'react';
 import { createAtom } from '@tanstack/store';
 import { invoke } from '@tauri-apps/api/core';
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
@@ -12,7 +12,7 @@ import * as z from 'zod';
 import { toastManager } from '@/components/toast';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import type { ListProjectFolders, ReadProjectFile } from '@/three/robot-config';
-import type { DeviceNames } from '@/three/project-schema';
+import { type DeviceNames, defaultRobotDimensions, type RobotDimensions } from '@/three/project-schema';
 import { loadRobotDevices, robotDevicesStore, saveRobotDevices } from '@/three/robot-devices';
 import { widgetOptions } from '@/widgets/widget-info';
 
@@ -173,6 +173,50 @@ export function useRobotProject(name: string): RobotProject | null | undefined {
 	useEffect(startLoading, []);
 	const projects = useSelector(projectsStore);
 	return projects && (projects.find((project) => project.name === name) ?? null);
+}
+
+/** Dimensions by project, read from its config without loading its models, a project added again reads them again */
+const dimensionsByProject = new WeakMap<RobotProject, Promise<RobotDimensions>>();
+
+function dimensionsOf(project: RobotProject): Promise<RobotDimensions> {
+	let promise = dimensionsByProject.get(project);
+	if (promise === undefined) {
+		promise = import('@/three/robot-config')
+			.then(({ readRobotConfigs }) => readRobotConfigs(projectFileReader(project)))
+			.then((configs) => configs.find(({ name }) => name === project.name)?.dimensions ?? defaultRobotDimensions)
+			.catch(() => {
+				// The widgets drawing the robot say why its config can't be read, it's read again next time
+				dimensionsByProject.delete(project);
+				return defaultRobotDimensions;
+			});
+		dimensionsByProject.set(project, promise);
+	}
+	return promise;
+}
+
+/**
+ * The dimensions of a robot by its name, or the default dimensions for the swerve drivebase, a robot that isn't added,
+ * or one whose config can't be read
+ */
+export function useRobotDimensions(name: string): RobotDimensions {
+	const project = useRobotProject(name === widgetOptions.robot.robot.default ? '' : name);
+	const [result, setResult] = useState<{ project: RobotProject; dimensions: RobotDimensions }>();
+	useEffect(() => {
+		if (!project) {
+			return undefined;
+		}
+		let cancelled = false;
+		void dimensionsOf(project).then((dimensions) => {
+			if (!cancelled) {
+				setResult({ project, dimensions });
+			}
+			return undefined;
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [project]);
+	return project && result?.project === project ? result.dimensions : defaultRobotDimensions;
 }
 
 /** Why projects can't be added, `undefined` when they can. The web app needs a Chromium browser to keep access to folders. */

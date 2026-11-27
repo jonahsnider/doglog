@@ -251,7 +251,7 @@ function Field2d({ bindings, options, setOption, paneId }: WidgetProps) {
 									<FieldImage />
 									<g transform="scale(1 -1)">
 										<g transform={coordinatesTransform(coordinates)}>
-											{fieldDrawings(bindings, valueOf)}
+											{fieldDrawings(bindings, valueOf, options['robot']!)}
 											{measurement && <MeasurementDrawing measurement={measurement} />}
 										</g>
 										<PencilDrawing points={pencil.points} />
