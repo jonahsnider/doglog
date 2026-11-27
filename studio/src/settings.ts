@@ -3,6 +3,7 @@ import { createAtom } from '@tanstack/store';
 import { invoke } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import * as z from 'zod';
+import { teamDefaultsStore } from '@/cloud/session';
 import { createPersistedAtom } from '@/lib/persisted-store';
 import { themePresets, themes, visualizationPalettes } from '@/theme/choices';
 import { applyThemeColor, defaultCustomColor, themeColors } from '@/theme/theme-color';
@@ -24,7 +25,7 @@ const settingsSchema = z.object({
 	reduceTransparency: z.boolean().catch(false),
 	/** Local sharing name, used when signed out of Cloud */
 	name: z.string().catch(''),
-	/** Team number or IP address, use `getRobotHost()` to get the NT server host */
+	/** Team number or IP address, blank to use the Cloud team's default. Connecting uses `robotTargetStore`. */
 	robotTarget: z.string().catch(''),
 	/** Coalesce updates from live topics that aren't used on a dashboard */
 	reduceLiveBandwidth: z.boolean().catch(false),
@@ -64,6 +65,20 @@ export function useSettings(): Settings {
 
 export function updateSettings(changes: Partial<Settings>): void {
 	settingsStore.set((settings) => ({ ...settings, ...changes }));
+}
+
+/**
+ * The robot connection target, from the setting or, while it's blank, the Cloud team's default team number.
+ * Use `getRobotHost()` to get the NT server host.
+ */
+export const robotTargetStore = createAtom(() => {
+	const target = settingsStore.get().robotTarget.trim();
+	const teamNumber = teamDefaultsStore.get()?.teamNumber ?? null;
+	return target === '' && teamNumber !== null ? String(teamNumber) : target;
+});
+
+export function useRobotTarget(): string {
+	return useSelector(robotTargetStore);
 }
 
 /** The color mode the theme setting resolves to, following the OS color scheme for `system` */

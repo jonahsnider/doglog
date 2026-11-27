@@ -43,7 +43,7 @@ Settings SHALL let users who are signed out of Cloud set the name others see in 
 
 ### Requirement: Robot connection setting
 
-Settings SHALL let users set the robot connection target as a team number or an IP address.
+Settings SHALL let users set the robot connection target as a team number or an IP address. While it's blank and the user's Cloud team has a default team number, Connect MUST use the team's number, and the setting MUST show it and say that clearing an entered target returns to it.
 
 #### Scenario: Team number
 
@@ -54,6 +54,12 @@ Settings SHALL let users set the robot connection target as a team number or an 
 
 - **WHEN** the user enters `10.5.81.2`
 - **THEN** Connect targets `10.5.81.2`
+
+#### Scenario: Team default
+
+- **GIVEN** the user's Cloud team's default team number is 581
+- **WHEN** the user clears the robot connection setting
+- **THEN** Connect targets the standard robot address for team 581
 
 ### Requirement: Live bandwidth setting
 

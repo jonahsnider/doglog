@@ -20,6 +20,7 @@ import { InviteLink } from '@/cloud/invite-link';
 import { JoinTeam } from '@/cloud/join-team';
 import { CloudSignIn, displayNameMaxLength } from '@/cloud/sign-in';
 import { SignInMethods } from '@/cloud/sign-in-methods';
+import { TeamDefaults } from '@/cloud/team-defaults';
 import { TeamMembers } from '@/cloud/team-members';
 import { TeamPanel } from '@/cloud/team-panel';
 import { SettingsGroup } from '@/components/settings-group';
@@ -98,6 +99,8 @@ function SignedIn() {
 			</UtilityPageSection>
 
 			<Divider />
+
+			<TeamDefaults team={team} />
 
 			<UtilityPageSection title="Collaboration">
 				{account && <DisplayName key={account.id} name={account.displayName} />}

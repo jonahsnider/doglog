@@ -5,7 +5,7 @@ import { createAtom } from '@tanstack/store';
 import { invoke } from '@tauri-apps/api/core';
 import { documentDir, join } from '@tauri-apps/api/path';
 import { getRobotHost } from '@/robot-target';
-import { settingsStore } from '@/settings';
+import { robotTargetStore } from '@/settings';
 import { type RobotEnabledWatcher, type SyncBackend, robotBackend } from '@/sync/backend';
 import { demoBackend } from '@/sync/demo';
 import { type LocalLog, type PlannedLog, type RemoteLog, type SyncFilter, planSync } from '@/sync/plan';
@@ -265,7 +265,7 @@ export async function runLogSync(): Promise<void> {
 		void (demoChanged ? showSavedLogs() : refreshFolder());
 		wake();
 	});
-	settingsStore.subscribe(() => wake());
+	robotTargetStore.subscribe(() => wake());
 	await showSavedLogs();
 
 	channel?.addEventListener('message', ({ data }: MessageEvent<Message>) => {
@@ -304,7 +304,7 @@ export async function runLogSync(): Promise<void> {
 
 	for (;;) {
 		const { enabled, demo: inDemo } = syncSettingsStore.get();
-		const host = inDemo ? 'the demo robot' : getRobotHost(settingsStore.get().robotTarget);
+		const host = inDemo ? 'the demo robot' : getRobotHost(robotTargetStore.get());
 		await watchRobot(enabled ? host : undefined);
 
 		let delay;

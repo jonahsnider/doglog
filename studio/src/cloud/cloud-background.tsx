@@ -15,6 +15,7 @@ import {
 	cloudReadyStore,
 	cloudSessionStore,
 	type TeamKey,
+	teamDefaultsStore,
 } from './session';
 import { useTeamKey } from './team-keys';
 
@@ -40,6 +41,7 @@ function CloudBackground() {
 		if (!isLoading && !isAuthenticated) {
 			cloudAccountStore.set(null);
 			cloudSessionStore.set(null);
+			teamDefaultsStore.set(null);
 		}
 	}, [isAuthenticated, isLoading]);
 	return isAuthenticated ? <SignedIn /> : null;
@@ -58,7 +60,10 @@ function SignedIn() {
 	useEffect(() => {
 		if (account === null || team === null) {
 			cloudSessionStore.set(null);
+			teamDefaultsStore.set(null);
 		} else if (account && team) {
+			const { teamNumber } = team.defaults;
+			teamDefaultsStore.set((current) => (current?.teamNumber === teamNumber ? current : { teamNumber }));
 			const session = { userId: account.id, teamId: team.id, membershipId: team.membershipId };
 			cloudSessionStore.set((current) =>
 				current?.userId === session.userId &&

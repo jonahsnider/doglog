@@ -166,6 +166,28 @@ export const removeMember = mutation({
 	},
 });
 
+/** Changes the given team defaults, `null` clears one so members' Studios use their own setting */
+export const updateDefaults = mutation({
+	args: { teamNumber: v.optional(v.union(v.number(), v.null())) },
+	handler: async (ctx, { teamNumber }) => {
+		const userId = await getAuthUserId(ctx);
+		const membership = userId ? await getMembership(ctx.db, userId) : null;
+		if (membership?.role !== 'admin') {
+			throw new ConvexError('Only team admins can change team defaults.');
+		}
+		// The same team numbers Studio connects to
+		if (typeof teamNumber === 'number' && !(Number.isInteger(teamNumber) && teamNumber >= 1 && teamNumber <= 99_999)) {
+			throw new ConvexError('Enter a team number from 1 to 99999.');
+		}
+		const team = await ctx.db.get('teams', membership.teamId);
+		const defaults = { ...team?.defaults };
+		if (teamNumber !== undefined) {
+			defaults.teamNumber = teamNumber ?? undefined;
+		}
+		await ctx.db.patch('teams', membership.teamId, { defaults });
+	},
+});
+
 export const listMembers = query({
 	args: {},
 	handler: async (ctx) => {
@@ -215,6 +237,7 @@ export const getMine = query({
 					membershipId: membership._id,
 					name: team.name,
 					role: membership.role,
+					defaults: { teamNumber: team.defaults?.teamNumber ?? null },
 					canDelete: membership.role === 'admin' && onlyMember,
 					canLeave: !onlyMember && (membership.role === 'member' || (await hasOtherAdmin(ctx.db, membership))),
 				}

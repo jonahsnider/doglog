@@ -118,6 +118,23 @@ Admins SHALL be able to promote members to admin and remove admin rights from th
 - **WHEN** that admin tries to step down
 - **THEN** they must make another member an admin first
 
+### Requirement: Team defaults
+
+Admins SHALL be able to set or clear team defaults on the Cloud page, which every member's Studio uses where the member hasn't set their own. The only team default is the team number, used for the robot connection. Other members MUST see the team defaults but not change them. Studio MUST keep using the last team defaults it received while offline, and MUST stop using them after signing out or leaving the team.
+
+#### Scenario: A member connects with the team number
+
+- **GIVEN** an admin set the team number to 581
+- **AND** a member's robot connection setting is blank
+- **WHEN** the member connects to the robot
+- **THEN** Studio connects to the standard robot address for team 581
+
+#### Scenario: A member uses an offseason team number
+
+- **GIVEN** an admin set the team number to 581
+- **WHEN** a member enters 9581 in their robot connection setting
+- **THEN** that member's Studio connects to team 9581 while other members still connect to team 581
+
 ### Requirement: Leave or delete a team
 
 A member SHALL be able to leave their team without deleting their account. Deleting an account MUST NOT delete dashboards owned by a team. Before leaving or deleting their account, the last admin MUST make another member an admin or, if alone, delete the team. An admin SHALL be able to delete the team and its Cloud dashboards only when they are its sole remaining member.

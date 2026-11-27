@@ -20,9 +20,11 @@ export default defineSchema({
 		.index('by_user', ['userId'])
 		.index('by_finishing', ['finishing']),
 	// keyVersion is unset until the creator's Studio publishes the first team key. rotationPending is set when a
-	// membership ends, until a remaining member's Studio publishes a fresh key.
+	// membership ends, until a remaining member's Studio publishes a fresh key. defaults are settings every member's
+	// Studio uses until they set their own.
 	teams: defineTable({
 		name: v.string(),
+		defaults: v.optional(v.object({ teamNumber: v.optional(v.number()) })),
 		keyVersion: v.optional(v.number()),
 		rotationPending: v.optional(v.literal(true)),
 	}),

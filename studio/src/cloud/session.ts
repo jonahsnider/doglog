@@ -28,6 +28,16 @@ export const cloudSessionStore = createPersistedAtom('cloud-session', sessionSch
 
 export type CloudSession = NonNullable<z.infer<typeof sessionSchema>>;
 
+/**
+ * Settings the signed-in account's team chose for every member, used where the member hasn't set their own.
+ * Kept while offline, ex. at competitions, and cleared on sign-out or when leaving the team.
+ */
+export const teamDefaultsStore = createPersistedAtom(
+	'cloud-team-defaults',
+	z.object({ teamNumber: z.number().nullable() }).nullable().catch(null),
+	null,
+);
+
 export interface TeamKey {
 	teamId: Id<'teams'>;
 	keyVersion: number;

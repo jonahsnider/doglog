@@ -25,7 +25,7 @@ import {
 } from '@/data/source';
 import { lineUpWithLatestEnable } from '@/data/source-line-up';
 import { getRobotHost, simulatorHost } from '@/robot-target';
-import { settingsStore } from '@/settings';
+import { robotTargetStore } from '@/settings';
 import { setSourceListElement } from '@/desktop/source-windows';
 import { useMoveToEntry } from '@/sidebar/move-source';
 import { useOpenRecentEntry } from '@/sidebar/open-recent-menu';
@@ -91,7 +91,7 @@ const connectAction = (label: string): MenuAction => ({
 function useConnectTarget() {
 	const [target, setTarget] = useState<ConnectTarget>();
 	const check = () => {
-		void findConnectTarget(getRobotHost(settingsStore.get().robotTarget)).then(setTarget);
+		void findConnectTarget(getRobotHost(robotTargetStore.get())).then(setTarget);
 	};
 	// On mount, so the label is ready when the menu first opens
 	useEffect(check, []);

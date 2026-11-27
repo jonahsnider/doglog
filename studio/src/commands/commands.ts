@@ -26,7 +26,7 @@ import { isExportingVideo } from '@/desktop/video-export';
 import { connect } from '@/data/source';
 import { shownTuningDashboard } from '@/tuning/dashboard';
 import { getRobotHost } from '@/robot-target';
-import { settingsStore } from '@/settings';
+import { robotTargetStore } from '@/settings';
 
 export { dashboardNumbers, dashboardShortcut, nativeMenu, redoAlternate, shortcuts, useShortcutHint };
 
@@ -135,5 +135,5 @@ export function openLogUrlPrompt(): void {
 
 /** Connect to the robot target from Settings, or the simulator */
 export function startConnect(): void {
-	void connect(getRobotHost(settingsStore.get().robotTarget));
+	void connect(getRobotHost(robotTargetStore.get()));
 }

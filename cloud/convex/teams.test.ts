@@ -44,6 +44,7 @@ test('simultaneous creates leave the account as admin of just one team', async (
 		name,
 		membershipId: expect.any(String),
 		role: 'admin',
+		defaults: { teamNumber: null },
 		canDelete: true,
 		canLeave: false,
 	}));
@@ -65,6 +66,7 @@ test('team lookup is scoped to the signed-in account', async () => {
 		name: 'Robodogs',
 		membershipId: expect.any(String),
 		role: 'admin',
+		defaults: { teamNumber: null },
 		canDelete: true,
 		canLeave: false,
 	});
@@ -73,6 +75,7 @@ test('team lookup is scoped to the signed-in account', async () => {
 		name: 'Space Dogs',
 		membershipId: expect.any(String),
 		role: 'admin',
+		defaults: { teamNumber: null },
 		canDelete: true,
 		canLeave: false,
 	});
@@ -397,6 +400,28 @@ test('the roster shows only teammates and promotion applies to the selected memb
 			{ id: replacement, role: 'admin', displayName: 'Sam (drive team)', isYou: true },
 		],
 	});
+});
+
+test('only admins change team defaults, which every member sees', async () => {
+	const t = setup();
+	const { client: admin } = await signIn(t);
+	const { client: member, userId } = await signIn(t);
+	const { client: outsider } = await signIn(t);
+	const teamId = await admin.mutation(api.teams.create, { name: 'Robodogs' });
+	await t.run((ctx) => ctx.db.insert('memberships', { userId, teamId, role: 'member' }));
+
+	await expect(member.mutation(api.teams.updateDefaults, { teamNumber: 9581 })).rejects.toThrow('Only team admins');
+	await expect(outsider.mutation(api.teams.updateDefaults, { teamNumber: 9581 })).rejects.toThrow('Only team admins');
+	for (const teamNumber of [0, 100_000, 58.1]) {
+		await expect(admin.mutation(api.teams.updateDefaults, { teamNumber })).rejects.toThrow('Enter a team number');
+	}
+	await admin.mutation(api.teams.updateDefaults, { teamNumber: 581 });
+	await expect(member.query(api.teams.getMine)).resolves.toMatchObject({ defaults: { teamNumber: 581 } });
+	// Leaving a default out keeps it
+	await admin.mutation(api.teams.updateDefaults, {});
+	await expect(member.query(api.teams.getMine)).resolves.toMatchObject({ defaults: { teamNumber: 581 } });
+	await admin.mutation(api.teams.updateDefaults, { teamNumber: null });
+	await expect(member.query(api.teams.getMine)).resolves.toMatchObject({ defaults: { teamNumber: null } });
 });
 
 const bytes = (length: number) => new Uint8Array(length).fill(7).buffer;

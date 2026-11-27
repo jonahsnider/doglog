@@ -2582,7 +2582,7 @@
 						"type": "string"
 					},
 					"robotTarget": {
-						"description": "Team number or IP address of the robot, ex. `581` or `10.5.81.2`. Connecting uses it.",
+						"description": "Team number or IP address of the robot, ex. `581` or `10.5.81.2`. Connecting uses it, or the Cloud team's default team number while it's blank.",
 						"type": "string"
 					},
 					"mediaControls": {

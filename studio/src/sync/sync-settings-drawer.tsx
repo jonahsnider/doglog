@@ -12,7 +12,7 @@ import SettingsIcon from 'lucide-react/icons/settings';
 import { useRef, useState } from 'react';
 import { useSwipeToClose } from '@/hooks/use-swipe-to-close';
 import { getRobotHost } from '@/robot-target';
-import { useSettings } from '@/settings';
+import { useRobotTarget } from '@/settings';
 import { addDemoMatch, resetDemo, updateDemo, useDemo } from '@/sync/demo';
 import { syncNow, useSyncFolder } from '@/sync/sync';
 import { updateSyncSettings, useSyncSettings } from '@/sync/sync-settings';
@@ -41,12 +41,11 @@ export function SyncSettingsDrawer() {
 
 function RobotSummary() {
 	const { demo } = useSyncSettings();
-	const { robotTarget } = useSettings();
-	const target = robotTarget.trim();
+	const target = useRobotTarget();
 	let summary = `Syncs from ${/^\d+$/u.test(target) ? `team ${target}` : target}. `;
 	if (demo) {
 		summary = 'Syncs from the demo robot. ';
-	} else if (getRobotHost(robotTarget) === undefined) {
+	} else if (getRobotHost(target) === undefined) {
 		summary = 'No robot is set. ';
 	}
 	return (

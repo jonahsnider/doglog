@@ -23,7 +23,7 @@ import {
 } from '@/data/source';
 import { sourceData } from '@/data/source-store';
 import { getRobotHost, simulatorHost } from '@/robot-target';
-import { settingsStore, updateSettings } from '@/settings';
+import { robotTargetStore, settingsStore, updateSettings } from '@/settings';
 import { getTimeline, seek } from '@/timeline/timeline';
 
 function describeSource() {
@@ -182,7 +182,7 @@ export const handlers: Handlers = {
 		}
 
 		if (!STUDIO_DESKTOP || path === undefined) {
-			const robotHost = getRobotHost(settingsStore.get().robotTarget);
+			const robotHost = getRobotHost(robotTargetStore.get());
 			const hosts = robotHost === undefined ? [simulatorHost] : [robotHost, simulatorHost];
 			// Connecting retries until a server answers, agents are told right away instead
 			if (!(await Promise.all(hosts.map((host) => isReachable(host)))).includes(true)) {

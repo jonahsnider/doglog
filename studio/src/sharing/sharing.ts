@@ -3,7 +3,7 @@ import { createAtom } from '@tanstack/store';
 import { getSharedDocs, removeExpired } from '@/dashboards/sharing';
 import { canConnectWithoutPrompt, isReachable } from '@/data/connect-target';
 import { getRobotHost } from '@/robot-target';
-import { settingsStore } from '@/settings';
+import { robotTargetStore } from '@/settings';
 import { trackActivity } from '@/sharing/presence';
 
 const hostStore = createAtom<string | undefined>(undefined);
@@ -65,7 +65,7 @@ export function startSharing(): void {
 	};
 
 	async function attempt(attemptGeneration: number): Promise<void> {
-		const host = getRobotHost(settingsStore.get().robotTarget);
+		const host = getRobotHost(robotTargetStore.get());
 		// Restarted once a robot is set
 		if (host === undefined) {
 			return;
@@ -111,8 +111,8 @@ export function startSharing(): void {
 
 	void attempt(generation);
 	// Only when the host changes, so typing a target that isn't valid yet doesn't reconnect to the same server
-	let robotHost = getRobotHost(settingsStore.get().robotTarget);
-	settingsStore.subscribe(({ robotTarget }) => {
+	let robotHost = getRobotHost(robotTargetStore.get());
+	robotTargetStore.subscribe((robotTarget) => {
 		const changed = getRobotHost(robotTarget);
 		if (changed !== robotHost) {
 			robotHost = changed;

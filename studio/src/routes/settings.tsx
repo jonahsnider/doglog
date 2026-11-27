@@ -8,13 +8,13 @@ import { Text } from '@astryxdesign/core/Text';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { createFileRoute } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
-import { cloudAccountStore } from '@/cloud/session';
+import { cloudAccountStore, teamDefaultsStore } from '@/cloud/session';
 import { aboutDialogOpen } from '@/components/about-dialog-handle';
 import { CliField } from '@/components/cli-field';
 import { UtilityPage, UtilityPageSection } from '@/components/utility-page';
 import { getRobotHost } from '@/robot-target';
 import { useAnonymousName } from '@/sharing/identity';
-import { hasFrostedFrame, reportsNaturalScrolling, updateSettings, useSettings } from '@/settings';
+import { hasFrostedFrame, reportsNaturalScrolling, updateSettings, useRobotTarget, useSettings } from '@/settings';
 import { AppearanceSettings, VisualizationPaletteSetting } from '@/theme/appearance-settings';
 import { RobotProjectsSetting } from '@/widgets/robot/robot-projects-setting';
 
@@ -35,8 +35,18 @@ function Settings() {
 	} = useSettings();
 	const hasCloudAccount = useSelector(cloudAccountStore, (account) => account !== null);
 	const anonymousName = useAnonymousName();
-	const robotHost = getRobotHost(robotTarget);
+	const teamNumber = useSelector(teamDefaultsStore, (defaults) => defaults?.teamNumber ?? null);
+	const robotHost = getRobotHost(useRobotTarget());
 	const robotTargetInvalid = robotTarget.trim() !== '' && robotHost === undefined;
+	let robotTargetDescription = 'Team number or IP address of the robot';
+	if (robotHost !== undefined && teamNumber !== null) {
+		robotTargetDescription =
+			robotTarget.trim() === ''
+				? `Connect uses ${robotHost}, from your team’s default team number`
+				: `Connect uses ${robotHost}. Clear to use your team’s default, ${teamNumber}.`;
+	} else if (robotHost !== undefined) {
+		robotTargetDescription = `Connect uses ${robotHost}`;
+	}
 
 	return (
 		<UtilityPage
@@ -79,12 +89,11 @@ function Settings() {
 				<UtilityPageSection title="Robot" description="How Studio connects to your robot">
 					<TextInput
 						label="Robot connection"
-						description={
-							robotHost === undefined ? 'Team number or IP address of the robot' : `Connect uses ${robotHost}`
-						}
+						description={robotTargetDescription}
 						value={robotTarget}
 						onChange={(value) => updateSettings({ robotTarget: value })}
-						placeholder="581 or 10.5.81.2"
+						placeholder={teamNumber === null ? '581 or 10.5.81.2' : String(teamNumber)}
+						hasClear={teamNumber !== null}
 						autoComplete="off"
 						hasSpellCheck={false}
 						status={robotTargetInvalid ? { type: 'error', message: 'Enter a team number or an IP address' } : undefined}
