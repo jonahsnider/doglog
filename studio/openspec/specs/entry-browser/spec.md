@@ -324,7 +324,7 @@ Outside the phone layout, the entry browser SHALL be a collapsible panel on the 
 
 ### Requirement: Full-screen entry browser on phones
 
-In the phone layout (see app-shell), the entry browser SHALL start closed regardless of the saved docked layout. Its toggle MUST be available in the top bar where the entry browser is available. Opening or closing the full-screen entry browser MUST NOT change the saved docked layout.
+In the phone layout (see app-shell), the entry browser SHALL start closed regardless of the saved docked layout, including each time the window enters the phone layout, like the sidebar. Its toggle MUST be available in the top bar where the entry browser is available. Opening or closing the full-screen entry browser MUST NOT change the saved docked layout, but leaving the phone layout while it's open MUST open the docked entry browser, still editing the same widget if it was.
 
 #### Scenario: Browse entries on a phone
 
@@ -333,6 +333,19 @@ In the phone layout (see app-shell), the entry browser SHALL start closed regard
 - **THEN** the entry browser covers the viewport without a resize divider
 - **WHEN** the user taps the close button, or swipes the entry browser toward the edge it came from (see app-shell)
 - **THEN** the dashboard is shown again
+
+#### Scenario: Resize into the phone layout
+
+- **GIVEN** the user opened the full-screen entry browser, then widened the window and collapsed the docked entry browser
+- **WHEN** the user narrows the window into the phone layout again
+- **THEN** the entry browser is closed
+- **AND** widening the window again shows the docked entry browser as it was saved
+
+#### Scenario: Resize out of the phone layout with the entry browser open
+
+- **GIVEN** the docked entry browser is collapsed, and the user opened the full-screen entry browser in the phone layout
+- **WHEN** the user widens the window out of the phone layout
+- **THEN** the docked entry browser is open
 
 ### Requirement: Drag to bind
 
