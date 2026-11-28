@@ -14,10 +14,11 @@ import { keyboardShortcutsDialogOpen } from '@/commands/keyboard-shortcuts-dialo
 import { TextMorph } from '@/components/text-morph';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { DownloadMenu } from '@/desktop/download-button';
-import { useMediaQuery } from '@/hooks/use-media-query';
 import { isMobileDevice } from '@/lib/mobile-layout';
+import { useInstalledWebApp } from '@/lib/web-install';
 import { ShortcutHint } from '@/sidebar/shortcut-hint';
 import { useSidebar } from '@/sidebar/sidebar-context';
+import { SidebarInstall } from '@/sidebar/sidebar-install';
 import { SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/sidebar/sidebar-ui';
 import { installUpdate, updateTitle, useUpdate } from '@/updater';
 
@@ -74,6 +75,7 @@ export function AppSidebarFooter({
 							{!STUDIO_DESKTOP && <SidebarDownload closing={closing} />}
 						</>
 					)}
+					{expanded && !STUDIO_DESKTOP && isMobileDevice() && <SidebarInstall closing={closing} />}
 					{update && updateLabel !== undefined && (
 						<SidebarMenuItem>
 							<Tooltip content={<TooltipLabel label={updateLabel} shortcut={shortcuts.update} />} placement="end">
@@ -113,8 +115,8 @@ export function AppSidebarFooter({
 }
 
 function SidebarDownload({ closing }: { closing: boolean }) {
-	const standalone = useMediaQuery('(display-mode: standalone)');
-	if (standalone || isMobileDevice()) {
+	const installed = useInstalledWebApp();
+	if (installed || isMobileDevice()) {
 		return null;
 	}
 	return (

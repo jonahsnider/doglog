@@ -15,6 +15,7 @@ import { handleDroppedLogPaths, handleLaunchedLogFiles, handleOpenedLogFiles } f
 import { restoreLive } from './data/restore-live.ts';
 import { isSourceWindow, startSourceWindows } from './desktop/source-windows.ts';
 import { getSources, reopenDevLog, subscribeSource } from './data/source.ts';
+import { trackWebInstallPrompt } from './lib/web-install.ts';
 import { syncMediaSession } from './timeline/media-session.ts';
 import { routeTree } from './routeTree.gen.ts';
 import { hasFrostedFrame, hasNativeBackdrop, syncTheme } from './settings.ts';
@@ -105,6 +106,7 @@ if (STUDIO_DESKTOP) {
 		}
 	});
 } else {
+	trackWebInstallPrompt();
 	handleLaunchedLogFiles();
 	if (import.meta.env.PROD) {
 		addEventListener('vite:preloadError', handlePreloadError);

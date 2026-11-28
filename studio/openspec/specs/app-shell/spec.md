@@ -33,7 +33,7 @@ A sidebar row's label that doesn't fit SHALL fade out at its end. On devices wit
 
 The sidebar footer SHALL always show Settings as its last item, including in the collapsed rail.
 
-The expanded or peeking sidebar footer SHALL offer Command palette and Keyboard shortcuts (except in the phone layout). Download app SHALL appear only in a desktop browser tab outside the phone layout. These actions MUST NOT appear in the collapsed rail. The footer SHALL offer an install action only when an update is ready. The install action MUST remain available in the rail.
+The expanded or peeking sidebar footer SHALL offer Command palette and Keyboard shortcuts (except in the phone layout). Download app SHALL appear only in a desktop browser tab outside the phone layout. These actions MUST NOT appear in the collapsed rail. The footer SHALL offer an update action only when an update is ready. The update action MUST remain available in the rail.
 
 #### Scenario: Open the command palette
 
@@ -72,9 +72,33 @@ The expanded or peeking sidebar footer SHALL offer Command palette and Keyboard 
 - **THEN** the expanded-only actions fade out without moving the card
 - **AND** the actions stop taking up space once the sidebar reaches the rail layout
 
+### Requirement: Add to home screen
+
+The expanded or peeking sidebar footer SHALL offer Add to home screen only in a mobile browser tab when the browser offers an install prompt or Studio has manual instructions for that browser.
+
+#### Scenario: Install from a mobile browser tab
+
+- **GIVEN** the browser offers Studio an install prompt
+- **WHEN** the user taps Add to home screen
+- **THEN** the native install prompt opens
+- **AND** the action disappears unless the browser offers another prompt
+
+#### Scenario: The native install prompt fails to open
+
+- **WHEN** the user taps Add to home screen and the browser cannot open the install prompt
+- **THEN** Studio shows instructions for installing from the browser menu
+
+#### Scenario: Install manually on a mobile device
+
+- **GIVEN** the user opens Studio in a mobile browser that supports home-screen installation but doesn't provide an in-app install prompt
+- **WHEN** the user taps Add to home screen
+- **THEN** Studio shows instructions for using the browser's share or menu controls
+- **WHEN** the user opens Studio from its installed app icon
+- **THEN** the sidebar doesn't offer Add to home screen
+
 ### Requirement: Footer actions on hover
 
-On devices with hover, Command palette, Keyboard shortcuts, and Download app SHALL stay hidden until the sidebar is hovered, has keyboard focus, has one of its menus or dialogs open, or shows the What's new card. The actions MUST keep their space while hidden so the sidebar's other items don't move. An install action for a ready update MUST stay visible.
+On devices with hover, Command palette, Keyboard shortcuts, Download app, and Add to home screen SHALL stay hidden until the sidebar is hovered, has keyboard focus, has one of its menus or dialogs open, or shows the What's new card. The actions MUST keep their space while hidden so the sidebar's other items don't move. An install action for a ready update MUST stay visible.
 
 #### Scenario: Reveal the footer actions
 
