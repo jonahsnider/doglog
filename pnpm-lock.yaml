@@ -570,8 +570,8 @@ importers:
         specifier: 'catalog:'
         version: 1.8.0(@astrojs/compiler-rs@0.5.3)(@opentelemetry/api@1.9.1)(@types/node@26.6.11)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.1)(@vitest/ui@5.1.1)(@voidzero-dev/vite-plus-core@8.3.8001)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(typescript@7.1.0-dev.20261127.1)(vitest@5.1.1)(yaml@2.9.1)
       wrangler:
-        specifier: 4.168.0
-        version: 4.168.0(@cloudflare/workers-types@5.20261127.1)(@types/node@26.6.11)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.1)(@vitest/ui@5.1.1)(@voidzero-dev/vite-plus-core@8.3.8001)(typescript@7.1.0-dev.20261127.1)(vitest@5.1.1)
+        specifier: 4.169.0
+        version: 4.169.0(@cloudflare/workers-types@5.20261127.1)(@types/node@26.6.11)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.1)(@vitest/ui@5.1.1)(@voidzero-dev/vite-plus-core@8.3.8001)(typescript@7.1.0-dev.20261127.1)(vitest@5.1.1)
       ws:
         specifier: 8.23.0
         version: 8.23.0
@@ -10272,16 +10272,6 @@ packages:
     resolution: {integrity: sha512-KVoBFayl3vg3npL/rDCeRxGTPSSkGJ23/LauHak1iVod2MWUVarWTGEtj9NK013PqLj4FgXIggRiJ4XHcuOwbA==}
     hasBin: true
 
-  wrangler@4.168.0:
-    resolution: {integrity: sha512-CqxlSPbapKwhH2moKcJlWCYqzB/Gk93rKQcul0KioLLYDKgJpuwuddE5rminAgDkI0YyEjzw4MoCasojog4lJw==}
-    engines: {node: '>=22.12.0'}
-    hasBin: true
-    peerDependencies:
-      '@cloudflare/workers-types': ^5.20261123.1
-    peerDependenciesMeta:
-      '@cloudflare/workers-types':
-        optional: true
-
   wrangler@4.169.0:
     resolution: {integrity: sha512-xzbNeNBbfUn2Y9KLGQ+no60g8xr+2pwckSLAAPFg1pzgBqDUVYvkBs3GImhQVqkW6rq4pX+T8UdApTFZ/yIMPQ==}
     engines: {node: '>=22.12.0'}
@@ -12113,6 +12103,25 @@ snapshots:
       - '@vitejs/devtools-vite'
       - '@vitest/browser-preview'
       - '@vitest/ui'
+      - vite
+
+  '@cloudflare/workers-utils@0.58.0(@types/node@26.6.11)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.1)(@vitest/ui@5.1.1)(@voidzero-dev/vite-plus-core@8.3.8001)(typescript@7.1.0-dev.20261127.1)(vitest@5.1.1)':
+    dependencies:
+      '@cspotcode/source-map-support': 0.8.1
+      chalk: 5.3.0
+      dotenv: 16.3.1
+      undici: 7.30.2
+    optionalDependencies:
+      vitest: 5.1.1(@opentelemetry/api@1.9.1)(@types/node@26.6.11)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.1)(@vitest/ui@5.1.1)(@voidzero-dev/vite-plus-core@8.3.8001)(typescript@7.1.0-dev.20261127.1)
+    transitivePeerDependencies:
+      - '@types/node'
+      - '@vitejs/devtools'
+      - '@vitejs/devtools-oxc'
+      - '@vitejs/devtools-rolldown'
+      - '@vitejs/devtools-vite'
+      - '@vitest/browser-preview'
+      - '@vitest/ui'
+      - typescript
       - vite
 
   '@cloudflare/workers-utils@0.58.0(@types/node@26.6.11)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.1)(@vitest/ui@5.1.1)(vite@8.4.0)(vitest@5.1.1)':
@@ -21319,40 +21328,6 @@ snapshots:
       - citty
       - commander
 
-  wrangler@4.168.0(@cloudflare/workers-types@5.20261127.1)(@types/node@26.6.11)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.1)(@vitest/ui@5.1.1)(@voidzero-dev/vite-plus-core@8.3.8001)(typescript@7.1.0-dev.20261127.1)(vitest@5.1.1):
-    dependencies:
-      '@cloudflare/kv-asset-handler': 0.5.1
-      '@cloudflare/unenv-preset': 2.16.2(unenv@2.0.0-rc.24)(workerd@1.20261123.1)
-      '@cloudflare/workers-utils': 0.57.0(@types/node@26.6.11)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.1)(@vitest/ui@5.1.1)(@voidzero-dev/vite-plus-core@8.3.8001)(typescript@7.1.0-dev.20261127.1)(vitest@5.1.1)
-      '@cspotcode/source-map-support': 0.8.1
-      '@types/yargs': 17.0.24
-      cloudflare: 5.2.0
-      devtools-protocol: 0.0.1182435
-      esbuild: 0.28.2
-      miniflare: 5.20261123.1-beta(@types/node@26.6.11)
-      path-to-regexp: 6.3.0
-      undici: 7.30.2
-      unenv: 2.0.0-rc.24
-      workerd: 1.20261123.1
-    optionalDependencies:
-      '@cloudflare/workers-types': 5.20261127.1
-      fsevents: 2.3.3
-    transitivePeerDependencies:
-      - '@types/node'
-      - '@vitejs/devtools'
-      - '@vitejs/devtools-oxc'
-      - '@vitejs/devtools-rolldown'
-      - '@vitejs/devtools-vite'
-      - '@vitest/browser-preview'
-      - '@vitest/ui'
-      - bufferutil
-      - encoding
-      - kerberos
-      - typescript
-      - utf-8-validate
-      - vite
-      - vitest
-
   wrangler@4.169.0(@cloudflare/workers-types@5.20261127.1)(@types/node@24.13.3)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.1)(@vitest/ui@5.1.1)(vite@8.4.0)(vitest@5.1.1):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.5.1
@@ -21382,6 +21357,40 @@ snapshots:
       - bufferutil
       - encoding
       - kerberos
+      - utf-8-validate
+      - vite
+      - vitest
+
+  wrangler@4.169.0(@cloudflare/workers-types@5.20261127.1)(@types/node@26.6.11)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.1)(@vitest/ui@5.1.1)(@voidzero-dev/vite-plus-core@8.3.8001)(typescript@7.1.0-dev.20261127.1)(vitest@5.1.1):
+    dependencies:
+      '@cloudflare/kv-asset-handler': 0.5.1
+      '@cloudflare/unenv-preset': 2.16.2(unenv@2.0.0-rc.24)(workerd@1.20261127.1)
+      '@cloudflare/workers-utils': 0.58.0(@types/node@26.6.11)(@vitejs/devtools-oxc@0.8.3)(@vitejs/devtools-rolldown@0.8.3)(@vitejs/devtools-vite@0.8.3)(@vitejs/devtools@0.8.3)(@vitest/browser-preview@5.1.1)(@vitest/ui@5.1.1)(@voidzero-dev/vite-plus-core@8.3.8001)(typescript@7.1.0-dev.20261127.1)(vitest@5.1.1)
+      '@cspotcode/source-map-support': 0.8.1
+      '@types/yargs': 17.0.24
+      cloudflare: 5.2.0
+      devtools-protocol: 0.0.1182435
+      esbuild: 0.28.2
+      miniflare: 5.20261127.0-beta(@types/node@26.6.11)
+      path-to-regexp: 6.3.0
+      undici: 7.30.2
+      unenv: 2.0.0-rc.24
+      workerd: 1.20261127.1
+    optionalDependencies:
+      '@cloudflare/workers-types': 5.20261127.1
+      fsevents: 2.3.3
+    transitivePeerDependencies:
+      - '@types/node'
+      - '@vitejs/devtools'
+      - '@vitejs/devtools-oxc'
+      - '@vitejs/devtools-rolldown'
+      - '@vitejs/devtools-vite'
+      - '@vitest/browser-preview'
+      - '@vitest/ui'
+      - bufferutil
+      - encoding
+      - kerberos
+      - typescript
       - utf-8-validate
       - vite
       - vitest
