@@ -1,6 +1,7 @@
 [data-sidebar='menu-button'] {
 	& > svg,
-	& > :has(> svg):first-child {
+	& > :has(> svg):first-child,
+	& > [data-replaced-by-action] > svg {
 		flex-shrink: 0;
 		inline-size: 1rem;
 		block-size: 1rem;
@@ -85,8 +86,15 @@
 	[data-sidebar='menu-button'] {
 	padding-inline-end: var(--menu-action-space, var(--spacing-8));
 }
-/* The end of a button the action shows over on devices with hover, ex. a source's line style, so the label doesn't move */
+/* Match the action button's width and inset so its replacement stays centered without moving the label. */
 @media (hover: hover) {
+	[data-sidebar='menu-button']:where(:has(> [data-replaced-by-action])) {
+		padding-inline-end: var(--spacing-0-5);
+	}
+	[data-replaced-by-action] {
+		inline-size: var(--size-element-sm);
+		justify-content: center;
+	}
 	[data-sidebar='menu-item']:is(:hover, :focus-within, :has([data-sidebar='menu-action'] [aria-expanded='true']))
 		[data-replaced-by-action] {
 		visibility: hidden;
