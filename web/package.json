@@ -20,7 +20,7 @@
 		"astro": "7.4.13",
 		"sharp": "^0.35.0",
 		"starlight-changelogs": "^0.7.0",
-		"typescript": "7.1.0-dev.20261126.1"
+		"typescript": "7.1.0-dev.20261127.1"
 	},
 	"devDependencies": {
 		"@unplugin-pwa/core": "^0.0.8",
