@@ -383,7 +383,7 @@ Users SHALL be able to open a `.wpilog` or `.wpilogxz` file from an `http://` or
 #### Scenario: Open a valid log URL from the dialog
 
 - **WHEN** the user opens "Open from URL..." and enters `https://example.com/qual12.wpilog`
-- **THEN** Studio streams and parses the log and displays `qual12.wpilog` once complete
+- **THEN** Studio displays `qual12.wpilog` and begins rendering its data after the download completes
 - **AND** `qual12.wpilog` is not added to recent logs
 
 #### Scenario: Scheme-less URL
@@ -398,7 +398,7 @@ Users SHALL be able to open a `.wpilog` or `.wpilogxz` file from an `http://` or
 
 ### Requirement: Streaming URL log download and progress
 
-Studio SHALL validate the HTTP status, `Content-Type`, and first 6 magic bytes (`WPILOG` or XZ) before adding the log to the source list. While downloading, Studio MUST decompress `.wpilogxz` logs and parse WPILOG records incrementally as chunks arrive, showing the log once complete. The timeline progress bar SHALL show determinate progress when `Content-Length` is known, indeterminate progress otherwise, and a Cancel button that aborts the download and removes the log.
+Studio SHALL check HTTP status, `Content-Type`, and the first 6 magic bytes (`WPILOG` or XZ) before adding the log to the source list. Studio MUST stream downloads and decompress XZ incrementally. After download, Studio SHALL publish dashboard-bound entries before the rest. The timeline SHALL show determinate progress when `Content-Length` is known, indeterminate progress otherwise, and a Cancel button that aborts the download and removes the log.
 
 #### Scenario: Cancel a download
 

@@ -250,7 +250,8 @@ export function useGraphDrawing(
 		});
 		current.redraw = full.schedule;
 
-		full.schedule();
+		// Draw with the data already available. A later entry update can replace this plot before the next frame.
+		draw();
 		const unsubscribeData = subscribeData(full.schedule);
 		const unsubscribeTimeline = subscribeTimeline(overlays.schedule);
 		const unsubscribeView = subscribeView(overlays.schedule);

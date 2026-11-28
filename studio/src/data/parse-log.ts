@@ -65,7 +65,7 @@ const textDecoder = new TextDecoder();
  * is a `raw` record instead, so one bad value doesn't hide the rest of the log.
  */
 export const logParseOptions = { strict: true, invalidValues: 'raw' } as const satisfies DecodeRecordsOptions;
-const structSchemaPrefix = '/.schema/struct:';
+export const structSchemaPrefix = '/.schema/struct:';
 
 function toValue(record: DataRecord, entryType: string): Value | undefined {
 	switch (record.type) {

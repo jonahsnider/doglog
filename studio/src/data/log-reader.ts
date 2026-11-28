@@ -1,3 +1,4 @@
+import { StructRegistry } from 'wpilib-struct';
 import {
 	type DataLogIndex,
 	DataLogIndexDecoder,
@@ -11,9 +12,10 @@ import {
 	type OnRecord,
 	type ParsedEntry,
 	type ParsedLog,
+	structSchemaPrefix,
 	type Target,
 } from '@/data/parse-log';
-import { getEntryKind } from '@/data/samples';
+import { fromTransfer, getEntryKind, type Samples } from '@/data/samples';
 
 /** Whether records of an entry of `type` hold values Studio shows, see `toValue()` */
 function hasValues(type: string): boolean {
@@ -29,7 +31,9 @@ export class LogReader {
 	private readonly index: DataLogIndex;
 	private readonly decoder: DataLogIndexDecoder;
 	// Entries whose records aren't read yet, in the order they were started, with what their records are for
-	private unread: { entry: IndexedEntry; target: NonNullable<Target> }[] = [];
+	private unread: { entry: IndexedEntry; target: NonNullable<Target>; repeated: boolean }[] = [];
+	private readonly structDefinitions = new Map<string, string>();
+	private readonly structRegistry: StructRegistry | undefined;
 	private readonly onProgress: (progress: number) => void;
 	private readonly records: number;
 	private readRecords = 0;
@@ -79,7 +83,7 @@ export class LogReader {
 			if (shown && !keptEntries.has(entry)) {
 				continue;
 			}
-			this.unread.push({ entry, target });
+			this.unread.push({ entry, target, repeated: (kept.get(entry.name)?.entries.length ?? 0) > 1 });
 			records += entry.length;
 			// The time range is known before reading values, so entries can be shown as they're read
 			if (target.kind === 'embedded' || (target.kind === 'samples' && hasValues(entry.type))) {
@@ -93,9 +97,26 @@ export class LogReader {
 		}
 		this.records = records;
 		this.decoder = new DataLogIndexDecoder(this.index, logParseOptions);
+		const recording = this.unread.some(({ target }) => target.kind === 'recording');
 		// Needed to read other entries
 		this.readRecording();
 		this.readWhere((kind) => kind === 'schema');
+		// A live recording may be appended to, so keep its already-decoded samples. Only pack schemas we can reproduce.
+		if (
+			!recording &&
+			this.structDefinitions.size > 0 &&
+			!entries.some((entry) => entry.type === 'structschema' && !entry.name.startsWith(structSchemaPrefix))
+		) {
+			const registry = new StructRegistry();
+			try {
+				for (const [name, definition] of this.structDefinitions) {
+					registry.register(name, definition);
+				}
+				this.structRegistry = registry;
+			} catch {
+				// If the final schema definitions can't be reproduced, use the parser's decoded values.
+			}
+		}
 	}
 
 	/** Read the values Studio wrote to a recorded live session, in file order since they depend on the ones before them */
@@ -133,14 +154,73 @@ export class LogReader {
 		return this.readWhere((_, name) => include(name));
 	}
 
-	private readWhere(include: (kind: NonNullable<Target>['kind'], name: string) => boolean): string[] {
+	/** Keep a sorted, single-run struct entry in binary form. Log bytes stay in the worker; only these payloads are sent. */
+	private packStruct(entry: IndexedEntry): Samples | undefined {
+		const { structRegistry, structDefinitions } = this;
+		const { type, timestamps, payloadSizes, payloadOffsets, length } = entry;
+		if (!structRegistry || !type.startsWith('struct:') || length === 0 || timestamps[0]! < 0) {
+			return undefined;
+		}
+		const array = type.endsWith('[]');
+		const name = type.slice('struct:'.length, array ? -'[]'.length : undefined);
+		let stride: string | number;
+		try {
+			stride = structRegistry.getByteLength(name);
+		} catch {
+			return undefined;
+		}
+		if (typeof stride !== 'number' || stride <= 0) {
+			return undefined;
+		}
+		const offsets = new Uint32Array(length + 1);
+		let size = 0;
+		for (let i = 0; i < length; i++) {
+			const bytes = payloadSizes[i]!;
+			if ((i > 0 && timestamps[i]! < timestamps[i - 1]!) || (array ? bytes % stride !== 0 : bytes < stride)) {
+				return undefined;
+			}
+			size += array ? bytes : stride;
+			if (size > 0xffff_ffff) {
+				return undefined;
+			}
+			offsets[i + 1] = size;
+		}
+		// Validate that the schema can actually decode before sending its bytes to the UI.
+		const first = this.decoder.decode(entry, 0);
+		if (first?.type !== 'struct' && first?.type !== 'struct[]') {
+			return undefined;
+		}
+		const schemas: [string, string][] = [];
+		for (const dependency of structRegistry.getDependencies(name)) {
+			const schema = structDefinitions.get(dependency);
+			if (schema !== undefined) {
+				schemas.push([dependency, schema]);
+			}
+		}
+		const bytes = new Uint8Array(size);
+		const input = this.index.bytes;
+		for (let i = 0; i < length; i++) {
+			const start = payloadOffsets[i]!;
+			const offset = offsets[i]!;
+			bytes.set(input.subarray(start, start + (offsets[i + 1]! - offset)), offset);
+		}
+		return fromTransfer({ timestamps, length, structs: { bytes, offsets, name, schemas, stride, array } });
+	}
+
+	private readWhere(
+		include: (kind: NonNullable<Target>['kind'], name: string) => boolean,
+		packStructs = false,
+	): string[] {
 		const names = new Set<string>();
-		this.unread = this.unread.filter(({ entry, target }) => {
+		this.unread = this.unread.filter(({ entry, target, repeated }) => {
 			if (!include(target.kind, entry.name)) {
 				return true;
 			}
-			const numbers = target.kind === 'samples' ? this.decoder.decodeNumbers(entry) : undefined;
-			if (target.kind === 'samples' && numbers !== undefined) {
+			const packed = packStructs && !repeated && target.kind === 'samples' ? this.packStruct(entry) : undefined;
+			const numbers = !packed && target.kind === 'samples' ? this.decoder.decodeNumbers(entry) : undefined;
+			if (target.kind === 'samples' && packed) {
+				target.entry.samples = packed;
+			} else if (target.kind === 'samples' && numbers !== undefined) {
 				// The index's timestamps aren't used again
 				this.accumulator.addNumbers(target.entry, entry.timestamps, numbers, entry.length);
 			} else {
@@ -148,6 +228,9 @@ export class LogReader {
 					const record = this.decoder.decode(entry, i);
 					if (record) {
 						this.accumulator.addData(target, record);
+						if (target.kind === 'schema' && record.type === 'string') {
+							this.structDefinitions.set(target.name, record.payload);
+						}
 					}
 				}
 			}
@@ -168,7 +251,8 @@ export class LogReader {
 
 	/** Read every entry that wasn't read yet */
 	finish(): ParsedLog {
-		this.read(() => true);
+		// The entries a dashboard uses were decoded in the worker by `read()`. Everything else can stay packed.
+		this.readWhere(() => true, true);
 		// Entries whose last start wasn't finished
 		const last = new Map<number, IndexedEntry>();
 		for (const entry of this.index.entries) {

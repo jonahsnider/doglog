@@ -1,4 +1,5 @@
 // oxlint-disable max-lines, max-classes-per-file -- Each kind of samples is a small class that only makes sense next to the base it extends
+import { StructRegistry } from 'wpilib-struct';
 import type { ProtobufPayload, ProtobufValue, StructPayload } from 'wpilog-parser';
 import type { EntryKind } from '@/data/entry-kind';
 
@@ -135,11 +136,21 @@ export function normalizeEntryName(name: string): string {
 	return name.startsWith('/') ? name : `/${name}`;
 }
 
+type PackedStructs = {
+	bytes: Uint8Array<ArrayBuffer>;
+	offsets: Uint32Array<ArrayBuffer>;
+	name: string;
+	schemas: [string, string][];
+	stride: number;
+	array: boolean;
+};
+
 /** Samples in a form a worker or another window can be sent, see `Samples.toTransfer()` */
 export type SamplesTransfer = { timestamps: Float64Array<ArrayBuffer>; length: number } & (
 	| { values: Value[] }
 	| { numbers: Float64Array<ArrayBuffer> }
 	| { items: Float64Array<ArrayBuffer>; offsets: Uint32Array<ArrayBuffer> }
+	| { structs: PackedStructs }
 );
 
 function grow<T extends Float64Array<ArrayBuffer> | Uint32Array<ArrayBuffer>>(array: T, size: number): T {
@@ -281,7 +292,7 @@ export abstract class Samples {
 
 /** Samples of any kind of value */
 class ValueSamples extends Samples {
-	private stored: Value[];
+	protected stored: Value[];
 
 	constructor(timestamps = new Float64Array(16), values: Value[] = []) {
 		super(timestamps, values.length);
@@ -314,6 +325,97 @@ class ValueSamples extends Samples {
 
 	toTransfer(): SamplesTransfer {
 		return { timestamps: this.timestamps, length: this.length, values: this.stored };
+	}
+}
+
+/** Packed WPILOG structs. Data the user never looks at stays in its original binary form. */
+class StructSamples extends ValueSamples {
+	private structs: PackedStructs | undefined;
+	private registry: StructRegistry | undefined;
+	private cached: { index: number; value: StructPayload | StructPayload[] } | undefined;
+
+	constructor(timestamps: Float64Array<ArrayBuffer>, length: number, structs: PackedStructs) {
+		super(timestamps);
+		this.length = length;
+		this.structs = structs;
+	}
+
+	override value(index: number): Value | undefined {
+		if (!this.structs) {
+			return super.value(index);
+		}
+		if (!this.has(index)) {
+			return undefined;
+		}
+		if (this.cached?.index === index) {
+			return this.cached.value;
+		}
+		const { bytes, offsets, name, schemas, array } = this.structs;
+		if (!this.registry) {
+			this.registry = new StructRegistry();
+			for (const [type, schema] of schemas) {
+				this.registry.register(type, schema);
+			}
+		}
+		const value = array
+			? this.registry.decodeArray(name, bytes.subarray(offsets[index], offsets[index + 1]))
+			: this.registry.decode(name, bytes, offsets[index]);
+		if (typeof value === 'string') {
+			return undefined;
+		}
+		this.cached = { index, value };
+		return value;
+	}
+
+	override values(): Value[] {
+		return this.structs ? Array.from({ length: this.length }, (_, index) => this.value(index)!) : super.values();
+	}
+
+	override lengthAt(index: number): number {
+		const { structs } = this;
+		if (!structs) {
+			return super.lengthAt(index);
+		}
+		return structs.array && this.has(index)
+			? (structs.offsets[index + 1]! - structs.offsets[index]!) / structs.stride
+			: 0;
+	}
+
+	private unpack(keepValues: boolean): void {
+		if (this.structs) {
+			if (keepValues) {
+				this.stored = this.values();
+			}
+			this.structs = undefined;
+			this.registry = undefined;
+			this.cached = undefined;
+		}
+	}
+
+	protected override insertValue(index: number, value: Value): void {
+		this.unpack(true);
+		super.insertValue(index, value);
+	}
+
+	protected override removeValues(count: number): void {
+		this.unpack(count < this.length);
+		super.removeValues(count);
+	}
+
+	override copy(): Samples {
+		const { structs, timestamps, length } = this;
+		return structs
+			? new StructSamples(timestamps.slice(0, length), length, {
+					...structs,
+					bytes: structs.bytes.slice(),
+					offsets: structs.offsets.slice(),
+				})
+			: super.copy();
+	}
+
+	override toTransfer(): SamplesTransfer {
+		const { timestamps, length, structs } = this;
+		return structs ? { timestamps, length, structs } : super.toTransfer();
 	}
 }
 
@@ -461,6 +563,9 @@ export function fromTransfer(transfer: SamplesTransfer): Samples {
 	if ('items' in transfer) {
 		return new NumberArraySamples(timestamps, transfer.items, transfer.offsets, length);
 	}
+	if ('structs' in transfer) {
+		return new StructSamples(timestamps, length, transfer.structs);
+	}
 	return new ValueSamples(timestamps, transfer.values);
 }
 
@@ -471,6 +576,9 @@ export function transferables(transfer: SamplesTransfer): ArrayBuffer[] {
 	}
 	if ('items' in transfer) {
 		return [transfer.timestamps.buffer, transfer.items.buffer, transfer.offsets.buffer];
+	}
+	if ('structs' in transfer) {
+		return [transfer.timestamps.buffer, transfer.structs.bytes.buffer, transfer.structs.offsets.buffer];
 	}
 	return [transfer.timestamps.buffer];
 }

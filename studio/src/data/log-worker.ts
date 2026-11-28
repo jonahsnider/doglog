@@ -230,7 +230,8 @@ async function postLog(log: ReadingLog, byteLength: number, live: boolean, prior
 }
 
 class StreamSession {
-	private readonly parser = new StreamingLogParser();
+	private readonly rawChunks: Uint8Array[] = [];
+	private xzParser: StreamingLogParser | undefined;
 	private readonly totalBytes: number | undefined;
 	private readonly priority: LogPriority;
 	private mode: 'detect' | 'raw' | 'xz' = 'detect';
@@ -279,7 +280,7 @@ class StreamSession {
 			} else {
 				this.mode = 'raw';
 				this.decompressedBytes += initial.byteLength;
-				this.parser.push(initial);
+				this.rawChunks.push(initial);
 			}
 			return;
 		}
@@ -288,11 +289,13 @@ class StreamSession {
 			this.xzController?.enqueue(chunk);
 		} else {
 			this.decompressedBytes += chunk.byteLength;
-			this.parser.push(chunk);
+			this.rawChunks.push(chunk);
 		}
 	}
 
 	private startXz(initial: Uint8Array): void {
+		const parser = new StreamingLogParser();
+		this.xzParser = parser;
 		const input = new ReadableStream<Uint8Array>({
 			start: (controller) => {
 				this.xzController = controller;
@@ -305,7 +308,7 @@ class StreamSession {
 					write: (value) => {
 						if (value.byteLength > 0) {
 							this.decompressedBytes += value.byteLength;
-							this.parser.push(value);
+							parser.push(value);
 						}
 					},
 				}),
@@ -328,12 +331,18 @@ class StreamSession {
 				if (this.decompressedBytes === 0 && this.xzError !== undefined) {
 					throw new Error(`Couldn't decompress it: ${this.xzError}`);
 				}
-			} else if (this.mode === 'detect' && this.probe.byteLength > 0) {
-				this.decompressedBytes += this.probe.byteLength;
-				this.parser.push(this.probe);
+				await postLog(readLog(this.xzParser!.finish()), this.decompressedBytes, false, this.priority);
+			} else {
+				// Index the downloaded bytes before decoding values, so URL logs can send bound entries first too.
+				const bytes = new Uint8Array(this.decompressedBytes);
+				let offset = 0;
+				for (const chunk of this.rawChunks) {
+					bytes.set(chunk, offset);
+					offset += chunk.byteLength;
+				}
+				this.rawChunks.length = 0;
+				await postLog(new LogReader(bytes), bytes.byteLength, false, this.priority);
 			}
-			const parsed = this.parser.finish();
-			await postLog(readLog(parsed), this.decompressedBytes, false, this.priority);
 		} catch (error) {
 			postMessage({
 				type: 'error',

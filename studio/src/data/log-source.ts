@@ -203,7 +203,7 @@ export function loadLog(
 	return stop;
 }
 
-/** Parse a WPILOG stream in a worker as chunks arrive, transferring each chunk zero-copy */
+/** Transfer download chunks to the worker zero-copy. It starts sending entries once the download completes. */
 export function loadLogStream(
 	data: DataSet,
 	totalBytes: number | undefined,

@@ -1,5 +1,7 @@
 import { expect, test } from 'vite-plus/test';
+import { DataSet } from '@/data/data-set';
 import { parseLog } from '@/data/log-reader';
+import { fromTransfer, transferables } from '@/data/samples';
 import { syntheticLog } from '@/data/synthetic-log';
 
 const log = syntheticLog(64 * 1024);
@@ -54,9 +56,12 @@ function startPayload(entryId: number, name: string, type: string): Uint8Array {
 	return bytes;
 }
 
-function double(value: number): Uint8Array {
-	const bytes = new Uint8Array(8);
-	new DataView(bytes.buffer).setFloat64(0, value, true);
+function double(...values: number[]): Uint8Array {
+	const bytes = new Uint8Array(values.length * 8);
+	const view = new DataView(bytes.buffer);
+	for (const [index, value] of values.entries()) {
+		view.setFloat64(index * 8, value, true);
+	}
 	return bytes;
 }
 
@@ -86,14 +91,53 @@ test("a value that doesn't match its struct schema is skipped, and later records
 		record(200, 0n, new TextEncoder().encode('double a;double b')),
 		record(0, 0n, startPayload(201, '/Pair', 'struct:Pair')),
 		record(0, 0n, startPayload(202, '/After', 'double')),
+		record(201, 500n, double(2, 7)),
 		// 4 bytes, but the schema needs 16
 		record(201, 1_000n, new Uint8Array(4)),
+		record(201, 1_500n, double(-3, 9)),
 		record(202, 2_000n, double(3)),
 	];
 	const { entries } = parse(withTail(new Uint8Array(tail.flatMap((bytes) => Array.from(bytes)))));
 
-	expect(entries.get('/Pair')?.samples.length).toBe(0);
+	const samples = entries.get('/Pair')!.samples;
+	expect([...samples.timestamps.subarray(0, samples.length)]).toEqual([500, 1500]);
+	expect(samples.values()).toEqual([
+		{ a: 2, b: 7 },
+		{ a: -3, b: 9 },
+	]);
 	expect(entries.get('/After')?.samples.values()).toEqual([3]);
+});
+
+test('nested structs and variable-length arrays keep their fields after worker and window transfers', () => {
+	const tail = [
+		record(0, 0n, startPayload(200, '/Poses', 'struct:Pose[]')),
+		record(200, 1_000n, double()),
+		record(200, 2_000n, double(2, 7, -3, 9)),
+		record(200, 3_000n, double(4, -1)),
+		record(0, 0n, startPayload(201, '/.schema/struct:Pose', 'structschema')),
+		record(201, 0n, new TextEncoder().encode('Point translation; double angle')),
+		record(0, 0n, startPayload(202, '/.schema/struct:Point', 'structschema')),
+		record(202, 0n, new TextEncoder().encode('double x')),
+	];
+	const { entries, structSchemas } = parse(withTail(new Uint8Array(tail.flatMap((bytes) => Array.from(bytes)))));
+	const data = new DataSet(() => {}, structSchemas);
+	const { type, samples } = entries.get('/Poses')!;
+	const transfer = samples.toTransfer();
+	const received = fromTransfer(structuredClone(transfer, { transfer: transferables(transfer) }));
+	data.addEntry('/Poses', type, received);
+
+	const otherWindow = new DataSet(() => {});
+	otherWindow.addTransfer(structuredClone(data.toTransfer()));
+	otherWindow.publish();
+	const field = otherWindow.entries.get('/Poses/1/translation/x')?.samples;
+	expect(field?.length).toBe(1);
+	expect(field?.valueAt(2_000)).toBe(-3);
+	expect(otherWindow.entries.get('/Poses')?.samples.valueAt(1_000)).toEqual([]);
+	expect(otherWindow.entries.get('/Poses')?.samples.valueAt(3_000)).toEqual([{ translation: { x: 4 }, angle: -1 }]);
+	expect(received.valueAt(2_000)).toEqual([
+		{ translation: { x: 2 }, angle: 7 },
+		{ translation: { x: -3 }, angle: 9 },
+	]);
 });
 
 test('a log with no readable entries throws', () => {
