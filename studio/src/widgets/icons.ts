@@ -12,10 +12,7 @@ import CompetitionFieldIcon from '@/widgets/field/competition-field.svg?react';
 import SwerveDriveIcon from '@/widgets/swerve/swerve-drive.svg?react';
 import type { WidgetTypeId } from '@/widgets/widget-info';
 
-/**
- * Each widget type's icon, a Lucide icon or a single color SVG imported with `?react`. Kept apart from the widgets so
- * link preview images can draw them without the widgets' code, see `@/link-previews/preview-image`.
- */
+/** Each widget type's icon, a Lucide icon or a single color SVG imported with `?react`. */
 export const widgetIcons: Record<WidgetTypeId, ComponentType<SVGProps<SVGSVGElement>>> = {
 	graph: ChartLineIcon,
 	histogram: ChartColumnIcon,

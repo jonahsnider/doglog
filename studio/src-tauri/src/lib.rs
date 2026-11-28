@@ -74,8 +74,7 @@ fn take_opened_log(window: WebviewWindow, opened_log: State<OpenedLog>) -> Optio
     opened_log.0.lock().unwrap().remove(window.label())
 }
 
-/// The last dashboard link each window was asked to open, ex. `v1.<payload>` from `doglog://import/v1.<payload>`, by
-/// window label, until its frontend takes it
+/// The dashboard ID from the last `doglog://shared/<dashboard-id>` link sent to each window, until its frontend takes it
 #[derive(Default)]
 struct OpenedDashboardLink(Mutex<HashMap<String, String>>);
 
@@ -85,14 +84,14 @@ fn handle_deep_link(app: &AppHandle, url: &tauri::Url) {
         return;
     }
     match url.host_str() {
-        Some("import") => {
-            let link = url.path().trim_start_matches('/').to_owned();
+        Some("shared") => {
+            let dashboard_id = url.path().trim_start_matches('/').to_owned();
             let label = new_window::last_focused(app);
             app.state::<OpenedDashboardLink>()
                 .0
                 .lock()
                 .unwrap()
-                .insert(label.clone(), link);
+                .insert(label.clone(), dashboard_id);
             // Before the frontend is listening this is dropped, it takes the link when it starts instead
             let _ = app.emit_to(label, "dashboard-link-opened", ());
         }

@@ -22,13 +22,13 @@ Every Studio page SHALL have a link preview with the title "DogLog Studio", a sh
 
 ### Requirement: Cloud dashboard link preview
 
-A Cloud dashboard link SHALL use one built-in Studio preview image with no option to disable or customize it. The preview text MAY include public team information such as the team name. The preview MUST NOT expose the dashboard name, entry names, layout, widget settings, or bindings.
+A Cloud dashboard link SHALL show the owning team's name centered in the preview, with the Studio logo and wordmark in the lower-left corner inside the image's safe padding. The preview MUST NOT expose the team number, the person who copied the link, other account information, the dashboard name, entry names, layout, widget settings, or bindings.
 
 #### Scenario: Paste a Cloud dashboard link into a chat
 
-- **GIVEN** a Cloud dashboard named "Auto tuning" has a graph bound to `/Robot/Drive/Speed`
+- **GIVEN** a team with a configured team number shares a Cloud dashboard named "Auto tuning" with a graph bound to `/Robot/Drive/Speed`
 - **WHEN** a chat app fetches the preview without signing in
-- **THEN** it sees the built-in image, without the dashboard name, entry name, or pane layout
+- **THEN** the image shows the team name and Studio branding, without the team number, dashboard name, entry name, pane layout, or sharer
 
 ### Requirement: Preview appearance
 

@@ -1,38 +1,30 @@
 import { invoke } from '@tauri-apps/api/core';
+import { currentCloudScope } from '@/cloud/session';
 import { toastManager } from '@/components/toast';
-import { DashboardLinkTooLarge, encodeDashboardLink } from '@/dashboards/dashboard-link';
-import type { DashboardContents } from '@/dashboards/doc';
-import { panes } from '@/panes/layout';
+import { type Dashboard, getSharing } from '@/dashboards/dashboards';
 
-export function canCopyDashboardLink({ layout }: DashboardContents): boolean {
-	return panes(layout).some((pane) => pane.widget !== undefined);
+export function canCopyDashboardLink({ id, shared }: Dashboard): boolean {
+	if (!shared) {
+		return false;
+	}
+	const { scope, deletedAt } = getSharing(id);
+	return scope !== undefined && scope === currentCloudScope() && deletedAt === undefined;
 }
 
-export async function copyDashboardLink(dashboard: DashboardContents): Promise<void> {
+export async function copyDashboardLink(dashboard: Dashboard): Promise<void> {
+	if (!canCopyDashboardLink(dashboard)) {
+		return;
+	}
+	const origin = import.meta.env.DEV && !STUDIO_DESKTOP ? window.location.origin : 'https://doglog.studio';
+	const text = `${origin}/shared/${dashboard.id}`;
 	try {
-		const origin = import.meta.env.DEV && !STUDIO_DESKTOP ? window.location.origin : 'https://doglog.studio';
 		if (STUDIO_DESKTOP) {
-			const link = await encodeDashboardLink(dashboard);
-			await invoke('plugin:clipboard-manager|write_text', { text: `${origin}/import/${link}` });
+			await invoke('plugin:clipboard-manager|write_text', { text });
 		} else {
-			if (!('clipboard' in navigator) || typeof ClipboardItem === 'undefined') {
-				throw new Error('Clipboard unavailable');
-			}
-			// Start the clipboard write during the user gesture, before async compression loses activation in WebKit.
-			const text = encodeDashboardLink(dashboard).then(
-				(link) => new Blob([`${origin}/import/${link}`], { type: 'text/plain' }),
-			);
-			await Promise.all([text, navigator.clipboard.write([new ClipboardItem({ 'text/plain': text })])]);
+			await navigator.clipboard.writeText(text);
 		}
 		toastManager.add({ type: 'success', title: 'Copied dashboard URL' });
-	} catch (error) {
-		toastManager.add({
-			type: 'error',
-			title: 'Couldn’t copy dashboard link',
-			description:
-				error instanceof DashboardLinkTooLarge
-					? 'This dashboard is too large to share as a link.'
-					: 'The link couldn’t be created or copied.',
-		});
+	} catch {
+		toastManager.add({ type: 'error', title: 'Couldn’t copy dashboard link' });
 	}
 }

@@ -21,6 +21,24 @@ function getDashboard(db: DatabaseReader, teamId: Id<'teams'>, dashboardId: stri
 		.unique();
 }
 
+/** A link preview exposes only the team name, without reading dashboard updates or account information. */
+export const linkPreview = query({
+	args: { dashboardId: v.string() },
+	handler: async (ctx, { dashboardId }) => {
+		if (!/^[0-9A-Za-z]{16}$/u.test(dashboardId)) {
+			return null;
+		}
+		const dashboards = await ctx.db
+			.query('cloudDashboards')
+			.withIndex('by_dashboard', (q) => q.eq('dashboardId', dashboardId))
+			.take(2);
+		// IDs are generated randomly, but must not show the wrong team if there's a collision.
+		const dashboard = dashboards.length === 1 ? dashboards[0] : undefined;
+		const team = dashboard ? await ctx.db.get('teams', dashboard.teamId) : null;
+		return team ? { name: team.name } : null;
+	},
+});
+
 export const list = query({
 	args: {},
 	handler: async (ctx) => {

@@ -6,10 +6,9 @@ import { Navigate, createFileRoute, useLocation } from '@tanstack/react-router';
 import { Activity, useEffect, useState } from 'react';
 import { Group, Panel } from 'react-resizable-panels';
 import { shortcuts } from '@/commands/commands';
-import { canCopyDashboardLink } from '@/dashboards/copy-dashboard-link';
 import { DashboardSplitZones } from '@/dashboards/dashboard-drag';
 import { DashboardPanes } from '@/dashboards/dashboard-panes';
-import { canCapture, copyImage, dashboardCaptureTarget } from '@/desktop/capture';
+import { canCaptureDashboard, copyImage, dashboardCaptureTarget } from '@/desktop/capture';
 import { useVideoExport } from '@/desktop/video-export';
 import { getEntry } from '@/data/data-store';
 import { VideoExportBar } from '@/timeline/video-export-bar';
@@ -178,7 +177,7 @@ function PanesColumn({ dashboard, dashboards }: { dashboard: Dashboard; dashboar
 		},
 		// Run after widgets' document shortcuts, such as copying a field position.
 		{
-			enabled: canCapture && canCopyDashboardLink(dashboard),
+			enabled: canCaptureDashboard(dashboard),
 			target: window,
 			ignoreInputs: true,
 			preventDefault: false,

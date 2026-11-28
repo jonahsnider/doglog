@@ -649,8 +649,10 @@ test('dashboard updates are ordered per team, gated on membership and key versio
 	const admin = await signIn(t);
 	const member = await signIn(t);
 	const outsider = await signIn(t);
+	const dashboardId = 'aQ73MgP6J9k2YrX4';
 	const teamId = await admin.client.mutation(api.teams.create, { name: 'Robodogs' });
 	await outsider.client.mutation(api.teams.create, { name: 'Space Dogs' });
+	await admin.client.mutation(api.teams.updateDefaults, { teamNumber: 581 });
 	const memberMembership = await t.run(async (ctx) => {
 		await ctx.db.patch('teams', teamId, { keyVersion: 1 });
 		return ctx.db.insert('memberships', { userId: member.userId, teamId, role: 'member' });
@@ -663,7 +665,7 @@ test('dashboard updates are ordered per team, gated on membership and key versio
 	))!._id;
 	const update = (ciphertext: number, extra: object = {}) => ({
 		membershipId: adminMembership,
-		dashboardId: 'dash',
+		dashboardId,
 		keyVersion: 1,
 		iv: bytes(12),
 		ciphertext: new Uint8Array([ciphertext]).buffer,
@@ -683,11 +685,15 @@ test('dashboard updates are ordered per team, gated on membership and key versio
 	).resolves.toBe(2);
 	await expect(admin.client.mutation(api.cloudDashboards.push, update(3))).resolves.toBe(3);
 	await expect(member.client.query(api.cloudDashboards.list)).resolves.toEqual([
-		{ dashboardId: 'dash', seq: 3, compactedSeq: null, compactedKeyVersion: null },
+		{ dashboardId, seq: 3, compactedSeq: null, compactedKeyVersion: null },
 	]);
+	await expect(t.query(api.cloudDashboards.linkPreview, { dashboardId })).resolves.toEqual({
+		name: 'Robodogs',
+	});
+	await expect(t.query(api.cloudDashboards.pull, { dashboardId, after: 0 })).resolves.toBeNull();
 	await expect(outsider.client.query(api.cloudDashboards.list)).resolves.toEqual([]);
-	await expect(outsider.client.query(api.cloudDashboards.pull, { dashboardId: 'dash', after: 0 })).resolves.toBeNull();
-	const pulled = await member.client.query(api.cloudDashboards.pull, { dashboardId: 'dash', after: 1 });
+	await expect(outsider.client.query(api.cloudDashboards.pull, { dashboardId, after: 0 })).resolves.toBeNull();
+	const pulled = await member.client.query(api.cloudDashboards.pull, { dashboardId, after: 1 });
 	expect(pulled?.map(({ seq, ciphertext }) => [seq, new Uint8Array(ciphertext)[0]])).toEqual([
 		[2, 2],
 		[3, 3],
@@ -700,7 +706,7 @@ test('dashboard updates are ordered per team, gated on membership and key versio
 	await expect(member.client.query(api.cloudDashboards.list)).resolves.toMatchObject([
 		{ seq: 5, compactedSeq: 5, compactedKeyVersion: 1 },
 	]);
-	const compacted = await member.client.query(api.cloudDashboards.pull, { dashboardId: 'dash', after: 0 });
+	const compacted = await member.client.query(api.cloudDashboards.pull, { dashboardId, after: 0 });
 	expect(compacted?.map(({ seq }) => seq)).toEqual([5]);
 
 	// Rotation pending after a removal blocks uploads under the old key, and the removed account's edits stay out
@@ -709,7 +715,7 @@ test('dashboard updates are ordered per team, gated on membership and key versio
 	await expect(
 		member.client.mutation(api.cloudDashboards.push, update(5, { membershipId: memberMembership })),
 	).rejects.toThrow('no longer on the team');
-	await expect(member.client.query(api.cloudDashboards.pull, { dashboardId: 'dash', after: 0 })).resolves.toBeNull();
+	await expect(member.client.query(api.cloudDashboards.pull, { dashboardId, after: 0 })).resolves.toBeNull();
 	const rejoined = await t.run((ctx) =>
 		ctx.db.insert('memberships', { userId: member.userId, teamId, role: 'member' }),
 	);
@@ -720,6 +726,7 @@ test('dashboard updates are ordered per team, gated on membership and key versio
 
 	await t.run((ctx) => ctx.db.delete('memberships', rejoined));
 	await admin.client.mutation(api.teams.remove, { teamId });
+	await expect(t.query(api.cloudDashboards.linkPreview, { dashboardId })).resolves.toBeNull();
 	await expect(t.run((ctx) => ctx.db.query('dashboardUpdates').collect())).resolves.toEqual([]);
 	await expect(t.run((ctx) => ctx.db.query('cloudDashboards').collect())).resolves.toEqual([]);
 });

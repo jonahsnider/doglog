@@ -23,13 +23,13 @@ Studio SHALL provide these shortcuts, using ⌘ on macOS and Ctrl on Windows and
 
 #### Scenario: Copy the current dashboard link
 
-- **GIVEN** a dashboard with at least one widget is open
+- **GIVEN** a Cloud dashboard is open, even if it has no widgets
 - **WHEN** Studio receives ⇧⌘C (Ctrl+Shift+C on Windows and Linux)
 - **THEN** Studio copies the current dashboard's URL and shows a checkmark toast reading "Copied dashboard URL" if the copy succeeds
 
-#### Scenario: Copy shortcut on a dashboard with only empty panes
+#### Scenario: Copy shortcut on a local or robot-only dashboard
 
-- **GIVEN** none of the current dashboard's panes contains a widget
+- **GIVEN** the current dashboard is local or shared only with a robot
 - **WHEN** Studio receives the copy dashboard link shortcut
 - **THEN** Studio does not copy a URL or show a toast
 
@@ -300,8 +300,9 @@ On macOS, the desktop app's menu items SHALL be disabled while their command can
 - **GIVEN** the user is using the desktop app on macOS
 - **AND** the open dashboard has a single empty pane
 - **WHEN** the user opens the Edit and View menus
-- **THEN** Copy Dashboard Link, Copy Dashboard Image, Zoom or Restore Pane, and Edit Entries are disabled
-- **AND** once the user adds a widget, Copy Dashboard Link and Copy Dashboard Image are enabled
+- **THEN** Copy Dashboard Image, Zoom or Restore Pane, and Edit Entries are disabled
+- **AND** once the user adds a widget, Copy Dashboard Image is enabled
+- **AND** Copy Dashboard Link is enabled only if the dashboard is shared in Cloud
 
 ### Requirement: Close pane or dashboard
 

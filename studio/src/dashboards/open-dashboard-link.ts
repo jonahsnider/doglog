@@ -14,8 +14,8 @@ declare global {
  * Offer to open a dashboard link in the desktop app. Desktop Chromium browsers ask right away, since they do nothing when
  * the app isn't installed. Other browsers show an error then, so they only ask when the user picks it from a toast.
  */
-export function openDashboardLinkInDesktop(link: string): void {
-	const url = `doglog://import/${link}`;
+export function openDashboardLinkInDesktop(dashboardId: string): void {
+	const url = `doglog://shared/${dashboardId}`;
 	if (navigator.userAgentData) {
 		if (!navigator.userAgentData.mobile) {
 			location.assign(url);
@@ -35,12 +35,12 @@ export function openDashboardLinkInDesktop(link: string): void {
 	});
 }
 
-/** Import dashboard links the OS asks the desktop app to open, ex. when the browser hands one to it */
+/** Open dashboard links the OS hands the desktop app. */
 export async function handleOpenedDashboardLinks(router: RegisteredRouter): Promise<void> {
 	const openTakenLink = async () => {
-		const link = await invoke<string | null>('take_opened_dashboard_link');
-		if (link !== null) {
-			await router.navigate({ to: '/import/$link', params: { link } });
+		const dashboardId = await invoke<string | null>('take_opened_dashboard_link');
+		if (dashboardId !== null) {
+			await router.navigate({ to: '/shared/$dashboardId', params: { dashboardId } });
 		}
 	};
 	await listen('dashboard-link-opened', () => void openTakenLink());

@@ -1,9 +1,10 @@
 import { Banner } from '@astryxdesign/core/Banner';
 import { Button } from '@astryxdesign/core/Button';
+import { Center } from '@astryxdesign/core/Center';
 import { Divider } from '@astryxdesign/core/Divider';
 import { FormLayout } from '@astryxdesign/core/FormLayout';
 import { VStack } from '@astryxdesign/core/Layout';
-import { Text } from '@astryxdesign/core/Text';
+import { Heading, Text } from '@astryxdesign/core/Text';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useSignInWithApple } from '@convex-dev/auth/methods/apple/react';
 import { useSignInWithGoogle } from '@convex-dev/auth/methods/google/react';
@@ -19,6 +20,7 @@ import { ceremonies, oauthErrorMessage, runOauthSignIn } from '@/cloud/sign-in-f
 import { api } from '../../../cloud/convex/_generated/api.js';
 
 const styles = stylex.create({
+	scroll: { height: '100%', overflowY: 'auto' },
 	// Apple's logo follows the text color
 	apple: { fill: 'currentColor' },
 });
@@ -26,14 +28,29 @@ const styles = stylex.create({
 /** The longest display name the server accepts */
 export const displayNameMaxLength = 80;
 
-export function CloudSignIn() {
+export function CloudSignIn({ description = 'Share dashboards with your team' }: { description?: string }) {
 	return (
-		<VStack gap={4}>
-			<PasskeySignIn />
-			<Divider label="or" />
-			<OAuthSignIn />
-			<BrowserSignInStatus message="Finish signing in in your browser." />
-		</VStack>
+		<div {...stylex.props(styles.scroll)}>
+			<Center minHeight="100%" padding={6}>
+				<VStack gap={8} width="100%" maxWidth={360}>
+					<VStack gap={3} hAlign="center">
+						<img src="/logo.svg" alt="" width={56} height={56} />
+						<VStack gap={1} hAlign="center">
+							<Heading level={1}>Sign in to DogLog Cloud</Heading>
+							<Text color="secondary" justify="center">
+								{description}
+							</Text>
+						</VStack>
+					</VStack>
+					<VStack gap={4}>
+						<PasskeySignIn />
+						<Divider label="or" />
+						<OAuthSignIn />
+						<BrowserSignInStatus message="Finish signing in in your browser." />
+					</VStack>
+				</VStack>
+			</Center>
+		</div>
 	);
 }
 

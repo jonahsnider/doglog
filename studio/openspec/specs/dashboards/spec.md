@@ -677,8 +677,14 @@ For a Cloud dashboard, Copy link SHALL copy a stable link to the shared dashboar
 #### Scenario: Open a Cloud dashboard link
 
 - **GIVEN** a member copies a link to their team's Cloud dashboard
-- **WHEN** a teammate with access opens it
+- **WHEN** a teammate with access opens it on a device that hasn't synced that dashboard yet
 - **THEN** Studio opens the shared dashboard without creating a local copy
+
+#### Scenario: Sign in from a Cloud dashboard link
+
+- **GIVEN** a signed-out teammate opens a Cloud dashboard link
+- **WHEN** they sign in using the form on the link page
+- **THEN** Studio opens the shared dashboard without asking them to reopen the link
 
 #### Scenario: Open a Cloud dashboard link without access
 

@@ -65,7 +65,7 @@ Sentry.init({
 		tracesSampleRate: 0.1,
 		integrations: [Sentry.browserTracingCoreIntegration()],
 		beforeSendSpan(span) {
-			// Page URLs and referrers can contain log URLs or encoded dashboard contents.
+			// Page URLs and referrers can contain log URLs or dashboard IDs.
 			delete span.attributes['url.full'];
 			delete span.attributes['url.path'];
 			delete span.attributes['http.request.header.referer'];

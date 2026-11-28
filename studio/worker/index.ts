@@ -1,13 +1,7 @@
-// Existing static assets bypass this Worker (except `/import/*`, see `run_worker_first` in wrangler.jsonc).
-// Unmatched requests come here so missing assets return 404 while client-side routes serve `index.html` (and `/import/*`
-// gets dashboard-specific Open Graph tags).
-import {
-	dashboardLinkDescription,
-	dashboardLinkImageUrl,
-	dashboardLinkPreview,
-} from '../src/link-previews/dashboard-link-preview.ts';
+// Missing assets return 404 while client-side routes serve `index.html`. Shared links get team-only preview images.
+import { dashboardIdPattern } from '../src/link-previews/dashboard-link-preview.ts';
 
-const linkPrefix = '/import/';
+const linkPrefix = '/shared/';
 
 function isMissingAsset(request: Request, url: URL): boolean {
 	if (url.pathname.startsWith('/assets/')) {
@@ -32,26 +26,15 @@ export default {
 		if (!url.pathname.startsWith(linkPrefix)) {
 			return page;
 		}
-		const link = url.pathname.slice(linkPrefix.length);
-		const preview = await dashboardLinkPreview(link);
-		if (preview === undefined) {
+		const dashboardId = url.pathname.slice(linkPrefix.length).replace(/\/$/u, '');
+		if (!dashboardIdPattern.test(dashboardId)) {
 			return page;
 		}
 
-		const content: Record<string, string> = {
-			'og:title': preview.title,
-			'og:description': dashboardLinkDescription,
-			'og:image': dashboardLinkImageUrl(link),
-			'og:image:alt': `The panes of the ${preview.title} dashboard`,
-		};
 		return new HTMLRewriter()
-			.on('meta[property^="og:"]', {
+			.on('meta[property="og:image"]', {
 				element(element) {
-					const value = content[element.getAttribute('property') ?? ''];
-					if (value !== undefined) {
-						// `setAttribute()` only escapes quotes, ex. a dashboard named `R&amp;D` would show as `R&D`
-						element.setAttribute('content', value.replaceAll('&', '&amp;'));
-					}
+					element.setAttribute('content', `https://cloud.doglog.dev/dashboard-links/${dashboardId}/preview.png`);
 				},
 			})
 			.transform(page);

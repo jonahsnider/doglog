@@ -6,7 +6,7 @@ import { canCopyDashboardLink, copyDashboardLink } from '@/dashboards/copy-dashb
 import type { Dashboard } from '@/dashboards/dashboards';
 import { subscribeData } from '@/data/data-store';
 import { useSource } from '@/data/source';
-import { canCapture, copyDashboardImage } from '@/desktop/capture';
+import { canCaptureDashboard, copyDashboardImage } from '@/desktop/capture';
 import { canExportVideo, startVideoExport } from '@/desktop/video-export';
 
 /** The copy and export section of a dashboard's sidebar menu, with a leading separator when present */
@@ -17,14 +17,15 @@ export function useDashboardCopyItems(
 ): (MenuAction | 'separator')[] {
 	const source = useSource();
 	const canExport = useSyncExternalStore(subscribeData, () => active && canExportVideo(dashboard, source));
-	if (!canCopyDashboardLink(dashboard)) {
-		return [];
+	const items: MenuAction[] = [];
+	if (canCopyDashboardLink(dashboard)) {
+		items.push({
+			label: 'Copy link',
+			shortcut: shortcuts.copyDashboardLink,
+			onSelect: () => void copyDashboardLink(dashboard),
+		});
 	}
-	const items: (MenuAction | 'separator')[] = [
-		'separator',
-		{ label: 'Copy link', shortcut: shortcuts.copyDashboardLink, onSelect: () => void copyDashboardLink(dashboard) },
-	];
-	if (STUDIO_DESKTOP && canCapture) {
+	if (canCaptureDashboard(dashboard)) {
 		items.push({
 			label: 'Copy image',
 			onSelect: () => void copyDashboardImage(router, dashboard.id),
@@ -38,5 +39,5 @@ export function useDashboardCopyItems(
 			onSelect: () => startVideoExport(router, dashboard.id),
 		});
 	}
-	return items;
+	return items.length === 0 ? [] : ['separator', ...items];
 }

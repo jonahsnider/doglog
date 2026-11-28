@@ -63,7 +63,9 @@ export default defineSchema({
 		seq: v.number(),
 		compactedSeq: v.optional(v.number()),
 		compactedKeyVersion: v.optional(v.number()),
-	}).index('by_team_and_dashboard', ['teamId', 'dashboardId']),
+	})
+		.index('by_team_and_dashboard', ['teamId', 'dashboardId'])
+		.index('by_dashboard', ['dashboardId']),
 	// An encrypted Loro update or snapshot. Cloud can't read it, only order and relay it.
 	dashboardUpdates: defineTable({
 		dashboardId: v.id('cloudDashboards'),

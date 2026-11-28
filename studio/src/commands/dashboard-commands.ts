@@ -10,7 +10,7 @@ import {
 	toggleZoom,
 } from '@/dashboards/panes';
 import { getSource } from '@/data/source';
-import { copyDashboardImage } from '@/desktop/capture';
+import { canCaptureDashboard, copyDashboardImage } from '@/desktop/capture';
 import { canExportVideo, isExportingVideo, startVideoExport } from '@/desktop/video-export';
 import { toggleEditing, toggleEntryBrowser } from '@/entries/editing';
 import { isMobileLayout } from '@/lib/mobile-layout';
@@ -157,8 +157,7 @@ export function toggleDashboardEntryBrowser(router: RegisteredRouter): void {
 	}
 }
 
-/** Whether the open dashboard has widgets to link to or capture */
-export function canCopyCurrentDashboard(router: RegisteredRouter): boolean {
+export function canCopyCurrentDashboardLink(router: RegisteredRouter): boolean {
 	const dashboard = currentDashboard(router);
 	return dashboard !== undefined && canCopyDashboardLink(dashboard);
 }
@@ -173,9 +172,14 @@ export function copyCurrentDashboardLink(router: RegisteredRouter): boolean {
 	return true;
 }
 
+export function canCopyCurrentDashboardImage(router: RegisteredRouter): boolean {
+	const dashboard = currentDashboard(router);
+	return dashboard !== undefined && canCaptureDashboard(dashboard);
+}
+
 export function copyCurrentDashboardImage(router: RegisteredRouter): void {
 	const dashboard = currentDashboard(router);
-	if (dashboard && canCopyDashboardLink(dashboard)) {
+	if (dashboard && canCaptureDashboard(dashboard)) {
 		void copyDashboardImage(router, dashboard.id);
 	}
 }

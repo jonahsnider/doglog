@@ -4,9 +4,15 @@ import { createAtom } from '@tanstack/store';
 import { invoke } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { toastManager } from '@/components/toast';
+import type { DashboardContents } from '@/dashboards/doc';
+import { panes } from '@/panes/layout';
 import { showVideoFrame } from '@/timeline/timeline';
 
 export const canCapture = STUDIO_DESKTOP && '__DOGLOG_CAPTURE__' in window;
+
+export function canCaptureDashboard({ layout }: DashboardContents): boolean {
+	return canCapture && panes(layout).some((pane) => pane.widget !== undefined);
+}
 
 type CaptureArea = {
 	bounds: DOMRect;

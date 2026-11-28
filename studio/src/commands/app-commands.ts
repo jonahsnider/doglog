@@ -58,7 +58,8 @@ import {
 import {
 	balancePanes,
 	canBalancePanes,
-	canCopyCurrentDashboard,
+	canCopyCurrentDashboardImage,
+	canCopyCurrentDashboardLink,
 	canEditFocusedEntries,
 	canExportCurrentDashboardVideo,
 	canFindInConsole,
@@ -414,7 +415,7 @@ export const commands = {
 		keywords: ['share', 'url'],
 		shortcut: shortcuts.copyDashboardLink,
 		passThrough: true,
-		canRun: canCopyCurrentDashboard,
+		canRun: canCopyCurrentDashboardLink,
 		run: (router) => {
 			copyCurrentDashboardLink(router);
 		},
@@ -427,7 +428,7 @@ export const commands = {
 		available: canCapture,
 		// ⌘C stays with Copy, which falls back to copying the dashboard's image
 		ownHotkey: true,
-		canRun: canCopyCurrentDashboard,
+		canRun: canCopyCurrentDashboardImage,
 		run: copyCurrentDashboardImage,
 	},
 	exportVideo: {

@@ -9,7 +9,7 @@ export default defineConfig({
 		routes: [{ pattern: 'cloud.doglog.dev', custom_domain: true }],
 		workers_dev: false,
 		upload_source_maps: true,
-		// Request telemetry can capture dashboard snapshots carried in link URLs.
+		// Request telemetry must not log dashboard links.
 		observability: {
 			enabled: false,
 			issues: { enabled: false },

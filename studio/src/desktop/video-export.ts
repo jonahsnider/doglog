@@ -6,12 +6,11 @@ import { getCurrentWindow } from '@tauri-apps/api/window';
 import { save } from '@tauri-apps/plugin-dialog';
 import { revealItemInDir } from '@tauri-apps/plugin-opener';
 import { toastManager } from '@/components/toast';
-import { canCopyDashboardLink } from '@/dashboards/copy-dashboard-link';
 import { type Dashboard, getDashboard } from '@/dashboards/dashboards';
 import { dashboardName } from '@/dashboards/label';
 import { flushData, getTimeRange, replayLiveHistory } from '@/data/data-store';
 import { getSource, type Source, subscribeSource } from '@/data/source';
-import { canCapture, dashboardCaptureTarget, saveVideo } from '@/desktop/capture';
+import { canCaptureDashboard, dashboardCaptureTarget, saveVideo } from '@/desktop/capture';
 import { getTimeline, setVideoRange, type Timeline } from '@/timeline/timeline';
 
 /** Frames a second in a saved video */
@@ -54,9 +53,7 @@ export function isExportingVideo(): boolean {
 /** Whether video export mode can open for `dashboard`: on a platform with capture, with a widget, and with source history */
 export function canExportVideo(dashboard: Dashboard, source: Source | undefined): boolean {
 	return (
-		STUDIO_DESKTOP &&
-		canCapture &&
-		canCopyDashboardLink(dashboard) &&
+		canCaptureDashboard(dashboard) &&
 		(source?.type === 'live' || (source?.type === 'log' && source.status === 'loaded')) &&
 		getTimeRange() !== undefined
 	);

@@ -49,23 +49,17 @@ function projectSchemaPlugin(): Plugin {
 	};
 }
 
-/**
- * Draws `og.png`, the Open Graph image `index.html` points link previews to. Dashboard links get their own from the
- * cloud server, drawn with the same code.
- */
+/** Draws the default Open Graph image. The Cloud preview endpoint uses the same renderer with team details. */
 function linkPreviewPlugin(): Plugin {
 	return {
 		name: 'doglog-link-preview',
 		apply: 'build',
 		async generateBundle() {
-			const { module } = await runnerImport<{ renderGenericPreviewImage: () => Promise<Uint8Array> }>(
+			const { module } = await runnerImport<{ renderPreviewImage: () => Promise<Uint8Array> }>(
 				'./src/link-previews/preview-image.tsx',
-				{
-					plugins: [svgr()],
-					resolve: { tsconfigPaths: true },
-				},
+				{ resolve: { tsconfigPaths: true } },
 			);
-			this.emitFile({ type: 'asset', fileName: 'og.png', source: await module.renderGenericPreviewImage() });
+			this.emitFile({ type: 'asset', fileName: 'og.png', source: await module.renderPreviewImage() });
 		},
 	};
 }

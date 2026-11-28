@@ -1,4 +1,3 @@
-import svgr from 'vite-plugin-svgr';
 import { voidPlugin } from 'void';
 import { defineConfig, lazyPlugins } from 'vite-plus';
 
@@ -15,11 +14,7 @@ export default defineConfig({
 		ignorePatterns: generated,
 	},
 	// Lazy since `voidPlugin()` reads and writes project files as soon as it's called, which linting doesn't need
-	plugins: lazyPlugins(() => [
-		// Studio's widget icons, which link preview images draw, include SVGs imported with `?react`
-		svgr(),
-		voidPlugin(),
-	]),
+	plugins: lazyPlugins(() => [voidPlugin()]),
 	resolve: {
 		// Studio's code imports its own modules with `@/`
 		tsconfigPaths: true,
