@@ -31,6 +31,8 @@ A sidebar row's label that doesn't fit SHALL fade out at its end. On devices wit
 
 ### Requirement: Sidebar footer actions
 
+The sidebar footer SHALL always show Settings as its last item, including in the collapsed rail.
+
 The expanded or peeking sidebar footer SHALL offer Command palette and Keyboard shortcuts (except in the phone layout). Download app SHALL appear only in a desktop browser tab outside the phone layout. These actions MUST NOT appear in the collapsed rail. The footer SHALL offer an install action only when an update is ready. The install action MUST remain available in the rail.
 
 #### Scenario: Open the command palette
@@ -72,7 +74,7 @@ The expanded or peeking sidebar footer SHALL offer Command palette and Keyboard 
 
 ### Requirement: Footer actions on hover
 
-On devices with hover, the sidebar footer actions SHALL stay hidden until the sidebar is hovered, has keyboard focus, has one of its menus or dialogs open, or shows the What's new card. The actions MUST keep their space while hidden so the sidebar's other items don't move. An install action for a ready update MUST stay visible.
+On devices with hover, Command palette, Keyboard shortcuts, and Download app SHALL stay hidden until the sidebar is hovered, has keyboard focus, has one of its menus or dialogs open, or shows the What's new card. The actions MUST keep their space while hidden so the sidebar's other items don't move. An install action for a ready update MUST stay visible.
 
 #### Scenario: Reveal the footer actions
 
@@ -160,7 +162,7 @@ Each Studio tab and window SHALL be titled after what it shows, so they can be t
 
 ### Requirement: Pages section
 
-The pages section SHALL show Logs, Tuning (see the tuning spec), and Settings.
+The pages section SHALL show Logs and Tuning (see the tuning spec).
 
 Settings and the Logs sync overview SHALL use the same centered page column and side padding so their headings line up when switching pages. Settings panels SHALL have a narrower maximum width and stay aligned with the start of the heading. Each heading and its actions MUST stay visible while the content scrolls.
 

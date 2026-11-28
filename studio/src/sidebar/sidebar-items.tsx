@@ -1,7 +1,6 @@
 import { useMatchRoute } from '@tanstack/react-router';
 import CloudIcon from 'lucide-react/icons/cloud';
 import FolderSyncIcon from 'lucide-react/icons/folder-sync';
-import SettingsIcon from 'lucide-react/icons/settings';
 import SlidersHorizontalIcon from 'lucide-react/icons/sliders-horizontal';
 import { shortcuts } from '@/commands/commands';
 import { TooltipLabel } from '@/components/tooltip-label';
@@ -63,17 +62,6 @@ export function SidebarItems({
 								<CloudIcon />
 								<span>Cloud</span>
 							</SidebarMenuButton>
-						</SidebarMenuItem>
-						<SidebarMenuItem>
-							<SidebarMenuButton
-								isActive={Boolean(matchRoute({ to: '/settings' }))}
-								href="/settings"
-								tooltip={<TooltipLabel label="Settings" shortcut={shortcuts.settings} />}
-							>
-								<SettingsIcon />
-								<span>Settings</span>
-							</SidebarMenuButton>
-							<ShortcutHint shortcut={shortcuts.settings} />
 						</SidebarMenuItem>
 					</SidebarMenu>
 				</SidebarGroup>

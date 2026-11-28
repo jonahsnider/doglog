@@ -1,10 +1,12 @@
 import { Spinner } from '@astryxdesign/core/Spinner';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
+import { useMatchRoute } from '@tanstack/react-router';
 import ChevronDownIcon from 'lucide-react/icons/chevron-down';
 import CircleArrowUpIcon from 'lucide-react/icons/circle-arrow-up';
 import DownloadIcon from 'lucide-react/icons/download';
 import KeyboardIcon from 'lucide-react/icons/keyboard';
 import SearchIcon from 'lucide-react/icons/search';
+import SettingsIcon from 'lucide-react/icons/settings';
 import { WhatsNewCard } from '@/changelog/whats-new-card';
 import { shortcuts } from '@/commands/commands';
 import { commandPaletteOpen } from '@/commands/command-palette-handle';
@@ -14,6 +16,7 @@ import { TooltipLabel } from '@/components/tooltip-label';
 import { DownloadMenu } from '@/desktop/download-button';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { isMobileDevice } from '@/lib/mobile-layout';
+import { ShortcutHint } from '@/sidebar/shortcut-hint';
 import { useSidebar } from '@/sidebar/sidebar-context';
 import { SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/sidebar/sidebar-ui';
 import { installUpdate, updateTitle, useUpdate } from '@/updater';
@@ -33,6 +36,7 @@ export function AppSidebarFooter({
 	closing: boolean;
 	onShow: () => void;
 }) {
+	const matchRoute = useMatchRoute();
 	const { isMobile } = useSidebar();
 	const update = useUpdate();
 	const updateLabel = update && (update.installing ? 'Updating…' : updateTitle(update.update));
@@ -91,6 +95,19 @@ export function AppSidebarFooter({
 					)}
 				</SidebarMenu>
 			)}
+			<SidebarMenu data-settings-menu="">
+				<SidebarMenuItem>
+					<SidebarMenuButton
+						isActive={Boolean(matchRoute({ to: '/settings' }))}
+						href="/settings"
+						tooltip={<TooltipLabel label="Settings" shortcut={shortcuts.settings} />}
+					>
+						<SettingsIcon />
+						<span>Settings</span>
+					</SidebarMenuButton>
+					<ShortcutHint shortcut={shortcuts.settings} />
+				</SidebarMenuItem>
+			</SidebarMenu>
 		</SidebarFooter>
 	);
 }

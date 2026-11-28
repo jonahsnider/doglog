@@ -63,15 +63,16 @@ export function toggleSidebarCollapsed(animate: boolean, strip: boolean): void {
 }
 
 /**
- * Copies the sidebar's `content` into the rail's copy under it while it peeks, or only the part matching `selector`,
- * without IDs or anchor names that would duplicate the sidebar's. A popup anchors to the last element with its anchor name,
- * which would be the copy.
+ * Copies the sidebar's content into the rail under it while it peeks, or refreshes only the selected parts. IDs and
+ * anchor names are removed so popups don't anchor to the copy.
  */
-export function copyToRail(railCopy: Element, content: Element, selector?: string): void {
-	if (selector === undefined) {
+export function copyToRail(railCopy: Element, content: Element, ...selectors: string[]): void {
+	if (selectors.length === 0) {
 		railCopy.replaceChildren(content.cloneNode(true));
 	} else {
-		railCopy.querySelector(selector)?.replaceWith(content.querySelector(selector)!.cloneNode(true));
+		for (const selector of selectors) {
+			railCopy.querySelector(selector)?.replaceWith(content.querySelector(selector)!.cloneNode(true));
+		}
 	}
 	for (const element of railCopy.querySelectorAll('[id]')) {
 		element.removeAttribute('id');

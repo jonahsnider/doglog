@@ -107,9 +107,9 @@ function DesktopAppSidebar() {
 		iconLayout ? peek : undefined,
 	);
 	const unpeek = useEffectEvent(() => {
-		// The sidebar slides out over the copy, so its pages and dashboards are copied again, like a new selection. The
-		// header and footer show more while peeking than in the rail, so they keep the copy from when peeking started.
-		copyToRail(railCopyRef.current!, contentRef.current!, '[data-sidebar="content"]');
+		// Refresh the page and dashboard selection under the sliding sidebar. The rest of the footer and the header
+		// show more while peeking than in the rail, so keep those copies from when peeking started.
+		copyToRail(railCopyRef.current!, contentRef.current!, '[data-sidebar="content"]', '[data-settings-menu]');
 		setPeeking(false);
 		animateSidebarPeek(false);
 	});
