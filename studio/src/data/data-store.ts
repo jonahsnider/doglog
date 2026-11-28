@@ -257,9 +257,18 @@ export function useEntry(name: string): Entry | undefined {
 	return useSelector(entriesStore, (state) => findEntry(state.map, name));
 }
 
-/** The entries of each visible source, the time base first. Doesn't change when samples are added. */
-export function useVisibleEntries(): VisibleEntries {
-	return useSelector(visibleEntriesStore);
+/** The entries of each visible source, the time base first. Pass `names` only if reading just those entries. */
+export function useVisibleEntries(names?: readonly string[]): VisibleEntries {
+	return useSelector(visibleEntriesStore, undefined, {
+		compare: (before, after) =>
+			before === after ||
+			(names !== undefined &&
+				before.length === after.length &&
+				before.every(({ data, map }, index) => {
+					const next = after[index]!;
+					return data === next.data && names.every((name) => findEntry(map, name) === findEntry(next.map, name));
+				})),
+	});
 }
 
 /** The entries of each visible source, the time base first */

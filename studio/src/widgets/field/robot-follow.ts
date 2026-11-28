@@ -5,15 +5,14 @@ import type { MenuEntry } from '@/components/app-context-menu';
 import { getEntry } from '@/data/data-store';
 import type { Value } from '@/data/samples';
 import { bindingLabel } from '@/widgets/bindings';
+import { driverEye, robotPosition } from '@/three/field-poses';
+import type { Scene3dHandle } from '@/three/scene';
 import {
 	type DriverStation,
-	driverEye,
 	driverStationKey,
 	driverStationLabel,
 	driverStations,
-	robotPosition,
-} from '@/three/field-poses';
-import type { Scene3dHandle } from '@/three/scene';
+} from '@/widgets/field/driver-stations';
 import type { FieldCoordinates } from '@/widgets/field/geometry';
 import { isRobotBinding } from '@/widgets/field/robots';
 import type { FollowControls } from '@/widgets/legend/follow-context';

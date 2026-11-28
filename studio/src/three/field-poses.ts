@@ -4,6 +4,7 @@ import { Matrix4, Vector3 } from 'three';
 import { numberField, structField } from '@/data/struct-fields';
 import type { Value } from '@/data/samples';
 import { poseMatrix } from '@/three/poses';
+import type { DriverStation } from '@/widgets/field/driver-stations';
 import { type FieldCoordinates, fieldLength, fieldWidth } from '@/widgets/field/geometry';
 
 /** Drawings on the floor are lifted this many meters, so they don't flicker into the carpet */
@@ -54,19 +55,6 @@ export function anchor(value: unknown, role: string | undefined): Vector3 {
 export function lifted(position: Vector3): Vector3 {
 	return position.z < floorOffset ? position.setZ(floorOffset) : position;
 }
-
-/** One of the six driver stations, numbered 1 to 3 from the drivers' left */
-export type DriverStation = { readonly alliance: 'blue' | 'red'; readonly number: 1 | 2 | 3 };
-
-export const driverStations: readonly DriverStation[] = (['blue', 'red'] as const).flatMap((alliance) =>
-	([1, 2, 3] as const).map((number) => ({ alliance, number })),
-);
-
-export const driverStationLabel = ({ alliance, number }: DriverStation) =>
-	`${alliance === 'blue' ? 'Blue' : 'Red'} ${number}`;
-
-/** Tells driver stations apart, ex. `red-2` */
-export const driverStationKey = ({ alliance, number }: DriverStation) => `${alliance}-${number}`;
 
 /**
  * The centers of the blue driver stations' glass across the field, 1 to 3, from the field's CAD. They aren't evenly

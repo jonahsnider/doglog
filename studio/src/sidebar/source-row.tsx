@@ -154,7 +154,12 @@ export function SourceRow({
 						xstyle={[hidden && styles.hidden, draggable && styles.draggable]}
 					>
 						<SourceIcon source={source} />
-						<SourceLabels name={name} detail={detail} reconnecting={source.status === 'reconnecting'} />
+						<SourceLabels
+							name={name}
+							detail={detail}
+							live={source.type === 'live'}
+							reconnecting={source.status === 'reconnecting'}
+						/>
 						{!hidden && sampled && (
 							<span data-replaced-by-action="" {...stylex.props(styles.sample)}>
 								<LineSample index={visibleIndex} />
@@ -177,20 +182,26 @@ export function SourceRow({
 	);
 }
 
-/** A source's name and detail, morphing as they change */
+/** A source's name and detail. Only live connection states morph. */
 export function SourceLabels({
 	name,
 	detail,
+	live = false,
 	reconnecting = false,
 }: {
 	name: string;
 	detail: string;
+	live?: boolean;
 	reconnecting?: boolean;
 }) {
 	return (
 		<span {...stylex.props(styles.labels)}>
-			<FittedText text={name} xstyle={styles.name} />
-			<FittedText text={detail} xstyle={[styles.detail, reconnecting && styles.reconnecting]} />
+			<span {...stylex.props(styles.name)}>{name}</span>
+			{live ? (
+				<FittedText text={detail} xstyle={[styles.detail, reconnecting && styles.reconnecting]} />
+			) : (
+				<span {...stylex.props(styles.detail)}>{detail}</span>
+			)}
 		</span>
 	);
 }
@@ -214,14 +225,7 @@ function FittedText({ text, xstyle }: { text: string; xstyle: stylex.StyleXStyle
 	useLayoutEffect(measure, [text]);
 	return (
 		<span ref={ref} {...stylex.props(xstyle)}>
-			{overflowing ? (
-				text
-			) : (
-				// Numbers are off so addresses aren't morphed like decimals
-				<TextMorph as="span" numbers={false}>
-					{text}
-				</TextMorph>
-			)}
+			{overflowing ? text : <TextMorph as="span">{text}</TextMorph>}
 		</span>
 	);
 }

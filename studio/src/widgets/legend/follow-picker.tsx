@@ -3,9 +3,14 @@ import { Tooltip } from '@astryxdesign/core/Tooltip';
 import * as stylex from '@stylexjs/stylex';
 import VideoIcon from 'lucide-react/icons/video';
 import { use, useState } from 'react';
+import {
+	type DriverStation,
+	driverStationKey,
+	driverStationLabel,
+	driverStations,
+} from '@/widgets/field/driver-stations';
 import { FollowContext } from '@/widgets/legend/follow-context';
 import { LegendMenu } from '@/widgets/legend/legend-menu';
-import { type DriverStation, driverStationKey, driverStationLabel, driverStations } from '@/three/field-poses';
 import type { WidgetBinding } from '@/widgets/widget-type';
 
 const styles = stylex.create({

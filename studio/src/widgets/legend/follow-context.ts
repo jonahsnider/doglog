@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { DriverStation } from '@/three/field-poses';
+import type { DriverStation } from '@/widgets/field/driver-stations';
 
 /** Follows robots with a 3D field's camera, from its legend */
 export type FollowControls = {

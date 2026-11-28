@@ -109,10 +109,11 @@ export function PaneView({
 	const update = (operation: (layout: PaneNode) => PaneNode) => updateLayout(dashboardId, operation);
 	const { widget } = pane;
 	const type = widget && getWidgetType(widget.type);
-	const sources = useBindingSources();
+	const savedBindings = useMemo(() => widgetBindings(widget), [widget]);
+	const sources = useBindingSources(savedBindings);
 	const bindings = useMemo(
-		() => (type ? resolveBindings(type, widgetBindings(widget), () => undefined, sources) : []),
-		[sources, type, widget],
+		() => (type ? resolveBindings(type, savedBindings, () => undefined, sources) : []),
+		[sources, type, savedBindings],
 	);
 	/** The bindings when the menu opened, so the ones removed from it stay listed and can be restored */
 	const [menuBindings, setMenuBindings] = useState<Binding[]>();

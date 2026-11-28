@@ -45,3 +45,4 @@ Keep feature behavior and functionality in `openspec/specs`.
   - Outside React, check `reducesMotion()`
 - Use `TextMorph` from `@/components/text-morph` for changing counts and short state labels
   - Avoid for values that change quickly or should immediately reflect current state (ex. tooltips on a graph, progress bar percentages)
+  - Keep log source labels as plain text with CSS ellipses so completing an import doesn't force layout for text animation
