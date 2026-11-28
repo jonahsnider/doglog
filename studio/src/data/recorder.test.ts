@@ -1,6 +1,6 @@
 import { expect, test } from 'vite-plus/test';
 import { DataLogWriter, isDataRecord, parseDataLog } from 'wpilog-parser';
-import { parseLog } from '@/data/parse-log';
+import { parseLog } from '@/data/log-reader';
 import { recordedGaps, toLiveTimes } from '@/data/read-recording';
 import { finishRecords, Recorder, type RecordingClock } from '@/data/recorder';
 

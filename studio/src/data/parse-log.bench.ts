@@ -1,5 +1,5 @@
 import { expect, test } from 'vite-plus/test';
-import { parseLog } from '@/data/parse-log';
+import { parseLog } from '@/data/log-reader';
 import { transferables } from '@/data/samples';
 import { syntheticLog } from '@/data/synthetic-log';
 

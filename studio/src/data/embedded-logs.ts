@@ -1,7 +1,8 @@
 import { decompress } from '@/data/decompress';
 import { controlBits, controlDataName, controlWordEntries, driverStationEntries } from '@/data/driver-station';
 import { parseHoot } from '@/data/parse-hoot';
-import { type EmbeddedLog, type ParsedLog, parseLog } from '@/data/parse-log';
+import { parseLog } from '@/data/log-reader';
+import type { EmbeddedLog, ParsedLog } from '@/data/parse-log';
 import { findEntry, readableEmbeddedLogFormats, type Value } from '@/data/samples';
 import { isXz } from '@/data/xz';
 
@@ -90,19 +91,26 @@ function clockOffset(robot: Edge[], embedded: EmbeddedLog, bound: number | undef
  */
 class CaptureBound {
 	bound: number | undefined;
-	private capture = 0;
 	private readonly captures: EmbeddedLog['captures'];
 
 	constructor(captures: EmbeddedLog['captures']) {
 		this.captures = captures;
 	}
 
-	/** Add a record by where it ends in the file and its time, records are added in file order */
+	/** Add a record by where it ends in the file and its time, in any order */
 	readonly add = (end: number, timestamp: number): void => {
-		while (this.capture < this.captures.length - 1 && this.captures[this.capture]!.end < end) {
-			this.capture++;
+		// The first capture the whole record was in, or the last one
+		let low = 0;
+		let high = this.captures.length - 1;
+		while (low < high) {
+			const middle = (low + high) >>> 1;
+			if (this.captures[middle]!.end < end) {
+				low = middle + 1;
+			} else {
+				high = middle;
+			}
 		}
-		this.bound = Math.min(this.bound ?? Infinity, this.captures[this.capture]!.time - timestamp);
+		this.bound = Math.min(this.bound ?? Infinity, this.captures[low]!.time - timestamp);
 	};
 }
 

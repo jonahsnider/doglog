@@ -5,7 +5,8 @@ import { XzReadableStream } from 'xz-decompress';
 import { decompress } from '@/data/decompress';
 import { addEmbeddedLogs } from '@/data/embedded-logs';
 import { parseHoot } from '@/data/parse-hoot';
-import { type ParsedLog, parseLog } from '@/data/parse-log';
+import { LogReader } from '@/data/log-reader';
+import type { ParsedLog } from '@/data/parse-log';
 import { recordedGaps, type RestoredRecording, toLiveTimes } from '@/data/read-recording';
 import { type SamplesTransfer, transferables, withoutNtPrefix } from '@/data/samples';
 import { StreamingLogParser } from '@/data/stream-log';
@@ -50,6 +51,8 @@ export type LogWorkerMessage =
 			structSchemas: Map<string, StructDeclaration[]>;
 			/** Samples in the entries that follow, for progress while they're sent */
 			samples: number;
+			/** Whether the whole log has been read, so the progress that's left is for sending its entries */
+			read: boolean;
 			/** The log's time range so far, `done` has the final one */
 			start: number | undefined;
 			end: number | undefined;
@@ -107,52 +110,94 @@ function parentPaths(name: string): string[] {
 	return paths;
 }
 
+/** A log whose entries are read as they're asked for, see `LogReader` */
+type ReadingLog = Pick<LogReader, 'entries' | 'structSchemas' | 'timeRange' | 'read' | 'finish'>;
+
+/** A log that was read all at once, ex. as it downloaded */
+function readLog(parsed: ParsedLog): ReadingLog {
+	return {
+		entries: parsed.entries,
+		structSchemas: parsed.structSchemas,
+		timeRange: () => parsed,
+		read: (include) => [...parsed.entries.keys()].filter((name) => include(name)),
+		finish: () => parsed,
+	};
+}
+
 /**
- * Send the time range, schemas, and the entries of `parsed` that weren't sent yet, the ones `isPriority` picks first.
- * Entries with an embedded log are sent once `embedded`, since its file is read until then.
+ * Send the time range, schemas, and the entries named `names`, the ones `isPriority` picks first. Their samples are
+ * transferred with `transfer`, otherwise they're copied and can still be read.
  */
 function postEntries(
-	parsed: ParsedLog,
-	{ start, end }: { start: number | undefined; end: number | undefined },
-	sent: Set<string>,
+	log: Pick<ReadingLog, 'entries' | 'structSchemas'>,
+	names: string[],
+	{
+		range,
+		read,
+		transfer,
+	}: { range: { start: number | undefined; end: number | undefined }; read: boolean; transfer: boolean },
 	isPriority: (name: string) => boolean,
-	embedded: boolean,
+	embeddedLogs: ReadonlyMap<string, Uint8Array<ArrayBuffer>> = new Map(),
 ): void {
-	const embeddedLogs = new Map(parsed.embeddedLogs.map(({ name, bytes }) => [name, bytes]));
-	const names = [...parsed.entries.keys()].filter((name) => !sent.has(name) && (embedded || !embeddedLogs.has(name)));
 	let samples = 0;
 	for (const name of names) {
-		samples += parsed.entries.get(name)!.samples.length;
+		samples += log.entries.get(name)!.samples.length;
 	}
-	postMessage({ type: 'schemas', structSchemas: parsed.structSchemas, samples, start, end } satisfies LogWorkerMessage);
+	postMessage({
+		type: 'schemas',
+		structSchemas: new Map(log.structSchemas),
+		samples,
+		read,
+		start: range.start,
+		end: range.end,
+	} satisfies LogWorkerMessage);
 
 	const ordered = [...names.filter((name) => isPriority(name)), ...names.filter((name) => !isPriority(name))];
 	for (const name of ordered) {
-		sent.add(name);
-		const { type, metadata, samples: entrySamples } = parsed.entries.get(name)!;
+		const { type, metadata, samples: entrySamples } = log.entries.get(name)!;
 		const embeddedLog = embeddedLogs.get(name);
-		const transfer = entrySamples.toTransfer();
+		const transferred = entrySamples.toTransfer();
 		const message: LogWorkerMessage = {
 			type: 'entry',
 			name,
 			entryType: type,
 			metadata,
-			samples: transfer,
+			samples: transferred,
 			embeddedLog,
 			priority: isPriority(name),
 		};
-		postMessage(message, { transfer: [...transferables(transfer), ...(embeddedLog ? [embeddedLog.buffer] : [])] });
+		const buffers = transfer ? transferables(transferred) : [];
+		postMessage(message, { transfer: [...buffers, ...(embeddedLog ? [embeddedLog.buffer] : [])] });
 	}
 }
 
-async function postParsed(parsed: ParsedLog, byteLength: number, live: boolean, priority: LogPriority): Promise<void> {
-	// Embedded logs are read while the log's own entries are sent
-	const embedding = addEmbeddedLogs(parsed);
-	const sent = new Set<string>();
+async function postLog(log: ReadingLog, byteLength: number, live: boolean, priority: LogPriority): Promise<void> {
 	const isPriority = priorityTest(priority);
+	const sent = new Set<string>();
 	// A live session's recording is sent once it's on Studio's clock, see `toLiveTimes()`
 	if (!live) {
-		postEntries(parsed, parsed, sent, isPriority, false);
+		const names = log.read(isPriority);
+		// Copied, since embedded logs are lined up with the robot's enables in them, see `addEmbeddedLogs()`
+		postEntries(log, names, { range: log.timeRange(), read: false, transfer: false }, isPriority);
+		for (const name of names) {
+			sent.add(name);
+		}
+	}
+	const parsed = log.finish();
+	// Embedded logs are read while the log's own entries are sent
+	const embedding = addEmbeddedLogs(parsed);
+	const embeddedLogs = new Map(parsed.embeddedLogs.map(({ name, bytes }) => [name, bytes]));
+	if (!live) {
+		const names = [...parsed.entries.keys()].filter((name) => !sent.has(name) && !embeddedLogs.has(name));
+		postEntries(
+			parsed,
+			names,
+			{ range: { start: parsed.start, end: parsed.end }, read: true, transfer: true },
+			isPriority,
+		);
+		for (const name of names) {
+			sent.add(name);
+		}
 	}
 	await embedding;
 
@@ -170,7 +215,8 @@ async function postParsed(parsed: ParsedLog, byteLength: number, live: boolean, 
 			end = session.disconnectedAt;
 		}
 	}
-	postEntries(parsed, { start, end }, sent, isPriority, true);
+	const rest = [...entries.keys()].filter((name) => !sent.has(name));
+	postEntries(parsed, rest, { range: { start, end }, read: true, transfer: true }, isPriority, embeddedLogs);
 
 	postMessage({
 		type: 'done',
@@ -287,7 +333,7 @@ class StreamSession {
 				this.parser.push(this.probe);
 			}
 			const parsed = this.parser.finish();
-			await postParsed(parsed, this.decompressedBytes, false, this.priority);
+			await postLog(readLog(parsed), this.decompressedBytes, false, this.priority);
 		} catch (error) {
 			postMessage({
 				type: 'error',
@@ -320,11 +366,12 @@ async function handleRequest(request: LogWorkerRequest): Promise<void> {
 					request.contents instanceof File ? await request.contents.arrayBuffer() : request.contents,
 				);
 				const bytes = request.format === 'wpilog' && isXz(input) ? await decompress(input) : input;
-				const parse = request.format === 'hoot' ? parseHoot : parseLog;
-				const parsed = parse(bytes, (progress) => {
+				const onProgress = (progress: number) => {
 					postMessage({ type: 'progress', progress } satisfies LogWorkerMessage);
-				});
-				await postParsed(parsed, bytes.byteLength, request.live, request.priority);
+				};
+				const log =
+					request.format === 'hoot' ? readLog(parseHoot(bytes, onProgress)) : new LogReader(bytes, onProgress);
+				await postLog(log, bytes.byteLength, request.live, request.priority);
 			} catch (error) {
 				postMessage({
 					type: 'error',

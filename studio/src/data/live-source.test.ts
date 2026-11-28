@@ -3,7 +3,7 @@ import { DataLogWriter, isDataRecord, parseDataLog } from 'wpilog-parser';
 import { createDashboard, deleteDashboard, updateDashboard } from '@/dashboards/dashboards';
 import { DataSet } from '@/data/data-set';
 import { connectLive } from '@/data/live-source';
-import { parseLog } from '@/data/parse-log';
+import { parseLog } from '@/data/log-reader';
 import { Recorder, type RecordingEvent } from '@/data/recorder';
 import { closeLive, disconnect as disconnectSource, getSources } from '@/data/source';
 import { adoptLive } from '@/data/source-transfer';

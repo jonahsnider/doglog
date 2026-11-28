@@ -455,8 +455,8 @@ importers:
         specifier: 1.1.1
         version: 1.1.1
       wpilog-parser:
-        specifier: 4.4.1
-        version: 4.4.1(cac@7.1.0)(commander@14.0.3)
+        specifier: 4.5.0
+        version: 4.5.0(cac@7.1.0)(commander@14.0.3)
       xz-decompress:
         specifier: 0.2.3
         version: 0.2.3
@@ -10222,8 +10222,8 @@ packages:
   wpilib-struct@1.1.1:
     resolution: {integrity: sha512-8E3FEJgqp9221XV5UUlx4Gy/ci4o2Hcr/kmC+CiXjcltwg9YACwbKqT7rq7qn75BjHr01oIBWOaeAtRVRYEEcg==}
 
-  wpilog-parser@4.4.1:
-    resolution: {integrity: sha512-ZagBmeJw9erUHlgFaB0DkrTXzwiV54pm5dvdeKDRviFPdnq2X22JqJFgsvMEI1X1BHdKiEvf/hasTh7MUO1AXw==}
+  wpilog-parser@4.5.0:
+    resolution: {integrity: sha512-KVoBFayl3vg3npL/rDCeRxGTPSSkGJ23/LauHak1iVod2MWUVarWTGEtj9NK013PqLj4FgXIggRiJ4XHcuOwbA==}
     hasBin: true
 
   wrangler@4.168.0:
@@ -21207,7 +21207,7 @@ snapshots:
 
   wpilib-struct@1.1.1: {}
 
-  wpilog-parser@4.4.1(cac@7.1.0)(commander@14.0.3):
+  wpilog-parser@4.5.0(cac@7.1.0)(commander@14.0.3):
     dependencies:
       '@bomb.sh/tab': 0.0.23(cac@7.1.0)(commander@14.0.3)
       '@drizzle-team/brocli': 0.12.1

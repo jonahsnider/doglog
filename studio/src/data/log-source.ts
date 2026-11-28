@@ -82,12 +82,14 @@ function attachLogWorker(
 	};
 	// Fraction parsed or downloaded, `undefined` when indeterminate
 	let parsed: number | undefined = 0;
+	// Whether the whole log was read, until then the progress is only for reading it
+	let read = false;
 	let totalSamples = 0;
 	let sentSamples = 0;
 	let shown: number | undefined = 0;
 	// Whole percents, so a log with many entries doesn't rerender the progress bar for each
 	const showProgress = () => {
-		const sent = totalSamples > 0 ? sentSamples / totalSamples : 0;
+		const sent = read && totalSamples > 0 ? sentSamples / totalSamples : 0;
 		const progress =
 			parsed === undefined ? undefined : Math.floor((parsed * parseShare + sent * (1 - parseShare)) * 100) / 100;
 		if (progress !== shown) {
@@ -117,9 +119,12 @@ function attachLogWorker(
 					data.extendTimeRange(message.start, message.end);
 				}
 				totalSamples += message.samples;
-				// Parsed, even when a damaged end kept it from reaching 100%
-				if (parsed !== undefined) {
-					parsed = 1;
+				// Read, even when a damaged end kept it from reaching 100%
+				if (message.read) {
+					read = true;
+					if (parsed !== undefined) {
+						parsed = 1;
+					}
 				}
 				showProgress();
 				break;

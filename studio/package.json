@@ -91,7 +91,7 @@
 		"usehooks-ts": "3.1.1",
 		"wpilib-protobuf": "1.0.1",
 		"wpilib-struct": "1.1.1",
-		"wpilog-parser": "4.4.1",
+		"wpilog-parser": "4.5.0",
 		"xz-decompress": "0.2.3",
 		"zod": "4.6.7"
 	},
