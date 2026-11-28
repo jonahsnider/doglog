@@ -1,5 +1,12 @@
 # Changelog
 
+## [2027.4.0](https://github.com/jonahsnider/doglog/compare/2027.3.0...2027.4.0) (2026-11-28)
+
+
+### Features
+
+* add tunable interpolating maps ([db80b2a](https://github.com/jonahsnider/doglog/commit/db80b2acd581f19b174041119841cfb0c3991a3a))
+
 ## [2027.3.0](https://github.com/jonahsnider/doglog/compare/2027.2.0...2027.3.0) (2026-09-29)
 
 
