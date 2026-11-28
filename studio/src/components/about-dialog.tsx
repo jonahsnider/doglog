@@ -1,10 +1,15 @@
+import { Button } from '@astryxdesign/core/Button';
 import { Code } from '@astryxdesign/core/Code';
 import { Dialog, DialogHeader } from '@astryxdesign/core/Dialog';
-import { Layout, LayoutContent, LayoutFooter, VStack } from '@astryxdesign/core/Layout';
+import { HStack, Layout, LayoutContent, LayoutFooter, VStack } from '@astryxdesign/core/Layout';
 import { List, ListItem } from '@astryxdesign/core/List';
+import { Spinner } from '@astryxdesign/core/Spinner';
 import { Text } from '@astryxdesign/core/Text';
 import { useSelector } from '@tanstack/react-store';
+import CircleArrowUpIcon from 'lucide-react/icons/circle-arrow-up';
+import RefreshCwIcon from 'lucide-react/icons/refresh-cw';
 import { aboutDialogOpen } from '@/components/about-dialog-handle';
+import { checkOrInstallUpdate, updateTitle, useUpdate } from '@/updater';
 import { bundle } from '../../src-tauri/tauri.conf.json';
 
 const thanks = [
@@ -18,6 +23,8 @@ const setOpen = (next: boolean) => aboutDialogOpen.set(next);
 
 export function AboutDialog() {
 	const open = useSelector(aboutDialogOpen);
+	const update = useUpdate();
+	const installing = update?.installing ?? false;
 
 	return (
 		<Dialog isOpen={open} onOpenChange={setOpen} width={448}>
@@ -33,19 +40,31 @@ export function AboutDialog() {
 				content={
 					<LayoutContent>
 						<VStack gap={4}>
-							<Text type="supporting" color="secondary">
-								Version {STUDIO_VERSION}
-								{STUDIO_COMMIT !== null && (
-									<>
-										{' '}
-										(
-										<Code color="inherit" size="inherit">
-											{STUDIO_COMMIT}
-										</Code>
+							<HStack gap={2} hAlign="between" vAlign="center" wrap="wrap">
+								<Text color="secondary">
+									{STUDIO_VERSION === '0.0.0' ? (
+										STUDIO_COMMIT === null ? (
+											'Unversioned'
+										) : (
+											<Code color="inherit" size="inherit">
+												{STUDIO_COMMIT}
+											</Code>
 										)
-									</>
-								)}
-							</Text>
+									) : (
+										`v${STUDIO_VERSION}`
+									)}
+								</Text>
+								<Button
+									label={installing ? 'Updating…' : update ? updateTitle(update.update) : 'Check for updates'}
+									icon={
+										installing ? <Spinner size="sm" aria-hidden /> : update ? <CircleArrowUpIcon /> : <RefreshCwIcon />
+									}
+									variant="ghost"
+									size="sm"
+									isDisabled={installing}
+									onClick={() => void checkOrInstallUpdate()}
+								/>
+							</HStack>
 							<List header="Thanks to" density="compact" edge="flush">
 								{thanks.map(({ name, reason }) => (
 									<ListItem key={name} label={name} description={reason} />

@@ -315,13 +315,13 @@ The desktop app SHALL update itself automatically.
 
 #### Scenario: Update progress
 
-- **WHEN** the desktop app installs an update from the shortcut or the toast
+- **WHEN** the desktop app installs an update from About, the shortcut, or the toast
 - **THEN** the toast shows the download's percent as it counts up, in the same toast
 - **AND** once the download finishes, it says the update is being prepared until Studio restarts
 
 #### Scenario: Check for updates repeatedly
 
-- **WHEN** the user checks for updates several times in a row, from any mix of the shortcut, menu, and sidebar
+- **WHEN** the user checks for updates several times in a row, from any mix of the shortcut, menu, and About dialog
 - **THEN** at most one update toast is shown, and each check replaces it in place
 - **AND** installing the update, or failing to, replaces that same toast
 
@@ -349,7 +349,7 @@ The web app SHALL offer to update to a newer deployed version, the same way the 
 
 #### Scenario: Update progress on the web
 
-- **WHEN** the web app installs an update from the shortcut or the toast before the new version finishes downloading
+- **WHEN** the web app installs an update from About, the shortcut, or the toast before the new version finishes downloading
 - **THEN** the toast shows how much of the new version has downloaded as it counts up, in the same toast
 - **AND** once the download finishes, it says the update is being prepared until the tabs reload
 
@@ -424,18 +424,30 @@ On macOS 26 and later, the desktop app SHALL provide a layered app icon that fol
 
 ### Requirement: About dialog
 
-Studio SHALL offer an About dialog from Settings on every platform and from the app menu on macOS. The dialog SHALL show the app logo, running version, short commit hash when built from Git, copyright, a short description, and a bulleted list of contributors and what they contributed. The dialog's text SHALL be selectable for copying.
+Studio SHALL offer About in Settings on every platform and in the macOS app menu. The dialog SHALL show the app logo, description, contributor list, and copyright. Its text SHALL be selectable. The build label SHALL show the running version or, for an unversioned build, the short commit hash when available. The dialog SHALL offer Check for updates next to the build label, or an install action when an update is ready.
 
 #### Scenario: Open About from the macOS app menu
 
 - **GIVEN** Studio version 2026.1.0 was built from commit `9867e24`
 - **WHEN** the user chooses DogLog Studio > About DogLog Studio
-- **THEN** the dialog opens over the current page and shows version 2026.1.0 and commit `9867e24`
+- **THEN** the dialog opens over the current page and shows `v2026.1.0` without the commit hash
 
 #### Scenario: Open About from Settings
 
 - **WHEN** the user selects About DogLog Studio in Settings
 - **THEN** the dialog opens with a bulleted list of acknowledgments
+
+#### Scenario: Open About in an unversioned build
+
+- **GIVEN** an unversioned build of Studio was built from commit `9867e24`
+- **WHEN** the user opens About
+- **THEN** the build label shows `9867e24` instead of the placeholder version
+
+#### Scenario: Check for updates from About
+
+- **WHEN** the user selects Check for updates in the About dialog
+- **THEN** Studio checks for a newer version and reports the result without installing anything
+- **AND** if an update is found, the same button offers to install it
 
 ### Requirement: Error reports
 

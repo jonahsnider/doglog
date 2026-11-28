@@ -199,7 +199,7 @@ export async function registerServiceWorker(): Promise<void> {
 }
 
 /** Check for a newer version when the user asks, telling them what was found */
-export async function checkForUpdateManually(): Promise<void> {
+async function checkForUpdateManually(): Promise<void> {
 	if (updateStore.get()?.installing === true) {
 		return;
 	}

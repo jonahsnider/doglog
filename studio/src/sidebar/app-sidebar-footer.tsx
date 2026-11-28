@@ -4,7 +4,6 @@ import ChevronDownIcon from 'lucide-react/icons/chevron-down';
 import CircleArrowUpIcon from 'lucide-react/icons/circle-arrow-up';
 import DownloadIcon from 'lucide-react/icons/download';
 import KeyboardIcon from 'lucide-react/icons/keyboard';
-import RefreshCwIcon from 'lucide-react/icons/refresh-cw';
 import SearchIcon from 'lucide-react/icons/search';
 import { WhatsNewCard } from '@/changelog/whats-new-card';
 import { shortcuts } from '@/commands/commands';
@@ -17,7 +16,7 @@ import { useMediaQuery } from '@/hooks/use-media-query';
 import { isMobileDevice } from '@/lib/mobile-layout';
 import { useSidebar } from '@/sidebar/sidebar-context';
 import { SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/sidebar/sidebar-ui';
-import { checkForUpdateManually, installUpdate, updateTitle, useUpdate } from '@/updater';
+import { installUpdate, updateTitle, useUpdate } from '@/updater';
 
 /**
  * Rows only shown while the sidebar is expanded. On devices with hover they're hidden until the sidebar is hovered or
@@ -36,8 +35,7 @@ export function AppSidebarFooter({
 }) {
 	const { isMobile } = useSidebar();
 	const update = useUpdate();
-	const installing = update?.installing ?? false;
-	const updateLabel = installing ? 'Updating…' : update ? updateTitle(update.update) : 'Check for updates';
+	const updateLabel = update && (update.installing ? 'Updating…' : updateTitle(update.update));
 	return (
 		<SidebarFooter>
 			<WhatsNewCard onShow={onShow} />
@@ -72,25 +70,25 @@ export function AppSidebarFooter({
 							{!STUDIO_DESKTOP && <SidebarDownload closing={closing} />}
 						</>
 					)}
-					<SidebarMenuItem {...(update ? {} : expandedRow)} inert={closing && !update}>
-						<Tooltip content={<TooltipLabel label={updateLabel} shortcut={shortcuts.update} />} placement="end">
-							<SidebarMenuButton
-								size="sm"
-								disabled={installing}
-								data-update-ready={update ? '' : undefined}
-								onClick={() => void (update ? installUpdate(update.update) : checkForUpdateManually())}
-							>
-								{installing ? (
-									<Spinner size="sm" aria-label="Updating" />
-								) : update ? (
-									<CircleArrowUpIcon color="var(--color-icon-accent)" />
-								) : (
-									<RefreshCwIcon />
-								)}
-								<TextMorph numbers={false}>{updateLabel}</TextMorph>
-							</SidebarMenuButton>
-						</Tooltip>
-					</SidebarMenuItem>
+					{update && updateLabel !== undefined && (
+						<SidebarMenuItem>
+							<Tooltip content={<TooltipLabel label={updateLabel} shortcut={shortcuts.update} />} placement="end">
+								<SidebarMenuButton
+									size="sm"
+									disabled={update.installing}
+									data-update-ready=""
+									onClick={() => void installUpdate(update.update)}
+								>
+									{update.installing ? (
+										<Spinner size="sm" aria-label="Updating" />
+									) : (
+										<CircleArrowUpIcon color="var(--color-icon-accent)" />
+									)}
+									<TextMorph numbers={false}>{updateLabel}</TextMorph>
+								</SidebarMenuButton>
+							</Tooltip>
+						</SidebarMenuItem>
+					)}
 				</SidebarMenu>
 			)}
 		</SidebarFooter>

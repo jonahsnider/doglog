@@ -270,7 +270,7 @@ On macOS, the desktop app SHALL show its commands in the menu bar. Each item MUS
 
 ### Requirement: App and File menus
 
-On macOS, the desktop app SHALL list Settings and Check for updates in its app menu, and New window, New dashboard, Reopen closed dashboard, Open log, Open from URL, Connect, Export live data as WPILOG, Export dashboard video, Close pane, and Close dashboard in its File menu. Check for updates MUST be labeled like the sidebar's update button and install a found update, like its shortcut.
+On macOS, the desktop app SHALL list Settings and Check for updates in its app menu, and New window, New dashboard, Reopen closed dashboard, Open log, Open from URL, Connect, Export live data as WPILOG, Export dashboard video, Close pane, and Close dashboard in its File menu. Check for updates MUST use the same action label as the About dialog's update button and install a found update, like its shortcut.
 
 #### Scenario: Update from the menu
 

@@ -31,7 +31,7 @@ A sidebar row's label that doesn't fit SHALL fade out at its end. On devices wit
 
 ### Requirement: Sidebar footer actions
 
-The expanded or peeking sidebar footer SHALL offer Command palette, Keyboard shortcuts (except in the phone layout), and Check for updates. Download app SHALL appear only in a desktop browser tab outside the phone layout. These actions MUST NOT appear in the collapsed rail. When an update is ready, Check for updates MUST become the install action in the same row without moving other actions or losing focus. The install action MUST remain available in the rail.
+The expanded or peeking sidebar footer SHALL offer Command palette and Keyboard shortcuts (except in the phone layout). Download app SHALL appear only in a desktop browser tab outside the phone layout. These actions MUST NOT appear in the collapsed rail. The footer SHALL offer an install action only when an update is ready. The install action MUST remain available in the rail.
 
 #### Scenario: Open the command palette
 
@@ -56,16 +56,11 @@ The expanded or peeking sidebar footer SHALL offer Command palette, Keyboard sho
 - **WHEN** the user opens the sidebar
 - **THEN** the footer does not show Download app, even at desktop widths
 
-#### Scenario: Check for updates
-
-- **WHEN** the user selects Check for updates in the footer
-- **THEN** Studio checks for a newer version and reports the result without installing anything
-
 #### Scenario: Open the footer on a phone
 
 - **GIVEN** Studio is using the phone layout
 - **WHEN** the user opens the sidebar
-- **THEN** the footer shows Command palette and Check for updates
+- **THEN** the footer shows Command palette
 - **AND** it doesn't show Keyboard shortcuts or Download app
 
 #### Scenario: Collapse the sidebar with What's new visible
