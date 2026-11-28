@@ -38,7 +38,7 @@
 		"@ntcore-ts/client": "2.0.0",
 		"@react-three/drei": "10.7.9",
 		"@react-three/fiber": "9.8.2",
-		"@ridemountainpig/svgl-react": "1.0.19",
+		"@ridemountainpig/svgl-react": "1.0.20",
 		"@sentry/react": "11.19.0",
 		"@sindresorhus/fnv1a": "4.0.0",
 		"@smithy/core": "3.41.1",

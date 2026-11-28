@@ -293,8 +293,8 @@ importers:
         specifier: 9.8.2
         version: 9.8.2(@types/react@19.3.3)(@types/three@0.187.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(three@0.187.0)
       '@ridemountainpig/svgl-react':
-        specifier: 1.0.19
-        version: 1.0.19(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: 1.0.20
+        version: 1.0.20(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@sentry/react':
         specifier: 11.19.0
         version: 11.19.0(react@19.3.1)
@@ -4591,8 +4591,8 @@ packages:
       react-native:
         optional: true
 
-  '@ridemountainpig/svgl-react@1.0.19':
-    resolution: {integrity: sha512-Q1pGltuxZFbgEjYJ2GMK3/nwFCMscO7IwgoX2INV+jMXlH003LhzlN79g2fR+tPuzaZuumc580B97uC+CByv7A==}
+  '@ridemountainpig/svgl-react@1.0.20':
+    resolution: {integrity: sha512-dTWwHgdBbXuqD4Qy+QYz+t1vQzmaZqH70B+C7G0k0x+g5lyj57besIcC/WzhMgrIP2l27jMBUIbXbYnD0w/UJQ==}
     peerDependencies:
       react: ^16.8 || ^17.0 || ^18.0 || ^19.0
       react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0
@@ -14182,7 +14182,7 @@ snapshots:
     transitivePeerDependencies:
       - immer
 
-  '@ridemountainpig/svgl-react@1.0.19(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@ridemountainpig/svgl-react@1.0.20(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
