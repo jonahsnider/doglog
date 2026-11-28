@@ -1,3 +1,4 @@
+// oxlint-disable max-lines -- Reading a log and sending its entries in order share the messages the worker posts
 // Parses log files off the main thread so the UI stays responsive while large logs load
 import type { StructDeclaration } from 'wpilib-struct';
 import { XzReadableStream } from 'xz-decompress';
@@ -6,7 +7,7 @@ import { addEmbeddedLogs } from '@/data/embedded-logs';
 import { parseHoot } from '@/data/parse-hoot';
 import { type ParsedLog, parseLog } from '@/data/parse-log';
 import { recordedGaps, type RestoredRecording, toLiveTimes } from '@/data/read-recording';
-import { type SamplesTransfer, transferables } from '@/data/samples';
+import { type SamplesTransfer, transferables, withoutNtPrefix } from '@/data/samples';
 import { StreamingLogParser } from '@/data/stream-log';
 import { isXz } from '@/data/xz';
 
@@ -17,17 +18,25 @@ export type RestoredLog = RestoredRecording & {
 	openEntryIds: number[];
 };
 
+/** Entries to send first, so widgets draw them while the rest are sent */
+export type LogPriority = {
+	/** Names of entries dashboards bind, without the prefix of topics a log recorded from NetworkTables */
+	names: string[];
+	/** Prefixes of entries Studio reads without a binding, ex. for the timeline */
+	prefixes: string[];
+};
+
 /** Messages sent to the worker: either a complete buffer/File or an incremental download stream */
 export type LogWorkerRequest =
-	| { kind: 'buffer'; contents: File | ArrayBuffer; live: boolean; format: 'wpilog' | 'hoot' }
-	| { kind: 'stream-start'; totalBytes: number | undefined }
+	| { kind: 'buffer'; contents: File | ArrayBuffer; live: boolean; format: 'wpilog' | 'hoot'; priority: LogPriority }
+	| { kind: 'stream-start'; totalBytes: number | undefined; priority: LogPriority }
 	| { kind: 'stream-chunk'; chunk: ArrayBuffer; downloadedBytes: number }
 	| { kind: 'stream-end' }
 	| { kind: 'stream-error'; message: string };
 
 /**
- * Messages posted by the worker, in order: `progress` while parsing/downloading, `schemas`, one `entry` per entry,
- * then `done` or `error`
+ * Messages posted by the worker, in order: `progress` while parsing/downloading, then `schemas` and one `entry` per entry
+ * (sent again for entries of embedded logs), then `done` or `error`. Entries can be added as they arrive.
  */
 export type LogWorkerMessage =
 	| {
@@ -39,8 +48,11 @@ export type LogWorkerMessage =
 			type: 'schemas';
 			/** Fields of the log's struct schemas by struct name */
 			structSchemas: Map<string, StructDeclaration[]>;
-			/** Samples in every entry to come, for progress while they're sent */
+			/** Samples in the entries that follow, for progress while they're sent */
 			samples: number;
+			/** The log's time range so far, `done` has the final one */
+			start: number | undefined;
+			end: number | undefined;
 	  }
 	| {
 			type: 'entry';
@@ -51,6 +63,8 @@ export type LogWorkerMessage =
 			samples: SamplesTransfer;
 			/** For an entry with a log embedded in it, the embedded log's file */
 			embeddedLog: Uint8Array<ArrayBuffer> | undefined;
+			/** Whether Studio reads it without being asked, ex. a dashboard binds it, see `LogPriority` */
+			priority: boolean;
 	  }
 	| {
 			type: 'done';
@@ -67,9 +81,82 @@ export type LogWorkerMessage =
 	  }
 	| { type: 'error'; message: string };
 
-async function postParsed(parsed: ParsedLog, byteLength: number, live: boolean): Promise<void> {
-	await addEmbeddedLogs(parsed);
-	const { entries, structSchemas, recording, unreadBytes } = parsed;
+/** Whether a widget or Studio reads an entry, from its name, see `LogPriority` */
+function priorityTest({ names, prefixes }: LogPriority): (name: string) => boolean {
+	const bound = new Set(names);
+	// Entries whose fields or items are bound, ex. `/Pose` for `/Pose/x`
+	const parents = new Set(names.flatMap((name) => parentPaths(name)));
+	return (name) => {
+		const bare = withoutNtPrefix(name);
+		// Bound, or in a bound group, ex. a Mechanism2d's
+		return (
+			bound.has(bare) ||
+			parents.has(bare) ||
+			parentPaths(bare).some((path) => bound.has(path)) ||
+			prefixes.some((prefix) => bare.startsWith(prefix))
+		);
+	};
+}
+
+/** `/a` and `/a/b` for `/a/b/c` */
+function parentPaths(name: string): string[] {
+	const paths: string[] = [];
+	for (let end = name.lastIndexOf('/'); end > 0; end = name.lastIndexOf('/', end - 1)) {
+		paths.push(name.slice(0, end));
+	}
+	return paths;
+}
+
+/**
+ * Send the time range, schemas, and the entries of `parsed` that weren't sent yet, the ones `isPriority` picks first.
+ * Entries with an embedded log are sent once `embedded`, since its file is read until then.
+ */
+function postEntries(
+	parsed: ParsedLog,
+	{ start, end }: { start: number | undefined; end: number | undefined },
+	sent: Set<string>,
+	isPriority: (name: string) => boolean,
+	embedded: boolean,
+): void {
+	const embeddedLogs = new Map(parsed.embeddedLogs.map(({ name, bytes }) => [name, bytes]));
+	const names = [...parsed.entries.keys()].filter((name) => !sent.has(name) && (embedded || !embeddedLogs.has(name)));
+	let samples = 0;
+	for (const name of names) {
+		samples += parsed.entries.get(name)!.samples.length;
+	}
+	postMessage({ type: 'schemas', structSchemas: parsed.structSchemas, samples, start, end } satisfies LogWorkerMessage);
+
+	const ordered = [...names.filter((name) => isPriority(name)), ...names.filter((name) => !isPriority(name))];
+	for (const name of ordered) {
+		sent.add(name);
+		const { type, metadata, samples: entrySamples } = parsed.entries.get(name)!;
+		const embeddedLog = embeddedLogs.get(name);
+		const transfer = entrySamples.toTransfer();
+		const message: LogWorkerMessage = {
+			type: 'entry',
+			name,
+			entryType: type,
+			metadata,
+			samples: transfer,
+			embeddedLog,
+			priority: isPriority(name),
+		};
+		postMessage(message, { transfer: [...transferables(transfer), ...(embeddedLog ? [embeddedLog.buffer] : [])] });
+	}
+}
+
+async function postParsed(parsed: ParsedLog, byteLength: number, live: boolean, priority: LogPriority): Promise<void> {
+	// Embedded logs are read while the log's own entries are sent
+	const embedding = addEmbeddedLogs(parsed);
+	const sent = new Set<string>();
+	const isPriority = priorityTest(priority);
+	// A live session's recording is sent once it's on Studio's clock, see `toLiveTimes()`
+	if (!live) {
+		postEntries(parsed, parsed, sent, isPriority, false);
+	}
+	await embedding;
+
+	const { entries, recording, unreadBytes } = parsed;
 	let { start, end } = parsed;
 	let gaps: { start: number; end: number }[] = [];
 	let restored: RestoredLog | undefined;
@@ -83,26 +170,7 @@ async function postParsed(parsed: ParsedLog, byteLength: number, live: boolean):
 			end = session.disconnectedAt;
 		}
 	}
-	let total = 0;
-	for (const entry of entries.values()) {
-		total += entry.samples.length;
-	}
-	postMessage({ type: 'schemas', structSchemas, samples: total } satisfies LogWorkerMessage);
-
-	const embeddedLogs = new Map(parsed.embeddedLogs.map(({ name, bytes }) => [name, bytes]));
-	for (const [name, { type, metadata, samples }] of entries) {
-		const embeddedLog = embeddedLogs.get(name);
-		const transfer = samples.toTransfer();
-		const message: LogWorkerMessage = {
-			type: 'entry',
-			name,
-			entryType: type,
-			metadata,
-			samples: transfer,
-			embeddedLog,
-		};
-		postMessage(message, { transfer: [...transferables(transfer), ...(embeddedLog ? [embeddedLog.buffer] : [])] });
-	}
+	postEntries(parsed, { start, end }, sent, isPriority, true);
 
 	postMessage({
 		type: 'done',
@@ -118,6 +186,7 @@ async function postParsed(parsed: ParsedLog, byteLength: number, live: boolean):
 class StreamSession {
 	private readonly parser = new StreamingLogParser();
 	private readonly totalBytes: number | undefined;
+	private readonly priority: LogPriority;
 	private mode: 'detect' | 'raw' | 'xz' = 'detect';
 	private probe = new Uint8Array(0);
 	private decompressedBytes = 0;
@@ -127,8 +196,9 @@ class StreamSession {
 	private xzError: string | undefined;
 	private ended = false;
 
-	constructor(totalBytes: number | undefined) {
+	constructor(totalBytes: number | undefined, priority: LogPriority) {
 		this.totalBytes = totalBytes;
+		this.priority = priority;
 		postMessage({
 			type: 'progress',
 			progress: totalBytes !== undefined && totalBytes > 0 ? 0 : undefined,
@@ -217,7 +287,7 @@ class StreamSession {
 				this.parser.push(this.probe);
 			}
 			const parsed = this.parser.finish();
-			await postParsed(parsed, this.decompressedBytes, false);
+			await postParsed(parsed, this.decompressedBytes, false, this.priority);
 		} catch (error) {
 			postMessage({
 				type: 'error',
@@ -254,7 +324,7 @@ async function handleRequest(request: LogWorkerRequest): Promise<void> {
 				const parsed = parse(bytes, (progress) => {
 					postMessage({ type: 'progress', progress } satisfies LogWorkerMessage);
 				});
-				await postParsed(parsed, bytes.byteLength, request.live);
+				await postParsed(parsed, bytes.byteLength, request.live, request.priority);
 			} catch (error) {
 				postMessage({
 					type: 'error',
@@ -264,7 +334,7 @@ async function handleRequest(request: LogWorkerRequest): Promise<void> {
 			return;
 		}
 		case 'stream-start':
-			activeStream = new StreamSession(request.totalBytes);
+			activeStream = new StreamSession(request.totalBytes, request.priority);
 			return;
 		case 'stream-chunk':
 			activeStream?.push(new Uint8Array(request.chunk), request.downloadedBytes);

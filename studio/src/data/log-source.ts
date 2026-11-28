@@ -1,8 +1,8 @@
-import type { StructDeclaration } from 'wpilib-struct';
 import type { DataSet } from '@/data/data-set';
 import { parseMetadata } from '@/data/data-store';
 import { nameDevices } from '@/data/device-names';
-import type { LogWorkerMessage, LogWorkerRequest, RestoredLog } from '@/data/log-worker';
+import { boundEntryNames, builtInPrefixes } from '@/data/live-priority';
+import type { LogPriority, LogWorkerMessage, LogWorkerRequest, RestoredLog } from '@/data/log-worker';
 import { fromTransfer } from '@/data/samples';
 import { isXz } from '@/data/xz';
 
@@ -72,9 +72,14 @@ function attachLogWorker(
 		worker.terminate();
 	};
 
-	// Added together once loaded, so the log isn't shown again as each entry arrives
-	let schemas: Map<string, StructDeclaration[]> | undefined;
-	const entries: Extract<LogWorkerMessage, { type: 'entry' }>[] = [];
+	// Added together once loaded, since adding them one at a time redraws widgets and the entry browser for each
+	const rest: Extract<LogWorkerMessage, { type: 'entry' }>[] = [];
+	const addEntry = ({ name, entryType, samples, metadata, embeddedLog }: (typeof rest)[number]) => {
+		const entry = data.addEntry(name, entryType, fromTransfer(samples), parseMetadata(metadata));
+		if (embeddedLog) {
+			entry.embeddedLog = embeddedLog;
+		}
+	};
 	// Fraction parsed or downloaded, `undefined` when indeterminate
 	let parsed: number | undefined = 0;
 	let totalSamples = 0;
@@ -103,8 +108,15 @@ function attachLogWorker(
 				showProgress();
 				break;
 			case 'schemas':
-				schemas = message.structSchemas;
-				totalSamples = message.samples;
+				for (const [name, fields] of message.structSchemas) {
+					data.addStructSchema(name, fields);
+				}
+				// So entries are drawn as they arrive
+				if (message.start !== undefined && message.end !== undefined) {
+					data.setStartTime(message.start);
+					data.extendTimeRange(message.start, message.end);
+				}
+				totalSamples += message.samples;
 				// Parsed, even when a damaged end kept it from reaching 100%
 				if (parsed !== undefined) {
 					parsed = 1;
@@ -112,20 +124,19 @@ function attachLogWorker(
 				showProgress();
 				break;
 			case 'entry':
-				entries.push(message);
+				// The entries Studio shows are drawn as they arrive
+				if (message.priority) {
+					addEntry(message);
+				} else {
+					rest.push(message);
+				}
 				sentSamples += message.samples.length;
 				showProgress();
 				break;
 			case 'done': {
 				stop();
-				for (const [name, fields] of schemas ?? []) {
-					data.addStructSchema(name, fields);
-				}
-				for (const { name, entryType, samples, metadata, embeddedLog } of entries) {
-					const entry = data.addEntry(name, entryType, fromTransfer(samples), parseMetadata(metadata));
-					if (embeddedLog) {
-						entry.embeddedLog = embeddedLog;
-					}
+				for (const entry of rest) {
+					addEntry(entry);
 				}
 				nameDevices(data);
 				let unread: UnreadEnd | undefined;
@@ -164,6 +175,11 @@ function attachLogWorker(
 	return { worker, stop };
 }
 
+/** The entries dashboards use, so they're sent first, see `LogPriority` */
+function logPriority(): LogPriority {
+	return { names: boundEntryNames(), prefixes: builtInPrefixes };
+}
+
 /**
  * Parse a log file in a worker and add its entries to `data`. With `live`, a live session's recording is added on
  * Studio's clock, like the live session showed it. Transfers ownership of a buffer and returns a function that cancels loading.
@@ -176,7 +192,7 @@ export function loadLog(
 ): () => void {
 	const { worker, stop } = attachLogWorker(data, callbacks);
 	worker.postMessage(
-		{ kind: 'buffer', contents, live, format } satisfies LogWorkerRequest,
+		{ kind: 'buffer', contents, live, format, priority: logPriority() } satisfies LogWorkerRequest,
 		contents instanceof ArrayBuffer ? [contents] : [],
 	);
 	return stop;
@@ -189,7 +205,7 @@ export function loadLogStream(
 	callbacks: LoadLogCallbacks,
 ): LogStreamHandle {
 	const { worker, stop } = attachLogWorker(data, callbacks);
-	worker.postMessage({ kind: 'stream-start', totalBytes } satisfies LogWorkerRequest, []);
+	worker.postMessage({ kind: 'stream-start', totalBytes, priority: logPriority() } satisfies LogWorkerRequest, []);
 	return {
 		push: (chunk, downloadedBytes) => {
 			worker.postMessage({ kind: 'stream-chunk', chunk, downloadedBytes } satisfies LogWorkerRequest, [chunk]);

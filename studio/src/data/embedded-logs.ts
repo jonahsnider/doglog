@@ -24,20 +24,28 @@ const enabledEntries = ['/RobotEnable', '/DS:controlWord/enabled'];
  */
 export async function addEmbeddedLogs(log: ParsedLog): Promise<void> {
 	const readable = log.embeddedLogs.filter(({ format }) => readableEmbeddedLogFormats.has(format));
+	if (readable.length === 0) {
+		return;
+	}
+	// Read before the first await, since the log's entries are sent to the main thread while embedded logs are read
+	const robot = enableEdges(log);
 	const files = await Promise.all(
 		readable.map(({ bytes }) => (isXz(bytes) ? decompress(bytes) : Promise.resolve(bytes))),
 	);
 	for (const [index, embedded] of readable.entries()) {
 		try {
-			addEmbeddedLog(log, embedded, files[index]!);
+			addEmbeddedLog(log, embedded, files[index]!, robot);
 		} catch {
 			// Damaged so none of it could be read
 		}
 	}
 }
 
-/** Add the entries of an embedded log, `bytes` is its file, decompressed. Throws if it can't be read. */
-function addEmbeddedLog(log: ParsedLog, embedded: EmbeddedLog, bytes: Uint8Array): void {
+/**
+ * Add the entries of an embedded log, `bytes` is its file, decompressed. `robot` is when the log it's embedded in shows
+ * the robot was enabled and disabled. Throws if it can't be read.
+ */
+function addEmbeddedLog(log: ParsedLog, embedded: EmbeddedLog, bytes: Uint8Array, robot: Edge[]): void {
 	const parse = embedded.format === 'hoot' ? parseHoot : parseLog;
 	// The byte ranges of a decompressed log don't match the captures of the compressed one
 	const bound = bytes === embedded.bytes ? new CaptureBound(embedded.captures) : undefined;
@@ -46,7 +54,7 @@ function addEmbeddedLog(log: ParsedLog, embedded: EmbeddedLog, bytes: Uint8Array
 		return;
 	}
 
-	const offset = clockOffset(log, embedded, bound?.bound, child);
+	const offset = clockOffset(robot, embedded, bound?.bound, child);
 	for (const [name, entry] of child.entries) {
 		for (let i = 0; i < entry.samples.length; i++) {
 			entry.samples.timestamps[i]! += offset;
@@ -66,10 +74,10 @@ function addEmbeddedLog(log: ParsedLog, embedded: EmbeddedLog, bytes: Uint8Array
  * What to add to an embedded log's times to put them on the robot's clock, since they can be on any clock, ex. a
  * coprocessor's. Lined up by when it was captured, or by when the robot was enabled and disabled if every capture was late.
  */
-function clockOffset(log: ParsedLog, embedded: EmbeddedLog, bound: number | undefined, child: ParsedLog): number {
+function clockOffset(robot: Edge[], embedded: EmbeddedLog, bound: number | undefined, child: ParsedLog): number {
 	// Without it, it started about when it was first captured
 	const guess = bound ?? embedded.captures[0]!.time - child.start!;
-	const edges = edgeOffset(enableEdges(log), enableEdges(child), bound, guess);
+	const edges = edgeOffset(robot, enableEdges(child), bound, guess);
 	// The bound is as close as the most prompt capture, enables well before it show that every capture was late
 	const offset = edges !== undefined && (bound === undefined || edges < bound - edgeTolerance) ? edges : guess;
 	return Math.abs(offset) <= sameClockTolerance ? 0 : offset;

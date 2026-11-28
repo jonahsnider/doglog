@@ -10,6 +10,9 @@ import type { RoleOption } from '@/widgets/widget-type';
 /** Where WPILib publishes tunables in NetworkTables, including DogLog's, and where DogLog did before 2027 */
 export const tunablesPrefixes = ['/Tunables/', '/Tunable/'];
 
+/** The Tuning page's panes, saved like a dashboard that isn't in the sidebar */
+export const tuningDashboardId = 'tuning-panes';
+
 type ScalarType = 'double' | 'float' | 'int' | 'boolean' | 'string';
 const scalarTypes = new Set<string>(['double', 'float', 'int', 'boolean', 'string'] satisfies ScalarType[]);
 

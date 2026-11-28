@@ -270,7 +270,8 @@ Users SHALL be able to open WPILOG files with a file picker or by dropping them 
 
 - **WHEN** the user opens a large log
 - **THEN** the timeline shows its loading progress, which reaches 100% only once every entry has been read and is ready to show
-- **AND** the log's entries appear together once it's loaded, not one at a time while it loads
+- **AND** the entries dashboards show, and the ones the timeline reads, are drawn as soon as the log has been read, before the rest are ready
+- **AND** the log's other entries appear together once it's loaded, not one at a time while it loads
 
 #### Scenario: Open a compressed log
 
