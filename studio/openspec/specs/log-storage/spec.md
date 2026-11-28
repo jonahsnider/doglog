@@ -73,13 +73,17 @@ S3-compatible storage at an HTTPS address SHALL work in the web and desktop apps
 
 ### Requirement: Check a connection
 
-Saving a connection SHALL check that Studio can list, write, read, and delete a test file in the root folder, showing each step as it runs, and MUST name the step that failed and what usually causes it, ex. a key without write access. For S3-compatible storage, the desktop app MUST set the bucket's CORS rules so the web app can reach it, and when it can't, MUST still save the connection and say the web app may not reach the storage and how to add the rule. When the check fails because of CORS the web app MUST say how to add the rule, in the provider's own format and only with config that provider takes.
+Saving a connection SHALL check that Studio can list, write, read, and delete a test file in the root folder, showing each step as it runs, and MUST name the step that failed and what usually causes it.
 
 #### Scenario: Key can't write
 
 - **GIVEN** an admin enters a read-only access key
 - **WHEN** they save the connection
 - **THEN** Studio says it could list and read the bucket but not write to it, and doesn't save the connection
+
+### Requirement: Set up CORS for web access
+
+When saving an S3-compatible connection, the desktop app SHALL set the bucket's CORS rules so the web app can reach it. If the CORS update fails, the desktop app MUST still save the connection and explain that the web app may not reach the storage and how to add the rule. If the web app's connection check fails because of CORS, it MUST explain how to add the rule and show config only in a format the provider accepts.
 
 #### Scenario: Set up from the web app
 
