@@ -112,7 +112,7 @@ export const TimeAxis = memo(function TimeAxis({ leftInset, rightInset }: { left
 
 	useResizeObserver({ ref: element, onResize: () => setWidth(element.current.clientWidth) });
 
-	const ticks = view && range && width > 0 ? timeTicks(view, range.origin, width) : undefined;
+	const ticks = view && range && width > 0 ? timeTicks(view, range.start, width) : undefined;
 	const periods = view && range ? getModePeriods(range) : [];
 	const compressed = view && range && timelineCompress ? getActiveCompressedSpans(range) : [];
 	const toPercent = (time: number) => (view ? ((time - view.start) / (view.end - view.start)) * 100 : 0);
@@ -155,11 +155,11 @@ export const TimeAxis = memo(function TimeAxis({ leftInset, rightInset }: { left
 							{...stylex.props(styles.tick, align === 'center' && styles.center, align === 'end' && styles.end)}
 							style={{ left: x }}
 						>
-							{formatTick(time, range!.origin, ticks.spacing)}
+							{formatTick(time, range!.start, ticks.spacing)}
 						</span>
 					);
 				})}
-				<ModeTooltip x={hoverX} time={hoverTime} periods={periods} compressed={compressed} origin={range?.origin} />
+				<ModeTooltip x={hoverX} time={hoverTime} periods={periods} compressed={compressed} origin={range?.start} />
 			</div>
 		</div>
 	);

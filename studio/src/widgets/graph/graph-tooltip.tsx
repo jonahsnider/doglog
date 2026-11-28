@@ -95,7 +95,7 @@ function TimeHeader({ time }: { time: number }) {
 	const period = getModePeriods(range).findLast((item) => item.start <= time && time <= item.end);
 	return (
 		<div {...stylex.props(styles.header)}>
-			{formatTime(time, range.origin)}
+			{formatTime(time, range.start)}
 			{period && (
 				<span {...stylex.props(styles.mode)}>
 					<span
@@ -272,8 +272,8 @@ function BandTooltip({
 			</div>
 			<div {...stylex.props(styles.bandTime)}>
 				{changes > 1
-					? `${formatTime(from, range.origin)} - ${formatTime(to, range.origin)}`
-					: `${formatTime(band.start, range.origin)} - ${formatTime(band.end, range.origin)}`}
+					? `${formatTime(from, range.start)} - ${formatTime(to, range.start)}`
+					: `${formatTime(band.start, range.start)} - ${formatTime(band.end, range.start)}`}
 			</div>
 		</Popup>
 	);

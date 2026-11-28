@@ -412,7 +412,7 @@ Studio SHALL remember where the cursor was in each log by file name, and MUST mo
 
 - **GIVEN** the cursor is at 1:30.00 in `qual12.wpilog`
 - **WHEN** the user opens `qual13.wpilog`
-- **THEN** the cursor stays at 1:30.00
+- **THEN** the cursor stays at the same moment in `qual12.wpilog`
 
 ### Requirement: Adding and removing sources
 
@@ -493,15 +493,23 @@ Studio SHALL keep live history for the session until a memory limit is reached, 
 
 ### Requirement: Time display
 
-Timestamps SHALL be shown as time since the start of the time base (the first record of a log, or the moment a live connection began) in minutes and seconds to the hundredth, like `m:ss.cc`. Times before it starts MUST be shown with a minus sign, ex. `-0:04.20`.
+Studio SHALL show timestamps and interpret typed timeline times as elapsed time from the earliest start of any visible source after alignment. The timeline SHALL show time in minutes and seconds to the hundredth, like `m:ss.cc`. Changing which source starts earliest MUST NOT shift the sources or move the cursor just to keep the same displayed time.
 
 #### Scenario: Log time
 
 - **GIVEN** a log's first record has a robot timestamp of 3,000,000 µs
 - **WHEN** the cursor is at a record with timestamp 5,500,000 µs
-- **THEN** the time is shown as 0:02.50
+- **THEN** the time is shown as `0:02.50`
+
+#### Scenario: An aligned log starts earlier than the time base
+
+- **GIVEN** the cursor is at `0:02.50` in the only visible log
+- **WHEN** the user opens a second log that starts 4 seconds earlier after alignment
+- **THEN** the second log's start is shown as `0:00.00`
+- **AND** the cursor stays at the same moment and shows `0:06.50`
+- **AND** hiding the second log restores the cursor's label to `0:02.50`
 
 #### Scenario: Time over a minute
 
-- **WHEN** the cursor is 65.5 seconds after the start of the time base
-- **THEN** the time is shown as 1:05.50
+- **WHEN** the cursor is 65.5 seconds after the earliest visible start
+- **THEN** the time is shown as `1:05.50`

@@ -111,7 +111,7 @@ export function TimelineTrack({
 					<div {...stylex.props(styles.emptyTrack)} />
 				)}
 			</TimelineCursorContext>
-			{range && !mobile && <span {...stylex.props(styles.duration)}>{formatTime(range.end, range.origin)}</span>}
+			{range && !mobile && <span {...stylex.props(styles.duration)}>{formatTime(range.end, range.start)}</span>}
 			{live && (
 				<Button
 					label={following ? 'Live' : 'Go live'}

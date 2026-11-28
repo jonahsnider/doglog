@@ -196,7 +196,7 @@ export function TableWidget({ bindings }: WidgetProps) {
 								}}
 							>
 								<span data-table-time {...stylex.props(styles.time)}>
-									{formatTime(rowTime, range?.origin ?? 0)}
+									{formatTime(rowTime, range?.start ?? 0)}
 								</span>
 								{leaves.map((column) => (
 									<ValueCell key={column.path} column={column} time={rowTime} />

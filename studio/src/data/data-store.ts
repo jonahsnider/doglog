@@ -51,9 +51,9 @@ export type TimeRange = {
 	readonly end: number;
 };
 
-/** The time range of every visible source, see `getTimeRange()` */
+/** The time range of every visible source. Its earliest start is displayed as 0 s. */
 export type SourcesRange = TimeRange & {
-	/** Start of the time base, the top visible source, shown as 0 s. Earlier times are negative. */
+	/** Start of the top visible source with data, which can be later than the displayed 0 s. */
 	readonly origin: number;
 };
 
@@ -162,7 +162,7 @@ function showData(data: DataSet): void {
 
 /**
  * Show every source in `data` in every dashboard and widget, or nothing when it's empty. The first is the time base,
- * whose entries are listed and whose start is shown as 0 s. `live` ends the time range at the time base's newest data.
+ * whose entries are listed. `live` ends the time range at the time base's newest data.
  */
 export function setVisibleData(data: readonly DataSet[], live = false): void {
 	visible = data;

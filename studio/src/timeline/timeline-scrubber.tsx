@@ -174,7 +174,7 @@ export function Scrubber({
 	const tooltipAt = (at: Hover) => {
 		const hoverTime = timeAt(at);
 		if (unread !== undefined && hoverTime > range.end) {
-			return <UnreadTooltip {...unread} />;
+			return <UnreadTooltip {...unread} after={unread.after + (range.origin - range.start)} />;
 		}
 		const slopPercent = (alertHoverSlop / at.width) * 100;
 		const from = scale.toTime(toPercent(hoverTime) - slopPercent);
@@ -193,7 +193,7 @@ export function Scrubber({
 				compressed={compressed.some((span) => span.start <= hoverTime && hoverTime <= span.end)}
 				alerts={hovered}
 				hoverTime={hoverTime}
-				start={range.origin}
+				start={range.start}
 			/>
 		) : undefined;
 	};
@@ -231,7 +231,7 @@ export function Scrubber({
 			aria-valuemin={0}
 			aria-valuemax={duration / 1_000_000}
 			aria-valuenow={(time - range.start) / 1_000_000}
-			aria-valuetext={formatTime(time, range.origin)}
+			aria-valuetext={formatTime(time, range.start)}
 			{...stylex.props(scrubberMarker, styles.slider)}
 			onPointerDown={(event) => {
 				if (event.button === 0) {

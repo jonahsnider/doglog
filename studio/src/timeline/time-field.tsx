@@ -17,7 +17,7 @@ export function TimeField({
 }: {
 	label: string;
 	text: string;
-	/** The log's start, which times are relative to */
+	/** The timeline's start, which typed times are relative to */
 	start: number;
 	hasAutoFocus?: boolean;
 	onCommit: (time: number | undefined) => void;

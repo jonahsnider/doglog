@@ -123,22 +123,16 @@ export function VideoExportBar() {
 	if (!videoRange || !range) {
 		return null;
 	}
-	const startText = formatTime(videoRange.start, range.origin);
-	const endText = formatTime(videoRange.end, range.origin);
+	const startText = formatTime(videoRange.start, range.start);
+	const endText = formatTime(videoRange.end, range.start);
 
 	return (
 		<div role="toolbar" aria-label="Export video" {...stylex.props(styles.toolbar)}>
 			{saving === undefined ? (
 				<>
 					{/* Remounted when the range changes, so they show the new times */}
-					<VideoRangeField
-						key={`start-${startText}`}
-						label="Start"
-						edge="start"
-						text={startText}
-						start={range.origin}
-					/>
-					<VideoRangeField key={`end-${endText}`} label="End" edge="end" text={endText} start={range.origin} />
+					<VideoRangeField key={`start-${startText}`} label="Start" edge="start" text={startText} start={range.start} />
+					<VideoRangeField key={`end-${endText}`} label="End" edge="end" text={endText} start={range.start} />
 					<span {...stylex.props(styles.duration)}>{formatDuration(videoRange.end - videoRange.start)} long</span>
 					<Tooltip
 						content={<TooltipLabel label={playback === 'paused' ? 'Preview' : 'Pause preview'} shortcut="Space" />}

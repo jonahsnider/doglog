@@ -117,12 +117,12 @@ export function CursorTime({ range }: { range: SourcesRange | undefined }) {
 	// Also shown while paused, so there's time to hover it for the tooltip
 	const skipped = getActiveCompressedSpans(range).some((span) => span.start <= time && time < span.end);
 	// Fits the widest time in the log plus the icon and its gap, so the label doesn't resize while playing or typing
-	const maxLength = formatTime(range.end, range.origin).length;
+	const maxLength = formatTime(range.end, range.start).length;
 	const skippedMark = stylex.props(styles.skippedMark, skipped && styles.visible);
 	return (
 		<span {...stylex.props(styles.time, styles.cursor)} style={{ width: `max(5rem, calc(${maxLength}ch + 1.125rem))` }}>
 			<span data-capture-time {...stylex.props(styles.captureTime)}>
-				{formatTime(time, range.origin)}
+				{formatTime(time, range.start)}
 			</span>
 			{editText === undefined ? (
 				<>
@@ -141,7 +141,7 @@ export function CursorTime({ range }: { range: SourcesRange | undefined }) {
 						</span>
 					</Tooltip>
 					<Tooltip content="Go to time">
-						<CursorTimeButton start={range.origin} onEdit={setEditText} />
+						<CursorTimeButton start={range.start} onEdit={setEditText} />
 					</Tooltip>
 				</>
 			) : (
@@ -149,7 +149,7 @@ export function CursorTime({ range }: { range: SourcesRange | undefined }) {
 					<TimeField
 						label="Go to time"
 						text={editText}
-						start={range.origin}
+						start={range.start}
 						hasAutoFocus
 						onCommit={(typed) => {
 							if (typed !== undefined) {
