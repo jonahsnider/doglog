@@ -11,7 +11,7 @@ Keep feature behavior and functionality in `openspec/specs`.
 - Let panels that slide in on touch devices close with a swipe toward their edge using `useSwipeToClose`. For swipe-to-open, use `useSwipeToOpen` on the app chrome, clear of the screen edges that browsers and installed web apps use for navigation. Keep the buttons as an alternative.
 - Put swipes that switch between views on chrome like headers and bars, never on widget content, which keeps its own drags
 - Group related account or settings actions in a `SettingsGroup` card of `ListItem` rows, with each action at the row's end and anything that can't be undone in its own group
-- Put the actions of a row or item that has several, or that people rarely use, in an `AppActionMenu` (`…` button) instead of a row of buttons
+- Group secondary row actions in an `AppActionMenu` (`…` button). When opening the menu is the row's primary action, use the row itself as the trigger.
 - Show values people copy, like links, in a read-only `TextInput` with a copy `IconButton` attached by an `InputGroup`, using `useClipboard` to cross-fade its icon to a check once it's copied
 
 ### Keyboard shortcuts

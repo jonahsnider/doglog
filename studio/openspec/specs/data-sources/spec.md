@@ -131,22 +131,22 @@ While the sidebar is collapsed to its rail, the rail SHALL show one icon per sou
 
 ### Requirement: Source menu
 
-A source's menu SHALL open from a "…" button at the end of its row, shown while the row is hovered or focused on devices with hover, and from right-clicking or long-pressing the row. Pressing the row itself MUST NOT open it, so it can be dragged (see Source order).
+A source's menu SHALL open by clicking, tapping, or pressing Enter on its row, without a separate actions button. Right-clicking or long-pressing the row SHALL still open its context menu. Picking up, dropping, or canceling a drag MUST NOT open the menu (see Source order).
 
-#### Scenario: Press a source's row
+#### Scenario: Drag a source without opening its menu
 
-- **GIVEN** the user opened `qual12.wpilog`
-- **WHEN** the user clicks its row
-- **THEN** nothing happens, and no menu opens
+- **GIVEN** the user opened `qual12.wpilog` and `qual13.wpilog`
+- **WHEN** the user drags `qual13.wpilog` above `qual12.wpilog` and lets go
+- **THEN** the rows reorder without opening a menu
 
 ### Requirement: Source menu items
 
-Every source's menu SHALL offer Hide or Show (see Hide a source), and while there are other sources, Hide others (see Hide other sources). The live session's menu MUST offer its connection actions (see Disconnect and clear). A log's menu MUST offer Close log, and once it's loaded, its "…" menu MUST show its time offset above its items (see Time offset). In the desktop app, every source's menu MUST offer Move to (see the platforms spec's move sources between windows).
+Every source's menu SHALL offer Hide or Show (see Hide a source), and while there are other sources, Hide others (see Hide other sources). The live session's menu MUST offer its connection actions (see Disconnect and clear). A log's menu MUST offer Close log, and once it's loaded, the menu opened by activating its row MUST show its time offset above its items (see Time offset). In the desktop app, every source's menu MUST offer Move to (see the platforms spec's move sources between windows).
 
 #### Scenario: Open a log's menu
 
 - **GIVEN** the user opened `qual12.wpilog` and `qual13.wpilog`
-- **WHEN** the user presses the "…" button on `qual13.wpilog`'s row
+- **WHEN** the user clicks `qual13.wpilog`'s row
 - **THEN** its menu shows its time offset and offers Hide, Hide others, and Close log
 - **AND** both logs stay visible in every dashboard
 

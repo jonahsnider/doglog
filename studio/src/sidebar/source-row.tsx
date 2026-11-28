@@ -1,17 +1,18 @@
+import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import { colorVars, radiusVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
 import * as stylex from '@stylexjs/stylex';
 import { useSelector } from '@tanstack/react-store';
 import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useResizeObserver } from 'usehooks-ts';
-import { AppActionMenu, AppContextMenu, type MenuEntry } from '@/components/app-context-menu';
+import { AppContextMenu, MenuEntries, type MenuEntry } from '@/components/app-context-menu';
 import { TextMorph } from '@/components/text-morph';
 import { type Source, sourceId } from '@/data/source';
 import { highlightedSourceStore } from '@/data/source-store';
 import { duration, reducesMotion } from '@/lib/motion';
 import { useSourceSortable } from '@/sidebar/move-source';
 import { useSidebar } from '@/sidebar/sidebar-context';
-import { SidebarMenuAction, SidebarMenuButton, SidebarMenuItem } from '@/sidebar/sidebar-ui';
+import { SidebarMenuButton, SidebarMenuItem } from '@/sidebar/sidebar-ui';
 import { SourceIcon } from '@/sidebar/source-icon';
 import { sourceLabels } from '@/sidebar/source-labels';
 import { matchIcons } from '@/sync/match-icons';
@@ -20,10 +21,6 @@ import { LineSample } from '@/widgets/line-sample';
 const styles = stylex.create({
 	hidden: {
 		color: colorVars['--color-text-secondary'],
-	},
-	// Rows are only dragged, pressing them does nothing
-	draggable: {
-		cursor: { default: 'grab', ':active': 'grabbing' },
 	},
 	labels: {
 		display: 'grid',
@@ -126,6 +123,7 @@ export function SourceRow({
 	const id = sourceId(source);
 	const ref = useHighlight(id);
 	const { setElement, handleRef, isDragSource, draggable } = useSourceSortable(source, logIndex);
+	const [contextMenuOpen, setContextMenuOpen] = useState(false);
 	const { name, detail } = sourceLabels(source);
 	const hidden = visibleIndex === undefined;
 	const description = rowDescription(source, collapsed, hidden);
@@ -140,44 +138,61 @@ export function SourceRow({
 			data-log-index={logIndex}
 			xstyle={isDragSource && styles.dragged}
 		>
-			<AppContextMenu items={menuItems} label={`${name} actions`}>
-				<Tooltip
-					content={<span {...stylex.props(styles.tooltip)}>{description}</span>}
-					placement="end"
-					// Closed while the row is dragged, since it would follow the pointer
-					isEnabled={description !== '' && !isDragSource}
-				>
-					{/* Only dragged, its actions are in its menus */}
-					<SidebarMenuButton
-						ref={handleRef}
-						size="lg"
-						xstyle={[hidden && styles.hidden, draggable && styles.draggable]}
-					>
-						<SourceIcon source={source} />
-						<SourceLabels
-							name={name}
-							detail={detail}
-							live={source.type === 'live'}
-							reconnecting={source.status === 'reconnecting'}
-						/>
-						{!hidden && sampled && (
-							<span data-replaced-by-action="" {...stylex.props(styles.sample)}>
-								<LineSample index={visibleIndex} />
-							</span>
-						)}
-					</SidebarMenuButton>
-				</Tooltip>
-			</AppContextMenu>
-			<SidebarMenuAction>
-				<AppActionMenu
-					items={() => menuItems}
-					label="Actions"
-					accessibleLabel={`${name} actions`}
+			<AppContextMenu items={menuItems} label={`${name} actions`} onOpenChange={setContextMenuOpen}>
+				<DropdownMenu
+					alignment="end"
 					header={header}
 					menuWidth={240}
 					onOpenChange={onOpenChange}
-				/>
-			</SidebarMenuAction>
+					// Opening on pointer-down would show the menu before the drag sensor sees any movement.
+					renderTrigger={({ onPointerDown: _onPointerDown, ...trigger }) => (
+						<Tooltip
+							content={<span {...stylex.props(styles.tooltip)}>{description}</span>}
+							placement="end"
+							isEnabled={description !== '' && !isDragSource && !contextMenuOpen && !trigger['aria-expanded']}
+						>
+							<SidebarMenuButton
+								{...trigger}
+								ref={(element) => {
+									trigger.ref(element);
+									handleRef(element);
+								}}
+								size="lg"
+								xstyle={hidden && styles.hidden}
+								onClick={(event) => {
+									// Some browsers send a click when the finger lifts after opening the context menu.
+									if (!event.defaultPrevented && !contextMenuOpen) {
+										trigger.onClick(event);
+									}
+								}}
+								onKeyDown={(event) => {
+									// Space is only for dragging, even while the previous drop is settling.
+									if (draggable && event.key === ' ') {
+										event.preventDefault();
+									} else if (!event.defaultPrevented) {
+										trigger.onKeyDown(event);
+									}
+								}}
+							>
+								<SourceIcon source={source} />
+								<SourceLabels
+									name={name}
+									detail={detail}
+									live={source.type === 'live'}
+									reconnecting={source.status === 'reconnecting'}
+								/>
+								{!hidden && sampled && (
+									<span {...stylex.props(styles.sample)}>
+										<LineSample index={visibleIndex} />
+									</span>
+								)}
+							</SidebarMenuButton>
+						</Tooltip>
+					)}
+				>
+					<MenuEntries items={menuItems} />
+				</DropdownMenu>
+			</AppContextMenu>
 		</SidebarMenuItem>
 	);
 }

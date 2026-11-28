@@ -1,7 +1,6 @@
 [data-sidebar='menu-button'] {
 	& > svg,
-	& > :has(> svg):first-child,
-	& > [data-replaced-by-action] > svg {
+	& > :has(> svg):first-child {
 		flex-shrink: 0;
 		inline-size: 1rem;
 		block-size: 1rem;
@@ -73,11 +72,11 @@
 
 /*
  * Leaves room for the action at the end of the row, or `--menu-action-space` for rows with more than one. On devices with
- * hover, the label uses that room until the action or a badge shows, like a browser's tabs, unless the button ends with
- * something the action takes the place of. `:where` keeps it below the rail's square, which hides the action.
+ * hover, the label uses that room until the action or a badge shows, like a browser's tabs. `:where` keeps it below the
+ * rail's square, which hides the action.
  */
 :where(
-		[data-sidebar='menu-item']:has([data-sidebar='menu-action']):not(:has([data-replaced-by-action])):is(
+		[data-sidebar='menu-item']:has([data-sidebar='menu-action']):is(
 				:hover,
 				:focus-within,
 				:has([data-sidebar='menu-action'] [aria-expanded='true'], [data-sidebar='menu-badge']:not(:empty))
@@ -85,20 +84,6 @@
 	)
 	[data-sidebar='menu-button'] {
 	padding-inline-end: var(--menu-action-space, var(--spacing-8));
-}
-/* Match the action button's width and inset so its replacement stays centered without moving the label. */
-@media (hover: hover) {
-	[data-sidebar='menu-button']:where(:has(> [data-replaced-by-action])) {
-		padding-inline-end: var(--spacing-0-5);
-	}
-	[data-replaced-by-action] {
-		inline-size: var(--size-element-sm);
-		justify-content: center;
-	}
-	[data-sidebar='menu-item']:is(:hover, :focus-within, :has([data-sidebar='menu-action'] [aria-expanded='true']))
-		[data-replaced-by-action] {
-		visibility: hidden;
-	}
 }
 @media not (hover: hover) {
 	:where([data-sidebar='menu-item']:has([data-sidebar='menu-action'])) [data-sidebar='menu-button'] {
