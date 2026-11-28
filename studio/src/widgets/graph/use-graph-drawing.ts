@@ -17,6 +17,7 @@ import {
 	type YTargets,
 } from '@/widgets/graph/plot';
 import { createRangeAnimation } from '@/widgets/graph/y-range';
+import { loopsAcross } from '@/widgets/graph/format';
 import { type Fade, isFading, opacityAt, updateFades } from '@/widgets/graph/fade';
 import { perFrame } from '@/lib/per-frame';
 import { timeTicks } from '@/widgets/graph/ticks';
@@ -115,6 +116,7 @@ export function useGraphDrawing(
 				: undefined;
 		current.plot = plot;
 
+		const visibleEntries = series.filter((line) => !line.hidden).map((line) => line.entry);
 		let drawnView = '';
 		const drawOverlays = () => {
 			const view = getViewRange();
@@ -147,7 +149,8 @@ export function useGraphDrawing(
 					'--delta-label-shift',
 					`clamp(${inset - center}px, -50%, calc(${width - inset - center}px - 100%))`,
 				);
-				ruler.firstElementChild!.textContent = `${delta < 0 ? '−' : '+'}${formatDuration(Math.abs(delta))}`;
+				const loops = loopsAcross(visibleEntries, { start: Math.min(cursor, hover!), end: Math.max(cursor, hover!) });
+				ruler.firstElementChild!.textContent = `${delta < 0 ? '−' : '+'}${formatDuration(Math.abs(delta))}${loops === undefined ? '' : ` · ${loops}`}`;
 			}
 
 			const dotsElement = elements.hoverDots.current;

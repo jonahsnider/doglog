@@ -126,7 +126,7 @@ export function GraphOverlay({
 	return (
 		<div ref={areaRef} {...stylex.props(styles.area)} style={{ left: insets.left, right: insets.right }}>
 			<div ref={gapsRef} />
-			{selection && <RangeSelection selection={selection} plotted={plotted} units={units} />}
+			{selection && <RangeSelection selection={selection} series={series} plotted={plotted} units={units} />}
 			<div ref={hoverLineRef} hidden {...withClass(stylex.props(styles.line, styles.hoverLine), 'capture-invisible')} />
 			<div ref={cursorLineRef} hidden {...stylex.props(styles.line, styles.cursorLine)} />
 			<div ref={hoverDotsRef} {...withClass(stylex.props(styles.dots), 'capture-invisible')}>

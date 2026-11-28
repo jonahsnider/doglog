@@ -16,6 +16,26 @@ export function formatInUnit(value: Value, unit: SeriesUnit): string {
 	return withUnit(formatValue(Number(unit.convert(value).toPrecision(6))), unit);
 }
 
+/** Most loops worth counting, longer ranges are only labeled with their duration */
+const MAX_LOOPS = 100;
+
+/**
+ * About how many robot loops passed across `range`, ex. `3 loops`, or `undefined` when there are too many to be useful.
+ * Counted as the samples after the start up to the end of the most often logged entry, which is likely logged every loop.
+ */
+export function loopsAcross(entries: readonly Entry[], range: TimeRange): string | undefined {
+	let loops: number | undefined;
+	for (const { samples } of entries) {
+		if (samples.length > 0) {
+			loops = Math.max(loops ?? 0, samples.indexAtOrBefore(range.end) - samples.indexAtOrBefore(range.start));
+		}
+	}
+	if (loops === undefined || loops > MAX_LOOPS) {
+		return undefined;
+	}
+	return `${loops} ${loops === 1 ? 'loop' : 'loops'}`;
+}
+
 /** How much a numeric entry changed across `range` in the unit it's plotted in, ex. `+1.24 m` */
 export function changeAcross(entry: Entry, range: TimeRange, unit: SeriesUnit): string | undefined {
 	const start = entry.samples.valueAt(range.start);

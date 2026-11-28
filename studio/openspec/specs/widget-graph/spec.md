@@ -198,6 +198,16 @@ The hovered graph SHALL draw a bracket between the global cursor and the hover l
 - **WHEN** the user hovers the graph at 25 s
 - **THEN** a bracket from the graph's left edge to the hover line, open at the left, is labeled `+15.00 s`
 
+### Requirement: Loop count
+
+The cursor offset and drag measurement SHALL show about how many robot loops they span after their duration, counted as the samples after the earlier time up to the later one of the visible line logged most often across them. The count MUST be left out when it's over 100.
+
+#### Scenario: Count loops between close times
+
+- **GIVEN** `/Arm/Angle` is logged every 20 ms and the global cursor is on one of its samples
+- **WHEN** the user hovers the graph on the third sample after it
+- **THEN** the bracket is labeled `+0.060 s · 3 loops`
+
 ### Requirement: Tooltip placement
 
 The graph's tooltip SHALL be drawn over other panes rather than cut off at the graph's pane, and MUST stay within the window, covering the pointer if it has to. It MUST NOT show while the graph's pane is hidden by another zoomed pane.
@@ -322,7 +332,7 @@ Each y-axis SHALL fit the data in view, but MUST NOT span less than 5% of its en
 
 ### Requirement: Range measurement
 
-Dragging SHALL select a time range, labeled with its duration and each plotted entry's change across it. Pressing Esc or clicking MUST clear it.
+Dragging SHALL select a time range, labeled with its duration, the loops it spans, and each plotted entry's change across it. Pressing Esc or clicking MUST clear it.
 
 #### Scenario: Measure a change
 

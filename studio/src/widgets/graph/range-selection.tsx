@@ -13,7 +13,8 @@ import { type Entry, subscribeData, type TimeRange } from '@/data/data-store';
 import { EntryName } from '@/entries/entry-name';
 import { formatDuration } from '@/timeline/format-time';
 import type { SeriesUnit } from '@/widgets/graph/axis-units';
-import { changeAcross } from '@/widgets/graph/format';
+import { changeAcross, loopsAcross } from '@/widgets/graph/format';
+import type { PlotSeries } from '@/widgets/graph/plot';
 import { useViewRange } from '@/widgets/graph/view';
 import { bindingColor } from '@/widgets/series-color';
 import type { WidgetBinding } from '@/widgets/widget-type';
@@ -83,17 +84,25 @@ const styles = stylex.create({
 	},
 });
 
-/** The range selected to measure, labeled with its duration and each plotted entry's change across it */
+/** The range selected to measure, labeled with its duration, loops, and each plotted entry's change across it */
 export function RangeSelection({
 	selection,
+	series,
 	plotted,
 	units,
 }: {
 	selection: TimeRange;
+	series: readonly PlotSeries[];
 	plotted: readonly WidgetBinding[];
 	units: ReadonlyMap<string, SeriesUnit>;
 }) {
 	const view = useViewRange();
+	const loops = useSyncExternalStore(subscribeData, () =>
+		loopsAcross(
+			series.filter((line) => !line.hidden).map((line) => line.entry),
+			selection,
+		),
+	);
 	if (view === undefined) {
 		return undefined;
 	}
@@ -106,7 +115,11 @@ export function RangeSelection({
 	return (
 		<div {...stylex.props(styles.selection)} style={{ left: `${left * 100}%`, width: `${(right - left) * 100}%` }}>
 			<div {...stylex.props(styles.label)}>
-				<div {...stylex.props(styles.duration)}>{formatDuration(selection.end - selection.start)}</div>
+				<div {...stylex.props(styles.duration)}>
+					{' '}
+					{formatDuration(selection.end - selection.start)}
+					{loops !== undefined && ` · ${loops}`}
+				</div>
 				<div {...stylex.props(styles.changes)}>
 					{plotted.map((binding, index) =>
 						binding.entry && !binding.hidden ? (
