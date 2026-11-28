@@ -16,7 +16,7 @@ import { ConvexError } from 'convex/values';
 import LogOutIcon from 'lucide-react/icons/log-out';
 import Trash2Icon from 'lucide-react/icons/trash-2';
 import { type SubmitEvent, useState } from 'react';
-import { AccountEncryption } from '@/cloud/account-encryption';
+import { AccountStatus, ResetAccountKey } from '@/cloud/account-encryption';
 import { ConfirmCloudAction } from '@/cloud/confirm-cloud-action';
 import { InviteLink } from '@/cloud/invite-link';
 import { JoinTeam } from '@/cloud/join-team';
@@ -27,6 +27,7 @@ import { TeamMembers } from '@/cloud/team-members';
 import { TeamPanel } from '@/cloud/team-panel';
 import { SettingsGroup } from '@/components/settings-group';
 import { UtilityPage, UtilityPageSection } from '@/components/utility-page';
+import { TeamStorageSettings } from '@/storage/storage-settings';
 import { api } from '../../../cloud/convex/_generated/api.js';
 
 const styles = stylex.create({
@@ -121,6 +122,8 @@ function SignedIn() {
 
 			<TeamDefaults team={team} />
 
+			<TeamStorageSettings team={team} />
+
 			<UtilityPageSection title="Collaboration">
 				{account && <DisplayName key={account.id} name={account.displayName} />}
 				{team?.role === 'admin' && <InviteLink />}
@@ -129,10 +132,8 @@ function SignedIn() {
 			<Divider />
 
 			<UtilityPageSection title="Account">
-				<VStack gap={1}>
-					<Text>Signed in to DogLog Cloud</Text>
-					{account && <AccountEncryption userId={account.id} />}
-				</VStack>
+				{account && <AccountStatus account={account} />}
+				<ResetAccountKey />
 				<SignInMethods />
 				<SettingsGroup>
 					<ListItem

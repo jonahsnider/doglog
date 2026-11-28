@@ -571,6 +571,79 @@ test('ending a membership drops its grants and the remaining members rotate to a
 	await expect(admin.client.mutation(api.teams.leave)).rejects.toThrow('only member');
 });
 
+test('resetting an account key rotates it into the team, or starts a solo team over', async () => {
+	const t = setup();
+	const signer = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign']);
+	const signingKey = new Uint8Array(await crypto.subtle.exportKey('pkcs8', signer.privateKey));
+	vi.stubEnv('ATTESTATION_PRIVATE_KEY', btoa(String.fromCharCode(...signingKey)));
+	const admin = await signIn(t);
+	const member = await signIn(t);
+	const solo = await signIn(t);
+	await Promise.all([registerKey(admin), registerKey(member), registerKey(solo)]);
+	const trustedCloudKey = (await admin.client.query(api.users.getAttestationKey))!;
+	const teamId = await admin.client.mutation(api.teams.create, { name: 'Robodogs' });
+	const soloTeamId = await solo.client.mutation(api.teams.create, { name: 'Lone Dogs' });
+	await t.run(async (ctx) => {
+		await ctx.db.insert('memberships', { userId: member.userId, teamId, role: 'member' });
+		for (const team of [teamId, soloTeamId]) {
+			await ctx.db.patch('teams', team, { keyVersion: 1 });
+			await ctx.db.insert('cloudDashboards', { teamId: team, dashboardId: 'dash', seq: 0 });
+		}
+		for (const [team, account] of [
+			[teamId, admin],
+			[teamId, member],
+			[soloTeamId, solo],
+		] as const) {
+			await ctx.db.insert('teamKeys', { teamId: team, userId: account.userId, keyVersion: 1, wrappedKey: bytes(384) });
+		}
+	});
+	const resetKey = async (account: typeof admin) => {
+		const keys = await crypto.subtle.generateKey(
+			{ name: 'RSA-OAEP', modulusLength: 3072, publicExponent: Uint8Array.of(1, 0, 1), hash: 'SHA-256' },
+			false,
+			['encrypt', 'decrypt'],
+		);
+		const publicKey = await crypto.subtle.exportKey('spki', keys.publicKey);
+		await account.client.action(api.users.resetEncryptionKey, { userId: account.userId, publicKey });
+		return keys.privateKey;
+	};
+
+	await expect(
+		admin.client.action(api.users.resetEncryptionKey, { userId: member.userId, publicKey: bytes(8) }),
+	).rejects.toThrow('Sign in');
+	const memberKey = await resetKey(member);
+	await expect(member.client.query(api.teamKeys.getMine)).resolves.toMatchObject({ keyVersion: 1, wrappedKey: null });
+	const pending = (await admin.client.query(api.teamKeys.getMine))!;
+	const teamKey = crypto.getRandomValues(new Uint8Array(32)).buffer;
+	const grants = await Promise.all(
+		pending.rotation!.recipients.map(async ({ userId, encryptionKey }) => ({
+			userId,
+			wrappedKey: await wrapTeamKey(
+				teamKey,
+				{ teamId, recipientId: userId, keyVersion: 2 },
+				encryptionKey!,
+				trustedCloudKey,
+			),
+		})),
+	);
+	await admin.client.mutation(api.teamKeys.rotate, { keyVersion: 2, grants });
+	const grant = (await member.client.query(api.teamKeys.getMine))!;
+	await expect(
+		unwrapTeamKey(grant.wrappedKey!, { teamId, recipientId: member.userId, keyVersion: 2 }, memberKey),
+	).resolves.toEqual(teamKey);
+	await expect(admin.client.query(api.cloudDashboards.list)).resolves.toHaveLength(1);
+
+	await resetKey(solo);
+	await expect(solo.client.query(api.teamKeys.getMine)).resolves.toEqual({
+		teamId: soloTeamId,
+		keyVersion: null,
+		wrappedKey: null,
+		rotation: null,
+	});
+	await expect(solo.client.query(api.cloudDashboards.list)).resolves.toEqual([]);
+	await expect(solo.client.query(api.teams.getMine)).resolves.toMatchObject({ id: soloTeamId });
+});
+
 test('dashboard updates are ordered per team, gated on membership and key version, and replaced by snapshots', async () => {
 	const t = setup();
 	const admin = await signIn(t);

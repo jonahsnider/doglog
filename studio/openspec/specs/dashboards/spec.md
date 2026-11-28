@@ -876,13 +876,13 @@ The pane bar's Add pane SHALL split the shown pane right, following Pane sizes, 
 
 ### Requirement: Pane minimap on phones
 
-Switching panes in the phone layout SHALL show a minimap in the dashboard area's top right corner. It MUST draw the dashboard's panes as they're laid out in a 16:10 frame, with the shown pane in the accent color. During a swipe, the highlight MUST move between the two panes with the finger. It MUST fade out about 1.5 seconds after the last switch, MUST NOT show for a dashboard with one pane or while the on-screen keyboard is open, and taps on it MUST go to the pane under it.
+On phones, switching panes SHALL show a 16:10 minimap of the pane layout in the dashboard area's top right, with the active pane in the accent color. The highlight MUST follow the finger during a swipe. Tapping a pane button MUST move the highlight to that pane, sliding unless motion is reduced. The minimap MUST fade out about 1.5 seconds after the last switch and stay hidden with one pane or an open on-screen keyboard. Tapping the minimap MUST go to the pane under the tap.
 
 #### Scenario: See where a pane is
 
 - **GIVEN** a dashboard with a field on the left and a graph above a table on the right, in the phone layout
-- **WHEN** the user switches from the graph to the table
-- **THEN** the minimap shows a tall pane on the left and two stacked panes on the right, with the bottom right one highlighted
+- **WHEN** the user taps the table's pane button while the graph is shown
+- **THEN** the minimap shows a tall pane on the left and two stacked panes on the right, with the highlight sliding from the top right to the bottom right pane
 - **AND** it fades out about 1.5 seconds later
 
 #### Scenario: Follow a swipe on the minimap

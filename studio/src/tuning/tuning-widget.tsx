@@ -13,11 +13,8 @@ import type { LiveStatus } from '@/data/live-source';
 import { useSource } from '@/data/source';
 import { WidgetBindingsContext } from '@/entries/drag';
 import { startEditing } from '@/entries/editing';
-import { tuningDashboardId } from '@/tuning/dashboard';
-import { ArrayTunable } from '@/tuning/array-tunable';
-import { listSections } from '@/tuning/sections';
-import { type Editing, Notes, ScalarRow, SectionHeading } from '@/tuning/tunable-rows';
 import {
+	tuningDashboardId,
 	applyTunables,
 	committedDraft,
 	currentValue,
@@ -28,6 +25,9 @@ import {
 	type Tunable,
 	type TunableValue,
 } from '@/tuning/tunables';
+import { ArrayTunable } from '@/tuning/array-tunable';
+import { listSections } from '@/tuning/sections';
+import { type Editing, Notes, ScalarRow, SectionHeading } from '@/tuning/tunable-rows';
 import { WidgetEmpty, WidgetLoading } from '@/widgets/widget-empty';
 import type { WidgetProps } from '@/widgets/widget-type';
 

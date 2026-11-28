@@ -1,7 +1,8 @@
 import { expect, test } from 'vite-plus/test';
 import { DataLogWriter, readRecords } from 'wpilog-parser';
 import { addEmbeddedLogs } from '@/data/embedded-logs';
-import { type ParsedLog, parseLog } from '@/data/parse-log';
+import { parseLog } from '@/data/log-reader';
+import type { ParsedLog } from '@/data/parse-log';
 
 const second = 1_000_000;
 // A coprocessor's clock, 498 s ahead of the robot's

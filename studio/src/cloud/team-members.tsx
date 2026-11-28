@@ -39,11 +39,21 @@ export function TeamMembers() {
 	);
 }
 
+/** What removing a member does, see the log-storage spec's removed members keep credentials */
+function removeDescription(hasStorage: boolean): string {
+	const description =
+		'They’ll lose access to the team’s Cloud dashboards, and the team’s encryption key will be replaced. They can rejoin later with an invite link.';
+	return hasStorage
+		? `${description} They may still be able to reach the team’s storage until you replace its credentials in Storage below.`
+		: description;
+}
+
 function MemberOptions({ roster, member }: { roster: Roster; member: Roster['members'][number] }) {
 	const promote = useMutation(api.teams.promote);
 	const demote = useMutation(api.teams.demote);
 	const removeMember = useMutation(api.teams.removeMember);
 	const [confirming, setConfirming] = useState<'promote' | 'demote' | 'remove'>();
+	const hasStorage = (useQuery(api.storage.get) ?? null) !== null;
 
 	const name = member.displayName ?? 'Unnamed account';
 	const items: MenuAction[] = [];
@@ -92,7 +102,7 @@ function MemberOptions({ roster, member }: { roster: Roster; member: Roster['mem
 				onOpenChange={() => setConfirming(undefined)}
 				label="Remove"
 				title={`Remove ${name} from the team?`}
-				description="They’ll lose access to the team’s Cloud dashboards, and the team’s encryption key will be replaced. They can rejoin later with an invite link."
+				description={removeDescription(hasStorage)}
 				failureMessage="Couldn’t remove the member. Try again."
 				destructive
 				onConfirm={() => removeMember({ membershipId: member.id })}

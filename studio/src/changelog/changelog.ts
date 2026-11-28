@@ -4,9 +4,10 @@ import { createPersistedAtom } from '@/lib/persisted-store';
 
 /** The newest product update, shown in the sidebar. Increment `id` when changing it so it's shown again. */
 const update = {
-	id: 9,
-	title: 'View multiple logs',
-	description: 'Studio can now open several logs at once to analyze side-by-side.',
+	id: 10,
+	title: 'Team log storage',
+	description:
+		'Connect your team’s cloud storage on the Cloud page. Studio uploads logs it downloads from your robot, and everyone can browse runs and their videos.',
 };
 
 /** ID of the update the user dismissed. New users start caught up, so they only see updates made after they started. */

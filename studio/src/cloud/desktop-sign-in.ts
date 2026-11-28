@@ -9,20 +9,26 @@ import { openUrl } from '@tauri-apps/plugin-opener';
 import * as z from 'zod';
 import { studioWebsiteOrigin } from './deployment';
 import { authenticationResponse, registrationResponse } from './passkey-ceremonies';
-import { createHandoffKey, openSignInResult } from './sign-in-handoff';
+import { codeFromLink, createHandoffKey, openSignInResult } from './sign-in-handoff';
 
 /** Whether a sign-in is waiting on the browser */
 export const browserSignInStore = createAtom(false);
 
-let cancelPending: (() => void) | undefined;
+let pending: { cancel: () => void; enterCode: (code: string) => Promise<boolean> } | undefined;
 
 export function cancelBrowserSignIn() {
-	cancelPending?.();
+	pending?.cancel();
+}
+
+/** Finishes the sign-in with the code the browser shows, resolving with whether the code was for it */
+export async function enterSignInCode(code: string) {
+	return (await pending?.enterCode(code)) ?? false;
 }
 
 /**
- * Runs `start` with the key the browser encrypts its result to, and resolves with the result once its `doglog://sign-in`
- * link arrives, or `undefined` if the sign-in is canceled. Starting another sign-in cancels this one.
+ * Runs `start` with the key the browser encrypts its result to, and resolves with the result once its
+ * `doglog://sign-in` link arrives or the user enters its code, or `undefined` if the sign-in is canceled. Starting
+ * another sign-in cancels this one.
  */
 async function signInInBrowser(start: (key: string) => Promise<unknown>): Promise<unknown> {
 	cancelBrowserSignIn();
@@ -31,20 +37,26 @@ async function signInInBrowser(start: (key: string) => Promise<unknown>): Promis
 	const result = new Promise<unknown>((resolve) => {
 		settle = resolve;
 	});
+	const enterCode = (code: string) =>
+		openSignInResult(code, privateKey, publicKey).then(
+			(value) => {
+				settle?.(value);
+				return true;
+			},
+			() => false,
+		);
 	// Every window gets the link, only the one that started the sign-in can open it
-	const unlisten = await listen<string>('sign-in-link', ({ payload }) => {
-		openSignInResult(payload, privateKey, publicKey).then(settle, () => undefined);
-	});
-	const cancel = () => settle?.(undefined);
-	cancelPending = cancel;
+	const unlisten = await listen<string>('sign-in-link', ({ payload }) => void enterCode(codeFromLink(payload)));
+	const current = { cancel: () => settle?.(undefined), enterCode };
+	pending = current;
 	browserSignInStore.set(true);
 	try {
 		await start(encoded);
 		return await result;
 	} finally {
 		unlisten();
-		if (cancelPending === cancel) {
-			cancelPending = undefined;
+		if (pending === current) {
+			pending = undefined;
 			browserSignInStore.set(false);
 		}
 	}

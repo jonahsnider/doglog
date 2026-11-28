@@ -3,12 +3,28 @@ import { getEntryKind, isStudioEntry, withoutNtPrefix } from '@/data/samples';
 import type { NtClient } from '@/nt/client';
 import { panes } from '@/panes/layout';
 import { settingsStore } from '@/settings';
-import { tuningDashboardId } from '@/tuning/dashboard';
-import { tunablesPrefixes } from '@/tuning/tunables';
+import { tunablesPrefixes, tuningDashboardId } from '@/tuning/tunables';
 import { widgetBindings } from '@/widgets/bindings';
 
 // The timeline, controller widgets, and tuning panel read these without an explicit binding.
-const builtInPrefixes = ['/FMSInfo/', '/DriverStation/', '/AdvantageKit/DriverStation/', '/DS:', ...tunablesPrefixes];
+export const builtInPrefixes = [
+	'/FMSInfo/',
+	'/DriverStation/',
+	'/AdvantageKit/DriverStation/',
+	'/DS:',
+	...tunablesPrefixes,
+];
+
+/** Names of the entries dashboards bind, as live sessions name them, see `findEntry()` */
+export function boundEntryNames(): string[] {
+	const tuning = getDashboard(tuningDashboardId);
+	const dashboards = tuning ? [...getDashboards(), tuning] : getDashboards();
+	return dashboards
+		.flatMap(({ layout }) => panes(layout))
+		.flatMap(({ widget }) => widgetBindings(widget))
+		.map((binding) => withoutNtPrefix(binding.name))
+		.filter((name) => name.startsWith('/') && !isStudioEntry(name));
+}
 
 /** Keep the faster NT4 subscriptions in sync with dashboard bindings and topics discovered on this connection. */
 export function prioritizeLiveTopics(nt: NtClient) {
@@ -44,26 +60,18 @@ export function prioritizeLiveTopics(nt: NtClient) {
 					topics.add(`${name}/warnings`);
 				}
 			}
-			const tuning = getDashboard(tuningDashboardId);
-			const dashboards = tuning ? [...getDashboards(), tuning] : getDashboards();
-			for (const { widget } of dashboards.flatMap(({ layout }) => panes(layout))) {
-				// Bindings of entries a log recorded from NetworkTables show the live topic, see `findEntry()`
-				for (const name of widgetBindings(widget).map((binding) => withoutNtPrefix(binding.name))) {
-					if (!name.startsWith('/') || isStudioEntry(name)) {
-						continue;
-					}
-					if (groups.get(name) === 'Mechanism2d' && !announced.has(name)) {
-						prefixes.add(`${name}/`);
-						continue;
-					}
-					// Generated struct fields and array elements get their samples from a real NT topic.
-					let root = name;
-					while (!announced.has(root) && root.lastIndexOf('/') > 0) {
-						root = root.slice(0, root.lastIndexOf('/'));
-					}
-					const kind = getEntryKind(announced.get(root) ?? '');
-					topics.add(kind === 'struct' || kind.endsWith('[]') ? root : name);
+			for (const name of boundEntryNames()) {
+				if (groups.get(name) === 'Mechanism2d' && !announced.has(name)) {
+					prefixes.add(`${name}/`);
+					continue;
 				}
+				// Generated struct fields and array elements get their samples from a real NT topic.
+				let root = name;
+				while (!announced.has(root) && root.lastIndexOf('/') > 0) {
+					root = root.slice(0, root.lastIndexOf('/'));
+				}
+				const kind = getEntryKind(announced.get(root) ?? '');
+				topics.add(kind === 'struct' || kind.endsWith('[]') ? root : name);
 			}
 			nt.setLivePriority({ topics: [...topics], prefixes: [...prefixes] });
 		});

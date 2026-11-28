@@ -12,6 +12,7 @@ mod mcp_install;
 mod new_window;
 mod recent_logs;
 mod relaunch;
+mod storage_sftp;
 mod sync;
 #[cfg(any(target_os = "macos", windows))]
 mod video;
@@ -24,7 +25,7 @@ use serde::Serialize;
 use std::{
     collections::HashMap,
     fs::File,
-    io::{BufRead, BufReader, Read, Write},
+    io::{BufRead, BufReader, Read, Seek, SeekFrom, Write},
     ops::ControlFlow,
     path::PathBuf,
     process::ExitCode,
@@ -169,6 +170,21 @@ fn read_file(path: PathBuf) -> Result<Response, String> {
     std::fs::read(path)
         .map(Response::new)
         .map_err(|error| error.to_string())
+}
+
+/// Read up to `length` bytes of a file from `offset`, ex. a part of an upload to the team's storage
+#[tauri::command]
+async fn read_file_range(path: PathBuf, offset: u64, length: u64) -> Result<Response, String> {
+    spawn_blocking(move || {
+        let mut file = File::open(&path)?;
+        file.seek(SeekFrom::Start(offset))?;
+        let mut contents = Vec::new();
+        file.take(length).read_to_end(&mut contents)?;
+        Ok(Response::new(contents))
+    })
+    .await
+    .map_err(|error| error.to_string())?
+    .map_err(|error: std::io::Error| error.to_string())
 }
 
 /// The magic bytes every XZ file starts with, ex. a `.wpilogxz` log
@@ -368,6 +384,7 @@ pub fn run() -> ExitCode {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_deep_link::init())
         .plugin(cloud_sign_in::plugin())
@@ -380,6 +397,8 @@ pub fn run() -> ExitCode {
         .manage(sync::RobotConnection::default())
         .manage(sync::CancelDownload::default())
         .manage(sync::SyncLock::default())
+        .manage(storage_sftp::SftpServers::default())
+        .manage(storage_sftp::SftpUploads::default())
         .manage(agent::window::AgentWindows::default())
         .manage(new_window::LastFocused::default())
         .on_window_event(|window, event| match event {
@@ -419,6 +438,7 @@ pub fn run() -> ExitCode {
             set_window_has_source,
             take_opened_dashboard_link,
             read_file,
+            read_file_range,
             read_log,
             folder_files,
             subfolders,
@@ -457,6 +477,15 @@ pub fn run() -> ExitCode {
             sync::download_robot_log,
             sync::cancel_robot_download,
             sync::disconnect_robot,
+            storage_sftp::sftp_list,
+            storage_sftp::sftp_read,
+            storage_sftp::sftp_write,
+            storage_sftp::sftp_upload,
+            storage_sftp::sftp_cancel_upload,
+            storage_sftp::sftp_download,
+            storage_sftp::sftp_remove,
+            storage_sftp::sftp_rename,
+            storage_sftp::sftp_mkdir,
             agent::window::agent_listen,
             agent::window::agent_respond,
             #[cfg(target_os = "macos")]

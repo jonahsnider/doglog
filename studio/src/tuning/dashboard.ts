@@ -4,11 +4,9 @@ import { updateLayout } from '@/dashboards/panes';
 import { addUnlistedDashboard } from '@/dashboards/unlisted';
 import { createId } from '@/lib/random-id';
 import { createPane, type PaneNode } from '@/panes/layout';
+import { tuningDashboardId } from '@/tuning/tunables';
 import { createWidget } from '@/widgets/bindings';
 import { getWidgetType, tuningWidgetType } from '@/widgets/registry';
-
-/** The Tuning page's panes, saved like a dashboard that isn't in the sidebar */
-export const tuningDashboardId = 'tuning-panes';
 
 function isTuningPane(node: PaneNode): boolean {
 	return node.kind === 'pane' && node.widget?.type === tuningWidgetType.id;

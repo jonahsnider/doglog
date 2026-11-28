@@ -17,6 +17,7 @@ import type { WidgetProps } from '@/widgets/widget-type';
 import { AddVideo } from '@/widgets/video/add-video';
 import { useAddVideo } from '@/widgets/video/use-add-video';
 import { useLocalVideo } from '@/widgets/video/local-files';
+import { RunVideo } from '@/widgets/video/run-video';
 import { parseSync, parseVideo } from '@/widgets/video/source';
 import { SyncedVideo, type VideoProps } from '@/widgets/video/synced-video';
 
@@ -78,6 +79,8 @@ export function Video({ options, setOption, paneId }: WidgetProps) {
 				<Button label="Remove video" onClick={() => setOption('video', undefined)} />
 			</WidgetEmpty>
 		);
+	} else if (video.kind === 'run') {
+		content = <RunVideo angle={video.angle} paneId={paneId} setOption={setOption} />;
 	} else {
 		const sync = parseSync(options['sync'] ?? '');
 		content =

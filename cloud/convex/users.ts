@@ -10,9 +10,18 @@ import {
 	importAccountPublicKey,
 } from '../account-key';
 import { api, components, internal } from './_generated/api';
-import type { Doc } from './_generated/dataModel';
-import { action, env, internalMutation, type MutationCtx, mutation, type QueryCtx, query } from './_generated/server';
-import { getMembership } from './teams';
+import type { Doc, Id } from './_generated/dataModel';
+import {
+	type ActionCtx,
+	action,
+	env,
+	internalMutation,
+	type MutationCtx,
+	mutation,
+	type QueryCtx,
+	query,
+} from './_generated/server';
+import { getMembership, resetGrants } from './teams';
 
 export function normalizeDisplayName(value: string) {
 	const name = value.trim();
@@ -180,30 +189,53 @@ export const getAttestationKey = query({
 	handler: () => (env.ATTESTATION_PRIVATE_KEY ? attestationPublicKey(env.ATTESTATION_PRIVATE_KEY) : null),
 });
 
+async function attestEncryptionKey(ctx: ActionCtx, userId: Id<'users'>, publicKey: ArrayBuffer) {
+	const user = await ctx.runQuery(api.users.getCurrent);
+	if (user?.id !== userId) {
+		throw new ConvexError('Sign in to register an account encryption key.');
+	}
+	try {
+		await importAccountPublicKey(publicKey);
+	} catch {
+		throw new ConvexError('Invalid account encryption key.');
+	}
+	if (!env.ATTESTATION_PRIVATE_KEY) {
+		throw new ConvexError('Account encryption key registration is unavailable.');
+	}
+	const signature = await crypto.subtle.sign(
+		accountKeySignatureAlgorithm,
+		await attestationSigningKey(env.ATTESTATION_PRIVATE_KEY),
+		accountKeyMessage(user.id, publicKey),
+	);
+	return { userId: user.id, encryptionKey: { publicKey, signature } };
+}
+
 export const registerEncryptionKey = action({
 	args: { userId: v.id('users'), publicKey: v.bytes() },
-	handler: async (ctx, { userId, publicKey }): Promise<{ publicKey: ArrayBuffer; signature: ArrayBuffer }> => {
-		const user = await ctx.runQuery(api.users.getCurrent);
-		if (user?.id !== userId) {
-			throw new ConvexError('Sign in to register an account encryption key.');
+	handler: async (ctx, { userId, publicKey }): Promise<{ publicKey: ArrayBuffer; signature: ArrayBuffer }> =>
+		ctx.runMutation(internal.users.storeFirstEncryptionKey, await attestEncryptionKey(ctx, userId, publicKey)),
+});
+
+// For an account whose key is lost with every device that had it. Its other devices need to pair again.
+export const resetEncryptionKey = action({
+	args: { userId: v.id('users'), publicKey: v.bytes() },
+	handler: async (ctx, { userId, publicKey }): Promise<void> => {
+		await ctx.runMutation(internal.users.replaceEncryptionKey, await attestEncryptionKey(ctx, userId, publicKey));
+	},
+});
+
+export const replaceEncryptionKey = internalMutation({
+	args: {
+		userId: v.id('users'),
+		encryptionKey: v.object({ publicKey: v.bytes(), signature: v.bytes() }),
+	},
+	handler: async (ctx, { userId, encryptionKey }) => {
+		const user = (await getAuthUserId(ctx)) === userId ? await ctx.db.get('users', userId) : null;
+		if (!user) {
+			throw new ConvexError('Sign in to reset your account encryption key.');
 		}
-		try {
-			await importAccountPublicKey(publicKey);
-		} catch {
-			throw new ConvexError('Invalid account encryption key.');
-		}
-		if (!env.ATTESTATION_PRIVATE_KEY) {
-			throw new ConvexError('Account encryption key registration is unavailable.');
-		}
-		const signature = await crypto.subtle.sign(
-			accountKeySignatureAlgorithm,
-			await attestationSigningKey(env.ATTESTATION_PRIVATE_KEY),
-			accountKeyMessage(user.id, publicKey),
-		);
-		return ctx.runMutation(internal.users.storeFirstEncryptionKey, {
-			userId: user.id,
-			encryptionKey: { publicKey, signature },
-		});
+		await ctx.db.patch('users', userId, { encryptionKey });
+		await resetGrants(ctx, userId);
 	},
 });
 

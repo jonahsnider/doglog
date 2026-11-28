@@ -105,7 +105,8 @@ impl Robot {
         self.ssh.is_closed()
     }
 
-    /// List the `.wpilog` files directly in each of `dirs`.
+    /// List the `.wpilog`, `.wpilogxz`, and `.hoot` files in each of `dirs`, and the `.hoot` files in their direct
+    /// subfolders, since Phoenix 6 puts each run's HOOT files in a folder named after when the run started.
     /// Missing directories are skipped, and directories that are links to an earlier one are only listed once.
     pub async fn list_logs(&self, dirs: &[&str]) -> Result<Vec<RemoteLog>> {
         let mut seen = HashSet::new();
@@ -124,11 +125,30 @@ impl Robot {
                 .read_dir(real_dir.as_str())
                 .await
                 .map_err(|error| error.to_string())?;
+            let real_dir = real_dir.trim_end_matches('/');
             for entry in entries {
                 let name = entry.file_name();
-                if entry.file_type().is_file() && (name.ends_with(".wpilog") || name.ends_with(".wpilogxz")) {
+                let path = format!("{real_dir}/{name}");
+                if entry.file_type().is_dir() {
+                    // A folder that can't be read, ex. one robot code is still creating, is skipped until the next sync
+                    let Ok(run_entries) = self.sftp.read_dir(path.as_str()).await else {
+                        continue;
+                    };
+                    for run_entry in run_entries {
+                        let name = run_entry.file_name();
+                        if run_entry.file_type().is_file() && name.ends_with(".hoot") {
+                            logs.push(RemoteLog {
+                                path: format!("{path}/{name}"),
+                                size: run_entry.metadata().len(),
+                                name,
+                            });
+                        }
+                    }
+                } else if entry.file_type().is_file()
+                    && (name.ends_with(".wpilog") || name.ends_with(".wpilogxz") || name.ends_with(".hoot"))
+                {
                     logs.push(RemoteLog {
-                        path: format!("{}/{name}", real_dir.trim_end_matches('/')),
+                        path,
                         size: entry.metadata().len(),
                         name,
                     });

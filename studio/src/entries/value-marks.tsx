@@ -1,3 +1,4 @@
+import { CheckboxIndicator } from '@astryxdesign/core/Indicator';
 import { colorVars, typeScaleVars, typographyVars } from '@astryxdesign/core/theme/tokens.stylex';
 import { Tooltip } from '@astryxdesign/core/Tooltip';
 import * as stylex from '@stylexjs/stylex';
@@ -8,7 +9,6 @@ import BoxesIcon from 'lucide-react/icons/boxes';
 import BracesIcon from 'lucide-react/icons/braces';
 import CheckIcon from 'lucide-react/icons/check';
 import FileArchiveIcon from 'lucide-react/icons/file-archive';
-import MinusIcon from 'lucide-react/icons/minus';
 import HashIcon from 'lucide-react/icons/hash';
 import ListChecksIcon from 'lucide-react/icons/list-checks';
 import ListIcon from 'lucide-react/icons/list';
@@ -48,6 +48,10 @@ const styles = stylex.create({
 	checkIcon: {
 		width: 12,
 		height: 12,
+	},
+	groupIndicator: {
+		width: 16,
+		height: 16,
 	},
 	icon: {
 		width: 14,
@@ -148,19 +152,16 @@ export function GroupCheckbox({ check, sticky = false }: { check: GroupCheck | u
 	if (check === undefined) {
 		return null;
 	}
-	const sx = stylex.props(styles.mark, check === 'unchecked' ? styles.unchecked : styles.checked);
-	const icon =
-		check === 'unchecked' ? undefined : check === 'checked' ? (
-			<CheckIcon aria-hidden {...stylex.props(styles.checkIcon)} strokeWidth={3} />
-		) : (
-			<MinusIcon aria-hidden {...stylex.props(styles.checkIcon)} strokeWidth={3} />
-		);
+	const sx = stylex.props(styles.mark);
+	const indicator = (
+		<CheckboxIndicator state={check === 'partial' ? 'indeterminate' : check} size="sm" xstyle={styles.groupIndicator} />
+	);
 	return sticky ? (
 		<span aria-hidden {...sx}>
-			{icon}
+			{indicator}
 		</span>
 	) : (
-		<TreeItemCheckbox {...sx}>{icon}</TreeItemCheckbox>
+		<TreeItemCheckbox {...sx}>{indicator}</TreeItemCheckbox>
 	);
 }
 

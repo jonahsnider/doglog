@@ -1,0 +1,4 @@
+/* The AWS wordmark is dark navy, so it follows the text color to stay visible in dark mode, while the smile stays orange */
+[data-provider-icon='aws'] path:first-child {
+	fill: currentColor;
+}

@@ -22,6 +22,7 @@ import { StudioTheme } from './theme/studio-theme.tsx';
 import { syncTeamColors } from './theme/team-colors.ts';
 import { startSharing } from './sharing/sharing.ts';
 import { runLogSync } from './sync/sync.ts';
+import { runUploads } from './storage/uploads.ts';
 import { registerServiceWorker } from './updater.ts';
 
 const preloadReloadKey = 'doglog-studio:preload-reload';
@@ -82,6 +83,7 @@ syncTheme();
 syncTeamColors();
 syncMediaSession();
 startSharing();
+void runUploads();
 if (STUDIO_DESKTOP) {
 	if (hasFrostedFrame) {
 		document.documentElement.dataset['frostedFrame'] = '';

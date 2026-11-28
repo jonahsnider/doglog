@@ -28,6 +28,11 @@
 			"$comment": "The default log sync folder, other folders are allowed when the user picks them. Not added at startup, since that asks for access to Documents.",
 			"allow": [{ "path": "$DOCUMENT/DogLog" }, { "path": "$DOCUMENT/DogLog/**" }]
 		},
+		{
+			"identifier": "http:default",
+			"$comment": "A team's storage can be on any host, including a computer on the local network. The port wildcard matters, without it only default ports match.",
+			"allow": [{ "url": "http://*:*" }, { "url": "https://*:*" }]
+		},
 		"opener:allow-reveal-item-in-dir",
 		"opener:allow-open-url",
 		"opener:allow-default-urls",

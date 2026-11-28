@@ -31,7 +31,7 @@ A sidebar row's label that doesn't fit SHALL fade out at its end. On devices wit
 
 ### Requirement: Sidebar footer actions
 
-The sidebar footer SHALL offer Command palette, Keyboard shortcuts, Download app, and Check for updates when the sidebar is expanded or peeking. These actions MUST NOT appear in the collapsed rail. In the phone layout, the footer MUST NOT offer Keyboard shortcuts or Download app. When an update is ready, Check for updates MUST become the install action in the same row without moving the other actions or losing focus. The install action MUST remain available in the rail.
+The expanded or peeking sidebar footer SHALL offer Command palette, Keyboard shortcuts (except in the phone layout), and Check for updates. Download app SHALL appear only in a desktop browser tab outside the phone layout. These actions MUST NOT appear in the collapsed rail. When an update is ready, Check for updates MUST become the install action in the same row without moving other actions or losing focus. The install action MUST remain available in the rail.
 
 #### Scenario: Open the command palette
 
@@ -43,20 +43,18 @@ The sidebar footer SHALL offer Command palette, Keyboard shortcuts, Download app
 - **WHEN** the user selects Keyboard shortcuts in the footer
 - **THEN** Studio opens the same list as the keyboard shortcut
 
-#### Scenario: Download an installer in the web app
+#### Scenario: Download an installer from the website
 
-- **GIVEN** Studio is running in a browser
+- **GIVEN** Studio is running in a regular desktop browser outside the phone layout
 - **WHEN** the user opens Download app
 - **THEN** the menu lists the macOS Apple silicon and Intel, Windows, Linux AppImage, and Linux .deb installers
 - **AND** selecting an installer downloads it
 
-#### Scenario: Copy an installer link in the desktop app
+#### Scenario: Open the footer in an installed app or on a mobile device
 
-- **GIVEN** Studio is running in the desktop app
-- **WHEN** the user opens Download app
-- **THEN** the menu lists the same installers
-- **AND** selecting an installer copies its download URL without starting a download
-- **AND** Studio confirms whether the link was copied
+- **GIVEN** Studio is running in the desktop app, as an installed web app, or on a mobile device
+- **WHEN** the user opens the sidebar
+- **THEN** the footer does not show Download app, even at desktop widths
 
 #### Scenario: Check for updates
 
@@ -85,7 +83,7 @@ On devices with hover, the sidebar footer actions SHALL stay hidden until the si
 
 - **GIVEN** the sidebar is expanded, no update is ready, and the What's new card is hidden
 - **WHEN** the pointer moves over the sidebar
-- **THEN** Keyboard shortcuts, Download app, and Check for updates fade in
+- **THEN** the available footer actions fade in
 - **AND** they fade out once the pointer leaves, unless one of their menus or dialogs is open
 
 #### Scenario: Show the footer actions with What's new

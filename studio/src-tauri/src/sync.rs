@@ -2,7 +2,7 @@
 
 use std::{
     fs::{File, OpenOptions, TryLockError},
-    path::PathBuf,
+    path::{Path, PathBuf},
     sync::atomic::{AtomicBool, Ordering},
     time::{Duration, Instant},
 };
@@ -57,6 +57,18 @@ async fn with_robot<T>(
         *connection = None;
     }
     result
+}
+
+/// Fail unless the frontend may access `path`: the sync folder, or a file or folder the user picked.
+/// Same rules as the frontend's file access, so commands can't touch files outside them.
+pub fn check_local_access(app: &AppHandle, path: &Path) -> Result<(), String> {
+    // The default folder is allowed in the capability file instead of `fs_scope()`, which would access it at startup.
+    let default_folder = Scope::new(app, &FsScope::AllowedPaths(vec!["$DOCUMENT/DogLog/**".into()]))
+        .map_err(|error| error.to_string())?;
+    if !app.fs_scope().is_allowed(path) && !default_folder.is_allowed(path) {
+        return Err(format!("Studio doesn't have access to {}", path.display()));
+    }
+    Ok(())
 }
 
 /// Try to become the window that syncs logs, taking over from one that closed. Returns whether this window syncs.
@@ -119,13 +131,7 @@ pub async fn download_robot_log(
     offset: u64,
     on_progress: Channel<u64>,
 ) -> Result<u64, String> {
-    // Same rules as the frontend's file access, so this can't write outside the sync folder.
-    // The default folder is allowed in the capability file instead of `fs_scope()`, which would access it at startup.
-    let default_folder = Scope::new(&app, &FsScope::AllowedPaths(vec!["$DOCUMENT/DogLog/**".into()]))
-        .map_err(|error| error.to_string())?;
-    if !app.fs_scope().is_allowed(&local_path) && !default_folder.is_allowed(&local_path) {
-        return Err(format!("Studio doesn't have access to {}", local_path.display()));
-    }
+    check_local_access(&app, &local_path)?;
 
     cancel.0.store(false, Ordering::Relaxed);
     let mut last_progress = Instant::now();

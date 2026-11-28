@@ -55,7 +55,7 @@ A signed-in user SHALL be able to add passkeys and link Apple and Google to thei
 
 ### Requirement: Desktop sign-in
 
-The desktop app SHALL sign in without leaving the app when the OS provides the chosen method, ex. passkeys on macOS. Otherwise, it SHALL open sign-in in the default browser and return the user to the app signed in. A browser sign-in MUST only sign in the app that started it. Passkeys MUST work the same in the web and desktop apps.
+The desktop app SHALL sign in without leaving the app when the OS provides the chosen method, ex. passkeys on macOS. Otherwise, it SHALL open sign-in in the default browser and return the user to the app signed in. When the browser can't open the app, the user MUST be able to paste a code from the browser instead. A browser sign-in MUST only sign in the app that started it. Passkeys MUST work the same in the web and desktop apps.
 
 #### Scenario: Sign in with a passkey in the macOS app
 
@@ -67,6 +67,12 @@ The desktop app SHALL sign in without leaving the app when the OS provides the c
 
 - **WHEN** a user chooses Sign in with Google in the desktop app
 - **THEN** Google's sign-in opens in their default browser, and once they finish, the desktop app is signed in to that account
+
+#### Scenario: Paste the sign-in code when the browser can't open the app
+
+- **GIVEN** a user finished Google's sign-in in the browser, started from the desktop app
+- **WHEN** they decline the browser's prompt to open the app, then copy the code it shows and paste it into the app
+- **THEN** the desktop app is signed in to that account
 
 ### Requirement: Team membership
 
@@ -105,7 +111,7 @@ An account MUST belong to at most one team. When Cloud is available, Studio SHAL
 
 ### Requirement: Dashboard ownership and roles
 
-Dashboards shared in Cloud SHALL belong to the team, not to the member who shared them. Every member MUST be able to see and edit every Cloud dashboard in their team. Only admins may manage other accounts' membership, invite links, and robot links. A team MUST NOT have viewer roles or per-dashboard permissions.
+Dashboards shared in Cloud SHALL belong to the team, not to the member who shared them. Every member MUST be able to see and edit every Cloud dashboard in their team. Only admins may manage other accounts' membership, invite links, robot links, and the team's storage connection (see the log-storage spec). A team MUST NOT have viewer roles or per-dashboard permissions.
 
 #### Scenario: A dashboard's creator leaves
 
@@ -247,7 +253,7 @@ Members SHALL be able to pair a new Studio with an already-unlocked Studio signe
 #### Scenario: Pair Studio on a new device
 
 - **GIVEN** a team member can open Cloud dashboards on one device
-- **WHEN** they start pairing on another device signed in to the same account, compare the two codes, and confirm the match on the unlocked device
+- **WHEN** they open Cloud on another device signed in to the same account, compare the two codes, and confirm the match on the unlocked device
 - **THEN** they can open the team's dashboards on the new device without admin approval
 
 #### Scenario: Cancel a pairing attempt
@@ -255,6 +261,22 @@ Members SHALL be able to pair a new Studio with an already-unlocked Studio signe
 - **GIVEN** both devices show a verification code for a pairing attempt
 - **WHEN** the codes differ and the member cancels, or the attempt expires before they confirm
 - **THEN** Studio does not transfer the credential and the member must start a new attempt to pair
+
+### Requirement: Request pairing automatically
+
+A device without the encryption credential SHALL request pairing while its Cloud page is open, without the member starting it. It SHALL request again when an unanswered attempt expires, and MUST NOT replace a newer attempt from another window or device.
+
+#### Scenario: Pairing request expires
+
+- **GIVEN** a device without the credential has Cloud open
+- **WHEN** its pairing attempt expires before another device answers
+- **THEN** Studio requests pairing again without the member doing anything
+
+#### Scenario: Another window requests pairing
+
+- **GIVEN** a device without the credential is requesting pairing
+- **WHEN** another window or device signed in to the same account starts its own request
+- **THEN** the first request stops and Studio offers to request again instead of replacing the newer one
 
 ### Requirement: Grant dashboard access to an account
 
@@ -273,15 +295,23 @@ Studio MUST grant dashboard access to accounts, not devices. Before sealing the 
 - **THEN** it receives access to the current dashboards and may read retained history encrypted with that key
 - **AND** joining does not rotate the team key or require sharing keys from earlier rotations
 
-### Requirement: Recover dashboard access
+### Requirement: Reset a lost encryption credential
 
-Cloud MUST NOT be able to unlock account private keys. If a member loses their credential, an admin who can still open the dashboards SHALL be able to verify the member and grant a replacement credential for the same account. Studio MUST rotate the team key and exclude the lost credential. If nobody on the team can unlock the dashboards, signing in again or contacting support MUST NOT restore access to the protected data.
+Cloud MUST NOT be able to unlock account private keys. A signed-in user who can't pair from another device SHALL be able to replace their account's encryption credential themselves, without admin approval. The team key MUST be rotated so the replaced credential can't decrypt new updates, and the account's other devices MUST pair again. If nobody on the team can unlock the dashboards, signing in again or contacting support MUST NOT restore access to the protected data.
 
-#### Scenario: Replace one member's lost credential
+#### Scenario: Reset with teammates
 
-- **GIVEN** a member has lost their encryption credential and an admin can still open the team's dashboards
-- **WHEN** the admin verifies the member and authorizes a replacement credential
-- **THEN** the same account can open the dashboards with the replacement credential
+- **GIVEN** a member lost every device with their encryption credential and a teammate can still open the team's dashboards
+- **WHEN** the member resets their credential and the teammate opens Studio
+- **THEN** the same account can open the dashboards with the new credential
+- **AND** the replaced credential cannot decrypt new Cloud updates
+
+#### Scenario: Reset as the only member
+
+- **GIVEN** a team's only member lost their encryption credential
+- **WHEN** they reset it
+- **THEN** nobody can share the team key, so the team's Cloud dashboards are deleted
+- **AND** copies still on that device sync again under a fresh team key
 
 #### Scenario: No member can unlock the team key
 
@@ -289,9 +319,9 @@ Cloud MUST NOT be able to unlock account private keys. If a member loses their c
 - **WHEN** an admin regains access to their Cloud account
 - **THEN** they still cannot decrypt the existing dashboards
 
-### Requirement: Rotate dashboard keys on member removal
+### Requirement: Rotate dashboard keys
 
-When a membership ends, Studio MUST generate a fresh team key that cannot be derived from a previous key and grant it only to remaining members. Studio MUST verify the current team state with Cloud before publishing. After removal takes effect, Cloud MUST NOT accept or distribute new edits encrypted with the old key. If Studio cannot verify team state or unlock the current key, it MUST keep edits local. Rotation cannot revoke keys or copies a former member already holds.
+When a membership ends or a credential is reset, Studio MUST generate a fresh team key not derivable from a previous key and grant it only to remaining members. Studio MUST verify the current team state with Cloud before publishing. After removal takes effect, Cloud MUST NOT accept or distribute new edits encrypted with the old key. If Studio cannot verify team state or unlock the current key, it MUST keep edits local. Rotation cannot revoke keys or copies a former member already holds.
 
 #### Scenario: A remaining member reconnects after rotation
 

@@ -1,15 +1,44 @@
-import { expect, test } from 'vite-plus/test';
+import { expect, test, vi } from 'vite-plus/test';
 import { DataLogWriter, isDataRecord, parseDataLog } from 'wpilog-parser';
 import { createDashboard, deleteDashboard, updateDashboard } from '@/dashboards/dashboards';
 import { DataSet } from '@/data/data-set';
 import { connectLive } from '@/data/live-source';
-import { parseLog } from '@/data/parse-log';
+import { parseLog } from '@/data/log-reader';
 import { Recorder, type RecordingEvent } from '@/data/recorder';
+import { closeLive, disconnect as disconnectSource, getSources } from '@/data/source';
+import { adoptLive } from '@/data/source-transfer';
 import type { NtClient, NtListener, NtLivePriority, NtSubscribeOptions } from '@/nt/client';
 import { createPane } from '@/panes/layout';
 import { settingsStore, updateSettings } from '@/settings';
 import { createWidget, setBoundEntries } from '@/widgets/bindings';
 import { getWidgetType } from '@/widgets/registry';
+
+test.for([
+	{ session: 'never connected', status: 'connecting', start: undefined, remainingStatus: undefined },
+	{ session: 'connected without receiving samples', status: 'connected', start: 0, remainingStatus: 'disconnected' },
+] as const)(
+	'disconnecting a moved live session that $session',
+	({ status, start, remainingStatus }, { onTestFinished }) => {
+		// oxlint-disable-next-line landmines/no-test-doubles -- Publishing source data needs a browser frame in Node tests
+		vi.stubGlobal('requestAnimationFrame', queueMicrotask);
+		onTestFinished(() => {
+			closeLive();
+			vi.unstubAllGlobals();
+		});
+		const data = new DataSet(() => {}).toTransfer();
+		expect(
+			adoptLive({
+				live: { type: 'live', host: 'localhost', status },
+				data: { ...data, start },
+			}),
+		).toBe(true);
+		expect(getSources().live?.status).toBe('reconnecting');
+
+		disconnectSource();
+
+		expect(getSources().live?.status).toBe(remainingStatus);
+	},
+);
 
 /** An NT client that's connected once a microtask passes, with the subscriptions live sessions make and the priority they set */
 function fakeNt() {

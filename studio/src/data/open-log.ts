@@ -165,7 +165,7 @@ export async function openLogPath(path: string, onError?: (message: string) => v
 }
 
 /** Open logs from the desktop app's file system in order, see `openLogPath()` */
-function openLogPaths(paths: readonly string[]): Promise<void> {
+export function openLogPaths(paths: readonly string[]): Promise<void> {
 	return openInOrder(paths, (path) => openLogPath(path));
 }
 

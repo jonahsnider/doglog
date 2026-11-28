@@ -9,7 +9,10 @@ import { robotTargetStore } from '@/settings';
 import { type RobotEnabledWatcher, type SyncBackend, robotBackend } from '@/sync/backend';
 import { demoBackend } from '@/sync/demo';
 import { type LocalLog, type PlannedLog, type RemoteLog, type SyncFilter, planSync } from '@/sync/plan';
+import { runFolders } from '@/sync/runs';
 import { syncSettingsStore } from '@/sync/sync-settings';
+import { cachedListing, storedLogs } from '@/storage/listing';
+import { teamStorageStore } from '@/storage/team-storage';
 
 export type SyncStatus =
 	/** The user paused sync, or hasn't started it yet */
@@ -34,6 +37,8 @@ export type SyncStatus =
 			secondsLeft: number | undefined;
 	  }
 	| { type: 'up-to-date' }
+	/** The storage limit is full of logs that aren't uploaded yet, see `onlyDeleteUploaded` */
+	| { type: 'waiting-for-uploads' }
 	| { type: 'error'; message: string };
 
 /** The sync folder and the logs in it, including ones sync didn't download */
@@ -50,7 +55,8 @@ const progressInterval = 500;
 const estimateAfter = 2000;
 
 const statusStore = createAtom<SyncStatus>({ type: 'paused' });
-const folderStore = createAtom<SyncFolder | undefined>(undefined);
+/** The sync folder and its logs, shared with uploads */
+export const folderStore = createAtom<SyncFolder | undefined>(undefined);
 export interface PlannedLogs {
 	/** Logs from the last time sync checked the robot, newest first */
 	logs: PlannedLog[];
@@ -58,7 +64,7 @@ export interface PlannedLogs {
 	at: number;
 }
 
-const plannedStore = createAtom<PlannedLogs>({ logs: [], at: 0 });
+export const plannedStore = createAtom<PlannedLogs>({ logs: [], at: 0 });
 let wake: () => void = () => {};
 let robotEnabled: { host: string; backend: SyncBackend; watcher: RobotEnabledWatcher } | undefined;
 
@@ -148,8 +154,14 @@ async function watchRobot(host: string | undefined): Promise<void> {
 }
 
 function currentFilter(): SyncFilter {
-	const { days, officialOnly, capGb } = syncSettingsStore.get();
-	return { days, officialOnly, capBytes: capGb === null ? undefined : capGb * bytesPerGb };
+	const { days, officialOnly, capGb, onlyDeleteUploaded } = syncSettingsStore.get();
+	let canDelete: SyncFilter['canDelete'];
+	if (onlyDeleteUploaded && teamStorageStore.get() !== null) {
+		// Without a listing yet, nothing counts as uploaded
+		const stored = storedLogs(cachedListing());
+		canDelete = (log) => (stored.get(log.name)?.size ?? -1) >= log.size;
+	}
+	return { days, officialOnly, capBytes: capGb === null ? undefined : capGb * bytesPerGb, canDelete };
 }
 
 const isRobotEnabled = () => (robotEnabled?.watcher.pausedFor() ?? 0) > 0;
@@ -180,18 +192,22 @@ async function syncOnce(host: string): Promise<number> {
 		return reconnectDelay;
 	}
 
+	let waitingForUploads = false;
 	try {
 		const folder = await refreshFolder();
 		await backend.createFolder(folder.path);
 		const now = Date.now();
 		const plan = planSync(remoteLogs, folder.logs, currentFilter(), now);
 		plannedStore.set({ logs: plan.logs, at: now });
+		waitingForUploads = plan.waitingToDelete;
 
-		await Promise.all(plan.deletions.map((name) => backend.deleteLog(folder.path, name)));
+		await Promise.all(plan.deletions.map((log) => backend.deleteLog(folder.path, log)));
 		if (plan.deletions.length > 0) {
 			await refreshFolder();
 		}
 
+		// Logs go in their run's folder, or where part of them is already saved
+		const folders = runFolders([...remoteLogs, ...folder.logs].map(({ name }) => name));
 		let total = plan.downloads.reduce((sum, { log, offset }) => sum + log.size - offset, 0);
 		const startedAt = Date.now();
 		const secondsLeft = (copied: number, of: number) => {
@@ -199,7 +215,7 @@ async function syncOnce(host: string): Promise<number> {
 			return elapsed < estimateAfter || copied === 0 ? undefined : (of - copied) / (copied / elapsed) / 1000;
 		};
 		let done = 0;
-		for (const [index, { log, offset }] of plan.downloads.entries()) {
+		for (const [index, { log, offset, local }] of plan.downloads.entries()) {
 			if (stopped()) {
 				return 0;
 			}
@@ -226,7 +242,10 @@ async function syncOnce(host: string): Promise<number> {
 			};
 			statusStore.set(progressStatus(0));
 			let shownAt = Date.now();
-			const copied = await backend.download(host, log, folder.path, offset, (progress) => {
+			const dir = local?.dir ?? folders.get(log.name) ?? '';
+			const runFolder = dir === '' ? folder.path : await join(folder.path, dir);
+			await backend.createFolder(runFolder);
+			const copied = await backend.download(host, log, await join(runFolder, log.name), offset, (progress) => {
 				if (Date.now() - shownAt >= progressInterval) {
 					shownAt = Date.now();
 					statusStore.set(progressStatus(progress));
@@ -244,7 +263,7 @@ async function syncOnce(host: string): Promise<number> {
 		return checkDelay;
 	}
 
-	statusStore.set({ type: 'up-to-date' });
+	statusStore.set({ type: waitingForUploads ? 'waiting-for-uploads' : 'up-to-date' });
 	return checkDelay;
 }
 

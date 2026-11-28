@@ -1,6 +1,6 @@
 import { expect, test } from 'vite-plus/test';
 import { DataLogWriter } from 'wpilog-parser';
-import { parseLog } from '@/data/parse-log';
+import { parseLog } from '@/data/log-reader';
 import { StreamingLogParser } from '@/data/stream-log';
 import { syntheticLog } from '@/data/synthetic-log';
 

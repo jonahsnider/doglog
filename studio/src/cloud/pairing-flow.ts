@@ -22,6 +22,16 @@ export interface PairingAccount {
 
 export type PairingRequest = NonNullable<FunctionReturnType<typeof api.pairings.getMine>>;
 
+/** The pairing attempt is gone, ex. it expired or the other device cancelled it, or a newer attempt `replaced` it */
+export class PairingEndedError extends ConvexError<string> {
+	readonly replaced: boolean;
+
+	constructor(replaced: boolean) {
+		super('This pairing attempt ended.');
+		this.replaced = replaced;
+	}
+}
+
 export function errorMessage(error: unknown, fallback: string) {
 	return error instanceof ConvexError && typeof error.data === 'string' ? error.data : fallback;
 }
@@ -65,7 +75,7 @@ function waitFor<T>(
 					return;
 				}
 				if (pairing?.id !== id) {
-					settle(() => reject(new ConvexError('This pairing attempt ended.')));
+					settle(() => reject(new PairingEndedError(pairing !== null)));
 					return;
 				}
 				const value = select(pairing);
@@ -82,13 +92,19 @@ function waitFor<T>(
 	});
 }
 
-export async function pairNewDevice(
+/** Asks the account's other devices for approval until one answers, asking again when an unanswered request expires */
+async function requestApproval(
 	client: ConvexReactClient,
-	account: PairingAccount,
 	signal: AbortSignal,
-	showCode: (code: string) => void,
-) {
+): Promise<{
+	id: Id<'pairings'>;
+	own: { privateKey: CryptoKey; publicKey: ArrayBuffer };
+	approverKey: ArrayBuffer;
+	commitment: ArrayBuffer;
+}> {
 	const own = await createPairingKey();
+	// Checked before starting, since a cancelled request would replace the one after it
+	signal.throwIfAborted();
 	const id = await client.mutation(api.pairings.start, { publicKey: own.publicKey });
 	try {
 		const approver = await waitFor(
@@ -97,6 +113,25 @@ export async function pairNewDevice(
 			({ approverKey, commitment }) => (approverKey && commitment ? { approverKey, commitment } : undefined),
 			signal,
 		);
+		return { id, own, ...approver };
+	} catch (error) {
+		await cancelPairing(client, id);
+		// A newer request from another window or device is left alone, so they don't keep replacing each other
+		if (!(error instanceof PairingEndedError) || error.replaced) {
+			throw error;
+		}
+		return requestApproval(client, signal);
+	}
+}
+
+export async function pairNewDevice(
+	client: ConvexReactClient,
+	account: PairingAccount,
+	signal: AbortSignal,
+	showCode: (code: string) => void,
+) {
+	const { id, own, ...approver } = await requestApproval(client, signal);
+	try {
 		// Revealed only after the approver committed to its nonce
 		const newDeviceNonce = createNonce();
 		await client.mutation(api.pairings.revealNewDeviceNonce, { id, nonce: newDeviceNonce });

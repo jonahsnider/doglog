@@ -5,8 +5,8 @@ import {
 	type DataRecord,
 	type DecodedRecord,
 	type DecodeRecordsOptions,
+	type IndexedEntry,
 	isDataRecord,
-	parseDataLog,
 	parseStructSpecification,
 	type StructDeclaration,
 } from 'wpilog-parser';
@@ -14,6 +14,7 @@ import { isRecordingEntry, readRecordingValue, type RecordingInfo } from '@/data
 import {
 	createSamples,
 	embeddedLogFormat,
+	fromTransfer,
 	getEntryKind,
 	isSchemaEntry,
 	isStudioEntry,
@@ -22,7 +23,7 @@ import {
 	type Value,
 } from '@/data/samples';
 
-type ParsedEntry = { type: string; metadata: string; samples: Samples };
+export type ParsedEntry = { type: string; metadata: string; samples: Samples };
 
 /** A log embedded in an entry of another log, see `embeddedLogFormat` */
 export type EmbeddedLog = {
@@ -127,7 +128,7 @@ function addStructSchema(structSchemas: Map<string, StructDeclaration[]>, name: 
  * What an entry's records are for, worked out from its name and type once instead of for each record, see
  * `LogAccumulator.target()`. `null` for records that aren't kept, ex. of entries that aren't shown.
  */
-type Target =
+export type Target =
 	| { kind: 'recording'; name: string }
 	| { kind: 'schema'; name: string }
 	| { kind: 'embedded'; name: string }
@@ -137,13 +138,15 @@ type Target =
 /** Accumulates decoded WPILOG records into entries, struct schemas, time bounds, and live-recording metadata */
 export class LogAccumulator {
 	readonly entries = new Map<string, ParsedEntry>();
-	private readonly structSchemas = new Map<string, StructDeclaration[]>();
+	readonly structSchemas = new Map<string, StructDeclaration[]>();
 	private readonly names = new Map<number, string>();
 	// The latest value each entry was set to before the log started, see `finish()`
 	private readonly beforeStart = new Map<Samples, { timestamp: number; value: Value }>();
 	private readonly openEntryIds = new Set<number>();
 	// Records of embedded logs by entry name, joined in `finish()`
 	private readonly embeddedChunks = new Map<string, { timestamp: number; bytes: Uint8Array }[]>();
+	// Samples whose values from before the log started were added, see `finishEntries()`
+	private readonly finished = new Set<Samples>();
 	// Targets by entry ID, unset until worked out. Cleared when an entry starts, since it can replace another's entry.
 	private targets: Target[] = [];
 	private start = Infinity;
@@ -169,6 +172,26 @@ export class LogAccumulator {
 			target = this.target(record.entry.name, record.entry.type);
 			this.targets[id] = target;
 		}
+		this.addData(target, record);
+	}
+
+	/** Add an entry like its Start record does, for a log whose records are read in any order, see `LogReader` */
+	startEntry(entry: IndexedEntry): void {
+		handleControlRecord(
+			{
+				controlRecordType: ControlRecordType.Start,
+				entryId: entry.entryId,
+				entryName: entry.name,
+				entryType: entry.type,
+				entryMetadata: entry.metadata,
+			},
+			this.entries,
+			this.names,
+		);
+	}
+
+	/** Add a data record of an entry whose records are for `target`, see `target()` */
+	addData(target: Target, record: DataRecord): void {
 		if (target === null) {
 			return;
 		}
@@ -196,13 +219,40 @@ export class LogAccumulator {
 			case 'samples':
 				break;
 		}
-		const { entry } = target;
-		const value = toValue(record, entry.type);
-		if (value === undefined) {
+		const value = toValue(record, target.entry.type);
+		if (value !== undefined) {
+			this.addValue(target.entry, record.timestamp, value);
+		}
+	}
+
+	/**
+	 * Add every value of a number entry's records at once, `timestamps` and `values` are in file order and only the first
+	 * `length` are used. Takes ownership of the arrays.
+	 */
+	addNumbers(
+		entry: ParsedEntry,
+		timestamps: Float64Array<ArrayBuffer>,
+		values: Float64Array<ArrayBuffer>,
+		length: number,
+	): void {
+		// Used as they are when they're the entry's only samples, in order and after the log started, like most are
+		let usable =
+			length > 0 && entry.samples.length === 0 && !this.beforeStart.has(entry.samples) && timestamps[0]! >= 0;
+		for (let i = 1; usable && i < length; i++) {
+			usable = timestamps[i]! >= timestamps[i - 1]!;
+		}
+		if (usable) {
+			entry.samples = fromTransfer({ timestamps, numbers: values, length });
+			this.extend(timestamps[0]!);
+			this.extend(timestamps[length - 1]!);
 			return;
 		}
+		for (let i = 0; i < length; i++) {
+			this.addValue(entry, timestamps[i]!, values[i]!);
+		}
+	}
 
-		const { timestamp } = record;
+	private addValue(entry: ParsedEntry, timestamp: number, value: Value): void {
 		// NetworkTables values set before the log started, ex. by a coprocessor, are logged with negative timestamps.
 		// Placed at their real time, they'd make the log start up to hours before the robot did.
 		if (timestamp < 0) {
@@ -216,7 +266,7 @@ export class LogAccumulator {
 	}
 
 	/** What records of the entry named `entryName` with type `type` are for */
-	private target(entryName: string, type: string): Target {
+	target(entryName: string, type: string): Target {
 		const name = normalizeEntryName(entryName);
 		if (isRecordingEntry(name)) {
 			return { kind: 'recording', name };
@@ -233,7 +283,8 @@ export class LogAccumulator {
 		return embeddedLogFormat(entry.type) === undefined ? { kind: 'samples', entry } : { kind: 'embedded', name };
 	}
 
-	private extend(timestamp: number): void {
+	/** Include `timestamp` in the log's time range */
+	extend(timestamp: number): void {
 		if (timestamp < this.start) {
 			this.start = timestamp;
 		}
@@ -242,36 +293,51 @@ export class LogAccumulator {
 		}
 	}
 
-	finish(totalBytes: number, readBytes: number): ParsedLog {
+	/** The log's time range, from the records added and for a recorded live session, when it connected */
+	timeRange(): { start: number | undefined; end: number | undefined } {
 		const hasData = this.start <= this.end;
-		let start = hasData ? this.start : undefined;
-		let end = hasData ? this.end : undefined;
-		// They're the values at the start of the log, unless the entry was logged again right as it started
-		const first = start ?? 0;
-		for (const [samples, { value }] of this.beforeStart) {
-			if (samples.length === 0 || samples.timestamps[0]! > first) {
-				samples.push(first, value);
-			}
-		}
-
-		// A recorded live session starts when it first connected, values from before then are its values at the start
+		const start = hasData ? this.start : undefined;
+		const end = hasData ? this.end : undefined;
 		const connectedAt = this.recording?.connections[0]?.start;
 		if (connectedAt !== undefined) {
-			for (const { samples } of this.entries.values()) {
+			return { start: connectedAt, end: Math.max(end ?? connectedAt, this.recording!.end) };
+		}
+		return { start, end };
+	}
+
+	/**
+	 * Add the values entries had before the log started, and for a recorded live session, before it connected. Call
+	 * once their records and the log's time range have been added.
+	 */
+	finishEntries(entries: Iterable<ParsedEntry>): void {
+		// They're the values at the start of the log, unless the entry was logged again right as it started
+		const first = this.start <= this.end ? this.start : 0;
+		// A recorded live session starts when it first connected, values from before then are its values at the start
+		const connectedAt = this.recording?.connections[0]?.start;
+		for (const { samples } of entries) {
+			if (this.finished.has(samples)) {
+				continue;
+			}
+			this.finished.add(samples);
+			const before = this.beforeStart.get(samples);
+			if (before !== undefined && (samples.length === 0 || samples.timestamps[0]! > first)) {
+				samples.push(first, before.value);
+			}
+			if (connectedAt !== undefined) {
 				samples.trimBefore(connectedAt);
 				if (samples.length > 0 && samples.timestamps[0]! < connectedAt) {
 					samples.timestamps[0] = connectedAt;
 				}
 			}
-			start = connectedAt;
-			end = Math.max(end ?? connectedAt, this.recording!.end);
 		}
+	}
 
+	finish(totalBytes: number, readBytes: number): ParsedLog {
+		this.finishEntries(this.entries.values());
 		return {
 			entries: this.entries,
 			structSchemas: this.structSchemas,
-			start,
-			end,
+			...this.timeRange(),
 			unreadBytes: totalBytes - readBytes,
 			recording: this.recording,
 			openEntryIds: [...this.openEntryIds],
@@ -297,45 +363,5 @@ export class LogAccumulator {
 	}
 }
 
-/** Called with where each data record ends in a log's file, and its time, in file order */
+/** Called with where each data record ends in a log's file, and its time, in any order */
 export type OnRecord = (end: number, timestamp: number) => void;
-
-/**
- * Read every entry of a WPILOG file. Throws if it isn't a WPILOG file, or if it's so damaged that none of its entries could be read.
- * Calls `onProgress` with the fraction of the file parsed, from 0 to 1, only when it changes by a whole percent so a worker doesn't flood the main thread with messages.
- */
-export function parseLog(bytes: Uint8Array, onProgress: (progress: number) => void, onRecord?: OnRecord): ParsedLog {
-	const accumulator = new LogAccumulator();
-	// Unwritten blocks hold leftover data, not zeros, which reads as records for entries that were never started
-	const records = parseDataLog(bytes, logParseOptions);
-	let percent = 0;
-	// Bytes read when the progress reaches the next whole percent, so it's only worked out once per percent
-	let nextProgress = 0;
-	// The end of the last record read, since `records.bytesRead` skips to the end of the file when the last record is cut off
-	let readBytes = records.bytesRead;
-
-	try {
-		for (const record of records) {
-			readBytes = records.bytesRead;
-			if (readBytes >= nextProgress) {
-				const next = Math.floor((readBytes / bytes.byteLength) * 100);
-				if (next !== percent) {
-					percent = next;
-					onProgress(percent / 100);
-				}
-				nextProgress = Math.max(readBytes + 1, Math.ceil(((percent + 1) / 100) * bytes.byteLength));
-			}
-			if (onRecord && isDataRecord(record)) {
-				onRecord(readBytes, record.timestamp);
-			}
-			accumulator.addRecord(record);
-		}
-	} catch (error) {
-		if (accumulator.entries.size === 0) {
-			throw new Error("It's damaged, and none of it could be read.", { cause: error });
-		}
-		// Keep every record read before the damage
-	}
-
-	return accumulator.finish(bytes.byteLength, readBytes);
-}

@@ -2,7 +2,7 @@ import { Banner } from '@astryxdesign/core/Banner';
 import { Button } from '@astryxdesign/core/Button';
 import { Divider } from '@astryxdesign/core/Divider';
 import { FormLayout } from '@astryxdesign/core/FormLayout';
-import { HStack, VStack } from '@astryxdesign/core/Layout';
+import { VStack } from '@astryxdesign/core/Layout';
 import { Text } from '@astryxdesign/core/Text';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { useSignInWithApple } from '@convex-dev/auth/methods/apple/react';
@@ -11,11 +11,10 @@ import { useOauth } from '@convex-dev/auth/methods/oauth/react';
 import { useAuthActions } from '@convex-dev/auth/react';
 import { AppleLight, Google } from '@ridemountainpig/svgl-react';
 import * as stylex from '@stylexjs/stylex';
-import { useSelector } from '@tanstack/react-store';
 import { useConvex } from 'convex/react';
 import { ConvexError } from 'convex/values';
 import { type SubmitEvent, useState } from 'react';
-import { browserSignInStore, cancelBrowserSignIn } from '@/cloud/desktop-sign-in';
+import { BrowserSignInStatus } from '@/cloud/browser-sign-in-status';
 import { ceremonies, oauthErrorMessage, runOauthSignIn } from '@/cloud/sign-in-flows';
 import { api } from '../../../cloud/convex/_generated/api.js';
 
@@ -28,20 +27,12 @@ const styles = stylex.create({
 export const displayNameMaxLength = 80;
 
 export function CloudSignIn() {
-	const waiting = useSelector(browserSignInStore);
 	return (
 		<VStack gap={4}>
 			<PasskeySignIn />
 			<Divider label="or" />
 			<OAuthSignIn />
-			{waiting && (
-				<HStack vAlign="center" wrap="wrap" gap={3}>
-					<Text role="status" color="secondary">
-						Finish signing in in your browser.
-					</Text>
-					<Button label="Cancel" size="sm" onClick={cancelBrowserSignIn} />
-				</HStack>
-			)}
+			<BrowserSignInStatus message="Finish signing in in your browser." />
 		</VStack>
 	);
 }

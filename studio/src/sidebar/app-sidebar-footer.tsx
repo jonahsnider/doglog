@@ -13,6 +13,8 @@ import { keyboardShortcutsDialogOpen } from '@/commands/keyboard-shortcuts-dialo
 import { TextMorph } from '@/components/text-morph';
 import { TooltipLabel } from '@/components/tooltip-label';
 import { DownloadMenu } from '@/desktop/download-button';
+import { useMediaQuery } from '@/hooks/use-media-query';
+import { isMobileDevice } from '@/lib/mobile-layout';
 import { useSidebar } from '@/sidebar/sidebar-context';
 import { SidebarFooter, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/sidebar/sidebar-ui';
 import { checkForUpdateManually, installUpdate, updateTitle, useUpdate } from '@/updater';
@@ -54,7 +56,6 @@ export function AppSidebarFooter({
 							</Tooltip>
 						</SidebarMenuItem>
 					)}
-					{/* Phones have no keyboard to need the shortcuts, and can't run the desktop app */}
 					{expanded && !isMobile && (
 						<>
 							<SidebarMenuItem {...expandedRow} inert={closing}>
@@ -68,17 +69,7 @@ export function AppSidebarFooter({
 									</SidebarMenuButton>
 								</Tooltip>
 							</SidebarMenuItem>
-							<SidebarMenuItem {...expandedRow} inert={closing}>
-								<DownloadMenu
-									renderTrigger={(trigger) => (
-										<SidebarMenuButton size="sm" {...trigger}>
-											<DownloadIcon />
-											<span>Download app</span>
-											<ChevronDownIcon data-end-icon="" />
-										</SidebarMenuButton>
-									)}
-								/>
-							</SidebarMenuItem>
+							{!STUDIO_DESKTOP && <SidebarDownload closing={closing} />}
 						</>
 					)}
 					<SidebarMenuItem {...(update ? {} : expandedRow)} inert={closing && !update}>
@@ -103,5 +94,25 @@ export function AppSidebarFooter({
 				</SidebarMenu>
 			)}
 		</SidebarFooter>
+	);
+}
+
+function SidebarDownload({ closing }: { closing: boolean }) {
+	const standalone = useMediaQuery('(display-mode: standalone)');
+	if (standalone || isMobileDevice()) {
+		return null;
+	}
+	return (
+		<SidebarMenuItem {...expandedRow} inert={closing}>
+			<DownloadMenu
+				renderTrigger={(trigger) => (
+					<SidebarMenuButton size="sm" {...trigger}>
+						<DownloadIcon />
+						<span>Download app</span>
+						<ChevronDownIcon data-end-icon="" />
+					</SidebarMenuButton>
+				)}
+			/>
+		</SidebarMenuItem>
 	);
 }

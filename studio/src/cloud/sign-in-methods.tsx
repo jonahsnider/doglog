@@ -1,20 +1,17 @@
 import { Banner } from '@astryxdesign/core/Banner';
 import { Button } from '@astryxdesign/core/Button';
-import { HStack } from '@astryxdesign/core/Layout';
 import { ListItem } from '@astryxdesign/core/List';
-import { Text } from '@astryxdesign/core/Text';
 import { useSignInWithApple } from '@convex-dev/auth/methods/apple/react';
 import { useSignInWithGoogle } from '@convex-dev/auth/methods/google/react';
 import { useOauth } from '@convex-dev/auth/methods/oauth/react';
 import { AppleLight, Google } from '@ridemountainpig/svgl-react';
 import * as stylex from '@stylexjs/stylex';
-import { useSelector } from '@tanstack/react-store';
 import { useConvex, useMutation, useQuery } from 'convex/react';
 import { ConvexError } from 'convex/values';
 import KeyRoundIcon from 'lucide-react/icons/key-round';
 import PlusIcon from 'lucide-react/icons/plus';
 import { useState } from 'react';
-import { browserSignInStore, cancelBrowserSignIn } from '@/cloud/desktop-sign-in';
+import { BrowserSignInStatus } from '@/cloud/browser-sign-in-status';
 import { ceremonies, oauthErrorMessage, runOauthSignIn } from '@/cloud/sign-in-flows';
 import { SettingsGroup } from '@/components/settings-group';
 import { api } from '../../../cloud/convex/_generated/api.js';
@@ -45,7 +42,6 @@ export function SignInMethods() {
 		completeSignInWithGoogle: api.auth.completeLinkingGoogle,
 	});
 	const { flowError } = useOauth();
-	const waiting = useSelector(browserSignInStore);
 	const [pending, setPending] = useState<Method>();
 	const [error, setError] = useState<string>();
 
@@ -180,14 +176,7 @@ export function SignInMethods() {
 					endContent={providerAction('Google', methods.google)}
 				/>
 			</SettingsGroup>
-			{waiting && (
-				<HStack vAlign="center" wrap="wrap" gap={3}>
-					<Text role="status" color="secondary">
-						Finish in your browser.
-					</Text>
-					<Button label="Cancel" size="sm" onClick={cancelBrowserSignIn} />
-				</HStack>
-			)}
+			<BrowserSignInStatus message="Finish in your browser." />
 			{shown !== undefined && <Banner status="error" role="alert" title={shown} />}
 		</>
 	);

@@ -9,7 +9,7 @@ import { getDashboard, subscribeDashboards } from '@/dashboards/dashboards';
 import { getSource } from '@/data/source';
 import { EntryBrowser } from '@/entries/entry-browser';
 import { useMobileLayout } from '@/lib/mobile-layout';
-import { tuningDashboardId } from '@/tuning/dashboard';
+import { tuningDashboardId } from '@/tuning/tunables';
 import { tuningWidgetType } from '@/widgets/registry';
 
 const styles = stylex.create({

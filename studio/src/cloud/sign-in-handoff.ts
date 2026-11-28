@@ -1,5 +1,6 @@
-// The browser returns passkey responses and OAuth codes through a `doglog://sign-in` link. The result is encrypted
-// to a key only the app that started the sign-in holds, so another app that receives the link can't use it.
+// The browser returns passkey responses and OAuth codes through a `doglog://sign-in` link, or a code the user pastes
+// into the app when the link doesn't open it. The result is encrypted to a key only the app that started the sign-in
+// holds, so another app that receives the link can't use it.
 
 const ecdh = { name: 'ECDH', namedCurve: 'P-256' };
 const info = new TextEncoder().encode('doglog-desktop-sign-in-v1');
@@ -38,32 +39,44 @@ export async function createHandoffKey() {
 	return { privateKey, publicKey: new Uint8Array(raw), encoded: toBase64Url(raw) };
 }
 
-/** The `doglog://sign-in` link that returns `result` to the app holding `appKey` */
+// A code is the browser's public key, the IV, then the ciphertext
+const publicKeyLength = 65;
+const ivLength = 12;
+
+/** The code that returns `result` to the app holding `appKey`, which the user pastes if the link doesn't open the app */
 export async function sealSignInResult(appKey: string, result: unknown) {
 	const recipient = fromBase64Url(appKey);
 	const { privateKey, publicKey } = await crypto.subtle.generateKey(ecdh, false, ['deriveBits']);
-	const iv = crypto.getRandomValues(new Uint8Array(12));
+	const iv = crypto.getRandomValues(new Uint8Array(ivLength));
 	const data = await crypto.subtle.encrypt(
 		{ name: 'AES-GCM', iv, additionalData: recipient },
 		await handoffKey(privateKey, recipient, 'encrypt'),
 		new TextEncoder().encode(JSON.stringify(result)),
 	);
-	const url = new URL('doglog://sign-in');
-	url.search = new URLSearchParams({
-		key: toBase64Url(await crypto.subtle.exportKey('raw', publicKey)),
-		iv: toBase64Url(iv.buffer),
-		data: toBase64Url(data),
-	}).toString();
-	return url.href;
+	const code = new Uint8Array(publicKeyLength + ivLength + data.byteLength);
+	code.set(new Uint8Array(await crypto.subtle.exportKey('raw', publicKey)));
+	code.set(iv, publicKeyLength);
+	code.set(new Uint8Array(data), publicKeyLength + ivLength);
+	return toBase64Url(code.buffer);
 }
 
-/** The result in a `doglog://sign-in` link. Throws if it wasn't encrypted to this key. */
-export async function openSignInResult(link: string, privateKey: CryptoKey, publicKey: Uint8Array<ArrayBuffer>) {
-	const params = new URL(link).searchParams;
+/** The `doglog://sign-in` link that opens the app with `code` */
+export function signInLink(code: string) {
+	return `doglog://sign-in?${new URLSearchParams({ code })}`;
+}
+
+/** The code in a `doglog://sign-in` link */
+export function codeFromLink(link: string) {
+	return new URL(link).searchParams.get('code') ?? '';
+}
+
+/** The result in a code. Throws if it wasn't encrypted to this key. */
+export async function openSignInResult(code: string, privateKey: CryptoKey, publicKey: Uint8Array<ArrayBuffer>) {
+	const bytes = fromBase64Url(code.trim());
 	const plaintext = await crypto.subtle.decrypt(
-		{ name: 'AES-GCM', iv: fromBase64Url(params.get('iv') ?? ''), additionalData: publicKey },
-		await handoffKey(privateKey, fromBase64Url(params.get('key') ?? ''), 'decrypt'),
-		fromBase64Url(params.get('data') ?? ''),
+		{ name: 'AES-GCM', iv: bytes.subarray(publicKeyLength, publicKeyLength + ivLength), additionalData: publicKey },
+		await handoffKey(privateKey, bytes.slice(0, publicKeyLength), 'decrypt'),
+		bytes.subarray(publicKeyLength + ivLength),
 	);
 	return JSON.parse(new TextDecoder().decode(plaintext)) as unknown;
 }

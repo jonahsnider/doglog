@@ -1,4 +1,5 @@
-import { colorVars, radiusVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { colorVars, focusVars, radiusVars, spacingVars, typeScaleVars } from '@astryxdesign/core/theme/tokens.stylex';
+import { focusOutlineProps } from '@astryxdesign/core/utils/focusOutline.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useDraggable, useDroppable } from '@dnd-kit/react';
 import { TreeItem, TreeItemLabel } from '@ui-sdk/react/tree';
@@ -33,7 +34,8 @@ const styles = stylex.create({
 		paddingInlineEnd: '0.625rem',
 		fontSize: typeScaleVars['--text-label-size'],
 		lineHeight: typeScaleVars['--text-label-leading'],
-		outline: 'none',
+		// Keep the ring inside the row so the scroller doesn't clip it at the top.
+		outlineOffset: { default: null, ':focus-visible': `calc(-1 * ${focusVars['--focus-outline-width']})` },
 		backgroundColor: {
 			default: null,
 			':hover': colorVars['--color-overlay-hover'],
@@ -53,6 +55,7 @@ const styles = stylex.create({
 		cursor: { default: 'grab', ':active': 'grabbing' },
 	},
 	sticky: {
+		outline: 'none',
 		cursor: 'pointer',
 		textAlign: 'start',
 	},
@@ -165,7 +168,7 @@ export const EntryRowView = memo(function EntryRowView({
 				value={node.value}
 				data-value={node.value}
 				ref={dropRef}
-				{...stylex.props(styles.row, dropTarget && styles.dropTarget)}
+				{...focusOutlineProps.focusVisible(styles.row, dropTarget && styles.dropTarget)}
 				style={style}
 			>
 				<TreeItemLabel {...stylex.props(styles.label)}>
@@ -188,7 +191,7 @@ export const EntryRowView = memo(function EntryRowView({
 				// Tells the tree which row has focus, see `EntryRows`
 				data-value={node.value}
 				ref={ref}
-				{...stylex.props(entryRowMarker, styles.row, dropTarget && styles.dropTarget, styles.entry)}
+				{...focusOutlineProps.focusVisible(entryRowMarker, styles.row, dropTarget && styles.dropTarget, styles.entry)}
 				style={style}
 				onDoubleClick={editing ? undefined : add}
 			>

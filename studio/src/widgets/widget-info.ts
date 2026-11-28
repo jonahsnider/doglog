@@ -214,7 +214,7 @@ export const widgetOptions = {
 			id: 'video',
 			label: 'Video',
 			description:
-				"A YouTube link, or the name of a video file on the user's device, ex. `qual12.mp4`. In the desktop app, an absolute path to a video file is accepted too, only its name is saved with the dashboard. Changing it should also set `sync`.",
+				"A YouTube link, the name of a video file on the user's device, ex. `qual12.mp4`, or `run:<angle>` for the video with that angle, ex. `run:Stands`, of the time base log's run in the team's storage. In the desktop app, an absolute path to a video file is accepted too, only its name is saved with the dashboard. Changing it to a link or file should also set `sync`, run videos use the sync saved with the video in storage.",
 			pattern: /\S/u,
 			default: '',
 		},

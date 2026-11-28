@@ -124,8 +124,9 @@ export function ToastCard({
 							label={actionProps.children}
 							size="sm"
 							onClick={() => {
-								actionProps.onClick();
+								// A synchronous update with the same ID cancels Sonner's pending dismissal.
 								toast.dismiss(id);
+								actionProps.onClick();
 							}}
 						/>
 					</Tooltip>

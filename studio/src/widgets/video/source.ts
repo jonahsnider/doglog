@@ -10,6 +10,8 @@ export type VideoSource =
 			readonly start: number | undefined;
 	  }
 	| { readonly kind: 'file'; readonly name: string }
+	/** The video with this angle of the run whose log is the time base, from the team's storage */
+	| { readonly kind: 'run'; readonly angle: string }
 	/** A link to something other than a YouTube video */
 	| { readonly kind: 'unsupported' };
 
@@ -57,11 +59,23 @@ function parseYouTubeLink(link: string): VideoSource | undefined {
 	return { kind: 'youtube', id, start };
 }
 
-/** The video a `video` option's value points to: a YouTube link, or a file's name. `undefined` without a video. */
+const runPrefix = 'run:';
+
+/** The `video` option's value for a run's video with this angle, ex. `run:Stands` */
+export const runVideoValue = (angle: string) => `${runPrefix}${angle}`;
+
+/**
+ * The video a `video` option's value points to: a YouTube link, a run's video by its angle, or a file's name.
+ * `undefined` without a video.
+ */
 export function parseVideo(value: string): VideoSource | undefined {
 	const trimmed = value.trim();
 	if (trimmed === '') {
 		return undefined;
+	}
+	// File names can't have colons on macOS or Windows
+	if (trimmed.startsWith(runPrefix) && trimmed.length > runPrefix.length) {
+		return { kind: 'run', angle: trimmed.slice(runPrefix.length) };
 	}
 	// File names can't have slashes, links do
 	if (!/[/\\]/u.test(trimmed)) {

@@ -27,7 +27,7 @@ export interface BoardLog {
 const pulse = stylex.keyframes({ '50%': { opacity: 0.5 } });
 
 const styles = stylex.create({
-	board: { display: 'flex', flexDirection: 'column', gap: spacingVars['--spacing-5'] },
+	board: { display: 'flex', flexDirection: 'column', gap: spacingVars['--spacing-3'] },
 	days: {
 		display: 'flex',
 		flexWrap: 'wrap',
@@ -61,8 +61,8 @@ const styles = stylex.create({
 		position: 'relative',
 		display: 'grid',
 		gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-		width: 32,
-		height: 32,
+		width: 24,
+		height: 24,
 		padding: 0,
 		overflow: 'hidden',
 		borderStyle: 'none',
@@ -110,7 +110,7 @@ const styles = stylex.create({
 	bottom: { top: '-100%' },
 	start: { insetInlineStart: 0 },
 	end: { insetInlineStart: '-100%' },
-	matchIcon: { position: 'absolute', inset: 0, width: 16, height: 16, margin: 'auto' },
+	matchIcon: { position: 'absolute', inset: 0, width: 12, height: 12, margin: 'auto' },
 	details: { display: 'flex', flexDirection: 'column' },
 	detailsLabel: { fontWeight: fontWeightVars['--font-weight-medium'] },
 });
@@ -132,9 +132,9 @@ function logCells(name: string) {
 }
 
 const stateText: Record<BoardLog['state'], string> = {
-	synced: 'Synced',
-	copying: 'Copying',
-	queued: 'Waiting to copy',
+	synced: 'Downloaded',
+	copying: 'Downloading',
+	queued: 'On the robot',
 	'over-limit': 'Doesn’t fit under the storage limit',
 };
 
@@ -150,7 +150,7 @@ function byDay(logs: BoardLog[]): { day: Date; logs: BoardLog[] }[] {
 	return [...days.values()];
 }
 
-/** One square per log, filling in as it's copied, grouped by day */
+/** One square per run, named after its first robot log, filling in as it's copied, grouped by day */
 export function SyncBoard({ logs, onOpen }: { logs: BoardLog[]; onOpen: (name: string) => void }) {
 	const shows = (state: BoardLog['state']) => logs.some((log) => log.state === state);
 	const matchTypes = new Set(logs.map((log) => parseLogName(log.name)?.match?.type));
@@ -176,7 +176,7 @@ export function SyncBoard({ logs, onOpen }: { logs: BoardLog[]; onOpen: (name: s
 				{shows('synced') && (
 					<li {...stylex.props(styles.legendItem)}>
 						<span {...stylex.props(styles.swatch, styles.filledCell)} />
-						Synced
+						Downloaded
 					</li>
 				)}
 				{(shows('queued') || shows('copying')) && (

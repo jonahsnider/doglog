@@ -42,6 +42,9 @@ export const shortcuts = {
 	commandPalette: 'Mod+P',
 	findInConsole: 'Mod+F',
 	searchEntries: '/',
+	searchRuns: 'Mod+F',
+	showRuns: 'R',
+	showFiles: 'F',
 	update: updateShortcut,
 } as const satisfies Record<string, Hotkey>;
 
