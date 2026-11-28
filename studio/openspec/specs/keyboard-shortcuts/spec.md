@@ -108,13 +108,14 @@ On a dashboard, pressing `/` SHALL focus the entry browser's search box, opening
 
 ### Requirement: Keyboard shortcuts list
 
-The keyboard shortcuts shortcut SHALL open a dialog listing every app-wide keyboard shortcut, grouped by area and formatted for the user's platform. While the media controls setting is on, it SHALL also list the media keys. Pressing the shortcut again MUST close it. The list MUST NOT include shortcuts that only work in one kind of widget. Shortcuts for opposite actions, like step back and step forward, SHALL share one row, with each pair of alternative keys on its own line.
+The keyboard shortcuts shortcut SHALL toggle a dialog listing app-wide shortcuts by area and formatted for the user's platform. The list SHALL include media keys while media controls are on. It MUST NOT include whole-page zoom or widget-specific shortcuts. Shortcuts for opposite actions SHALL share one row, with each alternative pair on its own line.
 
 #### Scenario: Open the list
 
 - **WHEN** the user presses ⌘/
-- **THEN** a dialog lists every app-wide keyboard shortcut, including the timeline's
+- **THEN** a dialog lists app-wide keyboard shortcuts, including the timeline's
 - **AND** Navigation lists Back / forward, dashboard switching, Logs, and Settings
+- **AND** Layout lists Zoom or restore pane, but not Zoom In, Zoom Out, or Actual Size
 - **AND** Collaboration and sharing lists Copy dashboard link and, where capture is available, Copy dashboard image and Export dashboard video
 - **AND** it doesn't list the field widget's measuring shortcuts
 
