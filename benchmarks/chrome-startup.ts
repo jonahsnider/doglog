@@ -43,7 +43,7 @@ function observeVitals() {
 }
 
 const vitalsSource = await readFile(createRequire(import.meta.url).resolve('web-vitals'), 'utf8');
-const initScript = `if (window === window.top) {\n${vitalsSource}\n(${observeVitals.toString()})();\n}`;
+const initScript = `${vitalsSource}\n(${observeVitals.toString()})();`;
 
 export const liteWorkspace = 'iframe.hub-frame:not(.background)';
 
@@ -112,7 +112,19 @@ export async function measureChromeStartup(browser: Browser, target: ChromeTarge
 			}
 			return (globalThis as BenchmarkGlobals).__doglogBenchmarkVitals;
 		});
-		return { readyMs, ...vitals };
+		const workspace =
+			target.app === 'lite'
+				? await page
+						.frameLocator(liteWorkspace)
+						.locator('body')
+						.evaluate(() => (globalThis as BenchmarkGlobals).__doglogBenchmarkVitals)
+				: undefined;
+		return {
+			readyMs,
+			...vitals,
+			workspaceLcpMs: workspace?.mainFrameLcpMs ?? null,
+			workspaceCls: workspace?.mainFrameCls ?? null,
+		};
 	} finally {
 		await context.close();
 	}

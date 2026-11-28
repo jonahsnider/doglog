@@ -1,10 +1,10 @@
 import { execFileSync, spawn, type ChildProcess } from 'node:child_process';
 import { once } from 'node:events';
 import { mkdtempDisposableSync } from 'node:fs';
-import { appendFile, mkdir, mkdtemp, open, readFile, writeFile } from 'node:fs/promises';
+import { appendFile, cp, mkdir, mkdtemp, open, readFile, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { basename, dirname, extname, join, resolve } from 'node:path';
 import { setTimeout } from 'node:timers/promises';
 import { parseArgs } from 'node:util';
 import { measureMacAppSize } from './macos-app.ts';
@@ -19,14 +19,17 @@ const defaultLite = { run: '45524166211', version: 'v27.0.0-beta-1' };
 const macApps = ['/Applications/DogLog Studio.app', '/Applications/AdvantageScope.app'];
 
 const usage = `Usage: pnpm --filter @doglog/benchmarks suite [options]
-  --only macos|chrome|size|wpilog  Run just one group of checks
+  --only macos|chrome|size|wpilog|wpilog-local|field  Run just one group of checks
   --runs <count>           Timed samples per app (default: 10)
-  --wpilog <path>          Include Chrome open-to-graph using a local WPILOG
+  --wpilog <path>          WPILOG fixture for open-to-graph checks
   --signal <entry>         Full numeric entry path in that log (required with --wpilog)
+  --fixtures <json>        Run a list of WPILOG and HOOT fixtures; includes local-file runs on macOS
+  --local-file             Include macOS local-file WPILOG in a full suite run
   --studio-dmg <path>      Studio installer matching the installed app
   --advantagescope-dmg <path>  AdvantageScope installer matching the installed app
+  --lite-dir <path>        Use an unpacked Lite artifact instead of downloading it
   --lite-run <id>          Override the Lite GitHub Actions run ID
-  --lite-version <tag>     Version label for that Lite build (required with --lite-run)
+  --lite-version <tag>      Version label (required with --lite-dir or --lite-run)
   --help                   Show this message`;
 
 type CommandOptions = { cwd?: string; env?: NodeJS.ProcessEnv; stdout?: number; stderr?: number };
@@ -97,6 +100,33 @@ function message(error: unknown) {
 	return error instanceof Error ? error.message : String(error);
 }
 
+type Fixture = { path: string; signal: string; scopeSignal: string };
+
+async function readFixtures(path: string): Promise<Fixture[]> {
+	const entries: unknown = JSON.parse(await readFile(path, 'utf8'));
+	if (!Array.isArray(entries) || entries.length === 0)
+		throw new Error(`${path}: expected a nonempty array of fixtures.`);
+	return entries.map((entry: unknown, i) => {
+		const fixture = entry as Partial<Fixture> | null;
+		if (
+			!fixture ||
+			typeof fixture.path !== 'string' ||
+			!['.wpilog', '.hoot'].includes(extname(fixture.path)) ||
+			typeof fixture.signal !== 'string' ||
+			!fixture.signal.trim() ||
+			(fixture.scopeSignal !== undefined &&
+				(extname(fixture.path) !== '.hoot' || typeof fixture.scopeSignal !== 'string' || !fixture.scopeSignal.trim()))
+		) {
+			throw new Error(`${path}: fixture ${i + 1} needs a .wpilog or .hoot path and signal; scopeSignal is HOOT-only.`);
+		}
+		return {
+			path: resolve(dirname(path), fixture.path),
+			signal: fixture.signal,
+			scopeSignal: fixture.scopeSignal ?? fixture.signal,
+		};
+	});
+}
+
 async function suite() {
 	const { values } = parseArgs({
 		options: {
@@ -104,8 +134,11 @@ async function suite() {
 			runs: { type: 'string', default: '10' },
 			wpilog: { type: 'string' },
 			signal: { type: 'string' },
+			fixtures: { type: 'string' },
+			'local-file': { type: 'boolean' },
 			'studio-dmg': { type: 'string' },
 			'advantagescope-dmg': { type: 'string' },
+			'lite-dir': { type: 'string' },
 			'lite-run': { type: 'string' },
 			'lite-version': { type: 'string' },
 			help: { type: 'boolean' },
@@ -115,19 +148,27 @@ async function suite() {
 		console.log(usage);
 		return;
 	}
-	const { only, runs, wpilog, signal } = values;
+	const { only, runs, wpilog, signal, fixtures: fixtureList } = values;
 	const cwd = process.env['INIT_CWD'] ?? process.cwd();
+	const darwin = process.platform === 'darwin';
 	const chromeStartup = only === undefined || only === 'chrome';
-	const macSize = only === undefined || only === 'macos' || only === 'size';
+	const chromeField = chromeStartup || only === 'field';
+	const macStartup = darwin && (only === undefined || only === 'macos');
+	const macLocal =
+		only === 'wpilog-local' || values['local-file'] === true || (macStartup && !!(fixtureList || (only && wpilog)));
+	const macSize = darwin && (only === undefined || only === 'macos' || only === 'size');
 	const studioDmg = values['studio-dmg'];
 	const scopeDmg = values['advantagescope-dmg'];
+	const liteSource = values['lite-dir'];
 	const liteRun = values['lite-run'] ?? defaultLite.run;
 	const liteVersion = values['lite-version'] ?? defaultLite.version;
 	if (
-		(only !== undefined && !['macos', 'chrome', 'size', 'wpilog'].includes(only)) ||
+		(only !== undefined && !['macos', 'chrome', 'size', 'wpilog', 'wpilog-local', 'field'].includes(only)) ||
+		(only !== undefined && values['local-file'] === true) ||
 		!/^[1-9]\d*$/u.test(runs) ||
 		!Number.isSafeInteger(Number(runs)) ||
-		(values['lite-run'] === undefined) !== (values['lite-version'] === undefined) ||
+		(liteSource !== undefined && (!liteSource.trim() || values['lite-run'] !== undefined)) ||
+		(liteSource !== undefined || values['lite-run'] !== undefined) !== (values['lite-version'] !== undefined) ||
 		!/^[1-9]\d*$/u.test(liteRun) ||
 		!liteVersion.trim()
 	) {
@@ -136,13 +177,32 @@ async function suite() {
 	if ((studioDmg !== undefined || scopeDmg !== undefined) && (!studioDmg || !scopeDmg || !macSize)) {
 		throw new Error('Pass both DMG paths together for a macOS size check.');
 	}
-	if (
-		(wpilog !== undefined || signal !== undefined || only === 'wpilog') &&
-		(!wpilog || !signal || (macSize && only !== undefined))
-	) {
-		throw new Error('Pass --wpilog and --signal together for a Chrome WPILOG check.');
+	if (!darwin && (only === 'macos' || only === 'size' || macLocal)) {
+		throw new Error('Desktop benchmarks require a logged-in macOS session.');
 	}
-	if (process.platform !== 'darwin') throw new Error('Run the benchmark suite in a logged-in macOS desktop session.');
+	if (
+		(fixtureList !== undefined && (wpilog !== undefined || signal !== undefined)) ||
+		((wpilog !== undefined || signal !== undefined) && (!wpilog?.endsWith('.wpilog') || !signal?.trim()))
+	) {
+		throw new Error('Use --fixtures, or pass one .wpilog with --wpilog and --signal.');
+	}
+	const fixtures =
+		fixtureList !== undefined
+			? await readFixtures(resolve(cwd, fixtureList))
+			: wpilog && signal
+				? [{ path: resolve(cwd, wpilog), signal, scopeSignal: signal }]
+				: [];
+	const chromeLogs =
+		chromeStartup || only === 'wpilog' ? fixtures.filter(({ path }) => extname(path) === '.wpilog') : [];
+	if (
+		(only === 'wpilog' && !chromeLogs.length) ||
+		(macLocal && !fixtures.length) ||
+		(fixtures.length && !macLocal && !chromeLogs.length)
+	) {
+		throw new Error(
+			'Pass fixtures supported by the selected log benchmark (.wpilog for Chrome, .wpilog or .hoot for macOS).',
+		);
+	}
 
 	const resultsDir = join(benchmarkDir, 'results');
 	await mkdir(resultsDir, { recursive: true });
@@ -150,9 +210,19 @@ async function suite() {
 	console.log(`Results: ${outputDir}`);
 	const files: string[] = [];
 	const failures: string[] = [];
+	const skips: string[] = [];
+	if (!only && !darwin) skips.push('Desktop benchmarks require macOS.');
+	if ((chromeStartup || only === 'wpilog') && fixtures.some(({ path }) => extname(path) === '.hoot')) {
+		skips.push('HOOT is measured with the native desktop picker, not Chrome’s WPILOG URL path.');
+	}
+	if (!only && !fixtures.length) skips.push('Log workloads require --fixtures or --wpilog with --signal.');
 
-	async function measure(mode: 'macos' | 'chrome' | 'wpilog', args: string[]) {
-		const path = join(outputDir, mode === 'wpilog' ? 'chrome-wpilog.jsonl' : `${mode}-startup.jsonl`);
+	async function measure(
+		mode: 'macos' | 'chrome' | 'wpilog' | 'wpilog-local' | 'field',
+		args: string[],
+		file = `${mode}-startup`,
+	) {
+		const path = join(outputDir, `${file}.jsonl`);
 		await using output = await open(path, 'w');
 		try {
 			await run(process.execPath, [join(benchmarkDir, 'startup.ts'), mode, runs, ...args], { stdout: output.fd });
@@ -172,7 +242,7 @@ async function suite() {
 		}
 	}
 
-	if (only === undefined || only === 'macos') {
+	if (macStartup) {
 		await attempt('macOS startup', () => measure('macos', macApps));
 	}
 	if (macSize) {
@@ -187,7 +257,15 @@ async function suite() {
 			files.push(path);
 		});
 	}
-	if (chromeStartup || wpilog) {
+	if (macLocal) {
+		for (const [i, { path, signal, scopeSignal }] of fixtures.entries()) {
+			const format = extname(path).slice(1);
+			await attempt(`macOS local file: ${basename(path)}`, () =>
+				measure('wpilog-local', [path, signal, scopeSignal, ...macApps], `macos-${format}-${i + 1}`),
+			);
+		}
+	}
+	if (chromeField || chromeLogs.length) {
 		await attempt('Chrome setup', async () => {
 			await checkPort(studioPort);
 			await checkPort(litePort);
@@ -201,18 +279,23 @@ async function suite() {
 			}).trim();
 			console.log('Building Studio for production.');
 			await run('pnpm', ['build', '--outDir', distDir, '--logLevel', 'warn'], { cwd: studioDir, env });
-			console.log(`Downloading AdvantageScope Lite ${liteVersion} (run ${liteRun}).`);
-			await run('gh', [
-				'run',
-				'download',
-				liteRun,
-				'-R',
-				'Mechanical-Advantage/AdvantageScope',
-				'-n',
-				'advantagescopelite-desktop',
-				'-D',
-				liteDir,
-			]);
+			if (liteSource !== undefined) {
+				console.log(`Using local AdvantageScope Lite ${liteVersion}.`);
+				await cp(resolve(cwd, liteSource), liteDir, { recursive: true });
+			} else {
+				console.log(`Downloading AdvantageScope Lite ${liteVersion} (run ${liteRun}).`);
+				await run('gh', [
+					'run',
+					'download',
+					liteRun,
+					'-R',
+					'Mechanical-Advantage/AdvantageScope',
+					'-n',
+					'advantagescopelite-desktop',
+					'-D',
+					liteDir,
+				]);
+			}
 
 			const liteServer = join(liteDir, 'lite_server.py');
 			const source = await readFile(liteServer, 'utf8');
@@ -245,8 +328,11 @@ async function suite() {
 				await waitForServer(lite, liteUrl);
 				const targets = ['studio', studioVersion, studioUrl, 'lite', liteVersion, liteUrl];
 				if (chromeStartup) await attempt('Chrome startup', () => measure('chrome', targets));
-				if (wpilog && signal) {
-					await attempt('Chrome WPILOG', () => measure('wpilog', [resolve(cwd, wpilog), signal, ...targets]));
+				if (chromeField) await attempt('Chrome 3D field', () => measure('field', targets, 'chrome-field'));
+				for (const [i, { path, signal }] of chromeLogs.entries()) {
+					await attempt(`Chrome URL: ${basename(path)}`, () =>
+						measure('wpilog', [path, signal, ...targets], `chrome-wpilog-${i + 1}`),
+					);
 				}
 			} finally {
 				for (const server of servers) stop(server);
@@ -265,6 +351,7 @@ async function suite() {
 		await appendFile(report, `\n## Incomplete benchmarks\n\n${failures.map((failure) => `- ${failure}`).join('\n')}\n`);
 		process.exitCode = 1;
 	}
+	if (skips.length) await appendFile(report, `\n## Not run\n\n${skips.map((skip) => `- ${skip}`).join('\n')}\n`);
 	console.log(`\nReport: ${report}`);
 }
 

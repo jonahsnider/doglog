@@ -22,7 +22,7 @@ func hasVisibleWindow(pid: pid_t) -> Bool {
 }
 
 @MainActor
-func measureStartup(_ url: URL, id: String) async throws -> Double {
+func measureStartup(_ url: URL, id: String) async throws -> [String: Double] {
   guard NSRunningApplication.runningApplications(withBundleIdentifier: id).isEmpty else {
     throw BenchmarkError(
       message: "Quit \(url.lastPathComponent) before running the benchmark.")
@@ -43,7 +43,12 @@ func measureStartup(_ url: URL, id: String) async throws -> Double {
     try await Task.sleep(for: .milliseconds(20))
   }
 
-  let exitedBeforeWindow = app.isTerminated
+  let memory = await Task { () throws -> Double? in
+    guard firstWindowMs != nil else { return nil }
+    try await Task.sleep(for: .seconds(5))
+    return try footprintBytes(pid: app.processIdentifier)
+  }.result
+  let exitedBeforeWindow = firstWindowMs == nil && app.isTerminated
   if !app.isTerminated {
     _ = app.terminate()
     let deadline = clock.systemUptime + 5
@@ -59,21 +64,27 @@ func measureStartup(_ url: URL, id: String) async throws -> Double {
       message: exitedBeforeWindow
         ? "The app quit before showing a window." : "No visible window within 30 seconds.")
   }
-  return firstWindowMs
+  return ["firstWindowMs": firstWindowMs, "idleFootprintBytes": try memory.get()!]
 }
 
-guard CommandLine.arguments.count == 3 else {
-  fputs("Expected an app bundle path and bundle ID.\n", stderr)
-  exit(EXIT_FAILURE)
-}
+@main
+struct StartupProbe {
+  static func main() async {
+    guard CommandLine.arguments.count == 3 else {
+      fputs("Expected an app bundle path and bundle ID.\n", stderr)
+      exit(EXIT_FAILURE)
+    }
 
-do {
-  guard NSScreen.main != nil else {
-    throw BenchmarkError(message: "Run the benchmark in a logged-in macOS desktop session.")
+    do {
+      guard NSScreen.main != nil else {
+        throw BenchmarkError(message: "Run the benchmark in a logged-in macOS desktop session.")
+      }
+      let url = URL(fileURLWithPath: CommandLine.arguments[1])
+      let result = try await measureStartup(url, id: CommandLine.arguments[2])
+      print(String(decoding: try JSONEncoder().encode(result), as: UTF8.self))
+    } catch {
+      fputs("\(error.localizedDescription)\n", stderr)
+      exit(EXIT_FAILURE)
+    }
   }
-  let url = URL(fileURLWithPath: CommandLine.arguments[1])
-  print(try await measureStartup(url, id: CommandLine.arguments[2]))
-} catch {
-  fputs("\(error.localizedDescription)\n", stderr)
-  exit(EXIT_FAILURE)
 }
