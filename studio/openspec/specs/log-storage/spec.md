@@ -73,7 +73,7 @@ S3-compatible storage at an HTTPS address SHALL work in the web and desktop apps
 
 ### Requirement: Check a connection
 
-Saving a connection SHALL check that Studio can list, write, read, and delete a test file in the root folder, showing each step as it runs, and MUST name the step that failed and what usually causes it, ex. a key without write access. For S3-compatible storage, the desktop app MUST set the bucket's CORS rules so the web app can reach it, and when the check fails because of CORS the web app MUST say how to add the rule, in the provider's own format and only with config that provider takes.
+Saving a connection SHALL check that Studio can list, write, read, and delete a test file in the root folder, showing each step as it runs, and MUST name the step that failed and what usually causes it, ex. a key without write access. For S3-compatible storage, the desktop app MUST set the bucket's CORS rules so the web app can reach it, and when it can't, MUST still save the connection and say the web app may not reach the storage and how to add the rule. When the check fails because of CORS the web app MUST say how to add the rule, in the provider's own format and only with config that provider takes.
 
 #### Scenario: Key can't write
 
@@ -92,6 +92,12 @@ Saving a connection SHALL check that Studio can list, write, read, and delete a 
 - **GIVEN** an admin sets up a Google Cloud Storage bucket in the web app
 - **WHEN** the check can't reach the bucket because of CORS
 - **THEN** Studio shows the rule in Google Cloud's own format with the command that adds it, not the format other providers' consoles take
+
+#### Scenario: Key can't change the bucket's settings
+
+- **GIVEN** an admin sets up a Google Cloud Storage bucket in the desktop app with a key that can read and write files but not change the bucket's settings
+- **WHEN** the check passes but setting the CORS rules is denied
+- **THEN** Studio says the connection was partially saved, that the storage won't work outside the desktop app until its CORS rules are updated, and shows one command that updates them
 
 #### Scenario: No rule to paste
 

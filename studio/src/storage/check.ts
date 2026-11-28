@@ -1,6 +1,6 @@
 // Checks a storage connection before it's saved, see the log-storage spec's check a connection
 import { S3Storage, StorageError, corsRuleJson, createStorage, gcsCorsRuleJson } from '@/storage/client';
-import type { S3Connection, StorageConnection } from '@/storage/connection';
+import type { S3Connection, S3Provider, StorageConnection } from '@/storage/connection';
 
 export type CheckStep = 'list' | 'write' | 'read' | 'delete';
 
@@ -10,51 +10,80 @@ interface Snippet {
 	language?: string;
 }
 
+/** Why a step failed, what to do about it, and the error itself */
+export interface CheckProblem {
+	message: string;
+	hint: string;
+	/** For CORS, the rule that fixes it in the provider's own format */
+	fix: Snippet[];
+}
+
 export type CheckResult =
-	| { ok: true; corsWarning?: string }
 	| {
-			ok: false;
-			step: CheckStep;
-			message: string;
-			/** Why it usually fails at this step */
-			hint: string;
-			/** When the browser blocked the request, the CORS rule that fixes it in the provider's own format */
-			fix: Snippet[];
-	  };
+			ok: true;
+			/** The desktop app couldn't set the bucket's CORS rules, so the web app may not reach it */
+			cors?: CheckProblem;
+	  }
+	| ({ ok: false; step: CheckStep } & CheckProblem);
 
-const desktopAddsRule =
-	'Check the connection once in the desktop app, which adds the rule for you, then check again here.';
+const ruleNeeds =
+	'Add a CORS rule that allows GET, PUT, POST, DELETE, and HEAD from any origin with any header, and exposes the ETag header';
 
-/** How to add the CORS rule Studio needs, in the format and place each provider takes it */
-function corsFix(connection: S3Connection): { hint: string; fix: Snippet[] } {
-	const blocked = 'The bucket doesn’t let Studio’s website reach it.';
+/** Where each provider takes the CORS rule Studio needs and the rule in its format, or nothing when its console can't take one */
+function corsRule(connection: S3Connection): { where: string; fix: Snippet[] } | undefined {
 	switch (connection.provider) {
 		case 'r2':
 			return {
-				hint: `${blocked} Paste this rule under CORS Policy in the bucket’s settings, then check again.`,
+				where: 'Paste this rule under CORS Policy in the bucket’s settings',
 				fix: [{ code: corsRuleJson, language: 'json' }],
 			};
 		case 'aws':
 			return {
-				hint: `${blocked} Paste this rule under Cross-origin resource sharing (CORS) in the bucket’s Permissions tab, then check again.`,
+				where: 'Paste this rule under Cross-origin resource sharing (CORS) in the bucket’s Permissions tab',
 				fix: [{ code: corsRuleJson, language: 'json' }],
 			};
 		case 'gcs':
 			return {
-				hint: `${blocked} Save this rule as cors.json and run the command below with the gcloud CLI, then check again.`,
+				where: 'Run this command with the gcloud CLI',
+				// The CLI only reads the rule from a file, and its worker processes can read stdin but not `<(...)`
 				fix: [
-					{ code: gcsCorsRuleJson, language: 'json' },
-					{ code: `gcloud storage buckets update gs://${connection.bucket} --cors-file=cors.json` },
+					{
+						code: `echo '${gcsCorsRuleJson}' | gcloud storage buckets update gs://${connection.bucket} --cors-file=/dev/stdin`,
+					},
 				],
 			};
-		case 'b2':
-			return { hint: `${blocked} ${desktopAddsRule}`, fix: [] };
 		default:
-			return {
-				hint: `${blocked} Add a CORS rule that allows GET, PUT, POST, DELETE, and HEAD from any origin with any header, and exposes the ETag header. ${desktopAddsRule}`,
-				fix: [],
-			};
+			return undefined;
 	}
+}
+
+/** How to add the CORS rule when the web app's check was blocked */
+function corsFix(connection: S3Connection): { hint: string; fix: Snippet[] } {
+	const blocked = 'The bucket doesn’t let Studio’s website reach it.';
+	const rule = corsRule(connection);
+	if (rule === undefined) {
+		return {
+			hint: `${blocked} ${ruleNeeds}. Check the connection once in the desktop app, which adds the rule for you, then check again here.`,
+			fix: [],
+		};
+	}
+	return { hint: `${blocked} ${rule.where}, then check again.`, fix: rule.fix };
+}
+
+/** Each provider's short name for the warning when the desktop app couldn't add the CORS rule */
+const shortNames: Record<S3Provider, string> = {
+	r2: 'R2',
+	aws: 'S3',
+	b2: 'B2',
+	gcs: 'GCS',
+	other: 'This storage',
+};
+
+/** How to add the CORS rule when the desktop app couldn't, which only the web app needs */
+function corsWarning(connection: S3Connection, message: string): CheckProblem {
+	const cause = `CORS rules could not be automatically configured, probably from missing permissions. ${shortNames[connection.provider]} won’t work outside the desktop app until updated.`;
+	const rule = corsRule(connection);
+	return { message, hint: `${cause} ${rule?.where ?? ruleNeeds}.`, fix: rule?.fix ?? [] };
 }
 
 function hintFor(step: CheckStep, connection: StorageConnection): string {
@@ -78,13 +107,13 @@ export async function checkConnection(
 	onStep?: (step: CheckStep) => void,
 ): Promise<CheckResult> {
 	const storage = createStorage(connection);
-	let corsWarning: string | undefined;
+	let cors: CheckProblem | undefined;
 	// The desktop app isn't limited by CORS, so it sets the rule the web app needs
 	if (STUDIO_DESKTOP && storage instanceof S3Storage) {
 		try {
 			await storage.allowBrowsers();
 		} catch (error) {
-			corsWarning = `Couldn’t set the bucket’s CORS rules, so the web app may not reach it: ${String(error)}`;
+			cors = corsWarning(storage.connection, error instanceof Error ? error.message : String(error));
 		}
 	}
 
@@ -118,5 +147,5 @@ export async function checkConnection(
 			return { ok: false, step, message, hint: hintFor(step, connection), fix: [] };
 		}
 	}
-	return { ok: true, corsWarning };
+	return { ok: true, cors };
 }

@@ -104,7 +104,11 @@ async function connectS3(connection: S3Connection, endpoint: string) {
 			} catch (error) {
 				if (error instanceof sdk.S3ServiceException) {
 					const status = error.$metadata.httpStatusCode;
-					throw new StorageError(`${status ?? ''} ${error.message}`.trim(), status, error.name, { cause: error });
+					// Google Cloud names the missing permission in Details, not the message
+					const details = 'Details' in error && typeof error.Details === 'string' ? error.Details : '';
+					throw new StorageError(`${status ?? ''} ${error.message} ${details}`.trim(), status, error.name, {
+						cause: error,
+					});
 				}
 				// A browser may reject the request without an HTTP response, for example because of CORS.
 				throw new StorageError(error instanceof Error ? error.message : String(error), undefined, undefined, {
@@ -350,19 +354,15 @@ const corsRules = [
 /** The CORS rule as JSON, the format R2's and Amazon's consoles take */
 export const corsRuleJson = JSON.stringify(corsRules, null, 2);
 
-/** The CORS rule in the format Google Cloud's CLI takes, where one header list covers what requests send and responses expose */
-export const gcsCorsRuleJson = JSON.stringify(
-	[
-		{
-			origin: ['*'],
-			method: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD'],
-			responseHeader: ['*'],
-			maxAgeSeconds: 3600,
-		},
-	],
-	null,
-	2,
-);
+/** The CORS rule in the format Google Cloud's CLI takes on one line, where one header list covers what requests send and responses expose */
+export const gcsCorsRuleJson = JSON.stringify([
+	{
+		origin: ['*'],
+		method: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD'],
+		responseHeader: ['*'],
+		maxAgeSeconds: 3600,
+	},
+]);
 
 /** The fields the desktop app's SFTP commands take, see `storage_sftp.rs` */
 export function sftpArgs(connection: SftpConnection) {

@@ -30,7 +30,7 @@ import { ConfirmCloudDialog } from '@/cloud/confirm-cloud-action';
 import { type TeamKey, accountKeyStore, teamKeyStore } from '@/cloud/session';
 import { UtilityPageSection } from '@/components/utility-page';
 import { DownloadButton } from '@/desktop/download-button';
-import { type CheckResult, type CheckStep, checkConnection } from '@/storage/check';
+import { type CheckProblem, type CheckResult, type CheckStep, checkConnection } from '@/storage/check';
 import {
 	type S3Provider,
 	type StorageConnection,
@@ -391,31 +391,24 @@ function S3Fields({ draft, update, hint }: FieldsProps & { hint: string }) {
 	);
 }
 
-/** Which step of the check failed, why it usually does, and for CORS the rule to add */
-function CheckFailure({ result }: { result: Exclude<CheckResult, { ok: true }> }) {
+/** Why a step went wrong and what to do, with the rule to add for CORS and the error itself */
+function CheckProblemDetails({ problem }: { problem: CheckProblem }) {
 	return (
-		<Banner
-			status="error"
-			role="alert"
-			title={`Couldn’t ${stepNames[result.step]} the storage`}
-			description={
-				<VStack gap={2}>
-					<Text>{result.hint}</Text>
-					{result.fix.map(({ code, language }) => (
-						<CodeBlock
-							key={code}
-							code={code}
-							language={language}
-							width="100%"
-							isWrapped
-							hasLanguageLabel={language !== undefined}
-							hasCopyButton
-						/>
-					))}
-					<CodeBlock code={result.message} size="sm" width="100%" isWrapped maxHeight={200} hasLanguageLabel={false} />
-				</VStack>
-			}
-		/>
+		<VStack gap={2}>
+			<Text>{problem.hint}</Text>
+			{problem.fix.map(({ code, language }) => (
+				<CodeBlock
+					key={code}
+					code={code}
+					language={language}
+					width="100%"
+					isWrapped
+					hasLanguageLabel={language !== undefined}
+					hasCopyButton
+				/>
+			))}
+			<CodeBlock code={problem.message} size="sm" width="100%" isWrapped maxHeight={200} hasLanguageLabel={false} />
+		</VStack>
 	);
 }
 
@@ -440,7 +433,7 @@ type Run =
 	| { state: 'running'; step: CheckStep | 'save' }
 	| { state: 'failed'; result: Exclude<CheckResult, { ok: true }> }
 	| { state: 'save-failed'; error: string }
-	| { state: 'done'; corsWarning?: string };
+	| { state: 'done'; cors?: CheckProblem };
 
 function runIndex(run: Run): number {
 	switch (run.state) {
@@ -486,15 +479,22 @@ function CheckOutcome({ run }: { run: Run }) {
 	return (
 		<VStack gap={4}>
 			<CheckProgress run={run} />
-			{run.state === 'failed' && <CheckFailure result={run.result} />}
+			{run.state === 'failed' && (
+				<Banner
+					status="error"
+					role="alert"
+					title={`Couldn’t ${stepNames[run.result.step]} the storage`}
+					description={<CheckProblemDetails problem={run.result} />}
+				/>
+			)}
 			{run.state === 'save-failed' && (
 				<Banner status="error" role="alert" title="Couldn’t save the connection" description={run.error} />
 			)}
 			{run.state === 'done' && (
 				<Banner
-					status={run.corsWarning === undefined ? 'success' : 'warning'}
-					title="Every member can use the team’s storage now"
-					description={run.corsWarning}
+					status={run.cors === undefined ? 'success' : 'warning'}
+					title={run.cors === undefined ? 'Every member can use the team’s storage now' : 'Partially saved'}
+					description={run.cors && <CheckProblemDetails problem={run.cors} />}
 				/>
 			)}
 		</VStack>
@@ -628,7 +628,7 @@ function ConnectionDialog({
 		}
 		setRun({ state: 'running', step: 'save' });
 		const error = await encryptForSave(unlocked, connection, save);
-		setRun(error === undefined ? { state: 'done', corsWarning: checked.corsWarning } : { state: 'save-failed', error });
+		setRun(error === undefined ? { state: 'done', cors: checked.cors } : { state: 'save-failed', error });
 	}
 
 	function submit(event: SubmitEvent<HTMLFormElement>) {
