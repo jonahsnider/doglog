@@ -3,6 +3,7 @@ import { expect, test } from 'vite-plus/test';
 import {
 	doglogConfigFromAdvantageScope,
 	findAdvantageScopeRobots,
+	placeRobotPart,
 	RobotConfigError,
 	readRobotConfigs,
 } from '@/three/robot-config';
@@ -36,7 +37,7 @@ const doglog = `{
 			"name": "581 2026",
 			"model": "cad/robot.glb",
 			"mount": { "z": 0.05 },
-			"parts": [{ "model": "cad/arm.glb", "origin": { "x": 0.1, "z": 0.9 } }],
+			"parts": [{ "model": "cad/arm.glb", "origin": { "x": 0.1, "z": 0.9 }, "min": { "x": -0.15, "z": 0.25 }, "max": { "z": 1.2 } }],
 		},
 		{ "name": "581 2026 Practice", "model": "cad/practice.glb" },
 	],
@@ -92,17 +93,30 @@ test('prefers doglog.jsonc to doglog.json', async () => {
 
 test("a pose at a part's origin draws it where the CAD placed it", async () => {
 	const [arm] = (await competitionRobot()).parts;
-	const atOrigin = transformMatrix({ x: 0.1, z: 0.9 }).multiply(arm!.zero);
+	const matrix = placeRobotPart(arm!, transformMatrix({ x: 0.1, z: 0.9 }));
 	const point = new Vector3(0.5, 0.2, 0.3);
-	expect(placed(atOrigin, point)).toEqual(placed(arm!.rest, point));
+	expect(placed(matrix, point)).toEqual(placed(placeRobotPart(arm!, undefined), point));
 });
 
-test('a pose turns a part around its pivot', async () => {
+test.each([
+	[{ x: -0.4, y: -0.8, z: 0.1 }, [-0.15, -0.8, 0.75]],
+	[{ x: 0.5, y: 0.3, z: 1.9 }, [0.5, 0.3, 1.7]],
+	[{ x: -0.15, y: 0.3, z: 1.2 }, [-0.15, 0.3, 1.7]],
+])('rotates the arm about its bounded pivot for %o', async (position, expectedTip) => {
 	const [arm] = (await competitionRobot()).parts;
-	// The arm's tip, 0.5 m in front of its pivot in the CAD (before the 5 cm mount)
+	// The tip is 0.5 m in front of the pivot in the CAD and 0.5 m above it after pitching up 90°
 	const tip = new Vector3(0.6, 0, 0.85);
-	const raised = transformMatrix({ x: 0.1, z: 0.9, pitch: -90 }).multiply(arm!.zero);
-	expect(placed(raised, tip)).toEqual([0.1, 0, 1.4]);
+	const pose = transformMatrix({ ...position, pitch: -90 });
+	expect(placed(placeRobotPart(arm!, pose), tip)).toEqual(expectedTip);
+	expect(placed(pose)).toEqual([position.x, position.y, position.z]);
+});
+
+test.each([0.4, 0.5])('rejects a maximum not above the minimum on the same axis: %s', async (z) => {
+	const project = { name: 'A', model: 'body.glb', parts: [{ model: 'part.glb', min: { z: 0.5 }, max: { z } }] };
+	const files = folder({ 'doglog.jsonc': JSON.stringify({ robots: [project] }) });
+	await expect(readRobotConfigs(files)).rejects.toThrow(
+		'robots.0.parts.0.min.z in doglog.jsonc: must be less than max.z',
+	);
 });
 
 test.each([

@@ -331,7 +331,7 @@ Each of a project's robots SHALL have a `name`, an optional glTF binary `model` 
 			"model": "cad/robot.glb",
 			"mount": { "z": 0.05, "roll": 90 },
 			"parts": [
-				{ "model": "cad/elevator.glb", "origin": { "x": 0.1, "z": 0.2 } },
+				{ "model": "cad/elevator.glb", "origin": { "x": 0.1, "z": 0.2 }, "min": { "z": 0.2 }, "max": { "z": 1.3 } },
 				{ "model": "cad/arm.glb", "origin": { "x": 0.1, "z": 0.9 } },
 			],
 		},
@@ -431,6 +431,25 @@ The first `Pose3d[]` entry that isn't hidden SHALL move the robot's parts: the p
 
 - **GIVEN** a robot with two parts, and a `Pose3d[]` entry with one pose
 - **THEN** the second part is drawn where the CAD placed it
+
+### Requirement: Part position limits
+
+A part MAY specify `min`, `max`, or both for its logged pivot position. Each limit gives any of `x`, `y`, and `z` in robot-relative meters. An omitted axis is unbounded on that side. When both limits specify an axis, `min` MUST be strictly less than `max` on that axis.
+
+#### Scenario: Equal limits
+
+- **GIVEN** a part with `"min": { "z": 0.2 }` and `"max": { "z": 0.2 }`
+- **THEN** the project is invalid and the error identifies the part's `min.z`
+
+### Requirement: Draw parts within their limits
+
+The robot and field 3D views SHALL clamp each logged pivot position to those limits before placing the part, leaving its rotation and the logged value unchanged. A part without a logged pose MUST retain its CAD placement.
+
+#### Scenario: Elevator above its upper limit
+
+- **GIVEN** an elevator part with `"max": { "z": 1.3 }`
+- **WHEN** its logged pivot is at (0.1, 0, 1.5)
+- **THEN** the elevator is drawn with its pivot at (0.1, 0, 1.3) and its logged rotation
 
 ### Requirement: AdvantageScope robots
 

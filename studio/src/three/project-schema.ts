@@ -2,11 +2,16 @@
 // /doglog.schema.json for editors to validate it with, see `vite.config.ts`. Only Zod here, so the build can import it.
 import * as z from 'zod';
 
-const transform = z
-	.strictObject({
-		x: z.number().optional().describe("Meters toward the robot's front"),
-		y: z.number().optional().describe("Meters toward the robot's left"),
-		z: z.number().optional().describe('Meters up'),
+const partPosition = z.strictObject({
+	x: z.number().optional().describe("Meters toward the robot's front"),
+	y: z.number().optional().describe("Meters toward the robot's left"),
+	z: z.number().optional().describe('Meters up'),
+});
+
+export type PartPosition = z.infer<typeof partPosition>;
+
+const transform = partPosition
+	.extend({
 		roll: z.number().optional().describe('Degrees about the X axis'),
 		pitch: z.number().optional().describe('Degrees about the Y axis, positive points the front down'),
 		yaw: z.number().optional().describe('Degrees about the Z axis, positive turns the front left'),
@@ -85,6 +90,31 @@ const dimensions = z
 		"The robot's footprint in meters, including bumpers, a number for a square robot. Robots on the 2D field, the swerve widget, and the swerve drivebase are drawn this size, 0.9 m square without it.",
 	);
 
+const part = z
+	.strictObject({
+		model: modelPath,
+		origin: transform.optional().describe("The pose of the part's pivot in robot coordinates, where the CAD placed it"),
+		min: partPosition
+			.optional()
+			.describe(
+				'Lower limits for the logged pivot in robot-relative meters. Each axis is optional and must be less than the corresponding max if set.',
+			),
+		max: partPosition
+			.optional()
+			.describe(
+				'Upper limits for the logged pivot in robot-relative meters. Each axis is optional and must be greater than the corresponding min if set.',
+			),
+	})
+	.superRefine(({ min, max }, context) => {
+		for (const axis of ['x', 'y', 'z'] as const) {
+			const lower = min?.[axis];
+			const upper = max?.[axis];
+			if (lower !== undefined && upper !== undefined && lower >= upper) {
+				context.addIssue({ code: 'custom', path: ['min', axis], message: `must be less than max.${axis}` });
+			}
+		}
+	});
+
 const robot = z
 	.strictObject({
 		name: z
@@ -100,14 +130,7 @@ const robot = z
 			.optional()
 			.describe("Moves every model from the CAD's coordinates to the robot's, whose origin is its center on the floor"),
 		parts: z
-			.array(
-				z.strictObject({
-					model: modelPath,
-					origin: transform
-						.optional()
-						.describe("The pose of the part's pivot in robot coordinates, where the CAD placed it"),
-				}),
-			)
+			.array(part)
 			.optional()
 			.describe('Parts moved by a Pose3d[] entry, the pose at each index places the part at the same index'),
 		dimensions: dimensions.optional(),

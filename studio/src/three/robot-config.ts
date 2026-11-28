@@ -3,7 +3,13 @@
 import { type ParseError, parse, printParseErrorCode } from 'jsonc-parser';
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three';
 import * as z from 'zod';
-import { type DeviceNames, defaultRobotDimensions, projectSchema, type RobotDimensions } from '@/three/project-schema';
+import {
+	type DeviceNames,
+	defaultRobotDimensions,
+	type PartPosition,
+	projectSchema,
+	type RobotDimensions,
+} from '@/three/project-schema';
 import { transformMatrix } from '@/three/poses';
 
 /** A model file of a robot, and how it's placed */
@@ -14,7 +20,28 @@ type RobotPart = {
 	readonly rest: Matrix4;
 	/** Moves the model to its pivot's frame, a logged pose then places that frame in the robot's coordinates */
 	readonly zero: Matrix4;
+	/** Bounds for the logged pivot position, per axis in robot coordinates */
+	readonly min?: PartPosition | undefined;
+	readonly max?: PartPosition | undefined;
 };
+
+/** Place a part without changing the logged pose, clamping its pivot before applying the CAD offset. */
+export function placeRobotPart({ rest, zero, min, max }: RobotPart, pose: Matrix4 | undefined): Matrix4 {
+	if (pose === undefined) {
+		return rest;
+	}
+	const matrix = pose.clone();
+	if (min !== undefined || max !== undefined) {
+		const pivot = new Vector3().setFromMatrixPosition(pose);
+		for (const axis of ['x', 'y', 'z'] as const) {
+			const lower = min?.[axis] ?? -Infinity;
+			const upper = max?.[axis] ?? Infinity;
+			pivot[axis] = Math.max(lower, Math.min(upper, pivot[axis]));
+		}
+		matrix.setPosition(pivot);
+	}
+	return matrix.multiply(zero);
+}
 
 export type RobotConfig = {
 	readonly name: string;
@@ -82,6 +109,8 @@ function readDogLogConfig(text: string, file: string): RobotConfig[] {
 				file: part.model,
 				rest: mount,
 				zero: transformMatrix(part.origin).invert().multiply(mount),
+				min: part.min,
+				max: part.max,
 			})),
 			devices: robot.devices ?? {},
 			dimensions: robot.dimensions ?? defaultRobotDimensions,

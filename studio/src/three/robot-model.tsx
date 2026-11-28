@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Box3, BoxGeometry, BufferGeometry, type Matrix4, type Object3D, Vector3 } from 'three';
 import { deinterleaveGeometry, mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { placeRobotPart } from '@/three/robot-config';
 import { isMesh, type LoadedRobot } from '@/three/robot-loading';
 
 /** How see-through ghosts are, for both CAD models and the swerve drivebase */
@@ -136,11 +137,7 @@ export function RobotModel({
 	}));
 	// oxlint-disable-next-line studio/no-manual-memo -- Without it, React Compiler copies the parts' meshes again whenever `poses` changes
 	const placements = useMemo(
-		() =>
-			parts.map(({ config }, index) => {
-				const pose = poses[index];
-				return pose ? pose.clone().multiply(config.zero) : config.rest;
-			}),
+		() => parts.map(({ config }, index) => placeRobotPart(config, poses[index])),
 		[parts, poses],
 	);
 	const draw = (model: Object3D) => (
