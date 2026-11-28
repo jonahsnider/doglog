@@ -303,3 +303,6 @@ infer-out/
 
 # Playwright CLI
 .playwright-cli
+
+# Benchmark suite output
+/benchmarks/results/
