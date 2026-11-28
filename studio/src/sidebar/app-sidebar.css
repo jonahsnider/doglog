@@ -68,6 +68,10 @@
 	[data-animation='unpeek'] > & {
 		inline-size: var(--sidebar-width);
 	}
+	/* The footer takes up the gap below it, so its icons stay where they are in the rail */
+	:is(&[data-peeking], [data-animation='unpeek'] > &) [data-sidebar='footer'] {
+		padding-block-end: calc(var(--spacing-2) - 0.375rem);
+	}
 	/* Stays put until the main area is below the strip, then collapses */
 	[data-animation='enter-strip'] > & {
 		inset-block-start: 0;

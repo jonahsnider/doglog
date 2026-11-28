@@ -28,7 +28,7 @@
 	}
 	/* Overhangs its row, so its icon stays put when the sidebar peeks */
 	&[data-size='sm'] {
-		margin-block: calc(var(--spacing-0-5) * -1);
+		margin-block: calc(var(--spacing-1) * -1);
 	}
 }
 
@@ -152,9 +152,13 @@
 	}
 }
 
-/* The footer's actions are muted, except an update that's ready to install */
-[data-footer-actions] [data-sidebar='menu-button']:not([data-update-ready]) {
+/* The footer's actions and settings are muted, except an update that's ready to install or the open settings page */
+:is([data-footer-actions], [data-settings-menu]) [data-sidebar='menu-button']:not([data-update-ready], [data-active]) {
 	color: var(--color-text-secondary);
+}
+/* Settings is spaced like one more of the footer's actions */
+[data-footer-actions] + [data-settings-menu] {
+	margin-block-start: calc(var(--spacing-1) * -1);
 }
 [data-sidebar='menu-button'] > [data-end-icon] {
 	margin-inline-start: auto;

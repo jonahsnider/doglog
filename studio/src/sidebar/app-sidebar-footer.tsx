@@ -100,6 +100,7 @@ export function AppSidebarFooter({
 			<SidebarMenu data-settings-menu="">
 				<SidebarMenuItem>
 					<SidebarMenuButton
+						size="sm"
 						isActive={Boolean(matchRoute({ to: '/settings' }))}
 						href="/settings"
 						tooltip={<TooltipLabel label="Settings" shortcut={shortcuts.settings} />}
